@@ -20,13 +20,14 @@
 set -euo pipefail
 
 # -----------------------------------------------------------------------------
-# REPLACE WITH YOUR ZENODO DOI ONCE THE DEPOSIT IS PUBLISHED
+# Zenodo deposit: SLR-RFF-BRICK intermediate data v1.0
+# DOI: 10.5281/zenodo.20312325
 # -----------------------------------------------------------------------------
-ZENODO_DOI="${ZENODO_DOI:-10.5281/zenodo.XXXXXXX}"
-ZENODO_RECORD_ID="${ZENODO_RECORD_ID:-XXXXXXX}"
-# The DOI resolves to https://zenodo.org/records/<id>; the files endpoint is
-# https://zenodo.org/api/records/<id>/files-archive (returns a .zip of the
-# whole record).
+ZENODO_DOI="${ZENODO_DOI:-10.5281/zenodo.20312325}"
+ZENODO_RECORD_ID="${ZENODO_RECORD_ID:-20312325}"
+# The DOI resolves to https://zenodo.org/records/20312325; the files endpoint
+# is https://zenodo.org/api/records/20312325/files-archive (returns a .zip of
+# the whole record).
 # -----------------------------------------------------------------------------
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
