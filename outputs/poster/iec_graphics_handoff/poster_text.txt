@@ -1,0 +1,252 @@
+==============================================================================
+SLR-RFF-FaIR-BRICK poster — non-graphic text
+AGU Chapman SLR conference
+Last updated: 2026-05-20
+==============================================================================
+
+Every text block below is verbatim from the wireframe layout
+(python/scripts/poster/layout_mockup.py in the source repo). Each section
+is keyed to its panel label (A, B, C, ...) so designer placement is
+unambiguous.
+
+The wireframe layout is 46" × 46". The full-poster mockup is in this
+folder at 00_full_layout_mockup.pdf — use it to see panel positions and
+sizes.
+
+
+==============================================================================
+HEADER  (top of poster, full width)
+==============================================================================
+
+TITLE (line 1, large):
+  Some Assembly Required:
+
+TITLE (line 2, slightly smaller):
+  Simplified Damage Functions for Probabilistic Coastal Impact Estimation Using FrEDI
+
+AUTHORS (one line):
+  Marcus C. Sarofim¹    •    James E. Neumann²    •    Megan B. Sheahan²
+
+AFFILIATIONS (italic, smaller):
+  ¹NYU Marron Institute of Urban Management    •    ²Industrial Economics, Inc.
+
+FUNDING (bottom-left, small grey):
+  Funding: Wellcome Trust 227149/Z/23/Z
+
+URL CALL-OUT (bottom-right, small grey):
+  Read more:  thesaraphreport.substack.com
+
+
+==============================================================================
+PANEL A — PIPELINE
+==============================================================================
+
+LABEL:
+  A. PIPELINE
+
+CAPTION:
+  (no caption — the pipeline graphic itself carries the methods description
+  band along its bottom)
+
+
+==============================================================================
+PANEL B — PROBABILISTIC SLR
+==============================================================================
+
+LABEL:
+  B. PROBABILISTIC SLR
+
+CAPTION:
+  RFF-SP baseline ensemble (N=500), importance-weighted percentiles, 2000–2150.  For reference: IPCC AR6 SSP2-4.5 median GMSL 2100 ≈ 55 cm.
+
+
+==============================================================================
+PANEL C — TOTAL SLR, sources of uncertainty
+==============================================================================
+
+LABEL:
+  C. TOTAL SLR — sources of uncertainty
+
+CAPTION:
+  Hawkins-Sutton 4-way decomposition of total-SLR variance, importance-weighted factorial design over 100 RFF-SP emissions paths, 15 climate calibrations per path, 3 FaIR stochastic seeds, and 3 BRICK posterior samples (N=13,500).  Stacked variance fractions over 2020–2150.  Conceptual companion to Darnell et al. 2025 (Nat Clim Change), who decompose total-SLR uncertainty across emissions vs geophysical sources at the multi-century horizon.
+
+
+==============================================================================
+PANEL D — PULSE SLR, sources of uncertainty
+==============================================================================
+
+LABEL:
+  D. PULSE SLR — sources of uncertainty (1 GtCO₂ pulse at 2030)
+
+CAPTION:
+  Paired BRICK runs on the same factorial design as Panel C.  Inset: AIS-tipping-regime split — mean ΔSLR over all draws (red) vs non-tipped draws only (blue); weighted fraction tipped on right axis.  Tipped draws drive the bulk of the tipping-point state dependence.
+
+
+==============================================================================
+DISCUSSION  (center block, between Panels B/C/D upper row and Panels F/G
+             middle row)
+==============================================================================
+
+LABEL:
+  DISCUSSION
+
+PARAGRAPH 1:
+  There is high value in probabilistic damage assessment for both mitigation-benefit estimates and adaptation-response planning.  Here we demonstrate one methodology that leverages emissions uncertainty from RFF, climate uncertainty from FaIR, sea-level-response uncertainty from BRICK, global-to-local mapping from Sweet et al., and damage functions from FrEDI to produce probabilistic damage estimates by US state for three SLR-sensitive impact sectors: coastal property damage, high-tide-flooding transportation interruptions, and high-tide-flooding elder mortality.  This pipeline allows fast estimation of damages for any future scenario.
+
+PARAGRAPH 2:
+  Louisiana is the state most at threat for SLR-related impacts, particularly on a per-capita basis; Florida, Massachusetts, Virginia, and New Jersey are distant 2nd–5th in per-capita impacts (Panel I).  Among FrEDI sectors, HTF elder mortality has the largest monetized impact (Panel J), with HTF transportation 2nd and coastal properties 3rd (Panel H).  Climate-response uncertainty dominates total SLR variance in 2100, with emissions and BRICK uncertainty making secondary but meaningful contributions (Panel C); for the marginal pulse response, BRICK uncertainty dominates and AIS tipping makes internal variability a substantial contributor (Panel D).
+
+PARAGRAPH 3:
+  Key considerations we identify for this kind of work: dependence between FrEDI and BRICK parameter uncertainty (Wong et al. 2026); look-ahead-based adaptation estimates that account for observed non-optimal adaptive behavior and smoothing of capital expenditures (Panel G); and the importance of a wide range of anchor scenarios for damage-function calibration (Panel F).
+
+PARAGRAPH 4:
+  The most important limitation we identify is the limited set of impact methodologies currently in FrEDI.  We call on the community to produce more impact estimates that can be transformed into damage functions to inform this kind of analysis.
+
+
+==============================================================================
+PANEL F — DAMAGE-FUNCTION METHODOLOGY
+==============================================================================
+
+LABEL:
+  F. DAMAGE-FUNCTION METHODOLOGY — Sweet 6 SLR nodes + FrEDI damage curve
+
+CAPTION:
+  Left: 6 NCA5 scenarios + 2 FrEDI extensions, monotone-cubic spline through every Sweet anchor year.  Right: empirical FrEDI damage function at 2100 from 490 RFF-SP draws; colored dots mark the Sweet calibration nodes that FrEDI interpolates between.
+
+
+==============================================================================
+PANEL G — ADAPTATION
+==============================================================================
+
+LABEL:
+  G. ADAPTATION (Lorie 2020) — NCPM decision logic + 11-yr smoothing
+
+CAPTION:
+  Left: NCPM decision logic with sub-optimal S=4 case representing observed under-adaptation (capital invested only when benefits exceed costs by ≥ 4×).  Middle: Lorie Table-1 cost stacks for Tampa & Virginia Beach.  Right: 11-year rolling-average smoothing of lumpy NCPM capital investments.  This smoothing is not only necessary because FrEDI's damage functions abstract away time — it is also consistent with how adaptation capital is amortized and financially smoothed in the real world.
+
+
+==============================================================================
+PANEL H — COASTAL PROPERTIES AND HTF TRANSPORTATION DAMAGES
+==============================================================================
+
+LABEL:
+  H. COASTAL PROPERTIES AND HTF TRANSPORTATION DAMAGES
+
+CAPTION:
+  RFF-SP baseline ensemble, importance-weighted quantiles for Coastal Properties and HTF Transportation at 2100 and 2150, with statistically-correct Total (CP + HTF summed per draw, then re-quantiled).  Top inset bars: median ± 5–95% whiskers.  N = number of valid draws.
+
+
+==============================================================================
+PANEL I — DAMAGES BY STATE
+==============================================================================
+
+LABEL:
+  I. COASTAL PROPERTIES AND HTF TRANSPORTATION DAMAGES BY STATE
+
+CAPTION:
+  Importance-weighted median annual damages (Coastal Properties + HTF Transportation) by state, 2100.  Absolute USD (left) and per-capita (right).  Louisiana is most impacted on a per-capita basis; FL/MA/VA/NJ are distant 2nd–5th.
+
+
+==============================================================================
+PANEL J — HTF ELDER MORTALITY
+==============================================================================
+
+LABEL:
+  J. HTF ELDER MORTALITY (Sheahan 2025)
+
+CAPTION:
+  Sheahan et al. 2025 Tables 2 & 3.  Additional 65+ deaths / yr from high-tide flooding under the Rennert et al. (2022) RFF–FaIR–BRICK distribution.  VSL = $7.9M (1990$) inflated to 2023$.  Bottom row: % reduction from stylized adaptation at the 5th, 50th, and 95th percentiles.
+
+
+==============================================================================
+CAVEATS  (bulleted block, bottom row)
+==============================================================================
+
+LABEL:
+  CAVEATS
+
+BULLET 1 (header):
+  RFF-SP emissions vintage
+BULLET 1 (body):
+  Scenarios were developed about 5 years ago; given rapid renewable / battery advances, present-day analogs might differ.
+
+BULLET 2 (header):
+  FaIR known limitations
+BULLET 2 (body):
+  State-of-the-art probabilistic implementation, but missing permafrost feedbacks, possible Amazon dieback, and ozone / carbon-cycle interactions.
+
+BULLET 3 (header):
+  BRICK upper bias
+BULLET 3 (body):
+  Runs slightly higher than the AR6 best estimates.
+
+BULLET 4 (header):
+  Sweet et al. as a single realization
+BULLET 4 (body):
+  One realization of local SLR given global SLR; different partitioning between AIS, Greenland, thermal expansion, and local wind / current effects would yield different results.
+
+BULLET 5 (header):
+  Sweet "Low" floor at early decades
+BULLET 5 (body):
+  Low end of Sweet does not encompass the full RFF / FaIR / BRICK uncertainty range in early decades; FrEDI's lowest calibrated scenario truncates the BRICK lower tail at 2050.
+
+BULLET 6 (header):
+  FrEDI sector coverage
+BULLET 6 (body):
+  Accounts for a limited number of SLR-derived damage categories; does not yet include probabilistic damages.
+
+
+==============================================================================
+PANEL L — REFERENCES
+==============================================================================
+
+LABEL:
+  L. REFERENCES
+
+ENTRIES (alphabetical by first author; each entry: AUTHOR. YEAR. JOURNAL.  TITLE.  DOI):
+
+  Darnell et al. 2025.  Nat Clim Change.  The interplay of future emissions and geophysical uncertainties for projections of sea-level rise.  doi.org/10.1038/s41558-025-02457-0
+
+  EPA. 2024.  EPA 430-R-24-001.  Technical Documentation for the Framework for Evaluating Damages and Impacts (FrEDI).  U.S. Environmental Protection Agency.
+
+  Fant et al. 2021.  J Infrastructure Sys.  Mere Nuisance or Growing Threat? The Physical and Economic Impact of High Tide Flooding on US Road Networks.  doi.org/10.1061/(ASCE)IS.1943-555X.000065
+
+  Lorie et al. 2020.  Clim Risk Mgmt.  Modeling Coastal Flood Risk and Adaptation Response under Future Climate Conditions.  doi.org/10.1016/j.crm.2020.100233
+
+  Neumann et al. 2021.  Climatic Change.  Climate effects on US infrastructure: the economics of adaptation for rail, roads, and coastal development.  doi.org/10.1007/s10584-021-03179-w
+
+  Rennert et al. 2022.  Nature.  Comprehensive evidence implies a higher social cost of CO₂.  doi.org/10.1038/s41586-022-05224-9
+
+  Sheahan et al. 2025.  Lancet Planet Health.  Projections of future mortality risk in older adults from high-tide flooding in coastal areas of the USA: an economic modelling study.  doi.org/10.1016/j.lanplh.2025.101382
+
+  Smith et al. 2024.  Geosci Model Dev.  fair-calibrate v1.4.1: calibration, constraining, and validation of the FaIR simple climate model for reliable future climate projections.  doi.org/10.5194/gmd-17-8569-2024
+
+  Sweet et al. 2022.  NOAA Tech Rep NOS 01.  Global and Regional Sea Level Rise Scenarios for the United States.  earth.gov/sealevel/us/resources/2022-sea-level-rise-technical-report/
+
+  Wong 2026.  arXiv preprint.  Modeling the Sea-Level Change from U.S. Vehicle Emissions.  doi.org/10.48550/arXiv.2604.13446
+
+
+==============================================================================
+VERSION STAMP  (very small, bottom corner — recommended)
+==============================================================================
+
+  v1.0-poster-agu-chapman · 2026-06-01 · github.com/msarofim/SLR-RFF-BRICK
+
+
+==============================================================================
+QR CODE TARGET URL  (separate small QR code, typically near version stamp)
+==============================================================================
+
+  https://github.com/msarofim/SLR-RFF-BRICK/tree/v1.0-poster-agu-chapman
+
+(The tag is created on or near 2026-06-01 when the print-ready poster lands.
+A bare https://github.com/msarofim/SLR-RFF-BRICK URL also works as a fallback.)
+
+
+==============================================================================
+ACKNOWLEDGEMENTS  (optional — current version doesn't include this section
+                  on-poster, but you may add a fine-print line if there's room)
+==============================================================================
+
+  Analysis pipeline assistance from Claude Code (Anthropic).
+  Intermediate data archived at Zenodo: doi.org/10.5281/zenodo.20312325.

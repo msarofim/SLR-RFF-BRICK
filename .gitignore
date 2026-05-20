@@ -129,3 +129,6 @@ outputs/poster/layout_mockup.pdf
 .archive/
 *.backup
 *.bak
+
+# IEc handoff zip is re-buildable from the unpacked folder.
+outputs/poster/iec_graphics_handoff.zip
