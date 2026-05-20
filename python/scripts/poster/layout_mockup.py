@@ -344,7 +344,7 @@ def main():
             ha="left", va="top", fontsize=7.0, color="#222",
             family="DejaVu Sans", linespacing=1.30, zorder=4)
 
-    fig.suptitle("46\" × 46\" POSTER LAYOUT WIREFRAME  —  draft  —  May 22 IEc review",
+    fig.suptitle("46\" × 46\" POSTER LAYOUT WIREFRAME  —  AGU Chapman SLR conference, draft",
                  fontsize=14, fontweight="bold", color=EDGE, y=0.99)
     fig.tight_layout()
     fig.savefig(OUT / "layout_mockup.png", dpi=200, bbox_inches="tight")

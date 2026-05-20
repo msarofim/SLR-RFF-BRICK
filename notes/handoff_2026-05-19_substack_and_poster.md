@@ -1,10 +1,12 @@
-# Handoff — 2026-05-19 — Substack post & poster (post-IEc feedback ready)
+# Handoff — 2026-05-19 — Substack post & poster (AGU Chapman SLR conference)
 
 Picks up from `notes/handoff_2026-05-18_substack.md`. The intervening session
 finished the AR6 bias-correction sweep, switched the observational anchors,
 resolved the pulse-size sensitivity question, and rebuilt the substack figure
 set. This note carries forward everything needed to (a) finish the substack
-post and (b) rebuild the poster cleanly if IEc requests changes.
+post and (b) rebuild the poster cleanly if reviewers request changes ahead
+of the AGU Chapman SLR conference. IEc is providing graphics polish on the
+near-final poster before print.
 
 ---
 
@@ -110,7 +112,7 @@ size (398 RFFs × 841 configs = 334,718 trajectories per year) consistently.
 
 ---
 
-## 3. Poster — current state & rebuild recipe (for IEc feedback)
+## 3. Poster — current state & rebuild recipe (AGU Chapman SLR conference)
 
 ### 3.1 Layout
 `layout_mockup.pdf` in repo root. Four-panel: A (overview), B (FaIR vs obs
@@ -128,7 +130,7 @@ GMSL), C (H-S), D (pulse responses with inset).
 - Helper: `observed_gmsl_recent_rel_2000()` in `poster/slr_band.py` reads
   `data/observations/nasa_gmsl_annual.csv` directly.
 
-### 3.4 If IEc asks to change the obs anchor again
+### 3.4 If reviewers ask to change the obs anchor again
 - All instances of the anchor are at the top of each script as a named
   constant. To switch obs source, change the constant + the caption string
   it interpolates into. The "labels derive from named constants" rule
@@ -140,7 +142,7 @@ GMSL), C (H-S), D (pulse responses with inset).
 - Touch-points for SLR anchor: `poster/slr_band.py`, `obs_overlay_slr.py`,
   `apply_wong_weights.py`, `julia/compute_lB_per_post.jl`.
 
-### 3.5 If IEc asks about pulse-size sensitivity
+### 3.5 If reviewers ask about pulse-size sensitivity
 - Answer: median is pulse-size invariant (we verified at 0.01, 0.1, 1.0 GtC
   pulses); mean diverges because of tipping at large pulses.
 - Diagnostic figure: `outputs/substack/pulse_convergence.png`.
@@ -149,7 +151,7 @@ GMSL), C (H-S), D (pulse responses with inset).
   (linear sensitivity + tipping insurance premium) is sketched but not
   finalized — see optional follow-up below.
 
-### 3.6 If IEc challenges the BRICK uncertainty being small
+### 3.6 If reviewers challenge the BRICK uncertainty being small
 - See §2 last bullet. BRICK posterior is tightly constrained because the
   Wong AR(1) importance weights penalize draws that mis-fit observed GMSL.
   The remaining BRICK spread is mostly *threshold value uncertainty*; the
@@ -161,7 +163,7 @@ GMSL), C (H-S), D (pulse responses with inset).
 
 1. **Lemoine probabilistic decomposition** — linear sensitivity + tipping
    insurance premium. Sketched but not built into a standalone script. Worth
-   doing if IEc wants to see the tipping contribution quantified separately
+   doing if reviewers want to see the tipping contribution quantified separately
    from the linear marginal. Inputs already exist (the 1 GtC paired CSV with
    `ais_2100_cm` column).
 2. **Legacy poster scripts** `pulse_response_split.py` and

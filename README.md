@@ -20,6 +20,20 @@ A direct intellectual companion is **Darnell et al. 2025** (*Nat Clim Change*
 who decompose total-SLR uncertainty across emissions vs geophysical sources
 at the multi-century horizon.
 
+## Deliverables
+
+This repository backs two artifacts:
+
+- **Substack post** — methods-section draft in [METHODS.md](METHODS.md); final
+  figures live under `outputs/substack/`.
+- **AGU Chapman SLR conference poster** — 46″ × 46″ poster mockup at
+  `outputs/poster/layout_mockup.{png,pdf}`. The current commit reflects the
+  **near-final** layout. IEc graphics is applying final visual polish ahead
+  of the conference; the print-ready PDF (and the `v1.0-poster-agu-chapman`
+  tag) will land in the repo once that's complete (expected ≈ 2026-06-01).
+  In the meantime, the science, figure data, and references in this repo
+  are stable; the pending changes are graphics-only.
+
 ## Quick start
 
 ```bash

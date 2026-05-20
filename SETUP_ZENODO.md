@@ -114,3 +114,22 @@ deposit. To enable:
 
 The two Zenodo DOIs (code repo + intermediate data) reference each other
 via `related_identifiers` so future readers can find both.
+
+## 6. Timing notes — AGU Chapman SLR poster
+
+The intermediate-data Zenodo deposit (this document) is **ready to create
+now** — it does not depend on the poster being finalized. The science and
+data are stable; the poster is currently in graphics polish at IEc.
+
+When the print-ready poster PDF lands in the repo (~2026-06-01), the
+recommended sequence is:
+
+1. `cp final_poster.pdf outputs/poster/poster_final.pdf`
+2. Add a short `notes/poster_url.txt` with the QR-code target URL.
+3. `git tag -a v1.0-poster-agu-chapman -m "Poster delivered to AGU Chapman SLR conference"`
+4. `git push origin main v1.0-poster-agu-chapman`
+5. If GitHub-Zenodo integration is enabled (§ 5), this tag mints the
+   code-repo DOI automatically.
+
+There is no need to update the intermediate-data deposit when the poster
+lands — the underlying ensembles don't change.
