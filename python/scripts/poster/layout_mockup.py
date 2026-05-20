@@ -1,0 +1,358 @@
+"""
+layout_mockup.py
+================
+
+46" × 46" square-poster layout wireframe for the Sarofim / Neumann / Sheahan
+"Some Assembly Required" coastal SLR poster (Montreal, June 8 2026).
+
+Convention (set May 17 2026):
+  • Figure titles are SHORT.  Methodological / sample-size / weighting detail
+    lives in figure captions, not in titles.
+  • Discussion gets a central position; caveats sit at the periphery.
+  • Abstract is omitted — its content is covered in the Discussion.
+  • Title block runs the full width.
+
+Coordinates are natural (y=0 at bottom-left).
+
+Output:
+  outputs/poster/layout_mockup.{png,pdf}
+"""
+from __future__ import annotations
+import textwrap
+from pathlib import Path
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+from matplotlib.patches import Rectangle, FancyBboxPatch
+
+ROOT = Path(__file__).resolve().parents[3]
+OUT = ROOT / "outputs" / "poster"
+OUT.mkdir(parents=True, exist_ok=True)
+
+# Panel inventory — image path (or None for text-box placeholder).
+PANELS = {
+    "pipeline":              ROOT / "outputs/poster/pipeline_stages.png",
+    "slr_band":              ROOT / "outputs/poster/slr_band.png",
+    "hs_decomp":             ROOT / "outputs/plots/hawkins_sutton_slr_4way.png",
+    # Composite figure: H-S 4-way stack (main) + AIS-tipping split (inset).
+    "pulse_response":        ROOT / "outputs/plots/hawkins_sutton_slr_4way_pulse.png",
+    "sweet_scenarios":       ROOT / "outputs/poster/sweet_scenarios.png",
+    "lorie_panel":           ROOT / "outputs/poster/lorie_panel.png",
+    "coastal_map":           ROOT / "outputs/plots/fredi_state_damages_2100.png",
+    "sheahan_table":         ROOT / "outputs/poster/sheahan_table.png",
+    "htf_table":             ROOT / "outputs/poster/htf_transport_table.png",
+}
+
+EDGE = "#1F4E79"
+
+
+def draw_panel(ax, x, y, w, h, label, image_path=None, placeholder_text=None,
+               caption=None, label_font=8, caption_font=7,
+               caption_wrap=None):
+    """Render a labeled panel with image thumbnail or placeholder text.
+
+    Coordinates: natural orientation. (x, y) is the BOTTOM-LEFT corner of
+    the panel; w extends right, h extends up. Optional `caption_wrap` (int)
+    wraps the caption text to that column width (chars).  If `caption_wrap`
+    is omitted, the caption auto-fills the panel width using an approximate
+    char-width-per-inch heuristic.
+    """
+    rect = Rectangle((x, y), w, h, linewidth=1.5,
+                     edgecolor=EDGE, facecolor="#F8F8F8", zorder=1)
+    ax.add_patch(rect)
+
+    # Panel label (top)
+    ax.text(x + 0.3, y + h - 0.3, label, fontsize=label_font, fontweight="bold",
+            color=EDGE, va="top", ha="left", zorder=5)
+
+    # Caption (bottom) — wrap to fill the panel width at the caption font.
+    cap_room = 0.0
+    if caption is not None:
+        if caption_wrap is None:
+            # ~7.5 chars per inch at fontsize=7 italic; leave 0.6" total margin
+            caption_wrap = max(20, int((w - 0.6) * 7.5))
+        cap_txt = textwrap.fill(caption, width=caption_wrap)
+        n_lines = cap_txt.count("\n") + 1
+        # Each line ~ 0.16" at fs=7; add buffer above caption so image's
+        # internal x-axis label doesn't overlap with the caption text.
+        cap_room = 0.45 + 0.16 * n_lines
+        ax.text(x + w / 2, y + 0.18, cap_txt,
+                ha="center", va="bottom", fontsize=caption_font,
+                color="#444", style="italic", zorder=5)
+
+    label_room = 0.7
+
+    # Image
+    if image_path is not None and image_path.exists():
+        try:
+            img = mpimg.imread(image_path)
+            img_x = x + 0.3
+            img_w = w - 0.6
+            img_y = y + cap_room
+            img_h = h - cap_room - label_room
+            ax.imshow(img, extent=[img_x, img_x + img_w, img_y, img_y + img_h],
+                      aspect="auto", zorder=3, origin="upper")
+        except Exception as e:
+            ax.text(x + w / 2, y + h / 2, f"[image: {image_path.name}]\n{e}",
+                    ha="center", va="center", fontsize=7, color="#888")
+
+    # Placeholder text instead of image
+    if placeholder_text is not None:
+        bg = FancyBboxPatch((x + 0.4, y + max(cap_room, 0.2)),
+                            w - 0.8, h - max(cap_room, 0.2) - label_room,
+                            boxstyle="round,pad=0.05,rounding_size=0.05",
+                            facecolor="#FFFEF0", edgecolor="#CCCCCC",
+                            linewidth=0.6, zorder=3)
+        ax.add_patch(bg)
+        ax.text(x + w / 2,
+                y + (h - cap_room - label_room) / 2 + cap_room,
+                placeholder_text,
+                ha="center", va="center", fontsize=9, color="#444",
+                style="italic", zorder=4, wrap=True)
+
+
+def main():
+    fig, ax = plt.subplots(figsize=(23, 23))   # half-scale render
+    ax.set_xlim(0, 46)
+    ax.set_ylim(0, 46)
+    ax.set_aspect("equal")
+    ax.axis("off")
+
+    ax.add_patch(Rectangle((0, 0), 46, 46, fill=False, edgecolor=EDGE,
+                           linewidth=2.0))
+
+    # ============================================================== HEADER (full width, shorter)
+    tx, ty, tw, th = 0.5, 40.5, 45, 5
+    ax.add_patch(Rectangle((tx, ty), tw, th, linewidth=1.5,
+                           edgecolor=EDGE, facecolor="#F8F8F8", zorder=1))
+    ax.text(tx + tw / 2, ty + th - 0.75,
+            "Some Assembly Required:",
+            ha="center", va="top", fontsize=19, fontweight="bold",
+            color=EDGE, zorder=5)
+    ax.text(tx + tw / 2, ty + th - 1.9,
+            "Simplified Damage Functions for Probabilistic Coastal Impact Estimation Using FrEDI",
+            ha="center", va="top", fontsize=15, fontweight="bold",
+            color=EDGE, zorder=5)
+    ax.text(tx + tw / 2, ty + th - 3.1,
+            "Marcus C. Sarofim¹    •    James E. Neumann²    •    Megan B. Sheahan²",
+            ha="center", va="top", fontsize=11, color="#333", zorder=5)
+    ax.text(tx + tw / 2, ty + th - 3.95,
+            "¹NYU Marron Institute of Urban Management    •    ²Industrial Economics, Inc.",
+            ha="center", va="top", fontsize=9.5, style="italic", color="#555", zorder=5)
+    ax.text(tx + 0.4, ty + 0.28,
+            "Funding: Wellcome Trust 227149/Z/23/Z",
+            ha="left", va="bottom", fontsize=8, color="#666", zorder=5)
+    ax.text(tx + tw - 0.4, ty + 0.28,
+            "Read more:  thesaraphreport.substack.com",
+            ha="right", va="bottom", fontsize=8, color="#666", zorder=5)
+
+    # ============================================================== UPPER ROW
+    # A. Pipeline — tall left column. NO caption: the pipeline graphic
+    # itself carries the methods description band along its bottom.
+    draw_panel(ax, 0.5, 24, 13, 16,
+               label="A. PIPELINE",
+               image_path=PANELS["pipeline"])
+
+    # B. SLR band — upper middle. Captions fill panel width (default).
+    draw_panel(ax, 14, 32.5, 16, 7.5,
+               label="B. PROBABILISTIC SLR",
+               image_path=PANELS["slr_band"],
+               caption="RFF-SP baseline ensemble (N=500), importance-weighted percentiles, 2000–2150.  For reference: IPCC AR6 SSP2-4.5 median GMSL 2100 ≈ 55 cm.")
+
+    # C. Total-SLR 4-way decomp — upper right.
+    draw_panel(ax, 30.5, 32.5, 15, 7.5,
+               label="C. TOTAL SLR — sources of uncertainty",
+               image_path=PANELS["hs_decomp"],
+               caption="Hawkins-Sutton 4-way decomposition of total-SLR variance, importance-weighted factorial design over 100 RFF-SP emissions paths, 15 climate calibrations per path, 3 FaIR stochastic seeds, and 3 BRICK posterior samples (N=13,500).  Stacked variance fractions over 2020–2150.  Conceptual companion to Darnell et al. 2025 (Nat Clim Change), who decompose total-SLR uncertainty across emissions vs geophysical sources at the multi-century horizon.")
+
+    # D. Pulse SLR response — paired with C below.
+    draw_panel(ax, 30.5, 24, 15, 8,
+               label="D. PULSE SLR — sources of uncertainty (1 GtCO₂ pulse at 2030)",
+               image_path=PANELS["pulse_response"],
+               caption="Paired BRICK runs on the same factorial design as Panel C.  Inset: AIS-tipping-regime split — mean ΔSLR over all draws (red) vs non-tipped draws only (blue); weighted fraction tipped on right axis.  Tipped draws drive the bulk of the tipping-point state dependence.")
+
+    # Discussion — central position (y=25 to 32, h=7, w=16). Full panel width,
+    # paragraph-aware wrap, larger readable font.  Marcus draft (May 17 2026).
+    discussion_paras = [
+        ("There is high value in probabilistic damage assessment for both "
+         "mitigation-benefit estimates and adaptation-response planning.  Here we "
+         "demonstrate one methodology that leverages emissions uncertainty from "
+         "RFF, climate uncertainty from FaIR, sea-level-response uncertainty from "
+         "BRICK, global-to-local mapping from Sweet et al., and damage functions "
+         "from FrEDI to produce probabilistic damage estimates by US state for "
+         "three SLR-sensitive impact sectors: coastal property damage, "
+         "high-tide-flooding transportation interruptions, and high-tide-flooding "
+         "elder mortality.  This pipeline allows fast estimation of damages for "
+         "any future scenario."),
+        ("Louisiana is the state most at threat for SLR-related impacts, "
+         "particularly on a per-capita basis; Florida, Massachusetts, Virginia, "
+         "and New Jersey are distant 2nd–5th in per-capita impacts (Panel I).  "
+         "Among FrEDI sectors, HTF elder mortality has the largest monetized "
+         "impact (Panel J), with HTF transportation 2nd and coastal properties "
+         "3rd (Panel H).  Climate-response uncertainty dominates total SLR "
+         "variance in 2100, with emissions and BRICK uncertainty making "
+         "secondary but meaningful contributions (Panel C); for the marginal "
+         "pulse response, BRICK uncertainty dominates and AIS tipping makes "
+         "internal variability a substantial contributor (Panel D)."),
+        ("Key considerations we identify for this kind of work: dependence "
+         "between FrEDI and BRICK parameter uncertainty (Wong et al. 2026); "
+         "look-ahead-based adaptation estimates that account for observed "
+         "non-optimal adaptive behavior and smoothing of capital expenditures "
+         "(Panel G); and the importance of a wide range of anchor scenarios "
+         "for damage-function calibration (Panel F)."),
+        ("The most important limitation we identify is the limited set of "
+         "impact methodologies currently in FrEDI.  We call on the community "
+         "to produce more impact estimates that can be transformed into "
+         "damage functions to inform this kind of analysis."),
+    ]
+    dx, dy, dw, dh = 14, 24, 16, 8
+    ax.add_patch(Rectangle((dx, dy), dw, dh, linewidth=1.8,
+                           edgecolor=EDGE, facecolor="#FFFEF0", zorder=1))
+    ax.text(dx + 0.3, dy + dh - 0.3, "DISCUSSION",
+            fontsize=10, fontweight="bold", color=EDGE, va="top", ha="left",
+            zorder=5)
+    # Wrap each paragraph; width chosen empirically so text stays inside the
+    # 16-axis-unit panel at fontsize=8.5 in the half-scale render.
+    discussion_body = "\n\n".join(textwrap.fill(p, width=112)
+                                  for p in discussion_paras)
+    ax.text(dx + 0.35, dy + dh - 0.85, discussion_body,
+            ha="left", va="top", fontsize=8.5, color="#222",
+            linespacing=1.30, zorder=4)
+
+    # ============================================================== MIDDLE — damage-function methodology
+    draw_panel(ax, 0.5, 13.5, 22.5, 10,
+               label="F. DAMAGE-FUNCTION METHODOLOGY — Sweet 6 SLR nodes + FrEDI damage curve",
+               image_path=PANELS["sweet_scenarios"],
+               caption="Left: 6 NCA5 scenarios + 2 FrEDI extensions, monotone-cubic spline through every Sweet anchor year.  Right: empirical FrEDI damage function at 2100 from 490 RFF-SP draws; colored dots mark the Sweet calibration nodes that FrEDI interpolates between.")
+    draw_panel(ax, 23, 13.5, 22.5, 10,
+               label="G. ADAPTATION (Lorie 2020) — NCPM decision logic + 11-yr smoothing",
+               image_path=PANELS["lorie_panel"],
+               caption="Left: NCPM decision logic with sub-optimal S=4 case representing observed under-adaptation (capital invested only when benefits exceed costs by ≥ 4×).  Middle: Lorie Table-1 cost stacks for Tampa & Virginia Beach.  Right: 11-year rolling-average smoothing of lumpy NCPM capital investments.  This smoothing is not only necessary because FrEDI's damage functions abstract away time — it is also consistent with how adaptation capital is amortized and financially smoothed in the real world.")
+
+    # ============================================================== LOWER ROW — impact case studies
+    # Reading order H → I → J restored (May 17 final): the per-sector table
+    # (left, "H") shows CP and HTF separately AND their per-draw Total, then
+    # the state map (middle, "I") shows the combined geographic distribution,
+    # and elder mortality (right, "J") closes the impact-sector tour.
+    draw_panel(ax, 0.5, 5, 15, 8,
+               label="H. COASTAL PROPERTIES AND HTF TRANSPORTATION DAMAGES",
+               image_path=PANELS["htf_table"],
+               caption="RFF-SP baseline ensemble, importance-weighted quantiles for Coastal Properties and HTF Transportation at 2100 and 2150, with statistically-correct Total (CP + HTF summed per draw, then re-quantiled).  Top inset bars: median ± 5–95% whiskers.  N = number of valid draws.")
+    draw_panel(ax, 16, 5, 14, 8,
+               label="I. COASTAL PROPERTIES AND HTF TRANSPORTATION DAMAGES BY STATE",
+               image_path=PANELS["coastal_map"],
+               caption="Importance-weighted median annual damages (Coastal Properties + HTF Transportation) by state, 2100.  Absolute USD (left) and per-capita (right).  Louisiana is most impacted on a per-capita basis; FL/MA/VA/NJ are distant 2nd–5th.")
+    draw_panel(ax, 30.5, 5, 15, 8,
+               label="J. HTF ELDER MORTALITY (Sheahan 2025)",
+               image_path=PANELS["sheahan_table"],
+               caption="Sheahan et al. 2025 Tables 2 & 3.  Additional 65+ deaths / yr from high-tide flooding under the Rennert et al. (2022) RFF–FaIR–BRICK distribution.  VSL = $7.9M (1990$) inflated to 2023$.  Bottom row: % reduction from stylized adaptation at the 5th, 50th, and 95th percentiles.")
+
+    # ============================================================== BOTTOM — caveats (bulleted) + references
+    caveat_bullets = [
+        ("RFF-SP emissions vintage",
+         "Scenarios were developed about 5 years ago; given rapid renewable / "
+         "battery advances, present-day analogs might differ."),
+        ("FaIR known limitations",
+         "State-of-the-art probabilistic implementation, but missing "
+         "permafrost feedbacks, possible Amazon dieback, and ozone / "
+         "carbon-cycle interactions."),
+        ("BRICK upper bias",
+         "Runs slightly higher than the AR6 best estimates."),
+        ("Sweet et al. as a single realization",
+         "One realization of local SLR given global SLR; different "
+         "partitioning between AIS, Greenland, thermal expansion, and "
+         "local wind / current effects would yield different results."),
+        ("Sweet 'Low' floor at early decades",
+         "Low end of Sweet does not encompass the full RFF / FaIR / BRICK "
+         "uncertainty range in early decades; FrEDI's lowest calibrated "
+         "scenario truncates the BRICK lower tail at 2050."),
+        ("FrEDI sector coverage",
+         "Accounts for a limited number of SLR-derived damage categories; "
+         "does not yet include probabilistic damages."),
+    ]
+    cx, cy, cw, ch = 0.5, 0.5, 23, 4.0
+    ax.add_patch(Rectangle((cx, cy), cw, ch, linewidth=1.0,
+                           edgecolor="#999999", facecolor="#FAFAFA", zorder=1))
+    ax.text(cx + 0.3, cy + ch - 0.3, "K. CAVEATS",
+            fontsize=10, fontweight="bold", color="#666", va="top", ha="left",
+            zorder=5)
+    # Bullets at a larger font, wide wrap so each bullet fills the panel
+    # width and the whole block is shorter (height 4).
+    y_cur = cy + ch - 0.85
+    for head, body in caveat_bullets:
+        line = "•  " + head + ":  " + body
+        wrapped = textwrap.fill(line, width=180,
+                                subsequent_indent="    ")
+        n_lines = wrapped.count("\n") + 1
+        ax.text(cx + 0.4, y_cur, wrapped,
+                ha="left", va="top", fontsize=8.5, color="#444",
+                linespacing=1.28, zorder=4,
+                family="DejaVu Sans")
+        y_cur -= 0.12 + 0.22 * n_lines
+
+    # References (sorted alphabetically by first author; Sh < Sm < Sw).
+    # Each entry: (author-year-journal preamble, paper title, DOI/URL).
+    refs = [
+        ("Darnell et al. 2025.  Nat Clim Change.",
+         "The interplay of future emissions and geophysical uncertainties for projections of sea-level rise.",
+         "doi.org/10.1038/s41558-025-02457-0"),
+        ("EPA. 2024.  EPA 430-R-24-001.",
+         "Technical Documentation for the Framework for Evaluating Damages and Impacts (FrEDI).  U.S. Environmental Protection Agency.",
+         ""),
+        ("Fant et al. 2021.  J Infrastructure Sys.",
+         "Mere Nuisance or Growing Threat? The Physical and Economic Impact of High Tide Flooding on US Road Networks.",
+         "doi.org/10.1061/(ASCE)IS.1943-555X.000065"),
+        ("Lorie et al. 2020.  Clim Risk Mgmt.",
+         "Modeling Coastal Flood Risk and Adaptation Response under Future Climate Conditions.",
+         "doi.org/10.1016/j.crm.2020.100233"),
+        ("Neumann et al. 2021.  Climatic Change.",
+         "Climate effects on US infrastructure: the economics of adaptation for rail, roads, and coastal development.",
+         "doi.org/10.1007/s10584-021-03179-w"),
+        ("Rennert et al. 2022.  Nature.",
+         "Comprehensive evidence implies a higher social cost of CO₂.",
+         "doi.org/10.1038/s41586-022-05224-9"),
+        ("Sheahan et al. 2025.  Lancet Planet Health.",
+         "Projections of future mortality risk in older adults from high-tide flooding in coastal areas of the USA: an economic modelling study.",
+         "doi.org/10.1016/j.lanplh.2025.101382"),
+        ("Smith et al. 2024.  Geosci Model Dev.",
+         "fair-calibrate v1.4.1: calibration, constraining, and validation of the FaIR simple climate model for reliable future climate projections.",
+         "doi.org/10.5194/gmd-17-8569-2024"),
+        ("Sweet et al. 2022.  NOAA Tech Rep NOS 01.",
+         "Global and Regional Sea Level Rise Scenarios for the United States.",
+         "earth.gov/sealevel/us/resources/2022-sea-level-rise-technical-report/"),
+        ("Wong 2026.  arXiv preprint.",
+         "Modeling the Sea-Level Change from U.S. Vehicle Emissions.",
+         "doi.org/10.48550/arXiv.2604.13446"),
+    ]
+    rx, ry, rw, rh = 24, 0.5, 21.5, 4.0
+    ax.add_patch(Rectangle((rx, ry), rw, rh, linewidth=1.0,
+                           edgecolor="#999999", facecolor="#FAFAFA", zorder=1))
+    ax.text(rx + 0.3, ry + rh - 0.3, "L. REFERENCES",
+            fontsize=10, fontweight="bold", color="#777", va="top", ha="left",
+            zorder=5)
+    # References at a larger font; wider wrap (most entries collapse to one
+    # line so the block fits inside the h=4 box — the long Sheahan and Smith
+    # entries are still 2 lines).
+    ref_paras = []
+    for preamble, title, doi in refs:
+        text = f"{preamble}  {title}  {doi}"
+        ref_paras.append(textwrap.fill(text, width=200,
+                                       subsequent_indent="     "))
+    refs_text = "\n".join(ref_paras)
+    ax.text(rx + 0.4, ry + rh - 0.85, refs_text,
+            ha="left", va="top", fontsize=7.0, color="#222",
+            family="DejaVu Sans", linespacing=1.30, zorder=4)
+
+    fig.suptitle("46\" × 46\" POSTER LAYOUT WIREFRAME  —  draft  —  May 22 IEc review",
+                 fontsize=14, fontweight="bold", color=EDGE, y=0.99)
+    fig.tight_layout()
+    fig.savefig(OUT / "layout_mockup.png", dpi=200, bbox_inches="tight")
+    fig.savefig(OUT / "layout_mockup.pdf", bbox_inches="tight")
+    plt.close(fig)
+    print(f"wrote {OUT / 'layout_mockup.png'}")
+    print(f"wrote {OUT / 'layout_mockup.pdf'}")
+
+
+if __name__ == "__main__":
+    main()

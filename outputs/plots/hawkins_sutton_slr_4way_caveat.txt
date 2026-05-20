@@ -1,0 +1,1 @@
+V_internal is FaIR's stochastic GMST/OHC variability transmitted through MimiBRICK's deterministic ice-sheet and steric modules. Intrinsic SLR variability (AIS calving, GIS surface-mass-balance noise, ocean dynamic SL, land water storage) is not represented in MimiBRICK and would add additional internal variance not captured here.

@@ -1,0 +1,43 @@
+┌ Warning: MCMCDiagnostics.jl has been deprecated in favor of MCMCDiagnosticTools.jl.
+│ (https://github.com/TuringLang/MCMCDiagnosticTools.jl/) and is no longer
+│ maintained.
+└ @ MCMCDiagnostics ~/.julia/packages/MCMCDiagnostics/uVCwA/src/MCMCDiagnostics.jl:4
+Loading metadata + GMST trajectories + MimiBRICK posterior...
+  meta:      1000 rows
+  gmst:      1000 rows
+  posterior: 10000 members
+Building MimiBRICK model (rcp=RCP45, years=1850-2100)...
+
+Running 1000 draws through MimiBRICK...
+  50/1000  (1.7 s, 29.1 draws/s)
+  100/1000  (2.0 s, 50.7 draws/s)
+  150/1000  (2.2 s, 68.1 draws/s)
+  200/1000  (2.5 s, 78.6 draws/s)
+  250/1000  (2.8 s, 90.4 draws/s)
+  300/1000  (3.0 s, 100.3 draws/s)
+  350/1000  (3.2 s, 108.5 draws/s)
+  400/1000  (3.5 s, 115.8 draws/s)
+  450/1000  (3.7 s, 122.5 draws/s)
+  500/1000  (3.9 s, 128.2 draws/s)
+  550/1000  (4.1 s, 133.3 draws/s)
+  600/1000  (4.4 s, 137.7 draws/s)
+  650/1000  (4.6 s, 141.7 draws/s)
+  700/1000  (4.8 s, 145.4 draws/s)
+  750/1000  (5.0 s, 148.6 draws/s)
+  800/1000  (5.3 s, 151.6 draws/s)
+  850/1000  (5.5 s, 154.1 draws/s)
+  900/1000  (5.8 s, 156.5 draws/s)
+  950/1000  (6.0 s, 158.7 draws/s)
+  1000/1000  (6.3 s, 159.9 draws/s)
+
+Wrote outputs/lhs_pilot_mimibrick_N500.csv
+
+=== Quick stats by sample ===
+
+[lhs] n=500
+  slr_2100_cm: median=67.53  5th=34.11  95th=130.56
+  ais_2100_cm: median=17.88  5th=1.06  95th=62.73
+
+[random] n=500
+  slr_2100_cm: median=63.74  5th=34.82  95th=136.02
+  ais_2100_cm: median=13.73  5th=0.47  95th=64.47

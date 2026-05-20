@@ -1,0 +1,9 @@
+Fetching FaIR v1.4.1 calibration...
+  841 configs
+Initializing FaIR for SSP2-4.5 (deterministic)...
+Running...
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/ssp245_validation_cube.npz
+Cube shape: (1, 841, 251)  -- (rff=ssp245, cfg, year)
+
+SSP2-4.5 GMST 2100 (across 841 configs): median=2.499, p5=1.847, p95=3.415
+SSP2-4.5 OHC 2020 (across 841 configs, 10^22 J): median=53.94 (=539 ZJ)

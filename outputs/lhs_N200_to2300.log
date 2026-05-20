@@ -1,0 +1,616 @@
+Generating LHS + random samples (n=200 each)...
+  total rows = 400 (LHS + random)
+  unique RFF draws used: 398
+Fetching FaIR v1.4.1 calibration (841 configs)...
+Loading RCMIP ssp245 emissions/forcing baseline...
+
+Processing 398 unique RFF draws in batches of 2...
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 1: 2/398 unique RFFs done (15s elapsed, ETA 2935s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 2: 4/398 unique RFFs done (29s elapsed, ETA 2842s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 3: 6/398 unique RFFs done (42s elapsed, ETA 2727s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 4: 8/398 unique RFFs done (54s elapsed, ETA 2645s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 5: 10/398 unique RFFs done (67s elapsed, ETA 2602s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 6: 12/398 unique RFFs done (80s elapsed, ETA 2584s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 7: 14/398 unique RFFs done (93s elapsed, ETA 2555s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 8: 16/398 unique RFFs done (106s elapsed, ETA 2531s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 9: 18/398 unique RFFs done (119s elapsed, ETA 2505s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 10: 20/398 unique RFFs done (131s elapsed, ETA 2484s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 11: 22/398 unique RFFs done (146s elapsed, ETA 2500s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 12: 24/398 unique RFFs done (160s elapsed, ETA 2489s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 13: 26/398 unique RFFs done (173s elapsed, ETA 2479s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 14: 28/398 unique RFFs done (187s elapsed, ETA 2467s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 15: 30/398 unique RFFs done (200s elapsed, ETA 2452s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 16: 32/398 unique RFFs done (214s elapsed, ETA 2443s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 17: 34/398 unique RFFs done (227s elapsed, ETA 2432s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 18: 36/398 unique RFFs done (241s elapsed, ETA 2418s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 19: 38/398 unique RFFs done (254s elapsed, ETA 2410s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 20: 40/398 unique RFFs done (268s elapsed, ETA 2401s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 21: 42/398 unique RFFs done (283s elapsed, ETA 2395s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 22: 44/398 unique RFFs done (298s elapsed, ETA 2400s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 23: 46/398 unique RFFs done (314s elapsed, ETA 2403s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 24: 48/398 unique RFFs done (330s elapsed, ETA 2409s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 25: 50/398 unique RFFs done (344s elapsed, ETA 2393s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 26: 52/398 unique RFFs done (357s elapsed, ETA 2376s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 27: 54/398 unique RFFs done (371s elapsed, ETA 2362s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 28: 56/398 unique RFFs done (384s elapsed, ETA 2347s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 29: 58/398 unique RFFs done (398s elapsed, ETA 2335s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 30: 60/398 unique RFFs done (412s elapsed, ETA 2321s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 31: 62/398 unique RFFs done (426s elapsed, ETA 2309s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 32: 64/398 unique RFFs done (440s elapsed, ETA 2296s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 33: 66/398 unique RFFs done (453s elapsed, ETA 2278s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 34: 68/398 unique RFFs done (467s elapsed, ETA 2264s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 35: 70/398 unique RFFs done (480s elapsed, ETA 2251s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 36: 72/398 unique RFFs done (493s elapsed, ETA 2233s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 37: 74/398 unique RFFs done (506s elapsed, ETA 2215s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 38: 76/398 unique RFFs done (519s elapsed, ETA 2198s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 39: 78/398 unique RFFs done (532s elapsed, ETA 2184s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 40: 80/398 unique RFFs done (545s elapsed, ETA 2166s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 41: 82/398 unique RFFs done (558s elapsed, ETA 2149s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 42: 84/398 unique RFFs done (571s elapsed, ETA 2133s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 43: 86/398 unique RFFs done (584s elapsed, ETA 2119s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 44: 88/398 unique RFFs done (598s elapsed, ETA 2107s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 45: 90/398 unique RFFs done (612s elapsed, ETA 2094s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 46: 92/398 unique RFFs done (626s elapsed, ETA 2081s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 47: 94/398 unique RFFs done (639s elapsed, ETA 2068s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 48: 96/398 unique RFFs done (654s elapsed, ETA 2057s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 49: 98/398 unique RFFs done (668s elapsed, ETA 2045s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 50: 100/398 unique RFFs done (682s elapsed, ETA 2034s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 51: 102/398 unique RFFs done (697s elapsed, ETA 2022s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 52: 104/398 unique RFFs done (711s elapsed, ETA 2010s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 53: 106/398 unique RFFs done (725s elapsed, ETA 1998s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 54: 108/398 unique RFFs done (740s elapsed, ETA 1986s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 55: 110/398 unique RFFs done (754s elapsed, ETA 1973s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 56: 112/398 unique RFFs done (768s elapsed, ETA 1961s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 57: 114/398 unique RFFs done (782s elapsed, ETA 1949s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 58: 116/398 unique RFFs done (797s elapsed, ETA 1937s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 59: 118/398 unique RFFs done (811s elapsed, ETA 1924s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 60: 120/398 unique RFFs done (824s elapsed, ETA 1910s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 61: 122/398 unique RFFs done (838s elapsed, ETA 1896s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 62: 124/398 unique RFFs done (852s elapsed, ETA 1883s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 63: 126/398 unique RFFs done (866s elapsed, ETA 1870s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 64: 128/398 unique RFFs done (880s elapsed, ETA 1856s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 65: 130/398 unique RFFs done (894s elapsed, ETA 1843s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 66: 132/398 unique RFFs done (908s elapsed, ETA 1829s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 67: 134/398 unique RFFs done (922s elapsed, ETA 1816s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 68: 136/398 unique RFFs done (936s elapsed, ETA 1803s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 69: 138/398 unique RFFs done (949s elapsed, ETA 1789s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 70: 140/398 unique RFFs done (963s elapsed, ETA 1775s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 71: 142/398 unique RFFs done (977s elapsed, ETA 1762s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 72: 144/398 unique RFFs done (991s elapsed, ETA 1748s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 73: 146/398 unique RFFs done (1005s elapsed, ETA 1735s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 74: 148/398 unique RFFs done (1020s elapsed, ETA 1723s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 75: 150/398 unique RFFs done (1035s elapsed, ETA 1710s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 76: 152/398 unique RFFs done (1049s elapsed, ETA 1697s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 77: 154/398 unique RFFs done (1063s elapsed, ETA 1683s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 78: 156/398 unique RFFs done (1077s elapsed, ETA 1671s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 79: 158/398 unique RFFs done (1091s elapsed, ETA 1658s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 80: 160/398 unique RFFs done (1106s elapsed, ETA 1645s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 81: 162/398 unique RFFs done (1120s elapsed, ETA 1632s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 82: 164/398 unique RFFs done (1134s elapsed, ETA 1618s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 83: 166/398 unique RFFs done (1149s elapsed, ETA 1606s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 84: 168/398 unique RFFs done (1164s elapsed, ETA 1593s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 85: 170/398 unique RFFs done (1178s elapsed, ETA 1580s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 86: 172/398 unique RFFs done (1192s elapsed, ETA 1567s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 87: 174/398 unique RFFs done (1206s elapsed, ETA 1553s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 88: 176/398 unique RFFs done (1221s elapsed, ETA 1540s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 89: 178/398 unique RFFs done (1235s elapsed, ETA 1526s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 90: 180/398 unique RFFs done (1248s elapsed, ETA 1512s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 91: 182/398 unique RFFs done (1263s elapsed, ETA 1499s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 92: 184/398 unique RFFs done (1277s elapsed, ETA 1486s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 93: 186/398 unique RFFs done (1292s elapsed, ETA 1473s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 94: 188/398 unique RFFs done (1306s elapsed, ETA 1459s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 95: 190/398 unique RFFs done (1321s elapsed, ETA 1446s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 96: 192/398 unique RFFs done (1335s elapsed, ETA 1433s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 97: 194/398 unique RFFs done (1350s elapsed, ETA 1419s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 98: 196/398 unique RFFs done (1364s elapsed, ETA 1406s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 99: 198/398 unique RFFs done (1378s elapsed, ETA 1392s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 100: 200/398 unique RFFs done (1393s elapsed, ETA 1379s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 101: 202/398 unique RFFs done (1407s elapsed, ETA 1366s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 102: 204/398 unique RFFs done (1422s elapsed, ETA 1352s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 103: 206/398 unique RFFs done (1436s elapsed, ETA 1339s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 104: 208/398 unique RFFs done (1451s elapsed, ETA 1325s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 105: 210/398 unique RFFs done (1465s elapsed, ETA 1312s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 106: 212/398 unique RFFs done (1479s elapsed, ETA 1298s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 107: 214/398 unique RFFs done (1494s elapsed, ETA 1285s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 108: 216/398 unique RFFs done (1509s elapsed, ETA 1272s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 109: 218/398 unique RFFs done (1524s elapsed, ETA 1258s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 110: 220/398 unique RFFs done (1538s elapsed, ETA 1245s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 111: 222/398 unique RFFs done (1553s elapsed, ETA 1231s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 112: 224/398 unique RFFs done (1567s elapsed, ETA 1217s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 113: 226/398 unique RFFs done (1582s elapsed, ETA 1204s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 114: 228/398 unique RFFs done (1596s elapsed, ETA 1190s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 115: 230/398 unique RFFs done (1609s elapsed, ETA 1175s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 116: 232/398 unique RFFs done (1622s elapsed, ETA 1161s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 117: 234/398 unique RFFs done (1636s elapsed, ETA 1147s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 118: 236/398 unique RFFs done (1649s elapsed, ETA 1132s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 119: 238/398 unique RFFs done (1663s elapsed, ETA 1118s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 120: 240/398 unique RFFs done (1677s elapsed, ETA 1104s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 121: 242/398 unique RFFs done (1691s elapsed, ETA 1090s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 122: 244/398 unique RFFs done (1705s elapsed, ETA 1076s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 123: 246/398 unique RFFs done (1718s elapsed, ETA 1062s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 124: 248/398 unique RFFs done (1732s elapsed, ETA 1047s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 125: 250/398 unique RFFs done (1745s elapsed, ETA 1033s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 126: 252/398 unique RFFs done (1759s elapsed, ETA 1019s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 127: 254/398 unique RFFs done (1774s elapsed, ETA 1005s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 128: 256/398 unique RFFs done (1788s elapsed, ETA 992s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 129: 258/398 unique RFFs done (1802s elapsed, ETA 978s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 130: 260/398 unique RFFs done (1816s elapsed, ETA 964s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 131: 262/398 unique RFFs done (1831s elapsed, ETA 950s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 132: 264/398 unique RFFs done (1845s elapsed, ETA 937s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 133: 266/398 unique RFFs done (1859s elapsed, ETA 923s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 134: 268/398 unique RFFs done (1874s elapsed, ETA 909s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 135: 270/398 unique RFFs done (1888s elapsed, ETA 895s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 136: 272/398 unique RFFs done (1902s elapsed, ETA 881s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 137: 274/398 unique RFFs done (1916s elapsed, ETA 867s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 138: 276/398 unique RFFs done (1929s elapsed, ETA 853s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 139: 278/398 unique RFFs done (1942s elapsed, ETA 838s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 140: 280/398 unique RFFs done (1955s elapsed, ETA 824s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 141: 282/398 unique RFFs done (1968s elapsed, ETA 810s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 142: 284/398 unique RFFs done (1981s elapsed, ETA 795s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 143: 286/398 unique RFFs done (1994s elapsed, ETA 781s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 144: 288/398 unique RFFs done (2007s elapsed, ETA 767s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 145: 290/398 unique RFFs done (2020s elapsed, ETA 752s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 146: 292/398 unique RFFs done (2033s elapsed, ETA 738s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 147: 294/398 unique RFFs done (2047s elapsed, ETA 724s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 148: 296/398 unique RFFs done (2060s elapsed, ETA 710s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 149: 298/398 unique RFFs done (2073s elapsed, ETA 696s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 150: 300/398 unique RFFs done (2086s elapsed, ETA 682s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 151: 302/398 unique RFFs done (2100s elapsed, ETA 667s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 152: 304/398 unique RFFs done (2112s elapsed, ETA 653s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 153: 306/398 unique RFFs done (2125s elapsed, ETA 639s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 154: 308/398 unique RFFs done (2138s elapsed, ETA 625s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 155: 310/398 unique RFFs done (2152s elapsed, ETA 611s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 156: 312/398 unique RFFs done (2165s elapsed, ETA 597s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 157: 314/398 unique RFFs done (2179s elapsed, ETA 583s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 158: 316/398 unique RFFs done (2192s elapsed, ETA 569s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 159: 318/398 unique RFFs done (2204s elapsed, ETA 555s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 160: 320/398 unique RFFs done (2217s elapsed, ETA 540s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 161: 322/398 unique RFFs done (2231s elapsed, ETA 526s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 162: 324/398 unique RFFs done (2244s elapsed, ETA 512s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 163: 326/398 unique RFFs done (2257s elapsed, ETA 498s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 164: 328/398 unique RFFs done (2270s elapsed, ETA 484s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 165: 330/398 unique RFFs done (2283s elapsed, ETA 470s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 166: 332/398 unique RFFs done (2296s elapsed, ETA 457s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 167: 334/398 unique RFFs done (2310s elapsed, ETA 443s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 168: 336/398 unique RFFs done (2323s elapsed, ETA 429s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 169: 338/398 unique RFFs done (2336s elapsed, ETA 415s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 170: 340/398 unique RFFs done (2349s elapsed, ETA 401s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 171: 342/398 unique RFFs done (2362s elapsed, ETA 387s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 172: 344/398 unique RFFs done (2375s elapsed, ETA 373s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 173: 346/398 unique RFFs done (2388s elapsed, ETA 359s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 174: 348/398 unique RFFs done (2401s elapsed, ETA 345s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 175: 350/398 unique RFFs done (2415s elapsed, ETA 331s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 176: 352/398 unique RFFs done (2428s elapsed, ETA 317s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 177: 354/398 unique RFFs done (2441s elapsed, ETA 303s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 178: 356/398 unique RFFs done (2454s elapsed, ETA 289s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 179: 358/398 unique RFFs done (2467s elapsed, ETA 276s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 180: 360/398 unique RFFs done (2480s elapsed, ETA 262s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 181: 362/398 unique RFFs done (2493s elapsed, ETA 248s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 182: 364/398 unique RFFs done (2506s elapsed, ETA 234s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 183: 366/398 unique RFFs done (2519s elapsed, ETA 220s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 184: 368/398 unique RFFs done (2533s elapsed, ETA 206s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 185: 370/398 unique RFFs done (2546s elapsed, ETA 193s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 186: 372/398 unique RFFs done (2559s elapsed, ETA 179s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 187: 374/398 unique RFFs done (2572s elapsed, ETA 165s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 188: 376/398 unique RFFs done (2586s elapsed, ETA 151s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 189: 378/398 unique RFFs done (2599s elapsed, ETA 137s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 190: 380/398 unique RFFs done (2611s elapsed, ETA 124s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 191: 382/398 unique RFFs done (2624s elapsed, ETA 110s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 192: 384/398 unique RFFs done (2637s elapsed, ETA 96s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 193: 386/398 unique RFFs done (2651s elapsed, ETA 82s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 194: 388/398 unique RFFs done (2664s elapsed, ETA 69s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 195: 390/398 unique RFFs done (2676s elapsed, ETA 55s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 196: 392/398 unique RFFs done (2689s elapsed, ETA 41s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 197: 394/398 unique RFFs done (2702s elapsed, ETA 27s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 198: 396/398 unique RFFs done (2716s elapsed, ETA 14s)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/lhs_climate_pilot.py:181: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["species"] = df["variable"].str.split("|").str[-1]
+  batch 199: 398/398 unique RFFs done (2728s elapsed, ETA 0s)
+
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/lhs_pilot_metadata_N200_to2300.csv
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/lhs_pilot_gmst_full_N200_to2300.npz (shape (398, 841, 451), 603.8 MB)
+
+=== 2100 GMST summary (degC, rel 1850-1900) ===
+  lhs     : median=2.556  5th=1.603  95th=3.715  n=200
+  random  : median=2.633  5th=1.622  95th=4.031  n=200
+
+=== 2100 ERF summary (W/m^2) ===
+  Sarofim et al. 2024: median=5.1  5-95% range=[3.3, 7.1]
+  lhs     : median=4.859  5th=3.004  95th=6.572  n=200
+  random  : median=4.862  5th=3.155  95th=6.976  n=200
