@@ -1,0 +1,18 @@
+QR-code target URL for the AGU Chapman SLR poster
+====================================================
+
+The poster will carry a QR code in its bottom corner. The QR target is
+the tagged release of this repository, so a reviewer scanning the QR
+code in 2030 sees exactly the code and data that produced the figures
+on the poster they're looking at.
+
+URL:
+  https://github.com/msarofim/SLR-RFF-BRICK/tree/v1.0-poster-agu-chapman
+
+The tag itself will be created when the print-ready poster PDF lands
+in the repo (~2026-06-01). Until then, the bare URL
+  https://github.com/msarofim/SLR-RFF-BRICK
+also resolves and shows the current near-final state.
+
+When IEc graphics generates the QR code, use the tag URL above so the
+poster always points at its corresponding code snapshot.

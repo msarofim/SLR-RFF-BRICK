@@ -17,6 +17,12 @@ authors:
     given-names: Marcus
     email: msarofim@gmail.com
     affiliation: "NYU Marron Institute of Urban Management / Johns Hopkins EPCP"
+  - family-names: Neumann
+    given-names: James E.
+    affiliation: "Industrial Economics, Inc."
+  - family-names: Sheahan
+    given-names: Megan
+    affiliation: "Industrial Economics, Inc."
 license: MIT
 url: "https://github.com/msarofim/SLR-RFF-BRICK"
 repository-code: "https://github.com/msarofim/SLR-RFF-BRICK"
@@ -30,6 +36,16 @@ keywords:
   - RFF-SP
   - climate uncertainty
 references:
+  - type: generic
+    authors:
+      - family-names: Sarofim
+        given-names: Marcus
+    title: "Certainties and Uncertainties"
+    journal: "The Sarophreport (Substack)"
+    year: 2026
+    month: 5
+    url: "https://thesaraphreport.substack.com/p/certainties-and-uncertainties"
+    notes: "Companion substack post — same probabilistic GMST/SLR pipeline, additional discussion of the FaIR cool anomaly bias and BRICK historical fit."
   - type: article
     authors:
       - family-names: Darnell

@@ -24,15 +24,31 @@ at the multi-century horizon.
 
 This repository backs two artifacts:
 
-- **Substack post** — methods-section draft in [METHODS.md](METHODS.md); final
+- **Substack post**, "Certainties and Uncertainties" (Sarofim, 2026-05-20):
+  <https://thesaraphreport.substack.com/p/certainties-and-uncertainties>.
+  The post's methods discussion is drawn from [METHODS.md](METHODS.md); final
   figures live under `outputs/substack/`.
-- **AGU Chapman SLR conference poster** — 46″ × 46″ poster mockup at
-  `outputs/poster/layout_mockup.{png,pdf}`. The current commit reflects the
-  **near-final** layout. IEc graphics is applying final visual polish ahead
-  of the conference; the print-ready PDF (and the `v1.0-poster-agu-chapman`
-  tag) will land in the repo once that's complete (expected ≈ 2026-06-01).
-  In the meantime, the science, figure data, and references in this repo
-  are stable; the pending changes are graphics-only.
+- **AGU Chapman SLR conference poster** — 46″ × 46″, by Marcus C. Sarofim,
+  James E. Neumann, and Megan Sheahan. Current layout mockup at
+  `outputs/poster/layout_mockup.{png,pdf}`; abstract at [ABSTRACT.md](ABSTRACT.md);
+  IEc-graphics handoff checklist at [notes/poster_iec_handoff.md](notes/poster_iec_handoff.md).
+  The current commit reflects the **near-final** scientific layout. IEc
+  graphics is applying final visual polish ahead of the conference; the
+  print-ready PDF (and the `v1.0-poster-agu-chapman` tag) will land in the
+  repo once that's complete (expected ≈ 2026-06-01). In the meantime, the
+  science, figure data, and references in this repo are stable; the pending
+  changes are graphics-only.
+
+  **QR-code target for the printed poster:**
+  <https://github.com/msarofim/SLR-RFF-BRICK/tree/v1.0-poster-agu-chapman>
+  (the tag is created when the poster is delivered).
+
+## Acknowledgements
+
+Analysis pipeline development, methods writeup, and reproducibility
+infrastructure were prepared with assistance from
+[Claude Code](https://claude.com/claude-code) (Anthropic). All scientific
+decisions, model choices, and final interpretations are the authors'.
 
 ## Quick start
 
@@ -172,4 +188,6 @@ NYU Marron Institute of Urban Management / Johns Hopkins EPCP
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+- **Code:** MIT — see [LICENSE](LICENSE).
+- **Non-code content** (figures, poster, prose in METHODS.md / ABSTRACT.md):
+  CC-BY-4.0 — see [LICENSE-CONTENT](LICENSE-CONTENT).

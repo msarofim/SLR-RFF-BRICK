@@ -133,3 +133,35 @@ recommended sequence is:
 
 There is no need to update the intermediate-data deposit when the poster
 lands — the underlying ensembles don't change.
+
+## 7. Optional: ESS Open Archive deposit for the poster
+
+AGU runs [ESS Open Archive](https://essopenarchive.org/) (the successor
+to the old ESSOAr / EarthArXiv-for-AGU service), which mints a poster-
+specific DOI separate from this repository's Zenodo deposits. Worth
+considering for poster citability in conference proceedings and follow-up
+papers.
+
+Once the poster PDF lands as `outputs/poster/poster_final.pdf`:
+
+1. Go to <https://essopenarchive.org/users/login>.
+2. Create a new submission of type "Conference Presentation"
+   (or "Poster" if available).
+3. Upload `outputs/poster/poster_final.pdf`.
+4. Metadata:
+   - **Title:** _[poster title from ABSTRACT.md]_
+   - **Authors:** Marcus C. Sarofim, James E. Neumann, Megan Sheahan
+   - **Conference:** AGU Chapman Conference on Sea Level Rise
+   - **Abstract:** _[from ABSTRACT.md]_
+   - **License:** CC-BY-4.0
+   - **Related identifiers:**
+     - Code repo: github.com/msarofim/SLR-RFF-BRICK (`v1.0-poster-agu-chapman`)
+     - Code DOI (once minted via Zenodo / GitHub integration)
+     - Intermediate data DOI (this deposit)
+     - Substack post: <https://thesaraphreport.substack.com/p/certainties-and-uncertainties>
+5. Publish. Note the ESS Open Archive DOI alongside the others in the
+   repo's CITATION.cff.
+
+ESS Open Archive is free and indexed by AGU; it's the natural home for
+the poster artifact specifically. The Zenodo deposits remain the home
+for the code and intermediate data.
