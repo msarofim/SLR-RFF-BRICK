@@ -1,0 +1,15 @@
+name: slr-rff-brick
+channels:
+  - conda-forge
+dependencies:
+  # Pinned to the versions used to produce the committed final figures.
+  # Newer minor versions should also work; major bumps may break.
+  - python=3.14
+  - numpy>=2.4
+  - pandas>=3.0
+  - scipy>=1.17
+  - matplotlib>=3.10
+  - pyarrow>=24.0
+  - pip
+  - pip:
+      - fair==2.2.4

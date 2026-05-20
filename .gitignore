@@ -70,9 +70,9 @@ outputs/brick_anova_pulse_long.csv
 outputs/brick_lB_per_post_dangendorf.csv
 outputs/brick_lB_per_post_csiro.csv
 
-# Legacy 500-cell paired ensembles (superseded by LHS-10k; pulse_convergence
-# still consumes the small-pulse CH4/CO2 variants — those stay).
-outputs/brick_paired_rff_baseline_to2300_weighted.csv
+# Legacy 500-cell paired ensembles (superseded by LHS-10k for headline
+# figures, but pulse_convergence.py consumes the small-pulse CO2/CH4
+# variants AND the baseline — all 7 paired CSVs are tracked, ~30 MB total).
 
 # ===========================================================================
 # Diagnostic / R&D outputs

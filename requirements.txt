@@ -1,0 +1,15 @@
+# Python dependencies for the SLR-RFF-BRICK analysis pipeline.
+# Pinned to the versions used to produce the committed final figures.
+# Newer minor versions should also work; major bumps may break.
+#
+# Install:  pip install -r requirements.txt
+# Or:       conda env create -f environment.yml  (recommended)
+#
+# Python: requires >=3.11 (project developed on 3.14)
+
+numpy>=2.4
+pandas>=3.0
+scipy>=1.17
+matplotlib>=3.10
+pyarrow>=24.0
+fair==2.2.4

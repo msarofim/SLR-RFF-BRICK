@@ -1,0 +1,41 @@
+{
+  "title": "SLR-RFF-BRICK: Probabilistic sea-level rise from RFF-SP × FaIR × MimiBRICK",
+  "description": "Reproducible pipeline for probabilistic sea-level rise projections, coupling the RFF-SP socio-economic / emissions ensemble (Rennert et al. 2022) with FaIR v2.2.4 (FaIR-calibrate v1.4.1 posterior, Smith et al. 2024) and MimiBRICK, importance-weighted against observed historical GMSL via Wong (2026) AR(1) likelihood. Includes the LHS-10k conditional-BRICK final ensemble (10,000 LHS triplets with Wong importance weights, ESS = 7,037 / 10,000) plus Hawkins-Sutton variance decomposition of total and pulse-marginal SLR by source.",
+  "creators": [
+    {
+      "name": "Sarofim, Marcus",
+      "affiliation": "NYU Marron Institute of Urban Management / Johns Hopkins EPCP",
+      "orcid": ""
+    }
+  ],
+  "keywords": [
+    "sea-level rise",
+    "probabilistic projections",
+    "social cost of carbon",
+    "Hawkins-Sutton decomposition",
+    "FaIR",
+    "MimiBRICK",
+    "RFF-SP",
+    "climate uncertainty"
+  ],
+  "license": "MIT",
+  "upload_type": "software",
+  "access_right": "open",
+  "related_identifiers": [
+    {
+      "identifier": "10.1038/s41558-025-02457-0",
+      "relation": "isSupplementTo",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.1038/s41586-022-05224-9",
+      "relation": "isDerivedFrom",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.5194/gmd-17-8569-2024",
+      "relation": "isDerivedFrom",
+      "scheme": "doi"
+    }
+  ]
+}

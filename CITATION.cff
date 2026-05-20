@@ -1,0 +1,66 @@
+cff-version: 1.2.0
+message: "If you use this code or its outputs in academic work, please cite as below."
+title: "SLR-RFF-BRICK: Probabilistic sea-level rise from RFF-SP × FaIR × MimiBRICK"
+abstract: >-
+  Reproducible pipeline for probabilistic sea-level rise projections coupling
+  the RFF-SP socio-economic / emissions ensemble (Rennert et al. 2022) with
+  FaIR v2.2.4 (using the FaIR-calibrate v1.4.1 posterior of Smith et al.
+  2024) and MimiBRICK, with Wong (2026) AR(1) importance weighting against
+  observed historical global mean sea level. Includes Hawkins-Sutton
+  variance decomposition of total and pulse-marginal SLR by source
+  (emissions, climate response, internal variability, BRICK posterior),
+  plus the LHS-10k conditional-BRICK final ensemble used for the headline
+  projection band and pulse-marginal sensitivities.
+type: software
+authors:
+  - family-names: Sarofim
+    given-names: Marcus
+    email: msarofim@gmail.com
+    affiliation: "NYU Marron Institute of Urban Management / Johns Hopkins EPCP"
+license: MIT
+url: "https://github.com/msarofim/SLR-RFF-BRICK"
+repository-code: "https://github.com/msarofim/SLR-RFF-BRICK"
+keywords:
+  - sea-level rise
+  - probabilistic projections
+  - social cost of carbon
+  - Hawkins-Sutton decomposition
+  - FaIR
+  - MimiBRICK
+  - RFF-SP
+  - climate uncertainty
+references:
+  - type: article
+    authors:
+      - family-names: Darnell
+        given-names: Chloe
+    title: "The interplay of future emissions and geophysical uncertainties for projections of sea-level rise"
+    journal: "Nature Climate Change"
+    year: 2025
+    volume: 15
+    start: 1205
+    end: 1211
+    doi: "10.1038/s41558-025-02457-0"
+  - type: article
+    authors:
+      - family-names: Rennert
+        given-names: Kevin
+    title: "Comprehensive evidence implies a higher social cost of CO2"
+    journal: "Nature"
+    year: 2022
+    doi: "10.1038/s41586-022-05224-9"
+  - type: article
+    authors:
+      - family-names: Smith
+        given-names: Chris
+    title: "fair-calibrate v1.4.1: calibration, constraining, and validation of the FaIR simple climate model"
+    journal: "Geoscientific Model Development"
+    year: 2024
+    doi: "10.5194/gmd-17-8569-2024"
+  - type: preprint
+    authors:
+      - family-names: Wong
+        given-names: Tony
+    title: "Modeling the Sea-Level Change from U.S. Vehicle Emissions"
+    year: 2026
+    doi: "10.48550/arXiv.2604.13446"
