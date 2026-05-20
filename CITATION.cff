@@ -73,6 +73,17 @@ references:
     journal: "Geoscientific Model Development"
     year: 2024
     doi: "10.5194/gmd-17-8569-2024"
+  - type: article
+    authors:
+      - family-names: Wong
+        given-names: Tony E.
+    title: "BRICK v0.2, a simple, accessible, and transparent model framework for climate and regional sea-level projections"
+    journal: "Geoscientific Model Development"
+    year: 2017
+    volume: 10
+    start: 2741
+    end: 2760
+    doi: "10.5194/gmd-10-2741-2017"
   - type: preprint
     authors:
       - family-names: Wong

@@ -82,6 +82,7 @@ for f in \
   outputs/brick_lhs10k_pulse0p01gtc_to2300_weighted.csv \
   outputs/brick_anova_long_2300_weighted.csv \
   outputs/brick_anova_pulse_long_2300.csv \
+  outputs/brick_anova_marginal_long_2300_weighted.csv \
   outputs/brick_lB_per_post_dangendorf.csv ; do
   if [[ -f "$f" ]]; then
     sz=$(du -h "$f" | cut -f1)

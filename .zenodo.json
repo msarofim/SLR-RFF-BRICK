@@ -23,19 +23,40 @@
   "access_right": "open",
   "related_identifiers": [
     {
-      "identifier": "10.1038/s41558-025-02457-0",
-      "relation": "isSupplementTo",
-      "scheme": "doi"
-    },
-    {
       "identifier": "10.1038/s41586-022-05224-9",
       "relation": "isDerivedFrom",
+      "resource_type": "publication-article",
       "scheme": "doi"
     },
     {
       "identifier": "10.5194/gmd-17-8569-2024",
       "relation": "isDerivedFrom",
+      "resource_type": "publication-article",
       "scheme": "doi"
+    },
+    {
+      "identifier": "10.5194/gmd-10-2741-2017",
+      "relation": "isDerivedFrom",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.1038/s41558-025-02457-0",
+      "relation": "references",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.5281/zenodo.20312325",
+      "relation": "isSupplementedBy",
+      "resource_type": "dataset",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "https://thesaraphreport.substack.com/p/certainties-and-uncertainties",
+      "relation": "isReferencedBy",
+      "resource_type": "other",
+      "scheme": "url"
     }
   ]
 }

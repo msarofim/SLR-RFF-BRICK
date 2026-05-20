@@ -338,6 +338,7 @@ and 1.0 GtC pulses ([python/scripts/substack/pulse_convergence.py](python/script
 - Hawkins & Sutton 2009. *Bulletin of the American Meteorological Society*.
 - Rennert et al. 2022. *Nature*. [doi:10.1038/s41586-022-05224-9](https://doi.org/10.1038/s41586-022-05224-9)
 - Smith et al. 2024. *Geosci Model Dev*. [doi:10.5194/gmd-17-8569-2024](https://doi.org/10.5194/gmd-17-8569-2024)
-- Wong 2026. *arXiv preprint*. [doi:10.48550/arXiv.2604.13446](https://doi.org/10.48550/arXiv.2604.13446)
+- Wong et al. 2017. *Geosci Model Dev* 10:2741–2760 (BRICK v0.2). [doi:10.5194/gmd-10-2741-2017](https://doi.org/10.5194/gmd-10-2741-2017)
+- Wong 2026. *arXiv preprint* (Wong importance weighting). [doi:10.48550/arXiv.2604.13446](https://doi.org/10.48550/arXiv.2604.13446)
 - Dangendorf et al. 2024. *Earth System Science Data*. [doi:10.5281/zenodo.10621070](https://doi.org/10.5281/zenodo.10621070)
 - Sweet et al. 2022. NOAA Tech Rep NOS 01.
