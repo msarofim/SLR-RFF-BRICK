@@ -157,3 +157,6 @@ outputs/flatcube_smoke_*.csv
 # Obs-driven BRICK runs (large; reproducible via julia/run_mimibrick_obs_driven.jl)
 outputs/brick_obsdriven_*.csv
 parameters_subsample_sneasybrick.csv
+
+# One-off substack header PDF — script regenerates it each run; not worth tracking.
+outputs/substack/gaussian_vs_empirical_slr.pdf
