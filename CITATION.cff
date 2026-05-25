@@ -4,13 +4,18 @@ title: "SLR-RFF-BRICK: Probabilistic sea-level rise from RFF-SP × FaIR × MimiB
 abstract: >-
   Reproducible pipeline for probabilistic sea-level rise projections coupling
   the RFF-SP socio-economic / emissions ensemble (Rennert et al. 2022) with
-  FaIR v2.2.4 (using the FaIR-calibrate v1.4.1 posterior of Smith et al.
-  2024) and MimiBRICK, with Wong (2026) AR(1) importance weighting against
-  observed historical global mean sea level. Includes Hawkins-Sutton
-  variance decomposition of total and pulse-marginal SLR by source
-  (emissions, climate response, internal variability, BRICK posterior),
-  plus the LHS-10k conditional-BRICK final ensemble used for the headline
-  projection band and pulse-marginal sensitivities.
+  FaIR v2.2.4 (using the FaIR-calibrate v1.4.5 posterior of Smith et al.
+  2024, the AR6-anchored update to v1.4.1) and MimiBRICK (post-PR#93 joint
+  posterior of Wong et al. 2026, with Frederikse 2020 Greenland Ice Sheet
+  data added to the calibration target set), with Wong (2026) AR(1)
+  importance weighting against observed historical global mean sea level
+  (Dangendorf et al. 2024). Includes Hawkins-Sutton variance decomposition
+  of total and pulse-marginal SLR by source (emissions, climate response,
+  internal variability, BRICK posterior), plus the LHS-10k conditional-BRICK
+  ensemble used for the headline projection band and a 54,000-row ANOVA-18k
+  factorial ensemble for variance decomposition. Paired ±1-GtCO₂,
+  ±0.01-GtCO₂, ±1-Tg-CH₄, and ±0.01-Tg-CH₄ pulse arms supplied for
+  sign-flip and linearity tests.
 type: software
 authors:
   - family-names: Sarofim
