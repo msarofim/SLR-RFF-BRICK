@@ -160,3 +160,7 @@ parameters_subsample_sneasybrick.csv
 
 # One-off substack header PDF — script regenerates it each run; not worth tracking.
 outputs/substack/gaussian_vs_empirical_slr.pdf
+
+# Diagnostic cross-posterior / sample-stability test outputs (large CSVs)
+outputs/brick_xtest_prepr93/*.csv
+outputs/brick_anova_stab_*.csv
