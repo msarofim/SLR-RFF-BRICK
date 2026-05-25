@@ -24,7 +24,14 @@
 ##   --start-year:  default 1850
 ##   --end-year:    default 2100
 ##   --rcp:         default RCP45
-##   --save-trajs:  if true, write full year-by-year SLR
+##   --save-trajs:  if true, write full year-by-year total SLR (bare year cols)
+##   --save-component-trajs:
+##                  if true, write year-by-year per-component SLR with prefixed
+##                  column names: te_<year>, ais_<year>, gis_<year>, gsic_<year>.
+##                  Composes with --save-trajs (both can be on). When on, the
+##                  first metadata row also runs a closure check (Σ components
+##                  vs. total to 1e-10) per the paired-experiment sanity-test
+##                  framework; mismatch aborts before writing output.
 ## ============================================================================
 
 using ArgParse
@@ -66,6 +73,7 @@ function parse_cli()
         "--rcp";         default = "RCP45"
         "--n-seeds";     arg_type = Int; default = 0   # 0 means use all from cube
         "--save-trajs";  arg_type = Bool; default = false
+        "--save-component-trajs"; arg_type = Bool; default = false
     end
     return parse_args(s)
 end
@@ -220,10 +228,32 @@ function main()
     )
 
     save_trajs = args["save-trajs"]
+    save_comp_trajs = args["save-component-trajs"]
     traj_cols = Symbol[]
     if save_trajs
         traj_cols = [Symbol(string(y)) for y in yr_window]
         for c in traj_cols
+            out[!, c] = Float64[]
+        end
+    end
+    # Per-component trajectory columns: te_<y>, ais_<y>, gis_<y>, gsic_<y>, lws_<y>.
+    # Component values are re-referenced to year 2000 in cm, matching the
+    # ais_2100_cm / te_2100_cm summary columns. NOTE: BRICK's
+    # :global_sea_level sums FIVE contributors — the four ice/ocean
+    # components plus :landwater_storage. Omitting LWS leaves a non-trivial
+    # residual (~3 mm by 2024); confirmed via closure check below.
+    te_cols   = Symbol[]
+    ais_cols  = Symbol[]
+    gis_cols  = Symbol[]
+    gsic_cols = Symbol[]
+    lws_cols  = Symbol[]
+    if save_comp_trajs
+        te_cols   = [Symbol("te_$(y)")   for y in yr_window]
+        ais_cols  = [Symbol("ais_$(y)")  for y in yr_window]
+        gis_cols  = [Symbol("gis_$(y)")  for y in yr_window]
+        gsic_cols = [Symbol("gsic_$(y)") for y in yr_window]
+        lws_cols  = [Symbol("lws_$(y)")  for y in yr_window]
+        for c in vcat(te_cols, ais_cols, gis_cols, gsic_cols, lws_cols)
             out[!, c] = Float64[]
         end
     end
@@ -257,6 +287,7 @@ function main()
         gsic = m[:glaciers_small_icecaps, :gsic_sea_level]
         gis  = m[:greenland_icesheet,     :greenland_sea_level]
         te   = m[:thermal_expansion,      :te_sea_level]
+        lws  = m[:landwater_storage,      :lws_sea_level]
         gmsl = m[:global_sea_level,       :sea_level_rise]
 
         row = (
@@ -278,6 +309,40 @@ function main()
         if save_trajs
             for (t, c) in enumerate(traj_cols)
                 out[end, c] = 100 * (gmsl[t] - gmsl[i_2000])
+            end
+        end
+        if save_comp_trajs
+            te_base   = te[i_2000]
+            ais_base  = ais[i_2000]
+            gis_base  = gis[i_2000]
+            gsic_base = gsic[i_2000]
+            lws_base  = lws[i_2000]
+            for t in 1:length(yr_window)
+                out[end, te_cols[t]]   = 100 * (te[t]   - te_base)
+                out[end, ais_cols[t]]  = 100 * (ais[t]  - ais_base)
+                out[end, gis_cols[t]]  = 100 * (gis[t]  - gis_base)
+                out[end, gsic_cols[t]] = 100 * (gsic[t] - gsic_base)
+                out[end, lws_cols[t]]  = 100 * (lws[t]  - lws_base)
+            end
+            # Phase A closure check on the first row only: Σ components ≡ total SLR.
+            # BRICK's :global_sea_level component sums five contributors
+            # (AIS, GSIC, GIS, TE, LWS), so this should hold to floating-point
+            # precision. Any larger residual means BRICK internals have changed
+            # again — bail before we write a misleading CSV. Anchor at the last
+            # year of the window (always exists; year 2100 is not guaranteed
+            # if --end-year < 2100).
+            if k == 1
+                i_check = length(yr_window)
+                y_check = yr_window[i_check]
+                comp_sum = (ais[i_check] - ais_base) + (gsic[i_check] - gsic_base) +
+                           (gis[i_check] - gis_base) + (te[i_check] - te_base) +
+                           (lws[i_check] - lws_base)
+                total_v  = gmsl[i_check] - gmsl[i_2000]
+                resid_m  = total_v - comp_sum
+                println("  closure check (k=1, year=$y_check): total=$(round(total_v, digits=8)) m, " *
+                        "Σcomp=$(round(comp_sum, digits=8)) m, residual=$(round(resid_m, sigdigits=3)) m")
+                @assert abs(resid_m) < 1e-10 "Σ components ≠ total SLR (residual=$resid_m m). " *
+                    "BRICK may have added/renamed a contributor — extract it and update lws_/te_/... block."
             end
         end
 

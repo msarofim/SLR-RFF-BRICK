@@ -123,10 +123,17 @@ def fetch_berkeley_earth(out_path: Path, download: bool) -> bool:
     # block after data has begun, so we stop on the first '%' line seen
     # after any data row.
     #
-    # The "Annual_Anom" column is a 12-month centered average; taking the
-    # Month==12 row gives one finalised annual value per year (and the file
-    # only emits non-NaN Annual values once 6 months of context exist).
-    rows = []
+    # IMPORTANT: the "Annual_Anom" column is a 12-month CENTERED moving
+    # average — the value at (Year=N, Month=12) is centered ~Jan N+1,
+    # i.e. it represents roughly Jul N..Jul N+1, NOT calendar year N. A
+    # previous version of this loader took Month==12 and stored it as
+    # "year N", which shifted every BE annual value forward by ~6 months
+    # (Zeke Hausfather flagged this 2026-05-22: "Berkeley Earth dataset
+    # you show is offset from the IGCC one by one year"). Compute the
+    # calendar-year mean from Monthly_Anom directly to sidestep the
+    # centering convention. Match Annual_Unc at Month==6 for sigma (where
+    # the centered window IS calendar year N, Jan-Dec).
+    monthly_rows = []
     seen_data = False
     for line in raw_text.splitlines():
         s = line.strip()
@@ -143,27 +150,44 @@ def fetch_berkeley_earth(out_path: Path, download: bool) -> bool:
         try:
             yr = int(float(parts[0]))
             month = int(float(parts[1]))
+            m_anom_s = parts[2]
+            a_anom_s, a_unc_s = parts[4], parts[5]
         except (ValueError, IndexError):
             continue
         seen_data = True
-        if month != 12:
-            continue
-        a_anom_s, a_unc_s = parts[4], parts[5]
-        if a_anom_s in ("NaN", "nan"):
-            continue
         try:
-            a_anom = float(a_anom_s)
+            m_anom = float(m_anom_s) if m_anom_s not in ("NaN", "nan") else np.nan
+        except ValueError:
+            m_anom = np.nan
+        try:
             a_unc = float(a_unc_s) if a_unc_s not in ("NaN", "nan") else np.nan
         except ValueError:
-            continue
-        rows.append((yr, a_anom, a_unc))
+            a_unc = np.nan
+        monthly_rows.append((yr, month, m_anom, a_unc))
 
-    if not rows:
-        print("  [BE] parsing produced 0 rows; aborting")
+    if not monthly_rows:
+        print("  [BE] parsing produced 0 monthly rows; aborting")
         return False
 
-    annual = pd.DataFrame(rows, columns=["year", "value", "sigma"])
-    annual = annual.drop_duplicates(subset="year").sort_values("year").reset_index(drop=True)
+    monthly = pd.DataFrame(monthly_rows, columns=["year", "month", "monthly_anom", "annual_unc"])
+
+    # Calendar-year mean from monthly anomalies. Require all 12 months
+    # present and non-NaN before emitting an annual value, so partial
+    # final-year data is dropped (matches the prior behavior of relying
+    # on Annual_Anom only being non-NaN once 6 months of context exist).
+    g = monthly.groupby("year")
+    full = g["monthly_anom"].count() == 12
+    annual_mean = g["monthly_anom"].mean()[full]
+
+    # For sigma, use Annual_Unc at Month==6 (where the 12-month centered
+    # window spans calendar year N exactly). Falls back to NaN if missing.
+    sigma_at_m6 = monthly[monthly["month"] == 6].set_index("year")["annual_unc"]
+
+    annual = pd.DataFrame({
+        "year":  annual_mean.index.astype(int),
+        "value": annual_mean.values,
+        "sigma": sigma_at_m6.reindex(annual_mean.index).values,
+    }).reset_index(drop=True)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     annual.to_csv(out_path, index=False)
     print(f"  [BE] wrote {len(annual)} annual rows to {out_path} "

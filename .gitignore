@@ -132,3 +132,28 @@ outputs/poster/layout_mockup.pdf
 
 # IEc handoff zip is re-buildable from the unpacked folder.
 outputs/poster/iec_graphics_handoff.zip
+
+# ===========================================================================
+# v1.4.5 BRICK pipeline outputs (large; data on /scratch, summaries in CSV)
+# ===========================================================================
+# Slim per-arm weighted CSVs are 81 MB (LHS) to 435 MB (ANOVA) each — too big
+# for git. Keep on disk for downstream plot scripts; pull from Torch when
+# needed via rsync.
+outputs/brick_v145_slim/*.csv
+
+# Full Wong-pipeline weighted CSVs (460 MB LHS + 956 MB ANOVA each) likewise
+# stay on /scratch + local disk only. The small per-arm envelopes (~500 KB)
+# are kept in git for figure reproducibility.
+outputs/brick_v145_summaries/*_weighted.csv
+
+# Quarantined pre-fix outputs are large; the per-directory README is tracked
+# but the CSVs themselves stay on local disk for postmortem only.
+outputs/quarantine/**/*.csv
+outputs/quarantine/**/*.npz
+
+# Smoke / scratch outputs from the flatcube driver
+outputs/flatcube_smoke_*.csv
+
+# Obs-driven BRICK runs (large; reproducible via julia/run_mimibrick_obs_driven.jl)
+outputs/brick_obsdriven_*.csv
+parameters_subsample_sneasybrick.csv
