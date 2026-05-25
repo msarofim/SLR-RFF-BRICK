@@ -128,9 +128,13 @@ T_ANCHOR = 2020
 DECOMP_YEARS = list(range(2020, 2301))
 PLOT_END_YEAR = 2150
 
-BASELINE_CSV = OUT / "brick_anova_long_2300_weighted.csv"
-PULSE_CSV    = OUT / "brick_anova_pulse_long_2300.csv"
-MARGINAL_CSV = OUT / "brick_anova_marginal_long_2300_weighted.csv"
+# v1.4.5 slim ANOVA-18k (post-PR#93 BRICK + FaIR v1.4.5 + Wong-weighting),
+# 54,000 paired (rff, cfg, seed, post) rows × 451 years 1850-2300.
+# Replaces the legacy 13,500-row brick_anova_long_2300_*.csv files (now in
+# outputs/quarantine/20260524_pre_v145_e2e/).
+BASELINE_CSV = OUT / "brick_v145_slim" / "brick_anova18k_baseline_to2300_weighted.csv"
+PULSE_CSV    = OUT / "brick_v145_slim" / "brick_anova18k_pulse_co2_pos_1gt_to2300.csv"
+MARGINAL_CSV = OUT / "brick_v145_slim" / "brick_anova18k_marginal_co2_pos_1gt_to2300_weighted.csv"
 
 
 def build_marginal(base_df, pulse_df):

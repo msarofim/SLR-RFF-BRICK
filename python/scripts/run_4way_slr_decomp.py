@@ -58,7 +58,9 @@ def main():
     # ANOVA 4-way decomp — prefer the Wong-weighted 1850-2300 CSV if it
     # exists; fall back to the unweighted Phase A 2100 CSV otherwise.
     # ------------------------------------------------------------------
-    weighted_csv = OUT / "brick_anova_long_2300_weighted.csv"
+    # v1.4.5 slim ANOVA-18k (54,000 paired rows). Legacy v1.4.1 CSVs are
+    # quarantined under outputs/quarantine/20260524_pre_v145_e2e/.
+    weighted_csv = OUT / "brick_v145_slim" / "brick_anova18k_baseline_to2300_weighted.csv"
     unweighted_2300_csv = OUT / "brick_anova_long_2300.csv"
     unweighted_2100_csv = OUT / "brick_anova_long.csv"
 
