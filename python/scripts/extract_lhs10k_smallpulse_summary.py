@@ -34,13 +34,10 @@ BASELINE_CSV = ROOT / "outputs" / "brick_v145_slim" / "brick_lhs10k_baseline_to2
 PULSE_CSV    = ROOT / "outputs" / "brick_v145_slim" / "brick_lhs10k_pulse_co2_pos_001gt_to2300.csv"
 OUT_CSV      = OUT / "co2_pulse_slr_summary_lhs10k_0p01gtc.csv"
 
-# UNIT NOTE 2026-05-25: FaIR v1.4.5's 'CO2 FFI' species has input_unit
-# 'GtCO2' (see compute_pulse_temps_v145.py and species_configs_properties_1.4.5.csv).
-# `lhs10k_pulse_co2_pos_001gt.sh` passes `--pulse-size 0.01`, which FaIR
-# interprets as 0.01 GtCO2 — NOT 0.01 GtC as the legacy v141-era convention
-# assumed. The legacy script divided by 0.01 (treated as GtC) and multiplied
-# by 12/44 to convert to per-GtCO2 — gave values 3.67× too small. Fixed here.
-PULSE_SIZE_GTCO2           = 0.01    # GtCO2 (FaIR v1.4.5 input unit)
+# FaIR v1.4.5's `CO2 FFI` species has input_unit "GtCO2"; the 001gt arm
+# is therefore 0.01 GtCO2, not 0.01 GtC. See ~/.claude/skills/climate-modeling
+# "Unit checks: GtC vs GtCO₂" for the recurring trap.
+PULSE_SIZE_GTCO2           = 0.01    # FaIR v1.4.5 CO2 FFI input unit
 PLOT_YEARS                 = (2025, 2300)
 AIS_TIPPING_REFERENCE_YEAR = 2100
 AIS_TIPPING_THRESHOLD_CM   = 20.0

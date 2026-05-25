@@ -55,24 +55,16 @@ ROOT       = Path(__file__).resolve().parents[3]
 OUT        = ROOT / "outputs" / "substack"
 OUT.mkdir(parents=True, exist_ok=True)
 
-# v1.4.5 slim CSVs (post-PR#93 BRICK posterior + FaIR v1.4.5 + Wong-weighting).
-# Files produced by python/scripts/emit_slim_legacy_csvs_v145.py from the
-# Wong-pipeline outputs in outputs/brick_v145_summaries/. Both files use the
-# legacy bare-year column schema (e.g. "2050", "2100") so this script's
-# detect-numeric-columns logic works unchanged. Pulse arm 'co2_pos_001gt' is
-# the 0.01-GtCO₂ small-pulse companion (linear-regime). See UNIT NOTE below
-# regarding the v1.4.5 calibration's GtCO₂ pulse unit.
+# v1.4.5 slim inputs (legacy bare-year column schema, emitted by
+# emit_slim_legacy_csvs_v145.py from the post-PR#93 Wong-pipeline outputs).
+# Pulse arm 'co2_pos_001gt' is the 0.01-GtCO₂ small-pulse companion (linear
+# regime). FaIR v1.4.5's `CO2 FFI` species has input_unit "GtCO2" — pulses
+# are in CO₂ mass, not carbon mass; the marginal scaling reflects that.
 BASELINE_CSV = ROOT / "outputs" / "brick_v145_slim" / "brick_lhs10k_baseline_to2300_weighted.csv"
 PULSE_CSV    = ROOT / "outputs" / "brick_v145_slim" / "brick_lhs10k_pulse_co2_pos_001gt_to2300.csv"
 
-# UNIT NOTE 2026-05-25: FaIR v1.4.5's 'CO2 FFI' species has input_unit
-# 'GtCO2' (see compute_pulse_temps_v145.py + species_configs_properties_1.4.5.csv).
-# The 001gt cube arm was built with `--pulse-size 0.01` = 0.01 GtCO2 (NOT
-# 0.01 GtC). Pre-fix the script assumed GtC and applied an extra 12/44
-# conversion — gave values 3.67× too small. The fix below skips the
-# GtC→GtCO2 conversion since the pulse is already in GtCO2.
-PULSE_SIZE_GTCO2    = 0.01                                  # FaIR v1.4.5 unit
-MARGINAL_SCALE      = 1.0 / PULSE_SIZE_GTCO2                # cm per GtCO₂ directly
+PULSE_SIZE_GTCO2 = 0.01                                  # FaIR v1.4.5 CO2 FFI input unit
+MARGINAL_SCALE   = 1.0 / PULSE_SIZE_GTCO2                # cm-per-pulse → cm per GtCO₂
 
 PULSE_LABEL  = "1 GtCO₂ pulse at 2030"      # narrative label; data is 0.01-GtCO₂ linear-regime, scaled to 1-GtCO₂ basis
 ENSEMBLE_LBL = "LHS-10k importance-weighted (FaIR v1.4.5 + post-PR#93 BRICK)"

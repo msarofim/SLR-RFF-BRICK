@@ -58,8 +58,9 @@ PANELS = [
     ("co2_pulse_gmst_summary.csv",        "1 GtCO₂ pulse at 2030",
         "Marginal GMST",                  "°C per GtCO₂",
         PER_GTC_TO_PER_GTCO2,             "#A6361C", 0, 0),
-    # v1.4.5 CSV is already per-GtCO₂ (FaIR CO2 FFI unit = GtCO2) — no rescale.
-    # Legacy v1.4.1 CSVs were per-GtC and used PER_GTC_TO_PER_GTCO2 here.
+    # CO2 SLR scale = 1.0: the v1.4.5 summary is already in cm per GtCO₂
+    # (FaIR CO2 FFI input_unit is "GtCO2"). The CH4 panels below still use
+    # the GWP100 conversion because their summaries are per-Tg-CH4.
     ("co2_pulse_slr_summary_lhs10k_0p01gtc.csv", "1 GtCO₂ pulse at 2030",
         "Marginal SLR",   "cm per GtCO₂",
         1.0,                              "#1F4E79", 0, 1),

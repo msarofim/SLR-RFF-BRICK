@@ -54,6 +54,9 @@ using Mimi
 using MimiBRICK
 using Random
 
+# Shared BRICK-posterior-row updater (extracted 2026-05-25).
+include(joinpath(@__DIR__, "brick_param_updates.jl"))
+
 function parse_cli()
     s = ArgParseSettings()
     @add_arg_table! s begin
@@ -77,37 +80,6 @@ function parse_cli()
         "--save-component-trajs"; arg_type = Bool; default = true
     end
     return parse_args(s)
-end
-
-# Keep in sync with run_mimibrick_paired_explicit.jl:update_brick_params!.
-function update_brick_params!(m, prow)
-    update_param!(m, :antarctic_ocean, :anto_α, prow.anto_alpha)
-    update_param!(m, :antarctic_ocean, :anto_β, prow.anto_beta)
-    update_param!(m, :antarctic_icesheet, :ais_sea_level₀,             prow.antarctic_s0)
-    update_param!(m, :antarctic_icesheet, :ais_bedheight₀,             prow.antarctic_bed_height0)
-    update_param!(m, :antarctic_icesheet, :ais_slope,                  prow.antarctic_slope)
-    update_param!(m, :antarctic_icesheet, :ais_μ,                      prow.antarctic_mu)
-    update_param!(m, :antarctic_icesheet, :ais_runoffline_snowheight₀, prow.antarctic_runoff_height0)
-    update_param!(m, :antarctic_icesheet, :ais_c,                      prow.antarctic_c)
-    update_param!(m, :antarctic_icesheet, :ais_precipitation₀,         prow.antarctic_precip0)
-    update_param!(m, :antarctic_icesheet, :ais_κ,                      prow.antarctic_kappa)
-    update_param!(m, :antarctic_icesheet, :ais_ν,                      prow.antarctic_nu)
-    update_param!(m, :antarctic_icesheet, :ais_iceflow₀,               prow.antarctic_flow0)
-    update_param!(m, :antarctic_icesheet, :ais_γ,                      prow.antarctic_gamma)
-    update_param!(m, :antarctic_icesheet, :ais_α,                      prow.antarctic_alpha)
-    update_param!(m, :antarctic_icesheet, :temperature_threshold,      prow.antarctic_temp_threshold)
-    update_param!(m, :antarctic_icesheet, :λ,                          prow.antarctic_lambda)
-    update_param!(m, :glaciers_small_icecaps, :gsic_β₀, prow.glaciers_beta0)
-    update_param!(m, :glaciers_small_icecaps, :gsic_v₀, prow.glaciers_v0)
-    update_param!(m, :glaciers_small_icecaps, :gsic_s₀, prow.glaciers_s0)
-    update_param!(m, :glaciers_small_icecaps, :gsic_n,  prow.glaciers_n)
-    update_param!(m, :greenland_icesheet, :greenland_a, prow.greenland_a)
-    update_param!(m, :greenland_icesheet, :greenland_b, prow.greenland_b)
-    update_param!(m, :greenland_icesheet, :greenland_α, prow.greenland_alpha)
-    update_param!(m, :greenland_icesheet, :greenland_β, prow.greenland_beta)
-    update_param!(m, :greenland_icesheet, :greenland_v₀, prow.greenland_v0)
-    update_param!(m, :thermal_expansion, :te_α,  prow.thermal_alpha)
-    update_param!(m, :thermal_expansion, :te_s₀, prow.thermal_s0)
 end
 
 # CSV loader that tolerates BRICK obs files with header comments (lines

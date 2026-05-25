@@ -60,6 +60,7 @@ from apply_wong_weights import (  # noqa: E402
     ess_fraction,
     weighted_quantile,
 )
+from column_helpers import KEY_COLS, detect_year_columns  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -90,18 +91,6 @@ def parse_args() -> argparse.Namespace:
 
 
 # ---------------------------------------------------------------------------
-# Schema helpers
-# ---------------------------------------------------------------------------
-def detect_year_grid(df: pd.DataFrame, prefix: str = "slr_") -> list[int]:
-    """Return sorted list of years parsed from prefix_<year> column names."""
-    yrs = []
-    for c in df.columns:
-        if c.startswith(prefix) and c[len(prefix):].isdigit():
-            yrs.append(int(c[len(prefix):]))
-    return sorted(yrs)
-
-
-# ---------------------------------------------------------------------------
 # Wong-weights step for the baseline arm
 # ---------------------------------------------------------------------------
 def compute_wong_weights(
@@ -113,7 +102,7 @@ def compute_wong_weights(
     print(f"[wong] baseline rows: {len(baseline):,}", flush=True)
 
     # ----- year columns (slr_<y>) ---------------------------------------
-    years = detect_year_grid(baseline, "slr_")
+    years = detect_year_columns(baseline, "slr_")
     assert years, "no slr_<year> columns found in baseline CSV"
     print(f"[wong] year columns: {years[0]}..{years[-1]} ({len(years)})", flush=True)
 
@@ -196,7 +185,7 @@ def summarize_envelopes(df: pd.DataFrame, weight_col: str | None,
                          year_grid: list[int] | None = None) -> pd.DataFrame:
     """Per-year p5/p17/p50/p83/p95 (weighted if weight_col, unweighted always)."""
     if year_grid is None:
-        year_grid = detect_year_grid(df, prefix=f"{components[0]}_")
+        year_grid = detect_year_columns(df, prefix=f"{components[0]}_")
     rows = []
     w = df[weight_col].to_numpy() if weight_col is not None else None
     for y in year_grid:
@@ -222,7 +211,7 @@ def marginal_envelopes(base_aug: pd.DataFrame, pulse: pd.DataFrame,
     """Paired marginal ΔSLR(y) = pulse - baseline per (rff, cfg, seed, post)
     tuple; per-year envelope across the tuples. Weighted via baseline's
     w_norm (the conceptually right move per Wong's paper)."""
-    join_keys = ["rff_idx", "fair_cfg_idx", "seed_idx", "post_idx"]
+    join_keys = list(KEY_COLS)
     # Restrict baseline to just the columns we need.
     base_cols = join_keys + ["w_norm"] + [f"slr_{y}" for y in year_grid]
     pulse_cols = join_keys + [f"slr_{y}" for y in year_grid]
@@ -230,7 +219,15 @@ def marginal_envelopes(base_aug: pd.DataFrame, pulse: pd.DataFrame,
                                  suffixes=("_p", "_b"))
     n_dropped = len(pulse) - len(j)
     if n_dropped > 0:
-        print(f"  [marg] WARNING: {n_dropped} pulse rows had no matching baseline tuple", flush=True)
+        # Silent paired-merge drops are a known foot-gun: a pulse cell that
+        # has no baseline twin is unweightable and silently distorts the
+        # marginal envelope. Hard-fail at >1% so the operator knows.
+        frac = n_dropped / max(len(pulse), 1)
+        msg = (f"[marg] {n_dropped} / {len(pulse)} pulse rows "
+               f"({100*frac:.2f}%) had no matching baseline tuple")
+        if frac > 0.01:
+            raise RuntimeError(msg + " — aborting (>1% pairing loss).")
+        print(f"  WARNING: {msg}", flush=True)
     rows = []
     w = j["w_norm"].to_numpy()
     for y in year_grid:
@@ -270,7 +267,7 @@ def process_family(family: str, brick_dir: Path, out_dir: Path,
     baseline_aug.to_csv(weighted_csv, index=False)
     print(f"[save] {weighted_csv}  ({len(baseline_aug):,} rows)", flush=True)
 
-    year_grid = detect_year_grid(baseline_aug, "slr_")
+    year_grid = detect_year_columns(baseline_aug, "slr_")
 
     # ----- baseline envelopes (small) ------------------------------------
     env = summarize_envelopes(baseline_aug, "w_norm", year_grid=year_grid)
@@ -290,11 +287,18 @@ def process_family(family: str, brick_dir: Path, out_dir: Path,
         print(f"\n[arm] {arm}", flush=True)
         pulse = pd.read_csv(pcsv)
         # Inherit weights from the baseline arm (per paired-tuple).
-        join_keys = ["rff_idx", "fair_cfg_idx", "seed_idx", "post_idx"]
+        join_keys = list(KEY_COLS)
         pulse_aug = pulse.merge(baseline_aug[join_keys + ["w_norm"]], on=join_keys, how="left")
         if pulse_aug.w_norm.isna().any():
+            # Same silent-drop concern as in marginal_envelopes — hard-fail
+            # above 1% so the operator doesn't ship an arm with degraded
+            # importance-weight coverage.
             n_miss = int(pulse_aug.w_norm.isna().sum())
-            print(f"  WARNING: {n_miss}/{len(pulse_aug)} pulse rows had no baseline weight match", flush=True)
+            frac = n_miss / max(len(pulse_aug), 1)
+            msg = f"{n_miss} / {len(pulse_aug)} pulse rows ({100*frac:.2f}%) had no baseline weight match"
+            if frac > 0.01:
+                raise RuntimeError(msg + " — aborting (>1%).")
+            print(f"  WARNING: {msg}", flush=True)
         env_p = summarize_envelopes(pulse_aug, "w_norm", year_grid=year_grid)
         env_p.to_csv(env_out, index=False)
         print(f"[save] {env_out}", flush=True)

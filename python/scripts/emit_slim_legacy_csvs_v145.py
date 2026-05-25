@@ -33,12 +33,13 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 import pandas as pd
 
-
-KEY_COLS = ["rff_idx", "fair_cfg_idx", "seed_idx", "post_idx"]
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from column_helpers import KEY_COLS, detect_year_columns  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
@@ -54,28 +55,25 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
-def make_slim_baseline(weighted_csv: Path, out_csv: Path) -> None:
-    """Read full baseline_weighted CSV; emit slim (keys + w_norm + bare-year SLR)."""
-    df = pd.read_csv(weighted_csv)
-    slr_cols = sorted([c for c in df.columns if c.startswith("slr_")
-                        and c[len("slr_"):].isdigit()],
-                       key=lambda c: int(c[len("slr_"):]))
-    keep = KEY_COLS + ["w_norm"] + slr_cols
-    sub = df[keep].copy()
-    sub = sub.rename(columns={c: c[len("slr_"):] for c in slr_cols})
-    sub.to_csv(out_csv, index=False)
-    print(f"  wrote {out_csv}  rows={len(sub)} cols={len(sub.columns)}")
+def make_slim(in_csv: Path, out_csv: Path, *, include_w_norm: bool) -> None:
+    """Read a v1.4.5 BRICK CSV; emit a slim legacy-schema copy.
 
+    Output schema:
+      - the four `KEY_COLS` (rff_idx, fair_cfg_idx, seed_idx, post_idx)
+      - `w_norm` if `include_w_norm` (baseline-weighted CSVs only)
+      - bare-year SLR columns "1850"..."2300" (renamed from "slr_1850" etc.)
 
-def make_slim_pulse(brick_csv: Path, out_csv: Path) -> None:
-    """Read raw pulse CSV; emit slim (keys + bare-year SLR; no w_norm)."""
-    df = pd.read_csv(brick_csv)
-    slr_cols = sorted([c for c in df.columns if c.startswith("slr_")
-                        and c[len("slr_"):].isdigit()],
-                       key=lambda c: int(c[len("slr_"):]))
-    keep = KEY_COLS + slr_cols
-    sub = df[keep].copy()
-    sub = sub.rename(columns={c: c[len("slr_"):] for c in slr_cols})
+    Component columns (te_<y>, ais_<y>, gis_<y>, gsic_<y>, lws_<y>) are
+    dropped; consumers that need them read the full Wong-pipeline CSV.
+    """
+    df = pd.read_csv(in_csv)
+    years = detect_year_columns(df, prefix="slr_")
+    if not years:
+        raise RuntimeError(f"{in_csv}: no `slr_<year>` columns found")
+    slr_cols = [f"slr_{y}" for y in years]
+    extra = ["w_norm"] if include_w_norm else []
+    keep = list(KEY_COLS) + extra + slr_cols
+    sub = df[keep].rename(columns={f"slr_{y}": str(y) for y in years})
     sub.to_csv(out_csv, index=False)
     print(f"  wrote {out_csv}  rows={len(sub)} cols={len(sub.columns)}")
 
@@ -88,17 +86,21 @@ def main() -> None:
 
     for family in [f.strip() for f in args.families.split(",")]:
         print(f"\n=== family: {family} ===")
-        # Baseline (slim, with w_norm) — from the weighted CSV
-        w_csv = weighted_dir / f"brick_{family}_baseline_weighted.csv"
-        if w_csv.exists():
-            make_slim_baseline(w_csv, out_dir / f"brick_{family}_baseline_to2300_weighted.csv")
+        # Baseline: slim file carries w_norm (the Wong importance weights).
+        baseline_in = weighted_dir / f"brick_{family}_baseline_weighted.csv"
+        if baseline_in.exists():
+            baseline_out = out_dir / f"brick_{family}_baseline_to2300_weighted.csv"
+            make_slim(baseline_in, baseline_out, include_w_norm=True)
         else:
-            print(f"  no weighted baseline at {w_csv}; skipping")
+            print(f"  no weighted baseline at {baseline_in}; skipping")
 
-        # Pulse arms (slim, no w_norm) — from the raw brick CSVs
-        for p_csv in sorted(brick_dir.glob(f"brick_{family}_pulse_*.csv")):
-            arm = p_csv.stem.replace(f"brick_{family}_", "")
-            make_slim_pulse(p_csv, out_dir / f"brick_{family}_{arm}_to2300.csv")
+        # Pulse arms: paired with the baseline by (rff,cfg,seed,post); they
+        # inherit w_norm via that join in downstream scripts, so the slim
+        # pulse CSV is keys + SLR-only.
+        for pulse_in in sorted(brick_dir.glob(f"brick_{family}_pulse_*.csv")):
+            arm = pulse_in.stem.replace(f"brick_{family}_", "")
+            pulse_out = out_dir / f"brick_{family}_{arm}_to2300.csv"
+            make_slim(pulse_in, pulse_out, include_w_norm=False)
 
 
 if __name__ == "__main__":
