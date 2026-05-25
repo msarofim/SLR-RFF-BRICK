@@ -2,24 +2,26 @@
 fair_brick_vs_obs_gmst_gmsl.py
 ==============================
 
-Two-panel substack figure comparing the v1.4.5 FaIR/BRICK pipeline to
-observations:
+Two-panel substack figure comparing the FaIR / MimiBRICK pipeline (FaIR-calibrate
+v1.4.5 + post-PR#93 BRICK joint posterior) to observations over the historical
+period only:
 
-  Top   — Global mean surface temperature (FaIR v1.4.5 LHS-10k baseline
-          vs. IGCC 2024 4-dataset mean + Berkeley Earth annual).
-  Bottom — Global mean sea level (BRICK v1.4.5 LHS-10k baseline, AR6
-          bias-corrected, vs. Dangendorf 2024 + Church & White 2011
-          (CSIRO Recons) + IGCC 2024 GMSL ensemble).
+  Top    — Global mean surface temperature: FaIR LHS-10k baseline ensemble
+           vs. IGCC 2024 4-dataset mean and Berkeley Earth annual.
+  Bottom — Global mean sea level: BRICK LHS-10k baseline, importance-weighted,
+           vs. Dangendorf 2024, Church & White 2011 (CSIRO Recons), and
+           IGCC 2024 GMSL ensemble.
 
 Conventions:
   - GMST baseline: 1850-1900 mean (pre-industrial reference, AR6).
   - GMSL baseline: 1995-2014 mean (AR6 recent-period reference).
-  - Each model draw is rebaselined at its own window mean, then the
-    ensemble is collapsed to median + 5-95 % band — preserves draw-to-draw
-    variance correctly across the rebaselining step.
-  - Each obs series is rebaselined to the same window; for years before
-    the obs coverage starts, the series simply doesn't appear on the plot
-    (no extrapolation).
+  - Plot range ends at the last common obs year — no model projections shown.
+    The comparison is strictly observational; projections live in slr_band.py
+    and the H-S decomposition panels.
+  - Each model draw is rebaselined at its own window mean before the
+    ensemble is collapsed to median + 5-95 % band; preserves draw-to-draw
+    variance through rebaselining.
+  - All obs series rebaselined to the same window.
 
 Output: outputs/substack/fair_brick_vs_obs_gmst_gmsl.{png,pdf}
 """
@@ -59,9 +61,18 @@ GMST_BASE = (1850, 1900)   # AR6 pre-industrial
 GMSL_BASE = (1995, 2014)   # AR6 recent-period
 
 # ---- Plot range -------------------------------------------------------------
-PLOT_START = 1900
-PLOT_END   = 2100
+# Historical-only window: ends at the most recent year covered by obs.
+# IGCC GMST + GMSL extend through 2024; Berkeley Earth through ~2024;
+# Dangendorf 2024 (the file's name notwithstanding) ends 2018; C&W ends 2013.
+PLOT_START = 1850
+PLOT_END   = 2024
 BAND_LOW_Q, BAND_HIGH_Q = 0.05, 0.95
+
+# ---- Provenance strings (used in caption) -----------------------------------
+MODEL_VERSIONS  = "FaIR v2.2.4 + MimiBRICK v1.0.1"
+CALIB_VERSIONS  = "FaIR-calibrate v1.4.5 (Smith et al. 2024) + post-PR#93 BRICK joint posterior (Wong, 2026)"
+EMISSIONS_DESC  = ("Smith et al. 2024 historical (1750–2020) spliced with 10,000 RFF-SP draws "
+                   "(Rennert et al. 2022) for 2021+; LHS-10k baseline arm.")
 
 # ---- Colors (consistent with the other substack figures) --------------------
 COLOR_MODEL    = "#1F4E79"
@@ -165,7 +176,7 @@ def main() -> None:
     m_t = (yrs_m >= PLOT_START) & (yrs_m <= PLOT_END)
     ax_t.fill_between(yrs_m[m_t], lo_t[m_t], hi_t[m_t],
                        color=COLOR_MODEL, alpha=0.22, linewidth=0,
-                       label="FaIR v1.4.5 LHS-10k, 5–95 %")
+                       label="FaIR LHS-10k, 5–95 %")
     ax_t.plot(yrs_m[m_t], med_t[m_t], color=COLOR_MODEL, lw=2.0,
               label="FaIR median")
 
@@ -184,7 +195,7 @@ def main() -> None:
     ax_t.axhline(0, color="grey", lw=0.5)
     ax_t.set_ylabel(f"GMST anomaly (°C, rel. {GMST_BASE[0]}–{GMST_BASE[1]})",
                      fontsize=10)
-    ax_t.set_title("Global mean surface temperature — FaIR v1.4.5 vs. observations",
+    ax_t.set_title("Global mean surface temperature — model vs. observations",
                     fontsize=11, fontweight="bold", color="#1A1A1A")
     ax_t.grid(alpha=0.3, lw=0.4)
     ax_t.legend(loc="upper left", fontsize=8.5, framealpha=0.92)
@@ -207,7 +218,7 @@ def main() -> None:
     m_s = (yrs_s >= PLOT_START) & (yrs_s <= PLOT_END)
     ax_s.fill_between(yrs_s[m_s], slr_lo[m_s], slr_hi[m_s],
                        color=COLOR_MODEL, alpha=0.22, linewidth=0,
-                       label="BRICK v1.4.5 LHS-10k Wong-weighted, 5–95 %")
+                       label="BRICK LHS-10k importance-weighted, 5–95 %")
     ax_s.plot(yrs_s[m_s], slr_med[m_s], color=COLOR_MODEL, lw=2.0,
               label="BRICK median")
 
@@ -227,24 +238,28 @@ def main() -> None:
     ax_s.set_xlim(PLOT_START, PLOT_END)
     ax_s.set_xlabel("Year", fontsize=10)
     ax_s.set_ylabel(f"GMSL (cm, rel. {GMSL_BASE[0]}–{GMSL_BASE[1]})", fontsize=10)
-    ax_s.set_title("Global mean sea level — BRICK v1.4.5 vs. observations",
+    ax_s.set_title("Global mean sea level — model vs. observations",
                     fontsize=11, fontweight="bold", color="#1A1A1A")
     ax_s.grid(alpha=0.3, lw=0.4)
     ax_s.legend(loc="upper left", fontsize=8.5, framealpha=0.92)
 
-    fig.tight_layout(rect=[0, 0.04, 1, 0.96])
+    fig.tight_layout(rect=[0, 0.07, 1, 0.96])
     fig.suptitle(
-        "Latest FaIR / BRICK pipeline vs. observations",
+        "Model vs. observations: temperature and sea level",
         fontsize=14, fontweight="bold", color="#1A1A1A", y=0.99)
-    fig.text(
-        0.5, 0.01,
-        f"FaIR v1.4.5 (Smith et al. 2024) + MimiBRICK post-PR#93 joint posterior, "
-        f"Wong-weighted LHS-10k baseline. "
-        f"GMST anomaly rel. {GMST_BASE[0]}–{GMST_BASE[1]}; "
-        f"GMSL rel. {GMSL_BASE[0]}–{GMSL_BASE[1]}. "
-        f"Each draw rebaselined at its own window mean; obs rebaselined to the same window.",
-        ha="center", va="bottom", fontsize=8.5, style="italic", color="#444444",
-        wrap=True)
+    caption = (
+        f"Model: {MODEL_VERSIONS}. Calibration: {CALIB_VERSIONS}. "
+        f"Emissions: {EMISSIONS_DESC} "
+        f"GMST anomaly rel. {GMST_BASE[0]}–{GMST_BASE[1]} (AR6 pre-industrial); "
+        f"GMSL rel. {GMSL_BASE[0]}–{GMSL_BASE[1]} (AR6 recent-period). "
+        f"Each draw rebaselined at its own window mean before quantiles are "
+        f"computed; obs rebaselined to the same window. "
+        f"Plot range is historical-only ({PLOT_START}–{PLOT_END}); "
+        f"projections are in separate figures."
+    )
+    fig.text(0.5, 0.01, caption,
+             ha="center", va="bottom", fontsize=8.0, style="italic",
+             color="#444444", wrap=True)
 
     out_png = OUT_DIR / "fair_brick_vs_obs_gmst_gmsl.png"
     out_pdf = OUT_DIR / "fair_brick_vs_obs_gmst_gmsl.pdf"
@@ -254,25 +269,32 @@ def main() -> None:
     print(f"wrote {out_png}")
     print(f"wrote {out_pdf}")
 
-    # Diagnostic table at landmark years
-    print("\n=== Landmark values ===")
-    def at(yrs, v, y):
-        m = yrs == y
-        return float(v[m][0]) if m.any() else float("nan")
+    # Diagnostic table at landmark windows. Per the obs-model-comparisons
+    # skill: never compare to a single year — always to a ≥5-year window.
+    def window_mean(yrs, vals, center, half=2):
+        m = (yrs >= center - half) & (yrs <= center + half)
+        return float(np.nanmean(vals[m])) if m.any() else float("nan")
 
-    print(f"{'year':>6}  {'FaIR median °C':>16}  {'IGCC °C':>10}  {'BE °C':>10}")
-    for y in (1900, 1950, 1980, 2000, 2010, 2020, 2024, 2050, 2100):
-        print(f"  {y:>4}  {at(yrs_m, med_t, y):>16.3f}  "
-              f"{at(yrs_i, gmst_i_n, y):>10.3f}  {at(yrs_b, gmst_b_n, y):>10.3f}")
+    print("\n=== Landmark 5-year window means (year ± 2) ===")
+    landmarks = (1900, 1950, 1980, 2000, 2010, 2020, 2022)
+    print(f"{'window':>10}  {'FaIR median °C':>16}  {'IGCC °C':>10}  {'BE °C':>10}")
+    for y in landmarks:
+        print(f"  {y-2}-{y+2}  "
+              f"{window_mean(yrs_m, med_t, y):>16.3f}  "
+              f"{window_mean(yrs_i, gmst_i_n, y):>10.3f}  "
+              f"{window_mean(yrs_b, gmst_b_n, y):>10.3f}")
 
-    print(f"\n{'year':>6}  {'BRICK median cm':>16}  {'Dangen cm':>10}  {'C&W cm':>10}  {'IGCC cm':>10}")
     yrs_d, dan, _ = load_dangendorf();   dan_n = rebaseline_series(yrs_d, dan, *GMSL_BASE)
     yrs_c, chu, _ = load_church();       chu_n = rebaseline_series(yrs_c, chu, *GMSL_BASE)
     yrs_ig, ig, _ = load_igcc_gmsl();    ig_n  = rebaseline_series(yrs_ig, ig, *GMSL_BASE)
-    for y in (1900, 1950, 1980, 2000, 2010, 2020, 2024, 2050, 2100):
-        print(f"  {y:>4}  {at(yrs_s, slr_med, y):>16.2f}  "
-              f"{at(yrs_d, dan_n, y):>10.2f}  {at(yrs_c, chu_n, y):>10.2f}  "
-              f"{at(yrs_ig, ig_n, y):>10.2f}")
+    print(f"\n{'window':>10}  {'BRICK median cm':>16}  {'Dangen cm':>10}  "
+          f"{'C&W cm':>10}  {'IGCC cm':>10}")
+    for y in landmarks:
+        print(f"  {y-2}-{y+2}  "
+              f"{window_mean(yrs_s, slr_med, y):>16.2f}  "
+              f"{window_mean(yrs_d, dan_n, y):>10.2f}  "
+              f"{window_mean(yrs_c, chu_n, y):>10.2f}  "
+              f"{window_mean(yrs_ig, ig_n, y):>10.2f}")
 
 
 if __name__ == "__main__":
