@@ -68,7 +68,11 @@ PANELS = [
         "Marginal GMST",
         f"°C per GtCO₂eq (AR6 GWP100={GWP100_CH4:.1f})",
         TG_CH4_PER_GTCO2EQ,               "#A6361C", 1, 0),
-    ("ch4_pulse_slr_summary_1p0tg.csv",   "1 GtCO₂eq CH₄ pulse at 2030",
+    # v1.4.5 CH4 small-pulse summary (0.01-Tg CH4 pulse, post-PR#93 BRICK,
+    # 10k-RFF LHS). Replaces the v1.4.1-era 1-Tg paired-RFF summary
+    # (ch4_pulse_slr_summary_1p0tg.csv) so CH4 and CO2 panels are now both on
+    # the same v1.4.5 + post-PR#93 calibration footing.
+    ("ch4_pulse_slr_summary_lhs10k_0p01tg.csv", "1 GtCO₂eq CH₄ pulse at 2030",
         "Marginal SLR",
         f"cm per GtCO₂eq (AR6 GWP100={GWP100_CH4:.1f})",
         TG_CH4_PER_GTCO2EQ,               "#1F4E79", 1, 1),
