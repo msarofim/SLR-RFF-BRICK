@@ -58,9 +58,11 @@ PANELS = [
     ("co2_pulse_gmst_summary.csv",        "1 GtCO₂ pulse at 2030",
         "Marginal GMST",                  "°C per GtCO₂",
         PER_GTC_TO_PER_GTCO2,             "#A6361C", 0, 0),
+    # v1.4.5 CSV is already per-GtCO₂ (FaIR CO2 FFI unit = GtCO2) — no rescale.
+    # Legacy v1.4.1 CSVs were per-GtC and used PER_GTC_TO_PER_GTCO2 here.
     ("co2_pulse_slr_summary_lhs10k_0p01gtc.csv", "1 GtCO₂ pulse at 2030",
         "Marginal SLR",   "cm per GtCO₂",
-        PER_GTC_TO_PER_GTCO2,             "#1F4E79", 0, 1),
+        1.0,                              "#1F4E79", 0, 1),
     ("ch4_pulse_gmst_summary.csv",        "1 GtCO₂eq CH₄ pulse at 2030",
         "Marginal GMST",
         f"°C per GtCO₂eq (AR6 GWP100={GWP100_CH4:.1f})",

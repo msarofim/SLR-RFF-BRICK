@@ -34,7 +34,13 @@ BASELINE_CSV = ROOT / "outputs" / "brick_v145_slim" / "brick_lhs10k_baseline_to2
 PULSE_CSV    = ROOT / "outputs" / "brick_v145_slim" / "brick_lhs10k_pulse_co2_pos_001gt_to2300.csv"
 OUT_CSV      = OUT / "co2_pulse_slr_summary_lhs10k_0p01gtc.csv"
 
-PULSE_SIZE_GTC             = 0.01
+# UNIT NOTE 2026-05-25: FaIR v1.4.5's 'CO2 FFI' species has input_unit
+# 'GtCO2' (see compute_pulse_temps_v145.py and species_configs_properties_1.4.5.csv).
+# `lhs10k_pulse_co2_pos_001gt.sh` passes `--pulse-size 0.01`, which FaIR
+# interprets as 0.01 GtCO2 — NOT 0.01 GtC as the legacy v141-era convention
+# assumed. The legacy script divided by 0.01 (treated as GtC) and multiplied
+# by 12/44 to convert to per-GtCO2 — gave values 3.67× too small. Fixed here.
+PULSE_SIZE_GTCO2           = 0.01    # GtCO2 (FaIR v1.4.5 input unit)
 PLOT_YEARS                 = (2025, 2300)
 AIS_TIPPING_REFERENCE_YEAR = 2100
 AIS_TIPPING_THRESHOLD_CM   = 20.0
@@ -65,7 +71,7 @@ def main():
     years     = np.array([int(c) for c in year_cols])
     Yb        = b[year_cols].to_numpy(np.float64)
     Yp        = p[year_cols].to_numpy(np.float64)
-    M         = (Yp - Yb) / PULSE_SIZE_GTC                    # per-GtC marginal
+    M         = (Yp - Yb) / PULSE_SIZE_GTCO2                  # per-GtCO2 marginal
     w         = b["w_norm"].to_numpy()
 
     ais_col      = f"ais_{AIS_TIPPING_REFERENCE_YEAR}_cm"
@@ -107,7 +113,7 @@ def main():
     df.to_csv(OUT_CSV, index=False)
     print(f"wrote {OUT_CSV}  ({len(df)} years)")
 
-    print("\nKey small-pulse SLR sensitivities (cm per GtC, Wong-weighted):")
+    print("\nKey small-pulse SLR sensitivities (cm per GtCO2, Wong-weighted):")
     for y in (2030, 2050, 2075, 2100, 2125, 2150):
         r = df[df.year == y]
         if len(r):

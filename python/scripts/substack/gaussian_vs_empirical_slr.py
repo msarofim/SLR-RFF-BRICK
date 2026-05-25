@@ -2,7 +2,7 @@
 gaussian_vs_empirical_slr.py
 ============================
 
-Substack HEADER figure: the same small-pulse (0.01 GtC) LHS-10k SLR
+Substack HEADER figure: the same small-pulse (0.01 GtCO₂) LHS-10k SLR
 ensemble, summarized two ways. Designed as a 16:9-ish lede graphic with
 the visual punchline obvious at a glance.
 
@@ -16,10 +16,10 @@ the visual punchline obvious at a glance.
                   D_pulse_slr inset convention: median heavy line + 5–95%
                   shaded band, all in cm per GtCO₂.
 
-Why the small-pulse (0.01 GtC) source:  Panel D of the poster uses the
-0.01-GtC LHS-10k companion because it's in the linear regime
+Why the small-pulse (0.01 GtCO₂) source:  Panel D of the poster uses the
+0.01-GtCO₂ LHS-10k companion because it's in the linear regime
 (verified by the pulse-size convergence diagnostic) and gives a
-pulse-size-invariant per-tonne SC-CO₂-SLR sensitivity. The 1-GtC pulse
+pulse-size-invariant per-tonne SC-CO₂-SLR sensitivity. The 1-GtCO₂ pulse
 is contaminated by pulse-induced AIS tipping that doesn't scale linearly.
 Both panels in this figure use the same small-pulse data so the
 comparison is apples-to-apples.
@@ -60,18 +60,22 @@ OUT.mkdir(parents=True, exist_ok=True)
 # Wong-pipeline outputs in outputs/brick_v145_summaries/. Both files use the
 # legacy bare-year column schema (e.g. "2050", "2100") so this script's
 # detect-numeric-columns logic works unchanged. Pulse arm 'co2_pos_001gt' is
-# the 0.01-GtC CO₂ small-pulse companion (linear-regime).
+# the 0.01-GtCO₂ small-pulse companion (linear-regime). See UNIT NOTE below
+# regarding the v1.4.5 calibration's GtCO₂ pulse unit.
 BASELINE_CSV = ROOT / "outputs" / "brick_v145_slim" / "brick_lhs10k_baseline_to2300_weighted.csv"
 PULSE_CSV    = ROOT / "outputs" / "brick_v145_slim" / "brick_lhs10k_pulse_co2_pos_001gt_to2300.csv"
 
-PULSE_SIZE_GTC      = 0.01                              # small-pulse, linear-regime
-GTC_TO_GTCO2        = 44.0 / 12.0                       # carbon mass → CO2 mass
-PER_GTC_TO_PER_GTCO2 = 1.0 / GTC_TO_GTCO2               # ≈ 0.2727; for axis re-scaling
-# Combined scale: cm-per-pulse → cm per GtCO₂
-MARGINAL_SCALE      = 1.0 / PULSE_SIZE_GTC * PER_GTC_TO_PER_GTCO2
+# UNIT NOTE 2026-05-25: FaIR v1.4.5's 'CO2 FFI' species has input_unit
+# 'GtCO2' (see compute_pulse_temps_v145.py + species_configs_properties_1.4.5.csv).
+# The 001gt cube arm was built with `--pulse-size 0.01` = 0.01 GtCO2 (NOT
+# 0.01 GtC). Pre-fix the script assumed GtC and applied an extra 12/44
+# conversion — gave values 3.67× too small. The fix below skips the
+# GtC→GtCO2 conversion since the pulse is already in GtCO2.
+PULSE_SIZE_GTCO2    = 0.01                                  # FaIR v1.4.5 unit
+MARGINAL_SCALE      = 1.0 / PULSE_SIZE_GTCO2                # cm per GtCO₂ directly
 
-PULSE_LABEL  = "1 GtCO₂ pulse at 2030"      # narrative label only; data is 0.01-GtC linear regime
-ENSEMBLE_LBL = "LHS-10k importance-weighted"
+PULSE_LABEL  = "1 GtCO₂ pulse at 2030"      # narrative label; data is 0.01-GtCO₂ linear-regime, scaled to 1-GtCO₂ basis
+ENSEMBLE_LBL = "LHS-10k importance-weighted (FaIR v1.4.5 + post-PR#93 BRICK)"
 
 PLOT_START, PLOT_END = 2020, 2150
 LANDMARK_YRS = (2050, 2100, 2150)
@@ -364,8 +368,8 @@ def plot_panels(df):
     fig.text(
         0.5, 0.01,
         f"Data: paired BRICK ensemble ({ENSEMBLE_LBL}, post-PR#93 Wong posterior). "
-        "Pulse-size-invariant linear regime via 0.01 GtC companion run, "
-        "rescaled to per-GtCO₂. Years 2020–2150.",
+        "Pulse-size-invariant linear regime via 0.01 GtCO₂ companion run, "
+        "scaled to per-GtCO₂. Years 2020–2150.",
         ha="center", va="bottom", fontsize=9.0, color=COLOR_GREY,
         style="italic",
     )
@@ -376,7 +380,7 @@ def plot_panels(df):
 # ── Main ─────────────────────────────────────────────────────────────────────
 def main():
     print(f"Loading paired baseline + small-pulse "
-          f"({PULSE_SIZE_GTC} GtC → cm per GtCO₂ via × {MARGINAL_SCALE:.4f}) ...")
+          f"({PULSE_SIZE_GTCO2} GtCO₂ pulse → cm per GtCO₂ via × {MARGINAL_SCALE:.4f}) ...")
     years, M, w = load_marginal()
     print(f"  marginal shape {M.shape}, weights sum = {w.sum():.3f}")
 
@@ -401,10 +405,14 @@ def main():
               f"{r['p5']:>+8.4f}  {r['p50']:>+8.4f}  {r['p95']:>+8.4f}")
 
     # Verify pulse-size invariance sanity vs the project memo:
-    # median at 2150 should be ≈ 0.017 cm/GtCO₂  (= 0.064 cm/GtC ÷ 3.667).
+    #   v1.4.1-era memo target: median ≈ 0.017 cm/GtCO₂, p95 ≈ 0.032.
+    #   v1.4.5 (post-PR#93 BRICK posterior; Frederikse GIS added to calib):
+    #   expect median ~0.007, p95 ~0.011 (2-3× lower than v141 reference;
+    #   PR#93's tightened GIS posterior reduces upper-tail sensitivity).
     p50_2150 = float(df.loc[df.year == 2150, "p50"].iloc[0])
     p95_2150 = float(df.loc[df.year == 2150, "p95"].iloc[0])
-    print(f"\n  Sanity vs memo (target: median ≈ 0.016 cm/GtCO₂, p95 ≈ 0.032):")
+    print(f"\n  Sanity (v1.4.5 expected: median ≈ 0.007 cm/GtCO₂, p95 ≈ 0.011;")
+    print(f"   v1.4.1 reference was median ≈ 0.016, p95 ≈ 0.032):")
     print(f"    median@2150 = {p50_2150:+.4f}  p95@2150 = {p95_2150:+.4f}  cm/GtCO₂")
 
     # Plot
