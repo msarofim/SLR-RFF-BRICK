@@ -45,15 +45,20 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 ROOT             = Path(__file__).resolve().parents[3]
-GMST_VAR_CSV     = ROOT / "outputs" / "plots" / "hawkins_sutton_gmst_3way_pulse.csv"
-SLR_VAR_CSV      = ROOT / "outputs" / "plots" / "hawkins_sutton_slr_4way_pulse.csv"
-GMST_BAND_CSV    = ROOT / "outputs" / "substack" / "co2_pulse_gmst_summary.csv"
+# v1.4.5 CO2 GMST products: built by python/scripts/build_v145_gmst_pulse_products.py.
+# Both the 3-way variance decomp and the envelope summary are stored in
+# °C per GtCO2 directly (FaIR v1.4.5 CO2 FFI input unit is GtCO2).
+GMST_VAR_CSV     = ROOT / "outputs" / "plots" / "hawkins_sutton_gmst_3way_pulse_v145.csv"
+SLR_VAR_CSV      = ROOT / "outputs" / "plots" / "hawkins_sutton_slr_4way_pulse.csv"  # v145
+GMST_BAND_CSV    = ROOT / "outputs" / "substack" / "co2_pulse_gmst_summary_v145.csv"
 SLR_BAND_CSV     = ROOT / "outputs" / "substack" / "co2_pulse_slr_summary_lhs10k_0p01gtc.csv"
 OUT              = ROOT / "outputs" / "substack"
 OUT.mkdir(parents=True, exist_ok=True)
 
 PLOT_START, PLOT_END = 2030, 2150
-GTC_TO_GTCO2 = 44.0 / 12.0      # ≈ 3.667 — pulse is +1 GtC; display per GtCO₂
+# The v145 envelopes are in °C per GtCO2 (or cm per GtCO2) directly — no
+# unit conversion needed.  Legacy v141 era was per-GtC and used GTC_TO_GTCO2.
+ENVELOPE_UNIT_SCALE = 1.0
 
 # Stacked-source colors (consistent with updated_hawkins_sutton_slr.py).
 COLORS = {
@@ -66,9 +71,9 @@ COLORS = {
 
 def _envelope(ax, df, color, ylabel, title):
     yp  = df.year.to_numpy()
-    p5  = df.p5.to_numpy()  / GTC_TO_GTCO2
-    p50 = df.p50.to_numpy() / GTC_TO_GTCO2
-    p95 = df.p95.to_numpy() / GTC_TO_GTCO2
+    p5  = df.p5.to_numpy()  * ENVELOPE_UNIT_SCALE
+    p50 = df.p50.to_numpy() * ENVELOPE_UNIT_SCALE
+    p95 = df.p95.to_numpy() * ENVELOPE_UNIT_SCALE
     ax.fill_between(yp, p5, p95, color=color, alpha=0.20, label="5–95% band")
     ax.plot(yp, p50, color=color, linewidth=2.2, label="Median")
     ax.axhline(0, color="grey", linewidth=0.5)
@@ -167,7 +172,7 @@ def main():
         if len(r) and len(rb):
             r0, rb0 = r.iloc[0], rb.iloc[0]
             print(f"  {y}: f_emi={r0.f_emissions:.2f}  f_clim={r0.f_climate:.2f}  "
-                  f"median ΔGMST={rb0.p50/GTC_TO_GTCO2:+.5f} °C/GtCO₂")
+                  f"median ΔGMST={rb0.p50 * ENVELOPE_UNIT_SCALE:+.5f} °C/GtCO₂")
     print("\nSLR fractions at landmark years:")
     for y in (2050, 2075, 2100, 2125, 2150):
         r = s_var[s_var.year == y]
@@ -176,7 +181,7 @@ def main():
             r0, rb0 = r.iloc[0], rb.iloc[0]
             print(f"  {y}: f_emi={r0.f_emissions:.2f}  f_clim={r0.f_climate:.2f}  "
                   f"f_int={r0.f_internal:.2f}  f_brick={r0.f_brick:.2f}  "
-                  f"median ΔSLR={rb0.p50/GTC_TO_GTCO2:+.4f} cm/GtCO₂")
+                  f"median ΔSLR={rb0.p50 * ENVELOPE_UNIT_SCALE:+.4f} cm/GtCO₂")
 
 
 if __name__ == "__main__":

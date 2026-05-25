@@ -51,7 +51,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 ROOT = Path(__file__).resolve().parents[3]
-MODEL_CSV     = ROOT / "outputs" / "brick_lhs10k_baseline_to2300_weighted.csv"
+# v1.4.5 slim LHS-10k baseline (post-PR#93 BRICK).
+MODEL_CSV     = ROOT / "outputs" / "brick_v145_slim" / "brick_lhs10k_baseline_to2300_weighted.csv"
 CW_CSV        = ROOT / "data" / "calibration" / "CSIRO_Recons_gmsl_yr_2015.csv"
 DANG_CSV      = ROOT / "data" / "observations" / "dangendorf_2024_gmsl.csv"
 NASA_CSV      = ROOT / "data" / "observations" / "nasa_gmsl_annual.csv"

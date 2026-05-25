@@ -55,15 +55,24 @@ TG_CH4_PER_GTCO2EQ = 1000.0 / GWP100_CH4   # ≈ 35.84
 # Each panel: (csv_filename, gas_label, impact_label, display_units,
 #              scale_factor, color, ax_row, ax_col)
 PANELS = [
-    ("co2_pulse_gmst_summary.csv",        "1 GtCO₂ pulse at 2030",
+    # v1.4.5 CO2 GMST summary (LHS-10k Wong-weighted; per-GtCO2 directly,
+    # so scale = 1.0). The legacy v1.4.1-era co2_pulse_gmst_summary.csv was
+    # per-GtC and needed PER_GTC_TO_PER_GTCO2 to convert.
+    ("co2_pulse_gmst_summary_v145.csv",   "1 GtCO₂ pulse at 2030",
         "Marginal GMST",                  "°C per GtCO₂",
-        PER_GTC_TO_PER_GTCO2,             "#A6361C", 0, 0),
+        1.0,                              "#A6361C", 0, 0),
     # CO2 SLR scale = 1.0: the v1.4.5 summary is already in cm per GtCO₂
     # (FaIR CO2 FFI input_unit is "GtCO2"). The CH4 panels below still use
     # the GWP100 conversion because their summaries are per-Tg-CH4.
     ("co2_pulse_slr_summary_lhs10k_0p01gtc.csv", "1 GtCO₂ pulse at 2030",
         "Marginal SLR",   "cm per GtCO₂",
         1.0,                              "#1F4E79", 0, 1),
+    # CH4 GMST: legacy v1.4.1-era summary retained.  The v1.4.5 cube stores
+    # GMST in float32; the per-Tg CH4 marginal at 2100/2150 (~1e-5 °C/Tg)
+    # hits the float32 precision floor and rounds many cells to 0,
+    # making weighted percentiles unreliable.  Per Test 1
+    # (2026-05-25), FaIR v141 vs v145 ensemble-mean GMST pulse response
+    # agrees within 5%, so this v141 summary is faithful to v145 physics.
     ("ch4_pulse_gmst_summary.csv",        "1 GtCO₂eq CH₄ pulse at 2030",
         "Marginal GMST",
         f"°C per GtCO₂eq (AR6 GWP100={GWP100_CH4:.1f})",

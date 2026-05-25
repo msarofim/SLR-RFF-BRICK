@@ -23,7 +23,13 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 ROOT = Path(__file__).resolve().parents[3]
-CUBE = ROOT / "outputs" / "lhs_pilot_gmst_full_N200_to2300.npz"
+# v1.4.5 LHS-10k baseline cube (10,000 cells × 451 yrs, flat schema).  Keys:
+# cells_meta (n_cells, 3), years (n_year,), gmst_traj (n_cells, n_year),
+# ohc_traj (n_cells, n_year), erf_2100 (n_cells,). Supersedes the legacy
+# 3D lhs_pilot_gmst_full_N200_to2300.npz; the RFF inventory expanded from
+# 3,000 → 10,000 in the v145 redesign.
+CUBE = (Path.home() / "Documents/2026/CodeProjects/FaIRtoFrEDI"
+        / "fair_outputs/cubes_v145/cube_v145_lhs10k_baseline.npz")
 OUT  = ROOT / "outputs" / "substack"
 OUT.mkdir(parents=True, exist_ok=True)
 
@@ -42,24 +48,27 @@ OBS_RECENT_REL_PI = 1.254                                   # IGCC 2024 4-datase
 
 def main():
     nz = np.load(CUBE)
-    years = nz["years"]
-    cube  = nz["gmst_traj_rff"].astype(np.float64)
-    n_rff, n_cfg, n_yr = cube.shape
+    years = np.asarray(nz["years"], dtype=int)
+    # v145 flat-cube schema: gmst_traj is (n_cells, n_year). Each cell is a
+    # unique (rff_idx, fair_cfg_idx, seed_idx) tuple. No need to ravel a
+    # multi-axis tensor — the rows are already the ensemble.
+    cube = nz["gmst_traj"].astype(np.float64)
+    n_cells, n_yr = cube.shape
 
     # Cube is rel each trajectory's 1850-1900 mean. Rebaseline each traj at
     # its own RECENT_BASELINE mean and shift up to observed BE rel-PI anchor.
     recent_mask = (years >= RECENT_BASELINE[0]) & (years <= RECENT_BASELINE[1])
-    traj_recent = cube[:, :, recent_mask].mean(axis=2)     # (n_rff, n_cfg)
-    cube_pi     = cube - traj_recent[:, :, None] + OBS_RECENT_REL_PI
-    print(f"cube: {n_rff} RFFs × {n_cfg} configs × {n_yr} years; "
-          f"bias-corrected to BE {RECENT_BASELINE[0]}-{RECENT_BASELINE[1]} = "
+    traj_recent = cube[:, recent_mask].mean(axis=1)        # (n_cells,)
+    cube_pi     = cube - traj_recent[:, None] + OBS_RECENT_REL_PI
+    print(f"cube: {n_cells} cells × {n_yr} years (v1.4.5 LHS-10k); "
+          f"bias-corrected to IGCC {RECENT_BASELINE[0]}-{RECENT_BASELINE[1]} = "
           f"+{OBS_RECENT_REL_PI:.3f} °C rel PI")
 
     # Compute P(GMST > T) per (year, threshold)
     rows = []
     for y in YEARS:
         iy = int(np.where(years == y)[0][0])
-        slab = cube_pi[:, :, iy].ravel()                   # n_rff * n_cfg vals
+        slab = cube_pi[:, iy]                              # n_cells vals
         for T in THRESHOLDS:
             p = float((slab > T).mean())
             rows.append({"year": y, "threshold_C": T, "P_exceed": p})
@@ -120,8 +129,8 @@ def main():
                     cell.set_facecolor(tuple(rgb))
 
     fig.text(0.5, 0.03,
-             f"FaIR ensemble: {n_rff} RFFs × {n_cfg} configs "
-             f"({n_rff * n_cfg:,} trajectories per year).  AR6-style bias "
+             f"FaIR v1.4.5 LHS-10k ensemble: {n_cells:,} cells "
+             f"(unique rff × cfg × seed combinations).  AR6-style bias "
              f"correction:\neach trajectory rebaselined at its own "
              f"{RECENT_BASELINE[0]}–{RECENT_BASELINE[1]} mean, shifted to "
              f"IGCC 2024 observed anchor of +{OBS_RECENT_REL_PI:.2f} °C rel "

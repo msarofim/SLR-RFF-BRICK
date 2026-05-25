@@ -26,7 +26,10 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 ROOT = Path(__file__).resolve().parents[3]
-CUBE = ROOT / "outputs" / "lhs_pilot_gmst_full_N200_to2300.npz"
+# v1.4.5 LHS-10k baseline cube (flat schema: gmst_traj is (n_cells, n_year)).
+# Supersedes the legacy 3D lhs_pilot_gmst_full_N200_to2300.npz.
+CUBE = (Path.home() / "Documents/2026/CodeProjects/FaIRtoFrEDI"
+        / "fair_outputs/cubes_v145/cube_v145_lhs10k_baseline.npz")
 OUT  = ROOT / "outputs" / "substack"
 OUT.mkdir(parents=True, exist_ok=True)
 
@@ -46,21 +49,22 @@ def first_year_above(p_series, years, p_threshold):
 
 def main():
     nz = np.load(CUBE)
-    years = nz["years"]
-    cube  = nz["gmst_traj_rff"].astype(np.float64)
-    n_rff, n_cfg, n_yr = cube.shape
+    years = np.asarray(nz["years"], dtype=int)
+    # v145 flat-cube schema (n_cells, n_year). Each cell = one (rff, cfg, seed).
+    cube = nz["gmst_traj"].astype(np.float64)
+    n_cells, n_yr = cube.shape
 
     recent_mask = (years >= RECENT_BASELINE[0]) & (years <= RECENT_BASELINE[1])
-    traj_recent = cube[:, :, recent_mask].mean(axis=2)
-    cube_pi     = cube - traj_recent[:, :, None] + OBS_RECENT_REL_PI
-    print(f"cube: {n_rff} RFFs × {n_cfg} configs × {n_yr} years; "
-          f"bias-corrected to BE {RECENT_BASELINE[0]}-{RECENT_BASELINE[1]} = "
+    traj_recent = cube[:, recent_mask].mean(axis=1)        # (n_cells,)
+    cube_pi     = cube - traj_recent[:, None] + OBS_RECENT_REL_PI
+    print(f"cube: {n_cells} cells × {n_yr} years (v1.4.5 LHS-10k); "
+          f"bias-corrected to IGCC {RECENT_BASELINE[0]}-{RECENT_BASELINE[1]} = "
           f"+{OBS_RECENT_REL_PI:.3f} °C rel PI")
 
     rows = []
     for T in THRESHOLDS:
         # Fraction of trajectories above T, per year
-        p_year = (cube_pi > T).reshape(n_rff * n_cfg, n_yr).mean(axis=0)
+        p_year = (cube_pi > T).mean(axis=0)
         y_p5  = first_year_above(p_year, years, 0.05)
         y_p50 = first_year_above(p_year, years, 0.50)
         y_p95 = first_year_above(p_year, years, 0.95)
@@ -124,8 +128,8 @@ def main():
                 cell.set_text_props(color="#1F4E79", fontweight="bold")
 
     fig.text(0.5, 0.06,
-             f"FaIR ensemble: {n_rff} RFFs × {n_cfg} configs "
-             f"({n_rff * n_cfg:,} trajectories per year).  AR6-style bias "
+             f"FaIR v1.4.5 LHS-10k ensemble: {n_cells:,} cells "
+             f"(unique rff × cfg × seed combinations).  AR6-style bias "
              f"correction:\neach trajectory rebaselined at its own "
              f"{RECENT_BASELINE[0]}–{RECENT_BASELINE[1]} mean, shifted to "
              f"IGCC 2024 observed anchor of +{OBS_RECENT_REL_PI:.2f} °C rel "

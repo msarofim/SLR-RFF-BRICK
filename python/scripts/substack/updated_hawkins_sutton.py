@@ -52,8 +52,13 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 ROOT = Path(__file__).resolve().parents[3]
-DET_CUBE = ROOT / "outputs" / "lhs_pilot_gmst_full_N200_to2300.npz"
-STOCH_CUBE = ROOT / "outputs" / "lhs_pilot_gmst_full_stoch_test.npz"
+# v1.4.5 cubes (flat schema). LHS-10k provides emissions+climate variance via
+# 10000 unique (rff, cfg, seed) cells from the canonical 10k-RFF inventory.
+# ANOVA-18k provides seed-variance for V_internal via the 3-seed factorial.
+DET_CUBE   = (Path.home() / "Documents/2026/CodeProjects/FaIRtoFrEDI"
+              / "fair_outputs/cubes_v145/cube_v145_lhs10k_baseline.npz")
+STOCH_CUBE = (Path.home() / "Documents/2026/CodeProjects/FaIRtoFrEDI"
+              / "fair_outputs/cubes_v145/cube_v145_anova18k_baseline.npz")
 OUT  = ROOT / "outputs" / "substack"
 OUT.mkdir(parents=True, exist_ok=True)
 
@@ -86,62 +91,80 @@ COLORS = {
 
 
 def compute_real_internal(stoch_cube_path, det_years, baseline_year):
-    """Year-by-year V_internal(t) computed from real FaIR stochastic seeds.
+    """Year-by-year V_internal(t) from the v1.4.5 ANOVA-18k cube's
+    seed-dimension variance.
 
-    Returns an array aligned with det_years.  For years past the stoch cube's
-    coverage (typically beyond 2100), the mean of the last 11 stoch years
-    (2090-2100) is held constant — FaIR's stochastic GMST σ is approximately
-    time-stationary at long horizons.
+    ANOVA-18k schema: cells_meta is (n_cells, 3) = (rff, cfg, seed); gmst_traj
+    is (n_cells, n_year). Each (rff, cfg) appears with multiple seeds, so we
+    can group by (rff, cfg) and compute Var_seed.
+
+    Returns an array aligned with det_years. ANOVA-18k covers 1850-2300 like
+    the LHS-10k cube, so no tail-fill needed.
     """
-    nz = np.load(stoch_cube_path)
-    sy = nz["years"]
-    sg = nz["gmst_traj_rff"]               # (n_rff, n_cfg, n_seed, n_year)
-    assert sg.ndim == 4, f"stoch cube must be 4D; got {sg.shape}"
+    nz = np.load(stoch_cube_path, allow_pickle=True)
+    sy = np.asarray(nz["years"], dtype=np.int64)
+    cm = np.asarray(nz["cells_meta"], dtype=np.int64)
+    sg = np.asarray(nz["gmst_traj"], dtype=np.float64)
+    assert sg.ndim == 2, f"v145 ANOVA cube should be 2D (n_cells, n_year); got {sg.shape}"
 
-    # Anchor each trajectory to its own value at baseline_year (so V_internal
-    # is the variance of GMST(t) − GMST(baseline) across seeds, holding the
-    # rest fixed — same anchoring as the deterministic cube below).
+    # Anchor each trajectory to its own baseline_year value so V_internal is
+    # the variance of (GMST(t) − GMST(baseline)) across seeds at each (rff, cfg).
     if baseline_year in sy:
         ib = int(np.where(sy == baseline_year)[0][0])
-        sg_anom = sg.astype(np.float64) - sg[:, :, :, ib][:, :, :, None]
+        sg_anom = sg - sg[:, [ib]]
     else:
-        sg_anom = sg.astype(np.float64)
+        sg_anom = sg
 
-    # V_internal(t) = E_{rff,cfg}[ Var_seed[GMST_anom(t)] ]
-    v_seed = sg_anom.var(axis=2)           # (n_rff, n_cfg, n_year)
-    v_internal_stoch = v_seed.mean(axis=(0, 1))   # (n_year_stoch,)
+    # Group cells by (rff, cfg) and compute per-(rff, cfg, year) Var_seed.
+    df = pd.DataFrame({"rff": cm[:, 0], "cfg": cm[:, 1]})
+    # Build a per-(rff, cfg) list of cell indices
+    groups = df.groupby(["rff", "cfg"], sort=False).indices  # dict (rff,cfg) -> array of row idxs
+    n_yr = sg.shape[1]
+    v_seed_per_rc = np.zeros((len(groups), n_yr))
+    for k, idxs in enumerate(groups.values()):
+        if len(idxs) > 1:
+            v_seed_per_rc[k, :] = sg_anom[idxs, :].var(axis=0, ddof=0)
+    v_internal_stoch = v_seed_per_rc.mean(axis=0)  # E_{rff,cfg}[ Var_seed ]
 
-    # Reindex to det_years
+    # Re-index to det_years.  ANOVA cube years should match LHS cube years exactly.
     v_internal_out = np.zeros(len(det_years))
-    sy_min, sy_max = int(sy.min()), int(sy.max())
-    # Tail fill from mean of last 11 stoch years
-    tail_mean = float(v_internal_stoch[sy >= (sy_max - 10)].mean())
     for k, y in enumerate(det_years):
         y = int(y)
-        if sy_min <= y <= sy_max:
-            v_internal_out[k] = float(v_internal_stoch[int(np.where(sy == y)[0][0])])
-        elif y > sy_max:
-            v_internal_out[k] = tail_mean
+        idx = np.where(sy == y)[0]
+        if len(idx):
+            v_internal_out[k] = float(v_internal_stoch[idx[0]])
         else:
-            v_internal_out[k] = float(v_internal_stoch[0])
+            # Should not happen if both cubes are 1850-2300; defensive fallback.
+            v_internal_out[k] = float(v_internal_stoch[-1])
     return v_internal_out
 
 
 def main():
-    # ---- Emissions × climate from the deterministic 398-RFF × 841-cfg cube ----
-    nz = np.load(DET_CUBE)
-    years = nz["years"]
-    cube  = nz["gmst_traj_rff"]            # (n_rff, n_cfg, n_year)
-    n_rff, n_cfg, n_yr = cube.shape
-    print(f"loaded det cube: {n_rff} RFFs × {n_cfg} configs × {n_yr} years")
+    # ---- Variance decomp + envelope from the v1.4.5 ANOVA-18k factorial ----
+    # The flat cube has cells_meta = (rff_idx, fair_cfg_idx, seed_idx) per row,
+    # gmst_traj is (n_cells, n_year). 400 RFFs × 15 cfgs × 3 seeds = 18000.
+    # We grouped by (rff) to get V_emissions, then by (rff, cfg) for V_climate,
+    # then by (rff, cfg) again for V_internal across seeds.
+    nz = np.load(DET_CUBE, allow_pickle=True)
+    years = np.asarray(nz["years"], dtype=np.int64)
+    n_yr = len(years)
+    # ANOVA-18k cube is used for the variance components.  LHS-10k could be
+    # used for the envelope only, but ANOVA-18k 400-RFF gives consistent
+    # baseline statistics (verified ±8% vs LHS-10k in project_v145_anova_sample_stability).
+    nz_a = np.load(STOCH_CUBE, allow_pickle=True)
+    years_a = np.asarray(nz_a["years"], dtype=np.int64)
+    assert (years == years_a).all(), "LHS-10k and ANOVA-18k year grids must match"
+    cm = np.asarray(nz_a["cells_meta"], dtype=np.int64)
+    cube = np.asarray(nz_a["gmst_traj"], dtype=np.float64)
+    n_cells = cube.shape[0]
+    print(f"loaded ANOVA-18k cube for variance decomp: {n_cells} cells × {n_yr} years")
 
     # AR6 bias correction: anchor each trajectory at its own RECENT_BASELINE
     # decadal mean, then shift by IGCC observed anchor to express on a rel-PI
     # axis.  Variance decomposition itself is anchor-invariant.
     recent_mask = (years >= RECENT_BASELINE[0]) & (years <= RECENT_BASELINE[1])
-    traj_recent = cube[:, :, recent_mask].mean(axis=2)
-    cube_anom   = cube - traj_recent[:, :, None] + OBS_RECENT_REL_PI
-    i_base      = int(np.where(years == BASELINE_YEAR)[0][0])  # for stoch cube helper
+    traj_recent = cube[:, recent_mask].mean(axis=1, keepdims=True)
+    cube_anom   = cube - traj_recent + OBS_RECENT_REL_PI
 
     var_total     = np.zeros(n_yr)
     var_emissions = np.zeros(n_yr)
@@ -149,18 +172,33 @@ def main():
     mean_traj     = np.zeros(n_yr)
     p5_traj       = np.zeros(n_yr)
     p95_traj      = np.zeros(n_yr)
-    for t in range(n_yr):
-        slab = cube_anom[:, :, t].astype(np.float64)   # (n_rff, n_cfg)
-        var_total[t] = float(np.var(slab))
-        var_emissions[t] = float(np.var(slab.mean(axis=1)))
-        var_climate[t]   = float(np.var(slab, axis=1).mean())
-        flat = slab.ravel()
-        mean_traj[t] = float(flat.mean())
-        p5_traj[t]   = float(np.percentile(flat, 5))
-        p95_traj[t]  = float(np.percentile(flat, 95))
 
-    # ---- REAL internal variability from stochastic FaIR seeds ----
-    print(f"loading stochastic cube for V_internal: {STOCH_CUBE}")
+    # Build group indices once
+    df_keys = pd.DataFrame({"rff": cm[:, 0], "cfg": cm[:, 1]})
+    rff_groups = df_keys.groupby("rff", sort=False).indices            # rff -> idx
+    rc_groups  = df_keys.groupby(["rff","cfg"], sort=False).indices    # (rff, cfg) -> idx
+
+    for t in range(n_yr):
+        v = cube_anom[:, t]
+        var_total[t] = float(v.var(ddof=0))
+        # E_{cfg, seed} v | rff   →   Var_rff
+        rff_means = np.array([v[idxs].mean() for idxs in rff_groups.values()])
+        var_emissions[t] = float(rff_means.var(ddof=0))
+        # E_seed v | (rff, cfg)   →   Var_cfg within rff   →   E_rff
+        rc_means = np.array([v[idxs].mean() for idxs in rc_groups.values()])
+        # Map back to (rff, cfg) labels for grouping by rff
+        rc_keys = list(rc_groups.keys())
+        df_rc = pd.DataFrame({"rff":[r for r, _ in rc_keys],
+                              "cfg":[c for _, c in rc_keys],
+                              "mean":rc_means})
+        v_cfg_per_rff = df_rc.groupby("rff", sort=False)["mean"].var(ddof=0)
+        var_climate[t] = float(v_cfg_per_rff.mean())
+        mean_traj[t] = float(v.mean())
+        p5_traj[t]   = float(np.percentile(v, 5))
+        p95_traj[t]  = float(np.percentile(v, 95))
+
+    # V_internal: seed variance per (rff, cfg), averaged.
+    print(f"computing V_internal from ANOVA-18k seed dimension ...")
     var_internal = compute_real_internal(STOCH_CUBE, years, BASELINE_YEAR)
     var_modelled = var_emissions + var_climate + var_internal
 

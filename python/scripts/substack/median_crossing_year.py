@@ -24,7 +24,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 ROOT = Path(__file__).resolve().parents[3]
-CUBE = ROOT / "outputs" / "lhs_pilot_gmst_full_N200_to2300.npz"
+# v1.4.5 LHS-10k baseline cube (flat schema; supersedes the legacy 3D cube).
+CUBE = (Path.home() / "Documents/2026/CodeProjects/FaIRtoFrEDI"
+        / "fair_outputs/cubes_v145/cube_v145_lhs10k_baseline.npz")
 OUT  = ROOT / "outputs" / "substack"
 OUT.mkdir(parents=True, exist_ok=True)
 
@@ -37,14 +39,15 @@ OBS_RECENT_REL_PI = 1.254   # IGCC 2024 4-dataset consensus 2015-2024 mean rel 1
 
 def main():
     nz = np.load(CUBE)
-    years = nz["years"]
-    cube  = nz["gmst_traj_rff"].astype(np.float64)
-    n_rff, n_cfg, n_yr = cube.shape
+    years = np.asarray(nz["years"], dtype=int)
+    # v145 flat-cube schema: each row is one (rff, cfg, seed) cell.
+    cube = nz["gmst_traj"].astype(np.float64)
+    n_cells, n_yr = cube.shape
 
     recent_mask = (years >= RECENT_BASELINE[0]) & (years <= RECENT_BASELINE[1])
-    traj_recent = cube[:, :, recent_mask].mean(axis=2)
-    cube_pi     = cube - traj_recent[:, :, None] + OBS_RECENT_REL_PI
-    flat = cube_pi.reshape(n_rff * n_cfg, n_yr)
+    traj_recent = cube[:, recent_mask].mean(axis=1)
+    cube_pi     = cube - traj_recent[:, None] + OBS_RECENT_REL_PI
+    flat = cube_pi   # already (n_cells, n_yr)
 
     rows = []
     for T in THRESHOLDS:
@@ -89,8 +92,8 @@ def main():
                 cell.set_text_props(color="#1F4E79", fontweight="bold")
 
     fig.text(0.5, 0.08,
-             f"FaIR ensemble: {n_rff} RFFs × {n_cfg} configs "
-             f"({n_rff * n_cfg:,} trajectories per year).  AR6-style bias "
+             f"FaIR v1.4.5 LHS-10k ensemble: {n_cells:,} cells "
+             f"(unique rff × cfg × seed combinations).  AR6-style bias "
              f"correction:\nrebaselined at {RECENT_BASELINE[0]}–{RECENT_BASELINE[1]} "
              f"IGCC anchor (+{OBS_RECENT_REL_PI:.2f} °C rel PI). Only "
              f"thresholds with P(exceedance) ≥ 50% within "
