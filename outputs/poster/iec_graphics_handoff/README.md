@@ -58,6 +58,17 @@ applies under v1.4.5).
 
 Panels A, G, I, J are unchanged from 2026-05-20.
 
+2026-05-26 update: Panels C and D were re-rendered after a
+finite-replication bias fix in the Hawkins-Sutton variance
+decomposition (per CHANGELOG.md "Fixed" entry). The variance-
+fraction stacks shifted noticeably — Panel C at 2100 went from
+"climate dominates ~80%" to climate as the largest contributor at
+~54% with BRICK posterior and emissions each ~23%; Panel D at 2100
+went from "BRICK + AIS internal variability co-dominate" to BRICK
+posterior strongly dominant at ~80% with AIS-tipping-state
+dependence the remainder. The discussion paragraph in poster_text.txt
+was updated to match these new headline fractions.
+
 ## Contents
 
 ```

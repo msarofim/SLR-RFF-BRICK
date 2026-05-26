@@ -5,6 +5,36 @@ commit log; recent entries are explicit.
 
 ## [Unreleased] — v145 end-to-end pipeline
 
+### Fixed
+- **Hawkins-Sutton nested-ANOVA finite-replication bias** (2026-05-26).
+  The variance-decomposition functions in `python/hawkins_sutton.py`
+  (`decompose_slr_4way`, `decompose_gmst`) and the substack-side
+  reimplementation in `updated_hawkins_sutton.py` were using `ddof=0`
+  population variance at every level and were not subtracting the
+  propagated within-cell sampling-noise term from each outer-level
+  variance. With only 3 seeds × 3 posts per (rff, cfg) cell, the
+  ddof=0 estimator was biased down by (n−1)/n = 2/3 at the inner
+  level, and the cfg-means carried σ²_seed/n_seed sampling noise that
+  was being absorbed into V_climate. Result: total-GMST early-year
+  f_internal showed as 65% (canonical Hawkins-Sutton expectation:
+  ~100%) and the substack/poster Panel C / D fractions were
+  systematically tilted away from V_internal and toward V_climate.
+  Fix: unbiased ddof=1 variances at every level via the
+  `n_eff/(n_eff − 1)` Bessel correction (handles weighted variance via
+  the effective sample size), plus subtract the propagated noise from
+  each outer level (V_internal/n_seed off V_climate; V_climate/n_cfg
+  plus V_internal/(n_cfg × n_seed) off V_emissions; analogous 4-way
+  formulae with V_brick at the bottom). Clipped to ≥0 since
+  finite-sample bias-corrected estimates can go slightly negative when
+  the true variance is below the noise floor. Affected outputs: every
+  Hawkins-Sutton figure in the substack and poster. Substantive
+  changes: total-GMST f_internal at 2030 went 62% → 80%; Panel C
+  fractions at 2100 went f_clim/f_emi/f_brick/f_int = 80/3/13/3% →
+  54/23/23/0%; Panel D at 2100 went 17/3/45/35% → 1/1/81/16%. The
+  Panel C/D PDFs in the IEc handoff are regenerated, and the
+  discussion paragraph in poster_text.txt has been updated to reflect
+  the new fractions.
+
 ### Tried and abandoned
 - **Lemoine-Traeger tipping-decomposition framing for pulse-marginal SLR
   figures** (2026-05-26). Three active sites used L-T classifiers with

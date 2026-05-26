@@ -153,12 +153,20 @@ def decompose_gmst(gmst_cube, years, t_anchor):
         # E_{rff,cfg,seed} scalar
         grand_mean = mean_cfg_seed.mean()
 
-        # V_emissions = Var_rff(mean_cfg_seed)
-        V_emissions[it] = mean_cfg_seed.var(ddof=0)
-        # V_climate = E_rff[ Var_cfg(mean_seed) ]
-        V_climate[it]   = mean_seed.var(axis=1, ddof=0).mean()
-        # V_internal = E_{rff,cfg}[ Var_seed(slab) ]
-        V_internal[it]  = slab.var(axis=2, ddof=0).mean()
+        # Unbiased variances + finite-replication bias correction at each
+        # outer level (Searle, Casella & McCulloch 2006).
+        # V_internal = E_{rff,cfg}[ Var_seed(slab, ddof=1) ]   — lowest level
+        V_internal[it]  = slab.var(axis=2, ddof=1).mean()
+        # V_climate = E_rff[ Var_cfg(mean_seed, ddof=1) ] − V_internal/n_seed
+        v_cfg_raw = mean_seed.var(axis=1, ddof=1).mean()
+        V_climate[it] = max(0.0, v_cfg_raw - V_internal[it] / n_seed)
+        # V_emissions = Var_rff(mean_cfg_seed, ddof=1)
+        #              − V_climate/n_cfg − V_internal/(n_cfg × n_seed)
+        v_rff_raw = mean_cfg_seed.var(ddof=1)
+        V_emissions[it] = max(0.0,
+                              v_rff_raw
+                              - V_climate[it]  /  n_cfg
+                              - V_internal[it] / (n_cfg * n_seed))
 
         mean_t[it] = grand_mean
 
@@ -201,18 +209,67 @@ def _wvar(v, w):
     return ((v - mu) ** 2 * w).sum() / w.sum()
 
 
-def decompose_slr_4way(brick_df, years, t_anchor, weights_col=None):
+def _wvar_unbiased(v, w):
+    """Weighted UNBIASED variance, using the effective-sample-size
+    correction n_eff/(n_eff - 1) where n_eff = (Σw)² / Σ(w²). For uniform
+    weights this reduces to the ddof=1 (Bessel) correction. Returns the
+    unbiased estimate of population variance.
+
+    The bias-uncorrected ddof=0 form was the source of the 2026-05-26
+    finite-replication bias in the nested-ANOVA decomp: with only 3 seeds
+    per (rff, cfg) cell, ddof=0 underestimates the within-cell variance by
+    a factor (n-1)/n = 2/3, and that bias propagates through to inflate
+    V_climate by V_internal/n_seed. See `decompose_slr_4way` docstring.
     """
-    Nested random-effects 4-way decomposition of SLR variance:
+    sw = w.sum()
+    sw2 = (w ** 2).sum()
+    if sw <= 0:
+        return 0.0
+    n_eff = (sw ** 2) / sw2 if sw2 > 0 else 1.0
+    if n_eff <= 1:
+        return 0.0
+    mu = (v * w).sum() / sw
+    var_biased = ((v - mu) ** 2 * w).sum() / sw
+    return var_biased * n_eff / (n_eff - 1.0)
+
+
+def decompose_slr_4way(brick_df, years, t_anchor, weights_col=None,
+                        n_seed=3, n_cfg=15, n_post=3):
+    """
+    Nested random-effects 4-way decomposition of SLR variance with
+    finite-replication bias correction (Searle, Casella & McCulloch 2006
+    nested-ANOVA estimators; the Hawkins-Sutton 2009 analog uses polynomial
+    smoothing instead, which sidesteps this bias):
 
         V_brick     = E_{rcs}[ Var_post( slr | rff, cfg, seed ) ]
         V_internal  = E_{rc}[  Var_seed( E_post[ slr | rff, cfg, seed ] ) ]
+                       − V_brick / n_post
         V_climate   = E_{r}[   Var_cfg(  E_{seed,post}[ slr | rff, cfg ] ) ]
+                       − V_internal / n_seed
+                       − V_brick / (n_seed × n_post)
         V_emissions = Var_rff(  E_{cfg,seed,post}[ slr | rff ] )
-        V_total     = sum of the four
+                       − V_climate / n_cfg
+                       − V_internal / (n_cfg × n_seed)
+                       − V_brick / (n_cfg × n_seed × n_post)
+        V_total     = sum of the four (all corrected, clipped to ≥0)
 
-    For a balanced factorial design (e.g. 100 rffs × 15 cfgs × 3 seeds × 3
-    posts) this is the standard nested-ANOVA decomp.
+    The subtraction terms are the propagated within-cell sampling noise:
+    the cfg-mean over 3 seeds carries variance V_internal/3 from the
+    finite seed sample, and that noise gets counted into the outer
+    Var_cfg unless subtracted. Without this correction, V_climate is
+    upward-biased and V_internal is the residual difference between
+    V_total and the biased outer-level terms.
+
+    All within-cell variances use the n_eff/(n_eff-1) (≈ Bessel)
+    correction so they are unbiased estimators of population variance.
+
+    For a balanced factorial design (e.g. 400 rffs × 15 cfgs × 3 seeds ×
+    3 posts) this is the standard nested-ANOVA decomp.
+
+    n_seed, n_cfg, n_post : nominal replication counts at each ANOVA
+        level. Default to the v1.4.5 ANOVA-18k design (15 × 3 × 3).
+        Bias-correction subtractions use these as approximations under
+        non-uniform Wong importance weighting.
 
     brick_df : long-format DataFrame with rff_idx, fair_cfg_idx, seed_idx,
                post_idx columns and one column per year (str-int names).
@@ -251,7 +308,9 @@ def decompose_slr_4way(brick_df, years, t_anchor, weights_col=None):
         tmp = base.copy()
         tmp["v"] = v
 
-        # Level 1: weighted mean and var across posts WITHIN (rff, cfg, seed)
+        # Level 1: unbiased weighted variance across posts WITHIN
+        # (rff, cfg, seed). The unbiased n_eff/(n_eff-1) correction at this
+        # innermost level gives V_brick directly (no further subtraction).
         rcs_list = []
         for keys, g in tmp.groupby(keys_full, sort=False):
             vg = g["v"].to_numpy()
@@ -260,13 +319,16 @@ def decompose_slr_4way(brick_df, years, t_anchor, weights_col=None):
             if ws <= 0:
                 continue
             mu  = (vg * wg).sum() / ws
-            var = ((vg - mu) ** 2 * wg).sum() / ws
+            var = _wvar_unbiased(vg, wg)
             rcs_list.append((keys[0], keys[1], keys[2], mu, var, ws))
         rcs_df = pd.DataFrame(rcs_list,
                               columns=["rff_idx","fair_cfg_idx","seed_idx","mu","var","w"])
         V_brick = float((rcs_df["var"] * rcs_df["w"]).sum() / rcs_df["w"].sum())
 
-        # Level 2: weighted mean+var across seeds within (rff, cfg)
+        # Level 2: unbiased weighted variance across seeds within (rff, cfg).
+        # Subtract V_brick / n_post to remove the propagated within-seed-
+        # cell sampling noise (the seed mean is over n_post posts, each
+        # carrying variance V_brick/n_post).
         rc_list = []
         for keys, g in rcs_df.groupby(keys_rc, sort=False):
             mug = g["mu"].to_numpy()
@@ -275,13 +337,16 @@ def decompose_slr_4way(brick_df, years, t_anchor, weights_col=None):
             if ws <= 0:
                 continue
             mu  = (mug * wg).sum() / ws
-            var = ((mug - mu) ** 2 * wg).sum() / ws
+            var = _wvar_unbiased(mug, wg)
             rc_list.append((keys[0], keys[1], mu, var, ws))
         rc_df = pd.DataFrame(rc_list,
                              columns=["rff_idx","fair_cfg_idx","mu","var","w"])
-        V_internal = float((rc_df["var"] * rc_df["w"]).sum() / rc_df["w"].sum())
+        V_seed_obs = float((rc_df["var"] * rc_df["w"]).sum() / rc_df["w"].sum())
+        V_internal = max(0.0, V_seed_obs - V_brick / n_post)
 
-        # Level 3: weighted mean+var across cfgs within rff
+        # Level 3: unbiased weighted variance across cfgs within rff.
+        # Subtract the propagated noise from the within-cfg means (which
+        # are averages over n_seed seeds × n_post posts).
         r_list = []
         for keys, g in rc_df.groupby("rff_idx", sort=False):
             mug = g["mu"].to_numpy()
@@ -290,18 +355,25 @@ def decompose_slr_4way(brick_df, years, t_anchor, weights_col=None):
             if ws <= 0:
                 continue
             mu  = (mug * wg).sum() / ws
-            var = ((mug - mu) ** 2 * wg).sum() / ws
+            var = _wvar_unbiased(mug, wg)
             r_list.append((keys, mu, var, ws))
         r_df = pd.DataFrame(r_list,
                             columns=["rff_idx","mu","var","w"])
-        V_climate = float((r_df["var"] * r_df["w"]).sum() / r_df["w"].sum())
+        V_cfg_obs = float((r_df["var"] * r_df["w"]).sum() / r_df["w"].sum())
+        V_climate = max(0.0, V_cfg_obs
+                              - V_internal / n_seed
+                              - V_brick    / (n_seed * n_post))
 
-        # Level 4: weighted var across rffs
+        # Level 4: unbiased weighted variance across rffs of (cfg-seed-post
+        # means). Subtract three layers of propagated noise.
         mug = r_df["mu"].to_numpy()
         wg  = r_df["w"].to_numpy()
-        ws  = wg.sum()
-        Y_grand = float((mug * wg).sum() / ws)
-        V_emissions = float(((mug - Y_grand) ** 2 * wg).sum() / ws)
+        Y_grand = float((mug * wg).sum() / wg.sum())
+        V_rff_obs = _wvar_unbiased(mug, wg)
+        V_emissions = max(0.0, V_rff_obs
+                                - V_climate  /  n_cfg
+                                - V_internal / (n_cfg * n_seed)
+                                - V_brick    / (n_cfg * n_seed * n_post))
 
         V_total = V_emissions + V_climate + V_internal + V_brick
         rows_out.append({

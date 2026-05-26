@@ -116,6 +116,9 @@ def compute_real_internal(stoch_cube_path, det_years, baseline_year):
         sg_anom = sg
 
     # Group cells by (rff, cfg) and compute per-(rff, cfg, year) Var_seed.
+    # `ddof=1` gives the unbiased estimator: critical here because each
+    # (rff, cfg) has only n_seed = 3 samples, so ddof=0 would bias the
+    # variance estimate downward by (n-1)/n = 2/3 (the 2026-05-26 fix).
     df = pd.DataFrame({"rff": cm[:, 0], "cfg": cm[:, 1]})
     # Build a per-(rff, cfg) list of cell indices
     groups = df.groupby(["rff", "cfg"], sort=False).indices  # dict (rff,cfg) -> array of row idxs
@@ -123,7 +126,7 @@ def compute_real_internal(stoch_cube_path, det_years, baseline_year):
     v_seed_per_rc = np.zeros((len(groups), n_yr))
     for k, idxs in enumerate(groups.values()):
         if len(idxs) > 1:
-            v_seed_per_rc[k, :] = sg_anom[idxs, :].var(axis=0, ddof=0)
+            v_seed_per_rc[k, :] = sg_anom[idxs, :].var(axis=0, ddof=1)
     v_internal_stoch = v_seed_per_rc.mean(axis=0)  # E_{rff,cfg}[ Var_seed ]
 
     # Re-index to det_years.  ANOVA cube years should match LHS cube years exactly.
@@ -178,28 +181,45 @@ def main():
     rff_groups = df_keys.groupby("rff", sort=False).indices            # rff -> idx
     rc_groups  = df_keys.groupby(["rff","cfg"], sort=False).indices    # (rff, cfg) -> idx
 
+    # ANOVA-18k replication counts at each level (400 RFFs × 15 cfgs ×
+    # 3 seeds). The bias corrections below subtract propagated within-cell
+    # sampling noise from each outer-level raw variance — necessary because
+    # n_seed = 3 is small enough that the cfg-means carry meaningful
+    # σ²_seed/3 sampling noise that would otherwise inflate V_climate.
+    N_SEED, N_CFG = 3, 15
+
+    # First pass: compute V_internal across the whole year axis (needed
+    # before the per-year V_climate / V_emissions bias corrections).
+    print(f"computing V_internal from ANOVA-18k seed dimension ...")
+    var_internal = compute_real_internal(STOCH_CUBE, years, BASELINE_YEAR)
+
     for t in range(n_yr):
         v = cube_anom[:, t]
-        var_total[t] = float(v.var(ddof=0))
+        var_total[t] = float(v.var(ddof=1))
+        # Raw outer-level variances (unbiased; ddof=1 = Bessel correction).
         # E_{cfg, seed} v | rff   →   Var_rff
         rff_means = np.array([v[idxs].mean() for idxs in rff_groups.values()])
-        var_emissions[t] = float(rff_means.var(ddof=0))
+        v_rff_raw = float(rff_means.var(ddof=1))
         # E_seed v | (rff, cfg)   →   Var_cfg within rff   →   E_rff
         rc_means = np.array([v[idxs].mean() for idxs in rc_groups.values()])
-        # Map back to (rff, cfg) labels for grouping by rff
         rc_keys = list(rc_groups.keys())
         df_rc = pd.DataFrame({"rff":[r for r, _ in rc_keys],
                               "cfg":[c for _, c in rc_keys],
                               "mean":rc_means})
-        v_cfg_per_rff = df_rc.groupby("rff", sort=False)["mean"].var(ddof=0)
-        var_climate[t] = float(v_cfg_per_rff.mean())
+        v_cfg_raw = float(df_rc.groupby("rff", sort=False)["mean"].var(ddof=1).mean())
+
+        # Apply nested-ANOVA finite-replication corrections: subtract the
+        # propagated within-cell sampling-noise term from each outer level.
+        var_climate[t]   = max(0.0, v_cfg_raw - var_internal[t] / N_SEED)
+        var_emissions[t] = max(0.0,
+                                v_rff_raw
+                                - var_climate[t] /  N_CFG
+                                - var_internal[t] / (N_CFG * N_SEED))
+
         mean_traj[t] = float(v.mean())
         p5_traj[t]   = float(np.percentile(v, 5))
         p95_traj[t]  = float(np.percentile(v, 95))
 
-    # V_internal: seed variance per (rff, cfg), averaged.
-    print(f"computing V_internal from ANOVA-18k seed dimension ...")
-    var_internal = compute_real_internal(STOCH_CUBE, years, BASELINE_YEAR)
     var_modelled = var_emissions + var_climate + var_internal
 
     # ---- save data ----

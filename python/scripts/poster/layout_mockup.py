@@ -206,11 +206,12 @@ def main():
          "and New Jersey are distant 2nd–5th in per-capita impacts (Panel I).  "
          "Among FrEDI sectors, HTF elder mortality has the largest monetized "
          "impact (Panel J), with HTF transportation 2nd and coastal properties "
-         "3rd (Panel H).  Climate-response uncertainty dominates total SLR "
-         "variance in 2100, with emissions and BRICK uncertainty making "
-         "secondary but meaningful contributions (Panel C); for the marginal "
-         "pulse response, BRICK uncertainty dominates and AIS tipping makes "
-         "internal variability a substantial contributor (Panel D)."),
+         "3rd (Panel H).  Climate-response uncertainty is the largest "
+         "contributor to total-SLR variance at 2100 (~54%), with BRICK "
+         "posterior and emissions each contributing roughly 23% (Panel C); "
+         "for the marginal pulse response, BRICK posterior uncertainty "
+         "dominates strongly (~80%) with AIS-tipping-state dependence "
+         "contributing most of the remainder (Panel D)."),
         ("Key considerations we identify for this kind of work: dependence "
          "between FrEDI and BRICK parameter uncertainty (Wong et al. 2026); "
          "look-ahead-based adaptation estimates that account for observed "

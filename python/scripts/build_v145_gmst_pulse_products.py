@@ -141,25 +141,37 @@ def build_anova_3way_decomp(pulse_cube: Path, pulse_size_unit: float, out_csv: P
     cfg  = base_meta[:, 1]
     seed = base_meta[:, 2]
 
+    # ANOVA-18k replication counts (400 RFFs × 15 cfgs × 3 seeds). The
+    # nested-ANOVA decomp uses unbiased within-cell variance (ddof=1) AND
+    # subtracts the propagated within-cell sampling-noise term from each
+    # outer level — without this finite-replication correction, V_climate
+    # is upward-biased by V_internal/n_seed (see 2026-05-26 fix).
+    N_SEED, N_CFG = 3, 15
+
     rows = []
     for j, y in enumerate(yrs_b):
         v = M[:, j]
         df_y = pd.DataFrame({"rff": rff, "cfg": cfg, "seed": seed, "v": v})
 
         # Variance decomp: take expectations over inner axes, then variance
-        # over outer axis.
+        # over outer axis. ddof=1 for unbiased estimator at every level.
         # E_seed of v given (rff, cfg)
         e_seed_rc = df_y.groupby(["rff","cfg"], sort=False).v.mean().reset_index()
-        # Var_cfg of E_seed given rff  (V_climate inner)
-        v_cfg_r = e_seed_rc.groupby("rff", sort=False).v.var(ddof=0)
+        # Var_cfg of E_seed given rff  (raw)
+        v_cfg_r = e_seed_rc.groupby("rff", sort=False).v.var(ddof=1)
         # E_cfg E_seed of v given rff
         e_cfg_seed_r = e_seed_rc.groupby("rff", sort=False).v.mean()
-        # Var_seed of v given (rff, cfg)
-        v_seed_rc = df_y.groupby(["rff","cfg"], sort=False).v.var(ddof=0)
+        # Var_seed of v given (rff, cfg)  →  V_internal (lowest level)
+        v_seed_rc = df_y.groupby(["rff","cfg"], sort=False).v.var(ddof=1)
 
-        V_emissions = float(e_cfg_seed_r.var(ddof=0))
-        V_climate   = float(v_cfg_r.mean())
-        V_internal  = float(v_seed_rc.mean())
+        V_internal = float(v_seed_rc.mean())
+        # V_climate = E_r[Var_cfg(rc_means)] − V_internal/n_seed
+        V_climate   = max(0.0, float(v_cfg_r.mean()) - V_internal / N_SEED)
+        # V_emissions = Var_r(rff_means) − V_climate/n_cfg − V_internal/(n_cfg × n_seed)
+        v_rff_raw = float(e_cfg_seed_r.var(ddof=1))
+        V_emissions = max(0.0, v_rff_raw
+                                - V_climate  /  N_CFG
+                                - V_internal / (N_CFG * N_SEED))
         V_total     = V_emissions + V_climate + V_internal
 
         # Empirical percentiles of v across the full ensemble (informational)
