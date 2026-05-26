@@ -42,6 +42,12 @@ using Random
 # across all four BRICK drivers — see julia/brick_param_updates.jl.
 include(joinpath(@__DIR__, "brick_param_updates.jl"))
 
+# BRICK's :global_sea_level should equal the sum of its five contributors
+# (AIS, GSIC, GIS, TE, LWS) to floating-point precision. A residual above
+# this means BRICK internals changed (e.g. a new component was added) or
+# LWS was dropped — fail loudly before writing a misleading CSV.
+const CLOSURE_TOL_M = 1e-10
+
 function parse_cli()
     s = ArgParseSettings()
     @add_arg_table! s begin
@@ -90,10 +96,8 @@ function main()
     for col in ("rff_idx", "fair_cfg_idx", "seed_idx", "post_idx")
         @assert col in names(meta) "metadata missing required column '$col'"
     end
-    n_rows_meta = nrow(meta)
     if args["max-rows"] > 0
-        cap = min(args["max-rows"], n_rows_meta)
-        meta = meta[1:cap, :]
+        meta = meta[1:min(args["max-rows"], nrow(meta)), :]
     end
     n_rows = nrow(meta)
     println("  metadata rows: $n_rows")
@@ -250,9 +254,7 @@ function main()
                 out[end, lws_cols[t]]  = 100 * (lws[t]  - lws_base)
             end
             # Closure check on the FIRST run only (anchor at last year of
-            # window so it always fires). BRICK :global_sea_level sums five
-            # contributors; residual >1e-10 m means BRICK internals changed
-            # or LWS was dropped — fail loudly before writing a misleading CSV.
+            # window so it always fires). See CLOSURE_TOL_M at top of file.
             if k == 1
                 i_check = n_yr
                 y_check = yr_window[i_check]
@@ -265,7 +267,7 @@ function main()
                         "total=$(round(total, digits=8)) m  " *
                         "Σcomp=$(round(comp_sum, digits=8)) m  " *
                         "residual=$(round(resid, sigdigits=3)) m")
-                @assert abs(resid) < 1e-10 "Σ components ≠ total SLR (residual=$resid m). "
+                @assert abs(resid) < CLOSURE_TOL_M "Σ components ≠ total SLR (residual=$resid m, tol=$CLOSURE_TOL_M m). "
             end
         end
 

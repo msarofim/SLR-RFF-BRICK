@@ -5,15 +5,18 @@ Probabilistic sea-level rise from RFF-SP × FaIR × MimiBRICK.
 This repository contains the reproducible pipeline coupling Resources for the
 Future's RFF-SP probabilistic socio-economic / emissions ensemble (Rennert
 et al. 2022) with the FaIR v2.2.4 reduced-complexity climate model (using
-the FaIR-calibrate v1.4.1 posterior of Smith et al. 2024) and MimiBRICK,
-importance-weighted against observed historical GMSL via the Wong (2026)
-AR(1) likelihood. Outputs include probabilistic projections of GMST and
-GMSL through 2300, Hawkins-Sutton variance decomposition by uncertainty
-source, and pulse-marginal climate responses for social-cost-of-GHG use.
+the FaIR-calibrate v1.4.5 release — an updated release of the v1.4.1
+calibration documented in Smith et al. 2024) and MimiBRICK with the
+post-PR#93 joint posterior (Wong 2026), importance-weighted against
+observed historical GMSL via the Wong (2026) AR(1) likelihood. Outputs
+include probabilistic projections of GMST and GMSL through 2300,
+Hawkins-Sutton variance decomposition by uncertainty source, and
+pulse-marginal climate responses for social-cost-of-GHG use.
 
 The headline final ensemble is the **LHS-10k conditional-BRICK design**:
 10,000 Latin-Hypercube-sampled (RFF, FaIR cfg, BRICK posterior) triplets,
-Wong-weighted to give an effective sample size of 7,037.
+Wong-weighted to give an effective sample size of 3,815 (38%) under the
+v1.4.5 FaIR + post-PR#93 BRICK calibration.
 
 A direct intellectual companion is **Darnell et al. 2025** (*Nat Clim Change*
 15:1205–1211, [doi:10.1038/s41558-025-02457-0](https://doi.org/10.1038/s41558-025-02457-0)),
@@ -176,7 +179,7 @@ If you use this code or its outputs, please cite the repository ([CITATION.cff](
 plus the underlying methods papers:
 
 - Rennert et al. 2022 (RFF-SP): [doi:10.1038/s41586-022-05224-9](https://doi.org/10.1038/s41586-022-05224-9)
-- Smith et al. 2024 (FaIR-calibrate v1.4.1): [doi:10.5194/gmd-17-8569-2024](https://doi.org/10.5194/gmd-17-8569-2024)
+- Smith et al. 2024 (FaIR-calibrate, documenting v1.4.1 release; we use the v1.4.5 update of the same calibration framework): [doi:10.5194/gmd-17-8569-2024](https://doi.org/10.5194/gmd-17-8569-2024)
 - Wong 2026 (importance weighting): [doi:10.48550/arXiv.2604.13446](https://doi.org/10.48550/arXiv.2604.13446)
 - Darnell et al. 2025 (SLR uncertainty decomposition companion): [doi:10.1038/s41558-025-02457-0](https://doi.org/10.1038/s41558-025-02457-0)
 - Sweet et al. 2022 (SLR scenarios + damage-function calibration nodes): [NOAA Tech Rep NOS 01](https://oceanservice.noaa.gov/hazards/sealevelrise/sealevelrise-tech-report.html)

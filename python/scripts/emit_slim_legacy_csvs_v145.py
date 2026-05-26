@@ -65,15 +65,22 @@ def make_slim(in_csv: Path, out_csv: Path, *, include_w_norm: bool) -> None:
 
     Component columns (te_<y>, ais_<y>, gis_<y>, gsic_<y>, lws_<y>) are
     dropped; consumers that need them read the full Wong-pipeline CSV.
+
+    Implementation note: the input CSVs are wide (~2300 cols for v145 flat
+    cubes, ~451 trajectory years × 5 components plus totals). We read just
+    the header to discover the slr_<y> columns, then re-read with
+    `usecols=` so the ~2250 component cols never enter memory — roughly
+    5× less I/O and peak RAM on the ~18k-row anova18k arms.
     """
-    df = pd.read_csv(in_csv)
-    years = detect_year_columns(df, prefix="slr_")
+    header = pd.read_csv(in_csv, nrows=0)
+    years = detect_year_columns(header, prefix="slr_")
     if not years:
         raise RuntimeError(f"{in_csv}: no `slr_<year>` columns found")
     slr_cols = [f"slr_{y}" for y in years]
     extra = ["w_norm"] if include_w_norm else []
     keep = list(KEY_COLS) + extra + slr_cols
-    sub = df[keep].rename(columns={f"slr_{y}": str(y) for y in years})
+    sub = pd.read_csv(in_csv, usecols=keep)[keep]  # second [keep] preserves order
+    sub = sub.rename(columns={f"slr_{y}": str(y) for y in years})
     sub.to_csv(out_csv, index=False)
     print(f"  wrote {out_csv}  rows={len(sub)} cols={len(sub.columns)}")
 

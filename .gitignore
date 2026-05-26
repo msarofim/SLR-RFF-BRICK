@@ -108,12 +108,13 @@ outputs/poster/_tipping_*
 outputs/poster/*.csv
 
 # ===========================================================================
-# Slurm job logs + stoch-test logs
+# Slurm + local job logs
 # ===========================================================================
 slurm/logs/
+logs/
 *.out
 *.err
-outputs/stoch_test*.log
+*.log
 
 # FrEDI smoketest outputs
 outputs/smoketest_fredi_*.csv
@@ -146,6 +147,12 @@ outputs/brick_v145_slim/*.csv
 # are kept in git for figure reproducibility.
 outputs/brick_v145_summaries/*_weighted.csv
 
+# Full per-cell BRICK driver outputs (~485 MB each) — these are the raw
+# per-cell, per-component trajectories used by the brick_vs_grinsted TSLS
+# component-decomposition figure and any per-cell L-T classification.
+# Stay on Torch + local disk only; not committed.
+outputs/brick_v145/*.csv
+
 # Quarantined pre-fix outputs are large; the per-directory README is tracked
 # but the CSVs themselves stay on local disk for postmortem only.
 outputs/quarantine/**/*.csv
@@ -157,9 +164,6 @@ outputs/flatcube_smoke_*.csv
 # Obs-driven BRICK runs (large; reproducible via julia/run_mimibrick_obs_driven.jl)
 outputs/brick_obsdriven_*.csv
 parameters_subsample_sneasybrick.csv
-
-# One-off substack header PDF — script regenerates it each run; not worth tracking.
-outputs/substack/gaussian_vs_empirical_slr.pdf
 
 # Diagnostic cross-posterior / sample-stability test outputs (large CSVs)
 outputs/brick_xtest_prepr93/*.csv

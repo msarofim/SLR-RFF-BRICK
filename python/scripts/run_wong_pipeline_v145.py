@@ -72,6 +72,25 @@ C_GRID = (0.0001, 0.001, 0.01, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0)
 COMPONENTS = ("slr", "te", "ais", "gis", "gsic", "lws")
 ENVELOPE_QUANTILES = (0.05, 0.17, 0.50, 0.83, 0.95)
 
+# Silent paired-merge drops are a known foot-gun: an unpaired pulse cell is
+# unweightable and silently distorts the marginal envelope. Hard-fail above
+# this fraction so the operator knows; warn below it.
+PAIRING_LOSS_THRESHOLD = 0.01
+
+
+def check_paired_merge_loss(n_missing: int, n_total: int, source: str,
+                             threshold: float = PAIRING_LOSS_THRESHOLD) -> None:
+    """Warn / raise on paired-merge dropouts. `source` names the call site
+    for the message."""
+    if n_missing <= 0:
+        return
+    frac = n_missing / max(n_total, 1)
+    msg = (f"[{source}] {n_missing} / {n_total} rows "
+           f"({100*frac:.2f}%) failed paired merge")
+    if frac > threshold:
+        raise RuntimeError(msg + f" — aborting (>{100*threshold:.0f}%).")
+    print(f"  WARNING: {msg}", flush=True)
+
 
 # ---------------------------------------------------------------------------
 # CLI
@@ -217,17 +236,7 @@ def marginal_envelopes(base_aug: pd.DataFrame, pulse: pd.DataFrame,
     pulse_cols = join_keys + [f"slr_{y}" for y in year_grid]
     j = pulse[pulse_cols].merge(base_aug[base_cols], on=join_keys, how="inner",
                                  suffixes=("_p", "_b"))
-    n_dropped = len(pulse) - len(j)
-    if n_dropped > 0:
-        # Silent paired-merge drops are a known foot-gun: a pulse cell that
-        # has no baseline twin is unweightable and silently distorts the
-        # marginal envelope. Hard-fail at >1% so the operator knows.
-        frac = n_dropped / max(len(pulse), 1)
-        msg = (f"[marg] {n_dropped} / {len(pulse)} pulse rows "
-               f"({100*frac:.2f}%) had no matching baseline tuple")
-        if frac > 0.01:
-            raise RuntimeError(msg + " — aborting (>1% pairing loss).")
-        print(f"  WARNING: {msg}", flush=True)
+    check_paired_merge_loss(len(pulse) - len(j), len(pulse), "marginal")
     rows = []
     w = j["w_norm"].to_numpy()
     for y in year_grid:
@@ -289,16 +298,8 @@ def process_family(family: str, brick_dir: Path, out_dir: Path,
         # Inherit weights from the baseline arm (per paired-tuple).
         join_keys = list(KEY_COLS)
         pulse_aug = pulse.merge(baseline_aug[join_keys + ["w_norm"]], on=join_keys, how="left")
-        if pulse_aug.w_norm.isna().any():
-            # Same silent-drop concern as in marginal_envelopes — hard-fail
-            # above 1% so the operator doesn't ship an arm with degraded
-            # importance-weight coverage.
-            n_miss = int(pulse_aug.w_norm.isna().sum())
-            frac = n_miss / max(len(pulse_aug), 1)
-            msg = f"{n_miss} / {len(pulse_aug)} pulse rows ({100*frac:.2f}%) had no baseline weight match"
-            if frac > 0.01:
-                raise RuntimeError(msg + " — aborting (>1%).")
-            print(f"  WARNING: {msg}", flush=True)
+        check_paired_merge_loss(int(pulse_aug.w_norm.isna().sum()),
+                                 len(pulse_aug), f"pulse-weight {arm}")
         env_p = summarize_envelopes(pulse_aug, "w_norm", year_grid=year_grid)
         env_p.to_csv(env_out, index=False)
         print(f"[save] {env_out}", flush=True)
