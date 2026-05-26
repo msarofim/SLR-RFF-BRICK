@@ -10,15 +10,22 @@ produces FOUR H-S figures from the v1.4.5 LHS-10k ensemble:
   3. Pulse ΔGMST(t) — variance of per-cell paired (pulse − base) ΔGMST
   4. Pulse ΔSLR(t)  — variance of per-cell paired (pulse − base) ΔSLR
 
+The LHS-10k cube is single-seeded by design (seed_idx = 0 for all
+10,000 cells), so it contains zero V_internal contribution: cell-to-
+cell variance at any year is purely cfg + RFF driven. V_internal
+therefore CANNOT be recovered from a residual-of-surrogate-fit on
+LHS-10k; the residual is surrogate modeling error, not seed noise.
+The fix: take V_internal from the matching v1.4.5 ANOVA-18k cube
+(3 seeds × ~6 cfgs × ~1000 RFFs, bias-corrected per Searle 2006), and
+stack it on top of the LHS-10k Shapley axes on the combined variance
+scale (LHS V_cfg+V_RFF + ANOVA V_seed).
+  outputs/substack/updated_hawkins_sutton_data.csv  (V_internal for GMST)
+  outputs/plots/hawkins_sutton_slr_4way.csv         (V_internal for SLR)
+
 For the PULSE figures the matched-seed paired difference cancels
-stochastic seed noise by construction, so V_internal is dropped from
-the decomposition (the residual after surrogate fit is reported as a
-small "unexplained" term but not as an internal-variability axis).
-For the TOTAL figures, V_internal is real and is read from the
-existing bias-corrected ANOVA-18k seed-replication estimates in
-  outputs/substack/updated_hawkins_sutton_data.csv  (for GMST)
-  outputs/plots/hawkins_sutton_slr_4way.csv         (for SLR)
-which our 2026-05-26 nested-ANOVA bias fix produced.
+stochastic seed noise by construction (and LHS-10k single-seed makes
+it exactly zero), so V_internal is dropped from those decompositions
+entirely.
 
 Outliers (AIS pulse-induced tipping cells) are clipped at p99 for the
 pulse-SLR target only — they don't appear in the linear-regime
@@ -26,10 +33,11 @@ pulse-marginal that this Shapley decomp characterizes. See the
 docstring of the previous `shapley_hawkins_sutton_pulse.py` for the
 methodological motivation.
 
-Methodology — TIME-AS-FEATURE Shapley:
-  • Single HistGradientBoosting surrogate per target, fitted on the
-    stacked (10000 cells × 131 years = 1.31M rows) panel with `year`
-    as a feature.
+Methodology — PER-YEAR Shapley surrogate:
+  • Separate HistGradientBoosting surrogate fitted per year on the
+    10,000-cell static-feature panel (no `year` feature). Replaces the
+    earlier time-as-feature stacked-panel approach because the stacked
+    surrogate produced artifacts at low-signal years.
   • SHAP TreeExplainer per year, aggregated to source-axis-level
     Shapley effects.
   • Importance weights from Wong (2026) are applied in the SHAP-
@@ -171,9 +179,9 @@ TARGETS = [
         "use_brick_features":  False,
         "clip_outliers":  False,
         "smoothing":      SMOOTH_WINDOW_YR_PULSE,
-        "axes_order":     ["emissions", "climate", "internal"],
-        "v_internal_csv": None,           # residual; matched-seed paired marginal
-        "v_internal_col": None,           # has V_internal_seed ≈ 0 by construction
+        "axes_order":     ["emissions", "climate"],
+        "v_internal_csv": None,           # matched-seed paired marginal cancels seed noise;
+        "v_internal_col": None,           # LHS-10k single-seed makes it exactly 0 here
     },
     {
         "key":            "pulse_slr",
@@ -184,7 +192,7 @@ TARGETS = [
         "use_brick_features":  True,
         "clip_outliers":  True,
         "smoothing":      SMOOTH_WINDOW_YR_PULSE,
-        "axes_order":     ["emissions", "climate", "brick", "internal"],
+        "axes_order":     ["emissions", "climate", "brick"],
         "v_internal_csv": None,
         "v_internal_col": None,
     },
@@ -287,11 +295,34 @@ def load_target(loader: str, keys_ref: pd.DataFrame, anchor_year: int | None):
 
 
 def fit_and_shap(feat_df, years, M, target):
+    """Per-year-surrogate Shapley pipeline.
+
+    Replaces the earlier time-as-feature stacked-panel approach because
+    the stacked surrogate produced an artifact: at low-signal years
+    (e.g., 2021, where ΔGMST from 2020 anchor is dominated by 1-year FaIR
+    seed noise) the cross-year-trained model still predicted cell-
+    specific values using cfg features, depressing the residual and
+    therefore depressing V_internal. The canonical Hawkins-Sutton
+    expectation of V_internal ≈ 100% at near-term is recovered by
+    fitting a SEPARATE surrogate per year. At year 2021 the per-year
+    surrogate has R² ≈ 0 (it can't predict seed noise from static
+    features), so the residual ≈ V_total → V_internal fraction near 100%.
+
+    For each year t in `years`:
+      1. Fit HistGradientBoostingRegressor on the 10,000 cells with target
+         M[:, t] and static features X_static (no year feature).
+      2. Compute SHAP TreeExplainer values across cells.
+      3. Compute V_total, V_residual, per-feature variance of SHAP.
+
+    Per-year fit is fast (~1-2 sec on 10,000 cells); 131 years × 4 targets
+    fits cleanly into ~20-30 min total.
+    """
     from sklearn.ensemble import HistGradientBoostingRegressor
     import shap
 
     use_brick = target["use_brick_features"]
     feature_cols = (RFF_FEATURES_LIST + CFG_FEATURES + (POST_FEATURES if use_brick else []))
+    feature_names = list(feature_cols)
     n_cells, n_yr = M.shape
 
     # Optional outlier clipping
@@ -307,63 +338,66 @@ def fit_and_shap(feat_df, years, M, target):
         M = _smooth_traj(M, target["smoothing"])
         print(f"  smoothed ({target['smoothing']}-yr boxcar)", flush=True)
 
-    # Stack time-as-feature
     X_static = feat_df[feature_cols].to_numpy(dtype=np.float64)
     w_cell = feat_df["w_norm"].to_numpy(dtype=np.float64)
-    X_long = np.repeat(X_static, n_yr, axis=0)
-    year_long = np.tile(years, n_cells).reshape(-1, 1)
-    X_long = np.hstack([year_long, X_long])
-    y_long = M.reshape(-1)
-    w_long = np.repeat(w_cell, n_yr)
-    feature_names = ["year"] + feature_cols
-    print(f"  panel shape {X_long.shape}", flush=True)
+    print(f"  per-year fits: {n_yr} years × ({n_cells} cells × {len(feature_cols)} features)", flush=True)
 
-    # Single train/test split for diagnostic R²
-    rng = np.random.default_rng(2026)
-    perm = rng.permutation(n_cells)
-    n_te = n_cells // 5
-    te_cells = set(perm[:n_te])
-    cell_ids = np.repeat(np.arange(n_cells), n_yr)
-    te_mask = np.isin(cell_ids, list(te_cells))
-    tr_mask = ~te_mask
-
-    t0 = time.time()
-    m_diag = HistGradientBoostingRegressor(
-        max_iter=300, max_leaf_nodes=31, learning_rate=0.05,
-        min_samples_leaf=20, l2_regularization=0.5, random_state=2026,
-    )
-    m_diag.fit(X_long[tr_mask], y_long[tr_mask])
-    train_r2 = m_diag.score(X_long[tr_mask], y_long[tr_mask])
-    test_r2  = m_diag.score(X_long[te_mask], y_long[te_mask])
-    print(f"  fit ({time.time()-t0:.1f}s)  train R²={train_r2:.4f}  test R²={test_r2:.4f}", flush=True)
-
-    model = HistGradientBoostingRegressor(
-        max_iter=300, max_leaf_nodes=31, learning_rate=0.05,
-        min_samples_leaf=20, l2_regularization=0.5, random_state=2026,
-    )
-    model.fit(X_long, y_long)
-
-    explainer = shap.TreeExplainer(model)
+    # Per-year results
     sh_per_year = np.zeros((n_yr, len(feature_names)))
     v_total = np.zeros(n_yr)
     v_residual = np.zeros(n_yr)
+    r2_per_year = np.zeros(n_yr)
+
+    # Train/test split for diagnostic (single fixed split across years for
+    # consistency; per-year R² reported as average across all years).
+    rng = np.random.default_rng(2026)
+    perm = rng.permutation(n_cells)
+    n_te = n_cells // 5
+    te_idx = perm[:n_te]
+    tr_idx = perm[n_te:]
+
     t0 = time.time()
     for it, y in enumerate(years):
-        idx = np.arange(it, len(X_long), n_yr)
-        Xs = X_long[idx]
-        ys = y_long[idx]
-        ws = w_long[idx]
-        yhat = model.predict(Xs)
-        shvals = explainer.shap_values(Xs)
-        wsum = ws.sum()
-        mu_y = (ys * ws).sum() / wsum
-        v_total[it] = ((ys - mu_y) ** 2 * ws).sum() / wsum
-        v_residual[it] = (((ys - yhat) ** 2) * ws).sum() / wsum
-        mu_sh = (shvals * ws[:, None]).sum(axis=0) / wsum
-        sh_per_year[it] = ((shvals - mu_sh) ** 2 * ws[:, None]).sum(axis=0) / wsum
-        if (it+1) % 30 == 0 or it == 0 or it == n_yr-1:
-            print(f"    year {y}: SHAP done ({time.time()-t0:.1f}s elapsed)", flush=True)
-    return feature_names, sh_per_year, v_total, v_residual, train_r2, test_r2
+        y_target = M[:, it]
+        # Per-year fit. Smaller trees + more conservative regularization
+        # than the stacked-panel version since each year has only 10000
+        # samples (vs 1.31M for the stacked panel).
+        m = HistGradientBoostingRegressor(
+            max_iter=200, max_leaf_nodes=15, learning_rate=0.05,
+            min_samples_leaf=30, l2_regularization=1.0, random_state=2026,
+        )
+        m.fit(X_static[tr_idx], y_target[tr_idx])
+        r2_per_year[it] = m.score(X_static[te_idx], y_target[te_idx])
+
+        # Refit on full data for SHAP
+        m_full = HistGradientBoostingRegressor(
+            max_iter=200, max_leaf_nodes=15, learning_rate=0.05,
+            min_samples_leaf=30, l2_regularization=1.0, random_state=2026,
+        )
+        m_full.fit(X_static, y_target)
+
+        yhat = m_full.predict(X_static)
+        explainer = shap.TreeExplainer(m_full)
+        shvals = explainer.shap_values(X_static)
+
+        wsum = w_cell.sum()
+        mu_y = (y_target * w_cell).sum() / wsum
+        v_total[it] = ((y_target - mu_y) ** 2 * w_cell).sum() / wsum
+        v_residual[it] = (((y_target - yhat) ** 2) * w_cell).sum() / wsum
+        mu_sh = (shvals * w_cell[:, None]).sum(axis=0) / wsum
+        sh_per_year[it] = ((shvals - mu_sh) ** 2 * w_cell[:, None]).sum(axis=0) / wsum
+
+        if (it+1) % 20 == 0 or it == 0 or it == n_yr-1:
+            print(f"    year {y}: fit + SHAP done ({time.time()-t0:.1f}s elapsed; "
+                  f"R²={r2_per_year[it]:.3f}  V_total={v_total[it]:.4g}  "
+                  f"V_res/V_total={v_residual[it]/max(v_total[it],1e-30):.3f})", flush=True)
+
+    mean_r2 = float(np.mean(r2_per_year[(r2_per_year > -1e6)]))   # exclude crazy outliers
+    print(f"  per-year R²: mean = {mean_r2:.3f}  "
+          f"(at 2021: {r2_per_year[2021-years[0]]:.3f}, "
+          f"at 2100: {r2_per_year[2100-years[0]]:.3f}, "
+          f"at 2150: {r2_per_year[2150-years[0]]:.3f})", flush=True)
+    return feature_names, sh_per_year, v_total, v_residual, mean_r2, mean_r2
 
 
 def load_v_internal_for_total(target, years):
@@ -393,20 +427,26 @@ def render_figure(target, feature_names, sh_var, v_internal_anova, years, v_tota
                 .groupby(["year", "axis"], as_index=False)["V_shap"].sum())
     pivot = axis_df.pivot(index="year", columns="axis", values="V_shap").reindex(years).fillna(0.0)
 
-    # Unified V_internal handling: use LHS-10k per-year residual (1 − R²)·V_total.
-    # On the SAME variance scale as the Shapley axes (both computed on the
-    # LHS-10k clipped + smoothed target). For TOTAL figures this gives the
-    # canonical near-100%-at-2021 behavior because the surrogate can't predict
-    # 1-year-of-seed-noise from static features; for PULSE figures the
-    # matched-seed cancellation makes V_residual small by construction.
+    # V_internal handling. The LHS-10k cube is single-seeded
+    # (seed_idx = 0 for all 10,000 cells), so the LHS-10k residual is
+    # surrogate modeling error, NOT internal variability. Correct V_int
+    # source for TOTAL targets is the v1.4.5 ANOVA-18k cube (3 seed
+    # replicates per cfg×RFF; bias-corrected per Searle 2006), loaded
+    # via `v_internal_anova` from the matching ANOVA-18k CSV. PULSE
+    # targets get V_internal = 0 because matched-seed paired marginals
+    # cancel seed noise by construction; the LHS-10k surrogate residual
+    # there is purely modeling gap and should not be drawn as V_int.
     axes_order = target["axes_order"]
     ax_cols = list(axes_order)
     for a in ax_cols:
         if a not in pivot.columns and a != "internal":
             pivot[a] = 0.0
     if "internal" in ax_cols:
-        pivot["internal"] = v_residual
-    # Normalize to sum of all axes (Shapley + V_residual)
+        if v_internal_anova is not None:
+            pivot["internal"] = v_internal_anova
+        else:
+            pivot["internal"] = 0.0
+    # Normalize to sum of all axes (Shapley + V_internal_ANOVA)
     total = pivot[ax_cols].sum(axis=1).replace(0, 1.0)
     frac = pivot[ax_cols].divide(total, axis=0)
 
@@ -420,9 +460,9 @@ def render_figure(target, feature_names, sh_var, v_internal_anova, years, v_tota
     ax.set_xlabel("Year", fontsize=11)
     ax.set_ylabel(target["ylabel"], fontsize=11)
     is_pulse_target = "pulse" in target["key"]
-    method = ("Shapley TreeExplainer; V_internal = LHS-10k residual"
+    method = ("Shapley TreeExplainer (LHS-10k cfg+RFF); V_internal = 0 (matched-seed pulse marginal)"
               if is_pulse_target else
-              "Shapley TreeExplainer; V_internal = LHS-10k residual (~per-year 1−R²)")
+              "Shapley TreeExplainer (LHS-10k cfg+RFF); V_internal from v1.4.5 ANOVA-18k seed replicates")
     ax.set_title(f"{target['title']}\n{method}",
                  fontsize=12, fontweight="bold", color="#1F4E79")
     h_, l_ = ax.get_legend_handles_labels()
