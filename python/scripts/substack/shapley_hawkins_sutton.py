@@ -77,12 +77,25 @@ SMOOTH_WINDOW_YR_PULSE = 5
 OUTLIER_PERCENTILE = 99.0
 
 CFG_FEATURES = [
+    # Climate sensitivity / ocean heat uptake
     "forcing_4co2",
     "ocean_heat_capacity[0]", "ocean_heat_capacity[1]", "ocean_heat_capacity[2]",
     "ocean_heat_transfer[0]", "ocean_heat_transfer[1]", "ocean_heat_transfer[2]",
     "deep_ocean_efficacy",
+    # Carbon cycle
     "iirf_0[CO2]", "iirf_uptake[CO2]", "iirf_temperature[CO2]", "iirf_airborne[CO2]",
-    "erfari_radiative_efficiency[BC]", "erfari_radiative_efficiency[Sulfur]",
+    # Aerosol-radiation interactions (ERFari)
+    "erfari_radiative_efficiency[BC]",
+    "erfari_radiative_efficiency[OC]",
+    "erfari_radiative_efficiency[Sulfur]",
+    "erfari_radiative_efficiency[NOx]",
+    "erfari_radiative_efficiency[VOC]",
+    "erfari_radiative_efficiency[NH3]",
+    # Aerosol-cloud interactions (ERFaci)
+    "aci_shape[Sulfur]", "aci_shape[BC]", "aci_shape[OC]", "aci_scale",
+    # CH4 / N2O forcing scaling
+    "forcing_scale[CH4]", "forcing_scale[N2O]",
+    # FaIR stochastic noise amplitudes
     "sigma_eta", "sigma_xi",
 ]
 POST_FEATURES = [
@@ -158,9 +171,9 @@ TARGETS = [
         "use_brick_features":  False,
         "clip_outliers":  False,
         "smoothing":      SMOOTH_WINDOW_YR_PULSE,
-        "axes_order":     ["emissions", "climate"],
-        "v_internal_csv": None,           # V_internal ≈ 0 from paired-seed cancellation
-        "v_internal_col": None,
+        "axes_order":     ["emissions", "climate", "internal"],
+        "v_internal_csv": None,           # residual; matched-seed paired marginal
+        "v_internal_col": None,           # has V_internal_seed ≈ 0 by construction
     },
     {
         "key":            "pulse_slr",
@@ -171,7 +184,7 @@ TARGETS = [
         "use_brick_features":  True,
         "clip_outliers":  True,
         "smoothing":      SMOOTH_WINDOW_YR_PULSE,
-        "axes_order":     ["emissions", "climate", "brick"],
+        "axes_order":     ["emissions", "climate", "brick", "internal"],
         "v_internal_csv": None,
         "v_internal_col": None,
     },
@@ -380,34 +393,22 @@ def render_figure(target, feature_names, sh_var, v_internal_anova, years, v_tota
                 .groupby(["year", "axis"], as_index=False)["V_shap"].sum())
     pivot = axis_df.pivot(index="year", columns="axis", values="V_shap").reindex(years).fillna(0.0)
 
-    is_pulse = target["v_internal_csv"] is None
+    # Unified V_internal handling: use LHS-10k per-year residual (1 − R²)·V_total.
+    # On the SAME variance scale as the Shapley axes (both computed on the
+    # LHS-10k clipped + smoothed target). For TOTAL figures this gives the
+    # canonical near-100%-at-2021 behavior because the surrogate can't predict
+    # 1-year-of-seed-noise from static features; for PULSE figures the
+    # matched-seed cancellation makes V_residual small by construction.
     axes_order = target["axes_order"]
-
-    if is_pulse:
-        # Drop internal axis; normalize per-axis fractions to sum-of-Shapley
-        # (each axis fraction = Shapley_axis / sum_axes Shapley)
-        ax_cols = [a for a in axes_order if a != "internal"]
-        for a in ax_cols:
-            if a not in pivot.columns:
-                pivot[a] = 0.0
-        shap_sum = pivot[ax_cols].sum(axis=1).replace(0, 1.0)
-        frac = pivot[ax_cols].divide(shap_sum, axis=0)
-        # Residual ≈ V_residual / V_total ≈ 1 - R²; report but don't stack
-        res_frac = (v_residual / np.where(v_total > 0, v_total, 1.0))
-        print(f"  pulse residual fraction (unexplained): "
-              f"@2050={res_frac[2050-YEAR_LO]:.3f}  @2100={res_frac[2100-YEAR_LO]:.3f}  "
-              f"@2150={res_frac[2150-YEAR_LO]:.3f}", flush=True)
-    else:
-        # Total: append V_internal from ANOVA-18k as a 4th axis
-        ax_cols = list(axes_order)
-        for a in ax_cols:
-            if a not in pivot.columns and a != "internal":
-                pivot[a] = 0.0
-        if "internal" in ax_cols:
-            pivot["internal"] = v_internal_anova
-        # Normalize to sum of all axes (Shapley + V_internal)
-        total = pivot[ax_cols].sum(axis=1).replace(0, 1.0)
-        frac = pivot[ax_cols].divide(total, axis=0)
+    ax_cols = list(axes_order)
+    for a in ax_cols:
+        if a not in pivot.columns and a != "internal":
+            pivot[a] = 0.0
+    if "internal" in ax_cols:
+        pivot["internal"] = v_residual
+    # Normalize to sum of all axes (Shapley + V_residual)
+    total = pivot[ax_cols].sum(axis=1).replace(0, 1.0)
+    frac = pivot[ax_cols].divide(total, axis=0)
 
     fig, ax = plt.subplots(figsize=(11, 5.5))
     ax.stackplot(years, *[frac[a].to_numpy() for a in ax_cols],
