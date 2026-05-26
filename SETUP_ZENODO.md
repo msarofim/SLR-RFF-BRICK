@@ -1,146 +1,201 @@
 # Zenodo deposit setup — instructions for the maintainer
 
-This document is for the repo maintainer (Marcus) to create the Zenodo
-deposit that backs `scripts/download_data.sh`. Run through these steps
-once, get the DOI, and update `scripts/download_data.sh` accordingly.
+This document walks through the two Zenodo deposits associated with this
+project:
 
-## 1. Files to upload (~6 GB total)
+1. **Intermediate data deposit** — concept DOI `10.5281/zenodo.20312325`,
+   originally minted with the v1.4.1-era data (Sept 2025). For the v1.4.5
+   pipeline this needs a **new version** (same concept DOI; new version
+   DOI). See §§ 1–4 below.
+2. **Code repo deposit** — auto-deposited via the GitHub–Zenodo
+   integration when a tag is pushed. Not yet created. See § 5 below.
+
+Run through both once for the v1.4.5 update; the data deposit takes most
+of the effort.
+
+## 1. Files to upload to the data deposit — v1.4.5 default selection (~2.5 GB total)
 
 These all live in `outputs/` on the local machine and Torch
-(`/scratch/ms17839/SLR-RFF-BRICK/outputs/`). They are gitignored
-deliberately so they live on Zenodo rather than in git.
+(`/scratch/ms17839/SLR-RFF-BRICK/outputs/` and
+`/scratch/ms17839/FaIRtoFrEDI/fair_outputs/cubes_v145/`). They are
+gitignored deliberately so they live on Zenodo rather than in git.
 
-### Cubes (Torch — rsync down first)
+### FaIR v1.4.5 cubes (Torch — rsync down first; ~1.5 GB total)
 
-| Filename | Size | What it is |
+The 18-cube v1.4.5 inventory: 9 LHS-10k + 9 ANOVA-18k arms, each a
+baseline + 8 pulse arms (±1 GtCO₂, ±0.01 GtCO₂, ±1 Tg CH₄, ±0.01 Tg CH₄).
+
+```
+rsync -avz --progress \
+  torch:/scratch/ms17839/FaIRtoFrEDI/fair_outputs/cubes_v145/cube_v145_*.npz \
+  outputs/cubes_v145/
+```
+
+| Family | Files | Each | Total |
+|---|---|---|---|
+| LHS-10k | `cube_v145_lhs10k_{baseline,pulse_*}.npz` (9 cubes) | ~50 MB | ~450 MB |
+| ANOVA-18k | `cube_v145_anova18k_{baseline,pulse_*}.npz` (9 cubes) | ~120 MB | ~1.1 GB |
+
+The cubes carry `cells_meta` (n_cells × 3 = rff/cfg/seed indices), `years`
+(1850–2300), `gmst_traj` (n_cells × n_year Float32), `ohc_traj`, and
+`erf_2100`. Schema is the flat per-cell layout introduced for the
+v1.4.5 pipeline.
+
+### v1.4.5 BRICK slim CSVs (local — `outputs/brick_v145_slim/`; ~240 MB total)
+
+Keys + `w_norm` + bare-year SLR columns for each cube arm; the legacy
+slim-schema downstream plot scripts read these directly.
+
+| Family | Files | Each | Total |
+|---|---|---|---|
+| LHS-10k baseline + 3 pulse arms | `brick_lhs10k_{baseline,pulse_co2_pos_001gt,pulse_co2_pos_1gt,pulse_ch4_pos_001tg}_to2300{,_weighted}.csv` | 30 MB | ~120 MB |
+| ANOVA-18k baseline + 1 pulse arm + marginal | `brick_anova18k_{baseline_weighted,pulse_co2_pos_1gt,marginal_co2_pos_1gt_weighted}_to2300.csv` | 40 MB | ~120 MB |
+
+### v1.4.5 small summary CSVs (~1 MB total)
+
+Final figure inputs; small.
+
+| Path | Size | What it is |
 |---|---|---|
-| `rff_baseline_stoch_to2300.npz` | 1.9 GB | FaIR production baseline cube (490 RFFs × 841 cfgs × 451 yr) |
-| `rff_pulse_stoch_to2300.npz` | 1.9 GB | Paired +1 GtC pulse at 2030 |
-| `rff_pulse0p01gtc_stoch_to2300.npz` | 1.9 GB | Paired +0.01 GtC small-pulse |
+| `outputs/substack/co2_pulse_slr_summary_lhs10k_0p01gtc.csv` | 20 KB | per-GtCO₂ small-pulse SLR envelope (year, mean, p5/p50/p95) |
+| `outputs/substack/co2_pulse_gmst_summary_v145.csv` | 16 KB | per-GtCO₂ pulse GMST envelope from LHS-10k |
+| `outputs/substack/ch4_pulse_slr_summary_lhs10k_0p01tg.csv` | 20 KB | per-Tg CH4 small-pulse SLR envelope |
+| `outputs/substack/ch4_pulse_gmst_summary_v145.csv` | 16 KB | per-Tg CH4 pulse GMST envelope |
+| `outputs/substack/brick_vs_grinsted_tsls_components.csv` | 2 KB | TSLS components vs Grinsted 2022 reference table |
+| `outputs/plots/hawkins_sutton_slr_4way.csv` | 60 KB | Total-SLR 4-way variance decomposition (Panel C) |
+| `outputs/plots/hawkins_sutton_slr_4way_pulse.csv` | 60 KB | Pulse-SLR 4-way variance decomposition (Panel D) |
+| `outputs/plots/hawkins_sutton_gmst_3way_pulse_v145.csv` | 25 KB | CO₂ pulse-GMST 3-way variance decomposition |
 
-### Cubes (local — substack-side analyses)
+### v1.4.5 FrEDI phaseC inputs + national output (~80 MB total)
 
-| Filename | Size | What it is |
+Drives Panels F and H. The state-level long CSV (1.5 GB) is **excluded** —
+regenerable from the national long + input CSVs by re-running the R
+driver with `aggLevels = c("state", "modelaverage", "impactyear")`.
+
+| Path | Size | What it is |
 |---|---|---|
-| `lhs_pilot_gmst_full_N200_to2300.npz` | ~175 MB | 398-RFF deterministic GMST cube used by substack exceedance + obs-overlay figures |
-| `lhs_pilot_gmst_full_stoch_test_ohc4.npz` | ~? MB | 4-D stochastic GMST cube used for internal-variability term in updated_hawkins_sutton + obs-overlay band widening |
+| `outputs/fredi_input_rff_baseline_gmst_v145.csv` | 5.4 MB | Per-draw GMST input (1000 SIR-resampled cells) |
+| `outputs/fredi_input_rff_baseline_slr_v145.csv` | 5.3 MB | Per-draw SLR input (paired with above) |
+| `outputs/fredi_slr_phaseC_rff_baseline_v145_long.csv` | 67 MB | National long-format FrEDI output |
+| `outputs/fredi_slr_phaseC_rff_baseline_v145_quantiles.csv` | 116 KB | Per-sector quantiles aggregate |
 
-### Weighted ensembles (local — LHS-10k pipeline outputs)
+### Wong-pipeline supporting CSVs (~250 KB)
 
-| Filename | Size | What it is |
+| Path | Size | What it is |
 |---|---|---|
-| `brick_lhs10k_baseline_to2300_weighted.csv` | ~80 MB | LHS-10k baseline BRICK + Wong weights |
-| `brick_lhs10k_pulse_to2300_weighted.csv` | ~80 MB | Paired +1 GtC arm |
-| `brick_lhs10k_pulse0p01gtc_to2300_weighted.csv` | ~80 MB | Paired +0.01 GtC arm |
+| `outputs/brick_lB_per_post_dangendorf_postpr93.csv` | 230 KB | Pre-computed l_B per BRICK posterior member (Wong-weight numerator), against Dangendorf 2024 obs, post-PR#93 BRICK posterior |
 
-### ANOVA factorial CSVs (Torch — rsync down first)
+### Files explicitly **excluded** from the default deposit
 
-| Filename | Size | What it is |
+| Path | Size | Why excluded |
 |---|---|---|
-| `brick_anova_long_2300_weighted.csv` | ~50 MB | 13,500-tuple ANOVA factorial baseline + Wong weights (Panel C input) |
-| `brick_anova_pulse_long_2300.csv` | ~50 MB | Paired ANOVA pulse arm (Panel D input) |
-| `brick_anova_marginal_long_2300_weighted.csv` | ~80 MB | Per-tuple pulse-baseline marginal CSV |
+| `outputs/brick_v145/brick_lhs10k_{baseline,pulse_co2_pos_001gt}.csv` | 485 MB each, ~1 GB total | Full per-cell BRICK driver outputs with all 5 component trajectories. Regenerable from cubes + the Julia driver; only needed for component-level diagnostics like brick_vs_grinsted_tsls_components.py. |
+| `outputs/fredi_slr_phaseC_rff_baseline_v145_state_long.csv` | 1.5 GB | State-level FrEDI output. Regenerable from national long. |
+| Legacy v1.4.1-era CSVs (in `outputs/quarantine/20260524_pre_v145_e2e/`) | varies | Superseded by v1.4.5; archived locally only. |
 
-### Supporting CSVs
+A separate "v1.4.1 archive" can be made in the future if anyone wants
+to download the pre-v1.4.5 ensembles; the previous Zenodo version
+(`10.5281/zenodo.20312325` v1.0) is still resolvable for that purpose.
 
-| Filename | Size | What it is |
-|---|---|---|
-| `brick_lB_per_post_dangendorf.csv` | 230 KB | Pre-computed l_B per BRICK posterior member (Wong-weight numerator) |
+## 2. Create the v1.4.5 version of the data deposit
 
-## 2. Create the deposit
+The existing concept DOI is `10.5281/zenodo.20312325`. Adding a new
+version preserves the concept DOI while minting a fresh version DOI.
 
-1. Go to [https://zenodo.org/deposit/new](https://zenodo.org/deposit/new).
-2. Upload all files listed above. (Drag-drop is fine for files up to 50 GB
-   per record.)
-3. Fill in metadata using the template below.
-4. **Publish** (this mints the DOI). Note: Zenodo DOIs are permanent —
-   once published, the deposit cannot be deleted, only superseded with
-   a new version that shares a "concept DOI."
+1. Go to <https://zenodo.org/records/20312325> (the v1.0 deposit page)
+   and click **New version** in the top-right action menu.
+2. Replace the file inventory with the v1.4.5 selection from § 1.
+3. Update the metadata per § 3.
+4. Bump the version to `2.0` (semantic-versioned to match the v1.4.5
+   pipeline shift).
+5. **Publish.** The concept DOI stays `10.5281/zenodo.20312325`; the
+   new version DOI looks like `10.5281/zenodo.<new7digits>`.
 
-## 3. Metadata template
+## 3. Metadata template (v1.4.5)
 
-Copy these fields into the Zenodo metadata form:
+Copy these fields into the Zenodo metadata form for the new version:
 
 - **Resource type:** Dataset
-- **Title:** `SLR-RFF-BRICK intermediate data v1.0`
-- **Creators:** `Sarofim, Marcus` (affiliation: NYU Marron Institute of Urban Management / Johns Hopkins EPCP)
+- **Title:** `SLR-RFF-BRICK intermediate data v2.0 (FaIR v1.4.5 + post-PR#93 BRICK)`
+- **Creators:** `Sarofim, Marcus` (NYU Marron Institute of Urban Management / Johns Hopkins EPCP)
 - **Description:**
-  > Intermediate-data deposit for the SLR-RFF-BRICK reproducible pipeline
-  > (github.com/msarofim/SLR-RFF-BRICK). Contains the FaIR v2.2.4 GMST + OHC
-  > cubes (baseline, +1 GtCO₂ pulse at 2030, +0.01 GtCO₂ small-pulse), the
-  > LHS-10k conditional-BRICK Wong-weighted ensembles (10,000 triplets,
-  > ESS = 7,037 effective sample size), and the 13,500-row balanced ANOVA
-  > factorial CSVs that drive the 4-way Hawkins-Sutton variance
-  > decompositions. These are too large to host in git but are required
-  > for full Tier 2 reproducibility of the project's figures.
-- **Keywords:** `sea-level rise; probabilistic projections; social cost of carbon; FaIR; MimiBRICK; RFF-SP; Hawkins-Sutton decomposition; climate uncertainty`
-- **Version:** `1.0`
-- **License:** `CC-BY-4.0` (allow derivatives + commercial use with attribution)
+  > Intermediate-data deposit v2.0 for the SLR-RFF-BRICK reproducible
+  > pipeline (github.com/msarofim/SLR-RFF-BRICK). This version supersedes
+  > v1.0 (2025-09; v1.4.1 FaIR + pre-PR#93 BRICK; 500-cell paired
+  > ensemble). v2.0 covers the v1.4.5 FaIR-calibration update + Wong et
+  > al. 2026 post-PR#93 BRICK posterior, with two new ensemble designs:
+  > the LHS-10k conditional-BRICK ensemble (10,000 Latin-Hypercube
+  > triplets, Wong-importance-weighted ESS = 3,815 / 10,000 = 38.1%)
+  > for headline projection bands and pulse-marginal sensitivities, and
+  > the 54,000-row balanced ANOVA-18k factorial (400 RFF × 15 cfg × 3
+  > seed × 3 BRICK posterior) for 4-way Hawkins-Sutton variance
+  > decomposition. Includes the upstream FaIR v1.4.5 GMST + OHC cubes
+  > (Torch-built; flat per-cell schema), the BRICK slim CSVs that drive
+  > all substack/poster plots, the small per-figure summary CSVs, and
+  > the 1000-cell SIR-resampled FrEDI phaseC coastal-damage inputs +
+  > national long output (Panels F/H source).
+- **Keywords:** `sea-level rise; probabilistic projections; social cost of carbon; FaIR; MimiBRICK; RFF-SP; Hawkins-Sutton decomposition; climate uncertainty; AIS tipping; v1.4.5 calibration`
+- **Version:** `2.0`
+- **License:** `CC-BY-4.0`
 - **Publication date:** today
 - **Related identifiers:**
   - Type: `Is supplement to` — `https://github.com/msarofim/SLR-RFF-BRICK`
+  - Type: `Is new version of` — DOI `10.5281/zenodo.20312325` (v1.0, v1.4.1-era)
   - Type: `Is derived from` — DOI `10.1038/s41586-022-05224-9` (Rennert et al. 2022, RFF-SP)
-  - Type: `Is derived from` — DOI `10.5194/gmd-17-8569-2024` (Smith et al. 2024, FaIR v1.4.1 calibration)
-- **Communities:** consider adding to `Open Climate Data` (zenodo community), if available
-- **Funding / grants:** (whatever is appropriate)
+  - Type: `Is derived from` — DOI `10.5194/gmd-17-8569-2024` (Smith et al. 2024, FaIR-calibrate v1.4.1; we use the v1.4.5 update of the same framework)
+  - Type: `References` — DOI `10.1038/s41558-025-02457-0` (Darnell et al. 2025, SLR uncertainty companion)
+  - Type: `References` — DOI `10.1029/2022EF002696` (Grinsted et al. 2022, CMIP6 TSLS — compared in the substack)
+- **Communities:** keep whatever was set on v1.0
 
 ## 4. After publication
 
-1. Note the DOI (format: `10.5281/zenodo.XXXXXXX`) and the numeric record ID.
-2. Update `scripts/download_data.sh`:
-   ```bash
-   ZENODO_DOI="10.5281/zenodo.XXXXXXX"
-   ZENODO_RECORD_ID="XXXXXXX"
-   ```
-3. Test the download in a clean directory:
-   ```bash
-   cd /tmp && git clone /path/to/SLR-RFF-BRICK test-clone && cd test-clone
-   bash scripts/download_data.sh
-   python python/scripts/poster/slr_band.py   # should now succeed
-   ```
-4. Commit the updated download script + tag the GitHub release.
+1. Note the new version DOI (format `10.5281/zenodo.<NEW>`).
+2. Update three places in the repo:
+   - `README.md` — update the line about intermediate data
+   - `outputs/poster/iec_graphics_handoff/README.md` — same
+   - `outputs/poster/iec_graphics_handoff/poster_text.txt` — section "ACKNOWLEDGEMENTS" near line 277
+3. The concept DOI (`10.5281/zenodo.20312325`) is what shows up on the
+   poster's bottom-right data-availability block; it auto-resolves to
+   the latest version. No need to bump the printed DOI text.
 
-## 5. About the repo's own Zenodo DOI
+## 5. Code repo Zenodo deposit (first time)
 
-`.zenodo.json` in the repo root is metadata for an *automatically-deposited*
-Zenodo DOI of the GitHub repo itself, separate from this intermediate-data
-deposit. To enable:
+`.zenodo.json` in the repo root carries the metadata for an
+auto-deposited Zenodo DOI of the GitHub repo itself, separate from the
+intermediate-data deposit above. To enable:
 
 1. Log in to Zenodo with your GitHub account.
-2. On the [GitHub-Zenodo integration page](https://zenodo.org/account/settings/github/),
+2. On the [GitHub–Zenodo integration page](https://zenodo.org/account/settings/github/),
    toggle the SLR-RFF-BRICK repo to "on."
-3. Tag the repo (e.g. `git tag v1.0 && git push origin v1.0`) — Zenodo
-   auto-creates a snapshot deposit with a DOI for the code itself.
+3. Tag and push: `git tag -a v2.0-poster-agu-chapman -m "..." && git push origin v2.0-poster-agu-chapman`
+4. Zenodo auto-creates the snapshot deposit with a DOI matching the
+   `.zenodo.json` metadata. The concept DOI for the code repo is
+   minted on the first tag; subsequent tags add new versions under it.
 
-The two Zenodo DOIs (code repo + intermediate data) reference each other
-via `related_identifiers` so future readers can find both.
+The two Zenodo DOIs (code repo + intermediate data) reference each
+other via `related_identifiers` so future readers can find both.
 
 ## 6. Timing notes — AGU Chapman SLR poster
 
-The intermediate-data Zenodo deposit (this document) is **ready to create
-now** — it does not depend on the poster being finalized. The science and
-data are stable; the poster is currently in graphics polish at IEc.
+The poster's QR code resolves to the GitHub URL
+<https://github.com/msarofim/SLR-RFF-BRICK/tree/v2.0-poster-agu-chapman>.
+The poster's bottom-right also prints the intermediate-data concept DOI
+(`10.5281/zenodo.20312325`) which auto-redirects to the v2.0 version
+once published.
 
-When the print-ready poster PDF lands in the repo (~2026-06-01), the
-recommended sequence is:
+Recommended sequence as the poster nears delivery:
 
-1. `cp final_poster.pdf outputs/poster/poster_final.pdf`
-2. Add a short `notes/poster_url.txt` with the QR-code target URL.
-3. `git tag -a v1.0-poster-agu-chapman -m "Poster delivered to AGU Chapman SLR conference"`
-4. `git push origin main v1.0-poster-agu-chapman`
-5. If GitHub-Zenodo integration is enabled (§ 5), this tag mints the
-   code-repo DOI automatically.
-
-There is no need to update the intermediate-data deposit when the poster
-lands — the underlying ensembles don't change.
+1. Land the print-ready poster PDF at `outputs/poster/poster_final.pdf`.
+2. Tag: `git tag -a v2.0-poster-agu-chapman -m "Poster delivered to AGU Chapman SLR conference"`
+3. Push the tag: `git push origin v2.0-poster-agu-chapman`
+4. Publish the v2.0 data deposit per § 2.
 
 ## 7. Optional: ESS Open Archive deposit for the poster
 
-AGU runs [ESS Open Archive](https://essopenarchive.org/) (the successor
-to the old ESSOAr / EarthArXiv-for-AGU service), which mints a poster-
-specific DOI separate from this repository's Zenodo deposits. Worth
-considering for poster citability in conference proceedings and follow-up
-papers.
+AGU runs [ESS Open Archive](https://essopenarchive.org/) (successor to
+ESSOAr), which mints a poster-specific DOI separate from this
+repository's Zenodo deposits. Worth considering for poster citability
+in conference proceedings and follow-up papers.
 
 Once the poster PDF lands as `outputs/poster/poster_final.pdf`:
 
@@ -155,12 +210,12 @@ Once the poster PDF lands as `outputs/poster/poster_final.pdf`:
    - **Abstract:** _[from ABSTRACT.md]_
    - **License:** CC-BY-4.0
    - **Related identifiers:**
-     - Code repo: github.com/msarofim/SLR-RFF-BRICK (`v1.0-poster-agu-chapman`)
-     - Code DOI (once minted via Zenodo / GitHub integration)
-     - Intermediate data DOI (this deposit)
+     - Code repo: github.com/msarofim/SLR-RFF-BRICK (`v2.0-poster-agu-chapman`)
+     - Code DOI (once minted via the GitHub–Zenodo integration in § 5)
+     - Intermediate data DOI (this deposit's v2.0 version)
      - Substack post: <https://thesaraphreport.substack.com/p/certainties-and-uncertainties>
-5. Publish. Note the ESS Open Archive DOI alongside the others in the
-   repo's CITATION.cff.
+5. Publish. Add the ESS Open Archive DOI to `CITATION.cff` alongside the
+   others.
 
 ESS Open Archive is free and indexed by AGU; it's the natural home for
 the poster artifact specifically. The Zenodo deposits remain the home

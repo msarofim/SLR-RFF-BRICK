@@ -252,20 +252,39 @@ ENTRIES (alphabetical by first author; each entry: AUTHOR. YEAR. JOURNAL.  TITLE
 
 
 ==============================================================================
-VERSION STAMP  (very small, bottom corner — recommended)
+DATA + CODE AVAILABILITY  (placed in the title-bar bottom-right corner,
+                            as a single line of fine print immediately above
+                            the existing "Read more: substack" line; same
+                            font size and grey color as Funding / substack)
 ==============================================================================
 
-  v1.0-poster-agu-chapman · 2026-06-01 · github.com/msarofim/SLR-RFF-BRICK
+LINE (title-bar bottom-right, upper of two stacked fine-print lines):
+  Code: github.com/msarofim/SLR-RFF-BRICK  ·  Data: doi.org/10.5281/zenodo.20312325
+
+(The Zenodo concept DOI 10.5281/zenodo.20312325 auto-resolves to the v2.0
+version once published. The GitHub URL plus a "v2.0-poster-agu-chapman"
+tag in the release notes points reviewers at the frozen state.)
 
 
 ==============================================================================
-QR CODE TARGET URL  (separate small QR code, typically near version stamp)
+VERSION STAMP  (very small, bottom corner — placed beneath the
+                CODE + DATA block above)
 ==============================================================================
 
-  https://github.com/msarofim/SLR-RFF-BRICK/tree/v1.0-poster-agu-chapman
+  v2.0-poster-agu-chapman · 2026-06-01 · github.com/msarofim/SLR-RFF-BRICK
 
-(The tag is created on or near 2026-06-01 when the print-ready poster lands.
-A bare https://github.com/msarofim/SLR-RFF-BRICK URL also works as a fallback.)
+
+==============================================================================
+QR CODE TARGET URL  (single QR code; placement at the designer's discretion,
+                     near the title-bar code+data line or beside the version
+                     stamp at the bottom corner. Resolves to the tagged
+                     GitHub release whose sidebar has the Zenodo DOIs.)
+==============================================================================
+
+  https://github.com/msarofim/SLR-RFF-BRICK/tree/v2.0-poster-agu-chapman
+
+(The tag is created when the print-ready poster lands. A bare
+https://github.com/msarofim/SLR-RFF-BRICK URL also works as a fallback.)
 
 
 ==============================================================================
@@ -274,4 +293,3 @@ ACKNOWLEDGEMENTS  (optional — current version doesn't include this section
 ==============================================================================
 
   Analysis pipeline assistance from Claude Code (Anthropic).
-  Intermediate data archived at Zenodo: doi.org/10.5281/zenodo.20312325.

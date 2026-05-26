@@ -148,6 +148,14 @@ def main():
     ax.text(tx + 0.4, ty + 0.28,
             "Funding: Wellcome Trust 227149/Z/23/Z",
             ha="left", va="bottom", fontsize=8, color="#666", zorder=5)
+    # Bottom-right of the header carries two stacked fine-print lines:
+    # the upper line is the GitHub + Zenodo code/data availability statement;
+    # the lower line is the substack URL (was a single line on prior
+    # versions of the poster). Keeps the title bar focused but gives data
+    # availability a prominent location parallel to "Read more".
+    ax.text(tx + tw - 0.4, ty + 0.85,
+            "Code: github.com/msarofim/SLR-RFF-BRICK  ·  Data: doi.org/10.5281/zenodo.20312325",
+            ha="right", va="bottom", fontsize=8, color="#666", zorder=5)
     ax.text(tx + tw - 0.4, ty + 0.28,
             "Read more:  thesaraphreport.substack.com",
             ha="right", va="bottom", fontsize=8, color="#666", zorder=5)
