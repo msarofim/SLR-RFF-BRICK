@@ -67,12 +67,17 @@ def draw_panel(ax, x, y, w, h, label, image_path=None, placeholder_text=None,
             color=EDGE, va="top", ha="left", zorder=5)
 
     # Caption (bottom) — wrap to fill the panel width at the caption font.
+    # Captions may contain explicit "\n" line breaks for paragraph-style
+    # structure (e.g., "main sentence.\nSub-clause.") — each paragraph
+    # gets wrapped independently to caption_wrap and rejoined with "\n".
     cap_room = 0.0
     if caption is not None:
         if caption_wrap is None:
-            # ~7.5 chars per inch at fontsize=7 italic; leave 0.6" total margin
-            caption_wrap = max(20, int((w - 0.6) * 7.5))
-        cap_txt = textwrap.fill(caption, width=caption_wrap)
+            # ~7.5 chars per inch at fontsize=7 italic; 0.3" total margin
+            # (tightened from 0.6" 2026-05-25 to let captions run wider)
+            caption_wrap = max(20, int((w - 0.3) * 7.5))
+        paras = caption.split("\n") if "\n" in caption else [caption]
+        cap_txt = "\n".join(textwrap.fill(p, width=caption_wrap) for p in paras)
         n_lines = cap_txt.count("\n") + 1
         # Each line ~ 0.16" at fs=7; add buffer above caption so image's
         # internal x-axis label doesn't overlap with the caption text.
@@ -158,19 +163,22 @@ def main():
     draw_panel(ax, 14, 32.5, 16, 7.5,
                label="B. PROBABILISTIC SLR",
                image_path=PANELS["slr_band"],
-               caption="RFF-SP baseline ensemble (N=500), importance-weighted percentiles, 2000–2150.  For reference: IPCC AR6 SSP2-4.5 median GMSL 2100 ≈ 55 cm.")
+               caption="RFF-SP baseline ensemble (N=10,000 LHS), importance-weighted percentiles, 2020–2150.\n"
+                       "For reference, IPCC AR6 SSP2-4.5 and SSP3-7.0 median GMSL at 2100 (Table 9.9, rebaselined to NOAA STAR rel 2000) are shown as diamond markers.  RFF-SP median emissions lie somewhere between SSP2-4.5 and SSP3-7.0.")
 
     # C. Total-SLR 4-way decomp — upper right.
     draw_panel(ax, 30.5, 32.5, 15, 7.5,
                label="C. TOTAL SLR — sources of uncertainty",
                image_path=PANELS["hs_decomp"],
-               caption="Hawkins-Sutton 4-way decomposition of total-SLR variance, importance-weighted factorial design over 100 RFF-SP emissions paths, 15 climate calibrations per path, 3 FaIR stochastic seeds, and 3 BRICK posterior samples (N=13,500).  Stacked variance fractions over 2020–2150.  Conceptual companion to Darnell et al. 2025 (Nat Clim Change), who decompose total-SLR uncertainty across emissions vs geophysical sources at the multi-century horizon.")
+               caption="Hawkins-Sutton 4-way decomposition of total-SLR variance, importance-weighted factorial design over 400 RFF-SP emissions paths, 15 climate calibrations per path, 3 FaIR stochastic seeds, and 3 BRICK posterior samples (N=54,000).  Stacked variance fractions over 2020–2150.\n"
+                       "Conceptual companion to Darnell et al. 2025 (Nat Clim Change), who decompose total-SLR uncertainty across emissions vs geophysical sources at the multi-century horizon.")
 
     # D. Pulse SLR response — paired with C below.
     draw_panel(ax, 30.5, 24, 15, 8,
                label="D. PULSE SLR — sources of uncertainty (1 GtCO₂ pulse at 2030)",
                image_path=PANELS["pulse_response"],
-               caption="Paired BRICK runs on the same factorial design as Panel C.  Inset: AIS-tipping-regime split — mean ΔSLR over all draws (red) vs non-tipped draws only (blue); weighted fraction tipped on right axis.  Tipped draws drive the bulk of the tipping-point state dependence.")
+               caption="Paired BRICK runs on the same factorial design as Panel C.\n"
+                       "Inset: Median (line) and 5–95% band of the per-unit pulse-marginal SLR, ΔSLR per GtCO₂, from the 0.01-GtC small-pulse arm — the SC-GHG-relevant linear-regime response, pulse-size invariant per 1 / 0.1 / 0.01 GtC convergence diagnostic.")
 
     # Discussion — central position (y=25 to 32, h=7, w=16). Full panel width,
     # paragraph-aware wrap, larger readable font.  Marcus draft (May 17 2026).
@@ -224,11 +232,14 @@ def main():
     draw_panel(ax, 0.5, 13.5, 22.5, 10,
                label="F. DAMAGE-FUNCTION METHODOLOGY — Sweet 6 SLR nodes + FrEDI damage curve",
                image_path=PANELS["sweet_scenarios"],
-               caption="Left: 6 NCA5 scenarios + 2 FrEDI extensions, monotone-cubic spline through every Sweet anchor year.  Right: empirical FrEDI damage function at 2100 from 490 RFF-SP draws; colored dots mark the Sweet calibration nodes that FrEDI interpolates between.")
+               caption="Left: 6 NCA5 scenarios + 2 FrEDI extensions, monotone-cubic spline through every Sweet anchor year.\n"
+                       "Right: empirical FrEDI damage function at 2100 from 1000 SIR-resampled RFF-SP draws (v1.4.5 LHS-10k baseline); colored dots mark the Sweet calibration nodes that FrEDI interpolates between.")
     draw_panel(ax, 23, 13.5, 22.5, 10,
                label="G. ADAPTATION (Lorie 2020) — NCPM decision logic + 11-yr smoothing",
                image_path=PANELS["lorie_panel"],
-               caption="Left: NCPM decision logic with sub-optimal S=4 case representing observed under-adaptation (capital invested only when benefits exceed costs by ≥ 4×).  Middle: Lorie Table-1 cost stacks for Tampa & Virginia Beach.  Right: 11-year rolling-average smoothing of lumpy NCPM capital investments.  This smoothing is not only necessary because FrEDI's damage functions abstract away time — it is also consistent with how adaptation capital is amortized and financially smoothed in the real world.")
+               caption="Left: NCPM decision logic with sub-optimal S=4 case representing observed under-adaptation (capital invested only when benefits exceed costs by ≥ 4×).\n"
+                       "Middle: Lorie Table-1 cost stacks for Tampa & Virginia Beach.  Right: 11-year rolling-average smoothing of lumpy NCPM capital investments.\n"
+                       "This smoothing is not only necessary because FrEDI's damage functions abstract away time — it is also consistent with how adaptation capital is amortized and financially smoothed in the real world.")
 
     # ============================================================== LOWER ROW — impact case studies
     # Reading order H → I → J restored (May 17 final): the per-sector table
@@ -238,15 +249,18 @@ def main():
     draw_panel(ax, 0.5, 5, 15, 8,
                label="H. COASTAL PROPERTIES AND HTF TRANSPORTATION DAMAGES",
                image_path=PANELS["htf_table"],
-               caption="RFF-SP baseline ensemble, importance-weighted quantiles for Coastal Properties and HTF Transportation at 2100 and 2150, with statistically-correct Total (CP + HTF summed per draw, then re-quantiled).  Top inset bars: median ± 5–95% whiskers.  N = number of valid draws.")
+               caption="RFF-SP baseline ensemble (1,000 SIR-resampled draws from v1.4.5 LHS-10k baseline; equal-weighted after SIR), quantiles for Coastal Properties and HTF Transportation at 2100 and 2150.\n"
+                       "Top inset bars: median ± 5–95% whiskers.")
     draw_panel(ax, 16, 5, 14, 8,
                label="I. COASTAL PROPERTIES AND HTF TRANSPORTATION DAMAGES BY STATE",
                image_path=PANELS["coastal_map"],
-               caption="Importance-weighted median annual damages (Coastal Properties + HTF Transportation) by state, 2100.  Absolute USD (left) and per-capita (right).  Louisiana is most impacted on a per-capita basis; FL/MA/VA/NJ are distant 2nd–5th.")
+               caption="Importance-weighted median annual damages (Coastal Properties + HTF Transportation) by state, 2100.  Absolute USD (left) and per-capita (right).\n"
+                       "Louisiana is most impacted on a per-capita basis; FL/MA/VA/NJ are distant 2nd–5th.")
     draw_panel(ax, 30.5, 5, 15, 8,
                label="J. HTF ELDER MORTALITY (Sheahan 2025)",
                image_path=PANELS["sheahan_table"],
-               caption="Sheahan et al. 2025 Tables 2 & 3.  Additional 65+ deaths / yr from high-tide flooding under the Rennert et al. (2022) RFF–FaIR–BRICK distribution.  VSL = $7.9M (1990$) inflated to 2023$.  Bottom row: % reduction from stylized adaptation at the 5th, 50th, and 95th percentiles.")
+               caption="Sheahan et al. 2025 Tables 2 & 3.  Additional 65+ deaths / yr from high-tide flooding under the Rennert et al. (2022) RFF–FaIR–BRICK distribution.  VSL = $7.9M (1990$) inflated to 2023$.\n"
+                       "Bottom row: % reduction from stylized adaptation at the 5th, 50th, and 95th percentiles.")
 
     # ============================================================== BOTTOM — caveats (bulleted) + references
     caveat_bullets = [
@@ -263,10 +277,6 @@ def main():
          "One realization of local SLR given global SLR; different "
          "partitioning between AIS, Greenland, thermal expansion, and "
          "local wind / current effects would yield different results."),
-        ("Sweet 'Low' floor at early decades",
-         "Low end of Sweet does not encompass the full RFF / FaIR / BRICK "
-         "uncertainty range in early decades; FrEDI's lowest calibrated "
-         "scenario truncates the BRICK lower tail at 2050."),
         ("FrEDI sector coverage",
          "Accounts for a limited number of SLR-derived damage categories; "
          "does not yet include probabilistic damages."),

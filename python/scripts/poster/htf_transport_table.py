@@ -11,11 +11,11 @@ Render the Panel I figure for the SLR poster:
               (draw_idx, year)), then re-quantiled — not naively additive
               percentile sums.
 
-Inputs:
-  outputs/fredi_slr_phaseC_rff_baseline_quantiles.csv  (per-sector quantiles)
-  outputs/fredi_slr_phaseC_rff_baseline_long.csv       (per-draw values; used
-                                                        to derive the TOTAL
-                                                        row's correct quantiles)
+Inputs (v1.4.5 SIR-resampled 1000-draw rerun; v1.4.1 quarantined):
+  outputs/fredi_slr_phaseC_rff_baseline_v145_quantiles.csv  (per-sector quantiles)
+  outputs/fredi_slr_phaseC_rff_baseline_v145_long.csv       (per-draw values; used
+                                                             to derive the TOTAL
+                                                             row's correct quantiles)
 
 Output:
   outputs/poster/htf_transport_table.{png,pdf}
@@ -32,8 +32,8 @@ ROOT = Path(__file__).resolve().parents[3]
 OUT = ROOT / "outputs" / "poster"
 OUT.mkdir(parents=True, exist_ok=True)
 
-QUANTILES_CSV = ROOT / "outputs" / "fredi_slr_phaseC_rff_baseline_quantiles.csv"
-LONG_CSV      = ROOT / "outputs" / "fredi_slr_phaseC_rff_baseline_long.csv"
+QUANTILES_CSV = ROOT / "outputs" / "fredi_slr_phaseC_rff_baseline_v145_quantiles.csv"
+LONG_CSV      = ROOT / "outputs" / "fredi_slr_phaseC_rff_baseline_v145_long.csv"
 
 # Years to show on the poster table.  2050/2075/2125 dropped per poster review
 # (May 16, 2026): 2050 N=284/500 due to BRICK lower tail < Sweet 'Low' floor;
@@ -206,7 +206,10 @@ def main():
     draw_bar_inset(ax_bar, df, total_df)
 
     # ============================================================== table
-    header = ["", "Year", "P5", "Median (P50)", "P95", "Mean", "N"]
+    # N column dropped (2026-05-25): with the v1.4.5 SIR-resampled
+    # 1000-draw ensemble, all draws clear FrEDI's floor at every
+    # reported year, so N is invariant and a column slot was wasted.
+    header = ["", "Year", "P5", "Median (P50)", "P95", "Mean"]
     rows = []
     for sec_tuple in SECTORS:
         sub = df[(df["sector"] == sec_tuple[0])
@@ -214,25 +217,25 @@ def main():
         if sub.empty:
             continue
         sec_label = SECTOR_LABEL[sec_tuple]
-        rows.append([sec_label, "", "", "", "", "", ""])
+        rows.append([sec_label, "", "", "", "", ""])
         for _, r in sub.iterrows():
             rows.append([
                 "", f"{int(r['year'])}",
                 fmt_b(r["P5"]), fmt_b(r["P50"]), fmt_b(r["P95"]),
-                fmt_b(r["mean"]), f"{int(r['N'])}",
+                fmt_b(r["mean"]),
             ])
 
     # TOTAL section
-    rows.append(["Total (CP + HTF)", "", "", "", "", "", ""])
+    rows.append(["Total (CP + HTF)", "", "", "", "", ""])
     for _, r in total_df.iterrows():
         rows.append([
             "", f"{int(r['year'])}",
             fmt_b(r["P5"]), fmt_b(r["P50"]), fmt_b(r["P95"]),
-            fmt_b(r["mean"]), f"{int(r['N'])}",
+            fmt_b(r["mean"]),
         ])
 
     table_data = [header] + rows
-    col_widths = [0.22, 0.09, 0.12, 0.16, 0.12, 0.12, 0.10]
+    col_widths = [0.24, 0.10, 0.14, 0.18, 0.14, 0.14]
     table = ax_table.table(cellText=table_data, colWidths=col_widths,
                            cellLoc="center", loc="center")
     table.auto_set_font_size(False)

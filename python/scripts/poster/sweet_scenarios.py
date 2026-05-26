@@ -89,7 +89,7 @@ def interp_through_anchors(years_anchor, values_anchor, years_out=None):
 
 
 # ---------------------------------------------------------------------------
-FREDI_LONG_CSV = ROOT / "outputs" / "fredi_slr_phaseC_rff_baseline_long.csv"
+FREDI_LONG_CSV = ROOT / "outputs" / "fredi_slr_phaseC_rff_baseline_v145_long.csv"
 
 
 def plot_fredi_damage_function(ax, year=2100):

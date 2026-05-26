@@ -44,6 +44,18 @@ RECENT_BASELINE              = (2015, 2024)
 OBS_GMSL_RECENT_REL_2000_FBK = 6.38   # cm; fallback if obs file missing
                                        #  (computed 2026-05-18 from NOAA STAR)
 
+# AR6 Table 9.9 GMSL projections by SSP scenario (Fox-Kemper et al. 2021).
+# Values are MEDIAN [LIKELY 17-83% range] in METERS relative to 1995-2014.
+# We use SSP2-4.5 and SSP3-7.0 as bracket for RFF-SP central emissions (the
+# RFF-SP median CO2 emissions at 2100 sit between these two scenarios; AR6
+# did not publish SSP4-6.0 through the FACTS pipeline so no Tier-2 value is
+# available).
+AR6_TABLE99_M_REL_1995_2014 = {
+    "SSP2-4.5": {2050: 0.20, 2100: 0.56, 2150: 0.92},
+    "SSP3-7.0": {2050: 0.22, 2100: 0.68, 2150: 1.19},
+}
+AR6_BASELINE = (1995, 2014)
+
 
 def observed_gmsl_recent_rel_2000(obs_csv: Path, recent: tuple[int, int]) -> tuple[float, str]:
     """Return (cm, source_label).  Reads NOAA STAR (mm) and converts to
@@ -97,7 +109,7 @@ def main():
     print(f"AR6 bias-correction: rebaseline at {rb_lo}-{rb_hi} mean per draw, "
           f"shift to +{obs_anchor:.2f} cm rel 2000 ({obs_src})")
 
-    mask = (years >= 2000) & (years <= PLOT_END)
+    mask = (years >= 2020) & (years <= PLOT_END)
     yrs_plot = years[mask]
     Y_plot = Y[:, mask]
 
@@ -140,16 +152,37 @@ def main():
                         arrowprops=dict(arrowstyle="->", color="#1F4E79",
                                         lw=0.8))
 
-    # AR6-style observed-anchor reference: shaded recent-baseline band + dotted
-    # observed value, matching the GMST substack figures' convention.
-    ax.axvspan(rb_lo, rb_hi, color="#A6361C", alpha=0.10,
-               label=f"Recent baseline ({rb_lo}–{rb_hi})")
-    ax.axhline(obs_anchor, color="#A6361C", linewidth=0.7,
-               linestyle=":", alpha=0.7,
-               label=f"NOAA STAR observed {rb_lo}–{rb_hi} "
-                     f"(+{obs_anchor:.2f} cm rel 2000)")
+    # NOAA STAR observed-anchor reference line + recent-baseline shaded span
+    # were dropped 2026-05-25 per poster review; the bias-correction math
+    # still uses NOAA STAR under the hood (rebaseline each draw at 2015-2024
+    # then shift to obs anchor), but the on-figure dotted line and shaded
+    # vertical span are removed to keep the panel focused on the projection
+    # band and any AR6 SSP reference markers.
 
-    ax.set_xlim(2000, PLOT_END)
+    # AR6 Table 9.9 reference markers (SSP2-4.5 and SSP3-7.0) at year 2100.
+    # AR6 publishes values rel 1995-2014; our plot is rel 2000 (satellite
+    # bias-corrected to 2015-2024). Convert by adding the NOAA STAR mean
+    # over 1995-2014 expressed in cm rel 2000: that becomes the additive
+    # offset between AR6's 1995-2014 zero and our 2000 zero.
+    ar6_offset_cm = 0.0
+    if OBS_GMSL_CSV.exists():
+        obs = pd.read_csv(OBS_GMSL_CSV)
+        m_2000 = obs.loc[obs.year == 2000, "value"]
+        m_ar6  = obs.loc[(obs.year >= AR6_BASELINE[0]) & (obs.year <= AR6_BASELINE[1]),
+                          "value"]
+        if not m_2000.empty and not m_ar6.empty:
+            ar6_offset_cm = float((m_ar6.mean() - m_2000.mean()) / 10.0)
+    print(f"AR6→plot baseline shift: AR6 (rel {AR6_BASELINE[0]}–{AR6_BASELINE[1]}) is "
+          f"{ar6_offset_cm:+.2f} cm rel 2000 in NOAA STAR — added to AR6 medians "
+          f"before plotting.")
+    for scenario, vals in AR6_TABLE99_M_REL_1995_2014.items():
+        if 2100 in vals:
+            y_ar6_cm = vals[2100] * 100.0 + ar6_offset_cm
+            ax.plot([2100], [y_ar6_cm], marker="D", color="#888", markersize=8,
+                    markeredgecolor="black", markeredgewidth=0.6, zorder=6,
+                    label=f"AR6 {scenario} median 2100 ({y_ar6_cm:.0f} cm)")
+
+    ax.set_xlim(2020, PLOT_END)
     ax.set_ylim(0, max(bands[-1, -1] * 1.1, 200))
     ax.set_xlabel("Year", fontsize=12)
     ax.set_ylabel("Global Mean Sea Level Rise (cm rel. 2000)\n"

@@ -2,11 +2,61 @@
 
 **Conference:** AGU Chapman SLR conference
 **Poster dimensions:** 46″ × 46″
-**Date:** 2026-05-20 (current snapshot)
+**Date:** 2026-05-25 (current snapshot)
 **Authors:** Marcus C. Sarofim, James E. Neumann, Megan B. Sheahan
 
 This folder is everything you need to assemble the final printable poster
 from the underlying scientific deliverables.
+
+## What changed in this snapshot (vs. 2026-05-20)
+
+Panels B, C, D, and the full-layout mockup have been refreshed to the
+v1.4.5 FaIR-calibration + post-PR#93 BRICK posterior ensemble. The
+ensemble design changed too — Panel B is now built on the 10,000-draw
+LHS baseline (was 500 paired draws), and the Panel C / D Hawkins-Sutton
+factorial uses the ANOVA-18k design (400 RFFs × 15 climate calibrations
+× 3 FaIR stochastic seeds × 3 BRICK posterior samples = N=54,000; was
+100 RFFs × N=13,500). Captions in `poster_text.txt` have been updated
+to match the new sample sizes.
+
+A `METHODS NOTE` block has been added to `poster_text.txt` summarizing
+the climate model, calibration release, SLR model, emissions inventory,
+and importance-weighting target — placement recommended next to the
+references list or above the version stamp.
+
+Panels F and H have also been refreshed to v1.4.5. The FrEDI rerun
+used 1,000 SIR-resampled draws from the v1.4.5 LHS-10k baseline
+ensemble (vs. 500 paired draws in v1.4.1). Per-draw FrEDI runtime
+was ~44.8 minutes wall-clock with 8 parallel R workers; the importance
+weights were absorbed into the SIR resample so downstream weighting
+is uniform.
+
+Panel B has been refined: the x-axis now starts at 2020 (consistent
+with the other panels), the NOAA STAR observed-anchor plot annotation
+was dropped (the bias-correction math still uses NOAA STAR
+underneath), and AR6 Table 9.9 diamond markers for SSP2-4.5 and
+SSP3-7.0 median GMSL at 2100 have been added — rebaselined from
+AR6's 1995-2014 reference to our NOAA-STAR-rel-2000 reference via
+the +1.34 cm satellite-derived offset. RFF-SP median emissions sit
+between SSP2-4.5 and SSP3-7.0, so the band brackets the projection.
+AR6 doesn't publish SSP4-6.0 through the FACTS pipeline; bracketing
+with SSP2-4.5 / SSP3-7.0 is the cleanest authoritative comparison.
+
+Panel D had a unit bug repaired (pulse inset was dividing per-GtCO₂
+v1.4.5 values by GtC→GtCO₂ = 44/12, leaving the inset 3.67× too
+small) and the inset was shifted right (left edge 0.06 → 0.12) so
+its y-axis label no longer overlaps the main axes. Caption was
+also corrected: the previous "AIS-tipping-regime split" description
+was stale, the current inset shows median + 5–95% band of per-unit
+pulse-marginal SLR from the 0.01-GtC small-pulse arm.
+
+Panel H dropped its "N" (effective-draws) column — with v1.4.5
+all 1,000 draws clear FrEDI's lowest-calibrated-scenario floor at
+every reported year, so that column was redundant. The Sweet "Low"
+floor caveat was also dropped from the caveats list (no longer
+applies under v1.4.5).
+
+Panels A, G, I, J are unchanged from 2026-05-20.
 
 ## Contents
 

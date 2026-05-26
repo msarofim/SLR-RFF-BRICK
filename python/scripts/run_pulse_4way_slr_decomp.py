@@ -37,16 +37,22 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from hawkins_sutton import decompose_slr_4way, plot_hs_stack
 
 
-TIPPING_THRESHOLD_CM = 0.3   # ΔSLR > this → tipped tuple (AIS state-dep)
-
-
 def _plot_pulse_composite(decomp_plot, marg, out_png, out_pdf):
     """Composite Panel D figure for the pulse-SLR decomp.
 
     Main:   Hawkins-Sutton stacked variance fractions (4 components) over time.
-    Inset:  AIS-tipping-regime split — mean ΔSLR over all tuples, mean ΔSLR
-            over non-tipped tuples only, and weighted fraction of tuples
-            tipped (right axis, 0-10%).
+    Inset:  Median (line) and 5-95% band of the per-unit pulse-marginal SLR
+            from the 0.01-GtC small-pulse arm — the SC-GHG-relevant
+            linear-regime response. Pulse-size invariant per the 1 / 0.1 /
+            0.01 GtC convergence diagnostic (see pulse_convergence.py).
+
+    The earlier marginal-outcome AIS-tipping-regime inset (mean over all
+    tuples vs mean over non-tipped) was retired 2026-05-26 because its
+    classifier (per-year marginal > 0.3 cm) was pulse-size sensitive,
+    introducing discontinuities in cross-pulse-size comparisons. The
+    project standard L-T classifier is now baseline `ais_2100_cm > 20 cm`
+    (see extract_lhs10k_smallpulse_summary.py + gaussian_vs_empirical_slr.py
+    + lemoine_traeger_decomposition.py).
     """
     yrs = decomp_plot["year"].to_numpy()
     components = ["emissions", "climate", "internal", "brick"]
@@ -86,19 +92,26 @@ def _plot_pulse_composite(decomp_plot, marg, out_png, out_pdf):
     # baseline + 0.01 GtC small-pulse triplets, Wong-importance-weighted).
     # Replaces the earlier 500-cell paired summary; percentiles agree to
     # within ~1-2 cm but the 10k LHS gives much tighter sampling noise.
-    GTC_TO_GTCO2 = 44.0 / 12.0   # ≈ 3.667; carbon mass → CO2 mass conversion
-    ax2 = ax.inset_axes([0.06, 0.56, 0.45, 0.40])
+    #
+    # UNITS: The v1.4.5 LHS-10k small-pulse summary CSV is in cm per GtCO₂
+    # already — FaIR v1.4.5 'CO2 FFI' input_unit is GtCO2, not GtC (see
+    # `~/.claude/skills/climate-modeling` GtC-vs-GtCO2 note + memory entry
+    # `project_fair_v145_co2ffi_is_gtco2.md`). The legacy v1.4.1-era
+    # pre-2026-05-25 code path divided by 44/12 ≈ 3.667 to "convert"; that
+    # produces values 3.67× too small under v1.4.5 and has been removed.
+    ax2 = ax.inset_axes([0.12, 0.56, 0.45, 0.40])   # shifted right from 0.06
+                                                     # to clear parent y-label
     SMALLPULSE_SUMMARY = ROOT / "outputs" / "substack" / "co2_pulse_slr_summary_lhs10k_0p01gtc.csv"
     if SMALLPULSE_SUMMARY.exists():
         sdf = pd.read_csv(SMALLPULSE_SUMMARY)
         sdf = sdf[(sdf.year >= yrs.min()) & (sdf.year <= yrs.max())]
         sy = sdf.year.to_numpy()
-        ax2.fill_between(sy, sdf.p5 / GTC_TO_GTCO2, sdf.p95 / GTC_TO_GTCO2,
+        ax2.fill_between(sy, sdf.p5, sdf.p95,
                          color="#1F4E79", alpha=0.20, label="5–95% band")
-        ax2.plot(sy, sdf.p50 / GTC_TO_GTCO2, color="#1F4E79", linewidth=1.8,
+        ax2.plot(sy, sdf.p50, color="#1F4E79", linewidth=1.8,
                  label="Median")
         ax2.set_xlim(sy.min(), sy.max())
-        ymax = float(sdf.p95.max() / GTC_TO_GTCO2) * 1.10
+        ymax = float(sdf.p95.max()) * 1.10
     else:
         ax2.text(0.5, 0.5, f"missing {SMALLPULSE_SUMMARY.name}",
                  ha="center", va="center", transform=ax2.transAxes,
@@ -237,8 +250,7 @@ def main():
     decomp_plot = decomp[decomp["year"] <= PLOT_END_YEAR].reset_index(drop=True)
 
     # Composite Panel D figure: main = Hawkins-Sutton variance-fraction
-    # stackplot; inset = the AIS-tipping-regime split (mean all-tuples vs
-    # mean non-tipped vs weighted fraction tipped).
+    # stackplot; inset = small-pulse (0.01 GtCO₂) per-unit SLR median + band.
     _plot_pulse_composite(
         decomp_plot, marg,
         out_png=PLOTS / "hawkins_sutton_slr_4way_pulse.png",
