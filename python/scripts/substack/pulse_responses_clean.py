@@ -131,8 +131,8 @@ def main():
     plt.close(fig)
     print(f"wrote {OUT / 'pulse_responses_clean.png'}")
 
-    print(f"\nHeadline median values at landmark years (scales: CO₂ ÷"
-          f" {GTC_TO_GTCO2:.3f}; CH₄ × {TG_CH4_PER_GTCO2EQ:.2f} Tg/GtCO₂eq):")
+    print(f"\nHeadline median values at landmark years (scales: CO₂ × 1.0 "
+          f"[v1.4.5 already per-GtCO₂]; CH₄ × {TG_CH4_PER_GTCO2EQ:.2f} Tg/GtCO₂eq via GWP100):")
     for csv, gas, impact, disp, scale, color, r, c in PANELS:
         path = OUT / csv
         if not path.exists(): continue

@@ -2,6 +2,16 @@
 lemoine_traeger_decomposition.py
 ================================
 
+DIAGNOSTIC UTILITY (2026-05-26): The project standardized on empirical
+importance-weighted p5/p50/p95 quantiles for all pulse-marginal SLR
+figures, because that approach is both threshold-invariant and
+pulse-size-invariant. The L-T decomposition implemented here is retained
+as a methodological reference and for anyone auditing or revisiting the
+decomposition framework — but NO ACTIVE FIGURE in the substack/poster
+pipeline calls these functions. The previous active consumer
+(`gaussian_vs_empirical_slr.py`) was retired to
+`outputs/quarantine/20260526_lt_to_empirical/`.
+
 Reference implementation of the Lemoine-Traeger probabilistic tipping-point
 decomposition applied to a paired BRICK SLR ensemble (or any analogous paired
 marginal-SLR analysis).
@@ -324,30 +334,58 @@ def lemoine_decompose_by_year(
 # DEMO / self-test
 # ============================================================================
 if __name__ == "__main__":
-    """Demo: run the decomposition on the LHS-10k CO2 +1 GtC pulse ensemble.
+    """Demo: run the decomposition on the v1.4.5 LHS-10k CO2 +0.01-GtCO₂
+    small-pulse ensemble.
 
-    Expects the two CSVs to be available at the standard repo paths:
-      outputs/brick_lhs10k_baseline_to2300_weighted.csv
-      outputs/brick_lhs10k_pulse_to2300_weighted.csv
+    The `pulse_size_gtc` keyword name on `lemoine_decompose_by_year` is a
+    legacy holdover from the v1.4.1 era when CO2 pulses were sized in GtC;
+    the underlying function is unit-agnostic — it just divides the per-draw
+    SLR marginal by whatever scalar you pass. For v1.4.5 we pass the
+    actual GtCO₂ pulse magnitude (0.01) and report cm per GtCO₂.
 
-    If you don't have them locally, fetch from Zenodo:
-      bash scripts/download_data.sh
-      (or download directly from https://doi.org/10.5281/zenodo.20312325)
+    Expects the v1.4.5 FULL per-component CSVs (with `ais_2100_cm` for
+    the tipping-state classifier) at:
+      outputs/brick_v145/brick_lhs10k_baseline.csv
+      outputs/brick_v145/brick_lhs10k_pulse_co2_pos_001gt.csv
+
+    These are NOT in the slim CSVs at outputs/brick_v145_slim/ — those
+    drop per-component columns to save disk. If absent locally, pull the
+    full CSVs from Torch:
+      rsync torch:/scratch/ms17839/SLR-RFF-BRICK/outputs/brick_v145/brick_lhs10k_*.csv outputs/brick_v145/
     """
     from pathlib import Path
 
     ROOT = Path(__file__).resolve().parents[2]
-    BASELINE = ROOT / "outputs" / "brick_lhs10k_baseline_to2300_weighted.csv"
-    PULSE    = ROOT / "outputs" / "brick_lhs10k_pulse_to2300_weighted.csv"
+    BASELINE = ROOT / "outputs/brick_v145/brick_lhs10k_baseline.csv"
+    PULSE    = ROOT / "outputs/brick_v145/brick_lhs10k_pulse_co2_pos_001gt.csv"
+    if not BASELINE.exists() or not PULSE.exists():
+        raise SystemExit(
+            "Missing full per-component CSVs at outputs/brick_v145/. "
+            "The slim CSVs at outputs/brick_v145_slim/ do NOT carry "
+            "`ais_2100_cm` (the AIS-tipping-state classifier this "
+            "decomposition needs). See module docstring for the rsync "
+            "command to pull from Torch."
+        )
 
-    print(f"Loading paired ensemble from {ROOT / 'outputs'}/")
+    print(f"Loading paired v1.4.5 ensemble from {BASELINE.parent}/")
     baseline_df = pd.read_csv(BASELINE)
     pulse_df    = pd.read_csv(PULSE)
+    # Full per-component CSVs name year columns `slr_<y>` (e.g. `slr_2030`);
+    # lemoine_decompose expects bare-year names (the slim-CSV convention).
+    # Rename in place to bridge the two schemas.
+    def _bare_year_rename(df):
+        return df.rename(columns={c: c[4:] for c in df.columns
+                                   if c.startswith("slr_") and c[4:].isdigit()})
+    baseline_df = _bare_year_rename(baseline_df)
+    pulse_df    = _bare_year_rename(pulse_df)
     print(f"  baseline: {len(baseline_df)} draws")
-    print(f"  pulse:    {len(pulse_df)} draws")
+    print(f"  pulse:    {len(pulse_df)} draws (0.01 GtCO₂ small-pulse arm)")
     print()
 
-    # Per-year decomposition, +1 GtC CO2 pulse at 2030.
+    # Per-year decomposition, +0.01 GtCO₂ CO2 pulse at 2030. Divisor 0.01
+    # yields per-GtCO₂ marginal directly (FaIR v1.4.5 CO2 FFI input unit is
+    # GtCO₂; see ~/.claude/skills/climate-modeling "Unit checks: GtC vs
+    # GtCO₂" + memory `project_fair_v145_co2ffi_is_gtco2.md`).
     df = lemoine_decompose_by_year(
         baseline_df=baseline_df,
         pulse_df=pulse_df,
@@ -355,14 +393,15 @@ if __name__ == "__main__":
         classifier_threshold_cm=20.0,
         classifier_column="ais_2100_cm",
         weight_col="w_norm",
-        pulse_size_gtc=1.0,
+        pulse_size_gtc=0.01,   # actually GtCO₂ magnitude under v1.4.5
     )
 
     # Pretty-print
     pd.set_option("display.float_format", lambda x: f"{x:+.5f}")
     pd.set_option("display.width", 160)
     pd.set_option("display.max_columns", None)
-    print("Lemoine-Traeger decomposition of the +1 GtC CO2 pulse at 2030")
+    print("Lemoine-Traeger decomposition of the +0.01 GtCO₂ CO2 pulse at 2030 "
+          "(reported per GtCO₂)")
     print("Classifier: baseline ais_2100_cm > 20 cm  =>  tipping-prone")
     print()
     print(df.to_string(index=False))

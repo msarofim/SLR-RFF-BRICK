@@ -62,6 +62,11 @@ OUT.mkdir(parents=True, exist_ok=True)
 # are in CO₂ mass, not carbon mass; the marginal scaling reflects that.
 BASELINE_CSV = ROOT / "outputs" / "brick_v145_slim" / "brick_lhs10k_baseline_to2300_weighted.csv"
 PULSE_CSV    = ROOT / "outputs" / "brick_v145_slim" / "brick_lhs10k_pulse_co2_pos_001gt_to2300.csv"
+# Full per-component baseline CSV — used only to read `ais_2100_cm` for the
+# Lemoine-Traeger BASELINE-STATE classifier. The slim CSV intentionally
+# drops component columns; pulling the column we need from the full file
+# avoids having to re-emit the slim schema for one extra scalar.
+FULL_BASELINE_CSV = ROOT / "outputs" / "brick_v145" / "brick_lhs10k_baseline.csv"
 
 PULSE_SIZE_GTCO2 = 0.01                                  # FaIR v1.4.5 CO2 FFI input unit
 MARGINAL_SCALE   = 1.0 / PULSE_SIZE_GTCO2                # cm-per-pulse → cm per GtCO₂
@@ -72,10 +77,16 @@ ENSEMBLE_LBL = "LHS-10k importance-weighted (FaIR v1.4.5 + post-PR#93 BRICK)"
 PLOT_START, PLOT_END = 2020, 2150
 LANDMARK_YRS = (2050, 2100, 2150)
 
-# L-T classifier: cells with per-year marginal above this are flagged
-# "tipped" and excluded from the linear-baseline mean + std. Matches the
-# poster's pulse_response_split convention.
-TIPPING_THRESHOLD_CM = 0.3
+# L-T classifier: BASELINE-STATE on per-cell baseline `ais_2100_cm`.
+# Cells with baseline AIS contribution ≥ AIS_TIPPING_THRESHOLD_CM at 2100
+# are flagged "tipping-prone" and excluded from the linear-baseline mean.
+# This is the SLR-RFF-BRICK standard threshold (also used by
+# extract_lhs10k_smallpulse_summary.py and lemoine_traeger_decomposition.py)
+# — pulse-size INVARIANT (classification depends only on baseline draw),
+# and outcome-independent so the L-T baseline doesn't discontinuously
+# shift when the pulse size or year-of-evaluation changes.
+AIS_TIPPING_THRESHOLD_CM   = 20.0
+AIS_TIPPING_REFERENCE_YEAR = 2100
 
 # ── Visual style (substack header) ───────────────────────────────────────────
 COLOR_GAUSS = "#C8102E"      # vivid red — Gaussian summary
@@ -134,14 +145,34 @@ def load_marginal():
     # Marginal in cm-per-pulse → rescale to cm per GtCO₂ in one step:
     M = (Yp - Yb) * MARGINAL_SCALE
     w = bs["w_norm"].to_numpy(np.float64)
-    return years, M, w
+
+    # Pull baseline AIS-state classifier from the full per-component CSV.
+    # Merge onto the slim 4-tuple keys so we get one boolean per row aligned
+    # with M and w.
+    ais_col = f"ais_{AIS_TIPPING_REFERENCE_YEAR}_cm"
+    full = pd.read_csv(FULL_BASELINE_CSV, usecols=keys + [ais_col])
+    bs_ais = bs[keys].merge(full, on=keys, how="left")
+    if bs_ais[ais_col].isna().any():
+        n_miss = int(bs_ais[ais_col].isna().sum())
+        raise RuntimeError(f"{n_miss} baseline rows had no {ais_col} match in full CSV")
+    is_tipping_baseline = (bs_ais[ais_col].to_numpy() > AIS_TIPPING_THRESHOLD_CM)
+    print(f"[L-T] baseline-state classifier (ais_{AIS_TIPPING_REFERENCE_YEAR}_cm > "
+          f"{AIS_TIPPING_THRESHOLD_CM} cm): tipping-prone fraction = "
+          f"{(w * is_tipping_baseline).sum() / w.sum():.3f}")
+    return years, M, w, is_tipping_baseline
 
 
-def summarize(M, w, years):
+def summarize(M, w, years, is_tipping_baseline):
     """Per-year weighted: empirical 5/50/95 + an illustrative L-T-style Gaussian.
 
     The "L-T-corrected Gaussian" for the left panel is *constructed*:
-      center = weighted mean of the non-tipped subset (the L-T linear baseline)
+      center = weighted mean of the non-tipping-prone subset (the L-T linear
+               baseline), where "tipping-prone" is the BASELINE-STATE
+               classifier `baseline_ais_2100_cm > AIS_TIPPING_THRESHOLD_CM`.
+               This is pulse-size invariant: the same set of cells is
+               labelled non-tipping at every year and at every pulse size,
+               so the L-T baseline doesn't discontinuously shift when the
+               pulse size or evaluation horizon changes.
       σ      = (empirical p95 − empirical p5) / 2
                i.e., the empirical 5–95% width interpreted as a 1σ Gaussian
                band, which is what you get if you take the IQR-like spread
@@ -155,6 +186,10 @@ def summarize(M, w, years):
     inflation from raw-mean Gaussian summaries.
     """
     rows = []
+    # Same classifier at every year — pulse-size & horizon invariant.
+    w_lin_mask = ~is_tipping_baseline
+    w_lin_sum  = float((w * w_lin_mask).sum())
+    frac_tipping_baseline = float((w * is_tipping_baseline).sum() / w.sum())
     for j, y in enumerate(years):
         v = M[:, j]
 
@@ -163,17 +198,12 @@ def summarize(M, w, years):
         p50 = weighted_quantile(v, w, 0.50)
         p95 = weighted_quantile(v, w, 0.95)
 
-        # L-T linear baseline: weighted mean over non-tipped subset.
-        is_tipped = v > TIPPING_THRESHOLD_CM
-        w_lin = w * (~is_tipped)
-        w_lin_sum = float(w_lin.sum())
+        # L-T linear baseline: weighted mean over non-tipping-prone subset.
         if w_lin_sum > 0:
-            v_lin = v[~is_tipped]
-            w_lin_v = w[~is_tipped]
-            mu_lt = float(np.average(v_lin, weights=w_lin_v))
+            mu_lt = float(np.average(v[w_lin_mask], weights=w[w_lin_mask]))
         else:
             mu_lt = float("nan")
-        frac_tipped = float((w * is_tipped).sum() / w.sum())
+        frac_tipped = frac_tipping_baseline
 
         # Illustrative Gaussian σ: empirical 5-95 width treated as ±1σ band.
         # See docstring — this is a counterfactual choice that lets the
@@ -373,10 +403,10 @@ def plot_panels(df):
 def main():
     print(f"Loading paired baseline + small-pulse "
           f"({PULSE_SIZE_GTCO2} GtCO₂ pulse → cm per GtCO₂ via × {MARGINAL_SCALE:.4f}) ...")
-    years, M, w = load_marginal()
+    years, M, w, is_tipping_baseline = load_marginal()
     print(f"  marginal shape {M.shape}, weights sum = {w.sum():.3f}")
 
-    df = summarize(M, w, years)
+    df = summarize(M, w, years, is_tipping_baseline)
 
     # Per-year table for footnote use
     csv_path = OUT / "gaussian_vs_empirical_slr_per_year.csv"

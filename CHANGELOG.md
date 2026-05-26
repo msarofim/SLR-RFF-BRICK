@@ -5,6 +5,29 @@ commit log; recent entries are explicit.
 
 ## [Unreleased] — v145 end-to-end pipeline
 
+### Tried and abandoned
+- **Lemoine-Traeger tipping-decomposition framing for pulse-marginal SLR
+  figures** (2026-05-26). Three active sites used L-T classifiers with
+  inconsistent methodology: `gaussian_vs_empirical_slr.py` used a
+  pulse-outcome classifier (per-year marginal > 0.3 cm; pulse-size
+  sensitive); `extract_lhs10k_smallpulse_summary.py` used a baseline-state
+  classifier (`ais_2100_cm > 20 cm`) but it was silently dead because the
+  slim CSV didn't carry `ais_2100_cm`; `lemoine_traeger_decomposition.py`
+  used baseline-state but had no callers. We initially standardized on
+  baseline-state at 20 cm; that revealed that v1.4.5 + post-PR#93 BRICK +
+  Wong weighting leaves 88% of cells classified as tipping-prone, so the
+  "L-T linear baseline" was a 12%-subset mean (small slice; the L-T
+  premium framing was more informative under v1.4.1 where tipping was the
+  minority state). Decision: empirical importance-weighted p5/p50/p95
+  quantiles satisfy "accurately reflect likely impact + uncertainty"
+  while being both threshold-invariant AND pulse-size-invariant.
+  `gaussian_vs_empirical_slr.py` + outputs retired to
+  `outputs/quarantine/20260526_lt_to_empirical/`. Tipping-conditional
+  columns dropped from `extract_lhs10k_smallpulse_summary.py` output.
+  `lemoine_traeger_decomposition.py` library kept as a diagnostic
+  utility (marked as such in its docstring) for any future revisit of
+  the decomposition framework.
+
 ### Added
 - **v1.4.5 FaIR pipeline end-to-end**: 18 v1.4.5 cubes (9 LHS-10k + 9 ANOVA-18k;
   baseline + 8 pulse arms each) on Torch; new BRICK driver
