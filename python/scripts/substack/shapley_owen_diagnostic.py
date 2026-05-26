@@ -60,10 +60,18 @@ from shapley_hawkins_sutton import (
     _smooth_traj, assemble_features, load_target,
 )
 
-LANDMARK_YEARS = [2050, 2100, 2150]
-M_PERMUTATIONS = 80          # Castro-Gomez random permutations
-N_OUTER        = 200         # reference points per Var(E[Y|S])
-N_INNER        = 80          # marginal draws per reference point
+# Owen-Shapley diagnostic only at year 2100 (the headline reporting year).
+# Castro-Gomez parameters cut substantially from earlier estimate: M=80,
+# N_outer=200, N_inner=80 made each year run 50+ min (10+ hr total for the
+# original 12-fit plan), which is impractical locally. With M=30, N_outer=60,
+# N_inner=30 a single landmark year runs in ~3-5 min; 4 targets = ~15-20 min.
+# Accuracy is still good enough for the diagnostic question ("does Owen
+# rank BRICK higher than TreeSHAP?") even if Shapley values themselves
+# have higher sampling noise.
+LANDMARK_YEARS = [2100]
+M_PERMUTATIONS = 30
+N_OUTER        = 60
+N_INNER        = 30
 RANDOM_SEED    = 2026
 
 

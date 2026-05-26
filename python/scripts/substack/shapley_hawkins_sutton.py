@@ -419,7 +419,10 @@ def render_figure(target, feature_names, sh_var, v_internal_anova, years, v_tota
     ax.set_ylim(0, 1)
     ax.set_xlabel("Year", fontsize=11)
     ax.set_ylabel(target["ylabel"], fontsize=11)
-    method = "Shapley (LHS-10k linear regime)" if is_pulse else "Shapley + ANOVA-18k V_internal"
+    is_pulse_target = "pulse" in target["key"]
+    method = ("Shapley TreeExplainer; V_internal = LHS-10k residual"
+              if is_pulse_target else
+              "Shapley TreeExplainer; V_internal = LHS-10k residual (~per-year 1−R²)")
     ax.set_title(f"{target['title']}\n{method}",
                  fontsize=12, fontweight="bold", color="#1F4E79")
     h_, l_ = ax.get_legend_handles_labels()
