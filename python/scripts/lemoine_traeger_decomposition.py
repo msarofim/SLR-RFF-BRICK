@@ -104,8 +104,8 @@ For convenience, `lemoine_decompose_by_year` runs the decomposition over a
 list of years and returns a tidy DataFrame.
 
 The CSVs above are publicly archived at
-https://doi.org/10.5281/zenodo.20312325 (SLR-RFF-FaIR-BRICK intermediate
-data v1.0; license CC-BY-4.0). For non-Zenodo ensembles, the function
+https://doi.org/10.5281/zenodo.20451296 (SLR-RFF-FaIR-BRICK intermediate
+data v2.1; license CC-BY-4.0). For non-Zenodo ensembles, the function
 accepts any paired (baseline_df, pulse_df) with matching row keys plus a
 classifier column.
 

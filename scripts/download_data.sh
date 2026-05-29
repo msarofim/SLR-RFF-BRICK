@@ -21,12 +21,12 @@ set -euo pipefail
 
 # -----------------------------------------------------------------------------
 # Zenodo deposit: SLR-RFF-BRICK intermediate data v1.0
-# DOI: 10.5281/zenodo.20312325
+# DOI: 10.5281/zenodo.20451296
 # -----------------------------------------------------------------------------
-ZENODO_DOI="${ZENODO_DOI:-10.5281/zenodo.20312325}"
-ZENODO_RECORD_ID="${ZENODO_RECORD_ID:-20312325}"
-# The DOI resolves to https://zenodo.org/records/20312325; the files endpoint
-# is https://zenodo.org/api/records/20312325/files-archive (returns a .zip of
+ZENODO_DOI="${ZENODO_DOI:-10.5281/zenodo.20451296}"
+ZENODO_RECORD_ID="${ZENODO_RECORD_ID:-20451296}"
+# The DOI resolves to https://zenodo.org/records/20451296; the files endpoint
+# is https://zenodo.org/api/records/20451296/files-archive (returns a .zip of
 # the whole record).
 # -----------------------------------------------------------------------------
 

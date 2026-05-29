@@ -164,5 +164,5 @@ QR target.)
 
 For science questions / panel content tweaks: Marcus Sarofim
 (<msarofim@gmail.com>). For dataset / archive questions, the underlying
-intermediate ensembles are at [doi.org/10.5281/zenodo.20312325](https://doi.org/10.5281/zenodo.20312325) and the code is at
+intermediate ensembles are at [doi.org/10.5281/zenodo.20451296](https://doi.org/10.5281/zenodo.20451296) (v2.1 version DOI; concept DOI 10.5281/zenodo.20312324) and the code is at
 [github.com/msarofim/SLR-RFF-BRICK](https://github.com/msarofim/SLR-RFF-BRICK).

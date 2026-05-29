@@ -257,11 +257,12 @@ DATA + CODE AVAILABILITY  (placed in the title-bar bottom-right corner,
 ==============================================================================
 
 LINE (title-bar bottom-right, upper of two stacked fine-print lines):
-  Code: github.com/msarofim/SLR-RFF-BRICK  ·  Data: doi.org/10.5281/zenodo.20312325
+  Code: github.com/msarofim/SLR-RFF-BRICK  ·  Data: doi.org/10.5281/zenodo.20451296
 
-(The Zenodo concept DOI 10.5281/zenodo.20312325 auto-resolves to the v2.1
-data version once published. The GitHub URL plus the "v2.1" release tag
-points reviewers at the frozen state.)
+(10.5281/zenodo.20451296 is the v2.1 *version* DOI — it pins to exactly the
+data behind this poster. The all-versions concept DOI is
+10.5281/zenodo.20312324. The GitHub URL plus the "v2.1" release tag points
+reviewers at the frozen code state.)
 
 
 ==============================================================================

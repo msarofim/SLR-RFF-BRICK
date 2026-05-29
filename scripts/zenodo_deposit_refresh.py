@@ -4,7 +4,7 @@ zenodo_deposit_refresh.py
 =========================
 
 Create a NEW VERSION of the SLR-RFF-BRICK intermediate-data Zenodo deposit
-(concept DOI 10.5281/zenodo.20312325) and upload a curated file set via the
+(concept DOI 10.5281/zenodo.20312324) and upload a curated file set via the
 Zenodo REST API.
 
 Design / safety:
@@ -40,7 +40,7 @@ from pathlib import Path
 import requests  # pip install requests (in ~/climate-env)
 
 ZENODO_BASE = "https://zenodo.org/api"
-CONCEPT_RECORD_ID = "20312325"          # latest published version's record id
+CONCEPT_RECORD_ID = "20451296"          # latest version record id (v2.1) to branch newversion from; concept DOI is 20312324
 ROOT = Path(__file__).resolve().parents[1]
 STAGING = ROOT / "outputs" / "_zenodo_staging_v5"
 FAI_CUBES = Path.home() / "Documents/2026/CodeProjects/FaIRtoFrEDI/fair_outputs/cubes_v145"
@@ -105,7 +105,7 @@ METADATA = {
         "related_identifiers": [
             {"identifier": "https://github.com/msarofim/SLR-RFF-BRICK",
              "relation": "isSupplementTo", "scheme": "url"},
-            {"identifier": "10.5281/zenodo.20312325",
+            {"identifier": "10.5281/zenodo.20451296",
              "relation": "isNewVersionOf", "scheme": "doi"},
             {"identifier": "10.1038/s41586-022-05224-9",
              "relation": "isDerivedFrom", "scheme": "doi"},

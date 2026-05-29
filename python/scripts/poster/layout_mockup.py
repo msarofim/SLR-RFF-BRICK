@@ -154,7 +154,7 @@ def main():
     # versions of the poster). Keeps the title bar focused but gives data
     # availability a prominent location parallel to "Read more".
     ax.text(tx + tw - 0.4, ty + 0.85,
-            "Code: github.com/msarofim/SLR-RFF-BRICK  ·  Data: doi.org/10.5281/zenodo.20312325",
+            "Code: github.com/msarofim/SLR-RFF-BRICK  ·  Data: doi.org/10.5281/zenodo.20451296",
             ha="right", va="bottom", fontsize=8, color="#666", zorder=5)
     ax.text(tx + tw - 0.4, ty + 0.28,
             "Read more:  thesaraphreport.substack.com",

@@ -3,8 +3,10 @@
 This document walks through the two Zenodo deposits associated with this
 project:
 
-1. **Intermediate data deposit** — concept DOI `10.5281/zenodo.20312325`,
-   originally minted with the v1.4.1-era data (Sept 2025). For the v1.4.5
+1. **Intermediate data deposit** — concept DOI `10.5281/zenodo.20312324`
+   (NB: `20312325` is the *v1.0 version* DOI, not the concept; v2.1 version
+   DOI is `10.5281/zenodo.20451296`), originally minted with the v1.4.1-era
+   data (Sept 2025). For the v1.4.5
    pipeline this needs a **new version** (same concept DOI; new version
    DOI). See §§ 1–4 below.
 2. **Code repo deposit** — auto-deposited via the GitHub–Zenodo
@@ -117,8 +119,9 @@ to download the pre-v1.4.5 ensembles; the previous Zenodo version
 
 ## 2. Create the v1.4.5 version of the data deposit
 
-The existing concept DOI is `10.5281/zenodo.20312325`. Adding a new
-version preserves the concept DOI while minting a fresh version DOI.
+The existing concept DOI is `10.5281/zenodo.20312324` (the v1.0 version DOI
+was `10.5281/zenodo.20312325`). Adding a new version preserves the concept
+DOI while minting a fresh version DOI.
 
 1. Go to <https://zenodo.org/records/20312325> (the v1.0 deposit page)
    and click **New version** in the top-right action menu.
@@ -126,8 +129,8 @@ version preserves the concept DOI while minting a fresh version DOI.
 3. Update the metadata per § 3.
 4. Bump the version to `2.0` (semantic-versioned to match the v1.4.5
    pipeline shift).
-5. **Publish.** The concept DOI stays `10.5281/zenodo.20312325`; the
-   new version DOI looks like `10.5281/zenodo.<new7digits>`.
+5. **Publish.** The concept DOI stays `10.5281/zenodo.20312324`; the
+   new version DOI looks like `10.5281/zenodo.<new7digits>` (v2.1 = 20451296).
 
 ## 3. Metadata template (v1.4.5)
 
@@ -172,9 +175,11 @@ Copy these fields into the Zenodo metadata form for the new version:
    - `README.md` — update the line about intermediate data
    - `outputs/poster/iec_graphics_handoff/README.md` — same
    - `outputs/poster/iec_graphics_handoff/poster_text.txt` — section "ACKNOWLEDGEMENTS" near line 277
-3. The concept DOI (`10.5281/zenodo.20312325`) is what shows up on the
-   poster's bottom-right data-availability block; it auto-resolves to
-   the latest version. No need to bump the printed DOI text.
+3. The poster's bottom-right data-availability block prints the **v2.1
+   version DOI** `10.5281/zenodo.20451296` (decision 2026-05-29: pin to the
+   exact data behind this poster, not the auto-latest concept DOI
+   `10.5281/zenodo.20312324`). The printed DOI MUST be bumped if a future
+   poster uses a newer data version.
 
 ## 5. Code repo Zenodo deposit (first time)
 
@@ -197,9 +202,9 @@ other via `related_identifiers` so future readers can find both.
 
 The poster's QR code resolves to the GitHub URL
 <https://github.com/msarofim/SLR-RFF-BRICK/tree/v2.0-poster-agu-chapman>.
-The poster's bottom-right also prints the intermediate-data concept DOI
-(`10.5281/zenodo.20312325`) which auto-redirects to the v2.0 version
-once published.
+The poster's bottom-right also prints the intermediate-data v2.1 version
+DOI (`10.5281/zenodo.20451296`), which pins to the exact data behind the
+poster (concept DOI `10.5281/zenodo.20312324` is the all-versions pointer).
 
 Recommended sequence as the poster nears delivery:
 
