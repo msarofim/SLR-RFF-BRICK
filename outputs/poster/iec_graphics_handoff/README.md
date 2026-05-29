@@ -150,15 +150,15 @@ named fonts.
 A small line near the bottom corner of the final poster is recommended
 to make the work re-traceable:
 
-> v1.0-poster-agu-chapman · 2026-06-01 · github.com/msarofim/SLR-RFF-BRICK
+> v2.1 · 2026-05-29 · github.com/msarofim/SLR-RFF-BRICK
 
 The QR code (typically next to the fine print) should resolve to:
 
-  https://github.com/msarofim/SLR-RFF-BRICK/tree/v1.0-poster-agu-chapman
+  https://github.com/msarofim/SLR-RFF-BRICK/tree/v2.1
 
-(That tagged release is created when the print-ready poster lands; a
+(The v2.1 release tag already exists, released 2026-05-29; a
 bare `github.com/msarofim/SLR-RFF-BRICK` URL also works as a fallback
-QR target if needed before the tag exists.)
+QR target.)
 
 ## Questions
 

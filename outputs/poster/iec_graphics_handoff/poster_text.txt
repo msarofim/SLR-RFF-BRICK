@@ -259,9 +259,9 @@ DATA + CODE AVAILABILITY  (placed in the title-bar bottom-right corner,
 LINE (title-bar bottom-right, upper of two stacked fine-print lines):
   Code: github.com/msarofim/SLR-RFF-BRICK  ·  Data: doi.org/10.5281/zenodo.20312325
 
-(The Zenodo concept DOI 10.5281/zenodo.20312325 auto-resolves to the v2.0
-version once published. The GitHub URL plus a "v2.0-poster-agu-chapman"
-tag in the release notes points reviewers at the frozen state.)
+(The Zenodo concept DOI 10.5281/zenodo.20312325 auto-resolves to the v2.1
+data version once published. The GitHub URL plus the "v2.1" release tag
+points reviewers at the frozen state.)
 
 
 ==============================================================================
@@ -269,7 +269,7 @@ VERSION STAMP  (very small, bottom corner — placed beneath the
                 CODE + DATA block above)
 ==============================================================================
 
-  v2.0-poster-agu-chapman · 2026-06-01 · github.com/msarofim/SLR-RFF-BRICK
+  v2.1 · 2026-05-29 · github.com/msarofim/SLR-RFF-BRICK
 
 
 ==============================================================================
@@ -279,9 +279,9 @@ QR CODE TARGET URL  (single QR code; placement at the designer's discretion,
                      GitHub release whose sidebar has the Zenodo DOIs.)
 ==============================================================================
 
-  https://github.com/msarofim/SLR-RFF-BRICK/tree/v2.0-poster-agu-chapman
+  https://github.com/msarofim/SLR-RFF-BRICK/tree/v2.1
 
-(The tag is created when the print-ready poster lands. A bare
+(The v2.1 tag already exists (released 2026-05-29). A bare
 https://github.com/msarofim/SLR-RFF-BRICK URL also works as a fallback.)
 
 
