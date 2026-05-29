@@ -13,6 +13,24 @@ project:
 Run through both once for the v1.4.5 update; the data deposit takes most
 of the effort.
 
+> **Automated path (preferred, 2026-05-29):** the data-deposit new-version
+> workflow in §§ 1–2 is now scripted by `scripts/zenodo_deposit_refresh.py`
+> (Zenodo REST API). It stages the manifest (incl. an rsync of the Torch
+> cubes), creates the new-version draft, replaces the inherited files,
+> uploads, and sets metadata — stopping at the **draft** for manual review
+> before you publish. Needs a Zenodo token in `~/.zenodo_token` (scopes
+> `deposit:write` + `deposit:actions`). Use `--dry-run` first. The manual
+> web steps below remain valid as a fallback / reference.
+>
+> **v2.1 manifest (what the script actually deposits, ~2.5 GB):** the v2.0
+> selection below **plus** the v5 LHS-10k_s noise-isolated ensemble
+> (`cube_v145_lhs10ks_{baseline,pulse_co2_pos_001gt}_flat2015.npz` +
+> `brick_lhs10ks_{baseline_weighted,pulse_co2_pos_001gt}_to2300.csv`, which
+> drive the canonical Group-Sobol H-S figures) and the 324k balanced-factorial
+> ANOVA design metadata (`anova324k_{brick,fair}_metadata.csv`) for the
+> model-free cross-check. The raw 324k per-cell BRICK output (~2.8 GB) stays
+> excluded (regenerable from that metadata + the BRICK driver).
+
 ## 1. Files to upload to the data deposit — v1.4.5 default selection (~2.5 GB total)
 
 These all live in `outputs/` on the local machine and Torch
