@@ -186,3 +186,6 @@ outputs/anova324k_fair_metadata.csv
 outputs/anova108k_brick_metadata.csv
 outputs/lhs10ks_brick_postaugment_metadata.csv
 outputs/rff_features_rich.csv
+
+# Zenodo upload staging dir (transient; files live in the deposit)
+outputs/_zenodo_staging_v5/
