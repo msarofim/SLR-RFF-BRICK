@@ -168,3 +168,21 @@ parameters_subsample_sneasybrick.csv
 # Diagnostic cross-posterior / sample-stability test outputs (large CSVs)
 outputs/brick_xtest_prepr93/*.csv
 outputs/brick_anova_stab_*.csv
+
+# ===========================================================================
+# v5 / Group-Sobol workstream large outputs (regenerable; data on Zenodo +
+# Torch /scratch). The small per-axis decomposition CSVs and all figures ARE
+# tracked; only the multi-GB raw ensembles and multi-MB regenerable metadata
+# are excluded.
+# ===========================================================================
+# Raw per-cell BRICK trajectories for the LHS-10k_s noise-isolated ensemble
+# (~2.4 GB). Regenerable via the BRICK arm; summaries/figures are tracked.
+outputs/brick_v145_lhs10ks/
+# Large regenerable ANOVA/feature metadata (rebuild via
+# build_anova_factorial_metadata.py / build_rff_features_rich.py with fixed
+# seeds). Small design metadata (<1 MB) stays tracked for reproducibility.
+outputs/anova324k_brick_metadata.csv
+outputs/anova324k_fair_metadata.csv
+outputs/anova108k_brick_metadata.csv
+outputs/lhs10ks_brick_postaugment_metadata.csv
+outputs/rff_features_rich.csv

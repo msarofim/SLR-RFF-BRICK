@@ -9,11 +9,12 @@ abstract: >-
   posterior of Wong et al. 2026, with Frederikse 2020 Greenland Ice Sheet
   data added to the calibration target set), with Wong (2026) AR(1)
   importance weighting against observed historical global mean sea level
-  (Dangendorf et al. 2024). Includes Hawkins-Sutton variance decomposition
-  of total and pulse-marginal SLR by source (emissions, climate response,
-  internal variability, BRICK posterior), plus the LHS-10k conditional-BRICK
-  ensemble used for the headline projection band and a 54,000-row ANOVA-18k
-  factorial ensemble for variance decomposition. Paired ±1-GtCO₂,
+  (Dangendorf et al. 2024). Includes a Group-Sobol Hawkins-Sutton variance
+  decomposition (importance-weighted) of total and pulse-marginal SLR by
+  source (emissions, climate response, BRICK posterior, internal
+  variability) — validated against a model-free 324,000-run balanced-
+  factorial ANOVA cross-check — plus the LHS-10k conditional-BRICK
+  ensemble used for the headline projection band. Paired ±1-GtCO₂,
   ±0.01-GtCO₂, ±1-Tg-CH₄, and ±0.01-Tg-CH₄ pulse arms supplied for
   sign-flip and linearity tests.
 type: software

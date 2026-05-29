@@ -35,6 +35,7 @@ in the output CSVs anyway for audit / inspection.
 """
 from __future__ import annotations
 
+import argparse
 import sys
 from pathlib import Path
 
@@ -43,12 +44,14 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
 FAI  = Path.home() / "Documents/2026/CodeProjects/FaIRtoFrEDI"
-CUBE = FAI / "fair_outputs/cubes_v145/cube_v145_lhs10k_baseline.npz"
-BRICK_SLIM = ROOT / "outputs/brick_v145_slim/brick_lhs10k_baseline_to2300_weighted.csv"
 
-OUT_DIR = ROOT / "outputs"
-OUT_GMST = OUT_DIR / "fredi_input_rff_baseline_gmst_v145.csv"
-OUT_SLR  = OUT_DIR / "fredi_input_rff_baseline_slr_v145.csv"
+# Defaults: v1.4.5 single-seed LHS-10k (pre-noise-isolated). Override via CLI
+# (--cube / --brick-slim / --out-gmst / --out-slr) to retarget e.g. the v5
+# LHS-10k_s noise-isolated ensemble (lhs10ks_*).
+DEFAULT_CUBE       = FAI / "fair_outputs/cubes_v145/cube_v145_lhs10k_baseline.npz"
+DEFAULT_BRICK_SLIM = ROOT / "outputs/brick_v145_slim/brick_lhs10k_baseline_to2300_weighted.csv"
+DEFAULT_OUT_GMST   = ROOT / "outputs" / "fredi_input_rff_baseline_gmst_v145.csv"
+DEFAULT_OUT_SLR    = ROOT / "outputs" / "fredi_input_rff_baseline_slr_v145.csv"
 
 N_DRAWS         = 1000
 FREDI_YEAR_LO   = 2000
@@ -59,6 +62,21 @@ SEED            = 2026
 
 
 def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__,
+                                  formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--cube",       type=Path, default=DEFAULT_CUBE,
+                    help="FaIR cube npz (must contain cells_meta + gmst_traj + years)")
+    ap.add_argument("--brick-slim", type=Path, default=DEFAULT_BRICK_SLIM,
+                    help="BRICK slim weighted CSV (bare-year columns + w_norm)")
+    ap.add_argument("--out-gmst",   type=Path, default=DEFAULT_OUT_GMST)
+    ap.add_argument("--out-slr",    type=Path, default=DEFAULT_OUT_SLR)
+    args = ap.parse_args()
+
+    CUBE       = args.cube
+    BRICK_SLIM = args.brick_slim
+    OUT_GMST   = args.out_gmst
+    OUT_SLR    = args.out_slr
+
     rng = np.random.default_rng(SEED)
 
     # ---- load BRICK slim CSV (carries w_norm + per-cell SLR trajectories) ----
@@ -152,7 +170,7 @@ def main() -> int:
     gmst_df = pd.DataFrame(gmst_rows)
     slr_df  = pd.DataFrame(slr_rows)
 
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    OUT_GMST.parent.mkdir(parents=True, exist_ok=True)
     gmst_df.to_csv(OUT_GMST, index=False)
     slr_df.to_csv(OUT_SLR,  index=False)
     print(f"[save] {OUT_GMST}  shape={gmst_df.shape}")

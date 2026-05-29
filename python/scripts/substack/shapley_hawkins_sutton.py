@@ -3,29 +3,36 @@ shapley_hawkins_sutton.py
 =========================
 
 Unified Shapley-based Hawkins-Sutton variance decomposition pipeline that
-produces FOUR H-S figures from the v1.4.5 LHS-10k ensemble:
+produces FOUR H-S figures from the v1.4.5 LHS-10k_s (v5 noise-isolated)
+ensemble:
 
   1. Total ΔGMST(t) — variance of cell-to-cell GMST relative to 2020
   2. Total ΔSLR(t)  — variance of cell-to-cell SLR  relative to 2020
   3. Pulse ΔGMST(t) — variance of per-cell paired (pulse − base) ΔGMST
   4. Pulse ΔSLR(t)  — variance of per-cell paired (pulse − base) ΔSLR
 
-The LHS-10k cube is single-seeded by design (seed_idx = 0 for all
-10,000 cells), so it contains zero V_internal contribution: cell-to-
-cell variance at any year is purely cfg + RFF driven. V_internal
-therefore CANNOT be recovered from a residual-of-surrogate-fit on
-LHS-10k; the residual is surrogate modeling error, not seed noise.
-The fix: take V_internal from the matching v1.4.5 ANOVA-18k cube
-(3 seeds × ~6 cfgs × ~1000 RFFs, bias-corrected per Searle 2006), and
-stack it on top of the LHS-10k Shapley axes on the combined variance
-scale (LHS V_cfg+V_RFF + ANOVA V_seed).
-  outputs/substack/updated_hawkins_sutton_data.csv  (V_internal for GMST)
-  outputs/plots/hawkins_sutton_slr_4way.csv         (V_internal for SLR)
+v5 design (2026-05-26): the LHS-10k_s cube LHS-samples seed_idx ∈ {0..999}
+across the 10,000 cells AND holds solar+volcanic forcing flat at the
+1995-2014 climatology mean from 2015 onward. The first change gives the
+cube real internal-variability content; the second strips out the
+cfg-modulated forced response to volcanic/solar wiggles (the v3/v4
+confound — Pinatubo-like decay amplified by different cfgs read as
+"climate response" variance).
 
-For the PULSE figures the matched-seed paired difference cancels
-stochastic seed noise by construction (and LHS-10k single-seed makes
-it exactly zero), so V_internal is dropped from those decompositions
-entirely.
+Because the v5 cube has real seed variation, V_internal for the TOTAL
+targets is now legitimately recoverable as the out-of-fit residual of
+the per-year surrogate (the surrogate's static features cannot predict
+seed noise, so V_residual ≈ V_internal at near-term). This reverts the
+v4 fix that pulled V_internal from an external ANOVA-18k CSV.
+
+For the PULSE targets the matched-seed paired difference cancels
+stochastic seed noise by construction, so V_internal stays at 0 for
+those decompositions.
+
+Companion v5 BRICK metadata (LHS post_idx ∈ {0..9999}, written by the
+2026-05-26 v5 session) replaces the prior 3-unique-post_idx convention
+in lhs10k_metadata_v145.csv. That fix is what makes the "brick" axis a
+real BRICK-posterior uncertainty band rather than a 3-draw artifact.
 
 Outliers (AIS pulse-induced tipping cells) are clipped at p99 for the
 pulse-SLR target only — they don't appear in the linear-regime
@@ -54,6 +61,7 @@ Outputs (in outputs/substack/):
   shapley_hs_per_axis_<target>.csv      per-year per-axis aggregation
 """
 from __future__ import annotations
+import os
 import sys
 from pathlib import Path
 import time
@@ -66,18 +74,14 @@ OUT  = ROOT / "outputs" / "substack"
 OUT.mkdir(parents=True, exist_ok=True)
 FAI  = Path.home() / "Documents/2026/CodeProjects/FaIRtoFrEDI"
 
-SLIM_BASE_CSV    = ROOT / "outputs/brick_v145_slim/brick_lhs10k_baseline_to2300_weighted.csv"
-FULL_BASE_CSV    = ROOT / "outputs/brick_v145/brick_lhs10k_baseline.csv"
-FULL_PULSE_CSV   = ROOT / "outputs/brick_v145/brick_lhs10k_pulse_co2_pos_001gt.csv"
-CUBE_BASE        = FAI / "fair_outputs/cubes_v145/cube_v145_lhs10k_baseline.npz"
-CUBE_PULSE       = FAI / "fair_outputs/cubes_v145/cube_v145_lhs10k_pulse_co2_pos_001gt.npz"
+SLIM_BASE_CSV    = ROOT / "outputs/brick_v145_slim/brick_lhs10ks_baseline_to2300_weighted.csv"
+FULL_BASE_CSV    = ROOT / "outputs/brick_v145_lhs10ks/brick_lhs10ks_baseline.csv"
+FULL_PULSE_CSV   = ROOT / "outputs/brick_v145_lhs10ks/brick_lhs10ks_pulse_co2_pos_001gt.csv"
+CUBE_BASE        = FAI / "fair_outputs/cubes_v145/cube_v145_lhs10ks_baseline_flat2015.npz"
+CUBE_PULSE       = FAI / "fair_outputs/cubes_v145/cube_v145_lhs10ks_pulse_co2_pos_001gt_flat2015.npz"
 RFF_FEATURES     = ROOT / "outputs/rff_summary_features.csv"
 CFG_PARAMS_CSV   = FAI / "calibration_v145/calibrated_constrained_parameters_1.4.5.csv"
 POST_PARAMS_CSV  = ROOT / "data/MimiBRICK/parameters_subsample_brick.csv"
-
-# Existing V_internal source CSVs (bias-corrected per 2026-05-26 fix)
-TOTAL_GMST_VINT_CSV = ROOT / "outputs/substack/updated_hawkins_sutton_data.csv"  # var_internal col
-TOTAL_SLR_VINT_CSV  = ROOT / "outputs/plots/hawkins_sutton_slr_4way.csv"          # V_internal col
 
 PULSE_SIZE_GTCO2 = 0.01
 YEAR_LO, YEAR_HI = 2020, 2150
@@ -153,9 +157,8 @@ TARGETS = [
         "use_brick_features":  False,
         "clip_outliers":  False,
         "smoothing":      1,
-        "axes_order":     ["emissions", "climate", "internal"],
-        "v_internal_csv": TOTAL_GMST_VINT_CSV,
-        "v_internal_col": "var_internal",
+        "axes_order":     ["internal", "climate", "emissions"],
+        "v_internal_source": "residual",
     },
     {
         "key":            "total_slr",
@@ -167,8 +170,7 @@ TARGETS = [
         "clip_outliers":  False,
         "smoothing":      1,
         "axes_order":     ["emissions", "climate", "brick", "internal"],
-        "v_internal_csv": TOTAL_SLR_VINT_CSV,
-        "v_internal_col": "V_internal",
+        "v_internal_source": "residual",
     },
     {
         "key":            "pulse_gmst",
@@ -179,9 +181,8 @@ TARGETS = [
         "use_brick_features":  False,
         "clip_outliers":  False,
         "smoothing":      SMOOTH_WINDOW_YR_PULSE,
-        "axes_order":     ["emissions", "climate"],
-        "v_internal_csv": None,           # matched-seed paired marginal cancels seed noise;
-        "v_internal_col": None,           # LHS-10k single-seed makes it exactly 0 here
+        "axes_order":     ["climate", "emissions"],
+        "v_internal_source": "zero",      # matched-seed pulse marginal cancels seed noise
     },
     {
         "key":            "pulse_slr",
@@ -193,8 +194,7 @@ TARGETS = [
         "clip_outliers":  True,
         "smoothing":      SMOOTH_WINDOW_YR_PULSE,
         "axes_order":     ["emissions", "climate", "brick"],
-        "v_internal_csv": None,
-        "v_internal_col": None,
+        "v_internal_source": "zero",
     },
 ]
 
@@ -214,7 +214,7 @@ def _smooth_traj(M, window):
 
 
 def assemble_features():
-    """Load slim baseline + Wong weights + cfg + post + RFF features.
+    """Load slim baseline + importance weights + cfg + post + RFF features.
     Returns (df, key sort applied)."""
     slim = pd.read_csv(SLIM_BASE_CSV, usecols=KEY_COLS + ["w_norm"])
     rff = pd.read_csv(RFF_FEATURES, usecols=["rff_idx"] + RFF_FEATURES_LIST)
@@ -400,16 +400,7 @@ def fit_and_shap(feat_df, years, M, target):
     return feature_names, sh_per_year, v_total, v_residual, mean_r2, mean_r2
 
 
-def load_v_internal_for_total(target, years):
-    if target["v_internal_csv"] is None:
-        return None
-    df = pd.read_csv(target["v_internal_csv"])
-    if "year" not in df.columns or target["v_internal_col"] not in df.columns:
-        sys.exit(f"V_internal CSV {target['v_internal_csv']} missing year or {target['v_internal_col']}")
-    return df.set_index("year")[target["v_internal_col"]].reindex(years).fillna(0.0).to_numpy()
-
-
-def render_figure(target, feature_names, sh_var, v_internal_anova, years, v_total, v_residual):
+def render_figure(target, feature_names, sh_var, years, v_total, v_residual):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -427,25 +418,27 @@ def render_figure(target, feature_names, sh_var, v_internal_anova, years, v_tota
                 .groupby(["year", "axis"], as_index=False)["V_shap"].sum())
     pivot = axis_df.pivot(index="year", columns="axis", values="V_shap").reindex(years).fillna(0.0)
 
-    # V_internal handling. The LHS-10k cube is single-seeded
-    # (seed_idx = 0 for all 10,000 cells), so the LHS-10k residual is
-    # surrogate modeling error, NOT internal variability. Correct V_int
-    # source for TOTAL targets is the v1.4.5 ANOVA-18k cube (3 seed
-    # replicates per cfg×RFF; bias-corrected per Searle 2006), loaded
-    # via `v_internal_anova` from the matching ANOVA-18k CSV. PULSE
-    # targets get V_internal = 0 because matched-seed paired marginals
-    # cancel seed noise by construction; the LHS-10k surrogate residual
-    # there is purely modeling gap and should not be drawn as V_int.
+    # V_internal handling for the v5 LHS-10k_s cube.
+    #   "residual" — surrogate's OOF residual; legitimate for TOTAL targets
+    #                because seed_idx is LHS-sampled ∈ {0..999} across cells,
+    #                so the static-feature surrogate cannot predict the seed
+    #                component and V_residual ≈ V_internal at near-term.
+    #   "zero"     — PULSE targets: matched-seed pulse marginal cancels seed
+    #                noise by construction (verified: pre-pulse marg = 0
+    #                bit-identical in the v5 cube sanity check 2026-05-26).
     axes_order = target["axes_order"]
     ax_cols = list(axes_order)
     for a in ax_cols:
         if a not in pivot.columns and a != "internal":
             pivot[a] = 0.0
     if "internal" in ax_cols:
-        if v_internal_anova is not None:
-            pivot["internal"] = v_internal_anova
-        else:
+        src = target.get("v_internal_source", "zero")
+        if src == "residual":
+            pivot["internal"] = v_residual
+        elif src == "zero":
             pivot["internal"] = 0.0
+        else:
+            sys.exit(f"unknown v_internal_source {src!r} for target {target['key']}")
     # Normalize to sum of all axes (Shapley + V_internal_ANOVA)
     total = pivot[ax_cols].sum(axis=1).replace(0, 1.0)
     frac = pivot[ax_cols].divide(total, axis=0)
@@ -460,9 +453,9 @@ def render_figure(target, feature_names, sh_var, v_internal_anova, years, v_tota
     ax.set_xlabel("Year", fontsize=11)
     ax.set_ylabel(target["ylabel"], fontsize=11)
     is_pulse_target = "pulse" in target["key"]
-    method = ("Shapley TreeExplainer (LHS-10k cfg+RFF); V_internal = 0 (matched-seed pulse marginal)"
+    method = ("Shapley TreeExplainer (LHS-10k_s cfg+RFF+post); V_internal = 0 (matched-seed pulse marginal)"
               if is_pulse_target else
-              "Shapley TreeExplainer (LHS-10k cfg+RFF); V_internal from v1.4.5 ANOVA-18k seed replicates")
+              "Shapley TreeExplainer (LHS-10k_s cfg+RFF+post); V_internal = surrogate OOF residual (seed-LHS cube)")
     ax.set_title(f"{target['title']}\n{method}",
                  fontsize=12, fontweight="bold", color="#1F4E79")
     h_, l_ = ax.get_legend_handles_labels()
@@ -493,13 +486,20 @@ def main():
     feat = assemble_features()
     print(f"  {len(feat)} cells × {feat.shape[1]} cols", flush=True)
 
-    for target in TARGETS:
+    only = os.environ.get("HS_ONLY_TARGETS", "").strip()
+    if only:
+        wanted = set(s.strip() for s in only.split(","))
+        targets = [t for t in TARGETS if t["key"] in wanted]
+        print(f"[filter] HS_ONLY_TARGETS={only} → processing {[t['key'] for t in targets]}",
+              flush=True)
+    else:
+        targets = TARGETS
+    for target in targets:
         print(f"\n=== {target['key']} : {target['title']} ===", flush=True)
         years, M = load_target(target["loader"], feat, target["anchor_year"])
         print(f"  target M shape {M.shape}", flush=True)
         feature_names, sh_var, v_total, v_residual, train_r2, test_r2 = fit_and_shap(feat, years, M, target)
-        v_int_anova = load_v_internal_for_total(target, years)
-        render_figure(target, feature_names, sh_var, v_int_anova, years, v_total, v_residual)
+        render_figure(target, feature_names, sh_var, years, v_total, v_residual)
 
 
 if __name__ == "__main__":

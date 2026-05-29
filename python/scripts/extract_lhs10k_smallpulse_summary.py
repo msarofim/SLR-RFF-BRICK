@@ -34,7 +34,7 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT  = ROOT / "outputs" / "substack"
 OUT.mkdir(parents=True, exist_ok=True)
 
-# v1.4.5 slim CSVs (post-PR#93 BRICK + FaIR v1.4.5 + Wong-weighting).
+# v1.4.5 slim CSVs (post-PR#93 BRICK + FaIR v1.4.5 + importance-weighting).
 BASELINE_CSV = ROOT / "outputs" / "brick_v145_slim" / "brick_lhs10k_baseline_to2300_weighted.csv"
 PULSE_CSV    = ROOT / "outputs" / "brick_v145_slim" / "brick_lhs10k_pulse_co2_pos_001gt_to2300.csv"
 OUT_CSV      = OUT / "co2_pulse_slr_summary_lhs10k_0p01gtc.csv"
@@ -98,7 +98,7 @@ def main():
     df.to_csv(OUT_CSV, index=False)
     print(f"wrote {OUT_CSV}  ({len(df)} years)")
 
-    print("\nKey small-pulse SLR sensitivities (cm per GtCO2, Wong-weighted):")
+    print("\nKey small-pulse SLR sensitivities (cm per GtCO2, importance-weighted):")
     for y in (2030, 2050, 2075, 2100, 2125, 2150):
         r = df[df.year == y]
         if len(r):

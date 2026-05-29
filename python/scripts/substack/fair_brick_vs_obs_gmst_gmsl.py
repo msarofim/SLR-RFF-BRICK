@@ -44,7 +44,7 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 CUBE_PATH = (Path.home() / "Documents/2026/CodeProjects/FaIRtoFrEDI/"
              "fair_outputs/cubes_v145/cube_v145_lhs10k_baseline.npz")
 
-# BRICK v1.4.5 slim baseline weighted CSV (LHS-10k baseline arm, Wong-weighted).
+# BRICK v1.4.5 slim baseline weighted CSV (LHS-10k baseline arm, importance-weighted).
 BRICK_CSV = ROOT / "outputs" / "brick_v145_slim" / "brick_lhs10k_baseline_to2300_weighted.csv"
 
 # ---- Obs inputs -------------------------------------------------------------
@@ -203,7 +203,7 @@ def main() -> None:
     # ----- GMSL -----
     yrs_s, slr_m, w_norm = load_brick_gmsl()
     slr_m_n = rebaseline_per_row(slr_m, yrs_s, *GMSL_BASE)
-    # Wong-weighted quantiles per year (model-side band is importance-weighted).
+    # importance-weighted quantiles per year (model-side band is importance-weighted).
     slr_med = np.zeros(len(yrs_s))
     slr_lo  = np.zeros(len(yrs_s))
     slr_hi  = np.zeros(len(yrs_s))

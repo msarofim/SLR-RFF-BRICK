@@ -8,7 +8,7 @@ LHS-10k paired (baseline, 0.01-Tg CH₄ pulse) ensemble.
 
 Output schema matches the legacy ch4_pulse_slr_summary_<size>tg.csv used
 by python/scripts/substack/pulse_responses_clean.py:
-  year, mean, p5, p50, p95   (cm per Tg CH₄, Wong-weighted)
+  year, mean, p5, p50, p95   (cm per Tg CH₄, importance-weighted)
 
 The downstream pulse_responses_clean.py panel scales these by
 TG_CH4_PER_GTCO2EQ = 1000 / 27.9 = 35.84 (AR6 WG1 GWP100, midpoint
@@ -87,7 +87,7 @@ def main():
     df.to_csv(OUT_CSV, index=False)
     print(f"wrote {OUT_CSV}  ({len(df)} years)")
 
-    print("\nKey small-pulse CH4-SLR sensitivities (cm per Tg-CH4, Wong-weighted):")
+    print("\nKey small-pulse CH4-SLR sensitivities (cm per Tg-CH4, importance-weighted):")
     for y in (2030, 2050, 2075, 2100, 2125, 2150):
         r = df[df.year == y]
         if len(r):

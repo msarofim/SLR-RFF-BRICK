@@ -141,7 +141,7 @@ T_ANCHOR = 2020
 DECOMP_YEARS = list(range(2020, 2301))
 PLOT_END_YEAR = 2150
 
-# v1.4.5 slim ANOVA-18k (post-PR#93 BRICK + FaIR v1.4.5 + Wong-weighting),
+# v1.4.5 slim ANOVA-18k (post-PR#93 BRICK + FaIR v1.4.5 + importance-weighting),
 # 54,000 paired (rff, cfg, seed, post) rows × 451 years 1850-2300.
 # Replaces the legacy 13,500-row brick_anova_long_2300_*.csv files (now in
 # outputs/quarantine/20260524_pre_v145_e2e/).

@@ -49,10 +49,15 @@ suppressPackageStartupMessages({
 # ---------------------------------------------------------------------------
 PROJ_DIR <- "/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK"
 OUT_DIR  <- file.path(PROJ_DIR, "outputs")
-GMST_CSV <- file.path(OUT_DIR, "fredi_input_rff_baseline_gmst_v145.csv")
-SLR_CSV  <- file.path(OUT_DIR, "fredi_input_rff_baseline_slr_v145.csv")
-OUT_CSV       <- file.path(OUT_DIR, "fredi_slr_phaseC_rff_baseline_v145_long.csv")        # national totals
-OUT_STATE_CSV <- file.path(OUT_DIR, "fredi_slr_phaseC_rff_baseline_v145_state_long.csv")  # state-level (for map)
+# Defaults: v1.4.5 single-seed LHS-10k. Override via env vars to retarget the
+# v5 LHS-10k_s noise-isolated ensemble (e.g. FREDI_TAG=v145_lhs10ks).
+TAG           <- Sys.getenv("FREDI_TAG", "v145")
+GMST_CSV      <- Sys.getenv("FREDI_GMST_CSV", file.path(OUT_DIR, sprintf("fredi_input_rff_baseline_gmst_%s.csv", TAG)))
+SLR_CSV       <- Sys.getenv("FREDI_SLR_CSV",  file.path(OUT_DIR, sprintf("fredi_input_rff_baseline_slr_%s.csv",  TAG)))
+OUT_CSV       <- Sys.getenv("FREDI_OUT_CSV",  file.path(OUT_DIR, sprintf("fredi_slr_phaseC_rff_baseline_%s_long.csv", TAG)))
+OUT_STATE_CSV <- Sys.getenv("FREDI_OUT_STATE_CSV", file.path(OUT_DIR, sprintf("fredi_slr_phaseC_rff_baseline_%s_state_long.csv", TAG)))
+cat(sprintf("TAG: %s\n  GMST input:  %s\n  SLR input:   %s\n  national out: %s\n  state out:    %s\n",
+            TAG, GMST_CSV, SLR_CSV, OUT_CSV, OUT_STATE_CSV))
 POP_FILE <- file.path(system.file(package = "FrEDI"),
                       "extdata/scenarios/State ICLUS Population.csv")
 

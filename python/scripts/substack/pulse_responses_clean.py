@@ -55,7 +55,7 @@ TG_CH4_PER_GTCO2EQ = 1000.0 / GWP100_CH4   # ≈ 35.84
 # Each panel: (csv_filename, gas_label, impact_label, display_units,
 #              scale_factor, color, ax_row, ax_col)
 PANELS = [
-    # v1.4.5 CO2 GMST summary (LHS-10k Wong-weighted; per-GtCO2 directly,
+    # v1.4.5 CO2 GMST summary (LHS-10k importance-weighted; per-GtCO2 directly,
     # so scale = 1.0). The legacy v1.4.1-era co2_pulse_gmst_summary.csv was
     # per-GtC and needed PER_GTC_TO_PER_GTCO2 to convert.
     ("co2_pulse_gmst_summary_v145.csv",   "1 GtCO₂ pulse at 2030",

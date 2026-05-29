@@ -55,7 +55,7 @@ PLOT_END_YEAR = 2150
 
 def main():
     # ------------------------------------------------------------------
-    # ANOVA 4-way decomp — prefer the Wong-weighted 1850-2300 CSV if it
+    # ANOVA 4-way decomp — prefer the importance-weighted 1850-2300 CSV if it
     # exists; fall back to the unweighted Phase A 2100 CSV otherwise.
     # ------------------------------------------------------------------
     # v1.4.5 slim ANOVA-18k (54,000 paired rows). Legacy v1.4.1 CSVs are
@@ -68,7 +68,7 @@ def main():
         anova_csv = weighted_csv
         weights_col = "w_norm"
         decomp_years = DECOMP_YEARS_FULL
-        run_label = "Wong-weighted, 1850-2300"
+        run_label = "importance-weighted, 1850-2300"
     elif unweighted_2300_csv.exists():
         anova_csv = unweighted_2300_csv
         weights_col = None

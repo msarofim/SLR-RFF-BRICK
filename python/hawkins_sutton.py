@@ -24,7 +24,7 @@ We therefore report a 3-way decomposition for SLR:
   V_climate(t)   = E_w over rff of Var_w over cfg of E_w[ slr | rff, cfg ]
   V_residual(t)  = E_w[ Var_w[ slr | rff, cfg ] ]   (internal + BRICK)
 
-All SLR variances are Wong-weighted using w_norm. See the "Caveats" comment
+All SLR variances are importance-weighted using w_norm. See the "Caveats" comment
 in the SLR figure for clarification.
 
 == Observations overlay ==

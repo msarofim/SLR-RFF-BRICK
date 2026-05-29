@@ -70,7 +70,7 @@ LABEL:
   C. TOTAL SLR — sources of uncertainty
 
 CAPTION:
-  Hawkins-Sutton 4-way decomposition of total-SLR variance, importance-weighted factorial design over 400 RFF-SP emissions paths, 15 climate calibrations per path, 3 FaIR stochastic seeds, and 3 BRICK posterior samples (N=54,000).  Stacked variance fractions over 2020–2150.
+  Group-Sobol Hawkins-Sutton decomposition of total-ΔSLR variance (relative to 2020), importance-weighted v1.4.5 LHS-10k_s ensemble (10,000 LHS draws over 841 climate calibrations × 10,000 BRICK posterior samples × 1,000 FaIR seeds × 10,000 RFF-SP emissions paths).  Emissions (RFF-SP), climate response (FaIR configs), and BRICK posterior are grouped first-order Sobol indices from a HistGB surrogate (Saltelli pick-and-freeze, Wong-weighted), which correctly handles the collinear within-group features that biased an earlier Shapley attribution.  Interactions = aggregate total-order minus first-order Sobol (climate × BRICK, emissions × BRICK).  Internal variability (FaIR seeds) is the model-free seed-augmentation estimate (1,800 extra FaIR + paired BRICK runs).  AIS tipping nonlinearity = variance lost when the target is p99-clipped per year.  Shares are normalized to the surrogate-explained variance (out-of-fold R² ≈ 0.71–0.81 for SLR); the residual model-unresolved variance is not shown.  Stacked variance fractions over 2020–2150.
 
   Conceptual companion to Darnell et al. 2025 (Nat Clim Change), who decompose total-SLR uncertainty across emissions vs geophysical sources at the multi-century horizon.
 
@@ -83,9 +83,7 @@ LABEL:
   D. PULSE SLR — sources of uncertainty (1 GtCO₂ pulse at 2030)
 
 CAPTION:
-  Paired BRICK runs on the same factorial design as Panel C.
-
-  Inset: Median (line) and 5–95% band of the per-unit pulse-marginal SLR, ΔSLR per GtCO₂, from the 0.01-GtC small-pulse arm — the SC-GHG-relevant linear-regime response, pulse-size invariant per 1 / 0.1 / 0.01 GtC convergence diagnostic.
+  Group-Sobol Hawkins-Sutton decomposition of pulse-marginal ΔSLR per GtCO₂.  Same v1.4.5 LHS-10k_s ensemble + 90,000-row paired baseline/pulse BRICK post-augmentation as Panel C.  Matched-seed paired difference cancels FaIR internal variability by construction (V_internal = 0).  Emissions, climate, and BRICK posterior are grouped first-order Sobol indices (Saltelli pick-and-freeze, Wong-weighted); interactions = total-order minus first-order.  AIS tipping nonlinearity isolated via per-year p99 clipping.  Shares normalized to the surrogate-explained variance; model-unresolved residual not shown.
 
 
 ==============================================================================
@@ -100,7 +98,7 @@ PARAGRAPH 1:
   There is high value in probabilistic damage assessment for both mitigation-benefit estimates and adaptation-response planning.  Here we demonstrate one methodology that leverages emissions uncertainty from RFF, climate uncertainty from FaIR, sea-level-response uncertainty from BRICK, global-to-local mapping from Sweet et al., and damage functions from FrEDI to produce probabilistic damage estimates by US state for three SLR-sensitive impact sectors: coastal property damage, high-tide-flooding transportation interruptions, and high-tide-flooding elder mortality.  This pipeline allows fast estimation of damages for any future scenario.
 
 PARAGRAPH 2:
-  Louisiana is the state most at threat for SLR-related impacts, particularly on a per-capita basis; Florida, Massachusetts, Virginia, and New Jersey are distant 2nd–5th in per-capita impacts (Panel I).  Among FrEDI sectors, HTF elder mortality has the largest monetized impact (Panel J), with HTF transportation 2nd and coastal properties 3rd (Panel H).  Climate-response uncertainty is the largest contributor to total-SLR variance at 2100 (~54%), with BRICK posterior and emissions each contributing roughly 23% (Panel C); for the marginal pulse response, BRICK posterior uncertainty dominates strongly (~80%) with AIS-tipping-state dependence contributing most of the remainder (Panel D).
+  Louisiana is the state most at threat for SLR-related impacts, particularly on a per-capita basis; Florida, Massachusetts, Virginia, and New Jersey are distant 2nd–5th in per-capita impacts (Panel I).  Among FrEDI sectors, HTF elder mortality has the largest monetized impact (Panel J), with HTF transportation 2nd and coastal properties 3rd (Panel H).  Climate-response uncertainty is the largest contributor to total-SLR variance at 2100 (~33%), with BRICK posterior (~23%), the emissions scenario (~19%), and climate×ice-sheet interactions (~19%) close behind; by 2150 the emissions scenario becomes the single largest axis (~29%) (Panel C).  For the marginal pulse response, climate response and BRICK posterior lead (~39% and ~28% at 2100), with AIS-tipping-state dependence and interactions each growing toward ~20% by 2150 (Panel D).
 
 PARAGRAPH 3:
   Key considerations we identify for this kind of work: dependence between FrEDI and BRICK parameter uncertainty (Wong et al. 2026); look-ahead-based adaptation estimates that account for observed non-optimal adaptive behavior and smoothing of capital expenditures (Panel G); and the importance of a wide range of anchor scenarios for damage-function calibration (Panel F).
@@ -119,7 +117,7 @@ LABEL:
 CAPTION:
   Left: 6 NCA5 scenarios + 2 FrEDI extensions, monotone-cubic spline through every Sweet anchor year.
 
-  Right: empirical FrEDI damage function at 2100 from 1000 SIR-resampled RFF-SP draws (v1.4.5 LHS-10k baseline ensemble; SIR yields equal-weighted draws from the importance-weighted target); colored dots mark the Sweet calibration nodes that FrEDI interpolates between.
+  Right: empirical FrEDI damage function at 2100 from 1000 SIR-resampled RFF-SP draws (v1.4.5 LHS-10k_s noise-isolated ensemble — seed-resolved, consistent with Panels C/D; SIR yields equal-weighted draws from the importance-weighted target); colored dots mark the Sweet calibration nodes that FrEDI interpolates between.
 
 
 ==============================================================================
@@ -145,7 +143,7 @@ LABEL:
   H. COASTAL PROPERTIES AND HTF TRANSPORTATION DAMAGES
 
 CAPTION:
-  RFF-SP baseline ensemble (1,000 SIR-resampled draws from the v1.4.5 LHS-10k baseline; equal-weighted after SIR), quantiles for Coastal Properties and HTF Transportation at 2100 and 2150.
+  RFF-SP baseline ensemble (1,000 SIR-resampled draws from the v1.4.5 LHS-10k_s noise-isolated baseline — seed-resolved, consistent with Panels C/D; equal-weighted after SIR), quantiles for Coastal Properties and HTF Transportation at 2100 and 2150.
 
   Top inset bars: median ± 5–95% whiskers.
 

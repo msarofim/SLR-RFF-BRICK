@@ -89,7 +89,11 @@ def interp_through_anchors(years_anchor, values_anchor, years_out=None):
 
 
 # ---------------------------------------------------------------------------
-FREDI_LONG_CSV = ROOT / "outputs" / "fredi_slr_phaseC_rff_baseline_v145_long.csv"
+import os
+# Default tag = v145 (single-seed LHS-10k). Override via env var
+# FREDI_TAG=v145_lhs10ks to retarget the v5 noise-isolated ensemble.
+_FREDI_TAG = os.environ.get("FREDI_TAG", "v145")
+FREDI_LONG_CSV = ROOT / "outputs" / f"fredi_slr_phaseC_rff_baseline_{_FREDI_TAG}_long.csv"
 
 
 def plot_fredi_damage_function(ax, year=2100):

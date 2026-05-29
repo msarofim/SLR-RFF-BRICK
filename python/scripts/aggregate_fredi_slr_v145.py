@@ -24,6 +24,7 @@ Outputs:
 Plus a printed summary table for headline years (2050, 2100, 2150, 2300).
 """
 from __future__ import annotations
+import os
 import sys
 from pathlib import Path
 import numpy as np
@@ -33,8 +34,11 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "outputs"
 HEADLINE_YEARS = [2050, 2075, 2100, 2125, 2150, 2200, 2250, 2300]
 
-LONG_CSV = OUT / "fredi_slr_phaseC_rff_baseline_v145_long.csv"
-OUT_CSV  = OUT / "fredi_slr_phaseC_rff_baseline_v145_quantiles.csv"
+# Default tag = v145 (single-seed LHS-10k). Override via env var to point at
+# the v5 noise-isolated ensemble: FREDI_TAG=v145_lhs10ks.
+TAG      = os.environ.get("FREDI_TAG", "v145")
+LONG_CSV = OUT / f"fredi_slr_phaseC_rff_baseline_{TAG}_long.csv"
+OUT_CSV  = OUT / f"fredi_slr_phaseC_rff_baseline_{TAG}_quantiles.csv"
 
 
 def weighted_quantile(values, weights, q):

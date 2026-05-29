@@ -28,12 +28,16 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+import os
 ROOT = Path(__file__).resolve().parents[3]
 OUT = ROOT / "outputs" / "poster"
 OUT.mkdir(parents=True, exist_ok=True)
 
-QUANTILES_CSV = ROOT / "outputs" / "fredi_slr_phaseC_rff_baseline_v145_quantiles.csv"
-LONG_CSV      = ROOT / "outputs" / "fredi_slr_phaseC_rff_baseline_v145_long.csv"
+# Default tag = v145 (single-seed LHS-10k). Override via env var
+# FREDI_TAG=v145_lhs10ks to retarget the v5 noise-isolated ensemble.
+TAG = os.environ.get("FREDI_TAG", "v145")
+QUANTILES_CSV = ROOT / "outputs" / f"fredi_slr_phaseC_rff_baseline_{TAG}_quantiles.csv"
+LONG_CSV      = ROOT / "outputs" / f"fredi_slr_phaseC_rff_baseline_{TAG}_long.csv"
 
 # Years to show on the poster table.  2050/2075/2125 dropped per poster review
 # (May 16, 2026): 2050 N=284/500 due to BRICK lower tail < Sweet 'Low' floor;

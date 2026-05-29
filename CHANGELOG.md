@@ -3,7 +3,75 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [v2.1] — 2026-05-29 — finalized substack + poster (Group-Sobol H-S)
+
+### Changed
+- **Group-Sobol is now the canonical SLR Hawkins-Sutton method** (replaces the
+  earlier TreeSHAP/Shapley attribution, which under-counted the emissions axis
+  ~3× — 8.6% vs ~27-29% at 2150 — because collinear cumulative-emissions
+  features dilute per-feature Shapley credit). Sobol decomposes *grouped* variance
+  directly, immune to within-group collinearity, and is importance-weighted.
+  Module: `python/scripts/substack/group_sobol_hs.py`; renderers
+  `render_hybrid_tipping_split.py`, `paired_figures_hs.py`,
+  `poster/hawkins_sutton_panels.py`.
+- **Independent model-free cross-check:** a 324,000-run balanced-factorial ANOVA
+  (`anova_hs_decomp.py`) reproduces the Sobol emissions/climate/internal shares
+  to within ~2 pp at 2150 (emissions 27.0% ANOVA vs 28.9% Sobol), confirming the
+  attribution is not a surrogate artifact. Overlay figure `anova_vs_sobol_overlay.py`
+  → `outputs/substack/anova_vs_sobol_total_slr.{png,pdf}`.
+- **Terminology:** reader-facing figures/captions now say "importance weighted"
+  rather than "Wong-weighted" (provenance comments keep "Wong").
+- **Pulse SLR figure:** removed the ensemble-mean line from the pulse-SLR panel
+  (tipping-corrupted, not pulse-size-invariant); median + 5-95% band retained.
+  Pulse GMST keeps its mean (no tipping pathology).
+- **Exceedance table caption** corrected to "FaIR v2.2.4 (v1.4.5 calibration)"
+  — distinguishes the model version from the calibration posterior.
+
+### Notes
+- Superseded TreeSHAP-era H-S outputs quarantined under
+  `outputs/quarantine/20260528_treeshap_slr_underattribution/`.
+- Decided to keep Sobol canonical and ANOVA as validator; no pulse ANOVA (the
+  cross-check's motivation was the emissions axis, which is ~1% / uncontroversial
+  for the pulse). See `notes/handoff_2026-05-28b_group_sobol_hs.md`.
+
 ## [Unreleased] — v145 end-to-end pipeline
+
+### Added
+- **Hybrid total_slr H-S decomposition with augmentation-based V_BRICK + V_seed** (2026-05-27).
+  Pure-Shapley failed for SLR: even high-capacity surrogate + p99 outlier clip left
+  OOF V_residual at 25-32%, factor 6-47× the pure-seed gold standard. Diagnosed as
+  cfg×post interactions + AIS tipping nonlinearity that HistGradientBoosting can't
+  capture. Replaced V_BRICK and V_seed in the SLR figure with model-free estimates:
+  - V_BRICK: within-cell variance across 10 BRICK posts per cell (90,000 augmentation
+    runs: 10,000 v5 cells × 9 extra post_idx via LHS-stratified sampling).
+  - V_seed: within-cell variance across 10 seeds per (rff, cfg, post) group (200
+    parent cells × 9 extra seeds = 1800 new FaIR runs + paired BRICK).
+  Result: V_internal_SLR now declines from 4.6% (2025) to 0.5% (2150), matching
+  physical expectation. BRICK is the dominant axis (~42-59%) across all years. A
+  residual wedge (20-37%) is labeled as "cfg×post interactions + tipping" since
+  those interactions can't be uniquely attributed.
+  Files: `python/scripts/substack/hybrid_hs_total_slr.py`,
+  `outputs/substack/shapley_hs_total_slr_hybrid.{png,pdf}`,
+  `outputs/substack/v5_hybrid_decomp_diagnostic.csv`.
+
+- **v5 noise-isolated H-S figures landed** (2026-05-27).
+  Re-ran `shapley_hawkins_sutton.py` against the new LHS-10k_s cubes
+  (`cube_v145_lhs10ks_{baseline,pulse_co2_pos_001gt}_flat2015.npz`) and
+  the post-PR#93 BRICK posterior. Headline:
+  - total_gmst V_internal at 2021 = **97.5%** (canonical H-S near-term
+    recovered; v4 had ~0% because LHS-10k was single-seeded).
+  - total_slr at 2050: emi 2% / climate 38% / brick 40% / internal 20%
+    (first time all 4 axes nonzero — v4 internal was misallocated to
+    surrogate fit gap).
+  - pulse_gmst: ~100% climate response (matched-seed cancels internal).
+  - pulse_slr: BRICK 35-50% of variance across 2050-2150.
+  Companion BRICK metadata `outputs/lhs10ks_brick_metadata.csv` LHS-samples
+  `post_idx ∈ {0..9999}` (one unique BRICK posterior member per cell);
+  the previous `lhs10k_metadata_v145.csv` only used 3 unique post_idx
+  across all 10,000 cells, which had been silently under-sampling BRICK
+  uncertainty across the entire v4 family of plots.
+  Caveat carried forward: TreeSHAP under-attributes BRICK; Owen-Shapley
+  re-render (~40 hr Torch) still pending.
 
 ### Fixed
 - **Hawkins-Sutton nested-ANOVA finite-replication bias** (2026-05-26).

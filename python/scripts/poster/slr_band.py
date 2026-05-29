@@ -29,7 +29,7 @@ ROOT = Path(__file__).resolve().parents[3]
 OUT = ROOT / "outputs" / "poster"
 OUT.mkdir(parents=True, exist_ok=True)
 
-# v1.4.5 slim baseline (post-PR#93 BRICK + FaIR v1.4.5 + Wong-weighting).
+# v1.4.5 slim baseline (post-PR#93 BRICK + FaIR v1.4.5 + importance-weighting).
 SLR_CSV = ROOT / "outputs" / "brick_v145_slim" / "brick_lhs10k_baseline_to2300_weighted.csv"
 OBS_GMSL_CSV = ROOT / "data" / "observations" / "nasa_gmsl_annual.csv"
 PLOT_END = 2150

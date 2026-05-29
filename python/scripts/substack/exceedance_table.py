@@ -129,7 +129,7 @@ def main():
                     cell.set_facecolor(tuple(rgb))
 
     fig.text(0.5, 0.03,
-             f"FaIR v1.4.5 LHS-10k ensemble: {n_cells:,} cells "
+             f"FaIR v2.2.4 (v1.4.5 calibration) LHS-10k ensemble: {n_cells:,} cells "
              f"(unique rff × cfg × seed combinations).  AR6-style bias "
              f"correction:\neach trajectory rebaselined at its own "
              f"{RECENT_BASELINE[0]}–{RECENT_BASELINE[1]} mean, shifted to "

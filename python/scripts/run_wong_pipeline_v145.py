@@ -110,7 +110,7 @@ def parse_args() -> argparse.Namespace:
 
 
 # ---------------------------------------------------------------------------
-# Wong-weights step for the baseline arm
+# importance weights step for the baseline arm
 # ---------------------------------------------------------------------------
 def compute_wong_weights(
     baseline: pd.DataFrame, posterior: pd.DataFrame, lB_df: pd.DataFrame,
@@ -269,7 +269,7 @@ def process_family(family: str, brick_dir: Path, out_dir: Path,
     print(f"[load] {baseline_csv}", flush=True)
     baseline = pd.read_csv(baseline_csv)
 
-    # ----- Wong weights from baseline ------------------------------------
+    # ----- importance weights from baseline ------------------------------------
     baseline_aug, c_use, ess_frac = compute_wong_weights(
         baseline, posterior, lB_df, obs_dang)
     weighted_csv = out_dir / f"brick_{family}_baseline_weighted.csv"

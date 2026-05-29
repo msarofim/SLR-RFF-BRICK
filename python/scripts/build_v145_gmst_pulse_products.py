@@ -5,7 +5,7 @@ build_v145_gmst_pulse_products.py
 Build v1.4.5 replacements for the four legacy v1.4.1-era GMST pulse
 products that pulse_responses_clean.py and pulse_hawkins_sutton.py read:
 
-  1. co2_pulse_gmst_summary_v145.csv  — LHS-10k Wong-weighted pulse-marginal
+  1. co2_pulse_gmst_summary_v145.csv  — LHS-10k importance-weighted pulse-marginal
      GMST envelope (year, mean, p5, p50, p95) for 1-GtCO₂ CO₂ pulse at 2030.
   2. ch4_pulse_gmst_summary_v145.csv  — same for 1-Tg CH₄ pulse at 2030.
   3. hawkins_sutton_gmst_3way_pulse_v145.csv — 3-way variance decomposition
@@ -42,7 +42,7 @@ ANOVA_CO2_PULSE_CUBE = CUBES / "cube_v145_anova18k_pulse_co2_pos_1gt.npz"
 LHS_METADATA   = META / "lhs10k_metadata_v145.csv"
 ANOVA_METADATA = META / "anova18k_metadata_v145.csv"
 
-# Wong-weighted slim baseline carries `w_norm` per cell.
+# importance-weighted slim baseline carries `w_norm` per cell.
 LHS_WONG_WEIGHTED = ROOT / "outputs/brick_v145_slim/brick_lhs10k_baseline_to2300_weighted.csv"
 
 OUT = ROOT / "outputs"
@@ -86,7 +86,7 @@ def build_lhs10k_envelope(pulse_cube: Path, pulse_size_unit: float, out_csv: Pat
     # Marginal per cell per year, scaled to per-unit pulse magnitude.
     M = (pulse_gmst - base_gmst) / pulse_size_unit   # shape (n_cells, n_year)
 
-    # Pull Wong weights (joined on rff, cfg, seed, post). The cubes are flat
+    # Pull importance weights (joined on rff, cfg, seed, post). The cubes are flat
     # over (rff, cfg, seed); the slim weighted CSV has a w_norm per
     # (rff, cfg, seed, post) row. There's exactly one post per cell in
     # LHS-10k metadata, so we can map cells_meta -> w_norm directly.

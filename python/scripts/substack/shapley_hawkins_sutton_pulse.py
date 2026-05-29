@@ -313,7 +313,7 @@ def fit_and_shap(feat_df, marg_keys, years, M):
     # NB: Surrogate is fitted with UNIFORM weights — the Wong importance
     # weights are concentrated (ESS = 3815/10000 = 38%) and using them in
     # the fit excludes ~60% of cells from training, producing wild
-    # extrapolation on held-out cells. The Wong weights are still applied
+    # extrapolation on held-out cells. The importance weights are still applied
     # downstream in the SHAP→variance aggregation (weighted variance of
     # SHAP across cells), so the FINAL Shapley attribution is still
     # importance-weighted in the right sense.
