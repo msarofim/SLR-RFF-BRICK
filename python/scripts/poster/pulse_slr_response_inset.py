@@ -54,8 +54,7 @@ def main():
     ax.set_ylim(bottom=0)
     ax.set_xlabel("Year", fontsize=9)
     ax.set_ylabel("ΔSLR (cm per GtCO₂)", fontsize=9)
-    ax.set_title("Pulse SLR response (0.01 GtCO₂)",
-                 fontsize=9.5, fontweight="bold", color=LINE_COLOR)
+    # No in-figure title: the poster Panel-D label already names this chart.
     ax.tick_params(labelsize=8)
     ax.legend(loc="upper left", fontsize=8, framealpha=0.9)
     ax.grid(alpha=0.3, linewidth=0.5)

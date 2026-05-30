@@ -110,7 +110,9 @@ def build_panel(target_name, title_text, figsize, out_stem, handoff_stem,
     ax.set_xlabel("Year", fontsize=AX_LABEL_FS)
     ax.set_ylabel("Fraction of variance", fontsize=AX_LABEL_FS)
     ax.tick_params(labelsize=TICK_FS)
-    ax.set_title(title_text, fontsize=TITLE_FS, fontweight="bold", color=TITLE_COLOR)
+    # No in-figure title: the poster panel label (C / D′) already names the
+    # chart, so an axes title would be redundant. (title_text kept for the
+    # console landmark print + any standalone use.)
     h_, l_ = ax.get_legend_handles_labels()
     ax.legend(h_[::-1], l_[::-1], loc="center right", fontsize=LEGEND_FS,
               framealpha=0.92, handlelength=1.4, borderpad=0.4)

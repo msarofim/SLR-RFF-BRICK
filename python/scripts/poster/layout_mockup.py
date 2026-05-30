@@ -107,7 +107,10 @@ def draw_panel(ax, x, y, w, h, label, image_path=None, placeholder_text=None,
     cap_room = 0.0
     if caption is not None:
         if caption_wrap is None:
-            caption_wrap = max(20, int((w - 0.3) * 7.5))
+            # ~8.6 chars/inch of panel width: tuned so single-clause caption
+            # lines (e.g. Panel F "Right: …", Panel G final sentence) fill the
+            # box rather than wrapping early. Bumped from 7.5 (2026-05-30).
+            caption_wrap = max(20, int((w - 0.3) * 8.6))
         paras = caption.split("\n") if "\n" in caption else [caption]
         cap_txt = "\n".join(textwrap.fill(p, width=caption_wrap) for p in paras)
         n_lines = cap_txt.count("\n") + 1
@@ -341,7 +344,7 @@ def build(total_h, title_h, out_stem, wireframe_label, compact_header=False,
     ax.text(dx + 0.3, dy + dh - 0.3, "DISCUSSION",
             fontsize=_f(10), fontweight="bold", color=EDGE, va="top", ha="left",
             zorder=5)
-    discussion_body = "\n\n".join(textwrap.fill(p, width=112)
+    discussion_body = "\n\n".join(textwrap.fill(p, width=128)
                                   for p in discussion_paras)
     ax.text(dx + 0.35, dy + dh - 0.85, discussion_body,
             ha="left", va="top", fontsize=_f(8.5), color="#222",
@@ -356,6 +359,9 @@ def build(total_h, title_h, out_stem, wireframe_label, compact_header=False,
     draw_panel(ax, 23, Y(13.5), 22.5, Hs(10),
                label="G. ADAPTATION (Lorie 2020) — NCPM decision logic + 11-yr smoothing",
                image_path=PANELS["lorie_panel"],
+               # caption_wrap=200 (vs auto 190) so the final sentence (197 chars)
+               # fits on one line; all three G caption lines fit at this width.
+               caption_wrap=200,
                caption="Left: NCPM decision logic with sub-optimal S=4 case representing observed under-adaptation (capital invested only when benefits exceed costs by ≥ 4×).\n"
                        "Middle: Lorie Table-1 cost stacks for Tampa & Virginia Beach.  Right: 11-year rolling-average smoothing of lumpy NCPM capital investments.\n"
                        "This smoothing is not only necessary because FrEDI's damage functions abstract away time — it is also consistent with how adaptation capital is amortized and financially smoothed in the real world.")
@@ -456,7 +462,7 @@ def build(total_h, title_h, out_stem, wireframe_label, compact_header=False,
     ref_paras = []
     for preamble, title, doi in refs:
         text = f"{preamble}  {title}  {doi}"
-        ref_paras.append(textwrap.fill(text, width=200, subsequent_indent="     "))
+        ref_paras.append(textwrap.fill(text, width=232, subsequent_indent="     "))
     refs_text = "\n".join(ref_paras)
     ax.text(rx + 0.4, ry + rh - 0.85, refs_text,
             ha="left", va="top", fontsize=_f(7.0), color="#222",
