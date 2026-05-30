@@ -193,5 +193,3 @@ outputs/_zenodo_staging_v5/
 # Regenerable poster mockup/inset PDFs (PNGs are tracked for review)
 outputs/poster/layout_mockup_42in.pdf
 outputs/poster/E_pulse_slr_response_inset.pdf
-
-outputs/poster/G_adaptation_damage_concept.pdf
