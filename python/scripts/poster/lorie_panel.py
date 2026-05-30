@@ -185,84 +185,145 @@ def draw_cost_stacks(ax):
     ax.legend(loc="upper right", fontsize=8.5, framealpha=0.92)
 
 
-def draw_smoothing(ax):
-    """Panel C: 11-year rolling-average illustration."""
-    # Synthetic series: lumpy decadal capital investments + light annual
-    # residual damage, then a smoothed continuous signal.
-    years = np.arange(2001, 2101)
-    np.random.seed(2026)
+# ---------------------------------------------------------------------------
+# Panel C: stylized "why a pulse-capex damage function is wonky" concept.
+# Two stacked graphs (annual cost vs time; implied damage function vs SLR).
+# All data SYNTHETIC. Five scenarios + colors mirror the Sweet/Panel-F set.
+# ---------------------------------------------------------------------------
+_C_YEAR0, _C_YEAR1 = 2020, 2150
+_C_YEARS = np.arange(_C_YEAR0, _C_YEAR1 + 1)
+_C_YEAR_EVAL = 2100
+_C_SCEN = {
+    "Low":     dict(slr2100=30.0,  color="#1f78b4", lead=(2, 3),  label="Low"),
+    "IntLow":  dict(slr2100=55.0,  color="#33a02c", lead=(3, 4),  label="Int-Low"),
+    "Int":     dict(slr2100=95.0,  color="#fdbf6f", lead=(4, 2),  label="Intermediate"),
+    "IntHigh": dict(slr2100=150.0, color="#ff7f00", lead=(6, 9),  label="Int-High"),
+    "High":    dict(slr2100=200.0, color="#e31a1c", lead=(9, 13), label="High"),
+}
+_C_T1_CM, _C_T2_CM = 40.0, 100.0
+_C_FLOW_K = 0.22
+_C_CAPEX = (10.0, 24.0)
+_C_CAPEX_HW = 2
+_C_AMORT_WIN = 15
+_C_P_ACCEL = 1.7
 
-    # Underlying smooth signal (climate-driven costs grow with SLR)
-    smooth = 50 + 0.35 * (years - 2000) + 0.013 * (years - 2000) ** 2  # millions
 
-    # Lumpy capital investments at decadal armor decisions
-    raw = smooth.copy()
-    decade_starts = [2010, 2020, 2030, 2040, 2050, 2060, 2070, 2080, 2090]
-    pulse_sizes   = [180,  260,  300,  370,  340,  280,  500,  430,  420]
-    for ds, p in zip(decade_starts, pulse_sizes):
-        idx = ds - 2001
-        if 0 <= idx < len(years):
-            raw[idx] += p
+def _c_slr(slr2100):
+    t100 = _C_YEAR_EVAL - _C_YEAR0
+    return slr2100 * ((_C_YEARS - _C_YEAR0) / t100) ** _C_P_ACCEL
 
-    # 11-year centered rolling average (the FrEDI smoothing step)
-    half_window = 5
-    smoothed = np.copy(raw)
-    for i in range(len(years)):
-        lo = max(0, i - half_window)
-        hi = min(len(years), i + half_window + 1)
-        smoothed[i] = np.mean(raw[lo:hi])
 
-    ax.plot(years, raw, color=COLORS["raw"], linewidth=1.0,
-            label="Raw decadal capital lumps", marker="o", markersize=3,
-            alpha=0.7)
-    ax.plot(years, smoothed, color=COLORS["smoothed"], linewidth=2.4,
-            label="FrEDI 11-yr rolling average")
+def _c_cross(slr, thr):
+    return None if slr.max() < thr else int(np.argmax(slr >= thr))
 
-    # ("Discrete armor decision" annotation removed per poster review May 18 —
-    # it cluttered the top of the plot and is already implicit from the
-    # raw-vs-smoothed contrast.)
 
-    ax.set_xlabel("Year", fontsize=10)
-    ax.set_ylabel("Annual cost (2015 USD millions)", fontsize=10)
-    ax.set_title("C.  Stylized illustration of FrEDI's\n"
-                 "  11-year rolling-average smoothing",
-                 fontsize=13, fontweight="bold", color=COLORS["text_border"],
-                 loc="center")
-    ax.grid(alpha=0.3, linewidth=0.5)
-    # Legend placed in lower-right so it doesn't compete with the stylized
-    # callout box at top-right.
-    ax.legend(loc="lower right", fontsize=8.5, framealpha=0.92)
-    ax.set_xlim(2001, 2100)
-    # Pad ylim so the callout has clearance above the highest data line.
-    cur_ymin, cur_ymax = ax.get_ylim()
-    ax.set_ylim(cur_ymin, cur_ymax * 1.15)
-    # Compact "stylized" flag at top-right inside the axes (rendered after
-    # ylim is set so the box doesn't get squeezed).
-    ax.text(0.98, 0.97,
-            "Stylized illustration —\nsynthetic data",
-            fontsize=8, color="#777", style="italic",
-            transform=ax.transAxes, ha="right", va="top",
-            bbox=dict(boxstyle="round,pad=0.3", facecolor="#FFFEF0",
-                      edgecolor="#CCC", linewidth=0.6))
+def _c_capex(slr, lead):
+    capex = np.zeros_like(slr)
+    for thr, lead_yr, cx in zip((_C_T1_CM, _C_T2_CM), lead, _C_CAPEX):
+        cross = _c_cross(slr, thr)
+        if cross is None:
+            continue
+        peak = max(cross - lead_yr, 0)
+        for off in range(-_C_CAPEX_HW, _C_CAPEX_HW + 1):
+            j = peak + off
+            if 0 <= j < len(capex):
+                capex[j] += cx * (1.0 - abs(off) / (_C_CAPEX_HW + 1))
+    return capex
+
+
+def _c_roll(a, win):
+    pad = win // 2
+    ap = np.pad(a, (pad, pad), mode="edge")
+    return np.convolve(ap, np.ones(win) / win, mode="valid")[:len(a)]
+
+
+def draw_pulse_capex_concept(ax_top, ax_bot):
+    """Panel C (two stacked axes): lumpy-capex annual cost over time (top) and
+    the implied non-monotonic damage function vs the smoothed one (bottom)."""
+    i_eval = int(np.where(_C_YEARS == _C_YEAR_EVAL)[0][0])
+    anc_raw, anc_sm = {}, {}
+    for name, sp in _C_SCEN.items():
+        slr = _c_slr(sp["slr2100"])
+        cost = _C_FLOW_K * slr + _c_capex(slr, sp["lead"])
+        smooth = _C_FLOW_K * slr + _c_roll(_c_capex(slr, sp["lead"]), _C_AMORT_WIN)
+        ax_top.plot(_C_YEARS, cost, color=sp["color"], lw=1.6,
+                    label=sp["label"], zorder=3)
+        anc_raw[name] = (slr[i_eval], cost[i_eval])
+        anc_sm[name] = (slr[i_eval], smooth[i_eval])
+        if name == "Int":
+            ax_top.plot(_C_YEARS, smooth, color="#333", lw=1.4, ls=":",
+                        label="Int, smoothed", zorder=4)
+
+    ax_top.axvline(_C_YEAR_EVAL, color="#777", lw=0.7, ls="--", zorder=1)
+    ax_top.set_xlim(_C_YEAR0, _C_YEAR1)
+    ax_top.set_ylim(bottom=0)
+    ax_top.set_xlabel("Year", fontsize=9)
+    ax_top.set_ylabel("Annual cost (damage + capex)", fontsize=9)
+    ax_top.set_title("C.  Lumpy adaptation capex → annual cost over time",
+                     fontsize=12, fontweight="bold", color=COLORS["text_border"])
+    ax_top.legend(fontsize=7, loc="upper left", framealpha=0.9, ncol=2)
+    ax_top.grid(alpha=0.3, lw=0.5)
+    ax_top.text(0.985, 0.96, "Stylized — synthetic data", fontsize=7.5,
+                color="#777", style="italic", transform=ax_top.transAxes,
+                ha="right", va="top",
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="#FFFEF0",
+                          edgecolor="#CCC", linewidth=0.6))
+
+    names = list(_C_SCEN.keys())
+    xs = np.array([anc_raw[n][0] for n in names])
+    ys_raw = np.array([anc_raw[n][1] for n in names])
+    ys_sm = np.array([anc_sm[n][1] for n in names])
+    order = np.argsort(xs)
+    xs_o = xs[order]
+    grid = np.linspace(xs_o.min(), xs_o.max(), 400)
+    ax_bot.plot(grid, np.interp(grid, xs_o, ys_raw[order]),
+                color="#b2182b", lw=2.0, zorder=3, label="From pulse capex (wonky)")
+    ax_bot.plot(grid, np.interp(grid, xs_o, ys_sm[order]),
+                color="#333", lw=1.8, ls=":", zorder=4, label="From smoothed cost")
+    for n in names:
+        sx, sy = anc_raw[n]
+        ax_bot.scatter([sx], [sy], color=_C_SCEN[n]["color"], s=70,
+                       edgecolor="white", linewidth=1.1, zorder=5)
+        smx, smy = anc_sm[n]
+        ax_bot.scatter([smx], [smy], facecolor="white",
+                       edgecolor=_C_SCEN[n]["color"], s=58, linewidth=1.4, zorder=5)
+    for thr in (_C_T1_CM, _C_T2_CM):
+        ax_bot.axvline(thr, color="#bbb", lw=0.7, ls="--", zorder=1)
+    ax_bot.set_xlim(0, xs_o.max() * 1.02)
+    ax_bot.set_ylim(bottom=0)
+    ax_bot.set_xlabel(f"Sea-level rise at {_C_YEAR_EVAL} (cm)", fontsize=9)
+    ax_bot.set_ylabel(f"Annual cost at {_C_YEAR_EVAL}", fontsize=9)
+    ax_bot.set_title("Implied damage function — cost vs SLR",
+                     fontsize=11, fontweight="bold", color=COLORS["text_border"])
+    ax_bot.annotate("filled = lumpy anchor; open = smoothed.\n"
+                    "Mid-capex scenario → non-monotonic.",
+                    xy=(0.97, 0.05), xycoords="axes fraction", fontsize=6.6,
+                    color="#b2182b", ha="right", va="bottom")
+    ax_bot.legend(fontsize=7, loc="upper left", framealpha=0.9)
+    ax_bot.grid(alpha=0.3, lw=0.5)
 
 
 def main():
-    fig = plt.figure(figsize=(18, 7.5))
-    # wspace=0.40 gives the y-axis tick labels of panel B clear room from
-    # panel A's decision-logic text. Previously wspace=0.25 left them
-    # overlapping with the body of panel A on the right edge.
-    gs = fig.add_gridspec(1, 3, width_ratios=[0.95, 1.15, 1.0], wspace=0.40)
+    fig = plt.figure(figsize=(19, 7.5))
+    # A and B tightened (slightly narrower) to give the more complex two-graph
+    # Panel C its own column with a nested 2-row sub-gridspec. wspace=0.40
+    # keeps panel B's y-tick labels clear of panel A's decision-logic text.
+    gs = fig.add_gridspec(1, 3, width_ratios=[0.85, 1.05, 1.15], wspace=0.42)
     ax1 = fig.add_subplot(gs[0, 0])
     ax2 = fig.add_subplot(gs[0, 1])
-    ax3 = fig.add_subplot(gs[0, 2])
+    gs_c = gs[0, 2].subgridspec(2, 1, hspace=0.45)
+    ax3_top = fig.add_subplot(gs_c[0, 0])
+    ax3_bot = fig.add_subplot(gs_c[1, 0])
 
     draw_decision_logic(ax1)
     draw_cost_stacks(ax2)
-    draw_smoothing(ax3)
+    draw_pulse_capex_concept(ax3_top, ax3_bot)
 
     # Internal suptitle dropped per poster review (May 17 2026); the panel
     # label in the poster layout serves as the title.
-    fig.tight_layout(rect=[0, 0.01, 1, 0.98])
+    # (No tight_layout: the nested sub-gridspec in column 3 is incompatible
+    # with it; gridspec wspace/hspace + bbox_inches="tight" handle spacing.)
+    fig.subplots_adjust(left=0.04, right=0.985, top=0.94, bottom=0.10)
     fig.savefig(OUT / "lorie_panel.png", dpi=300, bbox_inches="tight")
     fig.savefig(OUT / "lorie_panel.pdf", bbox_inches="tight")
     plt.close(fig)

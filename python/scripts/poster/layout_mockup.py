@@ -281,7 +281,10 @@ def build(total_h, title_h, out_stem, wireframe_label, compact_header=False):
          "impact (Panel J), with HTF transportation 2nd and coastal properties "
          "3rd (Panel H).  Climate-response uncertainty is the largest "
          "contributor to total-SLR variance (~33%) and marginal pulse response "
-         "variance (~44%) in 2100 (Panels C, D)."),
+         "variance (~44%) in 2100, with BRICK ice-sheet uncertainty (posterior + "
+         "AIS tipping) second (~28% / ~41%); emissions uncertainty matters for "
+         "total SLR (~19%) but is nearly irrelevant for the per-tonne marginal "
+         "response (~1%), which is essentially scenario-independent (Panels C, D)."),
         ("Key considerations we identify for this kind of work: dependence "
          "between FrEDI and BRICK parameter uncertainty (Wong et al. 2026); "
          "look-ahead-based adaptation estimates that account for observed "
