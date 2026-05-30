@@ -393,8 +393,10 @@ def build(total_h, title_h, out_stem, wireframe_label, compact_header=False,
          "State-of-the-art probabilistic implementation, but missing "
          "permafrost feedbacks, possible Amazon dieback, and ozone / "
          "carbon-cycle interactions."),
-        ("BRICK upper bias",
-         "Runs slightly higher than the AR6 best estimates."),
+        ("BRICK vs AR6",
+         "BRICK projects higher sea level rise relative to AR6 for a given "
+         "scenario.  Continued research is needed to determine which "
+         "projections are more realistic."),
         ("Sweet et al. as a single realization",
          "One realization of local SLR given global SLR; different "
          "partitioning between AIS, Greenland, thermal expansion, and "
