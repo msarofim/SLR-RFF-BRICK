@@ -193,3 +193,8 @@ outputs/_zenodo_staging_v5/
 # Regenerable poster mockup/inset PDFs (PNGs are tracked for review)
 outputs/poster/layout_mockup_42in.pdf
 outputs/poster/E_pulse_slr_response_inset.pdf
+
+# Print master: the vector PDF (poster_print_46x42.pdf) IS tracked — it is the
+# upload deliverable. The full-size 300-DPI PNG (13800×12600, ~13 MB) is
+# regenerable from the script, so it is NOT tracked.
+outputs/poster/poster_print_46x42.png

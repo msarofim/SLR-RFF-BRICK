@@ -26,6 +26,11 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, FancyBboxPatch
 import matplotlib.image as mpimg
 
+# Embed fonts as TrueType (type 42) in PDF/PS output so a print service can't
+# substitute glyphs — required for a press-ready PDF.
+matplotlib.rcParams["pdf.fonttype"] = 42
+matplotlib.rcParams["ps.fonttype"] = 42
+
 ROOT = Path(__file__).resolve().parents[3]
 OUT = ROOT / "outputs" / "poster"
 OUT.mkdir(parents=True, exist_ok=True)
@@ -156,8 +161,16 @@ def overlay_inset(ax, image_path, panel_img_rect, frac_w=0.42, frac_h=0.48,
               origin="upper")
 
 
-def build(total_h, title_h, out_stem, wireframe_label, compact_header=False):
-    """Render one poster mockup at the given height. Width is always 46"."""
+def build(total_h, title_h, out_stem, wireframe_label, compact_header=False,
+          print_mode=False):
+    """Render one poster mockup at the given height. Width is always 46".
+
+    print_mode=True produces a press-ready master rather than a review
+    wireframe: the figure is rendered at TRUE full size (46 × total_h inches)
+    so the exported PDF measures exactly that on paper; the axes fill the whole
+    canvas (no surrounding whitespace, no bbox_inches="tight" which would change
+    the trim size); the "WIREFRAME … draft" banner is suppressed; PNG is 300 DPI.
+    """
     # Vertical reflow: map native panel-block y -> this build's y.
     panel_top = total_h - TOP_MARGIN - title_h - GAP_BELOW_HEADER
     scale_y = (panel_top - PANEL_BOT) / NATIVE_SPAN
@@ -168,7 +181,12 @@ def build(total_h, title_h, out_stem, wireframe_label, compact_header=False):
     def Hs(h):
         return h * scale_y
 
-    fig, ax = plt.subplots(figsize=(23, total_h / 2.0))  # half-scale render
+    if print_mode:
+        # Full physical size; axes span the entire figure so output trim = 46×H".
+        fig = plt.figure(figsize=(46.0, total_h))
+        ax = fig.add_axes([0, 0, 1, 1])
+    else:
+        fig, ax = plt.subplots(figsize=(23, total_h / 2.0))  # half-scale review
     ax.set_xlim(0, 46)
     ax.set_ylim(0, total_h)
     ax.set_aspect("equal")
@@ -424,13 +442,22 @@ def build(total_h, title_h, out_stem, wireframe_label, compact_header=False):
             ha="left", va="top", fontsize=7.0, color="#222",
             family="DejaVu Sans", linespacing=1.30, zorder=4)
 
-    fig.suptitle(wireframe_label, fontsize=14, fontweight="bold",
-                 color=EDGE, y=0.99)
-    fig.tight_layout()
-    fig.savefig(OUT / f"{out_stem}.png", dpi=200, bbox_inches="tight")
-    fig.savefig(OUT / f"{out_stem}.pdf", bbox_inches="tight")
-    plt.close(fig)
-    print(f"wrote {OUT / out_stem}.{{png,pdf}}")
+    if print_mode:
+        # No wireframe banner, no tight_layout/bbox trim — keep the exact
+        # 46 × total_h trim size. 300-DPI PNG; vector PDF with embedded fonts.
+        fig.savefig(OUT / f"{out_stem}.png", dpi=300)
+        fig.savefig(OUT / f"{out_stem}.pdf")
+        plt.close(fig)
+        print(f"wrote PRINT MASTER {OUT / out_stem}.{{png,pdf}}  "
+              f"(46 × {total_h:g} in; PNG 300 DPI = {int(46*300)}×{int(total_h*300)} px)")
+    else:
+        fig.suptitle(wireframe_label, fontsize=14, fontweight="bold",
+                     color=EDGE, y=0.99)
+        fig.tight_layout()
+        fig.savefig(OUT / f"{out_stem}.png", dpi=200, bbox_inches="tight")
+        fig.savefig(OUT / f"{out_stem}.pdf", bbox_inches="tight")
+        plt.close(fig)
+        print(f"wrote {OUT / out_stem}.{{png,pdf}}")
 
 
 def main():
@@ -442,6 +469,10 @@ def main():
     build(total_h=42.0, title_h=2.8, out_stem="layout_mockup_42in",
           wireframe_label='46" wide × 42" high POSTER LAYOUT WIREFRAME  —  AGU Chapman SLR conference, draft',
           compact_header=True)
+    # PRINT MASTER — 46 wide × 42 high only (42 in is the hard height cap).
+    # Full physical size, 300 DPI, no wireframe banner, fonts embedded.
+    build(total_h=42.0, title_h=2.8, out_stem="poster_print_46x42",
+          wireframe_label="", compact_header=True, print_mode=True)
 
 
 if __name__ == "__main__":
