@@ -71,9 +71,14 @@ COLORS = {
 ORDER = ["internal", "brick", "climate", "emissions", "tipping", "interactions"]
 
 
-def build_panel(target_name, title_text, figsize, out_stem, handoff_stem):
+def build_panel(target_name, title_text, figsize, out_stem, handoff_stem,
+                x_start=None):
     """Same decomposition framework as the substack render: clipped axes +
-    tipping wedge = V_total_unclipped on a single denominator."""
+    tipping wedge = V_total_unclipped on a single denominator.
+
+    x_start: if given, the displayed x-axis starts here (e.g. 2030 for the
+    pulse panel — variance shares of the pulse-marginal response are not
+    meaningful before the pulse year)."""
     unc = pd.read_csv(SUBSTACK / f"v5_hybrid_decomp_{target_name}_unclip.csv")
     clp = pd.read_csv(SUBSTACK / f"v5_hybrid_decomp_{target_name}_clip.csv")
     years = unc.year.values
@@ -100,7 +105,7 @@ def build_panel(target_name, title_text, figsize, out_stem, handoff_stem):
                   labels=[LABELS[c] for c in ORDER],
                   colors=[COLORS[c] for c in ORDER],
                   alpha=0.88, edgecolor="white", linewidth=0.4)
-    ax.set_xlim(years.min(), years.max())
+    ax.set_xlim(x_start if x_start is not None else years.min(), years.max())
     ax.set_ylim(0, 1)
     ax.set_xlabel("Year", fontsize=AX_LABEL_FS)
     ax.set_ylabel("Fraction of variance", fontsize=AX_LABEL_FS)
@@ -150,4 +155,5 @@ if __name__ == "__main__":
         figsize=(9.5, 5.5),
         out_stem="D_pulse_slr_hawkins_sutton",
         handoff_stem="D_pulse_slr",
+        x_start=2030,   # pulse year — shares before the pulse are meaningless
     )

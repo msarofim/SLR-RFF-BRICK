@@ -250,13 +250,17 @@ def build(total_h, title_h, out_stem, wireframe_label, compact_header=False):
                caption="Hawkins-Sutton 4-way decomposition of total-SLR variance, importance-weighted factorial design over 400 RFF-SP emissions paths, 15 climate calibrations per path, 3 FaIR stochastic seeds, and 3 BRICK posterior samples (N=54,000).  Stacked variance fractions over 2020–2150.\n"
                        "Conceptual companion to Darnell et al. 2025 (Nat Clim Change), who decompose total-SLR uncertainty across emissions vs geophysical sources at the multi-century horizon.")
 
-    # D. Pulse SLR — decomposition + total-response inset, paired with C below.
-    d_img = draw_panel(ax, 30.5, Y(24), 15, Hs(8),
-               label="D. PULSE SLR — sources of uncertainty (1 GtCO₂ pulse at 2030)",
+    # D. Pulse SLR — side-by-side: total-response trajectory (left) + H-S
+    # decomposition (right). Side-by-side (not an inset) so the H-S legend is
+    # never occluded. The two sub-panels split the 15-wide D slot.
+    draw_panel(ax, 30.5, Y(24), 7.2, Hs(8),
+               label="D. PULSE SLR RESPONSE",
+               image_path=PANELS["pulse_inset"],
+               caption="Total pulse-marginal SLR — median + 5–95% band, ΔSLR per GtCO₂, from the 0.01-GtC small-pulse arm (SC-GHG-relevant linear regime, pulse-size invariant). No ensemble mean (corrupted by a few AIS-tipped draws).")
+    draw_panel(ax, 38.3, Y(24), 7.2, Hs(8),
+               label="D′. PULSE SLR — sources of uncertainty",
                image_path=PANELS["pulse_response"],
-               caption="Paired BRICK runs on the same factorial design as Panel C; stacked variance fractions of the pulse-marginal ΔSLR.\n"
-                       "Inset: total pulse-marginal SLR response — median (line) and 5–95% band, ΔSLR per GtCO₂, from the 0.01-GtC small-pulse arm (SC-GHG-relevant linear regime, pulse-size invariant per 1 / 0.1 / 0.01 GtC convergence).  No ensemble mean: it is corrupted by a few AIS-tipped draws.")
-    overlay_inset(ax, PANELS["pulse_inset"], d_img, scale_y=scale_y)
+               caption="Paired BRICK runs on the same factorial design as Panel C (1 GtCO₂ pulse at 2030); stacked variance fractions of the pulse-marginal ΔSLR.")
 
     # Discussion — central position. Marcus draft (May 17 2026).
     discussion_paras = [
@@ -276,21 +280,18 @@ def build(total_h, title_h, out_stem, wireframe_label, compact_header=False):
          "Among FrEDI sectors, HTF elder mortality has the largest monetized "
          "impact (Panel J), with HTF transportation 2nd and coastal properties "
          "3rd (Panel H).  Climate-response uncertainty is the largest "
-         "contributor to total-SLR variance at 2100 (~54%), with BRICK "
-         "posterior and emissions each contributing roughly 23% (Panel C); "
-         "for the marginal pulse response, BRICK posterior uncertainty "
-         "dominates strongly (~80%) with AIS-tipping-state dependence "
-         "contributing most of the remainder (Panel D)."),
+         "contributor to total-SLR variance (~33%) and marginal pulse response "
+         "variance (~44%) in 2100 (Panels C, D)."),
         ("Key considerations we identify for this kind of work: dependence "
          "between FrEDI and BRICK parameter uncertainty (Wong et al. 2026); "
          "look-ahead-based adaptation estimates that account for observed "
          "non-optimal adaptive behavior and smoothing of capital expenditures "
          "(Panel G); and the importance of a wide range of anchor scenarios "
-         "for damage-function calibration (Panel F)."),
-        ("The most important limitation we identify is the limited set of "
-         "impact methodologies currently in FrEDI.  We call on the community "
-         "to produce more impact estimates that can be transformed into "
-         "damage functions to inform this kind of analysis."),
+         "for damage-function calibration (Panel F).  The most important "
+         "limitation we identify is the limited set of impact methodologies "
+         "currently in FrEDI.  We call on the community to produce more impact "
+         "estimates that can be transformed into damage functions to inform "
+         "this kind of analysis."),
     ]
     dx, dw = 14, 16
     dy, dh = Y(24), Hs(8)
