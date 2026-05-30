@@ -34,9 +34,11 @@ OUT.mkdir(parents=True, exist_ok=True)
 PANELS = {
     "pipeline":              ROOT / "outputs/poster/pipeline_stages.png",
     "slr_band":              ROOT / "outputs/poster/slr_band.png",
-    "hs_decomp":             ROOT / "outputs/plots/hawkins_sutton_slr_4way.png",
-    # Composite figure: H-S 4-way stack (main) + AIS-tipping split (inset).
-    "pulse_response":        ROOT / "outputs/plots/hawkins_sutton_slr_4way_pulse.png",
+    "hs_decomp":             ROOT / "outputs/poster/C_total_slr_hawkins_sutton.png",
+    # Group-Sobol H-S decomposition (normalized; emissions/climate/BRICK/
+    # interactions/tipping/internal), the canonical Panel C (replaces the old
+    # TreeSHAP-era hawkins_sutton_slr_4way composite).
+    "pulse_response":        ROOT / "outputs/poster/D_pulse_slr_hawkins_sutton.png",
     "sweet_scenarios":       ROOT / "outputs/poster/sweet_scenarios.png",
     "lorie_panel":           ROOT / "outputs/poster/lorie_panel.png",
     "coastal_map":           ROOT / "outputs/plots/fredi_state_damages_2100.png",
