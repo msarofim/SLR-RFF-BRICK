@@ -35,6 +35,20 @@ ROOT = Path(__file__).resolve().parents[3]
 OUT = ROOT / "outputs" / "poster"
 OUT.mkdir(parents=True, exist_ok=True)
 
+# Font/linewidth scale. The review wireframe renders the 46"-wide poster at a
+# half-scale figure (figsize=23), so a point size P appears at 2P relative to
+# the poster. The print master renders at TRUE size (figsize=46), so the SAME
+# point size appears half as large. _FONT_SCALE compensates: build() sets it to
+# 2.0 in print_mode and 1.0 for review, and every literal font size / linewidth
+# is routed through _f(). Result: the print master is a faithful 2× of the
+# approved review (identical geometry + text wrapping, physically 2× larger).
+_FONT_SCALE = 1.0
+
+
+def _f(pts):
+    """Scale a point size (or linewidth) by the active _FONT_SCALE."""
+    return pts * _FONT_SCALE
+
 # Panel inventory — image path (or None for text-box placeholder).
 PANELS = {
     "pipeline":              ROOT / "outputs/poster/pipeline_stages.png",
@@ -81,12 +95,12 @@ def draw_panel(ax, x, y, w, h, label, image_path=None, placeholder_text=None,
     Returns (img_x, img_y, img_w, img_h): the image sub-rectangle, so callers
     can overlay an inset.
     """
-    rect = Rectangle((x, y), w, h, linewidth=1.5,
+    rect = Rectangle((x, y), w, h, linewidth=_f(1.5),
                      edgecolor=EDGE, facecolor="#F8F8F8", zorder=1)
     ax.add_patch(rect)
 
     # Panel label (top)
-    ax.text(x + 0.3, y + h - 0.3, label, fontsize=label_font, fontweight="bold",
+    ax.text(x + 0.3, y + h - 0.3, label, fontsize=_f(label_font), fontweight="bold",
             color=EDGE, va="top", ha="left", zorder=5)
 
     # Caption (bottom) — wrap to fill the panel width at the caption font.
@@ -99,7 +113,7 @@ def draw_panel(ax, x, y, w, h, label, image_path=None, placeholder_text=None,
         n_lines = cap_txt.count("\n") + 1
         cap_room = 0.45 + 0.16 * n_lines
         ax.text(x + w / 2, y + 0.18, cap_txt,
-                ha="center", va="bottom", fontsize=caption_font,
+                ha="center", va="bottom", fontsize=_f(caption_font),
                 color="#444", style="italic", zorder=5)
 
     label_room = 0.7
@@ -117,7 +131,7 @@ def draw_panel(ax, x, y, w, h, label, image_path=None, placeholder_text=None,
                       aspect="auto", zorder=3, origin="upper")
         except Exception as e:
             ax.text(x + w / 2, y + h / 2, f"[image: {image_path.name}]\n{e}",
-                    ha="center", va="center", fontsize=7, color="#888")
+                    ha="center", va="center", fontsize=_f(7), color="#888")
 
     # Placeholder text instead of image
     if placeholder_text is not None:
@@ -125,12 +139,12 @@ def draw_panel(ax, x, y, w, h, label, image_path=None, placeholder_text=None,
                             w - 0.8, h - max(cap_room, 0.2) - label_room,
                             boxstyle="round,pad=0.05,rounding_size=0.05",
                             facecolor="#FFFEF0", edgecolor="#CCCCCC",
-                            linewidth=0.6, zorder=3)
+                            linewidth=_f(0.6), zorder=3)
         ax.add_patch(bg)
         ax.text(x + w / 2,
                 y + (h - cap_room - label_room) / 2 + cap_room,
                 placeholder_text,
-                ha="center", va="center", fontsize=9, color="#444",
+                ha="center", va="center", fontsize=_f(9), color="#444",
                 style="italic", zorder=4, wrap=True)
 
     return img_x, img_y, img_w, img_h
@@ -155,7 +169,7 @@ def overlay_inset(ax, image_path, panel_img_rect, frac_w=0.42, frac_h=0.48,
     y0 = y1 - in_h
     ax.add_patch(Rectangle((x0 - 0.12, y0 - 0.12), in_w + 0.24, in_h + 0.24,
                            facecolor="white", edgecolor="#999999",
-                           linewidth=0.8, zorder=6))
+                           linewidth=_f(0.8), zorder=6))
     img = mpimg.imread(image_path)
     ax.imshow(img, extent=[x0, x1, y0, y1], aspect="auto", zorder=7,
               origin="upper")
@@ -171,6 +185,12 @@ def build(total_h, title_h, out_stem, wireframe_label, compact_header=False,
     canvas (no surrounding whitespace, no bbox_inches="tight" which would change
     the trim size); the "WIREFRAME … draft" banner is suppressed; PNG is 300 DPI.
     """
+    # Print master renders at true size (figsize 46), so point sizes appear
+    # half as large as in the half-scale review (figsize 23). Scale fonts ×2 so
+    # the print master is a faithful 2× of the approved review.
+    global _FONT_SCALE
+    _FONT_SCALE = 2.0 if print_mode else 1.0
+
     # Vertical reflow: map native panel-block y -> this build's y.
     panel_top = total_h - TOP_MARGIN - title_h - GAP_BELOW_HEADER
     scale_y = (panel_top - PANEL_BOT) / NATIVE_SPAN
@@ -193,18 +213,18 @@ def build(total_h, title_h, out_stem, wireframe_label, compact_header=False,
     ax.axis("off")
 
     ax.add_patch(Rectangle((0, 0), 46, total_h, fill=False, edgecolor=EDGE,
-                           linewidth=2.0))
+                           linewidth=_f(2.0)))
 
     # ============================================================== HEADER
     tx, tw = 0.5, 45
     ty = total_h - TOP_MARGIN - title_h
     th = title_h
-    ax.add_patch(Rectangle((tx, ty), tw, th, linewidth=1.5,
+    ax.add_patch(Rectangle((tx, ty), tw, th, linewidth=_f(1.5),
                            edgecolor=EDGE, facecolor="#F8F8F8", zorder=1))
     if compact_header:
         # Shorter band: title + subtitle on tighter lines, authors+affil merged,
         # smaller fonts. Designed to fit ~2.8" while staying legible at print.
-        fs_title, fs_sub, fs_auth, fs_fine = 17, 12, 9.5, 7.5
+        fs_title, fs_sub, fs_auth, fs_fine = _f(17), _f(12), _f(9.5), _f(7.5)
         ax.text(tx + tw / 2, ty + th - 0.55, "Some Assembly Required:",
                 ha="center", va="top", fontsize=fs_title, fontweight="bold",
                 color=EDGE, zorder=5)
@@ -226,26 +246,26 @@ def build(total_h, title_h, out_stem, wireframe_label, compact_header=False,
                 ha="right", va="bottom", fontsize=fs_fine, color="#666", zorder=5)
     else:
         ax.text(tx + tw / 2, ty + th - 0.75, "Some Assembly Required:",
-                ha="center", va="top", fontsize=19, fontweight="bold",
+                ha="center", va="top", fontsize=_f(19), fontweight="bold",
                 color=EDGE, zorder=5)
         ax.text(tx + tw / 2, ty + th - 1.9,
                 "Simplified Damage Functions for Probabilistic Coastal Impact Estimation Using FrEDI",
-                ha="center", va="top", fontsize=15, fontweight="bold",
+                ha="center", va="top", fontsize=_f(15), fontweight="bold",
                 color=EDGE, zorder=5)
         ax.text(tx + tw / 2, ty + th - 3.1,
                 "Marcus C. Sarofim¹    •    James E. Neumann²    •    Megan B. Sheahan²",
-                ha="center", va="top", fontsize=11, color="#333", zorder=5)
+                ha="center", va="top", fontsize=_f(11), color="#333", zorder=5)
         ax.text(tx + tw / 2, ty + th - 3.95,
                 "¹NYU Marron Institute of Urban Management    •    ²Industrial Economics, Inc.",
-                ha="center", va="top", fontsize=9.5, style="italic", color="#555", zorder=5)
+                ha="center", va="top", fontsize=_f(9.5), style="italic", color="#555", zorder=5)
         ax.text(tx + 0.4, ty + 0.28, "Funding: Wellcome Trust 227149/Z/23/Z",
-                ha="left", va="bottom", fontsize=8, color="#666", zorder=5)
+                ha="left", va="bottom", fontsize=_f(8), color="#666", zorder=5)
         ax.text(tx + tw - 0.4, ty + 0.85,
                 "Code: github.com/msarofim/SLR-RFF-BRICK  ·  Data: doi.org/10.5281/zenodo.20451296",
-                ha="right", va="bottom", fontsize=8, color="#666", zorder=5)
+                ha="right", va="bottom", fontsize=_f(8), color="#666", zorder=5)
         ax.text(tx + tw - 0.4, ty + 0.28,
                 "Read more:  thesaraphreport.substack.com",
-                ha="right", va="bottom", fontsize=8, color="#666", zorder=5)
+                ha="right", va="bottom", fontsize=_f(8), color="#666", zorder=5)
 
     # ============================================================== UPPER ROW
     # A. Pipeline — tall left column. NO caption: the pipeline graphic
@@ -316,15 +336,15 @@ def build(total_h, title_h, out_stem, wireframe_label, compact_header=False,
     ]
     dx, dw = 14, 16
     dy, dh = Y(24), Hs(8)
-    ax.add_patch(Rectangle((dx, dy), dw, dh, linewidth=1.8,
+    ax.add_patch(Rectangle((dx, dy), dw, dh, linewidth=_f(1.8),
                            edgecolor=EDGE, facecolor="#FFFEF0", zorder=1))
     ax.text(dx + 0.3, dy + dh - 0.3, "DISCUSSION",
-            fontsize=10, fontweight="bold", color=EDGE, va="top", ha="left",
+            fontsize=_f(10), fontweight="bold", color=EDGE, va="top", ha="left",
             zorder=5)
     discussion_body = "\n\n".join(textwrap.fill(p, width=112)
                                   for p in discussion_paras)
     ax.text(dx + 0.35, dy + dh - 0.85, discussion_body,
-            ha="left", va="top", fontsize=8.5, color="#222",
+            ha="left", va="top", fontsize=_f(8.5), color="#222",
             linespacing=1.30, zorder=4)
 
     # ============================================================== MIDDLE — damage-function methodology
@@ -379,10 +399,10 @@ def build(total_h, title_h, out_stem, wireframe_label, compact_header=False,
     ]
     cx, cw = 0.5, 23
     cy, ch = Y(0.5), Hs(4.0)
-    ax.add_patch(Rectangle((cx, cy), cw, ch, linewidth=1.0,
+    ax.add_patch(Rectangle((cx, cy), cw, ch, linewidth=_f(1.0),
                            edgecolor="#999999", facecolor="#FAFAFA", zorder=1))
     ax.text(cx + 0.3, cy + ch - 0.3, "K. CAVEATS",
-            fontsize=10, fontweight="bold", color="#666", va="top", ha="left",
+            fontsize=_f(10), fontweight="bold", color="#666", va="top", ha="left",
             zorder=5)
     y_cur = cy + ch - 0.85
     for head, body in caveat_bullets:
@@ -390,7 +410,7 @@ def build(total_h, title_h, out_stem, wireframe_label, compact_header=False,
         wrapped = textwrap.fill(line, width=180, subsequent_indent="    ")
         n_lines = wrapped.count("\n") + 1
         ax.text(cx + 0.4, y_cur, wrapped,
-                ha="left", va="top", fontsize=8.5, color="#444",
+                ha="left", va="top", fontsize=_f(8.5), color="#444",
                 linespacing=1.28, zorder=4, family="DejaVu Sans")
         y_cur -= (0.12 + 0.22 * n_lines) * scale_y
 
@@ -428,10 +448,10 @@ def build(total_h, title_h, out_stem, wireframe_label, compact_header=False,
     ]
     rx, rw = 24, 21.5
     ry, rh = Y(0.5), Hs(4.0)
-    ax.add_patch(Rectangle((rx, ry), rw, rh, linewidth=1.0,
+    ax.add_patch(Rectangle((rx, ry), rw, rh, linewidth=_f(1.0),
                            edgecolor="#999999", facecolor="#FAFAFA", zorder=1))
     ax.text(rx + 0.3, ry + rh - 0.3, "L. REFERENCES",
-            fontsize=10, fontweight="bold", color="#777", va="top", ha="left",
+            fontsize=_f(10), fontweight="bold", color="#777", va="top", ha="left",
             zorder=5)
     ref_paras = []
     for preamble, title, doi in refs:
@@ -439,7 +459,7 @@ def build(total_h, title_h, out_stem, wireframe_label, compact_header=False,
         ref_paras.append(textwrap.fill(text, width=200, subsequent_indent="     "))
     refs_text = "\n".join(ref_paras)
     ax.text(rx + 0.4, ry + rh - 0.85, refs_text,
-            ha="left", va="top", fontsize=7.0, color="#222",
+            ha="left", va="top", fontsize=_f(7.0), color="#222",
             family="DejaVu Sans", linespacing=1.30, zorder=4)
 
     if print_mode:
@@ -451,7 +471,7 @@ def build(total_h, title_h, out_stem, wireframe_label, compact_header=False,
         print(f"wrote PRINT MASTER {OUT / out_stem}.{{png,pdf}}  "
               f"(46 × {total_h:g} in; PNG 300 DPI = {int(46*300)}×{int(total_h*300)} px)")
     else:
-        fig.suptitle(wireframe_label, fontsize=14, fontweight="bold",
+        fig.suptitle(wireframe_label, fontsize=_f(14), fontweight="bold",
                      color=EDGE, y=0.99)
         fig.tight_layout()
         fig.savefig(OUT / f"{out_stem}.png", dpi=200, bbox_inches="tight")
