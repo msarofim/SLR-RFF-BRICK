@@ -56,6 +56,13 @@ GMST_CSV      <- Sys.getenv("FREDI_GMST_CSV", file.path(OUT_DIR, sprintf("fredi_
 SLR_CSV       <- Sys.getenv("FREDI_SLR_CSV",  file.path(OUT_DIR, sprintf("fredi_input_rff_baseline_slr_%s.csv",  TAG)))
 OUT_CSV       <- Sys.getenv("FREDI_OUT_CSV",  file.path(OUT_DIR, sprintf("fredi_slr_phaseC_rff_baseline_%s_long.csv", TAG)))
 OUT_STATE_CSV <- Sys.getenv("FREDI_OUT_STATE_CSV", file.path(OUT_DIR, sprintf("fredi_slr_phaseC_rff_baseline_%s_state_long.csv", TAG)))
+# FrEDI's import_inputs REJECTS the ENTIRE slr input (silently falling back to its
+# internal GMST-derived SLR) if ANY slr_cm is outside [MIN_CM, MAX_CM]. The input CSVs
+# already start at year 2000 (no negatives), but rare AIS-tipping draws exceed 10 m
+# (e.g. lhs10ks: 1/1000 draws hits 1094 cm) and would be silently dropped — clip them.
+# (Same FrEDI trap fixed in FaIRtoFrEDI/vehicle_fredi_v145.R, 2026-06-03.)
+FREDI_SLR_MIN_CM <- 0
+FREDI_SLR_MAX_CM <- 1000
 cat(sprintf("TAG: %s\n  GMST input:  %s\n  SLR input:   %s\n  national out: %s\n  state out:    %s\n",
             TAG, GMST_CSV, SLR_CSV, OUT_CSV, OUT_STATE_CSV))
 POP_FILE <- file.path(system.file(package = "FrEDI"),
@@ -111,8 +118,13 @@ run_one_draw <- function(i) {
   write.csv(data.frame(year = years,
                        temp_C_global = unname(as.numeric(gmst_wide[i, year_cols]))),
             temp_path, row.names = FALSE)
+  slr_vals <- unname(as.numeric(slr_wide[i, year_cols]))
+  n_clip <- sum(slr_vals > FREDI_SLR_MAX_CM | slr_vals < FREDI_SLR_MIN_CM, na.rm = TRUE)
+  if (n_clip > 0)
+    message(sprintf("  draw %5d: clipping %d SLR value(s) to [%g,%g] cm (max=%.1f) so FrEDI does not drop the input",
+                    i, n_clip, FREDI_SLR_MIN_CM, FREDI_SLR_MAX_CM, max(slr_vals, na.rm = TRUE)))
   write.csv(data.frame(year = years,
-                       slr_cm = unname(as.numeric(slr_wide[i, year_cols]))),
+                       slr_cm = pmin(pmax(slr_vals, FREDI_SLR_MIN_CM), FREDI_SLR_MAX_CM)),
             slr_path, row.names = FALSE)
 
   # import_inputs() doesn't have a silent flag; wrap to silence the per-call
