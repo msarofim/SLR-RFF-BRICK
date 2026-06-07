@@ -198,3 +198,10 @@ outputs/poster/E_pulse_slr_response_inset.pdf
 # upload deliverable. The full-size 300-DPI PNG (13800×12600, ~13 MB) is
 # regenerable from the script, so it is NOT tracked.
 outputs/poster/poster_print_46x42.png
+
+# Large regenerable BRICK output data (Tier 3; regenerable from FaIR cubes / Zenodo)
+outputs/rennels/
+outputs/quarantine/
+outputs/brick_2x2_clean/*.csv
+# Office lock/owner files
+~$*
