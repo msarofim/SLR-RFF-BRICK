@@ -157,3 +157,44 @@ provenance. Label the FaIR version as **FaIR v2.2.4 (v1.4.5 calibration)**, the
 BRICK posterior as **post-PR#93 (Wong 2026)**, and state the pulse unit
 explicitly. See memory `project_fair_version_distinction`,
 `project_brick_post_pr93_posterior_installed`.
+
+---
+
+## RESULTS (built 2026-05-30) — DELIVERED
+
+Figure built and validated. The three pre-build forks were confirmed with Marcus:
+(1) unweighted climate+BRICK spread around fixed SSP2-4.5; (2) run BOTH 0.01 GtC
+and 1e-4 GtC; (3) GtC carbon → ×44/12 GtCO₂, left + 2×3 grid.
+
+**Scripts (new):**
+- `python/scripts/rennels/rennels_build_ssp245_cubes.py` — FaIR v2.2.4 (v1.4.5 cal)
+  SSP2-4.5 baseline + 4 pulse arms (±0.01, +0.02, +1e-4 GtC at 2020.5, CO₂ FFI).
+  Emits GMST+OHC flat-cubes (`outputs/rennels/ssp245_v145_{arm}_cube.npz`) +
+  metadata (`ssp245_v145_metadata.csv`, 841 cfg × 8 posts = 6728 cells).
+  **Critical:** cubes stored **float64** — float32 silently destroys the 1e-4 GtC
+  signal (~1e-7 °C GMST perturbation below float32 resolution at ~2.5 °C). This
+  was caught by the FaIR-level linearity sanity test (7.4% with f32 → 0.02% f64).
+- `python/scripts/rennels/rennels_7panel_figure.py` — composes the figure.
+
+**BRICK:** `julia/run_mimibrick_flatcube.jl --save-component-trajs true`, post-PR#93
+posterior, ~1 min/arm for 6728 cells. Outputs `outputs/rennels/brick_full_{arm}.csv`.
+
+**Key findings:**
+- The **1e-4 GtC pulse is resolvable through BRICK in float64**; the 0.01 and
+  1e-4 arms agree to <0.2% at 2150 (linear). Answers the float-floor worry in §2.2.
+- Per-GtCO₂ total SLR marginal @2150 = **0.0073 cm/GtCO₂** (matches memory ~0.0074).
+  Per-GtC: 0.267 mm/GtC @2150, 0.360 @2300. TE dominates (0.144 mm/GtC @2150),
+  then GSIC, GIS, AIS; **LWS ≈ 0** (pre-2019 calibration zero).
+- All 5 paired-pulse sanity tests PASS at both FaIR and BRICK levels.
+- **Left-panel caveat (flagged on figure):** unweighted SSP2-4.5 median 69 cm
+  @2100 / 132 cm @2150 runs above AR6 (~50 / ~68 cm). NOT a bug — consistent with
+  this project's hot BRICK posterior (RFF-SP pipeline ~93 cm @2100) and the
+  explicit *unweighted* (no importance-weighting) choice. If Lisa wants an
+  obs-constrained band, that is a separate methodological decision.
+
+**Open / possible follow-ups:**
+- Time horizons chosen by default: LEFT 2005→2150 (house style), RIGHT 2020→2300
+  (full impulse response). Adjust if Lisa wants 2100 or 2300 on the left.
+- Right-panel units = mm per GtC pulse. `rennels_pulse_response_summary.csv` also
+  carries cm/GtCO₂ and absolute mm-for-1e-4-GtC for direct comparison to Lisa's #s.
+- Could enrich the band with more posts/cfg or obs-constrain BRICK if requested.

@@ -173,12 +173,25 @@ which channels of the likelihood are included.
 ## SCC interpretation note for AIS marginal response
 
 After fixing `MimiBRICK.get_model()` non-determinism (May 2026), the
-AIS pulse-vs-baseline paired diff is uniformly small-positive. Earlier
-sessions reported a uniformly slightly-negative diff that was a bug,
-NOT a snowfall-regime physics result. Don't re-introduce the snowfall
-narrative — the real AIS marginal response is bimodal (small positive
-default + occasional MICI-threshold-crossing tail) but uniformly
-non-negative once the get_model RNG is seeded properly.
+AIS pulse-vs-baseline paired diff has a small-**positive MEDIAN** from
+2100 on. Earlier sessions reported a uniformly slightly-negative diff
+that was a bug, NOT a snowfall-regime physics result. Don't re-introduce
+the snowfall narrative.
+
+**Correction (2026-05-30, measured on the v1.4.5 SSP2-4.5 cubes):** the
+earlier "uniformly non-negative once seeded" claim was OVERSTATED. With a
+correctly matched seed, the AIS marginal median is small-positive at
+2100/2150/2300 (+3e-6 / +1e-5 / +4e-5 cm per 0.01 GtC) but **slightly
+NEGATIVE at 2050** (−1e-6 cm), and **34–56% of individual draws are
+negative at every horizon** — the true small-pulse AIS signal is tiny and
+straddles zero. So a negative *median* is NOT by itself proof of the seed
+bug. The bug's signature is MAGNITUDE/sign-systematics, not the presence
+of negative draws: a `get_model()` seed mismatch injects a *systematic*
+AIS offset of ~1e-3 cm (≈1e-5 m) — ~100× the true ~1e-5 cm signal — which
+swamps it and yields a uniformly-signed spurious median (demonstrated:
+seed 2026-vs-1234 zero-perturbation gave median −5e-4 cm, 100% negative).
+Discriminate with: zero-perturbation test, |marginal| vs get_model scatter,
+and pulse-size scaling (signal scales linearly; seed noise does not).
 
 ---
 

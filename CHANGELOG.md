@@ -3,6 +3,45 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-05-30 — Rennels 7-panel SSP2-4.5 SLR + pulse figure
+
+### Added
+- **7-panel SLR figure for Lisa Rennels** confirming emission-pulse + BRICK
+  results under SSP2-4.5. Left: total GMSLR rel 2005 (median + 75%/90% bands,
+  unweighted spread over 841 v1.4.5 configs × 8 BRICK post-PR#93 posteriors).
+  Right 2×3: SLR impulse response to a 2020 CO₂ pulse, decomposed into
+  TE/GSIC/GIS/AIS/LWS/Total, with BOTH a +0.01 GtC and a +1e-4 GtC arm overlaid.
+  - Driver: `python/scripts/rennels/rennels_build_ssp245_cubes.py` — FaIR v2.2.4
+    (v1.4.5 cal) SSP2-4.5 baseline + 4 pulse arms (±0.01, +0.02, +1e-4 GtC at
+    2020.5, CO₂ FFI), emits **GMST + OHC flat-cubes** (float64 — float32 destroys
+    the 1e-4 GtC signal, ~1e-7 °C on ~2.5 °C). Pulse in GtC→GtCO₂ ×44/12.
+  - Figure: `python/scripts/rennels/rennels_7panel_figure.py`.
+  - Outputs: `outputs/rennels/slr_7panel_ssp245.{png,pdf}`,
+    `rennels_pulse_response_summary.csv`, 5 cubes + metadata, BRICK CSVs.
+- **Result:** 1e-4 GtC pulse IS resolvable through BRICK in float64; the two arms
+  agree to <0.2% at 2150 (linear). Per-GtCO₂ total marginal @2150 = 0.0073
+  cm/GtCO₂ (matches memory ~0.0074). TE dominates; LWS ≈ 0 (pre-2019 calib).
+- **Sanity:** all 5 paired-pulse tests pass at FaIR level (zero/sign-flip 0.02% /
+  doubling 2.0002 / linearity 0.02% / first-principles 0.415 m°C/GtCO₂) AND BRICK
+  level (repro bit-identical / sign-flip anti-sym / doubling 2.0000 / linearity
+  0.29% / closure Σcomp=total to 1.4e-13 m).
+- **Caveat flagged on-figure:** unweighted SSP2-4.5 median runs above AR6
+  (69 vs ~50 cm @2100; 132 vs ~68 cm @2150) — consistent with this project's
+  hot BRICK posterior (RFF-SP gives ~93 cm @2100), not a bug; per user's
+  explicit "unweighted climate+BRICK spread" choice (no Wong importance weights).
+- **Absolute-units variant** `slr_7panel_ssp245_abs1em4.{png,pdf}`: right panels
+  in metres of SLR per literal +1e-4 GtC pulse (TE ~2e-8 m @2300; direct-1e-4 vs
+  0.01÷100 agree <0.2%). For comparison with Rennels' own per-1e-4-GtC numbers.
+
+### Fixed / corrected
+- **AIS get_model seed-bug note in CLAUDE.md was overstated** ("uniformly
+  non-negative once seeded"). Measured: matched-seed AIS median is slightly
+  NEGATIVE at 2050 and 34–56% of draws are negative at all horizons — the true
+  small-pulse AIS signal straddles zero. A negative *median* alone is not proof
+  of the bug. Demonstrated the actual bug signature: seed-mismatch zero-pert
+  (2026 vs 1234) injects a systematic AIS offset (median −5e-4 cm, 100% negative)
+  ~100× the true ~5e-6 cm signal. Diagnostic tests added to the note.
+
 ## [v2.1] — 2026-05-29 — finalized substack + poster (Group-Sobol H-S)
 
 ### Changed
