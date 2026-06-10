@@ -25,8 +25,30 @@
 
 Apply one row of the BRICK posterior CSV (as e.g. `posterior[i, :]`)
 to a built MimiBRICK model `m`. Mutates `m` in place.
+
+`precip_log` — AIS precipitation reparameterization shim for MimiBRICK ≥ v2.0.0.
+v1.0.1's AIS component computes accumulation as `ais_precipitation₀ * exp(κ·T)`
+(precipitation₀ in LINEAR m/yr; get_model default 0.37). v2.0.0 changed this to
+`exp(ais_precipitation₀) * exp(κ·T)` (precipitation₀ in LOG space; get_model
+default log(0.37)). The post-#93 posterior we use (delivered 2026-05-22, BEFORE
+v2.0.0's 2026-06-08 release) stores `antarctic_precip0` in LINEAR units (median
+0.80 m/yr). Feeding those linear values into v2.0.0's exp() overloads Antarctic
+snowfall by exp(p)/p ≈ 2.2–4.5× and blows up the highly nonlinear ice-sheet
+dynamics — this is the +100 cm AIS@1900 "v2.0.0 obs-driven blocker" (NOT the
+OHC reference/units originally suspected; OHC injection and the byte-identical
+thermal_expansion component are version-invariant).
+
+Set `precip_log=true` when the model was built via the v2.0.0 get_model API so
+the linear posterior value is log-transformed (`exp(log(p)) = p` reproduces
+v1.0.1 behavior bit-for-bit). Leave false (default) for v1.0.1 models — all
+existing callers are unaffected.
+
+NB: do NOT detect the version via `pkgversion(MimiBRICK)` — the v2.0.0 git tag
+ships a Project.toml that still reads `1.2.0-dev`, so version introspection
+lies. The caller knows which get_model signature it built with; pass the flag
+from there.
 """
-function update_brick_params!(m, prow)
+function update_brick_params!(m, prow; precip_log::Bool=false)
     # Antarctic Ocean module
     update_param!(m, :antarctic_ocean, :anto_α, prow.anto_alpha)
     update_param!(m, :antarctic_ocean, :anto_β, prow.anto_beta)
@@ -38,7 +60,8 @@ function update_brick_params!(m, prow)
     update_param!(m, :antarctic_icesheet, :ais_μ,                      prow.antarctic_mu)
     update_param!(m, :antarctic_icesheet, :ais_runoffline_snowheight₀, prow.antarctic_runoff_height0)
     update_param!(m, :antarctic_icesheet, :ais_c,                      prow.antarctic_c)
-    update_param!(m, :antarctic_icesheet, :ais_precipitation₀,         prow.antarctic_precip0)
+    update_param!(m, :antarctic_icesheet, :ais_precipitation₀,
+                  precip_log ? log(prow.antarctic_precip0) : prow.antarctic_precip0)
     update_param!(m, :antarctic_icesheet, :ais_κ,                      prow.antarctic_kappa)
     update_param!(m, :antarctic_icesheet, :ais_ν,                      prow.antarctic_nu)
     update_param!(m, :antarctic_icesheet, :ais_iceflow₀,               prow.antarctic_flow0)

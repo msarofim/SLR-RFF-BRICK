@@ -71,7 +71,8 @@ function parse_cli()
         "--seed";        arg_type = Int; default = 2026
         "--start-year";  arg_type = Int; default = 1850
         "--end-year";    arg_type = Int; default = 2100
-        "--rcp";         default = "RCP45"
+        "--rcp";         default = "RCP45"      # v1.0.1 get_model scenario arg
+        "--ssp";         default = "ssp245"     # v2.0.0 get_model scenario arg (ssprcp_scenario)
         "--max-post";    arg_type = Int; default = 0   # 0 = all
         # Phase A symmetric: drop the bare-year "total" columns to keep the
         # CSV narrow. The default writes per-component + total in the same
@@ -143,12 +144,23 @@ function main()
     println("  posterior: $n_post members, processing $cap")
 
     Random.seed!(args["seed"])
-    println("Building MimiBRICK model (rcp=$(args["rcp"]))...")
-    m = MimiBRICK.get_model(
-        rcp_scenario = args["rcp"],
-        start_year   = yr_start,
-        end_year     = yr_end,
-    )
+    # Version-aware get_model: v2.0.0 renamed rcp_scenario->ssprcp_scenario and
+    # log-reparameterized AIS precipitation. Try the v2.0.0 signature first,
+    # fall back to v1.0.1. `precip_log` is threaded into update_brick_params!
+    # so a v1.0.1-era posterior reproduces v1.0.1 bit-for-bit on v2.0.0
+    # (verified via sweep_ais_oceantemp.jl: AIS@1900 -3.94 cm identical).
+    local m
+    local precip_log
+    try
+        m = MimiBRICK.get_model(ssprcp_scenario = args["ssp"], start_year = yr_start, end_year = yr_end)
+        precip_log = true
+        println("Building MimiBRICK model via v2.0.0 API (ssprcp_scenario=$(args["ssp"])) — precip_log=true")
+    catch err
+        isa(err, MethodError) || rethrow()
+        m = MimiBRICK.get_model(rcp_scenario = args["rcp"], start_year = yr_start, end_year = yr_end)
+        precip_log = false
+        println("Building MimiBRICK model via v1.0.1 API (rcp=$(args["rcp"])) — precip_log=false")
+    end
 
     save_total = args["save-total-trajs"]
     save_comp  = args["save-component-trajs"]
@@ -191,7 +203,7 @@ function main()
     t0 = time()
     for i in 1:cap
         prow = posterior[i, :]
-        update_brick_params!(m, prow)
+        update_brick_params!(m, prow; precip_log = precip_log)
         update_param!(m, :model_global_surface_temperature, gmst)
         update_param!(m, :thermal_expansion, :ocean_heat_interior, ohc)
         run(m)
