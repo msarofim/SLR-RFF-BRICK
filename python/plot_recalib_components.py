@@ -93,17 +93,29 @@ for ax, (title, bcol, acol, obs) in zip(comp_axes, comp_panels):
     ax.set_ylabel("cm (rel 1995-2005)", fontsize=8)
     ax.legend(fontsize=7.5, loc="lower left")
 
+# observations for the forcing panels (canonical: IGCC 2024 GMST, Zanna+IGCC OHC)
+igcc = pd.read_csv(os.path.join(REPO, "data/observations/igcc2024_gmst_with_uncertainty.csv"), comment="#")
+igcc["year"] = np.floor(igcc["time"]).astype(int); igcc = igcc.set_index("year")
+ohc_obs = pd.read_csv(os.path.join(REPO, "data/observations/ohc_spliced_zanna_igcc.csv"), comment="#").set_index("year")["ohc_1e22J"]
+
 # forcing panels: the two free row-2 slots (components fill [0,0..0,3],[1,0],[1,1])
 axg, axo = axes[1, 2], axes[1, 3]
-for ax, ser, lab, col in [(axg, fg, "FaIR-mean GMST (°C rel PI)", "#b8480f"),
-                          (axo, fo, "FaIR-mean OHC (10²² J)", "#0f6ab8")]:
-    ax.axvspan(*PAUSE, color="orange", alpha=0.18, lw=0, label="mid-century\npause")
-    ax.plot(fy, ser.reindex(fy).values, color=col, lw=2.0)
-    ax.set_title(lab, fontsize=11)
+# --- GMST: FaIR-mean vs IGCC obs (both °C rel pre-industrial) ---
+axg.axvspan(*PAUSE, color="orange", alpha=0.18, lw=0, label="mid-century pause")
+axg.fill_between(igcc.index, igcc["total_p05"], igcc["total_p95"], color="0.7", alpha=0.5, lw=0)
+axg.plot(igcc.index, igcc["total_p50"], color="k", lw=1.3, label="IGCC 2024 obs")
+axg.plot(fy, fg.reindex(fy).values, color="#b8480f", lw=2.0, label="FaIR-mean")
+axg.set_title("GMST: FaIR-mean vs IGCC obs (°C rel PI)", fontsize=10.5)
+axg.annotate("warming 1\n1900-1955", (1923, fg.loc[1923]-0.18), fontsize=7, color="0.3")
+axg.annotate("warming 2\n1970-pres", (1988, fg.loc[1988]-0.05), fontsize=7, color="0.3")
+# --- OHC: FaIR-mean vs Zanna+IGCC obs (both 10^22 J cumulative since 1750) ---
+axo.axvspan(*PAUSE, color="orange", alpha=0.18, lw=0, label="mid-century pause")
+axo.plot(ohc_obs.index, ohc_obs.values, color="k", lw=1.3, label="Zanna+IGCC obs")
+axo.plot(fy, fo.reindex(fy).values, color="#0f6ab8", lw=2.0, label="FaIR-mean")
+axo.set_title("OHC: FaIR-mean vs obs (10²² J since 1750)", fontsize=10.5)
+for ax in (axg, axo):
     ax.grid(alpha=0.25)
     ax.legend(fontsize=7.5, loc="upper left")
-axg.annotate("warming 1\n1900-1955", (1925, fg.loc[1925]), fontsize=7, color="0.3")
-axg.annotate("warming 2\n1970-pres", (1992, fg.loc[1992]), fontsize=7, color="0.3")
 
 for ax in axes[1, :]:
     ax.set_xlabel("year")
