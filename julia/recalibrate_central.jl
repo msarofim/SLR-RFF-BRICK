@@ -214,6 +214,12 @@ out[!, "lws_fred"] = (v=fill(NaN,length(years)); v[IF] .= fred_lws; v)
 CSV.write(OUT_TRAJ, out)
 println("\nWrote $OUT_TRAJ")
 
+# knobs CSV — single source of truth for downstream drivers (e.g. SSP projection)
+CSV.write(joinpath(REPO, "outputs/recalib_knobs.csv"),
+          DataFrame(knob=KNAMES, component=String.(KCOMP), symbol=String.(KSYM),
+                    before=med_knobs, after=knobs))
+println("Wrote outputs/recalib_knobs.csv  (medoid post_idx=$(isfile(CENTRAL_ROW) ? medrow.medoid_post_idx : -1))")
+
 open(OUT_MD, "w") do io
     central_lbl = isfile(CENTRAL_ROW) ? "MEDOID draw post_idx=$(medrow.medoid_post_idx) (the real posterior member closest to the ensemble-median trajectories)" : "synthetic median-parameter vector"
     println(io, "# Quick central BRICK recalibration — result\n")
