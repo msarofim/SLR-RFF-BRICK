@@ -6,10 +6,10 @@
 ## which keeps the slot name :glaciers_small_icecaps and all I/O wiring) by the
 ## temperature-dependent-equilibrium Mengel component (glaciers_mengel_component.jl).
 ##
-## The NATURAL/committed glacier melt (which the anthropogenic Mengel model does
-## not produce) is handled the LWS way — as an external budget series ADDED to the
-## modeled total in the calibration/projection postprocessing, NOT inside BRICK.
-## See python/calibrate_mengel_glacier.py + outputs/glacier_natural_budget.csv.
+## The committed/disequilibrium early-20th-c melt is SIMULATED directly via the
+## LIA-disequilibrium offset gic_T_lia (the glacier equilibrium temperature ≈ the
+## colder Little-Ice-Age climate) — driven by total temperature, no anthropogenic/
+## natural forcing split, no external budget. See python/calibrate_mengel_glacier.py.
 ##
 ## Usage:
 ##   include("julia/brick_mengel.jl")
@@ -41,10 +41,11 @@ via update_brick_params! with skip_glaciers=true) and the Mengel glacier params 
 """
 function update_brick_mengel!(m, prow, gic; precip_log::Bool=true)
     update_brick_params!(m, prow; precip_log=precip_log, skip_glaciers=true)
-    update_param!(m, _MENGEL_GLAC_SLOT, :gic_a,   gic.a)
-    update_param!(m, _MENGEL_GLAC_SLOT, :gic_b,   gic.b)
-    update_param!(m, _MENGEL_GLAC_SLOT, :gic_tau, gic.tau)
-    update_param!(m, _MENGEL_GLAC_SLOT, :gic_sl0, gic.sl0)
+    update_param!(m, _MENGEL_GLAC_SLOT, :gic_a,     gic.a)
+    update_param!(m, _MENGEL_GLAC_SLOT, :gic_b,     gic.b)
+    update_param!(m, _MENGEL_GLAC_SLOT, :gic_tau,   gic.tau)
+    update_param!(m, _MENGEL_GLAC_SLOT, :gic_T_lia, gic.T_lia)
+    update_param!(m, _MENGEL_GLAC_SLOT, :gic_sl0,   gic.sl0)
     return m
 end
 
