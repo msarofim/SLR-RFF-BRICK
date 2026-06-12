@@ -39,8 +39,10 @@ tg  = CSV.read(joinpath(REPO,"outputs/recalib_targets.csv"), DataFrame)   # cm r
 sg  = CSV.read(joinpath(REPO,"outputs/recalib_target_sigmas.csv"), DataFrame)
 tgi(y) = findfirst(==(y), tg.year)
 const FITYRS = [1900, 1940, 1970, 2000, 2018]                # subsampled (reduce autocorrelation)
+# Total-GMSL σ folds in the LWS-budget uncertainty (the Frederikse-TWS budget added to
+# the modeled total is itself uncertain) in quadrature with the Dangendorf σ.
 σ = (ais=sg.ais[1], gsic=sg.gsic[1], gis=(tg.gis_hi[tgi(1900)]-tg.gis_lo[tgi(1900)])/(2*1.645),
-     steric=sg.steric[1], dang=sg.dang[1])
+     steric=sg.steric[1], dang=sg.dang[1], dang_tot=sqrt(sg.dang[1]^2 + sg.lws[1]^2))
 const IMBIE_MU, IMBIE_SIG = 0.72, 0.156
 const DYU_MU,  DYU_SIG    = 2.127, 0.148
 
@@ -69,10 +71,12 @@ for r in eachrow(pri)
     push!(KN, (name=r.param, comp=c, sym=s, μ=r.mean, σ=r.std, lo=r.lo, hi=r.hi, islog=islog))
 end
 # Mengel glacier (physical priors) + freed ais_ocean_temperature₀ (weak prior)
-push!(KN, (name="gic_a",     comp=:glaciers_small_icecaps, sym=:gic_a,     μ=0.45, σ=0.08, lo=0.32, hi=0.55, islog=false))
-push!(KN, (name="gic_b",     comp=:glaciers_small_icecaps, sym=:gic_b,     μ=0.52, σ=0.25, lo=0.25, hi=1.00, islog=false))
-push!(KN, (name="gic_tau",   comp=:glaciers_small_icecaps, sym=:gic_tau,   μ=150., σ=100., lo=20.,  hi=500., islog=false))
-push!(KN, (name="gic_T_lia", comp=:glaciers_small_icecaps, sym=:gic_T_lia, μ=-0.35,σ=0.20, lo=-0.80,hi=-0.10,islog=false))
+push!(KN, (name="gic_a",        comp=:glaciers_small_icecaps, sym=:gic_a,        μ=0.45, σ=0.08, lo=0.32, hi=0.55, islog=false))
+push!(KN, (name="gic_b",        comp=:glaciers_small_icecaps, sym=:gic_b,        μ=0.52, σ=0.25, lo=0.25, hi=1.00, islog=false))
+push!(KN, (name="gic_T_lia",    comp=:glaciers_small_icecaps, sym=:gic_T_lia,    μ=-0.45,σ=0.30, lo=-1.00,hi=-0.10,islog=false))  # widened (regional LIA amplification)
+push!(KN, (name="gic_f",        comp=:glaciers_small_icecaps, sym=:gic_f,        μ=0.50, σ=0.30, lo=0.00, hi=1.00, islog=false))
+push!(KN, (name="gic_tau_fast", comp=:glaciers_small_icecaps, sym=:gic_tau_fast, μ=40.,  σ=30.,  lo=5.,   hi=80.,  islog=false))
+push!(KN, (name="gic_tau_slow", comp=:glaciers_small_icecaps, sym=:gic_tau_slow, μ=300., σ=200., lo=80.,  hi=800., islog=false))
 push!(KN, (name="ais_ocean_temperature₀", comp=:antarctic_icesheet, sym=:ais_ocean_temperature₀, μ=0.72, σ=0.50, lo=0.50, hi=2.00, islog=false))
 const NK = length(KN)
 println("Full joint MAP calibration: $NK free parameters")
@@ -80,7 +84,7 @@ println("Full joint MAP calibration: $NK free parameters")
 # ---- build model + set the base (medoid + Mengel init), forcing once ----
 medoid = CSV.read(joinpath(REPO,"outputs/recalib_central_row.csv"), DataFrame)[1,:]
 m = build_brick_mengel(ssp="ssp245", y0=Y0, y1=Y1)
-update_brick_mengel!(m, medoid, (a=0.45,b=0.52,tau=150.0,T_lia=-0.35,sl0=0.0); precip_log=true)
+update_brick_mengel!(m, medoid, (a=0.45,b=0.52,T_lia=-0.45,f=0.5,tau_fast=40.0,tau_slow=250.0,sl0=0.0); precip_log=true)
 set_forcing!(m, gmst, ohc)
 setknob!(k, v) = update_param!(m, k.comp, k.sym, k.islog ? log(v) : v)
 
@@ -103,7 +107,7 @@ function objective(θ)
     # total vs Dangendorf (+ Frederikse-TWS LWS budget)
     for (mi,fi) in zip(ml,fl)
         tot = c.ais[mi]+c.gsic[mi]+c.gis[mi]+c.te[mi]+tg.lws[fi]
-        J += ((tot - tg.dang[fi])/σ.dang)^2
+        J += ((tot - tg.dang[fi])/σ.dang_tot)^2
     end
     # modern rates
     J += ((c.ais[idx(2017)]-c.ais[idx(1992)] - IMBIE_MU)/IMBIE_SIG)^2

@@ -41,11 +41,13 @@ via update_brick_params! with skip_glaciers=true) and the Mengel glacier params 
 """
 function update_brick_mengel!(m, prow, gic; precip_log::Bool=true)
     update_brick_params!(m, prow; precip_log=precip_log, skip_glaciers=true)
-    update_param!(m, _MENGEL_GLAC_SLOT, :gic_a,     gic.a)
-    update_param!(m, _MENGEL_GLAC_SLOT, :gic_b,     gic.b)
-    update_param!(m, _MENGEL_GLAC_SLOT, :gic_tau,   gic.tau)
-    update_param!(m, _MENGEL_GLAC_SLOT, :gic_T_lia, gic.T_lia)
-    update_param!(m, _MENGEL_GLAC_SLOT, :gic_sl0,   gic.sl0)
+    update_param!(m, _MENGEL_GLAC_SLOT, :gic_a,        gic.a)
+    update_param!(m, _MENGEL_GLAC_SLOT, :gic_b,        gic.b)
+    update_param!(m, _MENGEL_GLAC_SLOT, :gic_T_lia,    gic.T_lia)
+    update_param!(m, _MENGEL_GLAC_SLOT, :gic_f,        gic.f)
+    update_param!(m, _MENGEL_GLAC_SLOT, :gic_tau_fast, gic.tau_fast)
+    update_param!(m, _MENGEL_GLAC_SLOT, :gic_tau_slow, gic.tau_slow)
+    update_param!(m, _MENGEL_GLAC_SLOT, :gic_sl0,      gic.sl0)
     return m
 end
 
