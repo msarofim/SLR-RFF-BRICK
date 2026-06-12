@@ -68,6 +68,15 @@ fred_lws    = Float64.(tg.lws)         # budget add-on
 dang_tot    = Float64.(tg.dang)
 σ_ais = sig.ais[1]; σ_gsic = sig.gsic[1]; σ_steric = sig.steric[1]; σ_dang = sig.dang[1]
 
+# Explicit MODERN AIS rate constraint (IMBIE satellite-era ΔAIS 1992-2017) — the
+# AIS *level* trajectory alone under-constrains the SHAPE, letting a high
+# ais_ocean_temperature₀ flatten the modern acceleration (the see-saw). Forcing
+# the modern rate is what breaks it (needs the anto_α ocean-sensitivity knob).
+const IMBIE_DAIS_MU, IMBIE_DAIS_SIG = 0.72, 0.156      # cm
+const IMBIE_Y0, IMBIE_Y1 = 1992, 2017
+const W_AIS_MODERN = 3.0                                # weight on the modern-rate term
+i_im0 = findfirst(==(IMBIE_Y0), fit_years); i_im1 = findfirst(==(IMBIE_Y1), fit_years)
+
 # ---- central posterior parameter vector ------------------------------------
 # Prefer the MEDOID draw (real posterior member closest to the ensemble-median
 # trajectories — written by prep medoid step), NOT the synthetic median-PARAMETER
@@ -90,6 +99,11 @@ q(col, p) = quantile(Float64.(post[!, col]), p)
 KNOBS = [
     ("ais_ocean_temperature₀", :antarctic_icesheet,     :ais_ocean_temperature₀, [0.72, 2.00], 0.72),
     ("ais_α",                  :antarctic_icesheet,     :ais_α,   [q("antarctic_alpha",0.05), q("antarctic_alpha",0.95)], Float64(medrow.antarctic_alpha)),
+    # anto_α/anto_β map global T -> Antarctic ocean temperature (softplus). Higher
+    # anto_α => Toc more responsive to global warming => stronger MODERN discharge
+    # acceleration, weaker early melt — the lever that breaks the oceanT0 see-saw.
+    ("anto_α",                 :antarctic_ocean,        :anto_α,  [q("anto_alpha",0.05), q("anto_alpha",0.95)], Float64(medrow.anto_alpha)),
+    ("anto_β",                 :antarctic_ocean,        :anto_β,  [q("anto_beta",0.05),  q("anto_beta",0.95)],  Float64(medrow.anto_beta)),
     ("gsic_β₀",                :glaciers_small_icecaps, :gsic_β₀, [q("glaciers_beta0",0.05),  q("glaciers_beta0",0.95)],  Float64(medrow.glaciers_beta0)),
     ("gsic_v₀",                :glaciers_small_icecaps, :gsic_v₀, [q("glaciers_v0",0.05),     q("glaciers_v0",0.95)],     Float64(medrow.glaciers_v0)),
     # gsic_teq is the FROZEN glacier equilibrium temperature (GSIC analog of
@@ -152,6 +166,9 @@ function objective(knobs)
     j += mean((g   .- fred_gsic).^2)   / σ_gsic^2
     j += mean((t   .- fred_steric).^2) / σ_steric^2
     j += mean((tot .- dang_tot).^2)    / σ_dang^2
+    # modern AIS rate (IMBIE 1992-2017) — forces the post-1990 acceleration
+    dais_modern = a[i_im1] - a[i_im0]
+    j += W_AIS_MODERN * (dais_modern - IMBIE_DAIS_MU)^2 / IMBIE_DAIS_SIG^2
     return j
 end
 
@@ -229,8 +246,14 @@ open(OUT_MD, "w") do io
     println(io, "\nGIS is NOT adjusted (fixed by post-#93 calibration); LWS uses the Frederikse")
     println(io, "TWS budget add-on (BRICK LWS is zero historically). The medoid central draw's AIS@1900")
     println(io, "≈ the ensemble median (−3.96 vs −3.97), so the 'before' here represents central BRICK.")
-    println(io, "\n**Key reading (8-knob run incl. the frozen equilibrium temperatures):**")
-    println(io, "- AIS is fixable via ais_ocean_temperature₀ → ~1.2 (interior; matches the oceanT0 sweep); RMSE collapses.")
+    dais_b = before.ais[IF][i_im1]-before.ais[IF][i_im0]; dais_a = after.ais[IF][i_im1]-after.ais[IF][i_im0]
+    println(io, "\nModern AIS rate ΔAIS($(IMBIE_Y0)-$(IMBIE_Y1)) cm: before $(round(dais_b,digits=2)) → after $(round(dais_a,digits=2)) (IMBIE target $(IMBIE_DAIS_MU)).")
+    println(io, "\n**Key reading (incl. the frozen equilibrium temperatures + anto ocean-sensitivity knobs):**")
+    println(io, "- AIS LEVEL *and* SHAPE are fixable, but only by freeing ais_ocean_temperature₀ JOINTLY with")
+    println(io, "  anto_α (global-T→Antarctic-ocean-temp sensitivity) and ais_α: anto_α carries the modern (IMBIE)")
+    println(io, "  acceleration so ais_ocean_temperature₀ stays near ~0.9 instead of railing to flatten the shape.")
+    println(io, "  Fitting AIS *level* alone (no modern-rate term, no anto_α) produces a front-loaded see-saw")
+    println(io, "  (too much 1900-1940 melt, too little post-2000) — Marcus flagged this; the modern term fixes it.")
     println(io, "- **gsic_teq (the FROZEN glacier equilibrium temperature, GSIC analog of the AIS knob) is the key")
     println(io, "  additional GSIC lever**: it takes GSIC@1900 from −3.4 (5-knob, stuck at ~half) toward the Frederikse")
     println(io, "  loss. With a PHYSICAL floor at −0.4 °C it reaches ~−5.9 (RMSE 0.68); UNCONSTRAINED it rails at −1.0 °C")

@@ -47,7 +47,8 @@ gis_obs = pd.DataFrame({
 knob_txt = ""
 if os.path.exists(SUMM):
     def cells(l): return [c.strip() for c in l.strip().strip("|").split("|")]
-    rows = [l for l in open(SUMM) if l.startswith("| ais_ocean") or l.startswith("| gsic_teq")]
+    rows = [l for l in open(SUMM) if l.startswith("| ais_ocean") or l.startswith("| anto_α")
+            or l.startswith("| gsic_teq")]
     knob_txt = "   ".join(f"{cells(l)[0]}: {cells(l)[1]}→{cells(l)[2]}" for l in rows)
 
 def band(ax, yr, lo, hi, label):
@@ -121,8 +122,8 @@ for ax in axes[1, :]:
     ax.set_xlabel("year")
 
 fig.suptitle("Quick central BRICK recalibration — historical component comparison + FaIR forcing\n"
-             "FaIR-mean forcing · medoid central draw · 8 knobs (incl. gsic_teq, the frozen glacier "
-             "equilibrium temp) vs Frederikse + Dangendorf\n" + knob_txt, fontsize=10.5)
+             "FaIR-mean forcing · medoid central draw · joint knobs (AIS+GSIC equilibrium temps + "
+             "anto ocean sensitivity) vs Frederikse + Dangendorf + IMBIE modern AIS\n" + knob_txt, fontsize=10.5)
 fig.tight_layout(rect=[0, 0, 1, 0.93])
 fig.savefig(OUT, dpi=140)
 print(f"[wrote {OUT}]")
