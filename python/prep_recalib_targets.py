@@ -36,6 +36,7 @@ ANCHOR = 1900                     # year at which per-target objective sigma is 
 FRED_MAP = {
     "Antarctic Ice Sheet": "ais",
     "Glaciers":            "gsic",
+    "Greenland Ice Sheet": "gis",
     "Steric":              "steric",
     "Terrestrial Water Storage": "lws",
 }
