@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
 """
-ENSEMBLE SSP GMSL projections to 2100 — v2.0.0 posterior band + recalibration shift.
-
-The v2.0.0 ensemble (real 10k-draw posterior) is the robust uncertainty band and
-smooths the single-draw DAIS-MICI step. The "new" (preliminary recalibration) is
-shown as a MEDIAN-ONLY shift: its central knobs are applied ensemble-wide, which
-shifts the median sensibly but DISTORTS the tails (e.g. SSP1-1.9 new p05 14.9 cm is
-an artifact of forcing central gsic_v0/teq/te_alpha onto draws they don't suit), so
-its band is not a clean posterior and is not drawn. A proper new-calibration band
-needs the recalibration re-fit per draw.
+ENSEMBLE SSP GMSL projections to 2100 — v2.0.0 posterior, unweighted vs
+Dangendorf importance-weighted, + the preliminary-recalibration median shift.
 
 Panels:
-  (a) total GMSL @2100 by SSP: v2.0.0 median + 5-95 band, new median marker, vs AR6;
-  (b) v2.0.0 ensemble trajectories 2000-2100 with 5-95 bands;
-  (c) recalibration effect on the MEDIAN (new p50 - v2.0.0 p50) per SSP.
+  (a) @2100 dot-and-whisker by SSP: v2.0.0 unweighted (median + 5-95), v2.0.0
+      Dangendorf-weighted (median + 5-95), new-calib median, AR6 median.
+  (b) v2.0.0 unweighted ensemble trajectories 2000-2100 with 5-95 bands.
+  (c) two small effects: recalibration on the median (new - v2.0.0) and importance
+      weighting on the upper tail (p95 weighted - unweighted).
 
-Inputs: outputs/proj_ssps_ensemble_{summary,timeseries}.csv (cm, rel AR6 1995-2014).
+The "new" (preliminary recalibration) is MEDIAN-ONLY: its central knobs are applied
+ensemble-wide, which shifts the median sensibly but distorts the tails, so no band.
+The post-#93 posterior is equal-weighted MCMC, so "unweighted" already = posterior;
+"dangendorf" additionally importance-weights by per-draw fit to observed historical
+GMSL (ESS ~ 600 / 10k). AR6 reports no SSP4-6.0, so that marker is blank.
+
+Inputs: outputs/proj_ssps_ensemble_{summary,timeseries}.csv (cm, rel 1995-2014).
 """
 import os
 import numpy as np
@@ -32,54 +33,71 @@ NDRAWS = pd.read_csv(os.path.join(REPO, "data/MimiBRICK/parameters_subsample_bri
 
 ORDER = ["SSP1-1.9", "SSP1-2.6", "SSP2-4.5", "SSP4-6.0", "SSP3-7.0", "SSP5-8.5"]
 COL = dict(zip(ORDER, plt.cm.viridis(np.linspace(0.05, 0.92, len(ORDER)))))
-AR6 = {"SSP1-1.9": 38, "SSP1-2.6": 44, "SSP2-4.5": 56, "SSP3-7.0": 68, "SSP5-8.5": 77}
+AR6 = {"SSP1-1.9": 38, "SSP1-2.6": 44, "SSP2-4.5": 56, "SSP3-7.0": 68, "SSP5-8.5": 77}  # no SSP4-6.0
 
-def row(ssp, cal):
-    return S[(S.ssp_label == ssp) & (S.calib == cal)].iloc[0]
+def get(ssp, cal, wt):
+    return S[(S.ssp_label == ssp) & (S.calib == cal) & (S.weighting == wt)].iloc[0]
 
-fig, (axa, axb, axc) = plt.subplots(1, 3, figsize=(18, 5.6))
+fig, (axa, axb, axc) = plt.subplots(1, 3, figsize=(18, 5.7))
 x = np.arange(len(ORDER))
+GREY, TEAL, BLUE, RED = "#8a97a3", "#1b9e8f", "#1763b8", "crimson"
 
-# ---- (a) v2.0.0 median bar + 5-95 band; new median marker; AR6 ----
-p50 = [row(s, "v2.0.0").p50 for s in ORDER]
-lo = [row(s, "v2.0.0").p50 - row(s, "v2.0.0").p05 for s in ORDER]
-hi = [row(s, "v2.0.0").p95 - row(s, "v2.0.0").p50 for s in ORDER]
-axa.bar(x, p50, 0.6, color="#9aa7b3", label="v2.0.0 median",
-        yerr=[lo, hi], capsize=4, error_kw=dict(lw=1.2, ecolor="0.3"))
-axa.scatter(x, [row(s, "new").p50 for s in ORDER], marker="D", s=55, color="#1763b8",
-            zorder=6, label="new (prelim.) median")
-axa.scatter(x, [AR6.get(s, np.nan) for s in ORDER], marker="_", s=460, color="crimson",
-            lw=2.5, label="AR6 median (approx)", zorder=6)
-for xi, s in enumerate(ORDER):
-    axa.text(xi, row(s, "v2.0.0").p95 + 2, f"{row(s,'v2.0.0').p50:.0f}", ha="center", fontsize=8)
+# ---- (a) dot-and-whisker @2100 ----
+for s in ORDER:
+    xi = ORDER.index(s)
+    u = get(s, "v2.0.0", "unweighted"); w = get(s, "v2.0.0", "dangendorf")
+    n = get(s, "new", "unweighted")
+    # v2.0.0 unweighted (grey, left)
+    axa.plot([xi-0.22]*2, [u.p05, u.p95], color=GREY, lw=2.2, solid_capstyle="round", zorder=2)
+    axa.plot(xi-0.22, u.p50, "o", color=GREY, ms=7, zorder=3)
+    # v2.0.0 Dangendorf-weighted (teal, center)
+    axa.plot([xi]*2, [w.p05, w.p95], color=TEAL, lw=2.2, solid_capstyle="round", zorder=2)
+    axa.plot(xi, w.p50, "o", color=TEAL, ms=7, zorder=3)
+    # new-calib median (blue diamond, right) — median only
+    axa.plot(xi+0.22, n.p50, "D", color=BLUE, ms=7, zorder=4)
+    # AR6 median (red dash, behind)
+    if s in AR6:
+        axa.plot([xi-0.30, xi+0.30], [AR6[s]]*2, color=RED, lw=2.5, zorder=1)
+    axa.text(xi, u.p95 + 3, f"{u.p50:.0f}", ha="center", fontsize=8, color="0.25")
+# legend proxies
+import matplotlib.lines as ml
+axa.legend(handles=[
+    ml.Line2D([], [], color=GREY, marker="o", lw=2.2, label="v2.0.0 unweighted (median, 5–95%)"),
+    ml.Line2D([], [], color=TEAL, marker="o", lw=2.2, label="v2.0.0 Dangendorf-weighted (median, 5–95%)"),
+    ml.Line2D([], [], color=BLUE, marker="D", lw=0, label="new (prelim.) median — median only"),
+    ml.Line2D([], [], color=RED, lw=2.5, label="AR6 median (approx; no SSP4-6.0)"),
+], fontsize=7.6, loc="upper left")
 axa.set_xticks(x); axa.set_xticklabels(ORDER, rotation=30, ha="right")
 axa.set_ylabel("GMSL @2100 (cm, rel 1995-2014)")
-axa.set_title(f"(a) Total GMSL @2100  (v2.0.0 median + 5–95%, {NDRAWS:,} draws)")
-axa.legend(fontsize=8, loc="upper left"); axa.grid(axis="y", alpha=0.25)
+axa.set_title(f"(a) Total GMSL @2100  ({NDRAWS:,}-draw posterior; number = unweighted median)")
+axa.grid(axis="y", alpha=0.25)
 
-# ---- (b) v2.0.0 ensemble trajectories + bands ----
+# ---- (b) v2.0.0 unweighted trajectories + bands ----
+TU = T[(T.calib == "v2.0.0") & (T.weighting == "unweighted")]
 for s in ORDER:
-    d = T[(T.ssp_label == s) & (T.calib == "v2.0.0")].sort_values("year")
+    d = TU[TU.ssp_label == s].sort_values("year")
     axb.fill_between(d.year, d.p05, d.p95, color=COL[s], alpha=0.13, lw=0)
     axb.plot(d.year, d.p50, color=COL[s], lw=2, label=s)
 axb.set_title("(b) GMSL trajectory 2000–2100, v2.0.0 ensemble\n(median + 5–95% band)")
 axb.set_xlabel("year"); axb.set_ylabel("GMSL (cm, rel 1995-2014)")
 axb.set_xlim(2000, 2100); axb.legend(fontsize=8, ncol=2); axb.grid(alpha=0.25)
 
-# ---- (c) recalibration effect on the median ----
-dmed = [row(s, "new").p50 - row(s, "v2.0.0").p50 for s in ORDER]
-axc.bar(x, dmed, 0.6, color="#1763b8")
-for xi, v in enumerate(dmed):
-    axc.text(xi, v + 0.05, f"{v:+.1f}", ha="center", fontsize=8)
+# ---- (c) small effects: recalibration on median, weighting on p95 ----
+d_recal = [get(s, "new", "unweighted").p50 - get(s, "v2.0.0", "unweighted").p50 for s in ORDER]
+d_weight = [get(s, "v2.0.0", "dangendorf").p95 - get(s, "v2.0.0", "unweighted").p95 for s in ORDER]
+ww = 0.38
+axc.bar(x - ww/2, d_recal, ww, color=BLUE, label="recalibration → Δ median (new − v2.0.0)")
+axc.bar(x + ww/2, d_weight, ww, color=TEAL, label="Dangendorf wt → Δ p95 (wtd − unwtd)")
 axc.axhline(0, color="k", lw=0.6)
 axc.set_xticks(x); axc.set_xticklabels(ORDER, rotation=30, ha="right")
-axc.set_ylabel("Δ median GMSL @2100 (cm)")
-axc.set_title("(c) Recalibration effect on the MEDIAN\n(new − v2.0.0; AIS↑ vs GSIC↓ nearly cancel)")
-axc.grid(axis="y", alpha=0.25)
+axc.set_ylabel("Δ GMSL @2100 (cm)")
+axc.set_title("(c) Magnitude of the two adjustments\n(both small vs the MICI-driven spread)")
+axc.legend(fontsize=7.6, loc="lower left"); axc.grid(axis="y", alpha=0.25)
 
-fig.suptitle(f"BRICK GMSL projections to 2100 — {NDRAWS:,}-draw posterior ensemble, FaIR v1.4.5-forced\n"
-             "v2.0.0 band is the robust posterior (smooths the DAIS-MICI step); the preliminary "
-             "recalibration shifts the MEDIAN only by +0.4 to +2.3 cm (its full band needs a per-draw re-fit)",
+fig.suptitle(f"BRICK GMSL projections to 2100 — {NDRAWS:,}-draw posterior ensemble, FaIR v1.4.5-forced  ·  "
+             "unweighted vs Dangendorf-weighted, + preliminary recalibration (median only)\n"
+             "v2.0.0 median runs high vs AR6 for SSP2-4.5+ (median draw crosses DAIS-MICI ~2.7 °C); "
+             "weighting trims the upper tail only; recalibration shifts the median by ≤2.3 cm",
              fontsize=10.5)
 fig.tight_layout(rect=[0, 0, 1, 0.93])
 fig.savefig(OUT, dpi=140)

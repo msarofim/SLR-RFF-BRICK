@@ -34,7 +34,22 @@ N_DRAWS = length(ARGS) >= 1 ? parse(Int, ARGS[1]) : 2000
 post  = CSV.read(joinpath(REPO, "data/MimiBRICK/parameters_subsample_brick.csv"), DataFrame)
 knobs = CSV.read(joinpath(REPO, "outputs/recalib_knobs.csv"), DataFrame)
 ncap = min(N_DRAWS, nrow(post))
+
+# Wong-style importance weights: per-draw log-likelihood vs Dangendorf historical GMSL.
+# The post-#93 posterior is equal-weighted MCMC, so "unweighted" already = posterior;
+# the Dangendorf weights ADDITIONALLY condition the projection on observed 20th-c GMSL.
+lB = CSV.read(joinpath(REPO, "outputs/brick_lB_per_post_dangendorf.csv"), DataFrame)
+lbv = Float64.(lB.l_B_gmsl[1:ncap])
+W = exp.(lbv .- maximum(lbv)); W ./= sum(W)
+ess = (sum(W)^2) / sum(W .^ 2)
 println("Ensemble: $ncap draws x $(length(SSPS)) SSPs x 2 calibrations, FaIR-forced")
+println("Dangendorf importance weights: ESS = $(round(ess,digits=1)) ($(round(100*ess/ncap,digits=1))% of draws)")
+
+# weighted quantile (step CDF; adequate at ESS~600)
+function wquantile(v, w, p)
+    idx = sortperm(v); vs = v[idx]; cw = cumsum(w[idx]); cw ./= cw[end]
+    vs[clamp(searchsortedfirst(cw, p), 1, length(vs))]
+end
 
 function load_traj(path, vcol)
     df = CSV.read(path, DataFrame)
@@ -44,10 +59,11 @@ end
 rerefval(v, idx) = 100 * (v[idx] - sum(v[IB])/length(IB))   # cm rel 1995-2014 at idx
 pcts(v) = (quantile(v,0.05), quantile(v,0.50), quantile(v,0.95))
 
-summ = DataFrame(ssp=String[], ssp_label=String[], calib=String[],
+summ = DataFrame(ssp=String[], ssp_label=String[], calib=String[], weighting=String[],
                  p05=Float64[], p50=Float64[], p95=Float64[],
                  ais=Float64[], gsic=Float64[], gis=Float64[], te=Float64[], lws=Float64[])
-tser = DataFrame(year=Int[], ssp_label=String[], calib=String[], p05=Float64[], p50=Float64[], p95=Float64[])
+tser = DataFrame(year=Int[], ssp_label=String[], calib=String[], weighting=String[],
+                 p05=Float64[], p50=Float64[], p95=Float64[])
 
 t_start = time()
 for (ssp, label) in SSPS
@@ -75,13 +91,23 @@ for (ssp, label) in SSPS
             comp2100.te[i]   = rerefval(m[:thermal_expansion,:te_sea_level], i2100)
             comp2100.lws[i]  = rerefval(m[:landwater_storage,:lws_sea_level], i2100)
         end
-        p05,p50,p95 = pcts(tot_ts[:,i2100])
-        push!(summ, (ssp, label, cal, p05, p50, p95,
+        v2100 = tot_ts[:,i2100]
+        # unweighted (equal-weight MCMC posterior)
+        a,b,c = pcts(v2100)
+        push!(summ, (ssp, label, cal, "unweighted", a, b, c,
                      median(comp2100.ais), median(comp2100.gsic), median(comp2100.gis),
                      median(comp2100.te), median(comp2100.lws)))
+        # Dangendorf importance-weighted
+        push!(summ, (ssp, label, cal, "dangendorf",
+                     wquantile(v2100,W,0.05), wquantile(v2100,W,0.50), wquantile(v2100,W,0.95),
+                     wquantile(comp2100.ais,W,0.5), wquantile(comp2100.gsic,W,0.5), wquantile(comp2100.gis,W,0.5),
+                     wquantile(comp2100.te,W,0.5), wquantile(comp2100.lws,W,0.5)))
         for y in TS_YEARS
-            t = findfirst(==(y), years); a,b,c = pcts(tot_ts[:,t])
-            push!(tser, (y, label, cal, a, b, c))
+            t = findfirst(==(y), years); col = tot_ts[:,t]
+            a,b,c = pcts(col)
+            push!(tser, (y, label, cal, "unweighted", a, b, c))
+            push!(tser, (y, label, cal, "dangendorf",
+                         wquantile(col,W,0.05), wquantile(col,W,0.50), wquantile(col,W,0.95)))
         end
     end
     @printf("%-9s done  (%.0fs elapsed)\n", label, time()-t_start)
@@ -92,8 +118,9 @@ CSV.write(joinpath(REPO,"outputs/proj_ssps_ensemble_timeseries.csv"), tser)
 println("\nWrote outputs/proj_ssps_ensemble_{summary,timeseries}.csv  ($(round(time()-t_start))s total)")
 
 println("\n=== GMSL @2100 (cm, rel 1995-2014), $ncap-draw ensemble, FaIR v1.4.5 ===")
-println(rpad("scenario",10), rpad("calib",8), "  p05   p50   p95   |  AIS  GSIC  GIS   TE  LWS  (medians)")
+println("(unweighted = equal-weight MCMC posterior; dangendorf = importance-weighted by hist GMSL fit)")
+println(rpad("scenario",10), rpad("calib",8), rpad("weight",11), "  p05   p50   p95")
 for r in eachrow(summ)
-    @printf("%-10s%-8s %5.1f %5.1f %5.1f  | %5.1f %5.1f %5.1f %5.1f %5.1f\n",
-            r.ssp_label, r.calib, r.p05, r.p50, r.p95, r.ais, r.gsic, r.gis, r.te, r.lws)
+    @printf("%-10s%-8s%-11s %5.1f %5.1f %5.1f\n",
+            r.ssp_label, r.calib, r.weighting, r.p05, r.p50, r.p95)
 end
