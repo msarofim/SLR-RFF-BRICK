@@ -48,7 +48,11 @@ ships a Project.toml that still reads `1.2.0-dev`, so version introspection
 lies. The caller knows which get_model signature it built with; pass the flag
 from there.
 """
-function update_brick_params!(m, prow; precip_log::Bool=false)
+function update_brick_params!(m, prow; precip_log::Bool=false, skip_glaciers::Bool=false)
+    # `skip_glaciers=true` for a model whose single-reservoir glacier component has
+    # been swapped for the Mengel emulator (`glaciers_mengel`, see brick_mengel.jl):
+    # the old gsic_β₀/gsic_v₀/gsic_s₀/gsic_n params do not exist there, so skip them
+    # and set the Mengel params (gic_a/b/τ/sl0) separately.
     # Antarctic Ocean module
     update_param!(m, :antarctic_ocean, :anto_α, prow.anto_alpha)
     update_param!(m, :antarctic_ocean, :anto_β, prow.anto_beta)
@@ -70,11 +74,14 @@ function update_brick_params!(m, prow; precip_log::Bool=false)
     update_param!(m, :antarctic_icesheet, :temperature_threshold,      prow.antarctic_temp_threshold)
     update_param!(m, :antarctic_icesheet, :λ,                          prow.antarctic_lambda)
 
-    # Glaciers + small ice caps module
-    update_param!(m, :glaciers_small_icecaps, :gsic_β₀, prow.glaciers_beta0)
-    update_param!(m, :glaciers_small_icecaps, :gsic_v₀, prow.glaciers_v0)
-    update_param!(m, :glaciers_small_icecaps, :gsic_s₀, prow.glaciers_s0)
-    update_param!(m, :glaciers_small_icecaps, :gsic_n,  prow.glaciers_n)
+    # Glaciers + small ice caps module (single-reservoir Wigley-Raper-Bakker;
+    # skipped when the Mengel emulator is swapped in)
+    if !skip_glaciers
+        update_param!(m, :glaciers_small_icecaps, :gsic_β₀, prow.glaciers_beta0)
+        update_param!(m, :glaciers_small_icecaps, :gsic_v₀, prow.glaciers_v0)
+        update_param!(m, :glaciers_small_icecaps, :gsic_s₀, prow.glaciers_s0)
+        update_param!(m, :glaciers_small_icecaps, :gsic_n,  prow.glaciers_n)
+    end
 
     # Greenland Ice Sheet module (post-PR#93 calibration)
     update_param!(m, :greenland_icesheet, :greenland_a,  prow.greenland_a)
