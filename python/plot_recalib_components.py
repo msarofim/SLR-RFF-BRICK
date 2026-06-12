@@ -109,17 +109,28 @@ axg.plot(fy, fg.reindex(fy).values, color="#b8480f", lw=2.0, label="FaIR-mean")
 axg.set_title("GMST: FaIR-mean vs IGCC obs (°C rel PI)", fontsize=10.5)
 axg.annotate("warming 1\n1900-1955", (1923, fg.loc[1923]-0.18), fontsize=7, color="0.3")
 axg.annotate("warming 2\n1970-pres", (1988, fg.loc[1988]-0.05), fontsize=7, color="0.3")
-# --- OHC: FaIR-mean vs Zanna+IGCC obs (both 10^22 J cumulative since 1750) ---
+# --- OHC: FaIR-mean vs Zanna+IGCC obs, both re-baselined to 1995-2005 ---
+# The raw cumulative-since-1750 series have a GROWING gap (FaIR-mean takes up ~40%
+# more heat by 2018) — a real rate difference, NOT a constant baseline offset. Re-
+# baselining to a common recent window (standard OHC hygiene, matches the component
+# panels) is legitimate for comparing shape, but the residual early-period spread is
+# real and is left visible (it does NOT make the two overlap).
+OHC_BASE = (BASE0, BASE1)
+fo_r  = fo  - fo.loc[OHC_BASE[0]:OHC_BASE[1]].mean()
+obo_r = ohc_obs - ohc_obs.loc[OHC_BASE[0]:OHC_BASE[1]].mean()
 axo.axvspan(*PAUSE, color="orange", alpha=0.18, lw=0, label="mid-century pause")
-axo.plot(ohc_obs.index, ohc_obs.values, color="k", lw=1.3, label="Zanna+IGCC obs")
-axo.plot(fy, fo.reindex(fy).values, color="#0f6ab8", lw=2.0, label="FaIR-mean")
-axo.set_title("OHC: FaIR-mean vs obs (10²² J since 1750)", fontsize=10.5)
+axo.plot(obo_r.index, obo_r.values, color="k", lw=1.3, label="Zanna+IGCC obs")
+axo.plot(fy, fo_r.reindex(fy).values, color="#0f6ab8", lw=2.0, label="FaIR-mean")
+axo.set_title("OHC anomaly: FaIR-mean vs obs (10²² J, rel 1995-2005)", fontsize=10.5)
 for ax in (axg, axo):
     ax.grid(alpha=0.25)
     ax.legend(fontsize=7.5, loc="upper left")
 
 for ax in axes[1, :]:
     ax.set_xlabel("year")
+# Comparison starts in 1900 (Frederikse/Dangendorf targets begin 1900); clip the
+# pre-1900 obs tails so every panel starts there. sharex propagates to all panels.
+axes[0, 0].set_xlim(FIT0, 2024)
 
 fig.suptitle("Quick central BRICK recalibration — historical component comparison + FaIR forcing\n"
              "FaIR-mean forcing · medoid central draw · joint knobs (AIS+GSIC equilibrium temps + "

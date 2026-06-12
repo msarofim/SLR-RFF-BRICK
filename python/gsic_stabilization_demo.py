@@ -53,6 +53,7 @@ for Tstab, c in zip(TSTARS, cmap):
 
 ax1.axhline(V0 * 100, color="crimson", ls="--", lw=1.5, label=f"V₀ = {V0*100:.0f} cm (total reservoir)")
 ax1.axvline(Y_BRANCH, color="0.6", ls=":", lw=1)
+ax1.set_xlim(1900, Y_END); ax2.set_xlim(1900, Y_END)   # start plots in 1900
 ax1.set_title("Cumulative GSIC sea-level contribution\n(T held constant after 2020)", fontsize=11)
 ax1.set_xlabel("year"); ax1.set_ylabel("GSIC SLE (cm)")
 ax1.legend(fontsize=7.5, loc="lower right"); ax1.grid(alpha=0.25)
