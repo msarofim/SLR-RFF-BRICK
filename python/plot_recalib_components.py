@@ -74,8 +74,25 @@ comp_panels = [
     ("Land water storage (LWS)",   "before_lws",  "after_lws",  "lws"),
     ("TOTAL GMSL",                 "before_total","after_total","dang"),
 ]
+# natural/committed glacier budget (the LWS-style add-on not simulated by BRICK)
+nat_budget = pd.read_csv(os.path.join(REPO, "outputs/glacier_natural_budget.csv"))
+
 comp_axes = list(axes.flat[:6])
 for ax, (title, bcol, acol, obs) in zip(comp_axes, comp_panels):
+    if obs == "lws":
+        # Reframed panel: the historical contributions BRICK does NOT simulate,
+        # supplied as external budgets — land water storage (Frederikse TWS) AND
+        # the natural/committed glacier melt (Mengel models only the anthropogenic part).
+        ax.axvspan(*PAUSE, color="orange", alpha=0.10, lw=0)
+        ax.plot(tg["year"], tg["lws"], color="#5a8f4e", lw=2.0,
+                label="Land water storage (Frederikse TWS)")
+        ax.plot(nat_budget["year"], nat_budget["natural_glacier_cm"], color="#b5651d", lw=2.0,
+                label="Natural/committed glaciers (Marzeion)")
+        ax.set_title("Historical contributions NOT simulated by BRICK\n(added as external budgets)", fontsize=9.5)
+        ax.axhline(0, color="k", lw=0.4, alpha=0.4)
+        ax.grid(alpha=0.25); ax.set_ylabel("cm (rel 1995-2005)", fontsize=8)
+        ax.legend(fontsize=7.0, loc="lower right")
+        continue
     if obs == "gis":
         band(ax, gis_obs.index, gis_obs["lo"], gis_obs["hi"], "Frederikse 2020")
         ax.plot(gis_obs.index, gis_obs["mean"], color="0.35", lw=1.2, ls="-")
