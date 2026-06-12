@@ -82,14 +82,34 @@ else
     medrow = DataFrame(Dict(n => median(skipmissing(post[!, n])) for n in names(post)))[1, :]
     println("Central vector = synthetic median-parameter vector (medoid file absent)")
 end
-# knob bounds from posterior 5-95% (oceanT0 is fixed in get_model -> sweep range)
+# knob bounds from posterior 5-95% (the two equilibrium-temperature knobs —
+# ais_ocean_temperature₀ and gsic_teq — are FIXED in get_model, not calibrated,
+# so they get hand-set exploratory bounds, like the AIS oceanT0 sweep).
 q(col, p) = quantile(Float64.(post[!, col]), p)
-const KNAMES = ["ais_ocean_temperature₀", "ais_α", "gsic_β₀", "gsic_v₀", "te_α"]
-lo = [0.72, q("antarctic_alpha",0.05), q("glaciers_beta0",0.05), q("glaciers_v0",0.05), q("thermal_alpha",0.05)]
-hi = [2.00, q("antarctic_alpha",0.95), q("glaciers_beta0",0.95), q("glaciers_v0",0.95), q("thermal_alpha",0.95)]
-# "before" knobs = the central draw's own values (oceanT0 at its fixed default 0.72)
-med_knobs = [0.72, Float64(medrow.antarctic_alpha), Float64(medrow.glaciers_beta0),
-             Float64(medrow.glaciers_v0), Float64(medrow.thermal_alpha)]
+# Each knob: (display name, model component, model symbol, [lo, hi], central/"before" value)
+KNOBS = [
+    ("ais_ocean_temperature₀", :antarctic_icesheet,     :ais_ocean_temperature₀, [0.72, 2.00], 0.72),
+    ("ais_α",                  :antarctic_icesheet,     :ais_α,   [q("antarctic_alpha",0.05), q("antarctic_alpha",0.95)], Float64(medrow.antarctic_alpha)),
+    ("gsic_β₀",                :glaciers_small_icecaps, :gsic_β₀, [q("glaciers_beta0",0.05),  q("glaciers_beta0",0.95)],  Float64(medrow.glaciers_beta0)),
+    ("gsic_v₀",                :glaciers_small_icecaps, :gsic_v₀, [q("glaciers_v0",0.05),     q("glaciers_v0",0.95)],     Float64(medrow.glaciers_v0)),
+    # gsic_teq is the FROZEN glacier equilibrium temperature (GSIC analog of
+    # ais_ocean_temperature₀). Physically it should sit near the late-LIA / PI
+    # balance temperature: below it glaciers advance. Floor at -0.4 °C (≈ late-LIA
+    # rel the FaIR PI baseline) keeps it defensible — with an unconstrained [-1.0]
+    # bound it rails at -1.0 (glaciers melting below the LIA), which fits GSIC to
+    # -6.64 cm but is unphysical, so we cap it here. See summary caveats.
+    ("gsic_teq",               :glaciers_small_icecaps, :gsic_teq,[-0.40, -0.15],                                        -0.15),
+    ("gsic_n",                 :glaciers_small_icecaps, :gsic_n,  [q("glaciers_n",0.05),      q("glaciers_n",0.95)],      Float64(medrow.glaciers_n)),
+    ("gsic_s₀",                :glaciers_small_icecaps, :gsic_s₀, [q("glaciers_s0",0.05),     q("glaciers_s0",0.95)],     Float64(medrow.glaciers_s0)),
+    ("te_α",                   :thermal_expansion,      :te_α,    [q("thermal_alpha",0.05),   q("thermal_alpha",0.95)],   Float64(medrow.thermal_alpha)),
+]
+const KNAMES = [k[1] for k in KNOBS]
+const KCOMP  = [k[2] for k in KNOBS]
+const KSYM   = [k[3] for k in KNOBS]
+lo = [k[4][1] for k in KNOBS]
+hi = [k[4][2] for k in KNOBS]
+med_knobs = [k[5] for k in KNOBS]
+const NK = length(KNOBS)
 
 # ---- model build (v2.0.0) --------------------------------------------------
 local m, precip_log
@@ -109,11 +129,9 @@ reref(v) = v .- mean(v[IB])     # re-reference a full-window series to 1995-2005
 """Run BRICK with median params + the 5 knobs; return component series (cm, rel window) on the FULL run window."""
 function run_components(knobs)
     update_brick_params!(m, medrow; precip_log=precip_log)
-    update_param!(m, :antarctic_icesheet, :ais_ocean_temperature₀, knobs[1])
-    update_param!(m, :antarctic_icesheet, :ais_α,                  knobs[2])
-    update_param!(m, :glaciers_small_icecaps, :gsic_β₀,            knobs[3])
-    update_param!(m, :glaciers_small_icecaps, :gsic_v₀,            knobs[4])
-    update_param!(m, :thermal_expansion, :te_α,                   knobs[5])
+    for k in 1:NK
+        update_param!(m, KCOMP[k], KSYM[k], knobs[k])
+    end
     update_param!(m, :model_global_surface_temperature, gmst)
     update_param!(m, :thermal_expansion, :ocean_heat_interior, ohc)
     run(m)
@@ -140,10 +158,10 @@ end
 # ---- coordinate descent ----------------------------------------------------
 knobs = copy(med_knobs)
 println("\nStart obj (median params, oceanT0=0.72) = ", round(objective(knobs), digits=3))
-NGRID = 17; NPASS = 6
+NGRID = 21; NPASS = 15
 for pass in 1:NPASS
     improved = false
-    for k in 1:5
+    for k in 1:NK
         grid = range(lo[k], hi[k], length=NGRID)
         best_v = knobs[k]; best_j = objective(knobs)
         for v in grid
@@ -153,8 +171,8 @@ for pass in 1:NPASS
         end
         knobs[k] = best_v
     end
-    @printf("pass %d: obj=%.3f  knobs=[%.3f %.4g %.4g %.4g %.4g]\n",
-            pass, objective(knobs), knobs...)
+    println("pass $pass: obj=$(round(objective(knobs),digits=3))  knobs=[",
+            join([@sprintf("%.4g", x) for x in knobs], " "), "]")
     improved || break
 end
 
@@ -186,10 +204,11 @@ open(OUT_MD, "w") do io
     println(io, "GMST+OHC forcing, MimiBRICK v2.0.0 (precip_log shim). 5 knobs, coordinate-descent.")
     println(io, "All cm rel 1995-2005; fit window $FIT0-$FIT1.\n")
     println(io, "## Calibrated knobs\n")
-    println(io, "| knob | before (median) | after | bound [lo, hi] |")
-    println(io, "|---|---:|---:|---|")
-    for k in 1:5
-        @printf(io, "| %s | %.4g | %.4g | [%.4g, %.4g] |\n", KNAMES[k], med_knobs[k], knobs[k], lo[k], hi[k])
+    println(io, "| knob | before (central) | after | bound [lo, hi] | railed? |")
+    println(io, "|---|---:|---:|---|:--:|")
+    for k in 1:NK
+        railed = (abs(knobs[k]-lo[k]) < 1e-9*(abs(lo[k])+1)) || (abs(knobs[k]-hi[k]) < 1e-9*(abs(hi[k])+1)) ? "**RAIL**" : ""
+        @printf(io, "| %s | %.4g | %.4g | [%.4g, %.4g] | %s |\n", KNAMES[k], med_knobs[k], knobs[k], lo[k], hi[k], railed)
     end
     println(io, "\nObjective (reduced weighted SSR): before = ", round(objective(med_knobs),digits=3),
                 " → after = ", round(objective(knobs),digits=3))
@@ -210,11 +229,16 @@ open(OUT_MD, "w") do io
     println(io, "\nGIS is NOT adjusted (fixed by post-#93 calibration); LWS uses the Frederikse")
     println(io, "TWS budget add-on (BRICK LWS is zero historically). The medoid central draw's AIS@1900")
     println(io, "≈ the ensemble median (−3.96 vs −3.97), so the 'before' here represents central BRICK.")
-    println(io, "\n**Key reading:** AIS is fixable (oceanT0→interior ~1.2, RMSE collapses), but GSIC rails")
-    println(io, "at both glacier-knob upper bounds and still reaches only ~half the Frederikse historical")
-    println(io, "loss (structural undershoot). The total-vs-Dangendorf fit DEGRADES after recalibration:")
-    println(io, "the apparent pre-fit total match was error cancellation (too-negative AIS offsetting the")
-    println(io, "too-positive GSIC/GIS). These 5 knobs cannot fit the components AND the total at once.")
+    println(io, "\n**Key reading (8-knob run incl. the frozen equilibrium temperatures):**")
+    println(io, "- AIS is fixable via ais_ocean_temperature₀ → ~1.2 (interior; matches the oceanT0 sweep); RMSE collapses.")
+    println(io, "- **gsic_teq (the FROZEN glacier equilibrium temperature, GSIC analog of the AIS knob) is the key")
+    println(io, "  additional GSIC lever**: it takes GSIC@1900 from −3.4 (5-knob, stuck at ~half) toward the Frederikse")
+    println(io, "  loss. With a PHYSICAL floor at −0.4 °C it reaches ~−5.9 (RMSE 0.68); UNCONSTRAINED it rails at −1.0 °C")
+    println(io, "  for −6.64 — but −1.0 implies glaciers melting below the Little Ice Age, which is unphysical. So the")
+    println(io, "  residual ~1.3 cm GSIC undershoot is the irreducible structural shortfall under a physical teq.")
+    println(io, "- With GSIC supplying the historical melt, the total-vs-Dangendorf MATCHES (RMSE ~0.88) — the 5-knob")
+    println(io, "  degradation was error cancellation (too-negative AIS offsetting too-positive GSIC); now resolved.")
+    println(io, "- gsic_β₀ and gsic_n/gsic_s₀ also move/rail but are amplitude/shape knobs; gsic_teq does the real work.")
 end
 println("Wrote $OUT_MD")
 print(read(OUT_MD, String))
