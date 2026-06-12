@@ -27,28 +27,30 @@ row = pd.read_csv(os.path.join(REPO, "outputs/recalib_central_row.csv")).iloc[0]
 B0, V0, N, S0 = row.glaciers_beta0, row.glaciers_v0, row.glaciers_n, row.glaciers_s0
 GMST = pd.read_csv(os.path.join(REPO, "data/observations/fair_mean_gmst.csv")).set_index("year")["gmst_C"]
 TEQ = -0.15            # default frozen glacier equilibrium temperature
-Y_BRANCH, Y_END = 2020, 2500
+Y_BRANCH, Y_END = 2020, 4000   # long horizon so even low-T* curves reach V0 on-figure
 TSTARS = [0.5, 1.0, 1.5, 2.0, 3.0]
 OUT = os.path.join(REPO, "outputs/gsic_stabilization_demo.png")
 
 def integrate(teq, Tstab):
     yrs = np.arange(1850, Y_END + 1)
-    sle = np.empty(len(yrs)); s = float(S0)
+    sle = np.empty(len(yrs)); s = float(S0); yr_full = None
     for i, y in enumerate(yrs):
         sle[i] = s
         T = GMST.loc[y] if (y <= Y_BRANCH and y in GMST.index) else Tstab
         if s < V0:
             s = s + B0 * (T - teq) * (1 - s / V0) ** N
+            if s >= V0 and yr_full is None: yr_full = int(y)
         else:
             s = V0
-    return yrs, sle
+    return yrs, sle, yr_full
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5.2))
 cmap = plt.cm.viridis(np.linspace(0.15, 0.9, len(TSTARS)))
 for Tstab, c in zip(TSTARS, cmap):
-    yrs, sle = integrate(TEQ, Tstab)
+    yrs, sle, yr_full = integrate(TEQ, Tstab)
     rate = np.gradient(sle) * 100      # cm/yr
-    ax1.plot(yrs, sle * 100, color=c, lw=2, label=f"T* = {Tstab:.1f} °C  ({sle[-1]/V0*100:.0f}% of V₀ by 2500)")
+    tag = f"V₀ by {yr_full}" if yr_full else "→V₀ (>4000)"
+    ax1.plot(yrs, sle * 100, color=c, lw=2, label=f"T* = {Tstab:.1f} °C  ({tag})")
     ax2.plot(yrs, rate, color=c, lw=2, label=f"T* = {Tstab:.1f} °C")
 
 ax1.axhline(V0 * 100, color="crimson", ls="--", lw=1.5, label=f"V₀ = {V0*100:.0f} cm (total reservoir)")
@@ -71,6 +73,6 @@ fig.savefig(OUT, dpi=140)
 print(f"[wrote {OUT}]")
 # numeric summary
 for Tstab in TSTARS:
-    _, sle = integrate(TEQ, Tstab)
-    print(f"  T*={Tstab}: SLE@2500 = {sle[-1]*100:.1f} cm = {sle[-1]/V0*100:.0f}% of V₀ ; "
-          f"rate@2500 = {(sle[-1]-sle[-2])*100:.4f} cm/yr")
+    _, sle, yr_full = integrate(TEQ, Tstab)
+    print(f"  T*={Tstab}: reaches V₀ (full melt) at year {yr_full} ; "
+          f"SLE@{Y_END} = {sle[-1]*100:.1f} cm = {sle[-1]/V0*100:.0f}% of V₀")
