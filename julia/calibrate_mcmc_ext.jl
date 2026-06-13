@@ -152,9 +152,14 @@ for k in 1:NP
 end
 append!(θ0, repeat([1.0, 0.5], length(SERIES)))
 prop = vcat([0.1*Float64(k.σ) for k in FREE], repeat([0.3, 0.1], length(SERIES)))
-# proposal seed: reuse the adapted covariance from the 2018-baseline run (same 28
-# params; correlations transfer -> fast mixing). Same file as calibrate_mcmc.jl.
-const ADCOV = joinpath(REPO,"outputs/mcmc/adapted_cov.csv")
+# proposal seed: PREFER the ext-tuned covariance (adapted_cov_ext.csv, written by
+# postprocess_mcmc_ext.jl from a prior ext run) -- it matches the extended posterior
+# shape, which the 2018-baseline adapted_cov.csv does NOT (point terms dropped +
+# extended targets move the AIS block). Fall back to baseline cov, then diagonal.
+const ADCOV = let e = joinpath(REPO,"outputs/mcmc/adapted_cov_ext.csv"),
+                  b = joinpath(REPO,"outputs/mcmc/adapted_cov.csv")
+    isfile(e) ? e : b
+end
 cov0 = isfile(ADCOV) ? Matrix(CSV.read(ADCOV, DataFrame)) : Matrix(Diagonal(prop.^2))
 isfile(ADCOV) && println("(seeding proposal from adapted covariance $(basename(ADCOV)))")
 println("logpost(θ0) = ", round(logposterior(θ0), digits=2), "  (start = MAP)")

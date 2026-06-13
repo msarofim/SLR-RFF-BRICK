@@ -1,0 +1,11 @@
+knob,component,symbol,before,after
+ais_ocean_temperature₀,antarctic_icesheet,ais_ocean_temperature₀,0.72,0.912
+ais_α,antarctic_icesheet,ais_α,0.1860523661126642,0.3512303676607787
+anto_α,antarctic_ocean,anto_α,0.1577820882187667,0.36507571353739254
+anto_β,antarctic_ocean,anto_β,0.5571459515555918,0.5275010301844922
+gsic_β₀,glaciers_small_icecaps,gsic_β₀,0.0010291221472199,0.00118975801970485
+gsic_v₀,glaciers_small_icecaps,gsic_v₀,0.4998617835793682,0.3201505123418616
+gsic_teq,glaciers_small_icecaps,gsic_teq,-0.15,-0.4
+gsic_n,glaciers_small_icecaps,gsic_n,0.6418593810707273,0.9782161758921569
+gsic_s₀,glaciers_small_icecaps,gsic_s₀,0.0775638881918983,0.007885322612484558
+te_α,thermal_expansion,te_α,0.156593548360514,0.16791046834725687
