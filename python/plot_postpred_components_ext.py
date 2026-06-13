@@ -126,17 +126,21 @@ axr.legend(fontsize=7.5, loc="upper right", title="end-yr Δ (cm)", title_fontsi
 for ax in axes[1, :]:
     ax.set_xlabel("year")
 
-fig.suptitle("Historical sea-level reconstruction — BRICK + Mengel glacier + FaIR forcing, "
-             "calibrated to Frederikse + Dangendorf and extended (GRACE-FO / GlaMBIE / NOAA)",
-             fontsize=12.5, y=0.985)
+fig.suptitle("Historical sea-level reconstruction: BRICK-Mengel vs stock BRICK v2.0.0", fontsize=13, y=0.985)
+
+# Audience = Tony Wong (BRICK author): present the four changes since stock BRICK
+# v2.0.0 (green dash-dot) EVENLY, not headlining the obs extension. FaIR is the
+# v2.2.4 MODEL with the v1.4.5 Smith calibration dataset (NOT "FaIR v1.4.5").
 fig.text(0.5, 0.012,
-         "Obs provenance shown separately: Frederikse 2020 components (Dangendorf 2024 total) for 1900–2018, "
-         "spliced at 2018 (dotted) to modern reconciled products — GRACE-FO mascon (AIS/GIS, →2025), GlaMBIE 2025 "
-         "glaciers (→2023), NOAA NCEI thermosteric (→2025), NOAA STAR altimetry total (→2024) — by overlap "
-         "offset-matching (no rescale); the modern curve is drawn over its full range incl. the 2003–2018 overlap. "
-         "Model = MCMC posterior (4×500k, 27/28 R̂<1.05; 10k draws), FaIR v1.4.5-forced, calibrated rel "
-         f"{CAL_BASE}; bands are 90% PARAMETER uncertainty (AR(1) obs-noise excluded → narrow). All curves "
-         f"re-referenced to {REF0}–{REF1} FOR DISPLAY. Old BRICK = stock single-reservoir glacier on the pre-Mengel posterior.",
+         "Current BRICK-Mengel = stock BRICK v2.0.0 (green dash-dot, plotted alongside) with four coupled upgrades, "
+         "weighted equally: (1) Mengel 2-τ temperature-dependent glacier replacing the single-reservoir glacier; "
+         "(2) FaIR v2.2.4 (v1.4.5 Smith calibration) obs-driven forcing — external GMST + ocean heat — replacing "
+         "SNEASY's internal climate; (3) Bayesian MCMC recalibration (4×500k, 27/28 R̂<1.05; 10k draws) to Frederikse "
+         "2020 components + Dangendorf 2024 total, AIS equilibrium ocean temperature freed; (4) historical data drawn "
+         "from Frederikse 2020 (grey), extended with GRACE-FO (AIS/GIS), GlaMBIE (glaciers), NOAA NCEI (steric), "
+         "NOAA STAR (total) — spliced at 2018 (dotted) by overlap offset-matching (no rescale; modern curve drawn over "
+         f"its full range incl. the 2003–2018 overlap). Model bands carry PARAMETER uncertainty only (AR(1) obs-noise "
+         f"excluded → narrow). Calibrated rel {CAL_BASE}; all curves re-referenced to {REF0}–{REF1} for display.",
          ha="center", va="bottom", fontsize=7.6, color="0.3", wrap=True)
 fig.tight_layout(rect=[0, 0.055, 1, 0.915])
 fig.savefig(OUT, dpi=140)

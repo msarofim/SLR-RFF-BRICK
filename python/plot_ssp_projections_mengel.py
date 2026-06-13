@@ -59,7 +59,7 @@ AR6 = {"SSP1-1.9": (38, 28, 55), "SSP1-2.6": (44, 32, 62), "SSP2-4.5": (56, 44, 
 def get(ssp): return S[S.ssp_label == ssp].iloc[0]
 def getold(ssp): return O[O.ssp_label == ssp].iloc[0]
 
-fig, (axa, axb, axc) = plt.subplots(1, 3, figsize=(18, 5.7))
+fig, (axa, axb, axc) = plt.subplots(1, 3, figsize=(18, 6.5))
 x = np.arange(len(ORDER))
 BLUE, RED, GREY = "#1763b8", "crimson", "#8a97a3"
 
@@ -130,10 +130,25 @@ handles.append(ml.Line2D([], [], color="0.4", marker="s", lw=0, markersize=9,
 axc.legend(handles=handles, fontsize=7.6, loc="upper left", ncol=2)
 axc.grid(axis="y", alpha=0.25)
 
-fig.suptitle(f"BRICK-Mengel GMSL projections to 2100 — {CALLABEL} calibration, {NDRAWS:,}-draw MCMC posterior, FaIR v1.4.5-forced (unweighted)\n"
-             "Posterior already Dangendorf-conditioned (no importance weighting). High-forcing median runs high vs "
-             "AR6 via the per-draw AIS-MICI threshold; low-forcing runs below AR6 (GIS/GSIC undershoot)",
-             fontsize=10.5)
-fig.tight_layout(rect=[0, 0, 1, 0.93])
+fig.suptitle("BRICK-Mengel GMSL projections to 2100", fontsize=14, y=0.985)
+
+# Audience = Tony Wong (BRICK author): frame the figure as stock BRICK v2.0.0 (the
+# grey/hatched "old BRICK" series) vs the current model, with ALL the changes since
+# v2.0.0 enumerated EVENLY (not headlining the obs extension). FaIR is the v2.2.4
+# MODEL with the v1.4.5 Smith calibration dataset (NOT "FaIR v1.4.5").
+EXT_CLAUSE = ("extended with GRACE-FO (AIS/GIS), GlaMBIE (glaciers) and NOAA (steric/total) through ~2025"
+              if TAG == "ext" else "1900–2018")
+fig.text(0.5, 0.015,
+         "Current BRICK-Mengel = stock BRICK v2.0.0 (grey / hatched, plotted alongside) with four coupled upgrades, "
+         "weighted equally: (1) Mengel 2-τ temperature-dependent glacier replacing the single-reservoir glacier; "
+         "(2) FaIR v2.2.4 (v1.4.5 Smith calibration) obs-driven forcing — external GMST + ocean heat — replacing "
+         "SNEASY's internal climate; (3) Bayesian MCMC recalibration to Frederikse 2020 components + Dangendorf 2024 "
+         "total, with the AIS equilibrium ocean temperature freed; (4) historical data drawn from Frederikse 2020, "
+         f"{EXT_CLAUSE}.  "
+         f"{NDRAWS:,}-draw posterior, FaIR-forced per SSP, UNWEIGHTED (already Dangendorf-conditioned). Bands carry "
+         "PARAMETER uncertainty only (structural + obs-noise excluded → narrower than AR6's multi-method likely range). "
+         "High-forcing median runs above AR6 via the per-draw AIS-MICI threshold (unconstrained by historical data).",
+         ha="center", va="bottom", fontsize=8, color="0.3", wrap=True)
+fig.tight_layout(rect=[0, 0.10, 1, 0.95])
 fig.savefig(OUT, dpi=140)
 print(f"[wrote {OUT}]")
