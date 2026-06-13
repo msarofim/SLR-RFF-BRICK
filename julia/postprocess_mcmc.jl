@@ -10,7 +10,7 @@
 ##   julia --project=julia_v2 julia/postprocess_mcmc.jl [n_subsample]
 ## ============================================================================
 
-using CSV, DataFrames, Statistics, Printf
+using CSV, DataFrames, Statistics, Printf, LinearAlgebra
 using MCMCDiagnosticTools
 
 const REPO = abspath(joinpath(@__DIR__, ".."))
@@ -49,3 +49,13 @@ out = joinpath(REPO, "data/MimiBRICK/parameters_subsample_brick_mengel.csv")
 CSV.write(out, sub[:, pnames])
 @printf("\nWrote %s  (%d-member posterior subsample of %d pooled draws)\n", out, nrow(sub), n)
 println("Drop-in for the FaIR-forced projection + importance-weighting pipeline (build_brick_mengel).")
+
+# empirical posterior covariance of the pooled samples (in the θ/pn order) -> seeds
+# the next (longer) run's proposal for far faster mixing than the diagonal start.
+M = Matrix{Float64}(pool[:, pnames])
+CSV.write(joinpath(MCMCDIR,"adapted_cov.csv"), DataFrame(cov(M) .+ 1e-10*I(size(M,2)), :auto))
+println("Wrote outputs/mcmc/adapted_cov.csv (empirical posterior cov, $(size(M,2))-D) -> seeds the next run.")
+if !isempty(bad)
+    println("\n** NOT CONVERGED ** ($(length(bad)) params R̂>1.05). Re-run LONGER seeded by the adapted cov:")
+    println("   rm outputs/mcmc/chain_seed*.csv; bash run_mcmc_local.sh 500000   (or run_mcmc_torch.sbatch)")
+end

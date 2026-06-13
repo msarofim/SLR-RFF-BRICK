@@ -126,11 +126,18 @@ append!(θ0, repeat([1.0, 0.5], length(SERIES)))         # σ=1cm, ρ=0.5 inits
 # initial proposal scaled to each param's prior σ (physical) / fixed steps (noise);
 # RAM then adapts the full covariance toward opt_α=0.234.
 prop = vcat([0.1*Float64(k.σ) for k in FREE], repeat([0.3, 0.1], length(SERIES)))
-cov0 = Diagonal(prop.^2)
+# Seed the proposal with the ADAPTED covariance from a prior run if available
+# (captures posterior correlations -> far faster mixing; the diagonal start mixes
+# slowly in this 28-D correlated posterior). Produced by postprocess_mcmc.jl.
+const ADCOV = joinpath(REPO,"outputs/mcmc/adapted_cov.csv")
+cov0 = isfile(ADCOV) ? Matrix(CSV.read(ADCOV, DataFrame)) : Matrix(Diagonal(prop.^2))
+isfile(ADCOV) && println("(seeding proposal from adapted covariance $(basename(ADCOV)))")
 println("logpost(θ0) = ", round(logposterior(θ0), digits=2), "  (start = MAP)")
 
 Random.seed!(SEED)
-@time chain, accept, covout, lp = RAM_sample(logposterior, θ0, Matrix(cov0), N_ITER; opt_α=0.234, output_log_probability_x=true)
+@time chain, accept, covout, lp = RAM_sample(logposterior, θ0, cov0, N_ITER; opt_α=0.234, output_log_probability_x=true)
+mkpath(joinpath(REPO,"outputs/mcmc"))
+CSV.write(joinpath(REPO,"outputs/mcmc/adapted_cov_seed$(SEED).csv"), DataFrame(covout, :auto))
 println("RAM smoke test: $N_ITER iter, acceptance = ", round(accept, digits=3))
 pn = vcat([k.name for k in FREE], vcat([["sd_$s","rho_$s"] for s in SERIES]...))
 burn = chain[(N_ITER÷2+1):end, :]
