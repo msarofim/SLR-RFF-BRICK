@@ -16,7 +16,11 @@
 ##     Dangendorf importance weights here would DOUBLE-COUNT the same obs → dropped.
 ##   * FaIR v1.4.5-forced per SSP (GMST + OHC). SLR rel AR6 1995-2014.
 ##
-##   julia --project=julia_v2 julia/project_ssps_2100_mengel.jl [N_DRAWS]
+##   julia --project=julia_v2 julia/project_ssps_2100_mengel.jl [N_DRAWS] [TAG]
+##     TAG (optional): "" (default) projects the 2018-baseline posterior; "ext"
+##     projects the post-2018-extended posterior (parameters_subsample_brick_mengel_ext.csv)
+##     and writes proj_ssps_mengel_ext_{summary,timeseries}.csv. Baseline behavior
+##     is byte-identical when TAG is omitted.
 ## ============================================================================
 
 using CSV, DataFrames, Mimi, MimiBRICK, Statistics, Printf
@@ -51,10 +55,12 @@ const PHYS_NAMES = ["ais_ocean_temperature₀","antarctic_alpha","antarctic_nu",
     "greenland_v0","thermal_alpha","gic_a","gic_b","gic_T_lia","gic_f","gic_tau_fast","gic_tau_slow"]
 
 N_DRAWS = length(ARGS) >= 1 ? parse(Int, ARGS[1]) : typemax(Int)
-post   = CSV.read(joinpath(REPO, "data/MimiBRICK/parameters_subsample_brick_mengel.csv"), DataFrame)
+const TAG = length(ARGS) >= 2 ? String(ARGS[2]) : ""        # "" = 2018-baseline; "ext" = extended posterior
+const SUF = isempty(TAG) ? "" : "_$(TAG)"
+post   = CSV.read(joinpath(REPO, "data/MimiBRICK/parameters_subsample_brick_mengel$(SUF).csv"), DataFrame)
 medoid = CSV.read(joinpath(REPO, "outputs/recalib_central_row.csv"), DataFrame)[1,:]
 ncap = min(N_DRAWS, nrow(post))
-println("BRICK-Mengel ensemble: $ncap draws × $(length(SSPS)) SSPs, FaIR v1.4.5-forced, UNWEIGHTED posterior")
+println("BRICK-Mengel ensemble [$(isempty(TAG) ? "2018-baseline" : TAG) posterior]: $ncap draws × $(length(SSPS)) SSPs, FaIR v1.4.5-forced, UNWEIGHTED")
 
 function load_traj(path, vcol)
     df = CSV.read(path, DataFrame)
@@ -103,9 +109,9 @@ for (ssp, label) in SSPS
     @printf("%-9s done  (%.0fs elapsed)\n", label, time()-t_start)
 end
 
-CSV.write(joinpath(REPO,"outputs/proj_ssps_mengel_summary.csv"), summ)
-CSV.write(joinpath(REPO,"outputs/proj_ssps_mengel_timeseries.csv"), tser)
-println("\nWrote outputs/proj_ssps_mengel_{summary,timeseries}.csv  ($(round(time()-t_start))s)")
+CSV.write(joinpath(REPO,"outputs/proj_ssps_mengel$(SUF)_summary.csv"), summ)
+CSV.write(joinpath(REPO,"outputs/proj_ssps_mengel$(SUF)_timeseries.csv"), tser)
+println("\nWrote outputs/proj_ssps_mengel$(SUF)_{summary,timeseries}.csv  ($(round(time()-t_start))s)")
 
 println("\n=== GMSL @2100 (cm, rel 1995-2014), $ncap-draw BRICK-Mengel posterior, FaIR v1.4.5 ===")
 println(rpad("scenario",11), "  p05   p50   p95   |  AIS  GSIC   GIS    TE   LWS  (median, cm)")
