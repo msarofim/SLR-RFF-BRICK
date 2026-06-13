@@ -1,0 +1,16 @@
+Combining 4 chains:
+  chain_seed2026_n500000.csv  (250000 post-burn, accept 0.241)
+  chain_seed2027_n500000.csv  (250000 post-burn, accept 0.238)
+  chain_seed2028_n500000.csv  (250000 post-burn, accept 0.238)
+  chain_seed2029_n500000.csv  (250000 post-burn, accept 0.237)
+
+4 chains × 250000 draws. Convergence (target R̂<1.05, ESS>400):
+  rho_ais                  R̂=1.105 ESS=2216  <-- check
+  1 params not yet converged -> longer chains.
+
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/data/MimiBRICK/parameters_subsample_brick_mengel.csv  (10000-member posterior subsample of 1000000 pooled draws)
+Drop-in for the FaIR-forced projection + importance-weighting pipeline (build_brick_mengel).
+Wrote outputs/mcmc/adapted_cov.csv (empirical posterior cov, 28-D) -> seeds the next run.
+
+** NOT CONVERGED ** (1 params R̂>1.05). Re-run LONGER seeded by the adapted cov:
+   rm outputs/mcmc/chain_seed*.csv; bash run_mcmc_local.sh 500000   (or run_mcmc_torch.sbatch)
