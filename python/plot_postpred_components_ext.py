@@ -24,12 +24,15 @@ import matplotlib.pyplot as plt
 REPO = os.path.expanduser("~/Documents/2026/CodeProjects/SLR-RFF-BRICK")
 SRC  = os.path.join(REPO, "outputs/postpred_ext_components_timeseries.csv")
 TGT  = os.path.join(REPO, "outputs/recalib_targets_ext.csv")
+PROV = os.path.join(REPO, "outputs/recalib_targets_ext_sources.csv")   # Frederikse vs modern, separated
 OUT  = os.path.join(REPO, "outputs/postpred_ext_components.png")
 EXT_Y0 = 2018          # extension starts after this (shaded)
 
 d = pd.read_csv(SRC)
 tg = pd.read_csv(TGT).set_index("year")
+prov = pd.read_csv(PROV).set_index("year")
 yr = d["year"].values
+FRED_C, MODERN_C = "0.25", "#c0392b"     # Frederikse = dark grey, modern extension = red
 
 # map panel component -> obs column in recalib_targets_ext (for the uncertainty band)
 OBSCOL = {"ais": "ais", "gsic": "gsic", "gis": "gis", "te": "steric", "total": "dang"}
@@ -56,9 +59,16 @@ for ax, (c, title) in zip(ax_list[:5], panels):
         olo = tg[f"{oc}_lo"].reindex(yr).values
         ohi = tg[f"{oc}_hi"].reindex(yr).values
     ax.axvspan(EXT_Y0, yr.max(), color="orange", alpha=0.06, lw=0)
-    ax.fill_between(yr, olo, ohi, color="0.75", alpha=0.6, lw=0, label="obs unc.")
-    ax.plot(yr, d[f"{c}_obs"], color=OBS_C, lw=1.3, label=f"obs ({SRCLAB[c]} ext)")
-    ax.fill_between(yr, d[f"{c}_p5"], d[f"{c}_p95"], color=MOD_C, alpha=0.25, lw=0,
+    ax.fill_between(yr, olo, ohi, color="0.78", alpha=0.55, lw=0, label="obs unc.")
+    # OBS PROVENANCE: Frederikse (1900-2018) vs the offset-matched modern extension,
+    # drawn over its FULL range incl. the 2003-2018 overlap (shows it tracks Frederikse
+    # then takes over) -- the splice is a clean handoff, not a blend.
+    flab = "Dangendorf 2024" if c == "total" else "Frederikse 2020"
+    ax.plot(prov.index, prov[f"{oc}_fred"],   color=FRED_C,   lw=1.6, label=flab, zorder=5)
+    ax.plot(prov.index, prov[f"{oc}_modern"], color=MODERN_C, lw=1.3, ls="--", zorder=6,
+            marker="o", ms=2.5, markevery=2, label=f"{SRCLAB[c]} (ext, offset-matched)")
+    ax.axvline(EXT_Y0, color="orange", lw=0.9, ls=":", zorder=4)
+    ax.fill_between(yr, d[f"{c}_p5"], d[f"{c}_p95"], color=MOD_C, alpha=0.22, lw=0,
                     label="BRICK-Mengel 90% (param)")
     ax.plot(yr, d[f"{c}_p50"], color=MOD_C, lw=2.0, label="posterior median")
     # end-year bias annotation
@@ -88,9 +98,9 @@ axr.legend(fontsize=7.5, loc="lower left", title="end-yr Δ (cm)", title_fontsiz
 for ax in axes[1, :]:
     ax.set_xlabel("year")
 
-fig.suptitle("EXTENDED BRICK-Mengel posterior-predictive vs obs (Frederikse + GRACE-FO/GlaMBIE/NOAA splices)\n"
-             "MCMC 4×500k, 27/28 converged · 10k draws · orange = post-2018 extension · "
-             "bands = parameter unc. only (AR(1) obs-noise excluded)",
+fig.suptitle("EXTENDED BRICK-Mengel posterior-predictive vs obs — Frederikse (grey) vs modern extension (red dashed) shown separately\n"
+             "modern product drawn over its full range incl. the 2003-2018 overlap (tracks Frederikse, then takes over at the 2018 splice, dotted) · "
+             "MCMC 4×500k, 27/28 conv · bands = parameter unc. only",
              fontsize=10.5)
 fig.tight_layout(rect=[0, 0, 1, 0.93])
 fig.savefig(OUT, dpi=140)

@@ -23,12 +23,14 @@ MimiBRICK v2.0.0 default component (net groundwater depletion - reservoir
 impoundment), identical between old BRICK and Mengel, ~2.3-2.9 cm and climate-
 independent.
 
-Inputs: outputs/proj_ssps_mengel_{summary,timeseries}.csv (Mengel posterior),
+Inputs: outputs/proj_ssps_mengel{SUF}_{summary,timeseries}.csv (Mengel posterior),
         outputs/proj_ssps_ensemble_summary.csv (old BRICK, v2.0.0 unweighted).
         All cm, rel 1995-2014.
-Output: outputs/ssp_projections_2100_mengel.png
+Output: outputs/ssp_projections_2100_mengel{SUF}.png
+
+  python python/plot_ssp_projections_mengel.py [TAG]   # ""=2018-baseline (default) | "ext"=extended
 """
-import os
+import os, sys
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -37,13 +39,16 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as ml
 
 REPO = os.path.expanduser("~/Documents/2026/CodeProjects/SLR-RFF-BRICK")
-S = pd.read_csv(os.path.join(REPO, "outputs/proj_ssps_mengel_summary.csv"))
-T = pd.read_csv(os.path.join(REPO, "outputs/proj_ssps_mengel_timeseries.csv"))
+TAG  = sys.argv[1] if len(sys.argv) > 1 else ""           # ""=2018-baseline; "ext"=post-2018-extended
+SUF  = "" if TAG == "" else f"_{TAG}"
+CALLABEL = "2018-baseline" if TAG == "" else "post-2018-extended (GRACE-FO/GlaMBIE/NOAA)"
+S = pd.read_csv(os.path.join(REPO, f"outputs/proj_ssps_mengel{SUF}_summary.csv"))
+T = pd.read_csv(os.path.join(REPO, f"outputs/proj_ssps_mengel{SUF}_timeseries.csv"))
 # OLD BRICK (stock single-reservoir glacier, old posterior): v2.0.0 unweighted rows
 O = pd.read_csv(os.path.join(REPO, "outputs/proj_ssps_ensemble_summary.csv"))
 O = O[(O.calib == "v2.0.0") & (O.weighting == "unweighted")]
-OUT = os.path.join(REPO, "outputs/ssp_projections_2100_mengel.png")
-NDRAWS = pd.read_csv(os.path.join(REPO, "data/MimiBRICK/parameters_subsample_brick_mengel.csv")).shape[0]
+OUT = os.path.join(REPO, f"outputs/ssp_projections_2100_mengel{SUF}.png")
+NDRAWS = pd.read_csv(os.path.join(REPO, f"data/MimiBRICK/parameters_subsample_brick_mengel{SUF}.csv")).shape[0]
 
 ORDER = ["SSP1-1.9", "SSP1-2.6", "SSP2-4.5", "SSP4-6.0", "SSP3-7.0", "SSP5-8.5"]
 COL = dict(zip(ORDER, plt.cm.viridis(np.linspace(0.05, 0.92, len(ORDER)))))
@@ -125,7 +130,7 @@ handles.append(ml.Line2D([], [], color="0.4", marker="s", lw=0, markersize=9,
 axc.legend(handles=handles, fontsize=7.6, loc="upper left", ncol=2)
 axc.grid(axis="y", alpha=0.25)
 
-fig.suptitle(f"BRICK-Mengel GMSL projections to 2100 — {NDRAWS:,}-draw MCMC posterior, FaIR v1.4.5-forced (unweighted)\n"
+fig.suptitle(f"BRICK-Mengel GMSL projections to 2100 — {CALLABEL} calibration, {NDRAWS:,}-draw MCMC posterior, FaIR v1.4.5-forced (unweighted)\n"
              "Posterior already Dangendorf-conditioned (no importance weighting). High-forcing median runs high vs "
              "AR6 via the per-draw AIS-MICI threshold; low-forcing runs below AR6 (GIS/GSIC undershoot)",
              fontsize=10.5)

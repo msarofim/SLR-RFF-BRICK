@@ -163,6 +163,18 @@ for suf in ["", "_lo", "_hi"]:
 out.reset_index().to_csv(OUT_CSV, index=False)
 print(f"\nWrote {OUT_CSV}  ({len(out)} yrs {FIT_Y0}-{EXT_Y1})")
 
+# ---- provenance sidecar: keep Frederikse and the (offset-matched) modern product
+# as SEPARATE columns over their FULL ranges, so the hindcast figure can show which
+# obs is Frederikse vs GRACE-FO/GlaMBIE/NOAA (incl. the overlap, where the modern
+# product sits on top of Frederikse -- demonstrating the splice is consistent, not blended).
+OUT_SRC = os.path.join(REPO, "outputs/recalib_targets_ext_sources.csv")
+src = pd.DataFrame({"year": years}).set_index("year")
+for tgt in ["ais", "gis", "gsic", "steric", "dang"]:
+    src[tgt + "_fred"]   = fred[tgt].reindex(years).values                  # Frederikse/Dangendorf (1900-2018)
+    src[tgt + "_modern"] = splices[tgt][0].reindex(years).values            # offset-matched modern, full range
+src.reset_index().to_csv(OUT_SRC, index=False)
+print(f"Wrote {OUT_SRC}  (Frederikse vs modern-extension columns, separated)")
+
 # ============================================================ IMBIE cross-check + plot
 imbie = {}
 for tgt, fn in [("ais", "imbie_antarctica_2021_mm.csv"), ("gis", "imbie_greenland_2021_mm.csv")]:
