@@ -3,6 +3,38 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-06-13 — BRICK-Mengel post-2018 multi-component extension
+
+### Added
+- **Extended ALL calibration targets past Frederikse 2020's 2018 end** with
+  reconciled modern products and re-fit, to test the post-2020 Antarctic pause +
+  (Marcus's expansion) Greenland / thermal-expansion / glaciers.
+  - Data: GRACE-FO JPL mascon AIS+GIS (→2026), GlaMBIE 2025 glaciers (→2023),
+    NOAA NCEI thermosteric (→2025), NOAA STAR total (→2024); IMBIE 2023 AIS+GIS
+    cross-check (agrees with GRACE splices <0.07cm). `raw/README_modern_extensions.md`.
+  - `python/prep_recalib_targets_ext.py` → `outputs/recalib_targets_ext.csv`
+    (offset-match splice onto Frederikse over GRACE/obs overlap; per-component end yrs).
+  - `julia/calibrate_mcmc_ext.jl` + `run_mcmc_ext_local.sh` + `postprocess_mcmc_ext.jl`:
+    per-series AR(1) windows; **dropped IMBIE+Dyurgerov point terms**; total extended
+    w/ NOAA STAR (Marcus decisions). 4×500k → 27/28 R̂<1.05.
+  - Obs check `julia/posterior_predictive_ext.jl` + `python/plot_postpred_components_ext.py`.
+  - High-T glacier melt verification `python/verify_mengel_hightemp_melt.py` (Marcus:
+    confirm Mengel melts MOST glaciers at high T) — PASS (99% committed @4°C).
+  - Projection A/B `python/plot_ssp_projections_ext_compare.py`; `project_ssps_2100_mengel.jl`
+    gained an optional TAG arg (baseline default byte-identical).
+
+### Result
+- Extending barely moves the physics (ais_ocean_temperature₀ +0.013); GMSL@2100
+  LOWER by 0.8–3.2cm, ~entirely via AIS; high-forcing overshoot vs AR6 persists
+  (MICI-threshold-driven, unconstrainable by ~7yr). TE overshoot NOT resolved by
+  NOAA steric (+0.51cm@2025). AIS pause not reproduced (warming-driven model).
+
+### Tried / noted
+- 4×**100k** with the baseline proposal covariance did NOT converge (25/26 R̂>1.05;
+  per-chain logpost spread 6–138 = slow burn-in from a mismatched proposal, NOT a
+  bug). Fixed by seeding the 500k from the ext-tuned `adapted_cov_ext.csv`.
+- `.gitignore`: exclude the 276MB×4 MCMC chain files (regenerable).
+
 ## [unreleased] — 2026-05-30 — Rennels 7-panel SSP2-4.5 SLR + pulse figure
 
 ### Added
