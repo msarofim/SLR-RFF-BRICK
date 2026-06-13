@@ -1,16 +1,22 @@
 #!/usr/bin/env python3
 """
-Posterior-predictive component bands of the EXTENDED-target BRICK-Mengel re-fit,
-vs the extended observational targets (Frederikse 1900-2018 spliced with GRACE-FO
-AIS/GIS, GlaMBIE GSIC, NOAA NCEI steric, NOAA STAR total through 2023-2026).
+Historical sea-level reconstruction figure: the full updated model stack
+(BRICK + Mengel 2-tau glacier + FaIR forcing), MCMC-calibrated to Frederikse 2020
+components + Dangendorf 2024 total and EXTENDED past 2018 with GRACE-FO / GlaMBIE /
+NOAA, vs observations and vs the OLD (stock single-reservoir) BRICK.
 
-2x3 panels: AIS, GSIC, GIS, Steric/TE, Total GMSL + residual (median - obs). The
-post-2018 EXTENSION region is shaded so the new data is visually distinct, and the
-modern era (where the post-2020 AIS pause + glacier acceleration live) is emphasized.
-Bands are the 90% PARAMETRIC band (parameter unc. only; AR(1) obs-noise excluded) so
-they are narrow -- persistent offsets (TE high) are calibration tension, not fit bugs.
+2x3 panels: AIS, GSIC, GIS, Steric/TE, Total GMSL + residual (model - obs). Each
+component panel shows obs provenance separately -- Frederikse (grey) vs the modern
+extension (red dashed, over its full range incl. the 2003-2018 overlap, taking over
+at the dotted 2018 splice) -- plus the new BRICK-Mengel band+median and the old-BRICK
+median. All curves re-referenced to a common 1970-2020 window FOR DISPLAY (the
+calibration itself used 1995-2005; re-baselining to the longer modern window centers
+the strongly-trended components -- esp. Greenland -- better). Model bands carry
+PARAMETER uncertainty only (AR(1) obs-noise excluded), so they are narrow.
 
-Inputs:  outputs/postpred_ext_components_timeseries.csv (julia/posterior_predictive_ext.jl)
+Inputs:  outputs/postpred_ext_components_timeseries.csv (new BRICK-Mengel, extended fit)
+         outputs/postpred_oldbrick_components_timeseries.csv (old stock BRICK)
+         outputs/recalib_targets_ext_sources.csv (Frederikse vs modern, separated)
          outputs/recalib_targets_ext.csv (obs uncertainty bands)
 Output:  outputs/postpred_ext_components.png
 """
@@ -20,88 +26,118 @@ import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import matplotlib.lines as ml
+import matplotlib.patches as mp
 
 REPO = os.path.expanduser("~/Documents/2026/CodeProjects/SLR-RFF-BRICK")
-SRC  = os.path.join(REPO, "outputs/postpred_ext_components_timeseries.csv")
-TGT  = os.path.join(REPO, "outputs/recalib_targets_ext.csv")
-PROV = os.path.join(REPO, "outputs/recalib_targets_ext_sources.csv")   # Frederikse vs modern, separated
+d    = pd.read_csv(os.path.join(REPO, "outputs/postpred_ext_components_timeseries.csv"))
+old  = pd.read_csv(os.path.join(REPO, "outputs/postpred_oldbrick_components_timeseries.csv")).set_index("year")
+tg   = pd.read_csv(os.path.join(REPO, "outputs/recalib_targets_ext.csv")).set_index("year")
+prov = pd.read_csv(os.path.join(REPO, "outputs/recalib_targets_ext_sources.csv")).set_index("year")
 OUT  = os.path.join(REPO, "outputs/postpred_ext_components.png")
-EXT_Y0 = 2018          # extension starts after this (shaded)
 
-d = pd.read_csv(SRC)
-tg = pd.read_csv(TGT).set_index("year")
-prov = pd.read_csv(PROV).set_index("year")
-yr = d["year"].values
-FRED_C, MODERN_C = "0.25", "#c0392b"     # Frederikse = dark grey, modern extension = red
-
-# map panel component -> obs column in recalib_targets_ext (for the uncertainty band)
+X0, SPLICE = 1920, 2018                 # plot start; Frederikse->modern handoff year
+REF0, REF1 = 1970, 2020                 # DISPLAY re-reference window (calibration used 1995-2005)
+CAL_BASE   = "1995-2005"
+yr   = d["year"].values
+FRED_C, MODERN_C, MENGEL_C, OLD_C = "0.25", "#c0392b", "#1763b8", "#0f9b6c"
 OBSCOL = {"ais": "ais", "gsic": "gsic", "gis": "gis", "te": "steric", "total": "dang"}
 SRCLAB = {"ais": "GRACE-FO", "gsic": "GlaMBIE", "gis": "GRACE-FO", "te": "NOAA NCEI", "total": "NOAA STAR"}
-OBS_C, MOD_C = "0.35", "#1763b8"
-panels = [
-    ("ais",   "Antarctic Ice Sheet — GRACE-FO ext (post-2020 pause)"),
-    ("gsic",  "Glaciers (Mengel 2-τ) — GlaMBIE ext (acceleration)"),
-    ("gis",   "Greenland — GRACE-FO ext"),
-    ("te",    "Steric / Thermal exp. — NOAA NCEI ext"),
-    ("total", "TOTAL GMSL — Dangendorf + NOAA STAR ext"),
-]
+panels = [("ais",   "Antarctic Ice Sheet — GRACE-FO ext (post-2020 pause)"),
+          ("gsic",  "Glaciers (Mengel 2-τ) — GlaMBIE ext (acceleration)"),
+          ("gis",   "Greenland — GRACE-FO ext"),
+          ("te",    "Steric / Thermal expansion — NOAA NCEI ext"),
+          ("total", "TOTAL GMSL — Dangendorf + NOAA STAR ext")]
 
-fig, axes = plt.subplots(2, 3, figsize=(16, 8.6))
+def winmean(s):
+    """Mean of a year-indexed series over the display reference window."""
+    w = s.reindex(range(REF0, REF1 + 1)).dropna()
+    return w.mean()
+
+fig, axes = plt.subplots(2, 3, figsize=(16.5, 9))
 ax_list = list(axes.flat)
 
 for ax, (c, title) in zip(ax_list[:5], panels):
     oc = OBSCOL[c]
-    # obs uncertainty band from the extended targets
+    # --- assemble series (all currently rel 1995-2005) ---
+    fred   = prov[f"{oc}_fred"]
+    modern = prov[f"{oc}_modern"]
+    obs_merged = fred.combine_first(modern)                       # one obs curve for the offset
     if c == "total":
-        olo = (tg["dang"] - 1.645*tg["dang_sig"]).reindex(yr).values
-        ohi = (tg["dang"] + 1.645*tg["dang_sig"]).reindex(yr).values
+        olo = tg["dang"] - 1.645 * tg["dang_sig"]; ohi = tg["dang"] + 1.645 * tg["dang_sig"]
     else:
-        olo = tg[f"{oc}_lo"].reindex(yr).values
-        ohi = tg[f"{oc}_hi"].reindex(yr).values
-    ax.axvspan(EXT_Y0, yr.max(), color="orange", alpha=0.06, lw=0)
-    ax.fill_between(yr, olo, ohi, color="0.78", alpha=0.55, lw=0, label="obs unc.")
-    # OBS PROVENANCE: Frederikse (1900-2018) vs the offset-matched modern extension,
-    # drawn over its FULL range incl. the 2003-2018 overlap (shows it tracks Frederikse
-    # then takes over) -- the splice is a clean handoff, not a blend.
+        olo = tg[f"{oc}_lo"]; ohi = tg[f"{oc}_hi"]
+    p5  = pd.Series(d[f"{c}_p5"].values,  index=yr); p50 = pd.Series(d[f"{c}_p50"].values, index=yr)
+    p95 = pd.Series(d[f"{c}_p95"].values, index=yr)
+    o50 = old[f"{c}_p50"]
+    # --- re-reference each curve to its own 1970-2020 mean (display only) ---
+    obs_off = winmean(obs_merged); m_off = winmean(p50); o_off = winmean(o50)
+    fred, modern, olo, ohi = fred-obs_off, modern-obs_off, olo-obs_off, ohi-obs_off
+    p5, p50, p95 = p5-m_off, p50-m_off, p95-m_off
+    o50 = o50 - o_off
+
+    ax.axvspan(SPLICE, yr.max(), color="orange", alpha=0.05, lw=0)
+    ax.fill_between(olo.index, olo.values, ohi.values, color="0.80", alpha=0.55, lw=0)
     flab = "Dangendorf 2024" if c == "total" else "Frederikse 2020"
-    ax.plot(prov.index, prov[f"{oc}_fred"],   color=FRED_C,   lw=1.6, label=flab, zorder=5)
-    ax.plot(prov.index, prov[f"{oc}_modern"], color=MODERN_C, lw=1.3, ls="--", zorder=6,
-            marker="o", ms=2.5, markevery=2, label=f"{SRCLAB[c]} (ext, offset-matched)")
-    ax.axvline(EXT_Y0, color="orange", lw=0.9, ls=":", zorder=4)
-    ax.fill_between(yr, d[f"{c}_p5"], d[f"{c}_p95"], color=MOD_C, alpha=0.22, lw=0,
-                    label="BRICK-Mengel 90% (param)")
-    ax.plot(yr, d[f"{c}_p50"], color=MOD_C, lw=2.0, label="posterior median")
-    # end-year bias annotation
-    om = d[f"{c}_obs"].dropna(); ey = int(om.index[-1] if om.index.name == "year" else d["year"][om.index[-1]])
-    j = d.index[d["year"] == ey][0]
-    o_e, m_e = d.loc[j, f"{c}_obs"], d.loc[j, f"{c}_p50"]
-    ax.annotate(f"{ey}: obs {o_e:.2f}, mod {m_e:.2f} ({m_e-o_e:+.2f})",
-                xy=(0.03, 0.96), xycoords="axes fraction", va="top", ha="left", fontsize=8, color="0.2")
+    ax.plot(fred.index,   fred.values,   color=FRED_C,   lw=1.7, zorder=5)
+    ax.plot(modern.index, modern.values, color=MODERN_C, lw=1.3, ls="--", marker="o", ms=2.5,
+            markevery=2, zorder=6)
+    ax.plot(o50.index, o50.values, color=OLD_C, lw=1.5, ls="-.", zorder=4)
+    ax.axvline(SPLICE, color="orange", lw=0.9, ls=":", zorder=3)
+    ax.fill_between(p5.index, p5.values, p95.values, color=MENGEL_C, alpha=0.22, lw=0, zorder=2)
+    ax.plot(p50.index, p50.values, color=MENGEL_C, lw=2.1, zorder=7)
+    # end-year obs-vs-model annotation (re-referenced)
+    ey = int(modern.dropna().index.max()); mo = p50.reindex([ey]).iloc[0]; oo = modern.reindex([ey]).iloc[0]
     ax.set_title(title, fontsize=10.5)
     ax.axhline(0, color="k", lw=0.4, alpha=0.4); ax.grid(alpha=0.25)
-    ax.set_ylabel("cm (rel 1995-2005)", fontsize=8)
-    ax.set_xlim(1950, yr.max())
-    ax.legend(fontsize=7, loc="upper left", bbox_to_anchor=(0.0, 0.88))
+    ax.set_ylabel(f"cm (rel {REF0}-{REF1})", fontsize=8.5)
+    ax.set_xlim(X0, yr.max())
 
-# residual panel — focus on modern era to expose post-2018 bias evolution
+# All 5 component panels share the same series types. With several rising curves
+# (incl. the steep old-BRICK line) no single in-panel quadrant is reliably clear, so
+# the shared series legend goes ABOVE the panels as one horizontal row -> zero line
+# overlap. The residual panel keeps its own (component-colour) legend below.
+fig.legend(handles=[
+    mp.Patch(color="0.80", alpha=0.55, label="obs uncertainty"),
+    ml.Line2D([], [], color=FRED_C, lw=1.7, label="Frederikse 2020 / Dangendorf (≤2018)"),
+    ml.Line2D([], [], color=MODERN_C, lw=1.3, ls="--", marker="o", ms=3, label="modern extension (GRACE-FO/GlaMBIE/NOAA, ≥2003)"),
+    ml.Line2D([], [], color=MENGEL_C, lw=2.1, label="BRICK-Mengel (new fit): median + 90% param"),
+    ml.Line2D([], [], color=OLD_C, lw=1.5, ls="-.", label="old BRICK (single-reservoir, old posterior)"),
+], fontsize=8.2, loc="upper center", bbox_to_anchor=(0.5, 0.945), ncol=5, framealpha=0.9)
+
+# residual panel (re-referenced model p50 - obs), exposes compensating biases
 axr = ax_list[5]
 res_colors = {"ais": "#1763b8", "gsic": "#0f9b6c", "gis": "#b8480f", "te": "#9b1fb8", "total": "k"}
 for c, _ in panels:
-    res = d[f"{c}_p50"] - d[f"{c}_obs"]
-    axr.plot(yr, res, color=res_colors[c], lw=(2.4 if c == "total" else 1.6),
+    oc = OBSCOL[c]
+    obs_merged = prov[f"{oc}_fred"].combine_first(prov[f"{oc}_modern"])
+    p50 = pd.Series(d[f"{c}_p50"].values, index=yr)
+    res = (p50 - winmean(p50)) - (obs_merged - winmean(obs_merged))
+    res = res.reindex(range(X0, int(yr.max()) + 1))
+    axr.plot(res.index, res.values, color=res_colors[c], lw=(2.4 if c == "total" else 1.5),
              label=f"{c} ({res.dropna().iloc[-1]:+.2f})")
-axr.axvspan(EXT_Y0, yr.max(), color="orange", alpha=0.06, lw=0)
-axr.axhline(0, color="k", lw=0.6)
-axr.set_title("Posterior-median residual (model − obs)", fontsize=10.5)
-axr.grid(alpha=0.25); axr.set_ylabel("cm", fontsize=8); axr.set_xlim(1980, yr.max())
-axr.legend(fontsize=7.5, loc="lower left", title="end-yr Δ (cm)", title_fontsize=7.5)
+axr.axvspan(SPLICE, yr.max(), color="orange", alpha=0.05, lw=0)
+axr.axhline(0, color="k", lw=0.6); axr.grid(alpha=0.25)
+axr.set_title("Residual: new-fit median − obs (re-ref %d-%d)" % (REF0, REF1), fontsize=10.5)
+axr.set_ylabel("cm", fontsize=8.5); axr.set_xlim(X0, yr.max())
+# residuals swing widely in the early century (left) and settle near 0 late -> the
+# UPPER-RIGHT is the open quadrant for this panel's legend.
+axr.legend(fontsize=7.5, loc="upper right", title="end-yr Δ (cm)", title_fontsize=7.5, ncol=2)
 for ax in axes[1, :]:
     ax.set_xlabel("year")
 
-fig.suptitle("EXTENDED BRICK-Mengel posterior-predictive vs obs — Frederikse (grey) vs modern extension (red dashed) shown separately\n"
-             "modern product drawn over its full range incl. the 2003-2018 overlap (tracks Frederikse, then takes over at the 2018 splice, dotted) · "
-             "MCMC 4×500k, 27/28 conv · bands = parameter unc. only",
-             fontsize=10.5)
-fig.tight_layout(rect=[0, 0, 1, 0.93])
+fig.suptitle("Historical sea-level reconstruction — BRICK + Mengel glacier + FaIR forcing, "
+             "calibrated to Frederikse + Dangendorf and extended (GRACE-FO / GlaMBIE / NOAA)",
+             fontsize=12.5, y=0.985)
+fig.text(0.5, 0.012,
+         "Obs provenance shown separately: Frederikse 2020 components (Dangendorf 2024 total) for 1900–2018, "
+         "spliced at 2018 (dotted) to modern reconciled products — GRACE-FO mascon (AIS/GIS, →2025), GlaMBIE 2025 "
+         "glaciers (→2023), NOAA NCEI thermosteric (→2025), NOAA STAR altimetry total (→2024) — by overlap "
+         "offset-matching (no rescale); the modern curve is drawn over its full range incl. the 2003–2018 overlap. "
+         "Model = MCMC posterior (4×500k, 27/28 R̂<1.05; 10k draws), FaIR v1.4.5-forced, calibrated rel "
+         f"{CAL_BASE}; bands are 90% PARAMETER uncertainty (AR(1) obs-noise excluded → narrow). All curves "
+         f"re-referenced to {REF0}–{REF1} FOR DISPLAY. Old BRICK = stock single-reservoir glacier on the pre-Mengel posterior.",
+         ha="center", va="bottom", fontsize=7.6, color="0.3", wrap=True)
+fig.tight_layout(rect=[0, 0.055, 1, 0.915])
 fig.savefig(OUT, dpi=140)
 print(f"[wrote {OUT}]")
