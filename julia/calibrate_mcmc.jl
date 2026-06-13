@@ -130,7 +130,7 @@ cov0 = Diagonal(prop.^2)
 println("logpost(θ0) = ", round(logposterior(θ0), digits=2), "  (start = MAP)")
 
 Random.seed!(SEED)
-@time chain, accept, covout, lp = RAM_sample(logposterior, θ0, Matrix(cov0), N_ITER; opt_α=0.234)
+@time chain, accept, covout, lp = RAM_sample(logposterior, θ0, Matrix(cov0), N_ITER; opt_α=0.234, output_log_probability_x=true)
 println("RAM smoke test: $N_ITER iter, acceptance = ", round(accept, digits=3))
 pn = vcat([k.name for k in FREE], vcat([["sd_$s","rho_$s"] for s in SERIES]...))
 burn = chain[(N_ITER÷2+1):end, :]
@@ -141,7 +141,7 @@ for nm in ["ais_ocean_temperature₀","anto_alpha","gic_T_lia","gic_f","gic_tau_
 end
 # per-chain output (production: one file per seed; combine + diagnose in postprocess)
 mkpath(joinpath(REPO,"outputs/mcmc"))
-df = DataFrame(chain, pn); df.log_post = lp; df.accept_rate .= accept
+df = DataFrame(chain, pn); df.log_post = lp; df.accept_rate = fill(accept, nrow(df))
 CSV.write(joinpath(REPO,"outputs/mcmc/chain_seed$(SEED)_n$(N_ITER).csv"), df)
 println("\nWrote outputs/mcmc/chain_seed$(SEED)_n$(N_ITER).csv  (accept $(round(accept,digits=3)))")
 println("OK if acceptance ~0.1-0.4 and key params sane. Production = large N_ITER × ≥4 seeds on Torch cs,")

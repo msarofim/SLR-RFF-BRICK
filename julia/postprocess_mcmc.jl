@@ -10,12 +10,13 @@
 ##   julia --project=julia_v2 julia/postprocess_mcmc.jl [n_subsample]
 ## ============================================================================
 
-using CSV, DataFrames, Statistics, Glob, Printf
+using CSV, DataFrames, Statistics, Printf
 using MCMCDiagnosticTools
 
 const REPO = abspath(joinpath(@__DIR__, ".."))
 N_SUB = length(ARGS)>=1 ? parse(Int,ARGS[1]) : 10000
-files = glob("outputs/mcmc/chain_seed*_n*.csv", REPO)
+const MCMCDIR = joinpath(REPO, "outputs/mcmc")
+files = [joinpath(MCMCDIR,f) for f in readdir(MCMCDIR) if startswith(f,"chain_seed") && endswith(f,".csv")]
 isempty(files) && error("no chain files in outputs/mcmc/")
 println("Combining $(length(files)) chains:")
 chains = DataFrame[]
