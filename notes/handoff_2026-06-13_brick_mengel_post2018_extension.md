@@ -1,7 +1,8 @@
 # Handoff — BRICK-Mengel post-2018 multi-component extension + figure rework
 
-**Date:** 2026-06-13 · **Repo:** `SLR-RFF-BRICK`, branch `brick-v2-precip-shim`
-(notes live in `FaIRtoFrEDI/notes/`). **Env:** Julia `julia_v2/` (MimiBRICK v2.0.0,
+**Date:** 2026-06-13 · **Repo:** `SLR-RFF-BRICK`, branch `brick-mengel`
+(this note + the BRICK-Mengel lineage live in `SLR-RFF-BRICK/notes/`; BRICK-Mengel work is
+NOT on main — main is BRICK 2.0). **Env:** Julia `julia_v2/` (MimiBRICK v2.0.0,
 juliaup 1.12); Python `~/climate-env`. **Self-contained resume:** read this +
 `~/.claude/CLAUDE.md` + prior handoff `notes/handoff_2026-06-13_brick_mengel_postpred_projections.md`
 + memories `project_brick_mengel_post2018_extension`, `project_brick_mengel_postpred`,
@@ -40,7 +41,7 @@ The **graphics comparing the updated BRICK against stock BRICK 2.0** are listed 
 `postpred_ext_components.png` hindcast, which overlays both); the §0.5→§3 cross-reference is the
 "four upgrades" Tony-framed story.
 
-## 1. What got done (all committed on `brick-v2-precip-shim`)
+## 1. What got done (all committed on `brick-mengel`, formerly `brick-v2-precip-shim`)
 1. **Data acquisition (`180aa31`)** — all reconciled multi-method products, in `data/observations/raw/`
    (see `raw/README_modern_extensions.md`). GRACE-FO JPL mascon AIS+GIS (→2026, needs Earthdata
    `~/.netrc` — **Marcus set one up**, machine `urs.earthdata.nasa.gov`), GlaMBIE 2025 glaciers (→2023),

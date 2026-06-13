@@ -1,7 +1,7 @@
 # Handoff — BRICK-Mengel: convergence → posterior-predictive → SSP-2100 projections
 
-**Date:** 2026-06-13 · **Repo:** `SLR-RFF-BRICK`, branch `brick-v2-precip-shim`
-(notes live in `FaIRtoFrEDI/notes/`). **Env:** Julia `julia_v2/` (MimiBRICK v2.0.0,
+**Date:** 2026-06-13 · **Repo:** `SLR-RFF-BRICK`, branch `brick-mengel` (formerly `brick-v2-precip-shim`)
+(this note + the BRICK-Mengel lineage live in `SLR-RFF-BRICK/notes/`; not on main). **Env:** Julia `julia_v2/` (MimiBRICK v2.0.0,
 depot `edplP`); Python `~/climate-env`. **Self-contained resume:** read this +
 `~/.claude/CLAUDE.md` + the prior handoff
 `notes/handoff_2026-06-12_brick_mengel_calibration.md` + memories
@@ -13,7 +13,7 @@ depot `edplP`); Python `~/climate-env`. **Self-contained resume:** read this +
 ## 0. TL;DR
 Completed the recalibration arc from the 2026-06-12 handoff: **MCMC convergence
 verified, posterior-predictive + sanity passed, and the headline SSP-2100 projection
-ensemble produced.** All committed on `brick-v2-precip-shim`. The one substantive open
+ensemble produced.** All committed on `brick-mengel`. The one substantive open
 science question is whether to **extend the AIS calibration past 2020** (post-2020 GRACE-FO
 "pause"); assessment + plan in §4.
 

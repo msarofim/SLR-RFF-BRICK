@@ -1,7 +1,7 @@
 # Handoff — BRICK-Mengel recalibration: v2.0.0 port → Mengel glacier → MAP → MCMC
 
-**Date:** 2026-06-12 · **Repo:** `SLR-RFF-BRICK` (branch `brick-v2-precip-shim`), some notes in
-`FaIRtoFrEDI` (branch `fredi5-migration`). **Env:** Julia `julia_v2/` (MimiBRICK v2.0.0, depot
+**Date:** 2026-06-12 · **Repo:** `SLR-RFF-BRICK`, branch `brick-mengel` (formerly `brick-v2-precip-shim`);
+this note now lives in `SLR-RFF-BRICK/notes/` (not on main). **Env:** Julia `julia_v2/` (MimiBRICK v2.0.0, depot
 `edplP`); Python `~/climate-env`. **Self-contained resume:** read this + `~/.claude/CLAUDE.md` +
 memories `project_brick_full_joint_calibration`, `reference_mengel2016_glacier_model`,
 `project_brick_recalib_central_prototype`, `project_brick_ssp_projection_2100`.
@@ -73,7 +73,7 @@ RobustAdaptiveMetropolisSampler, LinearAlgebra, MCMCDiagnosticTools.
   `julia/postprocess_mcmc.jl` (R̂/ESS/subsample), `outputs/calib_full_joint_params.csv` (MAP = seed),
   `outputs/param_priors.csv` (posterior priors), `python/prep_recalib_targets.py` (targets incl. GIS).
 - Projections: `julia/project_ssps_2100{,_ensemble}.jl`, `python/plot_ssp_projections{,_ensemble}.py`.
-- Scope: `FaIRtoFrEDI/notes/brick_mcmc_scope_2026-06-12.md`.
+- Scope: `SLR-RFF-BRICK/notes/brick_mcmc_scope_2026-06-12.md`.
 
 ## 5. Non-obvious state
 - `julia_v2` Project gained 4 deps (above) — committed.
