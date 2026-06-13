@@ -97,6 +97,7 @@ SEL = ["SSP1-1.9", "SSP2-4.5", "SSP5-8.5"]
 comps = [("ais", "AIS", "#1763b8"), ("gsic", "GSIC", "#0f9b6c"), ("gis", "GIS", "#b8480f"),
          ("te", "TE", "#9b1fb8"), ("lws", "LWS", "#8a97a3")]
 xc = np.arange(len(SEL)); bw = 0.36
+MAJOR = {"ais", "gsic", "gis", "te"}    # label the 4 major contributions in-block (skip small LWS)
 for off, src, tag in [(-bw/2-0.01, get, "Mengel"), (+bw/2+0.01, getold, "old")]:
     bottom = np.zeros(len(SEL))
     for key, lab, c in comps:
@@ -104,6 +105,11 @@ for off, src, tag in [(-bw/2-0.01, get, "Mengel"), (+bw/2+0.01, getold, "old")]:
         axc.bar(xc + off, vals, bw, bottom=bottom, color=c,
                 label=lab if tag == "Mengel" else None,
                 hatch=("" if tag == "Mengel" else "///"), edgecolor="white", linewidth=0.3)
+        if key in MAJOR:
+            for i in range(len(SEL)):
+                if vals[i] >= 2.5:      # only when the block is tall enough to fit the number
+                    axc.text(xc[i] + off, bottom[i] + vals[i]/2, f"{vals[i]:.0f}",
+                             ha="center", va="center", fontsize=6.5, color="white", fontweight="bold")
         bottom += vals
     for i, s in enumerate(SEL):
         tot = sum(src(s)[k] for k, _, _ in comps)
