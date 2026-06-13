@@ -1,0 +1,22 @@
+Combining 4 chains:
+  chain_ext_seed2026_n500000.csv  (250000 post-burn, accept 0.240)
+  chain_ext_seed2027_n500000.csv  (250000 post-burn, accept 0.240)
+  chain_ext_seed2028_n500000.csv  (250000 post-burn, accept 0.241)
+  chain_ext_seed2029_n500000.csv  (250000 post-burn, accept 0.241)
+
+4 chains × 250000 draws. Convergence (target R̂<1.05, ESS>400):
+  antarctic_alpha          R̂=1.052 ESS=2124  <-- check
+  1 params not yet converged -> longer chains.
+
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/data/MimiBRICK/parameters_subsample_brick_mengel_ext.csv  (10000-member posterior subsample of 1000000 pooled draws)
+Wrote outputs/mcmc/adapted_cov_ext.csv (empirical posterior cov) -> seeds the next ext run.
+
+Key-param medians  (ext vs 2018-baseline):
+  ais_ocean_temperature₀   ext 0.994   base 0.981   Δ +0.0132
+  anto_alpha               ext 0.354   base 0.405   Δ -0.0508
+  thermal_alpha            ext 0.159   base 0.164   Δ -0.00535
+  gic_a                    ext 0.364   base 0.342   Δ +0.0214
+  gic_T_lia                ext -0.955   base -0.974   Δ +0.0197
+  greenland_a              ext -0.131   base -0.149   Δ +0.0181
+
+** NOT CONVERGED ** (1 params). Re-run longer: bash run_mcmc_ext_local.sh 500000
