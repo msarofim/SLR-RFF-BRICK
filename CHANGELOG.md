@@ -3,6 +3,55 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-06-14 — CO2/CH4 pulse→SLR, 3 BRICK versions: foundations (runbook Steps 0–3)
+
+Built the prerequisites for the CO2 & CH4 pulse→SLR marginal study across three
+BRICK calibration versions (pre-#93 v1.2.1 / BRICK 2.0 / BRICK-Mengel), on the
+FaIR-v1.4.5 × RFF-SP LHS-10k ensemble. Stopped before the 90k-run Torch launch
+(Marcus: foundations-only this pass). Runbook:
+`notes/handoff_2026-06-14_co2ch4_pulse_3brick_NEXT-SESSION.md`.
+
+### Added
+- **`julia_v121/` — a real MimiBRICK v1.2.1 env** for the pre-#93 arm (the
+  `brick-v1.2-vehicle` Manifest pins 1.0.1, so this is a build, not a checkout).
+  Pins MimiBRICK git `repo-rev v1.2.1` (sha `94ceca2`) under Julia 1.12; smoke
+  passes (build→run 1850–2300, closure 4.4e-16 m). `julia_v121/build_v121_env.jl`.
+- **`julia/run_mimibrick_pulse_versioned.jl` — ONE version-aware flat-cube driver
+  for all THREE versions** (`--brick-version pre93|brick2|mengel`), one output
+  schema (per-component + total SLR at 2100/2150/2300, optional GMSL history for
+  Wong). Supersedes the schema-limited `run_mimibrick_flatcube_v121.jl` (components
+  at 2100 only) — unified to remove the cross-arm schema-drift risk. pre93 runs in
+  `julia_v121` (precip_log=false); brick2/mengel in `julia_v2` (precip_log=true);
+  mengel applies the 28-col posterior as 18 free params over the medoid central row
+  (mirrors `project_ssps_2100_mengel.jl`). Added NPZ to `julia_v2`.
+- **`python/scripts/sanity_battery_pulse3brick.py`** + smoke metadata
+  `outputs/smoke25_lhs10k_metadata.csv`. 5-test gate (zero-pulse/cross-process
+  determinism, sign-flip, ×magnitude, first-principles, closure) on a 25-cell
+  lhs10k-proxy smoke per version → **ALL PASS, gate OPEN**
+  (`outputs/sanity_battery_pulse3brick_smoke.txt`). Smoke reproduces the pre-#93
+  GIS pathology (dGIS@2100 ≈ 8.1e-3 cm/GtCO2 vs ~4–5e-4 for brick2/mengel; pre93
+  total ~3× larger @2300), ×magnitude linear to ~1% (no AIS tipping at 0.01 Gt),
+  CH4:CO2 per-unit ratio ~0.055–0.063.
+
+### Corrected (vs the runbook's assumptions)
+- **MimiBRICK v1.2.1 already uses `get_model(ssprcp_scenario=…)`**, NOT
+  `rcp_scenario=` as the runbook claimed; it ships both RCP- and ssp-named SNEASY
+  forcing files (no date suffix) and uses LINEAR precip0 (`precip_log=false`). The
+  real v1.2.1→v2.0.0 differences are the date-suffixed forcing files + the
+  precip_log reparam. (Forcing is overridden by the cube's GMST/OHC anyway.)
+- **The Mengel 28-col posterior cannot be applied via `update_brick_params!`** (it
+  lacks the full AIS/glacier/thermal_s0 columns). Canonical path = medoid central
+  row for fixed params, then the 18 free params per draw, per `project_ssps_2100_mengel.jl`.
+- **`brick_mengel.jl` must be include()d at module scope**, not lazily in a
+  function — Mimi's `run(m)` otherwise hits a world-age MethodError on
+  `run_timestep_glaciers_mengel`. Loading it is harmless for pre93/brick2 (the
+  Mengel component is defined but only instantiated for `--brick-version mengel`).
+
+### Pending (next session — gate is OPEN)
+- Torch: 3 versions × 3 arms {baseline, co2_pos_001, ch4_pos_001} × 10k = 90k runs,
+  partition `cs`, canonical `lhs10ks_*_flat2015` cubes (CO2+CH4 both on `/scratch`).
+  Then per-version Wong weights (own `l_B`) + paired marginals + headline figure.
+
 ## [unreleased] — 2026-06-13 — BRICK-Mengel post-2018 multi-component extension
 
 ### Added

@@ -1,5 +1,26 @@
 # NEXT-SESSION HANDOFF — execute the CO2 & CH4 pulse→SLR experiment (3 BRICK versions)
 
+> **████ STATUS 2026-06-14 (later same day): Steps 0–3 DONE; gate OPEN. Resume at Step 4 (Torch). ████**
+> Foundations built & sanity-gated on the local Mac (Marcus: foundations-only, stop pre-launch):
+> - **Step 0 env DONE** — real MimiBRICK **v1.2.1** env `julia_v121/` (pins git `repo-rev v1.2.1`, sha `94ceca2`;
+>   `julia_v121/build_v121_env.jl`). Smoke OK (build→run 1850–2300, closure 4.4e-16 m).
+> - **Steps 1+2 DONE, UNIFIED** — built **ONE** driver `julia/run_mimibrick_pulse_versioned.jl` with
+>   `--brick-version pre93|brick2|mengel` (one output schema for all three; supersedes the schema-limited
+>   `run_mimibrick_flatcube_v121.jl`). pre93→`--project=julia_v121`; brick2/mengel→`--project=julia_v2`.
+>   Added NPZ to `julia_v2`.
+> - **Step 3 GATE = ALL PASS / OPEN** — `python/scripts/sanity_battery_pulse3brick.py` on a 25-cell lhs10k-proxy
+>   smoke (`outputs/smoke25_lhs10k_metadata.csv`), report `outputs/sanity_battery_pulse3brick_smoke.txt`.
+>   Zero-pulse determinism EXACT (cross-process), sign-flip ✓, ×magnitude linear ~1% (no AIS tip @0.01Gt),
+>   first-principles ✓, closure ~1e-11. Reproduced pre-#93 GIS pathology (dGIS@2100 ≈8.1e-3 vs ~4–5e-4 cm/GtCO2).
+> - **3 RUNBOOK CORRECTIONS** (see CHANGELOG 2026-06-14): (1) v1.2.1 already uses `get_model(ssprcp_scenario=)`,
+>   NOT `rcp_scenario=`; linear precip0 → `precip_log=false`. (2) Mengel 28-col posterior ≠ `update_brick_params!`
+>   input — apply medoid central row + 18 free params (per `project_ssps_2100_mengel.jl`). (3) `brick_mengel.jl`
+>   include MUST be module-scope (world-age MethodError otherwise).
+> - **RESUME = Step 4.** Driver verified for all 3 versions; canonical `lhs10ks_*_flat2015` cubes (CO2+CH4) are on
+>   Torch `/scratch`. Production = drive `run_mimibrick_pulse_versioned.jl` over `outputs/lhs10ks_brick_metadata.csv`
+>   with the per-version posterior+env+cube; then Wong (Step 5) + marginals (Step 6) + figure (Step 7).
+>   NB the production lhs10ks family has POSITIVE pulses only — the sign-flip/×magnitude tests used the lhs10k proxy.
+
 **Date written:** 2026-06-14 · **Repo:** `SLR-RFF-BRICK`, build on branch **`brick-mengel`** (already
 checked out, pushed to origin). **This is the runbook.** Full design/rationale:
 `notes/handoff_2026-06-14_co2ch4_pulse_3brick_plan.md` (same dir) — read it once, then work from THIS file.
