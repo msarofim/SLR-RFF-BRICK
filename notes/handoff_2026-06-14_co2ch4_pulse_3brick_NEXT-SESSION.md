@@ -16,10 +16,31 @@
 >   NOT `rcp_scenario=`; linear precip0 → `precip_log=false`. (2) Mengel 28-col posterior ≠ `update_brick_params!`
 >   input — apply medoid central row + 18 free params (per `project_ssps_2100_mengel.jl`). (3) `brick_mengel.jl`
 >   include MUST be module-scope (world-age MethodError otherwise).
-> - **RESUME = Step 4.** Driver verified for all 3 versions; canonical `lhs10ks_*_flat2015` cubes (CO2+CH4) are on
->   Torch `/scratch`. Production = drive `run_mimibrick_pulse_versioned.jl` over `outputs/lhs10ks_brick_metadata.csv`
+> - **RESUME = Step 4, AFTER 3 prerequisites** (from the 2026-06-14 pre-launch review below). Driver verified for all
+>   3 versions; production = drive `run_mimibrick_pulse_versioned.jl` over `outputs/lhs10ks_brick_metadata.csv`
 >   with the per-version posterior+env+cube; then Wong (Step 5) + marginals (Step 6) + figure (Step 7).
 >   NB the production lhs10ks family has POSITIVE pulses only — the sign-flip/×magnitude tests used the lhs10k proxy.
+>
+> **████ PRE-LAUNCH REVIEW (2026-06-14) — 3 prerequisites before Step 4; choices verified sound ████**
+> VERIFIED SOUND (no action): sample lhs10ks_flat2015 cells_meta == metadata incl seeds; pairing (pre-2030 dGMST=0,
+> @2000=0 → 2000-rebaseline cancels); cross-process paired determinism EXACT; CO2 0.01Gt well-resolved (15–30× float32
+> ULP, ×mag linear ~1%, tipping-safe); all 3 posteriors =10000 rows (post_idx max 9999, no off-by-one); closure ~1e-11.
+> - **P1 CH4 pulse size — DECISION (Marcus 2026-06-14): REGENERATE lhs10ks CH4 at 1 Tg.** The 0.01 Tg CH4 cube is
+>   float32-CORRUPTED: dGMST decays below the float32 ULP (~2.4e-7 °C) after ~2060 (72% cells nonzero @2075, 34% @2100,
+>   8% @2300). SLR marginal ratio (0.01-cube/1-cube) = 0.97@2100, 1.20@2150, 0.51@2300, **TE@2300 → 0** (OHC float32
+>   ULP is coarsest). 1 Tg CH4 is clean AND ~10× SMALLER dGMST than CO2-1Gt → well below AIS tipping (the 0.01 choice
+>   generalized CO2's tipping concern to CH4 and missed float32). **ACTION:** build
+>   `cube_v145_lhs10ks_pulse_ch4_pos_1tg_flat2015.npz` via the FaIR cube driver (paired seeds, same as the others; FaIR
+>   builders on Torch `/scratch/.../FaIRtoFrEDI/compute_pulse_temps_v145.py` etc.), CH4 marginal = (pulse−base)/1.0 per Tg.
+>   **Keep CO2 at 0.01 Gt.** [[project_rennels_ssp245_7panel]] (float32 destroys sub-1e-4 pulses).
+> - **P2 Torch envs MISSING — build before launch.** Torch has ONLY `/scratch/ms17839/SLR-RFF-BRICK/julia` (v1.0.1).
+>   `julia_v2` (brick2/mengel) AND `julia_v121` (pre93) do NOT exist there — `Pkg.instantiate()`+precompile both on
+>   Torch (juliaup 1.12.6 present; Manifests pin git revs so they resolve identically; arm64 local depot won't transfer).
+> - **P3 Mengel Wong-l_B path missing (Step 5, not Step-4-blocking).** `compute_lB_per_post{,_v121}.jl` assume the
+>   35-col posterior; the mengel 28-col needs the medoid+18-free application. Build a `_mengel` l_B variant before Step 5.
+> - **Production cube/env/posterior matrix:** pre93=julia_v121 + quarantine pre-#93 posterior; brick2=julia_v2 +
+>   parameters_subsample_brick.csv; mengel=julia_v2 + parameters_subsample_brick_mengel_ext.csv. Arms: baseline +
+>   co2_pos_001gt (÷0.01) + ch4_pos_**1tg** (÷1.0, after P1). Use `--save-trajs true` on baseline for Wong.
 
 **Date written:** 2026-06-14 · **Repo:** `SLR-RFF-BRICK`, build on branch **`brick-mengel`** (already
 checked out, pushed to origin). **This is the runbook.** Full design/rationale:

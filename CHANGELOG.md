@@ -47,10 +47,27 @@ FaIR-v1.4.5 × RFF-SP LHS-10k ensemble. Stopped before the 90k-run Torch launch
   `run_timestep_glaciers_mengel`. Loading it is harmless for pre93/brick2 (the
   Mengel component is defined but only instantiated for `--brick-version mengel`).
 
-### Pending (next session — gate is OPEN)
-- Torch: 3 versions × 3 arms {baseline, co2_pos_001, ch4_pos_001} × 10k = 90k runs,
-  partition `cs`, canonical `lhs10ks_*_flat2015` cubes (CO2+CH4 both on `/scratch`).
-  Then per-version Wong weights (own `l_B`) + paired marginals + headline figure.
+### Pre-launch review (2026-06-14) — 3 prerequisites before Step 4
+Verified sound: lhs10ks cell layout == metadata (incl. seeds); pairing (pre-2030
+dGMST=0, @2000=0 → rebaseline cancels); cross-process paired determinism exact;
+CO2 0.01 Gt well-resolved (15–30× float32 ULP, ×magnitude ~1%); posteriors all
+10000 rows (no off-by-one); closure ~1e-11.
+- **P1 — CH4 0.01 Tg cube is float32-corrupted → regenerate at 1 Tg** (Marcus
+  2026-06-14). CH4 dGMST decays below the float32 ULP (~2.4e-7 °C) after ~2060
+  (nonzero cells: 72%@2075, 34%@2100, 8%@2300); CH4 SLR marginal ratio
+  (0.01-cube/1-cube) = 0.97@2100, 1.20@2150, 0.51@2300, **TE@2300 → 0**. 1 Tg CH4
+  is ~10× smaller dGMST than CO2-1Gt → well below AIS tipping. Build
+  `cube_v145_lhs10ks_pulse_ch4_pos_1tg_flat2015.npz` (FaIR driver, paired seeds),
+  marginal ÷1.0; CO2 stays 0.01 Gt ÷0.01.
+- **P2 — Torch envs missing.** Only the v1.0.1 `julia` env is on Torch; build
+  `julia_v2` (brick2/mengel) + `julia_v121` (pre93) there (instantiate + precompile).
+- **P3 — Mengel Wong-`l_B` path missing** for Step 5 (`compute_lB_per_post*` assume
+  the 35-col posterior; mengel 28-col needs medoid + 18-free).
+
+### Pending (next session — Step 4 after P1/P2)
+- Torch: 3 versions × 3 arms {baseline, co2_pos_001gt ÷0.01, ch4_pos_**1tg** ÷1.0}
+  × 10k = 90k runs, partition `cs`. Then per-version Wong weights (own `l_B`) +
+  paired marginals + headline figure.
 
 ## [unreleased] — 2026-06-13 — BRICK-Mengel post-2018 multi-component extension
 
