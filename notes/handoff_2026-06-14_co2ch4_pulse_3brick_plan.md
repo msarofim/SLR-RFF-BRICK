@@ -18,9 +18,26 @@ propagated through the full FaIR(v1.4.5, 841-config) × RFF-SP uncertainty ensem
 ## 1. The three versions (Marcus 2026-06-14)
 | label | model | env | posterior (10k draws) | isolates |
 |---|---|---|---|---|
-| **pre-#93** | MimiBRICK **v1.0.x** (`rcp_scenario`, `precip_log=false`) | `julia/` (v1.x) | `outputs/quarantine/20260522_pre_pr93_v10x/parameters_subsample_brick.csv` (35 col) | baseline |
+| **pre-#93** | MimiBRICK **v1.x** (`rcp_scenario`, `precip_log=false`) — the SAME v1 model the **vehicle memo** runs on (`brick-v1.2-vehicle` branch) | `julia/` (v1.x) | `outputs/quarantine/20260522_pre_pr93_v10x/parameters_subsample_brick.csv` (35 col, pre-#93 GIS-pathology) | baseline = the vehicle-memo-era BRICK |
 | **BRICK 2.0** | MimiBRICK **v2.0.0** (`ssprcp_scenario`, `precip_log=true`) | `julia_v2/` | `data/MimiBRICK/parameters_subsample_brick.csv` (post-#93, 35 col) | the **#93 GIS fix** (pre→2.0) |
 | **BRICK-Mengel** | v2.0.0 + Mengel glacier swap | `julia_v2/` | `data/MimiBRICK/parameters_subsample_brick_mengel_ext.csv` (28 col, `gic_*`+`ais_ocean_temperature₀`) | the **Mengel recalibration** (2.0→Mengel) |
+
+**pre-#93 = the vehicle-memo BRICK lineage (Marcus 2026-06-14).** The pre-#93 arm = the same v1 MimiBRICK
+model the vehicle-memo / AGU-poster SLR runs on, with the **pre-#93** GIS-pathology posterior swapped in.
+This makes the pre-#93 arm the "vehicle-memo-era" baseline against which BRICK 2.0 and Mengel are compared.
+
+> **⚠ VERSION — RESOLVE BEFORE RUNNING the pre-#93 arm.** First-hand receipt: `brick-v1.2-vehicle:julia/Manifest.toml`
+> hard-pins MimiBRICK **`version = "1.0.1"`** (and the drivers call `get_model(rcp_scenario=)`). BUT the branch
+> name, the `*_v121.jl` script suffixes, and memory all say **v1.2.1** (`project_v145_vehicle_rennels_mirror_results`
+> "BRICK v1.2.1 coastal"; `project_wong_slr_reproduction` audited v1.2.0 vs v1.2.1, +8–10% @2150). The committed
+> Manifest says 1.0.1; the canonical coastal SLR may have run a v1.2.1 env not captured in it. **Pin whichever the
+> vehicle memo ACTUALLY used so the pre-#93 arm is bit-consistent with it — Marcus to confirm 1.0.1 vs 1.2.1.**
+>
+> **Posterior provenance side-note:** the pre-#93 ARM uses the pre-#93 quarantine posterior (above) regardless.
+> Separately, `FaIRtoFrEDI/compute_vehicle_brick_v145.jl` defaults `--posterior` to the **post-#93** file
+> (`data/MimiBRICK/parameters_subsample_brick.csv`, lines 8/24/40) even though the vehicle Wong-weights are
+> `_pre93`-tagged — confirm which posterior the *canonical vehicle SLR trajectories* used (doesn't change the
+> pre-#93 arm definition, but matters for "what we use for the vehicle memo").
 
 `data/MimiBRICK/*` are gitignored (regenerable). Verify all three posteriors are present before launch;
 Mengel-ext regen = `bash run_mcmc_ext_local.sh 500000` → `julia --project=julia_v2 julia/postprocess_mcmc_ext.jl 10000`.
