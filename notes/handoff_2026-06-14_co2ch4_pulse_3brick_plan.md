@@ -2,6 +2,8 @@
 
 **Date:** 2026-06-14 · **Repo:** `SLR-RFF-BRICK` (build on branch `brick-mengel`; pre-#93 arm uses a
 **MimiBRICK v1.2.1** env). FaIR/cube side in `FaIRtoFrEDI`. **Status:** SCOPED, not yet built.
+> **▶ To EXECUTE next session, START at the ordered runbook:** `notes/handoff_2026-06-14_co2ch4_pulse_3brick_NEXT-SESSION.md`.
+> This file is the design/rationale reference behind it.
 **Self-contained resume:** read this + `~/.claude/CLAUDE.md` + skills `climate-modeling`,
 `mimibrick-quirks`, `fair-quirks`, `nyu-torch-hpc` + memories `project_v145_cubes_complete`,
 `project_pulse_size_findings`, `project_v145_slr_pulse_response_smaller`, `project_lhs10k_brick_coupling`,
