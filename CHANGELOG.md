@@ -3,6 +3,20 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-06-14 — CO2/CH4 pulse→SLR: prerequisites P1+P2 executed
+
+Executing the two Step-4 blockers from the pre-launch review (Marcus: go ahead with P1+P2).
+- **P2 DONE** — `julia_v2` (v2.0.0) + `julia_v121` (v1.2.1) instantiated + precompiled on
+  Torch via `slurm/precompile_julia_envs.sbatch` (compute node; login-node instantiate was
+  stalling/precompiling — SIGKILL risk). Both verified: `get_model`+`run` OK (v2 SLR2100=102.1,
+  v121 99.0 cm). Plots/GR/Qt precompile-fails are benign (headless, unused by the BRICK driver).
+- **P1 IN PROGRESS** — paired r2 triplet (baseline + co2-0.01Gt + ch4-**1Tg**) built on Torch
+  via `slurm/submit_triplet_r2.sh` (array job, one arm each). Moved to Torch after the local
+  background build died untraced; Torch calibration sha256 matches local
+  (`03b0368…`) so the realization equals the locally-validated smoke. Cubes land on `/scratch`
+  with embedded seed provenance (`cell_seeds` etc.). Tag `_flat2015_r2`.
+- The 0.01 Tg CH4 cube is float32-corrupted (see prior entry); CO2 stays 0.01 Gt.
+
 ## [unreleased] — 2026-06-14 — CO2/CH4 pulse→SLR, 3 BRICK versions: foundations (runbook Steps 0–3)
 
 Built the prerequisites for the CO2 & CH4 pulse→SLR marginal study across three
