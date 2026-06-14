@@ -1,7 +1,7 @@
 # Handoff/Plan — CO2 & CH4 pulse→SLR across 3 BRICK versions on FaIR/RFF uncertainty
 
-**Date:** 2026-06-14 · **Repo:** `SLR-RFF-BRICK` (build on branch `brick-mengel`; pre-#93 arm uses
-the `julia/` v1.x env). FaIR/cube side in `FaIRtoFrEDI`. **Status:** SCOPED, not yet built.
+**Date:** 2026-06-14 · **Repo:** `SLR-RFF-BRICK` (build on branch `brick-mengel`; pre-#93 arm uses a
+**MimiBRICK v1.2.1** env). FaIR/cube side in `FaIRtoFrEDI`. **Status:** SCOPED, not yet built.
 **Self-contained resume:** read this + `~/.claude/CLAUDE.md` + skills `climate-modeling`,
 `mimibrick-quirks`, `fair-quirks`, `nyu-torch-hpc` + memories `project_v145_cubes_complete`,
 `project_pulse_size_findings`, `project_v145_slr_pulse_response_smaller`, `project_lhs10k_brick_coupling`,
@@ -18,26 +18,30 @@ propagated through the full FaIR(v1.4.5, 841-config) × RFF-SP uncertainty ensem
 ## 1. The three versions (Marcus 2026-06-14)
 | label | model | env | posterior (10k draws) | isolates |
 |---|---|---|---|---|
-| **pre-#93** | MimiBRICK **v1.x** (`rcp_scenario`, `precip_log=false`) — the SAME v1 model the **vehicle memo** runs on (`brick-v1.2-vehicle` branch) | `julia/` (v1.x) | `outputs/quarantine/20260522_pre_pr93_v10x/parameters_subsample_brick.csv` (35 col, pre-#93 GIS-pathology) | baseline = the vehicle-memo-era BRICK |
-| **BRICK 2.0** | MimiBRICK **v2.0.0** (`ssprcp_scenario`, `precip_log=true`) | `julia_v2/` | `data/MimiBRICK/parameters_subsample_brick.csv` (post-#93, 35 col) | the **#93 GIS fix** (pre→2.0) |
+| **pre-#93** | MimiBRICK **v1.2.1** (`rcp_scenario`, `precip_log=false`) — the version EPA most likely used in the 2026 rescission | **v1.2.1 env** + `*_v121.jl` drivers (see ENV note) | `outputs/quarantine/20260522_pre_pr93_v10x/parameters_subsample_brick.csv` (35 col, pre-#93 GIS-pathology) | the **EPA-2026-rescission-comparable** BRICK = comparison baseline |
+| **BRICK 2.0** | MimiBRICK **v2.0.0** (`ssprcp_scenario`, `precip_log=true`) | `julia_v2/` | `data/MimiBRICK/parameters_subsample_brick.csv` (post-#93, 35 col) | current standard vs EPA-era (pre→2.0 bundles the v1.2.1→2.0.0 jump **+** #93 fix — see note) |
 | **BRICK-Mengel** | v2.0.0 + Mengel glacier swap | `julia_v2/` | `data/MimiBRICK/parameters_subsample_brick_mengel_ext.csv` (28 col, `gic_*`+`ais_ocean_temperature₀`) | the **Mengel recalibration** (2.0→Mengel) |
 
-**pre-#93 = the vehicle-memo BRICK lineage (Marcus 2026-06-14).** The pre-#93 arm = the same v1 MimiBRICK
-model the vehicle-memo / AGU-poster SLR runs on, with the **pre-#93** GIS-pathology posterior swapped in.
-This makes the pre-#93 arm the "vehicle-memo-era" baseline against which BRICK 2.0 and Mengel are compared.
+**pre-#93 = the EPA-2026-rescission-comparable BRICK (Marcus 2026-06-14).** = MimiBRICK **v1.2.1** + the
+**pre-#93** GIS-pathology posterior. Chosen deliberately as the baseline because **v1.2.1 is the version EPA
+most likely used in the 2026 rescission** — the appropriate comparison — **regardless of which version our own
+past vehicle memo happened to run.** BRICK 2.0 and Mengel are then "how the pulse→SLR response changes vs the
+EPA-era BRICK." (This resolves the earlier 1.0.1-vs-1.2.1 question: pin **1.2.1** on purpose, not by repro.)
 
-> **⚠ VERSION — RESOLVE BEFORE RUNNING the pre-#93 arm.** First-hand receipt: `brick-v1.2-vehicle:julia/Manifest.toml`
-> hard-pins MimiBRICK **`version = "1.0.1"`** (and the drivers call `get_model(rcp_scenario=)`). BUT the branch
-> name, the `*_v121.jl` script suffixes, and memory all say **v1.2.1** (`project_v145_vehicle_rennels_mirror_results`
-> "BRICK v1.2.1 coastal"; `project_wong_slr_reproduction` audited v1.2.0 vs v1.2.1, +8–10% @2150). The committed
-> Manifest says 1.0.1; the canonical coastal SLR may have run a v1.2.1 env not captured in it. **Pin whichever the
-> vehicle memo ACTUALLY used so the pre-#93 arm is bit-consistent with it — Marcus to confirm 1.0.1 vs 1.2.1.**
->
-> **Posterior provenance side-note:** the pre-#93 ARM uses the pre-#93 quarantine posterior (above) regardless.
-> Separately, `FaIRtoFrEDI/compute_vehicle_brick_v145.jl` defaults `--posterior` to the **post-#93** file
-> (`data/MimiBRICK/parameters_subsample_brick.csv`, lines 8/24/40) even though the vehicle Wong-weights are
-> `_pre93`-tagged — confirm which posterior the *canonical vehicle SLR trajectories* used (doesn't change the
-> pre-#93 arm definition, but matters for "what we use for the vehicle memo").
+> **ENV SETUP (build prereq).** The pre-#93 arm needs a **MimiBRICK v1.2.1** environment + the `*_v121.jl`
+> drivers (`run_mimibrick_flatcube_v121.jl`, `compute_lB_per_post_v121.jl`). v1.2.1 uses
+> `get_model(rcp_scenario=)` (rcp API, like 1.0.x) with `precip_log=false`. **NB the committed
+> `brick-v1.2-vehicle:julia/Manifest.toml` currently hard-pins `version = "1.0.1"`** — do NOT assume it's 1.2.1;
+> set up/verify a true 1.2.1 env first. Sanity-check the pre-#93 35-col posterior runs cleanly through v1.2.1.
+
+> **NOTE — pre→2.0 is NOT a clean single factor.** pre-#93 (v1.2.1 + pre-#93 posterior) → BRICK 2.0 (v2.0.0 +
+> post-#93) bundles the model-version jump (1.2.1→2.0.0) WITH the #93 GIS-posterior fix. The three arms are three
+> real-world BRICK *configs* (EPA-era / current-standard / recalibrated), not a clean factorial. If a #93-only
+> isolation is ever wanted, add a v2.0.0+pre-#93 arm.
+
+> **RELATED VEHICLE-MEMO DECISION (Marcus 2026-06-14):** going forward the **vehicle memo** should also use the
+> **pre-#93 posterior** (and v1.2.1) for best comparability with EPA — a change to the vehicle pipeline, tracked
+> separately from this pulse study (the current canonical vehicle results may have used post-#93; verify when revisiting).
 
 `data/MimiBRICK/*` are gitignored (regenerable). Verify all three posteriors are present before launch;
 Mengel-ext regen = `bash run_mcmc_ext_local.sh 500000` → `julia --project=julia_v2 julia/postprocess_mcmc_ext.jl 10000`.
@@ -83,10 +87,11 @@ version-aware build + the cube/paired logic of `run_mimibrick_flatcube.jl`). Fla
   needed for the Wong baseline fit. Keep the 5-component closure check.
 - **Window:** y0=1850, y1=2300 (cubes/forcing reach 2301; thru-2300 metric).
 
-### 4b. pre-#93 (A) via existing v1.x path
-Run `run_mimibrick_flatcube.jl` (or paired_explicit) in the **`julia/` v1.x env** with the **quarantine**
-posterior + the small-pulse cubes. No new code, just wiring (confirm it reads `rcp_scenario`/`precip_log=false`).
-**Two Julia envs in one study** — keep A outputs clearly tagged `pre93`.
+### 4b. pre-#93 (A) via the v1.2.1 `*_v121.jl` path
+Run `run_mimibrick_flatcube_v121.jl` in a **MimiBRICK v1.2.1 env** with the **pre-#93 quarantine**
+posterior + the small-pulse cubes. Mostly wiring, but FIRST set up/verify the 1.2.1 env (the
+`brick-v1.2-vehicle` Manifest pins 1.0.1 — see ENV note in §1). Confirm `rcp_scenario`/`precip_log=false`.
+**THREE Julia envs in one study** (v1.2.1 pre93 / v2.0.0 brick2 / v2.0.0 Mengel) — tag A outputs `pre93`.
 
 ## 5. Run matrix & marginal
 - **3 versions × 3 arms {baseline, co2_pos_001, ch4_pos_001} × 10k LHS cells = 90k BRICK runs.** Torch.
@@ -109,7 +114,8 @@ GIS/TE magnitude vs ΔGMST; (5) **closure** AIS+GSIC+GIS+TE+LWS≡total. Gate th
 ## 8. Torch launch ([[reference_nyu_hpc]], nyu-torch-hpc skill)
 Partition `cs` (no 6-hr cap; 90k runs). `sbatch` per (version,arm) → 9 array jobs over the 10k metadata,
 `--batch-size ~500`, ~2.5GB/batch. Depot/env: Mengel+brick2 use `julia_v2` (juliaup 1.12, MimiBRICK v2.0.0);
-pre93 uses `julia/` (v1.x). Cubes already on `/scratch`. Outputs → `/scratch/.../outputs/pulse3brick_v145/`.
+pre93 uses a **MimiBRICK v1.2.1** env (set up/verify — not the 1.0.1-pinned brick-v1.2-vehicle Manifest).
+Cubes already on `/scratch`. Outputs → `/scratch/.../outputs/pulse3brick_v145/`.
 
 ## 9. Outputs & figures (Marcus drafts narrative; I do figures/tables/numbers)
 - Per-version per-species marginal CSVs (per-component + total, 2100/2150/2300, weighted quantiles).
@@ -119,7 +125,8 @@ pre93 uses `julia/` (v1.x). Cubes already on `/scratch`. Outputs → `/scratch/.
   ([[project_v145_slr_pulse_response_smaller]]: 0.0175 vs 0.0074 cm/GtCO2@2150); Mengel changes GSIC+GIS.
 
 ## 10. Risks / watch
-- **Two Julia envs** (v1.x for pre93, v2.0.0 for brick2/mengel) — don't cross-contaminate; tag outputs.
+- **THREE Julia envs** (MimiBRICK v1.2.1 for pre93, v2.0.0 for brick2/mengel) — don't cross-contaminate; tag outputs.
+  Setting up a real v1.2.1 env is a build prereq (the brick-v1.2-vehicle Manifest pins 1.0.1, not 1.2.1).
 - **Gitignored posteriors** — verify all 3 present before launch (esp. Mengel-ext regen cost).
 - **Tipping at 0.01** — small but check; report median.
 - **CH4→SLR is novel here** — no prior benchmark; first-principles-check the CH4:CO2 SLR ratio against the
