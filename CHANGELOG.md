@@ -3,10 +3,11 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-06-15 — CO2/CH4 pulse→SLR: STEPS 5–6 DONE (Wong weights + weighted marginals)
+## [unreleased] — 2026-06-15 — CO2/CH4 pulse→SLR: STEPS 5–7 DONE — STUDY COMPLETE
 
-Steps 5 (per-version Wong weights) and 6 (paired weighted marginals) complete; only the Step-7
-figure remains.
+Steps 5 (per-version Wong weights), 6 (paired weighted marginals), and 7 (headline figure) all
+complete. The CO2/CH4 pulse→SLR / 3-BRICK-version study is finished through the figure; narrative
+is Marcus's to draft.
 
 - **Step 5a/b — per-post baseline l_B (Dangendorf):** `slurm/submit_lB_pulse3brick.sh` (2-task array,
   4 cpu, ~1–2 min each). pre93 via `julia/compute_lB_per_post_v121.jl` (julia_v121, pre-#93 35-col
@@ -48,8 +49,18 @@ figure remains.
     @2100; 2.8e-2 of 3.1e-2 @2300 — the pre-#93 GIS pathology). brick2 GIS is tamed (5e-4) and the
     marginal is TE/GSIC-led. mengel has the largest **AIS** (8.99e-4@2100 → 3.78e-3@2300) with a fat
     tipping tail (CO2 mean 4.3e-2 ≫ median 4.7e-3). pre93 AIS marginal is slightly negative (~−1e-4).
-- **Next:** Step 7 headline figure (3 versions × {CO2,CH4}, median+5–95 at 2100/2150/2300, with the
-  per-component GIS/AIS decomposition; labels from named constants; text boxes = placeholders for Marcus).
+- **Step 7 — headline figure:** NEW `python/plot_pulse3brick_marginals.py` → `outputs/pulse3brick_marginals.png`
+  (2 rows species × 3 cols horizon; x = {Total, AIS, GSIC, GIS, TE}, grouped bars per version at the
+  WEIGHTED median, Total bars carry weighted 5–95 % whiskers). **Grouped median bars (not a stacked
+  mean)** deliberately, because the marginals are heavily right-skewed (mean ≫ median in the AIS-tipping
+  tail) so a mean-stack misrepresents the central estimate; LWS omitted (marginal≡0). The figure makes
+  the version story legible: pre-#93's Total is **GIS-driven** (towering red GIS bar), BRICK-Mengel
+  leads on **AIS**, BRICK 2.0/Mengel TE comparable. Labels all from named constants; the caption text
+  box is a placeholder for Marcus's narrative. Companion `outputs/pulse3brick_v145/headline_table.md`
+  (Total median [5–95] + per-component attribution) committed for the writeup.
+- **Canonical outputs (Torch unless noted):** l_B `outputs/brick_lB_per_post_{pre93,brick2}.csv`;
+  weights `outputs/wong_weights_{pre93,brick2}.csv`; marginals `outputs/pulse3brick_v145/marginals_summary.csv`
+  (committed); figure `outputs/pulse3brick_marginals.png` + `headline_table.md` (committed).
 
 ## [unreleased] — 2026-06-15 — CO2/CH4 pulse→SLR: STEP 4 DONE (90k BRICK runs)
 
