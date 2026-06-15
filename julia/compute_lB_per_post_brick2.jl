@@ -1,71 +1,38 @@
 ## ============================================================================
-## compute_lB_per_post.jl
+## compute_lB_per_post_brick2.jl
 ##
-## Compute per-posterior-member baseline log-likelihoods l_B(theta_i) for the
-## Wong (2025) importance-weighting scheme. For every BRICK posterior member
-## i in 1..N_post, we:
+## BRICK-v2.0.0 ("brick2") variant of compute_lB_per_post_v121.jl: per-posterior-
+## member baseline log-likelihood l_B(theta_i) vs Dangendorf, for the Wong (2025)
+## importance-weighting of the BRICK2 arm in the CO2/CH4 pulse->SLR study (Step 5).
 ##
-##   1. Build a MimiBRICK model in its DEFAULT non-FaIR configuration
-##      (RCP4.5 forcing, BRICK's own GMST/OHC backbone — i.e. NO
-##      :model_global_surface_temperature override, NO :ocean_heat_interior
-##      override). This is "BRICK as calibrated".
-##   2. Apply that posterior member's full physical parameter vector
-##      (anto_alpha/beta, ais_*, gsic_*, greenland_*, te_*) via the same
-##      update_brick_params! routine used by the paired driver.
-##   3. Run the model, extract the modeled gmsl[year] trajectory (in meters).
-##   4. Re-reference modeled and observed series to year 2000 (so this is
-##      consistent with the paired CSV's 2000-baseline convention; the Python
-##      script must use the same convention -- it does).
-##   5. Compute the heteroscedastic AR(1) log-likelihood vs the observed GMSL
-##      series, using BRICK's own `hetero_logl_ar1` form:
+## Identical in every respect to compute_lB_per_post_v121.jl EXCEPT:
+##   1. The MimiBRICK model is built under the v2.0.0 get_model API (run this
+##      script in the `julia_v2` project env, NOT julia_v121). The get_model
+##      *signature* is the same (ssprcp_scenario="ssp245") in both versions.
+##   2. `--precip-log` defaults to TRUE here: v2.0.0's AIS component takes
+##      ais_precipitation₀ in LOG space, but the post-#93 35-col posterior stores
+##      antarctic_precip0 in LINEAR units, so update_brick_params! must log-shim it
+##      (exp(log(p)) = p reproduces v1.0.1 behaviour). See brick_param_updates.jl
+##      and the run_mimibrick_pulse_versioned.jl Step-4 driver (precip_log = true
+##      for brick2/mengel, false for pre93). Mirrors the brick2 backbone build
+##      exactly so the Wong baseline l_B is consistent with the paired runs.
+##   3. Defaults point at the post-#93 35-col posterior
+##      (data/MimiBRICK/parameters_subsample_brick.csv) and output
+##      outputs/brick_lB_per_post_brick2.csv.
 ##
-##         cov = sigma_gmsl^2 / (1 - rho_gmsl^2) * rho_gmsl^|t_i - t_j|
-##                 + Diagonal(eps_t^2)
-##         log L = logpdf(MvNormal(cov), residuals)
-##
-##      with sigma_gmsl = posterior `sd_gmsl`, rho_gmsl = posterior `rho_gmsl`,
-##      and eps_t = the per-year observed 1-sigma uncertainty inflated to
-##      account for re-baselining (sqrt(sigma_t^2 + sigma_2000^2)).
-##      Default obs source: Dangendorf et al. 2024 (ESSD 16, 3471).  Use
-##      --obs csiro for the legacy CSIRO Recons series.
-##   6. Write `outputs/brick_lB_per_post.csv` with columns:
-##      post_idx (1-based), l_B_gmsl.
-##
-## IMPORTANT: keep this script's --obs argument in sync with the
-## apply_wong_weights.py --obs argument.  l_FB (from Python) and l_B (from
-## here) MUST be computed against the same observed series, or the weight
-## ratio (l_FB - l_B) is meaningless.
-##
-## Why "default RCP4.5 mode": Wong's vehicle paper uses the BRICK posterior's
-## native climate forcing as the "baseline" against which the alternative
-## (here FaIR-derived) forcing is judged. BRICK's default backbone is SNEASY
-## driven by an RCP scenario; the posterior was calibrated under that backbone,
-## so its sd_gmsl/rho_gmsl values are the right scales for residuals from
-## that same setup.
-##
-## CLI
-## ---
-##   --posterior   PATH   BRICK posterior CSV (default
-##                        data/MimiBRICK/parameters_subsample_brick.csv)
-##   --obs         STR    Observed GMSL source: "dangendorf" (default) or "csiro"
-##   --obs-path    PATH   Override the obs CSV path.  Defaults:
-##                          dangendorf -> data/observations/dangendorf_2024_gmsl.csv
-##                          csiro      -> data/calibration/CSIRO_Recons_gmsl_yr_2015.csv
-##   --output      PATH   output CSV (default outputs/brick_lB_per_post.csv)
-##   --start-year  INT    default 1850
-##   --end-year    INT    default 2100
-##   --rcp         STR    default "RCP45"
-##   --max-post    INT    cap on number of posterior members (0 = all)
+## IMPORTANT: keep --obs in sync with apply_wong_weights.py (l_FB and l_B MUST be
+## scored against the same observed series, or the weight ratio is meaningless).
 ## ============================================================================
 
 using ArgParse
 using CSV
 using DataFrames
-using LinearAlgebra   # cholesky/diag/dot — stdlib; avoids a Distributions dep in the pinned julia_v121 env
+using Distributions
+using LinearAlgebra
 using Mimi
 using MimiBRICK
 
-# Shared BRICK-posterior-row updater (extracted 2026-05-25).
+# Shared BRICK-posterior-row updater (single source of truth; precip_log shim lives here).
 include(joinpath(@__DIR__, "brick_param_updates.jl"))
 
 # ---------------------------------------------------------------------------
@@ -77,10 +44,11 @@ function parse_cli()
         "--posterior";  default = "data/MimiBRICK/parameters_subsample_brick.csv"
         "--obs";        default = "dangendorf";  range_tester = x -> x in ("dangendorf", "csiro")
         "--obs-path";   default = ""             # empty => default per --obs
-        "--output";     default = "outputs/brick_lB_per_post.csv"
+        "--output";     default = "outputs/brick_lB_per_post_brick2.csv"
         "--start-year"; arg_type = Int; default = 1850
         "--end-year";   arg_type = Int; default = 2100
-        "--rcp";        default = "RCP45"   # ignored for v1.2.1 (uses ssprcp_scenario="ssp245")
+        "--ssp";        default = "ssp245"  # v2.0.0 ssprcp_scenario (default backbone forcing)
+        "--precip-log"; arg_type = Bool; default = true  # v2.0.0 AIS precip log-shim (see header)
         "--max-post";   arg_type = Int; default = 0   # 0 means "use all"
         "--post-idx-file"; default = ""     # CSV with a post_idx column; restrict l_B to these members
     end
@@ -88,18 +56,9 @@ function parse_cli()
 end
 
 # ---------------------------------------------------------------------------
-# Heteroscedastic AR(1) log-likelihood (mirror of MimiBRICK's
-# `hetero_logl_ar1`, but written here so we don't depend on internals).
-#
+# Heteroscedastic AR(1) log-likelihood (mirror of MimiBRICK's `hetero_logl_ar1`).
 #   cov_matrix = sigma^2 / (1 - rho^2) * rho^|t_i - t_j| + Diagonal(obs_sigma^2)
-#   log L = logpdf(MvNormal(0, cov_matrix), residuals)
-#         = -0.5 * (n*log(2π) + logdet(cov) + residualsᵀ cov⁻¹ residuals)
-#
-# Computed via Cholesky using only LinearAlgebra (stdlib), so this script runs
-# in the pinned julia_v121 env that does NOT ship Distributions. Numerically
-# identical to the MvNormal logpdf to floating-point precision (and to the
-# brick2/Python Kalman implementations — each version's Wong weight only uses
-# (l_FB - l_B) WITHIN that version, so the implementations need not match).
+#   log L = logpdf(MvNormal(cov_matrix), residuals)
 # ---------------------------------------------------------------------------
 function hetero_logl_ar1(residuals::Vector{Float64},
                          sigma::Float64,
@@ -107,32 +66,22 @@ function hetero_logl_ar1(residuals::Vector{Float64},
                          obs_sigma::Vector{Float64})
     n = length(residuals)
     n == 0 && return 0.0
-    # Stationary AR(1) process variance.
     process_var = sigma^2 / (1 - rho^2)
-    # Lag matrix |i - j|.
     H = abs.((1:n)' .- (1:n))
     cov_matrix = process_var .* (rho .^ H) .+ Diagonal(obs_sigma .^ 2)
     return try
-        C = cholesky(Symmetric(cov_matrix))
-        logdet_cov = 2.0 * sum(log, diag(C.U))   # logdet(cov) = 2*Σ log(diag(U))
-        z = C.L \ residuals                       # ‖z‖² = residualsᵀ cov⁻¹ residuals
-        -0.5 * (n * log(2π) + logdet_cov + dot(z, z))
+        logpdf(MvNormal(cov_matrix), residuals)
     catch err
-        # Numerical issues (e.g. non-PD cov) -> return -Inf so the weight is ~0.
-        @warn "cholesky logpdf failed: $err — returning -Inf"
+        @warn "MvNormal logpdf failed: $err — returning -Inf"
         -Inf
     end
 end
 
 # ---------------------------------------------------------------------------
-# Load CSIRO Recons GMSL, return (years::Vector{Int}, gmsl_m, sigma_m) all in meters.
-# Skip the first 9 lines (header comments starting with '#'), then the next
-# row is the column header "Time, GMSL (mm), GMSL 1-sigma uncertainty (mm)".
-# Time stamps are half-years (e.g. 1880.5) — floor to int per BRICK convention.
+# Load CSIRO Recons GMSL (years::Vector{Int}, gmsl_m, sigma_m) all in meters.
 # ---------------------------------------------------------------------------
 function load_csiro(path::String)
     raw = CSV.read(path, DataFrame; header = 10)
-    # Column names may include a trailing space; strip via lookup.
     time_col  = first(filter(c -> startswith(strip(string(c)), "Time"), names(raw)))
     gmsl_col  = first(filter(c -> occursin("GMSL (mm)", string(c)), names(raw)))
     sigma_col = first(filter(c -> occursin("sigma", lowercase(string(c))), names(raw)))
@@ -143,10 +92,7 @@ function load_csiro(path::String)
 end
 
 # ---------------------------------------------------------------------------
-# Load Dangendorf et al. 2024 GMSL reconstruction (ESSD 16, 3471).  Expected
-# schema (from python/download_obs.py output): year (int), value (mm),
-# sigma (mm), value_lower, value_upper.  sigma is approximated from the
-# 90% interval as (upper - lower) / 3.29.
+# Load Dangendorf et al. 2024 GMSL reconstruction (ESSD 16, 3471).
 # ---------------------------------------------------------------------------
 function load_dangendorf(path::String)
     raw = CSV.read(path, DataFrame)
@@ -173,8 +119,6 @@ function main()
     @assert "rho_gmsl" in names(posterior)
 
     cap = args["max-post"] > 0 ? min(args["max-post"], n_post) : n_post
-    # Optional subset: compute l_B only for the post_idx listed in --post-idx-file
-    # (1-based, indexing into `posterior`). Labels are preserved on output.
     target_idx = if args["post-idx-file"] != ""
         want = sort(unique(Int.(DataFrame(CSV.File(args["post-idx-file"])).post_idx)))
         @assert minimum(want) >= 1 && maximum(want) <= n_post "post-idx-file has out-of-range members"
@@ -203,22 +147,22 @@ function main()
     end
     println("  obs years $(minimum(obs_years))-$(maximum(obs_years))  ($(length(obs_years)) rows)")
 
-    # Year-2000 anchor — required for the 2000-baseline normalisation that
-    # matches the paired CSV / Python script.
     i2000_obs = findfirst(==(2000), obs_years)
     i2000_obs === nothing && error("obs source '$obs_source' missing year 2000; cannot re-baseline.")
     obs_gmsl_m_2000  = obs_gmsl_m[i2000_obs]
     obs_sigma_m_2000 = obs_sigma_m[i2000_obs]
 
     # -----------------------------------------------------------------------
-    # 3. Build the BRICK model ONCE in default RCP4.5 mode (no FaIR overrides).
-    #    BRICK will then use its SNEASY-derived GMST and OHC for the run.
+    # 3. Build the BRICK v2.0.0 model ONCE in default ssp245 mode (no FaIR
+    #    overrides). Same get_model signature as v1.2.1; the package version is
+    #    selected by the active project env (run under --project=julia_v2).
     # -----------------------------------------------------------------------
     yr_start = args["start-year"]
     yr_end   = args["end-year"]
-    println("Building MimiBRICK v1.2.1 model (ssprcp=ssp245, $yr_start-$yr_end) ...")
+    precip_log = args["precip-log"]
+    println("Building MimiBRICK v2.0.0 model (ssprcp=$(args["ssp"]), precip_log=$precip_log, $yr_start-$yr_end) ...")
     m = MimiBRICK.get_model(
-        ssprcp_scenario = "ssp245",
+        ssprcp_scenario = args["ssp"],
         start_year      = yr_start,
         end_year        = yr_end,
     )
@@ -227,26 +171,23 @@ function main()
     i2000_mod   = findfirst(==(2000), model_years)
     i2000_mod === nothing && error("Model year window does not include 2000.")
 
-    # Years where the observed series and the model grid intersect.
     overlap_years   = sort(intersect(obs_years, model_years))
     n_overlap       = length(overlap_years)
-    @assert n_overlap > 0 "No overlap between CSIRO years and model years."
+    @assert n_overlap > 0 "No overlap between obs years and model years."
 
-    # Build mapped indices for the overlap.
     obs_idx_by_year = Dict(y => i for (i, y) in enumerate(obs_years))
     mod_idx_by_year = Dict(y => i for (i, y) in enumerate(model_years))
     overlap_obs_idx = [obs_idx_by_year[y] for y in overlap_years]
     overlap_mod_idx = [mod_idx_by_year[y] for y in overlap_years]
 
-    # Pre-compute observation delta-from-2000 and inflated sigmas, ONCE.
     obs_delta_m = obs_gmsl_m[overlap_obs_idx] .- obs_gmsl_m_2000
     obs_sigma_eff_m = sqrt.(obs_sigma_m[overlap_obs_idx] .^ 2 .+ obs_sigma_m_2000 ^ 2)
     println("  overlap years: $(overlap_years[1])-$(overlap_years[end])  ($n_overlap)")
 
     # -----------------------------------------------------------------------
-    # 4. Loop over posterior members; compute l_B for each.
+    # 4. Loop over posterior members; compute l_B for each (precip_log shim on).
     # -----------------------------------------------------------------------
-    println("Running BRICK (default ssp245 forcing) for each posterior member ...")
+    println("Running BRICK v2.0.0 (default $(args["ssp"]) forcing) for each posterior member ...")
     ncompute = length(target_idx)
     l_B   = Vector{Float64}(undef, ncompute)
     pidx  = copy(target_idx)
@@ -257,14 +198,13 @@ function main()
         sigma = Float64(prow.sd_gmsl)
         rho   = Float64(prow.rho_gmsl)
         try
-            update_brick_params!(m, prow)
+            update_brick_params!(m, prow; precip_log = precip_log)
             run(m)
             gmsl = m[:global_sea_level, :sea_level_rise]   # METERS
             mod_delta_m = Float64.(gmsl[overlap_mod_idx]) .- Float64(gmsl[i2000_mod])
             residuals   = obs_delta_m .- mod_delta_m
             l_B[k] = hetero_logl_ar1(residuals, sigma, rho, obs_sigma_eff_m)
         catch err
-            # If a posterior member yields a non-physical run, log it and use -Inf.
             n_failed += 1
             @warn "post_idx=$i failed to run/score: $err"
             l_B[k] = -Inf
@@ -289,7 +229,6 @@ function main()
     CSV.write(outpath, out_df)
     println("\nWrote $outpath  ($(nrow(out_df)) rows)")
 
-    # Quick diagnostics so the Python script's auto-c tuner has context.
     finite = filter(isfinite, l_B)
     if !isempty(finite)
         sorted_l = sort(finite)

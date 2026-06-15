@@ -3,6 +3,54 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-06-15 — CO2/CH4 pulse→SLR: STEPS 5–6 DONE (Wong weights + weighted marginals)
+
+Steps 5 (per-version Wong weights) and 6 (paired weighted marginals) complete; only the Step-7
+figure remains.
+
+- **Step 5a/b — per-post baseline l_B (Dangendorf):** `slurm/submit_lB_pulse3brick.sh` (2-task array,
+  4 cpu, ~1–2 min each). pre93 via `julia/compute_lB_per_post_v121.jl` (julia_v121, pre-#93 35-col
+  posterior, precip_log=false); brick2 via NEW `julia/compute_lB_per_post_brick2.jl` (julia_v2,
+  post-#93 posterior, **precip_log=true**, v2.0.0 get_model — a copy of the v121 script with the
+  precip log-shim + brick2 defaults). mengel SKIPPED (equal-weighted; no Wong — locked 2026-06-15).
+  Outputs Torch `outputs/brick_lB_per_post_{pre93,brick2}.csv` (10000 rows, all finite).
+  - **Tried + abandoned:** running `compute_lB_per_post_v121.jl` as-was in julia_v121 — FAILED
+    (`ArgumentError: Package Distributions not found`; the pinned v1.2.1 env has no Distributions).
+    Fix: replaced the `MvNormal` logpdf with a Cholesky logpdf using only `LinearAlgebra` (stdlib),
+    numerically identical. Did NOT mutate the pinned env (no Pkg.add). brick2 unaffected (julia_v2
+    has Distributions; left as-is — each version's Wong weight uses only its own (l_FB − l_B), so
+    cross-version logl-implementation differences are irrelevant).
+  - **Uniformity check (per "suspicious uniformity = bug" discipline):** pre93 l_B is very tight
+    (std 1.9, range 364–385) vs brick2 (std 79). NOT a degenerate code path — **9959/10000 unique**
+    l_B values; the tightness is real, driven by the pre-#93 posterior's near-constant AR(1) nuisance
+    params (rho_gmsl CV 0.4 %, sd_gmsl CV 0.19 vs brick2 0.41) under a *fixed* default-ssp245 backbone
+    (the logl scale is set by sd/rho, which barely vary).
+- **Step 5d — Wong weights:** NEW `python/apply_wong_weights_pulse3brick.py` (split-CSV adaptation of
+  `apply_wong_weights.py`; reuses its Kalman logl / ESS / loaders verbatim). Reads l_FB from
+  `{version}_baseline.csv`'s `slr_<year>` 1850–2300 trajectory (cm, re-ref to 2000; verified slr_2000==0),
+  merges l_B. **post_idx convention bug caught:** Step-4 cells store post_idx **0-based** (driver does
+  `post_idx_1b = post_i + 1`), but `load_posterior`/Julia l_B are **1-based** → fixed with a +1 map for
+  the sd/rho lookup and l_B merge, keeping the 0-based cell key in the output. Replaced the coarse grid
+  c-tuner with a **bisection** root-solve (ESS_fraction is monotone in c, and the grid over/undershot
+  the steep ESS curve). Both arms hit **ESS = 50.0 %** exactly: pre93 c=0.262, brick2 c=0.00857.
+  Wong shifts are modest (pre93 total SLR@2100 83.7→83.5 cm; brick2 73.8→77.9). Outputs Torch
+  `outputs/wong_weights_{pre93,brick2}.csv` (per-cell w_norm + l_FB/l_B/log_w + keys).
+  `--obs dangendorf` (1900–2018, 119 yrs) kept in sync between Julia l_B and the Python l_FB.
+- **Step 6 — paired weighted marginals:** NEW `python/scripts/extract_pulse_marginals_3brick.py`.
+  Pairs pulse↔baseline on the 4 keys (validate one-to-one; 10000/version/species), differences each
+  of {total, ais, gsic, gis, te, lws} × {2100,2150,2300}, ÷ pulse size (CO2 0.01 GtCO2, CH4 1.0 Tg),
+  weighted quantiles (pre93/brick2 Wong; mengel uniform) + unweighted for the §0 sanity check.
+  Output `outputs/pulse3brick_v145/marginals_summary.csv` (108 rows; committed).
+  - **Sanity PASSED:** unweighted total-q50 matches handoff §0 to **0.1–0.3 %** (ratios 0.999–1.003).
+    Component means sum to total to machine precision (~1e-14). LWS marginal = 0 everywhere (the
+    deterministic landwater add-on cancels in the pulse−baseline difference — correct).
+  - **Physics (weighted q50, cm/unit):** pre93 CO2 is **GIS-dominated** (GIS 9.1e-3 of 1.15e-2 total
+    @2100; 2.8e-2 of 3.1e-2 @2300 — the pre-#93 GIS pathology). brick2 GIS is tamed (5e-4) and the
+    marginal is TE/GSIC-led. mengel has the largest **AIS** (8.99e-4@2100 → 3.78e-3@2300) with a fat
+    tipping tail (CO2 mean 4.3e-2 ≫ median 4.7e-3). pre93 AIS marginal is slightly negative (~−1e-4).
+- **Next:** Step 7 headline figure (3 versions × {CO2,CH4}, median+5–95 at 2100/2150/2300, with the
+  per-component GIS/AIS decomposition; labels from named constants; text boxes = placeholders for Marcus).
+
 ## [unreleased] — 2026-06-15 — CO2/CH4 pulse→SLR: STEP 4 DONE (90k BRICK runs)
 
 Launched + completed the production run (Marcus go). Outputs: `outputs/pulse3brick_v145/{pre93,brick2,mengel}_{baseline,co2,ch4}.csv`.
