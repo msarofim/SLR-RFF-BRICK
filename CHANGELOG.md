@@ -3,6 +3,22 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-06-15 — CO2/CH4 pulse→SLR: headline reframed to CH4-as-CO2eq (Marcus)
+
+Marcus: drop the fossil-CH4 variant from the HEADLINE (the co-emitted oxidation CO2 is an instantaneous
+pulse, an inexact stand-in — a real fossil pulse spreads the oxidation CO2 over the methane oxidation
+lifetime) and express the headline CH4 marginal in **CO2-equivalent (AR6 non-fossil GWP-100 = 27.0)** so
+both gases are on cm/GtCO2(eq).
+- `marginals_summary_co2eq.csv` — CH4 rows ×(1000/27.0)=×37.037 (exact linear rescale of every quantile/
+  mean/component); CO2 unchanged. The physical `marginals_summary.csv` (cm/TgCH4) stays as source of truth.
+- `plot_pulse3brick_marginals.py` regenerated → `pulse3brick_marginals.png` now plots CO2 (top row) vs
+  CH4-as-CO2eq (bottom row) with the **y-axis SHARED per horizon column**, so the short-lived-forcer
+  crossover is visible: CH4-eq Total towers over CO2 at 2100 (~2.2–2.7e-2 vs ~0.5–1.2e-2 cm/GtCO2eq) and
+  falls below it by 2300. GWP from a named constant; fossil exclusion noted in the caption.
+- `headline_table_co2eq.md` is the headline table (CO2 vs CH4-CO2eq + ratio + per-component); the fossil
+  sensitivity stays in `headline_table_fossil_ch4.md` (NOT headline). CH4-CO2eq ÷ CO2 ratio ~2.2–2.3× @2100,
+  ~1.4× @2150, ~0.6–0.7× @2300, all 3 versions.
+
 ## [unreleased] — 2026-06-15 — CO2/CH4 pulse→SLR: STEPS 5–7 DONE — STUDY COMPLETE
 
 Steps 5 (per-version Wong weights), 6 (paired weighted marginals), and 7 (headline figure) all
