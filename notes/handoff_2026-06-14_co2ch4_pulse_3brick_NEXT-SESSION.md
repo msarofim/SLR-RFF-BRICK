@@ -9,8 +9,10 @@
 >   ⚠ cubes' `builder_git_sha`=NA (Torch dir isn't a git repo); committed builder = FaIRtoFrEDI `eba66b7`.
 > - **P2 DONE** — `julia_v2` (v2.0.0) + `julia_v121` (v1.2.1) instantiated+precompiled on Torch (`/scratch/.../.julia` depot).
 > - **P3 DONE (mechanics)** — `julia/compute_lB_per_post_mengel.jl` (28-col mengel l_B vs Dangendorf, sd_dang/rho_dang).
->   ⚠ **OPEN Step-5 decision**: mengel posterior is already Dangendorf-calibrated → whether to Wong-weight that arm
->   (vs equal-weight) is unresolved. pre93/brick2 use the stock `compute_lB_per_post.jl`.
+>   ✅ **Step-5 weighting RESOLVED (Marcus 2026-06-15): PRIMARY mengel = EQUAL-WEIGHTED** (posterior already
+>   Dangendorf-calibrated → Wong would double-count). Step 6: mengel marginals = PLAIN/uniform quantiles;
+>   pre93 + brick2 = Wong-weighted via stock `compute_lB_per_post.jl`. The mengel l_B script is for an OPTIONAL
+>   Wong-weighted sensitivity only, NOT the primary path.
 > - **P4 DONE** — drivers + 3 posteriors + medoid + metadata synced to Torch; **9-task production array staged**:
 >   `slurm/submit_pulse3brick.sh` (NOT submitted). Torch BRICK smoke (3 versions × 10 cells) all pass, closure 0.0,
 >   totals bit-identical to local.

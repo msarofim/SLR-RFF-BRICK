@@ -16,17 +16,16 @@
 ##   3. "Default backbone" = the v2.0.0 ssp245 SNEASY GMST/OHC (no FaIR override),
 ##      i.e. ssprcp_scenario="ssp245" (vs the stock script's rcp_scenario="RCP45").
 ##
-## ⚠ METHODOLOGICAL FLAG (Step-5 decision — do NOT resolve silently).
+## ⚠ DECISION (Marcus 2026-06-15): the PRIMARY BRICK-Mengel result is EQUAL-WEIGHTED.
 ##   The Mengel posterior was MCMC-calibrated DIRECTLY to Dangendorf (obs-driven),
-##   so its equal-weight draws are already the data-conditioned distribution
-##   (see project_ssps_2100_mengel.jl: re-applying Dangendorf importance weights
-##   would DOUBLE-COUNT). Whether to Wong-weight the mengel arm AT ALL — and if
-##   so, whether this default-ssp245-backbone l_B is the right reference — is an
-##   open Step-5 choice (options: equal-weight mengel / Wong with this l_B /
-##   other). This script provides the l_B MECHANICS; it does not decide the use.
-##   Also: a v2.0.0 ssp245-SNEASY "default backbone" is itself an imperfect
-##   analogue of the stock script's RCP45 baseline, since the mengel posterior
-##   was never calibrated under a SNEASY ssp backbone. Await Marcus before using.
+##   so its equal-weight draws are already the data-conditioned distribution; Wong
+##   importance-weighting would DOUBLE-COUNT Dangendorf (cf project_ssps_2100_mengel.jl).
+##   => Step 6 reports the mengel marginals as PLAIN (uniform-weight) quantiles.
+##   pre93 and brick2 remain Wong-weighted via the stock compute_lB_per_post.jl.
+##   This script is therefore NOT on the primary path; it exists only for an
+##   OPTIONAL Wong-weighted mengel SENSITIVITY. Caveat if used: a v2.0.0 ssp245-
+##   SNEASY "default backbone" is an imperfect analogue of the stock RCP45 baseline,
+##   since the mengel posterior was never calibrated under a SNEASY ssp backbone.
 ##
 ## CLI mirrors compute_lB_per_post.jl (--obs in sync with apply_wong_weights.py).
 ## ============================================================================
