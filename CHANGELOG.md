@@ -3,6 +3,22 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-06-14 — CO2/CH4 pulse→SLR: Step-4 prep (P4) + Mengel l_B (P3)
+
+Launch-readiness work while P1's cubes build (Marcus: P4 first, P3 second). Stops short of submitting.
+- **P4 DONE** — synced BRICK drivers (`run_mimibrick_pulse_versioned.jl` + the 3 includes),
+  the 3 posteriors + medoid central row, and the BRICK metadata to Torch `/scratch`. Wrote the
+  9-task production array `slurm/submit_pulse3brick.sh` (idx = version*3 + arm; pre93→julia_v121,
+  brick2/mengel→julia_v2; baseline arm `--save-trajs` for Wong; CO2 0.01Gt ÷0.01, CH4 1Tg ÷1.0;
+  same `--seed 2026` for pairing) — STAGED, NOT submitted. Torch BRICK smoke (10 cells × 3 versions)
+  all pass: closure resid 0.0, and totals **bit-identical to the local smokes** (pre93 5.3789, brick2
+  3.2256, mengel 4.4536 m @2300) — cross-platform determinism confirmed.
+- **P3 DONE (mechanics)** — `julia/compute_lB_per_post_mengel.jl`: per-member l_B vs Dangendorf for
+  the 28-col mengel posterior (build_brick_mengel + medoid + 18 free params; uses `sd_dang`/`rho_dang`
+  since the posterior has no `sd_gmsl`). Validated (5 members, finite l_B). ⚠ **OPEN Step-5 decision**
+  flagged in the script: the Mengel posterior is already Dangendorf-calibrated, so whether to Wong-weight
+  the mengel arm at all (vs equal-weight) is unresolved — await Marcus.
+
 ## [unreleased] — 2026-06-14 — CO2/CH4 pulse→SLR: prerequisites P1+P2 executed
 
 Executing the two Step-4 blockers from the pre-launch review (Marcus: go ahead with P1+P2).
