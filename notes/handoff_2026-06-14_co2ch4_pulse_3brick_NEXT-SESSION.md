@@ -1,5 +1,26 @@
 # NEXT-SESSION HANDOFF — execute the CO2 & CH4 pulse→SLR experiment (3 BRICK versions)
 
+> **████ STATUS 2026-06-15: ALL PREREQS DONE (P1–P4). Step 4 is LAUNCH-READY — awaiting Marcus's go. ████**
+> Everything between here and "submit the 90k run" is done; the run was NOT launched (stop-pre-launch).
+> - **P1 DONE+VALIDATED** — paired r2 triplet on Torch `/scratch/.../FaIRtoFrEDI/fair_outputs/cubes_v145/`:
+>   `cube_v145_lhs10ks_{baseline,pulse_co2_pos_001gt,pulse_ch4_pos_1tg}_flat2015_r2.npz`. Validation: cells_meta==metadata,
+>   cell_seeds present + cal-sha matches + identical across arms (paired), pre-2030 dGMST=0, **CH4-1Tg resolvable at
+>   all years** (median 3.8e-5/7.4e-6/1.9e-6 °C/Tg @2050/2100/2300), CO2 marginal unchanged (3.58e-4 °C/GtCO2@2100).
+>   ⚠ cubes' `builder_git_sha`=NA (Torch dir isn't a git repo); committed builder = FaIRtoFrEDI `eba66b7`.
+> - **P2 DONE** — `julia_v2` (v2.0.0) + `julia_v121` (v1.2.1) instantiated+precompiled on Torch (`/scratch/.../.julia` depot).
+> - **P3 DONE (mechanics)** — `julia/compute_lB_per_post_mengel.jl` (28-col mengel l_B vs Dangendorf, sd_dang/rho_dang).
+>   ⚠ **OPEN Step-5 decision**: mengel posterior is already Dangendorf-calibrated → whether to Wong-weight that arm
+>   (vs equal-weight) is unresolved. pre93/brick2 use the stock `compute_lB_per_post.jl`.
+> - **P4 DONE** — drivers + 3 posteriors + medoid + metadata synced to Torch; **9-task production array staged**:
+>   `slurm/submit_pulse3brick.sh` (NOT submitted). Torch BRICK smoke (3 versions × 10 cells) all pass, closure 0.0,
+>   totals bit-identical to local.
+>
+> **TO LAUNCH STEP 4 (on Marcus's go):**
+> ```
+> ssh torch 'cd /scratch/ms17839/SLR-RFF-BRICK && sbatch slurm/submit_pulse3brick.sh'
+> ```
+> Then Steps 5–7: per-version Wong (resolve mengel Q first) → marginals (extract_pulse_marginals; co2 ÷0.01, ch4 ÷1.0) → headline figure.
+
 > **████ STATUS 2026-06-14 (later same day): Steps 0–3 DONE; gate OPEN. Resume at Step 4 (Torch). ████**
 > Foundations built & sanity-gated on the local Mac (Marcus: foundations-only, stop pre-launch):
 > - **Step 0 env DONE** — real MimiBRICK **v1.2.1** env `julia_v121/` (pins git `repo-rev v1.2.1`, sha `94ceca2`;
