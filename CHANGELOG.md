@@ -3,6 +3,25 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-06-15 — CO2/CH4 pulse→SLR: STEP 4 DONE (90k BRICK runs)
+
+Launched + completed the production run (Marcus go). Outputs: `outputs/pulse3brick_v145/{pre93,brick2,mengel}_{baseline,co2,ch4}.csv`.
+- **Bug caught at launch + fixed:** the first submit (job 10846724) failed all 9 tasks in 48 s —
+  `NPZ.jl: unsupported type U171`. The 2026-06-14 cube seed-provenance addition embedded numpy
+  **string/0-d arrays** in the `.npz`, which the Julia reader can't parse. Fix: strip string/scalar
+  provenance to a sidecar `cube_*.provenance.json`, keep only `cell_seeds` (int64) in the npz —
+  applied to the existing r2 cubes on Torch (data arrays untouched) and to the builder
+  (`lhs_climate_v145_meta.py`, FaIRtoFrEDI `c5a7b84`). Re-ran (job 10848541): all 9 COMPLETED, ~2 min/arm.
+- **Validated:** 9 CSVs × 10000 rows, fully paired. Unweighted per-unit marginal medians (cm):
+  | version | CO2/GtCO2 @2100 | @2300 | CH4/Tg @2100 | @2300 |
+  |---|---|---|---|---|
+  | pre93  | 1.15e-2 | 3.11e-2 | 7.27e-4 | 5.94e-4 |
+  | brick2 | 5.07e-3 | 1.00e-2 | 3.07e-4 | 1.74e-4 |
+  | mengel | 4.69e-3 | 1.15e-2 | 2.80e-4 | 2.12e-4 |
+  pre-#93 CO2→SLR ≈ 2.3–3× post-#93 (GIS pathology, as expected); CH4@2300 resolvable (1Tg fix worked).
+- **Weighting (Marcus 2026-06-15):** primary BRICK-Mengel = EQUAL-weighted; pre93+brick2 = Wong-weighted.
+- **Next:** Step 5 Wong (pre93/brick2) → Step 6 weighted marginals (co2 ÷0.01, ch4 ÷1.0; mengel plain) → Step 7 figure.
+
 ## [unreleased] — 2026-06-14 — CO2/CH4 pulse→SLR: Step-4 prep (P4) + Mengel l_B (P3)
 
 Launch-readiness work while P1's cubes build (Marcus: P4 first, P3 second). Stops short of submitting.

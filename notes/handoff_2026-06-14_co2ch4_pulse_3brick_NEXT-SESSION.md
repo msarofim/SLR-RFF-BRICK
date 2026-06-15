@@ -1,7 +1,18 @@
 # NEXT-SESSION HANDOFF — execute the CO2 & CH4 pulse→SLR experiment (3 BRICK versions)
 
-> **████ STATUS 2026-06-15: ALL PREREQS DONE (P1–P4). Step 4 is LAUNCH-READY — awaiting Marcus's go. ████**
-> Everything between here and "submit the 90k run" is done; the run was NOT launched (stop-pre-launch).
+> **████ STATUS 2026-06-15: STEP 4 DONE (90k runs complete + validated). RESUME AT STEP 5. ████**
+> Outputs: `outputs/pulse3brick_v145/{pre93,brick2,mengel}_{baseline,co2,ch4}.csv` on Torch (9 × 10000 rows, paired).
+> Launch bug caught+fixed: cube seed-provenance string fields broke NPZ.jl (`unsupported type U171`) → moved to
+> sidecar `cube_*.provenance.json`, `cell_seeds` kept in npz (existing r2 cubes stripped on Torch; builder fixed
+> FaIRtoFrEDI `c5a7b84`). Re-run job 10848541 all COMPLETED ~2 min/arm. Unweighted per-unit marginal medians:
+> CO2 pre93/brick2/mengel = 1.15e-2 / 5.07e-3 / 4.69e-3 cm/GtCO2@2100 (pre-#93 ≈2.3–3× = GIS pathology, expected);
+> CH4 = 7.27e-4 / 3.07e-4 / 2.80e-4 cm/Tg@2100, resolvable @2300 (1Tg fix worked).
+> **NEXT — Steps 5–7:** (5) Wong weights pre93+brick2 via stock `compute_lB_per_post.jl` (l_FB from the baseline
+> `--save-trajs` hist + `apply_wong_weights.py`); **mengel = EQUAL-weight (Marcus), NO Wong** (already Dangendorf-
+> calibrated); (6) `extract_pulse_marginals.py` weighted/plain quantiles, co2 ÷0.01, ch4 ÷1.0, per-component+total
+> @2100/2150/2300; (7) headline figure 3 versions × {CO2,CH4} × component decomposition.
+> ───────────────────────────────────────────────────────────────────────────
+> (historical: ALL PREREQS P1–P4 were done before launch; the run was held for Marcus's go, then launched.)
 > - **P1 DONE+VALIDATED** — paired r2 triplet on Torch `/scratch/.../FaIRtoFrEDI/fair_outputs/cubes_v145/`:
 >   `cube_v145_lhs10ks_{baseline,pulse_co2_pos_001gt,pulse_ch4_pos_1tg}_flat2015_r2.npz`. Validation: cells_meta==metadata,
 >   cell_seeds present + cal-sha matches + identical across arms (paired), pre-2030 dGMST=0, **CH4-1Tg resolvable at
