@@ -1,8 +1,13 @@
 # Pulse→SLR headline, CH₄ expressed in GtCO₂eq (AR6 GWP-100 = 27.0, non-fossil)
 
 CH₄ marginal converted cm/TgCH₄ → cm/GtCO₂eq via ×(1000/27.0) = ×37.037.
-Non-fossil GWP chosen because the FaIR pulse is pure CH₄ emissions with NO oxidation→CO₂ term
-(Thornhill2021 CH₄ method; CO₂ is a separate specie). Weighted median [5–95%], paired FaIR-RFF LHS-10k.
+Non-fossil GWP chosen because the FaIR pulse has NO direct CH₄→CO₂ oxidation flux — verified
+EMPIRICALLY (FaIRtoFrEDI/test_ch4_pulse_co2_response.py): a +300 TgCH₄ pulse moves CO₂ by only
+5.3e-3 ppm (5% of full-oxidation), and that response goes EXACTLY to zero (bit-identical CO₂) when
+the CO₂ carbon-cycle temperature feedback is disabled — i.e. the CO₂ response is the climate-carbon
+feedback, not oxidation. AR6 GWP-100 includes that feedback for BOTH fossil (29.8) and non-fossil
+(27.0); the fossil/non-fossil delta is purely the oxidation CO₂, which this config does not model →
+27.0 is correct. Weighted median [5–95%], paired FaIR-RFF LHS-10k.
 pre-#93 & BRICK 2.0 Wong-weighted (ESS/N=0.5); BRICK-Mengel equal-weighted. Units: cm per GtCO₂(eq).
 
 ## Total marginal SLR — CO₂ vs CH₄(as CO₂eq), median [5–95]
