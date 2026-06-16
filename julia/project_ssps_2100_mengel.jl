@@ -68,12 +68,14 @@ function load_traj(path, vcol)
     [by[y] for y in years]
 end
 rerefval(v, idx) = 100 * (v[idx] - sum(v[IB])/length(IB))   # cm rel 1995-2014 at idx
+rerefseries(v) = 100 .* (v .- sum(v[IB])/length(IB))        # full cm-rel-1995-2014 trajectory
 pcts(v) = (quantile(v,0.05), quantile(v,0.50), quantile(v,0.95))
 
 summ = DataFrame(ssp=String[], ssp_label=String[],
                  p05=Float64[], p50=Float64[], p95=Float64[],
                  ais=Float64[], gsic=Float64[], gis=Float64[], te=Float64[], lws=Float64[])
 tser = DataFrame(year=Int[], ssp_label=String[], p05=Float64[], p50=Float64[], p95=Float64[])
+tser_comp = DataFrame(year=Int[], ssp_label=String[], component=String[], p05=Float64[], p50=Float64[], p95=Float64[])
 
 t_start = time()
 for (ssp, label) in SSPS
@@ -85,6 +87,7 @@ for (ssp, label) in SSPS
 
     tot_ts = Array{Float64}(undef, ncap, length(years))
     comp2100 = (ais=zeros(ncap), gsic=zeros(ncap), gis=zeros(ncap), te=zeros(ncap), lws=zeros(ncap))
+    comp_ts = Dict(c => Array{Float64}(undef, ncap, length(years)) for c in ("ais","gsic","gis","te","lws"))
     for i in 1:ncap
         @inbounds for k in 1:length(PHYS)
             update_param!(m, PHYS[k][1], PHYS[k][2], Float64(post[i, PHYS_NAMES[k]]))
@@ -98,6 +101,11 @@ for (ssp, label) in SSPS
         comp2100.gis[i]  = rerefval(m[:greenland_icesheet,:greenland_sea_level], i2100)
         comp2100.te[i]   = rerefval(m[:thermal_expansion,:te_sea_level], i2100)
         comp2100.lws[i]  = rerefval(m[:landwater_storage,:lws_sea_level], i2100)
+        comp_ts["ais"][i,:]  = rerefseries(m[:antarctic_icesheet,:ais_sea_level])
+        comp_ts["gsic"][i,:] = rerefseries(m[:glaciers_small_icecaps,:gsic_sea_level])
+        comp_ts["gis"][i,:]  = rerefseries(m[:greenland_icesheet,:greenland_sea_level])
+        comp_ts["te"][i,:]   = rerefseries(m[:thermal_expansion,:te_sea_level])
+        comp_ts["lws"][i,:]  = rerefseries(m[:landwater_storage,:lws_sea_level])
     end
     a,b,c = pcts(tot_ts[:,i2100])
     push!(summ, (ssp, label, a, b, c, median(comp2100.ais), median(comp2100.gsic),
@@ -105,13 +113,17 @@ for (ssp, label) in SSPS
     for y in TS_YEARS
         t = findfirst(==(y), years); a,b,c = pcts(tot_ts[:,t])
         push!(tser, (y, label, a, b, c))
+        for cn in ("ais","gsic","gis","te","lws")
+            a,b,c = pcts(comp_ts[cn][:,t]); push!(tser_comp, (y, label, cn, a, b, c))
+        end
     end
     @printf("%-9s done  (%.0fs elapsed)\n", label, time()-t_start)
 end
 
 CSV.write(joinpath(REPO,"outputs/proj_ssps_mengel$(SUF)_summary.csv"), summ)
 CSV.write(joinpath(REPO,"outputs/proj_ssps_mengel$(SUF)_timeseries.csv"), tser)
-println("\nWrote outputs/proj_ssps_mengel$(SUF)_{summary,timeseries}.csv  ($(round(time()-t_start))s)")
+CSV.write(joinpath(REPO,"outputs/proj_ssps_mengel$(SUF)_components_timeseries.csv"), tser_comp)
+println("\nWrote outputs/proj_ssps_mengel$(SUF)_{summary,timeseries,components_timeseries}.csv  ($(round(time()-t_start))s)")
 
 println("\n=== GMSL @2100 (cm, rel 1995-2014), $ncap-draw BRICK-Mengel posterior, FaIR v1.4.5 ===")
 println(rpad("scenario",11), "  p05   p50   p95   |  AIS  GSIC   GIS    TE   LWS  (median, cm)")
