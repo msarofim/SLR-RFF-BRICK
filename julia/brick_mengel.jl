@@ -18,17 +18,49 @@
 ##   set_forcing!(m, gmst, ohc); run(m)
 ## ============================================================================
 
-using Mimi, MimiBRICK
+using Mimi, MimiBRICK, Random
 
 include(joinpath(@__DIR__, "glaciers_mengel_component.jl"))
 include(joinpath(@__DIR__, "brick_param_updates.jl"))
 
 const _MENGEL_GLAC_SLOT = :glaciers_small_icecaps   # name kept by Mimi replace!
 
-"""Build a v2.0.0 BRICK with the Mengel glacier emulator swapped in (wiring preserved)."""
-function build_brick_mengel(; ssp::String="ssp245", y0::Int=1850, y1::Int=2100)
+# Land-water-storage (LWS) annual rate. MimiBRICK's get_model draws this fresh and UNSEEDED on every
+# call — rand(Normal(0.0003, 0.00018), n) m/yr — which makes total SLR irreproducible build-to-build
+# (the ~0.4 cm LWS drift seen between SSP-projection re-runs, 2026-06-17). We LOCK it. Treatments:
+#   :seeded  (default) — the same Normal draw but from a FIXED-seed local RNG -> reproducible random
+#                        realization (the "locked seed" the BRICK versions use).
+#   :central           — smooth deterministic 0.3 mm/yr mean (matches the MimiBRICK-FM shareable repo).
+#   :zero              — no LWS.
+#   :random            — MimiBRICK's legacy unseeded draw (irreproducible — not recommended).
+# LWS is a small, climate-independent term (~0.16 cm spread by 2100) relative to the AIS/posterior
+# spread. A LOCAL RNG is used so the global stream (e.g. FaIR-member pairing seeds) is untouched.
+const LWS_MEAN  = 0.0003    # m/yr  (mean of MimiBRICK's N(0.0003, 0.00018) LWS rate)
+const LWS_SD    = 0.00018   # m/yr  (sd  of that distribution)
+const LWS_SEED  = 2026      # locks the :seeded realization (matches the obs-driven driver default)
+
+"""
+    build_brick_mengel(; ssp, y0, y1, lws=:seeded, lws_seed=LWS_SEED)
+
+Build a v2.0.0 BRICK with the Mengel glacier emulator swapped in (wiring preserved). `lws` selects the
+land-water-storage treatment: `:seeded` (default) = fixed-seed random realization (reproducible);
+`:central` = smooth 0.3 mm/yr mean; `:zero` = no LWS; `:random` = legacy unseeded draw (irreproducible).
+"""
+function build_brick_mengel(; ssp::String="ssp245", y0::Int=1850, y1::Int=2100,
+                            lws::Symbol=:seeded, lws_seed::Int=LWS_SEED)
     m = MimiBRICK.get_model(ssprcp_scenario=ssp, start_year=y0, end_year=y1)
     replace!(m, _MENGEL_GLAC_SLOT => glaciers_mengel)
+    n = y1 - y0 + 1
+    if lws === :seeded
+        update_param!(m, :landwater_storage, :lws_random_sample,
+                      LWS_MEAN .+ LWS_SD .* randn(MersenneTwister(lws_seed), n))
+    elseif lws === :central
+        update_param!(m, :landwater_storage, :lws_random_sample, fill(LWS_MEAN, n))
+    elseif lws === :zero
+        update_param!(m, :landwater_storage, :lws_random_sample, zeros(n))
+    elseif lws !== :random   # :random keeps get_model's unseeded draw (legacy)
+        error("build_brick_mengel: lws must be :seeded, :central, :zero, or :random (got :$lws)")
+    end
     return m
 end
 
