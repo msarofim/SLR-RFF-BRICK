@@ -3,6 +3,24 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-06-17 — LWS seed lock + brick-mengel archived
+
+- **Root cause** of the ~0.4 cm total-SLR drift between Mengel SSP-projection re-runs: MimiBRICK's
+  `get_model` draws `lws_random_sample ~ Normal(0.0003, 0.00018)` UNSEEDED on every call. (Diagnosis:
+  GSIC/GIS/TE bit-identical, AIS float-noise, LWS the entire delta with mixed signs across SSPs.)
+- **Fix:** `build_brick_mengel` now takes `lws=:seeded` (default; fixed-seed LOCAL RNG, `LWS_SEED=2026`,
+  reproducible realization), `:central` (0.3 mm/yr mean = MimiBRICK-FM), `:zero`, or `:random` (legacy
+  unseeded). Local RNG keeps the global stream (FaIR-member pairing seeds) untouched. Verified bit-identical
+  across re-runs; LWS now a single locked value (2.596 cm) across all SSPs (correct — LWS is climate-independent).
+  Regenerated SSP / matched / hybrid Mengel outputs (shifts immaterial, sub-0.5 cm).
+- **All canonical BRICK versions now have locked LWS:** `main` (BRICK2.0) and `brick-v1.2-vehicle`
+  (preBRICK2.0) already seed `Random.seed!` immediately before `get_model` in their canonical drivers
+  (obs-driven, flatcube); MimiBRICK-FM uses the `:central` mean; brick-mengel uses `:seeded`.
+- **`brick-mengel` ARCHIVED** (annotated tag `archive/brick-mengel-2026-06-17`, branch kept). Frozen final
+  state of the calibration/working branch; the Mengel model is canonical in MimiBRICK-FM, and this tag
+  preserves the study drivers (MAGICC comparison, CO2/CH4 pulse 3-BRICK, recalibration diagnostics) that
+  were never extracted there. Canonical going forward: brick-v1.2-vehicle, main, MimiBRICK-FM.
+
 ## [unreleased] — 2026-06-15 — CO2/CH4 pulse→SLR: headline reframed to CH4-as-CO2eq (Marcus)
 
 Marcus: drop the fossil-CH4 variant from the HEADLINE (the co-emitted oxidation CO2 is an instantaneous
