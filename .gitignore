@@ -210,7 +210,3 @@ outputs/quarantine/
 outputs/brick_2x2_clean/*.csv
 # Office lock/owner files
 ~$*
-
-# MAGICC-derived result kept PRIVATE (written to the FaIRtoFrEDI repo, not here). Never
-# commit MAGICC results to this PUBLIC repo. See FaIRtoFrEDI/PUBLISHING.md.
-outputs/proj_magicc_hybrid_ssp245_mengel_timeseries*.csv

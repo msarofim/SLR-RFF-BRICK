@@ -126,12 +126,10 @@ for y in TS_YEARS
         a = pcts(comp_ts[cn][:,t]); push!(tser, (y, cn, a...))
     end
 end
-# Write the MAGICC-derived result to the PRIVATE FaIRtoFrEDI repo (MAGDIR), NOT this public
-# repo's outputs/ — keeps MAGICC results out of the public SLR-RFF-BRICK. See PUBLISHING.md there.
-outname = OHC_CONV == "rel1850" ? "proj_magicc_hybrid_ssp245_mengel_timeseries.csv" :
-                                  "proj_magicc_hybrid_ssp245_mengel_timeseries_rel1750.csv"
-CSV.write(joinpath(MAGDIR, outname), tser)
-@printf("\nWrote (private) %s  (%.0fs)\n", joinpath(MAGDIR, outname), time()-t_start)
+outpath = OHC_CONV == "rel1850" ? "outputs/proj_magicc_hybrid_ssp245_mengel_timeseries.csv" :
+                                  "outputs/proj_magicc_hybrid_ssp245_mengel_timeseries_rel1750.csv"
+CSV.write(joinpath(REPO, outpath), tser)
+@printf("\nWrote %s  (%.0fs)\n", outpath, time()-t_start)
 
 a = pcts(tot_ts[:,i2100])
 @printf("\n=== SSP2-4.5 @2100 total GMSL (cm, rel 1995-2014), HYBRID MAGICC->BRICK-Mengel %d draws, OHC=%s ===\n", ncap, OHC_CONV)
