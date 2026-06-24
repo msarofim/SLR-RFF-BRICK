@@ -25,16 +25,23 @@ For every BRICK version v in {pre93, brick2, mengel} and species in {co2, ch4}:
      check (for mengel weighted==unweighted by construction).
 
 Output (one tidy long CSV):
-  outputs/pulse3brick_v145/marginals_summary.csv
+  outputs/pulse3brick_v145/marginals_summary.csv              (all 10k draws)
+  outputs/pulse3brick_v145/marginals_summary_sub2k.csv        (2k subsample, if --subset used)
   cols: version, species, unit, component, year, n, ess_fraction,
         q05, q50, q95, mean, q05u, q50u, q95u, meanu
+
+Optional --subset: CSV with one column 'rff_idx' listing draws to include.
+  Generates a _sub2k (or user-named) output for the MAGICC comparison arm.
+  Subset must be a subset of the full 10k; run without flag for the full summary.
 
 Runs on Torch (data live there); pull the small summary CSV to laptop to plot.
 
   python python/scripts/extract_pulse_marginals_3brick.py
+  python python/scripts/extract_pulse_marginals_3brick.py --subset outputs/rff_subset_2k.csv
 """
 from __future__ import annotations
 
+import argparse
 from pathlib import Path
 
 import numpy as np
@@ -104,6 +111,24 @@ def load_weights(version: str, paired_keys: pd.DataFrame) -> np.ndarray:
 
 
 def main() -> int:
+    ap = argparse.ArgumentParser(description="Extract 3-BRICK SLR pulse marginals.")
+    ap.add_argument("--subset", type=Path, default=None,
+                    help="CSV with 'rff_idx' column: restrict to this draw subset. "
+                         "Default: use all 10000 draws.")
+    args = ap.parse_args()
+
+    # Optional draw subsample
+    if args.subset is not None:
+        sub_df = pd.read_csv(args.subset, usecols=["rff_idx"])
+        subset_ids = set(sub_df["rff_idx"].astype(int).tolist())
+        n_expected = len(subset_ids)
+        out_csv = PULSE_DIR / f"marginals_summary_{args.subset.stem}.csv"
+        print(f"[subset] {args.subset.name}: {n_expected} draws -> {out_csv.name}")
+    else:
+        subset_ids = None
+        n_expected = 10000
+        out_csv = OUT_CSV
+
     rows = []
     print(f"[setup] pulse dir: {PULSE_DIR}")
     for version in VERSIONS:
@@ -117,7 +142,13 @@ def main() -> int:
             m = base[cols_keep].merge(
                 pul[cols_keep], on=PAIR_KEYS, suffixes=("_b", "_p"),
                 how="inner", validate="one_to_one")
-            assert len(m) == 10000, f"{version}/{sp}: paired {len(m)} != 10000"
+            assert len(m) == 10000, f"{version}/{sp}: full-pair {len(m)} != 10000"
+
+            # Apply optional draw subset
+            if subset_ids is not None:
+                m = m[m["rff_idx"].isin(subset_ids)].copy()
+                assert len(m) == n_expected, (
+                    f"{version}/{sp}: subset gave {len(m)}, expected {n_expected}")
 
             # Weights aligned to the merged row order.
             w = load_weights(version, m[PAIR_KEYS])
@@ -139,22 +170,23 @@ def main() -> int:
                         q05u=qu[0], q50u=qu[1], q95u=qu[2],
                         meanu=float(marg.mean()),
                     ))
-            print(f"  {version:7s} {sp}: paired=10000  weights={wmode}  ESS/N={ess:.3f}")
+            print(f"  {version:7s} {sp}: paired={len(m)}  weights={wmode}  ESS/N={ess:.3f}")
 
     df = pd.DataFrame(rows)
-    OUT_CSV.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(OUT_CSV, index=False)
-    print(f"\n[save] {OUT_CSV}  ({len(df)} rows)")
+    out_csv.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(out_csv, index=False)
+    print(f"\n[save] {out_csv}  ({len(df)} rows)")
 
-    # ---- §0 sanity: unweighted total q50u vs handoff targets ----
-    print("\n=== SANITY: total-SLR unweighted median (q50u) vs handoff §0 (cm/unit) ===")
-    print(f"{'version':7s} {'sp':3s} {'yr':>4s} {'q50u_computed':>15s} {'expected':>11s} {'ratio':>7s}")
-    tot = df[df.component == "total"]
-    for (version, sp), yexp in SANITY_TOTAL_Q50U.items():
-        for y, exp in yexp.items():
-            got = float(tot[(tot.version == version) & (tot.species == sp)
-                            & (tot.year == y)].q50u.iloc[0])
-            print(f"{version:7s} {sp:3s} {y:>4d} {got:>15.3e} {exp:>11.3e} {got/exp:>7.3f}")
+    # ---- §0 sanity: unweighted total q50u vs handoff targets (full 10k only) ----
+    if subset_ids is None:
+        print("\n=== SANITY: total-SLR unweighted median (q50u) vs handoff §0 (cm/unit) ===")
+        print(f"{'version':7s} {'sp':3s} {'yr':>4s} {'q50u_computed':>15s} {'expected':>11s} {'ratio':>7s}")
+        tot = df[df.component == "total"]
+        for (version, sp), yexp in SANITY_TOTAL_Q50U.items():
+            for y, exp in yexp.items():
+                got = float(tot[(tot.version == version) & (tot.species == sp)
+                                & (tot.year == y)].q50u.iloc[0])
+                print(f"{version:7s} {sp:3s} {y:>4d} {got:>15.3e} {exp:>11.3e} {got/exp:>7.3f}")
     return 0
 
 

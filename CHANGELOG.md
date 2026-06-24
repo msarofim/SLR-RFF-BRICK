@@ -3,6 +3,22 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-06-24 — Phase 2 RFF-SP 2k subsample + extractor --subset flag
+
+- **`outputs/rff_subset_2k.csv`** — canonical 2000-draw RFF-SP subsample for the
+  Phase 2 MAGICC-vs-BRICK-Mengel comparison. Stride-5 selection (rff_idx 1,6,11,…,
+  9996); deterministic and evenly-spaced across the RFF-SP inventory. Decision
+  confirmed by Marcus 2026-06-24 (2k subsample + 1:1 LHS MAGICC member pairing).
+- **`extract_pulse_marginals_3brick.py`** — added `--subset <csv>` flag.  Optional
+  path to a CSV with `rff_idx` column; filters the 10k per-draw arm files to the
+  specified subset before computing weighted marginals. Default (no flag) = full 10k
+  (existing behavior unchanged). Subset output named
+  `marginals_summary_<stem>.csv` to avoid overwriting the canonical 10k result.
+  Validated on 2k: Mengel CO2 medians agree with full-10k to 0.3% (@2100) / 0.6%
+  (@2300) — within sampling noise.
+- **`extract_fossil_ch4_marginals_3brick.py`** — same `--subset` flag added.
+  Output named `marginals_fossil_ch4_summary_<stem>.csv`.
+
 ## [unreleased] — 2026-06-17 — LWS seed lock + brick-mengel archived
 
 - **Root cause** of the ~0.4 cm total-SLR drift between Mengel SSP-projection re-runs: MimiBRICK's

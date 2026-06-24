@@ -19,10 +19,15 @@ where OX_FACTOR = (oxidation CO2 per TgCH4) / (CO2 pulse size)
 
 Weighted quantiles: pre93/brick2 Wong (wong_weights_{v}.csv); mengel uniform.
 
-Output: outputs/pulse3brick_v145/marginals_fossil_ch4_summary.csv
+Output: outputs/pulse3brick_v145/marginals_fossil_ch4_summary.csv      (all 10k)
+        outputs/pulse3brick_v145/marginals_fossil_ch4_summary_<stem>.csv (subset)
   cols: version, basis(nonfossil|fossil), unit, component, year, n, ess_fraction,
         q05, q50, q95, mean   (cm per TgCH4)
+
+Optional --subset: CSV with 'rff_idx' column (same file as used by
+  extract_pulse_marginals_3brick.py --subset).
 """
+import argparse
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -72,6 +77,22 @@ def load_weights(version, paired_keys):
 
 
 def main():
+    ap = argparse.ArgumentParser(description="Extract fossil CH4 3-BRICK SLR marginals.")
+    ap.add_argument("--subset", type=Path, default=None,
+                    help="CSV with 'rff_idx' column: restrict to this draw subset.")
+    args = ap.parse_args()
+
+    if args.subset is not None:
+        sub_df = pd.read_csv(args.subset, usecols=["rff_idx"])
+        subset_ids = set(sub_df["rff_idx"].astype(int).tolist())
+        n_expected = len(subset_ids)
+        out_csv = OUT_CSV.parent / f"marginals_fossil_ch4_summary_{args.subset.stem}.csv"
+        print(f"[subset] {args.subset.name}: {n_expected} draws -> {out_csv.name}")
+    else:
+        subset_ids = None
+        n_expected = 10000
+        out_csv = OUT_CSV
+
     print(f"OX_FACTOR = {OX_FACTOR:.5f}  (oxidation CO2 {OX_CO2_PER_TGCH4_GT:.4e} GtCO2/TgCH4 "
           f"/ {CO2_PULSE_GT} GtCO2 pulse)")
     rows = []
@@ -86,7 +107,12 @@ def main():
                               how="inner", validate="one_to_one")
              .merge(ch4[keep].rename(columns={c: f"{c}_ch4" for c in cm_cols}),
                     on=PAIR_KEYS, how="inner", validate="one_to_one"))
-        assert len(m) == 10000, f"{version}: paired {len(m)} != 10000"
+        assert len(m) == 10000, f"{version}: full-pair {len(m)} != 10000"
+
+        if subset_ids is not None:
+            m = m[m["rff_idx"].isin(subset_ids)].copy()
+            assert len(m) == n_expected, (
+                f"{version}: subset gave {len(m)}, expected {n_expected}")
 
         w = load_weights(version, m[PAIR_KEYS])
         ess = ess_fraction(w)
@@ -108,12 +134,12 @@ def main():
                         ess_fraction=round(ess, 4),
                         q05=q[0], q50=q[1], q95=q[2],
                         mean=float(np.average(marg, weights=w))))
-        print(f"  {version:7s}: paired=10000  weights={wmode}  ESS/N={ess:.3f}")
+        print(f"  {version:7s}: paired={len(m)}  weights={wmode}  ESS/N={ess:.3f}")
 
     df = pd.DataFrame(rows)
-    OUT_CSV.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(OUT_CSV, index=False)
-    print(f"\n[save] {OUT_CSV}  ({len(df)} rows)")
+    out_csv.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(out_csv, index=False)
+    print(f"\n[save] {out_csv}  ({len(df)} rows)")
 
     # quick view: total, fossil vs nonfossil median, per version/year
     print("\n=== Total CH4 SLR marginal (cm/TgCH4), weighted median: nonfossil -> fossil ===")
