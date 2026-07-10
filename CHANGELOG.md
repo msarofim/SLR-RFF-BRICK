@@ -3,6 +3,19 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-07-09 — CH4/CO2 pulse → SLR paper plan (BRICK-FM coming-out paper)
+
+- **`notes/handoff_2026-07-09_ch4co2_slr_paper_plan.md`** — plan for the paper
+  combining CH4-vs-CO2 pulse SLR impacts with the BRICK-FM introduction. Covers:
+  BRICK-FM v-next recalibration scope (Smith 2024 emissions splice, freed AIS
+  geometry params, IMBIE/Dyurgerov point-term reconciliation, TE overshoot,
+  FaIR-config-aware calibration options), MAGICC Phase 2 + FACTS2.0 comparison
+  plan, paper skeleton, open methodological decisions, and sequencing.
+- **Discrepancy flagged (must resolve before recalibration):** the fork's
+  `calibrate_mcmc_mengel.jl` includes the IMBIE + Dyurgerov Gaussian point terms
+  unconditionally, but the ext refit that produced the shipped posterior dropped
+  both — re-running the fork script as-is will not reproduce the shipped posterior.
+
 ## [unreleased] — 2026-06-24 — Phase 2 RFF-SP 2k subsample + extractor --subset flag
 
 - **`outputs/rff_subset_2k.csv`** — canonical 2000-draw RFF-SP subsample for the
