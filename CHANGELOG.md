@@ -3,6 +3,31 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-07-09 — CH4/CO2 pulse → SLR **research plan** (adversarially reviewed)
+
+- **`notes/research_plan_2026-07-09_ch4co2_slr_paper.md`** — full research plan
+  expanding the same-day handoff into a submission-oriented document: paper thesis
+  + 4 contributions, literature positioning/novelty (Sterner-Johansson-Azar 2014 and
+  Zickfeld 2017 as ancestors; Nauels 2025 / SURFER v3.0 / Wong's own arXiv preprint as
+  threats), the **RFF-SP-vs-SSP backbone decision** (recommend RFF-SP primary for the
+  gas headline + uncertainty band; SSP2-4.5 as the shared cross-model-panel backbone
+  and AR6-anchor/curvature layer), pulse-experiment design + discipline, MAGICC Phase 2
+  and FACTS comparison plans, figure/table set, 11 open methodological decisions, an
+  11-row risk register, dependency-ordered sequencing, journal strategy, and a compiled
+  reference list with DOIs.
+- **Built from a 7-agent context sweep** over the BRICK-FM fork docs, MAGICC Phase 1/2
+  handoffs, the completed 3-BRICK pulse study, FACTS scoping, the backbone evidence, and
+  a verified literature search; then **adversarially reviewed by 3 independent critics**
+  (numeric consistency — all headline numbers recompute and match source; novelty/strategy;
+  methods/execution risk). Fixes folded in: reframed "level-vs-marginal inversion" as a
+  mechanism decomposition (pre-empts the "expected threshold-model behavior" objection);
+  added a **required CH4-specific scenario-sensitivity test** (the ~8% scenario-insensitivity
+  is a CO2 cross-check, not CH4 — and RFF under-projects CH4 growth, obs ≥ p95); elevated
+  Wong coordination and the reference-arm reuse-vs-re-run question to explicit gates; split
+  the fossil-CH4 doc-vs-lock contradiction by arm; flagged the RFF CO2-unit (1000×) and
+  MAGICC float32-floor pulse-size risks; and made GWP-basis dependence of the crossover a
+  first-class result.
+
 ## [unreleased] — 2026-07-09 — CH4/CO2 pulse → SLR paper plan (BRICK-FM coming-out paper)
 
 - **`notes/handoff_2026-07-09_ch4co2_slr_paper_plan.md`** — plan for the paper
