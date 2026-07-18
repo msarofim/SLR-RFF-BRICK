@@ -11,6 +11,9 @@
 ## Differences vs calibrate_mcmc.jl (the 2018-only baseline; kept untouched for A/B):
 ##   1. Reads outputs/recalib_targets_ext.csv (1900-2026, NaN where a component has
 ##      no data) instead of recalib_targets.csv.
+##   0. v-next (2026-07-18): the 7 DAIS geometry params -- previously FIXED at the prior
+##      medoid -- are FREED under a joint MvNormal paleo-covariance prior (Strategy B),
+##      taking the param count 28 -> 35. See the GEO block below.
 ##   2. Model run window extended Y1 1850->2026 (forcing fair_mean_*.csv already
 ##      reaches 2301, so the SAME forcing is used -- only the window changes).
 ##   3. PER-SERIES fit windows: each component fit to its own valid (non-missing)
@@ -49,8 +52,17 @@ end
 
 # ---- forcing (UNCHANGED series, just read through Y1) + extended targets ----
 lc(p,c)=(d=CSV.read(p,DataFrame); Dict(Int(d[i,"year"])=>Float64(d[i,c]) for i in 1:nrow(d)))
-gmst=[lc(joinpath(OBS,"fair_mean_gmst.csv"),"gmst_C")[y] for y in years]
-ohc =[lc(joinpath(OBS,"fair_mean_ohc.csv"),"ohc_1e22J")[y] for y in years]
+# v-next (2026-07-18): forcing switched from the RFF-SP-central splice to the SSP2-4.5
+# HARMONIZED splice, so the calibration sits on the SAME forcing as the pulse projections
+# (fairtable7_v145_pulse.py uses emissions_v145_ssp245_harmonized.csv) and matches this
+# script's build_brick_mengel(ssp="ssp245"). Both splices share the Smith historical, so
+# 1850-2020 is unchanged; they differ only over ~2020-2026 of the fit window (mean
+# |dGMST| 0.03 C) and in the post-fit tail. NOT the same as fair_mean_*_ssp245.csv, which
+# is RCMIP-native (run_fair_ssps.py) rather than harmonized.
+const FORCING_TAG = "ssp245harm"
+gmst=[lc(joinpath(OBS,"fair_mean_gmst_$(FORCING_TAG).csv"),"gmst_C")[y] for y in years]
+ohc =[lc(joinpath(OBS,"fair_mean_ohc_$(FORCING_TAG).csv"),"ohc_1e22J")[y] for y in years]
+println("forcing: fair_mean_{gmst,ohc}_$(FORCING_TAG).csv")
 tg = CSV.read(TARGETS, DataFrame)
 ϵband(lo,hi)=max.((hi.-lo)./(2*1.645), 0.05)           # per-year obs σ (floor 0.05cm)
 
@@ -107,10 +119,42 @@ push!(FREE, (name="gic_T_lia",comp=G,sym=:gic_T_lia,μ=-0.45,σ=0.30,lo=-1.00,hi
 push!(FREE, (name="gic_f",comp=G,sym=:gic_f,μ=0.50,σ=0.30,lo=0.02,hi=0.98,islog=false))
 push!(FREE, (name="gic_tau_fast",comp=G,sym=:gic_tau_fast,μ=40.,σ=30.,lo=5.,hi=80.,islog=false))
 push!(FREE, (name="gic_tau_slow",comp=G,sym=:gic_tau_slow,μ=300.,σ=200.,lo=80.,hi=800.,islog=false))
+
+# ---- v-next Strategy B: FREE the 7 DAIS geometry params under a JOINT paleo prior ----
+# These were previously FIXED at the prior medoid, which discards both their spread and
+# the paleo correlation structure among them. Freed here with a joint prior built from the
+# DAISfastdyn paleo ensemble (MimiBRICK.jl/calibration/compute_paleo_geo_prior.jl).
+# STANDARDIZED form: prior = MvNormal(0, C) on z = (θ - μ)/sd. The correlation C is well
+# conditioned (cond 2.75) where the raw covariance is not (cond 5.2e13 -- scales span
+# 1e-4..1e3), so this keeps the paleo correlation without the ill-conditioning.
+# Bounds = paleo ensemble min/max.
+# ais_precipitation₀ is sampled in LOG space: MimiBRICK v2.0.0's AIS component computes
+# exp(ais_precipitation₀) (package default log(0.37)), so islog=false passes the log-space
+# θ straight through -- do NOT set islog=true here, that would log it twice.
+const GEO_FILE  = joinpath(REPO, "outputs/paleo_geo_prior.csv")
+const GEO_NAMES = ["ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG","ais_runoff_h0","ais_c"]
+const GEO_SYMS  = [:ais_μ, :ais_bedheight₀, :ais_slope, :ais_iceflow₀,
+                   :ais_precipitation₀, :ais_runoffline_snowheight₀, :ais_c]
+_gl = [split(strip(l), ',') for l in readlines(GEO_FILE) if !startswith(l,"#") && !isempty(strip(l))]
+_grow(tag) = [parse(Float64, x) for x in first(l for l in _gl if l[1] == tag)[2:end]]
+const GEO_MU = _grow("mean")
+const GEO_SD = _grow("sd")
+const GEO_C  = Symmetric(permutedims(reduce(hcat,
+    [[parse(Float64,x) for x in l[2:end]] for l in _gl if l[1] == "corr"])))
+let glo = _grow("lo"), ghi = _grow("hi")
+    for i in eachindex(GEO_SYMS)
+        push!(FREE, (name=GEO_NAMES[i], comp=:antarctic_icesheet, sym=GEO_SYMS[i],
+                     μ=GEO_MU[i], σ=GEO_SD[i], lo=glo[i], hi=ghi[i], islog=false))
+    end
+end
+const GEO_IDX   = (length(FREE)-length(GEO_SYMS)+1):length(FREE)
+const GEO_PRIOR = MvNormal(zeros(length(GEO_SYMS)), Matrix(GEO_C))
+
 const NP = length(FREE)
 const SERIES = [:ais,:gsic,:gis,:steric,:dang]
 const NN = 2*length(SERIES); const NK = NP + NN
-println("MCMC: $NP physical + $NN AR(1)-noise = $NK free params  (point terms DROPPED)")
+println("MCMC: $NP physical (incl $(length(GEO_IDX)) DAIS-geometry under a joint paleo prior) " *
+        "+ $NN AR(1)-noise = $NK free params  (point terms DROPPED)")
 
 # ---- model base (medoid + glacier init), forcing once -- UNCHANGED build/medoid ----
 medoid = CSV.read(joinpath(REPO,"outputs/recalib_central_row.csv"), DataFrame)[1,:]
@@ -136,22 +180,51 @@ function logposterior(θ)
     end
     # total (Dangendorf+altimetry): modeled ice+steric at dang years + observed LWS
     ll += hetero_logl_ar1(tot_full[S.dang.myi] .+ lws_dang .- S.dang.obs, σn[5], ρn[5], S.dang.ϵ)
-    # priors: Gaussian on physical, weak half-normal on AR(1) σ
+    # priors: independent Gaussian on physical (EXCEPT the geometry block, which gets the
+    # joint paleo prior below), weak half-normal on AR(1) σ
     lp = 0.0
-    @inbounds for k in 1:NP; lp += logpdf(Normal(FREE[k].μ, FREE[k].σ), θ[k]); end
+    @inbounds for k in 1:NP
+        k in GEO_IDX && continue
+        lp += logpdf(Normal(FREE[k].μ, FREE[k].σ), θ[k])
+    end
+    lp += logpdf(GEO_PRIOR, (θ[GEO_IDX] .- GEO_MU) ./ GEO_SD)
     for i in 1:length(SERIES); lp += logpdf(truncated(Normal(0,5),0,Inf), σn[i]); end
     return ll + lp
 end
 
 # ---- start point: MAP physical + noise inits -- UNCHANGED ----
 mapp = CSV.read(joinpath(REPO,"outputs/calib_full_joint_params.csv"), DataFrame)
+# The geometry params are NOT in calib_full_joint_params.csv (they were fixed, not fitted),
+# so they must start at the MEDOID -- the values the rest of the MAP was conditioned on --
+# NOT at the paleo prior mean. The medoid precip₀ is 0.94 m/yr vs the paleo mean 0.40 (2.3x)
+# and iceflow₀ is -1.4sd off, so starting at the prior mean puts θ0 ~4900 log-units below the
+# mode and collapses RAM acceptance to 0.02 (vs 0.19 for the 28-param baseline). This changes
+# only the START POINT; the joint paleo prior is unchanged.
+const GEO_MEDOID_COL = Dict(
+    "ais_mu"          => "antarctic_mu",        "ais_bedheight0" => "antarctic_bed_height0",
+    "ais_slope"       => "antarctic_slope",     "ais_iceflow0"   => "antarctic_flow0",
+    "ais_precip0_LOG" => "antarctic_precip0",   "ais_c"          => "antarctic_c",
+    "ais_runoff_h0"   => "antarctic_runoff_height0")
 θ0 = Float64[]
 for k in 1:NP
-    j = findfirst(==(FREE[k].name), mapp.param)
-    push!(θ0, isnothing(j) ? FREE[k].μ : mapp.MAP[j])
+    nm = FREE[k].name
+    if k in GEO_IDX
+        v = Float64(medoid[GEO_MEDOID_COL[nm]])          # medoid stores precip₀ LINEAR
+        push!(θ0, nm == "ais_precip0_LOG" ? log(v) : v)  # ...but θ/model are log-space
+    else
+        j = findfirst(==(nm), mapp.param)
+        push!(θ0, isnothing(j) ? FREE[k].μ : mapp.MAP[j])
+    end
 end
 append!(θ0, repeat([1.0, 0.5], length(SERIES)))
 prop = vcat([0.1*Float64(k.σ) for k in FREE], repeat([0.3, 0.1], length(SERIES)))
+# Geometry proposals get their OWN scale: FREE[k].σ here is the PALEO prior sd, which is far
+# broader than what the modern obs permit (paleo sd for ais_μ is 1.8; the chain's spread is
+# ~0.004), so 0.1*prior-sd would be a very wide start. RAM adapts from here.
+# NB this was NOT the cause of the low-acceptance problem seen while building this -- tested:
+# it moved acceptance only 0.022 -> 0.029. That was the θ0 start point (see GEO_MEDOID_COL).
+const GEO_PROP_SCALE = 0.02
+for k in GEO_IDX; prop[k] = GEO_PROP_SCALE * Float64(FREE[k].σ); end
 # proposal seed: PREFER the ext-tuned covariance (adapted_cov_ext.csv, written by
 # postprocess_mcmc_ext.jl from a prior ext run) -- it matches the extended posterior
 # shape, which the 2018-baseline adapted_cov.csv does NOT (point terms dropped +
@@ -160,8 +233,26 @@ const ADCOV = let e = joinpath(REPO,"outputs/mcmc/adapted_cov_ext.csv"),
                   b = joinpath(REPO,"outputs/mcmc/adapted_cov.csv")
     isfile(e) ? e : b
 end
-cov0 = isfile(ADCOV) ? Matrix(CSV.read(ADCOV, DataFrame)) : Matrix(Diagonal(prop.^2))
-isfile(ADCOV) && println("(seeding proposal from adapted covariance $(basename(ADCOV)))")
+cov0 = Matrix(Diagonal(prop.^2))
+if isfile(ADCOV)
+    old = Matrix(CSV.read(ADCOV, DataFrame))
+    # Pre-v-next covariances are (NK - 7)x(NK - 7): they predate the geometry block.
+    # The geometry rows were APPENDED to the end of the physical block, so the remaining
+    # params keep their relative order and the old matrix maps onto OLDIDX exactly.
+    OLDIDX = [k for k in 1:NK if !(k in GEO_IDX)]
+    if size(old,1) == NK
+        cov0 = old
+        println("(seeding proposal from adapted covariance $(basename(ADCOV)))")
+    elseif size(old,1) == length(OLDIDX)
+        cov0[OLDIDX, OLDIDX] = old      # tuned shape for the old params, diagonal for geometry
+        println("(seeding proposal: embedded $(size(old,1))x$(size(old,1)) $(basename(ADCOV)) " *
+                "+ diagonal for the $(length(GEO_IDX)) newly freed geometry params)")
+    else
+        println("(WARNING: $(basename(ADCOV)) is $(size(old,1))x$(size(old,1)), incompatible " *
+                "with NK=$NK -- falling back to the diagonal proposal)")
+    end
+end
+isposdef(cov0) || error("seed proposal covariance is not positive definite")
 println("logpost(θ0) = ", round(logposterior(θ0), digits=2), "  (start = MAP)")
 
 Random.seed!(SEED)
@@ -172,7 +263,8 @@ println("RAM run: $N_ITER iter, acceptance = ", round(accept, digits=3))
 pn = vcat([k.name for k in FREE], vcat([["sd_$s","rho_$s"] for s in SERIES]...))
 burn = chain[(N_ITER÷2+1):end, :]
 println("\nposterior (2nd-half) median ± sd for key params:")
-for nm in ["ais_ocean_temperature₀","anto_alpha","thermal_alpha","gic_T_lia","gic_f","gic_tau_fast","gic_tau_slow","gic_a"]
+for nm in ["ais_ocean_temperature₀","anto_alpha","thermal_alpha","gic_T_lia","gic_f","gic_tau_fast","gic_tau_slow","gic_a",
+           "ais_mu","ais_precip0_LOG","ais_iceflow0","ais_c"]
     c = burn[:, findfirst(==(nm),pn)]
     @printf("  %-24s %.3g ± %.2g\n", nm, median(c), std(c))
 end

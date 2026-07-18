@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# v-next BRICK-Mengel production: 4 chains x 500k, 35 params (28 + 7 freed DAIS geometry),
+# SSP2-4.5 harmonized forcing. Seeded from the adapted 35x35 covariance.
+set -u
+cd "$(dirname "$0")/.."
+N_ITER=500000
+export OPENBLAS_NUM_THREADS=2 OMP_NUM_THREADS=2   # 4 chains x 2 threads on 10 cores
+for SEED in 2026 2027 2028 2029; do
+  julia --project=julia_v2 julia/calibrate_mcmc_ext.jl $N_ITER $SEED \
+      > outputs/mcmc/log_ext_seed${SEED}.txt 2>&1 &
+done
+wait
+echo "ALL 4 CHAINS DONE"
