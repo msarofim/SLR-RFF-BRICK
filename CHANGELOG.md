@@ -3,6 +3,68 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-07-18 — BRICK-Mengel **v-next recalibration** (Strategy B: 28 → 35 params)
+
+Branch **`brick-mengel-vnext`** (new). `brick-mengel` is archived/frozen per CLAUDE.md,
+so this work branches off it rather than committing onto it. **Flagged for Marcus:**
+confirm this is the intended home — the alternative is moving the calibration drivers
+into the MimiBRICK-FM repo, which is now the canonical home of the Mengel model.
+
+### Changed
+- **`julia/calibrate_mcmc_ext.jl`** — the 7 DAIS geometry params (`ais_μ`,
+  `bedheight₀`, `slope`, `iceflow₀`, `precipitation₀`, `runoffline_snowheight₀`, `c`),
+  previously **fixed at the prior medoid**, are now **free** under a joint MvNormal
+  paleo-covariance prior. 28 → 35 free params (25 physical + 10 AR(1) noise).
+- **Forcing** switched from the RFF-SP-central splice to the **SSP2-4.5 harmonized**
+  splice (`fair_mean_{gmst,ohc}_ssp245harm.csv`), so the calibration and the pulse
+  projections sit on the same forcing. Both share the Smith historical → 1850–2020
+  unchanged (1850/1900/1971 bit-identical); differs only over ~2020–2026 of the fit
+  window (mean |ΔGMST| 0.03 °C) and in the tail.
+- **`FaIRtoFrEDI/build_fair_mean_v145.py`** parameterized (`--emissions-file`, `--tag`,
+  `--scenario-label`) so alternate forcings can be built **without overwriting** the
+  canonical `fair_mean_{gmst,ohc}.csv`. Defaults unchanged.
+
+### Added
+- **`MimiBRICK.jl/calibration/compute_paleo_geo_prior.jl`** → `outputs/paleo_geo_prior.csv`.
+
+### Quarantined
+- June-13 28-param `ext` posterior → `outputs/quarantine/20260718_pre_vnext_28param_ext/`
+  (**superseded, NOT bugged**). Necessary because `postprocess_mcmc_ext.jl` globs
+  `chain_ext_seed*` and would otherwise silently mix 28- and 35-column chains.
+
+### Tried and abandoned / rejected
+- **Raw paleo covariance as the prior — rejected.** The 7 params span scales 1e-4…1e3,
+  giving `cond(Σ) = 5.2e13`. Used the **standardized** form instead — `MvNormal(0, C)`
+  on `z=(θ−μ)/sd`, `cond(C) = 2.75` — which keeps the paleo correlation structure
+  without the ill-conditioning.
+- **Continuing on the fork's `calibration/calibrate_mcmc_mengel.jl` — abandoned.**
+  It does not run: it calls MimiBRICK internals (`get_model`, `set_external_forcing!`,
+  `_apply_mengel_defaults!`) unqualified, as if lifted out of the module with the import
+  dropped, and separately crashes on missing values because the extended targets gained
+  trailing empty years after it was written. Evidence it was refactored for the PR and
+  never re-run. My edits to it were **reverted**; pivoted to `calibrate_mcmc_ext.jl`,
+  which runs and already had the Mengel emulator, the freed `ais_ocean_temperature₀`,
+  the dropped point terms, and NaN handling. *Open: whether to also fix the fork script
+  as separate cleanup / flag to Tony.*
+- **`islog=true` for `precipitation₀` — rejected.** `setp!` applies `log()` when
+  `islog=true`, and MimiBRICK v2.0.0 already computes `exp(ais_precipitation₀)`
+  (default `log(0.37)`), so that would log twice. Sampled in log space with `islog=false`.
+- **Geometry-specific proposal scale as the fix for low acceptance — rejected by test.**
+  Plausible (paleo sd for `ais_μ` is 1.8 vs a chain spread of ~0.004) but **wrong**:
+  it moved acceptance only 0.022 → 0.029. `GEO_PROP_SCALE` is retained as a sane default,
+  not as the fix. The actual cause was the **θ0 start point** — geometry fell back to the
+  paleo prior *mean* rather than the *medoid* the rest of the MAP was conditioned on
+  (medoid `precip₀` 0.94 m/yr vs paleo mean 0.40, a 2.3× difference; `iceflow₀` −1.4 sd).
+  That put `logpost(θ0)` at −5636 vs the 28-param baseline's −771. Isolated by running the
+  original 28-param script at the same iteration count/seed (acceptance 0.192) as a control.
+  With the medoid start: `logpost(θ0)` = −779, acceptance 0.196 → 0.222 after adaptation.
+
+### Watch
+- **`ais_c` rails against its paleo upper bound** (140 ± 1.6 vs `hi` = 142.5) in the 50k
+  tuning chain — the same pathology class as the `gsic_teq` floor-railing seen in the
+  central-recalibration prototype. Not over-read from one short chain; **to be checked
+  across the 4 production chains** before the posterior is accepted.
+
 ## [unreleased] — 2026-07-09 — CH4/CO2 pulse → SLR **research plan** (adversarially reviewed)
 
 - **`notes/research_plan_2026-07-09_ch4co2_slr_paper.md`** — full research plan
