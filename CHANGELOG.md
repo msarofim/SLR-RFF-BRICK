@@ -59,11 +59,50 @@ into the MimiBRICK-FM repo, which is now the canonical home of the Mengel model.
   original 28-param script at the same iteration count/seed (acceptance 0.192) as a control.
   With the medoid start: `logpost(θ0)` = −779, acceptance 0.196 → 0.222 after adaptation.
 
-### Watch
-- **`ais_c` rails against its paleo upper bound** (140 ± 1.6 vs `hi` = 142.5) in the 50k
-  tuning chain — the same pathology class as the `gsic_teq` floor-railing seen in the
-  central-recalibration prototype. Not over-read from one short chain; **to be checked
-  across the 4 production chains** before the posterior is accepted.
+### Run 1 (4 × 500k) — NOT CONVERGED; diagnosed, not a bug
+
+Acceptance healthy (0.224–0.241), but **12 params fail R̂<1.05**, and the failures are
+exactly the 7 geometry params (R̂ 1.44–1.98) plus the AIS block they correlate with
+(`ais_ocean_temperature₀` 1.09, `antarctic_alpha` 1.49, `anto_alpha` 1.25, `anto_beta` 1.51).
+ESS ≈ 2000 with bad R̂ = good *within*-chain mixing, bad *between*-chain agreement.
+
+Diagnosed with three tests rather than assumed:
+- **Not multimodal.** Per-chain median `log_post` = 126.7 / 128.5 / 129.7 / 126.8 — all four
+  chains sit on the same plateau. No chain found a better mode.
+- **Not bound-railing.** Only 5% of pooled `ais_c` draws and 10% of `ais_runoff_h0` fall
+  within 2% of a paleo bound. **This corrects the "watch `ais_c` railing" flag raised from
+  the 50k tuning chain — it was an over-read of one short chain.**
+- **The geometry block is weakly identified.** Posterior sd / prior sd = 0.46–0.76
+  (`ais_bedheight0` 0.76 ≈ unidentified; the rest roughly halve the prior sd). Per-chain
+  medians differ by 1.5–4.5 within-chain sd while posterior density is equal.
+
+So the target is a broad, correlated, weakly-identified ridge — which is *why* the original
+calibration fixed these at the medoid. Not a defect in the implementation.
+
+### Run 2 (4 × 1M) — in progress
+Reseeded from the **empirical 35×35 posterior covariance** written by postprocess. Run 1
+started from the 28×28 embed + diagonal, which encoded nothing about the geometry ridge;
+the empirical covariance captures its correlation, so this tests better mixing rather than
+brute-forcing iterations. Run-1 chains quarantined to
+`outputs/quarantine/20260718_vnext_run1_notconverged/` to keep the `chain_ext_seed*` glob clean.
+
+**A non-converged subsample was written to the canonical
+`data/MimiBRICK/parameters_subsample_brick_mengel_ext.csv` and has been moved out** to
+`outputs/quarantine/20260718_vnext_NOTCONVERGED_subsample/`. The June-13 `_ext` subsample at
+that path was overwritten in the process — it is untracked, but regenerable from the
+quarantined June-13 chains. The four MAGICC-vs-FaIR tables are unaffected: their driver
+reads the non-`_ext` `parameters_subsample_brick_mengel.csv`, which is untouched.
+
+### DECISION PENDING (Marcus)
+If run 2 still misses R̂<1.05, the choice is **not** mine to make silently:
+1. **Longer chains** (4 × 5M, ~6 h overnight) — keeps all 7 free, no methodological change.
+2. **Reduce the freed set** — e.g. re-fix `ais_bedheight0` (the one genuinely unidentified
+   param), keeping the identifiable ones free. Changes what "v-next" means.
+3. **Accept geometry as a prior-dominated nuisance block** — report marginals for the params
+   of interest and state that modern obs do not identify DAIS geometry. Cannot claim
+   convergence on the R̂ diagnostic.
+Note (3) is arguably a *result*, not a failure: "modern sea-level obs do not identify DAIS
+geometry" is a publishable statement for the pulse paper.
 
 ## [unreleased] — 2026-07-09 — CH4/CO2 pulse → SLR **research plan** (adversarially reviewed)
 
