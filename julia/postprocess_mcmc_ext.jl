@@ -14,7 +14,12 @@ using MCMCDiagnosticTools
 
 const REPO = abspath(joinpath(@__DIR__, ".."))
 const TAG  = "ext"
-N_SUB = length(ARGS)>=1 ? parse(Int,ARGS[1]) : 10000
+const ESS_MIN = 400
+# Writing a posterior subsample or a proposal seed from NON-CONVERGED chains is how a bad
+# posterior reaches downstream consumers silently. Both writes are gated on convergence;
+# pass --force to override (the files then carry a _NOTCONVERGED suffix).
+const FORCE = "--force" in ARGS
+N_SUB = length(ARGS)>=1 && !startswith(ARGS[1],"--") ? parse(Int,ARGS[1]) : 10000
 const MCMCDIR = joinpath(REPO, "outputs/mcmc")
 files = [joinpath(MCMCDIR,f) for f in readdir(MCMCDIR) if startswith(f,"chain_$(TAG)_seed") && endswith(f,".csv")]
 isempty(files) && error("no chain_$(TAG)_seed*.csv files in outputs/mcmc/")
@@ -26,30 +31,51 @@ for f in files
     push!(chains, burn)
     @printf("  %s  (%d post-burn, accept %.3f)\n", basename(f), nrow(burn), d.accept_rate[1])
 end
-pnames = [n for n in names(chains[1]) if !(n in ["log_post","accept_rate"])]
+pnames = [n for n in names(chains[1]) if !(n in ["accept_rate"])]   # log_post IS diagnosed (see below)
 
 nmin = minimum(nrow.(chains)); nc = length(chains)
-println("\n$(nc) chains × $nmin draws. Convergence (target R̂<1.05, ESS>400):")
+println("\n$(nc) chains × $nmin draws. Convergence (target R̂<1.05, ESS>$(ESS_MIN)):")
 bad = String[]
 for p in pnames
     arr = Array{Float64}(undef, nmin, nc)
     for (ci,ch) in enumerate(chains); arr[:,ci] = Float64.(ch[1:nmin, p]); end
-    r = rhat(arr); e = ess(arr)
-    (r > 1.05 || e < 400) && (push!(bad, p); @printf("  %-24s R̂=%.3f ESS=%.0f  <-- check\n", p, r, e))
+    # ESS MUST pass maxlag explicitly. MCMCDiagnosticTools' default maxlag=250 truncates the
+    # Geyer initial-monotone sum at tau<=500, which FLOORS ESS at ntotal/500 -- a censored
+    # constant, not a measurement. With tau>1e5 for the AIS geometry block, the default
+    # over-reported ESS by 150-270x (e.g. ais_iceflow0 run-2: reported 4034, true 15) and made
+    # the `e < ESS_MIN` half of the gate dead code for any run over 200k pooled draws.
+    r = rhat(arr); e = ess(arr; maxlag = size(arr,1))
+    τ = (nmin*nc) / max(e, 1e-9)
+    (r > 1.05 || e < ESS_MIN) &&
+        (push!(bad, p); @printf("  %-24s R̂=%.3f ESS=%.1f τ=%.0f  <-- check\n", p, r, e, τ))
 end
-isempty(bad) ? println("  all params converged (R̂<1.05, ESS>400).") :
-               println("  $(length(bad)) params not yet converged -> longer chains.")
+isempty(bad) ? println("  all params converged (R̂<1.05, ESS>$(ESS_MIN)).") :
+               println("  $(length(bad)) params NOT converged.")
+const CONVERGED = isempty(bad)
 
 pool = vcat(chains...)
 n = nrow(pool); step = max(1, n ÷ N_SUB)
 sub = pool[1:step:end, :][1:min(N_SUB, end), :]
-out = joinpath(REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_$(TAG).csv")
-CSV.write(out, sub[:, pnames])
-@printf("\nWrote %s  (%d-member posterior subsample of %d pooled draws)\n", out, nrow(sub), n)
+parnames = [p for p in pnames if p != "log_post"]     # subsample/cov exclude log_post
 
-M = Matrix{Float64}(pool[:, pnames])
-CSV.write(joinpath(MCMCDIR,"adapted_cov_$(TAG).csv"), DataFrame(cov(M) .+ 1e-10*I(size(M,2)), :auto))
-println("Wrote outputs/mcmc/adapted_cov_$(TAG).csv (empirical posterior cov) -> seeds the next ext run.")
+if CONVERGED || FORCE
+    sfx = CONVERGED ? "" : "_NOTCONVERGED"
+    out = joinpath(REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_$(TAG)$(sfx).csv")
+    CSV.write(out, sub[:, parnames])
+    @printf("\nWrote %s  (%d-member subsample of %d pooled draws)\n", out, nrow(sub), n)
+    # The proposal seed is cov over POOLED draws = within + between chain variance. For a
+    # non-converged ensemble that inflates the seed by ~R̂^2 in exactly the worst directions.
+    M = Matrix{Float64}(pool[:, parnames])
+    cout = joinpath(MCMCDIR, "adapted_cov_$(TAG)$(sfx).csv")
+    CSV.write(cout, DataFrame(cov(M) .+ 1e-10*I(size(M,2)), :auto))
+    println("Wrote $(basename(cout)) (empirical posterior cov) -> seeds the next ext run.")
+else
+    println("\nNOT CONVERGED -> REFUSING to write the canonical posterior subsample or the")
+    println("proposal seed. A subsample drawn from non-converged chains silently becomes the")
+    println("posterior for every downstream consumer; a proposal seed pooled over disagreeing")
+    println("chains is inflated by between-chain variance. Re-run with --force to write both")
+    println("with a _NOTCONVERGED suffix (they will NOT land on the canonical paths).")
+end
 
 # quick A/B vs the 2018-baseline subsample for the key AIS knob + te_α
 base = joinpath(REPO, "data/MimiBRICK/parameters_subsample_brick_mengel.csv")
