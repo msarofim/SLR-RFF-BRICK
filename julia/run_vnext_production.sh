@@ -7,7 +7,7 @@ N_ITER=2000000
 export OPENBLAS_NUM_THREADS=2 OMP_NUM_THREADS=2   # 4 chains x 2 threads on 10 cores
 for SEED in 2026 2027 2028 2029; do
   echo "launching seed $SEED: $N_ITER iterations"
-  julia --project=julia_v2 julia/calibrate_mcmc_ext.jl $N_ITER $SEED \
+  julia --project=julia_v2 julia/calibrate_mcmc_ext.jl $N_ITER $SEED --overdisperse \
       > outputs/mcmc/log_ext_seed${SEED}.txt 2>&1 &
 done
 wait

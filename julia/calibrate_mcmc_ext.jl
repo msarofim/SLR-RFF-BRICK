@@ -153,6 +153,9 @@ const GEO_PRIOR = MvNormal(zeros(length(GEO_SYMS)), Matrix(GEO_C))
 const NP = length(FREE)
 const SERIES = [:ais,:gsic,:gis,:steric,:dang]
 const NN = 2*length(SERIES); const NK = NP + NN
+# parameter names in θ order (physical, then AR(1) noise). Defined here because
+# --overdisperse needs it before sampling; the post-run summary reuses it.
+const pn0 = vcat([k.name for k in FREE], vcat([["sd_$s","rho_$s"] for s in SERIES]...))
 println("MCMC: $NP physical (incl $(length(GEO_IDX)) DAIS-geometry under a joint paleo prior) " *
         "+ $NN AR(1)-noise = $NK free params  (point terms DROPPED)")
 
@@ -253,14 +256,51 @@ if isfile(ADCOV)
     end
 end
 isposdef(cov0) || error("seed proposal covariance is not positive definite")
-println("logpost(θ0) = ", round(logposterior(θ0), digits=2), "  (start = MAP)")
+
+# ---- over-dispersed starts (--overdisperse) ----------------------------------------
+# R̂ is only a valid convergence diagnostic when chains start OVER-DISPERSED relative to
+# the target. Every run through 2026-07-19 started all 4 chains at the SAME θ0 (θ0 is built
+# deterministically from the MAP/medoid CSVs above, and Random.seed! was not called until
+# after), so the chains differed only in RNG stream -- maximal UNDER-dispersion, the exact
+# opposite of the Gelman-Rubin requirement. That makes R̂ anti-conservative: between-chain
+# variance cannot reflect posterior mass no chain ever reached. With measured τ > 1e5 for
+# the AIS block, 4 common-start chains cannot forget θ0 in a feasible run.
+# Dispersion: geometry block drawn from its (bounded) paleo prior; everything else jittered
+# by ±2 posterior sd taken from the seed covariance diagonal. Expect R̂ to LOOK WORSE than
+# the common-start runs -- that is the diagnostic working, not a regression.
+const OVERDISPERSE = "--overdisperse" in ARGS
+if OVERDISPERSE
+    # Starts are REAL posterior draws, not random jitter. Jittering the MAP (geometry from
+    # the full paleo prior + 2 posterior sd on the rest) was tried and FAILED: 200/200 draws
+    # gave a non-finite logposterior, because a jointly-perturbed geometry vector leaves the
+    # feasible region even when every marginal is inside its bounds. Real draws are feasible
+    # by construction AND dispersed along the direction that actually fails to mix.
+    # Built by picking pooled run-3 draws at ais_iceflow0 quantiles 0.02/0.35/0.65/0.98.
+    SF = joinpath(REPO, "outputs/mcmc/overdispersed_starts.csv")
+    isfile(SF) || error("--overdisperse needs $SF (4 rows x NK params). See notes/handoff_2026-07-18_brick_mengel_vnext.md")
+    st = CSV.read(SF, DataFrame)
+    si = findfirst(==(SEED), [2026,2027,2028,2029])
+    isnothing(si) && error("--overdisperse: no start row defined for seed $SEED")
+    nrow(st) >= si || error("--overdisperse: $SF has $(nrow(st)) rows, need >= $si")
+    θmap = copy(θ0)
+    for (k, nm) in enumerate(pn0)
+        hasproperty(st, Symbol(nm)) || error("--overdisperse: $SF is missing column $nm")
+        θ0[k] = Float64(st[si, Symbol(nm)])
+    end
+    lp0 = logposterior(θ0)
+    isfinite(lp0) || error("--overdisperse: start row $si for seed $SEED has non-finite logposterior")
+    @printf("over-dispersed start (seed %d, row %d): logpost(θ0) = %.2f  [MAP start = %.2f]\n",
+            SEED, si, lp0, logposterior(θmap))
+else
+    println("logpost(θ0) = ", round(logposterior(θ0), digits=2), "  (start = MAP; common across seeds -> R̂ is ANTI-CONSERVATIVE)")
+end
 
 Random.seed!(SEED)
 @time chain, accept, covout, lp = RAM_sample(logposterior, θ0, cov0, N_ITER; opt_α=0.234, output_log_probability_x=true)
 mkpath(joinpath(REPO,"outputs/mcmc"))
 CSV.write(joinpath(REPO,"outputs/mcmc/adapted_cov_$(TAG)_seed$(SEED).csv"), DataFrame(covout, :auto))
 println("RAM run: $N_ITER iter, acceptance = ", round(accept, digits=3))
-pn = vcat([k.name for k in FREE], vcat([["sd_$s","rho_$s"] for s in SERIES]...))
+pn = pn0
 burn = chain[(N_ITER÷2+1):end, :]
 println("\nposterior (2nd-half) median ± sd for key params:")
 for nm in ["ais_ocean_temperature₀","anto_alpha","thermal_alpha","gic_T_lia","gic_f","gic_tau_fast","gic_tau_slow","gic_a",
