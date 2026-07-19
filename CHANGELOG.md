@@ -93,16 +93,90 @@ that path was overwritten in the process — it is untracked, but regenerable fr
 quarantined June-13 chains. The four MAGICC-vs-FaIR tables are unaffected: their driver
 reads the non-`_ext` `parameters_subsample_brick_mengel.csv`, which is untouched.
 
-### DECISION PENDING (Marcus)
-If run 2 still misses R̂<1.05, the choice is **not** mine to make silently:
-1. **Longer chains** (4 × 5M, ~6 h overnight) — keeps all 7 free, no methodological change.
-2. **Reduce the freed set** — e.g. re-fix `ais_bedheight0` (the one genuinely unidentified
-   param), keeping the identifiable ones free. Changes what "v-next" means.
-3. **Accept geometry as a prior-dominated nuisance block** — report marginals for the params
-   of interest and state that modern obs do not identify DAIS geometry. Cannot claim
-   convergence on the R̂ diagnostic.
-Note (3) is arguably a *result*, not a failure: "modern sea-level obs do not identify DAIS
-geometry" is a publishable statement for the pulse paper.
+### 2026-07-19 — ADVERSARIAL AUDIT: several of the above diagnoses were WRONG
+
+A 4-lens adversarial audit of the convergence diagnosis (workflow `wf_e17a59f6-443`)
+found real defects. Retractions, with what replaced them:
+
+- **RETRACTED: every ESS number reported for runs 1–3.** `postprocess_mcmc_ext.jl:37`
+  called `ess(arr)` with MCMCDiagnosticTools' default `maxlag=250`, which truncates the
+  Geyer sum at τ≤500 and therefore **floors ESS at ntotal/500**. Reported values were
+  exactly that floor (run1 ~2000, run2 ~4000, run3 ~8000). The "ESS doubled → mixing
+  improved" reading — which I used twice as evidence — was the floor doubling with
+  `ntotal`. **True run-3 ESS: `ais_iceflow0` 10.6 (τ=376,230), `antarctic_alpha` 19.6,
+  `ais_precip0_LOG` 41.9, `ais_slope` 47.7.** Fixed; ESS now reported with τ.
+- **RETRACTED: "longer chains, no methodological change."** Reaching ESS 400 for
+  `ais_iceflow0` needs ~38M iterations *per chain* (~80 h/chain). Run 3 (2 M) confirmed
+  it empirically: R̂ did **not** improve over run 2 and the worst param got *worse*
+  (1.245 → 1.320). Chain length is not the lever.
+- **RETRACTED: the identifiability causal story — it was backwards.** The parameters that
+  fail R̂ are the **constrained, correlated** ones; the weakly-identified ones mix
+  *trivially* (`ais_bedheight0` ESS 7218, `ais_c` 5356) because the sampler just draws the
+  prior. Correspondingly, "re-fix `ais_bedheight0`" was exactly backwards — it is the
+  best-converged parameter in the set (R̂ 1.000).
+- **RETRACTED: run-1 provenance.** Run 1 did **not** use a 28×28 embed; its log shows the
+  full-35×35 branch fired. Both runs were seeded 35×35 (run 1 from the 50k pilot). The
+  earlier commit message and handoff describing a diagonal-vs-tuned contrast are wrong.
+- **RETRACTED: "not multimodal."** Per-chain median `log_post` cannot distinguish a flat
+  ridge from equal-height modes. Run 1 never reached the typical set (plateau ~126 vs the
+  stationary ~135, ≈3000× in density), and run-2 seed2029 sat at ~126 for 600k iterations
+  then jumped to ~135 — a metastable neck, escape time O(3–6 × 10⁵).
+- **CORRECTED: bound-railing.** Holds for run 2 (max 0.0075 within 2% of a bound) but was
+  **false for run 1**, where chains spent ~50% of draws against the `ais_runoff_h0`
+  ceiling. The 2%-of-range band was too thin to see it.
+- **UPHELD:** R̂ *is* rank-normalized split-R̂ (Vehtari 2021), verified by independent
+  reimplementation. Reseeding the proposal is legitimate adaptive MCMC (fixed before the
+  run, diminishing adaptation satisfied) — the R̂ validity problem is the shared start, not
+  the reseed. `ais_runoff_h0`↔`ais_c` posterior correlation +0.954 (prior +0.228) is a
+  genuine structural degeneracy. Rotating onto the *prior's* principal axes would be a
+  no-op, since RAM already adapts a full covariance.
+
+### THE RESULT THAT MATTERS: the deliverable IS converged
+
+`julia/diag_slr_convergence_by_chain.jl` (new) runs 400 thinned draws per chain forward
+on SSP2-4.5 and diagnoses **projected SLR** rather than the nuisance marginals:
+
+| quantity | R̂ | ESS | between-chain median spread |
+|---|---|---|---|
+| SLR@2100 | **1.001** | 1564 | 4.5 cm vs 22 cm within-chain sd |
+| SLR@2150 | **1.002** | 1420 | 5.1 cm vs 34 cm within-chain sd |
+
+Verified **not** an artifact of parameters silently failing to set: a one-at-a-time
+sensitivity probe gives each badly-mixed param large individual leverage on SLR
+(`ais_iceflow0` up to 57 cm @2100, `ais_precip0_LOG` 49 cm), and the chains genuinely
+disagree on those marginals. So the AIS geometry sits on a **compensating ridge** —
+individually consequential, jointly constrained. Pooled median SLR@2100 = 76.8 cm
+corroborates the earlier 77.7 cm posterior-predictive value.
+
+### Run 4 (4 × 2M, OVER-DISPERSED starts) — in progress
+The one remaining validity hole: all runs to date started all 4 chains at an identical
+θ0, making R̂ anti-conservative (it cannot see mass no chain reached) — including the SLR
+R̂ above. `--overdisperse` now starts each chain from a real posterior draw at
+`ais_iceflow0` quantiles 0.02/0.35/0.65/0.98. Random jitter was tried first and failed
+(200/200 non-finite logposterior). Expect R̂ to look worse; that is the diagnostic working.
+
+### DECISION PENDING (Marcus) — superseded framing below
+
+*(The original three options were written before the audit. Options 1 and 2 are now dead:
+chain length cannot work, and `ais_bedheight0` was the wrong parameter to re-fix.)*
+
+The live decision is **what to gate acceptance on**:
+
+- **RECOMMENDED — gate on the deliverable.** Accept the posterior on SLR@2100/@2150 R̂
+  (1.001/1.002) plus the AIS projection knobs, and report the 7 geometry marginals as a
+  weakly-identified nuisance block on a compensating ridge. Requires disclosure in methods
+  (see below). Conditional on run 4 confirming under over-dispersed starts.
+- **Alternative — re-fix the hard-mixing params** (`ais_iceflow0` / `ais_slope` /
+  `ais_precip0_LOG`, *not* `ais_bedheight0`). Cheap, but `ais_precip0_LOG` is the most
+  projection-coupled geometry param (r = −0.282 with `antarctic_alpha`, +0.364 with
+  `anto_beta`), so fixing it is not free.
+- **Alternative — change sampler.** The ridge is curved; a linear reparameterization is a
+  no-op under RAM. Would need HMC/NUTS on a transformed target or tempering.
+
+**Must be disclosed in the paper's methods** regardless of choice: R̂ is rank-normalized
+split-R̂; several AIS marginals do not reach R̂<1.05 at 4 × 2M and are reported as a
+weakly-identified nuisance block; convergence is asserted on posterior-predictive SLR, not
+on those marginals; the `ais_runoff_h0`↔`ais_c` degeneracy (posterior r = +0.954).
 
 ## [unreleased] — 2026-07-09 — CH4/CO2 pulse → SLR **research plan** (adversarially reviewed)
 
