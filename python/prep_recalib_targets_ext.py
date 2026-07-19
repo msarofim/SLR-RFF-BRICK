@@ -90,10 +90,27 @@ years = np.arange(FIT_Y0, EXT_Y1 + 1)
 out = pd.DataFrame({"year": years}).set_index("year")
 fred = {}
 for fname, tgt in FRED_MAP.items():
+    # BUG FIX 2026-07-19: re-reference the whole band with the MEAN's offset, NOT each
+    # stat's own offset. A band width is invariant to a common shift, so subtracting three
+    # DIFFERENT offsets shrinks (hi - lo) by the constant (off_hi - off_lo) at every year.
+    # Frederikse's band is narrowest in the modern era, so that constant drove the
+    # post-1978 years negative, where ϵband (calibrate_mcmc_ext.jl) silently replaced them
+    # with its 0.05 cm floor: AIS 47 of 126 years, GIS 35, steric 38, GSIC 21, LWS 38, with
+    # 18-24 years per series actually inverted (lo > hi). Net effect was to UNDER-state the
+    # observational σ everywhere and to hard-pin the modern record -- precisely the years
+    # the calibration then strained to fit.
+    off = (g[f"{fname} [mean]"] / 10.0).loc[BASE_Y0:BASE_Y1].mean()    # mm->cm, one offset
     for stat, suf in [("mean", ""), ("lower", "_lo"), ("upper", "_hi")]:
-        s = reref(g[f"{fname} [{stat}]"] / 10.0, (BASE_Y0, BASE_Y1))   # mm->cm, rel window
+        s = g[f"{fname} [{stat}]"] / 10.0 - off
         out[tgt + suf] = s.reindex(years).values
-    fred[tgt] = reref(g[f"{fname} [mean]"] / 10.0, (BASE_Y0, BASE_Y1))
+    fred[tgt] = (g[f"{fname} [mean]"] / 10.0) - off
+    # NOTE (conservative, and a known approximation): this preserves the RAW band width, so
+    # σ no longer shrinks toward the 1995-2005 reference window. The statistically correct
+    # quantity is sd(x_t - mean(x_window)) over the Frederikse ENSEMBLE, which does shrink
+    # near the window because the reconstruction errors are strongly correlated in time.
+    # That ensemble is not in data/observations/raw (only mean/lower/upper are), so this
+    # over-states σ near the window -- i.e. it UNDER-weights those years. That is the safe
+    # direction to err, but it is an approximation, not the answer. See handoff.
 
 # Dangendorf total (rel window)
 d = pd.read_csv(os.path.join(OBS, "dangendorf_2024_gmsl.csv")).set_index("year")
