@@ -24,12 +24,18 @@ const MCMCDIR = joinpath(REPO, "outputs/mcmc")
 files = [joinpath(MCMCDIR,f) for f in readdir(MCMCDIR) if startswith(f,"chain_$(TAG)_seed") && endswith(f,".csv")]
 isempty(files) && error("no chain_$(TAG)_seed*.csv files in outputs/mcmc/")
 println("Combining $(length(files)) chains:")
+# Read column-selectively. A full 37-col x 2e6-row x 4-chain read is ~5.7 GB and on a
+# swap-bound machine the reads come back CORRUPTED (rhat/ess silently return NaN for every
+# param -- which, combined with a NaN-permissive gate, once falsely certified a non-converged
+# run). Read only the columns we diagnose.
+hdr = propertynames(CSV.read(files[1], DataFrame; limit=0))
+wanted = [c for c in hdr if c != :accept_rate]
 chains = DataFrame[]
 for f in files
-    d = CSV.read(f, DataFrame)
+    d = CSV.read(f, DataFrame; select=wanted)
     burn = d[(nrow(d)÷2+1):end, :]
     push!(chains, burn)
-    @printf("  %s  (%d post-burn, accept %.3f)\n", basename(f), nrow(burn), d.accept_rate[1])
+    @printf("  %s  (%d post-burn)\n", basename(f), nrow(burn))
 end
 pnames = [n for n in names(chains[1]) if !(n in ["accept_rate"])]   # log_post IS diagnosed (see below)
 
@@ -44,10 +50,14 @@ for p in pnames
     # constant, not a measurement. With tau>1e5 for the AIS geometry block, the default
     # over-reported ESS by 150-270x (e.g. ais_iceflow0 run-2: reported 4034, true 15) and made
     # the `e < ESS_MIN` half of the gate dead code for any run over 200k pooled draws.
-    r = rhat(arr); e = ess(arr; maxlag = size(arr,1))
+    # BUT maxlag = size(arr,1) is ALSO wrong: for >=1e6-draw chains it trips an internal
+    # "draws after splitting is 0" path and returns NaN, and NaN < ESS_MIN is FALSE -- so a
+    # NaN-ESS param silently PASSES the gate (this falsely certified the sigma-fix re-baseline
+    # as converged). Cap maxlag well below the chain length, and treat non-finite ESS as FAIL.
+    r = rhat(arr); e = ess(arr; maxlag = min(nmin - 4, 200_000))
+    conv = isfinite(r) && isfinite(e) && r <= 1.05 && e >= ESS_MIN
     τ = (nmin*nc) / max(e, 1e-9)
-    (r > 1.05 || e < ESS_MIN) &&
-        (push!(bad, p); @printf("  %-24s R̂=%.3f ESS=%.1f τ=%.0f  <-- check\n", p, r, e, τ))
+    conv || (push!(bad, p); @printf("  %-24s R̂=%.3f ESS=%.1f τ=%.0f  <-- check\n", p, r, e, τ))
 end
 isempty(bad) ? println("  all params converged (R̂<1.05, ESS>$(ESS_MIN)).") :
                println("  $(length(bad)) params NOT converged.")
