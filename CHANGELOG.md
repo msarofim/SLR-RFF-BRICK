@@ -3,6 +3,61 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-07-19 — σ-fix re-baseline: accept-on-deliverable, + pulse-size robustness
+
+### σ-fix re-baseline (4 × 2M, over-dispersed starts, corrected Frederikse band)
+
+- **Parameter marginals NOT converged** — worst R̂ **1.458** (`ais_slope`), the same
+  identifiability ridge. **This is slightly WORSE than run 3 (1.320), not better.**
+  **Correction to an earlier claim:** I said the σ fix "plausibly fixes the sampling
+  problem." It does not — widening the observational σ *flattens* the likelihood, which
+  makes the weakly-identified ridge *less* identified, so param-level mixing got marginally
+  worse. The σ fix remains correct (the uncertainty really was wrong), but its effect on
+  sampling is neutral-to-negative, not positive.
+- **Deliverable IS converged, now under OVER-DISPERSED starts:** SLR@2100 R̂ **1.003**,
+  SLR@2150 R̂ **1.004** (`diag_slr_convergence_by_chain.jl`, chains started from
+  `ais_iceflow0` quantiles 0.02/0.35/0.65/0.98). This closes the anti-conservative-R̂ hole:
+  chains that start far apart on the failing direction still agree on projected SLR to ~5 cm
+  against a ~23–35 cm within-chain sd. Projected SLR @2100 median 76.1 cm, @2150 159 cm.
+- **Accept-on-the-deliverable is now vindicated:** the posterior gives a converged,
+  over-dispersed-robust SLR projection despite the nuisance marginals. Subsample written to
+  `data/MimiBRICK/parameters_subsample_brick_mengel_ext_NOTCONVERGED.csv` (the suffix is
+  honest about the *marginals*; it is accepted for SLR-level use — see the naming decision below).
+
+### Two postprocess convergence-gate bugs (both found because the re-baseline was FALSELY certified "all converged")
+
+1. `ess(arr; maxlag = size(arr,1))` trips an internal "draws after splitting is 0" path on
+   ≥1e6-draw chains → returns **NaN**, and `NaN < ESS_MIN` is `false`, so NaN-ESS params
+   silently PASS. Fixed: `maxlag = min(nmin−4, 200000)` and require `isfinite(r) && isfinite(e)`.
+2. The full 37-col × 2e6-row × 4-chain read (~5.7 GB) returns **corrupted** data (NaN R̂/ESS
+   for every param) on the swap-bound machine. Fixed: read only diagnosed columns.
+   Verified against a low-memory selective read: true worst R̂ 1.458, not "all converged".
+
+### Pulse-size robustness ladder (Marcus's test) — answered and verified
+
+`julia/diag_pulse_size_robustness.jl`: BRICK-Mengel paired at 7 sizes 0.03–30 GtCO₂, climate
+by IRF scaling (validated vs real FaIR 20gt/0.01gt, <0.06% median error; P=10 rung reproduces
+the production driver bit-identically). Two independent verifiers confirmed paired discipline,
+units, linearity, horizons.
+
+- **Per-ton MEDIAN robust to 0.7–2.2% over 0.03–1 GtCO₂** — quantization does NOT move the
+  median (the median member never tips). ✔ we are OK at SCC pulse sizes.
+- **Genuine large-pulse NONLINEARITY** (not quantization): median +9–20% at 10 GtCO₂,
+  +42–101% at 30 GtCO₂, monotonic (compounding disintegration). **ACTIONABLE: the canonical
+  BRICK-Mengel pulse tables were run at 10 GtCO₂ → they overstate per-ton median by ~9–20%.
+  Recompute the headline at ≤1 GtCO₂.**
+- **MEAN unusable** (90–111% ladder spread, non-monotone).
+- **The median under-states fast dynamics** in the opposite direction from the mean: the tip
+  fraction never reaches 50% at any rung, so the median is always the smooth-channel
+  background (mean/median 11–18×). Median = *central* marginal, not the expectation. For a
+  fat-tail-inclusive number use the Lemoine-Traeger P(tip)·ΔSLR_tip decomposition, not the mean.
+
+### DECISION PENDING (Marcus)
+- **Naming/acceptance:** is the SLR-level R̂ (1.003/1.004) the accepted convergence criterion,
+  so the `_NOTCONVERGED` subsample should be renamed to a canonical "accepted-on-deliverable"
+  path? Or hold for the parameter-level ridge (which needs a mixture/re-fix, not more iterations)?
+- **Recompute the pulse headline at ≤1 GtCO₂** (the 10-GtCO₂ tables are ~9–20% high).
+
 ## [unreleased] — 2026-07-18 — BRICK-Mengel **v-next recalibration** (Strategy B: 28 → 35 params)
 
 Branch **`brick-mengel-vnext`** (new). `brick-mengel` is archived/frozen per CLAUDE.md,
