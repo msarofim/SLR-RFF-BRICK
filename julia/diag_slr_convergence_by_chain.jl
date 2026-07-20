@@ -71,16 +71,25 @@ const FREE = [
     ("thermal_alpha",   :thermal_expansion,  :te_α),
     ("gic_a", G, :gic_a), ("gic_b", G, :gic_b), ("gic_T_lia", G, :gic_T_lia),
     ("gic_f", G, :gic_f), ("gic_tau_fast", G, :gic_tau_fast), ("gic_tau_slow", G, :gic_tau_slow),
+    # phase-2 A2: DAIS fast-dynamics params freed under paleo marginals
+    ("antarctic_lambda", A, :λ),
+    ("antarctic_gamma",  A, :ais_γ),
+    ("antarctic_kappa",  A, :ais_κ),
     # v-next: the 7 DAIS geometry params are SAMPLED (were fixed at the medoid pre-v-next)
     ("ais_mu",          A, :ais_μ),
     ("ais_bedheight0",  A, :ais_bedheight₀),
     ("ais_slope",       A, :ais_slope),
     ("ais_iceflow0",    A, :ais_iceflow₀),
     ("ais_precip0_LOG", A, :ais_precipitation₀),   # log-space -> assign directly
-    ("ais_runoff_h0",   A, :ais_runoffline_snowheight₀),
     ("ais_c",           A, :ais_c),
+    # NB ais_runoffline_snowheight₀ and ais_temperature_coefficient/intercept are NOT here:
+    # they are DERIVED from the phase-2 chain columns ais_runoff_Ton and ais_gmst_amp below.
 ]
 const FREE_NAMES = [f[1] for f in FREE]
+# phase-2 A4/A6 derived columns (present in the 39-param chains, set per-draw not via FREE):
+const C_COL     = findfirst(==("ais_c"), FREE_NAMES)     # ais_c index within a draw row
+const AIS_TANT0 = -15.42 / 0.8365                         # preserved GMST->AIS-temp anchor
+const DERIVED_COLS = ["ais_runoff_Ton", "ais_gmst_amp"]
 
 ## ---- model base: medoid for everything NOT sampled -----------------------
 medoid = CSV.read(joinpath(REPO, "outputs/recalib_central_row.csv"), DataFrame)[1, :]
@@ -102,12 +111,14 @@ t00 = time()
 for sd in SEEDS
     f = joinpath(REPO, "outputs/mcmc", "chain_ext_seed$(sd)_n$(NITER).csv")
     isfile(f) || error("missing chain file $f")
-    df = CSV.read(f, DataFrame; select=FREE_NAMES)      # only the 25 sampled columns
+    df = CSV.read(f, DataFrame; select=vcat(FREE_NAMES, DERIVED_COLS))   # sampled + derived cols
     nrow(df) == NITER || error("$(basename(f)): expected $NITER rows, got $(nrow(df))")
     # thin: evenly spaced across the POST-BURN half (not a contiguous block)
     step = max(1, (nrow(df) - NBURN) ÷ N_TARGET)
     rows = collect((NBURN + 1):step:nrow(df))[1:N_TARGET]
     draws = Matrix{Float64}(df[rows, FREE_NAMES])
+    ton  = Float64.(df[rows, "ais_runoff_Ton"])
+    amp  = Float64.(df[rows, "ais_gmst_amp"])
     df = nothing; GC.gc()
 
     n = size(draws, 1)
@@ -117,6 +128,11 @@ for sd in SEEDS
         @inbounds for k in eachindex(FREE)
             update_param!(m, FREE[k][2], FREE[k][3], draws[i, k])
         end
+        # A4: runoff line reconstructed from the identified direction (h0 = -T_on*c)
+        update_param!(m, A, :ais_runoffline_snowheight₀, -ton[i] * draws[i, C_COL])
+        # A6: GMST->AIS temperature map from transient amplification (anchor preserved)
+        update_param!(m, A, :ais_temperature_coefficient, 1.0 / amp[i])
+        update_param!(m, A, :ais_temperature_intercept, -AIS_TANT0 / amp[i])
         run(m)
         lev[i, :] = 100 .* m[:global_sea_level, :sea_level_rise]   # m -> cm
     end
