@@ -90,11 +90,24 @@ MUST be real posterior draws (random jitter → non-finite logpost). So:
 3. **Production** — 4×2M over-dispersed, seeds 2026–2029, `caffeinate -i`, column-selective
    reads, then `postprocess_mcmc_ext.jl --accept-slr` + `diag_slr_convergence_by_chain.jl`.
 
-## What I need from you to proceed
+## Decisions received + implemented (2026-07-20)
 
-1. **A5 σ**: keep 118 (Rignot) or switch to ~83 (Mottram)?
-2. **A6 σ**: is 0.10 (scenario-range headroom) acceptable given no published inter-model sd,
-   or do you have a source/number?
-3. **M3 total term**: option 1, 2, or 3 above? (If 2, the Dangendorf-σ problem must be solved
-   first — say whether to email Dangendorf or derive it.)
-4. **Go for the two-stage launch** once 1–3 are pinned?
+All four sign-off items are now **resolved and coded**:
+1. **A5 σ = 118** (Rignot's own, area-scaled). Wired.
+2. **A6 σ = 0.10** (scenario-range + structural headroom, documented as NOT a literal
+   inter-model sd). Wired.
+3. **M3 total = Dangendorf 2024 (1900–2021) + NOAA STAR (2022–2024)**, σ = Frederikse
+   ensemble GMSL sd (Dangendorf's own SE corrupted upstream — derived, not emailed).
+   `prep_recalib_targets_ext.py` reworked + rerun; components stay Frederikse but their band
+   σ is now the **ensemble** re-referenced sd (finishes the 2026-07-19 σ fix). Pre-M3 targets
+   quarantined at `outputs/quarantine/20260720_pre_M3_frederikse_total_targets/`. Verified:
+   total continuous across the 2021→2022 splice, zero band inversions, σ correctly collapses
+   toward the 1995–2005 window. Calibration smoke-reads them (total window 1900–2024).
+
+## Remaining: the launch itself (still needs your GO)
+
+Everything is wired, targets rebuilt, and both smoke tests pass (39 params, θ0 logpost ≈ −800).
+The only thing left is the **two-stage 4×2M production run** (~5–6 h total incl. the tuning
+stage). Per the handoff, I'm not starting a multi-hour calibration without your explicit GO.
+Say the word and I'll run: tuning chain → build over-dispersed starts + adapted cov →
+4×2M production → `postprocess --accept-slr` + SLR convergence diagnostic → report.

@@ -12,9 +12,15 @@ Extension data (all reconciled multi-method products; see README in raw/):
   - GIS : GRACE-FO JPL mascon RL06.3Mv4 Greenland mass (2002-2026), same DOI
   - GSIC: GlaMBIE 2025 global glacier mass (2000-2023), DOI 10.5904/wgms-glambie-2024-07
   - TE  : NOAA NCEI World-Ocean 0-2000m thermosteric sea level (2005-2025)
-  - TOT : NOAA STAR altimetry GMSL (1993-2024) splicing onto Dangendorf 2024
+  - TOT : real Dangendorf 2024 GMSL reconstruction (1900-2021) spliced with NOAA STAR
+          altimetry (2022-2024). [M3 rework 2026-07-20: was Frederikse-total + STAR;
+          Frederikse is now COMPONENTS-only, the total is the independent Dangendorf.]
   - IMBIE 2023 (Otosaka et al., 1992-2020) AIS+GIS used only as an INDEPENDENT
     cross-check on the GRACE splices over the overlap (not fed to the fit).
+
+Component band σ (2026-07-20): from the Frederikse 5000-member weighted ensemble
+(FRED_ENS_NC), re-referenced per member -- the statistically correct band that shrinks
+toward the 1995-2005 window, finishing the 2026-07-19 σ fix.
 
 Method (each component, matching prep_recalib_targets.py conventions):
   1. Frederikse component re-referenced to the common 1995-2005 window mean (cm).
@@ -37,6 +43,7 @@ Output: outputs/recalib_targets_ext.csv (1900-2026; NaN where a component has no
 import os
 import numpy as np
 import pandas as pd
+import xarray as xr
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -46,6 +53,16 @@ RAW  = os.path.join(REPO, "data/observations/raw")
 OBS  = os.path.join(REPO, "data/observations")
 OUT_CSV = os.path.join(REPO, "outputs/recalib_targets_ext.csv")
 OUT_PNG = os.path.join(REPO, "outputs/recalib_targets_ext_splice_diagnostic.png")
+
+# Frederikse 5000-member weighted component ENSEMBLE (redistributed in Dangendorf's Zenodo
+# record 10621070). This is the object the 2026-07-19 σ-fix flagged as missing: it lets us
+# compute the statistically correct re-referenced per-year band σ = weighted sd of members
+# each re-referenced to the BASE window, which SHRINKS toward the window (reconstruction
+# errors are correlated in time) instead of the raw-band-width over-statement.
+FRED_ENS_NC = os.path.join(RAW, "frederikse2020_GMSL_ensembles.nc")
+# ensemble var -> target key
+FRED_ENS_VAR = {"AIS": "ais", "Glaciers": "gsic", "GrIS": "gis",
+                "Steric": "steric", "TWS": "lws", "GMSL": "dang"}
 
 # ---- constants ----
 BASE_Y0, BASE_Y1 = 1995, 2005          # common re-reference window (11 yr)
@@ -65,6 +82,35 @@ FRED_MAP = {"Antarctic Ice Sheet": "ais", "Glaciers": "gsic",
 
 def reref(s, win):
     return s - s.loc[win[0]:win[1]].mean()
+
+
+def _wquantile_free(vals, w, q):
+    idx = np.argsort(vals)
+    xs, ws = vals[idx], w[idx]
+    cw = (np.cumsum(ws) - 0.5 * ws) / ws.sum()
+    return np.interp(q, cw, xs)
+
+
+def load_ensemble_sigma():
+    """Per-year band σ (cm) for each component from the Frederikse 5000-member ensemble.
+
+    σ_t = weighted sd across members of (x_{m,t} − mean_{window} x_{m,·}), i.e. each member
+    re-referenced to BASE_Y0..BASE_Y1 with its OWN single offset (band width preserved, but
+    the spread correctly collapses toward the reference window). Returns {tgt: Series(cm)}
+    indexed by ensemble years (1900-2018).
+    """
+    ds = xr.open_dataset(FRED_ENS_NC)
+    ey = ds["time"].values.astype(int)
+    w = ds["likelihood"].values.astype(float)
+    win = (ey >= BASE_Y0) & (ey <= BASE_Y1)
+    sig = {}
+    for var, tgt in FRED_ENS_VAR.items():
+        m = ds[var].values                                   # (member, year), mm
+        m = m - m[:, win].mean(axis=1, keepdims=True)        # per-member single offset
+        mean = np.average(m, axis=0, weights=w)
+        sd = np.sqrt(np.average((m - mean) ** 2, axis=0, weights=w))
+        sig[tgt] = pd.Series(sd / 10.0, index=ey)            # mm -> cm
+    return sig
 
 
 def annual_mean(t, v, ylo, yhi):
@@ -88,40 +134,47 @@ def splice_offset(modern_cm, fred_cm, win):
 g = pd.read_excel(FRED, "Global").rename(columns={"Unnamed: 0": "year"}).set_index("year")
 years = np.arange(FIT_Y0, EXT_Y1 + 1)
 out = pd.DataFrame({"year": years}).set_index("year")
+ens_sig = load_ensemble_sigma()            # per-year band σ (cm), 1900-2018, per component
 fred = {}
 for fname, tgt in FRED_MAP.items():
-    # BUG FIX 2026-07-19: re-reference the whole band with the MEAN's offset, NOT each
-    # stat's own offset. A band width is invariant to a common shift, so subtracting three
-    # DIFFERENT offsets shrinks (hi - lo) by the constant (off_hi - off_lo) at every year.
-    # Frederikse's band is narrowest in the modern era, so that constant drove the
-    # post-1978 years negative, where ϵband (calibrate_mcmc_ext.jl) silently replaced them
-    # with its 0.05 cm floor: AIS 47 of 126 years, GIS 35, steric 38, GSIC 21, LWS 38, with
-    # 18-24 years per series actually inverted (lo > hi). Net effect was to UNDER-state the
-    # observational σ everywhere and to hard-pin the modern record -- precisely the years
-    # the calibration then strained to fit.
+    # VALUE = Frederikse component mean (re-referenced with the mean's single offset).
     off = (g[f"{fname} [mean]"] / 10.0).loc[BASE_Y0:BASE_Y1].mean()    # mm->cm, one offset
-    for stat, suf in [("mean", ""), ("lower", "_lo"), ("upper", "_hi")]:
-        s = g[f"{fname} [{stat}]"] / 10.0 - off
-        out[tgt + suf] = s.reindex(years).values
+    mean_s = (g[f"{fname} [mean]"] / 10.0 - off).reindex(years)
+    out[tgt] = mean_s.values
     fred[tgt] = (g[f"{fname} [mean]"] / 10.0) - off
-    # NOTE (conservative, and a known approximation): this preserves the RAW band width, so
-    # σ no longer shrinks toward the 1995-2005 reference window. The statistically correct
-    # quantity is sd(x_t - mean(x_window)) over the Frederikse ENSEMBLE, which does shrink
-    # near the window because the reconstruction errors are strongly correlated in time.
-    # That ensemble is not in data/observations/raw (only mean/lower/upper are), so this
-    # over-states σ near the window -- i.e. it UNDER-weights those years. That is the safe
-    # direction to err, but it is an approximation, not the answer. See handoff.
+    # BAND σ (2026-07-20): use the ENSEMBLE per-year sd, not the mean/lower/upper band width.
+    # This finishes the 2026-07-19 σ fix. The old raw-band approach: (i) needed the mean's
+    # single offset to avoid inverting lo>hi (the shrink-by-constant bug), and even fixed it
+    # OVER-stated σ near the reference window because the raw band doesn't collapse there.
+    # sd over the re-referenced ensemble members DOES collapse toward 1995-2005 (correlated
+    # reconstruction errors) -- the statistically correct quantity. _lo/_hi are written as
+    # value ∓ 1.645·σ so calibrate_mcmc_ext.jl's ϵband=(hi-lo)/(2·1.645) recovers σ exactly.
+    sig = ens_sig[tgt].reindex(years)
+    out[tgt + "_lo"] = (mean_s - 1.645 * sig).values
+    out[tgt + "_hi"] = (mean_s + 1.645 * sig).values
 
-# "Total" term (rel window). LABEL FIX 2026-07-20: this file is FREDERIKSE 2020's own
-# observed GMSL (bit-identical; download_obs.py had pulled global_basin_timeseries.xlsx —
-# Frederikse's spreadsheet redistributed inside Dangendorf's Zenodo record 10621070 — and
-# labeled it Dangendorf). The target keeps the historical name "dang" until the M3 total-
-# term rework; the REAL Dangendorf 2024 GMSL is data/observations/dangendorf2024_gmsl_annual.csv
-# (see python/diag_dangendorf_vs_frederikse.py).
-d = pd.read_csv(os.path.join(OBS, "frederikse2020_gmsl_total.csv")).set_index("year")
-out["dang"]     = reref(d["value"] / 10.0, (BASE_Y0, BASE_Y1)).reindex(years).values
-out["dang_sig"] = (d["sigma"] / 10.0).reindex(years).values
-fred["dang"]    = reref(d["value"] / 10.0, (BASE_Y0, BASE_Y1))
+# "Total" term (rel window). M3 REWORK 2026-07-20 (Marcus): the total is now the REAL
+# Dangendorf 2024 reconstruction (1900-2021), NOT Frederikse (which the old file secretly
+# was). Dangendorf is an independent-of-Frederikse 20th-c. tide-gauge reconstruction; the
+# tension diagnostic (diag_dangendorf_vs_frederikse.py) shows it sits inside Frederikse's
+# 5-95% at every trend window (mid-century 6.8th pctl) and agrees with altimetry better in
+# the satellite era -- so keeping Frederikse COMPONENTS + a Dangendorf TOTAL introduces <1σ
+# of trend inconsistency. σ: Dangendorf's own per-year SE is corrupted upstream (its Zenodo
+# Global.nc GMSL slot holds the barystatic mean; the SE column has the same slot-shift), so
+# we adopt the Frederikse ensemble GMSL sd as the total-term σ -- a genuine per-year LEVEL sd,
+# CONSERVATIVE (larger than a fully-correlated combination of Dangendorf's own basin SEs), and
+# reproducible. This only sets the term's WEIGHT; the independent information is in the VALUE.
+d = pd.read_csv(os.path.join(OBS, "dangendorf2024_gmsl_annual.csv")).set_index("year")
+dang_val = reref(d["gmsl_mm"] / 10.0, (BASE_Y0, BASE_Y1))                 # cm, 1900-2021
+out["dang"]  = dang_val.reindex(years).values
+fred["dang"] = dang_val
+dang_sig = ens_sig["dang"].reindex(years)                                # GMSL ensemble sd (1900-2018)
+# ensemble ends 2018; hold its 2018 value for the Dangendorf-only years 2019-2021 (small
+# extrapolation, flagged). STAR years (2022+) get ALT_SIGMA_MM below.
+dang_sig.loc[2019:] = ens_sig["dang"].loc[2018]
+out["dang_sig"] = dang_sig.values
+out["dang_lo"]  = (dang_val.reindex(years) - 1.645 * dang_sig).values
+out["dang_hi"]  = (dang_val.reindex(years) + 1.645 * dang_sig).values
 
 # ============================================================ modern products -> cm SLE
 modern = {}      # tgt -> (Series cm, Series sigma_cm)
@@ -154,8 +207,12 @@ modern["steric"] = (pd.Series((st.WO / 10.0).values, index=st.yr.values),
 alt = pd.read_csv(os.path.join(OBS, "nasa_gmsl_annual.csv")).set_index("year")
 modern["dang"] = (alt["value"] / 10.0, pd.Series(ALT_SIGMA_MM / 10.0, index=alt.index))
 
-# ============================================================ splice 2019..end into out
-print(f"{'comp':6s} {'overlap':12s} {'offset_cm':>9s} {'end_yr':>6s}  post-2018 increment (cm)")
+# ============================================================ splice modern products into out
+# Splice starts the year AFTER each historical series ends: components extend Frederikse
+# (ends 2018) from 2019; the TOTAL extends the real Dangendorf reconstruction (ends 2021)
+# with NOAA STAR altimetry from 2022 -- so STAR fills only the years Dangendorf lacks.
+SPLICE_FROM = {"ais": 2019, "gis": 2019, "gsic": 2019, "steric": 2019, "dang": 2022}
+print(f"{'comp':6s} {'overlap':12s} {'offset_cm':>9s} {'from':>5s} {'end_yr':>6s}  increment to end (cm)")
 splices = {}
 for tgt in ["ais", "gis", "gsic", "steric", "dang"]:
     mod_cm, mod_sig = modern[tgt]
@@ -163,7 +220,8 @@ for tgt in ["ais", "gis", "gsic", "steric", "dang"]:
     spl = mod_cm + off
     end = int(spl.index.max())
     splices[tgt] = (spl, mod_sig)
-    for y in range(2019, end + 1):
+    y0 = SPLICE_FROM[tgt]
+    for y in range(y0, end + 1):
         if y in spl.index:
             out.loc[y, tgt] = spl[y]
             s = mod_sig.get(y, np.nan)
@@ -171,11 +229,11 @@ for tgt in ["ais", "gis", "gsic", "steric", "dang"]:
             out.loc[y, tgt + "_lo"] = spl[y] - 1.645 * s
             out.loc[y, tgt + "_hi"] = spl[y] + 1.645 * s
     if tgt == "dang":
-        for y in range(2019, end + 1):
+        for y in range(y0, end + 1):
             if y in spl.index:
                 out.loc[y, "dang_sig"] = ALT_SIGMA_MM / 10.0
-    inc = spl[end] - fred[tgt].get(2018, np.nan)
-    print(f"{tgt:6s} {str(OVERLAP[tgt]):12s} {off:9.3f} {end:6d}  {inc:+.3f}")
+    inc = spl[end] - fred[tgt].get(y0 - 1, np.nan)
+    print(f"{tgt:6s} {str(OVERLAP[tgt]):12s} {off:9.3f} {y0:5d} {end:6d}  {inc:+.3f}")
 
 # LWS: hold constant at 2018 value for 2019+ (FLAGGED choice)
 for suf in ["", "_lo", "_hi"]:
@@ -192,7 +250,7 @@ print(f"\nWrote {OUT_CSV}  ({len(out)} yrs {FIT_Y0}-{EXT_Y1})")
 OUT_SRC = os.path.join(REPO, "outputs/recalib_targets_ext_sources.csv")
 src = pd.DataFrame({"year": years}).set_index("year")
 for tgt in ["ais", "gis", "gsic", "steric", "dang"]:
-    src[tgt + "_fred"]   = fred[tgt].reindex(years).values                  # Frederikse/Dangendorf (1900-2018)
+    src[tgt + "_fred"]   = fred[tgt].reindex(years).values                  # Frederikse (components) / Dangendorf (total)
     src[tgt + "_modern"] = splices[tgt][0].reindex(years).values            # offset-matched modern, full range
 src.reset_index().to_csv(OUT_SRC, index=False)
 print(f"Wrote {OUT_SRC}  (Frederikse vs modern-extension columns, separated)")
@@ -214,9 +272,11 @@ for tgt in ["ais", "gis"]:
 
 fig, ax = plt.subplots(2, 3, figsize=(15, 8))
 titles = {"ais": "AIS (GRACE-FO)", "gis": "GIS (GRACE-FO)", "gsic": "GSIC (GlaMBIE)",
-          "steric": "Steric/TE (NOAA NCEI)", "dang": "Total (NOAA STAR altimetry)"}
+          "steric": "Steric/TE (NOAA NCEI)", "dang": "Total (Dangendorf 2024 + STAR)"}
+hist_label = {"ais": "Frederikse", "gis": "Frederikse", "gsic": "Frederikse",
+              "steric": "Frederikse", "dang": "Dangendorf 2024"}
 for a, tgt in zip(ax.ravel(), ["ais", "gis", "gsic", "steric", "dang"]):
-    a.plot(fred[tgt].index, fred[tgt].values, color="k", lw=1.5, label="Frederikse/Dangendorf")
+    a.plot(fred[tgt].index, fred[tgt].values, color="k", lw=1.5, label=hist_label[tgt])
     spl = splices[tgt][0]
     a.plot(spl.index, spl.values, color="C3", lw=1, alpha=0.7, label="modern (spliced)")
     post = out.loc[2019:, tgt].dropna()
