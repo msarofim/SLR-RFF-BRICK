@@ -96,3 +96,37 @@ ETA ~1h from ~07:50; check acceptance settles reasonably — it was climbing 0.0
 
 Swap-bound (per prior handoffs); read production chains column-selectively (postprocess already
 does). Production is 4 parallel chains × 2M under `caffeinate -i`, ~4.5h.
+
+---
+
+## UPDATE (later 2026-07-20): production LAUNCHED + A6 sensitivity queued
+
+- **Tuning run done** (acceptance 0.237). Built `overdispersed_starts.csv` (ais_iceflow0
+  quantiles span 0.745–1.572) + promoted 39-param `adapted_cov_ext.csv`. Tuning chain +
+  the v-next 35-param accepted chains quarantined out of `outputs/mcmc/`
+  (`20260720_phase2_tuning_chain/`, `20260720_vnext_35param_accepted_chains/`; large chains
+  gitignored, READMEs kept).
+- **Tuning posterior confirms all phase-2 terms work:** SMB β_total(1979–2008)=1860 Gt/yr
+  (target 1863±118; medoid was 2389); amp migrated 1.195→0.944; T_on identified (sd 0.1,
+  was r=0.9997); λ/γ/κ sampling their paleo priors.
+- **SLR preview (single tuning chain, 400 draws) — the headline MOVED:** SSP2-4.5 SLR@2100
+  median **39.9 cm** (v-next 76.1), @2150 **63.0** (159.1); fast-dynamics threshold crossing
+  **29%** (was ~82%). Mechanism = A6 (amp 0.944 raises crossing GMST 2.37→3.0 °C); A5/A2
+  secondary. Moves BRICK-Mengel from above-AR6 to ~AR6-central (AR6 SSP2-4.5 @2100 ~44 cm,
+  MY RECOLLECTION — confirm).
+- **Marcus decision:** proceed to production as-is **+ an A6-equilibrium sensitivity run**
+  for attribution.
+- **Production RUNNING** (bg `b0smhk2um`, `bash julia/run_vnext_production.sh`, 4×2M
+  over-dispersed, acceptance ~0.238, ETA ~3h). Logs `outputs/mcmc/log_ext_seed{2026..2029}.txt`.
+- **A6 sensitivity ready but NOT launched:** `bash julia/run_A6eq_sensitivity.sh` (adds
+  `--amp-equilibrium`: amp pinned 1.19546, infix `extA6eq`). Run AFTER production — swap-bound
+  machine, don't parallelize 8 chains.
+
+### Exact next steps (supersede §"NEXT STEPS" above)
+1. On production completion: `diag_slr_convergence_by_chain.jl` (now phase-2-aware: handles
+   λ/γ/κ + derived T_on/amp) → `postprocess_mcmc_ext.jl --accept-slr` → report SLR + convergence.
+2. `bash julia/run_A6eq_sensitivity.sh` → when done, compute SLR@2100/2150 for the extA6eq
+   chains (reuse the validated `scratchpad/slr_preview.jl` logic) and report the
+   transient-vs-equilibrium A6 bracket.
+3. M2 + downstream (task #10): repoint pulse/table drivers to the accepted phase-2 posterior;
+   recompute the pulse headline at ≤1 GtCO₂ (median); regenerate MAGICC-vs-FaIR BRICK cells.
