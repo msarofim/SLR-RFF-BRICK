@@ -216,3 +216,6 @@ outputs/brick_2x2_clean/*.csv
 # committed, so the pipeline runs without it. Re-fetch via the URL in
 # python/diag_dangendorf_vs_frederikse.py header if you need the fields.
 data/observations/raw/dangendorf2024_KalmanSmootherHR_Fields.nc
+
+# Quarantined MCMC chains are large (0.8-1.4 GB each); keep provenance READMEs, not the chains
+outputs/quarantine/**/chain_ext_seed*.csv
