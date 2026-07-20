@@ -37,7 +37,10 @@
 ##       (anchor preserved), prior centered on CMIP6 PAI1 (Xie et al. 2022).
 ##   Param count 35 -> 39 (25 -> 29 physical).
 ##
-## Usage:  julia --project=julia_v2 julia/calibrate_mcmc_ext.jl [n_iter] [seed]
+## Usage:  julia --project=julia_v2 julia/calibrate_mcmc_ext.jl [n_iter] [seed] [--overdisperse] [--amp-equilibrium]
+##   --overdisperse     start each chain from a real over-dispersed posterior draw (production)
+##   --amp-equilibrium  A6 SENSITIVITY: pin the amplification at the old equilibrium 1.196
+##                      (prior N(1.19546,0.002)); output infix -> "extA6eq". Isolates A6.
 ## ============================================================================
 
 using CSV, DataFrames, Mimi, MimiBRICK, Statistics, LinearAlgebra, Distributions, Random, Printf
@@ -48,7 +51,13 @@ const REPO = abspath(joinpath(@__DIR__, ".."))
 const OBS  = joinpath(REPO, "data/observations")
 const Y0, Y1, B0, B1 = 1850, 2026, 1995, 2005          # Y1 1850->2026 (was 2018)
 const TARGETS = joinpath(REPO, "outputs/recalib_targets_ext.csv")
-const TAG = "ext"                                      # output infix
+# --amp-equilibrium: A6 SENSITIVITY run. Pins the GMST->AIS amplification at the OLD
+# equilibrium value (1/0.8365 = 1.19546) instead of the CMIP6-transient N(0.95,0.10) prior,
+# so the ONLY difference from the production run is A6. Everything else (A2/A4/A5, the
+# Dangendorf/STAR targets) is identical -> isolates A6's effect on the SLR headline. Output
+# infix becomes "extA6eq" so its chains do NOT match the production "chain_ext_seed*" glob.
+const AMP_EQ = "--amp-equilibrium" in ARGS
+const TAG = AMP_EQ ? "extA6eq" : "ext"                 # output infix
 years = collect(Y0:Y1); ib = [findfirst(==(y),years) for y in B0:B1]; idx(y)=findfirst(==(y),years)
 N_ITER = length(ARGS)>=1 ? parse(Int,ARGS[1]) : 2000
 SEED   = length(ARGS)>=2 ? parse(Int,ARGS[2]) : 2026
@@ -154,7 +163,9 @@ push!(FREE, P("antarctic_kappa",:antarctic_icesheet,:ais_κ))
 # σ SIGN-OFF ITEM (Marcus): Xie publishes NO inter-model sd. 0.06 ~= the scenario spread;
 # the default 0.10 spans the scenario range + structural uncertainty without re-admitting
 # the equilibrium 1.196 (+2.5σ). Bounds cover SSP1-2.6 .. just above equilibrium.
-const AMP_MU, AMP_SIGMA = 0.95, 0.10
+# Production: N(0.95, 0.10) transient prior. --amp-equilibrium: pin at 1.19546 (old map).
+const AMP_MU    = AMP_EQ ? 1.0 / 0.8365 : 0.95
+const AMP_SIGMA = AMP_EQ ? 0.002 : 0.10
 const AIS_TANT0 = -15.42 / 0.8365              # = -18.435, the preserved anchor
 push!(FREE, (name="ais_gmst_amp",comp=:antarctic_icesheet,sym=:ais_temperature_coefficient,
              μ=AMP_MU,σ=AMP_SIGMA,lo=0.70,hi=1.25,islog=false))
@@ -401,6 +412,9 @@ if OVERDISPERSE
     for (k, nm) in enumerate(pn0)
         θ0[k] = Float64(st[si, Symbol(nm)])
     end
+    # A6 sensitivity: the starts file holds phase-2 amp draws (~0.94); pin the start at the
+    # equilibrium value so the chain begins on the pinned prior, not +100σ off it.
+    AMP_EQ && (θ0[AMP_IDX] = AMP_MU)
     lp0 = logposterior(θ0)
     isfinite(lp0) || error("--overdisperse: start row $si for seed $SEED has non-finite logposterior")
     @printf("over-dispersed start (seed %d, row %d): logpost(θ0) = %.2f  [MAP start = %.2f]\n",
