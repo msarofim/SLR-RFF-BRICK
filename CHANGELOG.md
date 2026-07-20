@@ -3,6 +3,74 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-07-20 — phase-2 begun: M1 accept, Dangendorf/Frederikse untangle, A2/A4/A5/A6 wired
+
+Phase-2 kickoff (Marcus decisions 2026-07-19/20). Nothing launched yet — the phase-2
+recalibration awaits Marcus sign-off on the pinned numbers (see the pre-run summary /
+handoff §5). What landed this session:
+
+### M1 — accept the v-next posterior on the deliverable (DONE)
+- Added `--accept-slr` to `postprocess_mcmc_ext.jl`: writes the canonical (no-suffix)
+  subsample + proposal seed iff `outputs/mcmc/slr_convergence_ext.csv` (now emitted by
+  `diag_slr_convergence_by_chain.jl`) shows SLR R̂<1.05 at all horizons AND is fresher than
+  every chain file. Regenerated `parameters_subsample_brick_mengel_ext.csv` (canonical) +
+  `README_brick_mengel_ext_acceptance.md`. Downstream drivers deliberately NOT repointed yet
+  (done once, at the phase-2 posterior, with the M2 pulse rerun).
+- Fixed a stray-chain trap: a 2-iteration smoke chain (`chain_ext_seed2026_n2.csv`) matched
+  the `chain_ext_seed*` glob and had (1) collapsed the marginal diagnostic to 1 draw/chain,
+  (2) leaked one smoke draw into row 1 of the prior subsample. Quarantined
+  (`outputs/quarantine/20260720_smoke_chain_n2/`); postprocess now errors loudly on a
+  chain-length mismatch (shortest < ½ longest). **This means the handoff's marginal numbers
+  (worst R̂ 1.458) always came from the four full chains — the 18:22 "certification" was the
+  degenerate 1-draw read, now confirmed.**
+
+### Dangendorf / Frederikse — two-layer data bug untangled (A3 + M3 pre-check)
+- `data/observations/dangendorf_2024_gmsl.csv` was **Frederikse 2020's own observed GMSL**
+  (bit-identical). Renamed → `frederikse2020_gmsl_total.csv`; relabeled the active pipeline
+  (`prep_recalib_targets_ext.py`, `apply_wong_weights.py`, `hawkins_sutton.py`,
+  `julia/compute_lB_per_post.jl` — the "Dangendorf importance weights" were FREDERIKSE
+  weights; `dangendorf` kept as a deprecated alias that warns).
+- Fetched the **real Dangendorf 2024** (Zenodo 10621070). Its `KalmanSmootherHR_Global.nc`
+  is mis-written upstream (the "GMSLHR" slot holds the BARYSTATIC mean — proved: cos-weighted
+  mean of the Fields-nc `Bary` reproduces it to 0.000 mm). True GMSL = cos-lat-weighted mean
+  of the `HR` field (`Fields.nc`), per the record's own `Master_Final.m`; validated vs the
+  paper (1900–2021 1.52 vs 1.5±0.19; 1993–2021 3.17 vs 3.4±0.42 mm/yr). Extracted →
+  `dangendorf2024_gmsl_annual.csv`. **SE unattributable (same slot-shift) — resolve before
+  any likelihood use.**
+- **Bonus:** the record also redistributes the full 5000-member weighted **Frederikse
+  component ensemble** (`GMSL_ensembles_F20.nc`) — the exact object the 2026-07-19 σ-fix said
+  was missing; enables the correct re-referenced per-component band σ (M3 implement).
+- Tension diag (`python/diag_dangendorf_vs_frederikse.py`, ref 1995–2005): Dangendorf sits
+  INSIDE Frederikse's 5–95% at every trend window; mid-century 1930–1970 D 1.44 vs F 1.85
+  (6.8th pctl) is the real but bounded tension; 1993–2018 D 3.03 agrees with altimetry 2.86
+  better than F 3.36 does. 11/119 yr outside the F band. Figure + summary in `outputs/`.
+
+### A2/A4/A5/A6 — phase-2 calibration changes WIRED (not yet run), 35→39 params
+- **A2:** freed `λ`, `ais_γ`, `ais_κ` under their existing paleo marginals (param_priors.csv).
+  Observationally unidentified over the historical window → they sample the prior; the point
+  is to propagate fast-dynamics uncertainty and de-bias the hot medoid (λ 0.0137→prior 0.0104).
+- **A4:** runoff line reparameterized to its identified direction (`T_on = −h0/c`, `c`) under a
+  rebuilt joint paleo prior (`compute_paleo_geo_prior_ton.jl` → `paleo_geo_prior_ton.csv`;
+  paleo T_on −15.64±5.54, r(T_on,c)=+0.64 vs the posterior r(h0,c)=0.9997 it replaces).
+  `h0 = −T_on·c` reconstructed per draw.
+- **A5:** SMB likelihood term on model `β_total` (1979–2008 mean) vs area-scaled Rignot 2019
+  (2098×0.888 = **1863 ± 118 Gt/yr**; σ from Rignot's spread, Mottram-2021 alternative flagged).
+  At the medoid β_total = 2389 Gt/yr (z=4.45) — target is interior to the paleo-prior-vs-SLR-fit
+  tension, so it anchors precip0 to a physical intermediate and breaks the 34:1 input–output
+  degeneracy. **σ is a Marcus sign-off item.**
+- **A6:** GMST→Antarctic-temperature map sampled as transient amplification `amp` (anchor
+  T_ant(GMST=0) preserved); prior **N(0.95, 0.10)** on CMIP6 PAI1 (Xie et al. 2022, Sci Rep
+  12:16548: 0.88/0.95/0.97/1.03 for SSP1-2.6/2-4.5/3-7.0/5-8.5; no published inter-model sd —
+  0.10 spans the scenario range without re-admitting the equilibrium 1.196). Replaces the
+  hard-coded 0.8365/15.42 (amp 1.196, ~26% high). **σ is a Marcus sign-off item;** biggest
+  headline-mover (could shift "82% crossed by 2100" to a minority).
+- Smoke-tested (200 iter): 39 params, θ0 logpost −799 (vs baseline −779), amp anchor identity
+  exact, all new params tracked. Launch is TWO-STAGE (common-start tuning run → build
+  over-dispersed starts + adapted cov → 4×2M production); `--overdisperse` now errors clearly
+  when the starts file predates the current parameter set.
+
+---
+
 ## [unreleased] — 2026-07-19 — σ-fix re-baseline: accept-on-deliverable, + pulse-size robustness
 
 ### σ-fix re-baseline (4 × 2M, over-dispersed starts, corrected Frederikse band)

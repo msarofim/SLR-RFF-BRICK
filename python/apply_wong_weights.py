@@ -27,7 +27,8 @@ AR(1) likelihood (see MimiBRICK source
 
 where sigma=sd_gmsl and rho=rho_gmsl are the posterior member's own AR(1)
 nuisance parameters and eps_t is the per-year observed-GMSL 1-sigma (from
-Dangendorf et al. 2024 by default; CSIRO Recons supported as a legacy
+Frederikse et al. 2020 observed total by default (formerly mislabeled
+'Dangendorf 2024'); CSIRO Recons supported as a legacy
 fallback via --obs csiro).
 
 UNITS DECISION
@@ -57,9 +58,14 @@ weights are nonsense.
 CLI
 ---
     --paired       CSV  outputs/brick_paired_*.csv  (trajectories included)
-    --obs          STR  'dangendorf' (default) or 'csiro'
-    --obs-path     CSV  obs CSV.  Default: data/observations/dangendorf_2024_gmsl.csv
-                        (dangendorf) or data/calibration/CSIRO_Recons_gmsl_yr_2015.csv (csiro)
+    --obs          STR  'frederikse' (default) or 'csiro'
+                        LABEL FIX 2026-07-20: the default long-record GMSL obs was
+                        labeled 'dangendorf' but the file is Frederikse 2020's own
+                        observed total (see frederikse2020_gmsl_total.csv). These are
+                        FREDERIKSE importance weights. 'dangendorf' is accepted as a
+                        deprecated alias.
+    --obs-path     CSV  obs CSV.  Default: data/observations/frederikse2020_gmsl_total.csv
+                        (frederikse) or data/calibration/CSIRO_Recons_gmsl_yr_2015.csv (csiro)
     --posterior    CSV  parameters_subsample_brick.csv
     --lB           CSV  outputs/brick_lB_per_post.csv  (from Julia script — same --obs!)
     --output       CSV  augmented paired CSV with l_FB, l_B, log_w, w_norm
@@ -87,14 +93,16 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--paired",     default="outputs/brick_paired_N2000.csv",
                    help="Paired ensemble CSV with year-by-year trajectories.")
-    p.add_argument("--obs", choices=["dangendorf", "csiro"], default="dangendorf",
-                   help="Observed GMSL source (default: dangendorf 2024). "
+    p.add_argument("--obs", choices=["frederikse", "dangendorf", "csiro"], default="frederikse",
+                   help="Observed GMSL source (default: frederikse 2020 total; "
+                        "'dangendorf' is a DEPRECATED alias for the same file — "
+                        "the obs was always Frederikse). "
                         "Whatever you pick here MUST match what was used by "
                         "compute_lB_per_post.jl to produce --lB, otherwise "
                         "the weights are meaningless.")
     p.add_argument("--obs-path", default=None,
                    help="Path to obs CSV.  Defaults: "
-                        "data/observations/dangendorf_2024_gmsl.csv (dangendorf) "
+                        "data/observations/frederikse2020_gmsl_total.csv (frederikse) "
                         "or data/calibration/CSIRO_Recons_gmsl_yr_2015.csv (csiro).")
     p.add_argument("--posterior",  default="data/MimiBRICK/parameters_subsample_brick.csv",
                    help="BRICK posterior subsample CSV with sd_gmsl/rho_gmsl columns.")
@@ -137,9 +145,11 @@ def load_csiro(path: str) -> pd.DataFrame:
     return df[["year", "gmsl_m", "sigma_m"]].reset_index(drop=True)
 
 
-def load_dangendorf(path: str) -> pd.DataFrame:
+def load_frederikse_total(path: str) -> pd.DataFrame:
     """
-    Load Dangendorf et al. 2024 GMSL reconstruction (ESSD 16, 3471).
+    Load the Frederikse et al. 2020 observed GMSL total (formerly mislabeled
+    "Dangendorf 2024" -- the underlying spreadsheet is Frederikse's, see
+    python/download_obs.py fetch_frederikse_total).
 
     Expected schema (from python/download_obs.py): columns
         year (int), value (mm), sigma (mm), value_lower (mm), value_upper (mm)
@@ -151,8 +161,8 @@ def load_dangendorf(path: str) -> pd.DataFrame:
     df.columns = [c.strip() for c in df.columns]
     if not {"year", "value", "sigma"}.issubset(df.columns):
         raise RuntimeError(
-            f"Dangendorf CSV missing expected columns; got {list(df.columns)}.  "
-            f"Re-run python/download_obs.py to produce a fresh dangendorf_2024_gmsl.csv.")
+            f"Frederikse-total CSV missing expected columns; got {list(df.columns)}.  "
+            f"Re-run python/download_obs.py to produce a fresh frederikse2020_gmsl_total.csv.")
     df["year"] = df["year"].astype(int)
     df["gmsl_m"]  = df["value"].astype(float) / 1000.0
     df["sigma_m"] = df["sigma"].astype(float) / 1000.0
@@ -267,13 +277,16 @@ def main() -> int:
     print(f"       n_rows = {n_rows:,}", flush=True)
 
     if args.obs_path is None:
-        obs_path = ("data/observations/dangendorf_2024_gmsl.csv"
-                    if args.obs == "dangendorf"
+        obs_path = ("data/observations/frederikse2020_gmsl_total.csv"
+                    if args.obs in ("frederikse", "dangendorf")
                     else "data/calibration/CSIRO_Recons_gmsl_yr_2015.csv")
     else:
         obs_path = args.obs_path
     print(f"[load] obs ({args.obs}): {obs_path}", flush=True)
-    csiro = (load_dangendorf(obs_path) if args.obs == "dangendorf"
+    if args.obs == "dangendorf":
+        print("[warn] --obs dangendorf is a DEPRECATED alias: the long-record GMSL obs "
+              "is Frederikse 2020's own total (label fix 2026-07-20).", flush=True)
+    csiro = (load_frederikse_total(obs_path) if args.obs in ("frederikse", "dangendorf")
              else load_csiro(obs_path))
     print(f"       obs years {csiro.year.min()}-{csiro.year.max()}  ({len(csiro)} rows)", flush=True)
 

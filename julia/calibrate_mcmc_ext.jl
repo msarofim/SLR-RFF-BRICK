@@ -23,7 +23,19 @@
 ##      the extended AIS/GSIC time-series now constrain the modern rate directly
 ##      (Marcus 2026-06-13 -- avoids double-weighting; see prep README).
 ##
-## Forcing, params, priors, medoid, AR(1) likelihood, proposal-cov seed: IDENTICAL.
+## PHASE-2 (2026-07-20, Marcus-approved scope; see notes/handoff_2026-07-19_*):
+##   A2. λ / ais_γ / ais_κ FREED under their existing paleo marginals (were fixed at
+##       the medoid; λ dominates the 100/150-yr pulse with zero reported uncertainty).
+##   A4. Runoff line reparameterized to its identified direction: sample
+##       (T_on = -h0/c, c) under the transformed joint paleo prior
+##       (paleo_geo_prior_ton.csv); h0 = -T_on*c is reconstructed per draw.
+##       Posterior r(h0,c) was 0.9997 and the fitted onset (+0.62 C GMST) unphysical.
+##   A5. One SMB likelihood term: model β_total (1979-2008 mean, Gt/yr) vs
+##       area-scaled Rignot 2019. Breaks the SMB-discharge input-output degeneracy
+##       (posterior pinned the difference 34:1 tighter than either flux).
+##   A6. GMST->Antarctic temperature map sampled as transient amplification `amp`
+##       (anchor preserved), prior centered on CMIP6 PAI1 (Xie et al. 2022).
+##   Param count 35 -> 39 (25 -> 29 physical).
 ##
 ## Usage:  julia --project=julia_v2 julia/calibrate_mcmc_ext.jl [n_iter] [seed]
 ## ============================================================================
@@ -120,6 +132,34 @@ push!(FREE, (name="gic_f",comp=G,sym=:gic_f,μ=0.50,σ=0.30,lo=0.02,hi=0.98,islo
 push!(FREE, (name="gic_tau_fast",comp=G,sym=:gic_tau_fast,μ=40.,σ=30.,lo=5.,hi=80.,islog=false))
 push!(FREE, (name="gic_tau_slow",comp=G,sym=:gic_tau_slow,μ=300.,σ=200.,lo=80.,hi=800.,islog=false))
 
+# ---- phase-2 A2: free the DAIS fast-dynamics params under their EXISTING paleo marginals
+# (outputs/param_priors.csv rows, from the DAISfastdyn ensemble). Previously FIXED at the
+# medoid, which is biased in the pulse-amplifying direction (λ 0.0137 vs paleo mean 0.0104)
+# and hides that λ -- the dominant lever on the 100/150-yr pulse -- carried ZERO reported
+# uncertainty. They are observationally unidentified over the historical window (T_ant never
+# crosses temperature_threshold), so their marginals will simply sample the prior. That is
+# the point: propagate real fast-dynamics uncertainty. temperature_threshold was ALREADY free.
+push!(FREE, P("antarctic_lambda",:antarctic_icesheet,:λ))
+push!(FREE, P("antarctic_gamma",:antarctic_icesheet,:ais_γ))
+push!(FREE, P("antarctic_kappa",:antarctic_icesheet,:ais_κ))
+
+# ---- phase-2 A6: GMST->Antarctic temperature map as a sampled TRANSIENT amplification ----
+# The component computes T_ant = (GMST - intercept)/coef, i.e. amp = 1/coef with anchor
+# T_ant(GMST=0) = -intercept/coef = -18.435 on the DAIS paleo scale. The hard-coded map
+# (coef 0.8365, intercept 15.42 -> amp 1.196) is the inverted paleo/equilibrium regression;
+# CMIP6 TRANSIENT AIS amplification is ~0.95 under SSP2-4.5 (Xie et al. 2022, Sci Rep
+# 12:16548, PAI1 over the AIS: 0.88/0.95/0.97/1.03 for SSP1-2.6/2-4.5/3-7.0/5-8.5).
+# `amp` is sampled with the ANCHOR PRESERVED (coef = 1/amp, intercept = -T_ant0/amp), so only
+# the anomaly scaling changes; threshold-crossing GMST = (threshold - T_ant0)/amp.
+# σ SIGN-OFF ITEM (Marcus): Xie publishes NO inter-model sd. 0.06 ~= the scenario spread;
+# the default 0.10 spans the scenario range + structural uncertainty without re-admitting
+# the equilibrium 1.196 (+2.5σ). Bounds cover SSP1-2.6 .. just above equilibrium.
+const AMP_MU, AMP_SIGMA = 0.95, 0.10
+const AIS_TANT0 = -15.42 / 0.8365              # = -18.435, the preserved anchor
+push!(FREE, (name="ais_gmst_amp",comp=:antarctic_icesheet,sym=:ais_temperature_coefficient,
+             μ=AMP_MU,σ=AMP_SIGMA,lo=0.70,hi=1.25,islog=false))
+const AMP_IDX = length(FREE)                   # DERIVED param: sym above is never set directly
+
 # ---- v-next Strategy B: FREE the 7 DAIS geometry params under a JOINT paleo prior ----
 # These were previously FIXED at the prior medoid, which discards both their spread and
 # the paleo correlation structure among them. Freed here with a joint prior built from the
@@ -131,8 +171,17 @@ push!(FREE, (name="gic_tau_slow",comp=G,sym=:gic_tau_slow,μ=300.,σ=200.,lo=80.
 # ais_precipitation₀ is sampled in LOG space: MimiBRICK v2.0.0's AIS component computes
 # exp(ais_precipitation₀) (package default log(0.37)), so islog=false passes the log-space
 # θ straight through -- do NOT set islog=true here, that would log it twice.
-const GEO_FILE  = joinpath(REPO, "outputs/paleo_geo_prior.csv")
-const GEO_NAMES = ["ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG","ais_runoff_h0","ais_c"]
+# phase-2 A4: the runoff line is sampled in its IDENTIFIED direction. h0 and c enter the
+# model ONLY as hR = h0 + c*T_ant, so the posterior pins T_on = -h0/c (runoff onset, deg C
+# on the DAIS Antarctic-surface scale) while (h0,c) individually ride a r=0.9997 ridge.
+# The joint paleo prior is REBUILT in (T_on, c) coordinates from the same DAISfastdyn
+# ensemble (MimiBRICK.jl/calibration/compute_paleo_geo_prior_ton.jl): T_on paleo marginal
+# -15.64 ± 5.54 [-43.3, -5.2] == runoff onset at GMST ~+2.3 C under the default map,
+# consistent with Shaffer's DAIS (+2.5 C); r(T_on,c) in the prior is +0.64, not 0.9997.
+# h0 = -T_on*c is reconstructed per draw in logposterior (the T_on row's sym is a
+# placeholder, never set directly).
+const GEO_FILE  = joinpath(REPO, "outputs/paleo_geo_prior_ton.csv")
+const GEO_NAMES = ["ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG","ais_runoff_Ton","ais_c"]
 const GEO_SYMS  = [:ais_μ, :ais_bedheight₀, :ais_slope, :ais_iceflow₀,
                    :ais_precipitation₀, :ais_runoffline_snowheight₀, :ais_c]
 _gl = [split(strip(l), ',') for l in readlines(GEO_FILE) if !startswith(l,"#") && !isempty(strip(l))]
@@ -149,6 +198,25 @@ let glo = _grow("lo"), ghi = _grow("hi")
 end
 const GEO_IDX   = (length(FREE)-length(GEO_SYMS)+1):length(FREE)
 const GEO_PRIOR = MvNormal(zeros(length(GEO_SYMS)), Matrix(GEO_C))
+const TON_IDX   = GEO_IDX[findfirst(==("ais_runoff_Ton"), GEO_NAMES)]   # derived: h0 = -T_on*c
+const C_IDX     = GEO_IDX[findfirst(==("ais_c"), GEO_NAMES)]
+
+# ---- phase-2 A5: SMB likelihood term on the model's own β_total vs Rignot 2019 ----------
+# The posterior pinned SMB - discharge to -145±15 Gt/yr (34:1 tighter than either flux)
+# while SMB and discharge were individually ±505/±509 -- the textbook input-output
+# degeneracy, exactly where ais_iceflow0 (worst mixer, true ESS ~24) lives. One Gaussian
+# term anchors the absolute flux scale. AREA CONVENTION (handled explicitly, else ±15%
+# bias into ais_precip0 and the pulse): Rignot 2019 grounded-AIS SMB 2098±133 Gt/yr is for
+# 12.295e6 km2; DAIS is an idealized pi*R0^2 = 10.92e6 km2 disc -> x(10.92/12.295)=0.888.
+# σ SIGN-OFF ITEM (Marcus): 118 = Rignot's ±133 area-scaled (inter-model spread, not
+# measurement error); Mottram 2021 (TC 15:3751) 5-RCM ensemble = 2329±94 Gt/yr INCLUDING
+# shelves (~2000 grounded, consistent with Rignot). β_total is m3 ice/yr -> Gt/yr via
+# ρ_ice; window 1979-2008 matches the Rignot climatology.
+const SMB_Y0, SMB_Y1 = 1979, 2008
+const SMB_IDX       = [idx(y) for y in SMB_Y0:SMB_Y1]
+const SMB_TARGET_GT = 2098.0 * (10.92 / 12.295)          # = 1863.4 Gt/yr
+const SMB_SIGMA_GT  = 133.0 * (10.92 / 12.295)           # = 118.1 Gt/yr
+const M3ICE_TO_GT   = 917.0 / 1e12                       # ais_ρ_ice = 917 kg/m3
 
 const NP = length(FREE)
 const SERIES = [:ais,:gsic,:gis,:steric,:dang]
@@ -171,7 +239,15 @@ function logposterior(θ)
     @inbounds for k in 1:NP; (θ[k]<FREE[k].lo || θ[k]>FREE[k].hi) && return -Inf; end
     σn = θ[NP+1:2:NK]; ρn = θ[NP+2:2:NK]
     (any(σn .<= 0) || any(ρn .< 0) || any(ρn .>= 0.99)) && return -Inf
-    @inbounds for k in 1:NP; setp!(FREE[k], θ[k]); end
+    @inbounds for k in 1:NP
+        (k == AMP_IDX || k == TON_IDX) && continue      # derived params, set below
+        setp!(FREE[k], θ[k])
+    end
+    # A4: runoff line -- reconstruct h0 from the identified direction
+    update_param!(m, :antarctic_icesheet, :ais_runoffline_snowheight₀, -θ[TON_IDX] * θ[C_IDX])
+    # A6: temperature map -- amp with the T_ant(GMST=0) anchor preserved
+    update_param!(m, :antarctic_icesheet, :ais_temperature_coefficient, 1.0 / θ[AMP_IDX])
+    update_param!(m, :antarctic_icesheet, :ais_temperature_intercept, -AIS_TANT0 / θ[AMP_IDX])
     run(m)
     ais=reref(m[:antarctic_icesheet,:ais_sea_level]); gsic=reref(m[:glaciers_small_icecaps,:gsic_sea_level])
     gis=reref(m[:greenland_icesheet,:greenland_sea_level]); te=reref(m[:thermal_expansion,:te_sea_level])
@@ -181,8 +257,13 @@ function logposterior(θ)
     for (i,(s,full)) in enumerate(zip([S.ais,S.gsic,S.gis,S.steric], [ais,gsic,gis,te]))
         ll += hetero_logl_ar1(full[s.myi] .- s.obs, σn[i], ρn[i], s.ϵ)
     end
-    # total (Dangendorf+altimetry): modeled ice+steric at dang years + observed LWS
+    # total: modeled ice+steric at "dang" years + observed LWS. NB the "dang"-labeled
+    # target is the FREDERIKSE 2020 total (label fix 2026-07-20) spliced with NOAA STAR
+    # altimetry -- rename pending the M3 total-term rework.
     ll += hetero_logl_ar1(tot_full[S.dang.myi] .+ lws_dang .- S.dang.obs, σn[5], ρn[5], S.dang.ϵ)
+    # A5: SMB anchor -- model β_total (1979-2008 mean, Gt/yr) vs area-scaled Rignot 2019
+    smb_gt = mean(m[:antarctic_icesheet, :β_total][SMB_IDX]) * M3ICE_TO_GT
+    ll += logpdf(Normal(SMB_TARGET_GT, SMB_SIGMA_GT), smb_gt)
     # priors: independent Gaussian on physical (EXCEPT the geometry block, which gets the
     # joint paleo prior below), weak half-normal on AR(1) σ
     lp = 0.0
@@ -206,14 +287,24 @@ mapp = CSV.read(joinpath(REPO,"outputs/calib_full_joint_params.csv"), DataFrame)
 const GEO_MEDOID_COL = Dict(
     "ais_mu"          => "antarctic_mu",        "ais_bedheight0" => "antarctic_bed_height0",
     "ais_slope"       => "antarctic_slope",     "ais_iceflow0"   => "antarctic_flow0",
-    "ais_precip0_LOG" => "antarctic_precip0",   "ais_c"          => "antarctic_c",
-    "ais_runoff_h0"   => "antarctic_runoff_height0")
+    "ais_precip0_LOG" => "antarctic_precip0",   "ais_c"          => "antarctic_c")
+# phase-2 params likewise start at the values the MAP was CONDITIONED on (the medoid /
+# the old fixed map), not at their prior means -- same lesson as the geometry start.
+const FD_MEDOID = ("antarctic_lambda", "antarctic_gamma", "antarctic_kappa")
 θ0 = Float64[]
 for k in 1:NP
     nm = FREE[k].name
     if k in GEO_IDX
-        v = Float64(medoid[GEO_MEDOID_COL[nm]])          # medoid stores precip₀ LINEAR
-        push!(θ0, nm == "ais_precip0_LOG" ? log(v) : v)  # ...but θ/model are log-space
+        if nm == "ais_runoff_Ton"                        # medoid T_on = -h0/c
+            push!(θ0, -Float64(medoid["antarctic_runoff_height0"]) / Float64(medoid["antarctic_c"]))
+        else
+            v = Float64(medoid[GEO_MEDOID_COL[nm]])      # medoid stores precip₀ LINEAR
+            push!(θ0, nm == "ais_precip0_LOG" ? log(v) : v)  # ...but θ/model are log-space
+        end
+    elseif nm in FD_MEDOID
+        push!(θ0, Float64(medoid[nm]))
+    elseif nm == "ais_gmst_amp"
+        push!(θ0, 1.0 / 0.8365)                          # the fixed map the MAP ran under
     else
         j = findfirst(==(nm), mapp.param)
         push!(θ0, isnothing(j) ? FREE[k].μ : mapp.MAP[j])
@@ -237,19 +328,33 @@ const ADCOV = let e = joinpath(REPO,"outputs/mcmc/adapted_cov_ext.csv"),
     isfile(e) ? e : b
 end
 cov0 = Matrix(Diagonal(prop.^2))
+# Column order of the 35-param v-next chains/covs (18 physical + 7 geometry with the OLD
+# ais_runoff_h0 coordinate + 10 AR(1) noise). Embedding is BY NAME: carried-over params
+# keep the ridge-tuned proposal shape; the four new params (λ, γ, κ, amp) and the
+# reparameterized T_on get the diagonal (h0's old row is deliberately NOT mapped -- its
+# scale/meaning is wrong for T_on).
+const OLD35_NAMES = vcat(
+    ["ais_ocean_temperature₀","antarctic_alpha","antarctic_nu","antarctic_temp_threshold",
+     "anto_alpha","anto_beta","greenland_a","greenland_b","greenland_alpha","greenland_beta",
+     "greenland_v0","thermal_alpha","gic_a","gic_b","gic_T_lia","gic_f","gic_tau_fast","gic_tau_slow",
+     "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG","ais_runoff_h0","ais_c"],
+    vcat([["sd_$s","rho_$s"] for s in SERIES]...))
 if isfile(ADCOV)
     old = Matrix(CSV.read(ADCOV, DataFrame))
-    # Pre-v-next covariances are (NK - 7)x(NK - 7): they predate the geometry block.
-    # The geometry rows were APPENDED to the end of the physical block, so the remaining
-    # params keep their relative order and the old matrix maps onto OLDIDX exactly.
-    OLDIDX = [k for k in 1:NK if !(k in GEO_IDX)]
     if size(old,1) == NK
         cov0 = old
         println("(seeding proposal from adapted covariance $(basename(ADCOV)))")
-    elseif size(old,1) == length(OLDIDX)
-        cov0[OLDIDX, OLDIDX] = old      # tuned shape for the old params, diagonal for geometry
-        println("(seeding proposal: embedded $(size(old,1))x$(size(old,1)) $(basename(ADCOV)) " *
-                "+ diagonal for the $(length(GEO_IDX)) newly freed geometry params)")
+    elseif size(old,1) == length(OLD35_NAMES)
+        oi = Int[]; ni = Int[]
+        for (i, nm) in enumerate(OLD35_NAMES)
+            j = findfirst(==(nm), pn0)
+            isnothing(j) && continue                      # ais_runoff_h0 -> dropped
+            push!(oi, i); push!(ni, j)
+        end
+        cov0[ni, ni] = old[oi, oi]
+        println("(seeding proposal: name-mapped $(length(oi)) of $(size(old,1)) rows of " *
+                "$(basename(ADCOV)); diagonal for " *
+                join(setdiff(pn0[1:NP], OLD35_NAMES), ", ") * ")")
     else
         println("(WARNING: $(basename(ADCOV)) is $(size(old,1))x$(size(old,1)), incompatible " *
                 "with NK=$NK -- falling back to the diagonal proposal)")
@@ -282,9 +387,18 @@ if OVERDISPERSE
     si = findfirst(==(SEED), [2026,2027,2028,2029])
     isnothing(si) && error("--overdisperse: no start row defined for seed $SEED")
     nrow(st) >= si || error("--overdisperse: $SF has $(nrow(st)) rows, need >= $si")
+    # The starts file must cover the CURRENT parameter set. The v-next (35-param)
+    # starts predate phase-2's λ/γ/κ/amp and the T_on reparam, so this is a two-stage
+    # launch (handoff §9): (1) a common-start tuning run to produce a phase-2 posterior;
+    # (2) build overdispersed_starts.csv from it (draws at ais_iceflow0 quantiles
+    # 0.02/0.35/0.65/0.98 -- NOT random jitter, which gives non-finite logpost) and
+    # adapted_cov_ext.csv; (3) this production run.
+    missing_cols = [nm for nm in pn0 if !hasproperty(st, Symbol(nm))]
+    isempty(missing_cols) || error("--overdisperse: $SF is missing $(length(missing_cols)) " *
+        "column(s): $(join(missing_cols, ", ")). It predates the current parameter set — " *
+        "rebuild it from a phase-2 tuning run (two-stage launch; see calibrate header + handoff §9).")
     θmap = copy(θ0)
     for (k, nm) in enumerate(pn0)
-        hasproperty(st, Symbol(nm)) || error("--overdisperse: $SF is missing column $nm")
         θ0[k] = Float64(st[si, Symbol(nm)])
     end
     lp0 = logposterior(θ0)
@@ -304,7 +418,8 @@ pn = pn0
 burn = chain[(N_ITER÷2+1):end, :]
 println("\nposterior (2nd-half) median ± sd for key params:")
 for nm in ["ais_ocean_temperature₀","anto_alpha","thermal_alpha","gic_T_lia","gic_f","gic_tau_fast","gic_tau_slow","gic_a",
-           "ais_mu","ais_precip0_LOG","ais_iceflow0","ais_c"]
+           "ais_mu","ais_precip0_LOG","ais_iceflow0","ais_c",
+           "antarctic_lambda","antarctic_gamma","antarctic_kappa","ais_gmst_amp","ais_runoff_Ton"]
     c = burn[:, findfirst(==(nm),pn)]
     @printf("  %-24s %.3g ± %.2g\n", nm, median(c), std(c))
 end

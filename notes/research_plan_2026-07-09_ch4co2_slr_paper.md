@@ -9,10 +9,13 @@ figures, tables, methods sections, captions, reference compilation, verified num
 structural outline in this document.
 
 > **Status of all numbers below.** Every headline SLR value quoted here is a **placeholder** from
-> the completed studies on the *pre-BRICK-FM* Mengel posterior (FaIR v1.4.5 × RFF-SP, archived
+> the completed studies on the *pre-BRICK-FM* Mengel posterior (FaIR 2.2.4 (calib1.4.5) × RFF-SP, archived
 > `brick-mengel` branch) and the Phase-1 SSP2-4.5 MAGICC run. The paper's production numbers are
 > regenerated on the **BRICK-FM v-next** posterior after recalibration (§5, §11). Numbers are used
 > here to size the argument and design the figures, not as final results.
+
+>MCS NOTE: The FaIR model version is NOT 1.4.5, that's the calibration version. 
+>MCS NOTE: Do we publish BRICK-FM as a separate JOSS paper to complement the pulse paper?
 
 ---
 
@@ -76,6 +79,9 @@ artifact**: GWP-20 (=79.7) pushes CH₄ below CO₂ even at 2100, GWP-100 defers
 first-class result, not a footnote — which pre-empts the "artifact of your metric choice" objection
 on Sarofim's own metrics home turf.
 
+>MCS NOTE: Use 100 and 150 years from the emission point as the key variable, NOT the years 2100 and 2150
+>(this is different from much of my other work, but consistent with the GWP-100 framing)
+
 ---
 
 ## 2. Literature positioning and novelty
@@ -109,6 +115,9 @@ on Sarofim's own metrics home turf.
 - **Errickson et al. 2021 / GIVE (Rennert et al. 2022)** — CH₄ pulses through calibrated SCMs, but
   monetized via IAM damage functions, no physical per-tonne SLR reporting. Differentiate on the
   physical-SLR framing.
+  
+>MCS NOTE: I will definitley be collaborating with Wong and Errickson on this project,
+>and maybe Nauels as well. 
 
 **Novelty verdict (from a July-2026 web sweep — not a systematic Scopus/WoS search):** we found **no
 published instance** of gas-specific CH₄-vs-CO₂ pulse SLR marginals with a modern calibrated emulator
@@ -157,6 +166,9 @@ Rationale:
   band and framing, not the median — reporting both is nearly free and the ~8% agreement is itself a
   reportable robustness result. **This is a CO₂ cross-check and does NOT transfer to CH₄** (see the
   caveat below).
+  
+>MCS NOTE: Yes, the RFF-SPs should be the primary result, but the SSPs provide a nice clean way to
+>look at how the pulse response changes with scenario. 
 
 **CH₄-specific blocker to clear before trusting the RFF-SP CH₄ baseline (not just a caveat):** RFF-SP
 **under-projects CH₄ growth** — realized CH₄ (2021–24) rose ~3× faster than the RFF median and sits
@@ -294,7 +306,7 @@ semi-empirical SLR). Paired baseline/pulse per ensemble member.
 | CH₄ framing | **Per-actual-tonne (no-GWP) primary**; CO₂e (GWP-100=27 biogenic / 29.8 fossil) secondary | GWP basis is an open reporting choice (§9.5); GWP-20=79.7 would push CH₄ below CO₂ even @2100 |
 
 **Pulse discipline (mandatory carry-forward checklist):**
-- Paired seeds mandatory — FaIR v1.4.5 stochastic noise is ~200× the pulse signal.
+- Paired seeds mandatory — FaIR 2.2.4 (calib1.4.5) stochastic noise is ~200× the pulse signal.
 - CO₂ input unit is **GtCO₂**, not GtC (recurring bug class).
 - Full 5-test sanity battery per experiment: zero-pulse bit-identical, sign-flip (−1.000), ×2
   linearity (2.000), first-principles magnitude, paired-seed check (`climate-modeling` skill).

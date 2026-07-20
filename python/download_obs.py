@@ -7,9 +7,13 @@ Hawkins-Sutton historical-fit figures.
 Targets:
   * Berkeley Earth global land+ocean annual anomaly (1850-present)
   * NOAA STAR satellite altimetry global mean sea level (1993-present)
-  * Dangendorf et al. 2024 global mean sea level reconstruction (1900-2018,
-    annual; ESSD 16, 3471, https://doi.org/10.5281/zenodo.10621070).  This
-    replaces the older CSIRO Recons 2015 file (1880-2013) used previously.
+  * Frederikse et al. 2020 observed GMSL total (1900-2018, annual), fetched
+    from global_basin_timeseries.xlsx as redistributed inside Dangendorf's
+    Zenodo record (https://doi.org/10.5281/zenodo.10621070). Formerly
+    MISLABELED "Dangendorf 2024" here — the real Dangendorf 2024 GMSL is
+    extracted separately (python/diag_dangendorf_vs_frederikse.py ->
+    dangendorf2024_gmsl_annual.csv). Replaces the older CSIRO Recons 2015
+    file (1880-2013) used previously.
   * CSIRO Recons gmsl_yr_2015 (1880-2013) — kept as an optional fallback,
     fetched from a local MimiBRICK Julia depot if available.
 
@@ -18,7 +22,7 @@ Each dataset is written to <obs-dir>/<name>.csv with columns:
 
 Where 'value' uses dataset-native units:
   - GMST: degC anomaly (Berkeley Earth: rel to 1951-1980 baseline)
-  - GMSL: mm (Dangendorf 2024: rel to a centred 20th-century baseline;
+  - GMSL: mm (Frederikse 2020 total: rel to a centred 20th-century baseline;
     NOAA STAR altimetry: rel to ~1993; CSIRO: rel to 1990).  Each source is
     stored in its native frame; plotting code re-baselines as needed.
 
@@ -339,22 +343,32 @@ def fetch_csiro(out_path: Path, download: bool) -> bool:
     return True
 
 
-def fetch_dangendorf(out_path: Path, download: bool) -> bool:
-    """Dangendorf et al. 2024 (ESSD 16, 3471) GMSL reconstruction, 1900-2018.
-    Source: Zenodo 10621070, file global_basin_timeseries.xlsx (Global sheet).
+def fetch_frederikse_total(out_path: Path, download: bool) -> bool:
+    """FREDERIKSE et al. 2020 observed GMSL (tide-gauge total), 1900-2018.
+
+    LABEL FIX 2026-07-20: this function was previously named fetch_dangendorf and
+    wrote dangendorf_2024_gmsl.csv, but global_basin_timeseries.xlsx is Frederikse
+    2020's budget spreadsheet, merely REDISTRIBUTED inside Dangendorf's Zenodo
+    record 10621070 (verified bit-identical to Frederikse's Observed GMSL; series
+    ends 2018 = Frederikse's end year, not Dangendorf's 2021). The REAL Dangendorf
+    2024 reconstruction lives in the same record's KalmanSmootherHR_Fields.nc
+    (729 MB; the small ..._Global.nc is mis-written upstream — its "GMSLHR" slot
+    holds the barystatic mean) and is extracted by
+    python/diag_dangendorf_vs_frederikse.py -> dangendorf2024_gmsl_annual.csv.
+
     Columns: Observed GMSL [lower / mean / upper] in mm relative to the
     paper's centred baseline."""
     if out_path.exists() and not download:
-        print(f"  [Dangendorf] already cached at {out_path}; skipping")
+        print(f"  [Frederikse total] already cached at {out_path}; skipping")
         return True
     if not download:
         return False
 
     url = "https://zenodo.org/records/10621070/files/global_basin_timeseries.xlsx?download=1"
-    print(f"  [Dangendorf] trying {url}")
+    print(f"  [Frederikse total] trying {url}")
     data = _http_get(url, timeout=60)
     if data is None or len(data) < 10000:
-        print("  [Dangendorf] download failed; skipping")
+        print("  [Frederikse total] download failed; skipping")
         return False
 
     tmp_xlsx = out_path.with_suffix(".xlsx")
@@ -363,10 +377,10 @@ def fetch_dangendorf(out_path: Path, download: bool) -> bool:
     try:
         xl = pd.ExcelFile(tmp_xlsx, engine="openpyxl")
     except Exception as e:
-        print(f"  [Dangendorf] failed to open xlsx ({e}); skipping")
+        print(f"  [Frederikse total] failed to open xlsx ({e}); skipping")
         return False
     if "Global" not in xl.sheet_names:
-        print(f"  [Dangendorf] no Global sheet in xlsx; sheets={xl.sheet_names}")
+        print(f"  [Frederikse total] no Global sheet in xlsx; sheets={xl.sheet_names}")
         return False
     raw = pd.read_excel(xl, sheet_name="Global", engine="openpyxl")
     # First column is unnamed (year), but pandas labels it 'Unnamed: 0'.
@@ -377,14 +391,14 @@ def fetch_dangendorf(out_path: Path, download: bool) -> bool:
         "value_lower": raw["Observed GMSL [lower]"].astype(float),
         "value_upper": raw["Observed GMSL [upper]"].astype(float),
     })
-    # Approximate symmetric sigma from the 5-95% / 17-83% bracket Dangendorf
-    # reports.  Their bracket is the 90% interval, so sigma ≈ (upper-lower)/3.29.
+    # Approximate symmetric sigma from the 90% bracket Frederikse reports:
+    # sigma ≈ (upper-lower)/3.29.
     out["sigma"] = (out["value_upper"] - out["value_lower"]) / 3.29
     out = out.sort_values("year").reset_index(drop=True)
     out[["year", "value", "sigma", "value_lower", "value_upper"]].to_csv(
         out_path, index=False)
     tmp_xlsx.unlink(missing_ok=True)
-    print(f"  [Dangendorf] wrote {len(out)} annual rows to {out_path} "
+    print(f"  [Frederikse total] wrote {len(out)} annual rows to {out_path} "
           f"(years {out['year'].min()}-{out['year'].max()}; units mm)")
     return True
 
@@ -409,9 +423,9 @@ def main():
     results["noaa_star_gmsl"] = fetch_nasa_gmsl(
         obs_dir / "nasa_gmsl_annual.csv", args.download)
 
-    print("[3/4] Dangendorf 2024 reconstruction GMSL")
-    results["dangendorf_2024"] = fetch_dangendorf(
-        obs_dir / "dangendorf_2024_gmsl.csv", args.download)
+    print("[3/4] Frederikse 2020 observed GMSL total (formerly mislabeled Dangendorf)")
+    results["frederikse_total"] = fetch_frederikse_total(
+        obs_dir / "frederikse2020_gmsl_total.csv", args.download)
 
     print("[4/4] CSIRO Recons GMSL (optional fallback)")
     results["csiro_fallback"] = fetch_csiro(

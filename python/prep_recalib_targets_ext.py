@@ -112,8 +112,13 @@ for fname, tgt in FRED_MAP.items():
     # over-states σ near the window -- i.e. it UNDER-weights those years. That is the safe
     # direction to err, but it is an approximation, not the answer. See handoff.
 
-# Dangendorf total (rel window)
-d = pd.read_csv(os.path.join(OBS, "dangendorf_2024_gmsl.csv")).set_index("year")
+# "Total" term (rel window). LABEL FIX 2026-07-20: this file is FREDERIKSE 2020's own
+# observed GMSL (bit-identical; download_obs.py had pulled global_basin_timeseries.xlsx —
+# Frederikse's spreadsheet redistributed inside Dangendorf's Zenodo record 10621070 — and
+# labeled it Dangendorf). The target keeps the historical name "dang" until the M3 total-
+# term rework; the REAL Dangendorf 2024 GMSL is data/observations/dangendorf2024_gmsl_annual.csv
+# (see python/diag_dangendorf_vs_frederikse.py).
+d = pd.read_csv(os.path.join(OBS, "frederikse2020_gmsl_total.csv")).set_index("year")
 out["dang"]     = reref(d["value"] / 10.0, (BASE_Y0, BASE_Y1)).reindex(years).values
 out["dang_sig"] = (d["sigma"] / 10.0).reindex(years).values
 fred["dang"]    = reref(d["value"] / 10.0, (BASE_Y0, BASE_Y1))

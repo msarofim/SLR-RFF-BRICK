@@ -18,7 +18,15 @@ const ESS_MIN = 400
 # Writing a posterior subsample or a proposal seed from NON-CONVERGED chains is how a bad
 # posterior reaches downstream consumers silently. Both writes are gated on convergence;
 # pass --force to override (the files then carry a _NOTCONVERGED suffix).
+#
+# --accept-slr: accepted-on-deliverable criterion (Marcus 2026-07-19). The AIS geometry
+# block is a compensating ridge whose MARGINALS will not converge in feasible compute,
+# but the chains agree on projected SLR. If outputs/mcmc/slr_convergence_ext.csv
+# (written by diag_slr_convergence_by_chain.jl, and FRESHER than every chain file)
+# shows R̂<1.05 at all horizons, the canonical subsample/seed are written even though
+# the parameter-level gate fails.
 const FORCE = "--force" in ARGS
+const ACCEPT_SLR = "--accept-slr" in ARGS
 N_SUB = length(ARGS)>=1 && !startswith(ARGS[1],"--") ? parse(Int,ARGS[1]) : 10000
 const MCMCDIR = joinpath(REPO, "outputs/mcmc")
 files = [joinpath(MCMCDIR,f) for f in readdir(MCMCDIR) if startswith(f,"chain_$(TAG)_seed") && endswith(f,".csv")]
@@ -31,11 +39,25 @@ println("Combining $(length(files)) chains:")
 hdr = propertynames(CSV.read(files[1], DataFrame; limit=0))
 wanted = [c for c in hdr if c != :accept_rate]
 chains = DataFrame[]
+chain_files = String[]
 for f in files
     d = CSV.read(f, DataFrame; select=wanted)
     burn = d[(nrow(d)÷2+1):end, :]
     push!(chains, burn)
+    push!(chain_files, f)
     @printf("  %s  (%d post-burn)\n", basename(f), nrow(burn))
+end
+# Guard against stray short chains (smoke tests, aborted runs) matching the glob:
+# one 2-iteration file once collapsed nmin to 1 (all R̂/ESS non-finite) AND leaked a
+# smoke-test draw into the subsample. Refuse loudly rather than skip silently.
+nrows = nrow.(chains)
+if minimum(nrows) < 0.5 * maximum(nrows)
+    for (f, n) in zip(chain_files, nrows)
+        @printf("  %-60s %d post-burn rows\n", basename(f), n)
+    end
+    error("chain length mismatch: shortest ($(minimum(nrows))) < half of longest " *
+          "($(maximum(nrows))). A stray non-current chain matches the chain_$(TAG)_seed* " *
+          "glob — quarantine it (see outputs/quarantine/20260720_smoke_chain_n2/).")
 end
 pnames = [n for n in names(chains[1]) if !(n in ["accept_rate"])]   # log_post IS diagnosed (see below)
 
@@ -63,13 +85,41 @@ isempty(bad) ? println("  all params converged (R̂<1.05, ESS>$(ESS_MIN)).") :
                println("  $(length(bad)) params NOT converged.")
 const CONVERGED = isempty(bad)
 
+# --accept-slr: check the deliverable-level diagnostic. Freshness is load-bearing —
+# a stale CSV from a previous run would bless chains it never saw.
+slr_accepted = false
+if !CONVERGED && ACCEPT_SLR
+    slr_csv = joinpath(MCMCDIR, "slr_convergence_ext.csv")
+    if !isfile(slr_csv)
+        println("\n--accept-slr: $slr_csv not found. Run diag_slr_convergence_by_chain.jl first.")
+    elseif mtime(slr_csv) < maximum(mtime.(files))
+        println("\n--accept-slr: $slr_csv is OLDER than the newest chain file -> STALE; refusing.")
+        println("Re-run diag_slr_convergence_by_chain.jl on the current chains.")
+    else
+        sd = CSV.read(slr_csv, DataFrame)
+        ok = all(isfinite.(sd.rhat)) && all(sd.rhat .< 1.05)
+        println("\n--accept-slr: deliverable-level convergence from $(basename(slr_csv)):")
+        for r in eachrow(sd)
+            @printf("  SLR@%d  R̂=%.3f  ESS=%.1f\n", r.horizon, r.rhat, r.ess)
+        end
+        if ok
+            slr_accepted = true
+            println("ACCEPTED ON DELIVERABLE: parameter marginals not converged (compensating")
+            println("AIS-geometry ridge), but projected SLR R̂<1.05 at all horizons -> writing")
+            println("canonical outputs (accepted-on-deliverable criterion, Marcus 2026-07-19).")
+        else
+            println("SLR-level R̂ >= 1.05 at some horizon -> NOT accepted.")
+        end
+    end
+end
+
 pool = vcat(chains...)
 n = nrow(pool); step = max(1, n ÷ N_SUB)
 sub = pool[1:step:end, :][1:min(N_SUB, end), :]
 parnames = [p for p in pnames if p != "log_post"]     # subsample/cov exclude log_post
 
-if CONVERGED || FORCE
-    sfx = CONVERGED ? "" : "_NOTCONVERGED"
+if CONVERGED || slr_accepted || FORCE
+    sfx = (CONVERGED || slr_accepted) ? "" : "_NOTCONVERGED"
     out = joinpath(REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_$(TAG)$(sfx).csv")
     CSV.write(out, sub[:, parnames])
     @printf("\nWrote %s  (%d-member subsample of %d pooled draws)\n", out, nrow(sub), n)
@@ -99,5 +149,10 @@ if isfile(base)
     end
 end
 if !isempty(bad)
-    println("\n** NOT CONVERGED ** ($(length(bad)) params). Re-run longer: bash run_mcmc_ext_local.sh 500000")
+    if slr_accepted
+        println("\n** $(length(bad)) marginals not converged; ACCEPTED ON DELIVERABLE (--accept-slr). **")
+    else
+        println("\n** NOT CONVERGED ** ($(length(bad)) params). Re-run longer, or check the")
+        println("deliverable with diag_slr_convergence_by_chain.jl and re-run with --accept-slr.")
+    end
 end

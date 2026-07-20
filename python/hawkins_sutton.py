@@ -31,7 +31,7 @@ in the SLR figure for clarification.
 
 Both historical figures rebaseline to the 1986-2005 mean. Berkeley Earth's
 native 1951-1980 baseline is converted to 1986-2005 using BE's own data.
-SLR observations (Dangendorf 2024, NOAA STAR altimetry) are similarly rebaselined.
+SLR observations (Frederikse 2020 total, NOAA STAR altimetry) are similarly rebaselined.
 
 == CLI ==
 
@@ -953,19 +953,20 @@ def main():
     for i in range(len(plot_years)):
         q_slr[i] = weighted_quantile(Y_plot[:, i], w, (0.05, 0.5, 0.95))
 
-    # Obs: Dangendorf 2024 reconstruction (mm, 1900-2018) + NOAA STAR
-    # satellite altimetry (mm rel 1993).  Dangendorf supersedes the previously
-    # used CSIRO Recons (1880-2013) as the canonical long-record GMSL source.
+    # Obs: Frederikse 2020 observed GMSL total (mm, 1900-2018; formerly
+    # MISLABELED "Dangendorf 2024" -- the file is Frederikse's own total, see
+    # download_obs.py fetch_frederikse_total) + NOAA STAR satellite altimetry
+    # (mm rel 1993). Supersedes the CSIRO Recons (1880-2013).
     obs_for_fig4 = {}
-    dangendorf_df = load_obs_csv(obs_dir / "dangendorf_2024_gmsl.csv")
-    if dangendorf_df is not None:
-        d = dangendorf_df.copy()
+    frederikse_df = load_obs_csv(obs_dir / "frederikse2020_gmsl_total.csv")
+    if frederikse_df is not None:
+        d = frederikse_df.copy()
         d["value"] = d["value"] / 10.0   # mm -> cm
         m = (d["year"] >= REF_PERIOD[0]) & (d["year"] <= REF_PERIOD[1])
         if m.sum() > 0:
             d["value"] = d["value"] - d.loc[m, "value"].mean()
-        obs_for_fig4["Dangendorf 2024"] = d
-        print(f"  Dangendorf 2024: {len(d)} rows in cm")
+        obs_for_fig4["Frederikse 2020 total"] = d
+        print(f"  Frederikse 2020 total: {len(d)} rows in cm")
 
     nasa_df = load_obs_csv(obs_dir / "nasa_gmsl_annual.csv")
     if nasa_df is not None:
@@ -973,18 +974,18 @@ def main():
         n["value"] = n["value"] / 10.0   # mm -> cm
         # NOAA STAR only covers 1993-present so it can't span REF_PERIOD
         # (1986-2005) entirely. Use whatever overlap exists, else align to
-        # Dangendorf via the early-overlap offset.
+        # Frederikse total via the early-overlap offset.
         m = (n["year"] >= REF_PERIOD[0]) & (n["year"] <= REF_PERIOD[1])
         if m.sum() > 0:
             n["value"] = n["value"] - n.loc[m, "value"].mean()
             print(f"  NOAA STAR altimetry: rebased on {m.sum()} years in 1986-2005")
-        elif dangendorf_df is not None:
-            dan_cm = obs_for_fig4["Dangendorf 2024"]
-            overlap = dan_cm.merge(n, on="year", suffixes=("_dan", "_nasa"))
+        elif frederikse_df is not None:
+            fred_cm = obs_for_fig4["Frederikse 2020 total"]
+            overlap = fred_cm.merge(n, on="year", suffixes=("_fred", "_nasa"))
             if len(overlap) > 0:
-                offset = (overlap["value_dan"] - overlap["value_nasa"]).mean()
+                offset = (overlap["value_fred"] - overlap["value_nasa"]).mean()
                 n["value"] = n["value"] + offset
-                print(f"  NOAA STAR altimetry: aligned to Dangendorf via offset "
+                print(f"  NOAA STAR altimetry: aligned to Frederikse total via offset "
                       f"{offset:+.2f} cm")
         obs_for_fig4["NOAA STAR altimetry"] = n
 
@@ -996,7 +997,7 @@ def main():
         out_png=out_dir / "slr_obs_vs_model.png",
         out_pdf=out_dir / "slr_obs_vs_model.pdf",
         zoom_period=(2010, min(2025, args.end_year)),
-        obs_styles={"Dangendorf 2024":     dict(color="black", lw=1.0,
+        obs_styles={"Frederikse 2020 total": dict(color="black", lw=1.0,
                                                 marker="o", ms=2.5),
                     "NOAA STAR altimetry": dict(color="red", lw=1.0,
                                                 marker="s", ms=2.5)},

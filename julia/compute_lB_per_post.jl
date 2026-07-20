@@ -26,7 +26,8 @@
 ##      with sigma_gmsl = posterior `sd_gmsl`, rho_gmsl = posterior `rho_gmsl`,
 ##      and eps_t = the per-year observed 1-sigma uncertainty inflated to
 ##      account for re-baselining (sqrt(sigma_t^2 + sigma_2000^2)).
-##      Default obs source: Dangendorf et al. 2024 (ESSD 16, 3471).  Use
+##      Default obs source: Frederikse et al. 2020 observed total (formerly
+##      MISLABELED "Dangendorf 2024" — label fix 2026-07-20).  Use
 ##      --obs csiro for the legacy CSIRO Recons series.
 ##   6. Write `outputs/brick_lB_per_post.csv` with columns:
 ##      post_idx (1-based), l_B_gmsl.
@@ -47,9 +48,10 @@
 ## ---
 ##   --posterior   PATH   BRICK posterior CSV (default
 ##                        data/MimiBRICK/parameters_subsample_brick.csv)
-##   --obs         STR    Observed GMSL source: "dangendorf" (default) or "csiro"
+##   --obs         STR    Observed GMSL source: "frederikse" (default; "dangendorf"
+##                          is a DEPRECATED alias for the same Frederikse file) or "csiro"
 ##   --obs-path    PATH   Override the obs CSV path.  Defaults:
-##                          dangendorf -> data/observations/dangendorf_2024_gmsl.csv
+##                          frederikse -> data/observations/frederikse2020_gmsl_total.csv
 ##                          csiro      -> data/calibration/CSIRO_Recons_gmsl_yr_2015.csv
 ##   --output      PATH   output CSV (default outputs/brick_lB_per_post.csv)
 ##   --start-year  INT    default 1850
@@ -76,7 +78,7 @@ function parse_cli()
     s = ArgParseSettings()
     @add_arg_table! s begin
         "--posterior";  default = "data/MimiBRICK/parameters_subsample_brick.csv"
-        "--obs";        default = "dangendorf";  range_tester = x -> x in ("dangendorf", "csiro")
+        "--obs";        default = "frederikse";  range_tester = x -> x in ("frederikse", "dangendorf", "csiro")
         "--obs-path";   default = ""             # empty => default per --obs
         "--output";     default = "outputs/brick_lB_per_post.csv"
         "--start-year"; arg_type = Int; default = 1850
@@ -133,12 +135,13 @@ function load_csiro(path::String)
 end
 
 # ---------------------------------------------------------------------------
-# Load Dangendorf et al. 2024 GMSL reconstruction (ESSD 16, 3471).  Expected
+# Load the Frederikse 2020 observed GMSL total (formerly mislabeled Dangendorf
+# 2024 — the spreadsheet is Frederikse's own; label fix 2026-07-20).  Expected
 # schema (from python/download_obs.py output): year (int), value (mm),
 # sigma (mm), value_lower, value_upper.  sigma is approximated from the
 # 90% interval as (upper - lower) / 3.29.
 # ---------------------------------------------------------------------------
-function load_dangendorf(path::String)
+function load_frederikse_total(path::String)
     raw = CSV.read(path, DataFrame)
     years   = Int.(raw[!, "year"])
     gmsl_m  = Float64.(raw[!, "value"]) ./ 1000.0
@@ -170,15 +173,16 @@ function main()
     # -----------------------------------------------------------------------
     obs_source = args["obs"]
     obs_path   = if args["obs-path"] == ""
-        obs_source == "dangendorf" ?
-            "data/observations/dangendorf_2024_gmsl.csv" :
+        obs_source in ("frederikse", "dangendorf") ?
+            "data/observations/frederikse2020_gmsl_total.csv" :
             "data/calibration/CSIRO_Recons_gmsl_yr_2015.csv"
     else
         args["obs-path"]
     end
     println("Loading obs ($obs_source) from $obs_path ...")
-    obs_years, obs_gmsl_m, obs_sigma_m = if obs_source == "dangendorf"
-        load_dangendorf(obs_path)
+    obs_source == "dangendorf" && @warn "--obs dangendorf is a DEPRECATED alias: the obs is Frederikse 2020's own total (label fix 2026-07-20)"
+    obs_years, obs_gmsl_m, obs_sigma_m = if obs_source in ("frederikse", "dangendorf")
+        load_frederikse_total(obs_path)
     else
         load_csiro(obs_path)
     end

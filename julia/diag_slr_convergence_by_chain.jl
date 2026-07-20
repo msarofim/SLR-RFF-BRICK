@@ -154,6 +154,9 @@ end
 @printf("%s\n", "="^78)
 @printf("  %-14s %8s %10s %12s %12s %10s\n",
         "quantity", "R-hat", "ESS", "sd(medians)", "mean(sd_wc)", "ratio")
+diag_rows = DataFrame(horizon=Int[], rhat=Float64[], ess=Float64[],
+                      sd_medians=Float64[], mean_sd_wc=Float64[],
+                      n_chains=Int[], n_per_chain=Int[], niter=Int[])
 for y in HORIZONS
     arr = reduce(hcat, slr[y])                     # draws x chains
     r = rhat(arr)
@@ -163,7 +166,13 @@ for y in HORIZONS
     sd_med = std(meds)                             # BETWEEN-chain spread of medians
     @printf("  SLR@%-10d %8.3f %10.1f %12.3f %12.3f %10.3f\n",
             y, r, e, sd_med, sd_wc, sd_med / sd_wc)
+    push!(diag_rows, (y, r, e, sd_med, sd_wc, length(SEEDS), N_TARGET, NITER))
 end
+# Machine-readable result so postprocess_mcmc_ext.jl --accept-slr can gate the canonical
+# subsample write on THIS diagnostic (accepted-on-deliverable criterion, Marcus 2026-07-19).
+slr_csv = joinpath(REPO, "outputs/mcmc/slr_convergence_ext.csv")
+CSV.write(slr_csv, diag_rows)
+println("\nWrote $slr_csv")
 @printf("\n  median range across chains:")
 for y in HORIZONS
     meds = [median(c) for c in slr[y]]
@@ -172,7 +181,7 @@ for y in HORIZONS
 end
 println()
 @printf("\nVERDICT: %s\n",
-        all(rhat(reduce(hcat, slr[y])) < 1.05 for y in HORIZONS) ?
+        all(r < 1.05 for r in diag_rows.rhat) ?
         "projected SLR IS converged across chains (R-hat < 1.05 at all horizons)" :
         "projected SLR is NOT converged across chains (R-hat >= 1.05 at some horizon)")
 println("\nNOTE: ESS here is computed on the THINNED (every ~$(1_000_000 ÷ N_TARGET)th) sample, so it")

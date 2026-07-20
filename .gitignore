@@ -210,3 +210,9 @@ outputs/quarantine/
 outputs/brick_2x2_clean/*.csv
 # Office lock/owner files
 ~$*
+
+# Dangendorf 2024 full field reconstruction (704 MB) — fetch-on-demand from
+# Zenodo 10621070; the derived global-mean CSV (dangendorf2024_gmsl_annual.csv) is
+# committed, so the pipeline runs without it. Re-fetch via the URL in
+# python/diag_dangendorf_vs_frederikse.py header if you need the fields.
+data/observations/raw/dangendorf2024_KalmanSmootherHR_Fields.nc
