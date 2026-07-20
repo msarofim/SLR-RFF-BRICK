@@ -3,6 +3,28 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-07-20 (later) — phase-2 production run DONE + accepted; A6 sensitivity running
+
+- **Two-stage launch executed.** Tuning chain (1M, acceptance 0.237) → built
+  `overdispersed_starts.csv` + 39-param `adapted_cov_ext.csv` → **4×2M over-dispersed
+  production run** (acceptance 0.234–0.237, ~3 h). All phase-2 terms confirmed working in the
+  tuning posterior: SMB β_total→1860 Gt/yr (target 1863); amp 1.195→0.944; T_on sd 0.1;
+  λ/γ/κ sampling paleo.
+- **Production converged on the deliverable + accepted:** SLR@2100 R̂ **1.006**, SLR@2150 R̂
+  **1.008** (10 param marginals still fail — the ridge). `postprocess_mcmc_ext.jl --accept-slr`
+  wrote the canonical phase-2 `parameters_subsample_brick_mengel_ext.csv` (10k of 4M draws).
+- **HEADLINE (SSP2-4.5, rel 1995–2014):** SLR@2100 median **39.7 cm** [36.9–75.0]
+  (v-next 76.1), @2150 **62.8 cm** [55.7–153.5] (159.1). Threshold crossing ~82%→~29%.
+  Production medians match the tuning preview (39.9/63.0) — robust. Moves BRICK-Mengel from
+  above-AR6 to ~AR6-central for SSP2-4.5. Key params cooled: ais_ocean_temperature₀ 0.862
+  (base 0.981), anto_alpha 0.296 (0.405).
+- **A6-equilibrium sensitivity RUNNING** (`run_A6eq_sensitivity.sh`, amp pinned 1.196, infix
+  `extA6eq`, ~3.7 h) to isolate A6's share of the headline drop (Marcus-approved attribution).
+- **M2 downstream REFRAMED — NOT a mechanical repoint.** 12 drivers read the June-13
+  `parameters_subsample_brick_mengel.csv` (incl. the pulse/MAGICC-vs-FaIR pipeline). Repointing
+  to phase-2 halves the SLR-based pulse results, mostly via A6 (judgment-call σ). Gated on the
+  A6 attribution + Marcus's decision on which posterior the pulse paper adopts. Held.
+
 ## [unreleased] — 2026-07-20 — phase-2 begun: M1 accept, Dangendorf/Frederikse untangle, A2/A4/A5/A6 wired
 
 Phase-2 kickoff (Marcus decisions 2026-07-19/20). Nothing launched yet — the phase-2
