@@ -3,6 +3,27 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-07-21 — artifact pulse-MEAN column (sub-annual) + BRICK-FM write-up
+
+- **New `julia/diag_subannual_pulse_means.jl`**: full-ensemble 10-GtCO₂ pulse means under the
+  temporary sub-annual DAIS-crossing depot patch (applied for the run, restored after), both
+  calibrations × both drivers → `outputs/crossmodel_pulse_means_subannual.csv`. Also writes the
+  equilib posterior subsample `data/MimiBRICK/parameters_subsample_brick_mengel_extA6eq.csv`
+  once (10k rows, loadpost-identical thinning of the 4 extA6eq chains; untracked like its
+  siblings) so equilib runs are prefix-reproducible.
+- **RESULTS** (×10⁻³ cm/GtCO₂, [MAGICC, FaIR]): transient mean @2100 [15.9, 12.1], @2150
+  [29.1, 22.9]; equilib @2100 [22.8, 21.0], @2150 [34.7, 31.8]. Cross-checks: levels move <1%
+  under the patch, transient medians +6–15% — but **equilibrium medians rise 2–4×** (@2100
+  MAGICC 5.4→22.6): most equilib draws are already tipped, so the previously-quantized
+  tip-advance channel reaches the median draw, not just the tail. Raises the stakes of the
+  pending sub-annual-integrator adoption decision (M2).
+- **`notes/writeup_2026-07-21_brick_fm_vs_wong_brick.md`**: BRICK-FM vs the original Tony Wong
+  BRICK — structure (Mengel glacier), interface (external forcing, precip_log, LWS lock),
+  calibration (phase-1/phase-2 A2/A4/A5/A6/geometry/obs), results deltas, pending integrator
+  decision, provenance table.
+- Cross-model artifact republished with the pulse-mean column (snapshot + details in
+  FaIRtoFrEDI `magicc_comparison/artifacts/`).
+
 ## [unreleased] — 2026-07-20 (later) — phase-2 production run DONE + accepted; A6 sensitivity running
 
 - **Two-stage launch executed.** Tuning chain (1M, acceptance 0.237) → built

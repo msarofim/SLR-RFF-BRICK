@@ -1,5 +1,17 @@
 # Handoff — Cross-model sea-level artifact + pulse means (2026-07-21)
 
+> **DONE 2026-07-21 (evening session).** Pulse-mean column added and artifact republished (same
+> URL). Full numbers: `outputs/crossmodel_pulse_means_subannual.csv` (BRICK, sub-annual) +
+> FaIRtoFrEDI CHANGELOG (FACTS/MAGICC-native). Corrections vs this note: (1) §3c means were
+> partial-N; full-N sub-annual means are higher (transient MAGICC @2100 15.9 not 13.7×10⁻³);
+> (2) the equilibrium calibration's sub-annual MEDIAN rises 2–4× (not ~1%) — most equilib draws
+> are tipped, so the tip channel reaches the median; (3) MAGICC-native `PULSE_co2..._n600` is a
+> **0.01-GtCO₂** pulse, and the artifact's MAGICC-native medians trace to the 0.1-GtCO₂ sweep
+> arm — μ uses the ±10-GtCO₂ arms; (4) wf2f, not wf3f/wf4, is the fat-pulse-tail FACTS workflow.
+> equilib subsample CSV written (§1 first-action done). BRICK-FM write-up:
+> `notes/writeup_2026-07-21_brick_fm_vs_wong_brick.md`. Open: sub-annual adoption (M2) + μ-arm
+> choice for MAGICC-native — both awaiting Marcus.
+
 Self-contained recipe to (re)generate the **"Cross-model sea-level rise · SSP2-4.5"** artifact,
 INCLUDING the not-yet-added pulse-mean column. A fresh session should be able to finish the pulse-mean
 update from this note + the linked scripts. Companion memory: [[project_analytic_pulse_mean_quantization_bias]],
