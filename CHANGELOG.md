@@ -3,6 +3,23 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-07-22 (late 2) — denominator/aerosol test; terminology + note polish
+
+- **New `python/reduce_cmip6_hemis.py` + `python/diag_pai_denominator.py`**: test Marcus's
+  hypothesis that the mid-century amplification-ratio noise is a global-denominator (NH
+  aerosol) artifact. CONFIRMED: mid-century NH aerosols depress the global mean below the
+  SH mean (1980: global 0.31 K < SH 0.35 K), inflating the Antarctic/global ratio to a
+  ~1.7 peak ~1980 that relaxes as aerosols clear; referencing to the SH mean halves the
+  inter-model IQR (0.97→0.46 @1980) and removes the peak. (SH ref not usable for `a` — it
+  settles ~1.39 since the SH warms less than the globe — but confirms the noise mechanism.)
+  Textbook aerosol signature in `outputs/diag_pai_denominator.png`.
+- **A6 note updates** (Marcus review): (1) ratio renamed "secant/level ratio" →
+  **"Antarctic amplification ratio"** throughout (note + Figure 1 labels); T_AIS notation
+  dropped from the figure; (2) the polar-cap/mask discussion moved to a **footnote**;
+  (3) the aerosol/denominator finding added as a footnote; (4) proposal 5B gains **OHC as
+  the observable slow-mode predictor** (already a BRICK input); (5) note serif switched
+  Charter→Georgia (clean capital A). PDF re-rendered.
+
 ## [unreleased] — 2026-07-22 (late) — switch scenario diagnostic to the SECANT ratio; a ≈ 1.08
 
 - `diag_pai_cmip6_time.py` reworked from the 41-yr windowed MARGINAL trend ratio to the

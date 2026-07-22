@@ -43,7 +43,7 @@ COLORS     = {"ssp245": "#0d7c8c", "ssp585": "#b25c39"}
 series = {}
 for f in sorted(glob.glob(os.path.join(IN_DIR, "tas_series_*.csv"))):
     b = os.path.basename(f)
-    if b.startswith("tas_series_ext_") or b.startswith("tas_series_deck_"):
+    if any(b.startswith(f"tas_series_{p}_") for p in ("ext", "deck", "hemis")):
         continue
     model = b[len("tas_series_"):-len(".csv")]
     df = pd.read_csv(f)
@@ -116,8 +116,8 @@ for ax, sc in zip(axes[:2], SCENARIOS):
             fontsize=8, alpha=.7)
     ax.text(START_YEAR + 2, AMP_EQ, f" DAIS equilibrium {AMP_EQ}", va="bottom",
             fontsize=8, alpha=.7)
-    ax.set(title=f"{SCEN_LABEL[sc]}: secant ratio ({SMOOTH}-yr mean, rel. PI)",
-           xlabel="year", ylabel="(T_AIS−T_AIS,PI)/(T_glob−T_glob,PI)",
+    ax.set(title=f"{SCEN_LABEL[sc]}: amplification ratio ({SMOOTH}-yr mean, rel. PI)",
+           xlabel="year", ylabel="Antarctic amplification ratio",
            xlim=(START_YEAR, 2100), ylim=(0.6, 1.5))
     ax.legend(frameon=False, fontsize=8)
 ax = axes[2]
@@ -126,11 +126,11 @@ for sc in SCENARIOS:
     ax.plot(m.dTg, m.R, color=COLORS[sc], lw=2.2, label=SCEN_LABEL[sc])
 ax.axhline(AMP_PROP, color="k", ls=":", lw=1, alpha=.6)
 ax.axhline(AMP_EQ, color="k", ls="--", lw=1, alpha=.6)
-ax.set(title="Collapse test: median secant vs global warming level",
+ax.set(title="Collapse test: amplification ratio vs warming level",
        xlabel=f"ΔT_global rel {BASELINE[0]}–{BASELINE[1]} (K)",
-       ylabel="secant ratio", ylim=(0.6, 1.5))
+       ylabel="Antarctic amplification ratio", ylim=(0.6, 1.5))
 ax.legend(frameon=False, fontsize=9)
-fig.suptitle(f"CMIP6 Antarctic amplification, secant (level) ratio since pre-industrial "
+fig.suptitle(f"CMIP6 Antarctic amplification ratio since pre-industrial "
              f"({len(models)} models, land-frame AIS, post-{START_YEAR})", fontsize=11)
 fig.tight_layout(); fig.savefig(OUT_PNG, dpi=160)
 print(f"wrote {OUT_PNG}")

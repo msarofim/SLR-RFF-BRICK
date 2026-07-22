@@ -27,49 +27,41 @@ archive supports. That is what this note does.
 
 Shaffer (2014, GMD 7:1803, §2.1 and Table 1) defines the forcing as *"the mean annual air
 temperature reduced to sea level and averaged over Antarctica"*, with present-day
-(1961–1990) T_a = −18 °C. So T_a is **continent-averaged (ice-sheet/land-only), not an
-average over all grid cells south of 60°S** (which would fold in the Southern Ocean) —
-and the "reduced to sea level" step is a fixed lapse-rate
-offset, which cancels in anomalies and trends. For the amplification `a`, the
-like-for-like CMIP6 quantity is therefore the **land-only** Antarctic surface air
-temperature (we use `tas` over grid cells with land fraction ≥ 50% south of 60°S).
+(1961–1990) T_a = −18 °C. So T_a is **continent-averaged (ice-sheet / land-only), not an
+average over all grid cells south of 60°S** — and the "reduced to sea level" step is a
+fixed lapse-rate offset that cancels in anomalies. The like-for-like CMIP6 quantity is
+therefore the **land-only** Antarctic surface air temperature (`tas` over cells with land
+fraction ≥ 50% south of 60°S); its 1850–1900 mean of −33.9 °C reproduces Shaffer's −18 °C
+anchor once the ~16 K sea-level reduction (mean surface elevation ~2.2 km × ~7 K/km lapse)
+is applied. All numbers below are reported in this land frame.[^frame]
 
-Two consistency checks from the CMIP6 archive:
-
-- Land-only 1850–1900 absolute mean = −33.9 °C (34-model mean); with the ~16 K sea-level
-  reduction (mean surface elevation ~2.2 km × ~7 K/km lapse) this reproduces Shaffer's
-  −18 °C anchor.
-- The average over all cells south of 60°S (land + ocean) happens to come out at −17.7 °C
-  *at the surface* (the ocean warms the mean) — numerically near −18, but it is the wrong
-  quantity; the match is coincidental.
-
-The frame matters at the 0.15–0.2 level for amplification ratios, because the all-cells
-average includes the delayed-warming Southern Ocean. Concretely: **Xie et al. 2022** (Sci
-Rep 12:16548) report an annual AIS "PAI1" (trend ratio, 2015–2100) of 0.95 (SSP2-4.5) /
-1.03 (SSP5-8.5); those values are reproduced almost exactly by the all-cells (land +
-ocean) south-of-60°S average (6-model test: 0.92/0.98; the same average bounded at the
-Antarctic Circle, 66.5°S, instead gives 1.03/1.12). **Converted to `a`'s land frame, the same
-models give ≈ 1.09/1.16**, and the full 34-model land-frame trend ratio is 1.13/1.16.
-All numbers below are reported directly in the land frame.
+[^frame]: The frame matters at the 0.15–0.2 level, because an all-cells (land + ocean)
+average south of 60°S folds in the delayed-warming Southern Ocean. That all-cells average
+also happens to sit at −17.7 °C at the surface — near −18 by coincidence, not because it
+is the right quantity. It is, however, what Xie et al. 2022 (Sci Rep 12:16548) appear to
+use: their reported trend-ratio "PAI1" of 0.95 (SSP2-4.5) / 1.03 (SSP5-8.5) is reproduced
+by the all-cells south-of-60°S average (0.92/0.98 on a 6-model test; bounded at the
+Antarctic Circle, 66.5°S, it gives 1.03/1.12), and converts to ≈1.09/1.16 in the land
+frame (full 34-model land-frame trend ratio 1.13/1.16).
 
 ## 3. What CMIP6 says `a` is
 
-We compute the quantity `a` actually is — the **secant (level) ratio**
-R(t) = (T_AIS − T_AIS,PI) / (T_glob − T_glob,PI), each temperature a 30-yr running mean,
-anomalies relative to 1850–1900, land-frame AIS, 34 models (historical + ssp245 + ssp585;
-`python/diag_pai_cmip6_time.py`). This is the cumulative warming-since-preindustrial ratio
-— a level ratio, *not* the trend-ratio PAI1 of §2. Years before 1950 are dropped: the
-denominator is then too small and R is pure internal-variability noise (even 1950–~2000,
-with ΔT_glob < 1 K, is loose).
+We compute the quantity `a` is: the **Antarctic amplification ratio** — Antarctic warming
+divided by global warming since pre-industrial, R = ΔT_ant / ΔT_glob, with each ΔT a 30-yr
+running mean (anomalies rel. 1850–1900, land-frame AIS, 34 models, historical + ssp245 +
+ssp585; `python/diag_pai_cmip6_time.py`). This is a cumulative ratio — the "secant" slope
+that `a` represents — *not* the trend-ratio PAI1 of §2. Years before 1950 are dropped: the
+denominator is then too small and R is internal-variability noise, and even 1950–~2000
+is loose.[^denom]
 
-**Result (Figure 1).** Once ΔT_glob passes ~1.5 K the secant settles to **≈1.05–1.11 and
+**Result (Figure 1).** Once ΔT_glob passes ~1.5 K the ratio settles to **≈1.05–1.11 and
 stays nearly flat across 2–5 K** (multi-model median; ssp245 and ssp585 collapse onto one
 curve). It sits **below the 1.196 equilibrium slope** — a century-scale ramp has not
-equilibrated — but well above the 0.95 used in the phase-2 prior. Because R is already a
-level ratio it reads off directly as `a`: at the crossing-relevant warming (ΔT_glob ≈
+equilibrated — but well above the 0.95 used in the phase-2 prior. Because it is a
+cumulative ratio it reads off directly as `a`: at the crossing-relevant warming (ΔT_glob ≈
 2.5–3.5 K, where the DAIS thresholds fall) the value is **≈1.06–1.10**.
 
-| ΔT_glob (K) | secant, SSP2-4.5 | secant, SSP5-8.5 |
+| ΔT_glob (K) | ratio, SSP2-4.5 | ratio, SSP5-8.5 |
 |---|---|---|
 | 1.5 | 1.15 | 1.10 |
 | 2.0 | 1.11 | 1.08 |
@@ -80,6 +72,17 @@ level ratio it reads off directly as `a`: at the crossing-relevant warming (ΔT_
 The two scenarios coincide at matched warming; §4 shows why a ramp cannot do otherwise
 (level and forcing age co-vary along any ramp), and supplies the idealized-run test that
 *does* separate them.
+
+[^denom]: The pre-2000 excursion is a small-denominator artifact with a clear aerosol
+signature (`python/diag_pai_denominator.py`). Mid-century NH sulfate aerosols suppressed
+the *global* mean — at 1980 the global-mean warming (0.31 K) sits below the
+Southern-Hemisphere mean (0.35 K) — inflating the global-referenced ratio to a ~1.7 peak
+around 1980 that then relaxes as aerosols are cleaned up. Referencing Antarctic warming to
+the SH mean instead halves the inter-model spread (IQR 0.97 → 0.46 at 1980) and removes the
+peak, confirming the noise is in the denominator; it does not touch the post-2000 value
+used for `a`. (The SH-referenced ratio is not itself usable for `a`, which BRICK defines
+against the global mean; it settles higher, ~1.39, because the SH warms less than the
+globe.)
 
 ## 4. The time component: an idealized-run (DECK) test
 
@@ -99,7 +102,7 @@ D = R_abrupt − R_1pct runs from **−0.13 [−0.20, −0.03] at 2.5 K to −0.
 [−0.13, −0.03] at 4.5 K**, bootstrap CIs over models excluding zero in every bin.
 Complementary views agree:
 
-- Within abrupt-4xCO2 — pure time at ~fixed forcing — the level ratio climbs from
+- Within abrupt-4xCO2 — pure time at ~fixed forcing — the amplification ratio climbs from
   ~0.95 to ~1.2 over the first century and **asymptotes at 1.23 [IQR 1.11–1.45],
   i.e. at the DAIS equilibrium slope** (the two models with 300-yr runs continue to
   ~1.39, hinting the true equilibrium may sit somewhat higher).
@@ -110,17 +113,17 @@ Complementary views agree:
 
 **Implications.**
 
-- A **constant secant** (proposal 5A) is an effective closure for century-scale ramps:
+- A **constant ratio** (proposal 5A) is an effective closure for century-scale ramps:
   because level and forcing age co-vary along a ramp, one number captures the ramp's
-  cumulative amplification — which is exactly why the scenario secant (§3) is flat, and
+  cumulative amplification — which is exactly why the scenario ratio (§3) is flat, and
   why it is adequate for scenario-driven projections through ~2150.
-- It will **understate amplification under stabilization**, where the secant keeps
+- It will **understate amplification under stabilization**, where the ratio keeps
   rising toward ~1.2 while ΔT stalls — relevant to post-2100 extensions and long-horizon
   pulse metrics.
-- The GHG-only 1pctCO2 secant at 2.5–3.5 K (1.07–1.13) **agrees with the scenario secant
+- The GHG-only 1pctCO2 ratio at 2.5–3.5 K (1.07–1.13) **agrees with the scenario ratio
   of §3 (1.06–1.10)**: the aerosol/ozone suppression in realistic trajectories leaves
-  little imprint on the *cumulative* (level) ratio — it depresses the transient marginal,
-  not the secant. Both give `a` ≈ 1.08.
+  little imprint on the *cumulative* (level) ratio — it depresses the transient trend
+  ratio, not the cumulative one. Both give `a` ≈ 1.08.
 - The structurally honest generalization drives T_ant from **fast and slow thermal
   components** (≈1.08 and ≈1.70 respectively) rather than from warming level; a two-box
   energy-balance driver already carries those states (proposal 5B).
@@ -128,33 +131,39 @@ Complementary views agree:
 ## 5. The two proposals
 
 **A. Constant (cheap; a prior swap only): `a ~ N(1.08, 0.15)`.**
-Center = the direct secant at crossing-relevant warming (1.06–1.10 over 2.5–3.5 K, §3),
-corroborated by the DECK 1pctCO2 GHG-only secant (1.07–1.13, §4). Because the secant is
-nearly flat across 2–5 K, a single constant is adequate for scenario-driven projections.
+Center = the direct amplification ratio at crossing-relevant warming (1.06–1.10 over
+2.5–3.5 K, §3), corroborated by the DECK 1pctCO2 GHG-only ratio (1.07–1.13, §4). Because
+the ratio is nearly flat across 2–5 K, a single constant is adequate for scenario-driven
+projections.
 Width = inter-model spread plus method systematics; at σ = 0.15 the equilibrium 1.196
 sits ~0.7σ above center (admitted, not the +2.45σ near-exclusion of the phase-2 0.95
 prior). Since the observations don't identify `a`, the posterior tracks whatever prior is
 chosen — treat it as a considered model input, not something the calibration will correct.
 
 **B. Beyond ramps: a two-mode map (structural; needs recalibration).**
-The DECK test shows the secant is not fixed — at constant forcing it climbs from ~0.95
-toward the equilibrium ~1.2 over a century (§4). For applications that leave the ramp
-regime — post-2100 stabilization, overshoot, paleo — drive T_ant from the fast and slow
-thermal components rather than from ΔT_glob:
+The DECK test shows the amplification ratio is not fixed — at constant forcing it climbs
+from ~0.95 toward the equilibrium ~1.2 over a century (§4). For applications that leave
+the ramp regime — post-2100 stabilization, overshoot, paleo — drive T_ant from the fast
+and slow thermal components rather than from ΔT_glob:
 
 > **T_ant − T_ant,PI ≈ 1.08·ΔT_fast + 1.70·ΔT_slow**
 
 with the Gregory fast/slow-mode slopes, where ΔT_fast and ΔT_slow are the two boxes a
-standard energy-balance driver already carries (no new state in BRICK). It reduces to
-proposal A along a ramp and converges to the equilibrium slope as the slow box fills — a
-single warming-*level* function can do neither, since it would misextrapolate under
-stabilization (amplification rises while ΔT stalls). Supersedes the earlier marginal-fit
-amp(ΔT) equation, which parameterized by level and understated the secant by ~0.1.
+standard energy-balance driver already carries (no new state in BRICK). The slow component
+need not be an abstract box: **ocean heat content — already a BRICK input, for thermal
+expansion — is the time-integral of net forcing and a natural observable proxy for
+ΔT_slow**, so a T_ant map driven by GMST (fast) and OHC (slow) could capture the time
+dependence with quantities the pipeline already carries. Either form reduces to proposal A
+along a ramp and converges to the equilibrium slope as the slow mode fills — a single
+warming-*level* function can do neither, since it would misextrapolate under stabilization
+(amplification rises while ΔT stalls). Supersedes the earlier marginal-fit
+amp(ΔT) equation, which parameterized by level and understated the ratio by ~0.1.
 
 ## 6. Caveats
 
-- The secant below ΔT_glob ~1.5 K is small-denominator noise; the reliable range is
-  ΔT_glob > 1.5 K (post-~2000), which covers the crossing-relevant warming.
+- The amplification ratio below ΔT_glob ~1.5 K is small-denominator noise (§3 footnote);
+  the reliable range is ΔT_glob > 1.5 K (post-~2000), which covers the crossing-relevant
+  warming.
 - One member per model; a few non-r1i1p1f1.
 - sftlf treats ice shelves inconsistently across models, and "land south of 60°S" is a
   proxy for the ice sheet. The attribution of Xie et al.'s values to an all-cells
