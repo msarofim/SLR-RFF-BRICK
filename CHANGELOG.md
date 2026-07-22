@@ -3,6 +3,26 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-07-22 (evening) — DECK 1pctCO2/abrupt-4xCO2: the time component IS real
+
+- `python/reduce_cmip6_tas_pai_deck.py` + `python/diag_pai_deck.py`: 41 models, GHG-only
+  (aerosols/ozone at piControl — the confound-free test), anomalies rel. piControl mean.
+- **At matched warming (2.5–4.5 K), amplification depends on forcing AGE**: abrupt-4xCO2
+  reaches those levels ~6–22 yr after forcing (level ratio 0.93–1.11); 1pctCO2 takes
+  ~100–124 yr (1.07–1.13). Paired D = −0.13…−0.08, bootstrap CIs exclude zero. The
+  scenario-based null was an estimator-power result, not absence: cross-SSP forcing-age
+  contrasts are ~10× smaller than the DECK contrast.
+- **abrupt R(t) climbs 0.95 → ~1.2 over ~100 yr and asymptotes at 1.23 [IQR 1.11–1.45]**
+  ≈ the DAIS equilibrium 1.196 (n=2 runs to 300 yr hint slightly higher). Gregory
+  fast/slow-mode slopes: 1.08 / 1.70 — the slow (deep Southern Ocean) mode is strongly
+  polar-amplified and drags the ratio up with time.
+- Interpretation: along century-scale ramps, level and forcing-age co-vary, so the
+  scenario amp(ΔT) closure silently absorbs the time dependence (fine for ramp-like
+  futures); it would misextrapolate under stabilization (amp keeps rising while ΔT
+  stalls) — relevant to post-2100/2150 horizons. 1pct GHG-only level ratio at 2.5–3.5 K
+  (~1.07–1.13) sits ~0.08 above the scenario-based secant (0.97–1.03), consistent with
+  ozone/aerosol suppression baked into real-world trajectories.
+
 ## [unreleased] — 2026-07-22 (later) — 5-scenario level-vs-rate test: NO identifiable rate component
 
 - Added ssp119/ssp126/ssp370 to the PAI reduction (`python/reduce_cmip6_tas_pai_ext.py`,
