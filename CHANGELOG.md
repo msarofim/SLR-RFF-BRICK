@@ -3,6 +3,26 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-07-22 (later) — 5-scenario level-vs-rate test: NO identifiable rate component
+
+- Added ssp119/ssp126/ssp370 to the PAI reduction (`python/reduce_cmip6_tas_pai_ext.py`,
+  same members as the base pull; `data/cmip6_pai/tas_series_ext_*.csv`) and a level+rate
+  decomposition (`python/diag_pai_cmip6_rate.py`): matched-warming table + joint fit
+  pai = 1.196 − (1.196−a0)exp(−dT/Ts) − c·rate on the 32-model common subset.
+- **RESULT: the rate/time component is NOT identified** — c = −0.50 [−0.91, +0.11]
+  per (K/decade), CI spans zero, sign driven entirely by ssp126's degenerate stabilized
+  windows; with the three well-behaved scenarios (245/370/585, rates 0.25–0.5 K/dec) the
+  residuals from the level-only fit are flat in rate. The ssp245>ssp585 crossover at
+  2.5–3 K that motivated the test is NOT corroborated as a rate effect (ssp370, nearly as
+  fast as 585, sits with 245).
+- Two contaminations diagnosed and filtered (named constants): ozone-hole/aerosol-era
+  windows (centres <2005; median Antarctic trend negative under non-GHG forcing) and
+  stabilized windows (global trend <0.10 K/dec; trend-ratio estimator degenerates +
+  ozone-recovery confound — visually obvious for ssp119/126 post-2040).
+- Conclusion: the level-dependent amp(ΔT) form stands as the supported parsimonious
+  model; a genuine time/rate test needs idealized runs (1pctCO2 vs abrupt-4xCO2) or a
+  single-model large ensemble, which remove the composition confound.
+
 ## [unreleased] — 2026-07-22 — PAI-vs-time diagnostic (CMIP6): amp rises with warming; A6 prior reference-frame flag
 
 - **New `python/reduce_cmip6_tas_pai.py`** (streams Amon tas for 35 models from the public
