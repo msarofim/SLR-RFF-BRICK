@@ -132,9 +132,9 @@ Center = the direct amplification ratio at crossing-relevant warming (1.06–1.1
 the ratio is nearly flat across 2–5 K, a single constant is adequate for scenario-driven
 projections.
 Width = inter-model spread plus method systematics; at σ = 0.15 the equilibrium 1.196
-sits ~0.7σ above center (admitted, not the +2.45σ near-exclusion of the phase-2 0.95
-prior). Since the observations don't identify `a`, the posterior tracks whatever prior is
-chosen — treat it as a considered model input, not something the calibration will correct.
+sits ~0.7σ above center, so it stays admissible. Since the observations don't identify `a`,
+the posterior tracks whatever prior is chosen — treat it as a considered model input, not
+something the calibration will correct.
 
 **B. Beyond ramps: add ocean heat content (structural; needs recalibration).**
 The DECK test shows the ratio is not fixed — at constant forcing it climbs from ~0.95
