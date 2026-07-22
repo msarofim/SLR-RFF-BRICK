@@ -2,8 +2,9 @@
 
 *Marcus Sarofim / 2026-07-22. Prepared as a discussion note. Scripts, reduced data, and
 figures are committed on `SLR-RFF-BRICK @ brick-mengel-vnext`
-(`python/reduce_cmip6_tas_pai.py`, `python/diag_pai_cmip6_time.py`,
-`python/diag_pai_mask_sensitivity.py`; outputs `outputs/diag_pai_cmip6_time.*`).*
+(`python/reduce_cmip6_tas_pai*.py`, `python/diag_pai_cmip6_time.py`,
+`python/diag_pai_mask_sensitivity.py`, `python/diag_pai_deck.py`; outputs
+`outputs/diag_pai_cmip6_time.*`, `outputs/diag_pai_deck.*`).*
 
 ## 1. Background
 
@@ -64,47 +65,57 @@ Findings (figure: `outputs/diag_pai_cmip6_time.png`):
 2. **Collapse on warming level.** Plotted against window-mean ΔT_glob, the two scenarios
    lie on ~one curve: ≈0.9 at 0.7 K, ≈1.1 at 1.5–2 K, flattening at ≈1.15–1.2 by 2–4 K.
    SSP5-8.5 at a given warming level (reached decades earlier) matches SSP2-4.5 at the
-   same level — amplification behaves as a function of warming level, not elapsed time or
-   forcing mix.
+   same level. (As §4 shows, this collapse is expected either way — along century-scale
+   ramps, warming level and forcing age co-vary, so a ramp cannot separate them.)
 3. **It saturates at the equilibrium value.** Fitting a saturating curve with a free
    asymptote returns ≈1.14; *fixing* the asymptote at 1.196 fits essentially as well
    (RMSE 0.054 vs 0.050). CMIP6's transient Antarctic amplification relaxes toward the
    paleo-equilibrium slope — an independent consistency check of the classic number.
 
-## 4. Testing for a time component: matched warming across scenarios
+## 4. The time component: an idealized-run (DECK) test
 
-In the two-scenario collapse test, SSP2-4.5 sat slightly above SSP5-8.5 near 2.5–3 K —
-at matched warming, the scenario arriving *later* showed higher amplification, hinting
-that the Southern-Ocean deficit might scale with warming **rate** (a genuine time
-component) rather than warming level alone. To test this we added ssp119 and ssp126,
-spanning warming rates ~0.1–0.5 K/decade. **SSP3-7.0 is excluded as the aerosol
-outlier** — its weak-air-quality-policy trajectory changes the Southern-Hemisphere
-forcing mix and would confound a rate comparison.
+Does amplification depend on warming level alone, or also on time-since-forcing? A
+scenario ensemble cannot answer this — along every ramp, level and forcing age co-vary,
+and cross-SSP contrasts add aerosol/ozone composition differences (a multi-SSP test we
+ran was correspondingly inconclusive). The DECK pair separates the axes with GHG-only
+forcing: **1pctCO2** sweeps warming level at a sustained rate, while **abrupt-4xCO2**
+holds forcing fixed and sweeps time. 41 models, anomalies relative to each model's own
+piControl mean, same land-frame AIS metric (`python/diag_pai_deck.py`).
 
-Two probes on the 33-model common subset (`python/diag_pai_cmip6_rate.py`, figure
-`outputs/diag_pai_cmip6_rate.png`):
+**The time component is real.** The two runs pass through the same warming levels at
+very different forcing ages: abrupt-4xCO2 reaches 2.5–4.5 K within ~6–22 years of the
+quadrupling, while 1pctCO2 takes ~100–124 years to arrive there. At matched warming the
+younger state is systematically **less** amplified — the paired difference
+D = R_abrupt − R_1pct runs from **−0.13 [−0.20, −0.03] at 2.5 K to −0.08
+[−0.13, −0.03] at 4.5 K**, bootstrap CIs over models excluding zero in every bin.
+Complementary views agree:
 
-- **Matched-warming medians.** At 2.0 K and 2.5 K the scenarios are flat within ±0.02
-  (e.g. 2.5 K: SSP2-4.5 = 1.13 reached ~2059 vs SSP5-8.5 = 1.14 reached ~2051, despite
-  rates of 0.27 vs 0.46 K/decade). The original crossover survives only in the single
-  3.0 K bin (1.19 vs 1.10) — within window noise.
-- **Joint fit** pai = 1.196 − (1.196 − a0)·exp(−ΔT/Ts) − c·rate: **c = −0.64
-  [−1.06, +0.07] per (K/decade)** (bootstrap over models) — the CI spans zero, and the
-  negative point estimate is an artifact of stabilized-scenario windows, not evidence
-  that faster warming *raises* amplification.
+- Within abrupt-4xCO2 — pure time at ~fixed forcing — the level ratio climbs from
+  ~0.95 to ~1.2 over the first century and **asymptotes at 1.23 [IQR 1.11–1.45],
+  i.e. at the DAIS equilibrium slope** (the two models with 300-yr runs continue to
+  ~1.39, hinting the true equilibrium may sit somewhat higher).
+- A Gregory-style decomposition gives a **fast-mode amplification of 1.08** (years
+  1–20) and a **slow-mode amplification of 1.70** (years 21–150): the deep
+  Southern-Ocean adjustment mode is strongly polar-amplified, which is *why* the
+  ratio grows with forcing age. Nearly every model sits above the 1:1 line.
 
-The honest limitation: the windowed trend-ratio estimator **degenerates exactly where a
-time effect would show most clearly**. As ssp119/ssp126 stabilize, the global trend
-falls below ~0.1 K/decade (the ratio explodes) and ozone recovery confounds what
-remains; the pre-2005 historical windows are likewise contaminated by the ozone
-hole/aerosol era (median Antarctic trends are *negative* under non-GHG forcing). Both
-regimes are excluded by explicit filters, which leaves rate leverage only over
-0.15–0.5 K/decade — and there, no coherent rate dependence appears.
+**Implications.**
 
-Conclusion: the level-dependent form (§6) stands as the supported parsimonious model. A
-decisive level-vs-time separation needs identical-composition experiments — 1pctCO2 vs
-abrupt-4xCO2 (pure rate contrast vs pure time-at-forcing), or a single-model large
-ensemble to crush the window noise.
+- The level-parameterized map (§6B) is an **effective closure for century-scale
+  ramps**: because level and forcing age co-vary along a ramp, the CMIP6-fitted
+  amp(ΔT) already embeds a ramp's age profile. That is why it fits the scenario
+  ensemble, and it remains appropriate for scenario-driven projections through ~2150.
+- It will **understate amplification under stabilization**, where amp keeps rising
+  toward ~1.2+ while ΔT stalls — relevant to post-2100 extensions and long-horizon
+  pulse metrics.
+- The GHG-only ramp secant at 2.5–3.5 K (1.07–1.13) sits ~0.08 above the
+  scenario-based 0.97–1.03 (§5), consistent with ozone/aerosol suppression embedded in
+  realistic trajectories; the scenario-based value remains the operational one for
+  scenario-driven runs, so **proposal A is unchanged**.
+- The structurally honest generalization would drive T_ant from **fast and slow
+  thermal components** (≈1.08 and ≈1.70 respectively) rather than from warming level;
+  a two-box energy-balance driver already carries those states. Noted as an option
+  beyond this note's proposals.
 
 ## 5. Level vs marginal slope
 
@@ -168,9 +179,12 @@ beats any constant by construction (constant-fit RMSE 0.065 vs 0.054).
 - The sea-level reduction in Shaffer's T_a is treated as a constant offset; CMIP6 surface
   `tas` trends over the ice sheet include any lapse-rate/inversion changes, which the
   reduced-to-sea-level quantity would partly remove.
-- The equation form assumes the marginal depends on warming *level*, not rate — supported
-  by the multi-scenario test within its power (§4), but stabilized and overshoot
-  trajectories are untestable with this estimator, and paleo trajectories are untested.
+- The equation form parameterizes by warming *level*; the DECK test (§4) shows the
+  deeper variable is time-at-forcing (fast/slow-mode mixing). Use it for ramp-like
+  trajectories; revisit for stabilization, overshoot, or paleo applications.
+- DECK anomalies are relative to each model's piControl mean without drift removal
+  (second-order for multi-K ratios); the abrupt-4xCO2 asymptote beyond year 150 rests
+  on two models.
 
 ## 8. Remaining questions
 
