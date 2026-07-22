@@ -83,7 +83,7 @@ marginal, which sits well below the late-century marginal.
 Integrating the fitted marginal (§5) gives level ratios of ~0.85 at 1 K, **0.95 at 2 K,
 1.02 at 3 K** (land frame). For the thresholds the posterior actually holds (T_ant must
 rise ~2.3–3.3 K, i.e. crossings at ΔT_glob ≈ 2.5–3.5 K on SSP2-4.5), the
-crossing-relevant level ratio is **~0.97–1.03**.
+crossing-relevant level ratio is ~**0.97–1.03**.
 
 ## 5. The two proposals
 
