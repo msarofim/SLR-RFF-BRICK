@@ -71,7 +71,42 @@ Findings (figure: `outputs/diag_pai_cmip6_time.png`):
    (RMSE 0.054 vs 0.050). CMIP6's transient Antarctic amplification relaxes toward the
    paleo-equilibrium slope — an independent consistency check of the classic number.
 
-## 4. Level vs marginal slope
+## 4. Testing for a time component: matched warming across scenarios
+
+In the two-scenario collapse test, SSP2-4.5 sat slightly above SSP5-8.5 near 2.5–3 K —
+at matched warming, the scenario arriving *later* showed higher amplification, hinting
+that the Southern-Ocean deficit might scale with warming **rate** (a genuine time
+component) rather than warming level alone. To test this we added ssp119 and ssp126,
+spanning warming rates ~0.1–0.5 K/decade. **SSP3-7.0 is excluded as the aerosol
+outlier** — its weak-air-quality-policy trajectory changes the Southern-Hemisphere
+forcing mix and would confound a rate comparison.
+
+Two probes on the 33-model common subset (`python/diag_pai_cmip6_rate.py`, figure
+`outputs/diag_pai_cmip6_rate.png`):
+
+- **Matched-warming medians.** At 2.0 K and 2.5 K the scenarios are flat within ±0.02
+  (e.g. 2.5 K: SSP2-4.5 = 1.13 reached ~2059 vs SSP5-8.5 = 1.14 reached ~2051, despite
+  rates of 0.27 vs 0.46 K/decade). The original crossover survives only in the single
+  3.0 K bin (1.19 vs 1.10) — within window noise.
+- **Joint fit** pai = 1.196 − (1.196 − a0)·exp(−ΔT/Ts) − c·rate: **c = −0.64
+  [−1.06, +0.07] per (K/decade)** (bootstrap over models) — the CI spans zero, and the
+  negative point estimate is an artifact of stabilized-scenario windows, not evidence
+  that faster warming *raises* amplification.
+
+The honest limitation: the windowed trend-ratio estimator **degenerates exactly where a
+time effect would show most clearly**. As ssp119/ssp126 stabilize, the global trend
+falls below ~0.1 K/decade (the ratio explodes) and ozone recovery confounds what
+remains; the pre-2005 historical windows are likewise contaminated by the ozone
+hole/aerosol era (median Antarctic trends are *negative* under non-GHG forcing). Both
+regimes are excluded by explicit filters, which leaves rate leverage only over
+0.15–0.5 K/decade — and there, no coherent rate dependence appears.
+
+Conclusion: the level-dependent form (§6) stands as the supported parsimonious model. A
+decisive level-vs-time separation needs identical-composition experiments — 1pctCO2 vs
+abrupt-4xCO2 (pure rate contrast vs pure time-at-forcing), or a single-model large
+ensemble to crush the window noise.
+
+## 5. Level vs marginal slope
 
 The windowed trend ratio is a **marginal** slope, dT_ant/dT_glob, which rises with
 warming. But a constant `a` is a **secant (level)** slope anchored at pre-industrial:
@@ -80,12 +115,12 @@ runoff/disintegration thresholds — the constant that reproduces the nonlinear 
 the *level* ratio at the crossing-relevant warming, i.e. the warming-average of the
 marginal, which sits well below the late-century marginal.
 
-Integrating the fitted marginal (§5) gives level ratios of ~0.85 at 1 K, **0.95 at 2 K,
+Integrating the fitted marginal (§6) gives level ratios of ~0.85 at 1 K, **0.95 at 2 K,
 1.02 at 3 K** (land frame). For the thresholds the posterior actually holds (T_ant must
 rise ~2.3–3.3 K, i.e. crossings at ΔT_glob ≈ 2.5–3.5 K on SSP2-4.5), the
 crossing-relevant level ratio is ~**0.97–1.03**.
 
-## 5. The two proposals
+## 6. The two proposals
 
 **A. Constant (cheap; a prior swap only): `a ~ N(1.00, 0.15)`.**
 Center = the land-referenced level ratio at crossing-relevant warming (0.97–1.03 over
@@ -120,7 +155,7 @@ beats any constant by construction (constant-fit RMSE 0.065 vs 0.054).
 | 3.0 | 1.17 | 1.02 |
 | 4.0 | 1.18 | 1.06 |
 
-## 6. Caveats
+## 7. Caveats
 
 - The ΔT→0 intercept (0.655) is extrapolation: trend ratios are unstable below ~0.6 K of
   global warming, so the first ~0.6 K of the integral leans on the fitted form (shifting
@@ -134,9 +169,10 @@ beats any constant by construction (constant-fit RMSE 0.065 vs 0.054).
   `tas` trends over the ice sheet include any lapse-rate/inversion changes, which the
   reduced-to-sea-level quantity would partly remove.
 - The equation form assumes the marginal depends on warming *level*, not rate — supported
-  by the ssp245/ssp585 collapse, but overshoot/paleo trajectories are untested.
+  by the multi-scenario test within its power (§4), but stabilized and overshoot
+  trajectories are untestable with this estimator, and paleo trajectories are untested.
 
-## 7. Remaining questions
+## 8. Remaining questions
 
 1. **Regression provenance:** which reconstruction pair (and anomaly convention) produced
    the 0.8365/−15.42 GMST→T_a relation in the BRICK coupling layer — and is its Antarctic

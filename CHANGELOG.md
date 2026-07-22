@@ -22,6 +22,11 @@ commit log; recent entries are explicit.
 - Conclusion: the level-dependent amp(ΔT) form stands as the supported parsimonious
   model; a genuine time/rate test needs idealized runs (1pctCO2 vs abrupt-4xCO2) or a
   single-model large ensemble, which remove the composition confound.
+- **SSP3-7.0 subsequently EXCLUDED from the analysis** (Marcus: it is the aerosol
+  outlier; SH forcing-mix confound). Rerun on the 33-model {126,245,585} subset:
+  conclusion unchanged — c = −0.64 [−1.06, +0.07], matched-warming flat at 2.0–2.5 K
+  (245 1.13 vs 585 1.14 @2.5 K); the crossover survives only in the 3.0 K bin. The A6
+  note gained §4 (multi-scenario test) + Figure 2 and was re-rendered to PDF.
 
 ## [unreleased] — 2026-07-22 — PAI-vs-time diagnostic (CMIP6): amp rises with warming; A6 prior reference-frame flag
 

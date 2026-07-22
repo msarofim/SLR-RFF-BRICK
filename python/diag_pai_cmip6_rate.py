@@ -26,8 +26,11 @@ IN_DIR    = "/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/data/
 OUT_PNG   = "/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/diag_pai_cmip6_rate.png"
 OUT_CSV   = "/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/diag_pai_cmip6_rate.csv"
 OUT_MD    = "/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/diag_pai_cmip6_rate_summary.md"
-SCENARIOS = ["ssp119", "ssp126", "ssp245", "ssp370", "ssp585"]
-FIT_SCENARIOS = ["ssp126", "ssp245", "ssp370", "ssp585"]   # common-model joint-fit set
+# SSP3-7.0 EXCLUDED (Marcus 2026-07-22): it is the aerosol outlier (weak air-quality
+# controls), and SH aerosol forcing confounds the amplification-vs-rate comparison.
+# Its reduced series remain in data/cmip6_pai; exclusion is analysis-level only.
+SCENARIOS = ["ssp119", "ssp126", "ssp245", "ssp585"]
+FIT_SCENARIOS = ["ssp126", "ssp245", "ssp585"]   # common-model joint-fit set
 SCEN_LABEL = {"ssp119": "SSP1-1.9", "ssp126": "SSP1-2.6", "ssp245": "SSP2-4.5",
               "ssp370": "SSP3-7.0", "ssp585": "SSP5-8.5"}
 COLORS = {"ssp119": "#00a9cf", "ssp126": "#173c66", "ssp245": "#f69320",
@@ -187,12 +190,14 @@ axes[2].set(title="Rate test: residual from level-only fit",
             xlabel="window global trend (K/decade)", ylabel="PAI residual")
 axes[2].legend(frameon=False, fontsize=7.5)
 fig.suptitle(f"CMIP6 Antarctic amplification: warming level + warming rate "
-             f"(common subset {len(common)} models for fits)", fontsize=11)
+             f"(common subset {len(common)} models for fits; SSP3-7.0 excluded — "
+             f"aerosol outlier)", fontsize=11)
 fig.tight_layout(); fig.savefig(OUT_PNG, dpi=160)
 print(f"wrote {OUT_PNG}")
 
 with open(OUT_MD, "w") as f:
-    f.write(f"# Level+rate decomposition ({len(common)}-model common subset for fits)\n\n"
+    f.write(f"# Level+rate decomposition ({len(common)}-model common subset for fits; "
+            f"SSP3-7.0 excluded as the aerosol outlier)\n\n"
             f"pai = {A_EQ} - ({A_EQ} - a0)exp(-dT/Ts) - c*rate; windows {WINDOW} yr; "
             f"fit/table inclusion: centre year >= {FIT_YEAR_MIN} (excludes the "
             f"ozone-hole/aerosol era, negative Antarctic trends under non-GHG forcing), "
