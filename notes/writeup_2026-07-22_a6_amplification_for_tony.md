@@ -1,11 +1,11 @@
-# The GMST→Antarctic temperature map in BRICK-FM: a CMIP6-based update (for Tony)
+# The GMST→Antarctic temperature map in BRICK-FM: a CMIP6-based update
 
 *Marcus Sarofim / 2026-07-22. Prepared as a discussion note. Scripts, reduced data, and
 figures are committed on `SLR-RFF-BRICK @ brick-mengel-vnext`
 (`python/reduce_cmip6_tas_pai.py`, `python/diag_pai_cmip6_time.py`,
 `python/diag_pai_mask_sensitivity.py`; outputs `outputs/diag_pai_cmip6_time.*`).*
 
-## 1. Background: what we did to the map, and why we're revisiting it
+## 1. Background
 
 DAIS drives its runoff line and fast-dynamics threshold with an Antarctic surface
 temperature computed linearly from global temperature each timestep:
@@ -13,26 +13,49 @@ temperature computed linearly from global temperature each timestep:
 > T_ant = T_ant,PI + a · ΔT_glob,  with the classic a = 1/0.8365 ≈ **1.196** and
 > T_ant,PI ≈ −18.4 °C (the −15.42/0.8365 regression in the DAIS lineage, Shaffer 2014).
 
-In the BRICK-FM phase-2 recalibration we freed `a` ("item A6") under a CMIP6-*transient*
-prior N(0.95, 0.10), on the argument that 1.196 is an equilibrium/paleo number while a
-21st-century simulation runs far from equilibrium. The 0.95 came from Xie et al. 2022
-(Sci Rep 12:16548): their annual "PAI1" over the AIS = trend(T_AIS)/trend(T_global) over
-2015–2100 = 0.95 (SSP2-4.5) / 1.03 (SSP5-8.5). The posterior followed the prior (0.944 —
-the obs don't constrain `a`), and this single change drove roughly two-thirds of the
-phase-2 drop in projected SSP2-4.5 GMSL @2100 (76 → 40 cm median).
+In the BRICK-FM phase-2 recalibration we freed `a` under a CMIP6-*transient* prior
+centered at 0.95, on the argument that 1.196 is an equilibrium/paleo number while a
+21st-century simulation runs far from equilibrium. The observations do not constrain `a`,
+so the posterior tracked the prior — and projected SSP2-4.5 GMSL @2100 moved from 76 to
+40 cm (median). The lesson we take from that experiment is simply that **the projection
+is highly sensitive to `a`**, which makes it worth pinning down (i) exactly what
+temperature `a` references and (ii) what value — or functional form — the CMIP6 transient
+archive supports. That is what this note does.
 
-Because the prior effectively *sets* the projection, we ran a diagnostic to ask: is a
-constant transient value even the right shape — does the amplification rise with time and
-warming? Short answer: **yes, it rises, it is warming-level-controlled, and it saturates
-at your equilibrium value** — plus one metric subtlety that partly rehabilitates 0.95.
+## 2. What `a` references
 
-## 2. The diagnostic
+Shaffer (2014, GMD 7:1803, §2.1 and Table 1) defines the forcing as *"the mean annual air
+temperature reduced to sea level and averaged over Antarctica"*, with present-day
+(1961–1990) T_a = −18 °C. So T_a is **continent-averaged (ice-sheet/land-only), not a
+polar-cap temperature** — and the "reduced to sea level" step is a fixed lapse-rate
+offset, which cancels in anomalies and trends. For the amplification `a`, the
+like-for-like CMIP6 quantity is therefore the **land-only** Antarctic surface air
+temperature (we use `tas` over grid cells with land fraction ≥ 50% south of 60°S).
+
+Two consistency checks from the CMIP6 archive:
+
+- Land-only 1850–1900 absolute mean = −33.9 °C (34-model mean); with the ~16 K sea-level
+  reduction (mean surface elevation ~2.2 km × ~7 K/km lapse) this reproduces Shaffer's
+  −18 °C anchor.
+- The all-points cap south of 60°S happens to average −17.7 °C *at the surface* (the
+  ocean warms the mean) — numerically near −18, but it is the wrong quantity; the match
+  is coincidental.
+
+The frame matters at the 0.15–0.2 level for amplification ratios, because the cap
+includes the delayed-warming Southern Ocean. Concretely: **Xie et al. 2022** (Sci Rep
+12:16548) report an annual AIS "PAI1" (trend ratio, 2015–2100) of 0.95 (SSP2-4.5) / 1.03
+(SSP5-8.5); those values are reproduced almost exactly by the *cap* mask (6-model test:
+0.92/0.98) and are therefore cap-referenced. **Converted to `a`'s land frame, the same
+models give ≈ 1.09/1.16**, and the full 34-model land-frame trend ratio is 1.13/1.16.
+All numbers below are reported directly in the land frame.
+
+## 3. The diagnostic
 
 34 CMIP6 models (one member each, Amon `tas` streamed from the public Pangeo/GCS mirror),
-historical + ssp245 + ssp585. Antarctic region = **land (sftlf ≥ 50%) south of 60°S**,
-area-weighted; anomalies rel. 1850–1900. We compute a *windowed* PAI1: the 41-yr OLS
-trend ratio trend(T_AIS)/trend(T_glob), sliding through 1850–2100 (windows with global
-trend < 0.05 K/decade masked — the ratio is unstable there).
+historical + ssp245 + ssp585; anomalies rel. 1850–1900. We compute a *windowed*
+amplification: the 41-yr OLS trend ratio trend(T_AIS)/trend(T_glob), sliding through
+1850–2100 (windows with global trend < 0.05 K/decade masked — the ratio is unstable
+there).
 
 Findings (figure: `outputs/diag_pai_cmip6_time.png`):
 
@@ -43,51 +66,39 @@ Findings (figure: `outputs/diag_pai_cmip6_time.png`):
    SSP5-8.5 at a given warming level (reached decades earlier) matches SSP2-4.5 at the
    same level — amplification behaves as a function of warming level, not elapsed time or
    forcing mix.
-3. **It saturates at the DAIS equilibrium value.** Fitting a saturating curve with a free
+3. **It saturates at the equilibrium value.** Fitting a saturating curve with a free
    asymptote returns ≈1.14; *fixing* the asymptote at 1.196 fits essentially as well
    (RMSE 0.054 vs 0.050). CMIP6's transient Antarctic amplification relaxes toward the
-   paleo-equilibrium slope — a nice independent consistency check of the classic number.
-4. **Mask matters at the 0.15–0.2 level.** Our land-only metric gives a full-window
-   (2015–2100) ratio of 1.13/1.16 (ssp245/585) — not Xie's 0.95/1.03. Their values are
-   reproduced almost exactly by an **all-points polar cap south of 60°S** (6-model test:
-   cap 0.92/0.98; land-only 1.09/1.16; the Southern Ocean's delayed warming drags the cap
-   ratio down). So the 0.95 we used in the A6 prior appears to be a cap-referenced number,
-   while DAIS's temperature is ice-sheet-referenced (ice-core lineage) — the land-only
-   frame is the like-for-like one. *(Question for you below.)*
+   paleo-equilibrium slope — an independent consistency check of the classic number.
 
-## 3. The subtlety that saves the constant: level vs marginal slope
+## 4. Level vs marginal slope
 
 The windowed trend ratio is a **marginal** slope, dT_ant/dT_glob, which rises with
-warming. But DAIS's constant `a` is a **secant (level)** slope anchored at pre-industrial:
+warming. But a constant `a` is a **secant (level)** slope anchored at pre-industrial:
 T_ant − T_ant,PI = a·ΔT_glob. For what the map actually controls — when T_ant reaches the
-runoff/disintegration thresholds — the constant that reproduces the nonlinear truth is the
-*level* ratio at the crossing-relevant warming, i.e. the warming-average of the marginal,
-which sits well below the late-century marginal.
+runoff/disintegration thresholds — the constant that reproduces the nonlinear truth is
+the *level* ratio at the crossing-relevant warming, i.e. the warming-average of the
+marginal, which sits well below the late-century marginal.
 
-Integrating the fitted marginal (§4) gives level ratios of ~0.85 at 1 K, **0.95 at 2 K,
-1.02 at 3 K** (land frame). So two corrections nearly cancel: moving from Xie's cap frame
-to the land frame raises the number ~+0.15, and moving from marginal to level lowers it
-~−0.13. The original 0.95 lands close to the land-referenced level ratio at ~2 K — closer
-to right than either correction alone suggests. For the thresholds our posterior actually
-holds (T_ant must rise ~2.3–3.3 K, i.e. crossings at ΔT_glob ≈ 2.5–3.5 K on SSP2-4.5),
-the crossing-relevant level ratio is ~0.97–1.03.
+Integrating the fitted marginal (§5) gives level ratios of ~0.85 at 1 K, **0.95 at 2 K,
+1.02 at 3 K** (land frame). For the thresholds the posterior actually holds (T_ant must
+rise ~2.3–3.3 K, i.e. crossings at ΔT_glob ≈ 2.5–3.5 K on SSP2-4.5), the
+crossing-relevant level ratio is **~0.97–1.03**.
 
-## 4. The two proposals
+## 5. The two proposals
 
 **A. Constant (cheap; a prior swap only): `a ~ N(1.00, 0.15)`.**
 Center = the land-referenced level ratio at crossing-relevant warming (0.97–1.03 over
 2.5–3.5 K). Width = inter-model spread (per-model projection-era ratios: sd 0.20–0.27,
 inflated by single-member internal variability) plus the mask/level systematics (~±0.05
-each). Two consequences we want your read on: (i) the equilibrium 1.196 now sits at
-+1.3σ — *admitted* rather than effectively excluded (old prior: +2.45σ); (ii) since the
-obs don't identify `a`, the posterior will track this prior, and projections shift
-modestly up from phase-2 (direction certain, size not yet run; the fully-recalibrated
-equilibrium-amp run brackets the top: 63.6 cm @2100 vs phase-2's 39.7).
+each). Since the observations don't identify `a`, the posterior will track whatever prior
+is chosen here — the choice should be treated as a considered model input, not something
+the calibration will correct.
 
 **B. Simple equation (structural; needs recalibration).** Fit to the pooled 34-model
-median collapse curve (ΔT ≥ 0.6 K), asymptote fixed at the DAIS equilibrium:
+median collapse curve (ΔT ≥ 0.6 K), asymptote fixed at the equilibrium slope:
 
-> marginal: da/dΔT form  **amp(ΔT) = 1.196 − 0.54·exp(−ΔT/1.05)**
+> marginal form:  **amp(ΔT) = 1.196 − 0.54·exp(−ΔT/1.05)**
 > (0.86 at 0.5 K, 0.99 at 1 K, 1.12 at 2 K, 1.17 at 3 K)
 
 and the map DAIS would implement is its integral — still algebraic, per-timestep, no new
@@ -97,9 +108,9 @@ state variable:
 
 Properties: exactly the equilibrium slope in the high-warming/paleo limit (so the paleo
 constraints that produced 0.8365/−15.42 are honored where they apply); transient
-suppression at low warming emerges automatically; our "transient vs equilibrium"
-calibration pair collapses to one model. Against the CMIP6 median curve it beats any
-constant by construction (constant-fit RMSE 0.065 vs 0.054).
+suppression at low warming emerges automatically; and it removes the need to choose
+between "transient" and "equilibrium" constants at all. Against the CMIP6 median curve it
+beats any constant by construction (constant-fit RMSE 0.065 vs 0.054).
 
 | ΔT_glob (K) | marginal amp(ΔT) | level ratio T_ant′/ΔT |
 |---|---|---|
@@ -109,27 +120,30 @@ constant by construction (constant-fit RMSE 0.065 vs 0.054).
 | 3.0 | 1.17 | 1.02 |
 | 4.0 | 1.18 | 1.06 |
 
-## 5. Caveats
+## 6. Caveats
 
 - The ΔT→0 intercept (0.655) is extrapolation: trend ratios are unstable below ~0.6 K of
   global warming, so the first ~0.6 K of the integral leans on the fitted form (shifting
   the intercept to 0.85 moves the 2 K level ratio only ~+0.02).
 - One member per model; a few non-r1i1p1f1. Trend ratios pre-~1990 are internal-variability
   noise (masked in the fit).
-- sftlf treats ice shelves inconsistently across models; our "land south of 60°S" is a
-  proxy for the ice sheet, and Xie's actual mask is unstated (our cap attribution is
-  inference from numerical reproduction, not from their methods).
+- sftlf treats ice shelves inconsistently across models, and "land south of 60°S" is a
+  proxy for the ice sheet. The attribution of Xie et al.'s values to a cap mask is
+  inference from numerical reproduction (their methods do not state the mask).
+- The sea-level reduction in Shaffer's T_a is treated as a constant offset; CMIP6 surface
+  `tas` trends over the ice sheet include any lapse-rate/inversion changes, which the
+  reduced-to-sea-level quantity would partly remove.
 - The equation form assumes the marginal depends on warming *level*, not rate — supported
   by the ssp245/ssp585 collapse, but overshoot/paleo trajectories are untested.
 
-## 6. Questions for you
+## 7. Remaining questions
 
-1. **Reference frame:** can you confirm the DAIS 0.8365/−15.42 regression is
-   continent/ice-core-referenced Antarctic temperature (Shaffer 2014 lineage)? The
-   land-vs-cap correction in §3 hinges on it.
-2. **Structure:** any objection to a warming-dependent map (proposal B) interacting with
-   the runoff-line parameterization — anything downstream that assumes linearity of
-   T_ant in ΔT_glob?
-3. **Prior width:** is admitting the equilibrium value at +1.3σ (proposal A) acceptable
-   for a "transient" calibration, or would you argue for the state-dependent map instead
-   and drop the transient/equilibrium dichotomy altogether?
+1. **Regression provenance:** which reconstruction pair (and anomaly convention) produced
+   the 0.8365/−15.42 GMST→T_a relation in the BRICK coupling layer — and is its Antarctic
+   variable the same sea-level-reduced, continent-averaged T_a as Shaffer (2014)? §2's
+   frame determination assumes it is.
+2. **Structure:** does anything downstream of the temperature map — the runoff-line
+   parameterization in particular — assume linearity of T_ant in ΔT_glob in a way that a
+   warming-dependent map (proposal B) would violate?
+3. **Prior width:** does σ = 0.15 appropriately span the structural uncertainty for
+   proposal A, given that the posterior will track the prior?
