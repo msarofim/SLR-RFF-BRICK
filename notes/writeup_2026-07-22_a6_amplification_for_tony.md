@@ -27,8 +27,9 @@ archive supports. That is what this note does.
 
 Shaffer (2014, GMD 7:1803, §2.1 and Table 1) defines the forcing as *"the mean annual air
 temperature reduced to sea level and averaged over Antarctica"*, with present-day
-(1961–1990) T_a = −18 °C. So T_a is **continent-averaged (ice-sheet/land-only), not a
-polar-cap temperature** — and the "reduced to sea level" step is a fixed lapse-rate
+(1961–1990) T_a = −18 °C. So T_a is **continent-averaged (ice-sheet/land-only), not an
+average over all grid cells south of 60°S** (which would fold in the Southern Ocean) —
+and the "reduced to sea level" step is a fixed lapse-rate
 offset, which cancels in anomalies and trends. For the amplification `a`, the
 like-for-like CMIP6 quantity is therefore the **land-only** Antarctic surface air
 temperature (we use `tas` over grid cells with land fraction ≥ 50% south of 60°S).
@@ -38,15 +39,16 @@ Two consistency checks from the CMIP6 archive:
 - Land-only 1850–1900 absolute mean = −33.9 °C (34-model mean); with the ~16 K sea-level
   reduction (mean surface elevation ~2.2 km × ~7 K/km lapse) this reproduces Shaffer's
   −18 °C anchor.
-- The all-points cap south of 60°S happens to average −17.7 °C *at the surface* (the
-  ocean warms the mean) — numerically near −18, but it is the wrong quantity; the match
-  is coincidental.
+- The average over all cells south of 60°S (land + ocean) happens to come out at −17.7 °C
+  *at the surface* (the ocean warms the mean) — numerically near −18, but it is the wrong
+  quantity; the match is coincidental.
 
-The frame matters at the 0.15–0.2 level for amplification ratios, because the cap
-includes the delayed-warming Southern Ocean. Concretely: **Xie et al. 2022** (Sci Rep
-12:16548) report an annual AIS "PAI1" (trend ratio, 2015–2100) of 0.95 (SSP2-4.5) / 1.03
-(SSP5-8.5); those values are reproduced almost exactly by the *cap* mask (6-model test:
-0.92/0.98) and are therefore cap-referenced. **Converted to `a`'s land frame, the same
+The frame matters at the 0.15–0.2 level for amplification ratios, because the all-cells
+average includes the delayed-warming Southern Ocean. Concretely: **Xie et al. 2022** (Sci
+Rep 12:16548) report an annual AIS "PAI1" (trend ratio, 2015–2100) of 0.95 (SSP2-4.5) /
+1.03 (SSP5-8.5); those values are reproduced almost exactly by the all-cells (land +
+ocean) south-of-60°S average (6-model test: 0.92/0.98; the same average bounded at the
+Antarctic Circle, 66.5°S, instead gives 1.03/1.12). **Converted to `a`'s land frame, the same
 models give ≈ 1.09/1.16**, and the full 34-model land-frame trend ratio is 1.13/1.16.
 All numbers below are reported directly in the land frame.
 
@@ -174,8 +176,9 @@ beats any constant by construction (constant-fit RMSE 0.065 vs 0.054).
 - One member per model; a few non-r1i1p1f1. Trend ratios pre-~1990 are internal-variability
   noise (masked in the fit).
 - sftlf treats ice shelves inconsistently across models, and "land south of 60°S" is a
-  proxy for the ice sheet. The attribution of Xie et al.'s values to a cap mask is
-  inference from numerical reproduction (their methods do not state the mask).
+  proxy for the ice sheet. The attribution of Xie et al.'s values to an all-cells
+  (land + ocean) average is inference from numerical reproduction (their methods do not
+  state the mask).
 - The sea-level reduction in Shaffer's T_a is treated as a constant offset; CMIP6 surface
   `tas` trends over the ice sheet include any lapse-rate/inversion changes, which the
   reduced-to-sea-level quantity would partly remove.
