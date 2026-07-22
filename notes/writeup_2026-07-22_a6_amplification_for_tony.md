@@ -69,10 +69,6 @@ cumulative ratio it reads off directly as `a`: at the crossing-relevant warming 
 | 3.0 | 1.07 | 1.10 |
 | 3.5 | 1.06 | 1.11 |
 
-The two scenarios coincide at matched warming; §4 shows why a ramp cannot do otherwise
-(level and forcing age co-vary along any ramp), and supplies the idealized-run test that
-*does* separate them.
-
 [^denom]: The pre-2000 excursion is a small-denominator artifact with a clear aerosol
 signature (`python/diag_pai_denominator.py`). Mid-century NH sulfate aerosols suppressed
 the *global* mean — at 1980 the global-mean warming (0.31 K) sits below the
@@ -124,9 +120,9 @@ Complementary views agree:
   of §3 (1.06–1.10)**: the aerosol/ozone suppression in realistic trajectories leaves
   little imprint on the *cumulative* (level) ratio — it depresses the transient trend
   ratio, not the cumulative one. Both give `a` ≈ 1.08.
-- The structurally honest generalization drives T_ant from **fast and slow thermal
-  components** (≈1.08 and ≈1.70 respectively) rather than from warming level; a two-box
-  energy-balance driver already carries those states (proposal 5B).
+- The structurally honest generalization drives T_ant from a **fast (GMST) and a slow
+  (ocean heat content)** component rather than from warming level alone — the slow mode is
+  the strongly-amplified Southern-Ocean adjustment, and OHC tracks it (proposal 5B).
 
 ## 5. The two proposals
 
@@ -140,30 +136,23 @@ sits ~0.7σ above center (admitted, not the +2.45σ near-exclusion of the phase-
 prior). Since the observations don't identify `a`, the posterior tracks whatever prior is
 chosen — treat it as a considered model input, not something the calibration will correct.
 
-**B. Beyond ramps: a two-mode map (structural; needs recalibration).**
-The DECK test shows the amplification ratio is not fixed — at constant forcing it climbs
-from ~0.95 toward the equilibrium ~1.2 over a century (§4). For applications that leave
-the ramp regime — post-2100 stabilization, overshoot, paleo — drive T_ant from the fast
-and slow thermal components rather than from ΔT_glob:
+**B. Beyond ramps: add ocean heat content (structural; needs recalibration).**
+The DECK test shows the ratio is not fixed — at constant forcing it climbs from ~0.95
+toward the equilibrium ~1.2 over a century (§4). For applications that leave the ramp
+regime (post-2100 stabilization, overshoot, paleo), the map needs that time information,
+and **ocean heat content carries it**: OHC is the time-integral of forcing, is already a
+BRICK input (for thermal expansion), and — tested across the DECK runs (Figure 3,
+`python/diag_pai_ohc.py`; proxy = thermosteric SLR `zostoga`) — explains the Antarctic
+warming that GMST leaves behind (positive partial correlation in all 17 models, median
+0.46; a GMST + OHC map transfers between forcing pathways with ~**40% less error** than
+GMST alone, 0.98 → 0.61 K). So
 
-> **T_ant − T_ant,PI ≈ 1.08·ΔT_fast + 1.70·ΔT_slow**
+> **T_ant − T_ant,PI ≈ α·ΔGMST + β·ΔOHC**
 
-with the Gregory fast/slow-mode slopes, where ΔT_fast and ΔT_slow are the two boxes a
-standard energy-balance driver already carries (no new state in BRICK). The slow component
-need not be an abstract box: **ocean heat content — already a BRICK input, for thermal
-expansion — is the time-integral of net forcing and a natural observable proxy for
-ΔT_slow.** This is **tested and confirmed** (Figure 3, `python/diag_pai_ohc.py`; OHC proxy
-= thermosteric SLR `zostoga`): across the CMIP6 DECK runs, after GMST the OHC term explains
-the Antarctic-warming residual with a **positive partial correlation in all 17 models
-(median 0.46)**, and a GMST + OHC map fit on abrupt-4xCO2 predicts 1pctCO2 with **~40%
-lower error** than GMST alone (0.98 → 0.61 K) — the cross-pathway (time) information GMST
-cannot supply. It is second-order to the dominant GMST signal (within-scenario R² barely
-moves, 0.94 → 0.95), so it earns its keep for stabilization / long-horizon use, not for
-ramp projections. Either form reduces to proposal A
-along a ramp and converges to the equilibrium slope as the slow mode fills — a single
-warming-*level* function can do neither, since it would misextrapolate under stabilization
-(amplification rises while ΔT stalls). Supersedes the earlier marginal-fit
-amp(ΔT) equation, which parameterized by level and understated the ratio by ~0.1.
+reduces to proposal A along a ramp and rises toward the equilibrium slope as OHC
+accumulates — which a warming-*level* function cannot do. The effect is second-order to
+GMST (within-scenario skill barely moves), so it earns its keep for long-horizon use, not
+ramp projections.
 
 ## 6. Caveats
 
@@ -178,12 +167,15 @@ amp(ΔT) equation, which parameterized by level and understated the ratio by ~0.
 - The sea-level reduction in Shaffer's T_a is treated as a constant offset; CMIP6 surface
   `tas` trends over the ice sheet include any lapse-rate/inversion changes, which the
   reduced-to-sea-level quantity would partly remove.
-- Proposal B's two-mode slopes are Gregory-window estimates (fast yrs 1–20, slow 21–150)
-  from abrupt-4xCO2; a production version would refit them jointly. The OHC test (Fig. 3)
-  uses `zostoga` as the OHC proxy, rebaselined to each model's piControl mean without drift
-  removal, and covers the 17 models that report it. DECK anomalies are likewise relative to
-  piControl (second-order for multi-K ratios); the abrupt-4xCO2 asymptote beyond year 150
-  rests on two models.
+- Proposal 5B's (α, β) are illustrative: the OHC test uses `zostoga` as the proxy,
+  rebaselined to each model's piControl mean without drift removal, over the 17 models that
+  report it; a production version would refit jointly. DECK anomalies are likewise
+  piControl-relative (second-order for multi-K ratios); the abrupt-4xCO2 asymptote beyond
+  year 150 rests on two models.
+- The DECK matched-warming result (Fig. 2 centre) is robust over **2.5–4.5 K** — the range
+  the quoted D values cover. The curves cross beyond ~5 K, but that is the sparse tail where
+  only the highest-sensitivity models reach those levels and the two runs no longer sample
+  the same models (n falls from ~40 to ~15); it is not a clean physical reversal.
 
 ## 7. Remaining questions
 
@@ -193,6 +185,6 @@ amp(ΔT) equation, which parameterized by level and understated the ratio by ~0.
    frame determination assumes it is.
 2. **Structure:** does anything downstream of the temperature map — the runoff-line
    parameterization in particular — assume linearity of T_ant in ΔT_glob in a way that the
-   two-mode map (proposal 5B) would violate?
+   GMST + OHC map (proposal 5B) would violate?
 3. **Prior width:** does σ = 0.15 appropriately span the structural uncertainty for
    proposal 5A, given that the posterior will track the prior?
