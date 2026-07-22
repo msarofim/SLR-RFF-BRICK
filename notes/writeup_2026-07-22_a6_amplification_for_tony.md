@@ -2,9 +2,9 @@
 
 *Marcus Sarofim / 2026-07-22. Prepared as a discussion note. Scripts, reduced data, and
 figures are committed on `SLR-RFF-BRICK @ brick-mengel-vnext`
-(`python/reduce_cmip6_tas_pai*.py`, `python/diag_pai_cmip6_time.py`,
-`python/diag_pai_mask_sensitivity.py`, `python/diag_pai_deck.py`; outputs
-`outputs/diag_pai_cmip6_time.*`, `outputs/diag_pai_deck.*`).*
+(`python/diag_pai_cmip6_time.py`, `diag_pai_deck.py`, `diag_pai_ohc.py`,
+`diag_pai_denominator.py`, `diag_pai_mask_sensitivity.py`; outputs
+`outputs/diag_pai_*.{png,csv,_summary.md}`).*
 
 ## 1. Background
 
@@ -152,8 +152,14 @@ with the Gregory fast/slow-mode slopes, where ΔT_fast and ΔT_slow are the two 
 standard energy-balance driver already carries (no new state in BRICK). The slow component
 need not be an abstract box: **ocean heat content — already a BRICK input, for thermal
 expansion — is the time-integral of net forcing and a natural observable proxy for
-ΔT_slow**, so a T_ant map driven by GMST (fast) and OHC (slow) could capture the time
-dependence with quantities the pipeline already carries. Either form reduces to proposal A
+ΔT_slow.** This is **tested and confirmed** (Figure 3, `python/diag_pai_ohc.py`; OHC proxy
+= thermosteric SLR `zostoga`): across the CMIP6 DECK runs, after GMST the OHC term explains
+the Antarctic-warming residual with a **positive partial correlation in all 17 models
+(median 0.46)**, and a GMST + OHC map fit on abrupt-4xCO2 predicts 1pctCO2 with **~40%
+lower error** than GMST alone (0.98 → 0.61 K) — the cross-pathway (time) information GMST
+cannot supply. It is second-order to the dominant GMST signal (within-scenario R² barely
+moves, 0.94 → 0.95), so it earns its keep for stabilization / long-horizon use, not for
+ramp projections. Either form reduces to proposal A
 along a ramp and converges to the equilibrium slope as the slow mode fills — a single
 warming-*level* function can do neither, since it would misextrapolate under stabilization
 (amplification rises while ΔT stalls). Supersedes the earlier marginal-fit
@@ -173,9 +179,11 @@ amp(ΔT) equation, which parameterized by level and understated the ratio by ~0.
   `tas` trends over the ice sheet include any lapse-rate/inversion changes, which the
   reduced-to-sea-level quantity would partly remove.
 - Proposal B's two-mode slopes are Gregory-window estimates (fast yrs 1–20, slow 21–150)
-  from abrupt-4xCO2; a production version would refit them jointly. DECK anomalies are
-  relative to each model's piControl mean without drift removal (second-order for
-  multi-K ratios); the abrupt-4xCO2 asymptote beyond year 150 rests on two models.
+  from abrupt-4xCO2; a production version would refit them jointly. The OHC test (Fig. 3)
+  uses `zostoga` as the OHC proxy, rebaselined to each model's piControl mean without drift
+  removal, and covers the 17 models that report it. DECK anomalies are likewise relative to
+  piControl (second-order for multi-K ratios); the abrupt-4xCO2 asymptote beyond year 150
+  rests on two models.
 
 ## 7. Remaining questions
 

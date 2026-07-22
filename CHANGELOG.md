@@ -3,6 +3,21 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-07-22 (late 3) — OHC time-component test: CONFIRMED (second-order)
+
+- `python/reduce_cmip6_ohc_deck.py` (zostoga = thermosteric SLR, OHC proxy, 17 DECK models)
+  + `python/diag_pai_ohc.py`: test whether OHC carries the Antarctic time-component that
+  GMST alone misses. Fit ΔT_ant ~ α·ΔGMST (M1) vs α·ΔGMST + β·ΔOHC (M2), pooled over
+  1pctCO2 + abrupt-4xCO2 (decorrelated in abrupt → identifies β).
+- **RESULT — Marcus's hypothesis CONFIRMED, second-order:** β_OHC > 0 in **17/17** models;
+  partial correlation r(T_ant, OHC | GMST) **positive in 17/17, median 0.46**; a GMST+OHC
+  map fit on abrupt-4xCO2 predicts 1pctCO2 with **~40% lower error** (transfer RMSE
+  0.98→0.61 K) and tracks the abrupt slow-rise GMST-only under-predicts. But within-scenario
+  R² barely moves (0.94→0.95) — OHC is the cross-pathway/time correction GMST cannot supply,
+  not a dominant term. Earns its keep for stabilization/long-horizon, not ramp projections.
+- A6 note proposal 5B upgraded "OHC candidate" → **tested/confirmed** with Figure 3; caveat
+  + provenance added; PDF re-rendered (now 3 figures).
+
 ## [unreleased] — 2026-07-22 (late 2) — denominator/aerosol test; terminology + note polish
 
 - **New `python/reduce_cmip6_hemis.py` + `python/diag_pai_denominator.py`**: test Marcus's
