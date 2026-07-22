@@ -3,6 +3,25 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-07-22 — PAI-vs-time diagnostic (CMIP6): amp rises with warming; A6 prior reference-frame flag
+
+- **New `python/reduce_cmip6_tas_pai.py`** (streams Amon tas for 35 models from the public
+  Pangeo/GCS zarr archive; annual global + AIS-proxy means to `data/cmip6_pai/`, 780 KB total)
+  and **`python/diag_pai_cmip6_time.py`** (windowed 41-yr trend-ratio PAI1, Xie-2022 gate,
+  collapse test) + **`python/diag_pai_mask_sensitivity.py`**.
+- **RESULT (34 models, land≥50% south of 60°S):** within-scenario PAI1 RISES in both SSP2-4.5
+  (+0.035/decade; median 1.06→1.19) and SSP5-8.5 (+0.016/decade; 1.13→1.19), and the two
+  scenarios roughly COLLAPSE onto one curve in global warming level: ~0.9 at ΔT≈0.7 K rising
+  to ~1.15–1.2 by ΔT≈2 K, then flattening at ≈ the DAIS equilibrium value 1.196. Supports a
+  warming-level-dependent GMST→AIS amplification interpolating transient→equilibrium.
+- **MASK FINDING (A6 flag):** our land-only AIS metric gives full-window (2015–2100) PAI1
+  1.13/1.16 (ssp245/585) — Xie et al. 2022's 0.95/1.03 is instead reproduced by the ALL-points
+  polar-cap mask (6-model test: cap60 0.92/0.98). Xie's "AIS" metric is cap-like; DAIS's
+  temperature lineage (ice-core/continent) argues for the land-referenced number, so the A6
+  transient prior N(0.95, 0.10) may sit ~0.15 low in DAIS's reference frame — which would
+  overstate the transient-vs-equilibrium contrast and part of the phase-2 76→40 cm drop.
+  Flagged for the M5/A6 revisit; NOT resolved here.
+
 ## [unreleased] — 2026-07-21 — artifact pulse-MEAN column (sub-annual) + BRICK-FM write-up
 
 - **New `julia/diag_subannual_pulse_means.jl`**: full-ensemble 10-GtCO₂ pulse means under the
