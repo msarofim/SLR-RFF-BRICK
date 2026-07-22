@@ -52,27 +52,34 @@ Antarctic Circle, 66.5°S, instead gives 1.03/1.12). **Converted to `a`'s land f
 models give ≈ 1.09/1.16**, and the full 34-model land-frame trend ratio is 1.13/1.16.
 All numbers below are reported directly in the land frame.
 
-## 3. The diagnostic
+## 3. What CMIP6 says `a` is
 
-34 CMIP6 models (one member each, Amon `tas` streamed from the public Pangeo/GCS mirror),
-historical + ssp245 + ssp585; anomalies rel. 1850–1900. We compute a *windowed*
-amplification: the 41-yr OLS trend ratio trend(T_AIS)/trend(T_glob), sliding through
-1850–2100 (windows with global trend < 0.05 K/decade masked — the ratio is unstable
-there).
+We compute the quantity `a` actually is — the **secant (level) ratio**
+R(t) = (T_AIS − T_AIS,PI) / (T_glob − T_glob,PI), each temperature a 30-yr running mean,
+anomalies relative to 1850–1900, land-frame AIS, 34 models (historical + ssp245 + ssp585;
+`python/diag_pai_cmip6_time.py`). This is the cumulative warming-since-preindustrial ratio
+— a level ratio, *not* the trend-ratio PAI1 of §2. Years before 1950 are dropped: the
+denominator is then too small and R is pure internal-variability noise (even 1950–~2000,
+with ΔT_glob < 1 K, is loose).
 
-Findings (figure: `outputs/diag_pai_cmip6_time.png`):
+**Result (Figure 1).** Once ΔT_glob passes ~1.5 K the secant settles to **≈1.05–1.11 and
+stays nearly flat across 2–5 K** (multi-model median; ssp245 and ssp585 collapse onto one
+curve). It sits **below the 1.196 equilibrium slope** — a century-scale ramp has not
+equilibrated — but well above the 0.95 used in the phase-2 prior. Because R is already a
+level ratio it reads off directly as `a`: at the crossing-relevant warming (ΔT_glob ≈
+2.5–3.5 K, where the DAIS thresholds fall) the value is **≈1.06–1.10**.
 
-1. **Within-scenario rise.** Median windowed ratio climbs 1.06 → 1.19 through the century
-   in SSP2-4.5 (+0.035/decade) and 1.13 → 1.19 in SSP5-8.5.
-2. **Collapse on warming level.** Plotted against window-mean ΔT_glob, the two scenarios
-   lie on ~one curve: ≈0.9 at 0.7 K, ≈1.1 at 1.5–2 K, flattening at ≈1.15–1.2 by 2–4 K.
-   SSP5-8.5 at a given warming level (reached decades earlier) matches SSP2-4.5 at the
-   same level. (As §4 shows, this collapse is expected either way — along century-scale
-   ramps, warming level and forcing age co-vary, so a ramp cannot separate them.)
-3. **It saturates at the equilibrium value.** Fitting a saturating curve with a free
-   asymptote returns ≈1.14; *fixing* the asymptote at 1.196 fits essentially as well
-   (RMSE 0.054 vs 0.050). CMIP6's transient Antarctic amplification relaxes toward the
-   paleo-equilibrium slope — an independent consistency check of the classic number.
+| ΔT_glob (K) | secant, SSP2-4.5 | secant, SSP5-8.5 |
+|---|---|---|
+| 1.5 | 1.15 | 1.10 |
+| 2.0 | 1.11 | 1.08 |
+| 2.5 | 1.09 | 1.08 |
+| 3.0 | 1.07 | 1.10 |
+| 3.5 | 1.06 | 1.11 |
+
+The two scenarios coincide at matched warming; §4 shows why a ramp cannot do otherwise
+(level and forcing age co-vary along any ramp), and supplies the idealized-run test that
+*does* separate them.
 
 ## 4. The time component: an idealized-run (DECK) test
 
@@ -103,78 +110,52 @@ Complementary views agree:
 
 **Implications.**
 
-- The level-parameterized map (§6B) is an **effective closure for century-scale
-  ramps**: because level and forcing age co-vary along a ramp, the CMIP6-fitted
-  amp(ΔT) already embeds a ramp's age profile. That is why it fits the scenario
-  ensemble, and it remains appropriate for scenario-driven projections through ~2150.
-- It will **understate amplification under stabilization**, where amp keeps rising
-  toward ~1.2+ while ΔT stalls — relevant to post-2100 extensions and long-horizon
+- A **constant secant** (proposal 5A) is an effective closure for century-scale ramps:
+  because level and forcing age co-vary along a ramp, one number captures the ramp's
+  cumulative amplification — which is exactly why the scenario secant (§3) is flat, and
+  why it is adequate for scenario-driven projections through ~2150.
+- It will **understate amplification under stabilization**, where the secant keeps
+  rising toward ~1.2 while ΔT stalls — relevant to post-2100 extensions and long-horizon
   pulse metrics.
-- The GHG-only ramp secant at 2.5–3.5 K (1.07–1.13) sits ~0.08 above the
-  scenario-based 0.97–1.03 (§5), consistent with ozone/aerosol suppression embedded in
-  realistic trajectories; the scenario-based value remains the operational one for
-  scenario-driven runs, so **proposal A is unchanged**.
-- The structurally honest generalization would drive T_ant from **fast and slow
-  thermal components** (≈1.08 and ≈1.70 respectively) rather than from warming level;
-  a two-box energy-balance driver already carries those states. Noted as an option
-  beyond this note's proposals.
+- The GHG-only 1pctCO2 secant at 2.5–3.5 K (1.07–1.13) **agrees with the scenario secant
+  of §3 (1.06–1.10)**: the aerosol/ozone suppression in realistic trajectories leaves
+  little imprint on the *cumulative* (level) ratio — it depresses the transient marginal,
+  not the secant. Both give `a` ≈ 1.08.
+- The structurally honest generalization drives T_ant from **fast and slow thermal
+  components** (≈1.08 and ≈1.70 respectively) rather than from warming level; a two-box
+  energy-balance driver already carries those states (proposal 5B).
 
-## 5. Level vs marginal slope
+## 5. The two proposals
 
-The windowed trend ratio is a **marginal** slope, dT_ant/dT_glob, which rises with
-warming. But a constant `a` is a **secant (level)** slope anchored at pre-industrial:
-T_ant − T_ant,PI = a·ΔT_glob. For what the map actually controls — when T_ant reaches the
-runoff/disintegration thresholds — the constant that reproduces the nonlinear truth is
-the *level* ratio at the crossing-relevant warming, i.e. the warming-average of the
-marginal, which sits well below the late-century marginal.
+**A. Constant (cheap; a prior swap only): `a ~ N(1.08, 0.15)`.**
+Center = the direct secant at crossing-relevant warming (1.06–1.10 over 2.5–3.5 K, §3),
+corroborated by the DECK 1pctCO2 GHG-only secant (1.07–1.13, §4). Because the secant is
+nearly flat across 2–5 K, a single constant is adequate for scenario-driven projections.
+Width = inter-model spread plus method systematics; at σ = 0.15 the equilibrium 1.196
+sits ~0.7σ above center (admitted, not the +2.45σ near-exclusion of the phase-2 0.95
+prior). Since the observations don't identify `a`, the posterior tracks whatever prior is
+chosen — treat it as a considered model input, not something the calibration will correct.
 
-Integrating the fitted marginal (§6) gives level ratios of ~0.85 at 1 K, **0.95 at 2 K,
-1.02 at 3 K** (land frame). For the thresholds the posterior actually holds (T_ant must
-rise ~2.3–3.3 K, i.e. crossings at ΔT_glob ≈ 2.5–3.5 K on SSP2-4.5), the
-crossing-relevant level ratio is ~**0.97–1.03**.
+**B. Beyond ramps: a two-mode map (structural; needs recalibration).**
+The DECK test shows the secant is not fixed — at constant forcing it climbs from ~0.95
+toward the equilibrium ~1.2 over a century (§4). For applications that leave the ramp
+regime — post-2100 stabilization, overshoot, paleo — drive T_ant from the fast and slow
+thermal components rather than from ΔT_glob:
 
-## 6. The two proposals
+> **T_ant − T_ant,PI ≈ 1.08·ΔT_fast + 1.70·ΔT_slow**
 
-**A. Constant (cheap; a prior swap only): `a ~ N(1.00, 0.15)`.**
-Center = the land-referenced level ratio at crossing-relevant warming (0.97–1.03 over
-2.5–3.5 K). Width = inter-model spread (per-model projection-era ratios: sd 0.20–0.27,
-inflated by single-member internal variability) plus the mask/level systematics (~±0.05
-each). Since the observations don't identify `a`, the posterior will track whatever prior
-is chosen here — the choice should be treated as a considered model input, not something
-the calibration will correct.
+with the Gregory fast/slow-mode slopes, where ΔT_fast and ΔT_slow are the two boxes a
+standard energy-balance driver already carries (no new state in BRICK). It reduces to
+proposal A along a ramp and converges to the equilibrium slope as the slow box fills — a
+single warming-*level* function can do neither, since it would misextrapolate under
+stabilization (amplification rises while ΔT stalls). Supersedes the earlier marginal-fit
+amp(ΔT) equation, which parameterized by level and understated the secant by ~0.1.
 
-**B. Simple equation (structural; needs recalibration).** Fit to the pooled 34-model
-median collapse curve (ΔT ≥ 0.6 K), asymptote fixed at the equilibrium slope:
+## 6. Caveats
 
-> marginal form:  **amp(ΔT) = 1.196 − 0.54·exp(−ΔT/1.05)**
-> (0.86 at 0.5 K, 0.99 at 1 K, 1.12 at 2 K, 1.17 at 3 K)
-
-and the map DAIS would implement is its integral — still algebraic, per-timestep, no new
-state variable:
-
-> **T_ant = T_ant,PI + 1.196·ΔT_glob − 0.57·(1 − exp(−ΔT_glob/1.05))**
-
-Properties: exactly the equilibrium slope in the high-warming/paleo limit (so the paleo
-constraints that produced 0.8365/−15.42 are honored where they apply); transient
-suppression at low warming emerges automatically; and it removes the need to choose
-between "transient" and "equilibrium" constants at all. Against the CMIP6 median curve it
-beats any constant by construction (constant-fit RMSE 0.065 vs 0.054).
-
-| ΔT_glob (K) | marginal amp(ΔT) | level ratio T_ant′/ΔT |
-|---|---|---|
-| 0.5 | 0.86 | 0.77 |
-| 1.0 | 0.99 | 0.85 |
-| 2.0 | 1.12 | 0.95 |
-| 3.0 | 1.17 | 1.02 |
-| 4.0 | 1.18 | 1.06 |
-
-## 7. Caveats
-
-- The ΔT→0 intercept (0.655) is extrapolation: trend ratios are unstable below ~0.6 K of
-  global warming, so the first ~0.6 K of the integral leans on the fitted form (shifting
-  the intercept to 0.85 moves the 2 K level ratio only ~+0.02).
-- One member per model; a few non-r1i1p1f1. Trend ratios pre-~1990 are internal-variability
-  noise (masked in the fit).
+- The secant below ΔT_glob ~1.5 K is small-denominator noise; the reliable range is
+  ΔT_glob > 1.5 K (post-~2000), which covers the crossing-relevant warming.
+- One member per model; a few non-r1i1p1f1.
 - sftlf treats ice shelves inconsistently across models, and "land south of 60°S" is a
   proxy for the ice sheet. The attribution of Xie et al.'s values to an all-cells
   (land + ocean) average is inference from numerical reproduction (their methods do not
@@ -182,21 +163,19 @@ beats any constant by construction (constant-fit RMSE 0.065 vs 0.054).
 - The sea-level reduction in Shaffer's T_a is treated as a constant offset; CMIP6 surface
   `tas` trends over the ice sheet include any lapse-rate/inversion changes, which the
   reduced-to-sea-level quantity would partly remove.
-- The equation form parameterizes by warming *level*; the DECK test (§4) shows the
-  deeper variable is time-at-forcing (fast/slow-mode mixing). Use it for ramp-like
-  trajectories; revisit for stabilization, overshoot, or paleo applications.
-- DECK anomalies are relative to each model's piControl mean without drift removal
-  (second-order for multi-K ratios); the abrupt-4xCO2 asymptote beyond year 150 rests
-  on two models.
+- Proposal B's two-mode slopes are Gregory-window estimates (fast yrs 1–20, slow 21–150)
+  from abrupt-4xCO2; a production version would refit them jointly. DECK anomalies are
+  relative to each model's piControl mean without drift removal (second-order for
+  multi-K ratios); the abrupt-4xCO2 asymptote beyond year 150 rests on two models.
 
-## 8. Remaining questions
+## 7. Remaining questions
 
 1. **Regression provenance:** which reconstruction pair (and anomaly convention) produced
    the 0.8365/−15.42 GMST→T_a relation in the BRICK coupling layer — and is its Antarctic
    variable the same sea-level-reduced, continent-averaged T_a as Shaffer (2014)? §2's
    frame determination assumes it is.
 2. **Structure:** does anything downstream of the temperature map — the runoff-line
-   parameterization in particular — assume linearity of T_ant in ΔT_glob in a way that a
-   warming-dependent map (proposal B) would violate?
+   parameterization in particular — assume linearity of T_ant in ΔT_glob in a way that the
+   two-mode map (proposal 5B) would violate?
 3. **Prior width:** does σ = 0.15 appropriately span the structural uncertainty for
-   proposal A, given that the posterior will track the prior?
+   proposal 5A, given that the posterior will track the prior?

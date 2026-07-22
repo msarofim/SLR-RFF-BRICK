@@ -3,6 +3,23 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-07-22 (late) — switch scenario diagnostic to the SECANT ratio; a ≈ 1.08
+
+- `diag_pai_cmip6_time.py` reworked from the 41-yr windowed MARGINAL trend ratio to the
+  **secant (level) ratio** R = (T_AIS−T_AIS,PI)/(T_glob−T_glob,PI), 30-yr running means,
+  pre-1950 dropped (Marcus's request — the secant is what BRICK `a` actually is, so no
+  marginal→level integration needed).
+- **RESULT: the direct secant is ≈1.06–1.10 at crossing-relevant warming (2.5–3.5 K) and
+  nearly FLAT across 2–5 K** (ssp245/ssp585 collapse). This CORRECTS the earlier
+  integrated-marginal estimate of 0.97–1.03, which was biased ~0.1 low by a too-low
+  extrapolated ΔT→0 intercept. The corrected secant now AGREES with the DECK 1pctCO2
+  GHG-only secant (1.07–1.13), so the previously-claimed ~0.08 "aerosol suppression gap"
+  was an artifact and is retracted.
+- **A6 note consequences:** proposal A center moved 1.00 → **1.08** (`a ~ N(1.08, 0.15)`,
+  equilibrium 1.196 now at +0.7σ); the "Level vs marginal slope" section deleted (moot);
+  proposal B's marginal amp(ΔT) exponential replaced by the DECK two-mode map
+  T_ant−T_ant,PI ≈ 1.08·ΔT_fast + 1.70·ΔT_slow; Figure 1 + captions synced. PDF re-rendered.
+
 ## [unreleased] — 2026-07-22 (evening) — DECK 1pctCO2/abrupt-4xCO2: the time component IS real
 
 - `python/reduce_cmip6_tas_pai_deck.py` + `python/diag_pai_deck.py`: 41 models, GHG-only
