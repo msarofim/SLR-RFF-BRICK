@@ -57,13 +57,19 @@ end
 runf(g,o)=(set_forcing!(m,g,o); run(m); 100 .*[x===missing ? NaN : Float64(x) for x in m[:global_sea_level,:sea_level_rise]])
 variants=Dict("transient"=>joinpath(REPO,"data/MimiBRICK/parameters_subsample_brick_mengel_ext.csv"),
               "equilib"=>EQCSV)
+# 2026-07-22: the a=1.08 (σ=0.15) recalibration, once postprocess_mcmc_ext.jl --tag=extA108
+# has written its subsample. Included automatically when present so this driver needs no
+# edit on re-run; VARIANT_ORDER controls which rows are computed and in what order.
+const A108CSV = joinpath(REPO,"data/MimiBRICK/parameters_subsample_brick_mengel_extA108.csv")
+isfile(A108CSV) && (variants["a108"] = A108CSV)
+const VARIANT_ORDER = [v for v in ("a108","transient","equilib") if haskey(variants,v)]
 drivers=Dict("MAGICC"=>("ssp245_gmst_base.csv","ssp245_ohc_base.csv","ssp245_gmst_pulse10gt.csv","ssp245_ohc_pulse10gt.csv"),
              "FaIR"=>("fair_gmst_base_wide.csv","fair_ohc_base_wide.csv","fair_gmst_pulse_wide.csv","fair_ohc_pulse_wide.csv"))
 q(v,p)=quantile(v,p)
 out=DataFrame(variant=String[],driver=String[],year=Int[],N=Int[],
               pulse_mean=Float64[],pulse_median=Float64[],mean_over_median=Float64[],top5_share=Float64[],
               level_median=Float64[],level_mean=Float64[])
-for vn in ("transient","equilib")
+for vn in VARIANT_ORDER
   P=CSV.read(variants[vn],DataFrame; select=vcat(FN,DCOL))
   for dn in ("MAGICC","FaIR")
     gbf,obf,gpf,opf=drivers[dn]

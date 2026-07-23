@@ -57,7 +57,16 @@ const TARGETS = joinpath(REPO, "outputs/recalib_targets_ext.csv")
 # Dangendorf/STAR targets) is identical -> isolates A6's effect on the SLR headline. Output
 # infix becomes "extA6eq" so its chains do NOT match the production "chain_ext_seed*" glob.
 const AMP_EQ = "--amp-equilibrium" in ARGS
-const TAG = AMP_EQ ? "extA6eq" : "ext"                 # output infix
+# 2026-07-22 (CMIP6 secant update): optional A6-prior overrides, so a new amplification
+# prior can be run WITHOUT touching the phase-2 defaults. --amp-mu=/--amp-sigma= set the
+# prior; --tag= renames the output infix so new chains do NOT match the phase-2
+# chain_ext_seed* glob. With no overrides, behaviour is bit-for-bit the phase-2 setup.
+_argval(pfx) = (i = findfirst(a -> startswith(a, pfx), ARGS);
+                i === nothing ? nothing : ARGS[i][length(pfx)+1:end])
+const AMP_MU_OVR    = _argval("--amp-mu=")
+const AMP_SIGMA_OVR = _argval("--amp-sigma=")
+const TAG_OVR       = _argval("--tag=")
+const TAG = TAG_OVR !== nothing ? TAG_OVR : (AMP_EQ ? "extA6eq" : "ext")   # output infix
 years = collect(Y0:Y1); ib = [findfirst(==(y),years) for y in B0:B1]; idx(y)=findfirst(==(y),years)
 N_ITER = length(ARGS)>=1 ? parse(Int,ARGS[1]) : 2000
 SEED   = length(ARGS)>=2 ? parse(Int,ARGS[2]) : 2026
@@ -164,11 +173,17 @@ push!(FREE, P("antarctic_kappa",:antarctic_icesheet,:ais_κ))
 # the default 0.10 spans the scenario range + structural uncertainty without re-admitting
 # the equilibrium 1.196 (+2.5σ). Bounds cover SSP1-2.6 .. just above equilibrium.
 # Production: N(0.95, 0.10) transient prior. --amp-equilibrium: pin at 1.19546 (old map).
-const AMP_MU    = AMP_EQ ? 1.0 / 0.8365 : 0.95
-const AMP_SIGMA = AMP_EQ ? 0.002 : 0.10
+const AMP_MU    = AMP_MU_OVR    !== nothing ? parse(Float64, AMP_MU_OVR)    : (AMP_EQ ? 1.0/0.8365 : 0.95)
+const AMP_SIGMA = AMP_SIGMA_OVR !== nothing ? parse(Float64, AMP_SIGMA_OVR) : (AMP_EQ ? 0.002 : 0.10)
+# Bounds: phase-2 defaults (0.70, 1.25). An explicit prior override widens them to μ±3σ so
+# the new prior is NOT truncated — N(1.08, 0.15) would otherwise be clipped at +1.1σ.
+const AMP_LO = AMP_MU_OVR === nothing ? 0.70 : AMP_MU - 3*AMP_SIGMA
+const AMP_HI = AMP_MU_OVR === nothing ? 1.25 : AMP_MU + 3*AMP_SIGMA
 const AIS_TANT0 = -15.42 / 0.8365              # = -18.435, the preserved anchor
 push!(FREE, (name="ais_gmst_amp",comp=:antarctic_icesheet,sym=:ais_temperature_coefficient,
-             μ=AMP_MU,σ=AMP_SIGMA,lo=0.70,hi=1.25,islog=false))
+             μ=AMP_MU,σ=AMP_SIGMA,lo=AMP_LO,hi=AMP_HI,islog=false))
+@printf("A6 prior: amp ~ N(%.3f, %.3f) on [%.3f, %.3f]   TAG=%s\n",
+        AMP_MU, AMP_SIGMA, AMP_LO, AMP_HI, TAG)
 const AMP_IDX = length(FREE)                   # DERIVED param: sym above is never set directly
 
 # ---- v-next Strategy B: FREE the 7 DAIS geometry params under a JOINT paleo prior ----

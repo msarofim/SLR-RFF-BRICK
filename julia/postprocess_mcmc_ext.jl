@@ -13,7 +13,9 @@ using CSV, DataFrames, Statistics, Printf, LinearAlgebra
 using MCMCDiagnosticTools
 
 const REPO = abspath(joinpath(@__DIR__, ".."))
-const TAG  = "ext"
+const TAG  = let i = findfirst(a -> startswith(a, "--tag="), ARGS)   # 2026-07-22: allow
+    i === nothing ? "ext" : ARGS[i][7:end]                            # alternate chain sets
+end
 const ESS_MIN = 400
 # Writing a posterior subsample or a proposal seed from NON-CONVERGED chains is how a bad
 # posterior reaches downstream consumers silently. Both writes are gated on convergence;
