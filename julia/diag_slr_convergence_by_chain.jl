@@ -31,6 +31,12 @@ const REF0, REF1 = 1995, 2014            # rebaseline window (project_pulse_*_lv
 const HORIZONS   = [2100, 2150]
 const SEEDS      = [2026, 2027, 2028, 2029]
 const NITER      = 2000000
+# 2026-07-22: --tag= selects an alternate chain set (default "ext" = phase-2 production),
+# so the a=1.08 recalibration can be gated on its OWN deliverable diagnostic. The output
+# filename carries the same tag, which postprocess_mcmc_ext.jl --tag= then reads.
+const CHAIN_TAG  = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
+    i === nothing ? "ext" : ARGS[i][7:end]
+end
 const NBURN      = 1000000               # discard the FIRST HALF
 const N_TARGET   = length(ARGS) >= 1 ? parse(Int, ARGS[1]) : 400
 # Forcing: the SAME deterministic SSP2-4.5 HARMONIZED FaIR-mean splice the calibration
@@ -109,7 +115,7 @@ slr = Dict(y => Vector{Float64}[] for y in HORIZONS)   # y -> per-chain vectors
 chain_labels = String[]
 t00 = time()
 for sd in SEEDS
-    f = joinpath(REPO, "outputs/mcmc", "chain_ext_seed$(sd)_n$(NITER).csv")
+    f = joinpath(REPO, "outputs/mcmc", "chain_$(CHAIN_TAG)_seed$(sd)_n$(NITER).csv")
     isfile(f) || error("missing chain file $f")
     df = CSV.read(f, DataFrame; select=vcat(FREE_NAMES, DERIVED_COLS))   # sampled + derived cols
     nrow(df) == NITER || error("$(basename(f)): expected $NITER rows, got $(nrow(df))")
@@ -186,7 +192,7 @@ for y in HORIZONS
 end
 # Machine-readable result so postprocess_mcmc_ext.jl --accept-slr can gate the canonical
 # subsample write on THIS diagnostic (accepted-on-deliverable criterion, Marcus 2026-07-19).
-slr_csv = joinpath(REPO, "outputs/mcmc/slr_convergence_ext.csv")
+slr_csv = joinpath(REPO, "outputs/mcmc/slr_convergence_$(CHAIN_TAG).csv")
 CSV.write(slr_csv, diag_rows)
 println("\nWrote $slr_csv")
 @printf("\n  median range across chains:")

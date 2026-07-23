@@ -91,7 +91,7 @@ const CONVERGED = isempty(bad)
 # a stale CSV from a previous run would bless chains it never saw.
 slr_accepted = false
 if !CONVERGED && ACCEPT_SLR
-    slr_csv = joinpath(MCMCDIR, "slr_convergence_ext.csv")
+    slr_csv = joinpath(MCMCDIR, "slr_convergence_$(TAG).csv")
     if !isfile(slr_csv)
         println("\n--accept-slr: $slr_csv not found. Run diag_slr_convergence_by_chain.jl first.")
     elseif mtime(slr_csv) < maximum(mtime.(files))
