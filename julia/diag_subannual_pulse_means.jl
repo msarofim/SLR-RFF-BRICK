@@ -62,7 +62,10 @@ variants=Dict("transient"=>joinpath(REPO,"data/MimiBRICK/parameters_subsample_br
 # edit on re-run; VARIANT_ORDER controls which rows are computed and in what order.
 const A108CSV = joinpath(REPO,"data/MimiBRICK/parameters_subsample_brick_mengel_extA108.csv")
 isfile(A108CSV) && (variants["a108"] = A108CSV)
-const VARIANT_ORDER = [v for v in ("a108","transient","equilib") if haskey(variants,v)]
+# Marcus 2026-07-22: a=1.08 SUPERSEDES the 0.95-prior "transient" in the artifact, so the
+# default order is a108 + equilib (transient stays in `variants` and can be re-added here
+# for provenance/comparison, but is no longer computed on every run).
+const VARIANT_ORDER = [v for v in ("a108","equilib") if haskey(variants,v)]
 drivers=Dict("MAGICC"=>("ssp245_gmst_base.csv","ssp245_ohc_base.csv","ssp245_gmst_pulse10gt.csv","ssp245_ohc_pulse10gt.csv"),
              "FaIR"=>("fair_gmst_base_wide.csv","fair_ohc_base_wide.csv","fair_gmst_pulse_wide.csv","fair_ohc_pulse_wide.csv"))
 q(v,p)=quantile(v,p)

@@ -38,7 +38,9 @@ const CHAIN_TAG  = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
     i === nothing ? "ext" : ARGS[i][7:end]
 end
 const NBURN      = 1000000               # discard the FIRST HALF
-const N_TARGET   = length(ARGS) >= 1 ? parse(Int, ARGS[1]) : 400
+const N_TARGET   = let p = findfirst(a -> !startswith(a, "--"), ARGS)   # skip --flags
+    p === nothing ? 400 : parse(Int, ARGS[p])
+end
 # Forcing: the SAME deterministic SSP2-4.5 HARMONIZED FaIR-mean splice the calibration
 # ran on (calibrate_mcmc_ext.jl FORCING_TAG). A single forcing trajectory is deliberate:
 # this diagnostic isolates PARAMETER spread across chains, so any FaIR-member spread
