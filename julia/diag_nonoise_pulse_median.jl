@@ -20,10 +20,11 @@ A=:antarctic_icesheet; G=:glaciers_small_icecaps
 lw(p;s=1.0)=(d=CSV.read(p,DataFrame); keep=[y in years for y in d.year]; Matrix(d[keep,2:end]).*s)
 q(v,p)=quantile(filter(!isnan,v),p)
 
-# three drivers: MAGICC (target), FaIR canonical (stochastic), FaIR no-noise
+# drivers: MAGICC (target), FaIR canonical (stochastic), FaIR no-noise, FaIR no-noise + flat-solar
 drivers=[("MAGICC",       "ssp245_gmst_base.csv","ssp245_ohc_base.csv","ssp245_gmst_pulse10gt.csv","ssp245_ohc_pulse10gt.csv"),
          ("FaIR_stoch",   "fair_gmst_base_wide.csv","fair_ohc_base_wide.csv","fair_gmst_pulse_wide.csv","fair_ohc_pulse_wide.csv"),
-         ("FaIR_nonoise", "fair_gmst_base_wide_nonoise.csv","fair_ohc_base_wide_nonoise.csv","fair_gmst_pulse_wide_nonoise.csv","fair_ohc_pulse_wide_nonoise.csv")]
+         ("FaIR_nonoise", "fair_gmst_base_wide_nonoise.csv","fair_ohc_base_wide_nonoise.csv","fair_gmst_pulse_wide_nonoise.csv","fair_ohc_pulse_wide_nonoise.csv"),
+         ("FaIR_nn_flatsol", "fair_gmst_base_wide_nonoise_flatsolar.csv","fair_ohc_base_wide_nonoise_flatsolar.csv","fair_gmst_pulse_wide_nonoise_flatsolar.csv","fair_ohc_pulse_wide_nonoise_flatsolar.csv")]
 
 out=DataFrame(model=String[],driver=String[],year=Int[],N=Int[],
               pulse_median=Float64[],pulse_mean=Float64[],mean_over_median=Float64[],
