@@ -2,26 +2,27 @@
 
 <p class="subtitle">A walkthrough of the updates — data sources, justifications, and code changes for the Antarctic-Mengel recalibration</p>
 
-**M. Sarofim · NYU Marron Institute** — compiled 2026-07-24 · repo `SLR-RFF-BRICK`, branch `brick-mengel-vnext` (HEAD `69a2bfb`)
+**M. Sarofim · NYU Marron Institute** — compiled 2026-07-24 · repo `SLR-RFF-BRICK`, branch `brick-mengel-vnext`
 
 ---
 
 ## 0. Orientation
 
-**BRICK-AM** ("**A**ntarctic-**M**engel") is our fully-updated MimiBRICK sea-level model. It differs from **BRICK 2.0** (Tony Wong's obs-driven MimiBRICK v2.0.0 port) in three substantive ways plus one numerical correction:
+**BRICK-AM** ("Antarctic-Mengel") is our fully-updated MimiBRICK sea-level model. It differs from **BRICK 2.0** (Tony Wong's obs-driven MimiBRICK v2.0.0 port) in four changes — one structural, three to the calibration — plus one numerical update:
 
 | # | Update | In BRICK 2.0? | In v2.1.0? | Category |
 |---|---|---|---|---|
 | 1 | **Mengel-2016 glacier emulator** (replaces the Wigley–Raper single-reservoir glacier) | No | **Yes** | model structure |
 | 2 | **Observation updates** (Dangendorf/STAR total; GRACE-FO + GlaMBIE extensions; proper σ; dropped point terms) | No | No — v2.1.0 keeps Church–White | calibration data |
 | 3 | **GMST→Antarctic amplification** `a`: equilibrium 1.196 → CMIP6 secant **1.08 ± 0.15** | No | No | calibration prior |
-| — | **Sub-annual DAIS crossing correction** (a numerical fix, only affects the pulse marginal) | No | No | numerics |
+| 4 | **Antarctic fit freedoms** — free `ais_ocean_temperature₀` (Wong fixes 0.72); joint paleo-covariance geometry prior; Rignot 2019 SMB anchor (detailed in §3) | No | No | calibration structure |
+| — | **Sub-annual DAIS crossing** (numerical update; only affects the pulse marginal) | No | No | numerics |
 
-The name emphasizes update 3: a decomposition (§7) attributes **~85 % of the level change** from BRICK 2.0 to the amplification, with the glacier and observation updates far smaller. Relative to Tony Wong's official **v2.1.0** (which already carries the Mengel glacier), the BRICK-AM changes are **updates 2 and 3** — see below.
+The name emphasizes update 3: a decomposition (§7) attributes **≈ 81 % of the level change @2100** (rising to ≈ 86 % @2150) to the amplification, with the glacier and observation updates far smaller. Relative to Tony Wong's official **v2.1.0** (which already carries the Mengel glacier), the BRICK-AM changes are **updates 2–4** — see below.
 
 ### BRICK 2.1 and the baseline
 
-Tony Wong's official MimiBRICK releases (confirmed by Tony) are: **v2.0.0 = Wigley–Raper glaciers + Church–White GMSL**; **v2.1.0 = Mengel glaciers + Church–White GMSL**. So the Mengel glacier (**update 1**) is **shared with the official v2.1.0**, and relative to v2.1.0 the BRICK-AM changes are **updates 2 and 3** (plus the numerical fix). A large part of update 2 is precisely the total-GMSL observation swap **Church–White → Dangendorf 2024 + NOAA STAR** (§3), alongside the GRACE-FO / GlaMBIE component extensions and the Frederikse-ensemble σ.
+Tony Wong's official MimiBRICK releases (confirmed by Tony) are: **v2.0.0 = Wigley–Raper glaciers + Church–White GMSL**; **v2.1.0 = Mengel glaciers + Church–White GMSL**. So the Mengel glacier (**update 1**) is **shared with the official v2.1.0**, and relative to v2.1.0 the BRICK-AM changes are **updates 2–4** (plus the sub-annual update). A large part of update 2 is precisely the total-GMSL observation swap **Church–White → Dangendorf 2024 + NOAA STAR** (§3), alongside the GRACE-FO / GlaMBIE component extensions and the Frederikse-ensemble σ.
 
 This document is written from the **BRICK 2.0** baseline (all three updates visible) because that is where our development actually happened and what the decomposition (§7) measures. Two implementation facts to keep straight:
 
@@ -37,13 +38,17 @@ This document is written from the **BRICK 2.0** baseline (all three updates visi
 | `SLR-RFF-BRICK` branch `brick-mengel` (archived, tag `archive/brick-mengel-2026-06-17`) | v2.0.0 | frozen prior Mengel/study-driver work |
 | `SLR-RFF-BRICK` branch **`brick-mengel-vnext`** (env `julia_v2`) | v2.0.0 + local Mengel | **BRICK-AM** (this document) |
 
+The three `v2.0.0` rows all load the **same MimiBRICK package** (v2.0.0, depot slot `edplP`); they differ only in the SLR-RFF-BRICK branch's *local* code. `main` is the clean Wong port (no local Mengel) = **BRICK 2.0**; `brick-mengel` (archived, frozen 2026-06-17) was an earlier working branch that added the Mengel component plus the MAGICC-comparison and CO₂/CH₄-pulse study drivers; `brick-mengel-vnext` adds the Mengel component and the recalibration = **BRICK-AM**. So "v2.0.0" is the package; the branch name is what distinguishes the model.
+
 > **Reproducibility flag.** `brick-mengel-vnext` is **local-only** (not pushed to origin). Anyone reproducing this needs the working tree, not a clone of origin.
+
+> **Tags used in this doc.** `ext` = the phase-2 default calibration (a ≈ 0.95, superseded); **`extA108` = BRICK-AM** (a = 1.08); `extA6eq` = the equilibrium-amplification sensitivity (a = 1.196). Decomposition rungs: **X0 = BRICK 2.0, XM = + Mengel glacier, X2 = + obs/recalibration, X3 = BRICK-AM**. "medoid" = the central posterior member used as the model base.
 
 ---
 
-## 1. The three updates at a glance
+## 1. The updates at a glance
 
-Each update is developed below in its own section with four parts: **what changed**, **data sources** (with paths + provenance), **justification** (with the authoritative write-up), and **code** (with paths). File paths are repo-relative to `SLR-RFF-BRICK/` unless prefixed `FaIRtoFrEDI/`.
+The updates are developed below (§2–§4 for updates 1–3; update 4, the Antarctic fit freedoms, inside §3), each with four parts: **what changed**, **data sources** (with paths + provenance), **justification** (with the authoritative write-up), and **code** (with paths). File paths are repo-relative to `SLR-RFF-BRICK/` unless prefixed `FaIRtoFrEDI/`.
 
 The **forcing** is common to all rungs: FaIR **2.2.4 (calib1.4.5)** ensemble-mean GMST + OHC on Smith-harmonized SSP2-4.5, files `data/observations/fair_mean_gmst_ssp245harm.csv` and `..._ohc_ssp245harm.csv`, built in the sibling repo:
 
@@ -59,6 +64,8 @@ The harmonized splice (not the RCMIP-native `fair_mean_*_ssp245.csv`) is used de
 ---
 
 ## 2. Update 1 — The Mengel-2016 glacier emulator
+
+*(Tony's official v2.1.0 already ships this component; relative to v2.1.0 our only difference is the posterior — we calibrate the same emulator against the extended targets of §3, not Church–White. The equations below are a confirmation of the shared structure, not a new proposal.)*
 
 **What changed.** BRICK 2.0's glacier & small-ice-cap (GSIC) component is the Wigley–Raper single-reservoir model. BRICK-AM replaces it with the **Mengel et al. 2016** (PNAS 113:2597) two-timescale emulator, driven by total GMST, with a Little-Ice-Age (LIA) disequilibrium baseline.
 
@@ -92,7 +99,7 @@ Parameters (`:37-44`): `gic_a` (asymptotic max SLE from the LIA state, m), `gic_
 
 > **Important:** the six Mengel parameters are **freed and sampled in the MCMC** (§6), not fixed. Their "central" values are the MCMC **prior means** (`calibrate_mcmc_ext.jl:146-151`: `gic_a` N(0.45,0.08); `gic_b` N(0.52,0.25); `gic_T_lia` N(−0.45,0.30); `gic_f` N(0.50,0.30); `gic_tau_fast` N(40,30); `gic_tau_slow` N(300,200)) and the medoid init `(a=0.45,b=0.52,T_lia=−0.45,f=0.5,τ_fast=40,τ_slow=250)`. The offline python fit `outputs/mengel_glacier_2tau_params.csv` was used only to set prior ranges — do not treat it as the deployed parameterization.
 
-**Total ice and the parameter posterior.** There is **no external total-glacier-ice constraint** in the likelihood — the total ice available to melt, `gic_a`, is pinned only by its prior and the 1900–2023 gsic time series. The prior *range* is inventory-informed (lower bound 0.32 m SLE = Farinotti 2019 present-day glaciers; mean ~0.45 m ≈ Mengel 2016's published median across 19 glacier-model fits), but no inventory total enters as *data*. The committed-melt combination `S_eq(0)=a·(1−exp(b·T_lia))` is well constrained at **0.20 ± 0.02 m SLE**. **One prior bound *is* too tight:** `gic_T_lia` rails against its −1.0 °C floor (29 % of the posterior at/near the bound; 5th percentile *at* it) — the data prefers a colder LIA equilibrium than the prior allows. Candidate follow-up: widen the `gic_T_lia` lower bound (−1.5/−2.0) and re-check whether the posterior moves interior and the fit improves; the well-constrained `S_eq(0)` is unaffected regardless.
+**Total ice and the parameter posterior.** There is **no external total-glacier-ice constraint** in the likelihood — the total ice available to melt, `gic_a`, is pinned only by its prior and the 1900–2023 gsic time series. The prior *range* is inventory-informed (lower bound 0.32 m SLE = Farinotti 2019 present-day glaciers; mean ~0.45 m ≈ Mengel 2016's published median across 19 glacier-model fits), but no inventory total enters as *data*. The committed-melt combination `S_eq(0)=a·(1−exp(b·T_lia))` is well constrained at **0.20 ± 0.02 m SLE**. **One prior bound *is* too tight:** `gic_T_lia` rails against its −1.0 °C floor (≈ 30 % of the posterior within 2 % of the bound; 5th percentile *at* it) — the data prefers a colder LIA equilibrium than the prior allows. Candidate follow-up: widen the `gic_T_lia` lower bound (−1.5/−2.0) and re-check whether the posterior moves interior and the fit improves; the well-constrained `S_eq(0)` is unaffected regardless.
 
 ---
 
@@ -106,8 +113,8 @@ Built by **`python/prep_recalib_targets_ext.py`**. Series are 1900–2026, cm re
 
 | Component | Historical | Modern extension → end yr | Raw file / DOI |
 |---|---|---|---|
-| **AIS** | Frederikse 2020 (1900–2018) | GRACE-FO JPL mascon RL06.3Mv4 → 2026 | `raw/grace_antarctica_mass.txt` · DOI 10.5067/TEMSC-3JC634 |
-| **GIS** | Frederikse 2020 | GRACE-FO JPL mascon → 2026 | `raw/grace_greenland_mass.txt` · same DOI |
+| **AIS** | Frederikse 2020 (1900–2018) | GRACE-FO JPL mascon RL06.3Mv4 → 2025 | `raw/grace_antarctica_mass.txt` · DOI 10.5067/TEMSC-3JC634 |
+| **GIS** | Frederikse 2020 | GRACE-FO JPL mascon → 2025 | `raw/grace_greenland_mass.txt` · same DOI |
 | **GSIC** | Frederikse 2020 | GlaMBIE 2025 → 2023 | `raw/glambie_global_glacier_mass.csv` · DOI 10.5904/wgms-glambie-2024-07 |
 | **Steric / TE** | Frederikse 2020 | NOAA NCEI 0–2000 m thermosteric → 2025 | `raw/noaa_thermosteric_w0-2000m_yearly.dat` |
 | **Total** | **Dangendorf 2024** GMSL reconstruction (1900–2021) | NOAA STAR altimetry → 2024 | `data/observations/dangendorf2024_gmsl_annual.csv` + `nasa_gmsl_annual.csv` |
@@ -119,15 +126,17 @@ Two points worth stating explicitly:
 
 **For comparison — BRICK 2.0 calibration observations.** BRICK 2.0 fits the standalone-BRICK likelihood: total GMSL plus four component series (temperature and OHC are *forcing inputs*, not fitted). It uses the package-bundled obs, extended only to the mid-2010s:
 
-| Component | BRICK 2.0 | BRICK-AM |
+| Component | BRICK 2.0 (range) | BRICK-AM (range) |
 |---|---|---|
-| Total GMSL | Church & White (CSIRO recon 2015) | Dangendorf 2024 + NOAA STAR → 2024 |
-| AIS | IMBIE 1992–2017 | Frederikse + GRACE-FO → 2026 |
-| GIS | Frederikse 2020 (post-#93) | Frederikse + GRACE-FO → 2026 |
-| GSIC | glaciers / small-ice-caps 1961–2003 | Frederikse + GlaMBIE → 2023 |
-| Steric / TE | IPCC trend windows (1971–2009, 1993–2009) | Frederikse + NOAA NCEI → 2025 |
-| Temperature (forcing) | HadCRUT4 | FaIR-mean GMST |
-| OHC (forcing) | Gouretski 3000 m | FaIR-mean OHC |
+| Total GMSL | Church & White / CSIRO recon **1880–2013** | Dangendorf 2024 + NOAA STAR **1900–2024** |
+| AIS | IMBIE **1992–2017** | Frederikse + GRACE-FO **1900–2025** |
+| GIS | Frederikse 2020 (post-#93) **1900–2018** | Frederikse + GRACE-FO **1900–2025** |
+| GSIC | glaciers / small-ice-caps **1961–2003** | Frederikse + GlaMBIE **1900–2023** |
+| Steric / TE | IPCC trend windows **1971–2009, 1993–2009** | Frederikse + NOAA NCEI **1900–2025** |
+| Temperature (forcing) | HadCRUT4 (→2018) | FaIR-mean GMST |
+| OHC (forcing) | Gouretski 3000 m **1953–1996** | FaIR-mean OHC |
+
+The date ranges make the observation update concrete: BRICK 2.0 fits short or dated windows (AIS only 1992–2017, glaciers only 1961–2003, a total ending 2013), whereas BRICK-AM fits **continuous 1900-to-present** series for every component.
 
 BRICK 2.0's obs files live in the MimiBRICK package (`edplP/src/calibration/`); the post-PR#93 Greenland term is Frederikse 2020, replacing the earlier IMBIE-based merge. The headline shift is total GMSL **Church–White → Dangendorf 2024 + NOAA STAR**, plus swapping each component's short/older series for the reconciled, extended-to-present product above.
 
@@ -135,17 +144,21 @@ BRICK 2.0's obs files live in the MimiBRICK package (`edplP/src/calibration/`); 
 
 **Rignot 2019 SMB anchor** — enters not as a target column but as a likelihood term: grounded-AIS SMB 2098 ± 133 Gt/yr, area-scaled ×(10.92/12.295) = 0.888 → **1863.4 ± 118.1 Gt/yr** (`calibrate_mcmc_ext.jl:230-245`).
 
-### Antarctic parameters freed to fit the record
+### Antarctic parameters freed to fit the record  (Update 4)
 
-To track the extended Antarctic record, BRICK-AM opens Antarctic degrees of freedom and adds one Antarctic likelihood term. **BRICK 2.0 already samples the full DAIS geometry and fast-dynamics block** (verified: all 15 Antarctic parameters vary in `parameters_subsample_brick.csv`), so the genuinely *new* freedoms **relative to Wong** are two:
+To track the extended Antarctic record, BRICK-AM opens one new Antarctic degree of freedom, re-expresses the Antarctic priors, and adds one Antarctic likelihood term. **BRICK 2.0 already samples the DAIS geometry and the λ/γ/κ fast-dynamics** (verified: those columns all vary in `parameters_subsample_brick.csv`); **the one Antarctic parameter Wong holds fixed is `ais_ocean_temperature₀`.** The full before/after (the amplification, Update 3, is repeated here for a complete Antarctic picture):
 
-- **`ais_ocean_temperature₀`** — Wong hard-fixes this at 0.72 °C (`SNEASY_BRICK.jl:91`); BRICK-AM samples it, prior N(0.72, 0.50) on [0.50, 2.00] (`calibrate_mcmc_ext.jl:137`). It is a direct lever on the Antarctic sub-shelf ocean forcing, so freeing it lets the model bend toward the observed AIS mass loss instead of the fixed default.
-- **The GMST→Antarctic amplification** (§4) — Wong hard-codes the equilibrium slope 1.196; BRICK-AM frees it (prior N(1.08, 0.15)).
+| Parameter | BRICK 2.0 / Wong (SNEASY-BRICK) | BRICK-AM |
+|---|---|---|
+| `ais_ocean_temperature₀` | **fixed 0.72 °C** (`SNEASY_BRICK.jl:91`) | **sampled**, N(0.72, 0.50) on [0.50, 2.00] |
+| GMST→AIS amplification (Update 3) | **fixed 1.196** (coef 0.8365) | **sampled**, N(1.08, 0.15) → posterior ≈ 1.07 |
+| DAIS geometry (`μ, bed₀, slope, iceflow₀, precip₀, T_on, c`) | sampled, independent priors | sampled under a **joint paleo-covariance prior** |
+| fast dynamics (`λ, γ, κ`) | sampled | sampled under the same paleo prior |
+| Antarctic SMB (`β_total`) | **no constraint** | **Rignot 2019 anchor** 1863 ± 118 Gt/yr |
 
-BRICK-AM also changes *how* the already-sampled Antarctic parameters are constrained:
-
-- The DAIS **geometry block** (`ais_μ`, `bedheight₀`, `slope`, `iceflow₀`, `precipitation₀`, the runoff-onset `T_on`, `c`) and the **fast-dynamics** parameters (`λ`, `ais_γ`, `ais_κ`) are sampled under an explicit **joint paleo-covariance prior** (`outputs/paleo_geo_prior_ton.csv`, built from the DAISfastdyn paleo ensemble; standardized, cond ≈ 2.75), which carries the paleo correlation structure and identifies the runoff onset via the coordinate `T_on = −h₀/c`.
-- A **Rignot 2019 SMB likelihood anchor** (data sources above) pins the modern Antarctic surface mass balance and breaks the SMB-vs-discharge input–output degeneracy.
+- **`ais_ocean_temperature₀`** is the direct lever on the Antarctic sub-shelf ocean forcing — freeing it lets the model bend toward the observed AIS mass loss instead of the fixed default, and is the one genuinely new *freedom* vs Wong (the amplification is the other Wong-fixed parameter BRICK-AM frees, covered as Update 3 in §4).
+- The **geometry** + **fast-dynamics** move under an explicit **joint paleo-covariance prior** (`outputs/paleo_geo_prior_ton.csv`, from the DAISfastdyn paleo ensemble; standardized, cond ≈ 2.75), which carries the paleo correlation structure and identifies the runoff onset via the coordinate `T_on = −h₀/c` — a re-expression of priors Wong already samples, not a new freedom.
+- The **Rignot 2019 SMB likelihood anchor** pins the modern Antarctic surface mass balance and breaks the SMB-vs-discharge input–output degeneracy.
 
 > The DAIS geometry block stays **weakly identified** even so: several geometry parameters do not reach R̂ < 1.05 individually (a compensating ridge), which is why acceptance is gated on the projected-SLR deliverable (§7), not on the nuisance marginals.
 
@@ -216,13 +229,13 @@ The **BRICK-AM value N(1.08, 0.15)** is applied via CLI override (`--amp-mu=1.08
 
 ---
 
-## 5. The sub-annual DAIS crossing correction (numerical)
+## 5. The sub-annual DAIS crossing (numerical update)
 
-This is **not a model update** — it is a numerical fix, and it matters **only for the pulse marginal**, not for levels or the calibration.
+This is a **numerical update**, not a change to the model physics or the calibration — and it matters **only for the pulse marginal**, not for levels or the calibration. It does not imply the annual-step version is "wrong"; it removes a discretization artifact that only surfaces in the finite-difference pulse.
 
 **The problem.** DAIS disintegration triggers when Antarctic temperature crosses `temperature_threshold`. The stock integrator flips this on **whole-year** boundaries, so a 10 GtCO₂ pulse that advances a draw's crossing by a *fraction* of a year is rounded to zero for most draws — biasing the finite-difference pulse **median** ~3–4× low (it collapses to the non-AIS floor) while the mean is only mildly affected.
 
-**The fix.** Scale the crossing-year disintegration by the fraction of the year spent above threshold, using a backward-mean Antarctic temperature:
+**The fix.** Scale the crossing-year disintegration by the fraction of the year spent above threshold, using a backward-mean Antarctic temperature (the mean is taken over ≈ 11 years — the solar-cycle length — so FaIR's ~80 mK stochastic forcing cannot spuriously trip or saturate the trigger):
 
 ```
 frac = clamp( (T_sm − threshold) / max(dT_sm, 1e-4), 0, 1 )
@@ -231,7 +244,7 @@ disintegration_rate[t] = −λ · 24.78e15 / 57.0 · frac
 
 **Where it lives.** The canonical patched component is saved in-repo at **`julia/patches/antarctic_icesheet_smoothed_trigger.jl.txt`** (`:181-200`). It is applied by hand to the loaded depot file `~/.julia/packages/MimiBRICK/edplP/src/components/antarctic_icesheet_component.jl` (the `get_model` path does not read the local repo copy). Apply/restore is **manual** — `chmod u+w → paste the frac block → run → restore from backup → chmod u−w` — and every pulse diagnostic **guards and aborts if the patch is absent** (`diag_subannual_pulse_means.jl:13-14`, `diag_decomposition_pulse.jl:13-14`).
 
-**It is not used during calibration.** The 1850–2026 fit window never crosses the DAIS threshold (ΔT_glob only reaches ~1.3 K vs the ~2.9 K crossing), so the patch changes calibration by nothing and levels by < 1 %. It is applied only for the pulse-marginal diagnostics. Recipe: `notes/handoff_2026-07-22_a108_recalibration.md:53-59`.
+**It is not used during calibration.** The 1850–2026 fit window never crosses the DAIS threshold (ΔT_glob only reaches ~1.4 K vs the ~2.9 K crossing), so the patch changes calibration by nothing and levels by < 1 %. It is applied only for the pulse-marginal diagnostics. Recipe: `notes/handoff_2026-07-22_a108_recalibration.md:53-59`.
 
 ---
 
@@ -264,7 +277,7 @@ julia --project=julia_v2 julia/postprocess_mcmc_ext.jl --tag=extA108 --accept-sl
 julia --project=julia_v2 julia/diag_subannual_pulse_means.jl
 ```
 
-Production driver: `run_vnext_production.sh`. Equilibrium sensitivity: `run_A6eq_sensitivity.sh` (`--amp-equilibrium`, tag `extA6eq`). The MCMC reuses the phase-2 `outputs/mcmc/adapted_cov_ext.csv` proposal and `overdispersed_starts.csv`.
+Production driver: `julia/run_vnext_production.sh`. Equilibrium sensitivity: `julia/run_A6eq_sensitivity.sh` (`--amp-equilibrium`, tag `extA6eq`). The MCMC reuses the phase-2 `outputs/mcmc/adapted_cov_ext.csv` proposal and `overdispersed_starts.csv`.
 
 **Priors consumed by step 2**: `outputs/param_priors.csv` (22 independent-Gaussian physical priors), `outputs/paleo_geo_prior_ton.csv` (the joint 7-param DAIS-geometry prior + 7×7 correlation, in the identified runoff-onset coordinate), and `outputs/recalib_central_row.csv` (the medoid post-#93 member used as the model base and geometry start point).
 
@@ -272,12 +285,26 @@ Production driver: `run_vnext_production.sh`. Equilibrium sensitivity: `run_A6eq
 
 ## 7. Validation & results
 
+### Component hindcasts vs observations
+
+![Per-component SLR hindcasts for BRICK-AM and BRICK 2.0 against the reconciled observations](fig_component_hindcast.png)
+
+**Figure.** Each SLR component from **BRICK-AM** (copper) and **BRICK 2.0** (teal) — posterior median and 5–95 % band — against the reconciled observations (black, 90 % band), all on the common FaIR-mean SSP2-4.5 forcing (cm rel. 1995–2005), generated by `julia/diag_component_hindcast.jl` + `python/plot_component_hindcast.py`. The updates show up directly:
+
+- **Glaciers (GSIC)** and **Antarctic (AIS)**: BRICK 2.0 **diverges in the pre-satellite era** — it was constrained only by glaciers 1961–2003 and IMBIE AIS 1992–2017, so before those windows it is unconstrained (flat/wrong glacier melt; AIS off by several cm at 1900). BRICK-AM tracks the full 1900-to-present record: the **Mengel glacier** reproduces the early-20th-century committed melt, and the **extended + freed Antarctic calibration** recovers the historical AIS.
+- **Greenland** and **thermal expansion** are well captured by both.
+- **Total GMSL**: BRICK-AM stays within the observation band across the record; BRICK 2.0 runs low early, inheriting its glacier/AIS gaps.
+
+(BRICK 2.0 is driven on the *same external forcing* as BRICK-AM, not its native SNEASY forcing, so the pre-window divergence reflects the absence of a historical constraint on those components, not a bug — which is precisely the gap the observation update closes.)
+
+### Convergence, decomposition, and projections
+
 **Convergence** — `outputs/mcmc/slr_convergence_extA108.csv` (the SLR deliverable, 4 chains):
 
 | Horizon | R̂ | ESS |
 |---|---|---|
 | 2100 | **1.0035** | 1578 |
-| 2150 | **1.0025** | 1588 |
+| 2150 | **1.0024** | 1588 |
 
 Acceptance ≈ 0.238; several nuisance AIS-geometry marginals never reach R̂ < 1.05 (a compensating ridge), but the **projected SLR is converged** — acceptance is gated on the deliverable, not the nuisance marginals.
 
@@ -288,11 +315,11 @@ Acceptance ≈ 0.238; several nuisance AIS-geometry marginals never reach R̂ < 
 | 2100 | 70.3 | −1.1 | −3.1 | **−17.4** | 48.7 |
 | 2150 | 136.2 | −4.4 | +0.5 | **−24.0** | 108.4 |
 
-The amplification is ≈ 85 % of the level change; it moves BRICK-AM from above-AR6 to **mid the AR6 likely range** (0.40–0.60 m @2100).
+The amplification is **≈ 81 % of the level change @2100, ≈ 86 % @2150** (it bites harder as more of the ensemble crosses the DAIS threshold); it moves BRICK-AM from above-AR6 to **mid the AR6 likely range** (0.40–0.60 m @2100).
 
 **Pulse decomposition** (`outputs/decomposition_pulse.csv`, MAGICC ensemble + sub-annual patch, ×10⁻³ cm/GtCO₂ @2100): the amplification (−) and recalibration (+) terms partially cancel, so the per-tonne response barely moves (median 21.4 → 16.6, mean 21.4 → 18.4). The sub-annual patch (§5) is the single largest element of the pulse *median* (+15.8), negligible for the level and the mean. See the cross-model artifact's decomposition panel.
 
-> **Projection-file caveat.** The regenerated `outputs/proj_ssps_mengel_ext_*` and `postpred_ext_*` files are the **pre-amplification** `ext` posterior (a ≈ equilibrium; SSP2-4.5 @2100 p50 = 75.4 cm). The BRICK-AM (a = 1.08) result lives in the decomposition CSVs and the cross-model artifact (@2100 median 48.7 cm), **not** in a regenerated SSP/postpred file. Regenerate `posterior_predictive_ext.jl` with `--tag=extA108` if a fresh BRICK-AM postpred is needed.
+> **Projection-file caveat (important — read before regenerating anything).** `project_ssps_2100_mengel.jl` and `posterior_predictive_ext.jl` are **frozen 18-parameter drivers**: they hold the amplification at the get_model equilibrium default (1.196) and the DAIS geometry / fast-dynamics at the medoid, **regardless of `--tag`**. So `proj_ssps_mengel_ext_*` / `postpred_ext_*` sit at equilibrium-level SLR (SSP2-4.5 @2100 p50 = 75.4 cm) even though the `ext` chain itself sampled a ≈ 0.95 — the driver simply never applies the sampled amplification. **Do not** rerun them with `--tag=extA108` expecting BRICK-AM: you would get a *hybrid* (extA108's 18 params + medoid geometry + equilibrium amp), not BRICK-AM. The only faithful full-39-parameter BRICK-AM driver is **`julia/diag_decomposition.jl`** (it applies the amplification, geometry, and fast-dynamics), which is why the BRICK-AM projection (SSP2-4.5 @2100 median **48.7 cm**) lives in the decomposition CSVs and the cross-model artifact, not in a postpred file. A proper BRICK-AM SSP/postpred driver would need its `PHYS` list widened to include `ais_gmst_amp` (→ coef/intercept), the 7 geometry columns (via the `T_on` reconstruction), and `λ/γ/κ`.
 
 ---
 
@@ -320,7 +347,7 @@ The amplification is ≈ 85 % of the level change; it moves BRICK-AM from above-
 | `julia/postprocess_mcmc_ext.jl`, `julia/diag_slr_convergence_by_chain.jl` | accept-on-SLR + convergence |
 | `julia/patches/antarctic_icesheet_smoothed_trigger.jl.txt` | canonical sub-annual DAIS patch |
 | `julia/diag_decomposition.jl`, `julia/diag_decomposition_pulse.jl`, `julia/diag_subannual_pulse_means.jl` | decomposition + pulse diagnostics |
-| `run_vnext_production.sh`, `run_A6eq_sensitivity.sh` | production drivers |
+| `julia/run_vnext_production.sh`, `julia/run_A6eq_sensitivity.sh` | production drivers |
 | `FaIRtoFrEDI/build_fair_mean_v145.py` | forcing build |
 
 ## Appendix B — Notes & write-ups (all in `SLR-RFF-BRICK/notes/`)
