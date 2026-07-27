@@ -8,21 +8,21 @@
 
 ## 0. Orientation
 
-**BRICK-AM** ("Antarctic-Mengel") is our fully-updated MimiBRICK sea-level model. It differs from **BRICK 2.0** (Tony Wong's obs-driven MimiBRICK v2.0.0 port) in four changes — one structural, three to the calibration — plus one numerical update:
+**BRICK-AM** ("Antarctic-Mengel") is our fully-updated MimiBRICK sea-level model. It differs from **BRICK 2.0** (the MimiBRICK v2.0.0 port) in four changes — one structural, three to the calibration — plus one numerical update:
 
 | # | Update | In BRICK 2.0? | In v2.1.0? | Category |
 |---|---|---|---|---|
 | 1 | **Mengel-2016 glacier emulator** (replaces the Wigley–Raper single-reservoir glacier) | No | **Yes** | model structure |
 | 2 | **Observation updates** (Dangendorf/STAR total; GRACE-FO + GlaMBIE extensions; proper σ; dropped point terms) | No | No — v2.1.0 keeps Church–White | calibration data |
 | 3 | **GMST→Antarctic amplification** `a`: equilibrium 1.196 → CMIP6 secant **1.08 ± 0.15** | No | No | calibration prior |
-| 4 | **Antarctic fit freedoms** — free `ais_ocean_temperature₀` (Wong fixes 0.72); joint paleo-covariance geometry prior; Rignot 2019 SMB anchor (detailed in §3) | No | No | calibration structure |
+| 4 | **Antarctic fit freedoms** — free `ais_ocean_temperature₀` (BRICK 2.0 fixes 0.72); joint paleo-covariance geometry prior; Rignot 2019 SMB anchor (detailed in §3) | No | No | calibration structure |
 | — | **Sub-annual DAIS crossing** (numerical update; only affects the pulse marginal) | No | No | numerics |
 
-The name emphasizes update 3: a decomposition (§7) attributes **≈ 81 % of the level change @2100** (rising to ≈ 86 % @2150) to the amplification, with the glacier and observation updates far smaller. Relative to Tony Wong's official **v2.1.0** (which already carries the Mengel glacier), the BRICK-AM changes are **updates 2–4** — see below.
+The name emphasizes update 3: a decomposition (§7) attributes **≈ 81 % of the level change @2100** (rising to ≈ 86 % @2150) to the amplification, with the glacier and observation updates far smaller. Relative to **v2.1.0** (which already carries the Mengel glacier), the BRICK-AM changes are **updates 2–4** — see below.
 
 ### BRICK 2.1 and the baseline
 
-Tony Wong's official MimiBRICK releases (confirmed by Tony) are: **v2.0.0 = Wigley–Raper glaciers + Church–White GMSL**; **v2.1.0 = Mengel glaciers + Church–White GMSL**. So the Mengel glacier (**update 1**) is **shared with the official v2.1.0**, and relative to v2.1.0 the BRICK-AM changes are **updates 2–4** (plus the sub-annual update). A large part of update 2 is precisely the total-GMSL observation swap **Church–White → Dangendorf 2024 + NOAA STAR** (§3), alongside the GRACE-FO / GlaMBIE component extensions and the Frederikse-ensemble σ.
+The MimiBRICK releases are: **v2.0.0 = Wigley–Raper glaciers + Church–White GMSL**; **v2.1.0 = Mengel glaciers + Church–White GMSL**. So the Mengel glacier (**update 1**) is **shared with the official v2.1.0**, and relative to v2.1.0 the BRICK-AM changes are **updates 2–4** (plus the sub-annual update). A large part of update 2 is precisely the total-GMSL observation swap **Church–White → Dangendorf 2024 + NOAA STAR** (§3), alongside the GRACE-FO / GlaMBIE component extensions and the Frederikse-ensemble σ.
 
 This document is written from the **BRICK 2.0** baseline (all three updates visible) because that is where our development actually happened and what the decomposition (§7) measures. Two implementation facts to keep straight:
 
@@ -34,11 +34,10 @@ This document is written from the **BRICK 2.0** baseline (all three updates visi
 | Repo / branch or env | MimiBRICK build | Role |
 |---|---|---|
 | `SLR-RFF-BRICK` branch `brick-v1.2-vehicle` | v1.2.1 (`RtLCv`) | pre-2.0, EPA-rescission-comparable arm |
-| `SLR-RFF-BRICK` branch `main` | v2.0.0 (`edplP`) | **BRICK 2.0** = Wong obs-driven port |
-| `SLR-RFF-BRICK` branch `brick-mengel` (archived, tag `archive/brick-mengel-2026-06-17`) | v2.0.0 | frozen prior Mengel/study-driver work |
+| `SLR-RFF-BRICK` branch `main` | v2.0.0 (`edplP`) | **BRICK 2.0** obs-driven port |
 | `SLR-RFF-BRICK` branch **`brick-mengel-vnext`** (env `julia_v2`) | v2.0.0 + local Mengel | **BRICK-AM** (this document) |
 
-The three `v2.0.0` rows all load the **same MimiBRICK package** (v2.0.0, depot slot `edplP`); they differ only in the SLR-RFF-BRICK branch's *local* code. `main` is the clean Wong port (no local Mengel) = **BRICK 2.0**; `brick-mengel` (archived, frozen 2026-06-17) was an earlier working branch that added the Mengel component plus the MAGICC-comparison and CO₂/CH₄-pulse study drivers; `brick-mengel-vnext` adds the Mengel component and the recalibration = **BRICK-AM**. So "v2.0.0" is the package; the branch name is what distinguishes the model.
+Both `v2.0.0` rows load the **same MimiBRICK package** (v2.0.0, depot slot `edplP`); they differ only in the SLR-RFF-BRICK branch's *local* code. `main` is the clean **BRICK 2.0** port (no local Mengel); `brick-mengel-vnext` adds the Mengel component and the recalibration = **BRICK-AM**. So "v2.0.0" is the package; the branch name is what distinguishes the model.
 
 > **Reproducibility flag.** `brick-mengel-vnext` is **local-only** (not pushed to origin). Anyone reproducing this needs the working tree, not a clone of origin.
 
@@ -65,7 +64,7 @@ The harmonized splice (not the RCMIP-native `fair_mean_*_ssp245.csv`) is used de
 
 ## 2. Update 1 — The Mengel-2016 glacier emulator
 
-*(Tony's official v2.1.0 already ships this component; relative to v2.1.0 our only difference is the posterior — we calibrate the same emulator against the extended targets of §3, not Church–White. The equations below are a confirmation of the shared structure, not a new proposal.)*
+*(v2.1.0 already ships this component; relative to v2.1.0 our only difference is the posterior — we calibrate the same emulator against the extended targets of §3, not Church–White. The equations below are a confirmation of the shared structure, not a new proposal.)*
 
 **What changed.** BRICK 2.0's glacier & small-ice-cap (GSIC) component is the Wigley–Raper single-reservoir model. BRICK-AM replaces it with the **Mengel et al. 2016** (PNAS 113:2597) two-timescale emulator, driven by total GMST, with a Little-Ice-Age (LIA) disequilibrium baseline.
 
@@ -146,9 +145,9 @@ BRICK 2.0's obs files live in the MimiBRICK package (`edplP/src/calibration/`); 
 
 ### Antarctic parameters freed to fit the record  (Update 4)
 
-To track the extended Antarctic record, BRICK-AM opens one new Antarctic degree of freedom, re-expresses the Antarctic priors, and adds one Antarctic likelihood term. **BRICK 2.0 already samples the DAIS geometry and the λ/γ/κ fast-dynamics** (verified: those columns all vary in `parameters_subsample_brick.csv`); **the one Antarctic parameter Wong holds fixed is `ais_ocean_temperature₀`.** The full before/after (the amplification, Update 3, is repeated here for a complete Antarctic picture):
+To track the extended Antarctic record, BRICK-AM opens one new Antarctic degree of freedom, re-expresses the Antarctic priors, and adds one Antarctic likelihood term. **BRICK 2.0 already samples the DAIS geometry and the λ/γ/κ fast-dynamics** (verified: those columns all vary in `parameters_subsample_brick.csv`); **the one Antarctic parameter BRICK 2.0 holds fixed is `ais_ocean_temperature₀`.** The full before/after (the amplification, Update 3, is repeated here for a complete Antarctic picture):
 
-| Parameter | BRICK 2.0 / Wong (SNEASY-BRICK) | BRICK-AM |
+| Parameter | BRICK 2.0 (SNEASY-BRICK) | BRICK-AM |
 |---|---|---|
 | `ais_ocean_temperature₀` | **fixed 0.72 °C** (`SNEASY_BRICK.jl:91`) | **sampled**, N(0.72, 0.50) on [0.50, 2.00] |
 | GMST→AIS amplification (Update 3) | **fixed 1.196** (coef 0.8365) | **sampled**, N(1.08, 0.15) → posterior ≈ 1.07 |
@@ -156,8 +155,8 @@ To track the extended Antarctic record, BRICK-AM opens one new Antarctic degree 
 | fast dynamics (`λ, γ, κ`) | sampled | sampled under the same paleo prior |
 | Antarctic SMB (`β_total`) | **no constraint** | **Rignot 2019 anchor** 1863 ± 118 Gt/yr |
 
-- **`ais_ocean_temperature₀`** is the direct lever on the Antarctic sub-shelf ocean forcing — freeing it lets the model bend toward the observed AIS mass loss instead of the fixed default, and is the one genuinely new *freedom* vs Wong (the amplification is the other Wong-fixed parameter BRICK-AM frees, covered as Update 3 in §4).
-- The **geometry** + **fast-dynamics** move under an explicit **joint paleo-covariance prior** (`outputs/paleo_geo_prior_ton.csv`, from the DAISfastdyn paleo ensemble; standardized, cond ≈ 2.75), which carries the paleo correlation structure and identifies the runoff onset via the coordinate `T_on = −h₀/c` — a re-expression of priors Wong already samples, not a new freedom.
+- **`ais_ocean_temperature₀`** is the direct lever on the Antarctic sub-shelf ocean forcing — freeing it lets the model bend toward the observed AIS mass loss instead of the fixed default, and is the one genuinely new *freedom* vs BRICK 2.0 (the amplification is the other BRICK 2.0-fixed parameter BRICK-AM frees, covered as Update 3 in §4).
+- The **geometry** + **fast-dynamics** move under an explicit **joint paleo-covariance prior** (`outputs/paleo_geo_prior_ton.csv`, from the DAISfastdyn paleo ensemble; standardized, cond ≈ 2.75), which carries the paleo correlation structure and identifies the runoff onset via the coordinate `T_on = −h₀/c` — a re-expression of priors BRICK 2.0 already samples, not a new freedom.
 - The **Rignot 2019 SMB likelihood anchor** pins the modern Antarctic surface mass balance and breaks the SMB-vs-discharge input–output degeneracy.
 
 > The DAIS geometry block stays **weakly identified** even so: several geometry parameters do not reach R̂ < 1.05 individually (a compensating ridge), which is why acceptance is gated on the projected-SLR deliverable (§7), not on the nuisance marginals.
@@ -211,7 +210,7 @@ Decoding the constants (`calibrate_mcmc_ext.jl:164-171, :182`):
 
 The 1.196 slope is an **equilibrium/paleo** relationship; the DAIS fast-dynamics threshold is crossed on a **transient** trajectory. Reading the Antarctic-amplification **secant** (Antarctic ÷ global cumulative warming since pre-industrial) from **34 CMIP6 models in the land frame** (AIS `tas`), it settles to **≈ 1.06–1.10** at the DAIS-crossing-relevant 2.5–3.5 K of global warming. BRICK-AM adopts **N(1.08, 0.15)**. The full argument — including why the phase-2 prior's 0.95 was too low (it came from Xie 2022's PAI1 trend-ratio computed in an all-cells rather than land frame) — is the authoritative write-up:
 
-> **`notes/writeup_2026-07-22_a6_amplification_for_tony.{md,pdf}`** — the primary justification document (sent to Tony Wong).
+> **`notes/writeup_2026-07-22_a6_amplification_for_tony.{md,pdf}`** — the primary justification document.
 
 Supporting CMIP6 diagnostics: `python/diag_pai_cmip6_time.py`, `diag_pai_deck.py` (idealized 1pctCO2 / abrupt-4×CO2), `diag_pai_ohc.py`, `diag_pai_denominator.py`, `diag_pai_mask_sensitivity.py`.
 
@@ -231,7 +230,7 @@ The **BRICK-AM value N(1.08, 0.15)** is applied via CLI override (`--amp-mu=1.08
 
 ## 5. The sub-annual DAIS crossing (numerical update)
 
-This is a **numerical update**, not a change to the model physics or the calibration — and it matters **only for the pulse marginal**, not for levels or the calibration. It does not imply the annual-step version is "wrong"; it removes a discretization artifact that only surfaces in the finite-difference pulse.
+This is a **numerical update**, not a change to the model physics or the calibration — and it matters **only for the pulse marginal**, not for levels or the calibration.
 
 **The problem.** DAIS disintegration triggers when Antarctic temperature crosses `temperature_threshold`. The stock integrator flips this on **whole-year** boundaries, so a 10 GtCO₂ pulse that advances a draw's crossing by a *fraction* of a year is rounded to zero for most draws — biasing the finite-difference pulse **median** ~3–4× low (it collapses to the non-AIS floor) while the mean is only mildly affected.
 
@@ -355,7 +354,7 @@ The amplification is **≈ 81 % of the level change @2100, ≈ 86 % @2150** (it 
 | File | Covers |
 |---|---|
 | `writeup_2026-07-22_a6_amplification_for_tony.{md,pdf}` | **the amplification justification** (primary) |
-| `writeup_2026-07-21_brick_fm_vs_wong_brick.md` | BRICK-FM vs Wong BRICK comparison |
+| `writeup_2026-07-21_brick_fm_vs_wong_brick.md` | BRICK-FM vs BRICK 2.0 comparison |
 | `handoff_2026-07-22_a108_recalibration.md` | the a=1.08 cold-start recipe + patch procedure |
 | `handoff_2026-07-20_phase2_calibration_wired.md`, `prerun_summary_2026-07-20_phase2_calibration.md` | phase-2 (A2/A4/A5/A6) wiring |
 | `handoff_2026-07-19_brick_fm_improvement_roadmap.md`, `handoff_2026-07-18_brick_mengel_vnext.md` | roadmap + v-next kickoff |
