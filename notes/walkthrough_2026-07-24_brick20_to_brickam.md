@@ -90,9 +90,9 @@ gsic_sea_level[t] = S_fast[t] + S_slow[t]
 
 Parameters (`:37-44`): `gic_a` (asymptotic max SLE from the LIA state, m), `gic_b` (T-sensitivity, 1/K), `gic_T_lia` (LIA equilibrium temp, °C < 0), `gic_f` (fast-mode fraction), `gic_tau_fast` / `gic_tau_slow` (yr), `gic_sl0` (init m).
 
-> **Important:** the six Mengel parameters are **freed and sampled in the MCMC** (§6), not fixed. Their "central" values are the MCMC **prior means** (`calibrate_mcmc_ext.jl:146-151`: `gic_a` N(0.45,0.08); `gic_b` N(0.52,0.25); `gic_T_lia` N(−0.45,0.30); `gic_f` N(0.50,0.30); `gic_tau_fast` N(40,30); `gic_tau_slow` N(300,200)) and the medoid init `(a=0.45,b=0.52,T_lia=−0.45,f=0.5,τ_fast=40,τ_slow=250)`. The offline python fit `outputs/mengel_glacier_2tau_params.csv` **railed at multiple bounds** and was used only to set prior ranges — do not treat it as the deployed parameterization. (That offline railing is a *separate* thing from the MCMC posterior below.)
+> **Important:** the six Mengel parameters are **freed and sampled in the MCMC** (§6), not fixed. Their "central" values are the MCMC **prior means** (`calibrate_mcmc_ext.jl:146-151`: `gic_a` N(0.45,0.08); `gic_b` N(0.52,0.25); `gic_T_lia` N(−0.45,0.30); `gic_f` N(0.50,0.30); `gic_tau_fast` N(40,30); `gic_tau_slow` N(300,200)) and the medoid init `(a=0.45,b=0.52,T_lia=−0.45,f=0.5,τ_fast=40,τ_slow=250)`. The offline python fit `outputs/mengel_glacier_2tau_params.csv` was used only to set prior ranges — do not treat it as the deployed parameterization.
 
-**Posterior constraint (extA108).** The deployed posterior is genuinely informed by the 1900–2023 gsic series, **not** prior-dominated. Every glacier parameter tightens **1.5–6× over its prior** (posterior/prior σ-ratio 0.16–0.69) and every posterior mean moves off the prior — e.g. `gic_b` 0.52→0.86, `gic_T_lia` −0.45→−0.95, `gic_tau_fast` 40→58. The committed-melt combination that actually drives the contribution, `S_eq(0)=a·(1−exp(b·T_lia))`, is pinned to **0.20 ± 0.02 m SLE (12 %)**. **One prior *was* too tight:** `gic_T_lia` rails against its −1.0 °C lower bound (29 % of the posterior within 2 % of it, 5th percentile *at* the bound) — the data prefers a colder LIA equilibrium than the prior allows (`gic_a`/`gic_b` graze their bounds mildly, ~8–9 %). The posterior correlations are weak (strongest `gic_a`↔`gic_f` = −0.61), so this is a genuine pull toward colder, not a degenerate ridge sliding into a corner. **Candidate follow-up:** widen the `gic_T_lia` lower bound (−1.5/−2.0) and re-check whether the posterior moves interior and the fit improves — the well-constrained `S_eq(0)` combination is unaffected regardless.
+**Total ice and the parameter posterior.** There is **no external total-glacier-ice constraint** in the likelihood — the total ice available to melt, `gic_a`, is pinned only by its prior and the 1900–2023 gsic time series. The prior *range* is inventory-informed (lower bound 0.32 m SLE = Farinotti 2019 present-day glaciers; mean ~0.45 m ≈ Mengel 2016's published median across 19 glacier-model fits), but no inventory total enters as *data*. The committed-melt combination `S_eq(0)=a·(1−exp(b·T_lia))` is well constrained at **0.20 ± 0.02 m SLE**. **One prior bound *is* too tight:** `gic_T_lia` rails against its −1.0 °C floor (29 % of the posterior at/near the bound; 5th percentile *at* it) — the data prefers a colder LIA equilibrium than the prior allows. Candidate follow-up: widen the `gic_T_lia` lower bound (−1.5/−2.0) and re-check whether the posterior moves interior and the fit improves; the well-constrained `S_eq(0)` is unaffected regardless.
 
 ---
 
@@ -112,14 +112,42 @@ Built by **`python/prep_recalib_targets_ext.py`**. Series are 1900–2026, cm re
 | **Steric / TE** | Frederikse 2020 | NOAA NCEI 0–2000 m thermosteric → 2025 | `raw/noaa_thermosteric_w0-2000m_yearly.dat` |
 | **Total** | **Dangendorf 2024** GMSL reconstruction (1900–2021) | NOAA STAR altimetry → 2024 | `data/observations/dangendorf2024_gmsl_annual.csv` + `nasa_gmsl_annual.csv` |
 
-Two provenance points worth stating explicitly:
+Two points worth stating explicitly:
 
-- **The "total" is genuinely Dangendorf-independent, not Frederikse.** The 2026-07-20 M3 rework (`prep_recalib_targets_ext.py:156-166`, commit `cda7ca2`) replaced an earlier total that was secretly the Frederikse sum with the real Dangendorf 2024 reconstruction. (This closed the "Dangendorf/Frederikse mislabel" issue.)
+- **The total is a genuinely independent Dangendorf 2024 reconstruction**, not the sum of the modeled components (`prep_recalib_targets_ext.py:156-166`).
 - **IMBIE 2023 (Otosaka et al.) is an independent cross-check only**, never fed to the fit (`prep_recalib_targets_ext.py:18-19, :258-271`).
+
+**For comparison — BRICK 2.0 calibration observations.** BRICK 2.0 fits the standalone-BRICK likelihood: total GMSL plus four component series (temperature and OHC are *forcing inputs*, not fitted). It uses the package-bundled obs, extended only to the mid-2010s:
+
+| Component | BRICK 2.0 | BRICK-AM |
+|---|---|---|
+| Total GMSL | Church & White (CSIRO recon 2015) | Dangendorf 2024 + NOAA STAR → 2024 |
+| AIS | IMBIE 1992–2017 | Frederikse + GRACE-FO → 2026 |
+| GIS | Frederikse 2020 (post-#93) | Frederikse + GRACE-FO → 2026 |
+| GSIC | glaciers / small-ice-caps 1961–2003 | Frederikse + GlaMBIE → 2023 |
+| Steric / TE | IPCC trend windows (1971–2009, 1993–2009) | Frederikse + NOAA NCEI → 2025 |
+| Temperature (forcing) | HadCRUT4 | FaIR-mean GMST |
+| OHC (forcing) | Gouretski 3000 m | FaIR-mean OHC |
+
+BRICK 2.0's obs files live in the MimiBRICK package (`edplP/src/calibration/`); the post-PR#93 Greenland term is Frederikse 2020, replacing the earlier IMBIE-based merge. The headline shift is total GMSL **Church–White → Dangendorf 2024 + NOAA STAR**, plus swapping each component's short/older series for the reconciled, extended-to-present product above.
 
 **Uncertainty σ** — from the **Frederikse 2020 5000-member weighted component ensemble** `data/observations/raw/frederikse2020_GMSL_ensembles.nc` (redistributed in Dangendorf's Zenodo 10621070). `load_ensemble_sigma()` (`:94-113`) re-references each member to 1995–2005, takes the per-year weighted sd, and writes `value ∓ 1.645·σ` into `_lo`/`_hi` so the Julia likelihood recovers σ exactly via `ϵband=(hi−lo)/(2·1.645)` (`calibrate_mcmc_ext.jl:97`). The Dangendorf total borrows the ensemble **GMSL** sd because Dangendorf's own per-year SE is corrupted upstream.
 
-**Rignot 2019 SMB anchor** — enters not as a target column but as a likelihood term (§4, A5): grounded-AIS SMB 2098 ± 133 Gt/yr, area-scaled ×(10.92/12.295) = 0.888 → **1863.4 ± 118.1 Gt/yr** (`calibrate_mcmc_ext.jl:230-245`).
+**Rignot 2019 SMB anchor** — enters not as a target column but as a likelihood term: grounded-AIS SMB 2098 ± 133 Gt/yr, area-scaled ×(10.92/12.295) = 0.888 → **1863.4 ± 118.1 Gt/yr** (`calibrate_mcmc_ext.jl:230-245`).
+
+### Antarctic parameters freed to fit the record
+
+To track the extended Antarctic record, BRICK-AM opens Antarctic degrees of freedom and adds one Antarctic likelihood term. **BRICK 2.0 already samples the full DAIS geometry and fast-dynamics block** (verified: all 15 Antarctic parameters vary in `parameters_subsample_brick.csv`), so the genuinely *new* freedoms **relative to Wong** are two:
+
+- **`ais_ocean_temperature₀`** — Wong hard-fixes this at 0.72 °C (`SNEASY_BRICK.jl:91`); BRICK-AM samples it, prior N(0.72, 0.50) on [0.50, 2.00] (`calibrate_mcmc_ext.jl:137`). It is a direct lever on the Antarctic sub-shelf ocean forcing, so freeing it lets the model bend toward the observed AIS mass loss instead of the fixed default.
+- **The GMST→Antarctic amplification** (§4) — Wong hard-codes the equilibrium slope 1.196; BRICK-AM frees it (prior N(1.08, 0.15)).
+
+BRICK-AM also changes *how* the already-sampled Antarctic parameters are constrained:
+
+- The DAIS **geometry block** (`ais_μ`, `bedheight₀`, `slope`, `iceflow₀`, `precipitation₀`, the runoff-onset `T_on`, `c`) and the **fast-dynamics** parameters (`λ`, `ais_γ`, `ais_κ`) are sampled under an explicit **joint paleo-covariance prior** (`outputs/paleo_geo_prior_ton.csv`, built from the DAISfastdyn paleo ensemble; standardized, cond ≈ 2.75), which carries the paleo correlation structure and identifies the runoff onset via the coordinate `T_on = −h₀/c`.
+- A **Rignot 2019 SMB likelihood anchor** (data sources above) pins the modern Antarctic surface mass balance and breaks the SMB-vs-discharge input–output degeneracy.
+
+> The DAIS geometry block stays **weakly identified** even so: several geometry parameters do not reach R̂ < 1.05 individually (a compensating ridge), which is why acceptance is gated on the projected-SLR deliverable (§7), not on the nuisance marginals.
 
 ### Justification
 
@@ -127,7 +155,7 @@ Extending the AIS/GSIC series to the present lets the **time series** constrain 
 
 > "DROPS the IMBIE dAIS(92-17) + Dyurgerov dGSIC(61-03) Gaussian point terms: the extended AIS/GSIC time-series now constrain the modern rate directly … avoids double-weighting" — `calibrate_mcmc_ext.jl:22-24`
 
-The phase-2 wiring (targets M3 + likelihood A2/A4/A5) is documented in `notes/handoff_2026-07-20_phase2_calibration_wired.md` and `prerun_summary_2026-07-20_phase2_calibration.md`.
+The target reconciliation and the likelihood are documented in `notes/handoff_2026-07-20_phase2_calibration_wired.md` and `prerun_summary_2026-07-20_phase2_calibration.md`.
 
 ### Code
 
