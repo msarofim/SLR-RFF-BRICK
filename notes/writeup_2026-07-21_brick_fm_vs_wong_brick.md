@@ -6,6 +6,14 @@
 suitable as raw material for the MimiBRICK-FM repo docs and the CH4/CO2 pulse-paper
 methods section.*
 
+> **Status (updated 2026-07-24).** This is the 2026-07-21 snapshot. Since then the model was
+> **renamed BRICK-FM → BRICK-AM** and the A6 amplification prior **revised N(0.95, 0.10) →
+> N(1.08, 0.15)** (posterior ≈ 1.07); the artifact's two BRICK rows are now **BRICK-AM (a = 1.08)**
+> and **BRICK 2.0** (not "transient"/"equilibrium"), and the sub-annual DAIS crossing (§6) is now
+> used for the artifact's pulse column. The §5 projection numbers are the earlier **a ≈ 0.95**
+> posterior (BRICK-AM's SSP2-4.5 @2100 median is ~48.7 cm, not 39.7). **Canonical current
+> reference:** `notes/walkthrough_2026-07-24_brick20_to_brickam.{md,pdf}`.
+
 ---
 
 ## 1. Baseline and lineage
@@ -90,12 +98,14 @@ AR(1)/band likelihood): five substantive changes, labels per the acceptance READ
 
 | item | change | vs Wong |
 |---|---|---|
-| A2 | DAIS fast-dynamics λ, ais_γ, ais_κ **freed** under paleo marginals | fixed in Wong's calibration |
-| A4 | runoff line reparameterized to its identified direction (T_on = −h0/c) | h0/c sampled raw (posterior r = 0.9997 degeneracy) |
+| A2 | DAIS fast-dynamics λ, ais_γ, ais_κ **freed** under paleo marginals | Wong samples these too — freed vs the project's phase-1 baseline (fixed at medoid) |
+| A4 | runoff line reparameterized to its identified direction (T_on = −h0/c) | Wong samples h0, c raw too; the reparameterization is ours (kills the r ≈ 0.9997 ridge) |
 | A5 | **SMB likelihood** on β_total vs area-scaled Rignot 2019 (1863 ± 118 Gt/yr); posterior 1860 Gt/yr (medoid was 2389) | no SMB constraint |
 | A6 | GMST→AIS-temperature map freed with **CMIP6-transient prior N(0.95, 0.10)** (PAI1/Xie 2022); posterior amp ≈ 0.94 | hard-coded equilibrium 1.196 = 1/0.8365 |
-| geom | 7 DAIS geometry params freed under a **joint paleo-covariance prior** (Strategy B, standardized MvNormal; cond(C) = 2.75 vs raw 5.2e13) | fixed at prior medoid |
-| obs | total-SLR term = **real Dangendorf 2024** (1900–2021, extracted from the Fields nc after two data bugs) + **NOAA STAR** (2022–2024); component-band σ from the Frederikse **5000-member ensemble** | Church & White total |
+| geom | 7 DAIS geometry params under a **joint paleo-covariance prior** (Strategy B, standardized MvNormal; cond(C) = 2.75 vs raw 5.2e13) | Wong samples these too — freed vs the phase-1 baseline (fixed at medoid), now under an explicit joint prior |
+| obs | total-SLR term = **real Dangendorf 2024** (1900–2021) + **NOAA STAR** (2022–2024); component-band σ from the Frederikse **5000-member ensemble** | Church & White total |
+
+**On the "vs Wong" column.** Verified against Wong's posterior `data/MimiBRICK/parameters_subsample_brick.csv`: BRICK 2.0 **samples the full DAIS geometry and λ/γ/κ block** (all 15 Antarctic parameters vary). So A2, A4, and geom are refinements to parameters Wong *already* frees — the "fixed at medoid" baseline is the project's own **phase-1 28-parameter calibration** (`julia/calibrate_mcmc.jl`), not Wong. The genuine changes **vs Wong** are A5 (SMB anchor), A6 (amplification), obs (total-SLR product), and — in phase 1 — freeing `ais_ocean_temperature₀`, which Wong hard-fixes at 0.72 °C (`SNEASY_BRICK.jl:91`).
 
 The Dangendorf item fixed two stacked data bugs: the repo's "Dangendorf" CSV was
 actually Frederikse's own GMSL (redistributed inside Dangendorf's Zenodo record), and
