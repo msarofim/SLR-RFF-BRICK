@@ -10,23 +10,23 @@
 
 **BRICK-AM** ("**A**ntarctic-**M**engel") is our fully-updated MimiBRICK sea-level model. It differs from **BRICK 2.0** (Tony Wong's obs-driven MimiBRICK v2.0.0 port) in three substantive ways plus one numerical correction:
 
-| # | Update | In BRICK 2.0? | Category |
-|---|---|---|---|
-| 1 | **Mengel-2016 glacier emulator** (replaces the Wigley–Raper single-reservoir glacier) | No | model structure |
-| 2 | **Observation updates** (extended, reconciled targets; proper σ; dropped point terms) | No | calibration data |
-| 3 | **GMST→Antarctic amplification** `a`: equilibrium 1.196 → CMIP6 secant **1.08 ± 0.15** | No | calibration prior |
-| — | **Sub-annual DAIS crossing correction** (a numerical fix, only affects the pulse marginal) | No | numerics |
+| # | Update | In BRICK 2.0? | In v2.1.0? | Category |
+|---|---|---|---|---|
+| 1 | **Mengel-2016 glacier emulator** (replaces the Wigley–Raper single-reservoir glacier) | No | **Yes** | model structure |
+| 2 | **Observation updates** (Dangendorf/STAR total; GRACE-FO + GlaMBIE extensions; proper σ; dropped point terms) | No | No — v2.1.0 keeps Church–White | calibration data |
+| 3 | **GMST→Antarctic amplification** `a`: equilibrium 1.196 → CMIP6 secant **1.08 ± 0.15** | No | No | calibration prior |
+| — | **Sub-annual DAIS crossing correction** (a numerical fix, only affects the pulse marginal) | No | No | numerics |
 
-The name emphasizes update 3: a decomposition (§7) attributes **~85 % of the level change** from BRICK 2.0 to the amplification, with the glacier and observation updates far smaller.
+The name emphasizes update 3: a decomposition (§7) attributes **~85 % of the level change** from BRICK 2.0 to the amplification, with the glacier and observation updates far smaller. Relative to Tony Wong's official **v2.1.0** (which already carries the Mengel glacier), the BRICK-AM changes are **updates 2 and 3** — see below.
 
-### A note on "BRICK 2.1"
+### BRICK 2.1 and the baseline
 
-There is **no MimiBRICK v2.1.0** in this project's environment, and this document does **not** assume one. Our development lineage is **stock MimiBRICK v2.0.0 + a local Mengel component** swapped in at runtime (§3a). Points to be precise about:
+Tony Wong's official MimiBRICK releases (confirmed by Tony) are: **v2.0.0 = Wigley–Raper glaciers + Church–White GMSL**; **v2.1.0 = Mengel glaciers + Church–White GMSL**. So the Mengel glacier (**update 1**) is **shared with the official v2.1.0**, and relative to v2.1.0 the BRICK-AM changes are **updates 2 and 3** (plus the numerical fix). A large part of update 2 is precisely the total-GMSL observation swap **Church–White → Dangendorf 2024 + NOAA STAR** (§3), alongside the GRACE-FO / GlaMBIE component extensions and the Frederikse-ensemble σ.
 
-- The `v2.1` git tag in `SLR-RFF-BRICK` is **our own repo release tag**, unrelated to the MimiBRICK package version.
-- The Julia depot pins three MimiBRICK builds — `1.0.1`, the `v1.2.1` tag, and the `v2.0.0` tag (slot `edplP`) — **no 2.1.0**. The BRICK-AM calibration runs under the `julia_v2` environment (= MimiBRICK v2.0.0).
-- The Mengel model is canonicalized in the separate **MimiBRICK-FM** repo, not in an upstream Wong release.
-- **Unverified:** whether an official Tony-Wong MimiBRICK v2.1.0 exists upstream with Mengel integrated cannot be confirmed from this repo — check `raddleverse/MimiBRICK.jl` directly. **If** such a release exists and already carries Mengel, then relative to it only updates 2 and 3 (and the numerical fix) are new; update 1 is shared. The rest of this document is written from the BRICK 2.0 baseline, which is unambiguous.
+This document is written from the **BRICK 2.0** baseline (all three updates visible) because that is where our development actually happened and what the decomposition (§7) measures. Two implementation facts to keep straight:
+
+- Our BRICK-AM is built on **stock MimiBRICK v2.0.0 + a *local* Mengel component** (`julia/glaciers_mengel_component.jl`) swapped in at runtime (§3a) — we did not build on the packaged v2.1.0. The Mengel *structure* matches v2.1.0; our *posterior* differs, because we calibrate the same emulator against different targets (the extended Dangendorf / GRACE-FO / GlaMBIE set, not Church–White).
+- The `v2.1` git tag in `SLR-RFF-BRICK` is **our own repo release tag**, unrelated to the MimiBRICK package version. The Julia depot pins `1.0.1`, the `v1.2.1` tag, and the `v2.0.0` tag (slot `edplP`); the BRICK-AM calibration runs under the `julia_v2` environment (= v2.0.0). The Mengel model is also canonicalized in the separate **MimiBRICK-FM** repo.
 
 ### BRICK version map
 
@@ -90,7 +90,9 @@ gsic_sea_level[t] = S_fast[t] + S_slow[t]
 
 Parameters (`:37-44`): `gic_a` (asymptotic max SLE from the LIA state, m), `gic_b` (T-sensitivity, 1/K), `gic_T_lia` (LIA equilibrium temp, °C < 0), `gic_f` (fast-mode fraction), `gic_tau_fast` / `gic_tau_slow` (yr), `gic_sl0` (init m).
 
-> **Important:** the six Mengel parameters are **freed and sampled in the MCMC** (§6), not fixed. Their "central" values are the MCMC **prior means** (`calibrate_mcmc_ext.jl:146-151`: `gic_a` N(0.45,0.08); `gic_b` N(0.52,0.25); `gic_T_lia` N(−0.45,0.30); `gic_f` N(0.50,0.30); `gic_tau_fast` N(40,30); `gic_tau_slow` N(300,200)) and the medoid init `(a=0.45,b=0.52,T_lia=−0.45,f=0.5,τ_fast=40,τ_slow=250)`. The offline python fit `outputs/mengel_glacier_2tau_params.csv` **railed at multiple bounds** and was used only to set prior ranges — do not treat it as the deployed parameterization.
+> **Important:** the six Mengel parameters are **freed and sampled in the MCMC** (§6), not fixed. Their "central" values are the MCMC **prior means** (`calibrate_mcmc_ext.jl:146-151`: `gic_a` N(0.45,0.08); `gic_b` N(0.52,0.25); `gic_T_lia` N(−0.45,0.30); `gic_f` N(0.50,0.30); `gic_tau_fast` N(40,30); `gic_tau_slow` N(300,200)) and the medoid init `(a=0.45,b=0.52,T_lia=−0.45,f=0.5,τ_fast=40,τ_slow=250)`. The offline python fit `outputs/mengel_glacier_2tau_params.csv` **railed at multiple bounds** and was used only to set prior ranges — do not treat it as the deployed parameterization. (That offline railing is a *separate* thing from the MCMC posterior below.)
+
+**Posterior constraint (extA108).** The deployed posterior is genuinely informed by the 1900–2023 gsic series, **not** prior-dominated. Every glacier parameter tightens **1.5–6× over its prior** (posterior/prior σ-ratio 0.16–0.69) and every posterior mean moves off the prior — e.g. `gic_b` 0.52→0.86, `gic_T_lia` −0.45→−0.95, `gic_tau_fast` 40→58. The committed-melt combination that actually drives the contribution, `S_eq(0)=a·(1−exp(b·T_lia))`, is pinned to **0.20 ± 0.02 m SLE (12 %)**. **One prior *was* too tight:** `gic_T_lia` rails against its −1.0 °C lower bound (29 % of the posterior within 2 % of it, 5th percentile *at* the bound) — the data prefers a colder LIA equilibrium than the prior allows (`gic_a`/`gic_b` graze their bounds mildly, ~8–9 %). The posterior correlations are weak (strongest `gic_a`↔`gic_f` = −0.61), so this is a genuine pull toward colder, not a degenerate ridge sliding into a corner. **Candidate follow-up:** widen the `gic_T_lia` lower bound (−1.5/−2.0) and re-check whether the posterior moves interior and the fit improves — the well-constrained `S_eq(0)` combination is unaffected regardless.
 
 ---
 
