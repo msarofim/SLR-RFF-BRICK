@@ -60,11 +60,30 @@ the ordered index; then a **local** proposal mixes well:
 
 Take **several `z`-steps per `θ`-step** (e.g. 3) if the `z`-autocorrelation is high — `z`-steps are cheap.
 
-**Clustering fallback (only if `z` still mixes poorly):** k-means the M members into **K ≈ 50–100**
-representative forcing trajectories (on standardized GMST+OHC curves, or on `(ECS, aerosol)`), sample
-`z` over K. Fewer states → easier mixing; K≈75 keeps ~all of the forcing spread. This is the "clustering"
-option — a mixing aid, not a necessity. (A continuous variant — replace `z` with 2–3 forcing PCs + an
-emulator, all-continuous RAM — is a possible v2 but adds emulator error; start with the exact ensemble.)
+**Clustering fallback:** k-means the M members into **K ≈ 50–100** representative forcing trajectories
+(on standardized GMST+OHC curves, or on `(ECS, aerosol)`), sample `z` over K. Fewer states → easier
+mixing; K≈75 keeps ~all of the forcing spread.
+
+> **Mac smoke-test finding (2026-07-24, `calibrate_mcmc_joint.jl … --fair-ensemble`, 4k iters).** The
+> full path **runs**, but the discrete single-site MH z-step **mixes very poorly**: z-acceptance ≈ 0.08,
+> ~1 distinct member retained. Cause is exactly the strong θ↔z coupling this whole exercise is about —
+> at a fixed θ the SLR likelihood is sharply peaked in `z` (the same signal as the reweighting's
+> ESS=1), so any forcing-changing z-move is rejected unless θ moves *with* it, which single-site MH
+> can't do. **So the discrete-index approach is not viable as-is.** Two ways forward, in order of
+> preference:
+> 1. **Continuous reparameterization (now the recommended production path, not a v2):** replace `z`
+>    with 2–3 continuous **forcing summaries** (ECS/TCR/aerosol, or the leading GMST+OHC PCs), map them
+>    to a forcing trajectory by interpolating the ensemble (or a light emulator), and sample
+>    `(θ_BRICK, forcing-params)` **jointly in one RAM**. RAM then *adapts the joint covariance* — it
+>    learns the te_α↔OHC ridge and proposes along it, which is precisely what the discrete step cannot.
+>    Cost: a small forcing interpolator/emulator (the "response-surface" option) + validating it.
+> 2. **Joint (z, θ) proposals:** propose a small `z`-move (±1 in OHC order) *together* with a
+>    deterministic compensating θ-shift (e.g. `te_α ← te_α · OHC_z/OHC_z′`) inside one MH accept, so the
+>    pair stays on the ridge. Keeps the discrete ensemble (no emulator) but needs hand-derived
+>    compensations per coupled parameter — brittle.
+>
+> The recovery test (M=1, bit-identical to ext) and the whole BRICK setup are unaffected — this is
+> purely about how the forcing dimension is sampled.
 
 ## 4. Cost & why Torch
 
