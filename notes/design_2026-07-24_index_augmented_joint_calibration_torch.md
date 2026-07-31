@@ -85,6 +85,27 @@ mixing; K≈75 keeps ~all of the forcing spread.
 > The recovery test (M=1, bit-identical to ext) and the whole BRICK setup are unaffected — this is
 > purely about how the forcing dimension is sampled.
 
+> **Continuous variant BUILT + VALIDATED on Mac (2026-07-31, `calibrate_mcmc_joint_cont.jl`, commit
+> 4e10689).** Option-1 is implemented: the discrete `z` is replaced by **K=3 forcing PC scores** over the
+> 841-member ensemble (basis `outputs/forcing_pca_basis.csv`, builder `python/precompute_forcing_pca.py`;
+> `GMST=gmean+gs·Σ a_k Gload_k`, `OHC=omean+os·Σ a_k Oload_k`), sampled jointly with the 39 BRICK params
+> in **one RAM** (dim 42). Results, seed 2026:
+> - **Recovery bit-identical:** `--recover` (scores excluded) vs `calibrate_mcmc_ext.jl`, max|diff| = 0
+>   over 41 cols; `a=0` reconstructs `fair_mean` to 1e-15. So the reparam provably reduces to the current.
+> - **Full continuous (6k iter, amp N(1.08,0.15)): the scores MIX and carry the designed coupling.**
+>   Posterior score sd 6.1 / 1.0 / 0.31 (each within ~1 prior-sd of 0; net OHC@2018 shift −1.7 vs
+>   ensemble sd ~9–10 — stays inside the FaIR envelope), and **corr(te_α, fpc2) = −0.62, corr(te_α, fpc3)
+>   = −0.57** — the te_α↔OHC ridge the mean-forcing calibration drops, now sampled. PC2/PC3 (not PC1)
+>   carry the historical-OHC loading, exactly as the basis predicts.
+> - **Caveat:** RAM acceptance was still climbing (0.02→0.07) at 6k on this short 42-dim smoke — under-
+>   adapted. Production needs the longer Torch chains (adaptation + burn-in), and the posterior score sd
+>   above is a smoke read, not the converged width. This is the sole open item before scaling.
+>
+> **So the production path is settled: run `calibrate_mcmc_joint_cont.jl` (not the discrete `_joint.jl`)
+> as the SLURM array below.** The `z`-specific machinery in §3/§5/§6 (OHC-sorted proposal, clustering
+> fallback, `z accept` logging) is superseded by the continuous block — RAM handles the forcing scores as
+> just 3 more coordinates; there is no separate `z` step to tune or log.
+
 ## 4. Cost & why Torch
 
 - BRICK run ≈ 1–2 ms; 2 runs/iter × 2M iters ≈ 1.7 h/chain of pure BRICK, ~**4–8 h/chain** with
