@@ -3,6 +3,29 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-01 — Joint FaIR/BRICK forcing calibration: BUILT, TESTED, **REJECTED**
+
+- **Tried and abandoned.** Question (Marcus 2026-07-24): does jointly calibrating BRICK params + the
+  FaIR forcing (recovering the `te_α↔OHC` coupling the mean-forcing shortcut drops) beat the shortcut?
+- **Built:** `julia/diag_coupling_reweight.jl` (step-1 proxy), `calibrate_mcmc_joint.jl` (discrete index,
+  mixed poorly), `calibrate_mcmc_joint_cont.jl` (continuous K=3 forcing-PCA reparam; basis
+  `outputs/forcing_pca_basis.csv` via `python/precompute_forcing_pca.py`), `project_slr_joint_cont.jl`
+  (deliverable R̂), `project_slr_coupling_test.jl`. Torch run: 4×4M chains, acceptance 0.237, recovery
+  bit-identical to ext, deliverable total-SLR R̂ 1.001 (converged).
+- **Result 1 — coupling real:** pooled corr(te_α, fpc2/fpc3) = −0.52/−0.61, te_α R̂ 1.004.
+- **Result 2 — coupling IMMATERIAL to total SLR:** shuffle test tightens the TE component ~29 % but only
+  −2.3 %/−0.55 cm on total @2100 (AIS tipping tail dominates).
+- **Result 3 — freeing the forcing is HARMFUL:** the SLR likelihood re-inferred the forcing, drifting
+  fpc1 (the ±0.68 °C ECS/atmosphere mode) to bend GMST **−0.28 °C @2100** (→ −0.48 @2300) vs the ensemble
+  mean; this (not the coupling, not the params) drove the entire joint-vs-extA108 gap (−7.7/−45/−122 cm).
+  The joint's lower SLR is low for the wrong reason.
+- **Reason for rejection (Marcus 2026-08-01):** SLR must not re-infer atmospheric variables (forcing/ECS)
+  that other data constrain far better; PROPAGATE FaIR uncertainty forward, don't RE-CALIBRATE it. OHC-only
+  freedom also rejected (double-count vs FaIR's OHC constraint + te_α↔OHC degeneracy → low-value).
+- **Canonical BRICK-AM stays `calibrate_mcmc_ext.jl` (mean forcing) + forward-propagated FaIR uncertainty.**
+  Joint drivers retained, banner-marked DIAGNOSTIC/REJECTED. Full record:
+  `notes/negresult_2026-08-01_joint_forcing_calibration.md`, memory `project_fair_brick_coupling_joint_calib`.
+
 ## [unreleased] — 2026-07-22 (late 3) — OHC time-component test: CONFIRMED (second-order)
 
 - `python/reduce_cmip6_ohc_deck.py` (zostoga = thermosteric SLR, OHC proxy, 17 DECK models)

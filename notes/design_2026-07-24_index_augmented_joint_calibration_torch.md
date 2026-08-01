@@ -3,6 +3,14 @@
 *M. Sarofim · NYU Marron Institute · 2026-07-24. Design for a one-way joint calibration that
 couples the BRICK SLR parameters to the pre-run FaIR ensemble, run on NYU Torch (not the Mac).*
 
+> **⛔ VERDICT (2026-08-01): this design was built, run on Torch, and REJECTED for production.** The
+> continuous variant converged and recovered the coupling, but (1) the te_α↔OHC coupling is immaterial
+> to the total-SLR bands, and (2) making the forcing free lets the SLR likelihood RE-INFER the forcing
+> (bends GMST ~0.28 °C cool @2100), which it must not do. Canonical BRICK-AM = the mean-forcing
+> `calibrate_mcmc_ext.jl` + forward-propagated FaIR uncertainty. Full record:
+> `notes/negresult_2026-08-01_joint_forcing_calibration.md`. The text below is the original design,
+> retained for provenance.
+
 ---
 
 ## 1. Why, in one paragraph

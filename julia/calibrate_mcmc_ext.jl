@@ -1,6 +1,12 @@
 ## ============================================================================
 ## calibrate_mcmc_ext.jl  —  BRICK-Mengel MCMC on the EXTENDED (post-2018) targets
 ##
+## ★ CANONICAL BRICK-AM calibration (mean forcing). Forcing is a FIXED prior — NOT a free parameter;
+## propagate FaIR forcing uncertainty FORWARD (LHS-10k pairing), never re-calibrate it against SLR.
+## The joint free-forcing alternative (calibrate_mcmc_joint*.jl) was tested and REJECTED 2026-08-01
+## (SLR must not re-infer the forcing; the coupling is immaterial to total SLR). See
+## notes/negresult_2026-08-01_joint_forcing_calibration.md.
+##
 ## Variant of calibrate_mcmc.jl that re-fits the SAME 28-param posterior against
 ## recalibration targets EXTENDED past Frederikse 2020's 2018 end with modern
 ## reconciled products (GRACE-FO AIS/GIS ->2025, GlaMBIE GSIC ->2023, NOAA NCEI

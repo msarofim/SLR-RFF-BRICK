@@ -1,4 +1,7 @@
 ## ============================================================================
+## ‼ STATUS 2026-08-01: DIAGNOSTIC (supports the REJECTED joint free-forcing calibration) — see
+## notes/negresult_2026-08-01_joint_forcing_calibration.md. Canonical BRICK-AM = mean-forcing
+## calibrate_mcmc_ext.jl + forward-propagated FaIR uncertainty.
 ## project_slr_joint_cont.jl — forward-project total SLR on the continuous-joint posterior draws,
 ## then split-R̂ the DELIVERABLE (total SLR @ 2050/2100/2150/2300 + components @2100).
 ##

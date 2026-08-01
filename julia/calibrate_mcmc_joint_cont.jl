@@ -1,6 +1,13 @@
 ## ============================================================================
 ## calibrate_mcmc_joint_cont.jl — CONTINUOUS joint FaIR/BRICK calibration
 ##
+## ‼ STATUS 2026-08-01: DIAGNOSTIC / REJECTED FOR PRODUCTION — see
+## notes/negresult_2026-08-01_joint_forcing_calibration.md. The joint free-forcing approach was tested
+## and rejected: the SLR likelihood RE-INFERS the forcing (bends GMST ~0.28°C cool @2100 via fpc1, the
+## ECS/atmosphere mode) — SLR must not do that — and the te_α↔OHC coupling it recovers is immaterial to
+## the total-SLR bands (shuffle test −0.55 cm @2100). Canonical BRICK-AM = mean-forcing calibrate_mcmc_ext.jl
+## + forward-propagated FaIR uncertainty. Kept only as the diagnostic that established this.
+##
 ## Supersedes the discrete-index calibrate_mcmc_joint.jl (whose single-site MH z-step mixed
 ## poorly — the θ↔z coupling made the SLR likelihood too peaked in z at fixed θ). Here the FaIR
 ## forcing dimension is CONTINUOUS: NPC=3 principal-component scores over the 841-member ensemble

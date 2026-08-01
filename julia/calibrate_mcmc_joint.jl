@@ -1,5 +1,9 @@
 ## ============================================================================
 ## calibrate_mcmc_joint.jl — index-augmented JOINT FaIR/BRICK calibration
+## ‼ STATUS 2026-08-01: DIAGNOSTIC / REJECTED FOR PRODUCTION (discrete-index precursor to
+## calibrate_mcmc_joint_cont.jl; z mixed poorly). The whole joint free-forcing approach was rejected —
+## SLR must not re-infer the forcing. Canonical BRICK-AM = mean-forcing calibrate_mcmc_ext.jl.
+## See notes/negresult_2026-08-01_joint_forcing_calibration.md.
 ##
 ## Extends calibrate_mcmc_ext.jl: instead of conditioning BRICK on the single FaIR-MEAN
 ## forcing, sample a FaIR member index z ∈ {1..M} over the pre-run FaIR ensemble jointly

@@ -1,5 +1,8 @@
 ## ============================================================================
 ## project_slr_coupling_test.jl — "does the te_α↔OHC coupling change the reported SLR bands?"
+## ‼ STATUS 2026-08-01: DIAGNOSTIC (the test that REJECTED the joint free-forcing calibration). Answer:
+## the coupling is immaterial to total SLR; freeing the forcing is harmful (SLR re-infers it). Canonical
+## BRICK-AM = mean-forcing calibrate_mcmc_ext.jl. See notes/negresult_2026-08-01_joint_forcing_calibration.md.
 ##
 ## Three forward-projections of total SLR (each draw run through BRICK to 2300, identical machinery):
 ##   COUPLED   — joint posterior draws paired as sampled (θ_i, fpc_i).            [= the joint bands]
