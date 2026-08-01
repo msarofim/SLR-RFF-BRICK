@@ -16,8 +16,12 @@ commit log; recent entries are explicit.
   ESS/N=1.000 (exactly uniform at the calibration climate); (2) coupling signature — corr(weight, te_α)
   vs config OHC@2018 = −0.46 (hottest configs −0.156, coldest +0.113: hot ocean-heat down-weights high-te_α
   draws, TE∝te_α·OHC); (3) gentle, c=0.145 → mean conditional ESS/N=0.60 (≈ Tony's c≈0.2 for GMSL-only).
-- Recovers the te_α↔OHC coupling in PROPAGATION, forcing marginal untouched. Next: scale to full 841
-  configs on Torch + apply to projected SLR bands (weighted quantiles to 2300).
+- Recovers the te_α↔OHC coupling in PROPAGATION, forcing marginal untouched.
+- **Launch code built** (`julia/weight_and_project_brick_fair.jl` + `slurm/weight_and_project_brick_fair.sbatch`):
+  one BRICK run per (config, draw) to 2300 yields BOTH ℓ^FB (weight) AND future SLR (bands); reports
+  COUPLED (conditional-weighted, config equal) vs INDEPENDENT (equal) bands at 2050/2100/2150/2300 + comps.
+  Local smoke (5 cfg × 100 draws) runs clean. **HELD for Monday launch (fairshare recovery)** — full run
+  = DRAWS=2000 CONFIGS=all (~1.68M runs to 2300, fits cpu_short 4h). Run the 5-cfg smoke on Torch first.
 
 ## [unreleased] — 2026-08-01 — Joint FaIR/BRICK forcing calibration: BUILT, TESTED, **REJECTED**
 
