@@ -202,6 +202,10 @@ if OVERDISPERSE
     isfinite(logposterior(θ0))||error("--overdisperse: start has non-finite logposterior")
 end
 
+# Guard the sampling+output so this file can be `include`d for its setup (FREE list, param-apply
+# logic, forcing basis) by downstream scripts — e.g. project_slr_joint_cont.jl — WITHOUT running the
+# 4M-iter chain. Behaviour when run directly as a script is unchanged (PROGRAM_FILE == this file).
+if abspath(PROGRAM_FILE) == @__FILE__
 Random.seed!(SEED); mkpath(joinpath(REPO,"outputs/mcmc"))
 @time chain, accept, covout, lp = RAM_sample(logposterior, θ0, cov0, N_ITER; opt_α=0.234, output_log_probability_x=true)
 CSV.write(joinpath(REPO,"outputs/mcmc/adapted_cov_$(TAG)_seed$(SEED).csv"), DataFrame(covout, :auto))
@@ -216,3 +220,4 @@ if USE_FPC
             cor(te,burn[:,NK+2]), cor(te,burn[:,NK+3]))
 end
 println("Wrote outputs/mcmc/chain_$(TAG)_seed$(SEED)_n$(N_ITER).csv")
+end
