@@ -444,6 +444,10 @@ else
     println("logpost(θ0) = ", round(logposterior(θ0), digits=2), "  (start = MAP; common across seeds -> R̂ is ANTI-CONSERVATIVE)")
 end
 
+# Guard the sampling+output so this canonical calibrator can be `include`d for its setup (FREE list,
+# θ→BRICK apply logic, the dang-channel AR(1) likelihood, mean forcing) by forward-propagation tooling
+# (e.g. weight_brick_conditional_fair.jl) WITHOUT running the chain. Run-as-script behaviour unchanged.
+if abspath(PROGRAM_FILE) == @__FILE__
 Random.seed!(SEED)
 @time chain, accept, covout, lp = RAM_sample(logposterior, θ0, cov0, N_ITER; opt_α=0.234, output_log_probability_x=true)
 mkpath(joinpath(REPO,"outputs/mcmc"))
@@ -462,3 +466,4 @@ df = DataFrame(chain, pn); df.log_post = lp; df.accept_rate = fill(accept, nrow(
 CSV.write(joinpath(REPO,"outputs/mcmc/chain_$(TAG)_seed$(SEED)_n$(N_ITER).csv"), df)
 println("\nWrote outputs/mcmc/chain_$(TAG)_seed$(SEED)_n$(N_ITER).csv  (accept $(round(accept,digits=3)))")
 println("Production = large N_ITER × ≥4 seeds, then postprocess_mcmc.jl with the chain_$(TAG)_* glob.")
+end  # PROGRAM_FILE guard

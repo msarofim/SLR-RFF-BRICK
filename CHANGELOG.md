@@ -3,6 +3,22 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-01 (late) — Conditional Wong-weighting: BRICK-AM draws consistent with FaIR
+
+- **`julia/weight_brick_conditional_fair.jl`** — the ENDORSED forward-propagation consistency method (the
+  correct alternative to the rejected joint calibration). For each FaIR config *k* it reweights the BRICK-AM
+  posterior draws by historical-SLR consistency, `w_{i|k} ∝ exp[c·(ℓ^FB_{ik} − ℓ^B_i)]`, **normalized WITHIN
+  each config** so `p(config)` stays uniform — every FaIR parameter set stays equally likely; SLR never
+  touches the forcing marginal. `ℓ^B` at the mean (calibration) forcing so the ratio isolates the pairing
+  and cancels the intrinsic fit (mitigates the Mengel double-count). Reuses `calibrate_mcmc_ext.jl` (now
+  behind a `PROGRAM_FILE` guard) for the FREE list + θ→BRICK apply + dang-channel AR(1) likelihood.
+- **Validated locally (60 configs × 400 draws):** (1) mean-forcing recovery — max|ℓ^FB−ℓ^B|=0, weight
+  ESS/N=1.000 (exactly uniform at the calibration climate); (2) coupling signature — corr(weight, te_α)
+  vs config OHC@2018 = −0.46 (hottest configs −0.156, coldest +0.113: hot ocean-heat down-weights high-te_α
+  draws, TE∝te_α·OHC); (3) gentle, c=0.145 → mean conditional ESS/N=0.60 (≈ Tony's c≈0.2 for GMSL-only).
+- Recovers the te_α↔OHC coupling in PROPAGATION, forcing marginal untouched. Next: scale to full 841
+  configs on Torch + apply to projected SLR bands (weighted quantiles to 2300).
+
 ## [unreleased] — 2026-08-01 — Joint FaIR/BRICK forcing calibration: BUILT, TESTED, **REJECTED**
 
 - **Tried and abandoned.** Question (Marcus 2026-07-24): does jointly calibrating BRICK params + the
