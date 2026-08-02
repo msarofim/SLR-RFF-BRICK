@@ -3,6 +3,32 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-02 — Paired pulse arm + fast engine; production run locally (Torch now optional)
+
+- **`weight_and_project_brick_fair.jl`: paired 10-GtCO2 pulse arm** (`--pulse=off|on|zero`,
+  `--basis=`, `--pulse-gt=`, `--out-tag=`). Pulse runs in-process on the same model instance right
+  after each baseline run (exact per-(config,draw) pairing); per-pair Δ dumped
+  (`wong_cond_pulse_pairs*.csv`, 16 base + 16 Δ metrics — too big to commit; all statistics
+  recomputable in post). Defaults reproduce the staged driver BYTE-FOR-BYTE (verified).
+- **Fast engine (`--engine=fast`, default): ~30× — and it saved the Monday launch.** Discovery: any
+  `update_param!` triggers a ~14 ms Mimi rebuild of the 451-yr model per run (integration is ~2 ms;
+  `diag_wpf_runtime_breakdown.jl`), so the staged full run was ~12–14 h, not the estimated 1–2.5 h —
+  it would have TIMED OUT on cpu_short. Fast path mutates the built instance in place (shared-backing
+  SubArray views for forcing; ScalarModelParameter boxes for scalars; `run(mi)` — Mimi 1.6.0 internals)
+  → 0.88–1.3 ms/run. Bit-identical to legacy: per-component, full-smoke CSVs, and the 24k-pair
+  60cfg×400draw pulse run all byte-compare clean; `--engine=legacy` kept for A/B.
+- **Five-test battery PASS** on the pulse arm (`python/check_pulse_battery_wpf.py`; companion ±10/+20
+  GtCO2 FaIR arms dumped to `curv_wide` via `dump_fair_wide_curv.py`): zero-pulse Δ=0.0 exactly;
+  sign-flip −1.000..−1.005 and doubling 0.998–1.000 on linear metrics; AIS shows genuine convex
+  tipping asymmetry (dbl 1.06@2100 → 1.25@2300); cross-process bit-reproducibility; first-principles
+  vs the 7.7e-3 cm/GtCO2 artifact reference (flag: 60-cfg preview medians ~4.7e-3 — reconcile on the
+  full run before quoting).
+- **60cfg×400draw preview:** conditional weighting leaves the pulse-marginal MEDIAN ~unmoved (+0.2%)
+  and trims the AIS-tipping upper tail (95th −1.7% @2100, −4% @2300) — the coupling bites in the tail.
+- **Full production launched LOCALLY** (2000 draws × 841 configs × 2 arms, stochastic + `_nonoise_flatsolar`
+  bases, ~2–2.5 h) — zero cluster time; Torch demoted to optional cross-check (determinism verified).
+  Handoff addendum: `notes/handoff_2026-08-01_brick_fair_consistency.md`.
+
 ## [unreleased] — 2026-08-01 (late) — Conditional Wong-weighting: BRICK-AM draws consistent with FaIR
 
 - **`julia/weight_brick_conditional_fair.jl`** — the ENDORSED forward-propagation consistency method (the
