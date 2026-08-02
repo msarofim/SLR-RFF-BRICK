@@ -144,31 +144,57 @@ COUPLED vs INDEPENDENT on the pulse marginal mirrors the levels finding: **media
 (Δtotal@2100 4.72e-3 vs 4.71e-3 cm/GtCO2, +0.2%), **AIS-tipping upper tail trimmed** (95th −1.7% @2100,
 −4.0% @2300). The coupling's bite on the marginal is in the tail, not the center.
 
-## 5. Full production — run locally (in flight at handoff-write time)
+## 5. Full production — COMPLETE (run locally 2026-08-02; 4 runs × 3.36M BRICK runs, ~45 min each)
 
-Two runs, sequential, ~2–2.5 h total (`DRAWS=2000 CONFIGS=all PULSE=on`):
-1. **Canonical stochastic** basis → canonical output paths (this IS the Monday deliverable: levels
-   bands + weights + stochastic pulse marginals in one pass).
-2. **`_nonoise_flatsolar`** basis → suffixed paths (the driver-comparable basis for pulse MEDIANS per
-   the 2026-07-24 finding; stochastic medians are noise/solar-suppressed).
+Four runs at `DRAWS=2000 CONFIGS=all PULSE=on`: {stochastic, `_nonoise_flatsolar`} × {annual-step,
+sub-annual patch}. Depot patch applied from `julia/patches/antarctic_icesheet_smoothed_trigger.jl.txt`
+with backup, RESTORED + verified pristine after (`chmod u-w`). Zero-pulse gate re-passed under patch.
 
-**Open flags for interpretation (do NOT silently resolve):**
-- The 60-cfg preview's INDEP median (4.7e-3) sits below the artifact's 7.7e-3 (1:1-paired, 841 cfgs,
-  sub-annual). Candidates: 60-cfg OHC-range subset oversamples extremes; cross-product vs 1:1; check
-  against the full-run number before quoting either.
-- Pulse MEANS from this driver are annual-step ⇒ biased low ~2–3× (quantization bias); the sub-annual
-  depot patch is NOT applied (pristine depot, matches Torch + the calibration). Medians ≈ patch-free.
-  For the COUPLED-vs-INDEP comparison the bias largely cancels (hits both weightings), but do not quote
-  absolute means without the patch.
-- Basis choice for the headline pulse marginal (stochastic vs `_nonoise_flatsolar`) is Marcus's call.
+**RESULT 1 — levels (canonical, unpatched, `wong_cond_slr_bands.csv`): coupling immaterial, as
+predicted.** total@2100 COUPLED 46.68 [33.51, 104.66] vs INDEP 46.38 [33.18, 105.01] cm — Δmedian
++0.30 cm, width −0.68 cm; @2300 Δmed +3.15 on 247 cm (+1.3%). TE medians move 0.00. INDEP median
+matches the extA108 pipeline (~46–47). **The independent pipeline stands for levels.**
+
+**RESULT 2 — pulse marginal: the coupling is immaterial on the marginal TOO.** Coupled/indep ratio of
+the pulse MEAN = 1.007 @2100, 1.003 @2150, 1.009/0.999 @2300; TE component 1.000; tip-advance fraction
+23.31%→23.41%. Same on both bases. The handoff conjecture ("te_α↔OHC may matter more on the marginal")
+is ANSWERED: it does not — the within-config te_α tilt (gentle, ESS/N 0.6) ~cancels in pulse−base.
+**Clean negative result: the existing independent machinery is adequate for levels AND marginals;
+conditional weighting = a documented consistency check, not a pipeline change. Unblocks the CH4/CO2
+comparison on the current pipeline.**
+
+**RESULT 3 — the sub-annual patch is REQUIRED for quotable pulse numbers, and the MEAN is the robust
+statistic.** Annual-step medians are quantization-suppressed (total@2100 4.65e-3 vs sub-annual mean
+1.47e-2; @2150 median 6.96e-3 vs 1.65e-2 — the AIS tip channel is frozen by annual stepping).
+Validation: my sub-annual cross-product MEAN @2100 = **1.469e-2 cm/GtCO2 vs the artifact's 1:1-paired
+1.498e-2 (within 2%)**, and it is driver-basis-consistent to 0.05% (stochastic 1.4695e-2 vs
+deterministic 1.4688e-2). The MEDIAN is **sample-fragile**: ~23% (stoch) / 33% (nnfs) of pairs sit in
+the tip-advance mode, so the 50th percentile falls in the bimodal density gap — early-chain-841 draws
+give 1.06e-2 vs full-ensemble 5.8e-3 @2100 with IDENTICAL tip fractions (23.4/23.3%) and IDENTICAL
+smooth-mode medians (4.67/4.65e-3). The artifact's 7.74e-3 median is the same fragility, not a physics
+disagreement. **Quote: sub-annual mean, or mode-decomposed (smooth-mode median + tip fraction +
+tip-mode mass, Lemoine-Traeger style). Never the bare pooled median.**
+
+**RESULT 4 — the patch is NOT perfectly a historical no-op under per-config forcing** (new, minor):
+ℓ^B bit-identical (exact no-op at mean forcing ✓) but ℓ^FB differs for 401/1,682,000 pairs (0.02%) —
+45 low-threshold draws × hot configs cross DAIS pre-2026. Immaterial to bands/weights (c 0.1258 vs
+retuned; max|Δw| 1.5e-3); canonical weights = the UNPATCHED run (calibration parity).
+
+**Files** (`outputs/mcmc/`): canonical levels+weights = `wong_cond_slr_bands.csv` +
+`wong_cond_weights_full.csv` (unpatched). Quotable pulse = `wong_cond_pulse_{bands,pairs}_subann.csv`
+and `..._nonoise_flatsolar_subann.csv`. Annual-step pulse files re-tagged `_annualstep` (quantization
+DIAGNOSTIC — do not quote medians/means from them). `pairs` + `weights_full` files are 0.1–1.1 GB —
+NOT committed; small bands CSVs committed.
 
 ## 6. Monday — revised
 
-- **The deliverable no longer needs Torch.** If the local runs completed (check
-  `outputs/mcmc/wong_cond_slr_bands.csv` + `wong_cond_pulse_bands{,_nonoise_flatsolar}.csv`), interpret
-  and move on. Optional Torch cross-check (determinism was verified locally, so expect identical): `git
-  pull` on /scratch first, then the staged smoke + full with `ENGINE` default fast — revised walls:
-  bands-only ≈ 0.5–1.5 h, PULSE=on ≈ 1–3 h (still request 6 h headroom; legacy engine would NOT fit).
-- Next analysis steps: full-run COUPLED-vs-INDEP interpretation (levels + pulse); reconcile the §5
-  median flag; then the CH4 arm (needs a CH4 pulse wide-file pair — FaIR run + `dump_fair_wide_curv.py`,
-  same driver takes it via `--basis`/`--pulse-gt` relabeled per-Tg) and SC-SLR weighting application.
+- **Done: the full deliverable (levels + pulse, both bases, both integrators) ran locally. No Torch
+  run is needed.** Optional cross-check only (determinism verified; expect bit-identical): `git pull`
+  on /scratch, staged smoke, then full with fast engine — bands-only ≈ 0.5–1.5 h, PULSE=on ≈ 1–3 h
+  (request 6 h; the LEGACY engine would NOT fit ANY window — 12 h+). Note Torch's pristine depot
+  means Torch can only reproduce the `_annualstep` pulse variants without applying the patch there.
+- Next: Marcus interprets RESULTS 1–2 (method closes as a documented consistency check); then the
+  **CH4 arm** — generate the FaIR CH4 pulse pair (`fairtable7_v145_pulse.py --specie ch4
+  --pulse-mtch4 1.0` ± `--no-noise --flat-solar-after 2025`, then `dump_fair_wide_curv.py
+  --out-suffix _ch4bio...`), run this driver with `--basis=_ch4bio... --pulse-gt=1` (units then
+  per-Tg — relabel before quoting), sub-annual patch on for the quotable arm. Then SC-SLR.

@@ -25,9 +25,19 @@ commit log; recent entries are explicit.
   full run before quoting).
 - **60cfg×400draw preview:** conditional weighting leaves the pulse-marginal MEDIAN ~unmoved (+0.2%)
   and trims the AIS-tipping upper tail (95th −1.7% @2100, −4% @2300) — the coupling bites in the tail.
-- **Full production launched LOCALLY** (2000 draws × 841 configs × 2 arms, stochastic + `_nonoise_flatsolar`
-  bases, ~2–2.5 h) — zero cluster time; Torch demoted to optional cross-check (determinism verified).
-  Handoff addendum: `notes/handoff_2026-08-01_brick_fair_consistency.md`.
+- **Full production COMPLETE, locally** (4 runs × 3.36M BRICK runs: {stochastic, nonoise_flatsolar} ×
+  {annual, sub-annual patch}; depot patched from `julia/patches/` with backup and RESTORED pristine).
+  **Headline results:** (1) levels — coupling immaterial (total@2100 COUPLED 46.68 vs INDEP 46.38 cm,
+  width −0.68); (2) **pulse marginal — coupling ALSO immaterial** (mean ratio 1.003–1.009, TE 1.000,
+  tip fraction 23.31→23.41%): the "may matter more on the marginal" conjecture is answered NO — the
+  independent pipeline stands everywhere, unblocking the CH4/CO2 comparison; (3) sub-annual patch
+  REQUIRED for quotable pulse numbers — cross-product mean @2100 1.469e-2 cm/GtCO2 reproduces the
+  artifact's 1.498e-2 within 2%, driver-basis-consistent to 0.05%; the pooled MEDIAN is sample-fragile
+  (23–33% tip-advance mode puts the 50th pctile in the bimodal density gap — quote mean or
+  mode-decomposition, never bare pooled median); (4) the patch is a perfect no-op at mean forcing
+  (ℓ^B bit-identical) but 401/1.68M hot-config × low-threshold pairs cross DAIS pre-2026 (ℓ^FB
+  changes; immaterial). Annual-step pulse outputs re-tagged `_annualstep` (diagnostic only). Torch
+  demoted to optional cross-check.
 
 ## [unreleased] — 2026-08-01 (late) — Conditional Wong-weighting: BRICK-AM draws consistent with FaIR
 
