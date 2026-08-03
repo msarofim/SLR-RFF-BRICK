@@ -75,13 +75,17 @@ const OHCS = 0.1
 const YP0, YP1 = 1850, 2300
 const YRS2 = collect(YP0:YP1); ty(y)=findfirst(==(y),YRS2)
 const IB2 = [ty(y) for y in 1995:2005]
-const HORIZONS = [2050, 2100, 2150, 2300]
-const COMPYRS = [2100, 2150, 2300]
+# Horizons. The PAPER's key variable is YEARS SINCE THE EMISSION PULSE (Marcus: 100 and 150 yr from the
+# emission point, consistent with the GWP-100 framing), NOT calendar 2100/2150 — with a 2030 pulse that
+# is 2130 / 2180, and the 120-yr point Marcus cites is 2150. Defaults keep the original four for
+# continuity with prior runs; pass --horizons= / --comp-years= to add the pulse-relative years.
+const HORIZONS = [parse(Int,s) for s in split(_arg("--horizons=", "2050,2100,2150,2300"), ",")]
+const COMPYRS  = [parse(Int,s) for s in split(_arg("--comp-years=", "2100,2150,2300"), ",")]
 # first 8 labels/order = the staged schema (bit-compatible when --pulse=off writes only these)
 const LABELS = vcat(["total@$y" for y in HORIZONS],
                     ["$(c)@$(y)" for y in COMPYRS for c in ("ais","gsic","gis","te")])
 const NMET = length(LABELS)                              # 16
-const NOUT = PULSEMODE=="off" ? 8 : NMET                 # staged run keeps its 8-row bands schema
+const NOUT = PULSEMODE=="off" ? min(length(HORIZONS)+4, NMET) : NMET   # levels-only keeps the staged 8-row schema on default horizons
 const DANG_IDX2 = [ty(y) for y in S.dang.years]          # dang fit years mapped into the 1850–2300 array
 
 # ---- FaIR ensemble forcing to 2300 ----
@@ -164,7 +168,10 @@ function run2300(θ, g, o)
     met = Vector{Float64}(undef, NMET)
     for (h,y) in enumerate(HORIZONS); met[h] = gtot[ty(y)]; end
     for (ci,y) in enumerate(COMPYRS)
-        i = ty(y); b = 4 + 4*(ci-1)
+        # offset MUST derive from length(HORIZONS), not a literal: with a hardcoded 4 and >4 horizons the
+        # component writes clobbered horizon slots and left the tail of `met` UNINITIALIZED (caught by the
+        # zero-pulse gate as NaN, 2026-08-02). Identical to the old code when length(HORIZONS)==4.
+        i = ty(y); b = length(HORIZONS) + 4*(ci-1)
         met[b+1]=ais[i]; met[b+2]=gsic[i]; met[b+3]=gis[i]; met[b+4]=te[i]
     end
     (icesteric[DANG_IDX2], met)

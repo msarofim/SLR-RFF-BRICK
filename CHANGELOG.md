@@ -3,6 +3,26 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-02 (latest) — Metric framing, pulse-relative horizons, safe-patch wrapper
+
+- **KEY MESSAGE fixed (Marcus):** CH4's SLR impact is much longer-lasting than its temperature impact,
+  and that drives the CO2/CH4 comparison — an SLR metric values CH4 ABOVE GWP-100 while a GTP-style
+  metric values it WELL BELOW. Quantified per GWP-100-equivalent tonne (CO2 ≡ 1.0), years after pulse:
+  temperature 0.79/0.52/0.45/0.38/0.24 at 70/100/120/150/270 yr vs SLR 2.24 @70, 1.45 @120, 0.79 @270 —
+  the two metrics differ by >3× at matched horizons. Component attribution is an intermediate step, NOT
+  the headline (earlier framing over-elevated it).
+- **`--horizons=` / `--comp-years=` flags**: the paper's key variable is YEARS SINCE THE PULSE (100/150
+  yr = 2130/2180 for a 2030 pulse), not calendar 2100/2150. 4-arm re-run launched on
+  2050,2100,2130,2150,2180,2300.
+- **BUG FIXED — metric-packing offset was hardcoded `4 + 4*(ci-1)`** instead of `length(HORIZONS)`; with
+  >4 horizons component writes clobbered horizon slots and left `met` partly uninitialized → NaN.
+  **Caught by the zero-pulse gate.** No prior result affected (identical expression at 4 horizons;
+  default-horizon re-run byte-compares 0.0 vs the original pre-change reference) — no quarantine.
+- **`scripts/run_subannual.sh`**: applies the sub-annual DAIS patch and GUARANTEES restore via an EXIT
+  trap (success/failure/interrupt), resolving the depot from the MimiBRICK `julia_v2` actually loads.
+  The patch mutates a SHARED depot file, so a crashed hand-patch would silently change later jobs.
+- Handoff: `notes/handoff_2026-08-02_ch4co2_metric_horizons.md`.
+
 ## [unreleased] — 2026-08-02 (late) — CH4 pulse arm: per-gas SLR marginals on BRICK-AM
 
 - **FaIR CH4 biogenic 1 Tg @2030 pulse** (SSP2-4.5, 841 cfg, stochastic + `_nonoise_flatsolar`);
