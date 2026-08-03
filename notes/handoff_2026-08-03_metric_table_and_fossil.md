@@ -134,9 +134,50 @@ python python/metric_horizon_table.py --tag=_pr --ch4=foss
    (obs ≥ p95), so the CH₄ marginal needs testing on an obs-anchored/high-CH₄ backbone before
    the RFF CH₄ baseline is trusted.
 
+## 4b. ADDENDUM (16:20) — all four `_pr` arms in; fossil stochastic in; §4.2 settled
+
+**Both bases now measured, and §4.2 is answerable for the headline.** Stochastic and
+`_nonoise_flatsolar` agree on the MEAN to within **1.4% at every horizon**, on both the SLR
+metric and the SLR÷temperature ratio. **For the headline table the basis choice is
+immaterial** — pick either and label it. It stays material only for the tip-fraction / mode
+decomposition (23% vs 33%), which is §4.1's separate question.
+
+**Fossil-CH₄ stochastic arm complete**; zero-pulse gate on the new `_ch4foss1tg` basis
+**PASSED** (every metric exactly 0.000e+00, all 6 horizons, all components). Deterministic
+fossil arm running, due ~17:00.
+
+| yr | SLR bio | SLR foss | temp bio | temp foss | SLR÷temp bio | SLR÷temp foss |
+|---|---|---|---|---|---|---|
+| 20 | 4.63 | 4.23 | 3.70 | 3.42 | 1.25 | 1.24 |
+| 70 | 2.24 | 2.11 | 0.79 | 0.81 | 2.82 | 2.60 |
+| 100 | 1.68 | 1.60 | 0.52 | 0.56 | 3.23 | 2.85 |
+| 150 | 1.22 | 1.19 | 0.38 | 0.44 | 3.18 | 2.71 |
+| 270 | 0.79 | 0.80 | 0.24 | 0.31 | 3.34 | 2.62 |
+
+Two consequences for the paper:
+
+1. **The ">3×" divergence is a BIOGENIC-CH₄ statement.** The oxidation CO₂ makes a fossil
+   pulse more CO₂-like and compresses the divergence to ~2.6–2.85×. Both are large, but the
+   arm must be labelled wherever the number appears.
+2. **GWP-100 = 29.8 increasingly UNDER-corrects for the oxidation carbon.** The physical
+   fossil/biogenic marginal ratio climbs 1.02 → 1.13 → 1.27 → 1.43 at 20/70/150/270 yr,
+   against a fixed GWP ratio of 29.8/27 = 1.104. By 270 yr a fossil tonne is worth ~1.29× its
+   biogenic counterpart per GWP-equivalent tonne on temperature — a fixed 100-yr integral
+   cannot track a 270-yr endpoint. This is a metrics observation in its own right and sits
+   naturally beside the plan's §9.5 GWP-basis discussion.
+
+**Operational gotcha now in the driver header.** `_arg` is `findfirst` — the **first**
+occurrence of a flag wins and later repeats are **silently ignored**. A queued fossil job
+built its command as `"$BASE_ARGS $OVERRIDES"`, so an intended 3-config zero-pulse smoke gate
+ran as a full 841×2000 production job. Harmless in the end (it produced the valid production
+stochastic arm, and the real gate was run afterwards and passed) but it cost a duplicate
+~50 min run, killed mid-flight with the depot verified pristine after. **Never append
+overrides to a base arg string on this driver.**
+
 ## 5. Commits
 
 `SLR-RFF-BRICK` (`brick-mengel-vnext`): `d577d0d` metric-table script + validation →
-`93cb5c6` fossil variant support → `222c993` headline table → `2b19b13` novelty-claim note.
+`93cb5c6` fossil variant support → `222c993` headline table → `2b19b13` novelty-claim note →
+`a3bde83` this handoff → `aab89fd` both bases + fossil tables → `a38ba3f` arg-precedence gotcha.
 `FaIRtoFrEDI` (`heat-ed-morbidity`): `e85ee67` fossil two-pass fix + quarantine →
 `36ecb48` CHANGELOG.
