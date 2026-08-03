@@ -3,6 +3,27 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-02 (late) — CH4 pulse arm: per-gas SLR marginals on BRICK-AM
+
+- **FaIR CH4 biogenic 1 Tg @2030 pulse** (SSP2-4.5, 841 cfg, stochastic + `_nonoise_flatsolar`);
+  pre-pulse marginal exactly 0.0 (paired seeds); wide files dumped; CH4 and CO2 arms share the SAME
+  baseline (verified: 2.5e-12 cm through BRICK, zero tip-classifier disagreements) → cleanly paired.
+- **Headline (MEAN total-SLR marginal, sub-annual, per GWP-100=27 CO2e): CH4/CO2 = 2.24 @2100,
+  1.45 @2150, 0.79 @2300** — reproduces the research plan's placeholder crossover (~2.2-2.3 / ~1.4 /
+  0.6-0.7) on a DIFFERENT posterior (BRICK-AM vs pre-FM Mengel) and DIFFERENT backbone (SSP2-4.5 vs
+  RFF-SP). Basis-insensitive: stochastic vs deterministic agree to 0.04-1.7%.
+- **FLAG — contradicts a stated paper novelty claim.** The research plan (§1 contribution 1) expects
+  component resolution to reveal a "CH4-TE-led vs CO2-AIS-led split". It does NOT, here: BOTH gases
+  are AIS-led with near-identical component shares (@2100 AIS 76% CH4 vs 75% CO2; TE 17% vs 19%), and
+  the CH4/CO2 ratio is roughly uniform ACROSS components (2.26/2.66/2.59/2.05 for ais/gsic/gis/te).
+  The real differential is in the DECLINE RATE: TE's ratio falls fastest (2.05→0.53 by 2300), AIS
+  slowest (2.26→0.82). The crossover is a timing effect that scales all components, not a component-mix
+  difference. The novelty argument needs rebasing on that, or the claim dropped.
+- **FLAG — tip-classifier threshold needs re-tuning.** The documented baseline-AIS@2100 > 20 cm
+  classifier (mimibrick-quirks item 11, calibrated on LHS-10k where it selects ~5%) selects **37.6%**
+  on BRICK-AM extA108 (amp 1.08 puts far more mass near tipping; baseline AIS p50 6.99 / p75 32.50 cm).
+  MEANS are classifier-free and unaffected; only the mode decomposition depends on this choice.
+
 ## [unreleased] — 2026-08-02 — Paired pulse arm + fast engine; production run locally (Torch now optional)
 
 - **`weight_and_project_brick_fair.jl`: paired 10-GtCO2 pulse arm** (`--pulse=off|on|zero`,
