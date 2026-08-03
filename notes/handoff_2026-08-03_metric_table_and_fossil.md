@@ -174,6 +174,25 @@ stochastic arm, and the real gate was run afterwards and passed) but it cost a d
 ~50 min run, killed mid-flight with the depot verified pristine after. **Never append
 overrides to a base arg string on this driver.**
 
+## 4c. ADDENDUM (17:00) — ALL SIX ARMS COMPLETE; shared-baseline gate passes through BRICK
+
+CO₂ / CH₄-biogenic / CH₄-fossil × stochastic / deterministic, 1,682,000 pairs each, zero NaN.
+Nothing is left running; the depot was verified restored pristine.
+
+**Shared-baseline gate — the property the fossil two-pass leak broke, now verified end-to-end
+through FaIR→BRICK** (all arms on one basis are driven by byte-identical base wide files, so
+their BRICK baseline must agree):
+
+- **deterministic:** all three gases **bit-identical** in `base_total@2100` (54.859789 cm).
+- **stochastic:** all three agree to **2.53e-12 cm** — the documented CSV round-trip precision
+  floor from the prior handoff — and the **fossil arm matches at exactly the same 2.53e-12 as
+  the biogenic arm**, i.e. it now sits in the same family. Pre-fix the fossil baseline was
+  1.07e-2 °C off in forcing, which propagates through BRICK orders of magnitude above this floor.
+
+Fossil basis sensitivity mirrors biogenic: stochastic vs deterministic agree to ~1.5% on the SLR
+metric at every horizon. **§4.2 is therefore answerable for both CH₄ variants: the basis choice
+is immaterial to the headline; label whichever you pick.**
+
 ## 5. Commits
 
 `SLR-RFF-BRICK` (`brick-mengel-vnext`): `d577d0d` metric-table script + validation →
