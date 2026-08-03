@@ -1,0 +1,34 @@
+key,value
+run_timestamp_local,2026-08-03T08:45:53
+host,MacBook-Pro-2.local
+driver,weight_and_project_brick_fair.jl
+code_git_commit,dafb300-DIRTY
+code_repo,/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/
+model_lineage,BRICK-AM (Antarctic-Mengel; MimiBRICK v2.0.0 fork + Mengel-2016 glaciers)
+calibrator,"calibrate_mcmc_ext.jl (CANONICAL, mean forcing)"
+posterior_subsample,"parameters_subsample_brick_mengel_extA108.csv (7.6 MB, sha cdbefda93b97)"
+dais_integrator,ANNUAL-STEP (pristine component)
+dais_component_file,N/A (post-hoc retrofit; depot state not live)
+climate_driver,"FaIR 2.2.4 (calib1.4.5), 841-config constrained posterior"
+units,SLR cm; pulse marginals are cm per 1 GtCO2
+reference_period,1995-2005 mean (SLR anomalies re-referenced per draw)
+weighting,"COUPLED = conditional importance weighting w_{i|k} ∝ exp[c·(ℓ^FB−ℓ^B)] normalized within each FaIR config (p(config) uniform; forcing marginal untouched); c=0.1258, achieved mean conditional ESS/N=0.600. INDEPENDENT = equal weights."
+julia_version,1.12.6
+Mimi_version,1.6.0
+MimiBRICK_version,1.2.0-dev
+forcing_file_1,"fair_gmst_base_wide.csv (9.0 MB, sha dfe0f37f0c58)"
+forcing_file_2,"fair_gmst_pulse_wide.csv (9.0 MB, sha ff0ee0bc2836)"
+forcing_file_3,"fair_ohc_base_wide.csv (8.6 MB, sha 56f3665e7077)"
+forcing_file_4,"fair_ohc_pulse_wide.csv (8.6 MB, sha 164371ea4ba8)"
+provenance_source,RECONSTRUCTED post-hoc from archived run log (production_stoch.log) + unchanged input files — NOT emitted by the run. Later runs emit live records.
+code_git_commit_run,4debe87 (pulse arm + fast engine; docs-only commit dafb300 followed)
+forcing_basis,"STOCHASTIC (FaIR internal variability ON, canonical)"
+pulse_spec,"+10 GtCO2 @2030, SSP2-4.5, paired in-process per (config,draw)"
+amplification_prior,"amp ~ N(1.080, 0.150) on [0.630, 1.530] (A6 CMIP6 land-frame secant)"
+lws_mode,"build_brick_mengel default (:seeded, LWS_SEED=2026)"
+ensemble_size,841 FaIR configs × 2000 BRICK-AM posterior draws
+projection_window,1850-2300
+engine,fast (in-place instance mutation; validated byte-identical to update_param!)
+wall_time,2694 s (0.80 ms/run over 3364000 runs)
+archived_log,outputs/mcmc/logs/production_stoch.log
+quotability,DIAGNOSTIC ONLY — annual stepping freezes the DAIS tip channel and suppresses pulse statistics; do not quote

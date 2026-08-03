@@ -29,12 +29,28 @@
 ##                         is the driver-comparable one for medians. Pulse MEANS additionally
 ##                         need the sub-annual DAIS patch (NOT applied on pristine depots) —
 ##                         per-pair output lets any statistic be recomputed in post.
-##   Outputs are suffixed by --basis so non-canonical bases never clobber canonical files.
+##   --pulse-gt=<x>        pulse SIZE in the wide files (default 10). Marginals are reported per 1 unit.
+##   --pulse-unit=<s>      unit LABEL (default "GtCO2"). **MUST be set for non-CO2 species** — e.g.
+##                         CH4: --basis=_ch4bio1tg --pulse-gt=1 --pulse-unit="Tg CH4". Without it every
+##                         printed line and CSV says "per GtCO2" while holding per-Tg numbers.
+##   --engine=fast|legacy  fast (default) mutates the BUILT model instance in place, skipping the ~14 ms
+##                         Mimi rebuild per run that update_param! forces on this 451-yr model (~30x;
+##                         the legacy path made a full run ~12-14 h = a guaranteed SLURM timeout).
+##                         Validated BYTE-IDENTICAL to legacy at smoke and 24k-pair scale.
+##   --out-tag=<s>         extra output suffix so validation runs never clobber canonical paths.
+##   Outputs are suffixed by --basis (+ tags) so non-canonical bases never clobber canonical files.
+##
+## PROVENANCE (2026-08-02): every run writes `wong_cond_runmeta<sfx>.csv` (model lineage, posterior
+## hash, DAIS integrator AUTO-DETECTED from the loaded depot, forcing basis, pulse spec + units,
+## weighting c/ESS, git commit, package versions) and stamps the key fields as `prov_*` columns INSIDE
+## the bands CSVs, so numbers never travel without the axes needed to check run-to-run consistency.
+## See julia/run_provenance.jl.
 ## ============================================================================
 include(joinpath(@__DIR__, "calibrate_mcmc_ext.jl"))     # guarded: FREE, NP, AMP_IDX, TON_IDX, C_IDX,
                                                          # AIS_TANT0, setp!(unused), S, lws_dang,
                                                          # hetero_logl_ar1, build_brick_mengel, update_brick_mengel!
 using Statistics, Printf, CSV, DataFrames
+include(joinpath(@__DIR__, "run_provenance.jl"))          # provenance(), write_provenance(), stamp!()
 
 _arg(p,d)=(i=findfirst(a->startswith(a,p),ARGS); i===nothing ? d : ARGS[i][length(p)+1:end])
 const NDRAWS = parse(Int, _arg("--draws=", "2000"))
@@ -48,8 +64,12 @@ const ENGINE = _arg("--engine=", "fast")                 # fast = in-place insta
                                                          # (all 5 components + full smoke CSVs) 2026-08-02.
 ENGINE in ("fast","legacy") || error("--engine must be fast|legacy (got $ENGINE)")
 PULSEMODE in ("off","on","zero") || error("--pulse must be off|on|zero (got $PULSEMODE)")
-const PULSE_GT = parse(Float64, _arg("--pulse-gt=", "10.0"))  # GtCO2 in fair_*_pulse_wide$(BASIS).csv (CO2 @2030, SSP2-4.5);
-                                                              # override for companion arms (e.g. --basis=_20gt --pulse-gt=20)
+const PULSE_GT = parse(Float64, _arg("--pulse-gt=", "10.0"))  # pulse SIZE in fair_*_pulse_wide$(BASIS).csv, in PULSE_UNIT
+                                                              # (CO2 @2030 SSP2-4.5 default; --basis=_20gt --pulse-gt=20,
+                                                              #  CH4: --basis=_ch4bio1tg --pulse-gt=1 --pulse-unit="Tg CH4")
+const PULSE_UNIT = _arg("--pulse-unit=", "GtCO2")             # label ONLY — all printed/CSV marginals are per 1 PULSE_UNIT.
+                                                              # MUST be set for non-CO2 species or every label lies (per-gas
+                                                              # unit confusion is the recurring bug class here).
 const FRC = joinpath(REPO, "..", "FaIRtoFrEDI", "magicc_comparison", "processed", "curv_wide")
 const OHCS = 0.1
 const YP0, YP1 = 1850, 2300
@@ -227,7 +247,7 @@ end
 
 # ---- pulse-marginal aggregation (per GtCO2; per-pair Δ from the exact in-process pairing) ----
 if DOPULSE
-    println("\n=== PULSE marginal Δ  COUPLED vs INDEPENDENT  (cm per GtCO2; $(PULSE_GT) GtCO2 CO2 pulse @2030) ===")
+    println("\n=== PULSE marginal Δ  COUPLED vs INDEPENDENT  (cm per $(PULSE_UNIT); $(PULSE_GT) $(PULSE_UNIT) pulse @2030) ===")
     psumm = NamedTuple[]
     for (h,lab) in enumerate(LABELS)
         v = vec(DFUT[h]) ./ PULSE_GT
@@ -238,19 +258,57 @@ if DOPULSE
     end
 end
 
+# ---- PROVENANCE: every results file self-documents its model version, units and key axes ----
+# (standing convention, Marcus 2026-08-02 — see julia/run_provenance.jl header). Auto-detected, so it
+# cannot drift from what actually ran: the DAIS integrator is read off the LOADED depot component, the
+# posterior/forcing files are content-hashed, and the code commit comes from git.
+PROV = provenance(
+    driver   = "weight_and_project_brick_fair.jl",
+    repo     = REPO,
+    posterior= joinpath(REPO,"data/MimiBRICK/parameters_subsample_brick_mengel_extA108.csv"),
+    forcing_files = DOPULSE ?
+        [joinpath(FRC,"fair_$(v)_$(a)_wide$(BASIS).csv") for v in ("gmst","ohc") for a in ("base","pulse")] :
+        [joinpath(FRC,"fair_$(v)_base_wide$(BASIS).csv") for v in ("gmst","ohc")],
+    units    = DOPULSE ? "SLR cm; pulse marginals are cm per 1 $(PULSE_UNIT)" : "SLR cm",
+    reference_period = "1995-2005 mean (SLR anomalies re-referenced per draw)",
+    weighting = "COUPLED = conditional importance weighting w_{i|k} ∝ exp[c·(ℓ^FB−ℓ^B)] normalized " *
+                "within each FaIR config (p(config)=1/$(NCFG) uniform; forcing marginal untouched); " *
+                @sprintf("c=%.4g, achieved mean conditional ESS/N=%.3f. INDEPENDENT = equal weights.", C, essfrac(W)),
+    extra = [
+        # The basis suffix encodes BOTH the pulse arm (gas/size) and the noise setting, so report the
+        # variability treatment explicitly — it is the axis that moves pulse medians/tip fractions.
+        "forcing_basis"      => (occursin("nonoise", BASIS) ?
+                                    "DETERMINISTIC (stochastic_run=False" *
+                                    (occursin("flatsolar", BASIS) ? " + future solar held at trailing 11-yr cycle mean)" : ")") :
+                                    "STOCHASTIC (FaIR internal variability ON, canonical)") *
+                                (isempty(BASIS) ? "" : "; wide-file suffix '$(BASIS)'"),
+        "pulse_spec"         => DOPULSE ? @sprintf("+%g %s @2030, SSP2-4.5, paired in-process per (config,draw); mode=%s",
+                                                   PULSE_GT, PULSE_UNIT, PULSEMODE) : "none (levels/bands only)",
+        "amplification_prior"=> @sprintf("amp ~ N(%.3f, %.3f) on [%.3f, %.3f] (A6 CMIP6 land-frame secant)",
+                                         AMP_MU, AMP_SIGMA, AMP_LO, AMP_HI),
+        "lws_mode"           => "build_brick_mengel default (:seeded, LWS_SEED=$(LWS_SEED))",
+        "ensemble_size"      => "$(NCFG) FaIR configs × $(ND) BRICK-AM posterior draws = $(NCFG*ND) pairs",
+        "projection_window"  => "$(YP0)-$(YP1)",
+        "engine"             => ENGINE == "fast" ? "fast (in-place instance mutation; validated byte-identical to update_param!)" : "legacy (update_param! per run)",
+        "sanity_zero_pulse"  => PULSEMODE=="zero" ? "THIS RUN IS THE ZERO-PULSE WIRING TEST" : "gated separately (--pulse=zero: max|Δ|=0.0 exactly)",
+    ])
+
 # ---- outputs (suffixed by basis; ZEROTEST runs never clobber canonical files) ----
 const OUTSFX = BASIS * (PULSEMODE=="zero" ? "_ZEROTEST" : "") * OUTTAG
-CSV.write(joinpath(REPO,"outputs/mcmc/wong_cond_slr_bands$(OUTSFX).csv"), DataFrame(summ))
+write_provenance(joinpath(REPO,"outputs/mcmc/wong_cond_runmeta$(OUTSFX).csv"), PROV)
+CSV.write(joinpath(REPO,"outputs/mcmc/wong_cond_slr_bands$(OUTSFX).csv"), stamp!(DataFrame(summ), PROV))
 CSV.write(joinpath(REPO,"outputs/mcmc/wong_cond_weights_full$(OUTSFX).csv"),
           DataFrame(config=repeat(cfgs,inner=ND), draw=repeat(ridx,outer=NCFG), w=vec(W), lFB=vec(lFB), lB=repeat(lB,outer=NCFG)))
 if DOPULSE
-    CSV.write(joinpath(REPO,"outputs/mcmc/wong_cond_pulse_bands$(OUTSFX).csv"), DataFrame(psumm))
+    CSV.write(joinpath(REPO,"outputs/mcmc/wong_cond_pulse_bands$(OUTSFX).csv"), stamp!(DataFrame(psumm), PROV))
     pairs = DataFrame(config=repeat(cfgs,inner=ND), draw=repeat(ridx,outer=NCFG), w=vec(W))
     for (h,lab) in enumerate(LABELS); pairs[!, "base_"*lab] = vec(FUT[h]); end
     for (h,lab) in enumerate(LABELS); pairs[!, "d_"*lab]    = vec(DFUT[h]); end
-    CSV.write(joinpath(REPO,"outputs/mcmc/wong_cond_pulse_pairs$(OUTSFX).csv"), pairs)
-    @printf("wrote wong_cond_pulse_bands%s.csv + wong_cond_pulse_pairs%s.csv (%d pairs, Δ in cm per %.0f GtCO2)\n",
-            OUTSFX, OUTSFX, ND*NCFG, PULSE_GT)
+    CSV.write(joinpath(REPO,"outputs/mcmc/wong_cond_pulse_pairs$(OUTSFX).csv"), pairs)   # per-pair: unstamped (huge); sidecar carries provenance
+    @printf("wrote wong_cond_pulse_bands%s.csv + wong_cond_pulse_pairs%s.csv (%d pairs; bands are per 1 %s, pairs are raw Δ per %.0f %s)\n",
+            OUTSFX, OUTSFX, ND*NCFG, PULSE_UNIT, PULSE_GT, PULSE_UNIT)
 end
 @printf("\nwrote outputs/mcmc/wong_cond_slr_bands%s.csv + wong_cond_weights_full%s.csv  (c=%.4g, ESS/N=%.3f, %d configs × %d draws)\n",
         OUTSFX, OUTSFX, C, essfrac(W), NCFG, ND)
+println("provenance: ", Dict(PROV)["model_lineage"], " | ", Dict(PROV)["dais_integrator"],
+        " | basis ", Dict(PROV)["forcing_basis"], " | ", Dict(PROV)["pulse_spec"])
