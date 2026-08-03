@@ -3,7 +3,51 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-02 (latest) — Metric framing, pulse-relative horizons, safe-patch wrapper
+## [unreleased] — 2026-08-03 (latest) — Headline metric table complete; component-split claim refuted
+
+- **The §0 table's missing pulse-relative cells are filled** (stochastic arms; deterministic still
+  running). `python/metric_horizon_table.py` forms both metrics identically — ensemble MEAN marginal
+  per GWP-100-equivalent tonne, so CO₂ ≡ 1.0 and the CH₄ entry *is* the metric:
+
+  | yr after pulse | calendar | temperature (GTP-style) | total SLR | SLR ÷ temperature |
+  |---|---|---|---|---|
+  | 20 | 2050 | 3.70 | 4.63 | 1.25× |
+  | 70 | 2100 | 0.79 | 2.24 | 2.82× |
+  | 100 | 2130 | 0.52 | 1.68 | 3.23× |
+  | 120 | 2150 | 0.45 | 1.45 | 3.23× |
+  | 150 | 2180 | 0.38 | 1.22 | 3.18× |
+  | 270 | 2300 | 0.24 | 0.79 | 3.34× |
+
+  At the GWP-100-matched **100-yr** horizon an SLR metric values CH₄ at **1.68×** its GWP-100 while an
+  endpoint-temperature metric values it at **0.52×**. The divergence is only ~1.25× at 20 yr and
+  saturates near 3.2× from 100 yr on — it *opens with horizon*, it is not a fixed offset.
+  **The SLR÷temperature column is GWP-INVARIANT** (the basis cancels), so the headline does not
+  depend on the open GWP-basis choice (§4.3) — that choice moves both metrics identically.
+- **REGRESSION PASS:** at the four horizons the earlier 4-horizon `_subann` run also covers, the
+  6-horizon `_pr` run is **bit-identical** (worst relative difference 0.00e+00), confirming the
+  2026-08-02 metric-packing fix (hardcoded offset `4` → `length(HORIZONS)`) perturbs nothing.
+- **Research-plan §1 contribution 1: first example REFUTED, second CONFIRMED** (CLAUDE NOTE added at
+  the claim, not a rewrite — Marcus's call on wording).
+  - "CH₄-TE-led vs CO₂-AIS-led split" is **not supported**: both gases are AIS-led with near-identical
+    shares and the small difference runs *opposite* to the claim (AIS @2130 CO₂ 78.8% / CH₄ 79.6%;
+    TE 15.8% / 14.1%).
+  - "Crossover horizon shifts vs a thermosteric-only estimate" **is** supported and is the stronger
+    claim: a TE-only calculation gives 0.84–0.89× the full-SLR metric and crosses parity **~57 yr
+    earlier (TE-only ~2184 vs full SLR ~2241)**. Both interpolated between bracketing horizons; the
+    ~57 yr *shift* is the robust quantity, the levels are ±a decade or two.
+  - `te@2300` was spliced from the `_subann` runs (the `_pr` run's comp-years were 2130/2150/2180);
+    legitimate because the two runs are bit-identical at shared horizons. **Future runs should put
+    2300 in `--comp-years`** so no splice is needed.
+- **Tried and rejected:** extrapolating the full-SLR crossover off the short 2150→2180 segment gave
+  ~2208 vs ~2241 when interpolating across the bracketing 2180→2300 segment — the metric is convex in
+  horizon, so short-segment linear extrapolation overshoots the decline. Interpolate between horizons
+  that actually bracket parity.
+- Fossil-CH₄ wide files `_ch4foss1tg{,_nonoise_flatsolar}` built and their BRICK arms **queued behind**
+  the running `_pr` job (never concurrent — `run_subannual.sh`'s EXIT trap would restore the shared
+  depot out from under a live run). Gated: the queue aborts if the four `_pr` arms did not all land.
+  See the FaIRtoFrEDI CHANGELOG for the fossil two-pass concentration-leak fix that preceded this.
+
+## [unreleased] — 2026-08-02 — Metric framing, pulse-relative horizons, safe-patch wrapper
 
 - **KEY MESSAGE fixed (Marcus):** CH4's SLR impact is much longer-lasting than its temperature impact,
   and that drives the CO2/CH4 comparison — an SLR metric values CH4 ABOVE GWP-100 while a GTP-style

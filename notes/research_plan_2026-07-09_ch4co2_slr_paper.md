@@ -128,7 +128,29 @@ resolving SLR + probabilistic ensemble + per-gas), so **differentiate by demonst
 not by a feature list the ancestors lack.** Concretely: show that at least one added ingredient
 changes the metric — e.g., component resolution reveals the CH₄-TE-led vs CO₂-AIS-led split that a
 thermosteric-only GSP/Zickfeld calculation cannot see, or the crossover horizon shifts relative to a
-thermosteric-only estimate. "They didn't have modern calibration" is weak unless the calibration
+thermosteric-only estimate.
+
+> **CLAUDE NOTE 2026-08-03 — the first example is refuted; the second is confirmed. Your call on
+> the rewording.** Measured on BRICK-AM, SSP2-4.5, 841 cfg × 2000 draws, sub-annual, MEAN basis:
+>
+> - **"CH₄-TE-led vs CO₂-AIS-led split" is NOT supported.** Both gases are AIS-led with
+>   near-identical shares, and the small difference runs *opposite* to the claim — CH₄ is
+>   marginally *more* AIS-led than CO₂:
+>   | comp | 2130 CO₂/CH₄ | 2150 CO₂/CH₄ | 2180 CO₂/CH₄ |
+>   |---|---|---|---|
+>   | AIS | 78.8% / 79.6% | 80.2% / 81.2% | 81.6% / 83.1% |
+>   | TE | 15.8% / 14.1% | 14.6% / 12.8% | 13.4% / 11.2% |
+>   The genuine per-gas differential is the **decline rate** with horizon, not the component mix.
+> - **"The crossover horizon shifts vs a thermosteric-only estimate" IS supported, and is the
+>   stronger claim anyway** — it is a *demonstrated consequence*, which is exactly the bar this
+>   paragraph sets. A TE-only calculation puts the CH₄:CO₂ SLR metric at 0.84–0.89× the full-SLR
+>   value, and crosses parity ~57 yr earlier: **TE-only ~2184 vs full SLR ~2241** (both
+>   interpolated between bracketing horizons; the 2180–2300 segment is 120 yr wide, so treat the
+>   levels as ±a decade or two and the ~57 yr *shift* as the robust quantity).
+>
+> Suggested minimal edit: drop the first example, keep the second, and cite the ~57 yr deferral as
+> the demonstrated consequence. Numbers: `outputs/metric_horizon_table_bio_pr.{csv,md}`.
+> SSP2-4.5 only — untested on RFF-SP. "They didn't have modern calibration" is weak unless the calibration
 demonstrably moves the per-gas answer. **Residual literature diligence before submission** (§11 risk
 R7): (a) read paywalled methods of Nauels 2025 and Darnell 2025 to confirm no per-gas attribution;
 (b) sweep AGU/EGU 2025–26 abstracts for in-progress competitors; (c) confirm the SURFER group has not
