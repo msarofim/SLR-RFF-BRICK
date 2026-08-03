@@ -42,10 +42,40 @@ commit log; recent entries are explicit.
   ~2208 vs ~2241 when interpolating across the bracketing 2180→2300 segment — the metric is convex in
   horizon, so short-segment linear extrapolation overshoots the decline. Interpolate between horizons
   that actually bracket parity.
-- Fossil-CH₄ wide files `_ch4foss1tg{,_nonoise_flatsolar}` built and their BRICK arms **queued behind**
-  the running `_pr` job (never concurrent — `run_subannual.sh`'s EXIT trap would restore the shared
-  depot out from under a live run). Gated: the queue aborts if the four `_pr` arms did not all land.
+- **Basis sensitivity settled for the headline (§4.2):** stochastic and `_nonoise_flatsolar` agree on
+  the MEAN to within **1.4% at every horizon**, on both the SLR metric and the SLR÷temperature ratio.
+  For the headline table the basis choice is **immaterial**; it remains material only for the
+  tip-fraction / mode decomposition (23% vs 33%), which is a separate open question.
+- **Fossil-CH₄ arm complete (stochastic).** Wide files `_ch4foss1tg{,_nonoise_flatsolar}` built; the
+  zero-pulse gate on the new basis **PASSED** (every metric exactly 0.000e+00 across all 6 horizons
+  and all components). Fossil (GWP-100 = 29.8) vs biogenic (27), stochastic:
+
+  | yr | SLR bio | SLR foss | temp bio | temp foss | SLR÷temp bio | SLR÷temp foss |
+  |---|---|---|---|---|---|---|
+  | 20 | 4.63 | 4.23 | 3.70 | 3.42 | 1.25 | 1.24 |
+  | 70 | 2.24 | 2.11 | 0.79 | 0.81 | 2.82 | 2.60 |
+  | 100 | 1.68 | 1.60 | 0.52 | 0.56 | 3.23 | 2.85 |
+  | 150 | 1.22 | 1.19 | 0.38 | 0.44 | 3.18 | 2.71 |
+  | 270 | 0.79 | 0.80 | 0.24 | 0.31 | 3.34 | 2.62 |
+
+  Two consequences. (1) **The >3× divergence is a BIOGENIC-CH₄ statement** — the oxidation CO₂ makes a
+  fossil pulse more CO₂-like and compresses it to ~2.6–2.85×. Both are large, but the arm must be
+  labelled. (2) **GWP-100 = 29.8 increasingly UNDER-corrects for the oxidation carbon**: the physical
+  fossil/biogenic marginal ratio climbs 1.02 → 1.13 → 1.27 → 1.43 at 20/70/150/270 yr against a fixed
+  GWP ratio of 1.104, so by 270 yr a fossil tonne is worth ~1.29× its biogenic counterpart per
+  GWP-equivalent tonne on temperature. (A fixed 100-yr integral cannot track a 270-yr endpoint.)
   See the FaIRtoFrEDI CHANGELOG for the fossil two-pass concentration-leak fix that preceded this.
+- **GOTCHA documented in the driver header — `_arg` is `findfirst`, so the FIRST occurrence of a flag
+  wins and later repeats are silently ignored.** A queued fossil job built its command as
+  `"$BASE_ARGS $OVERRIDES"`; the intended 3-config zero-pulse smoke gate therefore ran as a full
+  841×2000 production job (harmless — it produced the valid production stochastic arm, and the real
+  zero-pulse gate was run afterwards and passed — but it cost a duplicate ~50 min run, which was
+  killed mid-flight with the depot verified pristine afterwards). Never append overrides; state each
+  flag exactly once.
+- **Sequencing rule reaffirmed:** BRICK arms must never run concurrently under `run_subannual.sh` —
+  the wrapper patches the SHARED MimiBRICK depot and restores it via an EXIT trap, so a second
+  wrapper's trap would swap the integrator under a live run. Killing the *only* running wrapper is
+  safe (the trap restores pristine, which is the desired end state) and was verified by diff.
 
 ## [unreleased] — 2026-08-02 — Metric framing, pulse-relative horizons, safe-patch wrapper
 

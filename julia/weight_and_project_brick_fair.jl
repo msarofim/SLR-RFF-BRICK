@@ -40,6 +40,13 @@
 ##   --out-tag=<s>         extra output suffix so validation runs never clobber canonical paths.
 ##   Outputs are suffixed by --basis (+ tags) so non-canonical bases never clobber canonical files.
 ##
+## !! ARG PRECEDENCE: `_arg` is `findfirst` — the FIRST occurrence of a flag WINS and any later
+##    repeat is SILENTLY IGNORED. Never build a command as "$BASE_ARGS $OVERRIDES": appending
+##    --draws/--configs/--pulse after a base string that already sets them does nothing, with no
+##    warning. This bit a queued fossil-CH4 job on 2026-08-03 — an intended 3-config zero-pulse
+##    smoke gate ran as a full 841x2000 production job because the base string led with
+##    --pulse=on --draws=2000. State every flag exactly once per command line.
+##
 ## PROVENANCE (2026-08-02): every run writes `wong_cond_runmeta<sfx>.csv` (model lineage, posterior
 ## hash, DAIS integrator AUTO-DETECTED from the loaded depot, forcing basis, pulse spec + units,
 ## weighting c/ESS, git commit, package versions) and stamps the key fields as `prov_*` columns INSIDE
