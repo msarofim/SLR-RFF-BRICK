@@ -43,7 +43,14 @@ TEMP_UNIT = "degC"
 
 # GWP-100 AR6. Biogenic CH4 carries no fossil-carbon oxidation term; fossil does.
 GWP_BASES = {"GWP-100 biogenic": 27.0, "GWP-100 fossil": 29.8, "GWP-20 biogenic": 79.7}
-HEADLINE_GWP = "GWP-100 biogenic"   # matches the biogenic CH4 pulse arm actually run
+# The headline GWP must match the CH4 arm actually run -- pairing a fossil pulse (which
+# co-emits the oxidation CO2) with the biogenic GWP double-counts the oxidation carbon.
+CH4_VARIANTS = {
+    "bio":  dict(slr_basis="_ch4bio1tg",  gas_stem="ch4bio_1tg",
+                 gwp="GWP-100 biogenic", label="biogenic (no oxidation CO2)"),
+    "foss": dict(slr_basis="_ch4foss1tg", gas_stem="ch4foss_1tg",
+                 gwp="GWP-100 fossil", label="fossil (time-distributed oxidation CO2)"),
+}
 
 # calendar year -> years since the pulse
 def yr_rel(cal):
@@ -56,8 +63,6 @@ ARMS = {  # label -> (slr basis suffix, fair npz stem)
                       "fair_ensemble_v145_ssp245_pulse{gas}_2030_nonoise_flatsolar"),
 }
 CO2_GAS_STEM = "co2_10gt"
-CH4_GAS_STEM = "ch4bio_1tg"
-CH4_SLR_BASIS = "_ch4bio1tg"
 
 
 def pairs_path(basis, tag):
@@ -116,15 +121,22 @@ def main():
                          "default-4-horizon runs, which lack 2130/2180)")
     ap.add_argument("--arm", default="stochastic", choices=list(ARMS),
                     help="FaIR forcing basis for the headline table (both are written)")
+    ap.add_argument("--ch4", default="bio", choices=list(CH4_VARIANTS),
+                    help="CH4 pulse variant; sets the SLR basis, the FaIR npz stem AND "
+                         "the headline GWP (bio->27, foss->29.8)")
     ap.add_argument("--out-stem", default=None,
-                    help="output stem under outputs/ (default metric_horizon_table<tag>)")
+                    help="output stem under outputs/ (default "
+                         "metric_horizon_table_<ch4><tag>)")
     args = ap.parse_args()
 
-    stem = args.out_stem or f"metric_horizon_table{args.tag}"
+    variant = CH4_VARIANTS[args.ch4]
+    ch4_slr_basis, ch4_gas_stem = variant["slr_basis"], variant["gas_stem"]
+    headline_gwp = variant["gwp"]
+    stem = args.out_stem or f"metric_horizon_table_{args.ch4}{args.tag}"
     rows = []
     for arm, (slr_basis, fair_stem) in ARMS.items():
         co2_p = pairs_path(slr_basis, args.tag)
-        ch4_p = pairs_path(CH4_SLR_BASIS + slr_basis, args.tag)
+        ch4_p = pairs_path(ch4_slr_basis + slr_basis, args.tag)
         if not (co2_p.exists() and ch4_p.exists()):
             print(f"[skip] {arm}: missing {co2_p.name if not co2_p.exists() else ch4_p.name}")
             continue
@@ -137,7 +149,7 @@ def main():
         co2_slr, n_co2 = slr_means(co2_p, years)
         ch4_slr, n_ch4 = slr_means(ch4_p, years)
         co2_t = temp_means(fair_stem.format(gas=CO2_GAS_STEM), years)
-        ch4_t = temp_means(fair_stem.format(gas=CH4_GAS_STEM), years)
+        ch4_t = temp_means(fair_stem.format(gas=ch4_gas_stem), years)
         prov = read_provenance(runmeta_path(slr_basis, args.tag))
 
         print(f"\n=== {arm} | SLR basis '{slr_basis or '(none)'}' | "
@@ -151,7 +163,7 @@ def main():
             h_slr = ch4_slr[y][0] / CH4_PULSE_TG
             c_dt = co2_t[y] / CO2_PULSE_GT
             h_dt = ch4_t[y] / CH4_PULSE_TG
-            gwp = GWP_BASES[HEADLINE_GWP]
+            gwp = GWP_BASES[headline_gwp]
             m_slr = (h_slr / (gwp * 1e-3)) / c_slr    # Tg -> GtCO2e via GWP (1 Tg = 1e-3 Gt)
             m_t = (h_dt / (gwp * 1e-3)) / c_dt
             print(f"{yr_rel(y):>4} {y:>5} | {c_slr:>10.4e} {h_slr:>10.4e} | "
@@ -163,7 +175,7 @@ def main():
                        co2_slr_cm_per_gtco2_coupled=co2_slr[y][1] / CO2_PULSE_GT,
                        ch4_slr_cm_per_tg_coupled=ch4_slr[y][1] / CH4_PULSE_TG,
                        co2_dtemp_degc_per_gtco2=c_dt, ch4_dtemp_degc_per_tg=h_dt,
-                       gwp_basis_headline=HEADLINE_GWP,
+                       gwp_basis_headline=headline_gwp, ch4_variant=variant["label"],
                        slr_metric_ch4=m_slr, temp_metric_ch4=m_t,
                        slr_over_temp=m_slr / m_t, n_pairs=n_co2)
             for label, g in GWP_BASES.items():
@@ -199,8 +211,9 @@ def main():
     with open(md, "w") as f:
         f.write(f"# CH4:CO2 equivalence by pulse-relative horizon "
                 f"({PULSE_YEAR} pulse, SSP2-4.5, BRICK-AM)\n\n")
-        f.write(f"Ensemble MEAN marginal per {HEADLINE_GWP}-equivalent tonne; CO2 = 1.0 by "
-                f"construction. FaIR basis: {args.arm}. INDEPENDENT (equal-weight) pipeline.\n\n")
+        f.write(f"Ensemble MEAN marginal per {headline_gwp}-equivalent tonne; CO2 = 1.0 by "
+                f"construction. FaIR basis: {args.arm}. INDEPENDENT (equal-weight) pipeline.\n"
+                f"CH4 arm: {variant['label']}.\n\n")
         f.write("| years after pulse | calendar | temperature (GTP-style) | total SLR | "
                 "SLR / temperature |\n|---|---|---|---|---|\n")
         for _, r in head.iterrows():
@@ -208,7 +221,7 @@ def main():
                     f"{r.temp_metric_ch4:.2f} | {r.slr_metric_ch4:.2f} | "
                     f"{r.slr_over_temp:.1f}x |\n")
         f.write(f"\nGWP basis is a reporting choice; the same table on the other bases "
-                f"({', '.join(k for k in GWP_BASES if k != HEADLINE_GWP)}) is in "
+                f"({', '.join(k for k in GWP_BASES if k != headline_gwp)}) is in "
                 f"`{csv_out.name}`. Metrics scale exactly as 1/GWP, so the SLR/temperature "
                 f"column is GWP-INVARIANT.\n")
     print(f"Wrote {md}")
