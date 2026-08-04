@@ -1,5 +1,13 @@
 # Handoff 2026-08-02 — CH4-vs-CO2 SLR marginals, the metric message, and pulse-relative horizons
 
+> **⚠️ CONTINUED BY `notes/handoff_2026-08-03_metric_table_and_fossil.md` — read that one first.**
+> It is the authoritative current state: it carries the same completed §0 table plus the fossil-CH4
+> arm, the TE-only crossover result, and the resolution of the research-plan novelty claim. The §0
+> table below is retained because it is where the table was first assembled, and because it was
+> computed INDEPENDENTLY (different code path, ad-hoc vs `python/metric_horizon_table.py`) and agrees
+> to every reported digit — a genuine cross-validation, not a copy. Prefer the 08-03 note for anything
+> beyond that.
+
 **Self-contained pickup:** this + `CLAUDE.md` + memories `project_ch4_vs_co2_slr_marginals_brickam`,
 `project_fair_brick_coupling_joint_calib`, `feedback_output_provenance_labels`.
 Supersedes the Monday-launch plan in `handoff_2026-08-01_brick_fair_consistency.md` (see its addendum).
@@ -141,21 +149,21 @@ affected**: with 4 horizons the expressions are identical, and a default-horizon
 
 ## 5b. PARALLEL-SESSION WORK — reconcile before citing (noted 2026-08-04)
 
-Work continued outside the session that wrote this note. Two things are present that this note's
-author did NOT produce or validate; treat them as unverified here and confirm against their own
-records before use:
-- **Fossil-CH4 outputs exist** (`wong_cond_pulse_{bands,pairs}_ch4foss1tg{,_nonoise_flatsolar}_pr.csv`).
-  Per the driver header, a 2026-08-03 fossil job intended as a 3-config zero-pulse smoke ran as a full
-  841×2000 production because of the arg-precedence trap below — so the files may be valid production
-  output produced by accident. **Verify the zero-pulse gate was actually run for the fossil wiring
-  before quoting fossil numbers**; that gate is what caught the horizon bug in §5.
-- **A FaIR two-pass concentration leak** was found and fixed (memory
+Work continued in parallel and is **already committed and validated** (`aab89fd`, `ea38edc`,
+`bc07ada`, and handoff `notes/handoff_2026-08-03_metric_table_and_fossil.md`). Superseding what an
+earlier draft of this section speculated:
+- **Fossil-CH4 arms are complete on both bases, with the shared-baseline gate verified end-to-end
+  through BRICK** (`ea38edc`, `bc07ada`) — not unvalidated output. Use the 08-03 handoff for them.
+- **A FaIR two-pass concentration leak** was found and FIXED (memory
   `project_fair_twopass_concentration_leak`: `initialise()` sets timebound 0 only; fossil BASELINE off
-  by 1.07e-2 °C; marginal impact 0.02%). It is specific to the `--fossil` two-pass path, so the
-  **biogenic** numbers in §0/§3 are unaffected — but re-confirm that scoping rather than assuming it.
+  by 1.07e-2 °C; marginal impact 0.02%). Specific to the `--fossil` two-pass path, so the biogenic
+  numbers in §0/§3 are unaffected.
 - **ARG-PRECEDENCE TRAP (now in the driver header):** `_arg` is `findfirst`, so the FIRST occurrence of
   a flag wins and later repeats are SILENTLY ignored. Never compose commands as `"$BASE $OVERRIDES"`.
-  State every flag exactly once per command line.
+  State every flag exactly once per command line. This turned an intended 3-config smoke into a full
+  841×2000 job on 2026-08-03.
+- **Table producer:** `python/metric_horizon_table.py` is the maintained artifact (auto-discovers
+  horizons, `--ch4=bio|foss`, emits all GWP bases). Use it rather than ad-hoc recomputation.
 
 ## 6. Next steps, in order
 
