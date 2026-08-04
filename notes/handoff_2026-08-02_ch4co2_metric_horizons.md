@@ -16,19 +16,32 @@ The component attribution (AIS vs TE vs GIS vs GSIC) is a **necessary intermedia
 key message.** An earlier draft of this work over-elevated the component split into a headline — do not
 repeat that. (It is also empirically weak: both gases are AIS-led with near-identical shares; see §3.)
 
-**The quantified spread, all per GWP-100-equivalent tonne (=1.0 by construction for CO2):**
+**COMPLETE (pulse-relative horizons landed 2026-08-03).** All per GWP-100-equivalent tonne
+(CO2 ≡ 1.0 by construction); biogenic CH4, SSP2-4.5, BRICK-AM sub-annual pulse MEANS; temperature
+ratios are FaIR ensemble means from the pulse npz:
 
 | years after 2030 pulse | temperature (GTP-style) | total SLR | SLR ÷ temperature |
 |---|---|---|---|
-| 70 (2100)  | 0.79 | 2.24 | 2.8× |
-| 100 (2130) | 0.52 | *pending §5* | — |
-| 120 (2150) | 0.45 | 1.45 | 3.2× |
-| 150 (2180) | 0.38 | *pending §5* | — |
-| 270 (2300) | 0.24 | 0.79 | 3.3× |
+| 20 (2050)  | 3.70 | 4.63 | 1.25× |
+| 70 (2100)  | 0.79 | 2.24 | 2.82× |
+| **100 (2130)** | **0.52** | **1.68** | **3.23×** |
+| 120 (2150) | 0.45 | 1.45 | 3.23× |
+| 150 (2180) | 0.38 | 1.22 | 3.18× |
+| 270 (2300) | 0.24 | 0.79 | 3.34× |
 
-Read: at 120 yr the SLR metric puts CH4 at ~1.45× GWP-100 while the temperature metric puts it at
-~0.45× — the two differ by a factor >3, and that gap is the paper. Temperature ratios are FaIR
-ensemble means from the npz pairs; SLR ratios are BRICK-AM sub-annual pulse MEANS.
+**At the GWP-100 horizon itself, an SLR-based metric values CH4 at 1.68× its GWP-100 while a
+GTP-style endpoint-temperature metric values it at 0.52×** — the persistence gap Marcus identified.
+At 120 yr the SLR figure is 1.45, i.e. "almost 1.5× the 100-year GWP", as stated.
+
+**The SLR ÷ temperature column is GWP-BASIS-INVARIANT** — it is a ratio of ratios, so any CO2e metric
+factor cancels exactly (verified: the GWP-free per-actual-tonne calculation gives the same 3.23 at
+100 yr; switching GWP-100→GWP-20 changes both columns but not their ratio). So "CH4's sea-level
+signature outlasts its temperature signature by ~3.2× from 100 yr onward, and the gap widens with
+horizon" is a metric-choice-free physical statement — the strongest form of the key message. The
+individual 1.68 / 0.52 figures DO depend on GWP-100 = 27 and must be labeled with that basis.
+
+Stochastic vs deterministic basis agree to ≤0.01 on every ratio. The 2100/2150/2300 values reproduce
+the earlier fixed-horizon run exactly (implicit regression check on the horizon refactor).
 
 ---
 
@@ -100,7 +113,7 @@ headline — but the written novelty claim needs rewording or dropping. (SSP2-4.
 3. **GWP basis** for the CO2e framing (20 vs 100, biogenic 27 vs fossil 29.8) — per the plan, report as
    a first-class function, not a footnote.
 
-## 5. IN FLIGHT at handoff time — pulse-relative horizons
+## 5. DONE — pulse-relative horizons (was in flight; completed 2026-08-03)
 
 The paper's key variable is **years since the emission pulse** (Marcus's plan note: 100 and 150 yr from
 the emission point, consistent with GWP-100 framing), not calendar 2100/2150. With a 2030 pulse that is
@@ -126,10 +139,28 @@ zero-pulse gate**, which is the argument for running it after every driver chang
 affected**: with 4 horizons the expressions are identical, and a default-horizon re-run byte-compares
 0.0 against the original pre-change staged reference. No quarantine needed.
 
+## 5b. PARALLEL-SESSION WORK — reconcile before citing (noted 2026-08-04)
+
+Work continued outside the session that wrote this note. Two things are present that this note's
+author did NOT produce or validate; treat them as unverified here and confirm against their own
+records before use:
+- **Fossil-CH4 outputs exist** (`wong_cond_pulse_{bands,pairs}_ch4foss1tg{,_nonoise_flatsolar}_pr.csv`).
+  Per the driver header, a 2026-08-03 fossil job intended as a 3-config zero-pulse smoke ran as a full
+  841×2000 production because of the arg-precedence trap below — so the files may be valid production
+  output produced by accident. **Verify the zero-pulse gate was actually run for the fossil wiring
+  before quoting fossil numbers**; that gate is what caught the horizon bug in §5.
+- **A FaIR two-pass concentration leak** was found and fixed (memory
+  `project_fair_twopass_concentration_leak`: `initialise()` sets timebound 0 only; fossil BASELINE off
+  by 1.07e-2 °C; marginal impact 0.02%). It is specific to the `--fossil` two-pass path, so the
+  **biogenic** numbers in §0/§3 are unaffected — but re-confirm that scoping rather than assuming it.
+- **ARG-PRECEDENCE TRAP (now in the driver header):** `_arg` is `findfirst`, so the FIRST occurrence of
+  a flag wins and later repeats are SILENTLY ignored. Never compose commands as `"$BASE $OVERRIDES"`.
+  State every flag exactly once per command line.
+
 ## 6. Next steps, in order
 
-1. When §5 lands: fill the §0 table's 100/150-yr SLR cells and compute SLR-metric ÷ GTP-metric at
-   matched horizons — that IS the paper's headline figure/table.
+1. ~~Fill the §0 table's 100/150-yr SLR cells~~ **DONE** — §0 is complete, and the GWP-invariant
+   SLR÷temperature column is the headline-ready form. Next is turning §0 into the paper's figure/table.
 2. Resolve §4.1 (tip classifier) and §4.2 (headline basis) with Marcus.
 3. Reword or drop the §3 component-split novelty claim in the research plan.
 4. **Fossil-CH4 arm** — `fairtable7_v145_pulse.py --specie ch4 --fossil` (time-distributed oxidation CO2
