@@ -3,7 +3,39 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-03 (latest) — Headline metric table complete; component-split claim refuted
+## [unreleased] — 2026-08-05 (latest) — Mengel A0 confirmed; A1-LIA falsified; component review vs FACTS/AR6
+
+- **A0 offline profile (`python/a0_mengel_profile.py`) CONFIRMED the T_lia-floor diagnosis** on all
+  three handoff predictions: (P1) the algebraic (a,b|T_lia) curve crosses inventory-consistency at
+  T_lia −1.14 / a 0.486 / b 0.464 (full-RGI) — Mengel's published values; (P2) the GSIC profile
+  likelihood improves monotonically past the −1.00 floor and the railing is driven by the pre-1950
+  target years; (P3) freeing `gic_sl0` absorbs the committed-melt demand but degenerates (a→∞, b→0)
+  without an inventory term.
+- **A1 as specified (widen T_lia from an LIA reconstruction) is FALSIFIED by the reconstruction:**
+  PAGES 2k global LIA = −0.03..−0.14 °C rel 1850-1900 (tail −0.45); amplified glacier-region minima
+  −0.5..−0.65. **Mengel 2016 has no T_lia at all** (equilibrium ≡ 0 at preindustrial; natural melt
+  subtracted from calib data via Marzeion 2014, contested by Roe 2021). The parameter must be
+  reinterpreted as an effective disequilibrium offset — GlacierMIP3 (Zekollari 2025: 39% of glacier
+  mass committed at PRESENT climate) supports the ≈−1.1 offset physics while killing the LIA label.
+  A pure sl0 (initial-state) fix fails GlacierMIP3 outright — tried on paper, abandoned.
+- **A2 scope finding (agent-verified, Hock 2023):** the Frederikse glacier target EXCLUDES peripheral
+  regions 5+19 → scope-matched inventory 0.221±0.057 m SLE vs full-RGI 0.324±0.084 (the 0.32
+  `gic_a` floor). Our spliced GSIC target is internally scope-mixed (GlaMBIE tail includes
+  peripheries). Scope choice = open decision; only the full-RGI crossing passes GlacierMIP3.
+- **B1 hindcast stats on extA108** (`python/b1_component_hindcast_stats.py`): AIS now clean (the 1900
+  overshoot is resolved); GIS/GSIC undershoot 1950-1993; TE overshoots pre-1950.
+- **B2 projections review**: BRICK-AM per-component 3-SSP bands to 2300
+  (`julia/project_ssps_components_2300.jl`); FACTS `global.coupling.{ssp126,ssp585}.n200` runs
+  (native FaIR-1.6.4 climate needed `fair==1.6.4` baked into the image — the neutered-pip fix had
+  broken the climate step); comparison table + figure
+  (`python/b2_component_comparison.py`, `python/plot_b2_component_comparison.py`). Headlines @2100
+  vs AR6 T9.9: glaciers low + spread-collapsed (0.8 vs 9 cm across SSPs); AIS too binary (low at
+  SSP1-2.6, 46 vs 12 cm at SSP5-8.5, runaway post-2100); GIS modestly low; TE/LWS in family;
+  total scenario-sensitivity ~2× AR6's.
+- **A5 recalibration NOT launched** — §5 decision menu (inventory scope, GlacierMIP3 role, sl0,
+  offset prior) in `notes/memo_2026-08-05_mengel_a0_results_and_recalib_options.md` awaits Marcus.
+
+## [unreleased] — 2026-08-03 — Headline metric table complete; component-split claim refuted
 
 - **The §0 table's missing pulse-relative cells are filled** (stochastic arms; deterministic still
   running). `python/metric_horizon_table.py` forms both metrics identically — ensemble MEAN marginal
