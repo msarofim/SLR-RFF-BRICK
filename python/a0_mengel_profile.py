@@ -55,8 +55,13 @@ Y0, Y1 = 1850, 2026            # calibrate_mcmc_ext.jl model window
 BASE0, BASE1 = 1995, 2005      # reref window (cm anomalies)
 FIT_START = 1900               # first GSIC target year
 EARLY_CUT_YEAR = 1950          # "early-20th-c removed" = fit years >= this
-INVENTORY_M = 0.32             # Farinotti-2019 value used as the gic_a floor (A2 will re-check scope)
-INV_YEAR = 2020                # inventory reference year: a − S(INV_YEAR) vs INVENTORY_M
+# Present-day glacier inventory (m SLE), TWO SCOPES (agent-verified 2026-08-05, Hock 2023 JoG
+# reconciliation): the Frederikse-2020 glacier target EXCLUDES peripheral regions 5+19, so the
+# scope-MATCHED inventory is 0.221±0.057 (Farinotti 2019 excl. 5+19; Millan matched 0.223±0.073).
+# The 0.324±0.084 full-RGI value (the gic_a floor's 0.32) INCLUDES peripheries — scope-mixed
+# vs the calibration target. Both crossings reported; the A5 scope decision is Marcus's.
+INVENTORY_SCOPES = {"frederikse_scope_0.221": 0.221, "full_rgi_0.324": 0.324}
+INV_YEAR = 2020                # inventory reference year: a − S(INV_YEAR) vs inventory
 TLIA_GRID = np.round(np.arange(-2.50, -0.099, 0.02), 4)
 TLIA_FLOOR, B_CEIL = -1.00, 1.00        # current prior box (calibrate_mcmc_ext.jl:153-154)
 MENGEL_PUB_A, MENGEL_PUB_B = 0.47, 0.52  # Mengel 2016 multi-model medians
@@ -164,23 +169,28 @@ for tl in TLIA_GRID:
     if np.isfinite(a1):
         _, s_raw = model_cm(a1, b1, tl)
         s2020 = s_raw[inv_idx]
-        inv_res = a1 - s2020 - INVENTORY_M
         ll_alg = logl_full(a1, b1, tl)
     else:
-        s2020 = inv_res = ll_alg = np.nan
-    rows.append(dict(T_lia=tl, a_alg=a1, b_alg=b1, S2020_alg=s2020,
-                     inv_resid_alg=inv_res, logl_alg=ll_alg))
+        s2020 = ll_alg = np.nan
+    row = dict(T_lia=tl, a_alg=a1, b_alg=b1, S2020_alg=s2020, logl_alg=ll_alg)
+    for scope, inv in INVENTORY_SCOPES.items():
+        row[f"inv_resid_{scope}"] = a1 - s2020 - inv if np.isfinite(a1) else np.nan
+    rows.append(row)
 prof = pd.DataFrame(rows)
 
-ok = prof.dropna(subset=["inv_resid_alg"])
-sign_change = np.where(np.diff(np.sign(ok["inv_resid_alg"])))[0]
-tlia_cross = np.nan
-if len(sign_change):
-    i = sign_change[0]
-    x0, x1 = ok["T_lia"].iloc[i], ok["T_lia"].iloc[i + 1]
-    r0, r1 = ok["inv_resid_alg"].iloc[i], ok["inv_resid_alg"].iloc[i + 1]
-    tlia_cross = x0 - r0 * (x1 - x0) / (r1 - r0)
-    a_cross, b_cross = solve_ab(tlia_cross)
+crossings = {}
+for scope in INVENTORY_SCOPES:
+    ok = prof.dropna(subset=[f"inv_resid_{scope}"])
+    res = ok[f"inv_resid_{scope}"].to_numpy()
+    sign_change = np.where(np.diff(np.sign(res)))[0]
+    if len(sign_change):
+        i = sign_change[0]
+        x0, x1 = ok["T_lia"].iloc[i], ok["T_lia"].iloc[i + 1]
+        x = x0 - res[i] * (x1 - x0) / (res[i + 1] - res[i])
+        crossings[scope] = (x, *solve_ab(x))
+tlia_cross = crossings.get("full_rgi_0.324", (np.nan,))[0]   # headline = handoff's scope
+if np.isfinite(tlia_cross):
+    _, a_cross, b_cross = crossings["full_rgi_0.324"]
 
 # ------------------------------------------------- P2/P3: profile likelihood
 def profile_opt(logl, tl, x_warm, free_sl0=False):
@@ -233,11 +243,12 @@ late_range = prof["logl_late"].max() - prof["logl_late"].min()
 full_range = prof["logl_full"].max() - prof["logl_full"].min()
 
 print("\n=== P1 (algebraic profile) ===")
+for scope, (x, ax, bx) in crossings.items():
+    print(f"  inventory-consistency crossing [{scope}]: T_lia = {x:.3f}  (a={ax:.3f}, b={bx:.3f})")
 if np.isfinite(tlia_cross):
-    print(f"  inventory-consistency crossing: T_lia = {tlia_cross:.3f}  "
-          f"(a={a_cross:.3f}, b={b_cross:.3f}; handoff predicted ~ -1.1 to -1.2, a=0.479, b=0.476)")
+    print("  (handoff predicted, full-RGI scope: T_lia ~ -1.1 to -1.2, a=0.479, b=0.476)")
 else:
-    print("  NO inventory-consistency crossing on the grid — §1 story NOT confirmed")
+    print("  NO full-RGI inventory-consistency crossing on the grid — §1 story NOT confirmed")
 print(f"  algebraic domain limit: no (a,b) solution for T_lia <= {-COMMITTED_MED/SLOPE0_MED:.3f}")
 
 print("\n=== P2 (profile likelihood over T_lia) ===")
@@ -277,13 +288,14 @@ axA.set(xlabel="gic_T_lia (°C)", ylabel="m  |  1/K",
         title="P1: (a,b) holding slope@0 & committed at posterior medians")
 axA.legend(fontsize=8)
 
-axB.plot(prof["T_lia"], prof["inv_resid_alg"], color="tab:green")
+for (scope, inv), c in zip(INVENTORY_SCOPES.items(), ["tab:olive", "tab:green"]):
+    axB.plot(prof["T_lia"], prof[f"inv_resid_{scope}"], color=c, label=f"V={inv} ({scope.split('_0')[0]})")
+    if scope in crossings:
+        axB.axvline(crossings[scope][0], color=c, ls="-.", lw=1.2)
 axB.axhline(0, color="k", lw=0.8)
 axB.axvline(TLIA_FLOOR, color="k", ls="--", lw=1, label="current T_lia floor")
-if np.isfinite(tlia_cross):
-    axB.axvline(tlia_cross, color="tab:green", ls="-.", lw=1.2)
-axB.set(xlabel="gic_T_lia (°C)", ylabel="a − S(2020) − 0.32  (m)",
-        title=f"P1: Farinotti inventory residual (V={INVENTORY_M} m @ {INV_YEAR})")
+axB.set(xlabel="gic_T_lia (°C)", ylabel=f"a − S({INV_YEAR}) − V  (m)",
+        title="P1: inventory residual, both scopes (Farinotti/Hock 2023)", ylim=(-0.35, 0.5))
 axB.legend(fontsize=8)
 
 for col, lab, c in [("logl_full", f"full {fit_years[0]}–{fit_years[-1]}", "tab:blue"),
