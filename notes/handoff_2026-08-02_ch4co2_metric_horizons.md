@@ -147,11 +147,13 @@ zero-pulse gate**, which is the argument for running it after every driver chang
 affected**: with 4 horizons the expressions are identical, and a default-horizon re-run byte-compares
 0.0 against the original pre-change staged reference. No quarantine needed.
 
-## 5b. PARALLEL-SESSION WORK — reconcile before citing (noted 2026-08-04)
+## 5b. CONTINUATION WORK (2026-08-03) — this handoff was picked up and carried forward
 
-Work continued in parallel and is **already committed and validated** (`aab89fd`, `ea38edc`,
-`bc07ada`, and handoff `notes/handoff_2026-08-03_metric_table_and_fossil.md`). Superseding what an
-earlier draft of this section speculated:
+**Not a parallel/rival thread — a continuation of THIS one.** A session picked up this handoff at
+11:55 on 08-03, eleven minutes after it was committed (5a1eefe, 11:44), and carried the work through
+18:44 while this session's `_pr` job was still running. That is the handoff functioning as designed.
+All of it is committed and validated (`d577d0d`…`bc07ada`, handoff
+`notes/handoff_2026-08-03_metric_table_and_fossil.md` = the current state of this same lineage):
 - **Fossil-CH4 arms are complete on both bases, with the shared-baseline gate verified end-to-end
   through BRICK** (`ea38edc`, `bc07ada`) — not unvalidated output. Use the 08-03 handoff for them.
 - **A FaIR two-pass concentration leak** was found and FIXED (memory
