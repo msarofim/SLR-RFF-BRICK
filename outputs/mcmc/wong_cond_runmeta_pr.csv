@@ -1,0 +1,30 @@
+key,value
+run_timestamp_local,2026-08-03T12:32:49
+host,MacBook-Pro-2.local
+driver,weight_and_project_brick_fair.jl
+code_git_commit,d577d0d-DIRTY
+code_repo,/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/
+model_lineage,BRICK-AM (Antarctic-Mengel; MimiBRICK v2.0.0 fork + Mengel-2016 glaciers)
+calibrator,"calibrate_mcmc_ext.jl (CANONICAL, mean forcing)"
+posterior_subsample,"parameters_subsample_brick_mengel_extA108.csv (7.6 MB, sha cdbefda93b97)"
+dais_integrator,SUB-ANNUAL (frac patch ACTIVE)
+dais_component_file,"antarctic_icesheet_component.jl (16 KB, sha e1889c4630dd)"
+climate_driver,"FaIR 2.2.4 (calib1.4.5), 841-config constrained posterior"
+units,SLR cm; pulse marginals are cm per 1 GtCO2
+reference_period,1995-2005 mean (SLR anomalies re-referenced per draw)
+weighting,"COUPLED = conditional importance weighting w_{i|k} ∝ exp[c·(ℓ^FB−ℓ^B)] normalized within each FaIR config (p(config)=1/841 uniform; forcing marginal untouched); c=0.1258, achieved mean conditional ESS/N=0.600. INDEPENDENT = equal weights."
+julia_version,1.12.6
+Mimi_version,1.6.0
+MimiBRICK_version,1.2.0-dev
+forcing_file_1,"fair_gmst_base_wide.csv (9.0 MB, sha dfe0f37f0c58)"
+forcing_file_2,"fair_gmst_pulse_wide.csv (9.0 MB, sha ff0ee0bc2836)"
+forcing_file_3,"fair_ohc_base_wide.csv (8.6 MB, sha 56f3665e7077)"
+forcing_file_4,"fair_ohc_pulse_wide.csv (8.6 MB, sha 164371ea4ba8)"
+forcing_basis,"STOCHASTIC (FaIR internal variability ON, canonical)"
+pulse_spec,"+10 GtCO2 @2030, SSP2-4.5, paired in-process per (config,draw); mode=on"
+amplification_prior,"amp ~ N(1.080, 0.150) on [0.630, 1.530] (A6 CMIP6 land-frame secant)"
+lws_mode,"build_brick_mengel default (:seeded, LWS_SEED=2026)"
+ensemble_size,841 FaIR configs × 2000 BRICK-AM posterior draws = 1682000 pairs
+projection_window,1850-2300
+engine,fast (in-place instance mutation; validated byte-identical to update_param!)
+sanity_zero_pulse,gated separately (--pulse=zero: max|Δ|=0.0 exactly)
