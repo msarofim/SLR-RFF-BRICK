@@ -127,24 +127,44 @@ data, and b becomes identified (A0 P1 shows the profile is well-conditioned).
   (1950–1993 biases −0.68 / −0.35 cm; in-window coverage 0.00 / 0.05). TE overshoots the early
   century (+0.54 cm). (Coverage uses the physical posterior band only, no AR(1) noise — ranks
   components, not a likelihood test.)
-- **B2 (projections)** — BRICK-AM per-component bands to 2300 done
-  (`julia/project_ssps_components_2300.jl` → `outputs/ssps_components_2300_extA108.csv`);
-  FACTS ssp126/ssp585 n200 runs in progress (the native-FaIR climate step needed `fair==1.6.4`
-  baked into the image — fixed); comparison machinery ready
-  (`python/b2_component_comparison.py`, `facts/extract_facts_components.py`).
-  Early signals vs FACTS-ssp245 + AR6 Table 9.9 (all medians, cm, ~2005 baseline):
-  - **Glaciers:** BRICK-AM 6.4/6.8/7.2 @2100 (SSP1-2.6/2-4.5/5-8.5) vs AR6 9/12/18 — low
-    everywhere, scenario spread 0.8 cm vs AR6's 9 cm. The Workstream-A bug, quantified.
-  - **AIS:** in family @2100 under SSP2-4.5 (13.9 vs AR6 11), then runs away: @2150 58.6 vs
-    FACTS 11–30; @2300 199 (SSP2-4.5) / 316 (SSP5-8.5) — at/above the AR6 assessed-range top.
-    SSP1-2.6 @2100 is LOW (4.9 vs AR6 11).
-  - **GIS:** low, esp. at high forcing @2100 (7.9 vs AR6 13).
-  - **TE:** levels in family (16.8 vs AR6 20 @2100 SSP2-4.5); band conspicuously narrow.
-  - **Totals:** 32.9 / 47.5 / 89.3 @2100 vs AR6 44 / 56 / 77 — low / ok / high, i.e. BRICK-AM's
-    scenario sensitivity of the TOTAL is too strong (AIS-driven) while its glacier sensitivity
-    is too weak.
-  - **Band-width caveat:** BRICK-AM bands are parameter-only on mean forcing; FACTS/AR6 bands
-    include climate-ensemble spread. Medians comparable; widths not like-for-like.
+- **B2 (projections) — COMPLETE.** BRICK-AM per-component bands to 2300
+  (`julia/project_ssps_components_2300.jl`); FACTS `global.coupling.{ssp126,ssp245,ssp585}.n200`
+  all run and extracted (the native-FaIR climate step needed `fair==1.6.4` baked into the image —
+  the neutered-pip fix from the pulse PoC had broken it). Tables:
+  `outputs/b2_component_comparison.csv`; figures `figures/b2_component_comparison_{2100,2150}.png`.
+  **Band-width caveat throughout:** BRICK-AM bands are parameter-only on mean forcing; FACTS/AR6
+  bands include climate-ensemble spread. Medians comparable; widths not like-for-like.
 
-**Figure/CSV pointers:** `figures/a0_mengel_profile.png`, `outputs/b1_component_hindcast_stats.csv`,
-`outputs/ssps_components_2300_extA108.csv`, `outputs/facts_components_n200.csv` (ssp245 so far).
+## 5. B3 — ranked out-of-family list (attribution before any new physics)
+
+Medians, cm, ~2005 baseline; scenario order SSP1-2.6 / 2-4.5 / 5-8.5.
+
+1. **AIS — response is too binary; the largest cm-errors in both directions.**
+   @2100: 4.9 / 13.9 / 46.2 vs AR6 11 / 11 / 12 (FACTS non-MICI modules 6–23 across scenarios).
+   Scenario spread @2100: **41 cm vs −2…+9 (non-MICI FACTS) and 20 (DeConto MICI)** — 2× even MICI.
+   Under SSP2-4.5 @2150 BRICK-AM (58.6) is 2× the HIGHEST FACTS module incl. MICI (DeConto 30.3);
+   under SSP5-8.5 @2150 it sits between non-MICI (~37) and MICI (199). @2300: 199 (2-4.5) / 316
+   (5-8.5) — at/above the AR6 assessed top. **Attribution: the fixed-rate disintegration ramp
+   tips median draws already under SSP2-4.5 — earlier than DeConto's MICI — while the
+   below-threshold response undershoots (SSP1-2.6 low everywhere).** Levers: temperature_threshold
+   / amp posterior placement, λ ramp rate, and the quasi-linear below-threshold response.
+2. **Glaciers — the confirmed Workstream-A bug, now quantified.** 6.4 / 6.8 / 7.2 @2100 vs AR6
+   9 / 12 / 18; scenario spread **0.8 cm vs 6.5–8.5 (FACTS) and 9 (AR6)** — ~10× compressed AND
+   low at every scenario. @2150 spread 1.6 vs 16.4. Fix = Workstream A (§3).
+3. **GIS — low with ~4× too-weak scenario sensitivity.** @2100: 6.1 / 6.6 / 7.9 vs AR6 6 / 8 / 13
+   (FittedISMIP 7.7 / 10.2 / 13.9); spread 1.8 vs 6.3–7.3. @2150 SSP5-8.5: 15.5 vs FittedISMIP
+   27.3. Compounding the B1 mid-century hindcast undershoot. Worth a targeted look at the SIMPLE
+   Greenland component's T-sensitivity (greenland_* posterior vs Wong's).
+4. **TE — in family, mildly low at high forcing (−10…−15%: 46.5 vs tlm 53.3 @2150 SSP5-8.5);**
+   spread fine (12.4 vs 14.8 @2100). The conspicuously narrow band is mostly the parameter-only
+   caveat, plus the B1 early-century overshoot. Low priority.
+5. **LWS — fine (2.6 vs 3.0–3.1 @2100)** and deliberately degenerate across draws (seeded
+   central path; uncertainty not propagated). No action; document.
+6. **Total — errors do NOT cancel: scenario sensitivity ~2× AR6.** @2100: 32.9 / 47.5 / 89.3 vs
+   AR6 44 / 56 / 77 (spread 56 vs 33; FACTS workflows 25–51). BRICK-AM is *below* the whole FACTS
+   workflow family at SSP1-2.6 and *above* all but MICI at SSP5-8.5 — AIS-driven at the top,
+   glacier+GIS+AIS undershoot at the bottom.
+
+**Figure/CSV pointers:** `figures/a0_mengel_profile.png`, `figures/b2_component_comparison_{2100,2150}.png`,
+`outputs/b1_component_hindcast_stats.csv`, `outputs/ssps_components_2300_extA108.csv`,
+`outputs/facts_components_n200.csv`, `outputs/b2_component_comparison.csv`.
