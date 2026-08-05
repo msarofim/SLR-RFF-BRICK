@@ -67,8 +67,31 @@ Verified from Frederikse's production code + Hock et al. 2023 (JoG 69:204) recon
 - Full-RGI (incl. peripheries): **0.324 ± 0.084 m** — this is what the current `gic_a` floor
   (0.32) encodes.
 - **Our own spliced GSIC target is internally scope-mixed:** the GlaMBIE tail (2000–2023)
-  includes peripheries (~19% of the modern loss rate; GlaMBIE 2025: −273 ± 16 Gt/yr total,
-  periphery −53 ± 11), while the Frederikse segment excludes them.
+  includes peripheries (19.5% of the 2000–2023 loss, computed from the per-region files in our
+  local `glambie_data.zip`: r5 13.0% / −35 Gt/yr, r19 6.5% / −18 Gt/yr), while the Frederikse
+  segment excludes them. Offset-matching absorbs the level; the 2019–2023 extension years carry
+  the ~19% rate excess (~0.07 cm cumulative).
+- **Component-ownership verification (second agent sweep, 2026-08-05 evening):**
+  - *Region 5 is in the GIS target across the whole window:* Frederikse GrIS = Kjeldsen+Mouginot
+    incl. peripheral GICs (his code deletes r5 from the glacier sum), and the GRACE-FO JPL mascon
+    Greenland splice tail ALSO includes r5 — peripheral GICs are ~16% of the raw GRACE Greenland
+    signal (NOAA Arctic Report Card 2025 scales by 0.84 to remove them, citing Colgan 2015;
+    IMBIE-3: gravimetry "not sufficient to separate" the peripherals, GIC = 4.1% of GrIS
+    gravimetry loss). → **putting region 5 in GSIC would double-count against the GIS component.**
+  - *Region 19 is MOSTLY (not entirely) absent from the AIS target:* Frederikse's AIS column
+    averages IMBIE-2018 (ice-sheet-only drainage basins; subantarctic islands excluded by
+    construction) with Bamber-2018, which EXPLICITLY includes peripheral GICs ("when discussing
+    AIS or GrIS mass trends, the values include PGIC", ERL 13:063008), plus a GRACE branch
+    (2003+) with the same ~3.3% GIC contamination (IMBIE-3). So region 19 partially leaks into
+    the AIS target at the few-percent level; the DAIS model itself has no glacier physics.
+  - *Mengel's published a ≈ 0.47 is FULL-scope:* both sensitivity sources include regions 5+19
+    (Marzeion 2012: "we include ice caps, and peripheral glaciers in Greenland and Antarctica",
+    though its r19 is a global-mean-rate upscale with "no estimate of their volume"; Radić 2014
+    models both directly). Mengel's 0.47 and GlacierMIP3's percentages are full-periphery
+    quantities — comparing them to an excl-scope calibration mixes scope.
+  - *BRICK-generation note:* BRICK 2.0's GSIC target (Dyurgerov & Meier 2005 "all systems",
+    785,000 km²) was periphery-INCLUSIVE — the two BRICK generations calibrate GSIC to
+    different physical objects.
 
 ### 2d. GlacierMIP3 (Zekollari 2025, Science, DOI 10.1126/science.adu4675) — the discriminating diagnostic
 
@@ -79,8 +102,9 @@ between +1.5 and +3 °C. Checked against the candidate parameter sets (`a0` outp
 | candidate | committed@2K (% matched inv.) | sens 1.5→3K (mm) | verdict |
 |---|---|---|---|
 | current posterior (a .352, b .891, T_lia −.965) | 52% | **+29** | ladder 3× too FLAT (the spread bug) |
-| scope-matched crossing (a .380, b .737, T_lia −1.012) | 81% | +40 | still too saturated |
-| full-RGI crossing (a .486, b .464, T_lia −1.140) | **65%** | **+72** | **in family on every rung** |
+| Frederikse-scope V=.221 (a .380, b .737, T_lia −1.012) | 81% | +40 | still too saturated |
+| excl-5-incl-19 V=.290 (a .452, b .529, T_lia −1.106) | **70%** | **+62** | **in family every rung; lands on Mengel's 0.47/0.52** |
+| full-RGI V=.324 (a .486, b .464, T_lia −1.140) | 65% | +72 | in family BUT double-counts r5 vs GIS |
 | sl0-free + physical T_lia (≈ −0.15, b ≈ 0.35) | ~19% (S_eq(1.2K) < S(2020)!) | — | FAILS: no committed melt left |
 
 Two structural readings, and GlacierMIP3 adjudicates: the large equilibrium offset encodes real
@@ -100,13 +124,21 @@ data, and b becomes identified (A0 P1 shows the profile is well-conditioned).
 
 ### Open choices — need your direction before A5 (updated §5)
 
-1. **Inventory scope (drives V):** (a) *Frederikse-consistent*: V = 0.221 ± 0.057 AND correct
-   the GlaMBIE tail of the GSIC target down by the periphery share (~19% of post-2000 rate);
-   (b) *full-RGI*: V = 0.324 ± 0.084 and accept (or correct) the Frederikse segment's missing
-   peripheries. **(b) is what makes the solution land on Mengel's published (a, b) and pass
-   GlacierMIP3 as-is, but (a) is the internally-consistent cheap option.** My lean: (b) done
-   properly — add a periphery-glacier estimate to the Frederikse segment — but that's real work;
-   (b)-lazy (scope-mixed, as now) is defensible given σ_V ≈ 0.08 swamps the mix.
+1. **Inventory scope (drives V) — now a THREE-way choice (§2c verification):**
+   (a) *as-calibrated*: GSIC = regions 1–18 minus 5, V = 0.221 ± 0.057; GlaMBIE tail corrected
+   to matching scope (global − r5 − r19, files on disk). Cheapest, internally consistent, but
+   leaves region 19 orphaned (a real ~0.05 mm/yr budget gap vs the total target) and its
+   solution (b = 0.74) still over-saturates vs GlacierMIP3.
+   (b) *full-RGI*: V = 0.324 ± 0.084 — now the WEAKEST option: region 5 is demonstrably inside
+   the GIS target (both segments), so a full-RGI GSIC double-counts ~3.4 cm of inventory and
+   ~35 Gt/yr of modern loss against the Greenland component.
+   (c) **RECOMMENDED: excl-5-incl-19, V ≈ 0.290 ± ~0.06** — region 5 stays with GIS (where its
+   obs already live), region 19 moves into GSIC (nothing else models it; closes the budget gap).
+   Its crossing (a 0.452, b 0.529, T_lia −1.106) lands on Mengel's published 0.47/0.52 and
+   passes GlacierMIP3 every rung (70% @2K, +62 mm sens). Target work: GlaMBIE tail = global −
+   r5 (files on disk); the Frederikse segment's missing r19 melt is small pre-2000 (Marzeion's
+   r19 was an upscale; ~0.05 mm/yr today, less earlier) — accept as a known bias with a line in
+   the provenance block, or add Marzeion-2015-style r19 back in if we want it exact.
 2. **GlacierMIP3's role:** evaluation-only (your stated framing), or a soft prior on the derived
    committed@2K fraction? Using it as a prior edges toward A3-in-the-likelihood. My lean:
    evaluation-only; the inventory term already fixes identifiability, and §2d shows the
