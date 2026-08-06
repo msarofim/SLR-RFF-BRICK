@@ -188,6 +188,37 @@ data, and b becomes identified (A0 P1 shows the profile is well-conditioned).
 5. **Downstream (unchanged from handoff §4):** new posterior ⇒ quarantine extA108 outputs, re-run
    the CH4/CO2 pulse arms, measure the delta.
 
+## 3b. extB1 TUNING RESULT (2026-08-06) — A2-as-specified FALSIFIED by a THIRD soft direction
+
+The 500k tuning run (tag extB1: inventory term V=0.290, widened bounds, weak offset prior,
+r5-corrected target) converged cleanly (acceptance 0.237, stable plateau) but did NOT land on
+the predicted point. Posterior: a 0.401, b 0.688, offset **−1.79** (bound −2.0), slope@0 0.080
+(was 0.133), committed 0.274 (was 0.200). Diagnostics (`chain_extB1_seed2026_n500000.csv`):
+- **Inventory VIOLATED:** a − S(2020) median 0.182 [0.119, 0.253] vs N(0.290, 0.060) — the
+  sampler pays ~1.6 logL rather than comply.
+- **GlacierMIP3 ladder still fails:** committed 46/50/55% @1.5/2/3K, sens +27 mm (old +29).
+- **Why:** the fitted GSIC noise collapsed (σ 0.040→0.009, ρ 0.97→0.50), making the flow term
+  razor-sharp, and under it the deep-offset solution wins by **+23 logL** (nuisance-fair) via
+  **13.1 cm of glacier melt in 1850–1900 (= 2.6 mm/yr GMSL from glaciers alone)** — physically
+  absurd (~3–5× total observed GMSL of the era; Leclercq-type reconstructions put 1850–1900
+  glacier melt at ~1–2 cm) but INVISIBLE to a re-referenced target that starts in 1900.
+  A0 missed this third soft direction: after A2 pins total stock, the model drains the
+  unobserved PRE-1900 reservoir instead.
+
+**Remedy options (Marcus's call; do not resolve silently):**
+1. **RECOMMENDED — add a pre-1900 flow constraint:** S(1900) − S(1850) ~ N(µ, σ) from a
+   19th-century glacier reconstruction (Leclercq/Oerlemans length-based 1800–2005 series is
+   the candidate source — number + scope to be verified with receipts before implementation).
+   Same epistemic status as the other likelihood terms; directly kills the fiction. Keep the
+   2020 inventory term — with the leak plugged, it should become satisfiable.
+2. Reformulate the inventory at 1900 (a − S(1900) ~ N(0.383, σ)): immune to pre-1900 fiction
+   but lets the fiction inflate `a` with only mild prior pushback (z ≈ +0.8 at 13 cm) — weaker.
+3. If, with option 1 in place, the ladder/spread STILL fails: that would be an honest
+   structural finding (single-exponential S_eq(T) inconsistent with flow+stock+19th-c data
+   jointly) → A4-level model surgery, not more priors.
+The extB1 chain is retained as falsification evidence (not quarantined — nothing downstream
+consumed it; it is a diagnostic artifact, not a posterior).
+
 ## 4. Workstream B status
 
 - **B1 (hindcast, extA108)** — `python/b1_component_hindcast_stats.py` →
