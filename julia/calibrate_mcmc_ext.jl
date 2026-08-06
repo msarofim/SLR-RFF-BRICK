@@ -149,9 +149,20 @@ push!(FREE, P("greenland_a",:greenland_icesheet,:greenland_a)); push!(FREE, P("g
 push!(FREE, P("greenland_alpha",:greenland_icesheet,:greenland_α)); push!(FREE, P("greenland_beta",:greenland_icesheet,:greenland_β))
 push!(FREE, P("greenland_v0",:greenland_icesheet,:greenland_v₀)); push!(FREE, P("thermal_alpha",:thermal_expansion,:te_α))
 G=:glaciers_small_icecaps
-push!(FREE, (name="gic_a",comp=G,sym=:gic_a,μ=0.45,σ=0.08,lo=0.32,hi=0.55,islog=false))
-push!(FREE, (name="gic_b",comp=G,sym=:gic_b,μ=0.52,σ=0.25,lo=0.25,hi=1.00,islog=false))
-push!(FREE, (name="gic_T_lia",comp=G,sym=:gic_T_lia,μ=-0.45,σ=0.30,lo=-1.00,hi=-0.10,islog=false))
+# ---- 2026-08-06 glacier-stock fix (Marcus-approved; memo_2026-08-05 §3) --------------------
+# A0 showed the old box closed the flow-unidentified STOCK direction at the wrong point
+# (T_lia floor -1.00 binding -> a→0.35, b→0.89, S_eq saturated by ~1.3°C = the spread
+# collapse). Changes: (1) bounds widened so no gic bound binds — the new inventory
+# LIKELIHOOD (below) closes the stock direction with data instead; (2) gic_T_lia is
+# REINTERPRETED as the EFFECTIVE glacier-equilibrium temperature offset, NOT an LIA
+# reconstruction (PAGES 2k global LIA is only -0.03..-0.14°C — the LIA label is falsified;
+# Mengel 2016 had no such temperature, they subtracted Marzeion-2014 natural melt from the
+# data instead, contested by Roe 2021; GlacierMIP3's 39%-committed-at-present is the physics
+# this offset encodes). Prior N(-1.0, 0.5) on [-2.0, -0.1] is deliberately weak: the flow
+# constraints + inventory term identify it (self-consistent solution ≈ -1.11).
+push!(FREE, (name="gic_a",comp=G,sym=:gic_a,μ=0.45,σ=0.08,lo=0.25,hi=0.70,islog=false))
+push!(FREE, (name="gic_b",comp=G,sym=:gic_b,μ=0.52,σ=0.25,lo=0.15,hi=1.20,islog=false))
+push!(FREE, (name="gic_T_lia",comp=G,sym=:gic_T_lia,μ=-1.00,σ=0.50,lo=-2.00,hi=-0.10,islog=false))
 push!(FREE, (name="gic_f",comp=G,sym=:gic_f,μ=0.50,σ=0.30,lo=0.02,hi=0.98,islog=false))
 push!(FREE, (name="gic_tau_fast",comp=G,sym=:gic_tau_fast,μ=40.,σ=30.,lo=5.,hi=80.,islog=false))
 push!(FREE, (name="gic_tau_slow",comp=G,sym=:gic_tau_slow,μ=300.,σ=200.,lo=80.,hi=800.,islog=false))
@@ -250,6 +261,22 @@ const SMB_TARGET_GT = 2098.0 * (10.92 / 12.295)          # = 1863.4 Gt/yr
 const SMB_SIGMA_GT  = 133.0 * (10.92 / 12.295)           # = 118.1 Gt/yr
 const M3ICE_TO_GT   = 917.0 / 1e12                       # ais_ρ_ice = 917 kg/m3
 
+# ---- 2026-08-06 A2: glacier INVENTORY likelihood -- gic_a − S_raw(2020) ~ N(V, σ) ----------
+# The flow target fixes only slope@0 and committed melt; total meltable stock gic_a is
+# invisible to flow data (unmelted ice leaves no trace). This term closes that direction with
+# the present-day inventory. SCOPE (matches the GSIC target, prep_recalib_targets_ext.py):
+# RGI regions 1-18 minus 5 (r5 lives in the GIS target) PLUS 19 (deliberate zero everywhere
+# else in the chain): V = 0.221±0.057 (Farinotti 2019 excl 5+19, Hock 2023 tables)
+# + 0.069±0.018 (r19) = 0.290, σ = 0.060 (quadrature). S_raw = un-rereferenced cumulative
+# melt since 1850 (valid because gic_sl0 = 0). Self-consistency predicts the posterior lands
+# near (a 0.452, b 0.529, T_lia -1.106) = Mengel's published 0.47/0.52 — the A5 success check.
+const INV_V_M      = 0.290
+const INV_SIGMA_M  = 0.060
+const INV_YEAR_IDX = idx(2020)
+const GIC_A_IDX    = findfirst(k -> k.name == "gic_a", FREE)
+@printf("A2 inventory: gic_a - S(2020) ~ N(%.3f, %.3f) m SLE  (scope: RGI 1-18 minus 5, plus 19)\n",
+        INV_V_M, INV_SIGMA_M)
+
 const NP = length(FREE)
 const SERIES = [:ais,:gsic,:gis,:steric,:dang]
 const NN = 2*length(SERIES); const NK = NP + NN
@@ -296,6 +323,9 @@ function logposterior(θ)
     # A5: SMB anchor -- model β_total (1979-2008 mean, Gt/yr) vs area-scaled Rignot 2019
     smb_gt = mean(m[:antarctic_icesheet, :β_total][SMB_IDX]) * M3ICE_TO_GT
     ll += logpdf(Normal(SMB_TARGET_GT, SMB_SIGMA_GT), smb_gt)
+    # A2 glacier inventory: remaining stock = gic_a - raw cumulative melt since 1850
+    s2020_raw = Float64(m[G, :gsic_sea_level][INV_YEAR_IDX])
+    ll += logpdf(Normal(INV_V_M, INV_SIGMA_M), θ[GIC_A_IDX] - s2020_raw)
     # priors: independent Gaussian on physical (EXCEPT the geometry block, which gets the
     # joint paleo prior below), weak half-normal on AR(1) σ
     lp = 0.0
