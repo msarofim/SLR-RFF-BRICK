@@ -82,8 +82,12 @@ Verified from Frederikse's production code + Hock et al. 2023 (JoG 69:204) recon
     read directly from `compute_indiv_glaciers`/`compute_indiv_ice`):* the glacier column is
     regions 1–18-minus-5 BY CONSTRUCTION — the Zemp branch's loop selects region files
     `reg+1 ∈ 1..18` while Zemp 2019's region-19 file exists in the dataset (deliberate, not a
-    data limitation; plausibly a data-quality call — Zemp's r19 series is thin — MY INFERENCE,
-    not documented); the Marzeion array is allocated 18 rows (and Marzeion 2012 states its model
+    data limitation; plausibly a quality call — Zemp 2019 Table 1 r19 = **−14 ± 108 Gt/yr (95% CI)**,
+    the largest error bar of any region on the least-negative specific rate (−0.11 ± 0.87 m w.e./yr),
+    contributing >50% of the global-total variance; Zemp themselves headline a "Total, excl. GRL and
+    ANT" row = the exact cut Frederikse takes. NB r19 is the LARGEST region by volume, 46,801 km³ —
+    poor evidence + small trend, not small mass); the Marzeion array is allocated 18 rows (and
+    Marzeion 2012 states its model
     cannot simulate r19: "not covered by the CRU data sets"). For region 5 the reassignment is
     EXPLICIT: `Kjeldsen_P = Kjeldsen + marzeion_parkes_GRL` (ice sheet + r5 glaciers). **There is
     NO analogous r19 addition anywhere in the AIS column** (= IMBIE-2018 + Bamber-2018, both
