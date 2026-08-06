@@ -272,10 +272,32 @@ const M3ICE_TO_GT   = 917.0 / 1e12                       # ais_ρ_ice = 917 kg/m
 # near (a 0.452, b 0.529, T_lia -1.106) = Mengel's published 0.47/0.52 — the A5 success check.
 const INV_V_M      = 0.290
 const INV_SIGMA_M  = 0.060
-const INV_YEAR_IDX = idx(2020)
+# Checkpoint at the MEASUREMENT epoch: Farinotti's volume refers to RGI ~2000 outlines
+# (2026-08-06 fix; was 2020, a ~0.014 m / 0.2σ epoch error). Millan 2022 (~2018, matched
+# scope 0.223±0.073) agrees to 1% — cross-check only, NOT a second term (same RGI basis).
+const INV_YEAR_IDX = idx(2000)
 const GIC_A_IDX    = findfirst(k -> k.name == "gic_a", FREE)
-@printf("A2 inventory: gic_a - S(2020) ~ N(%.3f, %.3f) m SLE  (scope: RGI 1-18 minus 5, plus 19)\n",
+@printf("A2 inventory: gic_a - S(2000) ~ N(%.3f, %.3f) m SLE  (scope: RGI 1-18 minus 5, plus 19)\n",
         INV_V_M, INV_SIGMA_M)
+
+# ---- 2026-08-06 A2b: 19th-CENTURY flow constraint -- S(1900) − S(1850) ~ N(µ, σ) ----------
+# The extB1 tuning run FALSIFIED A2-alone: the re-referenced flow target starts in 1900, so
+# pre-1900 melt is unobserved, and the sampler drained 13.1 cm of stock over 1850-1900
+# (2.6 mm/yr GMSL — absurd vs any 19th-c budget) to buy a sharper 1900+ fit while violating
+# the inventory (memo_2026-08-05 §3b; Marcus approved remedy 1, 2026-08-06). This term closes
+# that third soft direction with length-based 19th-c reconstruction data (Leclercq-type).
+# VALUES (receipts 2026-08-06): Leclercq/Oerlemans/Cogley 2011 (SurvGeophys 32:519, DOI
+# 10.1007/s10712-011-9121-7) series gives 1850-1900 = 18.5 mm SLE (excl r19, incl r5; from
+# the Marzeion-2015 supplement data); their 2015 update = 28.0 mm; published scope (×1.18
+# ANT upscale) ≈ 21.8; Oerlemans 2007 (differenced) ≈ 10 mm. STRUCTURAL spread (10-28 mm,
+# calibration-dataset-driven) >> any formal σ (~3-5 mm), and the scope deltas vs our
+# convention (drop r5, add r19) are a few mm with offsetting signs. µ=20, σ=9 mm spans all
+# four within ~1.2σ. Kills the extB1 fiction decisively: 131 mm → z≈12 (~-76 logL).
+const M19_MU_M    = 0.020
+const M19_SIGMA_M = 0.009
+const M19_I1850, M19_I1900 = idx(1850), idx(1900)
+@printf("A2b 19th-c flow: S(1900) - S(1850) ~ N(%.3f, %.3f) m SLE (Leclercq-family span)\n",
+        M19_MU_M, M19_SIGMA_M)
 
 const NP = length(FREE)
 const SERIES = [:ais,:gsic,:gis,:steric,:dang]
@@ -324,8 +346,11 @@ function logposterior(θ)
     smb_gt = mean(m[:antarctic_icesheet, :β_total][SMB_IDX]) * M3ICE_TO_GT
     ll += logpdf(Normal(SMB_TARGET_GT, SMB_SIGMA_GT), smb_gt)
     # A2 glacier inventory: remaining stock = gic_a - raw cumulative melt since 1850
-    s2020_raw = Float64(m[G, :gsic_sea_level][INV_YEAR_IDX])
-    ll += logpdf(Normal(INV_V_M, INV_SIGMA_M), θ[GIC_A_IDX] - s2020_raw)
+    gsic_raw = m[G, :gsic_sea_level]
+    ll += logpdf(Normal(INV_V_M, INV_SIGMA_M), θ[GIC_A_IDX] - Float64(gsic_raw[INV_YEAR_IDX]))
+    # A2b 19th-century flow: pre-1900 melt is otherwise unobserved (reref'd target starts 1900)
+    ll += logpdf(Normal(M19_MU_M, M19_SIGMA_M),
+                 Float64(gsic_raw[M19_I1900]) - Float64(gsic_raw[M19_I1850]))
     # priors: independent Gaussian on physical (EXCEPT the geometry block, which gets the
     # joint paleo prior below), weak half-normal on AR(1) σ
     lp = 0.0
