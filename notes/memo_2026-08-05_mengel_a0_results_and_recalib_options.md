@@ -172,6 +172,14 @@ data, and b becomes identified (A0 P1 shows the profile is well-conditioned).
   (1950–1993 biases −0.68 / −0.35 cm; in-window coverage 0.00 / 0.05). TE overshoots the early
   century (+0.54 cm). (Coverage uses the physical posterior band only, no AR(1) noise — ranks
   components, not a likelihood test.)
+  **AIS pre-1992 asterisk (2026-08-06, verified from Frederikse's `compute_grd_ensemble.py`):**
+  his pre-satellite AIS is NOT data — each ensemble member holds a CONSTANT rate drawn from
+  N(0.05, 0.04) mm SLE/yr (≈18 ± 14 Gt/yr; code comment credits "Adhikari", presumably the
+  polar-motion constraint — inference, Methods paywalled) until Bamber/IMBIE begin in 1992.
+  Our target's smooth pre-1992 ramp (+0.052 mm/yr, bands fanning to ±0.64 cm @1900) is that
+  prior integrated. So 1900–1992 constrains only DAIS's mean 20th-c drift vs 0.05±0.04 mm/yr;
+  the "clean" early-century coverage is fit-to-prior, not fit-to-obs. Real AIS obs start 1992 —
+  exactly the window where coverage drops to 0.45. No region-19 content in the prior either.
 - **B2 (projections) — COMPLETE.** BRICK-AM per-component bands to 2300
   (`julia/project_ssps_components_2300.jl`); FACTS `global.coupling.{ssp126,ssp245,ssp585}.n200`
   all run and extracted (the native-FaIR climate step needed `fair==1.6.4` baked into the image —
