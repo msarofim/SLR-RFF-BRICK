@@ -219,6 +219,35 @@ the predicted point. Posterior: a 0.401, b 0.688, offset **−1.79** (bound −2
 The extB1 chain is retained as falsification evidence (not quarantined — nothing downstream
 consumed it; it is a diagnostic artifact, not a posterior).
 
+### 3c. extB2 TUNING RESULT (2026-08-06, A2 @2000 + A2b Leclercq 20±9 mm) — mostly fixed,
+### one 4σ tension that is now demonstrably STRUCTURAL
+
+extB2 chain (500k, accept 0.236): a 0.398, b **0.431**, offset −1.66, f 0.34, τf 72.
+- **Inventory SATISFIED:** a − S(2000) = 0.275 [0.200, 0.346] vs N(0.290, 0.060). ✓
+- **GlacierMIP3 ladder WITHIN the likely range on every rung:** committed 51/56/63/73% @
+  +1.2/1.5/2/3 K vs lit 39/47/63/77 (dead-on at +2 K); sens 1.5→3 K +49 mm (was +27). ✓-ish
+- **A2b VIOLATED at 4σ:** S(1900) = 57 mm [46, 66] vs N(20, 9); the sharp flow term outbids
+  the ~8 logL penalty. Chain still ridge-wanders (seg medians offset −1.42→−1.81).
+- **Constrained test (offline):** enforcing A2b (25×) bottoms out at S(1900) = 30 mm — the
+  model CANNOT reach 20 — while paying ~25 GSIC logL, railing **b at the 1.20 ceiling**, and
+  leaving a **+1.15 cm systematic residual over 1900–1930**. Diagnosis: the data demand
+  quiet-then-fast onset (LIA max ~1850, tiny 1850–1900 melt per Leclercq — whose cumulative
+  curve has its MINIMUM at 1850 — then rapid 1900–1930 melt per Frederikse), which a monotone
+  relaxation toward a CONCAVE S_eq = a(1−e^{−bΔT}) cannot produce; b railing high is the model
+  straining for convexity the exponential lacks. Enforcement also re-collapses the spread
+  (b → 1.2), so the extB2 compromise is a knife-edge, not a stable solution.
+
+**Verdict: memo remedy 3 has fired — the residual misfit is structural (S_eq curvature /
+onset shape), not a calibration-weight problem.** Options for Marcus:
+1. ACCEPT extB2-style posterior with the documented 4σ A2b tension (pragmatic: ladder passes,
+   spread improves ~b 0.43; but a knowingly-violated likelihood term + ridge wander).
+2. STRUCTURAL: give S_eq a convex-onset shape (one added shape parameter — e.g. exponent p in
+   a(1−e^{−(bΔT)^p}) or logistic) and recalibrate; GlacierMIP3's ladder stays evaluation-only.
+3. Variant of 2 that crosses the A3 line: set the S_eq shape from GlacierMIP3's committed
+   ladder directly and calibrate only amplitude/timescales to history — explicitly imports
+   projection-model physics; Marcus previously ruled GlacierMIP3 evaluation-only.
+extB1/extB2 chains + tuning logs retained as evidence; no production run launched.
+
 ## 4. Workstream B status
 
 - **B1 (hindcast, extA108)** — `python/b1_component_hindcast_stats.py` →
