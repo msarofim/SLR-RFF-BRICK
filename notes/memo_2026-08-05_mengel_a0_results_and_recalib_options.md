@@ -130,6 +130,25 @@ physics (glaciers deeply out of equilibrium with the PRESENT climate — 39% alr
 which a pure initial-condition fix (sl0) cannot represent. **The value ≈ −1.1 is right; the LIA
 label is wrong.**
 
+## 2e. The mechanism in one paragraph (why missing STOCK broke a FLOW calibration)
+
+The glacier target is pure flow (melt rates 1900–2023), and flow fixes only two combinations of
+the three glacier parameters: slope@0 (≈0.133 m/K) and committed melt (≈0.20 m). The third
+direction — total meltable stock `a` — is invisible to a flow fit: unmelted ice leaves no trace
+in history. Region 19 is the extreme case (~24% of remaining global stock, ~zero historical
+flow). Stock previously entered only as a soft prior (mean 0.45 / floor 0.32, full-scope
+numbers) with no likelihood weight, so the fit overrode it: blocked at the T_lia −1.00 bound,
+the sampler closed the unidentified direction at a ≈ 0.35 — implying only ~0.19 m of glacier
+ice left on Earth (< the 0.221 scope-matched inventory, ≪ the 0.290 r19-inclusive one). Because
+stock and curvature trade off under the two flow constraints (smaller reservoir ⇒ sharper
+curvature to deliver the same committed melt), the written-off stock forced b → 0.89 and
+saturation by ~1.3 °C — the collapsed spread. The A2 inventory LIKELIHOOD at r19-inclusive
+scope (a − S(2020) ~ N(0.290, σ)) closes the third direction with a measurement instead of a
+prior box: a pins at melt-to-date + real remaining stock (≈0.45), and the same flow constraints
+then give b ≈ 0.53, T_lia ≈ −1.11 (Mengel's published values), restoring the GlacierMIP3-
+consistent warming sensitivity. Region 19 matters for none of the history and a quarter of the
+stock; a flow-calibrated model can only learn of it through an inventory term.
+
 ## 3. What A5 should look like — my recommendation, pending your calls
 
 **Recommended package:** A2 inventory likelihood + T_lia reinterpreted (rename to
