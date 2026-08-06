@@ -30,3 +30,12 @@ Total constraint extended with NOAA STAR altimetry GMSL (`../nasa_gmsl_annual.cs
 - IMBIE 2023 ΔAIS(1992–2017) = 0.60 cm — cf. the legacy hardcoded point-term
   `IMBIE_MU = 0.72` cm in `calibrate_mcmc.jl` (point terms are dropped in the
   extended fit, see `calibrate_mcmc_ext.jl`).
+
+## T_glac driver inputs (Option D glacier driver, acquired 2026-08-06)
+
+| File | Purpose | Source | Coverage | DOI / access |
+|------|---------|--------|----------|--------------|
+| `HadCRUT.5.0.2.0.analysis.anomalies.ensemble_mean.nc` (32 MB, UNTRACKED — re-fetch from URL) | gridded T for glacier-area-weighted T_glac | Met Office HadOBS, HadCRUT5 analysis (infilled) ensemble mean, monthly 5 deg (Morice et al. 2021, doi:10.1029/2019JD032361) | 1850–2025 | https://www.metoffice.gov.uk/hadobs/hadcrut5/data/HadCRUT.5.0.2.0/analysis/HadCRUT.5.0.2.0.analysis.anomalies.ensemble_mean.nc |
+| `GlacReg_2023.zip` + `GlacReg_2023/` | RGI first-order glacier-region polygons for the T_glac masks | GTN-G Glacier Regions 2023 | — | 10.5904/gtng-glacreg-2023-07 |
+
+Consumed by `python/build_t_glac.py` → `../t_glac_hadcrut5.csv` (see its provenance sidecar).
