@@ -78,12 +78,21 @@ Verified from Frederikse's production code + Hock et al. 2023 (JoG 69:204) recon
     signal (NOAA Arctic Report Card 2025 scales by 0.84 to remove them, citing Colgan 2015;
     IMBIE-3: gravimetry "not sufficient to separate" the peripherals, GIC = 4.1% of GrIS
     gravimetry loss). → **putting region 5 in GSIC would double-count against the GIS component.**
-  - *Region 19 is MOSTLY (not entirely) absent from the AIS target:* Frederikse's AIS column
-    averages IMBIE-2018 (ice-sheet-only drainage basins; subantarctic islands excluded by
-    construction) with Bamber-2018, which EXPLICITLY includes peripheral GICs ("when discussing
-    AIS or GrIS mass trends, the values include PGIC", ERL 13:063008), plus a GRACE branch
-    (2003+) with the same ~3.3% GIC contamination (IMBIE-3). So region 19 partially leaks into
-    the AIS target at the few-percent level; the DAIS model itself has no glacier physics.
+  - *Region 19 in Frederikse — DOUBLE-CHECKED at code level (Marcus challenge 2026-08-05 eve,
+    read directly from `compute_indiv_glaciers`/`compute_indiv_ice`):* the glacier column is
+    regions 1–18-minus-5 BY CONSTRUCTION — the Zemp branch's loop selects region files
+    `reg+1 ∈ 1..18` while Zemp 2019's region-19 file exists in the dataset (deliberate, not a
+    data limitation; plausibly a data-quality call — Zemp's r19 series is thin — MY INFERENCE,
+    not documented); the Marzeion array is allocated 18 rows (and Marzeion 2012 states its model
+    cannot simulate r19: "not covered by the CRU data sets"). For region 5 the reassignment is
+    EXPLICIT: `Kjeldsen_P = Kjeldsen + marzeion_parkes_GRL` (ice sheet + r5 glaciers). **There is
+    NO analogous r19 addition anywhere in the AIS column** (= IMBIE-2018 + Bamber-2018, both
+    1992+, + the GRD/GRACE ensemble). r19 enters only incidentally: Bamber-2018's WAIS/EAIS
+    numbers include PGIC by that paper's own statement (ERL 13:063008), and mascon-era gravimetry
+    can't separate near-coast PGIC (~3.3%, IMBIE-3). Pre-1992, r19 melt is in NEITHER column —
+    a real (small, ≲0.05 mm/yr modern, less earlier) hole in his budget, tolerable within his
+    uncertainties; the Zenodo README flags only the Greenland exclusion ("Glaciers (excluding
+    Greenland periphery)"), never the Antarctic one.
   - *Mengel's published a ≈ 0.47 is FULL-scope:* both sensitivity sources include regions 5+19
     (Marzeion 2012: "we include ice caps, and peripheral glaciers in Greenland and Antarctica",
     though its r19 is a global-mean-rate upscale with "no estimate of their volume"; Radić 2014
