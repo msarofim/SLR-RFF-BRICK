@@ -81,13 +81,18 @@ Verified from Frederikse's production code + Hock et al. 2023 (JoG 69:204) recon
   - *Region 19 in Frederikse — DOUBLE-CHECKED at code level (Marcus challenge 2026-08-05 eve,
     read directly from `compute_indiv_glaciers`/`compute_indiv_ice`):* the glacier column is
     regions 1–18-minus-5 BY CONSTRUCTION — the Zemp branch's loop selects region files
-    `reg+1 ∈ 1..18` while Zemp 2019's region-19 file exists in the dataset (deliberate, not a
-    data limitation; plausibly a quality call — Zemp 2019 Table 1 r19 = **−14 ± 108 Gt/yr (95% CI)**,
-    the largest error bar of any region on the least-negative specific rate (−0.11 ± 0.87 m w.e./yr),
-    contributing >50% of the global-total variance; Zemp themselves headline a "Total, excl. GRL and
-    ANT" row = the exact cut Frederikse takes. NB r19 is the LARGEST region by volume, 46,801 km³ —
-    poor evidence + small trend, not small mass); the Marzeion array is allocated 18 rows (and
-    Marzeion 2012 states its model
+    `reg+1 ∈ 1..18` while Zemp 2019's region-19 file exists in the dataset. **DOCUMENTED in the
+    paper's Methods (2026-08-06, Marcus's PDF copy), verbatim:** "For Antarctica, the mass balance
+    of its peripheral glaciers is very uncertain, owing to the lack of observations. However,
+    since 2003, only a very small mass loss has been observed for these glaciers, and observations
+    since the 1950s do not suggest a large contribution. Therefore, **we assume no mass loss from
+    the Antarctic peripheral glaciers.**" (And for Greenland, explicitly: "we add the peripheral
+    glaciers to the ice-sheet contribution.") So r19 = a deliberate documented ZERO, on exactly
+    the data-quality grounds the Zemp numbers show — Table 1 r19 = **−14 ± 108 Gt/yr (95% CI)**,
+    the largest error bar of any region on the least-negative specific rate (−0.11 ± 0.87 m
+    w.e./yr), >50% of the global-total variance; Zemp themselves headline a "Total, excl. GRL and
+    ANT" row. NB r19 is the LARGEST region by volume, 46,801 km³ — poor evidence + small trend,
+    not small mass; the Marzeion array is allocated 18 rows (and Marzeion 2012 states its model
     cannot simulate r19: "not covered by the CRU data sets"). For region 5 the reassignment is
     EXPLICIT: `Kjeldsen_P = Kjeldsen + marzeion_parkes_GRL` (ice sheet + r5 glaciers). **There is
     NO analogous r19 addition anywhere in the AIS column** (= IMBIE-2018 + Bamber-2018, both
@@ -172,10 +177,13 @@ data, and b becomes identified (A0 P1 shows the profile is well-conditioned).
   (1950–1993 biases −0.68 / −0.35 cm; in-window coverage 0.00 / 0.05). TE overshoots the early
   century (+0.54 cm). (Coverage uses the physical posterior band only, no AR(1) noise — ranks
   components, not a likelihood test.)
-  **AIS pre-1992 asterisk (2026-08-06, verified from Frederikse's `compute_grd_ensemble.py`):**
+  **AIS pre-1993 asterisk (2026-08-06, verified in code AND Methods — Marcus's PDF copy):**
   his pre-satellite AIS is NOT data — each ensemble member holds a CONSTANT rate drawn from
-  N(0.05, 0.04) mm SLE/yr (≈18 ± 14 Gt/yr; code comment credits "Adhikari", presumably the
-  polar-motion constraint — inference, Methods paywalled) until Bamber/IMBIE begin in 1992.
+  N(0.05, 0.04) mm SLE/yr (≈18 ± 14 Gt/yr). Methods verbatim: "no mass-balance reconstruction
+  exists before the satellite era ... we assume a small Antarctic Ice Sheet contribution before
+  1993 of 0.05 ± 0.04 mm yr⁻¹, based on an existing compilation" — **ref 22 = Adhikari et al.
+  2018, "What drives 20th century polar motion?", EPSL 502:126** (the polar-motion constraint;
+  attribution now CONFIRMED). 1993–2003 = IMBIE-2018 + Bamber-2018 multi-method (refs 23/24).
   Our target's smooth pre-1992 ramp (+0.052 mm/yr, bands fanning to ±0.64 cm @1900) is that
   prior integrated. So 1900–1992 constrains only DAIS's mean 20th-c drift vs 0.05±0.04 mm/yr;
   the "clean" early-century coverage is fit-to-prior, not fit-to-obs. Real AIS obs start 1992 —
