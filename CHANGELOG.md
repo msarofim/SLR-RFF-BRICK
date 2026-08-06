@@ -3,7 +3,38 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-05 (latest) — Mengel A0 confirmed; A1-LIA falsified; component review vs FACTS/AR6
+## [unreleased] — 2026-08-06 (latest) — D0 shootout: T_glac driver validated; ν needs a prior; deep offset was a driver artifact
+
+- **T_glac data prep (`python/build_t_glac.py`)**: glacier-area-weighted observed temperature,
+  HadCRUT5.0.2.0 analysis × GTN-G 2023 region polygons × GlaMBIE year-2000 area weights, scope
+  excl-r5-incl-r19 (matches A2 V=0.290). ETCW in-driver 2.3× global (1930-40); amp_g fit 1.56-1.63
+  vs GlacierMIP3 1.8. Pre-1898 gaps (r03 largest) filled by per-region OLS on global, flagged.
+  New raw inputs documented in `data/observations/raw/README_modern_extensions.md` (HadCRUT5 nc
+  untracked by size; GlacReg zip tracked).
+- **D0 six-cell shootout (`python/d0_glacier_shootout.py`, follow-up arms in
+  `python/d0_final_selfconsistent.py`)**: {Mengel-2τ, Nauels-ν} × {Gfair, Gobs, Tglac}.
+  T_glac wins the decadal flow shape by ~+10 logL; the Gobs control shows the gain is the
+  regional ETCW signal, not obs interannual variability. **ν rails to 0 in every arm** — the
+  hindcast cannot identify ν (Nauels 2017 Table 2 fetched: κ 0.0079-0.0131, ν 0.096-0.445, fit
+  to smooth CMIP5-forced projections); ν must enter via an informative prior.
+- **Deep-offset pathology dissolved**: solving glacier-frame consistency directly (slope@0/amp_g,
+  inventory at observed melt level, GlacierMIP3 39% @+1.2K) gives a 0.383 / b 0.286 / T_off
+  −0.96 glacier-K ≈ −0.60 global-K (inside PAGES-2k amplified LIA minima), committed@1850 only
+  0.092 m — the 0.20 m demand was the GMST driver compensating for missing regional warming.
+  With ν ∈ [0.5, 2] at this point **all pre-registered gates pass simultaneously** (S(1900),
+  inventory, GlacierMIP3 ladder, AR6-family scenario spread) — a first. Residual: 1900-1920 flow
+  segment (Roe-2021/Marzeion-init-artifact question) — data-trust decision pending.
+- **Tried and superseded within the session**: naive frame-scaled crossing (a .452, b .332,
+  T_off −1.77) kept committed=0.20 and failed inventory/ladder — replaced by the direct solve;
+  A2b-enforced (×25) optimization walked to a shallow-offset b-ceiling solution (ladder 92-100%)
+  — enforcement alone does not find the healthy region.
+- **GIS diagnostic (`python/diag_gis_regional_driver.py`)**: GIS melt rate correlates +0.71 with
+  Greenland-region temperature vs +0.16 with GMST; Greenland ETCW 5.5× global; Greenland cooled
+  −1.8 °C/century 1940-90 while global warmed. GIS = confirmed Option-D candidate (own
+  workstream). TE = OHC story, no regional-T fix; AIS already has A6.
+- Decision menu for extB3: memo §5-D0 (ν prior, early-century σ, amp_g, T_glac freeze, GIS timing).
+
+## [unreleased] — 2026-08-05 — Mengel A0 confirmed; A1-LIA falsified; component review vs FACTS/AR6
 
 - **A0 offline profile (`python/a0_mengel_profile.py`) CONFIRMED the T_lia-floor diagnosis** on all
   three handoff predictions: (P1) the algebraic (a,b|T_lia) curve crosses inventory-consistency at

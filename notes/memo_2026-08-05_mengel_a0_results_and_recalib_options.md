@@ -348,3 +348,95 @@ Medians, cm, ~2005 baseline; scenario order SSP1-2.6 / 2-4.5 / 5-8.5.
 **Figure/CSV pointers:** `figures/a0_mengel_profile.png`, `figures/b2_component_comparison_{2100,2150}.png`,
 `outputs/b1_component_hindcast_stats.csv`, `outputs/ssps_components_2300_extA108.csv`,
 `outputs/facts_components_n200.csv`, `outputs/b2_component_comparison.csv`.
+
+## 3e. D0 SHOOTOUT RESULT (2026-08-06 late) — Option D validated, Option-ν-alone falsified,
+## and the deep-offset pathology exposed as a GMST-driver artifact; a full gate-pass exists
+
+Machinery: `python/build_t_glac.py` (data prep), `python/d0_glacier_shootout.py` (6-cell
+shootout), `python/d0_final_selfconsistent.py` (consolidated final arms);
+`outputs/{d0_glacier_shootout,d0b_toff_profile,d0c_needle_threading,d0e_nu_kappa_map,
+d0_final_selfconsistent}.csv`; figures same stems + `t_glac_vs_gmst.png`.
+
+**(a) T_glac built** (HadCRUT5.0.2.0 analysis × GTN-G 2023 region polygons × GlaMBIE
+year-2000 area weights, scope excl-r5-incl-r19 = the V=0.290 scope; provenance sidecar).
+The ETCW is in the driver: 1930–40 T_glac +0.58 °C vs global +0.25 (2.3×); fitted
+amp_g = 1.56–1.63 (through-origin, two windows) vs GlacierMIP3's 1.8. Pre-1898
+region-years for r03/r14/r15/r18 filled by per-region OLS on global (flagged column).
+
+**(b) Six-cell shootout** {Mengel-2τ, Nauels-ν} × {Gfair, Gobs(HadCRUT5-global), Tglac},
+each cell optimized on flow-AR(1) (σ,ρ fitted) + A2 + A2b + calibrator priors:
+- **Shape: the T_glac driver is decisive** — flow logL +9.6 (M×Tglac) vs −0.6 (M×Gfair);
+  the Gobs control gains only +0.7, so it is the REGIONAL signal, not obs wiggles.
+- **ν rails to 0 in every cell and every follow-up arm** (even seeded at ν=1.5–3, even
+  with S_eq fixed). Diagnosis: (T−T_eq)₊^ν only delays onset when the temperature excess
+  starts small; the committed-melt demand puts 1850 already 1–1.4 K above T_eq. And the
+  hindcast actively prefers wiggle-tracking (σ→floor) over everything. **The 20th-century
+  record cannot identify ν. Nauels's own calibrated ν = 0.096–0.445 (Table 2, fit to
+  smooth CMIP5-forced projections) is consistent with this; ν must come from an
+  informative prior, not the flow likelihood.**
+- T_off profile (d0b): on the WHOLE ridge, both drivers, the ladder fails high
+  (com@1.2K 67–93% vs 39 [15–55]) and spread stays ≤1.2 cm — the b-rails knife-edge
+  extB2 found, reproduced offline.
+
+**(c) The key structural discovery: solving the glacier-frame consistency directly
+dissolves the deep-offset pathology.** Constraints {slope@0 = 0.133/amp_g m per
+glacier-K; inventory a − S_obs(2000) = 0.290 with S_obs(2000) ≈ 0.093 (target flow +
+Leclercq); committed@+1.2K-global = 39%} solve to **a = 0.383, b = 0.286, T_off = −0.96
+glacier-K ≈ −0.60 global-K — inside the PAGES-2k amplified LIA-minima range (−0.5…−0.65),
+so the offset no longer needs the "effective disequilibrium" apology. Committed@1850 =
+0.092 m, not the 0.20 m the GMST fit demanded** — the deep offset was the GMST driver
+buying missing 20th-century melt with equilibrium disequilibrium (A0's committed=0.1999
+was a fit combination under the wrong driver, not a physical constant).
+At this SC point (transient free): inventory z = −0.02, ladder 38/46/57/72 vs lit
+39/47/63/77 (sens 73 mm vs 85), 20th-c LEVEL closes (S2020 114 mm vs target-implied
+~107), κ optimum 0.0097 ≈ Nauels's 0.0106, dS@2100 SSP2-4.5 = 10.3 cm vs AR6 12.
+
+**(d) The ν ladder at the SC point (arm C) — a FULL gate-pass exists:**
+| ν | κ | flow logL | S(1900) mm | inv z | com@1.2 | spread cm | dS245 cm | gates |
+|---|---|---|---|---|---|---|---|---|
+| 0.0 | .0097 | −4.5 | 35 | −0.02 | 38 | 2.5 | 10.3 | 2/4 |
+| **0.5** | .0079 | −11.2 | **28** | +0.18 | **40** | **5.1** | **12.7** | **4/4** |
+| **1.0** | .0057 | −17.0 | **21** | +0.35 | **41** | **7.4** | **14.6** | **4/4** |
+| **1.5** | .0042 | −22.4 | **16** | +0.51 | **43** | **8.9** | **16.0** | **4/4** |
+| **2.0** | .0029 | −27.2 | **11** | +0.66 | **44** | **10.0** | **17.0** | **4/4** |
+| 2.5 | .0021 | −31.5 | 7 | +0.83 | 45 | 10.8 | 17.7 | 3/4 |
+First configurations in the whole workstream to pass every pre-registered gate
+(S(1900), inventory, GlacierMIP3 ladder, AR6-family scenario spread) simultaneously.
+ν buys S(1900) AND the scenario spread (spread is a RATE-nonlinearity effect: it dies
+whenever ν→0 regardless of S_eq); the price is flow logL (the 1900–1920 segment, see e).
+The pathological free optimum is only +4 logJ away (vs +23 in extB2) and is further
+de-favored by any informative ν prior (it sits at ν=0).
+
+**(e) The one remaining tension, localized:** the missing melt is entirely **1900–1940**
+(model 16 mm vs target 36 mm at the ν=2 corner; post-1940 rates match). The target's
+fast 1900–1930 is the Marzeion-2015-reconstruction segment that Roe 2021 attributes
+partly to initialization artifacts, and our T_glac ramp starts ~1918 (HadCRUT5's infilled
+early Arctic may also start the ETCW late). This is now a DATA-trust question, not a
+model-structure question — Marcus's call (§5-D0 below).
+
+**(f) Other components (Option-D analogs):** `python/diag_gis_regional_driver.py` —
+**GIS melt rate follows Greenland-region temperature (r = +0.71, 11-yr smoothed) not
+GMST (+0.16); Greenland ETCW = 5.5× global; Greenland COOLED −1.8 °C/century 1940–90
+while global warmed +0.4.** The GMST-driven SIMPLE component structurally cannot see
+this → GIS is a confirmed candidate for its own regional-driver workstream (consistent
+with B1's 1950–93 undershoot and B3's 4×-weak scenario sensitivity). TE: no regional-T
+analog (OHC-driven; early overshoot = Gouretski calibration-target residue). AIS:
+already carries its regional treatment (A6 amplification = the same architectural move).
+
+### §5-D0 — decisions needed before extB3 (do not resolve silently)
+1. **Adopt Option D + Nauels-ν form for extB3?** (recommended: yes — D is decisive;
+   the single-reservoir ν form replaces the 2-τ split; ν=0 nests Mengel.)
+2. **ν prior** — the hindcast cannot identify ν; propose N(1.0, 0.5) truncated ≥0
+   (spans the 4/4-gate region 0.5–2.0; cite FRISIA p=1.5 + spread physics + Nauels
+   form-pedigree). NB this is projection-physics entering through a prior — adjacent
+   to the A3 line Marcus drew (GlacierMIP3 stays out of the LIKELIHOOD either way).
+3. **Early-century flow weight** — Roe-2021 artifact question: keep target σ as-is
+   (accept ~1.5–2σ 1900–1920 residual), or inflate pre-1940 σ (×2?) with a documented
+   rationale, or seek an independent early-20th-c constraint.
+4. **amp_g for projections/ladder**: fitted 1.60 vs GlacierMIP3 1.8 (ladder differs by
+   ~4 points of committed %; both variants in the CSVs).
+5. **T_glac operational choices to freeze**: HadCRUT5 analysis (vs Berkeley cross-check),
+   GlaMBIE area weights (vs mass-loss-share; both computed, near-identical composite),
+   annual-mean (vs melt-season-weighted), splice year = obs end (2024).
+6. **GIS workstream**: open a Greenland-driver (T_gis) workstream after extB3, or fold
+   into the same calibration round?
