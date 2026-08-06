@@ -10,7 +10,9 @@ and extend Greenland / thermal-expansion / glaciers at the same time.
 Extension data (all reconciled multi-method products; see README in raw/):
   - AIS : GRACE-FO JPL mascon RL06.3Mv4 Antarctic mass (2002-2026), DOI 10.5067/TEMSC-3JC634
   - GIS : GRACE-FO JPL mascon RL06.3Mv4 Greenland mass (2002-2026), same DOI
-  - GSIC: GlaMBIE 2025 global glacier mass (2000-2023), DOI 10.5904/wgms-glambie-2024-07
+  - GSIC: GlaMBIE 2025 glacier mass (2000-2023), DOI 10.5904/wgms-glambie-2024-07,
+          SCOPE-MATCHED = global MINUS region 5 (r5 is in the GIS target), region 19 KEPT
+          (2026-08-06 decision; see the GSIC block below + memo_2026-08-05 §2c/§3)
   - TE  : NOAA NCEI World-Ocean 0-2000m thermosteric sea level (2005-2025)
   - TOT : real Dangendorf 2024 GMSL reconstruction (1900-2021) spliced with NOAA STAR
           altimetry (2022-2024). [M3 rework 2026-07-20: was Frederikse-total + STAR;
@@ -187,13 +189,27 @@ for tgt, fn in [("ais", "grace_antarctica_mass.txt"), ("gis", "grace_greenland_m
     sig = annual_mean(raw.t.values,  raw.s.values / GT_PER_CM_SLE, 2002, EXT_Y1)
     modern[tgt] = (sle, sig)
 
-# --- GSIC : GlaMBIE global glacier (annual Gt change -> cumulative) ---
+# --- GSIC : GlaMBIE glacier mass, SCOPE-MATCHED (annual Gt change -> cumulative) ---
+# 2026-08-06 scope decision (Marcus; memo_2026-08-05 §3 choice 1c): the GSIC component owns
+# RGI regions 1-18-minus-5 PLUS region 19. Region 5 (Greenland periphery) lives in the GIS
+# target (Frederikse GrIS = Kjeldsen/Mouginot + r5; GRACE mascon Greenland includes it), so
+# the GlaMBIE GLOBAL series must have r5 SUBTRACTED or the splice double-counts it against
+# GIS. Region 19 is RETAINED (deliberate zero everywhere else in the chain; inventory
+# convention V = 0.290 m SLE). NB the Frederikse 1900-2018 glacier segment lacks r19 flow
+# (documented zero in his Methods) -- small known bias (~0.05 mm/yr modern, less earlier).
+# Error: r5's sigma quadrature-ADDED to the global sigma (conservative; r5 ~35 vs global
+# ~100 Gt/yr, so the change is minor).
 gl = pd.read_csv(os.path.join(RAW, "glambie_global_glacier_mass.csv"))
+r5 = pd.read_csv(os.path.join(RAW, "glambie_r5_greenland_periphery.csv"))
+assert np.array_equal(gl.start_dates.values, r5.start_dates.values), "GlaMBIE global/r5 year mismatch"
 gl["yr"] = np.floor(gl.start_dates).astype(int)
-gl_cum = (-gl.combined_gt.cumsum() / GT_PER_CM_SLE)              # cm SLE, cumulative
-gl_sig = (np.sqrt((gl.combined_gt_errors ** 2).cumsum()) / GT_PER_CM_SLE)  # quad-sum cumulative err
-modern["gsic"] = (pd.Series(gl_cum.values, index=gl.yr.values),
-                  pd.Series(gl_sig.values, index=gl.yr.values))
+gl_net_gt = gl.combined_gt.values - r5.combined_gt.values         # global minus r5 (r19 kept)
+gl_net_err = np.sqrt(gl.combined_gt_errors.values ** 2 + r5.combined_gt_errors.values ** 2)
+gl_cum = pd.Series(-gl_net_gt, index=gl.yr.values).cumsum() / GT_PER_CM_SLE   # cm SLE, cumulative
+gl_sig = pd.Series(np.sqrt((gl_net_err ** 2).cumsum()) / GT_PER_CM_SLE, index=gl.yr.values)
+modern["gsic"] = (gl_cum, gl_sig)
+print(f"GSIC splice scope: GlaMBIE global - r5 (r19 kept); 2000-2023 cumulative "
+      f"{gl_cum.iloc[-1]:+.2f} cm (global would be {-gl.combined_gt.sum()/GT_PER_CM_SLE:+.2f})")
 
 # --- TE : NOAA NCEI World-Ocean 0-2000m thermosteric SL (mm) ---
 st = pd.read_csv(os.path.join(RAW, "noaa_thermosteric_w0-2000m_yearly.dat"),
@@ -271,7 +287,7 @@ for tgt in ["ais", "gis"]:
         print(f"  {tgt} {y}:  GRACE {gr:+.3f}   IMBIE {im:+.3f}   diff {gr-im:+.3f}")
 
 fig, ax = plt.subplots(2, 3, figsize=(15, 8))
-titles = {"ais": "AIS (GRACE-FO)", "gis": "GIS (GRACE-FO)", "gsic": "GSIC (GlaMBIE)",
+titles = {"ais": "AIS (GRACE-FO)", "gis": "GIS (GRACE-FO)", "gsic": "GSIC (GlaMBIE − r5)",
           "steric": "Steric/TE (NOAA NCEI)", "dang": "Total (Dangendorf 2024 + STAR)"}
 hist_label = {"ais": "Frederikse", "gis": "Frederikse", "gsic": "Frederikse",
               "steric": "Frederikse", "dang": "Dangendorf 2024"}
