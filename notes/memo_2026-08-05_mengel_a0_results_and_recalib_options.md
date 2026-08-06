@@ -248,6 +248,46 @@ onset shape), not a calibration-weight problem.** Options for Marcus:
    projection-model physics; Marcus previously ruled GlacierMIP3 evaluation-only.
 extB1/extB2 chains + tuning logs retained as evidence; no production run launched.
 
+### 3d. LITERATURE SYNTHESIS (2026-08-06 eve, two receipt sweeps) — the structural fix is the
+### TRANSIENT, not S_eq's shape; Nauels-ν is the nested published candidate
+
+**(a) Is the glacier-melt shape consistent with GMST? NO — published twice.** Marzeion 2012
+Figs 18 vs 20: the SAME glacier model reproduces the observed decadal structure (fast
+1920s-30s, 1970s pause, post-1990 reacceleration) under station-based REGIONAL forcing but a
+smooth featureless ramp under forced-response (CMIP5) climate. Gregory 2013: the 20th-c
+GMSLR-vs-global-climate relationship is "weak or absent"; Slangen 2017: CMIP5-driven models
+explain 50±30% of early-century GMSL. **Dominant missing driver = ETCW regional/internal
+variability**: Arctic +1.7°C by 1930-40 (3-4× global; Bengtsson 2004, Hegerl 2018 — ~half of
+1901-50 global warming was UNforced) acting on **~84% of global glacier mass** (Arctic/
+subpolar, Marzeion 2012 Table 3). **Aerosols: real but secondary and partly contested** —
+Alpine dimming/brightening = 28% of summer-balance variance, explains the LOCAL 1940s peak +
+mid-century pause (Huss 2009 GRL, Ohmura 2007); "BC ended the LIA" (Painter 2013) is
+CONTRADICTED on timing (Sigl 2018: BC rises after ~80% of the 19th-c retreat; Vincent 2005:
+precipitation-driven); volcanic clustering ended the LIA advance (Brönnimann 2019 NatGeo) —
+glaciers at MAXIMUM ~1850 is forced, matching Leclercq's 1850 minimum. **No published GMST
+emulator adds an aerosol term; GlacierMIP3's ~1.8× glacier-area warming amplification is the
+defensible fixed correction (shape-preserving).** Roe 2021: centennial totals fine with
+T-only + response times; the decadal shape is not attempted. Marzeion early-century melt was
+revised DOWN ~30% in 2015 (elevation bug) — Frederikse already uses M15 ✓.
+
+**(b) Post-Mengel emulator-class models (receipts in agent report):**
+| model | form | delayed onset? |
+|---|---|---|
+| **MAGICC glacier (Nauels 2017 Eq 3)** | dS/dt = κ·(S_eq(T)−S)·(T−T_eq(S))₊^ν | **YES (ν>1); ν=0 ≡ Mengel exactly** |
+| FRISIA v1.0 (Ramme 2025, A3) | dS/dt = β0·T^p·(1−S/V0)^n, p=1.5 | yes (published p>1 precedent) |
+| SURFER v2.0 | Mengel skeleton, S_eq = tanh | no (precedent for S_eq swaps only) |
+| AR5/FACTS ipccar5 | S = f·I(T)^p, p≈0.65-0.75 | no (concave in integrated T) |
+| Edwards 2021 emulandice | per-year GP of GlacierMIP | projection-only, no dynamics |
+**Decisive: GlacierMIP3 itself fits an EXPONENTIAL (concave, Mengel-form) equilibrium curve
+to its committed ladder — so S_eq should STAY concave; the §3c "convex S_eq" idea is
+CORRECTED. The delay belongs in the TRANSIENT** (also supported by GlacierMIP3's
+faster-equilibration-at-higher-ΔT and Gregory-2013/Roe-2021 initial-disequilibrium
+framing). **Recommended structure: the Nauels-ν extension — one added parameter, exactly
+nested (likelihood-ratio testable: ν=0 recovers current Mengel), MAGICC pedigree, GMST-driven.
+Honest caveat: the ETCW pulse is internal+regional; ν buys onset-timing freedom, and the AR(1)
+noise absorbs residual decadal wiggles — full decadal-shape fidelity is not claimable from any
+GMST-driven form.**
+
 ## 4. Workstream B status
 
 - **B1 (hindcast, extA108)** — `python/b1_component_hindcast_stats.py` →
