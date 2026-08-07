@@ -3,7 +3,36 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-07 (late night, latest) — T5a multi-reservoir regional blocks = LEAD candidate; D1 offline cell specced
+## [unreleased] — 2026-08-07 (late night 2, latest) — D1 multi-reservoir cell EXECUTED: pre-registered FAIL (0/10) but first-ever 4/4-gate pass; tension isolated to the pre-2000 century integral
+
+- **`python/d1_multireservoir_cell.py` built and run** (D0-exec pattern; sanity battery 3/3
+  — blocks-sum identity 2.8e-17, ν=0 Mengel nesting exact, reproducibility; the sx2
+  pathological reference reproduces T1's 52.82 exactly). Block anchors all data-derived:
+  drivers = GlaMBIE-area-weighted per-region HadCRUT5; amp_b = regchar ISIMIP3 ratios
+  (FLAGGED low: aggregate 1.34 vs amp_g 1.8 / obs-fit 1.59); (b_b, T_off_b) closed-form from
+  the block's own two-rung EXACT GlacierMIP3 composite (moepy, cached:
+  `outputs/d1_gmip3_steady_cache.nc` 71 KB + `d1_block_ladder_cache.csv`); (κ_b, ν_b) solved
+  exactly from the block τ50 pairs (SLOW 665/159 → ν=1.35; FAST 130/37 → ν=1.60).
+- **Verdict (`notes/handoff_2026-08-07_d1_multireservoir_verdict.md`): 0/10 pre-registered
+  configs feasible** — ANCH passes ALL 4 gates out-of-sample in every variant (first
+  structure ever; spread 6.5–6.9 cm in-band, modern rate 0.85 vs obs 0.81) but misses the
+  1980–2023 flow criterion by 11.5–22.6 logL (tol 5). Anatomy: model S(2020)=57 mm vs target
+  107 mm — the SLOW two-rung solve yields T_off=+0.465 glacier-K (preindustrial equilibrium,
+  late-onset melt), so GlacierMIP3-consistent physics cannot produce the pre-2000 flow.
+  POST-HOC MID arm (κ free, ν held at anchored): deficit unchanged, fitted κ ≈ anchored —
+  the κ anchors are innocent; ν≥1.35 (the spread dial) carries the deficit. FREE rails ν→0
+  (spread dies) but with NO P2 collapse (κ ratio 4.1). T5d absorbs half the deficit at
+  δ=+0.69 mm/yr = 2.3σ of the Roe prior. Driver-swap control: per-block drivers ≈ 0 logL on
+  aggregate flow. τ* and hist-split scans verdict-invariant. New sub-decision H (1850–2000
+  melt split; Hugonnet default, scanned) flagged, not resolved.
+- **Abandoned within this cell:** treating the FREE arm's shared-ν prior N(1.0,0.5) as able
+  to hold ν up against the hindcast (it rails to 0 exactly as in D0/extB3 — reconfirmed);
+  and the hypothesis that per-block DRIVERS carry the historical flow shape (the control
+  killed it — the payoff is per-block S_eq frames + anchored transients).
+- Structural decision (T5c vs T5b+T5d vs T5d-extended vs accept-with-label) awaits Marcus;
+  no extC calibrator surgery until then.
+
+## [unreleased] — 2026-08-07 (late night) — T5a multi-reservoir regional blocks = LEAD candidate; D1 offline cell specced
 
 - **Marcus: multiple glacial reservoirs (T5a) is the lead candidate.** Handoff
   `notes/handoff_2026-08-07_t5a_multireservoir_lead.md` specs the D1 offline feasibility cell
