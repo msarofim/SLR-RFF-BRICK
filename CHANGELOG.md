@@ -3,7 +3,28 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-06 (latest) — D0 shootout: T_glac driver validated; ν needs a prior; deep offset was a driver artifact
+## [unreleased] — 2026-08-07 (latest) — extB3 tuning falsified (wiggle-tracking mode); extB3b σ-fallback launched
+
+- **Gate machinery (`python/eval_chain_gates.py`)**: per-draw evaluation of the pre-registered
+  gates on chain draws (2nd half), reusing the D0 formulas by exec (no new math). Hindcast on the
+  calibrator driver convention (obs T_glac + 1.8×GMST splice); ladder/spread at amp_g 1.8;
+  calibrator-bounds interior check; full-maxlag Geyer ESS; wiggle-mode co-indicators. Self-test
+  reproduces the d0_final C_nu1.0 row (hindcast metrics to CSV precision, 4/4 gates).
+- **extB3 tuning run (500k, seed 2026, accept 0.237, 36 min) FAILED gates 0/4** — the chain
+  camped on exactly the wiggle-tracking mode pre-registered in handoff §2 item 7, all three
+  co-indicators firing: σ_gsic → 0.032 cm (ρ 0.96), gic_nu piled at 0 (median 0.12,
+  P(ν<0.05)=0.24 → scenario spread dead at 1.6 cm), S(1900) median 45 mm (P(>40)=0.77) with
+  T_off dragged to −1.81 (10% from its bound; deep-offset partially back, committed@1850
+  ≈ 0.155 m). Inventory z median −1.19; ladder over-committed (58/66/75/87%). Chain + eval CSV
+  kept as the tuning evidence (`chain_extB3_seed2026_n500000.csv`, `eval_gates_extB3_seed2026.csv`).
+- **extB3b = the documented fallback**: GSIC flow σ ×2 pre-1940 (Marzeion-2015-derived target
+  segment = Roe-2021 initialization artifact; precedes the HadCRUT5 ETCW ramp ~1918). Flag-gated
+  (`--gsic-early-sigma-x2`) so extB3 stays exactly reproducible; smoke-tested; 500k tuning
+  relaunched under `--tag=extB3b`.
+- Stale-comment fix: calibrator A2 header said S_raw(2020); code has used idx(2000) since the
+  2026-08-06 Farinotti-epoch fix.
+
+## [unreleased] — 2026-08-06 — D0 shootout: T_glac driver validated; ν needs a prior; deep offset was a driver artifact
 
 - **T_glac data prep (`python/build_t_glac.py`)**: glacier-area-weighted observed temperature,
   HadCRUT5.0.2.0 analysis × GTN-G 2023 region polygons × GlaMBIE year-2000 area weights, scope
