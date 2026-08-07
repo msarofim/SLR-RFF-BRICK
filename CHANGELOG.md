@@ -3,7 +3,28 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-07 (latest) — extB3 tuning falsified (wiggle-tracking mode); extB3b σ-fallback launched
+## [unreleased] — 2026-08-07 (latest) — extB3/b/c ALL falsified; binding tension = modern flow vs GlacierMIP3 ladder; Dangendorf v2 SE adopted
+
+- **All three tuning arms failed 0/4 gates on the same ν≈0.1 / T_off≈−1.8 mode** (extB3 baseline;
+  extB3b + pre-1940 GSIC σ×2; extB3c + corrected Dangendorf σ — the last passes inventory at the
+  median and improves S1900 to 34 mm, but spread stays ≤1.6 cm and ν piles at 0).
+- **Diagnosis overturned the handoff item-7 framing** (`julia/diag_pathology_terms.jl` + whitened
+  per-era attribution): flow_gsic alone buys the pathology (SC ν=1 point pays −25 logL; all other
+  glacier terms favor SC +5); with early σ×2 active the price is MODERN (−17.8 in 2000–2023, −5.2
+  in 1980–99, only −1.5 in 1900–19). Analytic check: ladder-demanded committed gap 0.105 m × κ·exc
+  → 1.1 mm/yr at 2020 vs observed ~0.6 = 1.7× overshoot. **The single-reservoir ν transient cannot
+  satisfy the GlacierMIP3 committed ladder and the GlaMBIE-era observed rate simultaneously**; the
+  Roe/Marzeion early-segment question is resolved (σ×2 works), the remaining tension is structural.
+  Decision menu (T1 two-reservoir/rate-cap; T2 ladder-anchor scope correction; T3 rejected; T4
+  accept ν≈0) in `notes/handoff_2026-08-07_extB3_falsified_modern_flow_tension.md` — awaiting Marcus.
+- **Dangendorf corrected Global_v2.nc ingested** (Sönke pers.comm.): old file's GMSL/SE slots held
+  barystatic; v2 validates our Fields-derived dang values BIT-EXACTLY; SE is in meters
+  (SE(2021)=2.68 mm). "Frederikse-sd conservative" claim falsified (true SE 1.3–2× larger
+  1900–2010) → **dang_sig switched to native v2 SE** (Marcus), targets rebuilt (only dang_sig/lo/hi
+  changed), prep script asserts units.
+- Chains extB3/b/c + eval CSVs retained as falsification evidence; smoke junk deleted.
+
+## [unreleased] — 2026-08-07 — extB3 tuning falsified (wiggle-tracking mode); extB3b σ-fallback launched
 
 - **Gate machinery (`python/eval_chain_gates.py`)**: per-draw evaluation of the pre-registered
   gates on chain draws (2nd half), reusing the D0 formulas by exec (no new math). Hindcast on the
