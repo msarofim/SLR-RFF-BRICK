@@ -161,19 +161,22 @@ for fname, tgt in FRED_MAP.items():
 # tension diagnostic (diag_dangendorf_vs_frederikse.py) shows it sits inside Frederikse's
 # 5-95% at every trend window (mid-century 6.8th pctl) and agrees with altimetry better in
 # the satellite era -- so keeping Frederikse COMPONENTS + a Dangendorf TOTAL introduces <1σ
-# of trend inconsistency. σ: Dangendorf's own per-year SE is corrupted upstream (its Zenodo
-# Global.nc GMSL slot holds the barystatic mean; the SE column has the same slot-shift), so
-# we adopt the Frederikse ensemble GMSL sd as the total-term σ -- a genuine per-year LEVEL sd,
-# CONSERVATIVE (larger than a fully-correlated combination of Dangendorf's own basin SEs), and
-# reproducible. This only sets the term's WEIGHT; the independent information is in the VALUE.
+# of trend inconsistency. σ (2026-08-07, Marcus): Dangendorf's OWN per-year SE from the
+# CORRECTED Global_v2.nc (S. Dangendorf pers.comm. 2026-08-07; the original Zenodo Global.nc
+# was slot-shifted -- GMSL slots held barystatic -- which is why the 2026-07-20 rework had
+# substituted the Frederikse ensemble GMSL sd; that workaround claimed conservatism, but the
+# corrected SE is 1.3-2x LARGER over 1900-2010 and smaller post-2015, so the substitution is
+# RETIRED). SE units are METERS in the file ("the error ... is 3 mm in 2021 ... given in m").
+# Covers 1900-2021, so no hold-flat extrapolation; STAR years (2022+) get ALT_SIGMA_MM below.
+DANG_V2_NC = os.path.join(RAW, "dangendorf2024_KalmanSmootherHR_Global_v2.nc")
 d = pd.read_csv(os.path.join(OBS, "dangendorf2024_gmsl_annual.csv")).set_index("year")
 dang_val = reref(d["gmsl_mm"] / 10.0, (BASE_Y0, BASE_Y1))                 # cm, 1900-2021
 out["dang"]  = dang_val.reindex(years).values
 fred["dang"] = dang_val
-dang_sig = ens_sig["dang"].reindex(years)                                # GMSL ensemble sd (1900-2018)
-# ensemble ends 2018; hold its 2018 value for the Dangendorf-only years 2019-2021 (small
-# extrapolation, flagged). STAR years (2022+) get ALT_SIGMA_MM below.
-dang_sig.loc[2019:] = ens_sig["dang"].loc[2018]
+with xr.open_dataset(DANG_V2_NC) as dv2:
+    dang_sig = pd.Series(dv2["GMSLHRSE"].values.ravel() * 100.0,          # m -> cm
+                         index=dv2["t"].values.ravel().astype(int)).reindex(years)
+assert abs(dang_sig.loc[2021] - 0.268) < 0.01, "v2 SE(2021) should be ~2.68 mm (units check)"
 out["dang_sig"] = dang_sig.values
 out["dang_lo"]  = (dang_val.reindex(years) - 1.645 * dang_sig).values
 out["dang_hi"]  = (dang_val.reindex(years) + 1.645 * dang_sig).values
