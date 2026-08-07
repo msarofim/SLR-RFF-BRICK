@@ -3,7 +3,42 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-07 (latest) — extB3/b/c ALL falsified; binding tension = modern flow vs GlacierMIP3 ladder; Dangendorf v2 SE adopted
+## [unreleased] — 2026-08-07 (evening 2, latest) — T2 executed: GlacierMIP3 anchor scope-corrected (39→37.4 @1.2K), tension NOT dissolved; T1 offline test built
+
+- **T2 (ladder-anchor scope correction) DONE — the anchor moves −1.7 pts at the +1.2K rung and
+  the modern-flow overshoot only improves 2.00×→1.85×; the structural tension stands.** Data:
+  GlacierMIP3 archive (Zenodo 10.5281/zenodo.15046588 v2; Zekollari 2025 Science adu4675) —
+  small files tracked under `data/observations/raw/gmip3/`, the 1.47 GB per-experiment shifted
+  netCDF untracked with a range-request re-fetch recipe (`python/scripts/remote_zip_extract.py`
+  pulled 358 MB of ranged reads instead of the 984 MB zip).
+- **Method (python/t2_gmip3_scope_anchor.py): replicate the paper's own 'All' estimators, then
+  delta-transfer.** Reverse-engineered from GlacierMIP/GlacierMIP3: the published global CENTRAL
+  = LOWESS median over 80 constant-climate experiments of the per-region model-MEDIAN composite;
+  the published global BOUNDS were REPLACED downstream (0d aggregation notebook) and are ≈ the
+  per-member composite over the 4 globally-covering models (PyGEM-OGGM_v13, GloGEMflow, OGGM_v16,
+  GLIMB — their own cell-9 equivalence, confirmed on the only_global file). Replicated both
+  estimators with moepy + the paper's frac auto-selection (selected 0.22–0.23 vs paper 0.23);
+  **validation on full-RGI reproduces the published ladder: central max err 1.6, bounds max err
+  2.1 pct-pts (PASS ≤3)**. A naive mass-weighted composite of per-region marginal quantiles
+  over-disperses bounds by up to 11.5 pts (the authors' own "conservative regional sum" caveat) —
+  kept in the CSV as a labeled cross-check arm only.
+- **Final excl-r5-incl-r19 anchors (published + replicated scope delta):
+  +1.2K 37.4 [11.8, 54.0]; +1.5K 46.3 [17.2, 63.2]; +2.0K 63.0 [41.5, 75.5]; +3.0K 75.5
+  [58.5, 83.9]** (r5 is high-committed — 58% @1.2K — but only 9.8% of stock; r19 stays in scope).
+  Scope sens 1.5→3K ≈ 95 mm SLE raw (full-RGI raw 109 / S1b BSL-corrected 98) — the shootout's
+  85 mm report-constant was low under any basis. SC point under the new anchor: b 0.282,
+  T_off −0.914, committed@1850 0.087 m, demanded gap 103 mm (was 108).
+- **T1 offline two-reservoir-ν test built (python/t1_two_reservoir_offline.py)** — existence
+  test at the SC point: fast/slow split (Nauels-ν fast pool share φ, linear slow pool τ_s,
+  GlacierMIP3-response-time prior 463 [216–805] yr) + rate-cap arm, ν SCANNED not optimized
+  (free ν rails to 0 and kills spread — same D0 non-identifiability), pre-1940 σ×2 likelihood,
+  ladder/spread at calibrator amp 1.8, criterion = 4/4 gates AND 1980–2023 flow logL within 5
+  of the free-N pathological optimum. First pass (pub anchor) validated the machinery: N1 ν=1
+  at SC = 4/4 gates at deficit 21.2 (matches diag_pathology's −17.8−5.2 whitened attribution);
+  free rate-cap hits deficit 0.3 but spread 0.0 (cap binds in projections — device rejected as
+  a free fit). Full (φ, τ_s, ν) × both-anchor run: results in the next entry/handoff.
+
+## [unreleased] — 2026-08-07 (evening) — extB3/b/c ALL falsified; binding tension = modern flow vs GlacierMIP3 ladder; Dangendorf v2 SE adopted
 
 - **All three tuning arms failed 0/4 gates on the same ν≈0.1 / T_off≈−1.8 mode** (extB3 baseline;
   extB3b + pre-1940 GSIC σ×2; extB3c + corrected Dangendorf σ — the last passes inventory at the
