@@ -39,3 +39,28 @@ Total constraint extended with NOAA STAR altimetry GMSL (`../nasa_gmsl_annual.cs
 | `GlacReg_2023.zip` + `GlacReg_2023/` | RGI first-order glacier-region polygons for the T_glac masks | GTN-G Glacier Regions 2023 | — | 10.5904/gtng-glacreg-2023-07 |
 
 Consumed by `python/build_t_glac.py` → `../t_glac_hadcrut5.csv` (see its provenance sidecar).
+
+## Dangendorf 2024 corrected Global.nc (received 2026-08-07)
+
+| File | Purpose | Source | Coverage |
+|------|---------|--------|----------|
+| `dangendorf2024_KalmanSmootherHR_Global_v2.nc` | corrected global GMSL + components + SEs | S. Dangendorf, personal communication 2026-08-07 (email to Marcus, fixing the Zenodo 10621070 slot-shift) | 1900–2021 |
+
+The ORIGINAL `dangendorf2024_KalmanSmootherHR_Global.nc` (Zenodo fetch) is
+mis-written upstream: its `GMSLHR`/`GMSLHRSE` slots hold the BARYSTATIC
+series/SE (verified: old GMSLHR ≡ v2 GBSLHR value-for-value) and `GBSLHR*`
+are all fill values. Kept in place only because
+`diag_dangendorf_vs_frederikse.py` documents the corruption; NEVER read GMSL
+from it. The v2 file fixes the slots; units are METERS, incl. the SE
+("the error for the reconstruction is 3 mm in 2021, not 0.3 mm. The error
+given in the file is in m." — Dangendorf, 2026-08-07): GMSLHRSE(2021) =
+0.00268 m = 2.68 mm.
+
+Validation (2026-08-07): v2 `GMSLHR` matches our Fields.nc-derived
+`../dangendorf2024_gmsl_annual.csv` to 0.0000 mm demeaned (constant baseline
+offset 53.45 mm; corr 1.000000) — the extraction that fed
+`recalib_targets_ext.csv` `dang` values is confirmed exact. NOTE the v2 SE
+falsifies the "Frederikse-ensemble sd is conservative" rationale in
+`prep_recalib_targets_ext.py` for 1900–2010 (true Dangendorf SE is 1.3–2×
+LARGER there; SMALLER after ~2015). Whether to switch `dang_sig` to the v2 SE
+is an OPEN methodological choice — flagged, not resolved.
