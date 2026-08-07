@@ -21,6 +21,7 @@
 using Mimi, MimiBRICK, Random
 
 include(joinpath(@__DIR__, "glaciers_mengel_component.jl"))
+include(joinpath(@__DIR__, "glaciers_nu_component.jl"))
 include(joinpath(@__DIR__, "brick_param_updates.jl"))
 
 const _MENGEL_GLAC_SLOT = :glaciers_small_icecaps   # name kept by Mimi replace!
@@ -87,5 +88,62 @@ end
 function set_forcing!(m, gmst::Vector{<:Real}, ohc::Vector{<:Real})
     update_param!(m, :model_global_surface_temperature, gmst)
     update_param!(m, :thermal_expansion, :ocean_heat_interior, ohc)
+    return m
+end
+
+# ============================================================================
+# extB3 (2026-08-07): glaciers_nu variant — Mengel S_eq + Nauels-ν transient,
+# driven by GLACIER-AREA temperature (Option D). The old build_brick_mengel /
+# update_brick_mengel! paths above are kept untouched for provenance
+# (extA108/extB1/extB2 reproduction). See glaciers_nu_component.jl header for
+# the frame contract; the driver is set by set_glacier_forcing!, never by
+# set_forcing! (deliberately different parameter name).
+# ============================================================================
+
+"""
+    build_brick_nu(; ssp, y0, y1, lws=:seeded, lws_seed=LWS_SEED)
+
+`build_brick_mengel` with the glaciers_nu component in the glacier slot. The new
+`glacier_surface_temperature` driver is UNBOUND after the build — call
+`set_glacier_forcing!` before `run(m)`.
+"""
+function build_brick_nu(; ssp::String="ssp245", y0::Int=1850, y1::Int=2026,
+                        lws::Symbol=:seeded, lws_seed::Int=LWS_SEED)
+    m = MimiBRICK.get_model(ssprcp_scenario=ssp, start_year=y0, end_year=y1)
+    replace!(m, _MENGEL_GLAC_SLOT => glaciers_nu)
+    n = y1 - y0 + 1
+    if lws === :seeded
+        update_param!(m, :landwater_storage, :lws_random_sample,
+                      LWS_MEAN .+ LWS_SD .* randn(MersenneTwister(lws_seed), n))
+    elseif lws === :central
+        update_param!(m, :landwater_storage, :lws_random_sample, fill(LWS_MEAN, n))
+    elseif lws === :zero
+        update_param!(m, :landwater_storage, :lws_random_sample, zeros(n))
+    elseif lws !== :random
+        error("build_brick_nu: lws must be :seeded, :central, :zero, or :random (got :$lws)")
+    end
+    return m
+end
+
+"""
+    update_brick_nu!(m, prow, gic; precip_log=true)
+
+Non-glacier params from posterior row `prow`; glacier params from `gic`
+(NamedTuple with fields a, b, T_off, kappa, nu, sl0 — GLACIER-FRAME values).
+"""
+function update_brick_nu!(m, prow, gic; precip_log::Bool=true)
+    update_brick_params!(m, prow; precip_log=precip_log, skip_glaciers=true)
+    update_param!(m, _MENGEL_GLAC_SLOT, :gic_a,     gic.a)
+    update_param!(m, _MENGEL_GLAC_SLOT, :gic_b,     gic.b)
+    update_param!(m, _MENGEL_GLAC_SLOT, :gic_T_off, gic.T_off)
+    update_param!(m, _MENGEL_GLAC_SLOT, :gic_kappa, gic.kappa)
+    update_param!(m, _MENGEL_GLAC_SLOT, :gic_nu,    gic.nu)
+    update_param!(m, _MENGEL_GLAC_SLOT, :gic_sl0,   gic.sl0)
+    return m
+end
+
+"""Set the glacier-frame driver (T_glac historically, amp_g x GMST spliced forward)."""
+function set_glacier_forcing!(m, tglac::Vector{<:Real})
+    update_param!(m, _MENGEL_GLAC_SLOT, :glacier_surface_temperature, tglac)
     return m
 end

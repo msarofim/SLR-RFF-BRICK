@@ -33,6 +33,18 @@ commit log; recent entries are explicit.
   −1.8 °C/century 1940-90 while global warmed. GIS = confirmed Option-D candidate (own
   workstream). TE = OHC story, no regional-T fix; AIS already has A6.
 - Decision menu for extB3: memo §5-D0 (ν prior, early-century σ, amp_g, T_glac freeze, GIS timing).
+- **extB3 implementation (2026-08-07)**: `julia/glaciers_nu_component.jl` (Mengel S_eq +
+  Nauels-ν single-reservoir transient, melt-only clamp, driver param renamed
+  `glacier_surface_temperature` to enforce the frame contract), `build_brick_nu`/
+  `update_brick_nu!`/`set_glacier_forcing!` added to `brick_mengel.jl` (old paths kept for
+  provenance), `calibrate_mcmc_ext.jl` rewired (T_glac driver + 1.8×GMST splice; gic block
+  (a, b, T_off, log10κ, ν) with glacier-frame priors, b re-centered 0.29; 39→38 params;
+  extB2 proposal covariance name-mapped, glacier rows fresh). Port validation
+  `validate_glaciers_nu.jl` + `validate_glaciers_nu_compare.py`: Julia↔Python 1e-16,
+  ν=0≡Mengel nesting 4e-19, non-glacier components bit-identical across the swap
+  (AIS feels the glacier via global_sea_level coupling — matched-glacier A/B). 50-iter
+  smoke test PASS (accept 0.36, finite start). Tuning run (500k, --tag=extB3) NOT yet launched.
+
 
 ## [unreleased] — 2026-08-05 — Mengel A0 confirmed; A1-LIA falsified; component review vs FACTS/AR6
 

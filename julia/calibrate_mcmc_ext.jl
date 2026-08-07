@@ -43,6 +43,16 @@
 ##       (anchor preserved), prior centered on CMIP6 PAI1 (Xie et al. 2022).
 ##   Param count 35 -> 39 (25 -> 29 physical).
 ##
+## extB3 (2026-08-07, post-D0-shootout; memo_2026-08-05 §3e + §5-D0):
+##   * Glacier component REPLACED: glaciers_mengel (2-τ) -> glaciers_nu (Mengel S_eq +
+##     Nauels-2017 single-reservoir ν transient; ν=0 nests Mengel; melt-only clamp).
+##   * Glacier DRIVER: glacier-area-weighted observed T (t_glac_hadcrut5.csv) + 1.8×GMST
+##     tail splice — Option D. All gic_* params/priors are GLACIER-FRAME quantities.
+##   * gic block: (a, b, T_off, log10κ, ν); b prior re-centered 0.52->0.29 (frame);
+##     ν N(1.0,0.5)[0,2.5] = projection-informed prior (hindcast cannot identify ν).
+##   * Param count 39 -> 38 (29 -> 28 physical). extB1/extB2 tags are burned (falsified);
+##     run with --tag=extB3. Port validation: julia/validate_glaciers_nu.jl (4/4 PASS).
+##
 ## Usage:  julia --project=julia_v2 julia/calibrate_mcmc_ext.jl [n_iter] [seed] [--overdisperse] [--amp-equilibrium]
 ##   --overdisperse     start each chain from a real over-dispersed posterior draw (production)
 ##   --amp-equilibrium  A6 SENSITIVITY: pin the amplification at the old equilibrium 1.196
@@ -100,6 +110,25 @@ gmst=[lc(joinpath(OBS,"fair_mean_gmst_$(FORCING_TAG).csv"),"gmst_C")[y] for y in
 ohc =[lc(joinpath(OBS,"fair_mean_ohc_$(FORCING_TAG).csv"),"ohc_1e22J")[y] for y in years]
 println("forcing: fair_mean_{gmst,ohc}_$(FORCING_TAG).csv")
 tg = CSV.read(TARGETS, DataFrame)
+
+# ---- extB3 Option D: GLACIER-FRAME driver — observed T_glac + amp_g×GMST tail splice ----
+# The glacier component is driven by glacier-area-weighted OBSERVED temperature
+# (t_glac_hadcrut5.csv: HadCRUT5 analysis × GTN-G regions × GlaMBIE area weights, rel
+# 1850-1900 — the ssp245harm GMST's 1850-1900 mean is −0.0000, so the frames align),
+# then amp_g × GMST with an anchor-preserving splice for years past the obs end.
+# amp_g = 1.8 (GlacierMIP3 glacier-area warming ratio; Marcus 2026-08-07. Fitted
+# historical alternative 1.56-1.63 — see t_glac provenance sidecar).
+const AMP_G = 1.8
+const SPLICE_ANCHOR = 2014:2024
+tgd = lc(joinpath(OBS,"t_glac_hadcrut5.csv"),"t_glac_C")
+const TG_LAST = maximum(keys(tgd))
+let gmd = Dict(zip(years, gmst))
+    global tg_off = mean(tgd[y] for y in SPLICE_ANCHOR) - AMP_G * mean(gmd[y] for y in SPLICE_ANCHOR)
+    global tglac = [y <= TG_LAST ? tgd[y] : AMP_G*gmd[y] + tg_off for y in years]
+end
+@printf("glacier driver: t_glac_hadcrut5.csv 1850-%d + %.1f x GMST splice (anchor %s, offset %+.4f K)\n",
+        TG_LAST, AMP_G, SPLICE_ANCHOR, tg_off)
+
 ϵband(lo,hi)=max.((hi.-lo)./(2*1.645), 0.05)           # per-year obs σ (floor 0.05cm)
 
 # per-series valid years: target value present (non-missing, non-NaN) AND >=1900
@@ -160,12 +189,28 @@ G=:glaciers_small_icecaps
 # data instead, contested by Roe 2021; GlacierMIP3's 39%-committed-at-present is the physics
 # this offset encodes). Prior N(-1.0, 0.5) on [-2.0, -0.1] is deliberately weak: the flow
 # constraints + inventory term identify it (self-consistent solution ≈ -1.11).
+# ---- extB3 (2026-08-07): glaciers_nu — Mengel S_eq + Nauels-ν transient on T_glac ----
+# D0 shootout (memo §3e): the GMST driver bought missing regional (ETCW) warming with a
+# deep equilibrium offset (committed@1850 = 0.20 m — the pre-1900 leak + spread collapse);
+# under the T_glac driver the self-consistent solution is a .383 / b .286 glacier-K /
+# T_off −0.96 glacier-K (= −0.60 global-K, inside amplified PAGES-2k LIA minima;
+# committed@1850 = 0.092 m). FRAME: all gic_* priors are GLACIER-FRAME. gic_b prior
+# re-centered 0.52 → 0.29 = Mengel's published global-frame 0.52 ÷ amp_g 1.8 (leaving
+# 0.52 would pull b toward re-saturation). T_off prior N(−1.0, 0.5) already sits at the
+# glacier-frame value — unchanged (label renamed from the falsified "T_lia"). The 2-τ
+# split (f, τ_fast, τ_slow) is REPLACED by the single-reservoir Nauels transient (κ, ν);
+# ν = 0 nests single-τ Mengel exactly (validate_glaciers_nu.jl, 4/4 PASS 2026-08-07).
+# κ is sampled as log10(κ) (spans decades; derived-param pattern like amp/T_on).
+# ν prior N(1.0, 0.5) on [0, 2.5] is INFORMATIVE BY DESIGN: the hindcast cannot identify
+# ν (D0: rails to 0 under the flow likelihood); the value is projection-physics —
+# scenario spread sits in the AR6/FACTS family for ν 0.5-2 and dies at ν = 0. Labeled
+# as a projection-informed prior per the A3-line discussion (Marcus 2026-08-07).
 push!(FREE, (name="gic_a",comp=G,sym=:gic_a,μ=0.45,σ=0.08,lo=0.25,hi=0.70,islog=false))
-push!(FREE, (name="gic_b",comp=G,sym=:gic_b,μ=0.52,σ=0.25,lo=0.15,hi=1.20,islog=false))
-push!(FREE, (name="gic_T_lia",comp=G,sym=:gic_T_lia,μ=-1.00,σ=0.50,lo=-2.00,hi=-0.10,islog=false))
-push!(FREE, (name="gic_f",comp=G,sym=:gic_f,μ=0.50,σ=0.30,lo=0.02,hi=0.98,islog=false))
-push!(FREE, (name="gic_tau_fast",comp=G,sym=:gic_tau_fast,μ=40.,σ=30.,lo=5.,hi=80.,islog=false))
-push!(FREE, (name="gic_tau_slow",comp=G,sym=:gic_tau_slow,μ=300.,σ=200.,lo=80.,hi=800.,islog=false))
+push!(FREE, (name="gic_b",comp=G,sym=:gic_b,μ=0.29,σ=0.15,lo=0.08,hi=0.70,islog=false))
+push!(FREE, (name="gic_T_off",comp=G,sym=:gic_T_off,μ=-1.00,σ=0.50,lo=-2.00,hi=-0.10,islog=false))
+push!(FREE, (name="gic_log10_kappa",comp=G,sym=:gic_kappa,μ=-1.975,σ=0.65,lo=-4.00,hi=-0.50,islog=false))
+push!(FREE, (name="gic_nu",comp=G,sym=:gic_nu,μ=1.00,σ=0.50,lo=0.00,hi=2.50,islog=false))
+const KAPPA_IDX = length(FREE) - 1   # gic_log10_kappa: DERIVED — model gets 10^θ (set in logposterior)
 
 # ---- phase-2 A2: free the DAIS fast-dynamics params under their EXISTING paleo marginals
 # (outputs/param_priors.csv rows, from the DAISfastdyn ensemble). Previously FIXED at the
@@ -310,9 +355,10 @@ println("MCMC: $NP physical (incl $(length(GEO_IDX)) DAIS-geometry under a joint
 
 # ---- model base (medoid + glacier init), forcing once -- UNCHANGED build/medoid ----
 medoid = CSV.read(joinpath(REPO,"outputs/recalib_central_row.csv"), DataFrame)[1,:]
-m = build_brick_mengel(ssp="ssp245", y0=Y0, y1=Y1)
-update_brick_mengel!(m, medoid, (a=0.45,b=0.52,T_lia=-0.45,f=0.5,tau_fast=40.0,tau_slow=250.0,sl0=0.0); precip_log=true)
+m = build_brick_nu(ssp="ssp245", y0=Y0, y1=Y1)
+update_brick_nu!(m, medoid, (a=0.45,b=0.29,T_off=-1.0,kappa=0.0106,nu=1.0,sl0=0.0); precip_log=true)
 set_forcing!(m, gmst, ohc)
+set_glacier_forcing!(m, tglac)        # extB3: glacier slot sees T_glac, never raw GMST
 setp!(k,v)=update_param!(m,k.comp,k.sym, k.islog ? log(v) : v)
 reref(v)=100 .* (v .- sum(v[ib])/length(ib))
 
@@ -321,9 +367,11 @@ function logposterior(θ)
     σn = θ[NP+1:2:NK]; ρn = θ[NP+2:2:NK]
     (any(σn .<= 0) || any(ρn .< 0) || any(ρn .>= 0.99)) && return -Inf
     @inbounds for k in 1:NP
-        (k == AMP_IDX || k == TON_IDX) && continue      # derived params, set below
+        (k == AMP_IDX || k == TON_IDX || k == KAPPA_IDX) && continue   # derived params, set below
         setp!(FREE[k], θ[k])
     end
+    # extB3: κ is sampled as log10 -- the component gets the linear value
+    update_param!(m, G, :gic_kappa, 10.0^θ[KAPPA_IDX])
     # A4: runoff line -- reconstruct h0 from the identified direction
     update_param!(m, :antarctic_icesheet, :ais_runoffline_snowheight₀, -θ[TON_IDX] * θ[C_IDX])
     # A6: temperature map -- amp with the T_ant(GMST=0) anchor preserved
@@ -390,6 +438,11 @@ for k in 1:NP
         end
     elseif nm in FD_MEDOID
         push!(θ0, Float64(medoid[nm]))
+    elseif startswith(nm, "gic_")
+        push!(θ0, Float64(FREE[k].μ))    # extB3: fresh glacier structure/frame — the old MAP's
+                                         # gic_a/gic_b are OLD-FRAME values (gic_b can even sit
+                                         # outside the new bounds); start at the prior center,
+                                         # which D0 puts near the self-consistent solution
     elseif nm == "ais_gmst_amp"
         push!(θ0, 1.0 / 0.8365)                          # the fixed map the MAP ran under
     else
@@ -410,9 +463,10 @@ for k in GEO_IDX; prop[k] = GEO_PROP_SCALE * Float64(FREE[k].σ); end
 # postprocess_mcmc_ext.jl from a prior ext run) -- it matches the extended posterior
 # shape, which the 2018-baseline adapted_cov.csv does NOT (point terms dropped +
 # extended targets move the AIS block). Fall back to baseline cov, then diagonal.
-const ADCOV = let e = joinpath(REPO,"outputs/mcmc/adapted_cov_ext.csv"),
+const ADCOV = let b2 = joinpath(REPO,"outputs/mcmc/adapted_cov_extB2_seed2026.csv"),
+                  e = joinpath(REPO,"outputs/mcmc/adapted_cov_ext.csv"),
                   b = joinpath(REPO,"outputs/mcmc/adapted_cov.csv")
-    isfile(e) ? e : b
+    isfile(b2) ? b2 : (isfile(e) ? e : b)   # extB3: prefer the extB2 tuned shape (39-param)
 end
 cov0 = Matrix(Diagonal(prop.^2))
 # Column order of the 35-param v-next chains/covs (18 physical + 7 geometry with the OLD
@@ -426,20 +480,41 @@ const OLD35_NAMES = vcat(
      "greenland_v0","thermal_alpha","gic_a","gic_b","gic_T_lia","gic_f","gic_tau_fast","gic_tau_slow",
      "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG","ais_runoff_h0","ais_c"],
     vcat([["sd_$s","rho_$s"] for s in SERIES]...))
+# extB2-vintage 39-param chain/cov order (29 physical + 10 noise), for name-mapping the
+# tuned proposal shape into the extB3 parameter set. The gic_* rows are deliberately NOT
+# mapped: the extB3 glacier block is a different structure AND frame, so the old glacier
+# proposal scales/correlations are meaningless — those rows keep the fresh diagonal.
+const OLD39_NAMES = vcat(
+    ["ais_ocean_temperature₀","antarctic_alpha","antarctic_nu","antarctic_temp_threshold",
+     "anto_alpha","anto_beta","greenland_a","greenland_b","greenland_alpha","greenland_beta",
+     "greenland_v0","thermal_alpha","gic_a","gic_b","gic_T_lia","gic_f","gic_tau_fast","gic_tau_slow",
+     "antarctic_lambda","antarctic_gamma","antarctic_kappa","ais_gmst_amp",
+     "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG","ais_runoff_Ton","ais_c"],
+    vcat([["sd_$s","rho_$s"] for s in SERIES]...))
+function embed_cov!(cov0, old, old_names; skip_gic::Bool=false)
+    oi = Int[]; ni = Int[]
+    for (i, nm) in enumerate(old_names)
+        skip_gic && startswith(nm, "gic_") && continue
+        j = findfirst(==(nm), pn0)
+        isnothing(j) && continue                          # dropped/renamed params
+        push!(oi, i); push!(ni, j)
+    end
+    cov0[ni, ni] = old[oi, oi]
+    return length(oi)
+end
 if isfile(ADCOV)
     old = Matrix(CSV.read(ADCOV, DataFrame))
     if size(old,1) == NK
         cov0 = old
         println("(seeding proposal from adapted covariance $(basename(ADCOV)))")
+    elseif size(old,1) == length(OLD39_NAMES)
+        nmap = embed_cov!(cov0, old, OLD39_NAMES; skip_gic=true)
+        println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+                "$(basename(ADCOV)); fresh diagonal for the extB3 glacier block " *
+                join([nm for nm in pn0[1:NP] if startswith(nm,"gic_")], ", ") * ")")
     elseif size(old,1) == length(OLD35_NAMES)
-        oi = Int[]; ni = Int[]
-        for (i, nm) in enumerate(OLD35_NAMES)
-            j = findfirst(==(nm), pn0)
-            isnothing(j) && continue                      # ais_runoff_h0 -> dropped
-            push!(oi, i); push!(ni, j)
-        end
-        cov0[ni, ni] = old[oi, oi]
-        println("(seeding proposal: name-mapped $(length(oi)) of $(size(old,1)) rows of " *
+        nmap = embed_cov!(cov0, old, OLD35_NAMES; skip_gic=true)
+        println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
                 "$(basename(ADCOV)); diagonal for " *
                 join(setdiff(pn0[1:NP], OLD35_NAMES), ", ") * ")")
     else
@@ -511,7 +586,7 @@ println("RAM run: $N_ITER iter, acceptance = ", round(accept, digits=3))
 pn = pn0
 burn = chain[(N_ITER÷2+1):end, :]
 println("\nposterior (2nd-half) median ± sd for key params:")
-for nm in ["ais_ocean_temperature₀","anto_alpha","thermal_alpha","gic_T_lia","gic_f","gic_tau_fast","gic_tau_slow","gic_a",
+for nm in ["ais_ocean_temperature₀","anto_alpha","thermal_alpha","gic_a","gic_b","gic_T_off","gic_log10_kappa","gic_nu",
            "ais_mu","ais_precip0_LOG","ais_iceflow0","ais_c",
            "antarctic_lambda","antarctic_gamma","antarctic_kappa","ais_gmst_amp","ais_runoff_Ton"]
     c = burn[:, findfirst(==(nm),pn)]
