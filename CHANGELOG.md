@@ -36,7 +36,19 @@ commit log; recent entries are explicit.
   of the free-N pathological optimum. First pass (pub anchor) validated the machinery: N1 ν=1
   at SC = 4/4 gates at deficit 21.2 (matches diag_pathology's −17.8−5.2 whitened attribution);
   free rate-cap hits deficit 0.3 but spread 0.0 (cap binds in projections — device rejected as
-  a free fit). Full (φ, τ_s, ν) × both-anchor run: results in the next entry/handoff.
+  a free fit).
+- **T1 FALSIFIED (both anchors): 0/110 configs feasible** (4/4 gates AND 1980–2023 flow within
+  5 logL of the pathological optimum). Binding gate = SPREAD (61% of the P grid; inventory/
+  ladder/S1900 essentially never fail); monotone trade-off — flow-optimal low-φ cells saturate
+  at spread 2.8–3.5 vs the 4.5 floor, and 4/4-gate cells exist only at φ=0.8
+  (single-reservoir-in-disguise, deficit 15.6 vs single-N 16.8: the split buys ~1 logL). The
+  two-NAUELS-pool variant (P2, slow pool keeps ν — quiet-now/mobilize-later) passes gates
+  everywhere but its best deficit equals single-N ν=0.5 exactly, with fitted κ_s ≈ κ_f (the
+  pools collapse). Ungated family floor ≈ 10 logL > the 5 tolerance. **Committed-ice retention
+  and ν-spread load onto the same response; the split relocates, not resolves, the tension.
+  Per the prior handoff's fallback logic, T4 (accept ν≈0 + labeled projection-ν sensitivity
+  arm) is now the live default — awaiting Marcus.** Handoff:
+  `notes/handoff_2026-08-07_t2_scope_anchor_t1_two_reservoir.md`.
 
 ## [unreleased] — 2026-08-07 (evening) — extB3/b/c ALL falsified; binding tension = modern flow vs GlacierMIP3 ladder; Dangendorf v2 SE adopted
 

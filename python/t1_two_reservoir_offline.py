@@ -162,6 +162,33 @@ def integrate_P(Tarr_, a, b, T_off, phi, tau_s, kappa, nu, n=None):
     return out
 
 
+def integrate_P2(Tarr_, a, b, T_off, phi, kappa_f, kappa_s, nu, n=None):
+    """Two NAUELS pools sharing nu: fast (share phi, kappa_f) + slow (kappa_s).
+    The slow pool keeps the nonlinearity — committed ice can sit quietly at
+    small modern excess yet mobilize under strong-warming excess."""
+    n = len(Tarr_) + 1 if n is None else n
+    out = np.empty(n)
+    a_f, a_s = phi * a, (1 - phi) * a
+    sf = ss = 0.0
+    out[0] = 0.0
+    for k in range(n - 1):
+        seq = a * (1 - np.exp(-b * (Tarr_[k] - T_off)))
+        for pool_a, share, kap, S in ((a_f, phi, kappa_f, "f"),
+                                      (a_s, 1 - phi, kappa_s, "s")):
+            cur = sf if S == "f" else ss
+            frac_left = max(1.0 - cur / pool_a, 1e-12)
+            T_eq = T_off - np.log(frac_left) / b
+            exc = max(Tarr_[k] - T_eq, 0.0)
+            mult = min(kap * exc ** nu, 1.0)
+            cur += mult * (share * seq - cur)
+            if S == "f":
+                sf = cur
+            else:
+                ss = cur
+        out[k + 1] = sf + ss
+    return out
+
+
 def integrate_R(Tarr_, a, b, T_off, kappa, nu, rmax, n=None):
     """Single reservoir with an explicit melt-rate cap rmax (m SLE/yr)."""
     n = len(Tarr_) + 1 if n is None else n
@@ -181,15 +208,20 @@ def integrate_R(Tarr_, a, b, T_off, kappa, nu, rmax, n=None):
 
 
 T1_PNAMES = {"P": ["phi", "tau_s", "kappa", "nu", "sigma", "rho"],
+             "P2": ["phi", "kappa_f", "kappa_s", "nu", "sigma", "rho"],
              "R": ["kappa", "nu", "rmax", "sigma", "rho"],
              "N1": ["kappa", "nu", "sigma", "rho"]}
-T1_BOUNDS = dict(BOUNDS, phi=(0.02, 0.98), tau_s=(80., 2000.), rmax=RMAX_BOUNDS)
+T1_BOUNDS = dict(BOUNDS, phi=(0.02, 0.98), tau_s=(80., 2000.), rmax=RMAX_BOUNDS,
+                 kappa_f=BOUNDS["kappa"], kappa_s=(1e-5, 0.5))
 
 
 def forward_t1(tr, Tarr_, sc, th, n=None):
     if tr == "P":
         return integrate_P(Tarr_, sc["a"], sc["b"], sc["T_off"], th["phi"],
                            th["tau_s"], th["kappa"], th["nu"], n=n)
+    if tr == "P2":
+        return integrate_P2(Tarr_, sc["a"], sc["b"], sc["T_off"], th["phi"],
+                            th["kappa_f"], th["kappa_s"], th["nu"], n=n)
     if tr == "R":
         return integrate_R(Tarr_, sc["a"], sc["b"], sc["T_off"], th["kappa"],
                            th["nu"], th["rmax"], n=n)
@@ -222,9 +254,13 @@ def loglik_t1(tr, sc, th):
     ll_inv = norm.logpdf(sc["a"] - s_raw[i_inv], INV_V, INV_SIG)
     ll_lec = norm.logpdf(s_raw[i1900], LEC_MU, LEC_SIG)
     ll_pr = 0.0
-    if tr in ("P",):
+    if tr in ("P", "P2"):
         ll_pr += norm.logpdf(th["phi"], *PHI_PRIOR)
+    if tr == "P":
         ll_pr += norm.logpdf(th["tau_s"], *TAUS_PRIOR)
+    if tr == "P2":
+        ll_pr += norm.logpdf(np.log(th["kappa_f"]), *KAPPA_LOGPRIOR)
+        ll_pr += norm.logpdf(np.log(th["kappa_s"]), KAPPA_LOGPRIOR[0], 3.0)
     if "kappa" in th:
         ll_pr += norm.logpdf(np.log(th["kappa"]), *KAPPA_LOGPRIOR)
     if "nu" in th:
@@ -422,6 +458,37 @@ for anchor_name in ANCHORS:
              f" tau_s={best4['tau_s']:.0f} nu={best4['nu']:.1f} "
              f"rate={best4['rate_modern_mm_yr']:.2f} mm/yr" if best4 else "none"))
 
+    # P2 grid: two Nauels pools (phi, nu fixed) x inner opt (kappa_f, kappa_s,
+    # sigma, rho) — the slow pool keeps the nonlinearity, so committed ice can
+    # be quiet at modern excess yet mobilize at strong-warming excess
+    for phi in [0.10, 0.20, 0.30, 0.50]:
+        for nu_fix in [0.5, 1.0, 1.5, 2.0]:
+            th = optimize_t1("P2", sc, ["kappa_f", "kappa_s", "sigma", "rho"],
+                             dict(phi=phi, nu=nu_fix),
+                             [dict(kappa_f=0.02 * 2.0 ** (-nu_fix),
+                                   kappa_s=0.002 * 2.0 ** (-nu_fix),
+                                   sigma=0.03, rho=0.6),
+                              dict(kappa_f=0.06 * 2.0 ** (-nu_fix),
+                                   kappa_s=0.0004 * 2.0 ** (-nu_fix),
+                                   sigma=0.02, rho=0.4),
+                              dict(kappa_f=0.01 * 2.0 ** (-nu_fix),
+                                   kappa_s=0.02 * 2.0 ** (-nu_fix),
+                                   sigma=0.02, rho=0.5)], nstart=5)
+            m = metrics_t1("P2", anchor_name, sc, th, patho_flow_win)
+            m["arm"] = "P2_grid"
+            m["kappa_f"], m["kappa_s"] = th["kappa_f"], th["kappa_s"]
+            rows.append(m)
+    ngrid2 = [r for r in rows if r and r.get("arm") == "P2_grid"
+              and r.get("anchor") == anchor_name]
+    n42 = [r for r in ngrid2 if r["npass"] == 4]
+    best42 = min(n42, key=lambda r: r["flow_win_deficit"]) if n42 else None
+    print(f"  [P2 grid] {len(n42)}/{len(ngrid2)} cells pass 4/4 gates; "
+          + (f"best deficit {best42['flow_win_deficit']:.1f} at "
+             f"phi={best42['phi']:.2f} nu={best42['nu']:.1f} "
+             f"kf={best42['kappa_f']:.4f} ks={best42['kappa_s']:.5f} "
+             f"rate={best42['rate_modern_mm_yr']:.2f} mm/yr "
+             f"spread={best42['spread']:.1f}" if best42 else "none"))
+
     # P free: all six free
     th = optimize_t1("P", sc, T1_PNAMES["P"], {},
                      [dict(phi=0.2, tau_s=463., kappa=0.02, nu=1.0,
@@ -475,7 +542,8 @@ import matplotlib.pyplot as plt
 
 fig, axes = plt.subplots(1, 3, figsize=(15.5, 4.6), constrained_layout=True)
 axA, axB, axC = axes
-MARK = {"N1_nu0.5": "^", "N1_nu1.0": "v", "P_grid": "o", "P_free": "*", "R_free": "s"}
+MARK = {"N1_nu0.5": "^", "N1_nu1.0": "v", "P_grid": "o", "P2_grid": "D",
+        "P_free": "*", "R_free": "s"}
 COLA = {"pub": "tab:red", "t2": "tab:blue"}
 for _, r in res.iterrows():
     axA.scatter(r["flow_win_deficit"], r["npass"],
