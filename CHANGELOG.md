@@ -3,7 +3,34 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-07 (evening 2, latest) — T2 executed: GlacierMIP3 anchor scope-corrected (39→37.4 @1.2K), tension NOT dissolved; T1 offline test built
+## [unreleased] — 2026-08-07 (night, latest) — scope-corrected anchors ADOPTED in the gate machinery; T4 rejected; constraint-anatomy memo scopes T5
+
+- **Anchors adopted (Marcus): `d0_glacier_shootout.py` gate constants swapped to the
+  scope-corrected ladder** (37.4/46.3/63.0/75.5 central; [11.8,54.0]/[17.2,63.2]/[41.5,75.5]/
+  [58.5,83.9] likely; sens 95 mm) with a provenance comment preserving the superseded published
+  values; `d0_final` SC solve now derives COM12 from the same constant; eval/T1 inherit by exec;
+  eval self-test still passes 4/4 on the C_nu1.0 point.
+- **T4 REJECTED (Marcus) — new-structure scoping requested.** `python/diag_constraint_anatomy.py`
+  + `notes/memo_2026-08-07_glacier_constraint_anatomy.md`: constraint inventory with per-item
+  confidence; the one-reservoir arithmetic (rate = κ(a−S)(1−e^{−b·exc})exc^ν — gap and excess
+  both functions of ONE state) showing the law demands 1.92× acceleration (2000-23/1920-49)
+  where the target shows 0.76× (deceleration); branch A (fit-history) overshoots the
+  best-measured modern rate 1.67× (1.36 vs target-derived 0.81 mm/yr, 2015-23) while
+  under-melting the century (S2020 86 vs 107 mm); branch B (fit-modern-rate) misses total melt
+  2.3×. **Corner scan: the ladder band floor (11.8%) is UNREACHABLE (the flow data's own slope
+  forces more committed melt) and the overshoot is anchor-insensitive (1.36–1.51 mm/yr at
+  com12 20–37.4%) — the tension is the SHAPE mismatch (monotone excess path vs non-monotone
+  century flow), not the anchor level.** NB the target's own 2015–23 rate is 0.81 mm/yr, not
+  the handoff's ~0.6 (GlaMBIE-2020 scope figure): overshoot ratios restated on the target basis.
+  Per-region anatomy (S1a/S3/regchar/Hugonnet): stock-weighted response time 513 yr vs
+  melt-weighted 285 yr, collapsing to 125 yr at ~3 °C (GlacierMIP3's own spread mechanism);
+  regional warming spans 0.14–2.82 K — the single area-weighted driver mutes the ETCW that the
+  early flow needs. Scoping menu: **T5a regional blocks (lead; per-region drivers/anchors/
+  response times all on disk), T5b κ(T) single reservoir (only with T5d), T5c hindcast/projection
+  hybrid (fallback), T5d early-segment discrepancy model (replaces σ×2)** — awaiting Marcus's
+  §5 asks.
+
+## [unreleased] — 2026-08-07 (evening 2) — T2 executed: GlacierMIP3 anchor scope-corrected (39→37.4 @1.2K), tension NOT dissolved; T1 offline test built
 
 - **T2 (ladder-anchor scope correction) DONE — the anchor moves −1.7 pts at the +1.2K rung and
   the modern-flow overshoot only improves 2.00×→1.85×; the structural tension stands.** Data:

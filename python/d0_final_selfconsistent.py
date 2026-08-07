@@ -48,7 +48,9 @@ COMMIT = subprocess.run(["git", "-C", REPO, "rev-parse", "--short", "HEAD"],
 S2000_OBS = 0.093          # target melt 1900-2000 (7.3 cm) + Leclercq S(1900) 0.020
 SC_A = INV_V + S2000_OBS   # inventory-consistent stock
 SLOPE_GLAC = 0.133 / AMP_FIT
-COM12_TARGET = 0.39        # GlacierMIP3 committed fraction at +1.2K global
+# committed fraction at +1.2K global — derives from the (scope-corrected)
+# shootout anchor so the SC point tracks the adopted gate constants
+COM12_TARGET = GMIP3_CENTRAL[1.2] / 100.0
 S2020_OBS = 0.107
 seq_at = lambda a, b, toff, T: a * (1 - np.exp(-b * (T - toff)))
 # solve (b, T_off): S_eq(amp*1.2) = com*(a-S2020)+S2020 ; a*b*exp(b*T_off) = slope

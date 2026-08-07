@@ -63,9 +63,18 @@ INV_V, INV_SIG, INV_YEAR = 0.290, 0.060, 2000          # A2 (calibrate_mcmc_ext.
 LEC_MU, LEC_SIG = 0.020, 0.009                         # A2b Leclercq S(1900)-S(1850)
 S2020_YEAR = 2020                                      # GlacierMIP3 denominator year
 GMIP3_LEVELS = [1.2, 1.5, 2.0, 3.0]                    # global K rel 1850-1900
-GMIP3_LIKELY = {1.2: (15, 55), 1.5: (20, 64), 2.0: (43, 76), 3.0: (60, 85)}
-GMIP3_CENTRAL = {1.2: 39, 1.5: 47, 2.0: 63, 3.0: 77}   # Zekollari 2025
-GMIP3_SENS_MM = 85                                     # committed 1.5->3K, mm SLE
+# SCOPE-CORRECTED anchors (Marcus 2026-08-07): excl-r5-incl-r19 scope, from
+# python/t2_gmip3_scope_anchor.py (validated replication of Zekollari 2025 /
+# Zenodo 15046588; outputs/t2_gmip3_scope_anchor.csv method=anchor_final;
+# notes/handoff_2026-08-07_t2_scope_anchor_t1_two_reservoir.md §1).
+# Published full-RGI values (gates as originally pre-registered, superseded):
+#   central {1.2: 39, 1.5: 47, 2.0: 63, 3.0: 77}
+#   likely  {1.2: (15,55), 1.5: (20,64), 2.0: (43,76), 3.0: (60,85)}; sens 85
+GMIP3_LIKELY = {1.2: (11.8, 54.0), 1.5: (17.2, 63.2),
+                2.0: (41.5, 75.5), 3.0: (58.5, 83.9)}
+GMIP3_CENTRAL = {1.2: 37.4, 1.5: 46.3, 2.0: 63.0, 3.0: 75.5}
+GMIP3_SENS_MM = 95                                     # committed 1.5->3K, mm SLE
+#   (scope raw-Gt basis; full-RGI raw 109, S1b BSL-corrected 98 — old 85 was low)
 S1900_GATE_MM = (10.0, 30.0)
 PROJ_BASE = (1995, 2014)                               # AR6-style baseline for dS@2100
 AR6_GLAC_2100 = {"ssp126": 9.0, "ssp245": 12.0, "ssp585": 18.0}   # cm (memo B3)
