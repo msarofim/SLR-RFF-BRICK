@@ -164,6 +164,24 @@ lws_dang = Float64.(tg.lws[[rowof(y) for y in S.dang.years]])
 println("Extended fit windows: ais 1900-$(S.ais.years[end]), gis 1900-$(S.gis.years[end]), ",
         "gsic 1900-$(S.gsic.years[end]), steric 1900-$(S.steric.years[end]), total 1900-$(S.dang.years[end])")
 
+# ---- extB3b fallback (2026-08-07, handoff §2 item 7): pre-1940 GSIC flow σ ×2 -------------
+# The extB3 tuning run (chain_extB3_seed2026_n500000) camped on the wiggle-tracking mode:
+# all three pre-registered co-indicators fired (σ_gsic → 0.032 cm with ρ 0.96, gic_nu piled
+# at 0 [P(ν<0.05)=0.24], S(1900) median 45 mm) and 0/4 evaluation gates passed
+# (outputs/eval_gates_extB3_seed2026.csv). The documented fallback inflates the GSIC flow σ
+# before GSIC_EARLY_YEAR: the residual 1900-1920 target melt sits on the Marzeion-2015-derived
+# segment Roe 2021 calls an initialization artifact and precedes the HadCRUT5 ETCW ramp
+# (~1918). Flag-gated so the extB3 no-inflation behaviour stays exactly reproducible.
+const GSIC_EARLY_X2   = "--gsic-early-sigma-x2" in ARGS
+const GSIC_EARLY_YEAR = 1940
+const GSIC_EARLY_FAC  = 2.0
+if GSIC_EARLY_X2
+    early = S.gsic.years .< GSIC_EARLY_YEAR
+    S.gsic.ϵ[early] .*= GSIC_EARLY_FAC
+    @printf("GSIC early-σ fallback ON: flow σ ×%.1f for %d years < %d\n",
+            GSIC_EARLY_FAC, count(early), GSIC_EARLY_YEAR)
+end
+
 # ---- free physical params (name, comp, sym, prior μ, σ, lo, hi, islog) -- UNCHANGED
 pri = CSV.read(joinpath(REPO,"outputs/param_priors.csv"), DataFrame)
 prow(n)=pri[findfirst(==(n),pri.param),:]
