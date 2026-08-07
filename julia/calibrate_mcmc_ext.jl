@@ -306,7 +306,7 @@ const SMB_TARGET_GT = 2098.0 * (10.92 / 12.295)          # = 1863.4 Gt/yr
 const SMB_SIGMA_GT  = 133.0 * (10.92 / 12.295)           # = 118.1 Gt/yr
 const M3ICE_TO_GT   = 917.0 / 1e12                       # ais_ρ_ice = 917 kg/m3
 
-# ---- 2026-08-06 A2: glacier INVENTORY likelihood -- gic_a − S_raw(2020) ~ N(V, σ) ----------
+# ---- 2026-08-06 A2: glacier INVENTORY likelihood -- gic_a − S_raw(2000) ~ N(V, σ) ----------
 # The flow target fixes only slope@0 and committed melt; total meltable stock gic_a is
 # invisible to flow data (unmelted ice leaves no trace). This term closes that direction with
 # the present-day inventory. SCOPE (matches the GSIC target, prep_recalib_targets_ext.py):
