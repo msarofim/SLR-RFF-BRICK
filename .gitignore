@@ -219,3 +219,6 @@ data/observations/raw/dangendorf2024_KalmanSmootherHR_Fields.nc
 
 # Quarantined MCMC chains are large (0.8-1.4 GB each); keep provenance READMEs, not the chains
 outputs/quarantine/**/chain_ext_seed*.csv
+
+# GlacierMIP3 big per-experiment netCDF: untracked by design (re-fetch recipe in data/observations/raw/README_modern_extensions.md)
+data/observations/raw/gmip3/GMIP3_reg_glacier_model_data/*.nc

@@ -62,5 +62,29 @@ offset 53.45 mm; corr 1.000000) — the extraction that fed
 `recalib_targets_ext.csv` `dang` values is confirmed exact. NOTE the v2 SE
 falsifies the "Frederikse-ensemble sd is conservative" rationale in
 `prep_recalib_targets_ext.py` for 1900–2010 (true Dangendorf SE is 1.3–2×
-LARGER there; SMALLER after ~2015). Whether to switch `dang_sig` to the v2 SE
-is an OPEN methodological choice — flagged, not resolved.
+LARGER there; SMALLER after ~2015). RESOLVED same day (Marcus 2026-08-07):
+`dang_sig` = native v2 SE; `prep_recalib_targets_ext.py` updated (units
+assert) and targets rebuilt — the standing likelihood regardless of the
+T1–T4 structural decision.
+
+## GlacierMIP3 (Zekollari 2025) — fetched 2026-08-07 for the T2 anchor scope correction
+
+| File | Purpose | Source | Coverage |
+|------|---------|--------|----------|
+| `gmip3/lowess_fit_rel_2020_101yr_avg_steady_state_Feb12_2024.csv` (+`_per_glac_model`, `_only_global_models`, `_rel_regional_glacier_temp_ch`, 21yr after100/500yr variants) | published LOWESS quantile fits: steady-state remaining mass (% of 2020) vs warming, per RGI region + 'All' | GlacierMIP3 Zenodo archive v2, DOI 10.5281/zenodo.15046588 (concept 10.5281/zenodo.14045268); Zekollari, Schuster et al. 2025 Science, DOI 10.1126/science.adu4675 | ΔT −0.1…6.85 K |
+| `gmip3/table_S1a.csv`, `table_S1b.csv`, `table_S3.csv` | published per-region committed % [likely], mm SLE variants, 2020 masses | same | +1.2…4.0 K |
+| `gmip3/3_shift_summary_region_characteristicsFeb12_2024.csv` | per-region 2020 volumes (Farinotti+Hugonnet `_via_5yravg`), warming ratios, response times | same | — |
+| `gmip3/climate_input_data/temp_ch_ipcc_ar6_isimip3b*.csv` | per-experiment warming levels (5 GCM × 16 period-scenarios, AR6 defn) | same | — |
+| `gmip3/resp_time_shifted_for_deltaT_rgi_reg_roll_volume_21yravg.csv` | per-region/model response timescales (τ_s prior receipts) | same | — |
+| `gmip3/README_data.pdf`, `gmip3/gmip3_data_example_use_cases.ipynb` | dataset documentation | same | — |
+| `gmip3/GMIP3_reg_glacier_model_data/all_shifted_...repeat_last_101yrs_via_5yravg.nc` (1.47 GB, UNTRACKED — re-fetch below) | per-experiment shifted volume series, the input the paper's LOWESS fits used; needed to replicate the 'All' composite on the excl-r5 scope | same | sim yr 0–5000 |
+
+Re-fetch recipe for the big netCDF (selective extraction from the 984 MB zip
+via HTTP range requests; or download the whole zip and unzip):
+`python remote_zip_extract.py "https://zenodo.org/records/15046588/files/gmip3_data_zenodo.zip" --extract "data/GMIP3_reg_glacier_model_data/all_shifted_*" <outdir>`
+(script pattern: list/extract members of a remote zip with a lazy
+HTTP-range file object; any equivalent works.)
+
+Consumed by `python/t2_gmip3_scope_anchor.py` → `outputs/t2_gmip3_scope_anchor.csv`.
+The paper's fit machinery is `moepy` (pip-installed into ~/climate-env
+2026-08-07); the paper's own scripts are at github.com/GlacierMIP/GlacierMIP3.

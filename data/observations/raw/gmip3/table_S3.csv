@@ -1,0 +1,21 @@
+,Year$^a$ (glacier-area weighted median),Glacier area$^a$ (km²),"Glacier surface slope$^a$ (glacier-area weighted average, °)",Glacier mass$^a$ (Gt),Glacier mass in 2020$^b$ (Gt),"2000-2019 observed glacier mass loss$^b$ (rel. to 2000, %)",Simulation time (years),rgi_reg
+Global,2000,705739,11.4,142341,137491,3.9,,global
+Sub- & Antarctic Islands (19),1986,132867,3.6,41820,41377,1.1,5000,19
+Arctic Canada N (03),1999,105111,9.6,25498,24851,2.5,5000,03
+Alaska (01),2010,86725,13.9,17081,16246,8.0,5000,01
+Greenland Periphery (05),2001,89717,10.3,14123,13410,5.3,5000,05
+Russian Arctic (09),2001,51592,11.9,13176,12965,1.7,5000,09
+Arctic Canada S (04),2001,40888,11.5,7750,7212,7.2,5000,04
+Svalbard (07),2008,33959,8.8,6723,6566,3.3,5000,07
+Southern Andes (17),2000,29429,14.9,4806,4368,9.1,5000,17
+Iceland (06),2000,11060,6.7,3393,3194,5.8,5000,06
+Central Asia (13),2007,49303,19.5,2944,2771,6.8,2000,13
+South Asia W (14),2001,33568,22.3,2579,2485,3.7,2000,14
+W Canada & US (02),2004,14524,18.3,942,795,16.8,2000,02
+South Asia E (15),2002,14734,21.1,790,656,18.2,2000,15
+Scandinavia (08),2002,2949,11.9,269,237,12.9,2000,08
+North Asia (10),2011,2410,18.4,122,109,19.6,2000,10
+Central Europe (11),2003,2092,20.9,115,85,29.7,2000,11
+Low Latitudes (16),2000,2341,25.3,89,69,22.3,2000,16
+New Zealand (18),1978,1162,25.6,66,53,20.8,2000,18
+Caucasus & Middle East (12),2001,1307,24.2,57,43,25.0,2000,12
