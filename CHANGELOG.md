@@ -3,7 +3,25 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-07 (night, latest) — scope-corrected anchors ADOPTED in the gate machinery; T4 rejected; constraint-anatomy memo scopes T5
+## [unreleased] — 2026-08-07 (late night, latest) — T5a multi-reservoir regional blocks = LEAD candidate; D1 offline cell specced
+
+- **Marcus: multiple glacial reservoirs (T5a) is the lead candidate.** Handoff
+  `notes/handoff_2026-08-07_t5a_multireservoir_lead.md` specs the D1 offline feasibility cell
+  (no Julia surgery): 2 blocks by GlacierMIP3 response time (τ*=250 yr; SLOW = r19/r03/r09/r07/
+  r06 ≈ 72% of stock, 71% of committed, 36% of modern melt, τ50 ~665→159 yr @1.5→3 °C; FAST =
+  the rest incl Alaska), per-block drivers from `t_glac_regions_hadcrut5.csv` (area-weighted,
+  per-block amp from GlacierMIP3 regional ratios), per-block (b,T_off) from the block's OWN
+  two-rung ladder composite (exact per-experiment estimator, nc on disk), and an ANCHORED
+  transient arm with (κ_b, ν_b) set by the block's two response times — making the hindcast an
+  out-of-sample test — plus a free arm. Criteria = the T1 standard (4/4 adopted-anchor gates +
+  1980–2023 flow within 5 logL of pathological) + per-block modern-split reports + the D0-style
+  driver-swap control. T5d (early-segment discrepancy term) carried as a switch; failure mode
+  pre-registered (P2-signature collapse → T5c/T5b+T5d discussion). Sub-decisions A–G flagged
+  (block count/threshold, driver weighting, ν sharing, inventory partition basis incl the
+  Gt-vs-Farinotti-SLE 0.343-vs-0.290 BSL note, optional Zemp-2019 fetch, σ×2-vs-discrepancy,
+  ladder estimator). Calibrator-surgery scope sketched for planning only (extC tag family).
+
+## [unreleased] — 2026-08-07 (night) — scope-corrected anchors ADOPTED in the gate machinery; T4 rejected; constraint-anatomy memo scopes T5
 
 - **Anchors adopted (Marcus): `d0_glacier_shootout.py` gate constants swapped to the
   scope-corrected ladder** (37.4/46.3/63.0/75.5 central; [11.8,54.0]/[17.2,63.2]/[41.5,75.5]/
