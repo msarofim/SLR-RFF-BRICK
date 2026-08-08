@@ -42,13 +42,19 @@ single glacier, Morteratsch, from the LIA). There is no defensible prior to put 
   ~0.5 mm/yr 1901–1990 GMSL budget gap. Explicitly absent from inventory-based models:
   estimates "rely on the analysis of glacier inventory data, which are known to
   undersample the smallest glacier size classes."
-- **The linchpin — our target includes it:** Frederikse et al. 2020 (Nature 584,
-  doi:10.1038/s41586-020-2591-3; **D. Parkes is a co-author**) built its glacier
-  component to include this contribution. Independent published description
-  (Gangadharan et al., ESD preprint esd-2022-2, §Discussion p17): "[Frederikse et al.]
-  (2020) accounted for the GMSL contribution from missing and disappeared glaciers
-  (Parkes & Marzeion, 2018)". (Direct Methods quote from the paywalled Nature Methods
-  still worth pulling when convenient — flagged, not blocking.)
+- **The linchpin — our target includes it: PRIMARY-SOURCE CONFIRMED** (Frederikse et al.
+  2020, Nature 584, doi:10.1038/s41586-020-2591-3, Methods "Contemporary mass
+  redistribution", from Marcus's PDF `ClaudeDocs/Papers/Frederikse.2020.s41586-020-2591-3.pdf`):
+  "We account for missing (owing to their relatively small size) and disappeared
+  glaciers using a previous estimate [ref 16 = Parkes & Marzeion 2018, confirmed in the
+  reference list]. ... For each ensemble member, we uniformly sample between the upper-
+  and lower-bound estimates." Uniform sampling in [16.7, 48.0] mm ⇒ the ensemble-mean
+  target carries ≈ **32 mm** of uncharted melt (uniform sd ≈ 9 mm) — a sharper central
+  number for the D1c prior than the raw bounds. Frederikse's regionalization rule is
+  also stated: the uncharted contribution "can be scaled by the regional relative
+  contribution from the large glaciers as recognized by RGI" — which resolves the
+  excl-r5 partition sub-decision by adopting their own convention (scale by regional
+  melt shares).
 - **Consequence:** the `recalib_targets_ext.csv` GSIC series (Frederikse-based to 2018)
   contains 17–48 mm of 20th-century melt from ice that is STRUCTURALLY OUTSIDE the
   model's V = 0.290 present-RGI stock (and outside GlacierMIP3's committed/response-time
@@ -60,6 +66,27 @@ single glacier, Morteratsch, from the LIA). There is no defensible prior to put 
   1900–1960), the P&M rate 0.17–0.53 covers ~25–75%, leaving a residual δ of
   ~0.16–0.52 mm/yr — within ~0.5–1.7σ of the ORIGINAL Roe prior (no widening needed at
   the generous end).
+
+## 2b. Two additional target-provenance facts from the Frederikse Methods (same page)
+
+1. **Pre-1961 target flow is PURE Marzeion-2015 model output** (+ the uncharted add-on):
+   the glacier component mixes two estimates — the obs-forced global glacier model
+   (ref 18 = Marzeion, Leclercq, Cogley & Jarosch 2015, Cryosphere 9, 2399–2404) and the
+   in-situ Zemp et al. 2019 series — "For each ensemble member, we randomly choose
+   between the two estimates. Before 1961, each member uses the estimates from the first
+   estimate." So the T5d segment (1900–1960) coincides EXACTLY with the pure-M15 window:
+   the T5D_SEG_END = 1960 choice is now provenance-motivated, not arbitrary, and the Roe
+   critique applies undiluted precisely there.
+2. **The historical target contains NO r19 melt:** "the mass balance of [Antarctica's]
+   peripheral glaciers is very uncertain ... Therefore, we assume no mass loss from the
+   Antarctic peripheral glaciers." (Greenland peripherals go to the ice-sheet component,
+   consistent with our r5-in-GIS treatment.) Our model's near-inert historical SLOW/r19
+   (D1: 0.00–0.02 mm/yr pre-2000) is therefore CONSISTENT with the target's own
+   convention — and the sub-decision-H historical split should assign r19 ≈ 0 of the
+   1850–2000 target melt (the Hugonnet-share default gave its block 36%; D1b's h-scan
+   showed this is shallow, but D1c's a_b bookkeeping should adopt r19≈0 for
+   consistency). NB the post-2000 GlaMBIE splice DOES include r19 (~0.06 mm/yr) — a
+   small, documented scope seam at the splice year.
 
 ## 3. The T5d side is also now better-armed (Roe critique verified, with specifics)
 
@@ -96,11 +123,12 @@ construction). Optional small T5d δ retained with the ORIGINAL prior (sd 0.30).
 Pre-registered criteria unchanged. Prediction to falsify: ANCH + U at the P&M central
 brings the flow-window deficit inside tol without δ exceeding ~1σ.
 
-Bookkeeping notes for D1c: (i) post-2000 the target splices to GlaMBIE (current-inventory
-obs) and P&M's uncharted flow is nearly exhausted — apply F_unch only to the
-Frederikse-sourced segment (taper by 2000, sensitivity: hard stop 1990/2010);
-(ii) r5-scope: P&M's numbers are global — the excl-r5 share needs a partition choice
-(default: proportional to the scope's share of global 1901–2015 melt; flag as
-sub-decision); (iii) do NOT also count uncharted ice in S2000/S2020 partitions (they
-split the INVENTORY-scope melt only — the target's uncharted part must be subtracted
-before the H-split, a small consistency fix to the a_b construction).
+Bookkeeping notes for D1c (updated with the Methods in hand): (i) prior sharpened —
+Frederikse samples UNIFORMLY in the P&M bounds, so the target's expected uncharted
+content is ≈32 mm (uniform sd ≈9 mm) over 1901–2015; use U ~ that distribution, not the
+raw bounds; (ii) apply F_unch over the Frederikse-sourced years (to the ~2019 GlaMBIE
+splice; P&M's rate is small by then; sensitivity: hard stop 2000); (iii) excl-r5 share
+resolved by Frederikse's own regionalization rule (scale by regional RGI melt shares);
+(iv) consistency fixes to the anchor bookkeeping: subtract the uncharted part from the
+target melt BEFORE the sub-decision-H split, and set r19's share of the 1850–2000
+target melt ≈ 0 (per §2b.2) — both small, both now provenance-grounded.
