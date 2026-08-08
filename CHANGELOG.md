@@ -3,7 +3,27 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-07 (late night 2, latest) — D1 multi-reservoir cell EXECUTED: pre-registered FAIL (0/10) but first-ever 4/4-gate pass; tension isolated to the pre-2000 century integral
+## [unreleased] — 2026-08-08 (latest) — D1b: splitting/reassigning the SLOW block does not recover the century integral; the cap is topology-invariant
+
+- **Marcus: the D1 SLOW block (inert until ~1990, yet assigned ~33 mm of history) should
+  maybe be split, or partly reassigned to FAST.** `python/d1b_slow_split.py` tests both
+  against the unchanged D1 criteria (sanity 2/2; both pathological refs reproduce D1
+  exactly). **Per-member two-rung diagnostic:** heterogeneity is real but does NOT map
+  onto τ50 — r09/r07 carry their high commitment via STEEP b (threshold-like S_eq, ~96%
+  loss by +2K) with T_off +1.6/+1.1, while the actual historical melters r03/r06
+  (T_off −0.69/−0.93) have τ50 too slow to matter. **3BLOCK** (POLAR {19,03} / SUBPOLAR
+  {09,07,06} / FAST) ≈ identical to D1 (ANCH deficit 20.6/12.0 vs 20.7/11.5; 4/4 gates;
+  S2020 59 mm). **REASSIGN** (τ*≈500) much worse (1/4 gates, deficit 17.3–67.8): the
+  merged FASTX composite T_off rises to −0.08, killing early excess and overshooting
+  modern — the one-pool shape failure resurrected inside FASTX. 0/12 feasible.
+- **Conclusion (`notes/note_2026-08-08_d1b_slow_split_verdict.md`):** the missing
+  ~45–50 mm of pre-2000 melt is invariant to block topology — capped by GlacierMIP3
+  response times + committed ladders + the exponential S_eq form. Reassignment is off
+  the menu; the §6 decision menu (T5c / T5d-extended / geometry-drift κ(t) as new scope)
+  stands. Abandoned: the hypothesis that τ-based splitting recovers equilibrium-proximity
+  coherence (the two axes are independent in the data).
+
+## [unreleased] — 2026-08-07 (late night 2) — D1 multi-reservoir cell EXECUTED: pre-registered FAIL (0/10) but first-ever 4/4-gate pass; tension isolated to the pre-2000 century integral
 
 - **`python/d1_multireservoir_cell.py` built and run** (D0-exec pattern; sanity battery 3/3
   — blocks-sum identity 2.8e-17, ν=0 Mengel nesting exact, reproducibility; the sx2
