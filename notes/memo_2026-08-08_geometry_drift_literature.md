@@ -1,0 +1,106 @@
+# Memo 2026-08-08 — Geometry-drift literature basis: transient-physics version has weak legs; but the hunt surfaced a VERIFIED scope mismatch (uncharted ice) that covers most of the century-integral gap
+
+**Context.** Marcus (2026-08-08, post-D1b): T5c rejected; T5d acceptable; "look into the
+geometry-drift to see if we can find a literature basis." All citations below were
+verified against primary sources (research-agent dossier, this session); quotes <25 words.
+The gap to explain: the anchored D1 structure under-melts 1850–2020 by ~50 mm
+(model 57 vs target 107 mm), all pre-2000; t5d's fitted rate bias was δ=+0.69 mm/yr
+over 1900–1960 (≈41 mm), 2.3σ of the original Roe-motivated prior sd 0.30.
+
+## 1. Mechanism A — state-dependent response times (geometry-drift proper): PARK IT
+
+Verified support that response times are geometry- and state-dependent:
+
+- Jóhannesson, Raymond & Waddington 1989 (J. Glaciol. 35(121), 355–369): volume response
+  time τ = h/(−ḃ_t); "can be substantially less than the 10²–10³ years commonly
+  considered to be theoretically expected."
+- Christian, Koutnik & Roe 2018 (J. Glaciol. 64(246), doi:10.1017/jog.2018.57): "Most
+  mountain glaciers have response times between ~10 and 100 years"; τ>50 yr glaciers
+  "substantially out of equilibrium today."
+- Zekollari, Huss & Farinotti 2020 (GRL 47, doi:10.1029/2019GL085578): Alps mean response
+  time 50 ± 28 yr, controlled primarily by SLOPE; imbalance 35% (2001) → 44% (2010).
+- GlacierMIP3 (Zekollari et al. 2025 Science, doi:10.1126/science.adu4675): response
+  timescale correlates with slope (r = −0.89); "Under higher warming levels (above
+  +1.5°C), all regions equilibrate faster." NB the paper's headline response times are
+  **80%-response** times; our pipeline uses the regchar −50% columns (no bug — but don't
+  compare our τ50s to the paper's main-text numbers).
+
+**Why it fails as a usable mechanism:** for early-20th-century LIA-extended geometries
+the DIRECTION is ambiguous — low-elevation termini raise |ḃ_t| (shorter τ, JRW) but the
+extended low-slope valley tongues and larger thickness push the other way (longer τ, per
+the slope control in Zekollari 2020/2025) — and **no paper quantifies early-century
+response times globally** (closest found: Zekollari, Fürst & Huybrechts 2014 model a
+single glacier, Morteratsch, from the LIA). There is no defensible prior to put on a
+κ(t)/geometry-drift term. Recommendation: park unless a quantitative source emerges.
+
+## 2. Mechanism B — inventory-scope drift (uncharted/vanished ice): STRONG, VERIFIED, QUANTIFIED
+
+- **Parkes & Marzeion 2018** (Nature 563, 551–554, doi:10.1038/s41586-018-0687-9):
+  glaciers missing from present inventories + glaciers that disappeared before 2015
+  contributed **16.7–48.0 mm SLE over 1901–2015** (missing 12.3–42.7; disappeared
+  4.4–5.3), i.e. "between 0.17 and 0.53 millimetres of SLE per year", framed against the
+  ~0.5 mm/yr 1901–1990 GMSL budget gap. Explicitly absent from inventory-based models:
+  estimates "rely on the analysis of glacier inventory data, which are known to
+  undersample the smallest glacier size classes."
+- **The linchpin — our target includes it:** Frederikse et al. 2020 (Nature 584,
+  doi:10.1038/s41586-020-2591-3; **D. Parkes is a co-author**) built its glacier
+  component to include this contribution. Independent published description
+  (Gangadharan et al., ESD preprint esd-2022-2, §Discussion p17): "[Frederikse et al.]
+  (2020) accounted for the GMSL contribution from missing and disappeared glaciers
+  (Parkes & Marzeion, 2018)". (Direct Methods quote from the paywalled Nature Methods
+  still worth pulling when convenient — flagged, not blocking.)
+- **Consequence:** the `recalib_targets_ext.csv` GSIC series (Frederikse-based to 2018)
+  contains 17–48 mm of 20th-century melt from ice that is STRUCTURALLY OUTSIDE the
+  model's V = 0.290 present-RGI stock (and outside GlacierMIP3's committed/response-time
+  data). The model-target century-integral gap of ~50 mm is therefore substantially a
+  **bookkeeping mismatch, not a physics failure**. This also explains why it was
+  topology-invariant in D1b — no rearrangement of modeled stock can produce melt from
+  unmodeled stock.
+- Sizing: 17–48 mm against the ~50 mm gap; against t5d's fitted need (δ=0.69 mm/yr
+  1900–1960), the P&M rate 0.17–0.53 covers ~25–75%, leaving a residual δ of
+  ~0.16–0.52 mm/yr — within ~0.5–1.7σ of the ORIGINAL Roe prior (no widening needed at
+  the generous end).
+
+## 3. The T5d side is also now better-armed (Roe critique verified, with specifics)
+
+Roe, Christian & Marzeion 2021 (The Cryosphere 15, 1889–1905,
+doi:10.5194/tc-15-1889-2021), Sect. 5: the Marzeion-lineage reconstruction used a
+mass-turnover timescale "rather than the Jóhannesson et al. (1989) geometric timescale"
+(response times "larger than is probably correct"); the t* equilibrium-year values "were
+extrapolated to all other glaciers, irrespective of their geometry"; and the implied
+natural-case sustained deficit "requires an ongoing warming trend, which is not seen in
+the naturally forced model simulations." Their attribution: "the central estimate of the
+magnitude of the anthropogenic mass loss is essentially 100 % of the observed mass loss"
+— vs Marzeion et al. 2014 (Science 345, doi:10.1126/science.1254702): 25 ± 35%
+anthropogenic 1851–2010 (69 ± 24% for 1991–2010). The T5d prior width can honestly span
+this live disagreement about post-LIA adjustment.
+
+Caveat to carry: Leclercq, Oerlemans & Cogley 2011 (Surv. Geophys. 32, 519–535,
+doi:10.1007/s10712-011-9121-7; totals 8.4 ± 2.1 cm SLE 1800–2005) is length-record-based
+and method-independent of Marzeion-2015 — an independent reconstruction with (likely)
+high early rates caps how much can be blamed on M15 artifacts alone; but its 349 length
+records are of SURVIVING glaciers, so it too under-samples the vanished ice. (Its
+early-century RATE could not be verified from accessible text — do not quote one.)
+Leclercq also underpins our A2b S(1900) = 20 ± 9 mm constraint.
+
+## 4. Proposed next cell — D1c (NOT started; Marcus to green-light)
+
+ANCH structure and anchors UNCHANGED (they pass all 4 gates), plus an **exogenous
+uncharted-ice melt term** on the model side of the flow/level comparison:
+F_unch(t) with the P&M 2018 published magnitude as the PRIOR — simplest form a declining
+source integrating to U ~ [17, 48] mm over 1901–2015 (shape: P&M time series if
+extractable, else exponential decay with scale fit inside the prior), entering the
+likelihood only (no change to stock, S_eq, transient, inventory gate, or projections —
+uncharted ice is exhausted/excluded going forward, so gates and spread are untouched by
+construction). Optional small T5d δ retained with the ORIGINAL prior (sd 0.30).
+Pre-registered criteria unchanged. Prediction to falsify: ANCH + U at the P&M central
+brings the flow-window deficit inside tol without δ exceeding ~1σ.
+
+Bookkeeping notes for D1c: (i) post-2000 the target splices to GlaMBIE (current-inventory
+obs) and P&M's uncharted flow is nearly exhausted — apply F_unch only to the
+Frederikse-sourced segment (taper by 2000, sensitivity: hard stop 1990/2010);
+(ii) r5-scope: P&M's numbers are global — the excl-r5 share needs a partition choice
+(default: proportional to the scope's share of global 1901–2015 melt; flag as
+sub-decision); (iii) do NOT also count uncharted ice in S2000/S2020 partitions (they
+split the INVENTORY-scope melt only — the target's uncharted part must be subtracted
+before the H-split, a small consistency fix to the a_b construction).

@@ -3,7 +3,39 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-08 (latest) — D1b: splitting/reassigning the SLOW block does not recover the century integral; the cap is topology-invariant
+## [unreleased] — 2026-08-08 (evening) — geometry-drift literature verdict: transient-physics version PARKED; verified scope mismatch (uncharted ice IS in the target, NOT in the model stock) covers most of the century-integral gap
+
+- **`notes/memo_2026-08-08_geometry_drift_literature.md`** (all citations verified against
+  primary sources). Mechanism A (state-dependent response times): qualitative support
+  (JRW 1989; Christian 2018; Zekollari 2020 slope control; GlacierMIP3 2025 state
+  dependence) but direction ambiguous for LIA-extended geometries and NO global
+  quantification → no defensible prior; PARKED. Mechanism B (inventory-scope drift):
+  Parkes & Marzeion 2018 — uncharted (missing + disappeared) glaciers contributed
+  16.7–48.0 mm SLE 1901–2015 (0.17–0.53 mm/yr), explicitly absent from inventory-based
+  models; **Frederikse 2020 (Parkes co-author) includes it in its glacier component**
+  (confirmed via Gangadharan et al. ESD) → our GSIC target contains 17–48 mm of melt the
+  model's V=0.290 present-RGI stock structurally cannot produce. Explains D1b's
+  topology-invariance. Covers ~25–75% of t5d's fitted δ=0.69 mm/yr; residual within
+  ~0.5–1.7σ of the ORIGINAL Roe prior. Roe 2021 initialization critique verified with
+  specifics (mass-turnover τ, t* extrapolation, NAT-deficit implausibility) — T5d prior
+  now literature-armed either way. NB GlacierMIP3 paper headline response times are 80%
+  metrics; our pipeline uses regchar −50% columns (no bug).
+- **Proposed (awaiting Marcus): D1c cell** — ANCH unchanged + exogenous uncharted-ice
+  term F_unch(t) with the P&M prior (taper by 2000; r5-scope partition flagged) +
+  optional T5d δ at the original prior. Prediction: deficit inside tol with δ ≤ ~1σ.
+
+## [unreleased] — 2026-08-08 (later) — Marcus rulings after D1/D1b: T5c REJECTED; T5d acceptable; geometry-drift to be investigated for a literature basis
+
+- **T5c (hindcast/projection hybrid) is OFF the menu** (Marcus: "I don't like T5c").
+  **T5d (structured early-segment discrepancy) is acceptable.** **Geometry-drift**
+  (state-dependent response times and/or inventory scope drift) to be scoped against the
+  literature before any implementation. Literature verification launched for: JRW-1989
+  response-time scaling, Roe/Christian/Marzeion attribution + initialization critique,
+  Marzeion 2014 adjustment fraction, Zekollari 2020 Alps imbalance, GlacierMIP3 τ50
+  definition, Leclercq 2011 independence, Parkes & Marzeion 2018 uncharted/vanished-ice
+  contribution (candidate exogenous early-melt source absent from present-RGI models).
+
+## [unreleased] — 2026-08-08 — D1b: splitting/reassigning the SLOW block does not recover the century integral; the cap is topology-invariant
 
 - **Marcus: the D1 SLOW block (inert until ~1990, yet assigned ~33 mm of history) should
   maybe be split, or partly reassigned to FAST.** `python/d1b_slow_split.py` tests both
