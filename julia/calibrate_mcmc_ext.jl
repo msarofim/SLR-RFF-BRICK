@@ -692,13 +692,18 @@ for k in GEO_IDX; prop[k] = GEO_PROP_SCALE * Float64(FREE[k].σ); end
 # postprocess_mcmc_ext.jl from a prior ext run) -- it matches the extended posterior
 # shape, which the 2018-baseline adapted_cov.csv does NOT (point terms dropped +
 # extended targets move the AIS block). Fall back to baseline cov, then diagonal.
-const ADCOV = let b3c = joinpath(REPO,"outputs/mcmc/adapted_cov_extB3c_seed2026.csv"),
+const ADCOV = let c1s = joinpath(REPO,"outputs/mcmc/adapted_cov_extC1_seed2026.csv"),
+                  c1 = joinpath(REPO,"outputs/mcmc/adapted_cov_extC1.csv"),
+                  b3c = joinpath(REPO,"outputs/mcmc/adapted_cov_extB3c_seed2026.csv"),
                   b2 = joinpath(REPO,"outputs/mcmc/adapted_cov_extB2_seed2026.csv"),
                   e = joinpath(REPO,"outputs/mcmc/adapted_cov_ext.csv"),
                   b = joinpath(REPO,"outputs/mcmc/adapted_cov.csv")
-    # extC: prefer the extB3c tuned shape (38-param, closest non-glacier posterior);
-    # its glacier rows are skipped by name (different structure) — fresh diagonal there
-    isfile(b3c) ? b3c : (isfile(b2) ? b2 : (isfile(e) ? e : b))
+    # PRODUCTION: prefer the extC1-tuned full-rank cov (52x52, used as-is when NK
+    # matches). Falls back to extB3c (38-param, name-mapped, fresh glacier diagonal)
+    # for the first tuning run itself; a dimension mismatch is caught by the
+    # dispatch below (visible WARNING -> diagonal), never silently misused.
+    isfile(c1s) ? c1s : (isfile(c1) ? c1 :
+        (isfile(b3c) ? b3c : (isfile(b2) ? b2 : (isfile(e) ? e : b))))
 end
 cov0 = Matrix(Diagonal(prop.^2))
 # Column order of the 35-param v-next chains/covs (18 physical + 7 geometry with the OLD
