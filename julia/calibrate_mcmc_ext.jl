@@ -121,16 +121,47 @@ tg = CSV.read(TARGETS, DataFrame)
 # amp basis selectable: --amp-basis=regchar|obsfit (D1f sensitivity arm 2026-08-09:
 # MID-arm deficit invariant to the basis; projections differ ~1.5 cm at SSP2-4.5).
 const AMP_G = 1.8            # aggregate convention (d0 gates/patho frame; kept for reference)
-const AMP_BASIS = something(_argval("--amp-basis="), "regchar")
-AMP_BASIS in ("regchar", "obsfit") || error("--amp-basis must be regchar|obsfit")
+# amp handling (Marcus 2026-08-09 FINAL: SAMPLED, dataset-informed priors).
+# Cross-dataset evidence (diag_amp_dataset_comparison, commit c52bd42): HadCRUT5 is
+# mid-range on SLOWP (BE 1.82 / Had 2.48 / GISTEMP 3.46); R19 weakly constrained in
+# every product; regchar sits below the obs range. Priors = center near HadCRUT5 with
+# σ from the dataset spread; hard bounds = the cross-dataset ranges.
+# Fixed-basis modes (regchar/obsfit) retained for A/B arms.
+const AMP_BASIS = something(_argval("--amp-basis="), "sampled")
+AMP_BASIS in ("sampled", "regchar", "obsfit") || error("--amp-basis must be sampled|regchar|obsfit")
+const SAMPLED_AMP = AMP_BASIS == "sampled"
 const BLOCKS = ["R19", "SLOWP", "FAST"]
 const HIND_BLOCKS = ["SLOWP", "FAST"]   # r19 seam: excluded from the flow/ledger scope
 bcdf = CSV.read(joinpath(REPO, "outputs/extc_block_constants.csv"), DataFrame)
 bcrow(b) = bcdf[findfirst(==(b), bcdf.block), :]
-const AMP_B    = Dict(b => Float64(bcrow(b)["amp_$(AMP_BASIS)"])        for b in BLOCKS)
-const KAP_ANCH = Dict(b => Float64(bcrow(b)["kappa_anch_$(AMP_BASIS)"]) for b in BLOCKS)
-const NU_ANCH  = Dict(b => Float64(bcrow(b)["nu_anch_$(AMP_BASIS)"])    for b in BLOCKS)
-const S2020_D  = Dict(b => Float64(bcrow(b).S2020_data)                 for b in BLOCKS)
+const AMP_PRIOR = Dict("R19"   => (0.72, 0.15, 0.58, 0.88),
+                       "SLOWP" => (2.50, 0.45, 1.80, 3.50),
+                       "FAST"  => (1.45, 0.15, 1.33, 1.82))   # (μ, σ, lo, hi)
+# NB sampled amp touches the LIKELIHOOD only via the rung frame-conversion and the
+# κ-prior center: the drivers' amp-dependent part is the 2025-2026 splice tail, which
+# no likelihood term reads (gsic obs end 2023; GlaMBIE rate ends at melt[2024] ←
+# T[2023] = obs). Drivers are therefore built ONCE at the amp-prior centers.
+const AMP_B = SAMPLED_AMP ?
+    Dict(b => AMP_PRIOR[b][1] for b in BLOCKS) :
+    Dict(b => Float64(bcrow(b)["amp_$(AMP_BASIS)"]) for b in BLOCKS)
+# κ-anchor center as a function of amp: log-linear interpolation between the two
+# precomputed τ50 anchor solves (regchar-amp and obsfit-amp points, per block) — keeps
+# the τ50-as-prior centered consistently when amp moves.
+const K10_PTS = Dict(b => ((Float64(bcrow(b).amp_regchar),
+                            log10(Float64(bcrow(b).kappa_anch_regchar))),
+                           (Float64(bcrow(b).amp_obsfit),
+                            log10(Float64(bcrow(b).kappa_anch_obsfit)))) for b in BLOCKS)
+function k10c(b, amp)
+    (a1, k1), (a2, k2) = K10_PTS[b]
+    return k1 + (k2 - k1) * (amp - a1) / (a2 - a1)
+end
+const K10_SIG = 0.114        # ±30% at 1σ — the ANCH-vs-MID freedom (offline evidence)
+const FIT_BASIS = SAMPLED_AMP ? "obsfit" : AMP_BASIS   # θ0 (b, T_off) start frame
+const KAP_ANCH = SAMPLED_AMP ?
+    Dict(b => 10.0^k10c(b, AMP_B[b]) for b in BLOCKS) :
+    Dict(b => Float64(bcrow(b)["kappa_anch_$(AMP_BASIS)"]) for b in BLOCKS)
+const NU_ANCH  = Dict(b => Float64(bcrow(b)["nu_anch_$(FIT_BASIS)"]) for b in BLOCKS)
+const S2020_D  = Dict(b => Float64(bcrow(b).S2020_data)              for b in BLOCKS)
 const GLAMBIE_RATE = Dict(b => Float64(bcrow(b).glambie_rate)    for b in BLOCKS)
 const GLAMBIE_SD   = Dict(b => Float64(bcrow(b).glambie_rate_sd) for b in BLOCKS)
 tgb = CSV.read(joinpath(REPO, "data/observations/t_glac_blocks.csv"), DataFrame)
@@ -283,12 +314,25 @@ for b in BLOCKS
                  μ=Float64(r.a0), σ=Float64(r.a0_sig), lo=a_lo,
                  hi=Float64(r.a0) + 4.0*Float64(r.a0_sig), islog=false))
     push!(FREE, (name="gic_b_$b", comp=G, sym=Symbol("gic_b_$b"),
-                 μ=Float64(r["b_fit_$(AMP_BASIS)"]), σ=10.0, lo=0.05, hi=3.0, islog=false))
+                 μ=Float64(r["b_fit_$(FIT_BASIS)"]), σ=10.0, lo=0.05, hi=3.0, islog=false))
     push!(FREE, (name="gic_T_off_$b", comp=G, sym=Symbol("gic_T_off_$b"),
-                 μ=Float64(r["T_off_fit_$(AMP_BASIS)"]), σ=10.0, lo=-3.0, hi=1.0, islog=false))
+                 μ=Float64(r["T_off_fit_$(FIT_BASIS)"]), σ=10.0, lo=-3.0, hi=1.0, islog=false))
+    # κ bounds: sampled mode spans the anchor-center range over the amp prior bounds ±1
+    klo, khi = if SAMPLED_AMP
+        c1 = k10c(b, AMP_PRIOR[b][3]); c2 = k10c(b, AMP_PRIOR[b][4])
+        (min(c1, c2) - 1.0, max(c1, c2) + 1.0)
+    else
+        (log10(KAP_ANCH[b]) - 1.0, log10(KAP_ANCH[b]) + 1.0)
+    end
     push!(FREE, (name="gic_log10_kappa_$b", comp=G, sym=Symbol("gic_kappa_$b"),
-                 μ=log10(KAP_ANCH[b]), σ=0.114,
-                 lo=log10(KAP_ANCH[b]) - 1.0, hi=log10(KAP_ANCH[b]) + 1.0, islog=false))
+                 μ=log10(KAP_ANCH[b]), σ=K10_SIG, lo=klo, hi=khi, islog=false))
+end
+if SAMPLED_AMP
+    for b in BLOCKS
+        μa, σa, loa, hia = AMP_PRIOR[b]
+        push!(FREE, (name="gic_amp_$b", comp=:likelihood_only, sym=:none,
+                     μ=μa, σ=σa, lo=loa, hi=hia, islog=false))
+    end
 end
 push!(FREE, (name="gic_u_unch", comp=:likelihood_only, sym=:none,
              μ=28.15, σ=1.0e3, lo=14.5, hi=41.8, islog=false))
@@ -307,8 +351,15 @@ const UUNCH_IDX  = findfirst(k -> k.name == "gic_u_unch", FREE)
 const DELTA_IDX  = findfirst(k -> k.name == "gic_delta", FREE)
 const UPRE_IDX   = findfirst(k -> k.name == "gic_u_pre", FREE)
 const SR5_IDX    = findfirst(k -> k.name == "gic_s_r5", FREE)
+const AMPB_IDX3  = SAMPLED_AMP ?
+    Dict(b => findfirst(k -> k.name == "gic_amp_$b", FREE) for b in BLOCKS) :
+    Dict{String,Int}()
 const SETP_SKIP  = Set(vcat(collect(values(KAPPA_IDX3)),
-                            [UUNCH_IDX, DELTA_IDX, UPRE_IDX, SR5_IDX]))
+                            [UUNCH_IDX, DELTA_IDX, UPRE_IDX, SR5_IDX],
+                            collect(values(AMPB_IDX3))))
+# sampled mode: the κ prior is amp-dependent (center k10c(amp)) — exclude κ from the
+# generic Normal(μ,σ) prior loop and add the explicit term in logposterior
+const PRIOR_SKIP = SAMPLED_AMP ? Set(values(KAPPA_IDX3)) : Set{Int}()
 # per-block rung likelihood data (data-basis committed %, band σ, cross-rung corr 0.6)
 const GMIP_LEVELS = [1.2, 1.5, 2.0, 3.0]
 const RUNG_CORR = 0.6
@@ -489,8 +540,8 @@ println("MCMC: $NP physical (incl $(length(GEO_IDX)) DAIS-geometry under a joint
 medoid = CSV.read(joinpath(REPO,"outputs/recalib_central_row.csv"), DataFrame)[1,:]
 m = build_brick_nu3(ssp="ssp245", y0=Y0, y1=Y1)
 gic3_init = (; (Symbol(b) => (a=Float64(bcrow(b).a0),
-                              b=Float64(bcrow(b)["b_fit_$(AMP_BASIS)"]),
-                              T_off=Float64(bcrow(b)["T_off_fit_$(AMP_BASIS)"]),
+                              b=Float64(bcrow(b)["b_fit_$(FIT_BASIS)"]),
+                              T_off=Float64(bcrow(b)["T_off_fit_$(FIT_BASIS)"]),
                               kappa=KAP_ANCH[b], nu=NU_ANCH[b]) for b in BLOCKS)...)
 update_brick_nu3!(m, medoid, gic3_init; precip_log=true)   # ν_b FIXED here (anchored; not sampled)
 set_forcing!(m, gmst, ohc)
@@ -552,10 +603,12 @@ function logposterior(θ)
     S_ledger_m = (Float64(gsic_hind_raw[M19_I1900]) - Float64(gsic_hind_raw[M19_I1850])) +
                  (θ[UPRE_IDX] + θ[SR5_IDX]) / 1000.0
     ll += logpdf(Normal(M19_MU_M, M19_SIGMA_M), S_ledger_m)
-    # per-block GlacierMIP3 rung likelihood (data-basis committed %, corr 0.6, band σ)
+    # per-block GlacierMIP3 rung likelihood (data-basis committed %, corr 0.6, band σ);
+    # sampled mode: the frame conversion uses the SAMPLED amp
     for b in BLOCKS
         a = θ[A_IDX3[b]]; bb = θ[B_IDX3[b]]; T0 = θ[TOFF_IDX3[b]]
-        s20 = S2020_D[b]; amp = AMP_B[b]
+        s20 = S2020_D[b]
+        amp = SAMPLED_AMP ? θ[AMPB_IDX3[b]] : AMP_B[b]
         r4 = [100.0*(a*(1 - exp(-bb*(amp*L - T0))) - s20)/max(a - s20, 1e-9) - RUNG_Y[b][i]
               for (i, L) in enumerate(GMIP_LEVELS)]
         ll += -0.5 * (r4' * (RUNG_CI[b] * r4))
@@ -570,8 +623,14 @@ function logposterior(θ)
     # joint paleo prior below), weak half-normal on AR(1) σ
     lp = 0.0
     @inbounds for k in 1:NP
-        k in GEO_IDX && continue
+        (k in GEO_IDX || k in PRIOR_SKIP) && continue
         lp += logpdf(Normal(FREE[k].μ, FREE[k].σ), θ[k])
+    end
+    # sampled mode: τ50-as-prior with the center moving consistently with the sampled amp
+    if SAMPLED_AMP
+        for b in BLOCKS
+            lp += logpdf(Normal(k10c(b, θ[AMPB_IDX3[b]]), K10_SIG), θ[KAPPA_IDX3[b]])
+        end
     end
     lp += logpdf(GEO_PRIOR, (θ[GEO_IDX] .- GEO_MU) ./ GEO_SD)
     for i in 1:length(SERIES); lp += logpdf(truncated(Normal(0,5),0,Inf), σn[i]); end

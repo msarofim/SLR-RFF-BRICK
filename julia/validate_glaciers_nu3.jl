@@ -18,6 +18,9 @@
 
 include(joinpath(@__DIR__, "calibrate_mcmc_ext.jl"))
 
+SAMPLED_AMP && error("port validation needs a FIXED amp basis (the python reference " *
+                     "is at the regchar/obsfit amps; sampled-mode drivers sit at the " *
+                     "prior centers) — run with --amp-basis=regchar or --amp-basis=obsfit")
 const REF = CSV.read(joinpath(REPO, "outputs/extc_port_reference.csv"), DataFrame)
 const REF_TH = CSV.read(joinpath(REPO, "outputs/extc_port_reference_theta.csv"), DataFrame)
 const BKEY = AMP_BASIS == "regchar" ? "reg" : "obs"
