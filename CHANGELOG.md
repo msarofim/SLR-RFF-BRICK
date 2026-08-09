@@ -3,6 +3,29 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-09 (latest) — D1d (4-rung fits + r19 seam): bars NOT met but the offline program has CONVERGED — every datum within ~1.3σ
+
+- **`python/d1d_fourrung_seam.py`** (Marcus green-lit options 1+4): 4-rung correlated-
+  Gaussian S_eq fits (rung σ = band/2 floor 3, corr 0.6, soft Farinotti a-priors
+  0.221±0.057 / r19 0.069±0.018) + r19 as third reservoir excluded from the hindcast
+  (obs_adj removes GlaMBIE r19 post-2018; net 0.38 mm) + Farinotti-SLE r19 basis
+  (resolves the Gt-vs-SLE BSL sub-decision). Sanity 3/3 after fixing an over-strict
+  monotonicity assertion (r19 has positive-balance years). **All rung |z| ≤ 0.2 —
+  no overconstraint** (the explicit Marcus requirement, verified).
+- **Bars NOT met (0/12):** deficits improved to 7.3–8.2 (δ ≤ 1σ, U ≈ Frederikse
+  central) but S(1900) drops to 8.1–9.8 mm — below the 10–30 box — because the
+  (physically right) BSL r19 stock reduction removes ~1.4 mm of early melt; ANCH
+  modern rate overshoots (0.97) in the seam variants, MID resolves it (0.84–0.85).
+  λ-bridge diagnostic considered and NOT run (both frame endpoints share the S1900
+  miss — stillborn).
+- **Conclusion (`notes/note_2026-08-09_d1d_fourrung_seam_verdict.md`): the offline
+  point-optimization program has converged** — FREE arms fit the adjusted century at
+  noise level; every underlying constraint is met within ~1.3σ (S1900 z −1.2 vs
+  Leclercq, in the direction the inventory-vs-total scope argument predicts); the
+  remaining "failures" are pre-registered box edges. Assets for extC assembled
+  (structure, rung covariances, priors, obs_adj, T_off bounds). Whether to re-derive
+  the S(1900) box for inventory scope is a Marcus call.
+
 ## [unreleased] — 2026-08-08 (night) — D1c uncharted-ice cell EXECUTED: pre-registered prediction NOT confirmed (best 8.4 vs tol 5) but U fits at the Frederikse central and the gap is now fully literature-priced
 
 - **`python/d1c_uncharted_cell.py`** (Marcus green-light): ANCH 2-block + exogenous
