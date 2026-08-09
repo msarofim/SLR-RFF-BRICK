@@ -3,7 +3,45 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-09 (latest) — T1 + T2 decision memos: S(1900) box provenance/options + honest structural assessment; three record corrections
+## [unreleased] — 2026-08-09 (latest) — Marcus ruled Option D; P&M 2018 read from primary; D1e ledger cell built + launched
+
+- **Marcus's S(1900) ruling: Option D** — the model-side ledger ("make the best
+  defensible historical data target with appropriate set-asides… then work on getting
+  the model to fit that data target"), framed by his two-issue decomposition:
+  (a) dataset/model scope matching (pre-2000-melted glaciers held separately),
+  (b) model design for remaining-history + present + scenario responsiveness.
+  The S(1900) question is ~entirely (a); its only (b) content is keeping a pre-1900
+  regularizer in extC.
+- **P&M 2018 now on disk and read in full** (`ClaudeDocs/Papers/`, 9 pp): seven new
+  primary receipts in `notes/memo_2026-08-09_d_ledger_target_spec.md` §1, most
+  notably the derivable 1901 uncharted stock (18.8–50.4 mm SLE), the CRU origin of
+  the 1901 start, r19-removal RAISING the uncharted estimate (49.1+6.3), and the
+  global-only upscaling (Frederikse's 13%-r5 regionalization is their own invention
+  vs P&M's 43.1% r5 small-glacier area share — target-content caveat).
+- **D1e cell** (`python/d1e_dside_ledger.py`, commit 0646571): datum untouched at
+  N(20,9); set-asides U_pre ~ flat[0,25] mm (0-edge = charted-scope reading) +
+  S_r5 ~ N(2.5,2.0)[0,8] mm on the model side; g_lec |z|≤2 replaces g_s1900
+  (legacy box still reported); matched-freedom patho; era-rate + per-reservoir-rate
+  emitters (the T2 cheap item); evaluation-based sanity (d1d θ identity);
+  pre-registered P1 (ANCH deficit unchanged 8.21±0.05), P2 (ledger interior,
+  ANCH/MID 4/4), P3 (FREE decouples from the Leclercq pull), MID/sx2 5.07-vs-5
+  watch item. Julia A2b carries the D-ledger spec + TODO(extC surgery)
+  (change-together trap).
+- **D1e EXECUTED (`notes/note_2026-08-09_d1e_dside_ledger_verdict.md`): P1/P2
+  CONFIRMED, P3 FALSIFIED, 0/6 feasible (expected).** Sanity 4/4 (structures
+  reproduce d1d to 5e-6; θ evaluation identity). ANCH deficit 8.22 (unchanged);
+  every ANCH/MID row now **4/4 gates** with the ledger interior: 8.1 + 2.5 (S_r5,
+  prior mean) + 9.4–10.5 (U_pre, mid-range of the P&M construction) = 20.0, z ≈ 0.
+  Minimal bar misses only on δ = 1.005σ vs the ≤1.0 edge (third decimal). MID/sx2
+  watch: 5.32, no feasibility flip (old ll_lec's κ-pull was mildly flow-aligned;
+  MID re-priced honestly +0.2–0.3). **P3 falsified informatively: FREE keeps legacy
+  S(1900) 26.3–27.1 with U_pre railed at 0 — the d1d FREE ~27–28 mm was
+  flow-preference, not Leclercq pull** (revises the T1/D1d inference; the flow data
+  independently want ~26 mm of pre-1901 melt). New emitters: per-reservoir modern
+  rates (ANCH overshoot in BOTH blocks: SLOWP +37%/FAST +25%; MID puts SLOWP dead
+  on GlaMBIE) + era rates (residuals small, mixed-sign). U_pre caveat stated: no
+  independent constraint — interior-not-railed is literature-consistency, not
+  data corroboration.
 
 - **`notes/memo_2026-08-09_t1_s1900_box_scope.md` (T1):** the 20±9 mm Leclercq datum
   traced to the 2026-08-06 receipts family {10, 18.5, 21.8, 28.0} — the box floor (10)
