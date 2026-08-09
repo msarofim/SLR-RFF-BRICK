@@ -3,7 +3,43 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-09 (latest) — D1d (4-rung fits + r19 seam): bars NOT met but the offline program has CONVERGED — every datum within ~1.3σ
+## [unreleased] — 2026-08-09 (latest) — T1 + T2 decision memos: S(1900) box provenance/options + honest structural assessment; three record corrections
+
+- **`notes/memo_2026-08-09_t1_s1900_box_scope.md` (T1):** the 20±9 mm Leclercq datum
+  traced to the 2026-08-06 receipts family {10, 18.5, 21.8, 28.0} — the box floor (10)
+  IS the lowest family member, zero margin; Leclercq 2011 primary-verified (Springer
+  full text): 349 surviving-glacier length records calibrated onto 1951–2009 charted
+  mass balance → two defensible scope readings (total-scope vs effectively-charted),
+  so the uncharted correction to the datum is honestly 0–23 mm (reading-(i) central
+  ≈9); r19/r5 corrections offset (+1–2 / −2–3 mm). Options A (keep+label) /
+  B (re-derived box) / C (likelihood-only, recommended, e.g. N(15,10)) for Marcus.
+  Sensitivity: any defensible re-derivation → all ANCH/MID rows 4/4 gates; deficits
+  and 0/12 feasibility untouched (ANCH S(1900) is an analytic constant of the fit —
+  bit-identical 8.12281 across variants); closest feasibility candidate
+  C_both/MID/unc_sx2 at deficit 5.07 vs tol 5 flagged. Python + Julia constants must
+  change together.
+- **`notes/memo_2026-08-09_t2_structural_assessment.md` (T2):** century budget
+  1900→2020 decomposed (blocks 38.4 / U 29.6 / δ 18.1 / resid 0.5 mm — 56%
+  non-dynamical, both terms literature-anchored); era table with scope-corrected obs;
+  parameter census (19 nominal; 4 hindcast-fitted, none dynamics; **a_b prior-pinned
+  to 5 dp — the rungs determine 6 params, not 9** — new finding); comparator ledger
+  (Wong WR-GSIC fails ≥3/4 itemized, NOT script-produced "0/4"; Nauels-ν 0/4;
+  reassign catastrophic); 11-convention ledger — complexity lives in conventions,
+  not parameters; minimality table (every remaining piece costs likelihood or scope
+  honesty); recommendation separated: green-light extC after the T1 call + two cheap
+  pre-extC items (obs-amp arm; era-rate emitter).
+- **Record corrections (do not propagate):** (1) "adj-obs ~0.81" modern rate is the
+  UNADJUSTED 2015–23 number; the like-for-like r19-adjusted comparator is **0.766**
+  → ANCH overshoot 1.26× (not ~1.19×), MID 1.10×; (2) the arc handoff's SSP quote
+  "7.7/9.8/14.1" is the A_4rung ablation row — headline C_both/ANCH is
+  **9.06/11.23/15.78** vs AR6 9/12/18, and MID is slightly LOW at all three (not "on
+  them"); (3) D1d gate status is 3/4, not 4/4 (the 4/4 claims belong to D1/D1c).
+- Papers checked: Leclercq 2011 and P&M 2018 are NOT in ClaudeDocs/Papers (fetched
+  key facts from publisher pages instead); Frederikse 2020 EDF Fig. 6a (on disk)
+  gives the P&M time profile — near-constant to ~1980, exhausted by ~2000 —
+  corroborating the taper.
+
+## [unreleased] — 2026-08-09 — D1d (4-rung fits + r19 seam): bars NOT met but the offline program has CONVERGED — every datum within ~1.3σ
 
 - **`python/d1d_fourrung_seam.py`** (Marcus green-lit options 1+4): 4-rung correlated-
   Gaussian S_eq fits (rung σ = band/2 floor 3, corr 0.6, soft Farinotti a-priors
