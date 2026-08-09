@@ -115,9 +115,15 @@ overdispersed_starts.csv (52-col header) → production per §4 step 4 (add
 **Two-stage is MANDATORY** — `outputs/mcmc/overdispersed_starts.csv` is 39-col
 2-τ-era and the calibrator hard-errors on `--overdisperse` until it is rebuilt.
 
-1. **Tuning** (common start, ~36 min at 4.35 ms/iter):
-   `cd ~/Documents/2026/CodeProjects/SLR-RFF-BRICK && julia --project=julia_v2 julia/calibrate_mcmc_ext.jl 500000 2026 --tag=extC1 --amp-basis=<CHOSEN>`
-   Acceptance expectation ~0.23–0.24 (opt_α 0.234); smoke accepted 0.34 at 50 iter.
+1. **Tuning** (common start, ~40 min for 52 params):
+   `cd ~/Documents/2026/CodeProjects/SLR-RFF-BRICK && julia --project=julia_v2 julia/calibrate_mcmc_ext.jl 500000 2026 --tag=extC1 --amp-mu=1.08 --amp-sigma=0.15`
+   **`--amp-mu=1.08 --amp-sigma=0.15` is MANDATORY on every extC run** — the file
+   default is the stale pre-A6-revision N(0.95, 0.10); the canonical BRICK-AM A6
+   prior (CMIP6 land-frame secant, Marcus 2026-07-24) is only applied via the
+   flags, exactly as extA108 did. A first extC1 tuning was run WITHOUT them
+   (2026-08-09 night, my slip — posterior ais_gmst_amp 0.922±0.095 = the stale
+   prior), deleted, and relaunched correctly.
+   Acceptance expectation ~0.23–0.24 (opt_α 0.234).
 2. **Evaluate tuning**: postprocess (`julia --project=julia_v2 julia/postprocess_mcmc_ext.jl --tag=extC1`
    — column-generic, works as-is) + gates. **`python/eval_chain_gates.py` is
    HARD-BROKEN for extC** (5-param single-reservoir assumptions; see the surgery-map
@@ -139,6 +145,41 @@ overdispersed_starts.csv (52-col header) → production per §4 step 4 (add
    blocks `--accept-slr`).
 5. Delete any stray smoke chains matching `chain_extC*` before postprocess (the
    chain-length-mismatch guard hard-errors).
+
+**STATE AS OF 2026-08-09 ~17:30 — steps 1–3 DONE, step 4 RUNNING:**
+- Tuning extC1 complete (correct A6 prior; accept 0.240; log
+  `outputs/mcmc/caliblog_extC1_seed2026_n500000.log`). Posterior sane:
+  ais_gmst_amp 1.01±0.15; glacier block stable across both tuning runs; amp
+  posteriors R19 0.70 / SLOWP 2.58 / FAST 1.44 (SLOWP pulled up from 2.50).
+- Gate eval (`eval_chain_gates_extc.py`, self-test PASS; commit c5f8af8):
+  inv 88% / lec 98% / spread 98% pass; medians inv_z +0.09, ledger
+  15.5+2.4+6.5=25.6 (z +0.62 — the JOINT fit finds more early melt than the
+  offline ANCH, echoing the FREE-arm finding; legacy 10–30 box in for 84%),
+  spread 6.25, ds 8.5/10.6/14.8, rate 0.807 vs 0.766, δ 0.7σ.
+  **ACCEPTANCE-REVIEW ITEM — ladder gate 39%:** all failures HIGH side, led by
+  +1.2K crossing its top edge ~2 pts (com1p2 med 56.1 vs 54.0) on the MODEL
+  basis: the posterior melts S2020_all ≈ 74 mm (vs offline ANCH 46.5 — i.e. it
+  FITS the century better), shrinking the remaining-stock denominator. The rung
+  LIKELIHOOD is data-basis (fixed S2020_data) and satisfied by construction.
+  Resolution for the review: emit data-basis com in the evaluator (cheap: same
+  formula with S2020_D constants) and report BOTH bases; the memo's ladder
+  section must use the data basis + explain the model-basis shift as the
+  century-integral improvement in the denominator. NOT the extB3 pathology
+  (spread healthy; com1p2 56 not 63–100).
+- Starts rebuilt (52-col, iceflow0 quantiles 1.023/1.127/1.184/1.277; old
+  39-col file kept as `.pre_extc_bak`).
+- **PRODUCTION LAUNCHED** via `julia/run_extc_production.sh`: 4 × 2M, seeds
+  2026–2029, `--tag=extC --amp-mu=1.08 --amp-sigma=0.15 --overdisperse`, logs
+  `outputs/mcmc/log_extC_seed*.txt`, ~3.1 h, ~7.9 GB.
+- **REMAINING BEFORE --accept-slr: repoint `julia/diag_slr_convergence_by_chain.jl`**
+  (still 2-τ: hard-coded gic_a/gic_T_lia/... symbol list + update_brick_mengel!).
+  Spec: build_brick_nu3 to the projection horizon; per-block θ from chain columns
+  (gic_a_R19 … gic_log10_kappa_FAST as 10^θ; ν from extc_block_constants
+  nu_anch_obsfit; per-draw amp from gic_amp_*); per-block drivers = t_glac_blocks
+  obs + amp_b × ssp245harm GMST splice EXTENDED to the horizon (replicate the
+  calibrator's tg3 construction with the longer year grid); non-glacier params
+  via update_brick_params! as now. Then postprocess `--tag=extC --accept-slr`
+  → canonical subsample `parameters_subsample_brick_mengel_extC.csv`.
 
 ## 5. After acceptance (tasks #4, #5)
 
