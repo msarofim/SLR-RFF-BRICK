@@ -3,6 +3,29 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-08 (night) — D1c uncharted-ice cell EXECUTED: pre-registered prediction NOT confirmed (best 8.4 vs tol 5) but U fits at the Frederikse central and the gap is now fully literature-priced
+
+- **`python/d1c_uncharted_cell.py`** (Marcus green-light): ANCH 2-block + exogenous
+  F_unch(t) with U flat-prior on the scope-scaled P&M bounds [14.5, 41.8] mm; BOOK1
+  (uncharted subtraction from the melt-to-date partition) + BOOK2 (r19-zero historical
+  split); ablation arms repro/book/unc_sx2/unc_t5d × ANCH/MID/FREE + profile
+  sensitivities (const/frontload/taper); pathological comparators re-fit per variant
+  with matched U/δ freedom. Sanity 3/3; ANCH/repro ≡ D1 (|diff|=0.00); sx2 patho 52.82.
+- **Verdict (`notes/handoff_2026-08-08_d1c_uncharted_verdict.md`): 0/14 feasible — the
+  pre-registered prediction (feasible with δ≤1σ) FAILED** (const: 9.0 deficit, δ 1.2σ;
+  taper: 8.4, δ 0.9σ). But: U FITS at 27.6–32.5 mm scope ≈ the Frederikse-expected
+  central (31.7–32.5 global vs 32.35), not railed; early-century era logLs reach the
+  noise floor; FREE/unc_sx2 deficit 0.55 (free dynamics + U fit the century at noise
+  level — only the ν-spread coupling survives anywhere); profile ranking taper < const
+  << frontload (frontload falsified; const's 1990 hard stop = step artifact ~0.6 logL).
+  Residual ~8 logL localized to 1980–2023 with three priced candidates: bookfix→
+  two-rung interpolation sensitivity (book-only ablation +2.5; modern rate 0.855→0.764),
+  the Frederikse/GlaMBIE r19 modern-target seam, and late-century ν-shape.
+- Abandoned within the cell: the frontload profile; and the notion that the 1990 profile
+  step materially carried the deficit (taper bought only 0.6).
+- Decision menu: D1d modern-seam cleanup vs accept-with-label (offline program complete)
+  vs extC surgery directly (needs widened per-block T_off bounds). Marcus to rule.
+
 ## [unreleased] — 2026-08-08 (evening) — geometry-drift literature verdict: transient-physics version PARKED; verified scope mismatch (uncharted ice IS in the target, NOT in the model stock) covers most of the century-integral gap
 
 - **`notes/memo_2026-08-08_geometry_drift_literature.md`** (all citations verified against
