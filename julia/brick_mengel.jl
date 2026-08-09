@@ -22,6 +22,7 @@ using Mimi, MimiBRICK, Random
 
 include(joinpath(@__DIR__, "glaciers_mengel_component.jl"))
 include(joinpath(@__DIR__, "glaciers_nu_component.jl"))
+include(joinpath(@__DIR__, "glaciers_nu3_component.jl"))
 include(joinpath(@__DIR__, "brick_param_updates.jl"))
 
 const _MENGEL_GLAC_SLOT = :glaciers_small_icecaps   # name kept by Mimi replace!
@@ -145,5 +146,69 @@ end
 """Set the glacier-frame driver (T_glac historically, amp_g x GMST spliced forward)."""
 function set_glacier_forcing!(m, tglac::Vector{<:Real})
     update_param!(m, _MENGEL_GLAC_SLOT, :glacier_surface_temperature, tglac)
+    return m
+end
+
+# ============================================================================
+# extC (2026-08-09): 3-reservoir glaciers_nu3 (R19 / SLOWP / FAST)
+# Structure + constants provenance: python/d1d_fourrung_seam.py C_both,
+# python/build_extc_inputs.py -> outputs/extc_block_constants.csv.
+# ============================================================================
+
+const NU3_BLOCKS = ("R19", "SLOWP", "FAST")
+
+"""
+    build_brick_nu3(; ssp, y0, y1, lws=:seeded, lws_seed=LWS_SEED)
+
+`build_brick_nu` with the 3-reservoir glaciers_nu3 component in the glacier
+slot. All three per-block drivers are UNBOUND after the build — call
+`set_glacier_forcing3!` before `run(m)`.
+"""
+function build_brick_nu3(; ssp::String="ssp245", y0::Int=1850, y1::Int=2026,
+                         lws::Symbol=:seeded, lws_seed::Int=LWS_SEED)
+    m = MimiBRICK.get_model(ssprcp_scenario=ssp, start_year=y0, end_year=y1)
+    replace!(m, _MENGEL_GLAC_SLOT => glaciers_nu3)
+    n = y1 - y0 + 1
+    if lws === :seeded
+        update_param!(m, :landwater_storage, :lws_random_sample,
+                      LWS_MEAN .+ LWS_SD .* randn(MersenneTwister(lws_seed), n))
+    elseif lws === :central
+        update_param!(m, :landwater_storage, :lws_random_sample, fill(LWS_MEAN, n))
+    elseif lws === :zero
+        update_param!(m, :landwater_storage, :lws_random_sample, zeros(n))
+    elseif lws !== :random
+        error("build_brick_nu3: lws must be :seeded, :central, :zero, or :random (got :$lws)")
+    end
+    return m
+end
+
+"""
+    update_brick_nu3!(m, prow, gic3; precip_log=true)
+
+Non-glacier params from posterior row `prow`; glacier params from `gic3`, a
+NamedTuple of per-block NamedTuples keyed R19/SLOWP/FAST, each with fields
+a, b, T_off, kappa, nu (GLACIER-FRAME values). sl0 is always 0.
+"""
+function update_brick_nu3!(m, prow, gic3; precip_log::Bool=true)
+    update_brick_params!(m, prow; precip_log=precip_log, skip_glaciers=true)
+    for blk in NU3_BLOCKS
+        g = getproperty(gic3, Symbol(blk))
+        update_param!(m, _MENGEL_GLAC_SLOT, Symbol("gic_a_$blk"),     g.a)
+        update_param!(m, _MENGEL_GLAC_SLOT, Symbol("gic_b_$blk"),     g.b)
+        update_param!(m, _MENGEL_GLAC_SLOT, Symbol("gic_T_off_$blk"), g.T_off)
+        update_param!(m, _MENGEL_GLAC_SLOT, Symbol("gic_kappa_$blk"), g.kappa)
+        update_param!(m, _MENGEL_GLAC_SLOT, Symbol("gic_nu_$blk"),    g.nu)
+    end
+    update_param!(m, _MENGEL_GLAC_SLOT, :gic_sl0, 0.0)
+    return m
+end
+
+"""Set the three per-block glacier-frame drivers (NamedTuple R19/SLOWP/FAST)."""
+function set_glacier_forcing3!(m, tg3)
+    for blk in NU3_BLOCKS
+        update_param!(m, _MENGEL_GLAC_SLOT,
+                      Symbol("glacier_surface_temperature_$blk"),
+                      getproperty(tg3, Symbol(blk)))
+    end
     return m
 end
