@@ -94,10 +94,21 @@ constrained everywhere (0.58–0.88; < half the cells observed early in ALL prod
 BE = air-above-sea-ice variant, verified). regchar's SLOWP 1.70 sits BELOW the
 lowest obs estimate. Dataset-informed sampled-amp priors: SLOWP [1.8, 3.5] center
 ~2.5 ([1.8, 2.6] if GISTEMP dropped), R19 [0.58, 0.88], FAST [1.33, 1.82].
-Decision menu updated: sampled-with-dataset-priors (strengthened recommendation) /
-obs-fit HadCRUT5 fixed (defensible — mid-range; label the spread) / regchar (now
-weak: below the obs range on SLOWP). Sampled needs ~30 min implementation
-(per-eval driver rebuild + rung-amp coupling). Awaiting Marcus.
+**MARCUS RULED (same night): SAMPLED amp_b** — implemented (commit 02150d8) and
+**extC1 TUNING LAUNCHED** (500k, seed 2026, --tag=extC1, sampled default; log
+`outputs/mcmc/caliblog_extC1_seed2026_n500000.log`). Implementation facts: 3
+`gic_amp_*` params, priors R19 N(0.72,0.15)[0.58,0.88] / SLOWP N(2.5,0.45)[1.8,3.5]
+/ FAST N(1.45,0.15)[1.33,1.82]; sampled amp enters the likelihood ONLY via the rung
+frame-conversion and the κ-prior center k10c(amp) (log-linear interpolation between
+the regchar/obsfit τ50 anchor solves; κ excluded from the generic prior loop in
+sampled mode); drivers built once at the prior centers — the amp-dependent splice
+tail (2025–26) is read by no likelihood term (verified reasoning in the code
+comment). **52 params total** (42 physical + 10 AR(1)). Fixed bases retained as A/B
+arms (--amp-basis=regchar|obsfit); the port validator requires a fixed basis and
+guards against sampled mode. Smoke: accept 0.24. NEXT after tuning: postprocess
+--tag=extC1 → eval_chain_gates rewrite (§4 step 2) → rebuild
+overdispersed_starts.csv (52-col header) → production per §4 step 4 (add
+--tag=extC --amp-basis default sampled).
 
 ## 4. Launch procedure (after the amp call)
 
