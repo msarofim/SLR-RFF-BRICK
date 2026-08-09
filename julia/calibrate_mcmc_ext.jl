@@ -356,6 +356,21 @@ const GIC_A_IDX    = findfirst(k -> k.name == "gic_a", FREE)
 # calibration-dataset-driven) >> any formal σ (~3-5 mm), and the scope deltas vs our
 # convention (drop r5, add r19) are a few mm with offsetting signs. µ=20, σ=9 mm spans all
 # four within ~1.2σ. Kills the extB1 fiction decisively: 131 mm → z≈12 (~-76 logL).
+#
+# ---- 2026-08-09 OPTION-D LEDGER (Marcus-approved) — TODO(extC surgery): wire this in ----
+# The offline cells (d1e_dside_ledger.py) replaced the bare comparison with a MODEL-SIDE
+# ledger; the datum stays N(20, 9) mm (basis: excl r19, incl r5). extC must implement:
+#   S_ledger(1900) = S_nonr19(1900)            (SLOWP+FAST melt 1850->1900; NOT the R19 res.)
+#                  + S_r5   ~ N(2.5, 2.0) mm, bounds [0, 8]   (charted r5 set-aside, +1 param)
+#                  + U_pre  ~ flat [0, 25] mm                 (pre-1901 uncharted set-aside,
+#                                                              +1 param; 0-edge = charted-
+#                                                              scope reading of Leclercq)
+#   ll += logpdf(Normal(0.020, 0.009), S_ledger in m) + logpdf(Normal(2.5, 2.0), S_r5)
+# Spec + P&M 2018 primary receipts: notes/memo_2026-08-09_d_ledger_target_spec.md.
+# Marginalized 1-term equivalent if params are unwanted: Normal(0.0050, 0.0117) m on
+# S_nonr19(1900) — but the explicit 2-param ledger is preferred for reporting.
+# The term below is the PRE-D form, kept live only because the extB3-era single-reservoir
+# glacier block cannot separate r19; it is replaced wholesale in the extC surgery.
 const M19_MU_M    = 0.020
 const M19_SIGMA_M = 0.009
 const M19_I1850, M19_I1900 = idx(1850), idx(1900)
