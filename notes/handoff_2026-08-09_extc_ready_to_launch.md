@@ -85,11 +85,19 @@ number; R19 0.61 is the least-observed). A background agent is running
 **Berkeley Earth gridded** and **GISTEMP 1200km** with the same GTN-G regions,
 GlaMBIE area weights, and windows (1901–2024, 1970–2024), self-tested against the
 HadCRUT5 reference (R19 0.615 / SLOWP 2.484 / FAST 1.404 / aggregate 1.595).
-**Check whether those files exist before redoing anything.** Decision menu as posed
-to Marcus: obs-fit (recommended) / regchar / sampled amp_b (needs ~30 min more
-implementation: per-eval driver rebuild + rung-amp coupling; the dataset spread would
-set the prior) / twin tuning arms. If datasets agree with HadCRUT5 → obs-fit is
-clean; if they spread materially → sampled becomes the honest choice.
+**RESULTS ARRIVED (commit c52bd42, same evening):** self-test exact; block ordering
+R19 < FAST < SLOWP robust in every dataset; **HadCRUT5 sits MID-RANGE on SLOWP**
+(BE 1.82 / Had 2.48 / GISTEMP 3.46) and the spread is dataset CONTENT (5-deg
+footprint arm < 0.02), with GISTEMP a uniform NH-high outlier and BE-vs-Had
+divergence concentrated recently (BE's Arctic warms less post-2010). R19 is weakly
+constrained everywhere (0.58–0.88; < half the cells observed early in ALL products;
+BE = air-above-sea-ice variant, verified). regchar's SLOWP 1.70 sits BELOW the
+lowest obs estimate. Dataset-informed sampled-amp priors: SLOWP [1.8, 3.5] center
+~2.5 ([1.8, 2.6] if GISTEMP dropped), R19 [0.58, 0.88], FAST [1.33, 1.82].
+Decision menu updated: sampled-with-dataset-priors (strengthened recommendation) /
+obs-fit HadCRUT5 fixed (defensible — mid-range; label the spread) / regchar (now
+weak: below the obs range on SLOWP). Sampled needs ~30 min implementation
+(per-eval driver rebuild + rung-amp coupling). Awaiting Marcus.
 
 ## 4. Launch procedure (after the amp call)
 
