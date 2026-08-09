@@ -3,7 +3,47 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-09 (latest) — Marcus ruled Option D; P&M 2018 read from primary; D1e ledger cell built + launched
+## [unreleased] — 2026-08-09 (latest) — extC green-lit: D1f obs-amp arm + full 3-reservoir calibrator surgery (validated 5e-13, smoke-passed); launch gated on amp-basis call
+
+- **Marcus green-lit extC + the obs-amp sensitivity arm**, and set the sharing-memo
+  spec (abstract w/ data+structure choices; obs comparison; SSP vs FACTS+MAGICC;
+  methodology for Tony; declarative style; only legacy comparison = pre-Mengel
+  BRICK 2.0 — memory `feedback_brickf_sharing_memo_spec`).
+- **D1f obs-amp arm (`python/d1f_obsamp_arm.py`) — MATERIAL per its pre-registered
+  rule:** obs through-origin amps R19 0.61 / SLOWP 2.48 / FAST 1.40 vs regchar
+  1.03/1.70/1.23; ANCH modern-rate bias flips sign (+26% → −11%), deficit ±1.7;
+  **MID (the extC design) deficit-invariant** (6.79→6.79) with projections moving
+  toward AR6 (ds245 10.2→11.3, spread 6.5→7.9). Amp basis = Marcus call; a
+  cross-dataset amp check (Berkeley Earth / GISTEMP vs HadCRUT5) was requested
+  and is running (`python/diag_amp_dataset_comparison.py`).
+- **extC surgery COMPLETE (commit 6771ed5):** `glaciers_nu3` component (per-block
+  lagged drivers; slot-contract `gsic_sea_level` = R19+SLOWP+FAST; `gsic_hind`
+  for the seam scope) + `build_brick_nu3`/`update_brick_nu3!`/`set_glacier_forcing3!`;
+  calibrator now 39 physical + 10 AR(1) = 49 params — per-block (a, b, T_off,
+  log10κ) with Farinotti a-priors, bounds-only b/T_off (the per-block rung
+  likelihood constrains them; corr 0.6, band σ, data-basis committed %),
+  τ50-as-priors on log10κ (σ 0.114 ≈ ±30%), ν FIXED at anchored (MID design);
+  likelihood-only params gic_u_unch (F_unch, flat[14.5,41.8] + taper in flow AND
+  total channels, never in the Mimi graph), gic_delta (N(0,0.3), obs-side ramp
+  1900–1959), gic_u_pre + gic_s_r5 (the Option-D ledger, replacing the pre-D A2b);
+  A2 on sum(a_b) − S_all(2000); per-block GlaMBIE rate terms (SLOWP/FAST);
+  obs_adj gsic target (r19 seam); OLD38_NAMES covariance branch (extB3c
+  preferred); positional-KAPPA_IDX trap removed; `--amp-basis=regchar|obsfit`.
+- **Machine-generated calibrator inputs** (`python/build_extc_inputs.py`, full
+  precision): `t_glac_blocks.csv`, `extc_block_constants.csv` (both amp bases),
+  `recalib_targets_ext_gsicadj.csv`. **Port validation** (`julia/
+  validate_glaciers_nu3.jl` — includes the calibrator itself): drivers + series
+  ≤5e-13 vs python on BOTH bases, slot contract exact, logposterior(θ0) finite.
+  Smoke 50-iter: accept 0.34, all 16 glacier/ledger params moving plausibly.
+  Two precision lessons: 6-decimal artifact CSVs broke 1e-9 validation (drivers
+  are multi-region averages; amp truncation leaks through the splice tail) —
+  all artifacts now %.12f/%.12g.
+- **Two-stage launch still mandatory** (overdispersed_starts.csv predates extC):
+  tuning (common start) → rebuild starts+cov → production. Pending: amp-basis
+  call → tuning launch; eval_chain_gates.py rewrite + diag_slr_convergence
+  repoint before --accept-slr.
+
+## [unreleased] — 2026-08-09 — Marcus ruled Option D; P&M 2018 read from primary; D1e ledger cell built + launched
 
 - **Marcus's S(1900) ruling: Option D** — the model-side ledger ("make the best
   defensible historical data target with appropriate set-asides… then work on getting
