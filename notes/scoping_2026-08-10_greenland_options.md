@@ -773,3 +773,162 @@ and a result that flips on it would not be defensible.
 4. Confirm the PISM ladder shape from `pism_debm.zip` when the download
    finishes; everything above about PISM rests on the paper's description plus
    the Yelmo curve I could extract, not on PISM's own numbers yet.
+
+---
+
+# 19. Three new references, and a correction to §16 and §18
+
+Marcus supplied three papers. Together they change the Greenland picture enough
+that two of my earlier conclusions have to be withdrawn.
+
+### 19.1 What the three say
+
+**Bochow, Krönke, Garbe & Wunderling 2026**, EGUsphere preprint
+doi 10.5194/egusphere-2026-614 — *"Informing low-order models of climate tipping
+elements using outputs from higher-complexity Earth system models"*. This is
+almost exactly the job we were about to do by hand, already done and fitted.
+They fit a saddle-node normal form
+
+    dz/dt = (1/tau(p)) (a z^3 + c z + e + p),    z = x - x0
+    tau(p) = k (kappa/|p - pc|)^alpha,           kappa = 1 K
+
+to equilibrium runs from **three** independent GrIS setups, with p = GMT above
+pre-industrial. Their Table 2:
+
+| model | a | c | x0 | e | k (yr) | alpha | forward threshold | reverse |
+|---|---|---|---|---|---|---|---|---|
+| Yelmo | −1.83 | −2.14 | −0.14 | 0.89 | 10 500 | 0.27 | **1.80 °C** | 0.70 |
+| PISM | −1.17 | −1.67 | −0.13 | 1.72 | * | * | **2.27 °C** | 1.63 |
+| SICOPOLIS 1st | −1.10 | −1.24 | −0.13 | 0.62 | * | * | **1.00 °C** | 0.23 |
+| SICOPOLIS 2nd | −0.80 | −0.58 | −0.02 | 1.59 | * | * | **1.99 °C** | 0.23 |
+
+(* inherited from the Yelmo timescale fit.) One functional form delivers what
+options C and D were separately reaching for — nonlinear equilibrium with a
+threshold, multistability and hysteresis from the melt-elevation feedback — and
+adds a physically-motivated timescale that diverges near the threshold.
+**Status: preprint in open discussion; referees have raised concerns about
+uncertainty quantification, verification against transient runs, and the
+justification for the functional form. Code/data availability is still a
+placeholder ("available at XXX"). Provisional.**
+
+**Höning, Willeit & Ganopolski 2024**, ERL 19:024038 — the CLIMBER-X/SICOPOLIS
+source behind the SICOPOLIS arm. Reframes irreversibility as a **state**
+condition rather than a temperature one: once more than **0.4 m SLE** has been
+lost from southern Greenland, regrowth is inhibited even if CO₂ returns to
+pre-industrial; southern loss alone eventually contributes ~1.8 m. In emissions
+terms, **1000–1500 GtC cumulative** is the risk range, against ~500 GtC already
+emitted.
+
+**Kypke, Montoya, Robinson, Alvarez-Solas, Swierczek-Jereczek & Ditlevsen 2026**,
+ESD 17:769 — *"Chaotic fluctuations in Greenland ice streams limit predictability
+of ice sheet collapse"*. Yelmo-REMBO. Two northern ice streams (Humboldt,
+Petermann) alternate between streaming and stagnation, producing volume
+oscillations at 1.0–1.3 K above present. The consequence is the important part:
+**for a fixed warming magnitude, the timing of collapse differs by tens to
+hundreds of thousands of years**, a chaotic transient. Ice dynamics, not surface
+melt, control collapse timing.
+
+### 19.2 Running the fitted emulator on our own SSP paths
+
+`python/scope_greenland_bochow2026.py` implements their Eq. 1 and Eq. 3 from
+Table 2 and runs all four arms on our FaIR mean GMST. Greenland, cm rel.
+1995–2014:
+
+| arm | 2100 (1-2.6 / 2-4.5 / 5-8.5) | 2300 (1-2.6 / 2-4.5 / 5-8.5) |
+|---|---|---|
+| Yelmo (pc 1.80) | 6.7 / 11.1 / 18.7 | 18.7 / 58.4 / 173.9 |
+| PISM (pc 2.27) | 10.4 / 10.9 / 18.8 | 32.4 / 55.0 / 177.7 |
+| SICOPOLIS 1st (pc 1.00) | 8.3 / 10.8 / 16.6 | 26.7 / 54.0 / 146.5 |
+| SICOPOLIS 2nd (pc 1.99) | 7.7 / 10.6 / 18.2 | 24.9 / 55.7 / 170.7 |
+| **BRICK-F\* (ours)** | **6.6 / 7.3 / 8.8** | **19.2 / 25.7 / 48.6** |
+
+Our peak GMT is 1.92 / 3.19 / 7.81 °C, so SSP1-2.6 crosses the Yelmo and both
+SICOPOLIS thresholds but **not** PISM's.
+
+### 19.3 CORRECTION 1 — the threshold-location arm is not decisive after all
+
+In §16 I reported, from an illustrative logistic curve run through *BRICK's own*
+transient, that the arm was decisive at low warming: 28 cm (graded) versus 86 cm
+(step) for SSP1-2.6 at 2300, a factor of three, and I recommended carrying it as
+a headline structural arm.
+
+With the **published** timescale that conclusion does not survive. Bochow's
+fitted τ is 10 500 yr at |p − pc| = 1 K with α = 0.27, so even far from the
+threshold τ ≈ 7 000 yr — roughly ten times slower than BRICK's Greenland
+relaxation. Over 280 years the system moves a few per cent of the way whether or
+not the threshold has been crossed, and the four arms collapse to **18.7–32.4 cm
+at SSP1-2.6** despite thresholds spanning 1.00–2.27 °C. My earlier factor of
+three was an artefact of pushing a published equilibrium curve through an
+unpublished, ten-times-too-fast transient.
+
+Kypke reinforces this from a completely different direction: post-threshold
+timing is *chaotic* over 10⁴–10⁵ years. Nothing about the transition completes
+on our horizon under any parameterisation, so a single fitted τ — inherited
+across all three of Bochow's arms from one Yelmo fit — is exactly the quantity
+that study says is unpredictable.
+
+### 19.4 CORRECTION 2 — PISM does not have the intermediate state
+
+In §16 I told Marcus that PISM finds intermediate stable states and Yelmo does
+not, and part of my argument for the PISM lean was that recent literature was
+converging on intermediate states existing. **Bochow et al. 2026, same first
+author as the 2023 paper, state the opposite**: "The equilibrium simulations of
+the Yelmo and PISM experiments show a clear two-fold shape with two stable
+states … while the SICOPOLIS simulations show an additional stable intermediate
+state." The intermediate state belongs to **SICOPOLIS/CLIMBER-X (Höning)**,
+where it is an ice-free southern Greenland with a glaciated north. PISM's
+"intermediate states" in the 2023 paper are the oscillatory decamillennial
+transients, which the 2026 fit does not treat as stable branches.
+
+So the PISM-versus-Yelmo choice is **not** graded-versus-cliff. Both are cliffs.
+They differ only in **where** the cliff sits: 2.27 °C (PISM) versus 1.80 °C
+(Yelmo). The practical argument I made for PISM — that it avoids embedding a
+razor-edge discontinuity — is void, because PISM has one too.
+
+What remains true, and Marcus should decide knowing it: **PISM is the highest
+threshold of the four, so choosing it is choosing the arm in which Greenland
+tips latest and least.** It is the only arm in which SSP1-2.6 does not cross.
+
+### 19.5 What actually matters at our horizon
+
+Setting the corrections against the numbers, the ranking of what to fix changes:
+
+1. **The equilibrium magnitude is the whole story at 2300, not the threshold.**
+   BRICK gives 48.6 cm at SSP5-8.5; every Bochow arm gives 146–178 cm. That
+   ~3× gap comes from BRICK having only ~1.5 m of committed loss available at
+   +5 °C against a 7.42 m ice sheet, and it is insensitive to where the
+   threshold is or how sharp it is.
+2. **The threshold location matters for commitment, not for realised 2300 sea
+   level.** It should still be sampled (1.0–2.3 °C, spanning all three model
+   families) and it should drive a **separately reported committed-loss
+   diagnostic** — "SSP1-2.6 commits Greenland to X m over millennia" — which is
+   where the policy content sits and where the arms genuinely disagree.
+3. **Höning's state-based irreversibility criterion (>0.4 m lost from the south
+   blocks regrowth) is a better fit to our structure than a temperature
+   threshold**, and it is what the hysteresis in the cubic naturally encodes.
+   Worth adopting as the reversibility test rather than a temperature rule.
+4. **Kypke is a caveat on the pulse work.** If post-threshold timing is chaotic
+   over 10⁴–10⁵ yr, then a BRICK-F\* SLR pulse response computed above the
+   threshold is not meaningfully predictable in its timing. For SC-CO₂ use above
+   roughly +2 °C this needs stating explicitly.
+
+### 19.6 Revised recommendation for C and D
+
+- **Adopt the Bochow 2026 normal form** rather than hand-rolling a saturating
+  V_eq plus a separate feedback. It is fitted, published, spans three model
+  families, and unifies C and D. Treat it as provisional while the preprint is
+  in discussion, and re-check Table 2 against the final version.
+- **Sample the threshold** over 1.0–2.3 °C across the model families instead of
+  choosing one. The choice does not move 2300 sea level much, so there is little
+  cost to carrying the uncertainty honestly.
+- **Keep PISM as the default arm for headline numbers if a default is needed** —
+  Marcus's lean, and defensible — but state in the memo that it is the latest
+  and least-tipping of the four, and report the committed-loss diagnostic across
+  all arms.
+- **Do not inherit a single τ.** Bochow's own α and k come from one Yelmo fit
+  and Kypke says that timing is chaotic. Sample k over at least an order of
+  magnitude, and report 2300 results as insensitive to it (they are) while
+  flagging that anything beyond ~2300 is not.
+- **Still needed**: the raw PISM ladder is downloaded (1.1 GB, kept in scratch,
+  too large to track) and can validate the Table 2 PISM fit. Lower priority now
+  that fitted parameters exist.
