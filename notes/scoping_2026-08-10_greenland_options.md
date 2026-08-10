@@ -529,3 +529,142 @@ an argument for pulling C into the first pass rather than a later one, with D
 following as the mechanism that makes C's threshold real. **This reverses my
 earlier recommendation to defer C, on the strength of the verification.**
 Your call whether pass 1 becomes A + B + C, with D as pass 2.
+
+---
+
+# 15. Mouginot data received and ingested (2026-08-10)
+
+Marcus supplied four files in `~/Documents/2026/ClaudeDocs/Papers/Mouginot/`. The
+one that matters is **`pnas.1904242116.sd02.xlsx`, sheet `(2) MB_GIS`** — yearly
+SMB, discharge and mass balance with errors, by region and for the ice sheet.
+`python/build_greenland_partition.py` reads it into
+`data/observations/greenland_partition_mouginot2019.csv`.
+
+Sheet layout, for whoever touches it next: a labelled header row (`D`, `SMB`,
+`MB`, `MB CUMUL`, …) is followed by eight rows (seven regions + `GIS`); within
+each row the values occupy year columns 2–61 and the **errors repeat the same
+years** in columns 69–128. Reading it positionally gets errors mixed into
+values — the builder keys off the labels and the duplicated year header, and
+asserts the published closure MB = SMB − D, which holds to **0.000 Gt/yr**.
+
+Coverage: SMB 1959–2018 (60 yr), discharge and mass balance 1972–2018 (47 yr).
+
+**The number the two-channel split has to reproduce:**
+
+| period | SMB | discharge | mass balance |
+|---|---|---|---|
+| 1972–1990 | 446.0 | 458.7 | **−12.7** Gt/yr (near balance) |
+| 2000–2018 | 283.8 | 517.1 | **−233.3** Gt/yr |
+| change | **−162.2** | **+58.4** | −220.6 |
+
+**74% of the additional loss is surface, 26% dynamic.** A two-channel model must
+land that split, not just the total — and it is a strong constraint, because the
+stock single-channel model has no way to express it.
+
+The 1970s row is also worth noting: SMB 504.8, discharge 458.0, mass balance
+**+46.9 Gt/yr** — the ice sheet was *gaining* mass. A model whose only mechanism
+is monotone relaxation toward a distant equilibrium cannot produce a gaining
+decade, which is the same defect as the 1942–1982 hindcast miss.
+
+---
+
+# 16. The PISM-vs-Yelmo disagreement, and what it means for us
+
+### What the disagreement is
+
+Both models in Bochow et al. 2023 were run to equilibrium at fixed warming
+levels. They agree closely on **where** the threshold is — 1.7–2.3 °C
+(PISM-dEBM) and ~1.7 °C GMT (Yelmo-REMBO) — and disagree on **what happens past
+it**:
+
+- **PISM-dEBM** finds *intermediate stable states* at roughly 50–90% of
+  present-day volume. Crossing the threshold does not necessarily lose the ice
+  sheet; it can settle part-way.
+- **Yelmo-REMBO** finds only two stable states, present-day and near-ice-free.
+  Crossing the threshold commits the ice sheet to almost complete loss.
+
+### Why they differ
+
+Per the authors, it is **not** the solid-earth treatment: both use the
+Lingle-Clark model with identical parameters, and they note explicitly that the
+oscillatory intermediate behaviour is absent from Yelmo despite the same Earth
+deformation model.
+
+The difference is in the **surface mass balance scheme and its atmospheric
+coupling**. PISM-dEBM uses dEBM-simple, which captures the surface-albedo
+feedback but has no dynamic atmosphere. Yelmo-REMBO couples a regional
+atmosphere that **increases precipitation as the ice margin retreats** — a
+negative feedback that partly offsets the melt-elevation feedback. Differences
+in the ice-dynamics formulations contribute as well. The authors' own verdict is
+that this is "model-dependent behaviour that is a result of applying different
+ice dynamics, climatic forcing and interactions within the system", and they
+call for a coordinated intercomparison to constrain it.
+
+The intermediate states in PISM also *oscillate on decamillennial timescales* —
+tens of thousands of years — before settling.
+
+### What it means for our model
+
+**It changes how option D should be scoped.** I previously described D as "add
+the melt-elevation feedback". That is half the physics. The published
+disagreement is precisely about whether that positive feedback is compensated by
+a negative precipitation feedback, and the two models bracket the answer. So D
+should be implemented as a **net state-dependence with a sampled strength that
+can take either sign**, with the two models bracketing the prior — not as a
+positive feedback of assumed strength.
+
+**Do not put the intermediate state into the structure.** It is model-dependent,
+it oscillates on 10⁴-year timescales, and BRICK-F\* runs to 2300. Representing
+a feature that takes tens of millennia to express, in a model that stops after
+280 years, buys nothing.
+
+**Quantified: how much does the arm actually matter?**
+`python/scope_greenland_commitment.py` runs illustrative PISM-like (graded) and
+Yelmo-like (step) equilibrium curves — consistent with the published anchors,
+not proposed calibration forms — through the current transient and a ten-times
+faster one. Greenland at 2300, cm relative to 1995–2014:
+
+| equilibrium curve | transient | SSP1-2.6 | SSP2-4.5 | SSP5-8.5 |
+|---|---|---|---|---|
+| linear (current) | current | 18.9 | 25.5 | 50.2 |
+| PISM-like graded | current | 28.2 | 58.1 | 167.5 |
+| Yelmo-like step | current | 85.7 | 144.3 | 192.9 |
+| linear (current) | 10× faster | 47.6 | 67.8 | 134.7 |
+| PISM-like graded | 10× faster | 77.5 | 194.6 | 487.6 |
+| Yelmo-like step | 10× faster | 309.8 | 476.1 | 526.5 |
+
+Three conclusions, and the first one corrects an expectation I had going in:
+
+1. **At 2300 the equilibrium curve matters on its own, even at the current slow
+   transient** — SSP5-8.5 goes 50 → 167–193 cm from the shape of V_eq alone.
+   280 years at τ ≈ 800 yr is about a third of an e-folding, enough for a
+   multi-metre equilibrium gap to deliver metres. This is the *opposite* of the
+   2100 result, where the transient was the whole story. **Option C is not
+   contingent on option B at the 2300 horizon**, which is the direct answer to
+   why C is worth doing for the reason Marcus gave.
+2. **The two models differ from each other far less than either differs from the
+   current linear form** — 1.15× apart at SSP5-8.5, against 3.3–3.8× for
+   linear-versus-either. Getting off the linear form is first-order; the
+   PISM-versus-Yelmo choice is second-order. Do not let the disagreement delay
+   the change.
+3. **The exception is low warming, and it is the one that matters for policy.**
+   At SSP1-2.6 the arm is decisive — 28 cm (PISM-like) versus 86 cm
+   (Yelmo-like), a factor of three — because SSP1-2.6 peaks at +1.84 °C, right
+   on the 1.7 °C threshold. A step curve crosses it; a graded curve does not.
+   So the structural arm must be carried through to the reported results
+   specifically at low warming, and the memo should show both. Averaging the
+   two arms would hide exactly the question a reader cares about: whether
+   BRICK-F\* thinks SSP1-2.6 commits Greenland.
+
+### Consequences for the plan
+
+- Carry PISM-like and Yelmo-like as a **reported structural arm**, not a prior to
+  average over, and report both at low warming.
+- Sample the **threshold location** under a prior spanning 1.7–2.3 °C — the one
+  thing the two models agree on and the parameter the results are most sensitive
+  to at low warming.
+- Implement D as a **signed** net state-dependence, bracketed by the two models.
+- Retire the V/V₀ damping when D lands; it runs opposite to the mechanism.
+- Pre-register: does the reported 2300 SSP1-2.6 result change qualitatively
+  between arms? If it does — and on these numbers it will — that is a headline
+  result of the Greenland work, not a caveat to bury.
