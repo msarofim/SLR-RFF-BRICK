@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """Build the extC calibrator input artifacts (one-time, machine-generated).
 
+SUPERSEDED 2026-08-10 by python/brickf_data.py, which does the same job as a
+readable module with no exec-prefix chain. python/test_brickf_data.py asserts
+the two produce byte-identical artifacts, so this file is kept only as
+provenance for how they were originally generated — build from brickf_data.py.
+
 The extC surgery moves the 3-reservoir glacier structure into
 julia/calibrate_mcmc_ext.jl. Julia must not hand-copy offline numbers, so
 this script (exec-inheriting the d1f prefix -> d1e -> d1d -> d0 chain)
