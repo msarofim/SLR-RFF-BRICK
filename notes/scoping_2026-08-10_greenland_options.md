@@ -668,3 +668,108 @@ Three conclusions, and the first one corrects an expectation I had going in:
 - Pre-register: does the reported 2300 SSP1-2.6 result change qualitatively
   between arms? If it does — and on these numbers it will — that is a headline
   result of the Greenland work, not a caveat to bury.
+
+---
+
+# 17. Bochow Zenodo output pulled; the Yelmo ladder extracted
+
+Zenodo `10.5281/zenodo.8155423` (CC-BY-4.0): `Code.zip` 5.4 MB,
+`yelmo_rembo.zip` 27 MB, `pism_debm.zip` 1.1 GB. The first two are down and
+unpacked; the PISM archive is still downloading.
+
+`python/build_greenland_equilibrium_ladder.py` →
+`data/observations/greenland_equilibrium_bochow2023.csv`, from
+`gris-rembo-ramp06b.nc` (the no-overshoot runs, f_max == f_conv), equilibrium
+measured as the 90–100 kyr mean, following the authors' own figure code. Two
+conventions taken from that code rather than assumed: `f_conv` is Greenland
+**regional summer** warming, converted by **GMT = f_conv/1.19 + 0.5**
+(reproduces their "1.4 °C regional = 1.7 °C GMT"), and volume is scaled to
+sea-level equivalent by 7.42 m.
+
+| GMT (°C) | loss (m SLE) | % of volume |
+|---|---|---|
+| 0.50 | 0.09 | 1.2% |
+| 1.34 | 0.34 | 4.6% |
+| 1.51 | 0.41 | 5.6% |
+| 1.68 | 0.76 | 10.3% |
+| **1.76** | **4.90** | **66.1%** |
+| 2.18 | 6.05 | 81.6% |
+| 3.02 | 6.60 | 88.9% |
+| 4.70 | 7.30 | 98.4% |
+| 6.80 | 7.42 | 100.0% |
+
+**The threshold is a cliff: 4.1 m of committed loss appears across 0.08 °C**
+(1.68 → 1.76). Equilibrium drift over the averaging window is 0.000 m at every
+rung, so these are converged.
+
+### This sharpens — and partly corrects — the earlier verdict on the linear form
+
+I previously wrote that BRICK's linear V_eq is "roughly right at +1.5 °C".
+Against the actual curve it is not: BRICK gives 0.96 m at GMT 1.5 where Yelmo
+gives 0.41 m, so it is **2.3× too HIGH below the threshold**, and 1.20 m against
+6.60 m at 3.0 °C, **5.5× too LOW above it**. The linear form errs in both
+directions — over-committing a stable ice sheet and under-committing a
+destabilised one. The earlier statement was only true against the loose
+"< 1 m below 1.5 °C" bound, not against the curve.
+
+---
+
+# 18. PISM or Yelmo? Evidence on standing
+
+Marcus leans PISM unless the literature favours Yelmo. **I looked, and I support
+the PISM lean — but the reason that matters is not the one about standing.**
+
+**No source adjudicates.** Bochow's own authors decline to: the divergence is
+"model-dependent behaviour that is a result of applying different ice dynamics,
+climatic forcing and interactions within the system", and they call for a
+coordinated intercomparison to constrain it.
+
+**Standing favours PISM.** PISM appears twice in the ISMIP6-Greenland ensemble
+(UAF-PISM2 and VUW-PISM, Goelzer et al. 2020, TC 14:3071). Yelmo was described
+and validated in GMD only in 2020 (Robinson et al., GMD 13:2805) and is not in
+that ensemble. PISM is the more widely benchmarked model.
+
+**Physics on the disputed mechanism favours Yelmo.** The thing that separates
+them is that Yelmo-REMBO couples a regional atmosphere in which precipitation
+increases as the margin retreats — a negative feedback PISM-dEBM's surface
+scheme cannot represent. On the specific question at issue, Yelmo has *more*
+process, not less. Standing and physics therefore point opposite ways, and
+neither settles it.
+
+**But the recent evidence points at the OUTCOME, and it favours graded.**
+
+- The 2026 Cryosphere paper (TC 20:1139), from the Yelmo-REMBO lineage itself,
+  finds the warm threshold at +1.2 to +1.8 K regional (≈ +1.5 to +2.0 K GMT)
+  and **oscillating intermediate states** near +1.4 and +1.6 K — not the clean
+  two-state cliff of Bochow's Yelmo runs.
+- Höning et al. 2023 finds two distinct tipping points with a stable
+  southern-Greenland-only configuration.
+- PISM's own intermediate states oscillate on decamillennial timescales.
+
+Three independent lines, including the rival model's own successor study, now
+point to *something intermediate existing*. Whether it is a stable state or an
+oscillating one is a distinction that plays out over 10⁴ years and is invisible
+at our 2300 horizon; what matters to us is that the transition is graded rather
+than instantaneous.
+
+**The decisive argument is practical, and it is quantitative.** Yelmo's cliff is
+4.1 m over 0.08 °C. Our SSP1-2.6 GMST peaks at **+1.84 °C — above Yelmo's 1.76
+threshold**. On that curve SSP1-2.6 commits Greenland to ≥66% loss; 0.08 °C
+lower and it commits 10%. Embedding a discontinuity that sharp in a Monte Carlo
+emulator makes the SSP1-2.6 Greenland distribution bimodal and hypersensitive to
+the GMST calibration — a reduced-form model has no business resolving 0.08 °C,
+and a result that flips on it would not be defensible.
+
+### Recommendation
+
+1. **PISM-like graded as the default** V_eq form.
+2. **Yelmo as a reported sensitivity arm**, shown specifically at low warming
+   where it is decisive — not averaged in.
+3. **Sample the threshold location** over roughly **1.5–2.3 °C**, spanning both
+   Bochow models and the 2026 TC result, rather than fixing it. Given how close
+   SSP1-2.6 sits to it, threshold *location* is the parameter our low-warming
+   answer is most sensitive to, and it deserves to carry uncertainty rather than
+   a point value.
+4. Confirm the PISM ladder shape from `pism_debm.zip` when the download
+   finishes; everything above about PISM rests on the paper's description plus
+   the Yelmo curve I could extract, not on PISM's own numbers yet.
