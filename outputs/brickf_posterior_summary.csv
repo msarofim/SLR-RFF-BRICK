@@ -1,0 +1,53 @@
+group,parameter,median,p05,p95,prior,prior_source
+glacier reservoirs,gic_a_R19,0.0668691053504923,0.03947678775853834,0.0943429092025791,"N(0.069, 0.018) m SLE",Farinotti 2019 inventory
+glacier reservoirs,gic_b_R19,0.8780739742179545,0.20467519019024036,2.704676817629855,"flat [0.05, 3.0], start 0.769",constrained by the GlacierMIP3 rung likelihood
+glacier reservoirs,gic_T_off_R19,-1.2433004608489466,-2.8127987318368826,0.5829758033016199,"flat [-3.0, 1.0], start 0.162",constrained by the GlacierMIP3 rung likelihood
+glacier reservoirs,gic_log10_kappa_R19,-2.7783234980280094,-2.9970576616603317,-2.5593263356602414,"N(-2.686, 0.114)",tau50 anchored to the regional response times
+glacier reservoirs,gic_a_SLOWP,0.13127630174641824,0.08534792664461366,0.1778199337335879,"N(0.146, 0.033) m SLE",Farinotti 2019 inventory
+glacier reservoirs,gic_b_SLOWP,0.19613518775476446,0.11303202886783814,0.42623373544948023,"flat [0.05, 3.0], start 0.269",constrained by the GlacierMIP3 rung likelihood
+glacier reservoirs,gic_T_off_SLOWP,-1.8468723927550552,-2.894547441456909,-0.2375253965084925,"flat [-3.0, 1.0], start 0.343",constrained by the GlacierMIP3 rung likelihood
+glacier reservoirs,gic_log10_kappa_SLOWP,-3.4623021095981015,-3.6822924329068316,-3.235467289639978,"N(-3.402, 0.114)",tau50 anchored to the regional response times
+glacier reservoirs,gic_a_FAST,0.15389073597778974,0.12405747205945544,0.1858630323890034,"N(0.140, 0.024) m SLE",Farinotti 2019 inventory
+glacier reservoirs,gic_b_FAST,0.3497473878180908,0.25992465417577304,0.49583768213326723,"flat [0.05, 3.0], start 0.369",constrained by the GlacierMIP3 rung likelihood
+glacier reservoirs,gic_T_off_FAST,-1.5310099689966012,-2.141493897308385,-0.8895760359475149,"flat [-3.0, 1.0], start -1.214",constrained by the GlacierMIP3 rung likelihood
+glacier reservoirs,gic_log10_kappa_FAST,-2.5253263644457267,-2.696272898723357,-2.3581466956148986,"N(-2.559, 0.114)",tau50 anchored to the regional response times
+glacier temperature amplification,gic_amp_R19,0.72347517861577,0.5984439443786684,0.8577209467104789,"N(0.72, 0.15) on [0.58, 0.88]",cross-dataset obs amplification
+glacier temperature amplification,gic_amp_SLOWP,2.6072669909329713,2.0327259289732615,3.1684893851604112,"N(2.50, 0.45) on [1.80, 3.50]",cross-dataset obs amplification
+glacier temperature amplification,gic_amp_FAST,1.4408569800080508,1.341384260950938,1.6239934166752437,"N(1.45, 0.15) on [1.33, 1.82]",cross-dataset obs amplification
+glacier scope and ledger,gic_u_unch,26.447238296994797,18.974746155803967,35.0130078969114,"flat [14.5, 41.8] mm",Parkes & Marzeion 2018 uncharted ice
+glacier scope and ledger,gic_delta,0.21263583229576416,0.096581138194642,0.3339950653710337,"N(0, 0.30) mm/yr",Marzeion-2015 early-segment rate bias
+glacier scope and ledger,gic_u_pre,6.463533532300346,0.5693951198095483,18.836120149695663,"flat [0, 25] mm",pre-1901 uncharted set-aside
+glacier scope and ledger,gic_s_r5,2.504653352555257,0.36410653203922244,5.538849981982235,"N(2.5, 2) on [0, 8] mm",region-5 share of the 19th-century datum
+Antarctic ice sheet,ais_ocean_temperature₀,0.8631567597991838,0.5365242753887425,1.5412979198469279,"N(0.72, 0.50) on [0.50, 2.00]",calibrate_mcmc_ext.jl
+Antarctic ice sheet,antarctic_alpha,0.23986495662267865,0.11267553602681431,0.35678733505189403,outputs/param_priors.csv,BRICK prior file
+Antarctic ice sheet,antarctic_nu,0.010582064790403248,0.006851915436536265,0.01393167183260124,outputs/param_priors.csv,BRICK prior file
+Antarctic ice sheet,anto_alpha,0.3587681037441165,0.18321585154407213,0.5663493688383476,outputs/param_priors.csv,BRICK prior file
+Antarctic ice sheet,anto_beta,1.0299305296344832,0.31075842928619546,1.75031173279818,outputs/param_priors.csv,BRICK prior file
+Antarctic ice sheet,antarctic_temp_threshold,-15.584633399689617,-16.20856869641395,-14.896093184081575,outputs/param_priors.csv,BRICK prior file
+Antarctic ice sheet,antarctic_lambda,0.01059876626669155,0.0053835402468010544,0.016437049669407303,outputs/param_priors.csv,BRICK prior file
+Antarctic ice sheet,antarctic_gamma,2.760474163957916,1.3770062015919227,3.960672490076034,outputs/param_priors.csv,BRICK prior file
+Antarctic ice sheet,antarctic_kappa,0.0577984956159214,0.038647585707517695,0.07721519220074967,outputs/param_priors.csv,BRICK prior file
+Antarctic ice sheet,ais_gmst_amp,1.0612760069552127,0.817939296645913,1.3049426536705404,"N(1.08, 0.15)","CMIP6 Antarctic amplification, land frame"
+Antarctic ice sheet,ais_mu,10.397785423574376,8.080206902287854,12.738679491686147,outputs/param_priors.csv,BRICK prior file
+Antarctic ice sheet,ais_bedheight0,780.5463519367111,748.9497176816624,811.191862559901,outputs/param_priors.csv,BRICK prior file
+Antarctic ice sheet,ais_slope,0.00061889626382665,0.00058849872295527,0.00065720930096336,outputs/param_priors.csv,BRICK prior file
+Antarctic ice sheet,ais_iceflow0,1.0694027576258658,0.7785312193446061,1.3643655701890032,outputs/param_priors.csv,BRICK prior file
+Antarctic ice sheet,ais_precip0_LOG,-0.6372917261860724,-0.9920142127681242,-0.2885370422524311,outputs/param_priors.csv,BRICK prior file
+Antarctic ice sheet,ais_runoff_Ton,-17.752180300241875,-17.915318931344324,-17.530165117342097,outputs/param_priors.csv,BRICK prior file
+Antarctic ice sheet,ais_c,89.82175862613018,59.291042799434564,121.81208703733692,outputs/param_priors.csv,BRICK prior file
+Greenland and thermal expansion,greenland_a,-0.15785030611182638,-0.3429166821249108,-0.025556663195296984,outputs/param_priors.csv,BRICK prior file
+Greenland and thermal expansion,greenland_b,6.6379787947199445,6.286982051083608,6.90144281962948,outputs/param_priors.csv,BRICK prior file
+Greenland and thermal expansion,greenland_alpha,0.000132581335859,1.940632099330569e-05,0.000304789825453745,outputs/param_priors.csv,BRICK prior file
+Greenland and thermal expansion,greenland_beta,0.0005708057361803001,0.000369948298240305,0.0008420445545333798,outputs/param_priors.csv,BRICK prior file
+Greenland and thermal expansion,greenland_v0,7.351582649102692,7.20367907165813,7.504760931175672,outputs/param_priors.csv,BRICK prior file
+Greenland and thermal expansion,thermal_alpha,0.1539957291751177,0.1423752705369874,0.1647030645728297,outputs/param_priors.csv,BRICK prior file
+observation error model (AR(1) per target series),sd_ais,0.0136049345717166,0.0016563447988333052,0.028280641792474137,outputs/param_priors.csv,BRICK prior file
+observation error model (AR(1) per target series),rho_ais,0.6154285872430258,0.08925675835009933,0.9310866227580319,outputs/param_priors.csv,BRICK prior file
+observation error model (AR(1) per target series),sd_gsic,0.01368501146101335,0.0011948948963189452,0.038015713007872834,outputs/param_priors.csv,BRICK prior file
+observation error model (AR(1) per target series),rho_gsic,0.5953904520401321,0.06172359270781417,0.9641021394623869,outputs/param_priors.csv,BRICK prior file
+observation error model (AR(1) per target series),sd_gis,0.054340331802032904,0.044674703852504785,0.06666261141140536,outputs/param_priors.csv,BRICK prior file
+observation error model (AR(1) per target series),rho_gis,0.9853816617263077,0.9735874517972231,0.9896125396821132,outputs/param_priors.csv,BRICK prior file
+observation error model (AR(1) per target series),sd_steric,0.0692191933064415,0.049644005570136096,0.09477565169851777,outputs/param_priors.csv,BRICK prior file
+observation error model (AR(1) per target series),rho_steric,0.9733357733518458,0.9331966850719177,0.988472630941045,outputs/param_priors.csv,BRICK prior file
+observation error model (AR(1) per target series),sd_dang,0.06080449499723185,0.005278321860722756,0.1889595848442395,outputs/param_priors.csv,BRICK prior file
+observation error model (AR(1) per target series),rho_dang,0.4507876923930055,0.04816443176852204,0.9064208145824681,outputs/param_priors.csv,BRICK prior file
