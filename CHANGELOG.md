@@ -3,7 +3,92 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-10 (latest) — BRICK-F* delivered: projection kernel, projections + hindcast, three comparison arms, data/test cleanup, sharing memo
+## [unreleased] — 2026-08-10 (latest) — Greenland pass 1, steps 1–2: driver built on a real mask (two scoping numbers corrected), V_eq fitted to PISM
+
+**Decision 1 settled (Marcus): PISM-dEBM is the single equilibrium ladder. No
+Yelmo sensitivity arm.**
+
+### Step 1 — the regional driver (`python/build_t_gis.py`)
+- Builds the option-A southern-Greenland (59–70 °N) annual land-masked driver
+  plus the whole-ice-sheet arm, from HadCRUT5 / Berkeley Earth / GISTEMP.
+  Outputs `data/observations/t_gis_zones.csv` (+ `_allproducts`),
+  `outputs/gis_driver_constants.csv`, `outputs/gis_amp_prior.csv`.
+- **The mask was the bug.** `python/scope_greenland_zones.py` used a lon/lat box
+  that put **Iceland** inside the southern band and Baffin/Ellesmere inside the
+  northern ones, and applied a land mask **only to Berkeley Earth** — HadCRUT5
+  and GISTEMP zone series were land+ocean blends over the whole box. Replaced by
+  GTN-G 2023 region 05 polygon ∩ Berkeley 1° land fraction, subgrid-sampled,
+  with region membership asserted by point test at build time.
+- **Two scoping-note (§9) numbers are corrected.** A/B against the old box
+  reproduces the scoping values exactly, so the shift is the mask, not code:
+  - "products agree on southern Greenland to **1.19×**" was an artifact — ocean
+    dilution in two of three products coincidentally pulled them toward
+    Berkeley. Genuine spread **1.51×** (full window) / 1.58× (early).
+  - the amplification **level is ~1.9, not 2.9**. Southern Greenland 1901–2024
+    through-origin: 1.97 / 1.51 / 2.28 → **N(1.92, 0.32)**; modern (1961–2024)
+    → N(1.79, 0.30). The §9 figure N(2.9, 0.2) came from the *early* window on
+    the *contaminated* mask; both push it high. Prior sd is ~0.32, not 0.2.
+- **Option A's leverage is unaffected**, checked: §3's "+2.2 → +5.9 cm" row used
+  the RGI-r05 periphery driver at amp 2.04, and the corrected HadCRUT5 south amp
+  is 1.97 — within 4%. The correction does not shrink the case for option A.
+- **The zone choice survives and is stronger.** Re-validated on the corrected
+  mask, south is still best-observed (1.51× vs 1.78–2.20× for central/north/all)
+  and now clearly most relevant: melt-rate r = 0.80 vs 0.70 / 0.64 / 0.72. The
+  scoping table had these in a 0.63–0.71 band that "did not discriminate".
+- The spread is a **numerator** effect: the three globals agree to 0.04 °C at
+  2015–2024 (1.259 / 1.262 / 1.222, HadCRUT5 matching the canonical IGCC 1.254
+  anchor), so the products genuinely disagree about Greenland by ~0.5 °C / 30%.
+- **Product choice resolved without a ruling**: all three pass the 1942–1982
+  gate with the right sign (trend −1.4 to −2.2 °C/century, r = 0.80–0.87) and
+  HadCRUT5 is marginally best in every window (0.80 / 0.91 / 0.87 / 0.95), which
+  is also the glacier-module-consistent choice. Headline = HadCRUT5; the other
+  two are written out so the arm is cheap.
+
+### Step 2 — V_eq (`python/fit_gis_veq_pism.py`)
+- Fitted in the ladder's native **GMT** frame on purpose, so it does not depend
+  on the amplification: the regional driver drives the *transient*, the
+  equilibrium is a function of the large-scale state.
+- **No smooth parametric form fits, structurally.** Relative-weighted RMSE (m):
+  linear 1.40, saturating 1.53, two-logistic 0.68, **pchip 0.000**. The ladder
+  has three regimes — a low tail (0.05 → 1.64 m over GMT 0.5–2.18), a 4.6 m jump
+  inside *one* 0.42 K rung interval, then slow saturation to 7.42 m. The
+  two-logistic rails **both** widths at the rung-spacing floor: it is asking to
+  be the interpolant. At GMT 2.5 the ladder says 5.17 m, linear/saturating 2.9.
+- Adopted: **pchip through the rungs, anchored at (0, 0)**, verified monotone
+  non-decreasing, no overshoot, bounded [0, V₀], max slope 15.9 m/K at GMT 2.39.
+- **Weighting is not a detail.** Unweighted least squares in metres is decided by
+  the top of a two-order-of-magnitude range: the absolute-weighted logistic2 is
+  4× too high at GMT 0.50 and 2× at 0.92 — where the *hindcast* operates
+  (present GMT ~1.25 → 0.53 m committed). That error would be absorbed as a
+  slower response, the exact pathology this work exists to remove.
+- **What the calibrator should sample: `pchip(T − dT)`, threshold location dT.**
+  It is the only parameter that matters, and it matters in one place only —
+  committed loss at SSP1-2.6 goes 6.50 / 1.54 / 0.36 m at dT = −0.8 / 0 / +0.8,
+  while SSP5-8.5 is 7.42 throughout. This also makes the **Yelmo arm recoverable
+  inside the PISM parameterisation**: Yelmo's SSP1-2.6 commitment of 5.34 m is
+  pchip_shift at dT ≈ −0.7. A dT prior with a negative tail expresses the
+  threshold disagreement without fitting Yelmo at all.
+- **Step sharpness is not measured**: rungs are uniformly spaced at 0.4202 K and
+  the collapse falls between two adjacent ones. Width parameters are bounded
+  below at the rung spacing and rail there. Sharpness is a prior, not a datum.
+
+### Tried and rejected
+- Fitting the Bochow-2026 cubic emulator (retracted 2026-08-10 — transcribed
+  coefficients give no fold). Superseded: the ladders are raw model output, so
+  V_eq is fitted to them directly and the emulator is off the critical path.
+- Absolute-weighted least squares on the ladder (see above).
+- The saturating glacier-reservoir form V₀ − a(1 − e^(−b(T−T_off))) proposed in
+  scoping §10 as the option-C candidate: it cannot express the low tail and the
+  collapse at once, and puts T_off at 2.11 with **zero** loss below it.
+
+### Unverified, flagged
+- Committed loss at present GMT 1.25 = 0.53 m, larger than a *recollection* of
+  Box et al. 2022's near-term disequilibrium commitment (~0.27 m). Consistent in
+  direction (that is a current-geometry number, this is the multi-millennial
+  equilibrium) but **not checked against the source** — do so before it goes in
+  a memo.
+
+## [unreleased] — 2026-08-10 — BRICK-F* delivered: projection kernel, projections + hindcast, three comparison arms, data/test cleanup, sharing memo
 
 The extC posterior was accepted on the deliverable on 2026-08-10 (commit 205ccbf;
 4x2M chains, acceptance 0.236-0.237, SLR@2100 R-hat 1.000 / @2150 1.002). This
