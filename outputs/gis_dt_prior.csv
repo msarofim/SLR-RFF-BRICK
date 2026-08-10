@@ -1,0 +1,6 @@
+kind,source,thresh_lo,thresh_mid,thresh_hi,dt_lo,dt_mid,dt_hi,independent,note,sigma
+threshold_assessment,Bochow et al. 2023 (Nature 622:528),1.7,2.0,2.3,-0.6797132525742013,-0.3797132525742013,-0.07971325257420148,False,source of our ladder; 2 models,
+threshold_assessment,Armstrong McKay et al. 2022 (Science 377:eabn7950),0.8,1.5,3.0,-1.5797132525742013,-0.8797132525742013,0.6202867474257987,True,multi-model tipping-element synthesis,
+prior,derived,,,,-1.5797132525742013,-0.6297132525742013,0.2200566256726523,,"Normal(-0.6297, 0.5500) truncated [-1.5797, 0.2201]",0.55
+obs_floor,Box et al. 2022 (Nat Clim Chang 12:808),,,,,,0.2200566256726523,,"274 +/- 68 mm, lower bound; binds dT above 0.2201",
+reference,PISM-dEBM ladder,,2.3797132525742013,,,0.0,,,50%-of-V0 crossing; present-day commitment 530 mm,
