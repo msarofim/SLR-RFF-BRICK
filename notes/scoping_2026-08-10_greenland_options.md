@@ -377,3 +377,155 @@ pulse response**, after the first pass has fixed the century-scale behaviour.
 4. **Surgery + port validation** at 1e-9 against the offline reference.
 5. **Joint recalibration** of the whole model, then re-run the existing
    projection, comparison and memo pipeline.
+
+---
+
+# 12. VERIFIED: the SMB / discharge partition
+
+Checked against the primary sources on 2026-08-10 (fetched, not recalled).
+
+### Mankoff et al. 2021, ESSD 13:5001 — 1840 to present
+
+Data: GEUS Dataverse `doi:10.22008/FK2/OHI23Z`, two NetCDF (Zwally sectors,
+Mouginot-Rignot regions) and two CSV (daily and annual, ice-sheet-summed).
+Annual 1840–1985, daily 1986–present.
+
+**It does not provide an independent partition before 1986, and this matters.**
+Per the paper: SMB for 1840–1985 is a semi-empirical regression of in-situ air
+temperature onto RACMO2.1 output, calibrated 1960–2012; **discharge for
+1840–1985 is "a linear fit between unsmoothed annual discharge spanning 2000 to
+2012 and runoff data … using a 6-year trailing average."** Discharge is
+observation-based only from 1986, when satellite velocity begins.
+
+So over 1840–1985 the "discharge" channel is by construction a smoothed, lagged
+function of the runoff channel. Fitting a two-channel model to that partition
+would recover their assumed relationship, not an observed one — and the
+temperature-driven SMB reconstruction makes the SMB side close to circular for a
+temperature-driven SMB channel too. **Use Mankoff pre-1986 as a total only.**
+
+### Mouginot et al. 2019, PNAS 116:9239 — 1972 to 2018
+
+Reconstructs thickness, elevation, velocity and SMB for 260 glaciers; **85% of
+discharge is constrained by measured thickness**, 15% by velocity-scaled
+reference fluxes. Cumulative SMB, discharge and mass anomalies are given for
+seven regions and the whole ice sheet. This is a genuine observational
+partition. (Data location — PNAS supplementary datasets — still to confirm; the
+PNAS site blocks automated fetching.)
+
+### Verdict
+
+The partition **exists and is usable, but only from 1972**, not over the
+historical window. That is ~50 years against the 126-year fit window, and it is
+a period in which both channels accelerated together, which limits how well the
+split separates. Consequences for the design:
+
+1. The two-channel split is identified by the modern era alone. Over 1900–1971
+   the model is constrained by total mass only, exactly as now.
+2. Do not put the Mankoff pre-1986 partition in the likelihood. Its
+   discharge is a function of its runoff.
+3. Pre-register the separability question: fit the two-channel model to
+   1972–2018 partitioned data and check whether the fast fraction and the fast
+   timescale are jointly identified, or whether they trade off along a ridge.
+   If they ride a ridge, sample the identified combination — the same treatment
+   the Antarctic runoff line got with (T_on, c).
+
+---
+
+# 13. Options C and D — upgraded to active, with verified anchors
+
+Marcus asked for these to be pursued because the 2300 response matters. There
+is now a verified equilibrium ladder to anchor them.
+
+### Verified anchors
+
+- **Box et al. 2022**, *Nat. Clim. Change* 12:808 — Greenland's imbalance with
+  the 2000–2019 climate commits **at least 274 ± 68 mm** of sea-level rise
+  (3.3 ± 0.9% of volume) regardless of twenty-first-century pathway. A
+  disequilibrium **lower bound** at ~+1.2 °C, not an equilibrium.
+- **Bochow et al. 2023**, *Nature* 622:528 — two ice-sheet models run to
+  equilibrium. Critical GMT threshold for abrupt loss **1.7–2.3 °C**
+  (PISM-dEBM) and ~1.7 °C (Yelmo-REMBO). Stable states: present-day, an
+  intermediate at **~75% of present volume**, and ice-free. Below 1.5 °C
+  convergence, **< 1 m** long-term contribution; at 2.2 °C convergence,
+  **> 20% of present volume** lost. Multistability comes from the
+  **melt-elevation feedback** interacting with bedrock uplift. Model output
+  open on **Zenodo 10.5281/zenodo.8155423**.
+- **Levermann et al. 2013**, *PNAS* 110:13745 — 2000-year commitment ~2.3 m/°C
+  total, thermal expansion 0.4 and Antarctica 1.2 m/°C, with glaciers
+  saturating and being "overcompensated by the nonlinear response of the
+  Greenland Ice Sheet". Per-level Greenland numbers are in the figures; **not
+  extracted**.
+
+### How BRICK's linear V_eq scores against them
+
+`python/scope_greenland_commitment.py` → `outputs/scope_greenland_commitment.csv`
+
+| GMT | BRICK committed loss | % of ice sheet | anchor | verdict |
+|---|---|---|---|---|
+| +1.2 °C | 0.91 m [0.63, 1.32] | 12.3% | Box ≥ 0.274 m | consistent (clears the floor) |
+| +1.5 °C | 0.96 m | 13.0% | Bochow < 1 m | consistent |
+| +2.2 °C | 1.07 m | 14.5% | Bochow > 1.47 m | **1.4× too low vs a lower bound** |
+| +3.0 °C | 1.20 m | 16.3% | Bochow intermediate 1.84 m / ice-free 7.35 m | **1.5× to 6× too low** |
+| +5.0 °C | 1.52 m | 20.6% | — | — |
+
+The linear form is **fine where the ice sheet is near-stable and fails
+progressively above the published threshold**. It cannot represent a threshold
+at all — no curvature means no warming level produces qualitatively different
+behaviour.
+
+### What this changes about the design
+
+- **C and D are one job, and the anchor says so.** Bochow's multistability is
+  *produced by* the melt-elevation feedback. A single-valued saturating V_eq
+  (C alone) can carry the magnitude of the high-warming commitment but cannot
+  produce a threshold or hysteresis; that needs the feedback (D) as an explicit
+  state-dependence. Doing C alone would fit the anchor's numbers while missing
+  the behaviour that generates them.
+- **The V/V₀ term must go when D lands.** It damps the response as ice is lost;
+  the feedback runs the other way. Keeping both would cancel the mechanism.
+- **Two models is not ten.** GlacierMIP3 gives a multi-model band per rung;
+  Bochow gives two models that disagree on whether an intermediate state exists
+  at all. Any Greenland ladder prior must be correspondingly wide, and the
+  PISM-vs-Yelmo disagreement about the intermediate state should be carried as
+  a structural arm, not averaged away.
+
+---
+
+# 14. Does the GlacierMIP3 logic transfer to ISMIP6?
+
+Marcus asked whether the reasoning that justified putting GlacierMIP3 in the
+likelihood — that it supplies physics we cannot otherwise incorporate — applies
+to ISMIP6. **My answer: no for ISMIP6, but yes for the equilibrium ladder, and
+that distinction is the useful one.**
+
+**What makes GlacierMIP3 admissible.** It supplies *equilibrium* committed loss
+at sustained warming levels. Our own pipeline makes this explicit: the cached
+input is `outputs/d1_gmip3_steady_cache.nc` — steady-state runs. No observation
+can supply it, because no glacier system has been observed to equilibrate, and
+a reduced-form emulator cannot generate it from its own structure. It is
+genuinely new information, so it earns a place in the likelihood.
+
+**Why ISMIP6 is different in kind.** ISMIP6 is an intercomparison of *transient
+twenty-first-century projections under prescribed forcing* — the same quantity
+our model predicts, produced by other models. Putting it in the likelihood
+would not add unobtainable physics; it would tune our emulator to other
+emulators' transients. FACTS's `FittedISMIP` module already is an ISMIP6
+emulator. If we fit to ISMIP6, BRICK-F\*'s Greenland becomes a second-hand
+FittedISMIP, and the FACTS and MAGICC comparisons stop being independent checks
+— we would be comparing a model to its own training data. **Recommend
+evaluation-only permanently, not just for now.**
+
+**But the logic does transfer — to Bochow/Levermann.** Equilibrium states at
+sustained warming levels, unobservable, structural, and not derivable from the
+model itself: that is the same category as GlacierMIP3, and it is the honest
+Greenland analogue. It belongs in the likelihood on exactly the argument that
+put the glacier rungs there.
+
+**Consequence, and a decision for you.** The constraint that makes Greenland's
+likelihood analogous to the glaciers' is an equilibrium ladder — and an
+equilibrium ladder constrains V_eq, which *is* option C. So C is not only "the
+2300 fix": it is the carrier of the GlacierMIP3-equivalent information. That is
+an argument for pulling C into the first pass rather than a later one, with D
+following as the mechanism that makes C's threshold real. **This reverses my
+earlier recommendation to defer C, on the strength of the verification.**
+Your call whether pass 1 becomes A + B + C, with D as pass 2.
