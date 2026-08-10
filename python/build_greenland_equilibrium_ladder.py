@@ -32,6 +32,15 @@ CONVENTIONS, taken from the authors' figure code rather than assumed
         loss = (V_init - V) / V_init * 7.42 m
     again following the authors' code. Yelmo's own V_sle_init is 8.31 m.
 
+NOTE 2026-08-10: the output file now also carries the PISM-dEBM ladder, built
+from the 16 no-overshoot runs (Tmax == convT, 0.0-7.5 K in 0.5 K steps) inside
+pism_debm.zip, whose `ice_volume` is normalised by each run's own initial volume
+and scaled by 7.42 m on the same basis. Those 16 files are tracked under
+data/observations/raw/bochow2023/pism_eq/; the 1.1 GB source archive is not.
+Max equilibrium drift over the averaging window is 0.16 m for PISM against
+0.000 m for Yelmo. Re-running this script rebuilds the Yelmo rows only, so do
+not overwrite the merged file without re-adding PISM.
+
   python3 python/build_greenland_equilibrium_ladder.py [--src DIR]
 Writes data/observations/greenland_equilibrium_bochow2023.csv
 """
