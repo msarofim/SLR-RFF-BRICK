@@ -190,3 +190,190 @@ Mirroring the glacier arc, which worked:
    GlacierMIP3 rungs do for glaciers) or stays an evaluation-only gate. For
    glaciers the rungs are in the likelihood; the equivalent choice here decides
    how much the projection target is allowed to shape the fit.
+
+---
+
+# Decisions taken (Marcus, 2026-08-10)
+
+1. **First pass = A + B together** (regional frame + SMB/dynamics split).
+2. **Driver zone**: recommendation below, decided on the two axes Marcus named —
+   confidence in each zone's temperature, and which zone drives melt rate.
+3. **Options C and D scoped here, excluded from the first pass.**
+4. **ISMIP6 is evaluation-only** for now — it does not enter the likelihood.
+   (Note the asymmetry this creates against the glacier module, where the
+   GlacierMIP3 rungs *are* in the likelihood. It means the Greenland scenario
+   response will be judged against ISMIP6 rather than fitted to it, so the first
+   pass may land outside it; that is the intended, more conservative choice.)
+
+---
+
+# 9. Driver zone: the evidence
+
+`python/scope_greenland_zones.py` → `outputs/scope_greenland_zones.csv`. Four
+land-masked Greenland zones plus the periphery weighting already on disk, built
+identically from three independent gridded products, annual and summer.
+
+### Axis 1 — confidence: warming amplification vs global, by product
+
+Early era (1901–1960) / modern (1961–2024). The early era is what matters: it is
+where the current module fails and where the products have least in common.
+
+| zone | season | HadCRUT5 | Berkeley Earth | GISTEMP | early spread |
+|---|---|---|---|---|---|
+| **south** | annual | 3.08 / 1.56 | 2.60 / 1.50 | 3.10 / 1.56 | **1.19×** |
+| all | annual | 3.46 / 1.90 | 2.52 / 1.61 | 3.98 / 2.13 | 1.58× |
+| central | annual | 3.93 / 2.20 | 2.52 / 1.62 | 5.12 / 2.87 | 2.03× |
+| north | annual | 3.94 / 2.46 | 2.38 / 1.80 | 6.62 / 3.78 | 2.78× |
+| all | JJA | 2.23 / 1.64 | 1.03 / 1.04 | 1.15 / 1.01 | 2.16× |
+| south | JJA | 2.01 / 1.45 | 0.72 / 0.94 | 1.01 / 0.80 | 2.79× |
+| central | JJA | 2.58 / 2.05 | 1.19 / 1.08 | 1.34 / 1.31 | 2.16× |
+| north | JJA | 2.44 / 1.72 | 1.36 / 1.18 | 1.64 / 1.57 | 1.80× |
+
+Two clear results. **South Greenland is much the best-observed zone** — the
+three products agree to 1.19× on its early-era amplification, against 2.0–2.8×
+for central and north. And **summer temperature is worse-observed than annual,
+not better**: every JJA row has a wider spread than its annual counterpart, with
+HadCRUT5 a consistent high outlier (2.0–2.6 against 0.7–1.6 elsewhere).
+
+### Axis 2 — relevance: correlation with the observed melt rate
+
+11-year smoothed, 1900–2018, against the Frederikse GIS target differenced.
+
+| zone | annual | JJA |
+|---|---|---|
+| south | **0.71** | 0.69 |
+| periphery (r05) | **0.71** | — |
+| all | 0.69 | 0.67 |
+| central | 0.69 | 0.61 |
+| north | 0.63 | 0.66 |
+| *global mean, for reference* | *0.16* | — |
+
+**This axis does not discriminate.** Every Greenland zone lands between 0.63 and
+0.71 on ~11 effectively independent smoothed points; 0.71 versus 0.69 is not a
+real difference. What the axis *does* establish, decisively, is that any
+Greenland zone beats global mean temperature by a factor of four — which is the
+case for option A, not a case for one zone over another.
+
+So the zone choice rests almost entirely on the confidence axis.
+
+### Recommendation
+
+**Annual mean temperature over southern Greenland (59–70 °N), land-masked, with
+a sampled amplification.**
+
+- It is the only zone the three products agree on in the early era (1.19×),
+  which means the amplification prior can be tight and defensible —
+  approximately N(2.9, 0.2) spanning the 2.60–3.10 product range — rather than
+  the very wide prior a 2.8× disagreement would force. For comparison, the
+  glacier work ended up with N(2.50, 0.45) on [1.80, 3.50] for its worst-observed
+  reservoir purely because the products disagreed that much.
+- It is as good as anything else on melt-rate relevance, and it is where most
+  Greenland ablation happens, so the choice is not merely statistical.
+- Carry **whole-ice-sheet annual** as the pre-registered sensitivity arm. Its
+  amplification differs enough (3.46 vs 3.08 in HadCRUT5) that the arm is
+  informative, and it is the more natural choice if a reviewer objects to a
+  regional driver for a whole-ice-sheet module.
+
+**Do not use JJA in the first pass.** It is worse on both axes in anomaly space.
+The physical argument for summer temperature is real, but it only bites in a
+formulation with absolute temperatures and a melting threshold — positive
+degree days — not in an anomaly-driven relaxation model. If the module ever
+moves to a PDD formulation, revisit this; as long as the driver is an anomaly,
+annual is both better observed and no less relevant.
+
+**Open design question for option B.** The two channels may want different
+drivers: surface mass balance responds to melt-season temperature over the
+ablation zone, whereas dynamic discharge responds to ocean forcing at marine
+termini, which is not a surface air temperature at all. The first pass should
+use one driver with a per-channel amplification and treat "does the dynamic
+channel need an ocean driver" as the first thing the offline cell tests.
+
+### Caveats
+
+- Zones are land-masked latitude bands over the Greenland box, not an ice-sheet
+  or ablation-zone mask. Building a proper mask is worth doing, but the zones
+  differ from each other by far more than a mask refinement would move any one
+  of them, so it does not change the recommendation.
+- The amplifications above are large (2.5–3.9 annual) because they are
+  through-origin fits over an era when Greenland warmed much faster than the
+  globe and then cooled. They are not a steady Arctic-amplification factor, and
+  the projection splice must be anchor-preserving, as the glacier drivers are.
+
+---
+
+# 10. Options C and D — scoped, not in the first pass
+
+### Option C — nonlinear equilibrium volume
+
+**Change.** Replace V_eq = a·T + b with a form that can express near-total loss
+at high sustained warming. The obvious candidate is the same saturating form the
+glacier reservoirs use, V_eq = V₀ − a(1 − e^(−b(T − T_off))), which is bounded
+by the ice sheet's own volume; a threshold form capturing an irreversibility
+temperature is the alternative.
+
+**Why it is not in the first pass.** It buys almost nothing at 2100: doubling
+the equilibrium sensitivity moves the scenario spread only +2.2 → +3.7 cm,
+because the realised fraction of the commitment stays at ~6% whatever the
+commitment is. Reshaping the same lever cannot do much better while the
+transient is the bottleneck.
+
+**Where it does matter.** The linear form gives only 152 cm of committed loss at
++5 °C — 21% of the ice sheet — which understates the multi-millennial
+commitment at high warming. BRICK-F\* is run to 2300 and used for pulse
+experiments, so this is a real defect of the long-horizon results, just not of
+the 2100 ones.
+
+**What it needs.** An equilibrium-versus-warming ladder for Greenland — the
+GlacierMIP3 analogue. This is the piece most likely not to exist in usable form:
+the glacier ladder gives committed loss at four warming levels with bands, and
+I do not know that an equivalent multi-level GrIS ladder is published. Sources
+to check: van Breedam et al. 2020, Bochow et al. 2023, Gregory et al. 2020.
+**Not verified — I have not read any of these for this note.**
+
+**Pre-register.** Does 2300 SSP5-8.5 GIS move materially, and does the +1.5 °C
+commitment land inside the published range? If the answer to the first is no,
+the change is not worth its complexity.
+
+### Option D — elevation–surface-mass-balance feedback
+
+**Change.** Make ablation increase as the ice surface lowers. In a lumped model
+that means replacing the V/V₀ term — which currently *slows* the response as ice
+is lost — with a term of the opposite sign, or carrying an explicit surface
+elevation state.
+
+**Why it is not in the first pass.** Measured, not assumed: dropping the V/V₀
+damping entirely changes the 2100 scenario spread by 0.0 cm, because only ~1% of
+the ice sheet is gone by 2100 so V/V₀ ≈ 0.99. The feedback cannot matter this
+century in a lumped model.
+
+**But flag it as a known defect now.** The V/V₀ term has the wrong sign
+physically. It is harmless at 2100 and actively wrong at 2300, where BRICK-F\*
+is used, and it will interact with option C: a saturating V_eq plus a damping
+term that slows response as ice is lost would double-suppress the long-horizon
+commitment.
+
+**What it needs.** Multi-century process-model behaviour to calibrate the
+feedback strength; ISMIP6 does not run long enough. Same unverified source list
+as C.
+
+**Recommendation.** C and D are the same physics approached from two sides —
+both govern the long-horizon commitment — and doing either alone would be
+incoherent. Scope them as **one later pass targeted at the 2300 horizon and the
+pulse response**, after the first pass has fixed the century-scale behaviour.
+
+---
+
+# 11. Revised first-pass plan
+
+1. **Build the driver**: land-masked southern-Greenland annual series from all
+   three products, plus the whole-ice-sheet sensitivity arm, with the
+   anchor-preserving splice. Reuses the glacier driver machinery directly.
+2. **Acquire the SMB/discharge partition** — the constraint that makes the
+   two-channel split identifiable, and the one thing the first pass cannot
+   proceed without. Candidate sources in §6, none verified.
+3. **Offline cell**: fit stock, A, B and A+B against the historical target with
+   pre-registered gates (modern rate, mid-century shape, 1942–1982 window), and
+   report the ISMIP6 comparison as an evaluation-only diagnostic.
+4. **Surgery + port validation** at 1e-9 against the offline reference.
+5. **Joint recalibration** of the whole model, then re-run the existing
+   projection, comparison and memo pipeline.
