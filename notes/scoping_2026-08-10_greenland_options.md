@@ -932,3 +932,79 @@ Setting the corrections against the numbers, the ranking of what to fix changes:
 - **Still needed**: the raw PISM ladder is downloaded (1.1 GB, kept in scratch,
   too large to track) and can validate the Table 2 PISM fit. Lower priority now
   that fitted parameters exist.
+
+---
+
+# 20. RETRACTION — my Bochow-2026 emulator numbers are void
+
+Marcus decided to sample across all three families. Implementing that properly
+meant validating the emulator against the ladder I had already extracted
+directly from the authors' Zenodo NetCDF. **It fails, and the failure is
+fundamental.**
+
+### The diagnostic
+
+Transcribed from the preprint's Table 2, the Yelmo fit is a = −1.83, c = −2.14.
+With **both a and c negative**, the cubic's derivative is 3az² + c < 0 for every
+z, so a z³ + c z + e + p is strictly monotonic and has exactly **one real root at
+every temperature — there is no fold at all**. A fold bifurcation is the paper's
+entire premise, so the parameters as I read them cannot be what they fitted.
+
+Checked against the real data: my implementation gives a smooth 1.22 → 4.92 m
+across GMT 0.5–3.0, where the extracted Yelmo ladder gives 0.09 → 6.60 m with a
+4.1 m jump at 1.76 °C. Not close, and no bifurcation present.
+
+Flipping c's sign does produce a fold, but at p = 0.00 and −1.78 °C rather than
+the paper's stated 1.80 and 0.70 °C, so a single sign error is not the
+explanation either. The PDF's mathematics layer extracted badly throughout
+(equations came through mangled), and the table columns may be misaligned.
+
+### What is void
+
+- The per-family 2100/2150/2300 table I reported last message
+  (Yelmo 18.7 / 58.4 / 173.9 at 2300, etc.). **Do not use.**
+- The sampled-ensemble quantiles produced above.
+- The committed-loss table, which gave 3.02 m at GMT 1.5 against the extracted
+  ladder's 0.41 m — a 7× disagreement that should have stopped me before I
+  reported anything.
+
+I reported those numbers before validating them. The validation was cheap and I
+had the ground truth already extracted.
+
+### What survives, and is independently checked
+
+- **The Yelmo equilibrium ladder** from the Zenodo NetCDF (§17): real model
+  output, converged (drift 0.000 m at every rung), threshold between GMT 1.68
+  and 1.76. This is data, not my transcription.
+- **BRICK against that ladder**: 2.3× too high below the threshold, 5.5× too low
+  above it. Unchanged.
+- **The Mouginot partition** (§15): closure exact, 74% surface / 26% dynamic.
+- **The 2100 diagnosis** (§2–4): transient-limited, +2.2 cm scenario spread,
+  regional driver lifting the hindcast rate correlation 0.21 → 0.77.
+- **The qualitative form** of the Bochow framework — a cubic fold with a
+  threshold-distance-dependent timescale, fitted across three model families —
+  is correctly described. It is the numbers I cannot vouch for.
+
+### Weakened, not void
+
+§19.3's conclusion that the family arms converge at 2300 because τ ≈ 10 500 yr
+rested on the same transcription. The τ parameters sit in a simpler part of the
+table and may well be right, and Kypke et al. 2026 independently supports a slow,
+chaotic post-threshold timescale — but the specific convergence result is now
+**plausible and unverified** rather than established.
+
+### Next step
+
+Get Table 2 from a reliable rendering — the journal's HTML version, or the
+authors' code once the placeholder availability statement is filled in — and
+re-run the validation against the extracted Yelmo ladder **before** any number
+from the emulator is used again. The ladder is the right acceptance test: the
+emulator must reproduce the 1.68 → 1.76 °C jump and the 0.09–6.60 m range.
+
+### Marcus's decision stands
+
+Sampling across all three families does not depend on any of the void numbers,
+and the reason he gave for it — that the initial 85.7 cm Yelmo figure looked too
+high — is better served by the real ladder than by my emulator anyway. That
+85.7 cm came from my own illustrative logistic (§16), which is also
+superseded.
