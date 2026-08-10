@@ -3,6 +3,90 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-10 (latest) — BRICK-F* delivered: projection kernel, projections + hindcast, three comparison arms, data/test cleanup, sharing memo
+
+The extC posterior was accepted on the deliverable on 2026-08-10 (commit 205ccbf;
+4x2M chains, acceptance 0.236-0.237, SLR@2100 R-hat 1.000 / @2150 1.002). This
+entry covers everything built on top of it.
+
+- **`julia/brickf_projection.jl` — one tested projection kernel.** Posterior
+  loading, the per-block driver splice, the 52-parameter apply, rebaselining and
+  component extraction, replacing the block every extC-era driver would otherwise
+  copy (and that had already drifted to 2-tau names in the 43 legacy sites).
+  nu fixed at `nu_anch_obsfit` (the calibrator's sampled-mode FIT_BASIS); F_unch
+  documented as a hindcast construct, excluded from projections by default.
+  `julia/test_brickf_projection.jl`: drivers and melt series match the python
+  offline reference at <=1.2e-12 on both amp bases, slot contract exact,
+  deterministic re-run, F_unch flat after 2005 (projection sliver 0.08 mm at
+  u=25 mm), and 126<245<585 monotonicity in every component.
+- **Projections (`julia/project_ssps_components_brickf.jl`)** -> 
+  `outputs/ssps_components_2300_extC.csv`. SSP2-4.5 total @2100 49.5 [41.5, 97.1],
+  @2150 112.1, @2300 288.5 cm (chains gave 49.6 / 111.0 — kernel and chains agree);
+  SSP1-2.6 35.9, SSP5-8.5 97.8 @2100. **The glacier scenario spread is no longer
+  saturated**: glaciers @2100 8.5 / 10.6 / 14.7 cm across the three SSPs, against
+  6.4 / 6.8 / 7.2 under the single-reservoir extA108 predecessor.
+- **Hindcast (`julia/posterior_predictive_brickf.jl`)** -> 
+  `outputs/postpred_extC_{components_timeseries,bias,coverage}.csv`. Reports BOTH
+  the parameter band and the predictive band that adds the calibrated AR(1) +
+  per-year obs error (exactly hetero_logl_ar1's Sigma). Mean bias ais -0.00,
+  glaciers -0.00, gis -0.40, te +0.24, total +0.03 cm; predictive 90% coverage
+  99.2 / 100 / 68.3 / 100 / 100 %. The GIS shortfall is one contiguous window,
+  1942-1982, model 0.5-0.7 cm low — stock BRICK Greenland, untouched here.
+- **Comparison arms.** `python/extract_magicc_components.py` pulls the MAGICC
+  v7.5.3 + Nauels-2025 600-member component bands into the tracked
+  `data/comparison/magicc_nauels_components.csv` (7 MAGICC modules -> BRICK's 5,
+  summed per member before quantiles), so the comparison no longer needs the
+  members-only MAGICC tree. `python/brickf_model_comparison.py` puts BRICK-F*,
+  MAGICC-SLR, every FACTS module and pre-Mengel BRICK 2.0 on one basis.
+  **Glaciers @2100: BRICK-F* 8.5/10.6/14.7 vs MAGICC 10.4/12.5/15.3, FACTS
+  8.9-9.2 / 11.4-12.2 / 15.5-17.7, BRICK 2.0 (Wigley-Raper) 12.0/13.5/16.5** —
+  BRICK-F* is inside the multi-model range at every scenario, the old ~2x
+  MAGICC-vs-emulator glacier gap is closed, and Wigley-Raper's low-scenario
+  over-melt (12.0 cm at SSP1-2.6, the highest of the five) is gone. Totals
+  @2100 SSP2-4.5: 49.5 vs MAGICC 53.2 vs FACTS 48.7-67.9; SSP5-8.5 97.8 vs 97.8.
+  Flagged, not fixed: **BRICK-F* Greenland under-responds to scenario**, +2.2 cm
+  SSP1-2.6->5-8.5 against +6.3 to +7.3 everywhere else.
+- **Committed-ladder review item RESOLVED, and the 2026-08-09 handoff's
+  explanation was WRONG.** That note attributed the 37.5% aggregate ladder-gate
+  pass to the model-basis denominator and expected the data basis to be satisfied
+  by construction. `python/brickf_committed_ladder.py` shows the observed 2020
+  stock (76.7 mm) is slightly LARGER than the model's (74.8 mm), so both bases
+  agree: +1.2 K committed 56.3% (data) / 56.6% (model) vs GlacierMIP3
+  37.4 [11.8, 54.0]. The real cause is aggregation — every reservoir is within
+  1.2 sigma of its own rungs (R19 z +1.17/+0.97/+0.75/+0.80, SLOWP
+  +0.50/+0.42/+0.17/-0.10, FAST +0.68/+0.65/+0.31/+0.14), and three modestly-high
+  reservoirs against a tighter aggregate band put the aggregate ~2 points out at
+  the lowest rung only.
+- **Data-assembly cleanup: `python/brickf_data.py`** replaces the 4-deep
+  exec-prefix chain (build_extc_inputs -> d1f -> d1e -> d1d -> d0, ~1650 lines of
+  source-splitting exec) with an importable module — every input file named and
+  sourced, one section per stage, no exec. The GlacierMIP3 ladder is read from
+  the committed cache, so the production path no longer needs xarray or moepy.
+  `python/test_brickf_data.py` (15 checks) proves the rebuilt artifacts are
+  IDENTICAL to the committed ones — that is what licenses the refactor, since the
+  accepted posterior was calibrated against those bytes — plus inventory,
+  response-time, ladder, seam and driver-frame checks. Re-running the module to
+  disk leaves git diff empty and validate_glaciers_nu3.jl still passes at 5e-13.
+  build_extc_inputs.py keeps a SUPERSEDED pointer and stays runnable.
+  **Tried and kept deliberately:** the fitted constants depend on `four_rung_fit`
+  call ORDER through a shared RNG, so `build_artifacts()` reproduces the
+  development sequence including two discarded fits. Per-block seeding would be
+  cleaner but would change the calibrator inputs and invalidate the accepted
+  posterior — recorded in the module header as the fix for the next recalibration.
+  **Caught by a failing test, not by inspection:** the seam-adjustment test was
+  first written asserting monotone removal and FAILED — GlaMBIE region 19 gains
+  mass in 2019, so the running removal genuinely dips. The assertion was wrong,
+  not the code.
+- **`run_brickf_tests.sh`** runs all three suites in dependency order. The
+  calibrator port validation and the projection-kernel test exercise the same
+  glacier physics through the two independent code paths that must agree.
+- **Figures + memo.** `python/plot_brickf_memo_figures.py` -> three figures
+  (hindcast, SSP totals, glacier focus incl. the 2300 saturation contrast against
+  Wigley-Raper). `python/brickf_posterior_summary.py` -> the parameter table.
+  `notes/memo_2026-08-10_brickf_sharing.md` is the sharing memo to Marcus's
+  binding spec (abstract / obs comparison / SSP vs FACTS+MAGICC / methodology
+  for reimplementation), declarative, with six stated limitations.
+
 ## [unreleased] — 2026-08-09 (latest) — extC green-lit: D1f obs-amp arm + full 3-reservoir calibrator surgery (validated 5e-13, smoke-passed); launch gated on amp-basis call
 
 - **Marcus green-lit extC + the obs-amp sensitivity arm**, and set the sharing-memo
