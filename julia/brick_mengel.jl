@@ -23,9 +23,11 @@ using Mimi, MimiBRICK, Random
 include(joinpath(@__DIR__, "glaciers_mengel_component.jl"))
 include(joinpath(@__DIR__, "glaciers_nu_component.jl"))
 include(joinpath(@__DIR__, "glaciers_nu3_component.jl"))
+include(joinpath(@__DIR__, "greenland_ab_component.jl"))
 include(joinpath(@__DIR__, "brick_param_updates.jl"))
 
 const _MENGEL_GLAC_SLOT = :glaciers_small_icecaps   # name kept by Mimi replace!
+const _GIS_SLOT = :greenland_icesheet               # name kept by Mimi replace!
 
 # Land-water-storage (LWS) annual rate. MimiBRICK's get_model draws this fresh and UNSEEDED on every
 # call — rand(Normal(0.0003, 0.00018), n) m/yr — which makes total SLR irreproducible build-to-build
@@ -210,5 +212,46 @@ function set_glacier_forcing3!(m, tg3)
                       Symbol("glacier_surface_temperature_$blk"),
                       getproperty(tg3, Symbol(blk)))
     end
+    return m
+end
+
+# ============================================================================
+# Greenland pass 1 (2026-08-10): cell A+B in the Greenland slot.
+# Structure + fitted theta provenance: python/gis_offline_cell.py cell "A+B";
+# port ground truth: python/emit_gis_port_reference.py.
+# Option C (the PISM ladder as V_eq) FAILED offline and is deliberately absent.
+# ============================================================================
+
+"""
+    build_brick_nu3_gis(; ssp, y0, y1, lws=:seeded, lws_seed=LWS_SEED)
+
+`build_brick_nu3` with `greenland_ab` in the Greenland slot as well. BOTH the
+glacier block drivers and the Greenland regional driver are UNBOUND after the
+build — call `set_glacier_forcing3!` and `set_gis_forcing!` before `run(m)`.
+"""
+function build_brick_nu3_gis(; ssp::String="ssp245", y0::Int=1850, y1::Int=2026,
+                             lws::Symbol=:seeded, lws_seed::Int=LWS_SEED)
+    m = build_brick_nu3(; ssp=ssp, y0=y0, y1=y1, lws=lws, lws_seed=lws_seed)
+    replace!(m, _GIS_SLOT => greenland_ab)
+    return m
+end
+
+"""
+    update_gis_ab!(m, gis)
+
+Greenland A+B parameters from a NamedTuple with fields c1, c0, v0, f, alpha_f,
+beta_f, alpha_s, beta_s, g — all in COMPONENT units (metres, not the offline
+cell's centimetres; see python/emit_gis_port_reference.py).
+"""
+function update_gis_ab!(m, gis)
+    for f in (:c1, :c0, :v0, :f, :alpha_f, :beta_f, :alpha_s, :beta_s, :g)
+        update_param!(m, _GIS_SLOT, Symbol("gis_$f"), Float64(getproperty(gis, f)))
+    end
+    return m
+end
+
+"""Set the Greenland REGIONAL driver (K rel 1850-1900, amp-spliced forward)."""
+function set_gis_forcing!(m, tgis)
+    update_param!(m, _GIS_SLOT, :greenland_surface_temperature, Float64.(tgis))
     return m
 end
