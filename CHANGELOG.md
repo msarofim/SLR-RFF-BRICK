@@ -134,6 +134,26 @@ the commitment is incompatible with the ladder, so a second fast-channel form
   mattering; f is pinned by Mouginot. No need for the Antarctic runoff-line
   treatment.
 
+### Step 4 — the Mimi port (`julia/greenland_ab_component.jl`)
+- `greenland_ab` implements cell A+B in the Greenland slot. Option C is
+  deliberately absent. Driver parameter is `greenland_surface_temperature`, not
+  `global_surface_temperature`, so Mimi does not auto-connect raw GMST — the
+  same frame contract the glacier blocks use. V/V₀ damping dropped.
+- Two things confirmed against the stock component's source: it integrates with
+  **lagged** `eq_volume`/`τ_inv` (t−1), and it **starts at V(1850) = v₀** — zero
+  realised loss with the full disequilibrium present. Check [5] of the
+  validation exists solely to stop the latter regressing.
+- **`julia/validate_greenland_ab.jl`, 1850–2300, ssp245, tol 1e-9 — ALL PASS:**
+  driver 0.0; `gis_eq` 1.1e-16; fast/slow/sea_level 1.1e-15 / 8.3e-17 / 1.1e-15;
+  slot contract 0.0; `global_sea_level` == 5 components 0.0 (this is what
+  confirms the new slot is actually read, not a stale stock component);
+  initial-condition and constant-driver monotonicity checks pass.
+- Units: cell is cm, components are m; conversion happens once in
+  `python/emit_gis_port_reference.py`, which writes **both** systems so a slip
+  shows as a factor of 100 rather than silently.
+- `run_brickf_tests.sh` now runs **four** suites; all green including the three
+  pre-existing ones.
+
 ### Tried and rejected
 - **Option C in pass 1.** Both ladder cells break the hindcast (RMSE 1.675 /
   1.009 against 0.099) and fail G3, and A+B+C projects 72 cm of Greenland by
