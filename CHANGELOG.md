@@ -3,7 +3,80 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-10 (latest) — Greenland pass 1, steps 1–2: driver built on a real mask (two scoping numbers corrected), V_eq fitted to PISM
+## [unreleased] — 2026-08-11 (latest) — Gate 3.1 cleared: the target conflict is Frederikse's own budget non-closure, and the Greenland fix is worth +12.4 logl anyway
+
+Answers the blocking diagnostic before step 5 (joint recalibration). Full
+argument in `notes/note_2026-08-11_gate31_target_conflict_verdict.md`.
+**Verdict: proceed to step 5 unchanged; no data-side surgery required.**
+
+### What the +0.74 cm mid-century conflict is (`python/diag_target_conflict.py`)
+- Decomposed exactly (all series share the 1995–2005 reference):
+  `Σ components − Dangendorf = (Σ comps − Frederikse GMSL) + (Frederikse GMSL − Dangendorf)`.
+  Over 1950–1980 that is **+0.738 = +1.109 (budget closure) − 0.371 (reconstruction)**.
+- **Not a splice.** Earliest modern-product year in any component target is 2019;
+  it cannot reach the window. The total there is the Dangendorf reconstruction,
+  not the NOAA STAR splice (2022+).
+- **Not Dangendorf-vs-Frederikse** — that term has the *opposite* sign. Swapping
+  in the independent Dangendorf total **reduces** the conflict by 0.37 cm
+  (0.24 of Dangendorf's own per-year SE). The two reconstructions agree.
+- **It is Frederikse 2020's own mid-century budget non-closure, inherited
+  faithfully.** Our closure term (+1.109 cm) matches the weighted median closure
+  of Frederikse's 5000-member ensemble (+1.104 cm) at **z = +0.006**. Ensemble
+  spread on that window mean: sd 0.792, 5–95% [−0.188, +2.452] → ≈1.4σ,
+  systematic but not significant at 5%.
+- Provenance verified: ensemble `GMSL` is the observed tide-gauge reconstruction,
+  **not** the budget sum (differs from Barystatic+Steric by up to 158 mm;
+  cross-member correlation with the budget at 1950 = 0.085).
+
+### The red team's prediction, corrected in magnitude and sign
+- **The GIS miss is +0.822 cm over 1942–1982, not the 0.5–0.7 cm the memo
+  carried.** Correct it wherever it appears.
+- The model sits **below** the total target in mid-century (+0.322 cm), so the
+  added melt moves the total *through* its target: residual goes −0.322 → +0.499,
+  a sign flip of similar size, not a one-way 0.74 cm degradation.
+- The GIS target matches at 1900–1930 (+0.058) and exceeds the model mid-century,
+  i.e. it wants **more melt in the first half of the century** — the 1920s–40s
+  southern-Greenland anomaly, which is exactly what driver option A delivers.
+
+### Why stock BRICK-F\* under-melted Greenland — not the conflict (`python/diag_gis_likelihood_leverage.py`)
+- The total channel's own σ over 1950–1980 is **1.538 cm**; a 0.74 cm conflict is
+  0.47σ of it. Far too loose to have caused the under-melt.
+- The mechanism is the **sampled per-series AR(1) noise model**. Pooled extC
+  posterior medians (4 × 2,000,000 steps, second half): **ρ_gis = 0.985**
+  (τ = 67.5 yr), **ρ_steric = 0.973**, against ρ = 0.45–0.62 for ais/gsic/dang.
+  A 40-year systematic miss is reclassified as correlated noise nearly for free —
+  the AR(1) removes **14–16×** of the leverage on a mid-century GIS offset
+  (−27.7 vs −382.6 logl for a 0.65 cm step; −7.5 vs −122.8 for a smooth ramp).
+- **n_eff caveat, recorded because the number is arresting.** n(1−ρ)/(1+ρ) gives
+  n_eff = 0.93 for gis, but it describes the AR(1) term *alone* and **understates**
+  the grip — the diagonal band term adds independent information each year (strip
+  the band and the penalty rises to −141.7). Quote n_eff only with that
+  qualification; the AR(1)+band figure is the one to trust. Both are conditional
+  on noise params at their posterior medians, so they are upper bounds.
+- **Decisive number, from the actual extC residuals rather than a synthetic shape:**
+  gis residual −0.822 → 0.000 gains **+16.49 logl**; the total pays **−4.06**;
+  **net +12.43 in favour**. The sampler should take the deal.
+
+### Pre-registration updated
+- **Outcome 1 expected** (Greenland improves, total degrades) — but "degrades"
+  = the total's mid-century residual flipping −0.32 → +0.50 cm, 0.32σ of its own σ.
+- **Outcome 3 is less likely than feared**: the AR(1) weakens the pull 14–16×,
+  but +12.4 net logl survives it. If the posterior does come back ≈ extC, the
+  cause is *not* the target conflict — look at sd_gis/rho_gis inflation next.
+
+### Flagged for Marcus (methodological, not resolved here)
+- The component and total targets cannot both be met to nominal σ in mid-century.
+  **(a) do nothing and document** (recommended — the conflict is inside both σ's
+  and keeps the only Frederikse-independent constraint at full strength), or
+  **(b)** add the 0.792 cm closure sd in quadrature to the total σ in that window.
+  Not to be resolved by whatever the sampler does — that is what produced the
+  under-melt.
+- **ρ_gis / ρ_steric ≈ 1 deserve their own decision** (same shape as the
+  CarbonCycleEmulator AR(1) retirement, n_eff 0.8). Two of five component
+  channels are weakly identified in level. Belongs with item 4.3 (TE vs a modern
+  OHC target) — TE is the *other* ρ→1 channel, plausibly the same story.
+
+## [unreleased] — 2026-08-10 — Greenland pass 1, steps 1–2: driver built on a real mask (two scoping numbers corrected), V_eq fitted to PISM
 
 **Decision 1 settled (Marcus): PISM-dEBM is the single equilibrium ladder. No
 Yelmo sensitivity arm.**
