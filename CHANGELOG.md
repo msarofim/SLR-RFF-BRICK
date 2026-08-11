@@ -72,7 +72,78 @@ Yelmo sensitivity arm.**
   the collapse falls between two adjacent ones. Width parameters are bounded
   below at the rung spacing and rail there. Sharpness is a prior, not a datum.
 
+### Step 2b — the dT prior (`python/set_gis_dt_prior.py`)
+- **Box et al. 2022 check cleared** (Nat Clim Chang 12:808): 274 ± 68 mm
+  committed by the 2000–2019 disequilibrium. Our 530 mm at present GMT is
+  consistent — Box is explicitly "at least", and a current-geometry number, so
+  the multi-millennial equilibrium should exceed it (their own
+  2012-in-perpetuity variant is 782 mm).
+- **dT ~ Normal(−0.63, 0.55) truncated [−1.58, +0.22].** PISM's own threshold
+  (50% of V₀) is GMT 2.38, and both assessments put Greenland below it, so a
+  prior centred on dT = 0 would encode "PISM is the best estimate":
+  Bochow 2023 (Nature 622:528) 1.7–2.3 °C — *not independent*, it is our
+  ladder's source; Armstrong McKay 2022 (Science 377:eabn7950) central 1.5,
+  range 0.8–3.0 °C — independent. Upper truncation is the **Box floor**, not the
+  literature: above dT = +0.22 the equilibrium commitment would fall below a
+  measured lower bound. dT = 0 sits at +1.14 σ.
+- **dT and τ are not separately identified in a one-channel model, and the
+  direction is hostile.** Modern rate = commitment/τ, so a more negative dT
+  demands a longer τ: dT = 0 → 630 yr, −0.63 → 1820 yr, −1.18 → 5349 yr. A
+  one-channel fit absorbs any negative dT as a *slower* response — the pathology
+  pass 1 exists to remove.
+
+### Step 3 — the offline cell (`python/gis_offline_cell.py`)
+**Acceptance test first.** Stock SIMPLE at the extC posterior medians, not
+refitted, reproduces the incumbent: 2100 spread **2.29 cm** vs the known 2.16,
+and the documented 1942–1982 miss at −0.83 cm. Two bugs were caught by it:
+`g = 0` is BRICK's actual initial condition (V(1850) = v₀, 71 cm of
+disequilibrium, *not* equilibrium — starting in equilibrium gave 0.11 mm/yr
+against ~0.7 observed); and a fast channel relaxing toward a fixed *share* of
+the commitment is incompatible with the ladder, so a second fast-channel form
+(B′, SMB as a direct melt rate above an onset) was added.
+
+| cell | RMSE cm | G1 | G2 | G3 | surf | 2100 spread | G4 |
+|---|---|---|---|---|---|---|---|
+| incumbent | 0.533 | – | – | – | – | 2.29 | – |
+| stock | 0.325 | OK | OK | OK | – | 7.25 | OK |
+| **A** | **0.061** | OK | OK | OK | – | 10.85 | – |
+| B | 0.315 | OK | OK | OK | 0.78 | 6.90 | OK |
+| **A+B** | 0.099 | OK | OK | OK | 0.74 | 6.30 | OK |
+| A+B′ | 0.068 | OK | OK | OK | 0.36 | 6.27 | – |
+| A+B+C | 1.675 | OK | – | – | 0.49 | 51.99 | – |
+| A+B′+C | 1.009 | OK | OK | – | 0.53 | 13.08 | – |
+
+- **The regional driver is the fix.** A alone: RMSE 0.533 → 0.061 cm, mid-century
+  bias −0.828 → +0.014 cm. The 1942–1982 window is closed.
+- **A caveat that changes the scoping diagnosis.** Refitting *alone*, with no
+  structural change, takes stock from 2.29 to 7.25 cm of spread. Scoping §3's
+  "+2.2 cm, the transient is the bottleneck" was measured at the *existing*
+  posterior, where GIS competes with AIS/GSIC/TE against the total. Most of the
+  spread deficit is a **joint-calibration outcome, not a structural defect of
+  SIMPLE**. The case for A rests on the hindcast (8.7× lower RMSE), which the
+  refit does not touch — not on the spread.
+- **A+B passes everything**: three historical gates, the Mouginot partition
+  (0.74 vs observed 0.735), spread 6.30 inside the band. A alone overshoots at
+  10.85. A+B′ fits marginally better but gets the partition badly wrong (0.36),
+  so the SLR history alone does not separate the channels — the partition does.
+  A+B's 6.30 sits *on* the band floor; do not over-read it.
+- **Separability, pre-registered, answered: no ridge.** In A+B the Δ<2.3 region
+  spans 57% of the local f axis and 100% of log10 β_f at corr −0.03 — weakly but
+  *independently* constrained. β_f being unconstrained is the physical result
+  that once the fast channel is fast relative to a century its speed stops
+  mattering; f is pinned by Mouginot. No need for the Antarctic runoff-line
+  treatment.
+
 ### Tried and rejected
+- **Option C in pass 1.** Both ladder cells break the hindcast (RMSE 1.675 /
+  1.009 against 0.099) and fail G3, and A+B+C projects 72 cm of Greenland by
+  2100 under SSP5-8.5, far outside AR6's ~9–18 cm — a specification failure, not
+  a finding. Cause is structural: a proportional relaxation cannot serve both a
+  6 cm historical loss against a 71 cm commitment and a 742 cm post-threshold
+  commitment. Past the threshold, loss is limited by ice **throughput**, not by
+  the size of the disequilibrium — scoping §10 option D. **C needs a
+  rate-limited formulation first.** Scoping §13 had upgraded C and D to active
+  for pass 1; this reverts that, and the original §10 call to defer was right.
 - Fitting the Bochow-2026 cubic emulator (retracted 2026-08-10 — transcribed
   coefficients give no fold). Superseded: the ladders are raw model output, so
   V_eq is fitted to them directly and the emulator is off the critical path.
