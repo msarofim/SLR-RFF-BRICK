@@ -128,11 +128,32 @@ PROJ_SCENARIOS = {"SSP1-2.6": "ssp126", "SSP2-4.5": "ssp245", "SSP5-8.5": "ssp58
 PROJ_YEAR = 2100
 PROJ_REF_WIN = (1995, 2014)     # the frame the comparison arms use
 
+# ---- fitting protocol -------------------------------------------------------
+# CORRECTED 2026-08-12. The first version drew all starts UNIFORMLY over bounds
+# that span five orders of magnitude on the rate axes, ran 60 of them, and took
+# the best Nelder-Mead result without a restart. NM collapses its simplex on a
+# flat log-scaled objective and stops early, so that protocol returned points
+# up to 24.7 nlp units above the optimum -- the tell was that 214 of the 225
+# points in the A+B (f, beta_f) ridge, which FIX two parameters and re-optimise
+# the rest with a WEAKER inner optimiser, scored BELOW the reported
+# 8-parameter optimum. A constrained fit cannot beat an unconstrained one.
+# The three changes: log-uniform draws on the rate axes, more starts, and a
+# restart-until-no-improvement polish. python/diag_gis_g_betaf.py is the audit.
 FIT_SEED = 2026
-N_MULTISTART = 60
-MAXFEV = 8000
-RIDGE_N = 15                    # grid per axis for the separability profiles
-RIDGE_MAXFEV = 1500
+N_MULTISTART = 240
+MAXFEV = 20000
+LOG_AXES = ("alpha", "beta", "alpha_f", "beta_f", "alpha_s", "beta_s")
+POLISH_ROUNDS = 12              # NM restarts from the incumbent best
+POLISH_TOL = 1e-9
+BASIN_ROUNDS = 40               # basin-hopping jitters around the incumbent best
+BASIN_LOG_SD = 0.8              # jitter sd, natural log units, on the rate axes
+BASIN_LIN_FRAC = 0.08           # jitter sd as a fraction of the bound width, level axes
+REPAIR_TOL = 1e-3               # a ridge point below the optimum by more than this
+                                # triggers a refit seeded at that point
+RIDGE_N = 11                    # grid per axis for the separability profiles
+RIDGE_MAXFEV = 6000
+RIDGE_RESTARTS = 2              # random restarts per grid point, ON TOP of the
+                                # seed at the converged optimum
 RIDGE_LOCAL_FRAC = 0.25         # half-width on the linear axis, as a fraction of its bounds
 RIDGE_LOCAL_DECADES = 30.0      # multiplicative half-span on the log axis
 RIDGE_DELTA = 2.30              # chi2(2 dof) 68% -- the "1 sigma" contour in 2 parameters
@@ -290,6 +311,27 @@ PBOUNDS = {
 }
 
 
+# Nested warm starts. Each cell here CONTAINS the named one as a special case, so
+# the container's optimum can never be worse and the simpler cell's solution is a
+# guaranteed-good start. Enforcing this by construction is what finally made the
+# two-channel fits reproducible: multi-start alone returned B at 234.92 on one run
+# and 245.06 on the next, both above the 234.92 that stock -- which B nests -- had
+# already achieved. NEST_MAP[cell] = (simpler cell, how to lift its parameters).
+#   stock -> B / A -> A+B : one channel becomes two identical channels, and the
+#   Mouginot share of two identical channels is exactly f, so f = the observed
+#   share makes the extra penalty term zero at the lifted point.
+def _lift_one_to_two(p):
+    q = dict(p)
+    q["f"] = MOUG_SURFACE_SHARE
+    q["alpha_f"] = q["alpha_s"] = p["alpha"]
+    q["beta_f"] = q["beta_s"] = p["beta"]
+    del q["alpha"], q["beta"]
+    return q
+
+
+NEST_MAP = {"B": ("stock", _lift_one_to_two), "A+B": ("A", _lift_one_to_two)}
+
+
 def cell_params(cell):
     s = CELLS[cell]
     if "fixed" in s:
@@ -358,23 +400,75 @@ def model_surface_share(L, Lf):
     return d_fast / d_tot if abs(d_tot) > 1e-12 else np.nan
 
 
-def fit_cell(cell, ctx):
+def draw_start(names):
+    """Uniform on the level axes, LOG-uniform on the rate axes. A rate bound of
+    [1e-6, 0.2] drawn uniformly puts 99.9995% of the mass above 1e-6 * 1e3, so
+    the linear draw never explored the slow end at all."""
+    x = np.empty(len(names))
+    for i, n in enumerate(names):
+        lo, hi = PBOUNDS[n]
+        if n == "dT":
+            x[i] = np.clip(DT_PRIOR["mu"] + _rng.normal(0, DT_PRIOR["sigma"]),
+                           DT_PRIOR["lo"], DT_PRIOR["hi"])
+        elif n in LOG_AXES:
+            x[i] = np.exp(_rng.uniform(np.log(max(lo, 1e-6)), np.log(hi)))
+        else:
+            x[i] = _rng.uniform(lo, hi)
+    return x
+
+
+def _nm(obj, x0, maxfev, tol=1e-9):
+    return minimize(obj, x0, method="Nelder-Mead",
+                    options=dict(maxiter=maxfev, maxfev=maxfev,
+                                 xatol=tol, fatol=tol))
+
+
+def polish(obj, x, maxfev=MAXFEV):
+    """Restart NM from its own answer until it stops improving. One NM call is
+    not a converged minimisation on this objective; the simplex degenerates."""
+    v = obj(x)
+    for _ in range(POLISH_ROUNDS):
+        r = _nm(obj, x, maxfev, tol=1e-11)
+        if not (r.fun < v - POLISH_TOL):
+            return (r.x, r.fun) if r.fun < v else (x, v)
+        x, v = r.x, r.fun
+    return x, v
+
+
+def basin_polish(obj, x, names, maxfev=MAXFEV):
+    """Basin hopping around the incumbent best: jitter, re-minimise, keep any
+    improvement. Multi-start alone kept landing in the wrong basin on the
+    two-channel cells -- the first corrected run still had B and A+B' beaten by
+    their own constrained ridge points, by 2.74 and 1.73 nlp units. Jitter is
+    MULTIPLICATIVE on the rate axes because those span decades."""
+    x, v = polish(obj, x, maxfev)
+    for _ in range(BASIN_ROUNDS):
+        y = np.array(x, float)
+        for i, n in enumerate(names):
+            lo, hi = PBOUNDS[n]
+            if n in LOG_AXES:
+                y[i] = float(np.clip(y[i] * np.exp(_rng.normal(0, BASIN_LOG_SD)), lo, hi))
+            else:
+                y[i] = float(np.clip(y[i] + _rng.normal(0, BASIN_LIN_FRAC * (hi - lo)), lo, hi))
+        r = _nm(obj, y, maxfev)
+        if r.fun < v - POLISH_TOL:
+            x, v = polish(obj, r.x, maxfev)
+    return x, v
+
+
+def fit_cell(cell, ctx, extra_starts=()):
     names = cell_params(cell)
     if not names:                       # the fixed-parameter acceptance cell
         return dict(CELLS[cell]["fixed"]), neg_log_post(cell, [], ctx)
-    lo = np.array([PBOUNDS[n][0] for n in names])
-    hi = np.array([PBOUNDS[n][1] for n in names])
+    obj = lambda t: neg_log_post(cell, t, ctx)
     best, best_v = None, np.inf
-    for k in range(N_MULTISTART):
-        x0 = lo + _rng.random(len(lo)) * (hi - lo)
-        if "dT" in names:
-            x0[names.index("dT")] = np.clip(
-                DT_PRIOR["mu"] + _rng.normal(0, DT_PRIOR["sigma"]),
-                DT_PRIOR["lo"], DT_PRIOR["hi"])
-        r = minimize(lambda t: neg_log_post(cell, t, ctx), x0, method="Nelder-Mead",
-                     options=dict(maxiter=MAXFEV, maxfev=MAXFEV, xatol=1e-9, fatol=1e-9))
+    starts = [np.asarray(s, float) for s in extra_starts]
+    starts += [draw_start(names) for _ in range(N_MULTISTART)]
+    for x0 in starts:
+        r = _nm(obj, x0, MAXFEV)
         if r.fun < best_v:
             best, best_v = r.x, r.fun
+    best, best_v = basin_polish(obj, best, names)
     return dict(zip(names, best)), best_v
 
 
@@ -429,7 +523,17 @@ def project(cell, theta, t_reg_obs, gmst_hist, last_obs_year):
 # =============================================================================
 def ridge_profile(cell, theta, ctx, ax1, ax2):
     """Profile the objective over two parameters, re-optimising the rest. A
-    ridge shows up as a long valley: the two are not separately identified."""
+    ridge shows up as a long valley: the two are not separately identified.
+
+    CORRECTED 2026-08-12 along with fit_cell. Each grid point is now seeded at
+    the converged optimum and restarted, instead of running one weak NM from a
+    fixed base -- the old version's point-to-point scatter was +/-6 nlp units,
+    itself larger than the RIDGE_DELTA = 2.30 threshold being applied to it.
+    The grid is still LOCAL by construction (see RIDGE_LOCAL_*), so read a
+    "flat over 100% of the range" verdict as a statement about that window and
+    nothing wider: for the A+B beta_f axis the window is 1e-6 to 3e-5, while
+    the value the fit is flat against a literature SMB rate over spans four
+    more decades. python/diag_gis_g_betaf.py profiles the full prior range."""
     names = cell_params(cell)
     if ax1 not in names or ax2 not in names:
         return None
@@ -444,6 +548,7 @@ def ridge_profile(cell, theta, ctx, ax1, ax2):
     g2 = np.geomspace(max(PBOUNDS[ax2][0], b2 / RIDGE_LOCAL_DECADES),
                       min(PBOUNDS[ax2][1], b2 * RIDGE_LOCAL_DECADES), RIDGE_N)
     free = [i for i in range(len(names)) if i not in (i1, i2)]
+    free_names = [names[i] for i in free]
     rows = []
     for v1 in g1:
         for v2 in g2:
@@ -452,10 +557,20 @@ def ridge_profile(cell, theta, ctx, ax1, ax2):
                 t[i1], t[i2] = v1, v2
                 t[free] = fx
                 return neg_log_post(cell, t, ctx)
-            r = minimize(obj, base[free], method="Nelder-Mead",
-                         options=dict(maxiter=RIDGE_MAXFEV, maxfev=RIDGE_MAXFEV,
-                                      fatol=1e-7))
-            rows.append(dict(cell=cell, ax1=ax1, ax2=ax2, v1=v1, v2=v2, nlp=r.fun))
+            starts = [base[free]] + [draw_start(free_names)
+                                     for _ in range(RIDGE_RESTARTS)]
+            bx, bv = None, np.inf
+            for x0 in starts:
+                r = _nm(obj, x0, RIDGE_MAXFEV)
+                if r.fun < bv:
+                    bx, bv = r.x, r.fun
+            bx, bv = polish(obj, bx, maxfev=RIDGE_MAXFEV)
+            full = base.copy()
+            full[i1], full[i2] = v1, v2
+            full[free] = bx
+            rows.append(dict(cell=cell, ax1=ax1, ax2=ax2, v1=v1, v2=v2, nlp=bv,
+                             params="; ".join(f"{n}={full[k]:.9g}"
+                                              for k, n in enumerate(names))))
     return pd.DataFrame(rows)
 
 
@@ -485,32 +600,67 @@ def main():
     print(f"    G4 EVAL ONLY 2100 spread in {GATE_SPREAD_RANGE_CM} cm "
           f"(Ladrillo extC today: 2.16)")
 
-    rows, series, ridges = [], {"year": YEARS}, []
-    for cell in CELLS:
-        theta, nlp = fit_cell(cell, ctx)
-        L, Lf = run_cell(cell, [theta[n] for n in cell_params(cell)], t_reg, gmst_hist)
+    def summarise(cell, theta, nlp):
+        order = [theta[n] for n in cell_params(cell)]
+        L, Lf = run_cell(cell, order, t_reg, gmst_hist)
         g = evaluate_gates(L, ctx)
-        proj = project(cell, [theta[n] for n in cell_params(cell)],
-                       t_reg, gmst_hist, last_obs_year)
+        proj = project(cell, order, t_reg, gmst_hist, last_obs_year)
         spread = proj["SSP5-8.5"] - proj["SSP1-2.6"]
         share = model_surface_share(L, Lf) if CELLS[cell]["two_channel"] else np.nan
         rails = "|".join(n for n in cell_params(cell)
                          if abs(theta[n] - PBOUNDS[n][0]) < 1e-9
                          or abs(theta[n] - PBOUNDS[n][1]) < 1e-9)
-        rows.append(dict(cell=cell, n_par=len(theta), neg_log_post=nlp, railed=rails, **g,
-                         surface_share=share, spread_2100_cm=spread,
-                         gate4_spread=GATE_SPREAD_RANGE_CM[0] <= spread
-                         <= GATE_SPREAD_RANGE_CM[1],
-                         **{f"proj_{k}": v for k, v in proj.items()},
-                         params="; ".join(f"{k}={v:.6g}" for k, v in theta.items())))
-        series[f"{cell}_hindcast_cm"] = reref(L)
-        print(f"  fitted {cell:8s} nlp={nlp:10.1f}  rmse={g['rmse_cm']:.3f} cm  "
-              f"spread={spread:5.2f} cm")
+        row = dict(cell=cell, n_par=len(theta), neg_log_post=nlp, railed=rails, **g,
+                   surface_share=share, spread_2100_cm=spread,
+                   gate4_spread=GATE_SPREAD_RANGE_CM[0] <= spread
+                   <= GATE_SPREAD_RANGE_CM[1],
+                   **{f"proj_{k}": v for k, v in proj.items()},
+                   params="; ".join(f"{k}={v:.6g}" for k, v in theta.items()))
+        return row, reref(L)
 
+    rows, series, ridges, solved = [], {"year": YEARS}, [], {}
+    for cell in CELLS:
+        warm = []
+        if cell in NEST_MAP:
+            simpler, lift = NEST_MAP[cell]
+            if simpler in solved:
+                q = lift(solved[simpler])
+                warm = [[q[n] for n in cell_params(cell)]]
+        theta, nlp = fit_cell(cell, ctx, extra_starts=warm)
+        row, hind = summarise(cell, theta, nlp)
+        rows.append(row)
+        solved[cell] = theta
+        series[f"{cell}_hindcast_cm"] = hind
+        print(f"  fitted {cell:8s} nlp={nlp:10.1f}  rmse={row['rmse_cm']:.3f} cm  "
+              f"spread={row['spread_2100_cm']:5.2f} cm"
+              + (f"   [warm start from {NEST_MAP[cell][0]}]" if warm else ""))
+
+        cell_ridges = []
         for ax1, ax2 in (("f", "beta_f"), ("k_smb", "beta_s"), ("dT", "beta_s")):
             r = ridge_profile(cell, theta, ctx, ax1, ax2)
             if r is not None:
-                ridges.append(r)
+                cell_ridges.append(r)
+        ridges += cell_ridges
+
+        # REPAIR PASS. Every ridge point is a constrained fit, so any point that
+        # scores below the optimum is a WITNESS that the optimum is not one. Use
+        # it as a start rather than only asserting on it -- the assert in
+        # convergence_check() then fires only when the repair also fails.
+        if cell_ridges:
+            # reset_index: two ridges on one cell (A+B+C has both) concatenate to
+            # duplicate labels, and .loc on a duplicated label returns a frame.
+            allr = pd.concat(cell_ridges).reset_index(drop=True)
+            best = allr.loc[allr.nlp.idxmin()]
+            if best.nlp < nlp - REPAIR_TOL:
+                x0 = [float(kv.split("=")[1]) for kv in best.params.split("; ")]
+                print(f"    repair {cell:8s} a ridge point scored {best.nlp:.4f} "
+                      f"< {nlp:.4f}; refitting from it")
+                theta, nlp = fit_cell(cell, ctx, extra_starts=[x0] + warm)
+                row, hind = summarise(cell, theta, nlp)
+                rows[-1], series[f"{cell}_hindcast_cm"] = row, hind
+                solved[cell] = theta
+                print(f"    repair {cell:8s} nlp={nlp:10.4f}  rmse={row['rmse_cm']:.3f} cm  "
+                      f"spread={row['spread_2100_cm']:5.2f} cm")
 
     fit = pd.DataFrame(rows)
     fit.to_csv(OUT_FITS, index=False)
@@ -524,7 +674,48 @@ def main():
         print(f"wrote {os.path.relpath(p, REPO)}")
 
 
+def convergence_check(fit, ridges):
+    """THE INVARIANT THAT CAUGHT THE ORIGINAL BUG, now enforced every run.
+
+    A ridge point fixes two parameters and re-optimises the rest, so its score
+    can never be below the unconstrained optimum. If it is, the reported
+    optimum is not one. Tolerance is the inner optimiser's own scatter."""
+    # Nesting: a container cell's optimum can never exceed the cell it nests
+    # (see NEST_MAP). Free, and independent of the ridge check below.
+    print(f"\nNESTING CHECK -- a container cell cannot score above the cell it nests")
+    nest_bad = 0.0
+    for cell, (simpler, _) in NEST_MAP.items():
+        got = fit.loc[fit.cell == cell, "neg_log_post"]
+        ref = fit.loc[fit.cell == simpler, "neg_log_post"]
+        if got.empty or ref.empty:
+            continue
+        gap = float(got.iloc[0]) - float(ref.iloc[0])
+        nest_bad = max(nest_bad, gap)
+        print(f"  {cell:10s} {float(got.iloc[0]):10.4f}  <=  {simpler:8s} "
+              f"{float(ref.iloc[0]):10.4f}   gap {gap:+8.4f}  "
+              f"{'OK' if gap <= REPAIR_TOL else 'NOT CONVERGED'}")
+    assert nest_bad <= REPAIR_TOL, (
+        f"a nested cell beat its container by {nest_bad:.4f} nlp units -- "
+        f"the container's fit has not converged")
+
+    if not ridges:
+        return
+    tol = REPAIR_TOL
+    worst = 0.0
+    print(f"\nCONVERGENCE CHECK -- no constrained ridge point may beat the optimum")
+    for cell, grp in pd.concat(ridges).groupby("cell"):
+        opt = float(fit.loc[fit.cell == cell, "neg_log_post"].iloc[0])
+        gap = opt - float(grp.nlp.min())
+        worst = max(worst, gap)
+        print(f"  {cell:10s} optimum {opt:10.4f}  best ridge point {grp.nlp.min():10.4f}  "
+              f"gap {gap:+8.4f}  {'OK' if gap <= tol else 'NOT CONVERGED'}")
+    assert worst <= tol, (
+        f"a constrained ridge point beat the reported optimum by {worst:.4f} nlp "
+        f"units -- the fit has not converged; see the fitting-protocol note")
+
+
 def report(fit, ridges):
+    convergence_check(fit, ridges)
     print(f"\nFIT QUALITY AND GATES")
     print(f"  {'cell':10s} {'npar':>4s} {'RMSE cm':>8s} {'rate':>7s} {'G1':>3s} "
           f"{'bias cm':>8s} {'G2':>3s} {'trend':>9s} {'G3':>3s} {'surf':>6s}  railed")

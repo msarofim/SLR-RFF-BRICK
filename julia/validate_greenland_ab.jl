@@ -9,9 +9,14 @@
 #   [3] channel series  gis_fast, gis_slow == reference fast_m, slow_m
 #   [4] slot contract   greenland_sea_level == gis_fast + gis_slow, and it is
 #       what :global_sea_level consumes
-#   [5] the initial condition is BRICK's, not "starts in equilibrium" — the
-#       single easiest thing to get wrong in this port, and the bug that made
-#       the offline modern rate 0.11 mm/yr instead of ~0.7
+#   [5] the initial condition is L(y0) = g * eq(y0) exactly, and is not
+#       equilibrium — starting in equilibrium is the single easiest thing to
+#       get wrong in this port, and the bug that made the offline modern rate
+#       0.11 mm/yr instead of ~0.7. NB this checks the RELATION at whatever g
+#       the reference carries; it is NOT an assertion that g takes any
+#       particular value. Ladrillo 1.0 fixes g = 0 (item 4.1, 2026-08-12), at
+#       which point this becomes BRICK's own initial condition; until step 5
+#       lands, g is whatever the offline A+B fit returned.
 #   [6] a zero-driver run is exactly flat at the initial state (no drift)
 #
 # Reference (python ground truth): outputs/gis_port_reference{,_theta}.csv,
@@ -95,7 +100,7 @@ parts = Float64.(m[_GIS_SLOT, :greenland_sea_level]) .+
         Float64.(m[:landwater_storage, :lws_sea_level])
 check("[4] global_sea_level == 5 components", gsl, parts)
 
-println("[5] initial condition is BRICK's, not equilibrium")
+println("[5] initial condition is L(y0) = g*eq(y0), and not equilibrium")
 eq0 = Float64(m[_GIS_SLOT, :gis_eq][1])
 l0 = Float64(m[_GIS_SLOT, :greenland_sea_level][1])
 @printf("  gis_g = %.6f; L(%d) = %.6f m against a commitment of %.6f m\n",

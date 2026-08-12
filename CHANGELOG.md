@@ -3,7 +3,100 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-12 (latest) — Gate 3.1 ruling landed: the total target's σ now carries Frederikse's own budget-closure spread
+## [unreleased] — 2026-08-12 (latest) — The Greenland cell-comparison fits were never converged; items 4.1 and 4.2 decided against the corrected table
+
+### The bug
+`python/gis_offline_cell.py` reported optima that were not optima. Starts were
+drawn **uniformly** over rate bounds spanning five orders of magnitude
+(`[1e-6, 0.2]`), 60 of them, and the best Nelder-Mead result was taken without a
+restart. **The tell was already in the committed output:** 214 of the 225 A+B
+`(f, beta_f)` ridge points — which *fix two parameters* and re-optimise the rest
+with a *weaker* inner optimiser — scored **below** the reported 8-parameter
+optimum of 42.52. A constrained fit cannot beat an unconstrained one.
+Re-evaluating the committed parameter vector under the corrected code reproduces
+42.5228 exactly, so this is one objective at two points, not two objectives.
+
+Pre-fix outputs quarantined with the full impact table at
+`outputs/quarantine/20260812_gis_offline_cell_underconverged/`.
+
+### Corrected protocol, and the invariants that now guard it
+Log-uniform draws on the rate axes; `N_MULTISTART` 60 → 240; restart-until-no-
+improvement `polish()`; **basin-hopping** jitter (multiplicative on log axes);
+and **nested warm starts** — `stock → B`, `A → A+B`, lifting one channel into two
+identical ones with `f` = the observed Mouginot share so the lifted point carries
+zero extra penalty. The first three alone were not enough: B still landed at
+234.92 on one run and 245.06 on the next, both above the value stock — which B
+nests — had already reached.
+
+Three checks now run every time and **assert**:
+- `convergence_check()` — no constrained ridge point may beat the optimum.
+- **nesting** — a container cell may not score above the cell it nests.
+- **repair pass** — a violating ridge point is re-used as a *start* before the
+  assert fires, so the gate reports genuine failures rather than optimiser luck.
+  It fired on this run: B 234.92 → **232.07** via a 232.18 witness point.
+
+### The corrected table (nlp, RMSE cm, 2100 spread cm)
+
+| cell | npar | nlp was → is | RMSE was → is | spread was → is | G4 |
+|---|---|---|---|---|---|
+| incumbent | 5 | 980.04 → 980.04 | 0.533 → 0.533 | 2.29 → 2.29 | — |
+| stock | 5 | 234.92 → 234.92 | 0.325 → 0.325 | 7.25 → 7.25 | OK |
+| A | 5 | 17.87 → 17.87 | 0.061 → 0.061 | 10.85 → 10.85 | — |
+| B | 8 | 246.61 → **232.07** | 0.315 → 0.282 | 6.90 → 7.27 | OK |
+| **A+B** | 8 | 42.52 → **17.856** | 0.099 → **0.062** | **6.30 → 10.44** | **OK → —** |
+| A+B' | 7 | 62.78 → **19.15** | 0.068 → 0.077 | 6.27 → **0.00** | — |
+| A+B+C | 7 | 2038.31 → **563.20** | 1.675 → 0.844 | 51.99 → 0.28 | — |
+| A+B'+C | 6 | 724.26 → **118.15** | 1.009 → 0.350 | 13.08 → 6.24 | — |
+
+**Decision 4 (A+B is the module) SURVIVES, and on better evidence.** A+B has the
+best score of any cell, matches A's hindcast (RMSE 0.062 vs 0.061, G1/G2/G3 all
+pass) and *additionally* reproduces the Mouginot partition to four figures
+(0.7351 against the 0.735 constraint), which single-channel A cannot represent at
+all. The regional driver is what does the work: stock/B ≈ 232–235 against
+A/A+B ≈ 17.9. Option C still fails decisively (563 / 118).
+
+**What changed and must be re-reported: G4.** A+B's 2100 scenario spread is
+**10.44 cm, ABOVE the 6.3–7.3 evaluation band**, not 6.30 on its floor. The
+handoff statement "the joint calibration can only push it down" is retired —
+pushing it down is now the desirable direction.
+
+**Also flagged:** A+B' (the SMB-rate variant) now returns a 2100 spread of
+**exactly 0.00 cm** — all three scenarios give 1.31 cm — because its
+anti-overshoot clamp saturates at the converged optimum. Suspicious uniformity,
+and a structural pathology of that cell. It is not the module, so it is recorded
+rather than chased.
+
+### 4.1 — `g` is FIXED AT 0
+Not sampled in step 5. The hindcast cannot see it: profiled over [0, 0.8] the
+objective moves **4e-4 nlp** and the 2100 projections do not move at all
+(max |Δ| 0.000 cm); LR accepts `g = 0` at 2Δ = +0.001 against χ²₁ = 3.841. It is
+**confounded with `c0`** — two converged runs returned (c0 61.99, g 0.917) and
+(c0 5.21, g 0.183) at the same nlp = 17.856 with 2100 projections agreeing to
+**< 0.001 cm**. It only ever existed so the since-rejected ladder cells could
+start sensibly. `g = 0` restores stock SIMPLE's own initial condition.
+
+### 4.2 — `beta_f` stays FREE (Marcus, 2026-08-12), and the handoff's premise is falsified
+"Fixing it at a literature SMB response time costs nothing measurable" is
+**wrong**: `beta_f = 1/10 yr` is rejected at **2Δ = +133** and collapses the
+Mouginot surface share to **0.34** against a 0.735 constraint. In the share form
+the SMB channel drains a multi-millennial commitment, so "fast" names which
+*physics* the channel carries, not a short time constant — at the optimum
+τ_f = 86 yr. The data bound `beta_f < ~1e-2/yr` and cannot resolve below that
+(flat to Δ < 2.3 across five decades, 1e-6 → 9.8e-3). But it is unidentified
+**and consequential**: `beta_f = 0` costs only 2Δ = +0.55 yet moves 2100
+SSP5-8.5 by **1.70 cm** and the spread by 1.28 cm. Marcus ruled: keep it free
+and let the joint likelihood try to identify it, rather than hide 1.7 cm inside
+a point value. Re-bounding the prior to the data support was offered and
+declined; the prior spans four decades the offline fit excludes, so sampler
+efficiency there is worth watching.
+
+**The old separability claim is void either way.** "100% of its local range
+within Δ < 2.3" was measured against the wrong reference, over a ×30 window
+pinned to a railed optimum (1e-6 to 3e-5), with point-to-point optimiser scatter
+of ±6 nlp — larger than the Δ = 2.30 threshold being applied to it.
+`python/diag_gis_g_betaf.py` profiles the full prior range instead.
+
+## [unreleased] — 2026-08-12 — Gate 3.1 ruling landed: the total target's σ now carries Frederikse's own budget-closure spread
 
 **Marcus's ruling** on the open methodological decision left by gate 3.1 (the
 five component targets sum **+0.74 cm above** the independent total target over

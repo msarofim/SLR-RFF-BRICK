@@ -32,6 +32,35 @@
 # already present. Getting this wrong makes the modern melt rate 0.11 mm/yr
 # instead of ~0.7 -- it is the single easiest thing to break in this port.
 #
+# WHAT STEP 5 SAMPLES, decided 2026-08-12 (items 4.1 / 4.2 of
+# notes/handoff_2026-08-11_greenland_pass1_complete.md §4). Evidence:
+# python/diag_gis_g_betaf.py -> outputs/gis_g_betaf_{variants,profiles}.csv.
+#
+#   gis_g  -> FIX AT 0. NOT sampled. The hindcast cannot see it: profiled over
+#     [0, 0.8] the objective moves by 4e-4 nlp and the 2100 projections do not
+#     move at all (max |delta| 0.000 cm); the LR test accepts g = 0 at
+#     2*delta = +0.001 against chi2(1) = 3.841. It is confounded with gis_c0 --
+#     two converged fits returned (c0 61.99, g 0.917) and (c0 5.21, g 0.183)
+#     at the same nlp = 17.856 with 2100 projections agreeing to < 0.001 cm.
+#     It was only ever introduced so the (since-rejected) ladder cells could
+#     start sensibly. Stock SIMPLE has g = 0 by construction, so this restores
+#     BRICK's own initial condition.
+#
+#   gis_beta_f -> SAMPLED, FREE (Marcus, 2026-08-12). It is unidentified by the
+#     GIS hindcast alone -- flat to delta < 2.3 across FIVE decades, 1e-6 to
+#     9.8e-3 -- but it is NOT inconsequential: beta_f = 0 costs only
+#     2*delta = +0.55 yet moves 2100 SSP5-8.5 by 1.70 cm and the scenario
+#     spread by 1.28 cm. Fixing it would hide that uncertainty in a point
+#     value; the joint likelihood is a different likelihood and may identify it.
+#     NB the handoff's premise is FALSIFIED: a literature decadal SMB rate
+#     (beta_f = 1/10 yr) is rejected at 2*delta = +133 and collapses the
+#     Mouginot surface share to 0.34 against a 0.735 constraint. In the share
+#     form the SMB channel drains a multi-millennial commitment, so "fast"
+#     names which PHYSICS it carries, not a short time constant: at the
+#     optimum tau_f = 86 yr. Do not re-fix it at a decadal value.
+#     Flagged: the prior [1e-6, 0.5] spans four decades the offline fit
+#     excludes; Marcus declined re-bounding, so watch sampler efficiency there.
+#
 # LAGGING. eq_volume and the rates are read at t-1, matching stock
 # greenland_icesheet (which uses tau_inv[t-1] and eq_volume[t-1]) and matching
 # the python reference integrate().
