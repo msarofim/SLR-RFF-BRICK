@@ -370,6 +370,21 @@ if GIS_AB
                  μ=0.0070727, σ=0.020, lo=0.0, hi=0.2, islog=false))
     push!(FREE, (name="gis_beta_s", comp=GISC, sym=:gis_beta_s,
                  μ=0.0010000, σ=0.020, lo=1e-6, hi=0.2, islog=false))
+    # The regional amplification, SAMPLED (Marcus 2026-08-12), not pinned at the
+    # prior centre. Same treatment as the glacier blocks' gic_amp_b and the same
+    # reasoning as the 4.2 beta_f ruling: the likelihood cannot see it, but it is
+    # the DOMINANT control on the 2100 projection -- across its own prior the
+    # 2100 scenario spread runs 7.4 (amp 1.51) to 12.6 cm (amp 2.28), which
+    # brackets the 6.3-7.3 evaluation band. Pinning it at 1.92 would hide that
+    # entire range inside a point value.
+    # Likelihood-inert in the same sense the glacier amps are: the driver is
+    # built ONCE at GIS_AMP, and the amp-dependent part is the post-2024 splice
+    # tail. NB unlike the glaciers this is not exactly zero -- the gis target
+    # runs to 2025, so ONE of its 126 years falls in the spliced region. The
+    # effect is negligible and it is not modelled; gis_amp is therefore
+    # prior-propagated into the projections, not estimated.
+    push!(FREE, (name="gis_amp", comp=:likelihood_only, sym=:none,
+                 μ=GIS_AMP, σ=0.32, lo=1.51, hi=2.28, islog=false))
 else
     push!(FREE, P("greenland_a",:greenland_icesheet,:greenland_a)); push!(FREE, P("greenland_b",:greenland_icesheet,:greenland_b))
     push!(FREE, P("greenland_alpha",:greenland_icesheet,:greenland_α)); push!(FREE, P("greenland_beta",:greenland_icesheet,:greenland_β))
@@ -465,9 +480,11 @@ const SR5_IDX    = findfirst(k -> k.name == "gic_s_r5", FREE)
 const AMPB_IDX3  = SAMPLED_AMP ?
     Dict(b => findfirst(k -> k.name == "gic_amp_$b", FREE) for b in BLOCKS) :
     Dict{String,Int}()
+const GISAMP_IDX = findfirst(k -> k.name == "gis_amp", FREE)   # nothing when --stock-gis
 const SETP_SKIP  = Set(vcat(collect(values(KAPPA_IDX3)),
                             [UUNCH_IDX, DELTA_IDX, UPRE_IDX, SR5_IDX],
-                            collect(values(AMPB_IDX3))))
+                            collect(values(AMPB_IDX3)),
+                            GISAMP_IDX === nothing ? Int[] : [GISAMP_IDX]))
 # sampled mode: the κ prior is amp-dependent (center k10c(amp)) — exclude κ from the
 # generic Normal(μ,σ) prior loop and add the explicit term in logposterior
 const PRIOR_SKIP = SAMPLED_AMP ? Set(values(KAPPA_IDX3)) : Set{Int}()
@@ -832,7 +849,8 @@ for k in GEO_IDX; prop[k] = GEO_PROP_SCALE * Float64(FREE[k].σ); end
 # postprocess_mcmc_ext.jl from a prior ext run) -- it matches the extended posterior
 # shape, which the 2018-baseline adapted_cov.csv does NOT (point terms dropped +
 # extended targets move the AIS block). Fall back to baseline cov, then diagonal.
-const ADCOV = let c1s = joinpath(REPO,"outputs/mcmc/adapted_cov_extC1_seed2026.csv"),
+const ADCOV = let l10 = joinpath(REPO,"outputs/mcmc/adapted_cov_L10tune_seed2026.csv"),
+                  c1s = joinpath(REPO,"outputs/mcmc/adapted_cov_extC1_seed2026.csv"),
                   c1 = joinpath(REPO,"outputs/mcmc/adapted_cov_extC1.csv"),
                   b3c = joinpath(REPO,"outputs/mcmc/adapted_cov_extB3c_seed2026.csv"),
                   b2 = joinpath(REPO,"outputs/mcmc/adapted_cov_extB2_seed2026.csv"),
@@ -842,8 +860,8 @@ const ADCOV = let c1s = joinpath(REPO,"outputs/mcmc/adapted_cov_extC1_seed2026.c
     # matches). Falls back to extB3c (38-param, name-mapped, fresh glacier diagonal)
     # for the first tuning run itself; a dimension mismatch is caught by the
     # dispatch below (visible WARNING -> diagonal), never silently misused.
-    isfile(c1s) ? c1s : (isfile(c1) ? c1 :
-        (isfile(b3c) ? b3c : (isfile(b2) ? b2 : (isfile(e) ? e : b))))
+    (GIS_AB && isfile(l10)) ? l10 : (isfile(c1s) ? c1s : (isfile(c1) ? c1 :
+        (isfile(b3c) ? b3c : (isfile(b2) ? b2 : (isfile(e) ? e : b)))))
 end
 cov0 = Matrix(Diagonal(prop.^2))
 # Column order of the 35-param v-next chains/covs (18 physical + 7 geometry with the OLD
@@ -899,6 +917,26 @@ const OLD52_NAMES = vcat(
      "ais_runoff_Ton","ais_c"],
     vcat([["sd_$s","rho_$s"] for s in SERIES]...))
 
+# L10tune-vintage 54-param order (44 physical + 10 noise) — the header of
+# chain_L10tune_seed2026_n2000000.csv, the first Ladrillo 1.0 tuning run. It is
+# the 55-param production set minus gis_amp, so 54 of 55 rows map and only the
+# new amp row takes a fresh diagonal. This is a much better seed than the extC
+# covariance: every Greenland row is already Ladrillo-shaped.
+const OLD54_NAMES = vcat(
+    ["ais_ocean_temperature₀","antarctic_alpha","antarctic_nu","antarctic_temp_threshold",
+     "anto_alpha","anto_beta",
+     "gis_c1","gis_c0","gis_f","gis_alpha_f","gis_beta_f","gis_alpha_s","gis_beta_s",
+     "thermal_alpha",
+     "gic_a_R19","gic_b_R19","gic_T_off_R19","gic_log10_kappa_R19",
+     "gic_a_SLOWP","gic_b_SLOWP","gic_T_off_SLOWP","gic_log10_kappa_SLOWP",
+     "gic_a_FAST","gic_b_FAST","gic_T_off_FAST","gic_log10_kappa_FAST",
+     "gic_amp_R19","gic_amp_SLOWP","gic_amp_FAST",
+     "gic_u_unch","gic_delta","gic_u_pre","gic_s_r5",
+     "antarctic_lambda","antarctic_gamma","antarctic_kappa","ais_gmst_amp",
+     "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG",
+     "ais_runoff_Ton","ais_c"],
+    vcat([["sd_$s","rho_$s"] for s in SERIES]...))
+
 function embed_cov!(cov0, old, old_names; skip_gic::Bool=false)
     oi = Int[]; ni = Int[]
     for (i, nm) in enumerate(old_names)
@@ -915,6 +953,11 @@ if isfile(ADCOV)
     if size(old,1) == NK
         cov0 = old
         println("(seeding proposal from adapted covariance $(basename(ADCOV)))")
+    elseif size(old,1) == length(OLD54_NAMES)
+        nmap = embed_cov!(cov0, old, OLD54_NAMES)
+        println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+                "$(basename(ADCOV)); fresh diagonal for " *
+                join(setdiff(pn0[1:NP], OLD54_NAMES), ", ") * ")")
     elseif size(old,1) == length(OLD52_NAMES)
         nmap = embed_cov!(cov0, old, OLD52_NAMES)
         println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *

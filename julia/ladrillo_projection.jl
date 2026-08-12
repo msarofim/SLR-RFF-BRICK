@@ -152,7 +152,7 @@ const LADRILLO_GIS_AB_PARAMS = [
 swapped as a block."""
 const LADRILLO_GIS_STOCK_COLS =
     ["greenland_a", "greenland_b", "greenland_alpha", "greenland_beta", "greenland_v0"]
-const LADRILLO_GIS_AB_COLS = [p[1] for p in LADRILLO_GIS_AB_PARAMS]
+const LADRILLO_GIS_AB_COLS = vcat([p[1] for p in LADRILLO_GIS_AB_PARAMS], "gis_amp")
 const LADRILLO_PHYSICAL_PARAMS_NOGIS =
     [p for p in LADRILLO_PHYSICAL_PARAMS if !(p[1] in LADRILLO_GIS_STOCK_COLS)]
 
@@ -245,7 +245,9 @@ struct Ladrillo
     nu::Dict{String,Float64}                 # FIXED per-block nu
     funch_unit::Vector{Float64}              # F_unch profile per mm of gic_u_unch (m SLE)
     gis_variant::Symbol                      # :ab (Ladrillo 1.0) or :stock (SIMPLE)
-    gis_driver::Vector{Float64}              # regional Greenland T, spliced; empty if :stock
+    gis_obs::Vector{Float64}                 # observed regional Greenland T, padded to `years`
+    gis_anchor::Float64                      # mean observed regional T over the splice anchor
+    gis_mask::BitVector                      # years <= last observed Greenland driver year
 end
 
 """Per-year F_unch profile per mm of uncharted-ice stock U: zero before 1901,
@@ -319,16 +321,16 @@ function ladrillo_setup(; ssp::String="ssp245", y0::Int=1850, y1::Int=2300,
     # and the calibration see the same construction. GIS_AMP is not sampled (the
     # calibrator fixes it too), so the driver is fixed and computed once.
     gis_variant = gis_ab ? :ab : :stock
-    gis_driver = Float64[]
+    gis_obs, gis_anchor, gis_mask = Float64[], 0.0, falses(length(years))
     if gis_ab
         tgz = CSV.read(LADRILLO_GIS_DRIVER_CSV, DataFrame)
         gd = Dict(Int(tgz[i, :year]) => Float64(tgz[i, LADRILLO_GIS_ZONE]) for i in 1:nrow(tgz))
         gis_last = Int(maximum(tgz.year))
         gis_last <= y1 || error("ladrillo_setup: Greenland driver ends $gis_last, past $y1")
         ganch = (gis_last - 10):gis_last
-        goff = mean(gd[y] for y in ganch) - LADRILLO_GIS_AMP * mean(gmst_rb[[yi(y) for y in ganch]])
-        gis_driver = [y <= gis_last ? gd[y] : LADRILLO_GIS_AMP * gmst_rb[yi(y)] + goff
-                      for y in years]
+        gis_obs = [get(gd, y, 0.0) for y in years]      # values past gis_last are masked out
+        gis_anchor = mean(gd[y] for y in ganch)
+        gis_mask = years .<= gis_last
     end
     m = gis_ab ? build_brick_nu3_gis(ssp=ssp, y0=y0, y1=y1, lws=lws) :
                  build_brick_nu3(ssp=ssp, y0=y0, y1=y1, lws=lws)
@@ -344,7 +346,9 @@ function ladrillo_setup(; ssp::String="ssp245", y0::Int=1850, y1::Int=2300,
     update_brick_nu3!(m, medoid, gic3_init; precip_log=true, skip_greenland=gis_ab)
     set_forcing!(m, gmst, ohc)
     if gis_ab
-        set_gis_forcing!(m, gis_driver)
+        # the driver itself is rebuilt PER DRAW from that draw's gis_amp; this is
+        # only a valid placeholder so the model builds
+        set_gis_forcing!(m, gis_obs)
         update_param!(m, :greenland_icesheet, :gis_v0, LADRILLO_GIS_V0_M)   # structural
         update_param!(m, :greenland_icesheet, :gis_g,  LADRILLO_GIS_G)      # item 4.1: fixed 0
     end
@@ -353,7 +357,7 @@ function ladrillo_setup(; ssp::String="ssp245", y0::Int=1850, y1::Int=2300,
                   Float64.(gmst), gmst_rb, obs_driver, obs_anchor,
                   mean(gmst_rb[[yi(y) for y in anchor]]),
                   years .<= last_obs, nu, _funch_unit(years),
-                  gis_variant, gis_driver)
+                  gis_variant, gis_obs, gis_anchor, gis_mask)
 end
 
 """
@@ -366,6 +370,15 @@ mean over the last 11 observed years.
 ladrillo_driver(bf::Ladrillo, block::AbstractString, amp::Real) =
     ifelse.(bf.obs_mask, bf.obs_driver[block],
             amp .* bf.gmst_rb .+ (bf.obs_anchor[block] - amp * bf.gmst_anchor))
+
+"""Regional Greenland driver at this draw's `amp`, same anchor-preserving splice.
+
+gis_amp is SAMPLED (it is the dominant control on the 2100 projection -- across
+its prior the scenario spread runs 7.4 to 12.6 cm), so the driver is rebuilt per
+draw here exactly as the glacier block drivers are."""
+ladrillo_gis_driver(bf::Ladrillo, amp::Real) =
+    ifelse.(bf.gis_mask, bf.gis_obs,
+            amp .* bf.gmst_rb .+ (bf.gis_anchor - amp * bf.gmst_anchor))
 
 ## ---------------------------------------------------------------------------
 ## Applying a draw
@@ -396,6 +409,8 @@ function ladrillo_apply_draw!(bf::Ladrillo, row)
                                                          gis_params))
         update_param!(m, comp, sym, Float64(row[col]))
     end
+    bf.gis_variant === :ab &&
+        set_gis_forcing!(m, ladrillo_gis_driver(bf, Float64(row["gis_amp"])))
     @inbounds for col in LADRILLO_GLACIER_COLS
         update_param!(m, _GLAC, _GLACIER_SYMS[col], Float64(row[col]))
     end

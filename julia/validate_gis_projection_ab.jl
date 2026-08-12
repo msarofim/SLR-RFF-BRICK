@@ -22,6 +22,10 @@
 #       a partial column set.
 #   [3] END-TO-END. A draw at the offline g=0 parameter vector reproduces the
 #       offline cell's 2100 GIS in all three scenarios.
+#   [4] gis_amp IS LIVE. Two draws differing ONLY in gis_amp must give different
+#       2100 GIS, and in the right direction. "Applied per draw" is precisely the
+#       kind of claim that can be silently inert -- if the driver were built once
+#       at a fixed amp, every check above would still pass.
 #
 # Run:  julia --project=julia_v2 julia/validate_gis_projection_ab.jl
 
@@ -33,7 +37,7 @@ const TOL_CM = 0.10          # kernel-vs-offline 2100 GIS; the two build GMST di
 const OFFLINE_THETA = Dict(
     "gis_c1" => 0.032766, "gis_c0" => 0.0404293, "gis_f" => 0.782569,
     "gis_alpha_f" => 0.00284865, "gis_beta_f" => 0.00736838,
-    "gis_alpha_s" => 0.00707271, "gis_beta_s" => 1e-6)
+    "gis_alpha_s" => 0.00707271, "gis_beta_s" => 1e-6, "gis_amp" => 1.92)
 const OFFLINE_2100 = ("ssp126" => 6.928, "ssp245" => 9.834, "ssp585" => 17.367)
 
 fails = String[]
@@ -79,6 +83,21 @@ for (ssp, want) in OFFLINE_2100
     got = ladrillo_series(bf, :gis)[findfirst(==(2100), bf.years)]
     chk("$ssp 2100 GIS within $TOL_CM cm of the offline cell", abs(got - want) <= TOL_CM,
         @sprintf("kernel %.3f vs offline %.3f cm", got, want))
+end
+
+println("\n[4] gis_amp is live, not baked in at a fixed value")
+let bf = ladrillo_setup(ssp="ssp585", y0=1850, y1=2300, gis_ab=true),
+    iy = findfirst(==(2100), bf.years), got = Float64[]
+    for amp in (1.51, 1.92, 2.28)
+        r = DataFrame(row[1:1, :]); r[!, "gis_amp"] .= amp
+        ladrillo_apply_draw!(bf, r[1, :]); run(bf.m)
+        push!(got, ladrillo_series(bf, :gis)[iy])
+    end
+    @printf("  ssp585 2100 GIS at amp 1.51 / 1.92 / 2.28: %.2f / %.2f / %.2f cm\n",
+            got[1], got[2], got[3])
+    chk("changing gis_amp moves the projection", maximum(got) - minimum(got) > 1.0,
+        @sprintf("range %.2f cm", maximum(got) - minimum(got)))
+    chk("and it moves MONOTONICALLY upward in amp", issorted(got))
 end
 
 println()
