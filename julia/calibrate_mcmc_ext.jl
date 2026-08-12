@@ -340,8 +340,16 @@ if GIS_AB
     # (sigma several times the centre) so the joint likelihood, not the offline
     # fit, decides — in particular beta_f is left free across its whole range per
     # Marcus's 4.2 ruling, rather than re-bounded to the offline data support.
-    # >>> THE PRIOR TABLE HAS NOT BEEN SIGNED OFF. Review before the production
-    # >>> run; the smoke run commits nothing.
+    #
+    # SIGNED OFF by Marcus 2026-08-12, with the caveat ON RECORD: the offline fit
+    # was made against the SAME gis target the joint likelihood scores, so these
+    # centres re-use data the likelihood already uses. The sigmas are wide enough
+    # that the prior contributes little — the 4000-iteration smoke moved alpha_s
+    # from 0.0071 to 0.039 and f from 0.78 to 0.89 — so the centres function as a
+    # starting point rather than as information. Flat priors (sigma = 1e3, the
+    # gic_u_unch pattern) and a 10x-wider variant were both offered and declined.
+    # ANY METHODS SECTION MUST SAY SO: "priors centred on an offline fit to the
+    # same target, with sigmas wide enough to be effectively uninformative".
     GISC = :greenland_icesheet
     push!(FREE, (name="gis_c1", comp=GISC, sym=:gis_c1,
                  μ=0.032766, σ=0.050, lo=0.0, hi=4.0, islog=false))

@@ -3,7 +3,66 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-12 (latest) — AR(1) is misspecified on every stream, the total stream is 56% redundant, and Vivek's mechanism does not transfer
+## [unreleased] — 2026-08-12 (latest) — Greenland A+B is wired into the joint calibrator: step 5 can run
+
+The module was validated in isolation but nothing referenced it from
+`calibrate_mcmc_ext.jl` (`grep greenland_ab` returned 0). This is the wiring, so
+step 5 is now launchable. Commit `0e53c2d`.
+
+### What changed
+- **Model**: `build_brick_nu3_gis` puts `greenland_ab` in the Greenland slot.
+  **`--stock-gis` reverts** and reproduces the extC setup exactly — 52 params,
+  `logpost(θ0) = −849.24`, matching the pre-build run to the digit.
+- **Driver**: the REGIONAL south-Greenland series, built **inside the
+  calibrator** from `t_gis_zones.csv` with the same anchor-preserving
+  `amp × GMST` splice the glacier blocks use (amp 1.92). **The external
+  interface stays GMST + OHC only** — the drop-in property that separates
+  Ladrillo from MAGICC-SLR.
+- **7 sampled parameters** `gis_{c1,c0,f,alpha_f,beta_f,alpha_s,beta_s}`, with
+  **`gis_g` FIXED at 0** (item 4.1) and `gis_v0` structural. Centres are the
+  converged offline fit **at g = 0**, not the g = 0.917 fit: `(c0, g)` is a flat
+  manifold and `c0` moves 4.04 → 61.99 cm along it at identical nlp.
+- **Mouginot 2019 partition ported into the joint likelihood.** The offline cell
+  is explicit that this is what makes the two-channel split identifiable, so
+  omitting it would have left `f` unidentified in the joint fit.
+- **Covariance**: `OLD52_NAMES` name-maps the extC1 tuned proposal into the new
+  54-parameter set — **47 of 52 rows carried over**, 7 fresh diagonal. The
+  glacier rows ARE mapped this time (extC and Ladrillo 1.0 share that structure).
+- `update_brick_params!` gains `skip_greenland`, mirroring `skip_glaciers`:
+  stock SIMPLE's five parameters do not exist on `greenland_ab` and Mimi throws
+  `KeyError` rather than ignoring them.
+
+### New gate — suite step 5/5
+`--gis-check` runs the calibrator's model at the **exact offline g = 0 vector**
+and compares the four numbers the offline cell reports for it.
+`validate_greenland_ab.jl` tests the **component**; the driver, the fixed `g`
+and `v0`, the re-reference frame and the Mouginot windows all live in the
+**calibrator** and none of them was covered.
+
+**It earned its place immediately**, catching two errors in the build it was
+written to check: the `gis_f` prior had been centred on the Mouginot share
+(0.735) rather than the offline fitted `f` (0.7826) — which would have counted
+Mouginot in **both** the prior and the likelihood — and a sign flip in the
+mid-century bias convention. All four now match the offline cell to **0.0000**:
+RMSE 0.0617, 1942–1982 bias +0.0146 cm, 2003–2018 rate 0.7749 mm/yr, Mouginot
+surface share 0.7351.
+
+### Smoke
+4000 iterations, seed 2026: **acceptance 0.227**, all seven new parameters
+mixing, **logpost −845 → −696**. The joint likelihood is taking the Greenland
+deal rather than suppressing it. Not converged — the pre-registration read
+belongs to the production run.
+
+### Priors — signed off, with the caveat on record
+Marcus 2026-08-12 chose the weak offline-centred priors over flat (σ = 1e3) and
+over a 10×-wider variant. **The caveat is that the offline fit was made against
+the same gis target the joint likelihood scores**, so the centres re-use data
+the likelihood already uses. The σ's are wide enough that the prior contributes
+little (the smoke moved `alpha_s` 0.0071 → 0.039 and `f` 0.78 → 0.89), so the
+centres function as a starting point rather than as information. **Any methods
+section must say so.**
+
+## [unreleased] — 2026-08-12 — AR(1) is misspecified on every stream, the total stream is 56% redundant, and Vivek's mechanism does not transfer
 
 Combined diagnostic `python/diag_noise_model_and_grip.py`, full argument in
 `notes/note_2026-08-12_noise_model_stream_dependence_and_grip.md`. Three threads
