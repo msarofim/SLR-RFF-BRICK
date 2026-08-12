@@ -3,7 +3,56 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-11 (latest) — Gate 3.1 cleared: the target conflict is Frederikse's own budget non-closure, and the Greenland fix is worth +12.4 logl anyway
+## [unreleased] — 2026-08-11 (latest) — Gate 3.2 cleared: the 28 cm Mengel→F\* shift is 110% Antarctic, and it is a tipping-PROBABILITY shift
+
+Second gated diagnostic. Full argument in
+`notes/note_2026-08-11_gate32_mengel_to_brickf_attribution.md`.
+Script `python/diag_mengel_to_brickf_attribution.py`.
+
+### The proposed experiment was ill-posed and was not run
+- The handoff proposed swapping the AIS block to BRICK-Mengel medians. Mengel
+  sampled **6** AIS params; extC samples those 6 **plus 11 more** — and those 11
+  *are* the re-parameterisation. A 6-Mengel/11-extC hybrid describes no
+  calibrated model. Glacier structures also differ (2-τ vs 3-reservoir), so no
+  single kernel runs both posteriors.
+- Replaced by a **component decomposition** of the two projections, after
+  checking both use the same forcing files, FaIR **mean** climate, and the
+  1995–2014 baseline. (`proj_matched_ssp245_mengel_timeseries.csv` is NOT usable
+  — it carries climate spread too.)
+
+### Attribution, SSP2-4.5 medians @2100 (cm)
+- Antarctic **43.05 → 11.74 (−31.32)**; glaciers 6.27 → 10.56 (+4.29); TE
+  18.45 → 17.27 (−1.18); **Greenland 7.42 → 7.27 (−0.15)**; LWS 0.00;
+  **total 78.02 → 49.48 (−28.54)**. Median non-additivity 0.18 cm.
+- **The Antarctic is 110% of the shift**; glaciers partly offset it. The
+  expectation on record ("mostly the Antarctic recalibration") is **confirmed**.
+- Memory's 77.7 cm should read **78.02 cm** (`proj_ssps_mengel_summary.csv`).
+
+### The correction that matters — it is NOT a level shift
+- The shift is **−0.01 cm at SSP1-2.6**, −28.54 at SSP2-4.5, −19.09 at SSP5-8.5.
+  The Antarctic distribution is **bimodal** (tipped vs not tipped by 2100) and
+  the large movement sits at a *different quantile in every scenario* — always
+  the one nearest that scenario's tipping fraction:
+  SSP1-2.6 p95 46.29 → 6.12 (−40.16); SSP2-4.5 p50 43.05 → 11.74 (−31.32);
+  SSP5-8.5 p05 54.14 → 21.98 (−32.16), p95 86.20 → 80.15 (only −6.05).
+- What changed is **the probability of Antarctic tipping by 2100**, not the
+  contribution conditional on tipping.
+- **Reporting rule: "BRICK-F\* is 28 cm lower at SSP2-4.5 2100" is misleading**
+  and should not appear. Quote a distribution, not a median.
+- **And it is substantially prior-driven**: the red team records the eight
+  non-converged AIS marginals as the block that sets the tail, and the SSP2-4.5
+  p83 = 41.0 cm as prior- not data-driven. The tipping fraction *is* that
+  quantity — so the largest movement in the programme lives in the least
+  data-constrained part of the posterior. Present it with that caveat.
+
+### Consequences
+- Deliverables on the 78.02 cm vintage need the standing quarantine treatment
+  (`outputs/quarantine/YYYYMMDD_<tag>/` + README). **Not done** — needs a sweep
+  of affected deliverables. It is a **vintage difference, not a bug**; the
+  README should say so.
+- **Greenland pass 1 is untouched**: GIS moves −0.15 cm between vintages.
+
+## [unreleased] — 2026-08-11 — Gate 3.1 cleared: the target conflict is Frederikse's own budget non-closure, and the Greenland fix is worth +12.4 logl anyway
 
 Answers the blocking diagnostic before step 5 (joint recalibration). Full
 argument in `notes/note_2026-08-11_gate31_target_conflict_verdict.md`.
