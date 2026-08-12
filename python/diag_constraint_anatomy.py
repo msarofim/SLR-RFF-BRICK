@@ -3,7 +3,7 @@
 "set out what the drivers are ... and describe why it is so hard given the
 constraints for there to be a good solution with our current equation
 structure") — the quantitative backbone for
-notes/memo_2026-08-08_glacier_constraint_anatomy.md.
+notes/memo_2026-08-07_glacier_constraint_anatomy.md.
 
 Part 1 — the one-reservoir arithmetic, on the adopted (scope-corrected) anchor:
   At the SC point the Nauels law is rate = kappa * (a-S)(1-exp(-b*exc)) * exc^nu
