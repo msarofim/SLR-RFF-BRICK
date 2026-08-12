@@ -17,6 +17,10 @@
 #                                       the slot contract, and starts at BRICK's
 #                                       initial condition rather than in
 #                                       equilibrium (Greenland pass 1)
+#   6. julia/validate_gis_projection_ab.jl the PROJECTION kernel can consume a
+#                                       Ladrillo 1.0 posterior and builds
+#                                       Greenland the same way the calibrator
+#                                       does (constant parity + end-to-end)
 #   5. calibrate_mcmc_ext.jl --gis-check the CALIBRATOR wires that component up
 #                                       correctly. 4 validates the component in
 #                                       isolation; the driver, the fixed g and v0,
@@ -40,13 +44,13 @@ NDRAW="${1:-100}"
 JULIA="julia --project=julia_v2"
 
 echo "=============================================================="
-echo "[1/5] python/test_ladrillo_data.py"
+echo "[1/6] python/test_ladrillo_data.py"
 echo "=============================================================="
 (cd python && "$PYTHON" test_ladrillo_data.py)
 
 echo
 echo "=============================================================="
-echo "[2/5] julia/validate_glaciers_nu3.jl (both amp bases)"
+echo "[2/6] julia/validate_glaciers_nu3.jl (both amp bases)"
 echo "=============================================================="
 for basis in regchar obsfit; do
     echo "--- amp basis: $basis ---"
@@ -55,23 +59,29 @@ done
 
 echo
 echo "=============================================================="
-echo "[3/5] julia/test_ladrillo_projection.jl ($NDRAW draws)"
+echo "[3/6] julia/test_ladrillo_projection.jl ($NDRAW draws)"
 echo "=============================================================="
 $JULIA julia/test_ladrillo_projection.jl "$NDRAW"
 
 echo
 echo "=============================================================="
-echo "[4/5] julia/validate_greenland_ab.jl"
+echo "[4/6] julia/validate_greenland_ab.jl"
 echo "=============================================================="
 "$PYTHON" python/emit_gis_port_reference.py
 $JULIA julia/validate_greenland_ab.jl
 
 echo
 echo "=============================================================="
-echo "[5/5] julia/calibrate_mcmc_ext.jl --gis-check (calibrator wiring)"
+echo "[5/6] julia/calibrate_mcmc_ext.jl --gis-check (calibrator wiring)"
 echo "=============================================================="
 $JULIA julia/calibrate_mcmc_ext.jl 1 2026 --tag=gischeck --gis-check \
     | sed -n '/--gis-check/,$p'
+
+echo
+echo "=============================================================="
+echo "[6/6] julia/validate_gis_projection_ab.jl (projection kernel)"
+echo "=============================================================="
+$JULIA julia/validate_gis_projection_ab.jl
 
 echo
 echo "ALL Ladrillo MODEL TESTS PASS"

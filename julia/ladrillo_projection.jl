@@ -78,6 +78,14 @@ const LADRILLO_POSTERIOR_CSV =
     joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_extC.csv")
 const LADRILLO_BLOCK_CONSTANTS_CSV = joinpath(LADRILLO_REPO, "outputs/extc_block_constants.csv")
 const LADRILLO_BLOCK_DRIVERS_CSV   = joinpath(LADRILLO_OBS, "t_glac_blocks.csv")
+# Ladrillo 1.0 Greenland: the regional driver and the two structural constants.
+# These MUST match calibrate_mcmc_ext.jl (GIS_ZONE/GIS_AMP/GIS_V0_M/GIS_G) or the
+# projections are run on a different model than the one that was calibrated.
+const LADRILLO_GIS_DRIVER_CSV = joinpath(LADRILLO_OBS, "t_gis_zones.csv")
+const LADRILLO_GIS_ZONE  = "south"
+const LADRILLO_GIS_AMP   = 1.92
+const LADRILLO_GIS_V0_M  = 7.42
+const LADRILLO_GIS_G     = 0.0
 """Medoid row supplying the params the extC posterior does NOT sample (e.g. ais_sea_level₀)."""
 const LADRILLO_MEDOID_CSV = joinpath(LADRILLO_REPO, "outputs/recalib_central_row.csv")
 
@@ -127,6 +135,43 @@ const LADRILLO_PHYSICAL_PARAMS = [
     ("thermal_alpha",   :thermal_expansion,  :te_α),
 ]
 const LADRILLO_PHYSICAL_COLS = [p[1] for p in LADRILLO_PHYSICAL_PARAMS]
+
+"""Ladrillo 1.0 Greenland (greenland_ab) replaces the five stock-SIMPLE columns
+above with these seven. gis_g is FIXED at 0 and gis_v0 is structural, so neither
+is a posterior column -- both are set once in `ladrillo_setup`."""
+const LADRILLO_GIS_AB_PARAMS = [
+    ("gis_c1",      :greenland_icesheet, :gis_c1),
+    ("gis_c0",      :greenland_icesheet, :gis_c0),
+    ("gis_f",       :greenland_icesheet, :gis_f),
+    ("gis_alpha_f", :greenland_icesheet, :gis_alpha_f),
+    ("gis_beta_f",  :greenland_icesheet, :gis_beta_f),
+    ("gis_alpha_s", :greenland_icesheet, :gis_alpha_s),
+    ("gis_beta_s",  :greenland_icesheet, :gis_beta_s),
+]
+"""The stock-SIMPLE Greenland columns, split out so the two variants can be
+swapped as a block."""
+const LADRILLO_GIS_STOCK_COLS =
+    ["greenland_a", "greenland_b", "greenland_alpha", "greenland_beta", "greenland_v0"]
+const LADRILLO_GIS_AB_COLS = [p[1] for p in LADRILLO_GIS_AB_PARAMS]
+const LADRILLO_PHYSICAL_PARAMS_NOGIS =
+    [p for p in LADRILLO_PHYSICAL_PARAMS if !(p[1] in LADRILLO_GIS_STOCK_COLS)]
+
+"""Which Greenland structure a posterior file belongs to, decided by its columns.
+
+There is no default and no fallback: a posterior that carries neither column set
+(or both) is a file we do not understand, and guessing would silently project
+Greenland at whatever the model was initialised with."""
+function ladrillo_gis_variant(cols)
+    hasab = all(c -> c in cols, LADRILLO_GIS_AB_COLS)
+    hasst = all(c -> c in cols, LADRILLO_GIS_STOCK_COLS)
+    hasab && hasst && error("ladrillo_gis_variant: posterior carries BOTH the stock-SIMPLE " *
+                            "and the A+B Greenland columns; cannot tell which model made it")
+    hasab && return :ab
+    hasst && return :stock
+    error("ladrillo_gis_variant: posterior carries NEITHER Greenland column set. " *
+          "Expected either $(join(LADRILLO_GIS_STOCK_COLS, ", ")) (stock SIMPLE) " *
+          "or $(join(LADRILLO_GIS_AB_COLS, ", ")) (Ladrillo 1.0).")
+end
 """Per-block glacier columns applied straight through (kappa is log10 — see apply)."""
 const LADRILLO_GLACIER_COLS =
     vcat([["gic_a_$b", "gic_b_$b", "gic_T_off_$b"] for b in LADRILLO_BLOCKS]...)
@@ -136,9 +181,12 @@ const LADRILLO_DERIVED_COLS = vcat(
      "ais_gmst_amp"],           # -> the anchor-preserving DAIS temperature map
     ["gic_log10_kappa_$b" for b in LADRILLO_BLOCKS],   # -> gic_kappa_b = 10^theta
     ["gic_amp_$b" for b in LADRILLO_BLOCKS])           # -> per-block driver splice
-"""Every posterior column this kernel reads."""
-const LADRILLO_USED_COLS =
-    vcat(LADRILLO_PHYSICAL_COLS, LADRILLO_GLACIER_COLS, LADRILLO_DERIVED_COLS)
+"""Every posterior column this kernel reads, for a given Greenland variant."""
+ladrillo_used_cols(variant::Symbol) = vcat(
+    [p[1] for p in LADRILLO_PHYSICAL_PARAMS_NOGIS],
+    variant === :ab ? LADRILLO_GIS_AB_COLS : LADRILLO_GIS_STOCK_COLS,
+    LADRILLO_GLACIER_COLS, LADRILLO_DERIVED_COLS)
+const LADRILLO_USED_COLS = ladrillo_used_cols(:stock)
 
 const _GLACIER_SYMS = Dict(nm => Symbol(nm) for nm in LADRILLO_GLACIER_COLS)
 
@@ -152,8 +200,21 @@ many draws.
 """
 function ladrillo_posterior(; path::AbstractString=LADRILLO_POSTERIOR_CSV,
                           cols::Symbol=:used, nthin::Union{Nothing,Int}=nothing)
-    df = cols === :all ? CSV.read(path, DataFrame) :
-                         CSV.read(path, DataFrame; select=LADRILLO_USED_COLS)
+    if cols === :all
+        df = CSV.read(path, DataFrame)
+    else
+        # CSV.jl's `select=` silently returns only the columns it FINDS, so a
+        # posterior missing a required column used to load fine and fail later
+        # (or, worse, project at whatever the model was initialised with). Read
+        # the header, decide the Greenland variant from it, then demand the full
+        # set for that variant.
+        hdr = String.(propertynames(CSV.read(path, DataFrame; limit=0)))
+        want = ladrillo_used_cols(ladrillo_gis_variant(hdr))
+        missing_cols = [c for c in want if !(c in hdr)]
+        isempty(missing_cols) || error("ladrillo_posterior: $path is missing " *
+            "$(length(missing_cols)) required column(s): $(join(missing_cols, ", "))")
+        df = CSV.read(path, DataFrame; select=want)
+    end
     if nthin !== nothing && nrow(df) > nthin
         step = cld(nrow(df), nthin)
         df = df[1:step:nrow(df), :][1:min(nthin, length(1:step:nrow(df))), :]
@@ -183,6 +244,8 @@ struct Ladrillo
     obs_mask::BitVector                      # years <= last observed driver year
     nu::Dict{String,Float64}                 # FIXED per-block nu
     funch_unit::Vector{Float64}              # F_unch profile per mm of gic_u_unch (m SLE)
+    gis_variant::Symbol                      # :ab (Ladrillo 1.0) or :stock (SIMPLE)
+    gis_driver::Vector{Float64}              # regional Greenland T, spliced; empty if :stock
 end
 
 """Per-year F_unch profile per mm of uncharted-ice stock U: zero before 1901,
@@ -216,7 +279,7 @@ function ladrillo_setup(; ssp::String="ssp245", y0::Int=1850, y1::Int=2300,
                       forcing_tag::String=ssp, ref::Tuple{Int,Int}=LADRILLO_REF,
                       gmst::Union{Nothing,Vector{<:Real}}=nothing,
                       ohc::Union{Nothing,Vector{<:Real}}=nothing,
-                      lws::Symbol=:seeded)
+                      lws::Symbol=:seeded, gis_ab::Bool=false)
     years = collect(y0:y1)
     yi(y) = findfirst(==(y), years)
 
@@ -251,7 +314,24 @@ function ladrillo_setup(; ssp::String="ssp245", y0::Int=1850, y1::Int=2300,
     bcrow(b) = bc[findfirst(==(b), bc.block), :]
     nu = Dict(b => Float64(bcrow(b)["nu_anch_$(LADRILLO_NU_BASIS)"]) for b in LADRILLO_BLOCKS)
 
-    m = build_brick_nu3(ssp=ssp, y0=y0, y1=y1, lws=lws)
+    # Greenland variant. The regional driver is built HERE, from the same file and
+    # with the same anchor-preserving splice the calibrator uses, so the projection
+    # and the calibration see the same construction. GIS_AMP is not sampled (the
+    # calibrator fixes it too), so the driver is fixed and computed once.
+    gis_variant = gis_ab ? :ab : :stock
+    gis_driver = Float64[]
+    if gis_ab
+        tgz = CSV.read(LADRILLO_GIS_DRIVER_CSV, DataFrame)
+        gd = Dict(Int(tgz[i, :year]) => Float64(tgz[i, LADRILLO_GIS_ZONE]) for i in 1:nrow(tgz))
+        gis_last = Int(maximum(tgz.year))
+        gis_last <= y1 || error("ladrillo_setup: Greenland driver ends $gis_last, past $y1")
+        ganch = (gis_last - 10):gis_last
+        goff = mean(gd[y] for y in ganch) - LADRILLO_GIS_AMP * mean(gmst_rb[[yi(y) for y in ganch]])
+        gis_driver = [y <= gis_last ? gd[y] : LADRILLO_GIS_AMP * gmst_rb[yi(y)] + goff
+                      for y in years]
+    end
+    m = gis_ab ? build_brick_nu3_gis(ssp=ssp, y0=y0, y1=y1, lws=lws) :
+                 build_brick_nu3(ssp=ssp, y0=y0, y1=y1, lws=lws)
     medoid = CSV.read(LADRILLO_MEDOID_CSV, DataFrame)[1, :]
     # Initialise from the medoid + the anchored glacier solve. Everything the
     # posterior samples is overwritten per draw; this only fixes the params the
@@ -261,13 +341,19 @@ function ladrillo_setup(; ssp::String="ssp245", y0::Int=1850, y1::Int=2300,
                                   T_off = Float64(bcrow(b)["T_off_fit_$(LADRILLO_NU_BASIS)"]),
                                   kappa = Float64(bcrow(b)["kappa_anch_$(LADRILLO_NU_BASIS)"]),
                                   nu    = nu[b]) for b in LADRILLO_BLOCKS)...)
-    update_brick_nu3!(m, medoid, gic3_init; precip_log=true)
+    update_brick_nu3!(m, medoid, gic3_init; precip_log=true, skip_greenland=gis_ab)
     set_forcing!(m, gmst, ohc)
+    if gis_ab
+        set_gis_forcing!(m, gis_driver)
+        update_param!(m, :greenland_icesheet, :gis_v0, LADRILLO_GIS_V0_M)   # structural
+        update_param!(m, :greenland_icesheet, :gis_g,  LADRILLO_GIS_G)      # item 4.1: fixed 0
+    end
 
     return Ladrillo(m, ssp, years, [yi(y) for y in ref[1]:ref[2]],
                   Float64.(gmst), gmst_rb, obs_driver, obs_anchor,
                   mean(gmst_rb[[yi(y) for y in anchor]]),
-                  years .<= last_obs, nu, _funch_unit(years))
+                  years .<= last_obs, nu, _funch_unit(years),
+                  gis_variant, gis_driver)
 end
 
 """
@@ -301,7 +387,13 @@ amp), and the two derived AIS quantities:
 """
 function ladrillo_apply_draw!(bf::Ladrillo, row)
     m = bf.m
-    @inbounds for (col, comp, sym) in LADRILLO_PHYSICAL_PARAMS
+    # The row and the model must agree on which Greenland structure they are.
+    # Without this the kernel would apply whatever it could and leave the slot at
+    # its initialised values -- projections that are neither variant, silently.
+    gis_params = bf.gis_variant === :ab ? LADRILLO_GIS_AB_PARAMS :
+        [p for p in LADRILLO_PHYSICAL_PARAMS if p[1] in LADRILLO_GIS_STOCK_COLS]
+    @inbounds for (col, comp, sym) in Iterators.flatten((LADRILLO_PHYSICAL_PARAMS_NOGIS,
+                                                         gis_params))
         update_param!(m, comp, sym, Float64(row[col]))
     end
     @inbounds for col in LADRILLO_GLACIER_COLS
