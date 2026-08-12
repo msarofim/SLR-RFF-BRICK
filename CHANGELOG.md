@@ -3,7 +3,56 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-12 (latest) — The model is now **Ladrillo** (was BRICK-F\*)
+## [unreleased] — 2026-08-12 (latest) — Gate 3.1 ruling landed: the total target's σ now carries Frederikse's own budget-closure spread
+
+**Marcus's ruling** on the open methodological decision left by gate 3.1 (the
+five component targets sum **+0.74 cm above** the independent total target over
+1950–1980, which
+`notes/note_2026-08-11_gate31_target_conflict_verdict.md` established is
+**Frederikse 2020's own mid-century budget non-closure**, our closure sitting at
+z = +0.006 against their 5000-member ensemble median):
+
+> **Carry it as uncertainty on the total, across the WHOLE span** — not the
+> 1950–1980 window alone — **using the ensemble's own per-year closure spread**,
+> with no tuning.
+
+Marcus asked whether the inflation could be larger in the poorly-observed past
+and smaller in the well-observed present *without* inventing a decay function.
+It can, and the shape is not ours to choose: the weighted sd of
+(Σ components − their GMSL) **across the 5000 members, per year**, with each
+member re-referenced to 1995–2005 exactly as the targets are, is
+
+| 1900 | 1950 | 1980 | 2000 | 2018 |
+|---|---|---|---|---|
+| 2.375 cm | 1.389 | 0.776 | 0.460 | 0.775 |
+
+In quadrature with the existing total σ (Dangendorf SE ⊕ LWS band) that is
+**1.37× at 1900, 1.25× at 1950, 1.11× at 2000, 1.90× at 2018**. The modern
+rise is not an artifact to be removed: the spread is pinned at the 1995–2005
+anchor and grows away from it in **both** directions, which is the correct
+structure for a level anomaly scored in that frame, and Dangendorf's own σ
+collapses to 0.44 cm in the altimetry era so the *ratio* rises even as the
+absolute inflation falls. Two alternatives (flatten after the anchor;
+pre-1993 only) were offered and **declined** — both buy monotonicity with a
+discretionary choice.
+
+**CAVEAT ON RECORD, flagged not corrected:** the total channel also carries a
+sampled AR(1) with ρ_steric ≈ 0.97, so an anchor-shaped σ may partly
+double-count level correlation.
+
+### Implementation
+- `python/prep_recalib_targets_ext.py`: new `load_closure_sigma()` and a
+  `dang_closure_sig` column. Ensemble ends 2018, target runs to 2024 → held
+  flat past the ensemble, the same FLAGGED convention already used for LWS.
+  **Every pre-existing column is bit-identical** (max|diff| 0.0 across all 18);
+  only the column is added.
+- `julia/calibrate_mcmc_ext.jl`: the `isdang` branch of `make_series` adds it in
+  quadrature alongside the LWS band term, and the run log now prints the
+  inflation at 1900/1950/2000/last year. `--no-closure-sigma` reverts.
+- Verified live: `logpost(θ0)` = −831.74 with the flag, −849.24 without it, so
+  the term is reaching the likelihood and the toggle is not inert.
+
+## [unreleased] — 2026-08-12 — The model is now **Ladrillo** (was BRICK-F\*)
 
 Marcus, 2026-08-12. `ladrillo` is Spanish for *brick* — the name keeps the
 provenance explicit while marking that the model has diverged from BRICK.

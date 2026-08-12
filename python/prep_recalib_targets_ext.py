@@ -66,6 +66,25 @@ FRED_ENS_NC = os.path.join(RAW, "frederikse2020_GMSL_ensembles.nc")
 FRED_ENS_VAR = {"AIS": "ais", "Glaciers": "gsic", "GrIS": "gis",
                 "Steric": "steric", "TWS": "lws", "GMSL": "dang"}
 
+# ---- budget-closure inflation of the TOTAL target's sigma (Marcus, 2026-08-12) ----
+# Gate 3.1 established that the five component targets sum +0.74 cm above the independent
+# total target over 1950-1980, and that this is Frederikse 2020's OWN mid-century budget
+# non-closure (our closure sits at z = +0.006 against their 5000-member ensemble median).
+# RULING: carry it as uncertainty on the total, across the WHOLE span rather than a chosen
+# window, using the ensemble's OWN per-year closure spread -- no decay function is fitted
+# and no window edge is chosen. Members are re-referenced to BASE exactly as the targets
+# are, so sigma is smallest at the anchor and grows away from it in both directions; that
+# is the correct structure for a level anomaly scored in that frame, and it is why the
+# inflation is 1.37x at 1900, 1.11x at 2000 and 1.90x at 2018 rather than monotone.
+# CAVEAT ON RECORD: the total channel also carries a sampled AR(1) with rho ~ 0.97, so an
+# anchor-shaped sigma may partly double-count level correlation. Flagged, not corrected.
+CLOSURE_COMPONENT_VARS = ["AIS", "Glaciers", "GrIS", "Steric", "TWS"]
+CLOSURE_TOTAL_VAR = "GMSL"
+CLOSURE_SIG_COL = "dang_closure_sig"
+# The ensemble ends in 2018 and the total target runs to 2024. Hold flat past the ensemble,
+# the same FLAGGED convention already used for LWS.
+CLOSURE_HOLD_FLAT_PAST_ENSEMBLE = True
+
 # ---- constants ----
 BASE_Y0, BASE_Y1 = 1995, 2005          # common re-reference window (11 yr)
 FIT_Y0           = 1900                 # fit start
@@ -113,6 +132,30 @@ def load_ensemble_sigma():
         sd = np.sqrt(np.average((m - mean) ** 2, axis=0, weights=w))
         sig[tgt] = pd.Series(sd / 10.0, index=ey)            # mm -> cm
     return sig
+
+
+def load_closure_sigma():
+    """Per-year weighted sd (cm) of Frederikse's OWN budget closure,
+    (sum of the five components) - (their GMSL), across the 5000 members.
+
+    Each member is re-referenced to BASE_Y0..BASE_Y1 with its own single offset,
+    identically to load_ensemble_sigma() and to the targets themselves, so this
+    sigma is in the same frame as the residual the likelihood scores. Indexed by
+    ensemble year (1900-2018)."""
+    ds = xr.open_dataset(FRED_ENS_NC)
+    ey = ds["time"].values.astype(int)
+    w = ds["likelihood"].values.astype(float)
+    win = (ey >= BASE_Y0) & (ey <= BASE_Y1)
+
+    def reref_members(var):
+        m = ds[var].values / 10.0                            # mm -> cm
+        return m - m[:, win].mean(axis=1, keepdims=True)
+
+    close = (sum(reref_members(v) for v in CLOSURE_COMPONENT_VARS)
+             - reref_members(CLOSURE_TOTAL_VAR))             # (member, year)
+    mean = np.average(close, axis=0, weights=w)
+    sd = np.sqrt(np.average((close - mean) ** 2, axis=0, weights=w))
+    return pd.Series(sd, index=ey)
 
 
 def annual_mean(t, v, ylo, yhi):
@@ -180,6 +223,16 @@ assert abs(dang_sig.loc[2021] - 0.268) < 0.01, "v2 SE(2021) should be ~2.68 mm (
 out["dang_sig"] = dang_sig.values
 out["dang_lo"]  = (dang_val.reindex(years) - 1.645 * dang_sig).values
 out["dang_hi"]  = (dang_val.reindex(years) + 1.645 * dang_sig).values
+
+# budget-closure inflation of the total's sigma (see the constant block; Marcus 2026-08-12).
+# Emitted as its OWN column: dang_lo/dang_hi stay the Dangendorf band, and
+# calibrate_mcmc_ext.jl adds this in quadrature alongside the LWS band term.
+closure_sig = load_closure_sigma()
+_ens_last = int(closure_sig.index.max())
+closure_col = closure_sig.reindex(years)
+if CLOSURE_HOLD_FLAT_PAST_ENSEMBLE:
+    closure_col.loc[_ens_last + 1:] = closure_sig.loc[_ens_last]
+out[CLOSURE_SIG_COL] = closure_col.values
 
 # ============================================================ modern products -> cm SLE
 modern = {}      # tgt -> (Series cm, Series sigma_cm)
@@ -258,6 +311,19 @@ for tgt in ["ais", "gis", "gsic", "steric", "dang"]:
 for suf in ["", "_lo", "_hi"]:
     v18 = out.loc[2018, "lws" + suf]
     out.loc[2019:EXT_Y1, "lws" + suf] = v18
+
+# budget-closure inflation, reported against the FINAL sigma columns (post-splice, post
+# LWS hold-flat) so the printed numbers are the ones calibrate_mcmc_ext.jl will build.
+_eps_lws = ((out["lws_hi"] - out["lws_lo"]) / (2 * 1.645)).clip(lower=0.05)
+_cur = np.sqrt(out["dang_sig"] ** 2 + _eps_lws ** 2)
+_new = np.sqrt(_cur ** 2 + out[CLOSURE_SIG_COL] ** 2)
+print(f"\nTotal-target sigma inflated by Frederikse's own budget-closure spread "
+      f"(ensemble {closure_sig.index.min()}-{_ens_last}, held flat after):")
+for y in [1900, 1950, 1980, 2000, 2018, 2024]:
+    if y in out.index and np.isfinite(_cur.loc[y]) and np.isfinite(out.loc[y, "dang"]):
+        print(f"  {y}  closure sd {out.loc[y, CLOSURE_SIG_COL]:5.3f} cm   "
+              f"sigma {_cur.loc[y]:5.3f} -> {_new.loc[y]:5.3f} cm  "
+              f"({_new.loc[y] / _cur.loc[y]:.2f}x)")
 
 out.reset_index().to_csv(OUT_CSV, index=False)
 print(f"\nWrote {OUT_CSV}  ({len(out)} yrs {FIT_Y0}-{EXT_Y1})")

@@ -182,6 +182,19 @@ end
 
 ϵband(lo,hi)=max.((hi.-lo)./(2*1.645), 0.05)           # per-year obs σ (floor 0.05cm)
 
+# Budget-closure inflation of the TOTAL target's σ (Marcus ruling, 2026-08-12, gate 3.1).
+# The five component targets (Frederikse) sum +0.74cm above the independent total
+# (Dangendorf + NOAA STAR) over 1950-1980; that is Frederikse's OWN budget non-closure, so
+# it is carried as uncertainty on the total rather than resolved by the sampler. Shape and
+# magnitude come from Frederikse's own 5000-member ensemble, per year, over the WHOLE span
+# -- no window edge and no decay function is chosen. Column built by
+# python/prep_recalib_targets_ext.py (CLOSURE_SIG_COL); see the constant block there for
+# the flagged AR(1) double-counting caveat. --no-closure-sigma reverts to the old σ.
+const CLOSURE_SIGMA_OFF = "--no-closure-sigma" in ARGS
+const CLOSURE_SIG_COL = :dang_closure_sig
+closure_sigma(ri) = (CLOSURE_SIGMA_OFF || !hasproperty(tg, CLOSURE_SIG_COL)) ?
+    zeros(length(ri)) : coalesce.(Float64.(tg[ri, CLOSURE_SIG_COL]), 0.0)
+
 # per-series valid years: target value present (non-missing, non-NaN) AND >=1900
 function series_years(col)
     ys = Int[]
@@ -198,8 +211,10 @@ function make_series(col, lo, hi; isdang=false)
     @assert fy == collect(fy[1]:fy[end]) "series $col has a year gap (AR(1) assumes unit spacing)"
     ri = [rowof(y) for y in fy]
     ob = Float64.(tg[ri, col])
-    if isdang   # total obs error = altimetry/Dangendorf σ ⊕ LWS-budget σ
-        ev = sqrt.(Float64.(tg.dang_sig[ri]).^2 .+ ϵband(Float64.(tg.lws_lo[ri]), Float64.(tg.lws_hi[ri])).^2)
+    if isdang   # total obs error = altimetry/Dangendorf σ ⊕ LWS-budget σ ⊕ budget-closure σ
+        ev = sqrt.(Float64.(tg.dang_sig[ri]).^2 .+
+                   ϵband(Float64.(tg.lws_lo[ri]), Float64.(tg.lws_hi[ri])).^2 .+
+                   closure_sigma(ri).^2)
     else
         ev = ϵband(Float64.(tg[ri,lo]), Float64.(tg[ri,hi]))
     end
@@ -214,6 +229,14 @@ S = (ais    = make_series(:ais,:ais_lo,:ais_hi),
 lws_dang = Float64.(tg.lws[[rowof(y) for y in S.dang.years]])
 println("Extended fit windows: ais 1900-$(S.ais.years[end]), gis 1900-$(S.gis.years[end]), ",
         "gsic 1900-$(S.gsic.years[end]), steric 1900-$(S.steric.years[end]), total 1900-$(S.dang.years[end])")
+let ri = [rowof(y) for y in S.dang.years], cs = closure_sigma(ri)
+    base = sqrt.(S.dang.ϵ.^2 .- cs.^2)
+    @printf("total-target σ: budget-closure inflation %s | 1900 %.3f→%.3f (%.2fx), 1950 %.3f→%.3f (%.2fx), 2000 %.3f→%.3f (%.2fx), %d %.3f→%.3f (%.2fx)\n",
+            CLOSURE_SIGMA_OFF ? "OFF (--no-closure-sigma)" : "ON (Frederikse ensemble, per year)",
+            (vcat([[base[i], S.dang.ϵ[i], S.dang.ϵ[i]/base[i]]
+                   for i in [findfirst(==(y), S.dang.years) for y in (1900, 1950, 2000)]]...))...,
+            S.dang.years[end], base[end], S.dang.ϵ[end], S.dang.ϵ[end]/base[end])
+end
 
 # ---- extB3b fallback (2026-08-07, handoff §2 item 7): pre-1940 GSIC flow σ ×2 -------------
 # The extB3 tuning run (chain_extB3_seed2026_n500000) camped on the wiggle-tracking mode:
