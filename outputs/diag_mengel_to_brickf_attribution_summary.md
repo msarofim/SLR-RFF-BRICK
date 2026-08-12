@@ -45,6 +45,17 @@ Medians at 2100, cm, both on FaIR **mean** forcing (parameter spread only) and t
 
 Medians are not additive in general; the non-additivity column is the size of that effect and is small here.
 
+## Robustness to which BRICK-Mengel vintage is meant
+
+| vintage | ssp | Mengel total | BRICK-F\* total | total shift | Antarctic shift | Antarctic share |
+|---|---|---|---|---|---|---|
+| BRICK-Mengel (base) | SSP1-2.6 | 35.92 | 35.91 | -0.01 | -1.43 | 17362% |
+| BRICK-Mengel (base) | SSP2-4.5 | 78.02 | 49.48 | -28.54 | -31.32 | 110% |
+| BRICK-Mengel (base) | SSP5-8.5 | 116.85 | 97.75 | -19.09 | -24.99 | 131% |
+| BRICK-Mengel (post-2018 ext) | SSP1-2.6 | 34.26 | 35.91 | +1.65 | -0.28 | -17% |
+| BRICK-Mengel (post-2018 ext) | SSP2-4.5 | 75.36 | 49.48 | -25.88 | -29.19 | 113% |
+| BRICK-Mengel (post-2018 ext) | SSP5-8.5 | 113.35 | 97.75 | -15.60 | -22.36 | 143% |
+
 ## Is it a level shift or a median crossing? (Antarctic, by quantile)
 
 | ssp | quantile | BRICK-Mengel | BRICK-F* | shift |

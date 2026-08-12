@@ -58,8 +58,19 @@ SSP2-4.5. Median non-additivity 0.18 cm — the decomposition closes.
 everything else is noise. Greenland moves −0.15 cm, i.e. the Greenland module
 had nothing to do with it. The expectation on record is confirmed.
 
-Note the memory figure of 77.7 cm should read **78.02 cm**
-(`outputs/proj_ssps_mengel_summary.csv`, SSP2-4.5 p50 @2100).
+**Which BRICK-Mengel?** The name is ambiguous — there is the base MCMC posterior
+and the post-2018-extended refit (the closer lineage ancestor of extC, which
+uses the extended targets). The conclusion does not hinge on it:
+
+| vintage | SSP2-4.5 total | shift to BRICK-F\* | Antarctic shift | Antarctic share |
+|---|---|---|---|---|
+| BRICK-Mengel (base) | 78.02 | −28.54 | −31.32 | 110% |
+| BRICK-Mengel (post-2018 ext) | 75.36 | −25.88 | −29.19 | 113% |
+
+Memory carries **77.7 cm**; the on-disk base run is **78.02**
+(`outputs/proj_ssps_mengel_summary.csv`) and the extended run is **75.36**
+(`..._ext_summary.csv`). The 0.3 cm gap to 77.7 is a rerun or transcription
+difference and does not affect anything here.
 
 ---
 

@@ -48,7 +48,15 @@ import matplotlib.pyplot as plt
 
 # ---------------------------------------------------------------- constants
 REPO = os.path.expanduser("~/Documents/2026/CodeProjects/SLR-RFF-BRICK")
-MENGEL_CSV = os.path.join(REPO, "outputs/proj_ssps_mengel_summary.csv")
+# Two BRICK-Mengel vintages, because "BRICK-Mengel" is ambiguous: the base MCMC
+# posterior, and the post-2018-extended refit (the closer lineage ancestor of
+# extC, which uses the extended targets). The attribution is reported against
+# both so the conclusion cannot hinge on which one is meant.
+MENGEL_VINTAGES = {
+    "BRICK-Mengel (base)": "outputs/proj_ssps_mengel_summary.csv",
+    "BRICK-Mengel (post-2018 ext)": "outputs/proj_ssps_mengel_ext_summary.csv",
+}
+MENGEL_CSV = os.path.join(REPO, MENGEL_VINTAGES["BRICK-Mengel (base)"])
 BRICKF_CSV = os.path.join(REPO, "outputs/ssps_components_2300_extC.csv")
 
 OUT_CSV = os.path.join(REPO, "outputs/diag_mengel_to_brickf_attribution.csv")
@@ -98,6 +106,22 @@ for ssp in ssps:
                        median_nonadditivity=comps.delta.sum() - tot.delta,
                        ais_share_of_total=comps[comps.component == "ais"].delta.iloc[0] / tot.delta))
 chk = pd.DataFrame(checks)
+
+# ---------------------------------------------------------------- vintage robustness
+# Repeat the headline decomposition against every Mengel vintage.
+vrows = []
+for vname, vpath in MENGEL_VINTAGES.items():
+    v = pd.read_csv(os.path.join(REPO, vpath)).set_index("ssp_label")
+    for ssp in ssps:
+        b = bf[bf.ssp == ssp].set_index("component")
+        d_tot = float(b.loc["total", "med"]) - float(v.loc[ssp, "p50"])
+        d_ais = float(b.loc["ais", "med"]) - float(v.loc[ssp, "ais"])
+        vrows.append(dict(vintage=vname, ssp=ssp,
+                          mengel_total=float(v.loc[ssp, "p50"]),
+                          brickf_total=float(b.loc["total", "med"]),
+                          total_shift=d_tot, ais_shift=d_ais,
+                          ais_share=d_ais / d_tot if d_tot != 0 else np.nan))
+vtab = pd.DataFrame(vrows)
 
 # ---------------------------------------------------------------- is the shift a level shift or a median crossing?
 # The Antarctic distribution at SSP2-4.5 is bimodal (tipped vs not tipped by 2100).
@@ -157,6 +181,12 @@ with open(OUT_MD, "w") as fh:
                  f"{r.median_nonadditivity:+.2f} | {r.ais_share_of_total:.0%} |\n")
     fh.write("\nMedians are not additive in general; the non-additivity column is the "
              "size of that effect and is small here.\n")
+    fh.write("\n## Robustness to which BRICK-Mengel vintage is meant\n\n")
+    fh.write("| vintage | ssp | Mengel total | BRICK-F\\* total | total shift | "
+             "Antarctic shift | Antarctic share |\n|---|---|---|---|---|---|---|\n")
+    for r in vtab.itertuples():
+        fh.write(f"| {r.vintage} | {r.ssp} | {r.mengel_total:.2f} | {r.brickf_total:.2f} | "
+                 f"{r.total_shift:+.2f} | {r.ais_shift:+.2f} | {r.ais_share:.0%} |\n")
     fh.write("\n## Is it a level shift or a median crossing? (Antarctic, by quantile)\n\n")
     fh.write(f"| ssp | quantile | {FROM_LABEL} | {TO_LABEL} | shift |\n|---|---|---|---|---|\n")
     for r in qtab.itertuples():
@@ -173,6 +203,8 @@ with open(OUT_MD, "w") as fh:
 print(att.to_string(index=False, float_format=lambda v: f"{v:+.3f}"))
 print()
 print(chk.to_string(index=False, float_format=lambda v: f"{v:+.3f}"))
+print()
+print(vtab.to_string(index=False, float_format=lambda v: f"{v:+.3f}"))
 print()
 print("Antarctic by quantile (level shift vs median crossing):")
 print(qtab.to_string(index=False, float_format=lambda v: f"{v:+.3f}"))
