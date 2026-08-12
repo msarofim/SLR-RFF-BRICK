@@ -3,7 +3,73 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-12 (latest) — Vivek's joint-vs-original BRICK calibration artifacts reviewed; Zemp rejected as a new stream, Dangendorf retained over Wang 2024
+## [unreleased] — 2026-08-12 (latest) — AR(1) is misspecified on every stream, the total stream is 56% redundant, and Vivek's mechanism does not transfer
+
+Combined diagnostic `python/diag_noise_model_and_grip.py`, full argument in
+`notes/note_2026-08-12_noise_model_stream_dependence_and_grip.md`. Three threads
+run as one: §6.1 of the Vivek note, the AR(1) double-counting caveat flagged
+when the gate-3.1 σ ruling landed, and item 4.3 (TE vs a modern OHC target).
+
+### The machinery was validated before its rejections were believed
+Self-test on simulated AR(1)+band: ρ recovered, Ljung-Box **p = 0.84**, BIC
+prefers the true model by 24.8. Two earlier versions of the self-test failed —
+signal-to-noise, then genuine indistinguishability at ρ = 0.97 — and both
+failures were the test's design. A **resolution probe** then establishes that
+BIC separates AR(1) from a random walk reliably only up to **ρ ≈ 0.8**
+(12/12 draws), falling to 8–10/12 above ρ = 0.9. So a ±6 ΔBIC on a series with
+ρ ≈ 0.99 means "the data cannot tell".
+
+### The five streams are not independent — algebraically
+`dang_resid = sum(component resids) + closure (+ R19 + the gsic δ ramp)`. The
+identity explains **55.9%** of the total residual's variance;
+corr(dang, Σcomponents) = **+0.81**; the remainder (sd 0.276 cm) is the two
+genuine model terms. **Over half the total stream's information is already in
+the component streams**, and the likelihood scores it as a fifth independent
+observation anyway. Stronger than Vivek's finding: his cross-stream correlation
+is empirical, ours is algebraic.
+
+### No noise model in the family fits
+Ljung-Box on the Cholesky-whitened residuals gives **p = 0.0000 for every one of
+the five streams against every one of six models** (white, AR(1), AR(2),
+ARMA(1,1), random walk, trend+AR(1)); best case p = 0.0001. Q runs 47–482
+against a χ²₁₀ critical ~18. A **random walk is never excluded** — the 95%
+profile for ρ includes 1 on all five streams. And the **re-referencing is not
+the cause**: repeating everything under a REML transform of the 1995–2005
+re-reference operator moves no verdict by more than ~2 BIC, which
+**disconfirms** the hypothesis flagged with the σ ruling. The honest description
+is that these residuals are **systematic model error, not noise**.
+
+### Vivek's mechanism does NOT transfer — §6.1 closes as a negative
+Projecting out the leading common factor (50.3% of cross-stream variance) moves
+ρ by less than 0.01, and for gis (0.992 → 0.994) and steric (0.981 → 0.986) it
+moves the **wrong way**. The persistence is intrinsic, not cross-stream leakage.
+**Step 5 does not need a dual pre-registration**, and there is now a second
+reason not to adopt an R-sampling likelihood on top of the 32× wall clock.
+
+### The total is the loosest constraint in every window
+σ on a window-mean offset, cm: over 1942–1982, gis **0.085** vs the total
+**0.300** — and 0.252 with the closure term switched OFF. **The total was never
+what limits a mid-century Greenland correction; the gis component target is.**
+So a step-5 outcome-3 cannot be blamed on the total or on the closure σ. What
+the closure σ cost, in these units: **+19% mid-century, +62% modern** — the
+untuned ruling loosens the well-observed present ~3× more in relative terms,
+which is defensible (the shape is Frederikse's) but is worth having on record.
+
+### Item 4.3 CLOSED — TE's expansion efficiency is right
+extC `thermal_alpha` p50 **0.1540** kg m⁻³ °C⁻¹ = **0.1010 cm per 10²² J**,
+against **0.1043** observed (NOAA 0–2000 m steric on Zanna+IGCC OHC, 2005–2024,
+like-for-like) and 0.1133 on Zanna+Cheng; physics range 0.1011–0.1348. So extC
+is 3% below the IGCC-based value at the bottom edge of physics. **The
+"te_α ~3× below physics" concern refers to Wong's v1.2 calibration (0.057),
+which extC already superseded.** What remains is a **level** offset — the steric
+residual averages +0.242 cm — which is a `thermal_s0` question, not 4.3's.
+
+### Not changing the noise model before step 5
+The misspecification is real, but it is not new, extC was calibrated under it,
+and changing it now would make Ladrillo 1.0 incomparable to extC on top of
+everything else in flight. Queued for after 1.0, ranked in the note §6.
+
+## [unreleased] — 2026-08-12 — Vivek's joint-vs-original BRICK calibration artifacts reviewed; Zemp rejected as a new stream, Dangendorf retained over Wang 2024
 
 `notes/note_2026-08-12_vivek_joint_calibration_artifacts.md`. Two figure-only artifacts
 comparing a Turing per-block RAM sampler **with a sampled cross-stream correlation matrix R**
