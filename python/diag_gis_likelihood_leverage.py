@@ -77,12 +77,29 @@ STEP_AMPS = np.arange(0.0, 1.01, 0.05)  # cm
 REPORT_AMP = 0.65                     # cm -- centre of the memo's 0.5-0.7 cm miss
 EPS_FLOOR = 0.05                      # cm; matches ϵband() in calibrate_mcmc_ext.jl
 BAND_Z = 1.645                        # (hi-lo) = 2 * BAND_Z * sigma, matches the prep script
+DANG_COL = "dang"                     # the total channel; its sigma is NOT an epsband column
+CLOSURE_SIG_COL = "dang_closure_sig"  # gate-3.1 ruling, python/prep_recalib_targets_ext.py
 
 STEP_LABEL = f"{STEP_Y0}-{STEP_Y1}"
 
 
 def band_sigma(tg, col):
-    """Per-year obs sigma exactly as ϵband() builds it in calibrate_mcmc_ext.jl."""
+    """Per-year obs sigma exactly as make_series() builds it in calibrate_mcmc_ext.jl.
+
+    CORRECTED 2026-08-12. The `dang` (total) channel is NOT an epsband() column
+    there: its σ is the Dangendorf/altimetry SE in QUADRATURE with the LWS band
+    term, and since the gate-3.1 ruling also with the per-year Frederikse
+    budget-closure σ. Using (hi - lo) / 2z for it returns dang_sig ALONE --
+    dang_lo/hi are built as ±z·dang_sig -- which understated the total's σ by
+    the LWS term even before the ruling, and now by the closure term as well.
+    That biases this diagnostic's `dang` penalty too NEGATIVE, i.e. it
+    understates how good a deal the Greenland correction is."""
+    if col == DANG_COL:
+        eps_lws = np.maximum((tg["lws_hi"] - tg["lws_lo"]) / (2 * BAND_Z), EPS_FLOOR)
+        s2 = tg["dang_sig"] ** 2 + eps_lws ** 2
+        if CLOSURE_SIG_COL in tg.columns:
+            s2 = s2 + tg[CLOSURE_SIG_COL].fillna(0.0) ** 2
+        return np.maximum(np.sqrt(s2), EPS_FLOOR)
     s = (tg[col + "_hi"] - tg[col + "_lo"]) / (2 * BAND_Z)
     return np.maximum(s, EPS_FLOOR)
 
