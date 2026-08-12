@@ -54,15 +54,18 @@ All written at full precision (%.12f / %.12g): the Julia port validation
 compares against them at 1e-9 and 6-decimal rounding broke it twice.
 
 -----------------------------------------------------------------------------
-KNOWN WART — RNG ORDER DEPENDENCE
+RNG ORDER DEPENDENCE — FIXED 2026-08-12
 -----------------------------------------------------------------------------
-four_rung_fit() draws multi-start jitter from one module-level RNG, so the
-fitted (b, T_off) depend on how many fits ran before them. `build_artifacts()`
-therefore reproduces the development call sequence exactly, including two fits
-whose results are discarded. This is preserved deliberately: changing it would
-change the calibrator's inputs and invalidate the accepted posterior. The fix
-for the next recalibration is a per-block seeded RNG; see FIT_RNG_SEED.
+four_rung_fit() used to draw its multi-start jitter from one module-level RNG,
+so the fitted (b, T_off) depended on how many fits had run before them, and
+build_artifacts() had to replay the development call sequence — two discarded
+fits included — to reproduce. Each fit now derives its own stream from the
+block's identity (see block_rng), so the result depends only on which block is
+fitted. Measured cost: the artifacts moved by 1e-10 to 3e-8, which is
+multi-start convergence scatter, not a change of optimum. The pre-fix artifacts
+and the evidence are in outputs/quarantine/20260812_ladrillo_data_rng_order/.
 """
+import hashlib
 import os
 import zipfile
 
@@ -98,8 +101,9 @@ SPEC_3RES = {
     "FAST":  ["01", "04", "17", "13", "14", "02", "15", "08",
               "10", "11", "16", "18", "12"],
 }
-# Two-block ablation structure. Its fits are discarded, but they consume RNG
-# draws that the three-reservoir fits inherit — see the RNG note in the header.
+# Two-block ablation structure. build_artifacts() no longer fits it (the fits
+# were discarded and only existed for RNG parity — see the RNG note in the
+# header); the constant stays because the provenance chain scripts import it.
 SPEC_2BLK = {"SLOW": ["19", "03", "09", "07", "06"], "FAST": SPEC_3RES["FAST"]}
 
 # ---- constants -------------------------------------------------------------
@@ -133,8 +137,26 @@ TAU_SOLVE_HORIZON = 6000            # years; cap on the tau50 integration
 TAU_MATCH_TOL = 0.02                # relative tolerance on the anchored tau50 match
 FIT_RNG_SEED = 2026
 SEAM_START_YEAR = 2019              # first target year containing GlaMBIE region 19
+BASIS_TAG = {True: "farinotti", False: "massshare"}   # build_reservoir's two inventory bases
 
-_rng = np.random.default_rng(FIT_RNG_SEED)
+# ---- RNG ORDER DEPENDENCE, FIXED 2026-08-12 (item 4.7) ----------------------
+# WAS: one module-level default_rng(FIT_RNG_SEED) shared by every four_rung_fit
+# call, so each fit's multi-start jitter depended on how many fits had run
+# before it, and build_artifacts() had to replay the development call sequence
+# -- including two fits whose results were thrown away -- to reproduce.
+# NOW: each fit derives its own stream from (FIT_RNG_SEED, block identity), so
+# the result depends only on WHICH block is being fitted, never on the order.
+# The identity includes amp_b because a block is fitted twice, once per
+# amplification basis, and those two fits must not share a stream.
+# MEASURED IMPACT before the fix: re-running the committed call sequence under
+# six different global seeds moved (a, b, T_off) by 1e-10 to 3e-8 -- multi-start
+# convergence scatter, not different local optima. So this is a reproducibility
+# fix, not a correctness one, and it is why the artifacts move in the 8th
+# decimal. See outputs/quarantine/20260812_ladrillo_data_rng_order/.
+def block_rng(block):
+    key = f"{block['name']}|{block['basis']}|{block['amp_b']:.12g}".encode()
+    return np.random.default_rng(
+        [FIT_RNG_SEED, int.from_bytes(hashlib.sha256(key).digest()[:8], "big")])
 
 
 # =============================================================================
@@ -282,7 +304,8 @@ def build_reservoir(name, members, farinotti_basis):
     committed, bands = block_ladder(members)
     rung_sig = {L: max((bands[L][1] - bands[L][0]) / 2.0, RUNG_SIGMA_FLOOR_PCT)
                 for L in GMIP3_LEVELS}
-    return dict(name=name, members=members, driver_obs=driver, amp_b=amp,
+    return dict(name=name, members=members, basis=BASIS_TAG[bool(farinotti_basis)],
+                driver_obs=driver, amp_b=amp,
                 tau15=tau15, tau30=tau30, glambie_rate=rate, glambie_rate_sd=rate_sd,
                 a0=volume + s2000, a0_sig=volume_sd,
                 S2000_data=s2000, S2020_data=s2000 + cum2020,
@@ -351,9 +374,10 @@ def four_rung_fit(block):
                    np.clip(anchor["T_off"], -2.9, 2.9)),
               pack(block["a0"] * 1.2, 0.6, -0.5),
               pack(block["a0"], 0.3, 0.5)]
+    rng = block_rng(block)
     seeded = list(starts)
     while len(starts) < 8:
-        starts.append(seeded[_rng.integers(len(seeded))] + _rng.normal(0, 0.7, 3))
+        starts.append(seeded[rng.integers(len(seeded))] + rng.normal(0, 0.7, 3))
 
     best = None
     for z0 in starts:
@@ -463,14 +487,11 @@ def build_artifacts(write=True, out_drivers=OUT_DRIVERS, out_constants=OUT_CONST
                     out_gsic_adj=OUT_GSIC_ADJ):
     """Emit the three calibrator inputs. Returns the three DataFrames.
 
-    The call sequence below is load-bearing: four_rung_fit consumes the shared
-    RNG, so the discarded two-block fits must run, in this order, for the
-    three-reservoir constants to reproduce. See the header.
+    The call sequence is NO LONGER load-bearing (fixed 2026-08-12): each
+    four_rung_fit seeds its own RNG from the block's identity, so the two
+    discarded two-block fits that used to be required for RNG parity are gone.
     """
     res3 = {n: build_reservoir(n, m, farinotti_basis=True) for n, m in SPEC_3RES.items()}
-    blk2 = {n: build_reservoir(n, m, farinotti_basis=False) for n, m in SPEC_2BLK.items()}
-    _ = {n: four_rung_fit(b) for n, b in blk2.items()}        # discarded; RNG parity
-    _ = {n: two_rung_anchor(b) for n, b in res3.items()}      # discarded; no RNG
     fit_isimip = {n: four_rung_fit(b) for n, b in res3.items()}
     anchor_isimip = {n: solve_anchored(b) for n, b in fit_isimip.items()}
 

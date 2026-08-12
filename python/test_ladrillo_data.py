@@ -5,9 +5,18 @@ calibrator inputs exactly, and its physics must satisfy the relations the
 constants are supposed to encode.
 
   [1] REGRESSION. The three artifacts rebuilt in memory are identical, to the
-      full precision they are written at, to the committed files the original
-      exec-prefix chain produced. This is what licenses the refactor: the
-      accepted Ladrillo posterior was calibrated against those exact files.
+      full precision they are written at, to the committed canonical files.
+  [1b] PROVENANCE. They also agree with the artifacts the original exec-prefix
+      chain produced (quarantined pre-fix copy) to PROV_TOL. This is what
+      licenses the refactor: the accepted extC posterior was calibrated against
+      the chain's files. The tolerance is not zero because the 2026-08-12 RNG
+      order-dependence fix (item 4.7) moved one fitted offset by 1.7e-8 --
+      multi-start convergence scatter, not a change of optimum. See
+      outputs/quarantine/20260812_ladrillo_data_rng_order/README.md.
+  [1c] ORDER-INDEPENDENCE. Building with the reservoir spec permuted reproduces
+      all three artifacts exactly. This is the property the 4.7 fix adds, and
+      it is what makes the call sequence in build_artifacts() no longer
+      load-bearing. It fails on the pre-fix code.
   [2] Reservoir partition: the three reservoirs cover every inventory region
       exactly once, and their inventories sum to the Farinotti total.
   [3] The anchored (kappa, nu) reproduce BOTH regional response times.
@@ -74,6 +83,45 @@ for label, built, path, fmt in (
             worst, worst_col = d, c
     check(label, worst == 0.0, "identical" if worst == 0.0
           else f"max|diff| {worst:.3e} in {worst_col}")
+
+# [1b] provenance: the pre-4.7-fix artifacts the exec-prefix chain produced.
+# Only extc_block_constants.csv carries fitted quantities, so only it was
+# quarantined; the other two were bit-identical across the fix.
+PROV_DIR = os.path.join(bd.REPO, "outputs/quarantine/20260812_ladrillo_data_rng_order")
+PROV_TOL = 1e-6          # 60x the observed 1.7e-8 shift, still 1e-4 of any constant's value
+print(f"\n[1b] provenance vs the exec-prefix chain artifacts (tol {PROV_TOL:g})")
+for label, built, fmt in (("extc_block_constants.csv", constants, "%.12g"),):
+    path = os.path.join(PROV_DIR, label)
+    if not os.path.exists(path):        # quarantine is .gitignore'd apart from force-adds
+        check(label, False, f"provenance reference missing: {os.path.relpath(path, bd.REPO)}")
+        continue
+    chain = pd.read_csv(path)
+    rebuilt = roundtrip(built, fmt)
+    num = [c for c in chain.columns if pd.api.types.is_numeric_dtype(chain[c])]
+    worst, worst_col = 0.0, ""
+    for c in num:
+        d = float(np.nanmax(np.abs(rebuilt[c].to_numpy() - chain[c].to_numpy())))
+        if d > worst:
+            worst, worst_col = d, c
+    check(label, worst <= PROV_TOL, f"max|diff| {worst:.3e} in {worst_col}")
+
+# [1c] order-independence: permuting the reservoir spec must change nothing.
+print("\n[1c] order-independence of build_artifacts (reservoir spec reversed)")
+_spec = bd.SPEC_3RES
+try:
+    bd.SPEC_3RES = {k: _spec[k] for k in reversed(list(_spec))}
+    permuted = bd.build_artifacts(write=False)
+finally:
+    bd.SPEC_3RES = _spec
+for label, a, b, key in (("t_glac_blocks.csv", drivers, permuted[0], None),
+                         ("extc_block_constants.csv", constants, permuted[1], "block"),
+                         ("recalib_targets_ext_gsicadj.csv", gsic_adj, permuted[2], None)):
+    x = a.sort_values(key).reset_index(drop=True) if key else a.reset_index(drop=True)
+    y = b.sort_values(key).reset_index(drop=True) if key else b.reset_index(drop=True)
+    y = y[x.columns]
+    num = [c for c in x.columns if pd.api.types.is_numeric_dtype(x[c])]
+    worst = float(np.nanmax(np.abs(x[num].to_numpy() - y[num].to_numpy())))
+    check(label, worst == 0.0, "identical" if worst == 0.0 else f"max|diff| {worst:.3e}")
 
 print("\n[2] reservoir partition")
 members = [r for m in bd.SPEC_3RES.values() for r in m]
