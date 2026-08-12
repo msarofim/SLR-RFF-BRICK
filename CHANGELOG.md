@@ -3,7 +3,56 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-12 (latest) — The Greenland cell-comparison fits were never converged; items 4.1 and 4.2 decided against the corrected table
+## [unreleased] — 2026-08-12 (latest) — Vivek's joint-vs-original BRICK calibration artifacts reviewed; Zemp rejected as a new stream, Dangendorf retained over Wang 2024
+
+`notes/note_2026-08-12_vivek_joint_calibration_artifacts.md`. Two figure-only artifacts
+comparing a Turing per-block RAM sampler **with a sampled cross-stream correlation matrix R**
+against the original independent-per-stream scheme, on standalone BRICK (Zemp glaciers,
+Wang et al. 2024 GMSL, 4×10M sweeps).
+
+**Headline:** joint costs **33.8 h vs 1.06 h** (31.8× more wall clock) for 2.7× median ESS
+(234,829 vs 86,117) and a clean R̂ (1.0059 vs 1.0231) — **11.7× less efficient per hour**.
+Projections barely move: ≈ +0.02 m on 2100 SSP2-4.5 GMSL, essentially all of it Greenland
+(+≈11%) and thermal (+≈6%); glaciers, AIS and LWS unchanged.
+
+**What it changes for us — one item, and it is a pre-registration item, not a code item.**
+Sampling R drops `rho_gmsl` **0.9596 → 0.8828**. Gate 3.1's verdict rests on near-unity
+per-series AR(1) (ρ_gis 0.985, ρ_steric 0.973) removing 14–16× of the leverage on the
+mid-century GIS offset, and `prep_recalib_targets_ext.py` already flags that an
+anchor-shaped closure σ may double-count level correlation. This is independent evidence
+for that mechanism: a near-unity per-series ρ can be cross-stream correlation with nowhere
+else to go. **Step 5's pre-registration should state the expected posterior under both
+likelihood structures** so an ≈-extC result is not misattributed. Cheap test proposed:
+empirical cross-stream correlation of the extC residuals.
+
+**Zemp — REJECTED as a calibration stream (would double-count).** Verified from Frederikse
+2020's published Methods this session: the glacier component draws each ensemble member
+randomly between Marzeion-2015 and **Zemp 2019** for 1961+, and uses Marzeion alone before
+1961. Zemp is therefore already inside our C3 target, and cannot help the 1900–1940 era
+where C3 is weakest (its record starts 1961). Confirms `memo_2026-08-05` §2c from the paper
+rather than from Frederikse's code. Retained as optional work: split the 5000-member
+ensemble by branch to separate *method-choice* from *within-method* σ in C3's mid-century band.
+
+**Wang et al. 2024 vs Dangendorf 2024 — Dangendorf RETAINED.** Wang (J. Climate 37(24)) is a
+Church-&-White-lineage RSOI tide-gauge reconstruction; published 1900–2019 trend
+**1.6 ± 0.2 mm/yr (90%)** vs our Dangendorf CSV's computed **1.499** over the same window —
+**+0.10 mm/yr ≈ +1.2 cm cumulative**, inside both stated uncertainties. Computed here for
+context: Church & White 2011 vs Dangendorf 2024 = 1.689/1.427 (1900–2013), 1.526/1.380
+(1900–1990), 2.149/1.580 (1961–2013) mm/yr. Wang sits between its ancestor and Dangendorf.
+Switching would invalidate the gate-3.1 closure work, which lives in the
+Frederikse-vs-Dangendorf frame; Wang is carried as a **documented sensitivity** instead.
+
+**Also logged:** every original-scheme R̂ failure is an AIS parameter (`antarctic_slope`
+1.0231, `precip0` 1.0120, `c` 1.0119, `runoff_height0` 1.0110), all cleared by the joint
+scheme — so AIS non-convergence has a *sampling* component on top of the prior-dominance
+one the red team recorded. And the DAIS block's cross-scheme agreement to 3–4 s.f. is
+*consistent with* prior-dominance but is **not** evidence for it without a prior-vs-posterior
+overlap test, which we should run on our own block.
+
+**Not adopted:** joint/R sampling for step 5 — 32× wall clock for a ≈0.02 m projection
+change on a model whose Greenland and glacier blocks we have replaced anyway.
+
+## [unreleased] — 2026-08-12 — The Greenland cell-comparison fits were never converged; items 4.1 and 4.2 decided against the corrected table
 
 ### The bug
 `python/gis_offline_cell.py` reported optima that were not optima. Starts were
