@@ -81,8 +81,8 @@ PC_JITTER_K = 0.25
 K_LOG10_JITTER = 0.5
 SEED = 2026
 
-# BRICK-F*'s own Greenland (outputs/ssps_components_2300_extC.csv)
-BRICKF_GIS = {2100: {"ssp126": 6.6, "ssp245": 7.3, "ssp585": 8.8},
+# Ladrillo's own Greenland (outputs/ssps_components_2300_extC.csv)
+LADRILLO_GIS = {2100: {"ssp126": 6.6, "ssp245": 7.3, "ssp585": 8.8},
               2300: {"ssp126": 19.2, "ssp245": 25.7, "ssp585": 48.6}}
 
 
@@ -156,10 +156,10 @@ def main():
             print(f"  {fam:12s} {y:6d} " + "".join(f"{series[s][i]:11.1f}" for s in SSPS))
             rows.append(dict(family=fam, year=y, **{LABEL[s]: series[s][i] for s in SSPS}))
     for y in (2100, 2300):
-        print(f"  {'BRICK-F*':12s} {y:6d} " +
-              "".join(f"{BRICKF_GIS[y][s]:11.1f}" for s in SSPS))
-        rows.append(dict(family="BRICK-F* (ours)", year=y,
-                         **{LABEL[s]: BRICKF_GIS[y][s] for s in SSPS}))
+        print(f"  {'Ladrillo':12s} {y:6d} " +
+              "".join(f"{LADRILLO_GIS[y][s]:11.1f}" for s in SSPS))
+        rows.append(dict(family="Ladrillo (ours)", year=y,
+                         **{LABEL[s]: LADRILLO_GIS[y][s] for s in SSPS}))
     pd.DataFrame(rows).to_csv(OUT, index=False)
 
     # ---- the sampled ensemble: family + threshold + timescale ---------------

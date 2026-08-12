@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-build_t_gis.py — the Greenland ice-sheet temperature driver for BRICK-F*.
+build_t_gis.py — the Greenland ice-sheet temperature driver for Ladrillo.
 
 Produces the observed regional temperature series that replaces global mean
 temperature as the driver of the Greenland module (option A of
@@ -11,7 +11,7 @@ frame conversion both need.
 WHY A REGIONAL DRIVER (scoping §4, verified)
     Greenland warmed ~1.2 C during 1920-45 while the globe warmed +0.22, then
     cooled at -1.8 C/century from 1940 to 1990 while the globe warmed +0.4 --
-    which is exactly the 1942-1982 window BRICK-F* misses. Melt-rate
+    which is exactly the 1942-1982 window Ladrillo misses. Melt-rate
     correlation with the observed target: global +0.21, Greenland regional
     +0.77.
 
@@ -104,10 +104,10 @@ BASE_COMMON = (1880, 1900)          # baseline all three products can supply (GI
 # not noise: the early era is a through-origin fit over decades when the global
 # anomaly was near zero while Greenland swung +/-1 C (the early-twentieth-century
 # warm period), which inflates the ratio. "full" is the window the glacier
-# module's amp_obsfit uses (brickf_data.AMP_FIT_WIN) and is the like-for-like
+# module's amp_obsfit uses (ladrillo_data.AMP_FIT_WIN) and is the like-for-like
 # choice; "modern" is the one that describes the projection era.
 AMP_WINDOWS = {"full": (1901, 2024), "early": (1901, 1960), "modern": (1961, 2024)}
-AMP_WINDOW_HEADLINE = "full"        # matches brickf_data.AMP_FIT_WIN
+AMP_WINDOW_HEADLINE = "full"        # matches ladrillo_data.AMP_FIT_WIN
 CORR_WIN = (1900, 2018)             # the Frederikse GIS target window
 SMOOTH = 11                         # melt-rate smoothing, years
 
@@ -431,7 +431,7 @@ Annual = calendar-year mean of 12 monthly values; a year is kept only with
 ## Amplification
 Through-origin fit of the zone anomaly on the same product's global mean
 anomaly. Headline window `{AMP_WINDOW_HEADLINE}` = {AMP_WINDOWS[AMP_WINDOW_HEADLINE]},
-matching `brickf_data.AMP_FIT_WIN` so the Greenland and glacier amplifications
+matching `ladrillo_data.AMP_FIT_WIN` so the Greenland and glacier amplifications
 are like-for-like.
 
 Zone `{HEADLINE_ZONE}`, window `{AMP_WINDOW_HEADLINE}`: mean **{amp.mean():.3f}**,

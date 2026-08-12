@@ -61,7 +61,7 @@ def main():
     b = post.greenland_b.to_numpy()
     v0 = post.greenland_v0.to_numpy()
 
-    print("BRICK-F* Greenland: committed loss at equilibrium, V_eq = a*T + b\n")
+    print("Ladrillo Greenland: committed loss at equilibrium, V_eq = a*T + b\n")
     print(f"  {'GMT':>5s}  {'committed m SLE':>22s}  {'% of ice sheet':>15s}")
     rows = []
     med = {}

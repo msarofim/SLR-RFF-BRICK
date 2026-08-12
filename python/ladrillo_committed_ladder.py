@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-brickf_committed_ladder.py — the posterior's committed glacier loss against
+ladrillo_committed_ladder.py — the posterior's committed glacier loss against
 GlacierMIP3, on both denominators.
 
 "Committed loss" is the fraction of the 2020 glacier mass that is already
@@ -25,8 +25,8 @@ exactly; reporting only one of them hides that. Per-reservoir figures are also
 given, because the likelihood constrains the ladder per reservoir, not in
 aggregate.
 
-  python3 python/brickf_committed_ladder.py
-Writes outputs/brickf_committed_ladder.csv
+  python3 python/ladrillo_committed_ladder.py
+Writes outputs/ladrillo_committed_ladder.csv
 """
 import os
 
@@ -37,7 +37,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 POSTERIOR = os.path.join(REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_extC.csv")
 CONSTANTS = os.path.join(REPO, "outputs/extc_block_constants.csv")
 GATES = os.path.join(REPO, "outputs/eval_gates_extC_seed2026.csv")
-OUT = os.path.join(REPO, "outputs/brickf_committed_ladder.csv")
+OUT = os.path.join(REPO, "outputs/ladrillo_committed_ladder.csv")
 
 BLOCKS = ["R19", "SLOWP", "FAST"]
 LEVELS = [1.2, 1.5, 2.0, 3.0]
@@ -61,7 +61,7 @@ def main():
     a = {b: post[f"gic_a_{b}"].to_numpy() for b in BLOCKS}
     rows = []
 
-    print("Committed glacier loss, % of 2020 mass — BRICK-F* posterior "
+    print("Committed glacier loss, % of 2020 mass — Ladrillo posterior "
           f"({len(post)} draws)\n")
 
     # ---- per reservoir, data basis (what the likelihood constrains) ----------

@@ -6,7 +6,7 @@ gates pre-registered before any fitting.
 
 This is step 4 of notes/handoff_2026-08-10_greenland_pass1.md. It is the
 offline reference the Julia surgery is later validated against at 1e-9, the
-way python/brickf_data.py is for the glacier blocks.
+way python/ladrillo_data.py is for the glacier blocks.
 
 -----------------------------------------------------------------------------
 THE CELLS
@@ -48,7 +48,7 @@ dT prior     outputs/gis_dt_prior.csv, Normal(-0.63, 0.55) truncated
 
 ISMIP6 IS EVALUATION-ONLY, PERMANENTLY (handoff decision 4). It is a transient
 intercomparison of the same quantity we predict, so fitting to it would make
-BRICK-F*'s Greenland a second-hand FACTS FittedISMIP and destroy the
+Ladrillo's Greenland a second-hand FACTS FittedISMIP and destroy the
 comparison's independence. The 2100 scenario spread is therefore REPORTED
 against FACTS/MAGICC and never enters the objective.
 
@@ -102,7 +102,7 @@ DT_PRIOR = dict(mu=-0.63, sigma=0.55, lo=-1.58, hi=0.22)
 # Headline full-window (1901-2024) cross-product mean from build_t_gis.py.
 # NOTE the correction: the scoping note's N(2.9, 0.2) was a masking artifact.
 AMP_MEAN = 1.92
-SPLICE_ANCHOR_YEARS = 11        # the anchor-preserving splice window, as brickf_projection.jl
+SPLICE_ANCHOR_YEARS = 11        # the anchor-preserving splice window, as ladrillo_projection.jl
 
 # =============================================================================
 # PRE-REGISTERED GATES -- stated here, before any fit is run
@@ -113,7 +113,7 @@ SPLICE_ANCHOR_YEARS = 11        # the anchor-preserving splice window, as brickf
 GATE_RATE_WIN = (2003, 2018)
 GATE_RATE_OBS_MMYR = 0.841
 GATE_RATE_TOL_FRAC = 0.25
-# G2 the 1942-1982 window -- the only contiguous miss in the BRICK-F* fit,
+# G2 the 1942-1982 window -- the only contiguous miss in the Ladrillo fit,
 #    currently 0.5-0.7 cm. A cell passes at a mean absolute bias below 0.30 cm.
 GATE_MIDCEN_WIN = (1942, 1982)
 GATE_MIDCEN_TOL_CM = 0.30
@@ -121,8 +121,8 @@ GATE_MIDCEN_TOL_CM = 0.30
 #    that gets the level by accident but the trend backwards has not fixed it.
 GATE_SHAPE_REQUIRE_NEGATIVE_TREND = True
 # G4 EVALUATION ONLY, never in the objective. 2100 SSP1-2.6 -> SSP5-8.5 spread.
-#    BRICK-F* extC is 2.16 cm today; MAGICC-SLR 7.09, FACTS FittedISMIP 6.34,
-#    emuGrIS 7.26, bamber19 7.23 (outputs/brickf_model_comparison_spread.csv).
+#    Ladrillo extC is 2.16 cm today; MAGICC-SLR 7.09, FACTS FittedISMIP 6.34,
+#    emuGrIS 7.26, bamber19 7.23 (outputs/ladrillo_model_comparison_spread.csv).
 GATE_SPREAD_RANGE_CM = (6.3, 7.3)
 PROJ_SCENARIOS = {"SSP1-2.6": "ssp126", "SSP2-4.5": "ssp245", "SSP5-8.5": "ssp585"}
 PROJ_YEAR = 2100
@@ -250,7 +250,7 @@ def integrate(t_rate, leq, params, two_channel, n=None):
 # rate_driver: which temperature drives the relaxation rate
 # leq: "linear" in the rate driver, or "ladder" in GMT with a dT shift
 CELLS = {
-    # ACCEPTANCE TEST, not a candidate: stock SIMPLE held at the BRICK-F* extC
+    # ACCEPTANCE TEST, not a candidate: stock SIMPLE held at the Ladrillo extC
     # posterior medians, NOT refitted. The harness has to reproduce the known
     # incumbent behaviour -- ~2.2 cm of 2100 scenario spread and the 1942-1982
     # miss -- before any "improvement" it reports means anything.
@@ -402,7 +402,7 @@ def evaluate_gates(L, ctx):
 
 
 def splice_regional(t_reg_obs, gmst_hist, gmst_scen, last_obs_year):
-    """Anchor-preserving splice, the same construction as brickf_projection.jl:
+    """Anchor-preserving splice, the same construction as ladrillo_projection.jl:
     observed regional temperature through last_obs_year, then AMP_MEAN * GMST
     offset so the two agree in the mean over the last SPLICE_ANCHOR_YEARS."""
     anchor = np.arange(last_obs_year - SPLICE_ANCHOR_YEARS + 1, last_obs_year + 1)
@@ -483,7 +483,7 @@ def main():
     print(f"    G2 {GATE_MIDCEN_WIN} mean |bias| < {GATE_MIDCEN_TOL_CM} cm")
     print(f"    G3 {GATE_MIDCEN_WIN} melt-rate trend negative")
     print(f"    G4 EVAL ONLY 2100 spread in {GATE_SPREAD_RANGE_CM} cm "
-          f"(BRICK-F* extC today: 2.16)")
+          f"(Ladrillo extC today: 2.16)")
 
     rows, series, ridges = [], {"year": YEARS}, []
     for cell in CELLS:
@@ -543,7 +543,7 @@ def report(fit, ridges):
               "".join(f"{r['proj_' + s]:11.2f}" for s in PROJ_SCENARIOS) +
               f"{r.spread_2100_cm:9.2f} {'OK' if r.gate4_spread else '--':>4s}")
     print(f"  targets: MAGICC-SLR 7.09, FACTS FittedISMIP 6.34, emuGrIS 7.26, "
-          f"bamber19 7.23; BRICK-F* extC today 2.16")
+          f"bamber19 7.23; Ladrillo extC today 2.16")
 
     print(f"\nSEPARABILITY -- pre-registered question: do the fast fraction and the "
           f"fast\n  timescale identify jointly, or ride a ridge?")

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""GATE 3.2 — attribute the BRICK-Mengel -> BRICK-F* projection shift.
+"""GATE 3.2 — attribute the BRICK-Mengel -> Ladrillo projection shift.
 
 `notes/handoff_2026-08-11_greenland_pass1_complete.md` §3.2: the ~28 cm drop in
-SSP2-4.5 2100 GMSL between BRICK-Mengel and BRICK-F* is the largest single
+SSP2-4.5 2100 GMSL between BRICK-Mengel and Ladrillo is the largest single
 quantitative movement in the programme and was unattributed.  The expectation on
 record was "mostly the Antarctic recalibration", explicitly flagged as untested.
 
@@ -34,9 +34,9 @@ do not:
                            with a FaIR ensemble member and so is NOT comparable
   * same baseline          1995-2014
 
-Outputs: outputs/diag_mengel_to_brickf_attribution.csv
-         outputs/diag_mengel_to_brickf_attribution_summary.md
-         figures/diag_mengel_to_brickf_attribution.png
+Outputs: outputs/diag_mengel_to_ladrillo_attribution.csv
+         outputs/diag_mengel_to_ladrillo_attribution_summary.md
+         figures/diag_mengel_to_ladrillo_attribution.png
 """
 import os
 import numpy as np
@@ -57,24 +57,24 @@ MENGEL_VINTAGES = {
     "BRICK-Mengel (post-2018 ext)": "outputs/proj_ssps_mengel_ext_summary.csv",
 }
 MENGEL_CSV = os.path.join(REPO, MENGEL_VINTAGES["BRICK-Mengel (base)"])
-BRICKF_CSV = os.path.join(REPO, "outputs/ssps_components_2300_extC.csv")
+LADRILLO_CSV = os.path.join(REPO, "outputs/ssps_components_2300_extC.csv")
 
-OUT_CSV = os.path.join(REPO, "outputs/diag_mengel_to_brickf_attribution.csv")
-OUT_MD = os.path.join(REPO, "outputs/diag_mengel_to_brickf_attribution_summary.md")
-OUT_PNG = os.path.join(REPO, "figures/diag_mengel_to_brickf_attribution.png")
+OUT_CSV = os.path.join(REPO, "outputs/diag_mengel_to_ladrillo_attribution.csv")
+OUT_MD = os.path.join(REPO, "outputs/diag_mengel_to_ladrillo_attribution_summary.md")
+OUT_PNG = os.path.join(REPO, "figures/diag_mengel_to_ladrillo_attribution.png")
 
 YEAR = 2100
 HEADLINE_SSP = "SSP2-4.5"
-# Mengel summary column -> BRICK-F* component name
+# Mengel summary column -> Ladrillo component name
 COMP_MAP = {"ais": "ais", "gsic": "glaciers", "gis": "gis", "te": "te", "lws": "lws"}
 COMP_LABEL = {"ais": "Antarctic", "gsic": "Glaciers", "gis": "Greenland",
               "te": "Thermal expansion", "lws": "Land water storage"}
 FROM_LABEL = "BRICK-Mengel"
-TO_LABEL = "BRICK-F*"
+TO_LABEL = "Ladrillo"
 
 # ---------------------------------------------------------------- load
 men = pd.read_csv(MENGEL_CSV).set_index("ssp_label")
-bf = pd.read_csv(BRICKF_CSV)
+bf = pd.read_csv(LADRILLO_CSV)
 bf = bf[bf.year == YEAR]
 
 ssps = [s for s in men.index if s in set(bf.ssp)]
@@ -118,7 +118,7 @@ for vname, vpath in MENGEL_VINTAGES.items():
         d_ais = float(b.loc["ais", "med"]) - float(v.loc[ssp, "ais"])
         vrows.append(dict(vintage=vname, ssp=ssp,
                           mengel_total=float(v.loc[ssp, "p50"]),
-                          brickf_total=float(b.loc["total", "med"]),
+                          ladrillo_total=float(b.loc["total", "med"]),
                           total_shift=d_tot, ais_shift=d_ais,
                           ais_share=d_ais / d_tot if d_tot != 0 else np.nan))
 vtab = pd.DataFrame(vrows)
@@ -185,7 +185,7 @@ with open(OUT_MD, "w") as fh:
     fh.write("| vintage | ssp | Mengel total | BRICK-F\\* total | total shift | "
              "Antarctic shift | Antarctic share |\n|---|---|---|---|---|---|---|\n")
     for r in vtab.itertuples():
-        fh.write(f"| {r.vintage} | {r.ssp} | {r.mengel_total:.2f} | {r.brickf_total:.2f} | "
+        fh.write(f"| {r.vintage} | {r.ssp} | {r.mengel_total:.2f} | {r.ladrillo_total:.2f} | "
                  f"{r.total_shift:+.2f} | {r.ais_shift:+.2f} | {r.ais_share:.0%} |\n")
     fh.write("\n## Is it a level shift or a median crossing? (Antarctic, by quantile)\n\n")
     fh.write(f"| ssp | quantile | {FROM_LABEL} | {TO_LABEL} | shift |\n|---|---|---|---|---|\n")

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-brickf_data.py — assemble every observational and structural input BRICK-F*'s
+ladrillo_data.py — assemble every observational and structural input Ladrillo's
 glacier calibration depends on, and emit the three machine-generated artifacts
 the Julia calibrator reads.
 
 This is the readable, importable replacement for the exec-prefix chain that
 produced the same artifacts during development (build_extc_inputs.py ->
 d1f -> d1e -> d1d -> d0_glacier_shootout, ~1650 lines of source-splitting
-`exec`). Nothing is re-derived: python/test_brickf_data.py asserts the
+`exec`). Nothing is re-derived: python/test_ladrillo_data.py asserts the
 artifacts this module writes are IDENTICAL, to full float precision, to the
 committed ones the chain produced. The research cells stay where they are as
 provenance; this file is the production path.
@@ -535,7 +535,7 @@ def build_artifacts(write=True, out_drivers=OUT_DRIVERS, out_constants=OUT_CONST
 
 def main():
     drivers, constants, gsic_adj = build_artifacts()
-    print(f"brickf_data | {len(SPEC_3RES)} reservoirs | "
+    print(f"ladrillo_data | {len(SPEC_3RES)} reservoirs | "
           f"drivers {int(drivers.year.min())}-{int(drivers.year.max())} | "
           f"target {int(gsic_adj.year.min())}-{int(gsic_adj.year.max())}")
     show = ["block", "a0", "S2020_data", "tau15", "tau30", "amp_regchar", "amp_obsfit",

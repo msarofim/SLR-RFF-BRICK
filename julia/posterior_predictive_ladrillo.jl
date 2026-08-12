@@ -1,7 +1,7 @@
 ## ============================================================================
-## posterior_predictive_brickf.jl — BRICK-F* hindcast vs observations
+## posterior_predictive_ladrillo.jl — Ladrillo hindcast vs observations
 ##
-## Forward-runs the accepted BRICK-F* (extC) posterior over the calibration
+## Forward-runs the accepted Ladrillo (extC) posterior over the calibration
 ## window and compares component bands to the observational targets they were
 ## fit to. This is the observation-comparison deliverable for the sharing memo.
 ##
@@ -28,19 +28,19 @@
 ##                       to GlaMBIE 2019+, r19 removed
 ##   total               Frederikse 2020 spliced to NOAA STAR altimetry
 ##
-##   julia --project=julia_v2 julia/posterior_predictive_brickf.jl [n_draws]
+##   julia --project=julia_v2 julia/posterior_predictive_ladrillo.jl [n_draws]
 ## ============================================================================
 
 using CSV, DataFrames, Mimi, Printf, Random, Statistics
-include(joinpath(@__DIR__, "brickf_projection.jl"))
+include(joinpath(@__DIR__, "ladrillo_projection.jl"))
 
 const Y0, Y1     = 1850, 2026
 const FIT_REF    = (1995, 2005)            # calibration re-reference window
 const FORCING    = "ssp245harm"
 const FIT_START  = 1900                    # all target series start here
 const NTHIN      = length(ARGS) >= 1 ? parse(Int, ARGS[1]) : 2000
-const OUT_BANDS  = joinpath(BRICKF_REPO, "outputs/postpred_extC_components_timeseries.csv")
-const OUT_BIAS   = joinpath(BRICKF_REPO, "outputs/postpred_extC_bias.csv")
+const OUT_BANDS  = joinpath(LADRILLO_REPO, "outputs/postpred_extC_components_timeseries.csv")
+const OUT_BIAS   = joinpath(LADRILLO_REPO, "outputs/postpred_extC_bias.csv")
 const DELTA_END  = 1960                    # delta ramp is zero from this year on
 
 ## (kernel component, target column in recalib_targets_ext.csv, AR(1) noise-parameter
@@ -56,8 +56,8 @@ const NOISE_SEED = 2026
 ## ---------------------------------------------------------------------------
 ## targets
 ## ---------------------------------------------------------------------------
-tg   = CSV.read(joinpath(BRICKF_REPO, "outputs/recalib_targets_ext.csv"), DataFrame)
-gadj = CSV.read(joinpath(BRICKF_REPO, "outputs/recalib_targets_ext_gsicadj.csv"), DataFrame)
+tg   = CSV.read(joinpath(LADRILLO_REPO, "outputs/recalib_targets_ext.csv"), DataFrame)
+gadj = CSV.read(joinpath(LADRILLO_REPO, "outputs/recalib_targets_ext_gsicadj.csv"), DataFrame)
 tgi(y) = findfirst(==(y), tg.year)
 haveobs(col, y) = (r = tgi(y); r !== nothing && !ismissing(tg[r, col]) && !isnan(Float64(tg[r, col])))
 
@@ -85,13 +85,13 @@ const OBS_SIGMA = Dict(tcol => [obs_sigma(tcol, y) for y in FY] for (_, tcol, _)
 ## ---------------------------------------------------------------------------
 ## run the posterior
 ## ---------------------------------------------------------------------------
-post = brickf_posterior(cols=:all, nthin=NTHIN)   # :all — the ledger columns are needed here
-bf   = brickf_setup(ssp="ssp245", y0=Y0, y1=Y1, forcing_tag=FORCING, ref=FIT_REF)
-imy  = [brickf_yi(bf, y) for y in FY]
+post = ladrillo_posterior(cols=:all, nthin=NTHIN)   # :all — the ledger columns are needed here
+bf   = ladrillo_setup(ssp="ssp245", y0=Y0, y1=Y1, forcing_tag=FORCING, ref=FIT_REF)
+imy  = [ladrillo_yi(bf, y) for y in FY]
 ny   = length(FY)
 
-@printf("BRICK-F* posterior predictive | %s | %d draws | %d-%d | base %d-%d | forcing %s\n",
-        basename(BRICKF_POSTERIOR_CSV), nrow(post), FIT_START, Y1,
+@printf("Ladrillo posterior predictive | %s | %d draws | %d-%d | base %d-%d | forcing %s\n",
+        basename(LADRILLO_POSTERIOR_CSV), nrow(post), FIT_START, Y1,
         FIT_REF[1], FIT_REF[2], FORCING)
 
 model = Dict(k => Array{Float64}(undef, nrow(post), ny) for (k, _, _) in SERIES)
@@ -116,14 +116,14 @@ end
 noise = Vector{Float64}(undef, ny)
 t0 = time()
 for (i, r) in enumerate(eachrow(post))
-    brickf_run_draw!(bf, r)
+    ladrillo_run_draw!(bf, r)
     u = Float64(r["gic_u_unch"])
-    ais  = brickf_series(bf, :ais)[imy]
-    gsic = brickf_series(bf, :gsic_hind; funch=u)[imy]     # hindcast scope: SLOWP+FAST+F_unch
-    gis  = brickf_series(bf, :gis)[imy]
-    te   = brickf_series(bf, :te)[imy]
+    ais  = ladrillo_series(bf, :ais)[imy]
+    gsic = ladrillo_series(bf, :gsic_hind; funch=u)[imy]     # hindcast scope: SLOWP+FAST+F_unch
+    gis  = ladrillo_series(bf, :gis)[imy]
+    te   = ladrillo_series(bf, :te)[imy]
     # total scope adds the R19 seam (real melt) and the observed LWS budget
-    tot  = brickf_series(bf, :glaciers; funch=u)[imy] .+ ais .+ gis .+ te .+ lws_obs
+    tot  = ladrillo_series(bf, :glaciers; funch=u)[imy] .+ ais .+ gis .+ te .+ lws_obs
     model[:ais][i, :] = ais; model[:glaciers][i, :] = gsic
     model[:gis][i, :] = gis; model[:te][i, :] = te; model[:total][i, :] = tot
     obs_corrected[i, :] = [obs_of(:gsic, y) for y in FY] .+ Float64(r["gic_delta"]) .* delta_ramp
@@ -202,7 +202,7 @@ for (key, tcol, _) in SERIES
             key, length(ins), 100 * mean(ins), 100 * mean(insp), mean(bs))
     push!(cov, (string(key), length(ins), mean(ins), mean(insp), mean(bs)))
 end
-CSV.write(joinpath(BRICKF_REPO, "outputs/postpred_extC_coverage.csv"), cov)
+CSV.write(joinpath(LADRILLO_REPO, "outputs/postpred_extC_coverage.csv"), cov)
 
-println("\nwrote ", relpath(OUT_BANDS, BRICKF_REPO), ", ", relpath(OUT_BIAS, BRICKF_REPO),
+println("\nwrote ", relpath(OUT_BANDS, LADRILLO_REPO), ", ", relpath(OUT_BIAS, LADRILLO_REPO),
         ", outputs/postpred_extC_coverage.csv")

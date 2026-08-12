@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-test_brickf_data.py — python/brickf_data.py must reproduce the committed
+test_ladrillo_data.py — python/ladrillo_data.py must reproduce the committed
 calibrator inputs exactly, and its physics must satisfy the relations the
 constants are supposed to encode.
 
   [1] REGRESSION. The three artifacts rebuilt in memory are identical, to the
       full precision they are written at, to the committed files the original
       exec-prefix chain produced. This is what licenses the refactor: the
-      accepted BRICK-F* posterior was calibrated against those exact files.
+      accepted Ladrillo posterior was calibrated against those exact files.
   [2] Reservoir partition: the three reservoirs cover every inventory region
       exactly once, and their inventories sum to the Farinotti total.
   [3] The anchored (kappa, nu) reproduce BOTH regional response times.
@@ -20,7 +20,7 @@ constants are supposed to encode.
       response class over the modern era (R19 coldest-responding, SLOWP the
       strongest amplifier).
 
-  python3 python/test_brickf_data.py
+  python3 python/test_ladrillo_data.py
 """
 import os
 import sys
@@ -28,7 +28,7 @@ import sys
 import numpy as np
 import pandas as pd
 
-import brickf_data as bd
+import ladrillo_data as bd
 
 FAILURES = []
 
@@ -144,5 +144,5 @@ check("SLOWP warms most, R19 least (the reason for the split)",
 
 print("\n" + "=" * 74)
 if FAILURES:
-    sys.exit(f"brickf_data: {len(FAILURES)} FAILED — " + "; ".join(FAILURES))
-print("brickf_data: ALL TESTS PASS")
+    sys.exit(f"ladrillo_data: {len(FAILURES)} FAILED — " + "; ".join(FAILURES))
+print("ladrillo_data: ALL TESTS PASS")

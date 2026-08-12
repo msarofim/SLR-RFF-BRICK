@@ -1,3 +1,9 @@
+> **2026-08-12 — the model described here is now named `Ladrillo`** (was BRICK-F\*).
+> This memo is frozen as written; see `CHANGELOG.md` (2026-08-12) for the path
+> mapping. **Ladrillo 1.0** is defined as the version including the Greenland
+> update as well as the GSIC and Antarctic updates, i.e. after pass-1 step 5 —
+> which this memo predates.
+
 # BRICK-F\*: an updated BRICK — three glacier reservoirs, recalibrated Antarctic dynamics, and an extended observational basis
 
 Marcus C. Sarofim, NYU Marron Institute — 2026-08-10

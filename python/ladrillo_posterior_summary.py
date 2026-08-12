@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-brickf_posterior_summary.py — the BRICK-F* posterior parameter table.
+ladrillo_posterior_summary.py — the Ladrillo posterior parameter table.
 
 Median and 5-95% for every sampled parameter of the accepted extC posterior,
 next to the prior it was sampled under, split into the blocks a reader needs to
@@ -11,8 +11,8 @@ Priors are transcribed from julia/calibrate_mcmc_ext.jl (the per-block glacier
 priors are built there from outputs/extc_block_constants.csv, so those entries
 are read from the constants file rather than hard-coded).
 
-  python3 python/brickf_posterior_summary.py
-Writes outputs/brickf_posterior_summary.csv and prints a markdown table.
+  python3 python/ladrillo_posterior_summary.py
+Writes outputs/ladrillo_posterior_summary.csv and prints a markdown table.
 """
 import os
 
@@ -22,7 +22,7 @@ import pandas as pd
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 POSTERIOR = os.path.join(REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_extC.csv")
 CONSTANTS = os.path.join(REPO, "outputs/extc_block_constants.csv")
-OUT = os.path.join(REPO, "outputs/brickf_posterior_summary.csv")
+OUT = os.path.join(REPO, "outputs/ladrillo_posterior_summary.csv")
 
 BLOCKS = ["R19", "SLOWP", "FAST"]
 # Priors not derived from the block constants, as (prior, source).
@@ -89,7 +89,7 @@ def main():
     df = pd.DataFrame(rows)
     df.to_csv(OUT, index=False)
 
-    print(f"BRICK-F* posterior — {len(post)} draws from {os.path.basename(POSTERIOR)}\n")
+    print(f"Ladrillo posterior — {len(post)} draws from {os.path.basename(POSTERIOR)}\n")
     for group, _ in GROUPS:
         sub = df[df.group == group]
         print(f"**{group}**\n")

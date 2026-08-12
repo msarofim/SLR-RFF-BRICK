@@ -17,7 +17,7 @@ MAGICC's seven SLR modules are mapped onto BRICK's five components:
     lws       = SLR_LANDWATER
     total     = Sea Level Rise            (reported, not summed)
 
-Conventions matched to the BRICK-F* projections: cm, re-referenced to the
+Conventions matched to the Ladrillo projections: cm, re-referenced to the
 1995-2014 mean, per-member sums BEFORE quantiles (so component bands are
 internally consistent with the total).
 

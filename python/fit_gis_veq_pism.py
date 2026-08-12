@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 fit_gis_veq_pism.py — the Greenland equilibrium-volume curve V_eq(T) for
-BRICK-F*, fitted directly to the PISM-dEBM equilibrium ladder.
+Ladrillo, fitted directly to the PISM-dEBM equilibrium ladder.
 
 DECISION 1 (Marcus, 2026-08-10): PISM-dEBM is the single implemented ladder.
 No Yelmo sensitivity arm. Yelmo is carried here as an EVALUATION-ONLY overlay

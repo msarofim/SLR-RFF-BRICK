@@ -3,7 +3,91 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-11 (latest) — Gate 3.2 cleared: the 28 cm Mengel→F\* shift is 110% Antarctic, and it is a tipping-PROBABILITY shift
+## [unreleased] — 2026-08-12 (latest) — The model is now **Ladrillo** (was BRICK-F\*)
+
+Marcus, 2026-08-12. `ladrillo` is Spanish for *brick* — the name keeps the
+provenance explicit while marking that the model has diverged from BRICK.
+*(Etymology / rationale sentence for the sharing memo and any paper: **Marcus to
+draft** — placeholder only.)*
+
+### Version definition (Marcus, 2026-08-12)
+**Ladrillo 1.0 = the version carrying the Greenland update as well as the GSIC and
+Antarctic updates** — i.e. the posterior produced by Greenland pass-1 **step 5**
+(the joint recalibration), which has NOT been run yet. Everything on this branch
+today is **pre-1.0**: `extC` has the GSIC and Antarctic work but *not* Greenland.
+Do not label current outputs 1.0.
+
+### Scope — three axes, only two renamed
+Full inventory and hazard analysis in `notes/scoping_2026-08-11_ladrillo_rename.md`.
+- **Display name** `BRICK-F*` → `Ladrillo`, and **code identity**
+  `brickf_`/`BRICKF_`/`BrickF` → `ladrillo_`/`LADRILLO_`/`Ladrillo`: **renamed**.
+- **Vintage and component tags** (`extC`, `greenland_ab`, `glaciers_nu3`):
+  **unchanged** — they are orthogonal axes. "Ladrillo, extC posterior" still parses.
+- **Repo name and Zenodo DOI: untouched.** `README.md` and `CITATION.cff` never
+  named the model, so repo identity and model identity were already decoupled.
+
+### The hazard, and how it was handled
+`brickf` is a substring of `brickfm` — **BRICK-FM is a different model** (the
+MimiBRICK-FM / Mengel line), with 130 references in this repo. A naive
+`sed s/brickf/ladrillo/g` would have corrupted every one of them. Instead:
+- Five **anchored** patterns, each provably unable to match BRICK-FM
+  (`BRICK-F\*` needs the literal `*`; `BRICKF_`/`brickf_` need the underscore;
+  `BrickF` is case-sensitive; `_brickf` is negative-lookahead-guarded against
+  `_brickfm`). Verified `\bbrickf\b` matches 0 times, so the set is exhaustive.
+- Per-file assertion that the BRICK-FM count is unchanged; the script aborts otherwise.
+- **297 substitutions across 21 files; BRICK-FM references before = after = 130.**
+
+### Verification — the rename is semantically null, so the gate was byte-identity
+1. `run_ladrillo_tests.sh` (all four suites) **passes**, and its output is
+   **byte-identical** to the pre-rename run once the renamed identifiers are
+   normalised.
+2. No tracked output changed content — only `git mv` renames are staged. (The two
+   files dirty in `git status` were already dirty before this work and are
+   unrelated: `figures/diag_gis_regional_driver.png`,
+   `outputs/mcmc/overdispersed_starts.csv`.)
+
+### Path mapping — frozen notes reference the OLD names
+Dated `notes/` keep their filenames **and** their contents: they are records of
+what was known when written, and rewriting them would falsify provenance (same
+principle as quarantining outputs rather than deleting them). Use this table to
+resolve any old path a note mentions:
+
+| old | new |
+|---|---|
+| `julia/brickf_projection.jl` | `julia/ladrillo_projection.jl` |
+| `julia/posterior_predictive_brickf.jl` | `julia/posterior_predictive_ladrillo.jl` |
+| `julia/project_ssps_components_brickf.jl` | `julia/project_ssps_components_ladrillo.jl` |
+| `julia/test_brickf_projection.jl` | `julia/test_ladrillo_projection.jl` |
+| `python/brickf_committed_ladder.py` | `python/ladrillo_committed_ladder.py` |
+| `python/brickf_data.py` | `python/ladrillo_data.py` |
+| `python/brickf_model_comparison.py` | `python/ladrillo_model_comparison.py` |
+| `python/brickf_posterior_summary.py` | `python/ladrillo_posterior_summary.py` |
+| `python/plot_brickf_memo_figures.py` | `python/plot_ladrillo_memo_figures.py` |
+| `python/test_brickf_data.py` | `python/test_ladrillo_data.py` |
+| `python/diag_mengel_to_brickf_attribution.py` | `python/diag_mengel_to_ladrillo_attribution.py` |
+| `run_brickf_tests.sh` | `run_ladrillo_tests.sh` |
+| `outputs/brickf_*.csv`, `figures/brickf_*.png` | `outputs/ladrillo_*.csv`, `figures/ladrillo_*.png` |
+
+**Frozen on purpose (names unchanged):** `notes/memo_2026-08-10_brickf_sharing.md`,
+`notes/redteam_2026-08-11_brickf.md`,
+`notes/note_2026-08-11_gate32_mengel_to_brickf_attribution.md`. Code references to
+these three were repaired back after the substitution rewrote them; every
+`notes/*.md` path referenced from code was then checked to exist on disk.
+
+### Deliberate remaining occurrences of `BRICK-F*`
+`CHANGELOG.md` (history above this entry), dated `notes/`, this scoping note, and
+`outputs/scope_greenland_bochow2026.csv` — the last being a **retracted** artefact
+(Bochow-2026 emulator retraction) that must not be used regardless.
+
+### Not done
+- `data/MimiBRICK/parameters_subsample_brick_mengel_extC.csv` still says
+  "brick_mengel" although extC has no Mengel glaciers. **Already wrong before this
+  rename**; kept as a separate correctness fix so the rename diff stayed
+  byte-identity-checkable.
+- Branch is still `brick-mengel-vnext`.
+- Stale outputs under old names await the quarantine sweep already owed from gate 3.2.
+
+## [unreleased] — 2026-08-11 — Gate 3.2 cleared: the 28 cm Mengel→F\* shift is 110% Antarctic, and it is a tipping-PROBABILITY shift
 
 Second gated diagnostic. Full argument in
 `notes/note_2026-08-11_gate32_mengel_to_brickf_attribution.md`.

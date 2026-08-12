@@ -1,10 +1,10 @@
-# Gate 3.2 — BRICK-Mengel to BRICK-F*, attributed by component
+# Gate 3.2 — BRICK-Mengel to Ladrillo, attributed by component
 
 Medians at 2100, cm, both on FaIR **mean** forcing (parameter spread only) and the 1995-2014 baseline.
 
 ## SSP1-2.6
 
-| component | BRICK-Mengel | BRICK-F* | shift |
+| component | BRICK-Mengel | Ladrillo | shift |
 |---|---|---|---|
 | Antarctic | 6.31 | 4.88 | **-1.43** |
 | Thermal expansion | 14.08 | 13.18 | **-0.90** |
@@ -15,7 +15,7 @@ Medians at 2100, cm, both on FaIR **mean** forcing (parameter spread only) and t
 
 ## SSP2-4.5
 
-| component | BRICK-Mengel | BRICK-F* | shift |
+| component | BRICK-Mengel | Ladrillo | shift |
 |---|---|---|---|
 | Antarctic | 43.05 | 11.74 | **-31.32** |
 | Thermal expansion | 18.45 | 17.27 | **-1.18** |
@@ -26,7 +26,7 @@ Medians at 2100, cm, both on FaIR **mean** forcing (parameter spread only) and t
 
 ## SSP5-8.5
 
-| component | BRICK-Mengel | BRICK-F* | shift |
+| component | BRICK-Mengel | Ladrillo | shift |
 |---|---|---|---|
 | Antarctic | 70.77 | 45.78 | **-24.99** |
 | Thermal expansion | 27.68 | 25.91 | **-1.77** |
@@ -58,7 +58,7 @@ Medians are not additive in general; the non-additivity column is the size of th
 
 ## Is it a level shift or a median crossing? (Antarctic, by quantile)
 
-| ssp | quantile | BRICK-Mengel | BRICK-F* | shift |
+| ssp | quantile | BRICK-Mengel | Ladrillo | shift |
 |---|---|---|---|---|
 | SSP1-2.6 | p05 | 5.81 | 3.94 | **-1.87** |
 | SSP1-2.6 | p50 | 6.31 | 4.88 | **-1.43** |

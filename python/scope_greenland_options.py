@@ -3,7 +3,7 @@
 scope_greenland_options.py — why BRICK's Greenland module under-responds to
 scenario, and which structural change would fix it.
 
-BRICK-F* leaves Greenland at stock SIMPLE (Bakker et al. 2016):
+Ladrillo leaves Greenland at stock SIMPLE (Bakker et al. 2016):
 
     V_eq(T)  = a·T + b                            equilibrium volume, m SLE
     1/tau(t) = (alpha·T + beta) · V(t)/V0         relaxation rate, 1/yr
