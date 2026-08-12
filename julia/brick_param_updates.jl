@@ -48,7 +48,8 @@ ships a Project.toml that still reads `1.2.0-dev`, so version introspection
 lies. The caller knows which get_model signature it built with; pass the flag
 from there.
 """
-function update_brick_params!(m, prow; precip_log::Bool=false, skip_glaciers::Bool=false)
+function update_brick_params!(m, prow; precip_log::Bool=false, skip_glaciers::Bool=false,
+                              skip_greenland::Bool=false)
     # `skip_glaciers=true` for a model whose single-reservoir glacier component has
     # been swapped for the Mengel emulator (`glaciers_mengel`, see brick_mengel.jl):
     # the old gsic_β₀/gsic_v₀/gsic_s₀/gsic_n params do not exist there, so skip them
@@ -84,11 +85,16 @@ function update_brick_params!(m, prow; precip_log::Bool=false, skip_glaciers::Bo
     end
 
     # Greenland Ice Sheet module (post-PR#93 calibration)
-    update_param!(m, :greenland_icesheet, :greenland_a,  prow.greenland_a)
-    update_param!(m, :greenland_icesheet, :greenland_b,  prow.greenland_b)
-    update_param!(m, :greenland_icesheet, :greenland_α,  prow.greenland_alpha)
-    update_param!(m, :greenland_icesheet, :greenland_β,  prow.greenland_beta)
-    update_param!(m, :greenland_icesheet, :greenland_v₀, prow.greenland_v0)
+    # `skip_greenland=true` for a model whose Greenland slot holds greenland_ab
+    # (Ladrillo 1.0) rather than stock SIMPLE: none of these five parameters
+    # exists there, and Mimi throws KeyError rather than ignoring them.
+    if !skip_greenland
+        update_param!(m, :greenland_icesheet, :greenland_a,  prow.greenland_a)
+        update_param!(m, :greenland_icesheet, :greenland_b,  prow.greenland_b)
+        update_param!(m, :greenland_icesheet, :greenland_α,  prow.greenland_alpha)
+        update_param!(m, :greenland_icesheet, :greenland_β,  prow.greenland_beta)
+        update_param!(m, :greenland_icesheet, :greenland_v₀, prow.greenland_v0)
+    end
 
     # Thermal expansion module
     update_param!(m, :thermal_expansion, :te_α,  prow.thermal_alpha)

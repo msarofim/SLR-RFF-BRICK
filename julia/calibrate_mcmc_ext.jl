@@ -180,6 +180,50 @@ end
 @printf("glacier drivers: t_glac_blocks.csv 1850-%d + amp_b x GMST splice | basis=%s | amp R19 %.2f / SLOWP %.2f / FAST %.2f\n",
         TGB_LAST, AMP_BASIS, AMP_B["R19"], AMP_B["SLOWP"], AMP_B["FAST"])
 
+# ============================================================================
+# GREENLAND A+B — the Ladrillo 1.0 module (Greenland pass-1 step 5)
+# ============================================================================
+# Replaces stock SIMPLE greenland_icesheet with julia/greenland_ab_component.jl:
+# a REGIONAL rate driver plus a two-channel SMB/dynamic split. Structure chosen
+# offline in python/gis_offline_cell.py (cell "A+B"); the Mimi port is validated
+# against that cell at 1e-9 by julia/validate_greenland_ab.jl.
+# --stock-gis reverts to stock SIMPLE (the extC parameter set) for A/B work.
+#
+# THE EXTERNAL INTERFACE IS STILL GMST + OHC ONLY. The regional driver is built
+# HERE, inside the model's own inputs, exactly as the glacier block drivers are.
+# Do not promote it to a required input -- that drop-in property is what
+# distinguishes Ladrillo from MAGICC-SLR.
+const GIS_AB = !("--stock-gis" in ARGS)
+const GIS_ZONE = "south"          # Marcus 2026-08-10; "all" is the sensitivity arm
+const GIS_AMP = 1.92              # outputs/gis_amp_prior.csv, south/full: N(1.92, 0.32)
+const GIS_V0_M = 7.42             # Greenland volume, m SLE — STRUCTURAL, not sampled
+# gis_g is FIXED AT 0 (item 4.1, 2026-08-12): profiled over [0, 0.8] the offline
+# objective moves 4e-4 nlp and the 2100 projections do not move at all, and it is
+# confounded with gis_c0. 0 is also stock SIMPLE's own initial condition.
+const GIS_G = 0.0
+# Mouginot 2019 SMB/discharge partition: the extra loss rate of 2000-2018 over
+# 1972-1990 is 73.5% surface. This is what makes the two-channel split
+# identifiable -- without it f and the timescales trade off freely, which is why
+# the offline cell carried it and why it is ported into the joint likelihood
+# below rather than left as a prior on f.
+const MOUG_SHARE, MOUG_SHARE_SD = 0.735, 0.05
+const MOUG_REF_WIN, MOUG_LATE_WIN = (1972, 1990), (2000, 2018)
+tgz = CSV.read(joinpath(REPO, "data/observations/t_gis_zones.csv"), DataFrame)
+const TGZ_LAST = Int(maximum(tgz.year))
+# The zone column is ALREADY an anomaly on the 1850-1900 frame (verified: mean
+# over that window is -0.0), so it is used as-is, matching gis_offline_cell.py.
+tgis = let obsd = Dict(Int(tgz[i, :year]) => Float64(tgz[i, GIS_ZONE]) for i in 1:nrow(tgz)),
+           gmd = Dict(zip(years, gmst_rb)), anchor = (TGZ_LAST-10):TGZ_LAST
+    off = mean(obsd[y] for y in anchor) - GIS_AMP * mean(gmd[y] for y in anchor)
+    [y <= TGZ_LAST ? obsd[y] : GIS_AMP * gmd[y] + off for y in years]
+end
+if GIS_AB
+    @printf("greenland driver: t_gis_zones.csv[%s] 1850-%d + amp %.2f x GMST splice | gis_g FIXED %.1f | Mouginot share %.3f+/-%.3f\n",
+            GIS_ZONE, TGZ_LAST, GIS_AMP, GIS_G, MOUG_SHARE, MOUG_SHARE_SD)
+else
+    println("greenland: STOCK SIMPLE (--stock-gis) — the extC parameter set")
+end
+
 ϵband(lo,hi)=max.((hi.-lo)./(2*1.645), 0.05)           # per-year obs σ (floor 0.05cm)
 
 # Budget-closure inflation of the TOTAL target's σ (Marcus ruling, 2026-08-12, gate 3.1).
@@ -285,9 +329,45 @@ push!(FREE, P("antarctic_alpha",:antarctic_icesheet,:ais_α))
 push!(FREE, P("antarctic_nu",:antarctic_icesheet,:ais_ν))
 push!(FREE, P("antarctic_temp_threshold",:antarctic_icesheet,:temperature_threshold))
 push!(FREE, P("anto_alpha",:antarctic_ocean,:anto_α)); push!(FREE, P("anto_beta",:antarctic_ocean,:anto_β))
-push!(FREE, P("greenland_a",:greenland_icesheet,:greenland_a)); push!(FREE, P("greenland_b",:greenland_icesheet,:greenland_b))
-push!(FREE, P("greenland_alpha",:greenland_icesheet,:greenland_α)); push!(FREE, P("greenland_beta",:greenland_icesheet,:greenland_β))
-push!(FREE, P("greenland_v0",:greenland_icesheet,:greenland_v₀)); push!(FREE, P("thermal_alpha",:thermal_expansion,:te_α))
+if GIS_AB
+    # ---- Greenland A+B: 7 sampled params (gis_g fixed at 0, gis_v0 structural) ----
+    # UNITS: the component works in m SLE; the offline cell in cm. Centres are the
+    # CONVERGED offline A+B fit AT g = 0 (outputs/gis_g_betaf_variants.csv row
+    # "g=0"), converted /100 for the two level parameters. Taking them from the
+    # g = 0.917 fit instead would be wrong: (c0, g) is a flat manifold and c0
+    # moves from 4.04 cm to 61.99 cm along it at identical nlp.
+    # BOUNDS are the offline PBOUNDS, converted. PRIORS are deliberately WEAK
+    # (sigma several times the centre) so the joint likelihood, not the offline
+    # fit, decides — in particular beta_f is left free across its whole range per
+    # Marcus's 4.2 ruling, rather than re-bounded to the offline data support.
+    # >>> THE PRIOR TABLE HAS NOT BEEN SIGNED OFF. Review before the production
+    # >>> run; the smoke run commits nothing.
+    GISC = :greenland_icesheet
+    push!(FREE, (name="gis_c1", comp=GISC, sym=:gis_c1,
+                 μ=0.032766, σ=0.050, lo=0.0, hi=4.0, islog=false))
+    push!(FREE, (name="gis_c0", comp=GISC, sym=:gis_c0,
+                 μ=0.040429, σ=0.100, lo=0.0, hi=4.0, islog=false))
+    # NB the centre is the offline FITTED f, not MOUG_SHARE. The Mouginot
+    # information enters through the likelihood term below; centring the prior on
+    # it as well would count the same observation twice. (--gis-check caught this:
+    # at mu = 0.735 the model's modern surface share comes out 0.682, not 0.735,
+    # because f is the share of the COMMITMENT, not of the modern rate.)
+    push!(FREE, (name="gis_f", comp=GISC, sym=:gis_f,
+                 μ=0.782569, σ=0.30, lo=0.02, hi=0.98, islog=false))
+    push!(FREE, (name="gis_alpha_f", comp=GISC, sym=:gis_alpha_f,
+                 μ=0.0028487, σ=0.020, lo=0.0, hi=0.5, islog=false))
+    push!(FREE, (name="gis_beta_f", comp=GISC, sym=:gis_beta_f,
+                 μ=0.0073684, σ=0.050, lo=1e-6, hi=0.5, islog=false))
+    push!(FREE, (name="gis_alpha_s", comp=GISC, sym=:gis_alpha_s,
+                 μ=0.0070727, σ=0.020, lo=0.0, hi=0.2, islog=false))
+    push!(FREE, (name="gis_beta_s", comp=GISC, sym=:gis_beta_s,
+                 μ=0.0010000, σ=0.020, lo=1e-6, hi=0.2, islog=false))
+else
+    push!(FREE, P("greenland_a",:greenland_icesheet,:greenland_a)); push!(FREE, P("greenland_b",:greenland_icesheet,:greenland_b))
+    push!(FREE, P("greenland_alpha",:greenland_icesheet,:greenland_α)); push!(FREE, P("greenland_beta",:greenland_icesheet,:greenland_β))
+    push!(FREE, P("greenland_v0",:greenland_icesheet,:greenland_v₀))
+end
+push!(FREE, P("thermal_alpha",:thermal_expansion,:te_α))
 G=:glaciers_small_icecaps
 # ---- 2026-08-06 glacier-stock fix (Marcus-approved; memo_2026-08-05 §3) --------------------
 # A0 showed the old box closed the flow-unidentified STOCK direction at the wrong point
@@ -561,14 +641,26 @@ println("MCMC: $NP physical (incl $(length(GEO_IDX)) DAIS-geometry under a joint
 
 # ---- model base (medoid + glacier init), forcing once -- extC 3-reservoir build ----
 medoid = CSV.read(joinpath(REPO,"outputs/recalib_central_row.csv"), DataFrame)[1,:]
-m = build_brick_nu3(ssp="ssp245", y0=Y0, y1=Y1)
+m = GIS_AB ? build_brick_nu3_gis(ssp="ssp245", y0=Y0, y1=Y1) :
+             build_brick_nu3(ssp="ssp245", y0=Y0, y1=Y1)
 gic3_init = (; (Symbol(b) => (a=Float64(bcrow(b).a0),
                               b=Float64(bcrow(b)["b_fit_$(FIT_BASIS)"]),
                               T_off=Float64(bcrow(b)["T_off_fit_$(FIT_BASIS)"]),
                               kappa=KAP_ANCH[b], nu=NU_ANCH[b]) for b in BLOCKS)...)
-update_brick_nu3!(m, medoid, gic3_init; precip_log=true)   # ν_b FIXED here (anchored; not sampled)
+update_brick_nu3!(m, medoid, gic3_init; precip_log=true,   # ν_b FIXED here (anchored; not sampled)
+                  skip_greenland=GIS_AB)                   # greenland_ab has no stock-SIMPLE params
 set_forcing!(m, gmst, ohc)
 set_glacier_forcing3!(m, tg3)         # per-block T_glac; glacier slot never sees raw GMST
+if GIS_AB
+    set_gis_forcing!(m, tgis)         # REGIONAL driver; the GIS slot never sees raw GMST
+    # structural, never sampled: the commitment cap and the 1850 initial condition
+    update_param!(m, _GIS_SLOT, :gis_v0, GIS_V0_M)
+    update_param!(m, _GIS_SLOT, :gis_g, GIS_G)
+end
+# Indices for the Mouginot partition term. Defined unconditionally so the name is
+# always bound; only the GIS_AB branch of the likelihood reads it.
+const MOUG_I = (r0=idx(MOUG_REF_WIN[1]),  r1=idx(MOUG_REF_WIN[2]),
+                l0=idx(MOUG_LATE_WIN[1]), l1=idx(MOUG_LATE_WIN[2]))
 setp!(k,v)=update_param!(m,k.comp,k.sym, k.islog ? log(v) : v)
 reref(v)=100 .* (v .- sum(v[ib])/length(ib))
 
@@ -641,6 +733,23 @@ function logposterior(θ)
         ser = b == "SLOWP" ? m[G, :gsic_slowp] : m[G, :gsic_fast]
         mrate = 1000.0*(Float64(ser[GLAMBIE_I1]) - Float64(ser[GLAMBIE_I0])) / (2024 - 2000)
         ll += logpdf(Normal(GLAMBIE_RATE[b], GLAMBIE_SD[b]), mrate)
+    end
+    # Mouginot 2019 SMB/discharge partition — the constraint that makes the A+B
+    # two-channel split identifiable. Ported verbatim from model_surface_share()
+    # in python/gis_offline_cell.py: the FAST channel's share of the EXTRA loss
+    # RATE of MOUG_LATE_WIN over MOUG_REF_WIN, matched to how the observed 73.5%
+    # was computed. Scale-free, so the m-vs-cm unit difference does not enter.
+    if GIS_AB
+        tot = m[_GIS_SLOT, :greenland_sea_level]; fst = m[_GIS_SLOT, :gis_fast]
+        rate(x, i0, i1, n) = (Float64(x[i1]) - Float64(x[i0])) / n
+        nref, nlate = MOUG_REF_WIN[2]-MOUG_REF_WIN[1], MOUG_LATE_WIN[2]-MOUG_LATE_WIN[1]
+        d_tot  = rate(tot, MOUG_I.l0, MOUG_I.l1, nlate) - rate(tot, MOUG_I.r0, MOUG_I.r1, nref)
+        d_fast = rate(fst, MOUG_I.l0, MOUG_I.l1, nlate) - rate(fst, MOUG_I.r0, MOUG_I.r1, nref)
+        # A vanishing extra rate makes the share undefined; the offline cell skips
+        # the term there rather than dividing through, and so does this.
+        if abs(d_tot) > 1e-12
+            ll += logpdf(Normal(MOUG_SHARE, MOUG_SHARE_SD), d_fast / d_tot)
+        end
     end
     # priors: independent Gaussian on physical (EXCEPT the geometry block, which gets the
     # joint paleo prior below), weak half-normal on AR(1) σ
@@ -761,6 +870,27 @@ const OLD38_NAMES = vcat(
      "antarctic_lambda","antarctic_gamma","antarctic_kappa","ais_gmst_amp",
      "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG","ais_runoff_Ton","ais_c"],
     vcat([["sd_$s","rho_$s"] for s in SERIES]...))
+# extC-vintage 52-param chain/cov order (42 physical + 10 noise) — the verified
+# header of chain_extC_seed2026_n2000000.csv. Used to name-map the extC1 tuned
+# proposal shape into the Ladrillo 1.0 set, where the five stock-SIMPLE Greenland
+# rows disappear and seven gis_* rows arrive on a fresh diagonal. The glacier rows
+# ARE mapped here (unlike the older vintages): extC and Ladrillo 1.0 share the same
+# three-reservoir glacier structure and frame, so those proposal scales still mean
+# what they meant.
+const OLD52_NAMES = vcat(
+    ["ais_ocean_temperature₀","antarctic_alpha","antarctic_nu","antarctic_temp_threshold",
+     "anto_alpha","anto_beta","greenland_a","greenland_b","greenland_alpha","greenland_beta",
+     "greenland_v0","thermal_alpha",
+     "gic_a_R19","gic_b_R19","gic_T_off_R19","gic_log10_kappa_R19",
+     "gic_a_SLOWP","gic_b_SLOWP","gic_T_off_SLOWP","gic_log10_kappa_SLOWP",
+     "gic_a_FAST","gic_b_FAST","gic_T_off_FAST","gic_log10_kappa_FAST",
+     "gic_amp_R19","gic_amp_SLOWP","gic_amp_FAST",
+     "gic_u_unch","gic_delta","gic_u_pre","gic_s_r5",
+     "antarctic_lambda","antarctic_gamma","antarctic_kappa","ais_gmst_amp",
+     "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG",
+     "ais_runoff_Ton","ais_c"],
+    vcat([["sd_$s","rho_$s"] for s in SERIES]...))
+
 function embed_cov!(cov0, old, old_names; skip_gic::Bool=false)
     oi = Int[]; ni = Int[]
     for (i, nm) in enumerate(old_names)
@@ -777,6 +907,11 @@ if isfile(ADCOV)
     if size(old,1) == NK
         cov0 = old
         println("(seeding proposal from adapted covariance $(basename(ADCOV)))")
+    elseif size(old,1) == length(OLD52_NAMES)
+        nmap = embed_cov!(cov0, old, OLD52_NAMES)
+        println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+                "$(basename(ADCOV)); fresh diagonal for " *
+                join(setdiff(pn0[1:NP], OLD52_NAMES), ", ") * ")")
     elseif size(old,1) == length(OLD38_NAMES)
         nmap = embed_cov!(cov0, old, OLD38_NAMES; skip_gic=true)
         println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
@@ -847,6 +982,61 @@ if OVERDISPERSE
             SEED, si, lp0, logposterior(θmap))
 else
     println("logpost(θ0) = ", round(logposterior(θ0), digits=2), "  (start = MAP; common across seeds -> R̂ is ANTI-CONSERVATIVE)")
+end
+
+# ---- --gis-check: acceptance gate for the Ladrillo 1.0 Greenland wiring -------------
+# The Mimi component is validated against the offline cell by
+# julia/validate_greenland_ab.jl, but that says nothing about whether the CALIBRATOR
+# wires it up correctly -- the driver, the fixed g and v0, the re-reference frame and
+# the Mouginot windows all live here, not in the component. This runs the model at
+# theta0 (whose gis_* entries ARE the offline g=0 fit) and checks the four numbers the
+# offline cell reports for that same parameter vector. A wiring error shows up as a
+# gross miss, not a rounding difference, so the tolerances are deliberately loose.
+if "--gis-check" in ARGS
+    GIS_AB || error("--gis-check requires the A+B module (drop --stock-gis)")
+    # Run at the EXACT offline g=0 vector, not at theta0. Two of the seven prior
+    # centres are deliberately not the offline optimum (gis_beta_s is centred at
+    # 1e-3 rather than on its 1e-6 rail, and gis_f carries a weak prior), so a
+    # theta0 comparison would be testing the prior table rather than the wiring.
+    # This gate is about the wiring: driver, fixed g and v0, re-reference frame,
+    # Mouginot windows.
+    const GIS_OFFLINE_G0 = Dict(          # m SLE / per-yr; cm centres /100
+        "gis_c1" => 0.032766, "gis_c0" => 0.0404293, "gis_f" => 0.782569,
+        "gis_alpha_f" => 0.00284865, "gis_beta_f" => 0.00736838,
+        "gis_alpha_s" => 0.00707271, "gis_beta_s" => 1e-6)
+    θchk = copy(θ0)
+    for (k, fr) in enumerate(FREE)
+        haskey(GIS_OFFLINE_G0, fr.name) && (θchk[k] = GIS_OFFLINE_G0[fr.name])
+    end
+    logposterior(θchk)                            # sets params and runs the model
+    gser = reref(m[_GIS_SLOT, :greenland_sea_level])       # cm, calibrator frame
+    r = gser[S.gis.myi] .- S.gis.obs
+    rmse = sqrt(sum(abs2, r) / length(r))
+    mw = [i for (i, y) in enumerate(S.gis.years) if 1942 <= y <= 1982]
+    bias = mean(r[mw])                             # MODEL - obs, matching evaluate_gates()
+                                                   # in python/gis_offline_cell.py
+    i03, i18 = idx(2003), idx(2018)
+    rate = 10.0 * (gser[i18] - gser[i03]) / (2018 - 2003)   # cm -> mm/yr
+    tot = m[_GIS_SLOT, :greenland_sea_level]; fst = m[_GIS_SLOT, :gis_fast]
+    rt(x, i0, i1, n) = (Float64(x[i1]) - Float64(x[i0])) / n
+    nref, nlate = MOUG_REF_WIN[2]-MOUG_REF_WIN[1], MOUG_LATE_WIN[2]-MOUG_LATE_WIN[1]
+    share = (rt(fst, MOUG_I.l0, MOUG_I.l1, nlate) - rt(fst, MOUG_I.r0, MOUG_I.r1, nref)) /
+            (rt(tot, MOUG_I.l0, MOUG_I.l1, nlate) - rt(tot, MOUG_I.r0, MOUG_I.r1, nref))
+    # offline A+B at g=0 (outputs/gis_offline_cell_fits.csv + gis_g_betaf_variants.csv)
+    REF = (rmse=0.0617, bias=0.0146, rate=0.7749, share=0.7351)
+    TOL = (rmse=0.005,  bias=0.010,  rate=0.020,  share=0.010)
+    println("\n--gis-check | calibrator wiring vs the offline A+B cell at the SAME parameter vector")
+    checks = [("RMSE cm", rmse, REF.rmse, TOL.rmse),
+              ("1942-1982 bias cm", bias, REF.bias, TOL.bias),
+              ("2003-2018 rate mm/yr", rate, REF.rate, TOL.rate),
+              ("Mouginot surface share", share, REF.share, TOL.share)]
+    passes = [abs(g - w) <= t for (_, g, w, t) in checks]
+    for ((k, g, w, t), p) in zip(checks, passes)
+        @printf("  %-24s got %8.4f   offline %8.4f   |diff| %7.4f  tol %.2f  %s\n",
+                k, g, w, abs(g - w), t, p ? "PASS" : "FAIL")
+    end
+    println(all(passes) ? "GIS WIRING OK" : "GIS WIRING FAILED")
+    exit(all(passes) ? 0 : 1)
 end
 
 # Guard the sampling+output so this canonical calibrator can be `include`d for its setup (FREE list,

@@ -191,8 +191,10 @@ Non-glacier params from posterior row `prow`; glacier params from `gic3`, a
 NamedTuple of per-block NamedTuples keyed R19/SLOWP/FAST, each with fields
 a, b, T_off, kappa, nu (GLACIER-FRAME values). sl0 is always 0.
 """
-function update_brick_nu3!(m, prow, gic3; precip_log::Bool=true)
-    update_brick_params!(m, prow; precip_log=precip_log, skip_glaciers=true)
+function update_brick_nu3!(m, prow, gic3; precip_log::Bool=true,
+                           skip_greenland::Bool=false)
+    update_brick_params!(m, prow; precip_log=precip_log, skip_glaciers=true,
+                         skip_greenland=skip_greenland)
     for blk in NU3_BLOCKS
         g = getproperty(gic3, Symbol(blk))
         update_param!(m, _MENGEL_GLAC_SLOT, Symbol("gic_a_$blk"),     g.a)
