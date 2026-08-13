@@ -3,10 +3,12 @@
 The single definition of what "Ladrillo" currently means: which model, which
 posterior, which files, what may be said about them, and what is not in 1.0.
 If you are picking this up cold, read this file and
-`notes/handoff_2026-08-13b_amp_law_implemented.md`; everything else is detail.
+`notes/handoff_2026-08-13d_threads_4_and_5.md` (the current pickup document);
+everything else is detail.
 
 Baseline commit: tag **`ladrillo-1.0`**, branch `brick-mengel-vnext`.
-Status 2026-08-13: deliverables shipped; four open threads (§7).
+Status 2026-08-13: deliverables shipped. Four of six open questions CLOSED;
+threads 4 (next calibration) and 5 (2300 / high warming) are what is next — §7.
 
 ---
 
