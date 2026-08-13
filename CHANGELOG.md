@@ -3,7 +3,88 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-12 (latest) — Greenland A+B is wired into the joint calibrator: step 5 can run
+## [unreleased] — 2026-08-13 (latest) — Ladrillo 1.0 step 5 stages 2+3 DONE; accepted on the deliverable; the Greenland amp law measured
+
+### Stage 2 — `overdispersed_starts.csv` rebuilt for 55 params (commit `2ddb971`)
+The file on disk was the **52-param extC vintage**, so `--overdisperse` hard-errored.
+Rebuilt from the 2nd half of `chain_L10tune2_seed2026_n2000000.csv` at `ais_iceflow0`
+quantiles 0.02/0.35/0.65/0.98, in seed order. The extC file is preserved as
+`overdispersed_starts_extC52.csv` — its working copy differed from BOTH HEAD (39 cols)
+and `.pre_extc_bak`, so it was the only copy of that vintage.
+
+**Gate worth reusing:** the recomputed logposteriors reproduce the chain's stored
+`log_post` **to the digit** (42.20 / 44.79 / 46.02 / 45.84). That is an exact round-trip
+through the calibrator's own likelihood; a bare "is it finite" check would have passed a
+permutation of same-scale parameters.
+
+### Stage 3 — production run, and a 4.8× launch bug (commits `304f99e`, run complete)
+4 × 2M, seeds 2026–2029, acceptance 0.236–0.237, all seeded from
+`adapted_cov_L10tune2_seed2026.csv` **as-is with no "name-mapped" fallback**.
+
+**Tried and corrected:** the naive parallel launch reported ETA ~11h. Since stage 1's
+*solo* chain did the same 2M in 2h25m, that was treated as contention, not cost. Julia
+defaults to `BLAS.get_num_threads() == 4` and the box is an **Apple M4 with only 4
+performance cores** (+6 efficiency), so four chains put 16 BLAS threads on 4 P-cores with
+about half of each process's ~200% CPU being spin-wait. Pinning `OPENBLAS_NUM_THREADS=1`:
+**ETA 11:01 → 2:17**, run finished in ~2h15m. Threaded BLAS was never buying anything —
+the RAM sampler's per-iteration work is a 55×55 Cholesky. Recipe now in the calibrator
+header.
+
+### Convergence — parameters FAIL, deliverable PASSES (commit `322387a`)
+`postprocess_mcmc_ext.jl --tag=L10` reports **19 non-converged marginals** led by the AIS
+geometry block (`ais_iceflow0` **R̂ 2.359**, ESS 12.0, τ 3.3e5; `antarctic_alpha` 1.505;
+`gis_f` 1.335) and correctly REFUSED to write the canonical subsample.
+
+Read as the diagnostic working: the base diagnostic's header already records
+`ais_iceflow0` at R̂ 1.320 / ESS 10.6 in the 35-param v-next calibration, and ours is worse
+for a mechanical reason — **the starts are dispersed along `ais_iceflow0` itself**, and at
+τ≈3.3e5 a 1e6-draw post-burn half holds only ~3 effective samples of that axis.
+
+**Blocker found:** `diag_slr_convergence_by_chain{,_extc}.jl` are hard-wired to
+`greenland_a` and die on L10 chains — the same class as the hard-wired-to-stock-SIMPLE
+projection kernel. New `diag_slr_convergence_by_chain_ladrillo.jl` **delegates** the
+draw→BRICK mapping to `ladrillo_projection.jl` rather than re-implementing it inline
+(inline duplication is how the kernel drifted before), so it cannot certify a different
+model than the projections use.
+
+| horizon | R̂ | ESS | sd(medians) | mean(sd within) | ratio |
+|---|---|---|---|---|---|
+| SLR@2100 | **1.000** | 1588 | 0.122 cm | 12.487 | 0.010 |
+| SLR@2150 | **1.000** | 1680 | 4.415 cm | 33.867 | 0.130 |
+
+Pooled SLR@2100 q05/q50/q95 = **43.57 / 46.59 / 79.19 cm**; @2150 = 64.74 / 74.23 / 161.12
+(rel 1995–2014, ssp245). The AIS ridge does not propagate to the projection.
+**Caveat:** the 2150 median spread is 13× the 2100 value, consistent with the AIS tipping
+tail being the slowest-mixing feature — flag it wherever 2150 is reported.
+
+### The Greenland amp(GMST) law, measured (commit `26914eb`)
+40 CMIP6 models, `{historical, ssp126/245/585}` (ssp370 excluded as the aerosol outlier,
+as in the Antarctic work). `reduce_cmip6_tas_gis.py` **imports `build_t_gis`'s mask
+machinery** — same GTN-G polygon, subgrid, Berkeley land fraction, 59–70 N zone — because
+otherwise the CMIP6-vs-observed comparison measures the mask. Mask validated: lat
+58.9–70.2, lon −55..−22.5, Iceland weight exactly 0.
+
+- **The decline is real:** secant slope **−0.0503/K [−0.0792, −0.0120]**, through-origin
+  −0.0487/K (agreeing to 0.002/K). Balanced 40-model panel falls monotonically
+  **1.498 → 1.284 over 0.75–2.75 K**.
+- **ABANDONED as evidence — the observed window sequence.** early 3.604 → modern 1.792 is
+  a factor 2.01; the SAME estimator on the SAME windows in CMIP6 gives 0.91, and CMIP6 does
+  not reproduce the observed early ≫ full > modern ordering at all. The early window's
+  CMIP6 span is [0.247, 3.853], i.e. the estimator is enormously **noisy rather than biased
+  high**, so the observed 3.604 is one noisy draw. **Do not cite 3.60 → 1.79 as a physical
+  decline.**
+- **Keep the observed LEVEL.** 1.922 is only **+0.52 sd** above the CMIP6 full-window mean
+  1.604 (15% of models exceed it) — high side, inside the spread, not an outlier. Adopting
+  CMIP6's ~1.51 would discard an observational constraint the models do not contradict.
+- **Unresolved above ~3 K:** a bump at 3.25 K SURVIVES the balanced panel, so it is not
+  model dropout — likely scenario composition (a model only reaches 3.25 K under ssp585).
+- **The amp law does NOT close the 2100 gap.** Anchored, amp → ~1.67, putting the spread
+  near 8.7 cm against the 6.3–7.3 band: roughly 40% of the gap, not "most of the
+  explanation" as expected. Recompute on the production posterior.
+
+MCM-UA-1-0 dropped from the reduction (nonstandard coord names).
+
+## [unreleased] — 2026-08-12 — Greenland A+B is wired into the joint calibrator: step 5 can run
 
 The module was validated in isolation but nothing referenced it from
 `calibrate_mcmc_ext.jl` (`grep greenland_ab` returned 0). This is the wiring, so
