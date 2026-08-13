@@ -323,6 +323,58 @@ rather than on judgement.
   `(log r_s(T̄), tilt)` rather than `(α_s, β_s)`, which puts the unmixed direction
   on its own coordinate AND moves the boundary to infinity.
 
+### 10. Thread 3, part 2 — the unmixed axis does NOT reach the deliverable
+`julia/diag_iceflow0_propagation.jl` (400 draws/chain, ssp245, to 2300) +
+`julia/diag_ais_param_sensitivity.jl` (the alignment control).
+
+| comp | year | ratio@p50 | ratio@p95 | r with `ais_iceflow0` | chain medians (cm) |
+|---|---|---|---|---|---|
+| ais | 2100 | 0.012 | 0.183 | +0.000 | 5.76 .. 6.07 |
+| ais | 2150 | 0.167 | 0.188 | −0.010 | 12.19 .. 24.83 |
+| ais | 2300 | 0.058 | 0.122 | −0.003 | 133.02 .. 147.13 |
+| total | 2100 | 0.009 | 0.209 | −0.004 | 44.91 .. 45.17 |
+| total | 2150 | 0.137 | 0.159 | −0.013 | 69.57 .. 80.01 |
+| total | 2300 | 0.051 | 0.095 | −0.005 | 215.82 .. 228.34 |
+
+`ais_iceflow0` explains **R² < 0.001** of the projected Antarctic contribution at
+every horizon, and the chains agree on the projection everywhere — including at
+**p95**, which is the statistic R̂ cannot see and where the bimodal tipping tail
+would show if it were going to.
+
+**So the AIS sampler work is NOT load-bearing.** R̂ 2.359 on that axis is a
+reporting caveat, not a defect to engineer away; thread 4 should spend its effort
+on the noise model instead.
+
+**The alignment control, because r ≈ 0 for a grounding-line flux coefficient is a
+surprising result and a surprising result is presumptively a bug.** A
+draw/projection misalignment would produce exactly that table. Correlating the
+same projections against parameters the AIS must depend on:
+
+| parameter | r@2100 | r@2150 | r@2300 |
+|---|---|---|---|
+| `antarctic_temp_threshold` | −0.590 | −0.659 | −0.645 |
+| `ais_gmst_amp` | +0.413 | +0.461 | +0.467 |
+| `ais_iceflow0` | −0.019 | −0.032 | −0.033 |
+| `antarctic_alpha` / `antarctic_gamma` / `ais_mu` | ≤ 0.05 | ≤ 0.05 | ≤ 0.05 |
+
+The kernel resolves parameter→projection dependence at **20× the axis**, with
+physically correct signs (a higher tipping threshold means less loss; more
+Antarctic warming per degree global means more). The ~0 is physics. The AIS
+projection is governed by **when it tips**, not by how fast ice flows once it
+does — which is the same story the bimodality has been telling all along.
+
+**2300 checked across chains for the FIRST time, and it is BETTER than 2150**
+(0.051/0.095 against 0.137/0.159). Physically coherent: by 2300 most draws have
+tipped and the distributions re-converge. The standing caveat is refined —
+**2150 is the worst horizon**, not the start of a worsening trend.
+
+**One process note worth keeping.** Two runs of the propagation script died just
+after printing the first control row and I attributed it to memory pressure from
+a `pkill` race. That was wrong: it is Julia SOFT SCOPE — a top-level `for` makes
+an accumulator assigned inside it a new local, so `ctlmax` was undefined at the
+verdict line. The memory-pressure story was plausible because the box really does
+swap on these 2.2 GB reads, which is exactly why it went unexamined for two runs.
+
 ### The flat-hold above 2.75 K — the original reasoning, superseded by item 6
 Sub-choice 1 recommended holding S flat above 2.75 K because the 3.25 K bump is
 scenario composition. That is still the right call on evidence, but the label

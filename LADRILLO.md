@@ -157,8 +157,12 @@ a reader comparing totals sees AIS (high) and TE (low) cancel.
    distribution is bimodal (tipped / not tipped) and vintage changes move the
    *tipping probability*, not a level. "X cm lower at SSP2-4.5" is a misleading
    sentence.
-2. **2150 and 2300**: the AIS tipping tail is the slowest-mixing feature and R̂
-   does not see it (§2).
+2. **2150 is the worst horizon** — checked across chains at all three
+   (`diag_iceflow0_propagation.jl`): between/within ratio for the total is
+   0.009 at 2100, **0.137 at 2150**, 0.051 at 2300 (p95: 0.209 / 0.159 / 0.095).
+   2300 is BETTER than 2150 because by then most draws have tipped and the
+   distributions re-converge, so do not report this as a caveat that grows with
+   horizon. R̂ is mean-based and reads 1.000 at all three regardless.
 3. **High-warming Greenland**: option C failed and is out of pass 1, but its
    criticism — proportional relaxation cannot serve both a small historical loss
    and a huge post-threshold commitment — applies to A+B too, where it is
@@ -200,11 +204,13 @@ See §6 of the extC README for which, and why.
 2. **`gis_beta_f` prior re-bounding** — does re-bounding to the data support buy
    anything, or is β_f riding a ridge with `f` (in which case only
    reparameterisation helps)?
-3. **Reparameterise the correlated blocks** — AIS geometry
-   `(bedheight0, slope, iceflow0, c)` and, on the evidence of §2, the Greenland
-   slow block `(c0, alpha_s, beta_s, f)`. Precedent: the `ais_runoff_Ton`
-   reparameterisation fixed the runoff line the same way. **Do not simply run
-   longer** — τ ≈ 3.3e5 needs O(1e7–1e8) iterations.
+3. **Sampler work — REVISED 2026-08-13, the ridge hypothesis was falsified.**
+   There is no AIS ridge to rotate (worst-mixing direction is `ais_iceflow0`
+   +1.00 alone; block correlation condition number 8), and the axis explains
+   **R² < 0.001** of the projection, so it is a reporting caveat and NOT worth
+   sampler effort. Greenland is a different and milder disease — identified but
+   slow, with `gis_alpha_s` sticking against its hard rail at 0; the useful
+   change there is to sample the slow channel as `(log r_s(T̄), tilt)`.
 4. **Next calibration** — collects (2), (3) and an explicit discrepancy term for
    the noise model into ONE spec, rather than three changes each invalidating the
    last.
