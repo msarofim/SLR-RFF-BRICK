@@ -1,7 +1,7 @@
 ## ============================================================================
 ## posterior_predictive_ladrillo.jl — Ladrillo hindcast vs observations
 ##
-## Forward-runs the accepted Ladrillo (extC) posterior over the calibration
+## Forward-runs the accepted Ladrillo 1.0 (L10) posterior over the calibration
 ## window and compares component bands to the observational targets they were
 ## fit to. This is the observation-comparison deliverable for the sharing memo.
 ##
@@ -39,8 +39,8 @@ const FIT_REF    = (1995, 2005)            # calibration re-reference window
 const FORCING    = "ssp245harm"
 const FIT_START  = 1900                    # all target series start here
 const NTHIN      = length(ARGS) >= 1 ? parse(Int, ARGS[1]) : 2000
-const OUT_BANDS  = joinpath(LADRILLO_REPO, "outputs/postpred_extC_components_timeseries.csv")
-const OUT_BIAS   = joinpath(LADRILLO_REPO, "outputs/postpred_extC_bias.csv")
+const OUT_BANDS  = joinpath(LADRILLO_REPO, "outputs/postpred_L10_components_timeseries.csv")
+const OUT_BIAS   = joinpath(LADRILLO_REPO, "outputs/postpred_L10_bias.csv")
 const DELTA_END  = 1960                    # delta ramp is zero from this year on
 
 ## (kernel component, target column in recalib_targets_ext.csv, AR(1) noise-parameter
@@ -86,7 +86,9 @@ const OBS_SIGMA = Dict(tcol => [obs_sigma(tcol, y) for y in FY] for (_, tcol, _)
 ## run the posterior
 ## ---------------------------------------------------------------------------
 post = ladrillo_posterior(cols=:all, nthin=NTHIN)   # :all — the ledger columns are needed here
-bf   = ladrillo_setup(ssp="ssp245", y0=Y0, y1=Y1, forcing_tag=FORCING, ref=FIT_REF)
+const VARIANT = ladrillo_posterior_variant()
+bf   = ladrillo_setup(ssp="ssp245", y0=Y0, y1=Y1, forcing_tag=FORCING, ref=FIT_REF,
+                      gis_ab = VARIANT === :ab)
 imy  = [ladrillo_yi(bf, y) for y in FY]
 ny   = length(FY)
 

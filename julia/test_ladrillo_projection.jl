@@ -27,6 +27,10 @@
 using CSV, DataFrames, Mimi, Printf, Statistics
 include(joinpath(@__DIR__, "ladrillo_projection.jl"))
 
+# The canonical posterior decides which Greenland the model is built with;
+# read it off the file rather than assuming the vintage (it moved extC -> L10).
+const VARIANT = ladrillo_posterior_variant()
+
 const NDRAW = length(ARGS) >= 1 ? parse(Int, ARGS[1]) : 100
 const TOL_PORT = 1e-9      # python-vs-Julia port tolerance (full-precision CSVs)
 const TOL_EXACT = 1e-12    # same-run algebraic identities
@@ -48,8 +52,14 @@ end
 ## so the python reference is comparable.
 ## ---------------------------------------------------------------------------
 println("[setup] calibration window 1850-2026, forcing ssp245harm")
-hind = ladrillo_setup(ssp="ssp245", y0=1850, y1=2026, forcing_tag="ssp245harm", ref=(1995, 2005))
+hind = ladrillo_setup(gis_ab = VARIANT === :ab, ssp="ssp245", y0=1850, y1=2026, forcing_tag="ssp245harm", ref=(1995, 2005))
 @assert Int.(REF.year) == hind.years "port reference year grid mismatch"
+# The A+B Greenland slot has NO defaults: ladrillo_setup deliberately leaves its
+# seven parameters unset so a projection cannot silently run on placeholder
+# Greenland (Mimi refuses to build instead). The glacier tests below only need
+# the model to build, so seed it with one posterior draw; [1]-[3] then overwrite
+# every glacier parameter they actually test.
+VARIANT === :ab && ladrillo_apply_draw!(hind, ladrillo_posterior(nthin=1)[1, :])
 
 ## ---------------------------------------------------------------------------
 ## [1] drivers vs the python reference, both fixed amp bases
@@ -100,7 +110,7 @@ end
 ## ---------------------------------------------------------------------------
 println("\n[4] posterior contract")
 post_all = ladrillo_posterior(cols=:all)
-missing_cols = setdiff(LADRILLO_USED_COLS, names(post_all))
+missing_cols = setdiff(ladrillo_used_cols(VARIANT), names(post_all))
 detail = isempty(missing_cols) ? "$(nrow(post_all)) draws x $(ncol(post_all)) cols" :
                                  string("missing ", join(missing_cols, ", "))
 check("all kernel columns present in the subsample", isempty(missing_cols), detail)
@@ -122,7 +132,7 @@ check("F_unch total stock == u", abs(1000 * funch_m[end] - u) <= 1e-9,
       @sprintf("%.4f mm", 1000 * funch_m[end]))
 # In a 1995-2014-referenced projection the whole term is a constant offset that
 # the re-referencing all but removes: quantify the residual sliver.
-proj = ladrillo_setup(ssp="ssp245", y0=1850, y1=2300)
+proj = ladrillo_setup(gis_ab = VARIANT === :ab, ssp="ssp245", y0=1850, y1=2300)
 ladrillo_run_draw!(proj, post[1, :])
 sliver = maximum(abs.(ladrillo_series(proj, :glaciers; funch=u) .-
                       ladrillo_series(proj, :glaciers))[[ladrillo_yi(proj, y) for y in 2050:2300]])
@@ -136,7 +146,7 @@ println("\n[6] scenario monotonicity at 2100 ($(nrow(post)) matched draws)")
 const MONO_COMPONENTS = (:glaciers, :gis, :ais, :te, :total)
 meds = Dict{String,Dict{Symbol,Float64}}()
 for ssp in ("ssp126", "ssp245", "ssp585")
-    bf = ssp == "ssp245" ? proj : ladrillo_setup(ssp=ssp, y0=1850, y1=2300)
+    bf = ssp == "ssp245" ? proj : ladrillo_setup(gis_ab = VARIANT === :ab, ssp=ssp, y0=1850, y1=2300)
     i2100 = ladrillo_yi(bf, 2100)
     vals = Dict(c => Float64[] for c in MONO_COMPONENTS)
     for r in eachrow(post)

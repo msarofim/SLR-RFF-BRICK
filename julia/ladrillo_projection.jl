@@ -20,9 +20,13 @@
 ##   on its OWN area-weighted surface-temperature driver T_b.
 ##
 ## POSTERIOR
-##   data/MimiBRICK/parameters_subsample_brick_mengel_extC.csv — 10 000 draws
+##   data/MimiBRICK/parameters_subsample_brick_mengel_L10.csv — 10 000 draws
 ##   from 4 x 2M chains (seeds 2026-2029, acceptance 0.236-0.237), accepted on
-##   the deliverable (SLR@2100 R-hat 1.000, @2150 1.002). 52 columns:
+##   the deliverable 2026-08-13 (SLR@2100 R-hat 1.000). 55 columns = the 52
+##   below with the five stock-SIMPLE Greenland columns replaced by the eight
+##   Ladrillo 1.0 ones (7 sampled gis_* + gis_amp). Its predecessor
+##   parameters_subsample_brick_mengel_extC.csv (stock SIMPLE, 52 columns) is
+##   LADRILLO_POSTERIOR_EXTC_CSV. The column layout of the 52:
 ##     21 non-glacier physical params applied directly       (PHYSICAL_PARAMS)
 ##      2 derived AIS params (runoff line, GMST->T_ant amp)  (see apply_draw!)
 ##     12 per-block glacier params (a, b, T_off, log10 kappa)
@@ -73,8 +77,23 @@ include(joinpath(@__DIR__, "brick_mengel.jl"))
 const LADRILLO_REPO = abspath(joinpath(@__DIR__, ".."))
 const LADRILLO_OBS  = joinpath(LADRILLO_REPO, "data/observations")
 
-"""Canonical Ladrillo posterior subsample (extC, accepted 2026-08-10, commit 205ccbf)."""
+"""Canonical Ladrillo 1.0 posterior subsample: tag L10, 4 x 2M chains (seeds
+2026-2029, acceptance 0.236-0.237), ACCEPTED ON THE DELIVERABLE 2026-08-13
+(commit 6d73349) — SLR@2100 R-hat 1.000 across chains while 19 parameter
+marginals are NOT converged (`ais_iceflow0` R-hat 2.359). Consequence, carried
+here because this file is what every driver reads: the posterior MAY be used for
+projected SLR and anything derived from it, and MAY NOT be used for
+parameter-level inference (the pooled AIS-geometry marginals are a mixture of
+four chains that never merged, not posteriors). 55 columns; Greenland is the A+B
+variant, so consumers must build the model with `ladrillo_setup(gis_ab=true)` —
+`ladrillo_posterior_variant()` reads that off the file."""
 const LADRILLO_POSTERIOR_CSV =
+    joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_L10.csv")
+"""The extC posterior (accepted 2026-08-10, commit 205ccbf), which Ladrillo 1.0
+supersedes. Kept as a named constant because it is the stock-SIMPLE Greenland
+vintage the variant-detection tests exercise, and the provenance of every
+pre-L10 deliverable."""
+const LADRILLO_POSTERIOR_EXTC_CSV =
     joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_extC.csv")
 const LADRILLO_BLOCK_CONSTANTS_CSV = joinpath(LADRILLO_REPO, "outputs/extc_block_constants.csv")
 const LADRILLO_BLOCK_DRIVERS_CSV   = joinpath(LADRILLO_OBS, "t_glac_blocks.csv")
@@ -86,6 +105,77 @@ const LADRILLO_GIS_ZONE  = "south"
 const LADRILLO_GIS_AMP   = 1.92
 const LADRILLO_GIS_V0_M  = 7.42
 const LADRILLO_GIS_G     = 0.0
+
+## ---------------------------------------------------------------------------
+## The Greenland amplification law amp(GMST) — Marcus 2026-08-13
+## ---------------------------------------------------------------------------
+## Ladrillo 1.0 as calibrated applies a CONSTANT regional amplification to the
+## post-2024 splice. CMIP6 says the amplification FALLS with warming level
+## (40 models, secant slope -0.050/K [95% -0.079, -0.012], balanced 40-model
+## panel monotone 1.498 -> 1.284 over 0.75-2.75 K). The decision was: keep the
+## OBSERVED LEVEL (1.922 is only +0.52 sd above the CMIP6 full-window ensemble
+## mean, high side but not an outlier) and take only the CMIP6 SHAPE:
+##
+##     amp(dT) = amp_draw * S(dT),   S = R_secant(dT) / R_secant(dT_eff)
+##
+## S is tabulated on a fine grid by python/diag_gis_amp_cmip6.py and read here;
+## the anchor dT_eff = sum(x^3)/sum(x^2) is the x^2-weighted effective warming
+## level of the observed through-origin fit (python/diag_gis_amp_anchor.py), so
+## S(dT_eff) = 1 exactly and the law meets the calibration at the point the
+## calibration was made. That identity is asserted at load and again in
+## validate_gis_projection_ab.jl -- it is what stops this file and the
+## calibrator drifting onto different Greenlands now that the projector's amp is
+## a function and the calibrator's is a scalar.
+##
+## PROJECTION-SIDE ONLY. calibrate_mcmc_ext.jl runs 1850-2026, so exactly two of
+## its years fall past the splice seam and gis_amp is likelihood-inert there
+## (its own comment at the gis_amp prior says so). Nothing here changes any
+## calibrated quantity.
+##
+## LEVEL FORM. S multiplies the amplification, not the temperature: the driver
+## is amp*S(dT_t)*GMST_t, because the CMIP6 estimator behind S is a SECANT
+## (a level ratio), not a marginal/trend ratio. Integrating a trend ratio is the
+## error recorded in memory project_pai_cmip6_time_diagnostic.
+## LADRILLO_GIS_SHAPE env var swaps in an alternative shape table, for the
+## pre-registered sensitivity arms ONLY (e.g. gis_amp_shape_fullcurve, which
+## drops the flat-hold above 2.75 K). It names a stem under outputs/, so the
+## table and its meta row cannot be mismatched. Deliverables use the default.
+const LADRILLO_GIS_SHAPE_STEM = get(ENV, "LADRILLO_GIS_SHAPE", "gis_amp_shape")
+const LADRILLO_GIS_SHAPE_CSV      =
+    joinpath(LADRILLO_REPO, "outputs/$(LADRILLO_GIS_SHAPE_STEM).csv")
+const LADRILLO_GIS_SHAPE_META_CSV =
+    joinpath(LADRILLO_REPO, "outputs/$(LADRILLO_GIS_SHAPE_STEM)_meta.csv")
+"""Warming-level averaging window for the shape argument, years. CMIP6 measured
+S on 30-yr running windows, so the level fed to S is the same 30-yr running mean
+of GMST (centred, shrinking at the ends) rather than the single year — with a
+mean-GMST forcing the two differ by little, but the window is what was measured.
+Set to 1 for the raw annual level."""
+const LADRILLO_GIS_SHAPE_WIN = 30
+const _GIS_SHAPE_TBL = CSV.read(LADRILLO_GIS_SHAPE_CSV, DataFrame)
+const _GIS_SHAPE_META = CSV.read(LADRILLO_GIS_SHAPE_META_CSV, DataFrame)[1, :]
+"""Warming level at which S == 1: the calibration point of the amp law."""
+const LADRILLO_GIS_SHAPE_ANCHOR_DT = Float64(_GIS_SHAPE_META.anchor_dt)
+
+"""S(dT), linear interpolation of the emitted grid. The grid is already held FLAT
+outside the fitted support (0.75-2.75 K), so clamping at its ends is the same
+flat-hold rather than an extrapolation."""
+function ladrillo_gis_shape(dt::Real)
+    x, y = _GIS_SHAPE_TBL.dt, _GIS_SHAPE_TBL.S
+    d = clamp(Float64(dt), first(x), last(x))
+    i = searchsortedlast(x, d)
+    i >= length(x) && return Float64(y[end])
+    w = (d - x[i]) / (x[i+1] - x[i])
+    return Float64(y[i]) * (1 - w) + Float64(y[i+1]) * w
+end
+
+# The identity the whole construction rests on. If the emitted grid is ever
+# re-anchored without re-emitting, this fires at load instead of silently
+# rescaling every Greenland projection.
+abs(ladrillo_gis_shape(LADRILLO_GIS_SHAPE_ANCHOR_DT) - 1.0) < 1e-9 ||
+    error("ladrillo_projection: S(anchor dT = $LADRILLO_GIS_SHAPE_ANCHOR_DT) = " *
+          "$(ladrillo_gis_shape(LADRILLO_GIS_SHAPE_ANCHOR_DT)) != 1; " *
+          "$(basename(LADRILLO_GIS_SHAPE_CSV)) and " *
+          "$(basename(LADRILLO_GIS_SHAPE_META_CSV)) disagree on the anchor")
 """Medoid row supplying the params the extC posterior does NOT sample (e.g. ais_sea_level₀)."""
 const LADRILLO_MEDOID_CSV = joinpath(LADRILLO_REPO, "outputs/recalib_central_row.csv")
 
@@ -172,6 +262,15 @@ function ladrillo_gis_variant(cols)
           "Expected either $(join(LADRILLO_GIS_STOCK_COLS, ", ")) (stock SIMPLE) " *
           "or $(join(LADRILLO_GIS_AB_COLS, ", ")) (Ladrillo 1.0).")
 end
+"""Which Greenland variant a posterior FILE carries, from its header alone.
+
+Drivers must call this BEFORE `ladrillo_setup`, because `gis_ab=` decides which
+Greenland slot the model is built with; setting up wrong and then applying draws
+fails at apply time, after the setup cost, rather than projecting the wrong
+Greenland — but only because `ladrillo_apply_draw!` checks. Do not guess."""
+ladrillo_posterior_variant(path::AbstractString=LADRILLO_POSTERIOR_CSV) =
+    ladrillo_gis_variant(String.(propertynames(CSV.read(path, DataFrame; limit=0))))
+
 """Per-block glacier columns applied straight through (kappa is log10 — see apply)."""
 const LADRILLO_GLACIER_COLS =
     vcat([["gic_a_$b", "gic_b_$b", "gic_T_off_$b"] for b in LADRILLO_BLOCKS]...)
@@ -186,7 +285,10 @@ ladrillo_used_cols(variant::Symbol) = vcat(
     [p[1] for p in LADRILLO_PHYSICAL_PARAMS_NOGIS],
     variant === :ab ? LADRILLO_GIS_AB_COLS : LADRILLO_GIS_STOCK_COLS,
     LADRILLO_GLACIER_COLS, LADRILLO_DERIVED_COLS)
-const LADRILLO_USED_COLS = ladrillo_used_cols(:stock)
+## No variant-free column list: it would silently mean ":stock" and every
+## consumer of it would check the wrong contract on a Ladrillo 1.0 posterior
+## (exactly how test_ladrillo_projection.jl failed when the canonical posterior
+## moved to L10). Ask for the variant you have: ladrillo_used_cols(VARIANT).
 
 const _GLACIER_SYMS = Dict(nm => Symbol(nm) for nm in LADRILLO_GLACIER_COLS)
 
@@ -248,6 +350,18 @@ struct Ladrillo
     gis_obs::Vector{Float64}                 # observed regional Greenland T, padded to `years`
     gis_anchor::Float64                      # mean observed regional T over the splice anchor
     gis_mask::BitVector                      # years <= last observed Greenland driver year
+    gis_shape::Vector{Float64}               # S(warming level) per year; ALL ONES when the law is off
+    gis_shape_anchor::Float64                # mean(S_t * gmst_rb_t) over the splice anchor window
+    gis_shape_on::Bool                       # whether amp(GMST) is applied at all
+end
+
+"""Centred running mean of `v` over `w` years, shrinking at the ends. `w = 1`
+returns `v`. Matches the CMIP6 window that measured S (30 yr, centre = window
+midpoint)."""
+function _running_mean(v::AbstractVector{<:Real}, w::Int)
+    w <= 1 && return Float64.(v)
+    n, lo, hi = length(v), (w - 1) ÷ 2, w ÷ 2
+    return [mean(@view v[max(1, i - lo):min(n, i + hi)]) for i in 1:n]
 end
 
 """Per-year F_unch profile per mm of uncharted-ice stock U: zero before 1901,
@@ -281,7 +395,8 @@ function ladrillo_setup(; ssp::String="ssp245", y0::Int=1850, y1::Int=2300,
                       forcing_tag::String=ssp, ref::Tuple{Int,Int}=LADRILLO_REF,
                       gmst::Union{Nothing,Vector{<:Real}}=nothing,
                       ohc::Union{Nothing,Vector{<:Real}}=nothing,
-                      lws::Symbol=:seeded, gis_ab::Bool=false)
+                      lws::Symbol=:seeded, gis_ab::Bool=false,
+                      gis_shape::Bool=true)
     years = collect(y0:y1)
     yi(y) = findfirst(==(y), years)
 
@@ -322,6 +437,7 @@ function ladrillo_setup(; ssp::String="ssp245", y0::Int=1850, y1::Int=2300,
     # calibrator fixes it too), so the driver is fixed and computed once.
     gis_variant = gis_ab ? :ab : :stock
     gis_obs, gis_anchor, gis_mask = Float64[], 0.0, falses(length(years))
+    gis_shape_v, gis_shape_anchor = Float64[], 0.0
     if gis_ab
         tgz = CSV.read(LADRILLO_GIS_DRIVER_CSV, DataFrame)
         gd = Dict(Int(tgz[i, :year]) => Float64(tgz[i, LADRILLO_GIS_ZONE]) for i in 1:nrow(tgz))
@@ -331,6 +447,15 @@ function ladrillo_setup(; ssp::String="ssp245", y0::Int=1850, y1::Int=2300,
         gis_obs = [get(gd, y, 0.0) for y in years]      # values past gis_last are masked out
         gis_anchor = mean(gd[y] for y in ganch)
         gis_mask = years .<= gis_last
+        # The amp law. S is evaluated on the running-mean warming level; the
+        # anchor scalar is mean(S_t * GMST_t) over the SAME 11-yr splice window
+        # the constant-amp version anchors on, so the splice still reproduces the
+        # observed mean there exactly whether or not the law is on.
+        gis_shape_v = gis_shape ?
+            ladrillo_gis_shape.(_running_mean(gmst_rb, LADRILLO_GIS_SHAPE_WIN)) :
+            ones(length(years))
+        ianch = [yi(y) for y in ganch]
+        gis_shape_anchor = mean(gis_shape_v[ianch] .* gmst_rb[ianch])
     end
     m = gis_ab ? build_brick_nu3_gis(ssp=ssp, y0=y0, y1=y1, lws=lws) :
                  build_brick_nu3(ssp=ssp, y0=y0, y1=y1, lws=lws)
@@ -357,7 +482,8 @@ function ladrillo_setup(; ssp::String="ssp245", y0::Int=1850, y1::Int=2300,
                   Float64.(gmst), gmst_rb, obs_driver, obs_anchor,
                   mean(gmst_rb[[yi(y) for y in anchor]]),
                   years .<= last_obs, nu, _funch_unit(years),
-                  gis_variant, gis_obs, gis_anchor, gis_mask)
+                  gis_variant, gis_obs, gis_anchor, gis_mask,
+                  gis_shape_v, gis_shape_anchor, gis_shape)
 end
 
 """
@@ -375,10 +501,17 @@ ladrillo_driver(bf::Ladrillo, block::AbstractString, amp::Real) =
 
 gis_amp is SAMPLED (it is the dominant control on the 2100 projection -- across
 its prior the scenario spread runs 7.4 to 12.6 cm), so the driver is rebuilt per
-draw here exactly as the glacier block drivers are."""
+draw here exactly as the glacier block drivers are.
+
+With the amp law on (`ladrillo_setup(gis_shape=true)`, the default) the
+amplification is `amp * S(warming level)` rather than the constant `amp`; the
+offset still preserves the observed mean over the 11-yr anchor window, because
+`gis_shape_anchor` is that window's mean of `S_t * GMST_t`. With the law off
+`gis_shape` is all ones and `gis_shape_anchor` reduces to `gmst_anchor`, i.e.
+the expression below is identically the constant-amp splice."""
 ladrillo_gis_driver(bf::Ladrillo, amp::Real) =
     ifelse.(bf.gis_mask, bf.gis_obs,
-            amp .* bf.gmst_rb .+ (bf.gis_anchor - amp * bf.gmst_anchor))
+            amp .* bf.gis_shape .* bf.gmst_rb .+ (bf.gis_anchor - amp * bf.gis_shape_anchor))
 
 ## ---------------------------------------------------------------------------
 ## Applying a draw

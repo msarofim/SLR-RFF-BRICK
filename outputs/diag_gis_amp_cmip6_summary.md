@@ -1,6 +1,6 @@
 # CMIP6 Greenland amplification vs warming level (zone = south)
 
-- commit `304f99e`; 40 CMIP6 models; scenarios ['ssp126', 'ssp245', 'ssp585']
+- commit `f340962`; 40 CMIP6 models; scenarios ['ssp126', 'ssp245', 'ssp585']
 - window 30 yr, anomalies rel 1850-1900, windows dropped if centre < 1950 or mean dT_glob < 0.5 K
 - bootstrap over models, 2000 resamples, seed 2026
 - observed prior for comparison: south/full **1.922** (the value Ladrillo 1.0 uses), south/modern 1.792
@@ -45,15 +45,22 @@
 
 ## anchored shape (for ladrillo_gis_driver)
 
-Shape factor S(dT) = R_secant(dT) / R_secant(1.25 K), R_secant(1.25) = 1.478
+Shape factor S(dT) = R_secant(dT) / R_secant(dT_eff), anchored at the x^2-weighted effective warming level of the observed through-origin fit: **dT_eff = 0.940 K** (python/diag_gis_amp_anchor.py), R_secant(dT_eff) = 1.494.
+PCHIP through the pooled binned medians over 0.75-2.75 K, HELD FLAT outside that range (the 3.25 K bump is scenario composition, not physics we trust).
 
 | dT (K) | S(dT) | amp = S * obs_full |
 |---|---|---|
-| 1.0 | 1.009 | 1.940 |
-| 1.5 | 0.974 | 1.871 |
-| 2.0 | 0.926 | 1.781 |
-| 2.5 | 0.886 | 1.702 |
-| 3.0 | 0.888 | 1.707 |
-| 4.0 | 0.893 | 1.716 |
-| 5.0 | 0.833 | 1.600 |
+| 0.50 | 1.002 | 1.927 |
+| 1.00 | 0.998 | 1.919 |
+| 0.94 | 1.000 | 1.922 |  <- anchor
+| 1.50 | 0.963 | 1.851 |
+| 2.00 | 0.916 | 1.762 |
+| 2.50 | 0.882 | 1.696 |
+| 3.00 | 0.860 | 1.652 |
+| 4.00 | 0.860 | 1.652 |
+| 5.00 | 0.860 | 1.652 |
+
+- **flat-hold sensitivity arm** `gis_amp_shape_fullcurve`: same construction with the support run to the last populated bin (5.75 K) instead of 2.75 K. S at 3.0/4.0/5.0 K: 0.878/0.883/0.824 vs the held 0.860/0.860/0.860.
+
+- **anchor cross-check:** estimator-matched denominator (CMIP6 median full-window through-origin) = 1.509 vs the dT_eff route's 1.494, a 1.0% difference; S(2.75) would be 0.851 instead of 0.860.
 

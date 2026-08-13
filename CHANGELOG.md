@@ -3,7 +3,87 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-13 (latest) — Ladrillo 1.0 step 5 stages 2+3 DONE; accepted on the deliverable; the Greenland amp law measured
+## [unreleased] — 2026-08-13 (latest, second session) — the amp law is IMPLEMENTED, and it very nearly closes G4
+
+Handoff `notes/handoff_2026-08-13_ladrillo_step5_production_done.md` §4 items 1-3.
+
+### 1. G4 measured ON THE POSTERIOR for the first time (`diag_gis_spread_2100_ladrillo.jl`)
+G4 — the 2100 SSP1-2.6 → SSP5-8.5 Greenland spread — had only ever been evaluated
+at the offline cell's converged POINT (10.44 cm). On the accepted L10 posterior,
+10 000 draws, per-draw pairing (the spread is a difference of two runs of the SAME
+vector, so differencing marginal quantiles would mix draws):
+
+| arm | GIS@2100 ssp126 / 245 / 585 | G4 spread q05/q50/q95 | draws in band |
+|---|---|---|---|
+| constant amp (the model as calibrated) | 6.81 / 9.59 / 16.59 | 7.37 / **9.80** / 12.44 | 3.8% |
+| **amp law (default)** | 6.17 / 8.16 / 13.52 | 5.58 / **7.37** / 9.33 | **29.0%** |
+| amp law, no flat-hold (sensitivity) | 6.17 / 8.11 / 13.93 | 5.89 / 7.78 / 9.85 | 24.6% |
+
+**The previous entry's expectation is WRONG and is retracted.** It put the amp law
+at ~8.7 cm, "roughly 40% of the gap". Measured, the law takes G4 from **9.80 to
+7.37 cm against the 6.3-7.3 band** — it closes ~97% of the gap and lands 0.07 cm
+above the band's top edge. The 8.7 cm figure was interpolated off a stage-1
+single-vector amp SCAN, which cannot see the two things that do the work: the law
+acts DIFFERENTIALLY across scenarios (ssp585 sits at S = 0.860 in 2100 while
+ssp126 sits at 0.926), and the anchor moved (item 2). The posterior's own
+spread-vs-amp slope is 6.51 cm per unit `gis_amp` constant-amp (the stage-1 scan
+said ~6.7) and 4.89 with the law on.
+
+Horizon gate: the diagnostic runs to 2100 and asserts the first draw's GIS@2100 is
+BIT-IDENTICAL to a 2300 run before trusting the truncation.
+
+### 2. Sub-choice 2.2 SETTLED — the anchor is dT_eff = 0.940 K, not 1.25 K (`diag_gis_amp_anchor.py`)
+`amp = Σxy/Σx²` is an x²-weighted mean of the pointwise ratios, so the warming
+level it represents is `dT_eff = Σx³/Σx²` over the observed window. Measured on
+build_t_gis's own series and mask: HadCRUT5 0.945, Berkeley 0.950, GISTEMP 0.925,
+**cross-product mean 0.940 K** — well below the 1.25 K placeholder, and below the
+window's own 2015-2024 level (1.53 K) because the x² weights sit where the record
+is long, not where it is warm. Gate: the recomputed amp reproduces
+`gis_driver_constants.csv` to 1e-9 in all 36 product × zone × window cells.
+
+Re-anchoring moves amp at 2.75 K from 1.670 to **1.652**. **Cross-check, and the
+reason to stop worrying about the anchor:** an independent route — matching
+ESTIMATORS instead of warming levels, i.e. dividing by CMIP6's own full-window
+through-origin amplification (1.509) rather than by R_secant(dT_eff) (1.494) —
+agrees to **1.0%**.
+
+### 3. The law implemented (`ladrillo_projection.jl`, suite step 6 check [5])
+`amp(dT) = amp_draw × S(dT)`, S tabulated by `diag_gis_amp_cmip6.py` on a 0.01 K
+grid and read by the kernel. Design points worth keeping:
+- **The anchor is a GRID NODE.** Without it, linear interpolation of the emitted
+  grid gave S(dT_eff) = 0.99999992 and the kernel's load-time identity check
+  fired. Inserting the node makes S(dT_eff) == 1 exactly, in floating point.
+- **LEVEL form**: S multiplies the amplification (`amp·S(dT_t)·GMST_t`), because
+  the estimator behind S is a secant. Integrating a trend ratio is the error in
+  memory `project_pai_cmip6_time_diagnostic`.
+- **Anchor-preserving splice retained**: the offset uses `mean(S_t·GMST_t)` over
+  the same 11-yr window, so the driver still reproduces the observed mean there
+  exactly — asserted to 1e-12, in both arms.
+- **Suite step 6's parity assertion was RETHOUGHT, not deleted** (as the handoff
+  asked). [1] compared the projector's amp CONSTANT to the calibrator's; now the
+  projector's amp is a function, so [5] asserts the function MEETS the calibrator
+  at the anchor (S(dT_eff) = 1 ⇒ amp(dT_eff) = GIS_AMP exactly), plus the shape's
+  measured form and four structural gates on the driver (law off reproduces the
+  constant-amp splice exactly; law inert over the observed years; anchor
+  preserved; ssp585 2100 lowered).
+- **Warming-level window is immaterial**: 30-yr running mean (what CMIP6 measured
+  S on) vs the raw annual level moves the driver by ≤ 0.007 K, and by 0.0000 K
+  wherever S is flat-held. Kept at 30 for fidelity, not because it matters.
+- **PROJECTION-SIDE ONLY**, as the handoff specified: the calibrator runs to 2026,
+  so two of its years fall past the seam and `gis_amp` is likelihood-inert there.
+  No chain re-run.
+
+### The flat-hold above 2.75 K is NOT conservative in the G4 direction
+Sub-choice 1 recommended holding S flat above 2.75 K because the 3.25 K bump is
+scenario composition. That is still the right call on evidence, but the label
+"conservative" does not survive measurement: over 3-4.5 K the raw binned curve
+gives S ≈ 0.878-0.883, *above* the held 0.860, so flat-holding assumes slightly
+MORE decline than CMIP6 shows and lowers G4 by 0.41 cm (7.78 → 7.37). Both arms
+are emitted (`gis_amp_shape.csv`, `gis_amp_shape_fullcurve.csv`, selected with
+`LADRILLO_GIS_SHAPE=<stem>`) so the arm is run, not argued. **Still Marcus's
+call**; the default is the flat-hold.
+
+## [unreleased] — 2026-08-13 — Ladrillo 1.0 step 5 stages 2+3 DONE; accepted on the deliverable; the Greenland amp law measured
 
 ### Stage 2 — `overdispersed_starts.csv` rebuilt for 55 params (commit `2ddb971`)
 The file on disk was the **52-param extC vintage**, so `--overdisperse` hard-errored.

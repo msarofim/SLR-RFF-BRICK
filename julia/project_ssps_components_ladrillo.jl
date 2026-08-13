@@ -7,10 +7,17 @@
 ## comparison arm (FACTS, MAGICC, pre-Mengel BRICK 2.0) read.
 ##
 ## Basis
-##   posterior : data/MimiBRICK/parameters_subsample_brick_mengel_extC.csv
-##               (4 x 2M chains, seeds 2026-2029; accepted on the deliverable)
-##   model     : Ladrillo = MimiBRICK v2.0.0 + 3-reservoir glacier emulator,
-##               applied through julia/ladrillo_projection.jl (tested by
+##   posterior : data/MimiBRICK/parameters_subsample_brick_mengel_L10.csv
+##               (Ladrillo 1.0, 4 x 2M chains, seeds 2026-2029; accepted on the
+##               deliverable 2026-08-13). The Greenland variant is read off the
+##               file, not assumed. CAVEAT carried from that acceptance: the 2150
+##               and 2300 columns rest on the AIS tipping tail, the
+##               slowest-mixing feature (chain-median spread at 2150 is 13x the
+##               2100 value relative to within-chain scatter, and R-hat is
+##               mean-based so it reads 1.000 there anyway).
+##   model     : Ladrillo = MimiBRICK v2.0.0 + 3-reservoir glacier emulator +
+##               Greenland A+B with the amp(GMST) law, applied through
+##               julia/ladrillo_projection.jl (tested by
 ##               julia/test_ladrillo_projection.jl)
 ##   forcing   : FaIR mean GMST + OHC per SSP (fair_mean_{gmst,ohc}_<ssp>.csv,
 ##               RCMIP-native run_fair_ssps.py) — mean forcing, so the reported
@@ -29,7 +36,7 @@
 using CSV, DataFrames, Mimi, Printf, Statistics
 include(joinpath(@__DIR__, "ladrillo_projection.jl"))
 
-const OUT      = joinpath(LADRILLO_REPO, "outputs/ssps_components_2300_extC.csv")
+const OUT      = joinpath(LADRILLO_REPO, "outputs/ssps_components_2300_L10.csv")
 const Y0, Y1   = 1850, 2300
 const REPORT0  = 1990                      # first year written out
 const NTHIN    = length(ARGS) >= 1 ? parse(Int, ARGS[1]) : 2000
@@ -37,16 +44,20 @@ const SSPS     = [("ssp126", "SSP1-2.6"), ("ssp245", "SSP2-4.5"), ("ssp585", "SS
 const HORIZONS = (2100, 2150, 2300)
 const COMPONENTS = [:glaciers, :gis, :ais, :te, :lws, :total]
 
+const VARIANT = ladrillo_posterior_variant()
 post = ladrillo_posterior(nthin=NTHIN)
-@printf("Ladrillo SSP components | posterior %s (%d draws) | base %d-%d | horizon %d\n",
-        basename(LADRILLO_POSTERIOR_CSV), nrow(post), LADRILLO_REF[1], LADRILLO_REF[2], Y1)
+@printf("Ladrillo SSP components | posterior %s (%d draws) | Greenland :%s | base %d-%d | horizon %d\n",
+        basename(LADRILLO_POSTERIOR_CSV), nrow(post), VARIANT,
+        LADRILLO_REF[1], LADRILLO_REF[2], Y1)
+VARIANT === :ab && @printf("  amp law ON: S anchored at dT_eff = %.3f K, %d-yr window\n",
+                           LADRILLO_GIS_SHAPE_ANCHOR_DT, LADRILLO_GIS_SHAPE_WIN)
 
 out = DataFrame(year=Int[], ssp=String[], component=String[], gmst=Float64[],
                 med=Float64[], p05=Float64[], p17=Float64[], p83=Float64[], p95=Float64[],
                 n_finite=Int[])
 
 for (ssp, label) in SSPS
-    bf = ladrillo_setup(ssp=ssp, y0=Y0, y1=Y1)
+    bf = ladrillo_setup(ssp=ssp, y0=Y0, y1=Y1, gis_ab = VARIANT === :ab)
     ny = length(bf.years)
     series = Dict(c => Array{Float64}(undef, ny, nrow(post)) for c in COMPONENTS)
     t0 = time()

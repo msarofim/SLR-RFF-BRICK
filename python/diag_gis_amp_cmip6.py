@@ -46,7 +46,12 @@ Outputs:
   outputs/diag_gis_amp_cmip6.csv          per model x scenario x window
   outputs/diag_gis_amp_cmip6_binned.csv   binned medians + bootstrap CI (the curve)
   outputs/diag_gis_amp_cmip6_summary.md   headline numbers + the flat-vs-declining verdict
+  outputs/gis_amp_shape.csv               S(dT) on a fine grid -- what Julia consumes
+  outputs/gis_amp_shape_meta.csv          anchor, support and provenance of that grid
   figures/diag_gis_amp_cmip6.png
+
+Requires python/diag_gis_amp_anchor.py to have been run (it supplies the anchor
+warming level dT_eff; there is no fallback).
 """
 import glob
 import os
@@ -69,6 +74,19 @@ OUT_CSV = os.path.join(REPO, "outputs/diag_gis_amp_cmip6.csv")
 OUT_BINNED = os.path.join(REPO, "outputs/diag_gis_amp_cmip6_binned.csv")
 OUT_MD = os.path.join(REPO, "outputs/diag_gis_amp_cmip6_summary.md")
 OUT_FIG = os.path.join(REPO, "figures/diag_gis_amp_cmip6.png")
+# The deliverable of this script: the shape factor S(dT) the Julia projection
+# kernel consumes, on a fine grid, plus its provenance row.
+OUT_SHAPE = os.path.join(REPO, "outputs/gis_amp_shape.csv")
+OUT_SHAPE_META = os.path.join(REPO, "outputs/gis_amp_shape_meta.csv")
+# Where the anchor comes from: python/diag_gis_amp_anchor.py, which measures the
+# x^2-weighted warming level dT_eff = sum(x^3)/sum(x^2) of the SAME through-origin
+# fit that produced the observed amplification. There is no fallback constant --
+# anchoring at a guessed warming level is the error this file used to make.
+ANCHOR_CSV = os.path.join(REPO, "outputs/gis_amp_anchor.csv")
+ANCHOR_SCRIPT = "python/diag_gis_amp_anchor.py"
+# Sensitivity arm of the flat-hold sub-choice; the Julia kernel selects it with
+# LADRILLO_GIS_SHAPE=<stem>, so the stem names both <stem>.csv and <stem>_meta.csv.
+SHAPE_ALT_STEM = "gis_amp_shape_fullcurve"
 
 # ---- named constants: every label below derives from these --------------------
 ZONE = "south"                     # headline zone; matches build_t_gis.HEADLINE_ZONE
@@ -84,7 +102,19 @@ N_BOOT = 2000
 BOOT_SEED = 2026
 OBS_AMP_FULL = 1.9221976385152952  # outputs/gis_amp_prior.csv south/full -- the value in use
 OBS_AMP_MODERN = 1.7918384323792236  # south/modern
-PRESENT_DT = 1.25                  # K; present-day warming level for shape-anchoring
+# Shape support. Below SHAPE_DT_MIN and above SHAPE_DT_MAX the shape is HELD FLAT
+# rather than extrapolated. SHAPE_DT_MAX = 2.75 is the last bin below the 3.25 K
+# bump; that bump survives the balanced panel (so it is not model dropout) and is
+# most likely SCENARIO composition -- a model only reaches 3.25 K under ssp585, so
+# high bins are ssp585-weighted while low bins are ssp126/245-weighted, and the
+# balanced panel balances models but not scenarios. Holding flat is conservative:
+# it stops the amplification falling further on evidence we do not trust, and it
+# keeps the law monotone. SHAPE_DT_MIN is the first bin; below it the driver is
+# observations anyway (the splice only starts after the last observed year).
+SHAPE_DT_MIN = 0.75
+SHAPE_DT_MAX = 2.75
+SHAPE_GRID_STEP = 0.01             # K; the emitted grid the Julia kernel interpolates
+SHAPE_GRID_MAX = 8.0               # K; covers ssp585 GMST to 2300
 
 COMMIT = subprocess.run(["git", "-C", REPO, "rev-parse", "--short", "HEAD"],
                         capture_output=True, text=True).stdout.strip()
@@ -161,6 +191,39 @@ def binned_curve(df, est):
                      "lo95": float(np.percentile(boot, 2.5)),
                      "hi95": float(np.percentile(boot, 97.5))})
     return pd.DataFrame(rows)
+
+
+def anchor_dt():
+    """The warming level at which S must equal 1: the x^2-weighted effective
+    level of the observed through-origin fit, averaged over the same three
+    products the amp prior averages. Errors rather than guessing."""
+    if not os.path.exists(ANCHOR_CSV):
+        sys.exit(f"missing {ANCHOR_CSV}; run {ANCHOR_SCRIPT} first")
+    a = pd.read_csv(ANCHOR_CSV)
+    a = a[(a.zone == ZONE) & (a.window == BTG.AMP_WINDOW_HEADLINE)]
+    if a.empty:
+        sys.exit(f"{ANCHOR_CSV} has no rows for zone={ZONE} "
+                 f"window={BTG.AMP_WINDOW_HEADLINE}")
+    return float(a.dt_eff.mean())
+
+
+def shape_table(pooled, dt_anchor, dt_max=SHAPE_DT_MAX):
+    """PCHIP through the pooled binned medians over [SHAPE_DT_MIN, dt_max], held
+    flat outside, normalised to 1 at `dt_anchor`. Returns (grid DataFrame, R at
+    the anchor)."""
+    sub = pooled[(pooled.dt_bin >= SHAPE_DT_MIN) & (pooled.dt_bin <= dt_max)]
+    pch = PchipInterpolator(sub["dt_bin"].values, sub["median"].values,
+                            extrapolate=False)
+    clip = lambda d: np.clip(d, SHAPE_DT_MIN, dt_max)
+    r_anchor = float(pch(clip(dt_anchor)))
+    dt = np.round(np.arange(0.0, SHAPE_GRID_MAX + SHAPE_GRID_STEP / 2,
+                            SHAPE_GRID_STEP), 4)
+    # The anchor is inserted as its own node so that S(dT_eff) == 1 EXACTLY under
+    # the consumer's linear interpolation of this grid, not to 1e-7. The Julia
+    # kernel asserts that identity at load; without the node it fires.
+    dt = np.unique(np.concatenate([dt, [dt_anchor]]))
+    r = pch(clip(dt))
+    return pd.DataFrame({"dt": dt, "R_secant": r, "S": r / r_anchor}), r_anchor
 
 
 def main():
@@ -251,20 +314,71 @@ def main():
 
     # ---- the anchored shape, for the projection-side law ------------------------
     pooled_sec = verdicts["secant"][0]
-    if len(pooled_sec) >= 3:
-        pch = PchipInterpolator(pooled_sec["dt_bin"].values,
-                                pooled_sec["median"].values, extrapolate=True)
-        r_present = float(pch(PRESENT_DT))
-        lines += ["## anchored shape (for ladrillo_gis_driver)", "",
-                  f"Shape factor S(dT) = R_secant(dT) / R_secant({PRESENT_DT} K), "
-                  f"R_secant({PRESENT_DT}) = {r_present:.3f}", "",
-                  "| dT (K) | S(dT) | amp = S * obs_full |", "|---|---|---|"]
-        for dt in (1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0):
-            if dt < pooled_sec["dt_bin"].min() or dt > pooled_sec["dt_bin"].max():
-                continue
-            s = float(pch(dt)) / r_present
-            lines.append(f"| {dt:.1f} | {s:.3f} | {s*OBS_AMP_FULL:.3f} |")
-        lines.append("")
+    dt_anchor = anchor_dt()
+    grid, r_anchor = shape_table(pooled_sec, dt_anchor)
+    # full precision, no float_format: the anchor node must round-trip exactly
+    grid.to_csv(OUT_SHAPE, index=False)
+    pd.DataFrame([dict(anchor_dt=dt_anchor, r_anchor=r_anchor,
+                       obs_amp_full=OBS_AMP_FULL, estimator="secant",
+                       dt_min=SHAPE_DT_MIN, dt_max=SHAPE_DT_MAX,
+                       grid_step=SHAPE_GRID_STEP, grid_max=SHAPE_GRID_MAX,
+                       n_models=n_models, zone=ZONE, commit=COMMIT)]
+                ).to_csv(OUT_SHAPE_META, index=False)
+
+    # Sensitivity arm for the flat-hold sub-choice: the same construction with the
+    # support running to the LAST populated bin instead of SHAPE_DT_MAX, i.e. the
+    # 3.25 K bump and everything above it taken at face value. Emitted so the arm
+    # can be RUN (LADRILLO_GIS_SHAPE=gis_amp_shape_fullcurve) rather than argued.
+    alt_max = float(pooled_sec.dt_bin.max())
+    alt_grid, alt_r = shape_table(pooled_sec, dt_anchor, dt_max=alt_max)
+    alt_stem = os.path.join(REPO, f"outputs/{SHAPE_ALT_STEM}")
+    alt_grid.to_csv(f"{alt_stem}.csv", index=False)
+    pd.DataFrame([dict(anchor_dt=dt_anchor, r_anchor=alt_r,
+                       obs_amp_full=OBS_AMP_FULL, estimator="secant",
+                       dt_min=SHAPE_DT_MIN, dt_max=alt_max,
+                       grid_step=SHAPE_GRID_STEP, grid_max=SHAPE_GRID_MAX,
+                       n_models=n_models, zone=ZONE, commit=COMMIT)]
+                ).to_csv(f"{alt_stem}_meta.csv", index=False)
+
+    sfun = lambda d: float(np.interp(d, grid.dt.values, grid.S.values))
+    sfun_alt = lambda d: float(np.interp(d, alt_grid.dt.values, alt_grid.S.values))
+    lines += ["## anchored shape (for ladrillo_gis_driver)", "",
+              f"Shape factor S(dT) = R_secant(dT) / R_secant(dT_eff), anchored at the "
+              f"x^2-weighted effective warming level of the observed through-origin "
+              f"fit: **dT_eff = {dt_anchor:.3f} K** ({ANCHOR_SCRIPT}), "
+              f"R_secant(dT_eff) = {r_anchor:.3f}.",
+              f"PCHIP through the pooled binned medians over "
+              f"{SHAPE_DT_MIN}-{SHAPE_DT_MAX} K, HELD FLAT outside that range "
+              f"(the {SHAPE_DT_MAX + 0.5:.2f} K bump is scenario composition, not "
+              f"physics we trust).", "",
+              "| dT (K) | S(dT) | amp = S * obs_full |", "|---|---|---|"]
+    for dt in (0.5, 1.0, dt_anchor, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0):
+        s = sfun(dt)
+        mark = "  <- anchor" if abs(dt - dt_anchor) < 1e-9 else ""
+        lines.append(f"| {dt:.2f} | {s:.3f} | {s*OBS_AMP_FULL:.3f} |{mark}")
+    lines.append("")
+
+    # Cross-check on the anchor, reported not acted on: an independent route is to
+    # match ESTIMATORS instead of warming levels -- take the CMIP6 ensemble's own
+    # full-window through-origin amplification (same estimator and window as the
+    # observed 1.922) as the denominator. If the two routes disagree materially the
+    # anchor is doing work it should not be.
+    lines += [f"- **flat-hold sensitivity arm** `{SHAPE_ALT_STEM}`: same construction "
+              f"with the support run to the last populated bin ({alt_max:.2f} K) "
+              f"instead of {SHAPE_DT_MAX} K. S at 3.0/4.0/5.0 K: "
+              f"{sfun_alt(3.0):.3f}/{sfun_alt(4.0):.3f}/{sfun_alt(5.0):.3f} vs the "
+              f"held {sfun(3.0):.3f}/{sfun(4.0):.3f}/{sfun(5.0):.3f}.", ""]
+
+    win_csv = os.path.join(REPO, "outputs/diag_gis_amp_cmip6_windows.csv")
+    if os.path.exists(win_csv):
+        r_win = float(pd.read_csv(win_csv)[BTG.AMP_WINDOW_HEADLINE].median())
+        lines += [f"- **anchor cross-check:** estimator-matched denominator "
+                  f"(CMIP6 median full-window through-origin) = {r_win:.3f} vs the "
+                  f"dT_eff route's {r_anchor:.3f}, a "
+                  f"{100*abs(r_win-r_anchor)/r_anchor:.1f}% difference; "
+                  f"S({SHAPE_DT_MAX}) would be "
+                  f"{sfun(SHAPE_DT_MAX)*r_anchor/r_win:.3f} instead of "
+                  f"{sfun(SHAPE_DT_MAX):.3f}.", ""]
 
     with open(OUT_MD, "w") as fh:
         fh.write("\n".join(lines) + "\n")
