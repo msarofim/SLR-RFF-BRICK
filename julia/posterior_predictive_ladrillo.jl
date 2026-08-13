@@ -41,6 +41,7 @@ const FIT_START  = 1900                    # all target series start here
 const NTHIN      = length(ARGS) >= 1 ? parse(Int, ARGS[1]) : 2000
 const OUT_BANDS  = joinpath(LADRILLO_REPO, "outputs/postpred_L10_components_timeseries.csv")
 const OUT_BIAS   = joinpath(LADRILLO_REPO, "outputs/postpred_L10_bias.csv")
+const OUT_COVER  = joinpath(LADRILLO_REPO, "outputs/postpred_L10_coverage.csv")
 const DELTA_END  = 1960                    # delta ramp is zero from this year on
 
 ## (kernel component, target column in recalib_targets_ext.csv, AR(1) noise-parameter
@@ -204,7 +205,7 @@ for (key, tcol, _) in SERIES
             key, length(ins), 100 * mean(ins), 100 * mean(insp), mean(bs))
     push!(cov, (string(key), length(ins), mean(ins), mean(insp), mean(bs)))
 end
-CSV.write(joinpath(LADRILLO_REPO, "outputs/postpred_extC_coverage.csv"), cov)
+CSV.write(OUT_COVER, cov)
 
 println("\nwrote ", relpath(OUT_BANDS, LADRILLO_REPO), ", ", relpath(OUT_BIAS, LADRILLO_REPO),
-        ", outputs/postpred_extC_coverage.csv")
+        ", ", relpath(OUT_COVER, LADRILLO_REPO))

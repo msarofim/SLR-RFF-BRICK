@@ -73,6 +73,51 @@ grid and read by the kernel. Design points worth keeping:
   so two of its years fall past the seam and `gis_amp` is likelihood-inert there.
   No chain re-run.
 
+### 4. Deliverables regenerated on L10 + the amp law
+All six suites pass. The canonical posterior in `ladrillo_projection.jl` moves
+**extC → L10** with the variant read off the file (`ladrillo_posterior_variant`),
+and the two deliverable drivers follow: `outputs/ssps_components_2300_L10.csv`
+and `outputs/postpred_L10_{components_timeseries,bias,coverage}.csv`.
+
+The switch caught two latent traps, both of the "would have silently used the
+wrong thing" class the kernel exists to prevent:
+- **`LADRILLO_USED_COLS` silently meant `:stock`** — the column contract the
+  posterior test checks. Deleted; ask for `ladrillo_used_cols(VARIANT)`.
+- **The A+B Greenland slot has no defaults**, so Mimi refuses to build until a
+  draw is applied. KEPT as a feature (a placeholder would run and look
+  plausible); the test seeds one draw and says why.
+
+**Vintage difference, extC → L10, medians at 2100 (cm):**
+
+| ssp | glaciers | gis | ais | te | **total** |
+|---|---|---|---|---|---|
+| SSP1-2.6 | 8.54 → 9.01 | 6.63 → 6.18 | 4.88 → 4.77 | 13.18 → 12.86 | **35.91 → 35.41** |
+| SSP2-4.5 | 10.56 → 11.03 | 7.27 → 8.17 | 11.74 → 5.95 | 17.27 → 16.85 | **49.48 → 45.01** |
+| SSP5-8.5 | 14.69 → 15.16 | 8.80 → 13.57 | 45.78 → 37.72 | 25.91 → 25.28 | **97.75 → 94.25** |
+
+- **Greenland moves BOTH ways** — down at SSP1-2.6, up at SSP5-8.5 — because two
+  changes act against each other: A+B is a more responsive module than stock
+  SIMPLE, the amp law damps it, and the damping is strongest exactly where A+B
+  is most responsive. Do not describe the amp law as "lowering Greenland".
+- **AIS still dominates the shift** and it is the least data-constrained block:
+  the same `ais_iceflow0` ridge that is R̂ 2.359. Quote AIS as a distribution and
+  carry the tipping-probability framing, per the 2026-08-12 reporting rule.
+- **Glaciers move +0.47 cm at 2100 in ALL THREE scenarios** — flagged under the
+  suspicious-uniformity rule, and it holds up: the scenario spread is unchanged
+  to the digit (585−126 = 6.15 cm in both vintages), so it is a level shift, not
+  a sensitivity change, and the glacier marginals show where it lives — R19 moved
+  (`gic_b_R19` +0.40 sd, `gic_T_off_R19` −0.63 sd) while SLOWP and FAST moved
+  ≤0.16 sd. R19's driver amp is 0.72, i.e. the reservoir with the weakest
+  scenario dependence, so a shift there is a near-constant offset at 2100. (The
+  R19 attribution is INFERRED from the marginals, not measured per component.)
+
+**Owed:** `outputs/mcmc/slr_convergence_L10.csv`, the acceptance record, was
+computed CONSTANT-AMP. The law is a deterministic transformation applied
+identically to every chain and Greenland is ~9 of ~46 cm at 2100, so the
+between/within variance ratio (0.010 against a 1.05 R̂ threshold) has room to
+spare — but the certificate and the shipped model are not literally the same run.
+Re-run it under the law before anything is shared.
+
 ### The flat-hold above 2.75 K is NOT conservative in the G4 direction
 Sub-choice 1 recommended holding S flat above 2.75 K because the 3.25 K bump is
 scenario composition. That is still the right call on evidence, but the label
