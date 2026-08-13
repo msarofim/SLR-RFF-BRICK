@@ -118,6 +118,32 @@ between/within variance ratio (0.010 against a 1.05 R̂ threshold) has room to
 spare — but the certificate and the shipped model are not literally the same run.
 Re-run it under the law before anything is shared.
 
+### 5. Quarantine sweep — the pre-extC "78.02 cm" vintage
+`outputs/quarantine/20260813_pre_extc_mengel_vintage/` + README, per the standing
+rule. Ten files: everything `project_ssps_2100_mengel.jl` wrote from
+`parameters_subsample_brick_mengel{,_ext}.csv`, plus the two figures. The README
+says explicitly that this is a **vintage difference, not a bug**, carries the
+mengel → extC → L10 component table, and repeats the two consequences that
+survive (do not write "28 cm lower" — quote a distribution; the largest movement
+in the programme is in the least data-constrained block).
+
+**Deliberately NOT swept, with reasons in the README:**
+- The **MAGICC-comparison and pulse study** outputs also run on
+  `..._brick_mengel.csv`, but they are deliverables of a study *about that model
+  version* — and Mengel is canonical in its own right in MimiBRICK-FM.
+  Quarantining them would misfile them.
+- The **extC outputs** are genuinely superseded by L10, but **five live consumers
+  still read them** (`plot_ladrillo_memo_figures.py`, `ladrillo_model_comparison.py`,
+  `diag_gis_likelihood_leverage.py`, `diag_noise_model_and_grip.py`,
+  `scope_greenland_*.py`). Migrating those to L10 changes every number in the memo
+  figures and is its own reviewed piece of work; moving the files first would only
+  break the pipeline. **That migration is the top open item.**
+
+The two legitimate cross-vintage consumers (`diag_mengel_to_ladrillo_attribution.py`,
+`plot_ssp_projections_ext_compare.py`) were repointed at the quarantine path with a
+comment saying why. Gate: the attribution diagnostic re-runs **byte-identical**
+after the move.
+
 ### The flat-hold above 2.75 K is NOT conservative in the G4 direction
 Sub-choice 1 recommended holding S flat above 2.75 K because the 3.25 K bump is
 scenario composition. That is still the right call on evidence, but the label

@@ -53,8 +53,11 @@ REPO = os.path.expanduser("~/Documents/2026/CodeProjects/SLR-RFF-BRICK")
 # extC, which uses the extended targets). The attribution is reported against
 # both so the conclusion cannot hinge on which one is meant.
 MENGEL_VINTAGES = {
-    "BRICK-Mengel (base)": "outputs/proj_ssps_mengel_summary.csv",
-    "BRICK-Mengel (post-2018 ext)": "outputs/proj_ssps_mengel_ext_summary.csv",
+# The pre-extC BRICK-Mengel vintage was QUARANTINED 2026-08-13 (vintage difference,
+# not a bug -- see outputs/quarantine/20260813_pre_extc_mengel_vintage/README.md). This script is a CROSS-VINTAGE comparison, so it
+# legitimately reads the superseded files; it reads them from the quarantine.
+    "BRICK-Mengel (base)": "outputs/quarantine/20260813_pre_extc_mengel_vintage/proj_ssps_mengel_summary.csv",
+    "BRICK-Mengel (post-2018 ext)": "outputs/quarantine/20260813_pre_extc_mengel_vintage/proj_ssps_mengel_ext_summary.csv",
 }
 MENGEL_CSV = os.path.join(REPO, MENGEL_VINTAGES["BRICK-Mengel (base)"])
 LADRILLO_CSV = os.path.join(REPO, "outputs/ssps_components_2300_extC.csv")
@@ -127,7 +130,7 @@ vtab = pd.DataFrame(vrows)
 # The Antarctic distribution at SSP2-4.5 is bimodal (tipped vs not tipped by 2100).
 # If the median moved much further than the tails, the "shift" is the 50th percentile
 # crossing the sparse gap between the two branches, NOT a uniform reduction.
-mts = pd.read_csv(os.path.join(REPO, "outputs/proj_ssps_mengel_components_timeseries.csv"))
+mts = pd.read_csv(os.path.join(REPO, "outputs/quarantine/20260813_pre_extc_mengel_vintage/proj_ssps_mengel_components_timeseries.csv"))
 mts = mts[(mts.year == YEAR) & (mts.component == "ais")].set_index("ssp_label")
 bts = bf[bf.component == "ais"].set_index("ssp")
 

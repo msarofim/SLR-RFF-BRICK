@@ -10,8 +10,8 @@ while leaving the high-forcing overshoot vs AR6 essentially intact (MICI-driven)
 Panel (a): dot-whisker p05/p50/p95 per SSP, baseline vs extended, with AR6 medians.
 Panel (b): the Δ(extended - baseline) decomposed into total vs AIS component.
 
-Inputs:  outputs/proj_ssps_mengel_summary.csv (baseline)
-         outputs/proj_ssps_mengel_ext_summary.csv (extended)
+Inputs:  outputs/quarantine/20260813_pre_extc_mengel_vintage/proj_ssps_mengel_summary.csv (baseline)
+         outputs/quarantine/20260813_pre_extc_mengel_vintage/proj_ssps_mengel_ext_summary.csv (extended)
 Output:  outputs/ssp_projections_ext_compare.png
 """
 import os
@@ -22,8 +22,11 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 REPO = os.path.expanduser("~/Documents/2026/CodeProjects/SLR-RFF-BRICK")
-B = pd.read_csv(os.path.join(REPO, "outputs/proj_ssps_mengel_summary.csv")).set_index("ssp_label")
-E = pd.read_csv(os.path.join(REPO, "outputs/proj_ssps_mengel_ext_summary.csv")).set_index("ssp_label")
+# The pre-extC BRICK-Mengel vintage was QUARANTINED 2026-08-13 (vintage difference,
+# not a bug -- see outputs/quarantine/20260813_pre_extc_mengel_vintage/README.md). This script is a CROSS-VINTAGE comparison, so it
+# legitimately reads the superseded files; it reads them from the quarantine.
+B = pd.read_csv(os.path.join(REPO, "outputs/quarantine/20260813_pre_extc_mengel_vintage/proj_ssps_mengel_summary.csv")).set_index("ssp_label")
+E = pd.read_csv(os.path.join(REPO, "outputs/quarantine/20260813_pre_extc_mengel_vintage/proj_ssps_mengel_ext_summary.csv")).set_index("ssp_label")
 OUT = os.path.join(REPO, "outputs/ssp_projections_ext_compare.png")
 
 # AR6 median GMSL @2100 rel 1995-2014 (cm), medium-confidence (handoff table)
