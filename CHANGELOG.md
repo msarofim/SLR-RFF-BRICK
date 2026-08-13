@@ -259,6 +259,70 @@ module, amp law) so "the amp law lowered Greenland" cannot be read off the
 component table. Greenland moves both ways: −0.45 cm at SSP1-2.6, +4.78 at
 SSP5-8.5.
 
+### 9. Thread 3 — the ridge hypothesis is FALSIFIED, and the two blocks have DIFFERENT diseases
+`python/diag_block_ridge.py` + `python/diag_iceflow0_identifiability.py`.
+
+**The decisive move was to stop looking at within-chain covariance.** A chain with
+ESS 12 on an axis has not moved along it, so its own covariance describes the
+slice it is stuck in, not the problem. What names the problem is the generalised
+eigenproblem `B v = λ W v` (between-chain over within-chain covariance on
+z-scores) — a directional R̂ whose top eigenvector is the direction the sampler
+fails to mix.
+
+**AIS: there is no ridge.** The standing hypothesis — that `ais_iceflow0` rides a
+correlated ridge with `(bedheight0, slope, c)` and that a reparameterisation along
+it is the fix, as `ais_runoff_Ton` was for `(h0, c)` — is **wrong**:
+
+- worst-mixing direction = **`ais_iceflow0 +1.00`**, every other loading ≤ 0.06,
+  carrying **98%** of all between-chain variance. It is a *coordinate*, not a
+  combination.
+- within-chain correlation matrix of the geometry block: **condition number 8**,
+  eigen-spectrum 26/17/15/14/13/11/3%. No pair reaches |r| ≥ 0.8. There is
+  nothing to rotate.
+
+Following up on what it IS: pooled marginal **0.65 of the prior width**, mean
+within-chain sd **0.49 of the pooled**, chain p05–p95 intervals that barely
+overlap, decile traces that wander without dwell-and-jump structure, and
+chain-mean `log_post` spanning **0.67 against a within-chain sd of 4.67**. So:
+not a ridge, not multimodal, and not merely mis-scaled — a **weakly identified,
+nearly flat axis** the sampler diffuses along at τ ≈ 3.3e5, with four chains
+sitting in different places at indistinguishable objective values.
+
+**Greenland: a different disease, and a milder one.** Worst-mixing direction is
+`gis_alpha_s +0.70, gis_beta_s +0.65` — both slow-channel rate parameters with
+the SAME sign, i.e. the overall level of `rate_s(T) = α_s·T + β_s`, 93% of the
+between-chain variance. But the widths say the chains OVERLAP heavily:
+
+| param | pooled/prior | within/pooled | reading |
+|---|---|---|---|
+| `ais_iceflow0` | 0.65 | **0.49** | chains in different places, weakly identified |
+| `gis_f` | 0.30 | **0.81** | well constrained, chains overlap — just slow |
+| `gis_alpha_s` | 0.19 | **0.88** | same |
+
+So Greenland is **identified but slow**, the one case where sampling it better
+actually buys something. And there is a concrete mechanism: `gis_alpha_s` has a
+hard lower rail at 0 and its chain p05 values are 0.001 / 0.000 / 0.001 / 0.000 —
+a random-walk proposal against a boundary, which is exactly what sticks.
+
+**Thread 2 answered as a by-product.** `gis_beta_f`'s posterior is **0.05 of its
+prior width** — the tightest ratio in the block — and it loads only 0.10 on the
+worst-mixing direction, while the within-chain direction it does load on
+(`c1`/`alpha_f`/`beta_f`, the fast channel) mixes fine. It is not riding an
+unmixed ridge with `gis_f`. **Re-bounding its prior to the data support would
+change essentially nothing**; option (a), keep it free, stands on measurement now
+rather than on judgement.
+
+**What this implies for the fixes** (was: "reparameterise the AIS geometry"):
+- AIS — a reparameterisation is the WRONG fix, and so is a longer chain (it would
+  sample the prior more thoroughly). The two real options are a **targeted
+  large-step mixture proposal on that single axis** (cheap, directly targets
+  diffusion, testable by ESS) and **adding information that grips it** — a
+  grounding-line discharge constraint, the physically right partner to the A5 SMB
+  anchor. The second belongs in the thread-4 calibration spec.
+- Greenland — remove the zero rail: sample the slow channel as
+  `(log r_s(T̄), tilt)` rather than `(α_s, β_s)`, which puts the unmixed direction
+  on its own coordinate AND moves the boundary to infinity.
+
 ### The flat-hold above 2.75 K — the original reasoning, superseded by item 6
 Sub-choice 1 recommended holding S flat above 2.75 K because the 3.25 K bump is
 scenario composition. That is still the right call on evidence, but the label
