@@ -849,7 +849,8 @@ for k in GEO_IDX; prop[k] = GEO_PROP_SCALE * Float64(FREE[k].σ); end
 # postprocess_mcmc_ext.jl from a prior ext run) -- it matches the extended posterior
 # shape, which the 2018-baseline adapted_cov.csv does NOT (point terms dropped +
 # extended targets move the AIS block). Fall back to baseline cov, then diagonal.
-const ADCOV = let l10 = joinpath(REPO,"outputs/mcmc/adapted_cov_L10tune_seed2026.csv"),
+const ADCOV = let l10b = joinpath(REPO,"outputs/mcmc/adapted_cov_L10tune2_seed2026.csv"),
+                  l10 = joinpath(REPO,"outputs/mcmc/adapted_cov_L10tune_seed2026.csv"),
                   c1s = joinpath(REPO,"outputs/mcmc/adapted_cov_extC1_seed2026.csv"),
                   c1 = joinpath(REPO,"outputs/mcmc/adapted_cov_extC1.csv"),
                   b3c = joinpath(REPO,"outputs/mcmc/adapted_cov_extB3c_seed2026.csv"),
@@ -860,8 +861,12 @@ const ADCOV = let l10 = joinpath(REPO,"outputs/mcmc/adapted_cov_L10tune_seed2026
     # matches). Falls back to extB3c (38-param, name-mapped, fresh glacier diagonal)
     # for the first tuning run itself; a dimension mismatch is caught by the
     # dispatch below (visible WARNING -> diagonal), never silently misused.
-    (GIS_AB && isfile(l10)) ? l10 : (isfile(c1s) ? c1s : (isfile(c1) ? c1 :
-        (isfile(b3c) ? b3c : (isfile(b2) ? b2 : (isfile(e) ? e : b)))))
+    # L10tune2 is the 55-param (gis_amp sampled) tuning run and matches NK exactly,
+    # so it is used AS-IS. L10tune is the 54-param first tuning run, name-mapped via
+    # OLD54_NAMES. Both beat the extC covariance for a Ladrillo 1.0 run.
+    (GIS_AB && isfile(l10b)) ? l10b :
+    ((GIS_AB && isfile(l10)) ? l10 : (isfile(c1s) ? c1s : (isfile(c1) ? c1 :
+        (isfile(b3c) ? b3c : (isfile(b2) ? b2 : (isfile(e) ? e : b))))))
 end
 cov0 = Matrix(Diagonal(prop.^2))
 # Column order of the 35-param v-next chains/covs (18 physical + 7 geometry with the OLD
