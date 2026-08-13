@@ -87,7 +87,52 @@ with the components apart from one model term (the R19 seam), the observed LWS,
 and its own likelihood weight — a stronger statement than the 56% it replaces.
 Section A now says so and labels the p50 statistic as not-the-redundancy.
 
-### 4. Unchanged on L10
+### 4. Thread 5 first step — Bochow 2026 re-run against A+B, and A+B is FLATTER at 2300 than the module it replaced
+`scope_greenland_bochow2026.py` compared the Bochow tipping emulator to extC's
+stock-SIMPLE Greenland via three hardcoded numbers. Those are now READ from
+`outputs/ssps_components_2300_L10.csv` (median plus posterior 5-95%), which is
+the live comparison the quarantine README flagged as "work, not a path edit".
+
+Greenland, cm rel 1995-2014, median:
+
+| year | | SSP1-2.6 | SSP2-4.5 | SSP5-8.5 |
+|---|---|---|---|---|
+| 2100 | Ladrillo 1.0 | 6.2 | 8.2 | 13.6 |
+| 2100 | Bochow, sampled across families | 7.9 | 10.6 | 17.9 |
+| 2300 | Ladrillo 1.0 | **7.8** | **14.6** | **39.1** |
+| 2300 | Bochow, sampled across families | **24.5** | **54.5** | **167.1** |
+
+At 2100 the two are within 1.7-4.3 cm. At 2300 Bochow is **3.1× / 3.7× / 4.3×**
+higher. Under SSP1-2.6 the shipped model puts Greenland at 6.2 cm in 2100 and
+7.8 cm in 2300 — 1.6 cm of further loss in two centuries — while Bochow's own
+committed-loss diagnostic at that sustained warming is **3.0-3.6 m SLE**.
+
+**And the comparison to the module A+B REPLACED runs the other way at 2300.**
+Against extC's stock SIMPLE (gis median, cm):
+
+| year | SSP1-2.6 | SSP2-4.5 | SSP5-8.5 |
+|---|---|---|---|
+| 2100 | −0.45 | +0.90 | **+4.78** |
+| 2150 | −2.88 | −0.53 | +8.45 |
+| 2300 | **−11.37 (−59%)** | **−11.13 (−43%)** | **−9.52 (−20%)** |
+
+A+B was selected on its 2100 scenario responsiveness and it delivers that, but by
+2300 it sits 9.5-11.4 cm BELOW stock SIMPLE on every scenario. **This is not the
+amp law**: the law removes 6.9% of the driver at SSP1-2.6/2300 and 14.0% at
+SSP5-8.5/2300 (flat-held), so its damping runs OPPOSITE to the effect — the
+least-damped scenario declines the most (−59%) and the most-damped the least
+(−20%). The decline is structural to the two-channel relaxation form. That is
+thread 5's open question with a number on it, and it strengthens the criticism
+already recorded: the slow channel that would carry the multi-millennial
+commitment is exactly the one the 1900-2024 record cannot identify.
+
+Bochow carries its own caveat, unchanged and still binding: EGUsphere preprint in
+open discussion, referees have raised UQ and verification concerns, code
+availability a placeholder. Its sampled 5-95% at 2300 spans 4.5-140.7 cm at
+SSP1-2.6 — it is not a tight benchmark, but the median gap is not inside that
+noise either.
+
+### 5. Unchanged on L10
 - **The total is still the loosest constraint in every window** (§E): σ on a
   window-mean offset 0.232-0.565 cm for `dang` against 0.014-0.062 for `ais`/`gis`.
 - **Item 4.3 (TE)** still passes: `thermal_alpha` p50 0.1502 (was 0.1540) →

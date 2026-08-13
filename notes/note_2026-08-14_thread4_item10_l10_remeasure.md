@@ -82,6 +82,30 @@ term, not 44% of an independent constraint.
   (Zanna+Cheng), physics range 0.1011-0.1348. Low-side, as before.
 - The grip ordering by window, and the total as the loosest constraint.
 
+## Thread 5, first step — done too, and it found something
+
+`scope_greenland_bochow2026.py` now reads the Ladrillo column from
+`outputs/ssps_components_2300_L10.csv` (median + posterior 5-95%) instead of
+three hardcoded extC numbers. At 2100 Ladrillo and Bochow are within 1.7-4.3 cm.
+At 2300 Bochow is 3.1× / 3.7× / 4.3× higher (7.8/14.6/39.1 vs 24.5/54.5/167.1 cm).
+
+The finding that matters: **at 2300, A+B is 9.5-11.4 cm BELOW the stock SIMPLE it
+replaced, on every scenario** (−59% / −43% / −20%), even though at 2100 it is
++4.78 cm above on SSP5-8.5. It is not the amp law — the law removes 6.9% of the
+driver at SSP1-2.6/2300 and 14.0% at SSP5-8.5/2300, so its damping runs opposite
+to the effect, and the least-damped scenario declines the most. The module chosen
+for its 2100 scenario spread relaxes LESS in the long run than the one it
+replaced. Under SSP1-2.6 it delivers 1.6 cm of further Greenland loss between
+2100 and 2300 against a Bochow committed loss of 3.0-3.6 m SLE at that sustained
+warming.
+
+This is thread 5's open question with a number on it, and it lines up with the
+already-recorded fact that the slow channel carrying the multi-millennial
+commitment is the one the 1900-2024 record cannot identify. Bochow's own caveats
+are unchanged and still binding (preprint in open discussion; UQ and verification
+concerns; code availability a placeholder), and its 2300 5-95% is very wide
+(4.5-140.7 cm at SSP1-2.6) — but the median gap is not inside that noise.
+
 ## What is now waiting on Marcus
 
 The three design axes in §1.1 are unblocked and their evidence is current, but
