@@ -45,7 +45,7 @@
 ## it is certifying.
 ##
 ##   julia --project=julia_v2 julia/diag_slr_convergence_by_chain_ladrillo.jl \
-##         [n_per_chain] [--tag=L10]
+##         [n_per_chain] [--tag=L10] [--no-shape]
 ## ============================================================================
 using CSV, DataFrames, Statistics, Printf, MCMCDiagnosticTools
 
@@ -62,6 +62,11 @@ const N_TARGET   = let p = findfirst(a -> !startswith(a, "--"), ARGS)
     p === nothing ? 400 : parse(Int, ARGS[p])
 end
 const SSP        = "ssp245"
+## The certificate must describe the model that is actually SHIPPED. Since
+## 2026-08-13 that model carries the Greenland amp(GMST) law, so the law is ON by
+## default here and the arm is recorded in the output. --no-shape reproduces the
+## constant-amp certificate (what the original acceptance was computed on).
+const GIS_SHAPE  = !("--no-shape" in ARGS)
 const Y0, Y1     = 1850, 2150
 const HORIZONS   = [2100, 2150]
 # R-hat threshold for the deliverable, matching diag_slr_convergence_by_chain*.jl
@@ -89,13 +94,17 @@ VARIANT === :ab || error("chains read as :$VARIANT, not :ab — this is the Ladr
     "(greenland_ab) diagnostic; use diag_slr_convergence_by_chain_extc.jl for " *
     "stock-SIMPLE chains")
 
-bf = ladrillo_setup(ssp=SSP, y0=Y0, y1=Y1, gis_ab = VARIANT === :ab)
+bf = ladrillo_setup(ssp=SSP, y0=Y0, y1=Y1, gis_ab = VARIANT === :ab,
+                    gis_shape = GIS_SHAPE)
 
 @printf("Ladrillo 1.0 SLR convergence-by-chain diagnostic\n")
 @printf("  tag %s | window %d-%d | %s | rebaseline %d-%d | Greenland :%s\n",
         CHAIN_TAG, Y0, Y1, SSP, LADRILLO_REF[1], LADRILLO_REF[2], VARIANT)
-@printf("  burn = first %d of %d, thinned to %d draws per chain\n\n",
-        NBURN, NITER, N_TARGET)
+@printf("  burn = first %d of %d, thinned to %d draws per chain\n", NBURN, NITER, N_TARGET)
+@printf("  amp law %s\n\n", GIS_SHAPE ?
+        @sprintf("ON (S anchored at dT_eff = %.3f K) — certifies the SHIPPED model",
+                 LADRILLO_GIS_SHAPE_ANCHOR_DT) :
+        "OFF (constant-amp splice) — reproduces the original 2026-08-13 acceptance")
 
 ## ---- per-chain forward runs ---------------------------------------------
 slr = Dict(y => Vector{Float64}[] for y in HORIZONS)
@@ -161,9 +170,13 @@ end
 @printf("%s\n", "="^78)
 @printf("  %-14s %8s %10s %12s %12s %10s\n",
         "quantity", "R-hat", "ESS", "sd(medians)", "mean(sd_wc)", "ratio")
+# gis_shape is written into the certificate so the file says which model it
+# certifies. Without it a constant-amp and an amp-law certificate are
+# indistinguishable on disk, which is exactly the confusion this column prevents.
 diag_rows = DataFrame(horizon=Int[], rhat=Float64[], ess=Float64[],
                       sd_medians=Float64[], mean_sd_wc=Float64[],
-                      n_chains=Int[], n_per_chain=Int[], niter=Int[])
+                      n_chains=Int[], n_per_chain=Int[], niter=Int[],
+                      gis_shape=Bool[])
 for y in HORIZONS
     arr = reduce(hcat, slr[y])
     r = rhat(arr)
@@ -173,7 +186,7 @@ for y in HORIZONS
     sd_med = std(meds)
     @printf("  SLR@%-10d %8.3f %10.1f %12.3f %12.3f %10.3f\n",
             y, r, e, sd_med, sd_wc, sd_med / sd_wc)
-    push!(diag_rows, (y, r, e, sd_med, sd_wc, length(SEEDS), N_TARGET, NITER))
+    push!(diag_rows, (y, r, e, sd_med, sd_wc, length(SEEDS), N_TARGET, NITER, GIS_SHAPE))
 end
 slr_csv = joinpath(REPO, "outputs/mcmc/slr_convergence_$(CHAIN_TAG).csv")
 CSV.write(slr_csv, diag_rows)

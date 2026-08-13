@@ -36,6 +36,10 @@ import numpy as np
 import pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# PINNED to the extC vintage, quarantined 2026-08-13 (see
+# outputs/quarantine/20260813_extc_vintage/README.md). This file DESCRIBES that vintage -- its
+# own header is written about it -- so pointing it at the L10 outputs would make
+# its prose wrong, not update it. Re-running the question on L10 is separate work.
 POSTERIOR = os.path.join(REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_extC.csv")
 OBS = os.path.join(REPO, "data/observations")
 OUT = os.path.join(REPO, "outputs/scope_greenland_options.csv")
@@ -45,7 +49,7 @@ REF = (1995, 2014)
 SSPS = ["ssp126", "ssp245", "ssp585"]
 LABEL = {"ssp126": "SSP1-2.6", "ssp245": "SSP2-4.5", "ssp585": "SSP5-8.5"}
 NDRAW = 2000
-# Julia projections to validate against (outputs/ssps_components_2300_extC.csv, gis @2100)
+# Julia projections to validate against (outputs/quarantine/20260813_extc_vintage/ssps_components_2300_extC.csv, gis @2100)
 JULIA_GIS_2100 = {"ssp126": 6.633, "ssp245": 7.266, "ssp585": 8.797}
 # What the model is being asked to match at 2100 (cm, medians):
 #   MAGICC-SLR (Nauels 2025)     6.4 / 9.3 / 13.5

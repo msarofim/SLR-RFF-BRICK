@@ -60,7 +60,11 @@ from scipy.stats import multivariate_normal
 # ---------------------------------------------------------------- constants
 REPO = os.path.expanduser("~/Documents/2026/CodeProjects/SLR-RFF-BRICK")
 TARGETS_CSV = os.path.join(REPO, "outputs/recalib_targets_ext.csv")
-POSTPRED_CSV = os.path.join(REPO, "outputs/postpred_extC_components_timeseries.csv")
+# PINNED to the extC vintage, quarantined 2026-08-13 (see
+# outputs/quarantine/20260813_extc_vintage/README.md). This file DESCRIBES that vintage -- its
+# own header is written about it -- so pointing it at the L10 outputs would make
+# its prose wrong, not update it. Re-running the question on L10 is separate work.
+POSTPRED_CSV = os.path.join(REPO, "outputs/quarantine/20260813_extc_vintage/postpred_extC_components_timeseries.csv")
 CHAIN_GLOB = "outputs/mcmc/chain_extC_seed{seed}_n2000000.csv"
 CHAIN_SEEDS = [2026, 2027, 2028, 2029]
 BURN_FRAC = 0.5                       # discard first half of each chain

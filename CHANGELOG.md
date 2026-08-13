@@ -212,6 +212,53 @@ Two consequences:
   precisely the one the 1900-2024 record cannot identify.** The hindcast
   constrains what it can see.
 
+### 8. A CLEAN BASELINE — `LADRILLO.md` + tag `ladrillo-1.0`
+Marcus asked for a clean current version of Ladrillo to keep working from. Four
+parts:
+
+**(a) `LADRILLO.md`** — the single definition: what the model is, which posterior,
+what that posterior may and may not be used for, the canonical files and the
+commands that reproduce each deliverable, the headline numbers, the standing
+caveats to carry into any report, the quarantined vintages, and the open threads.
+`README.md`/`METHODS.md` describe the public RFF × FaIR × BRICK pipeline, not this
+development line, which is why it needed its own door.
+
+**(b) extC consumers resolved — two migrated, five pinned.** The distinction that
+matters: a script that USES a vintage gets migrated; a script that DESCRIBES one
+gets pinned to its quarantine, because repointing it would make its own prose
+wrong rather than update it.
+- Migrated to L10: `plot_ladrillo_memo_figures.py`, `ladrillo_model_comparison.py`
+  (both re-run; the memo figure set and the comparison tables are now L10).
+- Pinned to `outputs/quarantine/20260813_extc_vintage/`: `scope_greenland_options.py`
+  (the study that SELECTED A+B by showing stock SIMPLE under-responds — its
+  premise IS extC), `scope_greenland_bochow2026.py`, `diag_gis_likelihood_leverage.py`,
+  `diag_noise_model_and_grip.py`, and the extC arm of
+  `diag_mengel_to_ladrillo_attribution.py` (whose attribution on record is
+  mengel → extC, so both its arms are now archived vintages — correct).
+- Both migrated scripts carry a single `LADRILLO_TAG` constant so the vintage
+  travels into every row and label they emit.
+
+**(c) The acceptance certificate now describes the SHIPPED model.** Re-run under
+the amp law; the constant-amp original is preserved as
+`quarantine/20260813_extc_vintage/slr_convergence_L10_constamp.csv`. The
+certificate gained a **`gis_shape` column** so a constant-amp and an amp-law
+certificate can never again be indistinguishable on disk.
+
+| horizon | R̂ | ESS | sd(medians) | ratio | (was, constant-amp) |
+|---|---|---|---|---|---|
+| SLR@2100 | 1.000 | 1586 | 0.110 cm | 0.009 | 0.122, 0.010 |
+| SLR@2150 | 1.000 | 1685 | 4.641 cm | 0.137 | 4.415, 0.130 |
+
+The acceptance holds under the law, as predicted from the law being a
+deterministic transformation applied identically to every chain. The 2150 caveat
+is unchanged in character (ratio 0.137 vs 0.009 at 2100).
+
+**(d) extC quarantined** — `outputs/quarantine/20260813_extc_vintage/` + README,
+which separates the THREE superimposed changes (new posterior, new Greenland
+module, amp law) so "the amp law lowered Greenland" cannot be read off the
+component table. Greenland moves both ways: −0.45 cm at SSP1-2.6, +4.78 at
+SSP5-8.5.
+
 ### The flat-hold above 2.75 K — the original reasoning, superseded by item 6
 Sub-choice 1 recommended holding S flat above 2.75 K because the 3.25 K bump is
 scenario composition. That is still the right call on evidence, but the label

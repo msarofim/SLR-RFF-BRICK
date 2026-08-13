@@ -18,8 +18,9 @@ figures 2 and 3 to 1995-2014, the projection baseline (FACTS to baseyear 2005).
 BRICK bands are posterior-parameter spread on mean forcing; MAGICC and FACTS
 carry climate spread too — medians are comparable, band widths are not.
 
-Inputs  outputs/postpred_extC_components_timeseries.csv
-        outputs/ssps_components_2300_extC.csv
+Inputs  outputs/postpred_L10_components_timeseries.csv
+        outputs/ssps_components_2300_L10.csv
+        (Ladrillo 1.0 / L10 posterior, Greenland A+B with the amp(GMST) law)
         outputs/ladrillo_model_comparison.csv
         outputs/ssps_gsic_2300.csv
   python3 python/plot_ladrillo_memo_figures.py
@@ -45,6 +46,10 @@ SSPS = ["ssp126", "ssp245", "ssp585"]
 LABEL = {"ssp126": "SSP1-2.6", "ssp245": "SSP2-4.5", "ssp585": "SSP5-8.5"}
 SSP_COLOR = {"ssp126": "#1b7837", "ssp245": "#2166ac", "ssp585": "#b2182b"}
 LADRILLO_COLOR = "#2166ac"
+# One place names the posterior vintage the whole figure set is drawn from.
+LADRILLO_TAG = "L10"
+POSTPRED_CSV = f"outputs/postpred_{LADRILLO_TAG}_components_timeseries.csv"
+SSPS_CSV     = f"outputs/ssps_components_2300_{LADRILLO_TAG}.csv"
 SOURCE_COLOR = {"Ladrillo": "#2166ac", "BRICK 2.0": "#7f7f7f",
                 "MAGICC-SLR": "#d62728", "FACTS": "#ff9900"}
 COMPONENT_TITLE = {"ais": "Antarctic ice sheet", "glaciers": "Glaciers",
@@ -53,7 +58,7 @@ COMPONENT_TITLE = {"ais": "Antarctic ice sheet", "glaciers": "Glaciers",
 
 
 def figure1_hindcast():
-    d = pd.read_csv(os.path.join(REPO, "outputs/postpred_extC_components_timeseries.csv"))
+    d = pd.read_csv(os.path.join(REPO, POSTPRED_CSV))
     panels = [("ais", "ais_obs"), ("glaciers", "glaciers_obs_delta_corrected"),
               ("gis", "gis_obs"), ("te", "te_obs"), ("total", "total_obs")]
     fig, axes = plt.subplots(2, 3, figsize=(13.5, 7.2), sharex=True)
@@ -85,7 +90,7 @@ def figure1_hindcast():
 
 
 def figure2_ssp_total():
-    b = pd.read_csv(os.path.join(REPO, "outputs/ssps_components_2300_extC.csv"))
+    b = pd.read_csv(os.path.join(REPO, SSPS_CSV))
     b["scenario"] = b.ssp.map({v: k for k, v in LABEL.items()})
     cmp_ = pd.read_csv(os.path.join(REPO, "outputs/ladrillo_model_comparison.csv"))
     tot = cmp_[(cmp_.component == "total")]
@@ -134,7 +139,7 @@ def figure2_ssp_total():
 
 
 def figure3_glaciers():
-    b = pd.read_csv(os.path.join(REPO, "outputs/ssps_components_2300_extC.csv"))
+    b = pd.read_csv(os.path.join(REPO, SSPS_CSV))
     b["scenario"] = b.ssp.map({v: k for k, v in LABEL.items()})
     cmp_ = pd.read_csv(os.path.join(REPO, "outputs/ladrillo_model_comparison.csv"))
     gl = cmp_[(cmp_.component == "glaciers") & (cmp_.year == 2100)]

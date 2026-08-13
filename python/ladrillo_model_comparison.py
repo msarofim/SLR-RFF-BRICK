@@ -8,8 +8,9 @@ plus the scenario-spread diagnostic (SSP1-2.6 -> SSP5-8.5 median difference per
 component), which is what exposes a glacier module that saturates.
 
 Sources
-  Ladrillo    outputs/ssps_components_2300_extC.csv
-              extC posterior, 2000 draws, FaIR-mean forcing per SSP.
+  Ladrillo    outputs/ssps_components_2300_L10.csv
+              Ladrillo 1.0 (L10) posterior, 2000 draws, FaIR-mean forcing per
+              SSP, Greenland A+B with the amp(GMST) law.
   BRICK 2.0   outputs/ssps_gsic_2300.csv
               pre-Mengel MimiBRICK v2.0.0 with the Wigley-Raper glacier module
               on the post-PR#93 posterior. GLACIERS ONLY - the one legacy arm.
@@ -36,7 +37,10 @@ import pandas as pd
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(REPO, "outputs/ladrillo_model_comparison.csv")
 
-LADRILLO_CSV = os.path.join(REPO, "outputs/ssps_components_2300_extC.csv")
+# The posterior TAG travels with the file so every row this script emits says
+# which vintage produced it (the module column). Changing one changes both.
+LADRILLO_TAG = "L10"
+LADRILLO_CSV = os.path.join(REPO, f"outputs/ssps_components_2300_{LADRILLO_TAG}.csv")
 BRICK20_GSIC_CSV = os.path.join(REPO, "outputs/ssps_gsic_2300.csv")
 MAGICC_CSV = os.path.join(REPO, "data/comparison/magicc_nauels_components.csv")
 FACTS_CSV = os.path.join(REPO, "outputs/facts_components_n200.csv")
@@ -62,7 +66,7 @@ def _rows(df, source, module_col=None, module=None):
 def load_ladrillo():
     df = pd.read_csv(LADRILLO_CSV)
     df["scenario"] = df.ssp.map({v: k for k, v in LABEL.items()})
-    return _rows(df, "Ladrillo", module="extC")
+    return _rows(df, "Ladrillo", module=LADRILLO_TAG)
 
 
 def load_brick20():

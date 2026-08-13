@@ -60,7 +60,12 @@ MENGEL_VINTAGES = {
     "BRICK-Mengel (post-2018 ext)": "outputs/quarantine/20260813_pre_extc_mengel_vintage/proj_ssps_mengel_ext_summary.csv",
 }
 MENGEL_CSV = os.path.join(REPO, MENGEL_VINTAGES["BRICK-Mengel (base)"])
-LADRILLO_CSV = os.path.join(REPO, "outputs/ssps_components_2300_extC.csv")
+# The "Ladrillo" arm of this attribution is the extC vintage, because the
+# attribution ON RECORD is mengel -> extC. extC was quarantined 2026-08-13 when
+# L10 superseded it, so this reads from there; both arms of a cross-vintage
+# comparison now live in quarantine, which is correct. The further extC -> L10
+# step is tabulated in the CHANGELOG entry for 2026-08-13.
+LADRILLO_CSV = os.path.join(REPO, "outputs/quarantine/20260813_extc_vintage/ssps_components_2300_extC.csv")
 
 OUT_CSV = os.path.join(REPO, "outputs/diag_mengel_to_ladrillo_attribution.csv")
 OUT_MD = os.path.join(REPO, "outputs/diag_mengel_to_ladrillo_attribution_summary.md")

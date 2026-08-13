@@ -81,7 +81,7 @@ PC_JITTER_K = 0.25
 K_LOG10_JITTER = 0.5
 SEED = 2026
 
-# Ladrillo's own Greenland (outputs/ssps_components_2300_extC.csv)
+# Ladrillo's own Greenland (outputs/quarantine/20260813_extc_vintage/ssps_components_2300_extC.csv)
 LADRILLO_GIS = {2100: {"ssp126": 6.6, "ssp245": 7.3, "ssp585": 8.8},
               2300: {"ssp126": 19.2, "ssp245": 25.7, "ssp585": 48.6}}
 
