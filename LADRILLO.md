@@ -78,10 +78,10 @@ not**. Certificate: `outputs/mcmc/slr_convergence_L10.csv` (carries a
     medians spanning 2.8×), `gis_beta_s` 1.137, `gis_c0` 1.102. The FAST channel
     IS converged (`gis_c1` 1.015, `gis_alpha_f` 1.029, `gis_beta_f` 1.025, ESS
     220–270). Table: `outputs/mcmc/gis_block_convergence_L10.csv`.
-- **WATCH at 2150**: the median spread there is ~15× the 2100 value relative to
-  within-chain scatter (ratio 0.137 vs 0.009) — the AIS tipping tail is the
-  slowest-mixing feature, and **R̂ is mean-based so it reads 1.000 and does not
-  surface this**. Carry the caveat manually wherever 2150 or 2300 is reported.
+- **WATCH at 2150**, which is the WORST horizon: the median spread there is ~15×
+  the 2100 value relative to within-chain scatter (0.137 vs 0.009), and **R̂ is
+  mean-based so it reads 1.000 and does not surface this**. 2300 is *better*
+  (0.051) — see §5.2. Carry the caveat manually wherever 2150 is reported.
 
 ---
 
