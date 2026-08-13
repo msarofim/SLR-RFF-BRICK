@@ -4,6 +4,12 @@ diag_noise_model_and_grip.py — is the per-series AR(1) noise model the right
 specification, are the five streams independent, and where does the total
 target actually bind under the gate-3.1 sigma?
 
+VINTAGE-SELECTABLE since 2026-08-14 (thread 4 item 1.0). Written against extC;
+`--vintage extC` reproduces exactly that. The DEFAULT is now L10 (Ladrillo 1.0,
+Greenland A+B inside the joint likelihood), because the noise model for the next
+calibration is designed from these numbers and the extC ones predate the module
+that is shipped. Output paths and figure titles carry the vintage tag.
+
 Three questions that turned out to be one story, run as one diagnostic
 (Marcus, 2026-08-12). They were separately: item 6.1 of
 notes/note_2026-08-12_vivek_joint_calibration_artifacts.md (Vivek's R-matrix
@@ -24,6 +30,23 @@ A  STRUCTURAL DEPENDENCE. calibrate_mcmc_ext.jl scores four component streams
    (the budget closure) plus the two model terms that differ between the
    component and total scopes (R19 glaciers, and the delta ramp applied to the
    gsic obs). PASS = the identity closes to numerical slop.
+
+   READ THE CAVEAT (2026-08-14). This section is computed on POSTERIOR MEDIANS,
+   and a median is not additive: median(sum) != sum(medians). The dependence
+   itself is EXACT PER DRAW and can be read straight off the source --
+   calibrate_mcmc_ext.jl builds tot_full = ais + gsic_tot + gis + te and scores
+   it against the total target with observed LWS added, while the gsic
+   COMPONENT channel scores gsic_flow (hindcast scope), so per draw
+      total_model - sum(component_models) = gsic_tot - gsic_flow = the R19 seam,
+   exactly, with no residual slack. posterior_predictive_ladrillo.jl assembles
+   its `total` column the same way. So the "variance of the total residual
+   explained by the identity" printed below is a p50-level SHADOW of an exact
+   identity, contaminated by median non-additivity, and it is not a measure of
+   the redundancy: it read 55.9% on extC and -322% on L10 (the L10 total
+   residual is half the size, so the same non-additivity swamps it) while the
+   underlying algebra did not change at all. The redundancy is 100% by
+   construction; what the total channel adds beyond the components is ONE model
+   term (the R19 seam) plus observed LWS plus its own likelihood weight.
 
 B  EMPIRICAL CROSS-STREAM CORRELATION, on levels and on AR(1) innovations,
    plus the variance share of the leading principal component. If one common
@@ -50,7 +73,7 @@ E  WHERE DOES THE TOTAL ACTUALLY BIND under the gate-3.1 sigma? Fisher
    without the closure term -- reported as the sigma on a window-mean offset,
    which is the interpretable quantity.
 
-F  ITEM 4.3 -- TE. The extC posterior samples thermal_alpha. Compare the
+F  ITEM 4.3 -- TE. The posterior samples thermal_alpha. Compare the
    implied expansion efficiency against the same quantity measured from the
    observations we hold, rather than against the recollection that Wong's
    te_alpha was "3x below physics".
@@ -63,14 +86,16 @@ calibrator's likelihood does not account for it, so section C's headline
 comparison does not either -- and then repeats itself WITH the re-referencing
 projection applied to every model, to show whether the verdict depends on it.
 
-  python3 python/diag_noise_model_and_grip.py
-Writes:
-  outputs/diag_noise_model_streams.csv     per-series noise-model comparison
-  outputs/diag_noise_model_crosscorr.csv   cross-stream correlation matrices
-  outputs/diag_noise_model_grip.csv        window-by-window grip of each stream
-  outputs/diag_noise_model_summary.md
-  figures/diag_noise_model_and_grip.png
+  python3 python/diag_noise_model_and_grip.py [--vintage=L10|extC]
+                                             [--post-source=subsample|chains]
+Writes (VINTAGE is the tag):
+  outputs/diag_noise_model_streams_VINTAGE.csv     per-series noise-model comparison
+  outputs/diag_noise_model_crosscorr_VINTAGE.csv   cross-stream correlation matrices
+  outputs/diag_noise_model_grip_VINTAGE.csv        window-by-window grip of each stream
+  outputs/diag_noise_model_summary_VINTAGE.md
+  figures/diag_noise_model_and_grip_VINTAGE.png
 """
+import argparse
 import os
 
 import numpy as np
@@ -81,24 +106,52 @@ from scipy.stats import chi2, kurtosis, norm, skew
 REPO = os.path.expanduser("~/Documents/2026/CodeProjects/SLR-RFF-BRICK")
 OBS = os.path.join(REPO, "data/observations")
 TARGETS_CSV = os.path.join(REPO, "outputs/recalib_targets_ext.csv")
-# PINNED to the extC vintage, quarantined 2026-08-13 (see
-# outputs/quarantine/20260813_extc_vintage/README.md). This file DESCRIBES that vintage -- its
-# own header is written about it -- so pointing it at the L10 outputs would make
-# its prose wrong, not update it. Re-running the question on L10 is separate work.
-POSTPRED_CSV = os.path.join(REPO, "outputs/quarantine/20260813_extc_vintage/postpred_extC_components_timeseries.csv")
-CHAIN_GLOB = "outputs/mcmc/chain_extC_seed{seed}_n2000000.csv"
+
+# The two posterior vintages this diagnostic can be run against. extC is the
+# quarantined 2026-08-10 posterior with stock-SIMPLE Greenland (see
+# outputs/quarantine/20260813_extc_vintage/README.md); L10 is Ladrillo 1.0.
+VINTAGES = {
+    "L10": dict(
+        postpred=os.path.join(REPO, "outputs/postpred_L10_components_timeseries.csv"),
+        chain="outputs/mcmc/chain_L10_seed{seed}_n2000000.csv",
+        subsample=os.path.join(REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_L10.csv"),
+        label="L10 (Ladrillo 1.0; Greenland A+B in the joint likelihood)",
+    ),
+    "extC": dict(
+        postpred=os.path.join(REPO, "outputs/quarantine/20260813_extc_vintage/"
+                                    "postpred_extC_components_timeseries.csv"),
+        chain="outputs/mcmc/chain_extC_seed{seed}_n2000000.csv",
+        subsample=os.path.join(REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_extC.csv"),
+        label="extC (superseded 2026-08-13; stock-SIMPLE Greenland)",
+    ),
+}
 CHAIN_SEEDS = [2026, 2027, 2028, 2029]
 BURN_FRAC = 0.5
+# The subsample is postprocess_mcmc_ext.jl's uniform stride over the pooled
+# post-burn draws, so its marginal medians ARE the pooled medians -- verified
+# 2026-08-14 against a stride-100 read of the four L10 chains: thermal_alpha and
+# every sd_*/rho_* median agreed to < 0.01 posterior sd, at 10 MB not 8.8 GB.
+POST_SOURCES = ("subsample", "chains")
+
+_ap = argparse.ArgumentParser(description=__doc__.splitlines()[1])
+_ap.add_argument("--vintage", choices=sorted(VINTAGES), default="L10")
+_ap.add_argument("--post-source", choices=POST_SOURCES, default="subsample")
+ARGS = _ap.parse_args()
+VINTAGE = ARGS.vintage
+VLABEL = VINTAGES[VINTAGE]["label"]
+POSTPRED_CSV = VINTAGES[VINTAGE]["postpred"]
+CHAIN_GLOB = VINTAGES[VINTAGE]["chain"]
+SUBSAMPLE_CSV = VINTAGES[VINTAGE]["subsample"]
 
 OHC_CSV = os.path.join(OBS, "ohc_spliced_zanna_igcc.csv")
 OHC_ALT_CSV = os.path.join(OBS, "ohc_spliced_zanna_cheng.csv")
 NOAA_STERIC = os.path.join(OBS, "raw/noaa_thermosteric_w0-2000m_yearly.dat")
 
-OUT_STREAMS = os.path.join(REPO, "outputs/diag_noise_model_streams.csv")
-OUT_XCORR = os.path.join(REPO, "outputs/diag_noise_model_crosscorr.csv")
-OUT_GRIP = os.path.join(REPO, "outputs/diag_noise_model_grip.csv")
-OUT_MD = os.path.join(REPO, "outputs/diag_noise_model_summary.md")
-OUT_PNG = os.path.join(REPO, "figures/diag_noise_model_and_grip.png")
+OUT_STREAMS = os.path.join(REPO, f"outputs/diag_noise_model_streams_{VINTAGE}.csv")
+OUT_XCORR = os.path.join(REPO, f"outputs/diag_noise_model_crosscorr_{VINTAGE}.csv")
+OUT_GRIP = os.path.join(REPO, f"outputs/diag_noise_model_grip_{VINTAGE}.csv")
+OUT_MD = os.path.join(REPO, f"outputs/diag_noise_model_summary_{VINTAGE}.md")
+OUT_PNG = os.path.join(REPO, f"figures/diag_noise_model_and_grip_{VINTAGE}.png")
 
 # ---- frame ------------------------------------------------------------------
 SERIES = ["ais", "gsic", "gis", "steric", "dang"]
@@ -369,7 +422,8 @@ def resolution_probe(n=126, stat_sd=0.35, band=0.05, reps=12, seed=11):
 
 # =============================================================================
 def main():
-    print("diag_noise_model_and_grip | extC posterior medians | "
+    print(f"diag_noise_model_and_grip | vintage {VINTAGE} — {VLABEL}")
+    print(f"  posterior medians from the {ARGS.post_source} | "
           f"reref {REF_WIN[0]}-{REF_WIN[1]}")
     selftest_machinery()
     print("  [resolution probe] where does BIC stop telling AR(1) from a random walk?")
@@ -378,7 +432,7 @@ def main():
     pp = pd.read_csv(POSTPRED_CSV).set_index("year")
 
     # ---- residuals, on each series' own valid years -------------------------
-    res, epss, yrs = {}, {}, {}
+    res, epss, yrs, band_ratio = {}, {}, {}, {}
     for s in SERIES:
         stem = PP_STEM[s]
         ok = np.isfinite(tg[s].values) & np.isfinite(
@@ -387,9 +441,17 @@ def main():
         res[s] = (pp[f"{stem}_p50"].reindex(tg.index).values[ok] - tg[s].values[ok])
         epss[s] = band_sigma(tg, s).values[ok]
         yrs[s] = y
+        # resid sd / band sigma is the discriminator for section C: a stream whose
+        # residual sits well INSIDE its own observation band gives the noise model
+        # nothing to do, so "AR(1) vs white" on it is a comparison of two terms
+        # that are both dominated by diag(band^2). Only streams with ratio ~1 put
+        # the noise specification under load.
+        band_ratio[s] = res[s].std() / epss[s].mean()
         print(f"  {s:7s} {y.min()}-{y.max()} ({len(y)} yr)  "
               f"resid mean {res[s].mean():+.3f} sd {res[s].std():.3f} cm  "
-              f"band sigma mean {epss[s].mean():.3f}")
+              f"band sigma mean {epss[s].mean():.3f}  "
+              f"resid/band {band_ratio[s]:.2f}"
+              f"{'   <-- noise model under load' if band_ratio[s] > 0.5 else ''}")
 
     common = sorted(set.intersection(*[set(yrs[s]) for s in SERIES]))
     ci = {s: np.isin(yrs[s], common) for s in SERIES}
@@ -398,8 +460,10 @@ def main():
           f"({len(common)})")
 
     md = []
-    md.append(f"# Noise-model specification, stream dependence and target grip\n")
-    md.append(f"extC posterior medians; residual = model - target, cm; "
+    md.append(f"# Noise-model specification, stream dependence and target grip "
+              f"({VINTAGE})\n")
+    md.append(f"Vintage: **{VLABEL}**; posterior medians from the "
+              f"{ARGS.post_source}; residual = model - target, cm; "
               f"common window {common[0]}-{common[-1]}.\n")
 
     # =====================================================================
@@ -424,13 +488,27 @@ def main():
     print(f"  corr(dang_resid, sum(comp_resid)) = "
           f"{np.corrcoef(lhs, R[:, [SERIES.index(c) for c in COMPONENTS]].sum(axis=1))[0,1]:+.4f}")
     frac = 1 - np.var(gap) / np.var(lhs)
-    print(f"  variance of the total residual explained by the identity: {frac:6.1%}")
+    print(f"  p50-level variance of the total residual 'explained' by the identity: "
+          f"{frac:6.1%}")
+    print("  CAVEAT: the identity is EXACT PER DRAW (tot_full = ais+gsic_tot+gis+te,"
+          " scored\n          with observed LWS; the gsic COMPONENT channel uses"
+          " gsic_flow, so the per-draw\n          difference is exactly the R19 seam)."
+          " This number is a p50 shadow of it,\n          contaminated by median"
+          " non-additivity, and is NOT a measure of the redundancy.")
     md.append(f"\n## A. The five streams are not independent — by construction\n\n"
-              f"`dang_resid = sum(component resids) - closure + (R19 + delta ramp)`. "
-              f"Measured over {common[0]}-{common[-1]}: the identity explains "
-              f"**{frac:.1%}** of the total residual's variance, leaving a gap of "
-              f"sd {gap.std():.4f} cm which is the R19 glacier scope term plus the "
-              f"gsic delta ramp — both genuine model terms, not slop.\n")
+              f"Per draw the tie is EXACT: `calibrate_mcmc_ext.jl` scores "
+              f"`tot_full = ais + gsic_tot + gis + te` plus observed LWS against the "
+              f"total target, while the gsic component channel scores `gsic_flow` "
+              f"(hindcast scope), so `total_model − Σ(component_models)` is exactly "
+              f"the R19 seam. The total stream is **100% redundant with the "
+              f"components** apart from that one model term, the observed LWS, and "
+              f"its own likelihood weight.\n\n"
+              f"The p50-level statistic below is a SHADOW of that identity, not a "
+              f"measure of it: medians are not additive, so it reads "
+              f"**{frac:.1%}** here over {common[0]}-{common[-1]} with a gap of sd "
+              f"{gap.std():.4f} cm. It was 55.9% on extC and −322% on L10 with the "
+              f"algebra unchanged — the L10 total residual is half the size, so the "
+              f"same non-additivity swamps it. Do not quote it as the redundancy.\n")
 
     # =====================================================================
     # B. cross-stream correlation
@@ -489,7 +567,8 @@ def main():
                 Qm, pm, _ = ljung_box(whiten(res[s], cv))
             except np.linalg.LinAlgError:
                 Qm, pm = np.nan, np.nan
-            rows.append(dict(series=s, model=m, logl=f["logl"], k=f["k"],
+            rows.append(dict(series=s, model=m, resid_over_band=band_ratio[s],
+                             logl=f["logl"], k=f["k"],
                              bic=f["bic"], dbic_vs_ar1=f["bic"] - b0,
                              ljungbox_Q=Qm, ljungbox_p=pm,
                              params="; ".join(f"{v:.6g}" for v in f["params"])))
@@ -505,6 +584,15 @@ def main():
               f"{lo.max():.4f}]{'  <-- INCLUDES 1' if lo.max() > 0.9985 else ''}")
     streams = pd.DataFrame(rows)
     streams.to_csv(OUT_STREAMS, index=False)
+    loaded = [s for s in SERIES if band_ratio[s] > 0.5]
+    md.append(f"\n## C. Which streams put the noise model under load\n\n"
+              f"resid sd / mean band σ: "
+              + ", ".join(f"{s} {band_ratio[s]:.2f}" for s in SERIES)
+              + f". Only **{', '.join(loaded) if loaded else 'none'}** exceed 0.5, "
+              f"i.e. only there does the residual approach its own observation band; "
+              f"on the rest the likelihood is band-dominated and 'AR(1) vs white' "
+              f"compares two terms that barely enter. Full BIC table in "
+              f"`{os.path.basename(OUT_STREAMS)}`.\n")
     print("\n  [C1b] Ljung-Box p on the whitened residuals, EVERY model "
           "(the self-test returns p=0.84 on data it generated, so a p here is "
           "a statement about the model, not the test)")
@@ -613,15 +701,18 @@ def main():
     # =====================================================================
     print("\n[F] ITEM 4.3 — TE expansion efficiency vs the observations we hold")
     cols = ["thermal_alpha"]
-    frames = []
-    for sd in CHAIN_SEEDS:
-        d = pd.read_csv(os.path.join(REPO, CHAIN_GLOB.format(seed=sd)), usecols=cols)
-        frames.append(d.iloc[int(len(d) * BURN_FRAC):])
-    ta = pd.concat(frames, ignore_index=True)["thermal_alpha"]
+    if ARGS.post_source == "subsample":
+        ta = pd.read_csv(SUBSAMPLE_CSV, usecols=cols)["thermal_alpha"]
+    else:
+        frames = []
+        for sd in CHAIN_SEEDS:
+            d = pd.read_csv(os.path.join(REPO, CHAIN_GLOB.format(seed=sd)), usecols=cols)
+            frames.append(d.iloc[int(len(d) * BURN_FRAC):])
+        ta = pd.concat(frames, ignore_index=True)["thermal_alpha"]
     q = ta.quantile([0.05, 0.5, 0.95]).values
     eff = lambda a: a / (TE_A * TE_C * TE_RHO ** 2) * 1e22 * 100.0   # cm per 1e22 J
-    print(f"  extC thermal_alpha  p05/p50/p95 = {q[0]:.4f} / {q[1]:.4f} / {q[2]:.4f} "
-          f"kg m^-3 C^-1")
+    print(f"  {VINTAGE} thermal_alpha  p05/p50/p95 = {q[0]:.4f} / {q[1]:.4f} / "
+          f"{q[2]:.4f} kg m^-3 C^-1  (n={len(ta):,})")
     print(f"  implied efficiency  p05/p50/p95 = {eff(q[0]):.4f} / {eff(q[1]):.4f} / "
           f"{eff(q[2]):.4f} cm per 1e22 J")
     phys = [r * TE_RHO for r in ALPHA_V_RANGE]
@@ -651,7 +742,7 @@ def main():
               f"(n={len(yy)}): {slope:.4f} cm per 1e22 J")
 
     md.append(f"\n## F. Item 4.3 — thermal expansion\n\n"
-              f"extC `thermal_alpha` p50 = **{q[1]:.4f}** kg m^-3 C^-1 "
+              f"{VINTAGE} `thermal_alpha` p50 = **{q[1]:.4f}** kg m^-3 C^-1 "
               f"(90% {q[0]:.4f}-{q[2]:.4f}), i.e. **{eff(q[1]):.4f} cm per 1e22 J**. "
               f"Physics range {eff(phys[0]):.4f}-{eff(phys[1]):.4f}. Observed "
               + "; ".join(f"{k} {v:.4f}" for k, v in emp.items()) + " cm per 1e22 J.\n")
@@ -674,7 +765,8 @@ def make_figure(series, res, yrs, epss, profiles, C_inn, dd, grip):
         a.plot(yrs[s], res[s], lw=1.4, label=s)
     a.axhline(0, color="k", lw=0.8)
     a.axvspan(REF_WIN[0], REF_WIN[1], color="0.85", zorder=0)
-    a.set_title("extC residuals (model − target), cm\ngrey = the 1995–2005 re-reference window")
+    a.set_title(f"{VINTAGE} residuals (model − target), cm\n"
+                f"grey = the {REF_WIN[0]}–{REF_WIN[1]} re-reference window")
     a.set_xlabel("year"); a.set_ylabel("cm"); a.legend(fontsize=8); a.grid(alpha=0.3)
 
     a = ax[0, 1]

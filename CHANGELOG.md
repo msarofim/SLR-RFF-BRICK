@@ -3,7 +3,98 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## [unreleased] — 2026-08-13 (latest, second session) — the amp law is IMPLEMENTED, and it very nearly closes G4
+## [unreleased] — 2026-08-14 — thread 4 item 1.0: the two calibration diagnostics re-measured on L10, and the noise-model premise changes
+
+Handoff `notes/handoff_2026-08-13d_threads_4_and_5.md` §1.0, the prerequisite that
+had to run before any of thread 4 could be designed. Both diagnostics were pinned
+to the quarantined extC vintage; both are now `--vintage {L10,extC}`, default
+**L10**, with the vintage in every output path, figure title and markdown header.
+`--vintage extC` reproduces the recorded extC numbers (gis step cost 27.69 vs the
+recorded 27.71, net +25.36 vs +25.37), so the re-pointing is faithful. The eight
+extC-vintage output files moved to `outputs/quarantine/20260813_extc_vintage/`
+(README §7).
+
+### 0. Cost: ~40 min → 2 s and 18 s, by reading the posterior subsample
+Both scripts read the four 2.2 GB chains only for posterior medians of
+`thermal_alpha` and `sd_*`/`rho_*`. `postprocess_mcmc_ext.jl` writes the
+10,000-member subsample as a **uniform stride over the pooled post-burn draws**,
+so its marginal medians ARE the pooled medians. Verified, not assumed: a
+stride-100 read of all four L10 chains (40,000 draws) agrees with the subsample
+to **< 0.01 posterior sd on every one of the 11 parameters**. `--post-source=chains`
+restores the full read. (The `cut`-based extraction is the cheap way to do this —
+`awk -F,` on 55 fields × 2M rows × 4 files does not finish in 2 minutes; `cut`
+takes 46 s per file.)
+
+### 1. The Greenland noise pathology is GONE — it was the module, not the noise model
+The extC headline was `rho_gis = 0.985`, AR(1) τ 67.5 yr, **n_eff 0.93** — one
+effective observation in 126 years, the mechanism by which a decades-long
+Greenland miss survived as "correlated noise". On L10, with A+B inside the joint
+likelihood:
+
+| | extC | L10 |
+|---|---|---|
+| `rho_gis` (sampled, posterior median) | 0.985 | **0.789** |
+| AR(1) τ | 67.5 yr | 4.2 yr |
+| **n_eff (gis)** | **0.93** | **14.85** |
+| stationary sd of the gis noise process | 0.318 cm | 0.025 cm |
+| cost of a 0.65 cm step over 1942-1982 | 27.7 logl | **311.8 logl** |
+| leverage the AR(1) removes (gis) | 14× | 1× |
+| gis residual, mean over 1942-1982 | −0.822 cm | **+0.008 cm** |
+
+So the sampler was inflating the Greenland noise process to absorb a structural
+miss; give it a module that fits, and the process collapses and the channel gets
+~11× more grip. **This reverses the reading of `diag_gis_likelihood_leverage.py`'s
+original conclusion for gis** — that file identified the AR(1) as the mechanism
+that let the miss survive, and on the shipped model that mechanism is no longer
+loaded. It is unchanged for the other four streams.
+
+### 2. "AR(1) is misspecified on all five streams" is still true, but only two streams are under load
+New column, `resid sd / mean band σ` — a stream whose residual sits well inside
+its own observation band gives the noise model nothing to do, so "AR(1) vs white"
+on it compares two terms that barely enter the likelihood:
+
+| stream | extC | L10 |
+|---|---|---|
+| ais | 0.17 | 0.17 |
+| gsic | 1.06 | **1.06** |
+| gis | **1.84** | 0.33 |
+| steric | 0.90 | **0.95** |
+| dang | 0.21 | 0.12 |
+
+Ljung-Box still rejects every member of the family on every stream (p = 0.0000
+throughout, against p = 0.84 on the self-test's own simulated data), so the
+specification finding stands. But on L10 the streams that actually put it under
+load are **gsic and steric only** — and BIC agrees: `white − AR(1)` is +18.7
+(gsic) and +108.0 (steric), against −2.5 to −4.2 for ais/gis/dang, where white is
+now marginally *preferred*. A discrepancy term aimed at gsic and steric is a much
+narrower change than replacing AR(1) on all five.
+
+### 3. The "56% redundant total stream" figure is a p50 artefact — the redundancy is 100%
+Section A's "variance of the total residual explained by the identity" read 55.9%
+on extC and **−322% on L10**, with the underlying algebra completely unchanged.
+Diagnosed at the source rather than from the statistic: `calibrate_mcmc_ext.jl`
+scores `tot_full = ais + gsic_tot + gis + te` plus observed LWS, while the gsic
+COMPONENT channel scores `gsic_flow` (hindcast scope), so **per draw**
+`total_model − Σ(component_models) = gsic_tot − gsic_flow` = the R19 seam,
+exactly; `posterior_predictive_ladrillo.jl` assembles its `total` the same way.
+The diagnostic computes this on posterior MEDIANS, and medians are not additive.
+The L10 total residual is half extC's (sd 0.246 vs 0.415 cm) while the
+non-additivity term grew with the Greenland distribution change (gap sd 0.276 →
+0.505 cm), which is the whole of the sign flip.
+
+Consequence for thread 4 design axis 2: the total stream is **100% redundant**
+with the components apart from one model term (the R19 seam), the observed LWS,
+and its own likelihood weight — a stronger statement than the 56% it replaces.
+Section A now says so and labels the p50 statistic as not-the-redundancy.
+
+### 4. Unchanged on L10
+- **The total is still the loosest constraint in every window** (§E): σ on a
+  window-mean offset 0.232-0.565 cm for `dang` against 0.014-0.062 for `ais`/`gis`.
+- **Item 4.3 (TE)** still passes: `thermal_alpha` p50 0.1502 (was 0.1540) →
+  **0.0986 cm per 1e22 J**, against observed 0.1043 (Zanna+IGCC) / 0.1133
+  (Zanna+Cheng) and a physics range of 0.1011-0.1348. Slightly low-side, as before.
+
+## [unreleased] — 2026-08-13 (second session) — the amp law is IMPLEMENTED, and it very nearly closes G4
 
 Handoff `notes/handoff_2026-08-13_ladrillo_step5_production_done.md` §4 items 1-3.
 

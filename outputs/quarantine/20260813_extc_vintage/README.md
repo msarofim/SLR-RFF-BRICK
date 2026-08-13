@@ -75,9 +75,38 @@ L10 would make their prose wrong, not update it:
   "Ladrillo's own Greenland", which at the time was stock SIMPLE. **Re-running
   this against L10's A+B is live work**, not a path edit: it belongs to the
   open thread on what replaces proportional relaxation at high warming.
-- `diag_gis_likelihood_leverage.py`, `diag_noise_model_and_grip.py` — calibration
-  diagnostics tied to the extC CHAINS as well as its outputs. Re-running them on
-  the L10 chains is part of preparing the next calibration.
+- `diag_gis_likelihood_leverage.py`, `diag_noise_model_and_grip.py` — **NO LONGER
+  PINNED as of 2026-08-14** (thread 4 item 1.0). Both now take `--vintage
+  {L10,extC}`, default **L10**, and tag every output path with the vintage. Their
+  extC-vintage outputs, which used to sit at unsuffixed canonical paths, were
+  moved into THIS directory on 2026-08-14 — see §7. `--vintage extC` regenerates
+  them at `outputs/diag_*_extC*` and reproduces the recorded numbers (gis step
+  cost 27.69 vs the recorded 27.71; net +25.36 vs +25.37 — the third-decimal
+  difference is the posterior subsample standing in for the full chains, which is
+  verified equivalent, §7).
+
+## 7. The two noise/leverage diagnostics, moved here 2026-08-14
+
+These eight files are the extC-vintage products of the two diagnostics above,
+moved out of `outputs/` and `figures/` when those scripts became
+vintage-selectable. Same standing rule as the rest of this directory: vintage
+difference, not a bug — they were correct for extC and are kept for postmortem
+and for regression-testing the re-pointing.
+
+| moved from | canonical replacement |
+|---|---|
+| `outputs/diag_gis_likelihood_leverage.csv` / `_summary.md` | `outputs/diag_gis_likelihood_leverage_L10.csv` / `_L10_summary.md` |
+| `outputs/diag_noise_model_{streams,crosscorr,grip}.csv`, `_summary.md` | the same names with a `_L10` tag |
+| `figures/diag_gis_likelihood_leverage.png`, `figures/diag_noise_model_and_grip.png` | the same names with a `_L10` tag |
+
+**Posterior source.** Both scripts now read the 10,000-member posterior
+subsample rather than the four 2.2 GB chains. That is legitimate because
+`postprocess_mcmc_ext.jl` writes the subsample as a uniform stride over the
+pooled post-burn draws, so its marginal medians ARE the pooled medians; verified
+2026-08-14 against a stride-100 read of all four L10 chains, where
+`thermal_alpha` and every `sd_*`/`rho_*` median agreed to **< 0.01 posterior sd**.
+Run cost went from ~40 min to 2 s and 18 s. `--post-source=chains` restores the
+full read.
 
 `diag_mengel_to_ladrillo_attribution.py` reads BOTH quarantines: the attribution
 on record is mengel → extC, so both its arms are now archived vintages, which is

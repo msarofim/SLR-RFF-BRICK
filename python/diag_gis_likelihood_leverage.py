@@ -2,6 +2,26 @@
 """GATE 3.1, part 2 — how much likelihood grip does each target series actually
 have, and what does a mid-century Greenland correction cost or buy?
 
+VINTAGE-SELECTABLE since 2026-08-14 (thread 4 item 1.0).  This file was written
+against extC and its argument below is stated in extC's terms; `--vintage extC`
+still reproduces exactly that.  The DEFAULT is now L10 (Ladrillo 1.0, Greenland
+A+B inside the joint likelihood), because the noise-model design for the next
+calibration rests on these numbers and the extC ones predate the module that is
+shipped.  Every output path and figure title carries the vintage tag, so the two
+cannot be confused on disk.
+
+What the vintage change does to the argument, stated up front:
+  - extC's Greenland was stock SIMPLE and MISSED mid-century, and section 1's
+    headline was that rho_gis = 0.985 reclassified that miss as correlated
+    noise (n_eff 0.93).  Under L10 the A+B module fits that window, so the
+    same measurement is now a TEST of whether the pathology was the module or
+    the noise model.
+  - section 3 asks what a correction that closed the REMAINING gis residual
+    would cost and buy.  Under extC that correction was "what A+B would add";
+    under L10, A+B is already in, so it is the leverage still on the table.
+  - the 1942-1982 window is HELD FIXED across vintages so the numbers compare;
+    the realised-correction table reports what the residual in it actually is.
+
 Motivation.  diag_target_conflict.py shows the component-vs-total conflict is
 NOT a splice artefact and NOT Dangendorf-vs-Frederikse: it is Frederikse's own
 mid-century budget non-closure, and it is small relative to the total target's
@@ -12,7 +32,7 @@ sigma AND rho are both sampled (half-normal(0,5) prior on sigma).  A rho near 1
 reclassifies a decades-long systematic miss as correlated noise, which is nearly
 free.
 
-Two quantities, both computed at the pooled extC posterior medians of
+Two quantities, both computed at the pooled posterior medians of
 (sd_series, rho_series) -- i.e. CONDITIONAL on the noise parameters, which is
 the honest first cut; the sampler can additionally inflate sigma, so these are
 UPPER bounds on the grip:
@@ -35,7 +55,7 @@ UPPER bounds on the grip:
      sharp edges an AR(1) cannot absorb, which inflates its apparent cost, so
      the ramp is the conservative (lower-leverage) case.
 
-  3. The REALISED correction -- the same calculation driven by the actual extC
+  3. The REALISED correction -- the same calculation driven by the actual
      posterior-median residuals rather than a synthetic shape.  This matters
      because the model currently sits BELOW the total target in mid-century, so
      adding Greenland melt moves the total through the target rather than away
@@ -44,10 +64,14 @@ UPPER bounds on the grip:
      an lws term to the model total; the residual used here is taken straight
      from the postpred timeseries, which already carries it.
 
-Outputs: outputs/diag_gis_likelihood_leverage.csv
-         outputs/diag_gis_likelihood_leverage_summary.md
-         figures/diag_gis_likelihood_leverage.png
+  python3 python/diag_gis_likelihood_leverage.py [--vintage=L10|extC]
+                                                 [--post-source=subsample|chains]
+Outputs (VINTAGE is the tag):
+         outputs/diag_gis_likelihood_leverage_VINTAGE.csv
+         outputs/diag_gis_likelihood_leverage_VINTAGE_summary.md
+         figures/diag_gis_likelihood_leverage_VINTAGE.png
 """
+import argparse
 import os
 import numpy as np
 import pandas as pd
@@ -60,18 +84,32 @@ from scipy.stats import multivariate_normal
 # ---------------------------------------------------------------- constants
 REPO = os.path.expanduser("~/Documents/2026/CodeProjects/SLR-RFF-BRICK")
 TARGETS_CSV = os.path.join(REPO, "outputs/recalib_targets_ext.csv")
-# PINNED to the extC vintage, quarantined 2026-08-13 (see
-# outputs/quarantine/20260813_extc_vintage/README.md). This file DESCRIBES that vintage -- its
-# own header is written about it -- so pointing it at the L10 outputs would make
-# its prose wrong, not update it. Re-running the question on L10 is separate work.
-POSTPRED_CSV = os.path.join(REPO, "outputs/quarantine/20260813_extc_vintage/postpred_extC_components_timeseries.csv")
-CHAIN_GLOB = "outputs/mcmc/chain_extC_seed{seed}_n2000000.csv"
+
+# The two posterior vintages this diagnostic can be run against. extC is the
+# quarantined 2026-08-10 posterior with stock-SIMPLE Greenland (see
+# outputs/quarantine/20260813_extc_vintage/README.md); L10 is Ladrillo 1.0.
+VINTAGES = {
+    "L10": dict(
+        postpred=os.path.join(REPO, "outputs/postpred_L10_components_timeseries.csv"),
+        chain="outputs/mcmc/chain_L10_seed{seed}_n2000000.csv",
+        subsample=os.path.join(REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_L10.csv"),
+        label="L10 (Ladrillo 1.0; Greenland A+B in the joint likelihood)",
+    ),
+    "extC": dict(
+        postpred=os.path.join(REPO, "outputs/quarantine/20260813_extc_vintage/"
+                                    "postpred_extC_components_timeseries.csv"),
+        chain="outputs/mcmc/chain_extC_seed{seed}_n2000000.csv",
+        subsample=os.path.join(REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_extC.csv"),
+        label="extC (superseded 2026-08-13; stock-SIMPLE Greenland)",
+    ),
+}
 CHAIN_SEEDS = [2026, 2027, 2028, 2029]
 BURN_FRAC = 0.5                       # discard first half of each chain
-
-OUT_CSV = os.path.join(REPO, "outputs/diag_gis_likelihood_leverage.csv")
-OUT_MD = os.path.join(REPO, "outputs/diag_gis_likelihood_leverage_summary.md")
-OUT_PNG = os.path.join(REPO, "figures/diag_gis_likelihood_leverage.png")
+# The subsample is postprocess_mcmc_ext.jl's uniform stride over the pooled
+# post-burn draws, so its marginal medians ARE the pooled medians -- verified
+# 2026-08-14 against a stride-100 read of the four L10 chains: every sd_*/rho_*
+# median agreed to < 0.01 posterior sd, at 10 MB instead of 8.8 GB.
+POST_SOURCES = ("subsample", "chains")
 
 SERIES = ["ais", "gsic", "gis", "steric", "dang"]
 STEP_SERIES = "gis"                   # the series the Greenland module corrects
@@ -85,6 +123,23 @@ DANG_COL = "dang"                     # the total channel; its sigma is NOT an e
 CLOSURE_SIG_COL = "dang_closure_sig"  # gate-3.1 ruling, python/prep_recalib_targets_ext.py
 
 STEP_LABEL = f"{STEP_Y0}-{STEP_Y1}"
+
+# ---------------------------------------------------------------- vintage wiring
+_ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+_ap.add_argument("--vintage", choices=sorted(VINTAGES), default="L10")
+_ap.add_argument("--post-source", choices=POST_SOURCES, default="subsample",
+                 help="where the (sd, rho) medians come from; 'chains' reads "
+                      "4 x 2.2 GB, 'subsample' reads 10 MB for the same medians")
+ARGS = _ap.parse_args()
+VINTAGE = ARGS.vintage
+VLABEL = VINTAGES[VINTAGE]["label"]
+POSTPRED_CSV = VINTAGES[VINTAGE]["postpred"]
+CHAIN_GLOB = VINTAGES[VINTAGE]["chain"]
+SUBSAMPLE_CSV = VINTAGES[VINTAGE]["subsample"]
+
+OUT_CSV = os.path.join(REPO, f"outputs/diag_gis_likelihood_leverage_{VINTAGE}.csv")
+OUT_MD = os.path.join(REPO, f"outputs/diag_gis_likelihood_leverage_{VINTAGE}_summary.md")
+OUT_PNG = os.path.join(REPO, f"figures/diag_gis_likelihood_leverage_{VINTAGE}.png")
 
 
 def band_sigma(tg, col):
@@ -119,12 +174,23 @@ def logl(res, cov):
 
 
 # ---------------------------------------------------------------- posterior noise params
-frames = []
-for s in CHAIN_SEEDS:
-    cols = [f"{p}_{c}" for c in SERIES for p in ("sd", "rho")]
-    d = pd.read_csv(os.path.join(REPO, CHAIN_GLOB.format(seed=s)), usecols=cols)
-    frames.append(d.iloc[int(len(d) * BURN_FRAC):])
-post = pd.concat(frames, ignore_index=True)
+NOISE_COLS = [f"{p}_{c}" for c in SERIES for p in ("sd", "rho")]
+if ARGS.post_source == "subsample":
+    post = pd.read_csv(SUBSAMPLE_CSV, usecols=NOISE_COLS)
+    POST_PROV = (f"{len(post):,}-member posterior subsample "
+                 f"({os.path.basename(SUBSAMPLE_CSV)}), a uniform stride over the "
+                 f"pooled post-burn draws of seeds {CHAIN_SEEDS}")
+else:
+    frames = []
+    for s in CHAIN_SEEDS:
+        d = pd.read_csv(os.path.join(REPO, CHAIN_GLOB.format(seed=s)), usecols=NOISE_COLS)
+        frames.append(d.iloc[int(len(d) * BURN_FRAC):])
+    post = pd.concat(frames, ignore_index=True)
+    POST_PROV = (f"pooled medians over seeds {CHAIN_SEEDS}, last "
+                 f"{1 - BURN_FRAC:.0%} of each 2,000,000-step {VINTAGE} chain "
+                 f"({len(post):,} draws)")
+print(f"diag_gis_likelihood_leverage | vintage {VINTAGE} — {VLABEL}")
+print(f"  noise parameters from the {ARGS.post_source}: {POST_PROV}")
 
 # ---------------------------------------------------------------- targets / series extents
 tg = pd.read_csv(TARGETS_CSV).set_index("year")
@@ -187,12 +253,14 @@ pay_ar1 = curves[(PAY_SERIES, "step")]["both"][ci]
 pay_iid = curves[(PAY_SERIES, "step")]["iid"][ci]
 
 # ------------------------------------------------- 3. the realised correction
-# The GIS correction A+B would apply if it matched its target exactly, and what
-# that does to the total channel, using the actual extC posterior-median fit.
+# The GIS correction that would close the REMAINING gis residual exactly, and
+# what it does to the total channel, at this vintage's posterior-median fit.
+# Under extC that correction was "what the A+B module would add"; under L10 the
+# module is already inside the likelihood, so it is the leverage still on offer.
 pp = pd.read_csv(POSTPRED_CSV).set_index("year")
 # postpred column names differ from target/series names
 PP_COL = {"gis": "gis", "dang": "total"}
-gis_corr = (pp["gis_obs"] - pp["gis_p50"]).rename("gis_correction")   # what A+B would add
+gis_corr = (pp["gis_obs"] - pp["gis_p50"]).rename("gis_correction")   # closes the gis residual
 
 realised = []
 for c in (STEP_SERIES, PAY_SERIES):
@@ -233,7 +301,7 @@ ax.axvline(REPORT_AMP, color="k", lw=0.8, ls=":")
 ax.set_yscale("symlog", linthresh=1.0)
 ax.set_xlabel(f"step residual amplitude over {STEP_LABEL} (cm)")
 ax.set_ylabel("log-likelihood penalty (-delta logl)")
-ax.set_title(f"Cost of a {STEP_LABEL} systematic offset")
+ax.set_title(f"Cost of a {STEP_LABEL} systematic offset — {VINTAGE}")
 ax.legend(fontsize=8)
 ax.grid(alpha=0.3)
 
@@ -244,7 +312,7 @@ for i, r in enumerate(o.itertuples()):
     ax.text(r.n_eff, i, f"  rho={r.rho:.3f}, n={r.n_years}", va="center", fontsize=8)
 ax.set_xscale("log")
 ax.set_xlabel("effective independent observations n_eff = n(1-rho)/(1+rho)")
-ax.set_title("Likelihood grip per target series (extC posterior medians)")
+ax.set_title(f"Likelihood grip per target series ({VINTAGE} posterior medians)")
 ax.grid(alpha=0.3, axis="x")
 fig.tight_layout()
 os.makedirs(os.path.dirname(OUT_PNG), exist_ok=True)
@@ -253,10 +321,8 @@ fig.savefig(OUT_PNG, dpi=140)
 # ---------------------------------------------------------------- outputs
 grip.to_csv(OUT_CSV, index=False)
 with open(OUT_MD, "w") as fh:
-    fh.write("# Gate 3.1 part 2 — likelihood grip per target series\n\n")
-    fh.write(f"Noise parameters: pooled medians over seeds {CHAIN_SEEDS}, "
-             f"last {1 - BURN_FRAC:.0%} of each 2,000,000-step extC chain "
-             f"({len(post):,} draws).\n\n")
+    fh.write(f"# Gate 3.1 part 2 — likelihood grip per target series ({VINTAGE})\n\n")
+    fh.write(f"Vintage: **{VLABEL}**. Noise parameters: {POST_PROV}.\n\n")
     fh.write("## Effective sample size\n\n")
     fh.write("| series | years | n | rho | AR(1) tau (yr) | n_eff | stationary sd (cm) | "
              "mean band sigma (cm) |\n|---|---|---|---|---|---|---|---|\n")
@@ -277,7 +343,7 @@ with open(OUT_MD, "w") as fh:
     net_step = -gis_ar1 + pay_ar1
     net_ramp = (-curves[(STEP_SERIES, 'ramp')]['both'][ci]
                 + curves[(PAY_SERIES, 'ramp')]['both'][ci])
-    fh.write("\n## The realised correction (actual extC residuals, not a synthetic shape)\n\n")
+    fh.write(f"\n## The realised correction (actual {VINTAGE} residuals, not a synthetic shape)\n\n")
     fh.write(f"Mean over {STEP_LABEL}, cm; residual = model - obs.\n\n")
     fh.write("| series | residual now | correction applied | residual after | delta logl |\n")
     fh.write("|---|---|---|---|---|\n")
@@ -300,7 +366,7 @@ for c in (STEP_SERIES, PAY_SERIES):
         print(f"{c:7s} {kind:5s} {k['both'][ci]:10.3f} {k['iid'][ci]:10.3f} "
               f"{k['ar1'][ci]:10.3f} {k['iid'][ci] / k['both'][ci]:7.0f}x")
 print()
-print("realised correction (actual extC residuals):")
+print(f"realised correction (actual {VINTAGE} residuals):")
 print(realised.to_string(index=False, float_format=lambda v: f"{v:+.3f}"))
 print(f"  NET {net_realised:+.2f} logl")
 print()
