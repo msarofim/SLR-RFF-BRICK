@@ -144,7 +144,75 @@ The two legitimate cross-vintage consumers (`diag_mengel_to_ladrillo_attribution
 comment saying why. Gate: the attribution diagnostic re-runs **byte-identical**
 after the move.
 
-### The flat-hold above 2.75 K is NOT conservative in the G4 direction
+### 6. Sub-choice 1 SETTLED — the flat-hold is what the data support (`diag_gis_amp_scenario_split.py`)
+Marcus asked for the per-scenario rebuild. Both confounds have to be closed at
+once — ONE scenario **and** a balanced MODEL panel — because within a scenario the
+model population still changes with the bin. `ssp585` is the only scenario with
+coverage above ~3 K and carries the verdict; `ssp126`/`ssp245` panels shrink to
+9 and 10-27 models and are non-monotone even below 2.75 K, which is the
+small-panel noise this test exposes rather than a contradiction.
+
+**Three results, in order of how much they matter:**
+
+1. **The shipped support (0.75-2.75 K) is composition-free.** Within `ssp585`
+   alone, balanced across all 40 models, the curve falls monotonically
+   **1.489 → 1.303**; the pooled curve the shape was actually built from falls
+   1.498 → 1.284 over the same range. The part of the law in use does not depend
+   on scenario mixing at all.
+2. **The pooled bump IS mostly composition, as hypothesised** — within `ssp585`
+   it is **+0.015 [−0.031, +0.043]** at the first bin above 2.75 K against
+   **+0.057** pooled.
+3. **But the region above 2.75 K is flat-within-noise, not declining**: slope
+   **−0.0164/K [−0.0425, +0.0459]**, CI spanning zero. So the flat-hold is
+   neither conservative nor aggressive — it is the reading the
+   composition-controlled data support.
+
+**RETRACTED: "the flat-hold is not conservative in the G4 direction."** That was
+computed on the POOLED curve's values above 2.75 K (S ≈ 0.878-0.883 vs the held
+0.860), which is exactly the object this test disqualifies up there. The 0.41 cm
+difference between the flat-hold and full-curve arms stands as a sensitivity, but
+the **full-curve arm is now the LESS defensible of the two** and the shipped
+default is unchanged and better supported than when it was chosen.
+
+The verdict is decided on the bootstrap INTERVAL, never the sign of a point
+estimate — calling +0.015 a bump because it is positive is the
+argmax-on-flat-optima trap, and the first version of this script did exactly that
+before it was fixed.
+
+### 7. The Greenland block's convergence, asked directly (`diag_gis_block_convergence.jl`)
+`postprocess_mcmc_ext.jl` names only the worst four of its 19 failing marginals,
+one of which is Greenland (`gis_f`). That understates it. Asked for the block:
+
+| param | R̂ | ESS | per-chain medians | |
+|---|---|---|---|---|
+| `gis_c1` | 1.015 | 273 | 0.0334 / 0.0334 / 0.0318 / 0.0330 | ok |
+| `gis_alpha_f` | 1.029 | 223 | 0.0031 / 0.0041 / 0.0033 / 0.0037 | ok |
+| `gis_beta_f` | 1.025 | 229 | 0.0052 / 0.0055 / 0.0042 / 0.0052 | ok |
+| `gis_c0` | 1.102 | 52 | 0.0416 / 0.0413 / 0.0472 / 0.0406 | **FAIL** |
+| `gis_beta_s` | 1.137 | 39 | 0.0074 / 0.0055 / 0.0134 / 0.0062 | **FAIL** |
+| `gis_alpha_s` | 1.180 | 34 | 0.0067 / 0.0027 / 0.0076 / 0.0044 | **FAIL** |
+| `gis_f` | 1.335 | 21 | 0.8177 / 0.7218 / 0.8475 / 0.7656 | **FAIL** |
+| `gis_amp` | 1.001 | 6476 | 1.905 / 1.912 / 1.908 / 1.915 | ok (control) |
+
+**The pattern is the finding: the FAST/SMB channel converges and the SLOW/dynamic
+channel does not.** `alpha_f`/`beta_f`/`c1` sit at R̂ ≤ 1.03 with ESS 220-270,
+while both slow-channel parameters, the initial condition and the partition fail —
+and `gis_alpha_s`'s chain medians span **2.8×** (0.0027-0.0076), the same
+four-chains-in-four-places signature as `ais_iceflow0` rather than a marginal
+statistic. `gis_amp` is included as the CONTROL: it is likelihood-inert, and its
+R̂ 1.001 / ESS 6476 localises the failure to the Greenland likelihood rather than
+the sampler.
+
+Two consequences:
+- **The parameter-level prohibition extends to Greenland**, not just AIS. No
+  channel-split credible intervals; `f = 0.78` is a point fit that reproduces
+  Mouginot, not a posterior result.
+- It gives the "proportional relaxation cannot serve a 7.42 m commitment" caveat a
+  numerical fingerprint: **the channel carrying the multi-millennial commitment is
+  precisely the one the 1900-2024 record cannot identify.** The hindcast
+  constrains what it can see.
+
+### The flat-hold above 2.75 K — the original reasoning, superseded by item 6
 Sub-choice 1 recommended holding S flat above 2.75 K because the 3.25 K bump is
 scenario composition. That is still the right call on evidence, but the label
 "conservative" does not survive measurement: over 3-4.5 K the raw binned curve
