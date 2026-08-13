@@ -57,6 +57,21 @@
 ##   --overdisperse     start each chain from a real over-dispersed posterior draw (production)
 ##   --amp-equilibrium  A6 SENSITIVITY: pin the amplification at the old equilibrium 1.196
 ##                      (prior N(1.19546,0.002)); output infix -> "extA6eq". Isolates A6.
+##
+## PARALLEL LAUNCH -- PIN BLAS TO ONE THREAD (measured 2026-08-12, 4x2M on an Apple M4):
+##   for s in 2026 2027 2028 2029; do
+##     OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 \
+##       julia --project=julia_v2 --threads=1 julia/calibrate_mcmc_ext.jl 2000000 $s \
+##       --tag=L10 --overdisperse &
+##   done; wait
+## Julia defaults to BLAS.get_num_threads() == 4, so a NAKED 4-chain launch spawns 16 BLAS
+## threads onto an M4's FOUR performance cores (hw.perflevel0.physicalcpu = 4; the other 6
+## are efficiency cores). Measured cost of getting this wrong: ETA 11h vs 2h17m, a 4.8x
+## slowdown, with each process burning ~200% CPU of which about half is OpenBLAS spin-wait.
+## Pinning to 1 thread puts each chain on its own P-core and recovers the full single-chain
+## rate (stage-1 solo chain was 2h25m; four pinned chains finish in ~2h20m TOTAL).
+## The RAM sampler's per-iteration work is a 55x55 Cholesky update -- far below the size
+## where threaded BLAS pays for itself, so the threads were never buying anything here.
 ## ============================================================================
 
 using CSV, DataFrames, Mimi, MimiBRICK, Statistics, LinearAlgebra, Distributions, Random, Printf
