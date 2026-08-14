@@ -4,13 +4,17 @@ Marcus, 2026-08-14: "Design the R19 replacement term." Evidence:
 `julia/diag_r19_deliverable_leverage.jl`, `diag_r19_hindcast_visibility.jl`,
 `diag_r19_replacement_target.jl` → the matching `outputs/diag_r19_*.csv`.
 
-**Bottom line.** The term can be built, and §5 specifies it. But the four
-measurements below change what D1 *is*: the total stream is the only observation
-in the whole system that constrains R19's historical trajectory, so any
-replacement is that stream's information recycled, not new information. D1 stops
-being "drop a redundant stream" and becomes "drop a stream and carry one
-parameter's worth of it forward as a summary". That is a methodological choice,
-so it is put to Marcus in §6 rather than settled here.
+> **⚠ READ THE REVISION AT THE END FIRST.** §1-§5 stand as measurements. §6's
+> recommendation (Option B) is **WITHDRAWN**, and the §5 term is **NOT
+> recommended** — both were argued from information bookkeeping, and when tested
+> on observations and on structural physics they fail. The revised
+> recommendation is Option C with a process-side term.
+
+**Bottom line (superseded — see the revision).** The term can be built, and §5
+specifies it. But the four measurements below change what D1 *is*: the total
+stream is the only observation in the whole system that constrains R19's
+historical trajectory, so any replacement is that stream's information recycled,
+not new information.
 
 ---
 
