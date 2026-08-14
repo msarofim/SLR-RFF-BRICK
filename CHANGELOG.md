@@ -3,6 +3,67 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-14 — D2 built: a mean-zero discrepancy term on gsic and steric
+
+Spec §3. Scope unchanged from the spec: only gsic and steric have residuals
+approaching their own observation bands (resid sd / mean band σ on L10: ais 0.17,
+**gsic 1.06**, gis 0.33, **steric 0.95**). Greenland is not here — its pathology
+was the MODULE, fixed by A+B.
+
+### The design decision: a BASIS, and orthogonality instead of a tight prior
+Spec §3 left the form open (GP vs low-order basis) and flagged the
+`thermal_alpha` identifiability risk as "the main risk in D2". Today's TE work
+sharpened that risk into a number: `te_sea_level` is exactly `te_α·S(t)`, so a
+LEVEL offset in the steric residual is **degenerate with `thermal_alpha`** — and
+the steric misfit IS a persistent level bias (+0.553 / +0.140 / +0.133 cm over
+1920-49 / 1950-92 / 1993-2026), with a precision-weighted α of 0.1395 against
+L10's 0.1502.
+
+So the term is a **low-order polynomial basis made orthogonal to the things it
+must not steal**, rather than a GP with a hopeful prior:
+
+- **Orthogonal to the constant, on both streams.** A mean-zero δ(t) can absorb
+  SHAPE and *cannot* absorb LEVEL, so `thermal_alpha` stays identified by the
+  level. Sub-choice 4 resolved by construction.
+- **Orthogonal to `DELTA_RAMP`, on gsic.** gsic already carries a one-parameter
+  obs-side early-century discrepancy (`gic_delta`, the M15/Roe-2021 ramp over
+  1900-1959). Orthogonalising means the new term describes only what that ramp
+  does not, instead of fighting it.
+- 2 dof per stream, unit-RMS normalised so the coefficient is an RMS discrepancy
+  in cm and the prior `N(0, 0.5)` cm is interpretable against 0.3-0.6 cm
+  residuals. 53 → **57** sampled parameters.
+- δ is added to the MODEL, so the per-year band σ and the AR(1) noise are
+  untouched — spec §3 sub-choice 2.
+
+### The orthogonality is ASSERTED at load, and it immediately caught a bug
+A basis that quietly acquired a constant component would silently re-open the
+`thermal_alpha` degeneracy with nothing downstream to show it, so mean-zero,
+unit-RMS and ⊥`DELTA_RAMP` are checked at load like the amp-law `S(anchor)=1`
+identity. The check **failed on the first run**: projecting out `ones` and then a
+non-orthogonal `DELTA_RAMP` re-introduces a constant (gsic col 1 had mean 0.605).
+The protect set is now orthogonalised against itself first. Classic Gram-Schmidt
+error, caught by its own assertion rather than by a wrong posterior.
+
+### Verification
+- **`--keep-total --no-r19-rate --rung-sig-legacy --no-d2` reproduces the
+  pre-change calibrator BIT-IDENTICALLY** (300 iter, seed 2026, max |diff| = 0).
+- **Mutation-tested**: Δ`log_post` at the identical θ₀ = **−1.6969** with D2 on;
+  new columns `d2_gsic_{1,2}`, `d2_steric_{1,2}`. Not inert.
+- All six suites pass.
+
+### Known and NOT yet addressed
+- **Acceptance drops to 0.045** on a cold start: the 4 new parameters get a fresh
+  diagonal proposal. A tuning run to build an adapted covariance is required
+  before production, exactly as the two-stage launch in the calibrator header
+  describes.
+- Spec §3 sub-choice 3 (do ais/gis drop to white?) is left as-is — the spec's own
+  recommendation, since changing it "buys nothing measurable and costs
+  comparability".
+- δ and AR(1) can in principle both absorb correlated structure on the same
+  stream. The low order and mean-zero constraint limit it, but the posterior
+  correlation between `d2_*` and `sd_*`/`rho_*` should be read off the first
+  diagnostic chain.
+
 ## [unreleased] — 2026-08-14 — the R19 change set: drop the total, add the GlaMBIE R19 rate, tighten the rung
 
 Approved by Marcus 2026-08-14 as ONE change set, because the three interact. The

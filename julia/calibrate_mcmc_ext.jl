@@ -118,6 +118,7 @@ const TAG_OVR       = _argval("--tag=")
 const DROP_TOTAL    = !("--keep-total" in ARGS)
 const R19_RATE_ON   = !("--no-r19-rate" in ARGS)
 const RUNG_SIG_LEGACY = "--rung-sig-legacy" in ARGS
+const D2_ON = !("--no-d2" in ARGS)
 const TAG = TAG_OVR !== nothing ? TAG_OVR :
             (AMP_EQ ? "extA6eq" : (DROP_TOTAL ? "D1" : "ext"))   # output infix
 years = collect(Y0:Y1); ib = [findfirst(==(y),years) for y in B0:B1]; idx(y)=findfirst(==(y),years)
@@ -347,6 +348,98 @@ S.gsic.obs .= Float64.(gadj.gsic_adj)
 # obs_corr[y] = obs[y] + δ·(1960−y)/10 cm (δ in mm/yr; prior N(0, 0.30) via the FREE entry)
 const DELTA_RAMP = [y < 1960 ? (1960.0 - y)/10.0 : 0.0 for y in S.gsic.years]
 
+# ---- D2: model-discrepancy term delta(t) on gsic and steric (spec section 3) ----
+# SCOPE. Only these two streams have residuals approaching their own observation
+# bands (resid sd / mean band sigma on L10: ais 0.17, gsic 1.06, gis 0.33,
+# steric 0.95). Greenland's old pathology was the MODULE, fixed by A+B, so it is
+# not here.
+#
+# FORM. A low-order polynomial basis, NOT a GP: the degrees of freedom are
+# countable, the priors are interpretable in cm, and — the reason it is chosen —
+# the basis can be made ORTHOGONAL to the things delta(t) must not steal.
+#
+# WHAT IT IS ORTHOGONALISED AGAINST, and why this is the whole design:
+#   * THE CONSTANT, on both streams. A free delta(t) with a constant term would
+#     absorb a LEVEL offset. On steric that is fatal: te_sea_level is exactly
+#     te_alpha * S(t), so a level offset is degenerate with thermal_alpha, and
+#     measured today the steric misfit IS a persistent level bias (+0.553 /
+#     +0.140 / +0.133 cm over 1920-49 / 1950-92 / 1993-2026) with a
+#     precision-weighted alpha of 0.1395 against L10's 0.1502. A mean-zero
+#     delta(t) can absorb SHAPE and cannot absorb LEVEL, so thermal_alpha stays
+#     identified by the level. This is spec section 3 sub-choice 4, resolved by
+#     construction rather than by a tight prior.
+#   * DELTA_RAMP, on gsic only. gsic ALREADY carries a one-parameter obs-side
+#     early-century discrepancy (gic_delta, the M15/Roe-2021 ramp over 1900-1959).
+#     Orthogonalising against it means the new term can only describe structure
+#     that ramp does not already explain, instead of fighting it.
+#
+# Basis vectors are normalised to unit RMS over the fit window, so a coefficient
+# is an RMS discrepancy in cm and the prior sd is directly interpretable.
+const D2_BASIS_N  = 2        # polynomial dof per stream AFTER orthogonalisation
+const D2_BASIS_SD = 0.5      # cm, prior sd on each coefficient (residuals are 0.3-0.6)
+const D2_STREAMS  = ["gsic", "steric"]
+
+"""Orthonormal (unit-RMS) discrepancy basis for one stream: shifted Legendre-like
+powers of scaled time, Gram-Schmidt'd against `protect` and against each other,
+then RMS-normalised. Returns an (nyear x D2_BASIS_N) matrix."""
+function d2_basis(years, protect::Vector{Vector{Float64}})
+    n = length(years)
+    x = 2 .* (Float64.(years) .- minimum(years)) ./ (maximum(years) - minimum(years)) .- 1
+    cols = Vector{Vector{Float64}}()
+    # ORTHOGONALISE THE PROTECT SET AGAINST ITSELF FIRST. Projecting out `ones`
+    # and then a non-orthogonal DELTA_RAMP re-introduces a constant component —
+    # the load-time assertion below caught exactly that (mean 0.605 on gsic col 1).
+    base = Vector{Vector{Float64}}()
+    for u0 in protect
+        u = copy(u0)
+        for w in base
+            d = dot(w, w); d > 1e-12 && (u = u .- (dot(u, w) / d) .* w)
+        end
+        norm(u) > 1e-10 && push!(base, u)
+    end
+    for k in 1:(D2_BASIS_N + length(protect) + 2)
+        length(cols) == D2_BASIS_N && break
+        v = x .^ k
+        for u in base                                   # Gram-Schmidt
+            d = dot(u, u)
+            d > 1e-12 && (v = v .- (dot(v, u) / d) .* u)
+        end
+        rms = sqrt(sum(v .^ 2) / n)
+        rms < 1e-8 && continue                          # numerically dependent, skip
+        v = v ./ rms
+        push!(cols, v); push!(base, v)
+    end
+    length(cols) == D2_BASIS_N ||
+        error("d2_basis: only $(length(cols)) of $D2_BASIS_N independent columns")
+    return hcat(cols...)
+end
+
+const D2_BASIS = Dict(
+    "gsic"   => d2_basis(S.gsic.years,   [ones(length(S.gsic.years)), copy(DELTA_RAMP)]),
+    "steric" => d2_basis(S.steric.years, [ones(length(S.steric.years))]))
+
+# The orthogonality IS the design — a basis that quietly acquired a constant
+# component would silently re-open the thermal_alpha degeneracy and nothing
+# downstream would show it. Assert at load, like the amp-law S(anchor)=1 identity.
+let tol = 1e-9
+    for (st, B) in D2_BASIS, k in 1:D2_BASIS_N
+        v = B[:, k]
+        abs(sum(v) / length(v)) < tol ||
+            error("D2 basis $st col $k has mean $(sum(v)/length(v)) — not mean-zero, " *
+                  "so delta(t) could absorb a LEVEL offset and unidentify thermal_alpha")
+        abs(sqrt(sum(v .^ 2) / length(v)) - 1) < 1e-8 ||
+            error("D2 basis $st col $k is not unit-RMS; the prior sd would not be in cm")
+    end
+    for k in 1:D2_BASIS_N
+        r = dot(D2_BASIS["gsic"][:, k], DELTA_RAMP)
+        abs(r) / (norm(D2_BASIS["gsic"][:, k]) * norm(DELTA_RAMP)) < 1e-8 ||
+            error("D2 gsic col $k is not orthogonal to DELTA_RAMP (cos = $r) — it " *
+                  "would fight gic_delta rather than complement it")
+    end
+    D2_BASIS_N < 2 || abs(dot(D2_BASIS["steric"][:, 1], D2_BASIS["steric"][:, 2])) /
+        length(S.steric.years) < 1e-8 || error("D2 steric columns are not orthogonal")
+end
+
 # ---- free physical params (name, comp, sym, prior μ, σ, lo, hi, islog) -- UNCHANGED
 pri = CSV.read(joinpath(REPO,"outputs/param_priors.csv"), DataFrame)
 prow(n)=pri[findfirst(==(n),pri.param),:]
@@ -502,6 +595,16 @@ const A_IDX3     = Dict(b => findfirst(k -> k.name == "gic_a_$b", FREE) for b in
 const B_IDX3     = Dict(b => findfirst(k -> k.name == "gic_b_$b", FREE) for b in BLOCKS)
 const TOFF_IDX3  = Dict(b => findfirst(k -> k.name == "gic_T_off_$b", FREE) for b in BLOCKS)
 const UUNCH_IDX  = findfirst(k -> k.name == "gic_u_unch", FREE)
+if D2_ON
+    for st in D2_STREAMS, k in 1:D2_BASIS_N
+        push!(FREE, (name="d2_$(st)_$(k)", comp=:likelihood_only, sym=:none,
+                     μ=0.0, σ=D2_BASIS_SD, lo=-5*D2_BASIS_SD, hi=5*D2_BASIS_SD,
+                     islog=false))
+    end
+end
+const D2_IDX = D2_ON ?
+    Dict(st => [findfirst(k -> k.name == "d2_$(st)_$(i)", FREE) for i in 1:D2_BASIS_N]
+         for st in D2_STREAMS) : Dict{String,Vector{Int}}()
 const DELTA_IDX  = findfirst(k -> k.name == "gic_delta", FREE)
 const UPRE_IDX   = findfirst(k -> k.name == "gic_u_pre", FREE)
 const SR5_IDX    = findfirst(k -> k.name == "gic_s_r5", FREE)
@@ -512,6 +615,10 @@ const GISAMP_IDX = findfirst(k -> k.name == "gis_amp", FREE)   # nothing when --
 const SETP_SKIP  = Set(vcat(collect(values(KAPPA_IDX3)),
                             [UUNCH_IDX, DELTA_IDX, UPRE_IDX, SR5_IDX],
                             collect(values(AMPB_IDX3)),
+                            # D2's delta(t) coefficients are likelihood_only: they
+                            # correct the MODEL SERIES, not a Mimi parameter, so
+                            # setp! must skip them or update_param! sees :none.
+                            reduce(vcat, values(D2_IDX); init=Int[]),
                             GISAMP_IDX === nothing ? Int[] : [GISAMP_IDX]))
 # sampled mode: the κ prior is amp-dependent (center k10c(amp)) — exclude κ from the
 # generic Normal(μ,σ) prior loop and add the explicit term in logposterior
@@ -750,6 +857,10 @@ println("MCMC: $NP physical (incl $(length(GEO_IDX)) DAIS-geometry under a joint
         DROP_TOTAL ? "DROPPED" : "kept (--keep-total)",
         R19_RATE_ON ? "ON" : "OFF (--no-r19-rate)",
         R19_RATE_MU, R19_RATE_SD, RUNG_SIG_SCALE)
+println("D2 discrepancy: " * (D2_ON ? "ON" : "OFF (--no-d2)") *
+        " | $D2_BASIS_N dof per stream on " * join(D2_STREAMS, "+") *
+        " | prior sd $D2_BASIS_SD cm | orthogonal to the constant" *
+        (D2_ON ? " (and to DELTA_RAMP on gsic)" : ""))
 
 # ---- model base (medoid + glacier init), forcing once -- extC 3-reservoir build ----
 medoid = CSV.read(joinpath(REPO,"outputs/recalib_central_row.csv"), DataFrame)[1,:]
@@ -807,9 +918,18 @@ function logposterior(θ)
     ll = 0.0
     # individual components on their own (possibly extended) windows; the gsic obs get the
     # δ ramp (M15 early-segment bias, obs-side, 1900-1959 — offline obs_corrected)
+    # D2: delta(t) is added to the MODEL (it is a model-discrepancy term), so the
+    # per-year band sigma and the AR(1) noise are untouched — spec section 3
+    # sub-choice 2 requires delta to be added to, not to replace, diag(eps^2).
+    d2 = (st, v) -> (!D2_ON || !haskey(D2_IDX, st)) ? v :
+                    v .+ D2_BASIS[st] * [θ[j] for j in D2_IDX[st]]
     for (i,(s,full)) in enumerate(zip([S.ais,S.gsic,S.gis,S.steric], [ais,gsic_flow,gis,te]))
         if i == 2
-            ll += hetero_logl_ar1(full[s.myi] .- (s.obs .+ θ[DELTA_IDX] .* DELTA_RAMP),
+            ll += hetero_logl_ar1(d2("gsic", full[s.myi]) .-
+                                  (s.obs .+ θ[DELTA_IDX] .* DELTA_RAMP),
+                                  σn[i], ρn[i], s.ϵ)
+        elseif i == 4
+            ll += hetero_logl_ar1(d2("steric", full[s.myi]) .- s.obs,
                                   σn[i], ρn[i], s.ϵ)
         else
             ll += hetero_logl_ar1(full[s.myi] .- s.obs, σn[i], ρn[i], s.ϵ)
