@@ -106,7 +106,18 @@ const TAG_OVR       = _argval("--tag=")
 # this is a deliberate DISCARD of an independent observational constraint, not the
 # removal of a double-count (spec §8.1) -- the Wong weights are already off for
 # this arm, so total GMSL enters exactly once, here.
-const DROP_TOTAL    = "--drop-total" in ARGS
+# APPROVED CHANGE SET, Marcus 2026-08-14: drop the total, add the GlaMBIE R19
+# rate, tighten the rung — together, because they interact. The total was the
+# only thing constraining R19 and it was pinning it at 97-99% committed at EVERY
+# warming level (no scenario response), 3x GlaMBIE's observed modern rate, and
+# 1.0-1.8 sigma above the GlacierMIP3 rungs; R19 is the one component with no
+# target of its own, so it absorbs the Frederikse-vs-Dangendorf budget
+# non-closure. Dropping the total removes the cause; the other two supply R19
+# with constraints of its own. Each has a restore flag, and all three together
+# reproduce the L10 configuration bit-identically.
+const DROP_TOTAL    = !("--keep-total" in ARGS)
+const R19_RATE_ON   = !("--no-r19-rate" in ARGS)
+const RUNG_SIG_LEGACY = "--rung-sig-legacy" in ARGS
 const TAG = TAG_OVR !== nothing ? TAG_OVR :
             (AMP_EQ ? "extA6eq" : (DROP_TOTAL ? "D1" : "ext"))   # output infix
 years = collect(Y0:Y1); ib = [findfirst(==(y),years) for y in B0:B1]; idx(y)=findfirst(==(y),years)
@@ -508,10 +519,20 @@ const PRIOR_SKIP = SAMPLED_AMP ? Set(values(KAPPA_IDX3)) : Set{Int}()
 # per-block rung likelihood data (data-basis committed %, band σ, cross-rung corr 0.6)
 const GMIP_LEVELS = [1.2, 1.5, 2.0, 3.0]
 const RUNG_CORR = 0.6
+# Rung sigma. The stored sig* columns are HALF THE FULL INTER-MODEL RANGE of the
+# 8 GlacierMIP3 models, treated as 1 sigma (d1d_fourrung_seam.py:
+# rung_sig = (hi - lo)/2). For n normal draws the expected range is d2(n) sigma,
+# and d2(8) = 2.847 — the standard order-statistic constant — so half-range
+# OVERSTATES sigma by 2.847/2 = 1.42x. Dividing the range by d2 instead of by 2
+# is the tightening: principled from order statistics, not chosen to get a
+# result. --rung-sig-legacy restores the half-range convention.
+const RUNG_D2_N8 = 2.847
+const RUNG_SIG_SCALE = RUNG_SIG_LEGACY ? 1.0 : 2.0 / RUNG_D2_N8
 const RUNG_Y  = Dict(b => [Float64(bcrow(b)["com$(replace(string(L), "." => "p"))"])
                            for L in GMIP_LEVELS] for b in BLOCKS)
 const RUNG_CI = Dict(b => begin
-        sig = [Float64(bcrow(b)["sig$(replace(string(L), "." => "p"))"]) for L in GMIP_LEVELS]
+        sig = RUNG_SIG_SCALE .*
+              [Float64(bcrow(b)["sig$(replace(string(L), "." => "p"))"]) for L in GMIP_LEVELS]
         C = (sig * sig') .* (RUNG_CORR .+ (1 - RUNG_CORR) .* Matrix(1.0I, 4, 4))
         inv(C)
     end for b in BLOCKS)
@@ -546,6 +567,8 @@ const GLAMBIE_SPAN = 2024 - 2000
 # cannot see, and it is the combination in which the correlated common-mode error CANCELS, so
 # it does not inherit the σ that could not be trusted. Same construction as the Mouginot
 # surface-share term below, including the vanishing-denominator guard.
+const R19_RATE_MU = GLAMBIE_RATE["R19"]      # 0.049251 mm SLE/yr over 2000-2024
+const R19_RATE_SD = 0.11615                  # serially-correlated sigma; see the term
 const GLAMBIE_FAST_SHARE = GLAMBIE_RATE["FAST"] /
                            (GLAMBIE_RATE["SLOWP"] + GLAMBIE_RATE["FAST"])
 # σ on the share, propagated from the per-block σ. BRACKET (see the spec): 0.0296 with the
@@ -723,9 +746,10 @@ const NN = 2*length(SERIES); const NK = NP + NN
 const pn0 = vcat([k.name for k in FREE], vcat([["sd_$s","rho_$s"] for s in SERIES]...))
 println("MCMC: $NP physical (incl $(length(GEO_IDX)) DAIS-geometry under a joint paleo prior) " *
         "+ $NN AR(1)-noise = $NK free params  (point terms DROPPED)")
-DROP_TOTAL && println("D1 ACTIVE (--drop-total): the independent-total likelihood term and " *
-                      "sd_dang/rho_dang are REMOVED; total GMSL is now constrained only " *
-                      "through the components summing. TAG=$TAG")
+@printf("R19 change set: total %s | GlaMBIE R19 rate %s (%.4f +/- %.4f mm/yr) | rung sigma x%.3f\n",
+        DROP_TOTAL ? "DROPPED" : "kept (--keep-total)",
+        R19_RATE_ON ? "ON" : "OFF (--no-r19-rate)",
+        R19_RATE_MU, R19_RATE_SD, RUNG_SIG_SCALE)
 
 # ---- model base (medoid + glacier init), forcing once -- extC 3-reservoir build ----
 medoid = CSV.read(joinpath(REPO,"outputs/recalib_central_row.csv"), DataFrame)[1,:]
@@ -839,6 +863,24 @@ function logposterior(θ)
                 ll += logpdf(Normal(GLAMBIE_FAST_SHARE, GLAMBIE_SHARE_SD), rf / tot)
             end
         end
+    end
+    # GlaMBIE R19 modern rate. R19 is excluded from HIND_BLOCKS (no gsic component
+    # term) and from the GlaMBIE SHARE term (which is SLOWP/FAST only), so with the
+    # total dropped this is its ONLY sea-level observation. It is weak by
+    # construction — region 19 contributes 8 GlaMBIE input datasets with ZERO
+    # gravimetry (GRACE cannot separate the Antarctic periphery from the ice
+    # sheet) and one DEM-differencing estimate — but it is the only DIRECT
+    # measurement of the block, and L10 sits 3x above it.
+    # SIGMA: the fully serially-correlated value, NOT the as-coded quadrature.
+    # GLAMBIE_SD["R19"] = 0.0361 is quadrature-over-24-years x GLAMBIE_ERR_INFLATE;
+    # the restructure established that serial independence understates by ~4.7x,
+    # and the 1.5x inflate was a partial compensation for exactly that. Summing
+    # the per-year errors instead gives 0.11615, which SUPERSEDES the inflate
+    # rather than compounding with it (python/ladrillo_data.py glambie_block_stats).
+    if R19_RATE_ON
+        r19rate = 1000.0*(Float64(m[G, :gsic_r19][GLAMBIE_I1]) -
+                          Float64(m[G, :gsic_r19][GLAMBIE_I0])) / GLAMBIE_SPAN
+        ll += logpdf(Normal(R19_RATE_MU, R19_RATE_SD), r19rate)
     end
     # Mouginot 2019 SMB/discharge partition — the constraint that makes the A+B
     # two-channel split identifiable. Ported verbatim from model_surface_share()

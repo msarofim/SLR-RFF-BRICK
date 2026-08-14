@@ -3,6 +3,60 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-14 — the R19 change set: drop the total, add the GlaMBIE R19 rate, tighten the rung
+
+Approved by Marcus 2026-08-14 as ONE change set, because the three interact. The
+total was the only thing constraining R19, and what it was imposing is not
+defensible: **R19 pinned at 97-99% committed at EVERY warming level** (1.2 → 3.0 K
+moves it 97.4 → 99.6, i.e. no scenario response at all), **3.03× GlaMBIE's
+observed modern rate**, and **1.0-1.8 σ above the GlacierMIP3 rungs**. R19 is the
+one component with no target of its own — Frederikse excludes it, the gsic
+channel is SLOWP+FAST, the GlaMBIE term is a share — so it is the only direction
+the likelihood can move penalty-free, and it absorbs the Frederikse-vs-Dangendorf
+budget non-closure (+0.74 cm over 1950-1980). Dropping the total removes the
+cause; the other two give R19 constraints of its own.
+
+| change | default | restore flag |
+|---|---|---|
+| total ("dang") stream dropped, `sd_dang`/`rho_dang` gone (55 → 53 params) | ON | `--keep-total` |
+| GlaMBIE R19 modern-rate term, 0.049251 ± 0.11615 mm SLE/yr | ON | `--no-r19-rate` |
+| rung σ ÷ d₂(8) = 2.847 instead of ÷2 (×0.702) | ON | `--rung-sig-legacy` |
+
+**The rung tightening is principled, not chosen.** The stored `sig*` columns are
+HALF THE FULL INTER-MODEL RANGE of the 8 GlacierMIP3 models treated as 1 σ
+(`d1d_fourrung_seam.py`: `(hi-lo)/2`). For n normal draws the expected range is
+d₂(n)·σ, and d₂(8) = 2.847, so half-range overstates σ by 1.42×. Dividing by d₂
+is the correction. At the L10 median this roughly doubles R19's rung χ²
+(3.47 → ~7.04) while leaving SLOWP and FAST, already at ≤0.66 σ, comfortable.
+
+**The GlaMBIE R19 σ is the serially-correlated value, not the as-coded
+quadrature.** `GLAMBIE_SD["R19"]` = 0.0361 is quadrature-over-24-years ×
+`GLAMBIE_ERR_INFLATE` = 1.5; the GlaMBIE restructure established that serial
+independence understates by ~4.7× and that the 1.5× was a partial compensation
+for exactly that. Summing the per-year errors gives **0.11615**, which SUPERSEDES
+the inflate rather than compounding with it. The term is weak by construction
+(0.42 σ) — region 19 contributes 8 GlaMBIE input datasets with **zero
+gravimetry** (GRACE cannot separate the Antarctic periphery from the ice sheet)
+and a single DEM-differencing estimate — but it is the only DIRECT measurement of
+the block.
+
+### Verification
+- **`--keep-total --no-r19-rate --rung-sig-legacy` reproduces the pre-change
+  calibrator BIT-IDENTICALLY** (300 iterations, seed 2026, max |diff| = 0 over
+  all sampled parameters and `log_post`), so the L10 configuration stays exactly
+  reproducible.
+- **Mutation-tested** (spec §7.4 — a dead term looks exactly like a working one).
+  Δ`log_post` at the identical θ₀: removing the R19 rate term **−1.1953**,
+  reverting the rung σ **+0.1142**, keeping the total **−224.92**. Neither new
+  term is inert.
+- All six suites pass.
+
+### Not done here
+No production chains. The rest of the thread-4 change set (D2's δ(t) on
+gsic+steric, the Greenland (log r_s, w) reparameterisation) is still unbuilt, and
+the spec's "one change set, because each item invalidates the posterior" logic
+applies — this should not go to production on its own.
+
 ## [unreleased] — 2026-08-14 — the AIS spread is inherited from DAIS, and the D1 short chains say R19 moves while TE does not
 
 Marcus's two asks after the Ladrillo-vs-BRICK-2.0 scorecard. Both done; neither
