@@ -119,6 +119,7 @@ const DROP_TOTAL    = !("--keep-total" in ARGS)
 const R19_RATE_ON   = !("--no-r19-rate" in ARGS)
 const RUNG_SIG_LEGACY = "--rung-sig-legacy" in ARGS
 const D2_ON = !("--no-d2" in ARGS)
+const GIS_REPARAM = !("--gis-native" in ARGS)
 const TAG = TAG_OVR !== nothing ? TAG_OVR :
             (AMP_EQ ? "extA6eq" : (DROP_TOTAL ? "D1" : "ext"))   # output infix
 years = collect(Y0:Y1); ib = [findfirst(==(y),years) for y in B0:B1]; idx(y)=findfirst(==(y),years)
@@ -239,6 +240,7 @@ const GIS_V0_M = 7.42             # Greenland volume, m SLE — STRUCTURAL, not 
 # objective moves 4e-4 nlp and the 2100 projections do not move at all, and it is
 # confounded with gis_c0. 0 is also stock SIMPLE's own initial condition.
 const GIS_G = 0.0
+
 # Mouginot 2019 SMB/discharge partition: the extra loss rate of 2000-2018 over
 # 1972-1990 is 73.5% surface. This is what makes the two-channel split
 # identifiable -- without it f and the timescales trade off freely, which is why
@@ -248,6 +250,55 @@ const MOUG_SHARE, MOUG_SHARE_SD = 0.735, 0.05
 const MOUG_REF_WIN, MOUG_LATE_WIN = (1972, 1990), (2000, 2018)
 tgz = CSV.read(joinpath(REPO, "data/observations/t_gis_zones.csv"), DataFrame)
 const TGZ_LAST = Int(maximum(tgz.year))
+# ---- item 1.2: Greenland slow channel sampled as (level, tilt) ----------------
+# rate_s(T) = alpha_s*T + beta_s is reparameterised as
+#     ell = log r_s(Tbar)                 the LEVEL of the slow rate at Tbar
+#     w   = alpha_s*Tbar / r_s(Tbar)      the share of that level carried by T
+# inverse alpha_s = w*e^ell/Tbar, beta_s = (1-w)*e^ell, which keeps both
+# non-negative for w in [0,1]. Measured gain (python/diag_gis_slow_reparam.py):
+# mean WITHIN-CHAIN |corr| over the four L10 chains falls 0.578 -> 0.139, and a
+# Tbar scan bottoms at 0.135 near 1.90 K, so the anchor is essentially optimal.
+# It does NOT un-rail anything -- alpha_s=0 maps to w=0 and beta_s=0 to w=1, so
+# both bounds move into the tilt. The gain is that the LEVEL, which is the
+# direction the chains do not mix along, gets its own unbounded coordinate.
+#
+# Tbar is the 2015-2024 anchor of the regional driver, COMPUTED from the driver
+# rather than hardcoded so it cannot drift from t_gis_zones.csv.
+const GIS_TBAR_WIN = (2015, 2024)
+const GIS_TBAR = mean(Float64(tgz[i, GIS_ZONE]) for i in 1:nrow(tgz)
+                      if GIS_TBAR_WIN[1] <= Int(tgz[i, :year]) <= GIS_TBAR_WIN[2])
+abs(GIS_TBAR - 1.963) < 5e-3 ||
+    error("GIS_TBAR = $GIS_TBAR from $(GIS_TBAR_WIN) disagrees with the 1.963 K on " *
+          "which the reparameterisation was chosen (notes/spec_2026-08-14 section 4)")
+# PRIORS ARE SPECIFIED DIRECTLY IN (ell, w), NOT inherited through the transform.
+# Only 33.2% of draws from the (alpha_s, beta_s) priors fall inside the native
+# bounds, so what those priors actually encode is a pair of heavily truncated
+# half-normals, not the N(mu, sigma) the code appears to state; and the induced
+# (ell, w) prior correlates 0.315 at the anchor, against 0.0 for independent ones.
+# ell: centred on the offline A+B optimum (alpha_s 0.00708, beta_s 1e-6 ->
+#   r_s = 0.01390/yr, tau_s = 71.9 yr), preserving the documented "priors centred
+#   on an offline fit to the same target" convention. sd = 1.0 (MARCUS,
+#   2026-08-14): tau_s 23-172 yr at 1 sigma and to 469 yr at 2 sigma, which covers
+#   L10's posterior (29-136 yr) with room above it while NOT admitting the
+#   millennial arm. Widening to reach the commitment ridge's ~1300 yr was offered
+#   and declined: without an external Leq(T) constraint that admits the ridge
+#   rather than resolving it, and makes the 2300 projection prior-dominated along
+#   a direction the hindcast cannot see. The reparam stays a CONDITIONING fix.
+# w: FLAT on [0, 1] (sigma = 1e3, the gic_u_unch pattern). It is a share, the L10
+#   posterior spans 0.08-0.95, and a flat prior makes ell and w independent by
+#   construction.
+const GIS_ELL_MU = log(0.0070727 * GIS_TBAR + 1e-6)
+const GIS_ELL_SD = 1.0
+# The transform must be a pure change of COORDINATES, not of model. Assert the
+# round trip at load: (alpha_s, beta_s) -> (ell, w) -> (alpha_s, beta_s).
+let a0 = 0.0070727, b0 = 0.0010, r0 = 0.0070727 * GIS_TBAR + 0.0010
+    ell0 = log(r0); w0 = a0 * GIS_TBAR / r0
+    a1 = w0 * exp(ell0) / GIS_TBAR; b1 = (1 - w0) * exp(ell0)
+    (abs(a1 - a0) < 1e-12 && abs(b1 - b0) < 1e-12) ||
+        error("(ell, w) round trip is not exact: alpha_s $a0 -> $a1, beta_s $b0 -> $b1")
+    (abs(exp(ell0) - (a0 * GIS_TBAR + b0)) < 1e-12) ||
+        error("exp(ell) must equal r_s(Tbar) = alpha_s*Tbar + beta_s")
+end
 # The zone column is ALREADY an anomaly on the 1850-1900 frame (verified: mean
 # over that window is -0.0), so it is used as-is, matching gis_offline_cell.py.
 tgis = let obsd = Dict(Int(tgz[i, :year]) => Float64(tgz[i, GIS_ZONE]) for i in 1:nrow(tgz)),
@@ -487,10 +538,19 @@ if GIS_AB
                  μ=0.0028487, σ=0.020, lo=0.0, hi=0.5, islog=false))
     push!(FREE, (name="gis_beta_f", comp=GISC, sym=:gis_beta_f,
                  μ=0.0073684, σ=0.050, lo=1e-6, hi=0.5, islog=false))
-    push!(FREE, (name="gis_alpha_s", comp=GISC, sym=:gis_alpha_s,
-                 μ=0.0070727, σ=0.020, lo=0.0, hi=0.2, islog=false))
-    push!(FREE, (name="gis_beta_s", comp=GISC, sym=:gis_beta_s,
-                 μ=0.0010000, σ=0.020, lo=1e-6, hi=0.2, islog=false))
+    if GIS_REPARAM
+        push!(FREE, (name="gis_slow_ell", comp=:likelihood_only, sym=:none,
+                     μ=GIS_ELL_MU, σ=GIS_ELL_SD,
+                     lo=GIS_ELL_MU - 4*GIS_ELL_SD, hi=GIS_ELL_MU + 4*GIS_ELL_SD,
+                     islog=false))
+        push!(FREE, (name="gis_slow_w", comp=:likelihood_only, sym=:none,
+                     μ=0.5, σ=1e3, lo=0.0, hi=1.0, islog=false))
+    else
+        push!(FREE, (name="gis_alpha_s", comp=GISC, sym=:gis_alpha_s,
+                     μ=0.0070727, σ=0.020, lo=0.0, hi=0.2, islog=false))
+        push!(FREE, (name="gis_beta_s", comp=GISC, sym=:gis_beta_s,
+                     μ=0.0010000, σ=0.020, lo=1e-6, hi=0.2, islog=false))
+    end
     # The regional amplification, SAMPLED (Marcus 2026-08-12), not pinned at the
     # prior centre. Same treatment as the glacier blocks' gic_amp_b and the same
     # reasoning as the 4.2 beta_f ruling: the likelihood cannot see it, but it is
@@ -605,6 +665,8 @@ end
 const D2_IDX = D2_ON ?
     Dict(st => [findfirst(k -> k.name == "d2_$(st)_$(i)", FREE) for i in 1:D2_BASIS_N]
          for st in D2_STREAMS) : Dict{String,Vector{Int}}()
+const GIS_ELL_IDX = GIS_REPARAM ? findfirst(k -> k.name == "gis_slow_ell", FREE) : nothing
+const GIS_W_IDX   = GIS_REPARAM ? findfirst(k -> k.name == "gis_slow_w", FREE) : nothing
 const DELTA_IDX  = findfirst(k -> k.name == "gic_delta", FREE)
 const UPRE_IDX   = findfirst(k -> k.name == "gic_u_pre", FREE)
 const SR5_IDX    = findfirst(k -> k.name == "gic_s_r5", FREE)
@@ -619,6 +681,9 @@ const SETP_SKIP  = Set(vcat(collect(values(KAPPA_IDX3)),
                             # correct the MODEL SERIES, not a Mimi parameter, so
                             # setp! must skip them or update_param! sees :none.
                             reduce(vcat, values(D2_IDX); init=Int[]),
+                            # (ell, w) are DERIVED: they set gis_alpha_s/gis_beta_s
+                            # in logposterior, they are not Mimi parameters.
+                            GIS_REPARAM ? [GIS_ELL_IDX, GIS_W_IDX] : Int[],
                             GISAMP_IDX === nothing ? Int[] : [GISAMP_IDX]))
 # sampled mode: the κ prior is amp-dependent (center k10c(amp)) — exclude κ from the
 # generic Normal(μ,σ) prior loop and add the explicit term in logposterior
@@ -857,6 +922,9 @@ println("MCMC: $NP physical (incl $(length(GEO_IDX)) DAIS-geometry under a joint
         DROP_TOTAL ? "DROPPED" : "kept (--keep-total)",
         R19_RATE_ON ? "ON" : "OFF (--no-r19-rate)",
         R19_RATE_MU, R19_RATE_SD, RUNG_SIG_SCALE)
+GIS_REPARAM && println("Greenland slow channel: (log r_s, w) at Tbar = " *
+        "$(round(GIS_TBAR, digits=4)) K | ell ~ N($(round(GIS_ELL_MU, digits=4)), " *
+        "$GIS_ELL_SD) | w flat on [0,1]")
 println("D2 discrepancy: " * (D2_ON ? "ON" : "OFF (--no-d2)") *
         " | $D2_BASIS_N dof per stream on " * join(D2_STREAMS, "+") *
         " | prior sd $D2_BASIS_SD cm | orthogonal to the constant" *
@@ -901,6 +969,11 @@ function logposterior(θ)
     end
     # A4: runoff line -- reconstruct h0 from the identified direction
     update_param!(m, :antarctic_icesheet, :ais_runoffline_snowheight₀, -θ[TON_IDX] * θ[C_IDX])
+    if GIS_REPARAM                     # (ell, w) -> the component's native rate pair
+        r_s = exp(θ[GIS_ELL_IDX]); w_s = θ[GIS_W_IDX]
+        update_param!(m, _GIS_SLOT, :gis_alpha_s, w_s * r_s / GIS_TBAR)
+        update_param!(m, _GIS_SLOT, :gis_beta_s, (1 - w_s) * r_s)
+    end
     # A6: temperature map -- amp with the T_ant(GMST=0) anchor preserved
     update_param!(m, :antarctic_icesheet, :ais_temperature_coefficient, 1.0 / θ[AMP_IDX])
     update_param!(m, :antarctic_icesheet, :ais_temperature_intercept, -AIS_TANT0 / θ[AMP_IDX])
