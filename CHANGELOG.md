@@ -210,7 +210,7 @@ deliberate discard of an independent constraint, not a de-duplication.
   `apply_wong_weights.py` stay LIVE: the pre-#93 and BRICK-2.0 arms *are*
   Wong-weighted; only the Mengel/FM arm is not.
 
-**GlaMBIE: checked, and it is NOT obsolete — but it needs restructuring.**
+**GlaMBIE: checked, restructured, and one flagged conflict RETRACTED.**
 
 | quantity | value |
 |---|---|
@@ -231,6 +231,30 @@ GlaMBIE before designing D2's gsic term.** Recommended: re-express GlaMBIE as a
 constraint on the SLOWP/FAST *partition* rather than two absolute rates. Caveat:
 the 2.59 σ assumes independent SLOWP/FAST errors, as the code does; shared
 methodology likely correlates them and would shrink it.
+
+**The covariance was then checked, and it retracts the 2.59 σ.** GlaMBIE as
+archived publishes only `combined_gt_errors` — a per-region per-year σ, with **no
+covariance matrix at any level**, so the correlation can only be bracketed.
+`glambie_block_stats` sums those errors in quadrature over all 24 years and
+across regions; relaxing that to within-region serial correlation inflates
+σ_SLOWP **×4.72** and σ_FAST **×4.80** against √24 = 4.90 — the whole ratio is the
+quadrature assumption, and `GLAMBIE_ERR_INFLATE = 1.5` covers a third of it. The
+discrepancy goes **2.58 σ → 0.54 σ**. So there is no Frederikse-vs-GlaMBIE target
+conflict, and **no sequencing constraint on D2 from it**. What remains is plainer:
+the absolute-rate σ was too tight by ~4.7×.
+
+**IMPLEMENTED — GlaMBIE is now a partition constraint.** The two absolute-rate
+terms in `calibrate_mcmc_ext.jl` are replaced by one term on the SLOWP/FAST share,
+**0.6876 ± 0.0500**, leaving the aggregate modern rate to the gsic channel that
+already scores it. The share is the right quantity twice over: it is what the
+aggregate channel cannot see, and it is the combination in which the correlated
+common-mode error cancels, so it does not inherit the untrustworthy σ. Same
+construction as the existing Mouginot surface-share term, guard included.
+`GLAMBIE_SHARE_SD = 0.05` is a **flagged methodological choice** — the two
+internally consistent corners give 0.0296 and 0.0493. Verified:
+`--glambie-absolute` reproduces the pre-change likelihood **bit-identically**
+(max|diff| = 0 over all 57 chain columns, 2000 iterations, seed 2026); the share
+form shifts `log_post` by +5.51 at the shared start.
 
 ### 7. Unchanged on L10
 - **The total is still the loosest constraint in every window** (§E): σ on a

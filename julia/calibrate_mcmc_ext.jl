@@ -513,6 +513,44 @@ const FUNCH_UNIT = let flat = 1970 - 1901, ramp = 2005 - 1970
                  r*(flat + ramp/2.0) for y in years]
 end
 const GLAMBIE_I0, GLAMBIE_I1 = idx(2000), idx(2024)   # per-block modern-rate window
+const GLAMBIE_SPAN = 2024 - 2000
+
+# ---- GlaMBIE as a PARTITION constraint (2026-08-14, spec_2026-08-14 §8.3) ------------------
+# WAS: two independent Normal terms on the ABSOLUTE 2000-2024 rate of gsic_slowp and
+# gsic_fast. That constrained the modern AGGREGATE rate a second time — the gsic component
+# channel already scores their sum annually over 1900-2023, with grip σ 0.0587 mm/yr against
+# GlaMBIE's implied 0.0476 — while the information only GlaMBIE has is the SLOWP/FAST SPLIT,
+# which the aggregate channel is blind to.
+#
+# AND the absolute-rate σ could not be trusted at that tightness. `glambie_block_stats` in
+# python/ladrillo_data.py sums the per-region-per-year `combined_gt_errors` in QUADRATURE,
+# i.e. assumes GlaMBIE's annual errors are serially independent. They share methodology and
+# are not: allowing full within-region serial correlation inflates σ_SLOWP ×4.72 and σ_FAST
+# ×4.80, against √24 = 4.90 — the whole ratio is the quadrature assumption.
+# GLAMBIE_ERR_INFLATE = 1.5 covers about a third of it. (This also RETIRES the apparent
+# 2.59σ GlaMBIE-vs-Frederikse conflict: it is 0.54σ once the errors are allowed to correlate,
+# so there is no target conflict to resolve — only a σ that was too tight.)
+#
+# The SHARE is the right quantity for both reasons at once: it is what the aggregate channel
+# cannot see, and it is the combination in which the correlated common-mode error CANCELS, so
+# it does not inherit the σ that could not be trusted. Same construction as the Mouginot
+# surface-share term below, including the vanishing-denominator guard.
+const GLAMBIE_FAST_SHARE = GLAMBIE_RATE["FAST"] /
+                           (GLAMBIE_RATE["SLOWP"] + GLAMBIE_RATE["FAST"])
+# σ on the share, propagated from the per-block σ. BRACKET (see the spec): 0.0296 with the
+# as-coded independent σ and ρ_block = 0; 0.0493 with serially-correlated σ and ρ_block = 0.9.
+# Those are the two INTERNALLY CONSISTENT corners — errors correlated in time are correlated
+# in space too — and 0.05 is the conservative end of that pair. The (correlated-in-time,
+# ρ_block = 0) corner gives 0.14 but is not self-consistent, so it is not used.
+# ‼ METHODOLOGICAL CHOICE — flagged for Marcus, not settled.
+const GLAMBIE_SHARE_SD  = 0.05
+const GLAMBIE_TOT_FLOOR = 1e-9        # a vanishing modern rate makes the share undefined
+# Restores the pre-2026-08-14 two-absolute-term form, so the shipped L10 likelihood stays
+# exactly reproducible (same purpose as --no-closure-sigma).
+const GLAMBIE_ABS = "--glambie-absolute" in ARGS
+@printf("GlaMBIE term: %s | FAST share of (SLOWP+FAST) %.4f ± %.4f | blocks %s, %d-%d\n",
+        GLAMBIE_ABS ? "ABSOLUTE rates (pre-2026-08-14, --glambie-absolute)" : "PARTITION (default)",
+        GLAMBIE_FAST_SHARE, GLAMBIE_SHARE_SD, join(HIND_BLOCKS, "+"), 2000, 2024)
 
 # ---- phase-2 A2: free the DAIS fast-dynamics params under their EXISTING paleo marginals
 # (outputs/param_priors.csv rows, from the DAISfastdyn ensemble). Previously FIXED at the
@@ -759,11 +797,25 @@ function logposterior(θ)
               for (i, L) in enumerate(GMIP_LEVELS)]
         ll += -0.5 * (r4' * (RUNG_CI[b] * r4))
     end
-    # per-block GlaMBIE modern-rate terms (hindcast blocks only; 2000-2024 mean, err ×1.5)
-    for b in HIND_BLOCKS
-        ser = b == "SLOWP" ? m[G, :gsic_slowp] : m[G, :gsic_fast]
-        mrate = 1000.0*(Float64(ser[GLAMBIE_I1]) - Float64(ser[GLAMBIE_I0])) / (2024 - 2000)
-        ll += logpdf(Normal(GLAMBIE_RATE[b], GLAMBIE_SD[b]), mrate)
+    # GlaMBIE (hindcast blocks only, 2000-2024 mean rate). Default: ONE term on the
+    # SLOWP/FAST PARTITION, leaving the aggregate modern rate to the gsic component channel
+    # that already scores it. --glambie-absolute restores the two absolute-rate terms.
+    # See the constant block above for why the share, and not the levels.
+    let rs = 1000.0*(Float64(m[G, :gsic_slowp][GLAMBIE_I1]) -
+                     Float64(m[G, :gsic_slowp][GLAMBIE_I0])) / GLAMBIE_SPAN,
+        rf = 1000.0*(Float64(m[G, :gsic_fast][GLAMBIE_I1]) -
+                     Float64(m[G, :gsic_fast][GLAMBIE_I0])) / GLAMBIE_SPAN
+        if GLAMBIE_ABS
+            ll += logpdf(Normal(GLAMBIE_RATE["SLOWP"], GLAMBIE_SD["SLOWP"]), rs)
+            ll += logpdf(Normal(GLAMBIE_RATE["FAST"],  GLAMBIE_SD["FAST"]),  rf)
+        else
+            tot = rs + rf
+            # A vanishing modern rate makes the share undefined; skip the term there rather
+            # than dividing through, exactly as the Mouginot share term does.
+            if abs(tot) > GLAMBIE_TOT_FLOOR
+                ll += logpdf(Normal(GLAMBIE_FAST_SHARE, GLAMBIE_SHARE_SD), rf / tot)
+            end
+        end
     end
     # Mouginot 2019 SMB/discharge partition — the constraint that makes the A+B
     # two-channel split identifiable. Ported verbatim from model_surface_share()

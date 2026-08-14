@@ -337,11 +337,69 @@ contributes only the information the aggregate channel lacks and the sum is
 constrained once. Then the Frederikse-vs-GlaMBIE level disagreement is a target
 question to settle on its merits rather than something the sampler splits.
 
-**Caveat on the 2.59 σ.** Summing the two GlaMBIE σ in quadrature assumes SLOWP
-and FAST errors are independent, which is what the code assumes by scoring them
-as two separate terms — but they share methodology and are likely positively
-correlated, which would widen the joint σ and shrink the discrepancy. Check the
-GlaMBIE paper's own covariance before quoting 2.59 σ as settled.
+### 8.3b The covariance was checked — and it RETRACTS the 2.59 σ conflict
+
+GlaMBIE as archived (`data/observations/raw/glambie_data.zip`, 20 per-region
+calendar-year files) publishes **only** `combined_gt_errors`, a per-region
+per-year σ. **There is no covariance matrix at any level** — not across years,
+not across regions. So the correlation cannot be retrieved, only bracketed.
+
+`glambie_block_stats` in `python/ladrillo_data.py` sums those errors in
+**quadrature**, i.e. assumes serial independence across all 24 years and across
+regions. Relaxing that:
+
+| assumption | σ_SLOWP | σ_FAST | σ on the sum | discrepancy |
+|---|---|---|---|---|
+| independent years + regions (**as coded**) | 0.0165 | 0.0446 | 0.0476 | **2.58 σ** |
+| correlated years within region | 0.0780 | 0.2142 | 0.2279 | **0.54 σ** |
+| fully correlated | 0.1503 | 0.4697 | 0.4931 | 0.25 σ |
+
+The inflation is **×4.72 (SLOWP) and ×4.80 (FAST)** against √24 = 4.90 — the
+entire ratio is the quadrature-over-years assumption, nothing else.
+`GLAMBIE_ERR_INFLATE = 1.5` covers about a third of it.
+
+**So the 2.59 σ Frederikse-vs-GlaMBIE conflict flagged in §8.3 is RETRACTED.** It
+is 0.54 σ once the errors are allowed to correlate at all, which they must. There
+is no target conflict to settle — and therefore **no sequencing constraint on D2
+from this**: the gsic channel's "under load" status is not explained by a
+GlaMBIE-vs-Frederikse disagreement. (§8.3's other two findings stand: the sum is
+duplicated, and the split is the information only GlaMBIE has.)
+
+What replaces the conflict is a plainer defect: **the GlaMBIE absolute-rate σ was
+too tight by ~4.7×**, so those two terms were over-constraining the modern
+glacier rate on top of the channel that already scores it.
+
+### 8.3c IMPLEMENTED — GlaMBIE is now a partition constraint
+
+`calibrate_mcmc_ext.jl`: the two absolute-rate terms are replaced by **one term on
+the SLOWP/FAST share**, leaving the aggregate modern rate to the gsic component
+channel.
+
+    FAST share of (SLOWP+FAST) = 0.6876 ± 0.0500
+
+The share is the right quantity for both reasons at once — it is exactly what the
+aggregate channel cannot see, and it is the combination in which the correlated
+common-mode error **cancels**, so it does not inherit the σ that could not be
+trusted. Same construction as the existing Mouginot surface-share term, including
+its vanishing-denominator guard.
+
+> **‼ METHODOLOGICAL CHOICE, flagged not settled — `GLAMBIE_SHARE_SD = 0.05`.**
+> Propagating from the per-block σ gives **0.0296** (as-coded independent σ,
+> ρ_block = 0) and **0.0493** (serially-correlated σ, ρ_block = 0.9). Those are
+> the two *internally consistent* corners — errors correlated in time are
+> correlated in space too — and 0.05 is the conservative end of that pair. The
+> (correlated-in-time, ρ_block = 0) corner gives 0.14 but is not self-consistent,
+> so it is not used. Marcus's call if he wants a different value.
+
+**Verified.** `--glambie-absolute` restores the two-term form and reproduces the
+pre-change likelihood **bit-identically** (max|diff| = 0 over all 57 chain
+columns, 2000 iterations, seed 2026), so the shipped L10 configuration stays
+exactly reproducible. The share form shifts `log_post` by **+5.51** at the shared
+start — the intended change, not a bug.
+
+**Consequence to state when this calibration is reported:** the modern aggregate
+glacier rate is now constrained by the gsic component channel alone. That is the
+de-duplication, and it is deliberate.
 
 ### 8.4 Inert and near-inert parameters
 Posterior sd / prior sd on the L10 subsample. `gis_amp` calibrates the scale: it
