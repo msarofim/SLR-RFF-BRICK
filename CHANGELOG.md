@@ -132,7 +132,58 @@ availability a placeholder. Its sampled 5-95% at 2300 spans 4.5-140.7 cm at
 SSP1-2.6 — it is not a tight benchmark, but the median gap is not inside that
 noise either.
 
-### 5. Unchanged on L10
+### 5. Thread 4 spec written; T̄ measured and chosen (`diag_gis_slow_reparam.py`)
+Marcus's three calls on 2026-08-14: **drop the total stream**, **discrepancy term
+on gsic + steric only**, **measure the closure-sigma double-count before
+re-deriving any sigma**. Written up as one change set in
+`notes/spec_2026-08-14_next_calibration.md`. Two consequences of the drop worked
+out there rather than discovered later: `closure_sigma()` is referenced only in
+the `isdang` branch of `make_series`, so the drop removes the gate-3.1 closure
+inflation outright and makes the third call moot (retained as a *check* on that
+reasoning); and R19, excluded from `HIND_BLOCKS`, loses its only sea-level
+timeseries constraint — measured as cheap (`gic_b_R19` posterior/prior width
+ratio **0.95** against `gic_b_FAST` **0.09**, i.e. already prior-and-rung
+dominated), with the caveat that a width ratio cannot separate that reading from
+"rung + inventory already do it".
+
+For item 1.2 Marcus asked for both T̄ candidates compared offline first. Mean
+within-chain |corr| between the two sampled slow-channel coordinates, four L10
+chains:
+
+| coordinates | mean \|corr\| | pooled |
+|---|---|---|
+| `(α_s, β_s)` as sampled | **0.578** | 0.319 |
+| `(log r_s, w)`, T̄ = 1.169 (hindcast mean) | 0.282 | 0.173 |
+| **`(log r_s, w)`, T̄ = 1.963 (2015-2024 anchor)** | **0.139** | 0.137 |
+| `(log r_s, α_s)`, T̄ = 1.963 | 0.575 | 0.655 |
+
+A T̄ scan bottoms out at 0.135 at T̄ = 1.900 K, so **the anchor is essentially at
+the optimum and the hindcast mean is twice as correlated** — T̄ = the 2015-2024
+anchor. The *tilt* choice matters more than T̄: `tilt = α_s` at the anchor scores
+0.575, no better than the coordinates already in use. Refit gate passes — every
+reparameterised arm reaches the native optimum's nlp (17.8559) over the same
+feasible set.
+
+Two corrections to the item's premise, both measured:
+- **The rail is `β_s`, not `α_s`.** The offline A+B optimum on record sits at
+  `α_s = 0.00708, β_s = 1e-6` and rails **β_s**. Posterior draws within 1e-4 of
+  the `α_s = 0` bound are 0.36-1.61% per chain; at the `β_s` rail, 0.00-0.01%.
+- **The reparameterisation un-rails nothing.** `α_s = 0` → `w = 0` and `β_s = 0`
+  → `w = 1`, so both bounds move into the tilt; the refit still rails `β_s` in
+  every arm. The gain is the unbounded level coordinate, not rail removal.
+
+Also worth knowing before the priors are rewritten: only **33.2%** of draws from
+the current `(α_s, β_s)` priors fall inside the native bounds, so what is in
+force is a pair of heavily truncated half-normals rather than the N(μ, σ) the
+code appears to state. And the induced prior correlation runs opposite to the
+posterior (0.102 at the hindcast mean vs 0.315 at the anchor) — specify the
+prior directly in `(ℓ, w)` rather than inheriting it through the transform.
+
+Method note: pooling matters. The as-sampled pooled |corr| is 0.319 against a
+within-chain 0.578 — pooling a non-converged block hides the very ridge the
+reparameterisation removes. Thread 3's trap, live again.
+
+### 6. Unchanged on L10
 - **The total is still the loosest constraint in every window** (§E): σ on a
   window-mean offset 0.232-0.565 cm for `dang` against 0.014-0.062 for `ais`/`gis`.
 - **Item 4.3 (TE)** still passes: `thermal_alpha` p50 0.1502 (was 0.1540) →

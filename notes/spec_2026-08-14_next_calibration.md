@@ -8,8 +8,8 @@ and the CHANGELOG entry for 2026-08-14.
 **Why one spec.** Each change below invalidates the posterior. Shipping them
 separately means three calibrations. Nothing here is started piecemeal.
 
-**Status: NOT STARTED.** This is the design. One decision (§4, `T̄`) is still
-open and blocks §4 only.
+**Status: NOT STARTED.** This is the design. Every decision is now settled — §4's
+T̄ was measured and chosen on 2026-08-14.
 
 ---
 
@@ -136,11 +136,18 @@ loaded on the shipped model.
 
 ## 4. Item 1.2 — Greenland slow-channel reparameterisation
 
-Sample `(log r_s(T̄), tilt)` instead of `(α_s, β_s)`, where
-`rate_s(T) = α_s·T + β_s`. Two things at once: it moves the hard rail at
-`α_s = 0` (chain p05 values are 0.000-0.001, and a random-walk proposal against a
-boundary is what sticks) out to infinity, and it puts the measured non-mixing
-direction — the *level* of the slow rate — on its own coordinate.
+Sample `(log r_s(T̄), w)` instead of `(α_s, β_s)`, where
+`rate_s(T) = α_s·T + β_s`, `r_s(T̄)` is the rate at the reference anomaly (the
+*level*), and `w = α_s·T̄ / r_s(T̄)` is the share of that level carried by
+temperature (the *tilt*). Inverse: `α_s = w·e^ℓ/T̄`, `β_s = (1−w)·e^ℓ`, which
+keeps both non-negative for `w ∈ [0,1]`.
+
+**What it buys, stated as measured rather than as motivated:** it puts the
+measured non-mixing direction — the level of the slow rate — on its own
+unbounded coordinate, and that halves the within-chain correlation (0.578 →
+0.139). It does **not** move any rail out to infinity; see the two corrections
+below. The handoff's framing of this item was wrong on the rail and right on the
+level.
 
 - Priors are currently written on `(α_s, β_s)` in `calibrate_mcmc_ext.jl`.
   Transform them exactly, using
@@ -149,11 +156,62 @@ direction — the *level* of the slow rate — on its own coordinate.
 - The FAST channel converges fine; leave it alone unless there is a reason.
 - Labels and filenames derive from the `T̄` constant, per the house rule.
 
-> **OPEN DECISION — blocks this section only.** `T̄` must be chosen explicitly:
-> the **hindcast-mean regional anomaly**, or the **2015-2024 anchor**. They are
-> not equivalent — the anchor sits far above the hindcast mean, so it changes
-> what "the level of the slow rate" means and therefore what the prior on
-> `log r_s(T̄)` is asserting.
+### SETTLED 2026-08-14 — `T̄` = the 2015-2024 anchor, tilt = `w`
+Marcus asked for both candidates compared offline first. Done:
+`python/diag_gis_slow_reparam.py`.
+
+The two candidates, on the same driver (`t_gis_zones.csv`, zone `south`, vs
+1850-1900): **hindcast mean 1900-2025 = 1.1692 K**, **2015-2024 anchor =
+1.9631 K**.
+
+**Conditioning — within chain, never pooled** (mean |corr| between the two
+sampled coordinates across the four L10 chains):
+
+| coordinates | mean \|corr\| | pooled |
+|---|---|---|
+| `(α_s, β_s)` as sampled | **0.578** | 0.319 |
+| `(log r_s, w)`, T̄ = 1.169 | 0.282 | 0.173 |
+| `(log r_s, α_s)`, T̄ = 1.169 | 0.251 | 0.423 |
+| **`(log r_s, w)`, T̄ = 1.963** | **0.139** | 0.137 |
+| `(log r_s, α_s)`, T̄ = 1.963 | 0.575 | 0.655 |
+
+A T̄ scan puts the minimum at **0.135 at T̄ = 1.900 K**, so the anchor is
+essentially AT the optimum (0.141) and the hindcast mean is twice as correlated.
+**The tilt choice matters more than T̄:** `tilt = α_s` at the anchor scores 0.575,
+i.e. no better than the coordinates we already have.
+
+Note the pooled value for the as-sampled pair (0.319) is *half* the within-chain
+value (0.578) — pooling a non-converged block hides exactly the ridge the
+reparameterisation is meant to remove. Thread 3's trap, live again.
+
+**Refit gate — PASS.** Every reparameterised arm reaches the native optimum's
+nlp to four decimals (17.8559), optimising over the same feasible set. The
+transform is correct.
+
+### Two corrections to this item's premise, both measured
+1. **The rail is `β_s`, not `α_s`.** The offline `A+B` optimum on record sits at
+   `α_s = 0.00708, β_s = 1e-6` — it rails **`β_s`**. In the L10 posterior, draws
+   within 1e-4 of the `α_s = 0` bound are 0.36-1.61% per chain, and draws at the
+   `β_s` rail are 0.00-0.01%. The handoff's "hard rail at α_s = 0, and a
+   random-walk proposal against a boundary is what sticks" does not describe
+   either object.
+2. **The reparameterisation does NOT un-rail anything.** `α_s = 0` maps to
+   `w = 0` and `β_s = 0` maps to `w = 1`, so both bounds move into the tilt
+   rather than disappearing; and in the refit every arm still rails `β_s`
+   (i.e. `w ≈ 1`). What it buys is the LEVEL — `ℓ` is unbounded, and the level is
+   the direction the chains do not mix along. Claim the conditioning gain, not
+   rail removal.
+
+### One thing to settle when the priors are written
+The induced prior runs the OTHER way from the posterior: transforming the current
+`(α_s, β_s)` priors gives |corr(ℓ, w)| = **0.102** at the hindcast mean but
+**0.315** at the anchor. Posterior conditioning should win — the priors are
+documented as "wide enough to be effectively uninformative" — but this is a
+reason to **specify the prior directly in `(ℓ, w)` rather than inherit it through
+the transform**. Supporting fact: only **33.2%** of draws from the current
+priors fall inside the native bounds, so what is actually in force today is a
+pair of heavily truncated half-normals, not the N(μ, σ) the code appears to
+state. Do not carry that shape across by accident.
 
 ---
 
