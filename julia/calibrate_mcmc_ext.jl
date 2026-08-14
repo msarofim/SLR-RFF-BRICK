@@ -97,7 +97,18 @@ _argval(pfx) = (i = findfirst(a -> startswith(a, pfx), ARGS);
 const AMP_MU_OVR    = _argval("--amp-mu=")
 const AMP_SIGMA_OVR = _argval("--amp-sigma=")
 const TAG_OVR       = _argval("--tag=")
-const TAG = TAG_OVR !== nothing ? TAG_OVR : (AMP_EQ ? "extA6eq" : "ext")   # output infix
+# --drop-total: SPEC D1 (Marcus 2026-08-14, spec_2026-08-14_next_calibration.md §2).
+# Removes the independent-total ("dang") likelihood term AND its sd_dang/rho_dang
+# noise pair, 55 -> 53 sampled parameters. OPT-IN, so the shipped L10
+# configuration stays bit-for-bit reproducible; flip the default only when D1 is
+# promoted to production. The tie it removes is EXACT per draw:
+# total_model - sum(component_models) = gsic_tot - gsic_flow = the R19 seam. Note
+# this is a deliberate DISCARD of an independent observational constraint, not the
+# removal of a double-count (spec §8.1) -- the Wong weights are already off for
+# this arm, so total GMSL enters exactly once, here.
+const DROP_TOTAL    = "--drop-total" in ARGS
+const TAG = TAG_OVR !== nothing ? TAG_OVR :
+            (AMP_EQ ? "extA6eq" : (DROP_TOTAL ? "D1" : "ext"))   # output infix
 years = collect(Y0:Y1); ib = [findfirst(==(y),years) for y in B0:B1]; idx(y)=findfirst(==(y),years)
 N_ITER = length(ARGS)>=1 ? parse(Int,ARGS[1]) : 2000
 SEED   = length(ARGS)>=2 ? parse(Int,ARGS[2]) : 2026
@@ -700,13 +711,21 @@ const M19_I1850, M19_I1900 = idx(1850), idx(1900)
         M19_MU_M, M19_SIGMA_M)
 
 const NP = length(FREE)
-const SERIES = [:ais,:gsic,:gis,:steric,:dang]
+# ALL_SERIES is the FIXED five-stream layout every historical chain/covariance was
+# written in; the OLD*_NAMES tables below describe those layouts and must NOT
+# follow the live SERIES, or --drop-total would silently shorten them and break
+# the by-name proposal embedding.
+const ALL_SERIES = [:ais,:gsic,:gis,:steric,:dang]
+const SERIES = DROP_TOTAL ? [:ais,:gsic,:gis,:steric] : ALL_SERIES
 const NN = 2*length(SERIES); const NK = NP + NN
 # parameter names in θ order (physical, then AR(1) noise). Defined here because
 # --overdisperse needs it before sampling; the post-run summary reuses it.
 const pn0 = vcat([k.name for k in FREE], vcat([["sd_$s","rho_$s"] for s in SERIES]...))
 println("MCMC: $NP physical (incl $(length(GEO_IDX)) DAIS-geometry under a joint paleo prior) " *
         "+ $NN AR(1)-noise = $NK free params  (point terms DROPPED)")
+DROP_TOTAL && println("D1 ACTIVE (--drop-total): the independent-total likelihood term and " *
+                      "sd_dang/rho_dang are REMOVED; total GMSL is now constrained only " *
+                      "through the components summing. TAG=$TAG")
 
 # ---- model base (medoid + glacier init), forcing once -- extC 3-reservoir build ----
 medoid = CSV.read(joinpath(REPO,"outputs/recalib_central_row.csv"), DataFrame)[1,:]
@@ -775,7 +794,11 @@ function logposterior(θ)
     # total: modeled ice+steric at "dang" years + observed LWS. NB the "dang"-labeled
     # target is the FREDERIKSE 2020 total (label fix 2026-07-20) spliced with NOAA STAR
     # altimetry -- rename pending the M3 total-term rework.
-    ll += hetero_logl_ar1(tot_full[S.dang.myi] .+ lws_dang .- S.dang.obs, σn[5], ρn[5], S.dang.ϵ)
+    # D1: with --drop-total this term and its noise pair are gone; σn/ρn then have
+    # only 4 entries, so the guard is load-bearing, not cosmetic.
+    DROP_TOTAL ||
+        (ll += hetero_logl_ar1(tot_full[S.dang.myi] .+ lws_dang .- S.dang.obs,
+                               σn[5], ρn[5], S.dang.ϵ))
     # A5: SMB anchor -- model β_total (1979-2008 mean, Gt/yr) vs area-scaled Rignot 2019
     smb_gt = mean(m[:antarctic_icesheet, :β_total][SMB_IDX]) * M3ICE_TO_GT
     ll += logpdf(Normal(SMB_TARGET_GT, SMB_SIGMA_GT), smb_gt)
@@ -937,7 +960,7 @@ const OLD35_NAMES = vcat(
      "anto_alpha","anto_beta","greenland_a","greenland_b","greenland_alpha","greenland_beta",
      "greenland_v0","thermal_alpha","gic_a","gic_b","gic_T_lia","gic_f","gic_tau_fast","gic_tau_slow",
      "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG","ais_runoff_h0","ais_c"],
-    vcat([["sd_$s","rho_$s"] for s in SERIES]...))
+    vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
 # extB2-vintage 39-param chain/cov order (29 physical + 10 noise), for name-mapping the
 # tuned proposal shape into the extB3 parameter set. The gic_* rows are deliberately NOT
 # mapped: the extB3 glacier block is a different structure AND frame, so the old glacier
@@ -948,7 +971,7 @@ const OLD39_NAMES = vcat(
      "greenland_v0","thermal_alpha","gic_a","gic_b","gic_T_lia","gic_f","gic_tau_fast","gic_tau_slow",
      "antarctic_lambda","antarctic_gamma","antarctic_kappa","ais_gmst_amp",
      "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG","ais_runoff_Ton","ais_c"],
-    vcat([["sd_$s","rho_$s"] for s in SERIES]...))
+    vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
 # extB3-vintage 38-param chain/cov order (28 physical + 10 noise) — the verified header of
 # chain_extB3*_seed2026_n500000.csv. Used to name-map the extB3c tuned proposal shape into
 # the extC set; the single-reservoir gic_* rows are skipped (different structure).
@@ -958,7 +981,7 @@ const OLD38_NAMES = vcat(
      "greenland_v0","thermal_alpha","gic_a","gic_b","gic_T_off","gic_log10_kappa","gic_nu",
      "antarctic_lambda","antarctic_gamma","antarctic_kappa","ais_gmst_amp",
      "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG","ais_runoff_Ton","ais_c"],
-    vcat([["sd_$s","rho_$s"] for s in SERIES]...))
+    vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
 # extC-vintage 52-param chain/cov order (42 physical + 10 noise) — the verified
 # header of chain_extC_seed2026_n2000000.csv. Used to name-map the extC1 tuned
 # proposal shape into the Ladrillo 1.0 set, where the five stock-SIMPLE Greenland
@@ -978,7 +1001,7 @@ const OLD52_NAMES = vcat(
      "antarctic_lambda","antarctic_gamma","antarctic_kappa","ais_gmst_amp",
      "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG",
      "ais_runoff_Ton","ais_c"],
-    vcat([["sd_$s","rho_$s"] for s in SERIES]...))
+    vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
 
 # L10tune-vintage 54-param order (44 physical + 10 noise) — the header of
 # chain_L10tune_seed2026_n2000000.csv, the first Ladrillo 1.0 tuning run. It is
@@ -998,7 +1021,16 @@ const OLD54_NAMES = vcat(
      "antarctic_lambda","antarctic_gamma","antarctic_kappa","ais_gmst_amp",
      "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG",
      "ais_runoff_Ton","ais_c"],
-    vcat([["sd_$s","rho_$s"] for s in SERIES]...))
+    vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
+
+# The SHIPPED Ladrillo 1.0 layout: whatever FREE currently is, plus the full
+# five-stream noise block. Built from FREE rather than typed out so it cannot
+# drift, and it is what `pn0` equals when --drop-total is OFF. With --drop-total
+# ON, NK=53 no longer matches the 55x55 L10-tuned covariance, and this table is
+# what lets the by-name embedding carry the tuned shape across: sd_dang/rho_dang
+# simply find no target in pn0 and are skipped.
+const L10_NAMES = vcat([k.name for k in FREE],
+                       vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
 
 function embed_cov!(cov0, old, old_names; skip_gic::Bool=false)
     oi = Int[]; ni = Int[]
@@ -1016,6 +1048,11 @@ if isfile(ADCOV)
     if size(old,1) == NK
         cov0 = old
         println("(seeding proposal from adapted covariance $(basename(ADCOV)))")
+    elseif size(old,1) == length(L10_NAMES)
+        nmap = embed_cov!(cov0, old, L10_NAMES)
+        println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+                "$(basename(ADCOV)); dropped " *
+                join(setdiff(L10_NAMES, pn0), ", ") * ")")
     elseif size(old,1) == length(OLD54_NAMES)
         nmap = embed_cov!(cov0, old, OLD54_NAMES)
         println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
