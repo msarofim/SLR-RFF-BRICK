@@ -50,8 +50,14 @@ COMPONENTS = [("AIS", "ais", "ais", "ais"),
               ("Greenland", "gis", "gis", "gis"),
               ("thermal exp.", "te", "te", "steric"),
               ("TOTAL", "total", "total", None)]
-# late-century windows the deliverable cares about, on top of the full record
-WINDOWS = [("full", None), ("1993-2018", (1993, 2018))]
+# Windows. The full record hides WHERE each arm misses, and the answer turned out
+# to matter: every Ladrillo module except thermal expansion beats BRICK 2.0 in
+# every window, while TE is worse in both pre-satellite windows and better in the
+# satellite era — so "TE is the one regression" is a statement about the
+# pre-1993 record, not a uniform one. Splitting at 1950 and 1993 separates the
+# sparse-obs era, the pre-satellite era, and the altimetry era.
+WINDOWS = [("full", None), ("1920-1949", (1920, 1949)),
+           ("1950-1992", (1950, 1992)), ("1993-2026", (1993, 2026))]
 
 
 def load():
