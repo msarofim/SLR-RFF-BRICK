@@ -3,6 +3,77 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-14 — thread 5 step 2: the 2300 Greenland flatness is a COMMITMENT defect, and the spec's framing of thread 5 is retracted
+
+Sequencing call (Marcus, 2026-08-14): scope thread 5 before committing to the
+thread-4 calibration. Done, offline — no chain, no calibrator edit, no shipped
+output changed. `python/scope_gis_2300_relaxation.py` →
+`outputs/scope_gis_2300_relaxation.csv`; full write-up in
+`notes/note_2026-08-14_thread5_commitment_not_relaxation.md`.
+
+Both Greenland modules re-implemented in numpy from
+`julia/greenland_ab_component.jl` and MimiBRICK's `greenland_icesheet_component.jl`
+(t−1 lag, clamps, the V/V0 rate damping A+B drops). **Reproduction gate: all 18
+medians within 0.05 cm** of the recorded L10 and quarantined extC projections;
+the script refuses to diagnose otherwise.
+
+### The finding
+Spec `notes/spec_2026-08-14_next_calibration.md` §9 frames thread 5 as "what
+replaces proportional relaxation at high warming". **Retracted.** A+B's
+relaxation is *faster* than the stock SIMPLE it replaced, and A+B is **98.7-99.1%
+equilibrated by 2300** (stock: 26-30%). Under SSP1-2.6 the shipped Greenland has
+stopped — 0.002 cm/yr at 2300, 2 mm of commitment left. The 2300 gap decomposes
+with the realisation term running the WRONG way (+0.41 to +0.84 m) and a
+commitment term of −0.54 to −0.97 m.
+
+The 2×2 cross-test (each arm's `Leq(t)` fed to the other's relaxation, median
+params, SSP2-4.5/SSP5-8.5, cm rel 1995-2014) does not depend on that
+linearisation: A+B commitment × stock relaxation = 4.33 / 11.63; stock
+commitment × A+B relaxation = 65.72 / 137.31, against diagonals 14.57 / 39.51 and
+25.46 / 49.90.
+
+### Why the commitment is a defect and not a difference
+Stock is not a benchmark — ~0.73 m of its commitment is a temperature-INDEPENDENT
+intercept (73% of its SSP1-2.6/2300 value). Against Bochow et al. 2026 (preprint,
+provisional) at each scenario's own 2300 GMST, committed loss in m SLE: A+B
+**0.137 / 0.205 / 0.454** vs 3.11-3.37 / 4.84-5.06 / 8.56-8.71, i.e. **23× / 24× /
+19× low**. A+B commits 6% of the ice sheet at ~6.5 K of warming.
+
+### Why the calibration cannot simply find a bigger commitment
+The hindcast constrains only the PRODUCT `phi·Leq`. Scaling `(c1, c0)` by k and
+re-solving the rate scale that restores the 1900-2025 target of 5.78 cm fits
+**identically** at every k, while 2300 (SSP2-4.5) moves **14.59 → 58.29 cm**:
+
+| k | Leq(2300) m | rate scale | tau_slow @2300 | 2300 cm |
+|---|---|---|---|---|
+| 1.0 (as calibrated) | 0.204 | 1.0034 | 30 yr | 14.59 |
+| 5.0 | 1.020 | 0.1117 | 272 yr | 46.30 |
+| 22.6 (Bochow-matched) | 4.610 | 0.0231 | 1316 yr | 58.29 |
+
+So `gis_c1`'s posterior/prior sd ratio of 0.12 (spec §8.4, "strongly
+constrained") is a CONDITIONAL width at the timescales the module can express —
+not evidence the commitment is identified. The identifying constraint has to be
+an external `Leq(T)` target, which is what Option C (the PISM equilibrium ladder)
+was reaching for and where it failed (CHANGELOG 2026-08-10).
+
+### A second, smaller defect: the channels are labelled backwards
+At posterior medians `alpha` AND `beta` are both larger on the "slow (dynamic)"
+channel than on the "fast (SMB)" one, so the slow channel relaxes FASTER
+everywhere above `T_south = −1.41 K`; 76.6% of draws have slow > fast at 2 K.
+tau_fast/tau_slow = 76.0/51.8 yr at 2025 and 20.2/13.8 yr at SSP5-8.5/2300.
+**Nothing in the module exceeds ~80 yr**, so there is no slow reservoir at all,
+and the Mouginot partition pins the *surface* share onto the slower channel.
+NB the posterior medians are NOT the offline optimum the spec quotes
+(`alpha_s = 0.00708, beta_s = 1e-6`): the optimum rails `beta_s`, the posterior
+median does not, so channel-timescale reasoning from the offline fit does not
+carry.
+
+### Scope
+The 2100 deliverable is unaffected (`phi` = 0.68-0.84 there; the ridge has not
+collapsed). All six suites pass. Thread 4 D1/D2/1.2 remain NOT STARTED. Open for
+Marcus: whether an external `Leq(T)` constraint joins the same change set, or
+Ladrillo 1.0 ships its 2300 column with the ridge stated as a caveat.
+
 ## [unreleased] — 2026-08-14 — thread 4 item 1.0: the two calibration diagnostics re-measured on L10, and the noise-model premise changes
 
 Handoff `notes/handoff_2026-08-13d_threads_4_and_5.md` §1.0, the prerequisite that
