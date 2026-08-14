@@ -1,6 +1,15 @@
 ## ============================================================================
 ## compute_lB_per_post_mengel.jl
 ##
+## ‼ STATUS 2026-08-14: RETIRED — the Mengel/FM arm is EQUAL-WEIGHTED, not Wong-weighted.
+## Its posterior is already MCMC-calibrated against the total-GMSL target (the `dang` channel
+## in calibrate_mcmc_ext.jl), so applying Wong importance weights on top would double-count
+## that constraint. Tony Wong excluded the Mengel arm from global Wong-weighting for exactly
+## this reason; research_plan_2026-07-09_ch4co2_slr_paper.md records the decision.
+## NOTE the sibling `compute_lB_per_post.jl` is STILL LIVE -- the pre-#93 and BRICK-2.0 arms
+## ARE Wong-weighted (their posteriors carry no total-GMSL likelihood term). Only this
+## Mengel variant is retired. See notes/spec_2026-08-14_next_calibration.md section 8.1.
+##
 ## BRICK-Mengel variant of compute_lB_per_post.jl: per-posterior-member baseline
 ## log-likelihood l_B(theta_i) vs Dangendorf, for the Wong importance-weighting
 ## of the MENGEL arm in the CO2/CH4 pulse->SLR study (Step 5).

@@ -1,6 +1,12 @@
 ## ============================================================================
 ## weight_and_project_brick_fair.jl — FULL conditional-Wong forward propagation + coupled SLR bands.
 ##
+## ‼ STATUS 2026-08-14: RETIRED — same finding as weight_brick_conditional_fair.jl.
+## The coupled-vs-independent band comparison this driver exists to produce was ANSWERED:
+## the coupling is immaterial to total SLR and to pulse marginals, so the INDEPENDENT
+## pipeline stands. Kept for provenance. See notes/spec_2026-08-14_next_calibration.md
+## section 8.1.
+##
 ## Combines weight_brick_conditional_fair.jl (conditional weighting) with a projection to 2300, so a
 ## SINGLE BRICK run per (config, draw) yields BOTH the historical fit ℓ^FB (for the weight) AND the
 ## future SLR (for the bands). Produces COUPLED bands (each FaIR config equally likely, BRICK draws

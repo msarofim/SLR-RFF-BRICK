@@ -294,16 +294,54 @@ in the chain header), and L10's gsic noise is σ 0.0156 / ρ 0.649 — not the
 pathology signature. The σ-inflation remedy is dead code guarding a condition
 that can no longer arise. Delete it, or mark it superseded with this reasoning.
 
-### 8.3 The GlaMBIE modern-rate term overlaps the gsic component channel — CHECK
+### 8.3 GlaMBIE — CHECKED. Not obsolete, but its sum both duplicates AND conflicts with the gsic target
+
 `ll += logpdf(Normal(GLAMBIE_RATE[b], GLAMBIE_SD[b]), mrate)` scores the
-**2000-2024 mean rate** of `gsic_slowp`/`gsic_fast`, while the gsic component
-channel already scores those same model series annually over **1900-2023**. The
-datasets differ (GlaMBIE vs the Frederikse-derived component target) but the
-observable and 24 years of window are shared, and the underlying glaciological
-and gravimetric records overlap. This is structurally the same issue D1 addresses
-for the total. **Not asserted as a double-count** — it needs the same materiality
-check, and it belongs in this pass because it also touches the gsic channel that
-D2 puts a discrepancy term on.
+**2000-2024 mean rate** of `gsic_slowp` and `gsic_fast` separately, while the gsic
+component channel already scores their sum annually over **1900-2023**. Measured:
+
+| quantity | value |
+|---|---|
+| GlaMBIE SLOWP + FAST, implied constraint on the SUM | **0.6063 ± 0.0476** mm/yr |
+| gsic channel's own grip on the same window's mean rate | σ = **0.0587** mm/yr |
+| ratio (GlaMBIE σ / channel σ) | **0.81** |
+| gsic TARGET (Frederikse-derived) implied rate | **+0.7292** mm/yr |
+| **discrepancy** | **+0.1230 mm/yr = 2.59 GlaMBIE-σ** |
+| L10 model's own 2000-2023 rate | **+0.6911** mm/yr |
+
+Three readings, in order of importance:
+
+1. **It is NOT obsolete.** GlaMBIE is the only term that separates SLOWP from
+   FAST in the modern era; the aggregate gsic channel is blind to the partition.
+   Delete it and the modern SLOWP/FAST split loses its only constraint.
+2. **But its SUM component is a genuine duplicate — of comparable weight.** The
+   GlaMBIE-implied σ on the sum (0.0476) is *tighter* than the channel's own grip
+   on the same quantity (0.0587). The modern aggregate rate is constrained twice,
+   at roughly equal strength.
+3. **And the two datasets DISAGREE by 2.59 σ.** The model sits **between** them,
+   69% of the way from GlaMBIE to Frederikse — the signature of a likelihood
+   splitting the difference between two conflicting constraints. This is
+   structurally the gate-3.1 total-vs-components conflict again, one level down.
+
+**Consequence for D2, and it is a sequencing constraint.** `gsic` is one of the
+two streams D2 puts a discrepancy term on, and it is "under load" (resid/band
+1.06, BIC white − AR(1) +18.7). Part of that load may be **this target conflict
+rather than model error**. A δ(t) term would absorb it and hide it — precisely
+the failure mode that let Greenland's mid-century miss survive as ρ = 0.985 until
+A+B exposed it. **Settle GlaMBIE before designing D2's term on gsic, not after.**
+
+Recommended fix, and it is the move Tony already used on the conditional
+weighting: re-express GlaMBIE as a constraint on the **partition** (the
+SLOWP/FAST share, or their ratio) instead of two absolute rates, so it
+contributes only the information the aggregate channel lacks and the sum is
+constrained once. Then the Frederikse-vs-GlaMBIE level disagreement is a target
+question to settle on its merits rather than something the sampler splits.
+
+**Caveat on the 2.59 σ.** Summing the two GlaMBIE σ in quadrature assumes SLOWP
+and FAST errors are independent, which is what the code assumes by scoring them
+as two separate terms — but they share methodology and are likely positively
+correlated, which would widen the joint σ and shrink the discrepancy. Check the
+GlaMBIE paper's own covariance before quoting 2.59 σ as settled.
 
 ### 8.4 Inert and near-inert parameters
 Posterior sd / prior sd on the L10 subsample. `gis_amp` calibrates the scale: it

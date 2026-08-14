@@ -1,6 +1,16 @@
 ## ============================================================================
 ## weight_brick_conditional_fair.jl — CONDITIONAL Wong-style weighting of BRICK-AM draws per FaIR config
 ##
+## ‼ STATUS 2026-08-14: RETIRED — CLOSED AS A CONSISTENCY CHECK, NOT A PRODUCTION PATH.
+## The conditional FaIR<->BRICK weighting was measured IMMATERIAL on both levels (COUPLED
+## 46.68 vs INDEP 46.38 cm total@2100, width -0.68) and pulse marginals (mean ratio
+## 1.003-1.009, TE 1.000, tip frac 23.31->23.41%). Verdict on record: "Independent pipeline
+## stands everywhere; conditional weighting closes as a documented consistency check."
+## Kept for provenance -- this file IS the evidence for that finding. Do not wire it into a
+## deliverable. Its use of sd_dang/rho_dang is why dropping the total channel (spec
+## 2026-08-14 D1) looked like a blocker; it is not, because this path is not live. See
+## notes/spec_2026-08-14_next_calibration.md section 8.1.
+##
 ## Endorsed forward-propagation consistency (see notes/negresult_2026-08-01_joint_forcing_calibration.md):
 ## the joint free-forcing calibration was rejected because it let SLR RE-INFER the forcing. This instead
 ## keeps the forcing FIXED and only fixes the PAIRING — for each FaIR config k it reweights the BRICK-AM

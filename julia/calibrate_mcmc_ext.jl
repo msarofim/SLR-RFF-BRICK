@@ -297,23 +297,14 @@ let ri = [rowof(y) for y in S.dang.years], cs = closure_sigma(ri)
             S.dang.years[end], base[end], S.dang.ϵ[end], S.dang.ϵ[end]/base[end])
 end
 
-# ---- extB3b fallback (2026-08-07, handoff §2 item 7): pre-1940 GSIC flow σ ×2 -------------
-# The extB3 tuning run (chain_extB3_seed2026_n500000) camped on the wiggle-tracking mode:
-# all three pre-registered co-indicators fired (σ_gsic → 0.032 cm with ρ 0.96, gic_nu piled
-# at 0 [P(ν<0.05)=0.24], S(1900) median 45 mm) and 0/4 evaluation gates passed
-# (outputs/eval_gates_extB3_seed2026.csv). The documented fallback inflates the GSIC flow σ
-# before GSIC_EARLY_YEAR: the residual 1900-1920 target melt sits on the Marzeion-2015-derived
-# segment Roe 2021 calls an initialization artifact and precedes the HadCRUT5 ETCW ramp
-# (~1918). Flag-gated so the extB3 no-inflation behaviour stays exactly reproducible.
-const GSIC_EARLY_X2   = "--gsic-early-sigma-x2" in ARGS
-const GSIC_EARLY_YEAR = 1940
-const GSIC_EARLY_FAC  = 2.0
-if GSIC_EARLY_X2
-    early = S.gsic.years .< GSIC_EARLY_YEAR
-    S.gsic.ϵ[early] .*= GSIC_EARLY_FAC
-    @printf("GSIC early-σ fallback ON: flow σ ×%.1f for %d years < %d\n",
-            GSIC_EARLY_FAC, count(early), GSIC_EARLY_YEAR)
-end
+# ---- extB3b fallback: REMOVED 2026-08-14, obsolete (spec_2026-08-14 §8.2) -----------------
+# `--gsic-early-sigma-x2` inflated the GSIC flow σ before 1940 by ×2. It was the documented
+# remedy for the extB3 wiggle-tracking mode (σ_gsic → 0.032 cm with ρ 0.96, gic_nu piled at 0,
+# S(1900) median 45 mm, 0/4 evaluation gates). That mode's cause was a FREE ν; ν is now fixed
+# at the anchored value and is not sampled at all, and L10 sits at σ_gsic 0.0156 / ρ 0.649 —
+# nowhere near the signature. The flag was never passed to any shipped run (L10 launched as
+# `--tag=L10 --overdisperse`), so this was dead code guarding a condition that can no longer
+# arise. Recoverable from git history if the ν-free configuration is ever revisited.
 
 # ---- extC: r19-seam-adjusted gsic target (obs_adj) + δ ramp ------------------------------
 # The Frederikse gsic segment assumes zero r19 melt; the GlaMBIE splice (2019+) includes it.

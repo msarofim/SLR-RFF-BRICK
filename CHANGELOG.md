@@ -183,7 +183,56 @@ Method note: pooling matters. The as-sampled pooled |corr| is 0.319 against a
 within-chain 0.578 — pooling a non-converged block hides the very ridge the
 reparameterisation removes. Thread 3's trap, live again.
 
-### 6. Unchanged on L10
+### 6. Obsolete material stripped, and GlaMBIE checked (spec §8)
+Marcus, 2026-08-14: importance weighting was determined not helpful for recent
+model versions — check whether removing it helps, and look for other obsolete
+constraints.
+
+**The D1 "blocker" was withdrawn.** `sd_dang`/`rho_dang` are referenced by three
+scripts, but all three are dead paths: the conditional FaIR↔BRICK weighting was
+measured immaterial on levels (46.68 vs 46.38 cm total@2100) *and* pulse
+marginals (1.003-1.009), and the Wong weights are already OFF for the Mengel/FM
+arm — "its posterior is already MCMC-calibrated to Dangendorf, Wong would
+double-count", and Tony Wong excluded that arm for the same reason. Grepping for
+symbol references finds call sites, not live paths. **Note the corollary:** with
+the Wong weights already off, total GMSL enters exactly ONCE today, so D1 is a
+deliberate discard of an independent constraint, not a de-duplication.
+
+**Stripped:**
+- `--gsic-early-sigma-x2` (the extB3b pre-1940 GSIC σ×2 fallback) **removed** from
+  `calibrate_mcmc_ext.jl`. Never passed to any shipped run, and the pathology it
+  remedied cannot recur: its cause was free `gic_nu`, now fixed and not sampled,
+  and L10 sits at σ_gsic 0.0156 / ρ 0.649 vs the 0.032 / 0.96 signature.
+- `weight_brick_conditional_fair.jl`, `weight_and_project_brick_fair.jl`,
+  `compute_lB_per_post_mengel.jl` **banner-marked RETIRED** in the house
+  `‼ STATUS` style — not deleted, since they are the provenance for the
+  coupling-is-immaterial finding. `compute_lB_per_post.jl` and
+  `apply_wong_weights.py` stay LIVE: the pre-#93 and BRICK-2.0 arms *are*
+  Wong-weighted; only the Mengel/FM arm is not.
+
+**GlaMBIE: checked, and it is NOT obsolete — but it needs restructuring.**
+
+| quantity | value |
+|---|---|
+| GlaMBIE SLOWP+FAST constraint on the SUM | 0.6063 ± 0.0476 mm/yr |
+| gsic channel's own grip on the same window's rate | σ 0.0587 mm/yr (ratio 0.81) |
+| gsic TARGET (Frederikse-derived) rate | +0.7292 mm/yr |
+| **discrepancy** | **2.59 GlaMBIE-σ** |
+| L10 model's own rate | +0.6911 mm/yr — **between them, 69% toward Frederikse** |
+
+GlaMBIE is the only term separating SLOWP from FAST in the modern era, so it
+stays. But its *sum* component duplicates the gsic channel at comparable weight
+AND disagrees with it by 2.59 σ, and the model splits the difference — the
+gate-3.1 total-vs-components conflict one level down. **Sequencing consequence:
+`gsic` is one of the two streams D2 puts a discrepancy term on, and part of its
+"under load" status may be this target conflict rather than model error. A δ(t)
+would absorb and hide it, exactly as ρ = 0.985 hid Greenland's miss. Settle
+GlaMBIE before designing D2's gsic term.** Recommended: re-express GlaMBIE as a
+constraint on the SLOWP/FAST *partition* rather than two absolute rates. Caveat:
+the 2.59 σ assumes independent SLOWP/FAST errors, as the code does; shared
+methodology likely correlates them and would shrink it.
+
+### 7. Unchanged on L10
 - **The total is still the loosest constraint in every window** (§E): σ on a
   window-mean offset 0.232-0.565 cm for `dang` against 0.014-0.062 for `ais`/`gis`.
 - **Item 4.3 (TE)** still passes: `thermal_alpha` p50 0.1502 (was 0.1540) →
