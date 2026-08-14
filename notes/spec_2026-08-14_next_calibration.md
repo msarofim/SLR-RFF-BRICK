@@ -254,7 +254,82 @@ Stated here so it is never "fixed" as an apparent redundancy.
 
 ---
 
-## 8. NOT in this spec
+## 8. Obsolete-constraint audit (Marcus, 2026-08-14)
+
+### 8.1 D1 has no live downstream consumer — a raised blocker, withdrawn
+`sd_dang`/`rho_dang` are referenced by three scripts
+(`weight_brick_conditional_fair.jl`, `weight_and_project_brick_fair.jl`,
+`compute_lB_per_post_mengel.jl`), and this was briefly raised as a blocker on D1.
+**It is not.** All three are retired paths for this lineage:
+
+- The **conditional FaIR↔BRICK weighting** was measured immaterial on levels
+  (COUPLED 46.68 vs INDEP 46.38 cm total@2100) *and* on pulse marginals (mean
+  ratio 1.003-1.009, TE 1.000). On record: "Independent pipeline stands
+  everywhere; conditional weighting closes as a documented consistency check."
+- The **Wong importance weights** are already OFF for this arm.
+  `research_plan_2026-07-09_ch4co2_slr_paper.md` §weighting: "Mengel/FM arm
+  equal-weighted (its posterior is already MCMC-calibrated to Dangendorf — Wong
+  would double-count)", and `handoff_2026-08-01_brick_fair_consistency.md`:
+  "Tony excluded the Mengel arm from global Wong-weighting for this reason."
+
+Lesson for the next audit: grepping for symbol *references* finds call sites, not
+live paths. Both must be checked.
+
+**But note what this implies for D1, and state it deliberately.** Because the
+Wong weights are already off, total GMSL currently enters the Ladrillo lineage
+**exactly once** — inside the likelihood. There is no double-count to remove.
+D1 therefore leaves total GMSL constrained *only* through the components summing.
+That is defensible (it is the loosest constraint in every window, and the
+components determine the total exactly up to the R19 seam and observed LWS) but
+it is a deliberate discard of an independent observational constraint, not a
+tidy-up. Do not justify D1 as "removing a double-count".
+
+### 8.2 `--gsic-early-sigma-x2` (the extB3b fallback) is obsolete — remove it
+L10 was launched as `calibrate_mcmc_ext.jl 2000000 $s --tag=L10 --overdisperse`,
+so the flag was never passed. It was the documented remedy for the extB3
+wiggle-tracking pathology (σ_gsic → 0.032 cm with ρ 0.96, `gic_nu` piled at 0,
+0/4 evaluation gates). That pathology's cause was removed a different way: **`ν`
+is now FIXED at the anchored value and is not sampled at all** (no `gic_nu` column
+in the chain header), and L10's gsic noise is σ 0.0156 / ρ 0.649 — not the
+pathology signature. The σ-inflation remedy is dead code guarding a condition
+that can no longer arise. Delete it, or mark it superseded with this reasoning.
+
+### 8.3 The GlaMBIE modern-rate term overlaps the gsic component channel — CHECK
+`ll += logpdf(Normal(GLAMBIE_RATE[b], GLAMBIE_SD[b]), mrate)` scores the
+**2000-2024 mean rate** of `gsic_slowp`/`gsic_fast`, while the gsic component
+channel already scores those same model series annually over **1900-2023**. The
+datasets differ (GlaMBIE vs the Frederikse-derived component target) but the
+observable and 24 years of window are shared, and the underlying glaciological
+and gravimetric records overlap. This is structurally the same issue D1 addresses
+for the total. **Not asserted as a double-count** — it needs the same materiality
+check, and it belongs in this pass because it also touches the gsic channel that
+D2 puts a discrepancy term on.
+
+### 8.4 Inert and near-inert parameters
+Posterior sd / prior sd on the L10 subsample. `gis_amp` calibrates the scale: it
+is inert BY DESIGN (D4) and reads **0.997** against its *truncated* prior
+(posterior sd 0.2007 vs 0.2013; means 1.9048 vs 1.9049), so **ratio ≈ 1.00 means
+inert**.
+
+| parameter | ratio | reading |
+|---|---|---|
+| `gis_amp` | **1.00** | inert by design — the D4 decision, now with a number |
+| `gic_b_R19` | 0.95 | near-inert; see §2.2 |
+| `gic_u_pre` | 0.83 | weakly identified (Option-D ledger scope) |
+| `gic_s_r5` | 0.80 | weakly identified (Option-D ledger scope) |
+| `gic_u_unch` | 0.65 | moderate |
+| `gis_c0` / `gis_c1` / `gis_beta_f` | 0.08 / 0.12 / 0.05 | strongly constrained |
+
+Two parameters have a posterior **wider** than their prior —
+`gic_log10_kappa_SLOWP` **1.24** and `gic_log10_kappa_R19` **1.15**. That is mild
+prior-likelihood tension (the κ prior is the τ50-as-prior at σ = 0.114, inside
+bounds ±1.0), worth one look in this pass rather than a separate thread.
+
+The Option-D ledger scope parameters (`gic_u_pre`, `gic_s_r5`, `gic_u_unch`) are
+`likelihood_only` and may be weakly identified *by design*, the way `gis_amp` is
+— that is the question to settle, not their ratios.
+
+## 9. NOT in this spec
 
 - The AIS grounding-line discharge constraint (D5). It would make `ais_iceflow0`
   identified but buys nothing for the deliverable, and the area convention that
