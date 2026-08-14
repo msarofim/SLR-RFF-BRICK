@@ -275,9 +275,14 @@ abs(GIS_TBAR - 1.963) < 5e-3 ||
 # bounds, so what those priors actually encode is a pair of heavily truncated
 # half-normals, not the N(mu, sigma) the code appears to state; and the induced
 # (ell, w) prior correlates 0.315 at the anchor, against 0.0 for independent ones.
-# ell: centred on the offline A+B optimum (alpha_s 0.00708, beta_s 1e-6 ->
-#   r_s = 0.01390/yr, tau_s = 71.9 yr), preserving the documented "priors centred
-#   on an offline fit to the same target" convention. sd = 1.0 (MARCUS,
+# ell, w CENTRES: chosen so theta0 maps EXACTLY onto the native prior centres
+#   (alpha_s 0.0070727, beta_s 0.0010), NOT onto the offline optimum. The
+#   calibrator centres beta_s at 1e-3 DELIBERATELY, off its 1e-6 rail, and
+#   centring ell on the optimum instead silently moved theta0 to
+#   (alpha_s 0.00354, beta_s 0.00695) -- which the GIS wiring test caught as a
+#   Mouginot surface share of 0.7716 against the offline 0.7351. Mapping the
+#   centres through the transform preserves both the deliberate off-rail choice
+#   and the wiring test. sd = 1.0 (MARCUS,
 #   2026-08-14): tau_s 23-172 yr at 1 sigma and to 469 yr at 2 sigma, which covers
 #   L10's posterior (29-136 yr) with room above it while NOT admitting the
 #   millennial arm. Widening to reach the commitment ridge's ~1300 yr was offered
@@ -287,7 +292,10 @@ abs(GIS_TBAR - 1.963) < 5e-3 ||
 # w: FLAT on [0, 1] (sigma = 1e3, the gic_u_unch pattern). It is a share, the L10
 #   posterior spans 0.08-0.95, and a flat prior makes ell and w independent by
 #   construction.
-const GIS_ELL_MU = log(0.0070727 * GIS_TBAR + 1e-6)
+const GIS_NATIVE_MU = (alpha_s = 0.0070727, beta_s = 0.0010)   # the native centres
+const GIS_ELL_MU = log(GIS_NATIVE_MU.alpha_s * GIS_TBAR + GIS_NATIVE_MU.beta_s)
+const GIS_W_MU   = GIS_NATIVE_MU.alpha_s * GIS_TBAR /
+                   (GIS_NATIVE_MU.alpha_s * GIS_TBAR + GIS_NATIVE_MU.beta_s)
 const GIS_ELL_SD = 1.0
 # The transform must be a pure change of COORDINATES, not of model. Assert the
 # round trip at load: (alpha_s, beta_s) -> (ell, w) -> (alpha_s, beta_s).
@@ -298,6 +306,14 @@ let a0 = 0.0070727, b0 = 0.0010, r0 = 0.0070727 * GIS_TBAR + 0.0010
         error("(ell, w) round trip is not exact: alpha_s $a0 -> $a1, beta_s $b0 -> $b1")
     (abs(exp(ell0) - (a0 * GIS_TBAR + b0)) < 1e-12) ||
         error("exp(ell) must equal r_s(Tbar) = alpha_s*Tbar + beta_s")
+    # theta0 EQUIVALENCE: the reparameterised centres must reproduce the native
+    # ones, or the sampler silently starts somewhere else and the GIS wiring test
+    # fails downstream instead of here.
+    aM = GIS_W_MU * exp(GIS_ELL_MU) / GIS_TBAR
+    bM = (1 - GIS_W_MU) * exp(GIS_ELL_MU)
+    (abs(aM - GIS_NATIVE_MU.alpha_s) < 1e-12 && abs(bM - GIS_NATIVE_MU.beta_s) < 1e-12) ||
+        error("(ell, w) prior centres map to (alpha_s $aM, beta_s $bM), not the " *
+              "native ($(GIS_NATIVE_MU.alpha_s), $(GIS_NATIVE_MU.beta_s))")
 end
 # The zone column is ALREADY an anomaly on the 1850-1900 frame (verified: mean
 # over that window is -0.0), so it is used as-is, matching gis_offline_cell.py.
@@ -544,7 +560,7 @@ if GIS_AB
                      lo=GIS_ELL_MU - 4*GIS_ELL_SD, hi=GIS_ELL_MU + 4*GIS_ELL_SD,
                      islog=false))
         push!(FREE, (name="gis_slow_w", comp=:likelihood_only, sym=:none,
-                     μ=0.5, σ=1e3, lo=0.0, hi=1.0, islog=false))
+                     μ=GIS_W_MU, σ=1e3, lo=0.0, hi=1.0, islog=false))
     else
         push!(FREE, (name="gis_alpha_s", comp=GISC, sym=:gis_alpha_s,
                      μ=0.0070727, σ=0.020, lo=0.0, hi=0.2, islog=false))
@@ -924,7 +940,7 @@ println("MCMC: $NP physical (incl $(length(GEO_IDX)) DAIS-geometry under a joint
         R19_RATE_MU, R19_RATE_SD, RUNG_SIG_SCALE)
 GIS_REPARAM && println("Greenland slow channel: (log r_s, w) at Tbar = " *
         "$(round(GIS_TBAR, digits=4)) K | ell ~ N($(round(GIS_ELL_MU, digits=4)), " *
-        "$GIS_ELL_SD) | w flat on [0,1]")
+        "$GIS_ELL_SD) | w flat on [0,1], centred $(round(GIS_W_MU, digits=4))")
 println("D2 discrepancy: " * (D2_ON ? "ON" : "OFF (--no-d2)") *
         " | $D2_BASIS_N dof per stream on " * join(D2_STREAMS, "+") *
         " | prior sd $D2_BASIS_SD cm | orthogonal to the constant" *
