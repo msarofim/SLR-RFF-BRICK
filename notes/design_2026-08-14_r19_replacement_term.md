@@ -157,3 +157,86 @@ direction the historical record cannot see. R19 is small historically (0.058 cm
 observed cumulative to 2020) and material at 2300 (1.4-1.7 cm) — the same
 structural shape as Greenland's commitment ridge. That is a model-structure
 question, not a likelihood one.
+
+---
+
+# REVISION, same day — §6's Option B is WITHDRAWN
+
+Marcus asked the Option-B recommendation to be justified on OBSERVATIONS and on
+STRUCTURAL PHYSICS rather than on information bookkeeping. It does not survive
+either. Evidence: `julia/diag_r19_option_b_evidence.jl` →
+`outputs/diag_r19_option_b_evidence.csv`.
+
+## A. Observations — the total buys aggregate fit by breaking the direct measurement
+
+| R19 block | total-stream χ²/n | R19 modern rate | vs GlaMBIE |
+|---|---|---|---|
+| **L10** (total kept) | **0.548** | 0.1513 mm/yr | +0.59 σ |
+| **D1** (total dropped) | 1.041 | **0.0577 mm/yr** | **+0.05 σ** |
+
+GlaMBIE R19 2000-2024 = 0.04925 mm/yr (correlated σ 0.17423). Keeping the total
+fits the *aggregate* about 2× better and lands R19's own rate 3× above the only
+direct observation of it; dropping the total lands it **on** that observation
+(+0.05 σ). The total is not measuring R19, it is using R19.
+
+## B. Structural physics — L10's R19 is saturated and has no warming response
+
+Committed loss `S_eq/a = 1 − exp(−b(T − T_off))` as % of R19 mass, at the four
+GlacierMIP3 warming levels:
+
+| GMST | R19 driver | GlacierMIP3 | L10 | D1 |
+|---|---|---|---|---|
+| 1.2 K | 0.87 K | 32.1 ± 36.3 | **97.4** | 71.8 |
+| 1.5 K | 1.09 K | 45.0 ± 35.3 | **98.1** | 77.6 |
+| 2.0 K | 1.45 K | 60.0 ± 33.6 | **98.8** | 84.8 |
+| 3.0 K | 2.17 K | 69.7 ± 28.4 | **99.6** | 92.9 |
+
+**L10 has the Antarctic periphery 97-99% committed at every warming level,
+including present-day.** That is not a calibration detail, it is a degenerate
+model state: R19's committed loss runs 97.4 → 99.6% across 1.2-3.0 K, i.e. **no
+warming response at all**, so R19 contributes a near-fixed amount regardless of
+scenario. D1 runs 71.8 → 92.9% and retains a real gradient. Both sit above
+GlacierMIP3, but the sign is consistent on all four rungs and the saturation
+argument does not depend on GlacierMIP3 at all.
+
+GlacierMIP3's σ exceeds its central value on every rung, so neither is formally
+rejected — read the sign, not the significance. **The rung term is already in the
+likelihood, and the total is overriding it.**
+
+## C. FACTS / MAGICC — cannot adjudicate
+
+The R19 difference at 2100 is −0.34 / −0.23 / +0.02 cm on glaciers, far inside
+the FACTS/MAGICC spread (L10 9.0/11.0/15.2 vs FACTS ar5glaciers 8.9/11.4/15.5,
+emuglaciers 9.2/12.2/17.7, MAGICC 10.4/12.5/15.3). The effect is at 2300, and
+FACTS stops at 2150. **This axis is uninformative here** — it neither supports
+nor refutes either arm.
+
+## The mechanism, stated as an inference not a measurement
+
+R19 is the only component in the system with **no target of its own** (Frederikse
+excludes it; the gsic channel is SLOWP+FAST; the GlaMBIE term is a share). It is
+therefore the one direction the likelihood can move without paying a
+component-term penalty. The Frederikse components sum **+0.74 cm above** the
+independent Dangendorf/STAR total over 1950-1980 — Frederikse's own budget
+non-closure, already on record (gate 3.1) — and pushing R19's melt up drags the
+modelled total back down. Consistent with everything measured: the total wants
+more R19 melt, R19 obliges to 97-99% committed, and GlaMBIE and GlacierMIP3 both
+say that is too much. **R19 is absorbing a known data inconsistency.**
+
+## Revised recommendation: OPTION C, with a process-side term instead
+
+1. **Drop the total (D1).** It is not preserving an R19 constraint; it is
+   imposing an unphysical one. Releasing R19 moves it *onto* GlaMBIE and *toward*
+   GlacierMIP3.
+2. **Do NOT build the §5 term.** Its target is distilled from L10, so it would
+   re-impose the 97-99%-committed R19 — the §5 checks were all about whether the
+   term would *work*, and none of them asked whether the value was *right*. It
+   is not.
+3. **If a replacement is wanted, take it from the process side**, which is
+   independent of the total: tighten the R19 GlacierMIP3 rung (its σ currently
+   exceeds its central value, which is why the total can override it), and/or add
+   the GlaMBIE R19 rate at the correlated σ. Both push the same way.
+4. **Flag for the next pass**: R19 saturating at ~99% committed is worth
+   understanding on its own terms, whichever way D1 goes. A block with no
+   scenario response is not doing the job the three-reservoir structure was
+   built for.

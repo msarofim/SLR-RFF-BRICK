@@ -1,0 +1,13 @@
+axis,arm,metric,value
+A_obs,L10,total_chi2_per_n,0.5478258377463262
+A_obs,L10,r19_rate_mm_yr,0.151323512660368
+A_obs,D1,total_chi2_per_n,1.0408534399136495
+A_obs,D1,r19_rate_mm_yr,0.05765656962815669
+B_physics,L10,committed_pct_1p2,97.39347953483157
+B_physics,D1,committed_pct_1p2,71.80615347871428
+B_physics,L10,committed_pct_1p5,98.05746639469926
+B_physics,D1,committed_pct_1p5,77.61172269122405
+B_physics,L10,committed_pct_2p0,98.80999840548044
+B_physics,D1,committed_pct_2p0,84.75486569150912
+B_physics,L10,committed_pct_3p0,99.55341354317694
+B_physics,D1,committed_pct_3p0,92.93109070080085
