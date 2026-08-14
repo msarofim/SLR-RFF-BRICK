@@ -145,3 +145,88 @@ Three properties to check before it is trusted, none of them done yet:
 - Inventory bases differ (Farinotti a0 vs RGI6 volume); the "% of own 2015 mass"
   metric divides that out, but the block *membership* is matched exactly and the
   absolute SLE is not compared anywhere here.
+
+---
+
+# ADDENDUM — what the three products ARE, and which constrains what
+
+Marcus, 2026-08-14. Two things this changes in §1 and §4.
+
+## They are not three of a kind
+
+| | **GlaMBIE** | **OGGM** | **GloGEM** |
+|---|---|---|---|
+| kind | **OBSERVATION** (reconciliation) | process **MODEL** | process **MODEL** |
+| what it is | 233 contributed estimates from ~450 people in 35 teams, combining glaciological, DEM-differencing, altimetry and gravimetry into one per-region series | flowline ice dynamics + temperature-index mass balance, per glacier | elevation-band mass balance + parameterised retreat, per glacier |
+| period | **2000-2023** only | 2000-2100 (19 GCM), 2000-2300 (6 GCM) | 2015-2100 |
+| frontal ablation | implicit in the measurements | **not explicitly represented** in this setup | included, simplified |
+| cite | GlaMBIE (2024) Dataset 1.0.0, WGMS, doi 10.5904/wgms-glambie-2024-07; The GlaMBIE Team (2025) *Nature*, doi 10.1038/s41586-024-08545-z | Maussion et al. 2019; Schuster et al. 2023 archive | Huss & Hock 2015 |
+
+**The models are calibrated to Hugonnet et al. 2021 geodetic mass balance, and
+Hugonnet is one of GlaMBIE's contributed inputs** (`*_demdiff_ETH_Hugonnet_et_al.csv`
+in every region folder). So §1's historical agreement is **partly circular** — it
+is not an independent validation. What is NOT circular, and is the informative
+part, is the **failure**: a model that is 3.11× off on R19 despite being
+calibrated to a dataset GlaMBIE also uses has not been constrained there at all.
+
+## Why R19 fails, quantified — GlaMBIE's own input density
+
+`python/diag_glambie_observational_density.py`, counting contributed datasets:
+
+| block | regions | total inputs | per region | gravimetry | altimetry | demdiff | glaciological |
+|---|---|---|---|---|---|---|---|
+| **R19** | 1 | **8** | **8.0** | **0** | 3 | **1** | 2 |
+| SLOWP | 4 | 79 | **19.8** | 28 | 13 | 11 | 8 |
+| FAST | 13 | 157 | 12.1 | 50 | 20 | 27 | 26 |
+
+**R19 has zero gravimetry** — GRACE cannot separate the Antarctic periphery from
+the ice sheet — and a **single** DEM-differencing estimate, and geodetic elevation
+change does not capture frontal ablation, which is the very process the two
+models disagree about. SLOWP is the best-observed block on Earth at 19.8
+datasets per region. That is the whole story of why R19 behaves differently from
+SLOWP and FAST in every test in this note.
+
+## Which product, which period
+
+| period | use | why |
+|---|---|---|
+| **pre-2000** | Frederikse component targets (already in) | GlaMBIE starts 2000; nothing else covers it |
+| **2000-2023** | **GlaMBIE, and only GlaMBIE** | the only observation. Models here are *validated*, never used as constraints — they are calibrated to a subset of GlaMBIE's own inputs |
+| **2024-2100** | GloGEM **and** OGGM, pooled | no observations exist; both models, spanning their disagreement, never one |
+| **2100-2300** | OGGM 6-GCM branch, **SSP1-2.6 only** | the only far-future comparator in existence — see the caveat below |
+
+## Marcus's far-future point — agreed, with one sharpening
+
+Projection-matching probably *is* the only way to constrain far-future rate or
+committed melt. But **the high scenario carries almost no information**:
+
+| block | SSP5-8.5 @2300: Ladrillo / OGGM | SSP1-2.6 @2300: Ladrillo / OGGM |
+|---|---|---|
+| R19 | 97.7 / 99.6 (gap −1.9) | 64.6 / 59.8 (gap +4.8) |
+| SLOWP | 94.8 / 100.0 (gap −5.2) | **42.2 / 58.6 (gap −16.4)** |
+| FAST | 96.9 / 99.7 (gap −2.7) | **52.7 / 67.4 (gap −14.8)** |
+
+Under SSP5-8.5 everything is gone by 2300 in every model and in ours, so agreeing
+is worth nothing. **All the discriminating power is at SSP1-2.6.**
+
+And SSP1-2.6/2300 is close to a *committed*-loss constraint in disguise, because
+GMST has stabilised long before — which means it can be cross-checked against
+GlacierMIP3, already in the likelihood:
+
+| block | GlacierMIP3 committed @1.5 K | OGGM realised @2300 ssp126 | Ladrillo | τ₁₅ |
+|---|---|---|---|---|
+| R19 | 45.0 ± 35.3 | 59.8 | 64.6 | 828 yr |
+| SLOWP | 50.8 ± 20.5 | 58.6 | **42.2** | 523 yr |
+| FAST | 50.7 ± 10.8 | 67.4 | 52.6 | 130 yr |
+
+**Ladrillo's SLOWP realises 42.2% by 2300 against a committed 50.8% at 1.5 K —
+less than its own commitment, which is correct given τ₁₅ = 523 yr.** OGGM's 58.6%
+exceeds the commitment at that level. So the SLOWP 2300 gap may be a genuine
+disagreement about *timescale* between a flowline model and our 3-reservoir
+relaxation, not evidence that we are wrong. **Do not turn the SLOWP 2300 number
+into a term until that is resolved** — it is the one place where the two
+far-future constraint types point in opposite directions.
+
+FAST is the case that survives all of this: models agree, historically the
+closest to observation, discrepancy at both 2100 and 2300, and no
+commitment/timescale contradiction.
