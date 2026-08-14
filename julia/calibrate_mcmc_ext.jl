@@ -1181,7 +1181,15 @@ for k in GEO_IDX; prop[k] = GEO_PROP_SCALE * Float64(FREE[k].σ); end
 # postprocess_mcmc_ext.jl from a prior ext run) -- it matches the extended posterior
 # shape, which the 2018-baseline adapted_cov.csv does NOT (point terms dropped +
 # extended targets move the AIS block). Fall back to baseline cov, then diagonal.
-const ADCOV = let l10b = joinpath(REPO,"outputs/mcmc/adapted_cov_L10tune2_seed2026.csv"),
+# L11 = the 2026-08-14 change set (total dropped, GlaMBIE R19 rate, tightened
+# rung, D2, Greenland (ell, w)). l11b is the FINAL-config tuning covariance and
+# must be preferred; l11a is the first tuning run, which predates the Greenland
+# reparameterisation and so name-maps 55 of 57 rows with a fresh diagonal for
+# (gis_slow_ell, gis_slow_w) -- still far better than falling back to the
+# 55-param L10 covariance, which knows nothing about the four d2_* columns either.
+const ADCOV = let l11b = joinpath(REPO,"outputs/mcmc/adapted_cov_L11tune2_seed2026.csv"),
+                  l11a = joinpath(REPO,"outputs/mcmc/adapted_cov_L11tune_seed2026.csv"),
+                  l10b = joinpath(REPO,"outputs/mcmc/adapted_cov_L10tune2_seed2026.csv"),
                   l10 = joinpath(REPO,"outputs/mcmc/adapted_cov_L10tune_seed2026.csv"),
                   c1s = joinpath(REPO,"outputs/mcmc/adapted_cov_extC1_seed2026.csv"),
                   c1 = joinpath(REPO,"outputs/mcmc/adapted_cov_extC1.csv"),
@@ -1196,9 +1204,11 @@ const ADCOV = let l10b = joinpath(REPO,"outputs/mcmc/adapted_cov_L10tune2_seed20
     # L10tune2 is the 55-param (gis_amp sampled) tuning run and matches NK exactly,
     # so it is used AS-IS. L10tune is the 54-param first tuning run, name-mapped via
     # OLD54_NAMES. Both beat the extC covariance for a Ladrillo 1.0 run.
-    (GIS_AB && isfile(l10b)) ? l10b :
+    (GIS_AB && isfile(l11b)) ? l11b :
+    ((GIS_AB && isfile(l11a)) ? l11a :
+    ((GIS_AB && isfile(l10b)) ? l10b :
     ((GIS_AB && isfile(l10)) ? l10 : (isfile(c1s) ? c1s : (isfile(c1) ? c1 :
-        (isfile(b3c) ? b3c : (isfile(b2) ? b2 : (isfile(e) ? e : b))))))
+        (isfile(b3c) ? b3c : (isfile(b2) ? b2 : (isfile(e) ? e : b))))))))
 end
 cov0 = Matrix(Diagonal(prop.^2))
 # Column order of the 35-param v-next chains/covs (18 physical + 7 geometry with the OLD
@@ -1280,6 +1290,14 @@ const OLD54_NAMES = vcat(
 # ON, NK=53 no longer matches the 55x55 L10-tuned covariance, and this table is
 # what lets the by-name embedding carry the tuned shape across: sd_dang/rho_dang
 # simply find no target in pn0 and are skipped.
+# The L11tune layout: the current FREE set with the Greenland pair in its NATIVE
+# coordinates, i.e. what the first tuning run sampled. Lets that covariance be
+# name-mapped once the reparameterisation is on.
+const L11A_NAMES = vcat(
+    [k.name == "gis_slow_ell" ? "gis_alpha_s" :
+     k.name == "gis_slow_w"   ? "gis_beta_s"  : k.name for k in FREE],
+    vcat([["sd_$s","rho_$s"] for s in SERIES]...))
+
 const L10_NAMES = vcat([k.name for k in FREE],
                        vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
 
@@ -1296,9 +1314,21 @@ function embed_cov!(cov0, old, old_names; skip_gic::Bool=false)
 end
 if isfile(ADCOV)
     old = Matrix(CSV.read(ADCOV, DataFrame))
-    if size(old,1) == NK
+    # SIZE IS NOT IDENTITY. adapted_cov_L11tune is 57x57 and NK is 57, but its
+    # Greenland rows are (alpha_s, beta_s) while ours are (ell, w) — taking it
+    # as-is would apply an alpha_s proposal scale of ~0.005 to an ell of ~-4.2.
+    # That is the positional-index trap; match on NAMES whenever they can differ.
+    if size(old,1) == NK &&
+       !(GIS_REPARAM && basename(ADCOV) == "adapted_cov_L11tune_seed2026.csv")
         cov0 = old
         println("(seeding proposal from adapted covariance $(basename(ADCOV)))")
+    elseif basename(ADCOV) == "adapted_cov_L11tune_seed2026.csv" &&
+           size(old,1) == length(L11A_NAMES)
+        # native-coordinate Greenland rows are deliberately NOT mapped onto
+        # (ell, w): the scales and meanings differ, so they keep a fresh diagonal.
+        nmap = embed_cov!(cov0, old, L11A_NAMES)
+        println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+                "$(basename(ADCOV)); fresh diagonal for gis_slow_ell, gis_slow_w)")
     elseif size(old,1) == length(L10_NAMES)
         nmap = embed_cov!(cov0, old, L10_NAMES)
         println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
