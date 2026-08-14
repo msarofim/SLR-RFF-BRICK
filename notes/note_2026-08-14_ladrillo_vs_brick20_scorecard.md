@@ -51,6 +51,69 @@ Three more AIS changes in the same lineage:
 
 TE and LWS *are* unchanged in structure (LWS seeded rather than randomly drawn).
 
+## 0b. SUB-GLOBAL TEMPERATURE PATTERNS — a model-wide change, under-credited above
+
+Marcus, 2026-08-14: the third improvement is **sub-global temperature patterns for
+the historic fit, and CMIP6-calibrated patterns for the projections**. An earlier
+version of this note credited the regional driver to Greenland only. It is
+model-wide, across all three ice/glacier modules, and it splits across BOTH bins.
+
+**Historic (observational patterns).** BRICK 2.0 drives every module off GMST.
+Ladrillo drives each off its own region:
+- **Glaciers**: `t_glac_blocks.csv` — **GlaMBIE-area-weighted HadCRUT5** per block
+  (R19 / SLOWP / FAST), K rel 1850-1900.
+- **Greenland**: `t_gis_zones.csv` — southern Greenland (59-70 N) land-masked,
+  already on the 1850-1900 frame.
+
+**Projection (where CMIP6 enters).**
+- **AIS**: A6 amp N(0.95, 0.10) — fully CMIP6 (Xie 2022 PAI1).
+- **Greenland**: amplification **level** from observations (1.9222 ± 0.3181,
+  `gis_amp_prior.csv` south/full), **warming-level SHAPE from 40 CMIP6 models**
+  (secant ratio S(dT), monotone 1.498 → 1.284 over 0.75-2.75 K, −0.050/K), so
+  `amp(dT) = amp_draw · S(dT)` with `S(dT_eff) = 1` at the calibration point.
+- **Glaciers**: `gic_amp_b` **sampled**, priors centred near HadCRUT5 with σ and
+  hard bounds from the **cross-dataset spread** (`diag_amp_dataset_comparison.csv`:
+  SLOWP 1.82 BE / 2.48 HadCRUT5 / 3.46 GISTEMP; R19 0.58-0.85). Observationally
+  informed, not CMIP6.
+
+**Design constraint worth crediting separately** (`calibrate_mcmc_ext.jl` L207):
+the external interface is still **GMST + OHC only** — the regional drivers are
+built inside the model's own inputs. Ladrillo keeps the drop-in property that
+distinguishes it from MAGICC-SLR while getting the pattern-scaling benefit.
+
+### This RETRACTS part of §2's caveat, for Greenland at least
+§2 says the hindcast win is "largely the calibration-approach bin cashing out".
+**For Greenland that is demonstrably wrong**, and `outputs/gis_offline_cell_fits.csv`
+has the parameter-count-controlled decomposition:
+
+| cell | n_par | neg_log_post | mid-century bias cm | RMSE cm |
+|---|---|---|---|---|
+| incumbent (stock SIMPLE, as calibrated) | 5 | 980.04 | −0.828 | 0.533 |
+| stock (stock SIMPLE, **refit**) | 5 | 234.92 | −0.226 | 0.325 |
+| **A — regional driver alone, one channel** | **5** | **17.87** | **+0.014** | **0.061** |
+| B — two channels, GMST driver | 8 | 232.07 | −0.227 | 0.282 |
+| A+B | 8 | 17.856 | +0.015 | 0.062 |
+
+**The sub-global driver does essentially all of it.** Cell A drops the objective
+234.92 → 17.87 **at the same parameter count** as the refit stock model; cell B
+adds three parameters on the GMST driver and buys 2.9 nlp. Adding the channels on
+top of A buys **0.019 nlp**. So this is not extra freedom fitting better — it is a
+capability the GMST-driven model does not have at any parameter values, because
+Greenland cooled ~1.8 °C/century over 1940-1990 while the globe warmed.
+
+Corollary: the two-channel split (B) is NOT earning its keep on the hindcast. It
+is carried for the Mouginot partition and the commitment/SMB physics — which is
+also where it now fails at 2300 (§4, and the commitment-ridge note).
+
+### And the CMIP6 shape law is what fixes Greenland's projection spread
+The offline A+B cell at **constant** amp gives a 2100 scenario spread of
+**10.44 cm**, outside the FACTS/MAGICC evaluation band (6.3-7.3 cm). With the
+CMIP6 shape law on, the shipped L10 spread is **7.39 cm** — into (just above) the
+band. So the CMIP6-calibrated pattern is load-bearing for criterion 4 on Greenland,
+not decoration. NB `gate4_spread` in the fits CSV is **EVAL ONLY**
+(`gis_offline_cell.py` L600), not a pass/fail gate — its `False` on A+B is the
+constant-amp value and is superseded by the law.
+
 ## 1. The calibration-approach bin
 
 | | BRICK 2.0 (as published) | Ladrillo 1.0 |
@@ -63,7 +126,9 @@ TE and LWS *are* unchanged in structure (LWS seeded rather than randomly drawn).
 | Greenland partition | — | **Mouginot 2019** SMB/discharge share |
 | glacier inventory | — | A2 inventory + SMB anchor |
 | AIS temperature map | fixed paleo/equilibrium | **Xie 2022 CMIP6 transient prior** |
-| GIS amplification | — (GMST driver) | **40-model CMIP6** amp N(1.92, 0.32) + shape law |
+| GIS amplification | — (GMST driver) | amp **level OBSERVATIONAL** N(1.92, 0.32); **warming-level SHAPE from 40 CMIP6 models** (§0b — do not call the level CMIP6) |
+| glacier amplification | — (GMST driver) | sampled, **cross-dataset** priors (HadCRUT5 / BE / GISTEMP) |
+| regional drivers | — (GMST everywhere) | **per-block + Greenland-zone observed T** (§0b) |
 | AIS geometry/fast-dyn | medoid, fixed | DAISfastdyn paleo ensemble, joint prior |
 
 The IMBIE dAIS(92-17) and Dyurgerov dGSIC(61-03) point terms were **dropped**,
@@ -88,9 +153,11 @@ that window to −0.0000 cm), same FaIR forcing, PARAMETRIC 90% bands.
 **Two caveats that matter more than the ratios.**
 
 1. **In-sample vs out-of-sample.** BRICK 2.0 runs its own published posterior and
-   was never recalibrated on these targets. Ladrillo was fit to exactly them. With
-   the bins split, this is visible for what it is: the RMSE win is largely the
-   *calibration-approach* bin cashing out, not a structure test. A fair structure
+   was never recalibrated on these targets. Ladrillo was fit to exactly them, so
+   these ratios overstate the win by an unknown amount.
+   **But do NOT read the whole win as the calibration bin cashing out** — §0b
+   decomposes Greenland's at controlled parameter count and it is STRUCTURE
+   (the sub-global driver), not freedom. A fair structure
    test needs a BRICK 2.0 arm recalibrated on the extended targets. **That arm
    does not exist.**
 2. **The uncertainty is worse calibrated than BRICK 2.0's.** Parametric bands
@@ -132,8 +199,8 @@ against BRICK 2.0 specifically is unanswered for gis/ais/te/total.
 
 | module | structure | calib. approach | hindcast | spread |
 |---|---|---|---|---|
-| GSIC | better (3 reservoirs + ν) | better | better (0.31×) | better (closer to FACTS than B2.0) |
-| Greenland | better ≤2100; **fails at 2300** (no millennial reservoir; commitment ridge) | better | better (0.08×) | best-matched module at 2100 |
+| GSIC | better (3 reservoirs + ν; **per-block regional drivers**) | better | better (0.31×) | better (closer to FACTS than B2.0) |
+| Greenland | better ≤2100 (**the regional driver is the whole hindcast win, §0b**); **fails at 2300** (no millennial reservoir; commitment ridge) | better | better (0.08×) | best-matched module at 2100, **and only with the CMIP6 shape law** |
 | AIS | **better** (A6 transient map; λ/γ/κ + geometry freed) | better | better (0.03×) | **OPEN** — wide by design or artefact, undecided |
 | TE | unchanged | better | **worse (1.18×)** | narrower than FACTS and MAGICC |
 | LWS | unchanged (seeded) | — | n/a | zero by construction |
