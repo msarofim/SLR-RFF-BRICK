@@ -3,6 +3,77 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-14 — the AIS spread is inherited from DAIS, and the D1 short chains say R19 moves while TE does not
+
+Marcus's two asks after the Ladrillo-vs-BRICK-2.0 scorecard. Both done; neither
+changes a shipped output.
+
+### 1. AIS 2100 scenario response — reading (b) is dead, and (a) is stronger than claimed
+`julia/diag_ais_spread_decomposition.jl`, 500 draws. **Method correction on
+record:** freeze-at-posterior-median was tried first and DISCARDED — the quantity
+is `med(ssp585) − med(ssp126)`, a scenario response *of* the median, so freezing a
+group at its own median barely moves it (every group retained 95-120%). The arm
+that answers the question is **revert-to-BRICK-2.0**:
+
+| arm | 2100 spread | of base |
+|---|---|---|
+| BASE (L10 as shipped) | 31.83 cm | — |
+| revert A6 temp map → 1.196 | 46.86 cm | **147.2%** |
+| revert fast_dyn → medoid | 30.91 cm | 97.1% |
+| revert geometry_B → medoid | 35.44 cm | 111.3% |
+| revert `ais_iceflow0` → medoid | 33.03 cm | 103.8% |
+| **ALL AIS → BRICK 2.0** | **54.88 cm** | **172.4%** |
+
+`ais_iceflow0` accounts for **−3.8%** of the response, not the bulk, so its
+R̂ 2.359 is a reporting caveat exactly as thread 3 said. And Ladrillo's AIS
+changes did not widen the scenario response — they **narrowed it by 42%**, with
+the A6 transient map the single biggest damper. Mechanism: the share of draws
+whose T_ant reaches `antarctic_temp_threshold` is **0.0% / 27.8% / 99.8%** at
+SSP1-2.6 / 2-4.5 / 5-8.5, i.e. the DAIS fast-dynamics tail switching on — stock
+BRICK 2.0 machinery. **Criterion 4 for AIS resolves in Ladrillo's favour**: still
+above every FACTS module, but that is a DAIS structural property and our changes
+moved it toward FACTS.
+
+### 2. D1 implemented behind `--drop-total`, verified bit-identical when off
+Opt-in flag rather than a deletion, per the house pattern, so L10 stays exactly
+reproducible. Three traps handled: `σn[5]` would be an out-of-bounds read with 4
+streams (the term is guarded, not deleted); the five `OLD*_NAMES` proposal-
+embedding tables all ended with `for s in SERIES` and would have silently
+shortened (now `ALL_SERIES`, with only `pn0` following the live list); and a new
+`L10_NAMES` table lets a 53-param run still name-map the 55×55 L10-tuned
+proposal ("name-mapped 53 of 55 rows; dropped sd_dang, rho_dang"). **With the flag
+off, 300 iterations at seed 2026 reproduce the pre-change calibrator
+BIT-IDENTICALLY** (max |diff| = 0 over all 57 columns).
+
+### 3. The D1 short chains — 4 × 250k, acceptance 0.236-0.241
+`python/diag_d1_vs_l10.py`.
+
+**Q1 (spec §7.2) — R19 DOES move.** `gic_T_off_R19` goes −1.9095 → −0.3236
+(**+2.05 L10 sd**) and widens 1.39×; the other four R19 marginals move ≤0.19 sd.
+The 1.586 shift is **5.5× the worst between-chain spread** in either arm, so it is
+a real posterior shift. **Spec §2.2's width-ratio reading was the wrong one — the
+total WAS constraining R19, and D1 needs an R19 replacement term before
+production.**
+
+A **mixing gate** was added, and it changes 6 of 7 secondary results: `rho_gis`,
+`ais_iceflow0`, `ais_slope`, `anto_beta`, `rho_gsic` and `antarctic_alpha` all
+move >0.5 L10 sd but by LESS than the between-chain disagreement → NOT findings.
+Only `gic_u_unch` (2.1×) and `gic_T_off_R19` (5.5×) survive, both glacier-block.
+
+**Q2 — D1 does NOT fix thermal expansion, and TE is not a mis-tuned coefficient.**
+`te_sea_level` is exactly `te_s₀ + te_α·S(t)` with `te_s₀ = 0` and not sampled, so
+the re-referenced steric series is exactly proportional to `thermal_alpha` and the
+bias is closed-form (gated: max |te_p50 − α_L10·S(t)| = 0.0023 cm). D1 moves
+`thermal_alpha` 0.15023 → 0.15205 (+0.24 L10 sd) and the full-record steric bias
++0.280 → +0.261 cm. **The α that would zero the bias is 0.17748 in 1920-1949 but
+0.13386 in 1993-2026** — the early and modern windows want OPPOSITE corrections
+and L10 sits between them (in the spec's derived units, ×0.656288: 0.0986 now,
+0.1165 early-implied, 0.0879 modern-implied, against the 0.1043 quoted as
+observationally implied). No single `thermal_alpha` fits both, so a
+one-coefficient SLE-∝-cumulative-OHC form cannot fit the observed steric record.
+**A free δ(t) on steric would absorb exactly this and hide it** — the D2 design
+risk, now with a number on it.
+
 ## [unreleased] — 2026-08-14 — thread 5 step 2: the 2300 Greenland flatness is a COMMITMENT defect, and the spec's framing of thread 5 is retracted
 
 Sequencing call (Marcus, 2026-08-14): scope thread 5 before committing to the
