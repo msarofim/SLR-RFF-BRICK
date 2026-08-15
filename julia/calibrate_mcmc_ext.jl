@@ -426,15 +426,19 @@ const DELTA_RAMP = [y < 1960 ? (1960.0 - y)/10.0 : 0.0 for y in S.gsic.years]
 # the basis can be made ORTHOGONAL to the things delta(t) must not steal.
 #
 # WHAT IT IS ORTHOGONALISED AGAINST, and why this is the whole design:
-#   * THE CONSTANT, on both streams. A free delta(t) with a constant term would
-#     absorb a LEVEL offset. On steric that is fatal: te_sea_level is exactly
-#     te_alpha * S(t), so a level offset is degenerate with thermal_alpha, and
-#     measured today the steric misfit IS a persistent level bias (+0.553 /
-#     +0.140 / +0.133 cm over 1920-49 / 1950-92 / 1993-2026) with a
-#     precision-weighted alpha of 0.1395 against L10's 0.1502. A mean-zero
-#     delta(t) can absorb SHAPE and cannot absorb LEVEL, so thermal_alpha stays
-#     identified by the level. This is spec section 3 sub-choice 4, resolved by
-#     construction rather than by a tight prior.
+#   * THE CONSTANT, on both streams, so delta(t) cannot absorb a pure level shift.
+#   * THE STERIC SHAPE S(t) ITSELF, on steric. CORRECTED 2026-08-14 after the
+#     L11tune2 diagnostic: orthogonalising against the constant alone was NOT
+#     enough and the first version FAILED here, with corr(d2_steric_1,
+#     thermal_alpha) = -0.724. The reasoning behind that version was wrong.
+#     te_sea_level = te_s0 + te_alpha * S(t), so thermal_alpha rescales the
+#     SHAPE, not the level -- and a mean-zero polynomial closely resembles that
+#     shape, so it traded off against alpha directly. The protection has to be
+#     against S(t). Conveniently S(t) is exactly the OHC forcing up to an
+#     additive constant (te_sea_level accumulates Delta_oceanheat, so the sum
+#     telescopes to OHC(t) - OHC(1)), and the constant is removed by the
+#     ones-projection anyway. delta(t) can then only describe structure that a
+#     rescaling of the driver cannot -- which is what a discrepancy term is for.
 #   * DELTA_RAMP, on gsic only. gsic ALREADY carries a one-parameter obs-side
 #     early-century discrepancy (gic_delta, the M15/Roe-2021 ramp over 1900-1959).
 #     Orthogonalising against it means the new term can only describe structure
@@ -449,8 +453,20 @@ const D2_STREAMS  = ["gsic", "steric"]
 """Orthonormal (unit-RMS) discrepancy basis for one stream: shifted Legendre-like
 powers of scaled time, Gram-Schmidt'd against `protect` and against each other,
 then RMS-normalised. Returns an (nyear x D2_BASIS_N) matrix."""
-function d2_basis(years, protect::Vector{Vector{Float64}})
+function d2_basis(years, protect::Vector{Vector{Float64}}, wt::Vector{Float64})
     n = length(years)
+    # PLAIN inner product, and that is a MEASURED choice, not an oversight.
+    # Weighting by the likelihood's own 1/eps^2 was tried and is WORSE overall:
+    # measured on 100k post-burn draws it moved corr(d2_steric_1, thermal_alpha)
+    # from +0.349 to -0.297 (no real gain) while pushing
+    # corr(d2_gsic_1, gic_delta) from +0.085 to +0.787 (much worse). The reason is
+    # that the posterior metric is neither the plain nor the diagonal one — it is
+    # the full AR(1)-correlated heteroskedastic precision plus prior curvature —
+    # so chasing posterior correlation by changing the design metric is whack-a-
+    # mole. The basis is instead orthogonalised on PHYSICAL grounds: against the
+    # driver shape it must not duplicate. `wt` is accepted and ignored so the call
+    # sites document which weights were tested.
+    ip = (u, v) -> dot(u, v)
     x = 2 .* (Float64.(years) .- minimum(years)) ./ (maximum(years) - minimum(years)) .- 1
     cols = Vector{Vector{Float64}}()
     # ORTHOGONALISE THE PROTECT SET AGAINST ITSELF FIRST. Projecting out `ones`
@@ -460,16 +476,16 @@ function d2_basis(years, protect::Vector{Vector{Float64}})
     for u0 in protect
         u = copy(u0)
         for w in base
-            d = dot(w, w); d > 1e-12 && (u = u .- (dot(u, w) / d) .* w)
+            d = ip(w, w); d > 1e-12 && (u = u .- (ip(u, w) / d) .* w)
         end
         norm(u) > 1e-10 && push!(base, u)
     end
     for k in 1:(D2_BASIS_N + length(protect) + 2)
         length(cols) == D2_BASIS_N && break
         v = x .^ k
-        for u in base                                   # Gram-Schmidt
-            d = dot(u, u)
-            d > 1e-12 && (v = v .- (dot(v, u) / d) .* u)
+        for u in base                                   # Gram-Schmidt, weighted
+            d = ip(u, u)
+            d > 1e-12 && (v = v .- (ip(v, u) / d) .* u)
         end
         rms = sqrt(sum(v .^ 2) / n)
         rms < 1e-8 && continue                          # numerically dependent, skip
@@ -481,9 +497,17 @@ function d2_basis(years, protect::Vector{Vector{Float64}})
     return hcat(cols...)
 end
 
+# S(t) at the steric fit years, up to an additive constant: te_sea_level
+# accumulates Delta_oceanheat, so the cumulative sum telescopes to OHC(t)-OHC(1).
+const TE_SHAPE = Float64.(ohc)[S.steric.myi]
 const D2_BASIS = Dict(
-    "gsic"   => d2_basis(S.gsic.years,   [ones(length(S.gsic.years)), copy(DELTA_RAMP)]),
-    "steric" => d2_basis(S.steric.years, [ones(length(S.steric.years))]))
+    "gsic"   => d2_basis(S.gsic.years, [ones(length(S.gsic.years)), copy(DELTA_RAMP)],
+                         1.0 ./ S.gsic.ϵ .^ 2),
+    "steric" => d2_basis(S.steric.years, [ones(length(S.steric.years)), copy(TE_SHAPE)],
+                         1.0 ./ S.steric.ϵ .^ 2))
+# The 1/eps^2 weights, kept only so the d2_basis call sites document which metric
+# was tested and rejected (see the ip comment in d2_basis).
+const D2_WT = Dict("gsic" => 1.0 ./ S.gsic.ϵ .^ 2, "steric" => 1.0 ./ S.steric.ϵ .^ 2)
 
 # The orthogonality IS the design — a basis that quietly acquired a constant
 # component would silently re-open the thermal_alpha degeneracy and nothing
@@ -502,9 +526,19 @@ let tol = 1e-9
         abs(r) / (norm(D2_BASIS["gsic"][:, k]) * norm(DELTA_RAMP)) < 1e-8 ||
             error("D2 gsic col $k is not orthogonal to DELTA_RAMP (cos = $r) — it " *
                   "would fight gic_delta rather than complement it")
+        # The one that actually matters: a steric column with a component along
+        # S(t) trades off against thermal_alpha. The first version of this basis
+        # failed exactly here (corr -0.724), so it is asserted, not assumed.
+        rs = dot(D2_BASIS["steric"][:, k], TE_SHAPE)
+        abs(rs) / (norm(D2_BASIS["steric"][:, k]) * norm(TE_SHAPE)) < 1e-8 ||
+            error("D2 steric col $k is not orthogonal to the steric shape S(t) " *
+                  "(cos = $rs) — it would be degenerate with thermal_alpha")
     end
-    D2_BASIS_N < 2 || abs(dot(D2_BASIS["steric"][:, 1], D2_BASIS["steric"][:, 2])) /
-        length(S.steric.years) < 1e-8 || error("D2 steric columns are not orthogonal")
+    if D2_BASIS_N >= 2
+        b1 = D2_BASIS["steric"][:, 1]; b2 = D2_BASIS["steric"][:, 2]
+        abs(dot(b1, b2)) / (norm(b1) * norm(b2)) < 1e-8 ||
+            error("D2 steric columns are not orthogonal")
+    end
 end
 
 # ---- free physical params (name, comp, sym, prior μ, σ, lo, hi, islog) -- UNCHANGED
@@ -944,7 +978,7 @@ GIS_REPARAM && println("Greenland slow channel: (log r_s, w) at Tbar = " *
 println("D2 discrepancy: " * (D2_ON ? "ON" : "OFF (--no-d2)") *
         " | $D2_BASIS_N dof per stream on " * join(D2_STREAMS, "+") *
         " | prior sd $D2_BASIS_SD cm | orthogonal to the constant" *
-        (D2_ON ? " (and to DELTA_RAMP on gsic)" : ""))
+        (D2_ON ? ", to DELTA_RAMP on gsic, and to S(t) on steric" : ""))
 
 # ---- model base (medoid + glacier init), forcing once -- extC 3-reservoir build ----
 medoid = CSV.read(joinpath(REPO,"outputs/recalib_central_row.csv"), DataFrame)[1,:]
