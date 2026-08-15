@@ -5,8 +5,9 @@ work order), `notes/design_2026-08-14_r19_replacement_term.md` (read its REVISIO
 first — the recommendation in §6 is withdrawn), and the CHANGELOG entries for
 2026-08-14. Do not re-derive the evidence; it is all recorded.
 
-Repo `SLR-RFF-BRICK`, branch **`brick-mengel-vnext`**, tip **`cb21def`**.
-All six suites pass. Nothing pushed.
+Repo `SLR-RFF-BRICK`, branch **`brick-mengel-vnext`**, tip **`6bad0df`**.
+All six suites pass. Nothing pushed. **Every diagnostic named here has run to
+completion** — nothing in this document is waiting on a result.
 
 ---
 
@@ -46,7 +47,8 @@ is diagnosed but not fixed. Nothing has gone to production.
    rung σ **+0.1142**, total **−224.92**, D2 **−1.6969**. Nothing inert.
 3. **Load-time assertions.** T̄ vs the spec's 1.963; (ℓ,w) round trip exact; the
    (ℓ,w) prior centres map to the native ones; D2 mean-zero, unit-RMS,
-   ⊥`DELTA_RAMP`, ⊥`S(t)`. **Two of these caught real bugs** (§3).
+   ⊥`DELTA_RAMP`, ⊥`S(t)`. **Two of these caught real bugs** (§3), and they are
+   why a basis defect surfaced at load rather than as a quietly wrong posterior.
 4. **The suite.** `./run_ladrillo_tests.sh` — caught the θ₀ regression AND the
    assertion/basis metric mismatch. Run it BEFORE committing, not after; I got
    that ordering wrong once and the failure is on record in `eb26784`.
@@ -83,7 +85,7 @@ See §3 — this took three attempts and the third was worse than the second.
 
 ---
 
-## 3. THE FOUR BUGS THIS SESSION CAUGHT, and how
+## 3. THE FIVE BUGS THIS SESSION CAUGHT, and how
 
 Carry these; each was a silent failure mode that would not have shown up in a
 posterior.
@@ -164,10 +166,28 @@ name-map.
 
 ## 5. OPEN QUESTIONS, in priority order
 
-1. **Does R19 actually land near GlaMBIE now?** The rate term is only 0.42σ, so
-   the tightened rung is carrying it. The width ratios will NOT tell you — that
-   was spec §2.2's mistake. Read R19's modern rate against GlaMBIE's 0.049251
-   mm/yr directly. L10 sat 3.03× above it.
+1. **R19 — MEASURED, and it OVERCORRECTED.** Answered from the `D2chk3` chain
+   (2001 post-burn draws, Greenland mapped back through the (ℓ,w) inverse):
+
+   | | R19 modern rate 2000-2024 | vs GlaMBIE |
+   |---|---|---|
+   | L10, before | 0.1513 mm/yr | **+0.88 σ** |
+   | **L11 change set** | **0.0057** [0.0000, 0.0755] | **−0.38 σ** |
+   | GlaMBIE observed | 0.04925 (correlated σ 0.11615) | — |
+
+   In σ terms this is an improvement (|0.38| < |0.88|) and the term did what it
+   was built to do. But the POINT ESTIMATE swung from ~3× too high to **~9× too
+   LOW**, and the 5-95% now reaches 0.0000 — R19 has been pushed to near-zero
+   modern melt. The GlaMBIE term is too weak (0.42 σ) to hold it up, so the
+   tightened rung is now over-constraining R19 downward, which is the mirror
+   image of the problem the change set was built to fix.
+
+   **CAVEAT: single common-start 200k diagnostic chain, not converged, and R19 is
+   weakly identified — indicative, not definitive.** Re-measure on the production
+   posterior before drawing any conclusion. If it holds, the rung tightening may
+   need to be less aggressive for R19 specifically, or the GlaMBIE term needs
+   more weight than the correlated σ allows. Do NOT read this as the change set
+   failing; read it as the constraint pair being unbalanced.
 2. **`thermal_alpha` sits at 0.158** against L10's 0.150 and the
    precision-weighted steric optimum of 0.1395. D2 has not pulled it toward the
    steric-optimal value. Not obviously wrong in a joint likelihood, but watch it.
@@ -186,9 +206,12 @@ name-map.
 
 - **Five restore flags**, and all five together restore the pre-change target:
   `--keep-total --no-r19-rate --rung-sig-legacy --no-d2 --gis-native`.
-- **`chain_L11tune_seed2026_n1000000.csv` (1.15 GB) and
-  `chain_L11tune2_...` (1.15 GB) are both superseded.** Keep the
-  `adapted_cov_*` files; the chains are regenerable in ~1 hour each.
+- **2.8 GB of superseded chains**: `chain_L11tune` and `chain_L11tune2`
+  (1.15 GB each, both tuned on now-replaced configurations) plus `chain_D2chk`,
+  `chain_D2chk2`, `chain_D2chk3` (200k diagnostics, ~230 MB each). Keep the
+  `adapted_cov_*` files — they are small and are the only durable output. The
+  chains regenerate in ~1 hour (tuning) or ~10 min (diagnostics) each. Safe to
+  clear; nothing downstream reads them.
 - Chains are **seed-reproducible**; the `accept_rate` column is NOT (its
   denominator depends on the requested N). Compare parameter columns only.
 - `L11A_NAMES` describes the L11tune layout (current FREE set with Greenland in
@@ -230,3 +253,5 @@ name-map.
 | `eb26784` / `44be3d6` | Greenland (ℓ, w); then FIX the θ₀ regression |
 | `579db33` | ADCOV preference + positional-index guard |
 | `cb21def` | D2 steric basis ⊥ S(t) — the third and final construction |
+| `9f77336` | this handoff |
+| `6bad0df` | D2chk3 confirms construction 2; corrects the carried +0.085 → +0.161 |
