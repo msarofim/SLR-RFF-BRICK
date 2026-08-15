@@ -103,6 +103,16 @@ posterior.
    Nothing downstream would have flagged it — just a badly-scaled chain. Guarded;
    L11tune is now name-mapped (55 of 57, fresh diagonal for the Greenland pair).
 4. **The D2 steric basis was degenerate with `thermal_alpha` anyway** (§ below).
+5. **A run that died at load looked "still running" for 11 hours.** `D2chk3` was
+   launched in the same command that reverted the `ip` function but BEFORE the
+   assertions were aligned, so the file did not load and Julia exited during
+   setup. Two compounding errors: launching a run without first checking the file
+   loads, and then status-checking with `pgrep -f calibrate_mcmc_ext`, which
+   MATCHES THE BASH WATCHER'S OWN COMMAND STRING (it contains the julia
+   invocation as text). The check was structurally incapable of detecting the
+   death. **Match the specific invocation** (`calibrate_mcmc_ext.jl 200000`) and
+   wait on the PROCESS exiting, then test for the output file — a watcher that
+   only waits on a file spins forever when the job dies.
 
 ### The D2 basis, three attempts — read this before touching it
 `thermal_alpha` rescales the SHAPE `S(t)`, not the level, so orthogonality to the
@@ -111,7 +121,7 @@ constant does not protect it. Measured on 100k post-burn draws each:
 | basis | corr(d2_steric_1, α) | corr(d2_gsic_1, gic_delta) | thermal_alpha |
 |---|---|---|---|
 | 1. ⊥ constant only | **−0.724** | +0.085 | 0.16521 |
-| 2. ⊥ S(t), plain metric — **SHIPPED** | +0.349 | +0.085 | 0.15781 |
+| 2. ⊥ S(t), plain metric — **SHIPPED** | +0.349 | **+0.161** | 0.15781 |
 | 3. + 1/ε² likelihood-metric weighting | −0.297 | **+0.787** | 0.14593 |
 
 **Construction 3 was the "obvious improvement" and is worse.** The posterior
@@ -192,8 +202,11 @@ name-map.
 - Julia `--project=julia_v2`; Python `source ~/climate-env/bin/activate`; pin
   `OPENBLAS_NUM_THREADS=1` for parallel chains (4.8× on this M4).
 - Naming: **Ladrillo**. Never `sed s/brickf/ladrillo/g` — `brickf` ⊂ `brickfm`.
-- A confirmation chain `D2chk3` (200k, construction 2) was in flight at handoff
-  time; its numbers would refine §3's table row 2 but do not change the choice.
+- `D2chk3` (200k, construction 2) has **completed** and confirms row 2. It also
+  corrected it: I had carried construction 1's `corr(d2_gsic_1, gic_delta)` of
+  +0.085 into row 2 without measuring it — the real value is **+0.161**. The
+  conclusion is unchanged (construction 3's +0.787 is still far worse), but the
+  number was wrong in the first version of this handoff and in `cb21def`.
 
 ---
 

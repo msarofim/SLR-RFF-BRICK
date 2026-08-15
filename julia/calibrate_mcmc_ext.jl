@@ -459,7 +459,7 @@ function d2_basis(years, protect::Vector{Vector{Float64}}, wt::Vector{Float64})
     # Weighting by the likelihood's own 1/eps^2 was tried and is WORSE overall:
     # measured on 100k post-burn draws it moved corr(d2_steric_1, thermal_alpha)
     # from +0.349 to -0.297 (no real gain) while pushing
-    # corr(d2_gsic_1, gic_delta) from +0.085 to +0.787 (much worse). The reason is
+    # corr(d2_gsic_1, gic_delta) from +0.161 to +0.787 (much worse). The reason is
     # that the posterior metric is neither the plain nor the diagonal one — it is
     # the full AR(1)-correlated heteroskedastic precision plus prior curvature —
     # so chasing posterior correlation by changing the design metric is whack-a-
