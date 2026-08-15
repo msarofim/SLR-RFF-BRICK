@@ -243,6 +243,20 @@ swapped as a block."""
 const LADRILLO_GIS_STOCK_COLS =
     ["greenland_a", "greenland_b", "greenland_alpha", "greenland_beta", "greenland_v0"]
 const LADRILLO_GIS_AB_COLS = vcat([p[1] for p in LADRILLO_GIS_AB_PARAMS], "gis_amp")
+"""The A+B Greenland columns as an L11+ posterior CARRIES them: the slow channel
+in the sampled `(log r_s, w)` coordinates instead of the native `(alpha_s,
+beta_s)` rate pair.
+
+L11 reparameterised the slow channel for CONDITIONING (the native pair is
+strongly correlated and `beta_s` sits near a rail), so the chain, the covariance
+and the canonical subsample all carry `gis_slow_ell`/`gis_slow_w`. The Mimi
+component still takes the native pair. `ladrillo_native_greenland!` maps back;
+`ladrillo_posterior` calls it for you."""
+const LADRILLO_GIS_SLOW_REPARAM_COLS = ["gis_slow_ell", "gis_slow_w"]
+const LADRILLO_GIS_SLOW_NATIVE_COLS  = ["gis_alpha_s", "gis_beta_s"]
+const LADRILLO_GIS_AB_REPARAM_COLS =
+    vcat(setdiff(LADRILLO_GIS_AB_COLS, LADRILLO_GIS_SLOW_NATIVE_COLS),
+         LADRILLO_GIS_SLOW_REPARAM_COLS)
 const LADRILLO_PHYSICAL_PARAMS_NOGIS =
     [p for p in LADRILLO_PHYSICAL_PARAMS if !(p[1] in LADRILLO_GIS_STOCK_COLS)]
 
@@ -253,14 +267,62 @@ There is no default and no fallback: a posterior that carries neither column set
 Greenland at whatever the model was initialised with."""
 function ladrillo_gis_variant(cols)
     hasab = all(c -> c in cols, LADRILLO_GIS_AB_COLS)
+    hasrp = all(c -> c in cols, LADRILLO_GIS_AB_REPARAM_COLS)
     hasst = all(c -> c in cols, LADRILLO_GIS_STOCK_COLS)
-    hasab && hasst && error("ladrillo_gis_variant: posterior carries BOTH the stock-SIMPLE " *
-                            "and the A+B Greenland columns; cannot tell which model made it")
-    hasab && return :ab
+    (hasab || hasrp) && hasst &&
+        error("ladrillo_gis_variant: posterior carries BOTH the stock-SIMPLE " *
+              "and the A+B Greenland columns; cannot tell which model made it")
+    # Both A+B coordinate sets is not an error: an L11 posterior that has already
+    # been through ladrillo_native_greenland! legitimately carries both, and the
+    # transform is idempotent. Native wins because it is what the model takes.
+    (hasab || hasrp) && return :ab
     hasst && return :stock
     error("ladrillo_gis_variant: posterior carries NEITHER Greenland column set. " *
-          "Expected either $(join(LADRILLO_GIS_STOCK_COLS, ", ")) (stock SIMPLE) " *
-          "or $(join(LADRILLO_GIS_AB_COLS, ", ")) (Ladrillo 1.0).")
+          "Expected $(join(LADRILLO_GIS_STOCK_COLS, ", ")) (stock SIMPLE), " *
+          "$(join(LADRILLO_GIS_AB_COLS, ", ")) (Ladrillo 1.0), " *
+          "or $(join(LADRILLO_GIS_AB_REPARAM_COLS, ", ")) (L11+ reparameterised).")
+end
+
+"""True if `cols` carries the slow channel ONLY in the sampled (ell, w)
+coordinates, i.e. it needs `ladrillo_native_greenland!` before the draws can be
+applied. Consumers that read a chain or subsample themselves (rather than
+through `ladrillo_posterior`) must check this."""
+ladrillo_gis_needs_native(cols) =
+    all(c -> c in cols, LADRILLO_GIS_SLOW_REPARAM_COLS) &&
+    !all(c -> c in cols, LADRILLO_GIS_SLOW_NATIVE_COLS)
+
+"""Greenland slow-channel driver temperature, the calibrator's `GIS_TBAR`.
+
+Recomputed from the driver with the calibrator's own 1.963 K assertion rather
+than hardcoded, so the two cannot drift apart silently — the transform below is
+wrong by exactly the ratio if they do."""
+const LADRILLO_GIS_TBAR_WIN = (2015, 2024)
+const LADRILLO_GIS_TBAR = let tgz = CSV.read(LADRILLO_GIS_DRIVER_CSV, DataFrame)
+    mean(Float64(tgz[i, LADRILLO_GIS_ZONE]) for i in 1:nrow(tgz)
+         if LADRILLO_GIS_TBAR_WIN[1] <= Int(tgz[i, :year]) <= LADRILLO_GIS_TBAR_WIN[2])
+end
+abs(LADRILLO_GIS_TBAR - 1.963) < 5e-3 ||
+    error("LADRILLO_GIS_TBAR = $LADRILLO_GIS_TBAR from $LADRILLO_GIS_TBAR_WIN disagrees " *
+          "with the calibrator's asserted 1.963 K")
+
+"""
+    ladrillo_native_greenland!(df)
+
+Add the native slow-channel pair to an L11+ posterior, in place, from the
+sampled `(gis_slow_ell, gis_slow_w)`:
+
+    r_s = exp(ell);  alpha_s = w*r_s/Tbar;  beta_s = (1-w)*r_s
+
+This is the INVERSE of the calibrator's forward map (`calibrate_mcmc_ext.jl`,
+the `GIS_REPARAM` branch), and it is the only place the projection stack knows
+it. No-op on a posterior that already carries the native pair, so it is safe to
+call unconditionally and safe to call twice."""
+function ladrillo_native_greenland!(df)
+    ladrillo_gis_needs_native(String.(names(df))) || return df
+    r_s = exp.(Float64.(df.gis_slow_ell)); w_s = Float64.(df.gis_slow_w)
+    df.gis_alpha_s = w_s .* r_s ./ LADRILLO_GIS_TBAR
+    df.gis_beta_s  = (1 .- w_s) .* r_s
+    return df
 end
 """Which Greenland variant a posterior FILE carries, from its header alone.
 
@@ -304,6 +366,7 @@ function ladrillo_posterior(; path::AbstractString=LADRILLO_POSTERIOR_CSV,
                           cols::Symbol=:used, nthin::Union{Nothing,Int}=nothing)
     if cols === :all
         df = CSV.read(path, DataFrame)
+        return ladrillo_native_greenland!(nthin === nothing ? df : _ladrillo_thin(df, nthin))
     else
         # CSV.jl's `select=` silently returns only the columns it FINDS, so a
         # posterior missing a required column used to load fine and fail later
@@ -312,16 +375,26 @@ function ladrillo_posterior(; path::AbstractString=LADRILLO_POSTERIOR_CSV,
         # set for that variant.
         hdr = String.(propertynames(CSV.read(path, DataFrame; limit=0)))
         want = ladrillo_used_cols(ladrillo_gis_variant(hdr))
+        # An L11+ posterior stores the slow channel as (ell, w); ask the file for
+        # what it HAS, then derive the native pair the kernel needs after reading.
+        # Demanding alpha_s/beta_s here would reject every post-L11 posterior.
+        ladrillo_gis_needs_native(hdr) &&
+            (want = vcat(setdiff(want, LADRILLO_GIS_SLOW_NATIVE_COLS),
+                         LADRILLO_GIS_SLOW_REPARAM_COLS))
         missing_cols = [c for c in want if !(c in hdr)]
         isempty(missing_cols) || error("ladrillo_posterior: $path is missing " *
             "$(length(missing_cols)) required column(s): $(join(missing_cols, ", "))")
         df = CSV.read(path, DataFrame; select=want)
     end
-    if nthin !== nothing && nrow(df) > nthin
-        step = cld(nrow(df), nthin)
-        df = df[1:step:nrow(df), :][1:min(nthin, length(1:step:nrow(df))), :]
-    end
-    return df
+    nthin === nothing || (df = _ladrillo_thin(df, nthin))
+    return ladrillo_native_greenland!(df)
+end
+
+"""Evenly thin to at most `n` rows."""
+function _ladrillo_thin(df, n::Int)
+    nrow(df) > n || return df
+    step = cld(nrow(df), n)
+    return df[1:step:nrow(df), :][1:min(n, length(1:step:nrow(df))), :]
 end
 
 ## ---------------------------------------------------------------------------

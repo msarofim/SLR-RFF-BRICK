@@ -116,6 +116,12 @@ for sd in SEEDS
 
     hdr = chain_header(sd)
     need = ladrillo_used_cols(VARIANT)
+    # An L11+ chain carries the Greenland slow channel as the sampled (ell, w),
+    # not the native (alpha_s, beta_s) the kernel applies. Read what the chain
+    # HAS; ladrillo_native_greenland! derives the native pair below.
+    ladrillo_gis_needs_native(hdr) &&
+        (need = vcat(setdiff(need, LADRILLO_GIS_SLOW_NATIVE_COLS),
+                     LADRILLO_GIS_SLOW_REPARAM_COLS))
     # CSV.jl's select= silently returns only the columns it FINDS, so demand them.
     missing_cols = setdiff(need, hdr)
     isempty(missing_cols) || error("chain_$(CHAIN_TAG)_seed$(sd) is missing " *
@@ -128,7 +134,7 @@ for sd in SEEDS
     # thin: evenly spaced across the POST-BURN half (not a contiguous block)
     step = max(1, (nrow(df) - NBURN) ÷ N_TARGET)
     rows = collect((NBURN + 1):step:nrow(df))[1:N_TARGET]
-    draws = df[rows, :]
+    draws = ladrillo_native_greenland!(df[rows, :])
     df = nothing; GC.gc()
 
     vals = Dict(y => Float64[] for y in HORIZONS)

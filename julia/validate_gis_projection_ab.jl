@@ -80,6 +80,38 @@ partial = [c for c in ab_hdr if c != "gis_beta_s"]
 chk("a header missing one gis_* column is REJECTED",
     (try; ladrillo_gis_variant(partial); false; catch; true; end))
 
+## L11+ reparameterised slow channel. The chain, the tuned covariance and the
+## canonical subsample all carry (gis_slow_ell, gis_slow_w); the Mimi component
+## takes the native (alpha_s, beta_s). Without these gates the whole projection
+## stack rejects every post-L11 posterior -- which is exactly how it behaved
+## before ladrillo_native_greenland! existed.
+rp_hdr = vcat([c for c in ab_hdr if !(c in LADRILLO_GIS_SLOW_NATIVE_COLS)],
+              LADRILLO_GIS_SLOW_REPARAM_COLS)
+chk("an L11 reparameterised header reads as :ab", ladrillo_gis_variant(rp_hdr) === :ab)
+chk("...and is flagged as needing the native pair", ladrillo_gis_needs_native(rp_hdr))
+chk("a NATIVE header is NOT flagged as needing it", !ladrillo_gis_needs_native(ab_hdr))
+rp_partial = [c for c in rp_hdr if c != "gis_slow_w"]
+chk("a reparam header missing gis_slow_w is REJECTED",
+    (try; ladrillo_gis_variant(rp_partial); false; catch; true; end))
+## The transform must INVERT the calibrator's forward map exactly, not merely run.
+## Forward (calibrate_mcmc_ext.jl, GIS_REPARAM branch):
+##   alpha_s = w*exp(ell)/Tbar,  beta_s = (1-w)*exp(ell)
+## so ell = log(alpha_s*Tbar + beta_s), w = alpha_s*Tbar/(alpha_s*Tbar + beta_s).
+let a0 = 0.00707, b0 = 0.00100                    # theta0's native pair
+    rs0 = a0 * LADRILLO_GIS_TBAR + b0
+    fwd = DataFrame(gis_slow_ell = [log(rs0)], gis_slow_w = [a0 * LADRILLO_GIS_TBAR / rs0])
+    ladrillo_native_greenland!(fwd)
+    chk("(ell, w) -> native round-trips on alpha_s", abs(fwd.gis_alpha_s[1] - a0) < 1e-12,
+        @sprintf("%.10g vs %.10g", fwd.gis_alpha_s[1], a0))
+    chk("(ell, w) -> native round-trips on beta_s", abs(fwd.gis_beta_s[1] - b0) < 1e-12,
+        @sprintf("%.10g vs %.10g", fwd.gis_beta_s[1], b0))
+    before = copy(fwd.gis_alpha_s)
+    ladrillo_native_greenland!(fwd)               # must be a no-op the second time
+    chk("ladrillo_native_greenland! is idempotent", fwd.gis_alpha_s == before)
+end
+chk("Tbar matches the calibrator's asserted 1.963 K",
+    abs(LADRILLO_GIS_TBAR - 1.963) < 5e-3, @sprintf("%.4f K", LADRILLO_GIS_TBAR))
+
 println("\n[3] end-to-end: an A+B draw reproduces the offline cell at 2100")
 # The offline cell is CONSTANT-amp, so this parity is with the amp law OFF. The
 # law's own gates are [5]; the constant-parity reading of [1] moved there too.

@@ -66,27 +66,10 @@ const NDRAW = let p = filter(a -> !startswith(a, "--"), ARGS)
     isempty(p) ? NDRAW_DEFAULT : parse(Int, p[1])
 end
 
-## ---- Tbar: recomputed from the driver, never hardcoded --------------------
-## calibrate_mcmc_ext.jl derives it as the 2015-2024 mean of the south zone and
-## asserts it against 1.963; same derivation, same assertion, so the two cannot
-## drift apart silently.
-const TBAR_WIN = (2015, 2024)
-const GIS_TBAR = let tgz = CSV.read(LADRILLO_GIS_DRIVER_CSV, DataFrame)
-    mean(Float64(tgz[i, LADRILLO_GIS_ZONE]) for i in 1:nrow(tgz)
-         if TBAR_WIN[1] <= Int(tgz[i, :year]) <= TBAR_WIN[2])
-end
-abs(GIS_TBAR - 1.963) < 5e-3 ||
-    error("GIS_TBAR = $GIS_TBAR from $TBAR_WIN disagrees with the calibrator's 1.963 K")
-
-"""(ell, w) -> the native (alpha_s, beta_s) the projection kernel wants.
-Inverse of the calibrator's forward map; see the COORDINATES note above."""
-function add_native_greenland!(df::DataFrame)
-    ("gis_slow_ell" in names(df) && "gis_slow_w" in names(df)) || return df
-    r_s = exp.(Float64.(df.gis_slow_ell)); w_s = Float64.(df.gis_slow_w)
-    df.gis_alpha_s = w_s .* r_s ./ GIS_TBAR
-    df.gis_beta_s  = (1 .- w_s) .* r_s
-    return df
-end
+## The (ell, w) -> native (alpha_s, beta_s) map lives in ladrillo_projection.jl
+## as `ladrillo_native_greenland!`, with `LADRILLO_GIS_TBAR` recomputed from the
+## driver under the calibrator's own 1.963 K assertion. It is deliberately NOT
+## duplicated here: two implementations of one transform is how they drift apart.
 
 """Thin to `n` rows over the POST-BURN half. Chains are stored in sample order,
 so taking the 2nd half first is what makes this a posterior rather than a
@@ -96,7 +79,7 @@ function load_draws(path::AbstractString; n::Int=NDRAW, burn::Bool)
     burn && (df = df[(nrow(df) ÷ 2 + 1):end, :])
     step = max(1, nrow(df) ÷ n)
     df = df[1:step:end, :][1:min(n, length(1:step:nrow(df))), :]
-    return add_native_greenland!(df)
+    return ladrillo_native_greenland!(df)
 end
 
 """The 2000-2024 mean R19 rate, mm/yr, one value per draw."""
@@ -128,11 +111,11 @@ end
 rows = NamedTuple[]
 
 @printf("R19 modern rate %d-%d | GlaMBIE %.4f +/- %.4f mm/yr | Tbar %.4f K\n",
-        RATE_Y0, RATE_Y1, R19_RATE_MU, R19_RATE_SD, GIS_TBAR)
+        RATE_Y0, RATE_Y1, R19_RATE_MU, R19_RATE_SD, LADRILLO_GIS_TBAR)
 
 if "--check-l10" in ARGS
     ## The unit/coordinate guard. L10 is the NATIVE-Greenland posterior, so this
-    ## also exercises the branch where add_native_greenland! is a no-op.
+    ## also exercises the branch where ladrillo_native_greenland! is a no-op.
     r = report("L10 (anchor)", LADRILLO_POSTERIOR_CSV; burn=false)
     push!(rows, r)
     if abs(r.p50 - L10_ANCHOR) > L10_ANCHOR_TOL
