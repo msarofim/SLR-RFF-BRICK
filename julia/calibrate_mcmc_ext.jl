@@ -1216,12 +1216,16 @@ for k in GEO_IDX; prop[k] = GEO_PROP_SCALE * Float64(FREE[k].σ); end
 # shape, which the 2018-baseline adapted_cov.csv does NOT (point terms dropped +
 # extended targets move the AIS block). Fall back to baseline cov, then diagonal.
 # L11 = the 2026-08-14 change set (total dropped, GlaMBIE R19 rate, tightened
-# rung, D2, Greenland (ell, w)). l11b is the FINAL-config tuning covariance and
-# must be preferred; l11a is the first tuning run, which predates the Greenland
-# reparameterisation and so name-maps 55 of 57 rows with a fresh diagonal for
-# (gis_slow_ell, gis_slow_w) -- still far better than falling back to the
-# 55-param L10 covariance, which knows nothing about the four d2_* columns either.
-const ADCOV = let l11b = joinpath(REPO,"outputs/mcmc/adapted_cov_L11tune2_seed2026.csv"),
+# rung, D2, Greenland (ell, w)). l11c is the FINAL-config tuning covariance and
+# must be preferred: it is the only one tuned on the SHIPPED D2 basis
+# (construction 2, steric col ⊥ S(t), cb21def). l11b was tuned on construction 1
+# (⊥ the constant alone) and l11a on construction 1 AND native-coordinate
+# Greenland. All three share the 57-name layout, so l11b/l11c are positionally
+# valid; l11a is not (see the name-mapping guard below). Even a stale-basis L11
+# covariance beats the 55-param L10 one, which knows nothing about the four
+# d2_* columns either.
+const ADCOV = let l11c = joinpath(REPO,"outputs/mcmc/adapted_cov_L11tune3_seed2026.csv"),
+                  l11b = joinpath(REPO,"outputs/mcmc/adapted_cov_L11tune2_seed2026.csv"),
                   l11a = joinpath(REPO,"outputs/mcmc/adapted_cov_L11tune_seed2026.csv"),
                   l10b = joinpath(REPO,"outputs/mcmc/adapted_cov_L10tune2_seed2026.csv"),
                   l10 = joinpath(REPO,"outputs/mcmc/adapted_cov_L10tune_seed2026.csv"),
@@ -1238,11 +1242,14 @@ const ADCOV = let l11b = joinpath(REPO,"outputs/mcmc/adapted_cov_L11tune2_seed20
     # L10tune2 is the 55-param (gis_amp sampled) tuning run and matches NK exactly,
     # so it is used AS-IS. L10tune is the 54-param first tuning run, name-mapped via
     # OLD54_NAMES. Both beat the extC covariance for a Ladrillo 1.0 run.
-    (GIS_AB && isfile(l11b)) ? l11b :
-    ((GIS_AB && isfile(l11a)) ? l11a :
-    ((GIS_AB && isfile(l10b)) ? l10b :
-    ((GIS_AB && isfile(l10)) ? l10 : (isfile(c1s) ? c1s : (isfile(c1) ? c1 :
-        (isfile(b3c) ? b3c : (isfile(b2) ? b2 : (isfile(e) ? e : b))))))))
+    # Preference order, most-preferred first. The Ladrillo-only covariances are
+    # offered only when the A+B Greenland module is on; the rest are the pre-Ladrillo
+    # fallbacks. Falls through to the 2018-baseline `b` if none exist.
+    cands = String[]
+    GIS_AB && append!(cands, [l11c, l11b, l11a, l10b, l10])
+    append!(cands, [c1s, c1, b3c, b2, e])
+    i = findfirst(isfile, cands)
+    isnothing(i) ? b : cands[i]
 end
 cov0 = Matrix(Diagonal(prop.^2))
 # Column order of the 35-param v-next chains/covs (18 physical + 7 geometry with the OLD

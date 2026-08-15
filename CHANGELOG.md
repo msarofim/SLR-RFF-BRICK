@@ -3,6 +3,71 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-15 — L11 production launched: tuned on the shipped D2 basis
+
+The L11 change set was built on 2026-08-14 but could not go to production: both
+existing tuning covariances were tuned on a D2 basis that no longer ships.
+`L11tune` predates the Greenland (ℓ, w) reparameterisation AND used construction
+1 (⊥ the constant alone); `L11tune2` used construction 1. The shipped basis is
+construction 2 (steric column ⊥ `S(t)`, `cb21def`). This closes that gap.
+
+### `L11tune3` — the third and final tuning run
+`calibrate_mcmc_ext.jl 1000000 2026 --tag=L11tune3`, common start, 71 min,
+**acceptance 0.239** against the predicted ~0.24. The config header confirms all
+five parts live and none accidentally reverted: `total DROPPED | GlaMBIE R19 rate
+ON (0.0493 +/- 0.1162 mm/yr) | rung sigma x0.702` (= 2/2.847, the d₂(8) order
+statistic, not a chosen number), Greenland `(log r_s, w)` at T̄ = 1.9631 K, and
+D2 `orthogonal to the constant, to DELTA_RAMP on gsic, and to S(t) on steric`.
+It seeded from `L11tune2` — positionally valid, since all three L11 covariances
+share the 57-name layout; only `L11tune`'s native-coordinate Greenland rows are
+not, and that case is still name-mapped by the existing guard.
+
+### The ADCOV preference chain: `L11tune3` at the head, and a refactor
+`adapted_cov_L11tune3_seed2026.csv` is now preferred above `l11b`. The nested
+ternary was replaced with an explicit ordered candidate list — adding a sixth
+level to a chain already 8 parens deep is a paren-counting error waiting to
+happen, and the selection logic is unchanged (verified: with `l11c` absent it
+still resolves to `l11b`).
+
+### `overdispersed_starts.csv` rebuilt BY NAME, per spec §7.1
+Rebuilt from the `L11tune3` post-burn half via `build_overdispersed_starts.jl`
+(already chain-agnostic; no code change needed). 55 → **57 columns**, now
+carrying `d2_{gsic,steric}_{1,2}` and `gis_slow_{ell,w}`, with `sd_dang`,
+`rho_dang`, `gis_alpha_s`, `gis_beta_s` correctly absent. Real posterior draws at
+`ais_iceflow0` quantiles 0.02/0.35/0.65/0.98 — **0.645 / 0.762 / 0.877 / 1.079**
+against a 2nd-half range of 0.602-1.12. Not random jitter, which fails 200/200.
+
+### The pre-launch gate: four seeds, not one
+A 300-iteration run per seed confirmed (a) the edit resolves to
+`adapted_cov_L11tune3_seed2026.csv`, and (b) all four start rows pass the
+calibrator's by-name assertion with a finite logposterior (**217.9 / 219.3 /
+220.4 / 217.9**). Those sit ~846 above the common start θ₀ (−628.65), which
+looks alarming and is not: θ₀ is a CONSTRUCTED vector (the offline g=0 Greenland
+fit, prior centres, `beta_s` deliberately off-rail at 1e-3), not a posterior
+mode. Checked directly rather than assumed — the chain's post-burn `log_post` is
+p05 211.9 / p50 220.9 / p95 228.5, so the starts sit at the **28th percentile**,
+squarely in the typical set. They are below the median because they are selected
+on `ais_iceflow0` tails, not on `log_post`.
+
+### Production: 4 × 2M, seeds 2026-29 (Marcus green-light 2026-08-15)
+`julia/run_l11_production.sh`, new. Matches the L10 and extC precedent exactly so
+that L11-vs-L10 stays like-for-like — which is what the R19 question needs, since
+L10's +0.88σ is the comparison point. **No `--amp-mu`/`--amp-sigma`:** L10 was
+launched without them and the file defaults (0.95/0.10) are canonical; extC's
+1.08/0.15 belongs to the A6 study and would silently shift the AIS amp prior.
+All thread vars pinned to 1 (`OPENBLAS`/`OMP`/`VECLIB`, `--threads=1`) — measured
+at launch, four chains at ~95% CPU each, i.e. one core apiece, versus the ~200%
+of BLAS spin-wait that gave L10 an 11 h ETA before pinning. The script hard-fails
+if the covariance is missing or the starts file lacks `d2_gsic_1` /
+`gis_slow_ell`; the calibrator's by-name assertion remains the real gate.
+
+### Still open, unchanged by this entry
+`thermal_alpha` sits at **0.16 ± 0.0075** in the L11tune3 posterior against L10's
+0.150 and the precision-weighted steric optimum of 0.1395 — D2 has not pulled it
+toward the steric-optimal value. The R19 overcorrection (point estimate ~9× below
+GlaMBIE at −0.38σ, from a single unconverged 200k diagnostic) is to be
+re-measured on this production posterior, not before it.
+
 ## [unreleased] — 2026-08-14 — D2 built: a mean-zero discrepancy term on gsic and steric
 
 Spec §3. Scope unchanged from the spec: only gsic and steric have residuals
