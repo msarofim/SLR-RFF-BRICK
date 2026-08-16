@@ -3,6 +3,55 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-16b — ANSWERED: the D2 **steric** basis carries the `thermal_alpha` shift
+
+8 chains, 4 x 250k per arm, acceptance 0.279-0.295
+(`julia/run_d2_stream_attribution.sh`), measured by
+`python/diag_d2_stream_attribution.py` under `22635dd`'s mixing gate.
+
+| arm | median | vs L10 | L10 sd | MIX | verdict |
+|---|---|---|---|---|---|
+| L10 no D2 | 0.15026 | — | — | — | — |
+| L11 both streams | 0.16006 | +0.00980 | +1.31 | 19.7 | REPORTABLE |
+| **D2S steric only** | **0.16133** | **+0.01106** | **+1.48** | **11.5** | **REPORTABLE** |
+| D2G gsic only | 0.15265 | +0.00239 | +0.32 | 1.4 | NOT RESOLVED at 250k |
+
+**H-A confirmed.** Netting out D1's own +0.24 sd, the steric stream alone moves
+`thermal_alpha` **+1.24 L10 sd**. **H-B not supported** — the gsic arm fails the
+gate at 1.4x, and it has the widest between-chain spread of any arm (0.00170), so
+the honest reading is "250k cannot resolve an effect", not "the effect is zero".
+Net of D1, gsic alone is +0.08 sd, i.e. nothing.
+
+**The prediction came first, and that is the point.** D1 removed the total from
+the likelihood, so nothing rewards the component sum and there was no pathway for
+a gsic partition trade. The glaciers-down/steric-up near-cancellation in the
+projected total is **two independent effects of similar size, not a trade**. The
+first 2026-08-16 handoff asserted "H-B is not the weaker hypothesis"; that was
+wrong, was corrected before these chains finished, and the chains agree with the
+correction.
+
+**The streams are SUB-ADDITIVE.** Steric-only moves alpha *further* (+1.48) than
+both streams together (+1.31); the two arms sum to 137% of the joint move. Adding
+the gsic term slightly pulls the steric-driven shift back. Not diagnosed.
+
+### What this opens — and it is a one-line change
+`d2_basis` uses the **plain** inner product, a measured and justified choice —
+but the justification was driven by the **gsic** side: weighting by `1/eps^2`
+moved `corr(d2_steric_1, thermal_alpha)` from +0.349 to −0.297 ("no real gain")
+while pushing `corr(d2_gsic_1, gic_delta)` from +0.161 to **+0.787** ("much
+worse"). We now know the gsic stream does essentially nothing to alpha. **So the
+weighted metric can be applied to the steric stream ONLY**, keeping the plain
+metric on gsic — which sidesteps the exact objection that killed it. One line at
+the `d2_basis` call site, plus a tuning run.
+
+### Quarantine
+`outputs/quarantine/20260816_adcov_size_collision/` — four pre-fix smoke chains.
+Two were genuinely bugged (acceptance 0.0 under the covariance size collision);
+all four are quarantined because they share the `chain_<TAG>_seed*.csv` **glob**
+that `per_chain_medians` uses, and a 2000-iteration stub pollutes a per-chain
+median just as badly as a bugged one does. The diagnostic now asserts a minimum
+chain length rather than trusting the glob.
+
 ## [unreleased] — 2026-08-16 — L11 deliverable figures; the change set is neutral on the total and moves `thermal_alpha` AWAY
 
 ### The figure chain is `--tag=`-driven end to end
