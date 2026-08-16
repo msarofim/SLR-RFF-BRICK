@@ -3,6 +3,73 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-15 — L11 ACCEPTED on deliverable; the R19 overcorrection is RETRACTED
+
+4 × 2M, seeds 2026-29, ~2h46m each, acceptance **0.236-0.238**. Accepted on the
+deliverable criterion (Marcus 2026-07-19): **18 marginals not converged**
+— one fewer than L10's 19, same compensating AIS-geometry ridge, `ais_iceflow0`
+R̂ **2.449** against L10's 2.359 — while projected SLR converges at
+**R̂ 1.002 @2100 / 1.005 @2150**, ESS ~1300, chain-median spread 0.028-0.029 of
+the within-chain sd. Wrote `parameters_subsample_brick_mengel_L11.csv` (10k of
+4M pooled) and `adapted_cov_L11.csv`.
+
+Pooled projected SLR, cm rel. 1995-2014: **2100 = 45.28** [41.63, 75.57];
+**2150 = 70.78** [62.64, 155.29].
+
+### R19: the overcorrection does NOT survive convergence — RETRACT the §5.1 alarm
+
+| posterior | R19 modern rate 2000-2024 | vs GlaMBIE |
+|---|---|---|
+| L10, before | 0.1490 [0.0544, 0.2300] | **+0.86σ**, 3.03× |
+| D2chk3 (200k, single common-start, NOT converged) | 0.0057 [0.0000, 0.0755] | −0.38σ, 0.12× |
+| **L11 production, pooled 4×2M** | **0.0229 [0.0002, 0.1298]** | **−0.23σ**, 0.46× |
+
+The handoff reported the point estimate swinging from ~3× too high to "**~9×
+too LOW**" and concluded the constraint pair was unbalanced — that the rung
+tightening may need to be less aggressive for R19, or GlaMBIE needs more weight.
+**On the converged posterior it is 0.46×, i.e. about 2.2× too low, not 9×**, and
+−0.23σ against L10's +0.86σ. That remedial work is not indicated. The unconverged
+diagnostic was ~4× off, in the direction that would have triggered it; its own
+caveat ("indicative, not definitive") was the right call and was load-bearing.
+
+Per-chain **0.0172 / 0.0231 / 0.0235 / 0.0309 → −0.16σ to −0.28σ: all four
+agree**, so this is not a pooled median hiding a split. Cross-checked through a
+second code path — the 10k canonical subsample gives 0.0242, −0.22σ, 0.49×.
+
+**What still holds:** the 5-95% lower bound is 0.0002, so near-zero modern R19
+melt remains admitted.
+
+Measured by `julia/diag_r19_modern_rate.jl`, new. Its `--check-l10` anchor
+reproduces L10's recorded 0.1490 [0.0544, 0.2300] and 3.03× exactly at the same
+400 draws, which is what makes the L11 row trustworthy rather than merely
+computed.
+
+### The blocker: L11's posterior could not be read by anything
+
+Found by running it, not by inspection. `postprocess_mcmc_ext.jl` writes the
+canonical subsample with the CHAIN's column names, so an L11 posterior carries
+the sampled `(gis_slow_ell, gis_slow_w)` and no native `(gis_alpha_s,
+gis_beta_s)` — and `ladrillo_gis_variant` rejects that header by design ("no
+default and no fallback"). Every downstream consumer failed, starting with
+`diag_slr_convergence_by_chain_ladrillo.jl`, which is the diagnostic that GATES
+`postprocess --accept-slr`. So L11 could not be accepted and no deliverable
+could be projected from it. Fixed: the transform derives at LOAD in
+`ladrillo_projection.jl` (Marcus's call), so the posterior file keeps exactly
+the sampled coordinates and no deliverable carries derived columns someone could
+perturb inconsistently. Eight new gates, because all six suites passed
+throughout and never touched the branch.
+
+### Ordering correction, for whoever runs the next one
+`diag_slr_convergence_by_chain_ladrillo.jl` must run BEFORE
+`postprocess_mcmc_ext.jl --accept-slr`, not after: `--accept-slr` READS
+`slr_convergence_<TAG>.csv` and refuses if it is absent. I ran postprocess first
+and it correctly refused to write anything.
+
+### Still open
+`thermal_alpha` **0.16** against L10's 0.150 and the precision-weighted steric
+optimum of 0.1395 — D2 has not pulled it toward the steric optimum, unchanged
+from the tuning run. Thread 5 (Greenland at 2300) untouched.
+
 ## [unreleased] — 2026-08-15 — L11 production launched: tuned on the shipped D2 basis
 
 The L11 change set was built on 2026-08-14 but could not go to production: both
