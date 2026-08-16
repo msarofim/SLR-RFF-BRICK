@@ -94,6 +94,42 @@ tiebreak is now measured to be a sampling artefact; and the **paleo** constraint
 is confounded. Marcus's stated condition therefore resolves to **carry both arms
 through to the reported results**, per scoping §19.5's committed-loss diagnostic.
 
+### DECISION 4 RESOLVED → not blocking; the premise does not hold
+Marcus chose "test the downstream τ effect first". The test is structural and
+quantitative, not a run (`python/diag_greenland_exposure_in_pulse_metrics.py`).
+
+**Structural.** Decision 4 assumed "the CH4-vs-CO2 SLR pulse work reads this
+module". **It does not.** All four pulse drivers (`project_pulse_hybrid_mengel`,
+`pulse_signsweep_brick_mengel`, `run_mimibrick_pulse_versioned`,
+`project_pulse_ssp245_mengel`) build via **`build_brick_mengel`**, which replaces
+only the **glacier** slot with `glaciers_mengel` and leaves Greenland as **stock
+MimiBRICK SIMPLE**. The Ladrillo A+B Greenland is installed **only** by
+`build_brick_nu3_gis`, which no pulse driver calls. The drivers' own parameter
+lists confirm it — they update `greenland_a/b/α/β/v₀` (stock SIMPLE), never
+`gis_c1/gis_c0/gis_alpha_f/gis_beta_s` (A+B). A Greenland τ change cannot reach
+these metrics until a driver is repointed.
+
+**Quantitative** — Greenland's share of the weighted marginal pulse response:
+
+| horizon | AIS | GSIC | **GIS** | TE | | CO2 GIS | CH4 GIS | gap |
+|---|---|---|---|---|---|---|---|---|
+| 2130 | 78.8% | 1.6% | **3.9%** | 15.7% | | 3.9% | 4.6% | **0.7 pp** |
+| 2150 | 80.2% | 1.3% | **3.9%** | 14.6% | | 3.9% | 4.6% | **0.7 pp** |
+| 2180 | 81.6% | 1.1% | **4.0%** | 13.3% | | 4.0% | 4.7% | **0.7 pp** |
+
+(AIS/GSIC/TE columns are the CO2 pulse; Antarctica dominates at ~79–83%.)
+Greenland is ~4% of the marginal and carries a **near-equal share in both
+pulses**, so it is largely **common-mode in the CO2e ratio** — its influence on
+the reported metric is smaller still than its 4% share.
+
+**Caveat, stated not buried:** those shares are measured under the stock SIMPLE
+Greenland. A C+D Greenland carries a ~20× larger commitment *and* a much slower
+τ, which push the 100–150 yr marginal in **opposite** directions, so the
+post-change share is not determined by this diagnostic. What is established is
+the base the change starts from, and the decoupling. **C+D is not gated on the
+pulse work**; re-run this diagnostic if a pulse driver is ever repointed at
+`build_brick_nu3_gis`.
+
 ## [unreleased] — 2026-08-16b — ANSWERED: the D2 **steric** basis carries the `thermal_alpha` shift
 
 8 chains, 4 x 250k per arm, acceptance 0.279-0.295
