@@ -7,14 +7,16 @@
 ## comparison arm (FACTS, MAGICC, pre-Mengel BRICK 2.0) read.
 ##
 ## Basis
-##   posterior : data/MimiBRICK/parameters_subsample_brick_mengel_L10.csv
-##               (Ladrillo 1.0, 4 x 2M chains, seeds 2026-2029; accepted on the
-##               deliverable 2026-08-13). The Greenland variant is read off the
-##               file, not assumed. CAVEAT carried from that acceptance: the 2150
-##               and 2300 columns rest on the AIS tipping tail, the
-##               slowest-mixing feature (chain-median spread at 2150 is 13x the
-##               2100 value relative to within-chain scatter, and R-hat is
-##               mean-based so it reads 1.000 there anyway).
+##   posterior : data/MimiBRICK/parameters_subsample_brick_mengel_<TAG>.csv,
+##               --tag=, default L10 (Ladrillo 1.0, 4 x 2M chains, seeds
+##               2026-2029; accepted on the deliverable 2026-08-13). L11 is the
+##               D1+D2 change set, accepted 2026-08-15, and stores the Greenland
+##               slow channel as (ell, w) — the loader derives the native pair.
+##               The Greenland variant is read off the file, not assumed. CAVEAT
+##               carried from both acceptances: the 2150 and 2300 columns rest on
+##               the AIS tipping tail, the slowest-mixing feature (chain-median
+##               spread at 2150 is 13x the 2100 value relative to within-chain
+##               scatter, and R-hat is mean-based so it reads 1.000 there anyway).
 ##   model     : Ladrillo = MimiBRICK v2.0.0 + 3-reservoir glacier emulator +
 ##               Greenland A+B with the amp(GMST) law, applied through
 ##               julia/ladrillo_projection.jl (tested by
@@ -30,24 +32,40 @@
 ## fast-dynamics tail can go non-finite, so the finite count is reported per
 ## scenario and carried in the output.
 ##
-##   julia --project=julia_v2 julia/project_ssps_components_ladrillo.jl [n_draws]
+##   julia --project=julia_v2 julia/project_ssps_components_ladrillo.jl [n_draws] [--tag=L11]
+##
+## --tag selects the posterior AND the output filename together (default L10).
 ## ============================================================================
 
 using CSV, DataFrames, Mimi, Printf, Statistics
 include(joinpath(@__DIR__, "ladrillo_projection.jl"))
 
-const OUT      = joinpath(LADRILLO_REPO, "outputs/ssps_components_2300_L10.csv")
 const Y0, Y1   = 1850, 2300
 const REPORT0  = 1990                      # first year written out
-const NTHIN    = length(ARGS) >= 1 ? parse(Int, ARGS[1]) : 2000
+const NTHIN    = let p = filter(a -> !startswith(a, "--"), ARGS)
+    isempty(p) ? 2000 : parse(Int, p[1])
+end
+## POSTERIOR TAG drives BOTH the input posterior and the output filename, so a
+## run on L11 cannot write a file labelled L10. Default L10 = the previous
+## behaviour exactly. Passing --tag=X asserts the file exists rather than
+## silently falling back.
+const POST_TAG = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
+    i === nothing ? "L10" : ARGS[i][7:end]
+end
+const POSTERIOR = joinpath(LADRILLO_REPO,
+    "data/MimiBRICK/parameters_subsample_brick_mengel_$(POST_TAG).csv")
+isfile(POSTERIOR) || error("no posterior for --tag=$POST_TAG at $POSTERIOR")
+POST_TAG != "L10" || POSTERIOR == LADRILLO_POSTERIOR_CSV ||
+    error("the L10 path drifted from LADRILLO_POSTERIOR_CSV: $POSTERIOR vs $LADRILLO_POSTERIOR_CSV")
+const OUT      = joinpath(LADRILLO_REPO, "outputs/ssps_components_2300_$(POST_TAG).csv")
 const SSPS     = [("ssp126", "SSP1-2.6"), ("ssp245", "SSP2-4.5"), ("ssp585", "SSP5-8.5")]
 const HORIZONS = (2100, 2150, 2300)
 const COMPONENTS = [:glaciers, :gis, :ais, :te, :lws, :total]
 
-const VARIANT = ladrillo_posterior_variant()
-post = ladrillo_posterior(nthin=NTHIN)
+const VARIANT = ladrillo_posterior_variant(POSTERIOR)
+post = ladrillo_posterior(path=POSTERIOR, nthin=NTHIN)
 @printf("Ladrillo SSP components | posterior %s (%d draws) | Greenland :%s | base %d-%d | horizon %d\n",
-        basename(LADRILLO_POSTERIOR_CSV), nrow(post), VARIANT,
+        basename(POSTERIOR), nrow(post), VARIANT,
         LADRILLO_REF[1], LADRILLO_REF[2], Y1)
 VARIANT === :ab && @printf("  amp law ON: S anchored at dT_eff = %.3f K, %d-yr window\n",
                            LADRILLO_GIS_SHAPE_ANCHOR_DT, LADRILLO_GIS_SHAPE_WIN)

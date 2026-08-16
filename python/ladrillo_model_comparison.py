@@ -8,9 +8,10 @@ plus the scenario-spread diagnostic (SSP1-2.6 -> SSP5-8.5 median difference per
 component), which is what exposes a glacier module that saturates.
 
 Sources
-  Ladrillo    outputs/ssps_components_2300_L10.csv
-              Ladrillo 1.0 (L10) posterior, 2000 draws, FaIR-mean forcing per
-              SSP, Greenland A+B with the amp(GMST) law.
+  Ladrillo    outputs/ssps_components_2300_<TAG>.csv  (--tag=, default L10)
+              L10 = Ladrillo 1.0; L11 = the D1+D2 change set accepted 2026-08-15.
+              2000 draws, FaIR-mean forcing per SSP, Greenland A+B with the
+              amp(GMST) law.
   BRICK 2.0   outputs/ssps_gsic_2300.csv
               pre-Mengel MimiBRICK v2.0.0 with the Wigley-Raper glacier module
               on the post-PR#93 posterior. GLACIERS ONLY - the one legacy arm.
@@ -27,20 +28,26 @@ forcing, so their bands are POSTERIOR-PARAMETER spread only. MAGICC and FACTS
 bands carry climate uncertainty as well. MEDIANS are comparable; band WIDTHS
 are not.
 
-  python3 python/ladrillo_model_comparison.py
-Writes outputs/ladrillo_model_comparison.csv
+  python3 python/ladrillo_model_comparison.py [--tag=L11]
+Writes outputs/ladrillo_model_comparison_<TAG>{,_spread}.csv
 """
 import os
+import sys
 
 import pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(REPO, "outputs/ladrillo_model_comparison.csv")
 
-# The posterior TAG travels with the file so every row this script emits says
-# which vintage produced it (the module column). Changing one changes both.
-LADRILLO_TAG = "L10"
+# The posterior TAG drives the input file, the OUTPUT filenames, and the module
+# column of every row emitted, so a run on L11 cannot overwrite or be mistaken
+# for L10. Both tags are suffixed symmetrically -- there is no bare-name default
+# that silently means one vintage.
+LADRILLO_TAG = next((a[len("--tag="):] for a in sys.argv[1:]
+                     if a.startswith("--tag=")), "L10")
 LADRILLO_CSV = os.path.join(REPO, f"outputs/ssps_components_2300_{LADRILLO_TAG}.csv")
+if not os.path.exists(LADRILLO_CSV):
+    raise SystemExit(f"no SSP projection for --tag={LADRILLO_TAG} at {LADRILLO_CSV}")
+OUT = os.path.join(REPO, f"outputs/ladrillo_model_comparison_{LADRILLO_TAG}.csv")
 BRICK20_GSIC_CSV = os.path.join(REPO, "outputs/ssps_gsic_2300.csv")
 MAGICC_CSV = os.path.join(REPO, "data/comparison/magicc_nauels_components.csv")
 FACTS_CSV = os.path.join(REPO, "outputs/facts_components_n200.csv")

@@ -93,10 +93,10 @@ not**. Certificate: `outputs/mcmc/slr_convergence_L10.csv` (carries a
 |---|---|
 | **projection kernel** (the one place that maps a draw → MimiBRICK) | `julia/ladrillo_projection.jl` |
 | calibrator | `julia/calibrate_mcmc_ext.jl` |
-| SSP projections deliverable | `julia/project_ssps_components_ladrillo.jl` → `outputs/ssps_components_2300_L10.csv` |
-| hindcast deliverable | `julia/posterior_predictive_ladrillo.jl` → `outputs/postpred_L10_{components_timeseries,bias,coverage}.csv` |
-| memo figures | `python/plot_ladrillo_memo_figures.py` → `figures/ladrillo_fig{1,2,3}_*.png` |
-| comparison vs FACTS / MAGICC / BRICK 2.0 | `python/ladrillo_model_comparison.py` |
+| SSP projections deliverable | `julia/project_ssps_components_ladrillo.jl [--tag=]` → `outputs/ssps_components_2300_<TAG>.csv` |
+| hindcast deliverable | `julia/posterior_predictive_ladrillo.jl [--tag=]` → `outputs/postpred_<TAG>_{components_timeseries,bias,coverage}.csv` |
+| memo figures | `python/plot_ladrillo_memo_figures.py [--tag=]` → `figures/ladrillo_<TAG>_fig{1,2,3}_*.png` |
+| comparison vs FACTS / MAGICC / BRICK 2.0 | `python/ladrillo_model_comparison.py [--tag=]` → `outputs/ladrillo_model_comparison_<TAG>{,_spread}.csv` |
 | acceptance gate | `julia/diag_slr_convergence_by_chain_ladrillo.jl` |
 | G4 scenario spread | `julia/diag_gis_spread_2100_ladrillo.jl` |
 | Greenland block convergence | `julia/diag_gis_block_convergence.jl` |
@@ -114,9 +114,10 @@ different from the one the projections use.
 ```
 
 ```bash
-julia --project=julia_v2 julia/project_ssps_components_ladrillo.jl 2000
-julia --project=julia_v2 julia/posterior_predictive_ladrillo.jl 2000
-source ~/climate-env/bin/activate && python3 python/ladrillo_model_comparison.py && python3 python/plot_ladrillo_memo_figures.py
+TAG=L11   # posterior vintage; L10 = Ladrillo 1.0, L11 = the D1+D2 change set
+julia --project=julia_v2 julia/project_ssps_components_ladrillo.jl 2000 --tag=$TAG
+julia --project=julia_v2 julia/posterior_predictive_ladrillo.jl 2000 --tag=$TAG
+source ~/climate-env/bin/activate && python3 python/ladrillo_model_comparison.py --tag=$TAG && python3 python/plot_ladrillo_memo_figures.py --tag=$TAG
 ```
 
 Six suites, all must pass before any number leaves the repo: data assembly →

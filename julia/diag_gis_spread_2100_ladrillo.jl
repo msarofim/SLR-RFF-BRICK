@@ -51,7 +51,7 @@ const Y0, Y1     = 1850, 2100
 const PROJ_YEAR  = 2100
 ## G4 band, verbatim from gis_offline_cell.GATE_SPREAD_RANGE_CM. The comparison
 ## arms behind it: MAGICC-SLR 7.09, FACTS FittedISMIP 6.34, emuGrIS 7.26,
-## bamber19 7.23 (outputs/ladrillo_model_comparison_spread.csv).
+## bamber19 7.23 (outputs/ladrillo_model_comparison_L10_spread.csv).
 const GATE_SPREAD_RANGE_CM = (6.3, 7.3)
 ## The two scenarios the gate is defined on, plus the reported middle.
 const SSP_LO, SSP_HI = "ssp126", "ssp585"

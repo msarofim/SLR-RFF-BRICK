@@ -7,7 +7,7 @@ Marcus's acceptance criteria (2026-08-14) are per module: (1) formulation at
 least as credible as BRICK 2.0's, (2) hindcast match at least as good, (3)
 projection spread at least as good (FACTS/MAGICC match, or more physical), and
 (4) the same for the joint calibration. (1) is a judgement, and (3) already has
-its own output (outputs/ladrillo_model_comparison_spread.csv). THIS script does
+its own output (outputs/ladrillo_model_comparison_L10_spread.csv). THIS script does
 (2) and the hindcast half of (4), which had never been computed in matched
 metrics: `posterior_predictive_ladrillo.jl` writes bias + coverage for L10, but
 `posterior_predictive_oldbrick.jl` writes only a band timeseries.

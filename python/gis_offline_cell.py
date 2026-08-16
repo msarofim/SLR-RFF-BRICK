@@ -122,7 +122,7 @@ GATE_MIDCEN_TOL_CM = 0.30
 GATE_SHAPE_REQUIRE_NEGATIVE_TREND = True
 # G4 EVALUATION ONLY, never in the objective. 2100 SSP1-2.6 -> SSP5-8.5 spread.
 #    Ladrillo extC is 2.16 cm today; MAGICC-SLR 7.09, FACTS FittedISMIP 6.34,
-#    emuGrIS 7.26, bamber19 7.23 (outputs/ladrillo_model_comparison_spread.csv).
+#    emuGrIS 7.26, bamber19 7.23 (outputs/ladrillo_model_comparison_L10_spread.csv).
 GATE_SPREAD_RANGE_CM = (6.3, 7.3)
 PROJ_SCENARIOS = {"SSP1-2.6": "ssp126", "SSP2-4.5": "ssp245", "SSP5-8.5": "ssp585"}
 PROJ_YEAR = 2100
