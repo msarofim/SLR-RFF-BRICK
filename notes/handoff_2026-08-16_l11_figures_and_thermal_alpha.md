@@ -19,7 +19,7 @@ Repo `SLR-RFF-BRICK`, branch **`brick-mengel-vnext`**. All six suites pass.
 | L10↔L11 projection comparison | **DONE** — §2 |
 | `thermal_alpha` (15b open question 2) | **PROMOTED to a gated finding** — §3 |
 | Thread 5 (Greenland 2300) | untouched, still the one confirmed structural failure |
-| Which D2 stream moves α | **OPEN, and it is the next decision** — §4 |
+| Which D2 stream moves α | **ANSWERED — the STERIC basis. See §4** |
 
 Commits: `725d3a0` (figures + tagging), `c41dafb` (projection diagnostic + the
 α finding), `_this_` (CHANGELOG + handoff).
@@ -123,38 +123,53 @@ the job it was designed for.** And it is not free: it is what puts the extra
 
 ---
 
-## 4. THE OPEN QUESTION, and the test that settles it
+## 4. ANSWERED — the STERIC basis carries it
 
-**Which D2 stream moves α?** Two hypotheses, both consistent with everything
-measured so far:
+8 chains, 4 x 250k per arm, acceptance 0.279-0.295
+(`julia/run_d2_stream_attribution.sh`), read by
+`python/diag_d2_stream_attribution.py` under `22635dd`'s mixing gate.
 
-- **H-A, steric-basis leak.** The `d2_steric_*` basis absorbs level despite the
-  orthogonality construction, freeing α to drift.
-- **H-B, gsic partition trade.** The `d2_gsic_*` term weakens the modelled
-  glacier response; with the total gone from the likelihood (D1) nothing holds
-  the component sum, and α rises to take up the slack.
+| arm | median | vs L10 | L10 sd | MIX | verdict |
+|---|---|---|---|---|---|
+| L10 no D2 | 0.15026 | — | — | — | — |
+| L11 both streams | 0.16006 | +0.00980 | +1.31 | 19.7 | REPORTABLE |
+| **D2S steric only** | **0.16133** | **+0.01106** | **+1.48** | **11.5** | **REPORTABLE** |
+| D2G gsic only | 0.15265 | +0.00239 | +0.32 | 1.4 | NOT RESOLVED at 250k |
 
-**H-B is not the weaker hypothesis.** Glaciers fall ~1.2 cm while steric rises
-~1.1 cm at 2100 in every scenario, and the total barely moves — that *is* the
-signature of a partition trade. Do not assume the steric term is the culprit
-because it is the one attached to steric.
+Net of D1's own +0.24 sd: **steric alone +1.24 L10 sd; gsic alone +0.08**, i.e.
+nothing. The gsic arm has the widest between-chain spread of any arm (0.00170),
+so its verdict is "250k cannot resolve an effect", NOT "the effect is zero".
 
-**No existing chain separates them.** `D2chk`/`D2chk2`/`D2chk3` all carry both
-`d2_gsic_*` and `d2_steric_*` (verified in the headers). The discriminating run
-is one short chain per stream — D2-steric-only and D2-gsic-only, same tuning, and
-read α under the same mixing gate. `22635dd`'s D1 chains were 4 × 250k; the same
-size should do.
+**H-B was predicted to fail on mechanism, and did.** §4 of the FIRST draft of
+this handoff asserted "H-B is not the weaker hypothesis" on the strength of the
+glaciers-down/steric-up near-cancellation. That was wrong: D1 removed the total
+from the likelihood, so nothing rewards the component sum and there is no
+pathway. **The cancellation is two independent effects of similar size, not a
+trade.** Corrected before the chains finished; the chains agree.
 
-Downstream of that: whether L11 stands as the deliverable. It is accepted and the
-figures are produced, so nothing is blocked — but if H-A holds, the D2 steric
-basis needs rework and the accepted posterior carries a known-misidentified α.
+**The streams are SUB-ADDITIVE** — steric-only moves alpha FURTHER (+1.48) than
+both together (+1.31); the arms sum to 137% of the joint move. Adding the gsic
+term slightly pulls the steric shift back. Not diagnosed.
 
----
+### The concrete next move, and it is small
+`d2_basis` uses the PLAIN inner product. That was a measured choice — but the
+measurement that killed the weighted alternative was driven by the **gsic** side:
+weighting moved `corr(d2_steric_1, thermal_alpha)` +0.349 -> -0.297 ("no real
+gain") while pushing `corr(d2_gsic_1, gic_delta)` +0.161 -> **+0.787** ("much
+worse"). **gsic does essentially nothing to alpha**, so the weighted metric can
+be applied to the STERIC stream ONLY, keeping plain on gsic — sidestepping the
+exact objection that killed it. One line at the `d2_basis` call site, plus a
+tuning run.
+
+Whether to do it is a judgement call, not a bug fix: the alpha coupling is
+documented residual coupling in a metric the design knowingly did not chase, and
+its cost is +1.7 cm of steric at 2100 ssp585 with a modern-era fit that got
+worse. Marcus's call.
 
 ## 5. OPEN QUESTIONS, re-ranked
 
-1. **Which D2 stream moves `thermal_alpha`** (§4). Promoted above the old #1
-   because it now has a number, a gate, and a decisive test.
+1. **Rework the D2 steric basis in the weighted metric?** (§4) — answered *which*
+   stream; open is whether to act. One line plus a tuning run.
 2. **Thread 5 — Greenland at 2300**, untouched, still the one confirmed
    structural failure: commitment 19-24× below Bochow, unidentified along the
    φ·Leq ridge (14.6 → 58.3 cm at identical hindcast fit). Needs an external
