@@ -28,7 +28,10 @@
 ##                       to GlaMBIE 2019+, r19 removed
 ##   total               Frederikse 2020 spliced to NOAA STAR altimetry
 ##
-##   julia --project=julia_v2 julia/posterior_predictive_ladrillo.jl [n_draws]
+##   julia --project=julia_v2 julia/posterior_predictive_ladrillo.jl [n_draws] [--tag=L11]
+##
+## --tag selects the posterior AND every output filename together (default L10),
+## so a run on one posterior cannot write files labelled with another.
 ## ============================================================================
 
 using CSV, DataFrames, Mimi, Printf, Random, Statistics
@@ -38,10 +41,24 @@ const Y0, Y1     = 1850, 2026
 const FIT_REF    = (1995, 2005)            # calibration re-reference window
 const FORCING    = "ssp245harm"
 const FIT_START  = 1900                    # all target series start here
-const NTHIN      = length(ARGS) >= 1 ? parse(Int, ARGS[1]) : 2000
-const OUT_BANDS  = joinpath(LADRILLO_REPO, "outputs/postpred_L10_components_timeseries.csv")
-const OUT_BIAS   = joinpath(LADRILLO_REPO, "outputs/postpred_L10_bias.csv")
-const OUT_COVER  = joinpath(LADRILLO_REPO, "outputs/postpred_L10_coverage.csv")
+const NTHIN      = let p = filter(a -> !startswith(a, "--"), ARGS)
+    isempty(p) ? 2000 : parse(Int, p[1])
+end
+## POSTERIOR TAG drives BOTH the input posterior and every output filename, so a
+## run on L11 cannot write files labelled L10. Default L10 = the previous
+## behaviour exactly. Passing --tag=X asserts the file exists rather than
+## silently falling back.
+const POST_TAG = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
+    i === nothing ? "L10" : ARGS[i][7:end]
+end
+const POSTERIOR = joinpath(LADRILLO_REPO,
+    "data/MimiBRICK/parameters_subsample_brick_mengel_$(POST_TAG).csv")
+isfile(POSTERIOR) || error("no posterior for --tag=$POST_TAG at $POSTERIOR")
+POST_TAG != "L10" || POSTERIOR == LADRILLO_POSTERIOR_CSV ||
+    error("the L10 path drifted from LADRILLO_POSTERIOR_CSV: $POSTERIOR vs $LADRILLO_POSTERIOR_CSV")
+const OUT_BANDS  = joinpath(LADRILLO_REPO, "outputs/postpred_$(POST_TAG)_components_timeseries.csv")
+const OUT_BIAS   = joinpath(LADRILLO_REPO, "outputs/postpred_$(POST_TAG)_bias.csv")
+const OUT_COVER  = joinpath(LADRILLO_REPO, "outputs/postpred_$(POST_TAG)_coverage.csv")
 const DELTA_END  = 1960                    # delta ramp is zero from this year on
 
 ## (kernel component, target column in recalib_targets_ext.csv, AR(1) noise-parameter
@@ -53,6 +70,7 @@ const SERIES = [(:ais,      :ais,    "ais"),
                 (:te,       :steric, "steric"),
                 (:total,    :dang,   "dang")]
 const NOISE_SEED = 2026
+
 
 ## ---------------------------------------------------------------------------
 ## targets
@@ -86,15 +104,36 @@ const OBS_SIGMA = Dict(tcol => [obs_sigma(tcol, y) for y in FY] for (_, tcol, _)
 ## ---------------------------------------------------------------------------
 ## run the posterior
 ## ---------------------------------------------------------------------------
-post = ladrillo_posterior(cols=:all, nthin=NTHIN)   # :all — the ledger columns are needed here
-const VARIANT = ladrillo_posterior_variant()
+post = ladrillo_posterior(path=POSTERIOR, cols=:all, nthin=NTHIN)  # :all — the ledger columns are needed here
+const VARIANT = ladrillo_posterior_variant(POSTERIOR)
+## WHICH SERIES THE POSTERIOR WAS ACTUALLY FIT TO, read off the posterior itself
+## rather than assumed. L11's D1 change DROPPED the total stream, so an L11
+## posterior has no sd_dang/rho_dang and there is no calibrated error model for
+## the total.
+##
+## That does NOT make the total uninteresting — it makes it OUT-OF-SAMPLE, which
+## is the direct evidence on whether D1 cost anything. So the total is still run
+## and still compared to obs, but:
+##   * its `pred` (predictive) band is NaN, because inventing a noise model for
+##     an unfitted stream would fabricate the very thing being tested; and
+##   * its coverage is reported for the PARAMETER band only, and is NOT
+##     comparable to a fitted series' coverage_pred, nor to L10's total, which
+##     WAS in-sample.
+## `in_sample` in the bias/coverage outputs carries this distinction downstream
+## so a reader cannot mistake an out-of-sample total for a fitted one.
+const FITTED = Set(k for (k, _, sfx) in SERIES
+                   if ("sd_$sfx" in names(post)) && ("rho_$sfx" in names(post)))
+const UNFITTED = [k for (k, _, _) in SERIES if !(k in FITTED)]
+isempty(UNFITTED) ||
+    println("NOTE: no calibrated error model for $(join(UNFITTED, ", ")) — reported " *
+            "OUT-OF-SAMPLE, parameter band only, predictive band NaN")
 bf   = ladrillo_setup(ssp="ssp245", y0=Y0, y1=Y1, forcing_tag=FORCING, ref=FIT_REF,
                       gis_ab = VARIANT === :ab)
 imy  = [ladrillo_yi(bf, y) for y in FY]
 ny   = length(FY)
 
 @printf("Ladrillo posterior predictive | %s | %d draws | %d-%d | base %d-%d | forcing %s\n",
-        basename(LADRILLO_POSTERIOR_CSV), nrow(post), FIT_START, Y1,
+        basename(POSTERIOR), nrow(post), FIT_START, Y1,
         FIT_REF[1], FIT_REF[2], FORCING)
 
 model = Dict(k => Array{Float64}(undef, nrow(post), ny) for (k, _, _) in SERIES)
@@ -131,8 +170,12 @@ for (i, r) in enumerate(eachrow(post))
     model[:gis][i, :] = gis; model[:te][i, :] = te; model[:total][i, :] = tot
     obs_corrected[i, :] = [obs_of(:gsic, y) for y in FY] .+ Float64(r["gic_delta"]) .* delta_ramp
     for (key, tcol, sfx) in SERIES
-        ar1_plus_obs_error!(rng, noise, Float64(r["sd_$sfx"]), Float64(r["rho_$sfx"]), OBS_SIGMA[tcol])
-        pred[key][i, :] = model[key][i, :] .+ noise
+        if key in FITTED
+            ar1_plus_obs_error!(rng, noise, Float64(r["sd_$sfx"]), Float64(r["rho_$sfx"]), OBS_SIGMA[tcol])
+            pred[key][i, :] = model[key][i, :] .+ noise
+        else
+            pred[key][i, :] .= NaN     # no calibrated error model — see FITTED
+        end
     end
     i % 250 == 0 && (print("."); flush(stdout))
 end
@@ -161,17 +204,20 @@ CSV.write(OUT_BANDS, bands)
 ## ---------------------------------------------------------------------------
 ## bias + coverage
 ## ---------------------------------------------------------------------------
+## in_sample: FALSE marks a series this posterior was NOT fit to (L11's total,
+## post-D1). Its bias is an out-of-sample check, not a fit residual.
 bias = DataFrame(component=String[], year=Int[], obs=Float64[], p50=Float64[],
-                 bias=Float64[], in90=Bool[])
+                 bias=Float64[], in90=Bool[], in_sample=Bool[])
 function report(key, tcol, y)
     j = findfirst(==(y), FY); j === nothing && return
     o = key === :glaciers ? qv(obs_corrected[:, j], 0.50) : obs_of(tcol, y)
     isnan(o) && return
     p05, p50, p95 = qv(model[key][:, j], 0.05), qv(model[key][:, j], 0.50), qv(model[key][:, j], 0.95)
     inb = p05 <= o <= p95
-    @printf("  %-9s %d  obs %7.2f  p50 %7.2f  bias %+6.2f  %s\n",
-            key, y, o, p50, p50 - o, inb ? "in 90%" : "OUT")
-    push!(bias, (string(key), y, o, p50, p50 - o, inb))
+    @printf("  %-9s %d  obs %7.2f  p50 %7.2f  bias %+6.2f  %s%s\n",
+            key, y, o, p50, p50 - o, inb ? "in 90%" : "OUT",
+            key in FITTED ? "" : "  [OUT-OF-SAMPLE]")
+    push!(bias, (string(key), y, o, p50, p50 - o, inb, key in FITTED))
 end
 
 println("\nComponent bias (model p50 - obs, cm; glaciers vs the delta-corrected target)")
@@ -190,20 +236,24 @@ CSV.write(OUT_BIAS, bias)
 println("\n90% coverage over the fit window (share of obs years inside the band)")
 println("  parameter = posterior parameter spread only; predictive = + the calibrated AR(1)+obs error model")
 cov = DataFrame(component=String[], n_years=Int[], coverage_param=Float64[],
-                coverage_pred=Float64[], mean_bias=Float64[])
+                coverage_pred=Float64[], mean_bias=Float64[], in_sample=Bool[])
 for (key, tcol, _) in SERIES
     ins, insp, bs = Bool[], Bool[], Float64[]
     for (j, y) in enumerate(FY)
         o = key === :glaciers ? qv(obs_corrected[:, j], 0.50) : obs_of(tcol, y)
         isnan(o) && continue
         push!(ins,  qv(model[key][:, j], 0.05) <= o <= qv(model[key][:, j], 0.95))
-        push!(insp, qv(pred[key][:, j],  0.05) <= o <= qv(pred[key][:, j],  0.95))
+        push!(insp, key in FITTED &&
+                    qv(pred[key][:, j], 0.05) <= o <= qv(pred[key][:, j], 0.95))
         push!(bs, qv(model[key][:, j], 0.50) - o)
     end
     isempty(ins) && continue
-    @printf("  %-9s %3d years   parameter %5.1f%%   predictive %5.1f%%   mean bias %+.2f cm\n",
-            key, length(ins), 100 * mean(ins), 100 * mean(insp), mean(bs))
-    push!(cov, (string(key), length(ins), mean(ins), mean(insp), mean(bs)))
+    cp = key in FITTED ? 100 * mean(insp) : NaN
+    @printf("  %-9s %3d years   parameter %5.1f%%   predictive %5.1f%%   mean bias %+.2f cm%s\n",
+            key, length(ins), 100 * mean(ins), cp, mean(bs),
+            key in FITTED ? "" : "   [OUT-OF-SAMPLE: no fitted error model]")
+    push!(cov, (string(key), length(ins), mean(ins),
+                key in FITTED ? mean(insp) : NaN, mean(bs), key in FITTED))
 end
 CSV.write(OUT_COVER, cov)
 

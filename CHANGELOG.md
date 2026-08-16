@@ -3,6 +3,62 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-15 — L10 → L11 hindcast scorecard: D2 works, and D1's price is quantified
+
+`posterior_predictive_ladrillo.jl` is now `--tag=`-driven (posterior AND every
+output filename from one constant, so a run on one posterior cannot write files
+labelled with another). The default L10 path reproduces its existing outputs
+**bit-identically** — same three MD5s — so this is a parameterisation, not a
+change. New `python/scope_l10_vs_l11_scorecard.py`; both arms use the same
+script, forcing, baseline, targets, 2000 draws and noise seed.
+
+### D2 did what it was built to do on glaciers
+Coverage of the 90% parameter band **63.7% → 79.8%** overall, and **35.5% →
+80.6% in the satellite era** (+45.2 points), with the median essentially
+unmoved (|Δbias| ≤ 0.05 cm in every window). A mean-zero discrepancy term
+should reshape the band and not the median; it did.
+
+### D2 on steric moved the early-century bias, and traded the satellite era for it
+`te` mean bias **+0.281 → +0.175 cm** overall, concentrated where it was worst:
+1900-1919 **+0.418 → +0.162**, 1920-1949 **+0.555 → +0.348**. But 1993-2026 got
+WORSE, +0.133 → +0.216, and its coverage fell 21.2% → 15.2%. Consistent with
+`thermal_alpha` still sitting at 0.16 rather than the precision-weighted steric
+optimum of 0.1395 — the open question is unchanged and this is a second symptom
+of it, not a new one.
+
+### AIS and Greenland are unchanged, as they should be
+`ais` bias identical to 3 decimals in every window (the change set does not
+touch AIS). `gis` bias |Δ| ≤ 0.006 cm, coverage −2.4 points — the (ℓ, w)
+reparameterisation was a CONDITIONING fix, and it behaved like one.
+
+### D1's price, measured: ~+0.7 to +1.0 cm of early-century total bias
+The total is **OUT-OF-SAMPLE for L11** (D1 dropped it) and in-sample for L10, so
+its L11 row is a prediction and its L10 row is a residual. That asymmetry is the
+measurement, and it is carried in the output rather than left to the reader.
+
+| window | total bias L10 → L11 | coverage L10 → L11 |
+|---|---|---|
+| 1900-1919 | +0.146 → **+1.125** | 100.0% → 30.0% |
+| 1920-1949 | +0.201 → **+0.918** | 80.0% → 30.0% |
+| 1950-1992 | +0.300 → +0.617 | 30.2% → 4.7% |
+| 1993-2026 | +0.181 → **+0.130** | 21.9% → **40.6%** |
+| full | +0.221 → +0.646 | 51.2% → 24.0% |
+
+Without the total, nothing holds the component sum to the observed total, and
+the sum runs high **pre-1950 only** — the satellite era actually IMPROVED on
+both bias and coverage. This does not say D1 was wrong (its case was that the
+total pins R19 at a saturated state, `3a9e64b`); it puts a number on what the
+spec called "a deliberate discard of an independent observational constraint,
+not a tidy-up".
+
+### An error I made and caught
+Glaciers must be scored against `glaciers_obs_delta_corrected`, not the raw
+`glaciers_obs`: the gsic obs carry a per-draw M15/Roe-2021 ramp on the OBS side
+over 1900-1959. Scoring against the raw target inflates the early-century
+glacier bias ~7× (+1.28 rather than +0.20 cm over 1900-1919 on L10) and reports
+a large spurious regression. I did that first; the scorecard now uses the
+corrected series and says why in its header.
+
 ## [unreleased] — 2026-08-15 — L11 ACCEPTED on deliverable; the R19 overcorrection is RETRACTED
 
 4 × 2M, seeds 2026-29, ~2h46m each, acceptance **0.236-0.238**. Accepted on the
