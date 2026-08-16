@@ -69,7 +69,7 @@ differs from the retired untagged one only in pixel rows 26-54, the suptitle.
 Same 2000 draws, same FaIR-mean forcing, same 1995-2014 baseline in both arms, so
 the difference is the posterior and nothing else.
 
-**Near-neutral on the total; a partition trade underneath it.** Total at 2100,
+**Near-neutral on the total; the components move underneath it.** Total at 2100,
 L10 → L11:
 
 | SSP | total @2100 | glaciers | steric | gis | ais |
@@ -83,11 +83,16 @@ cm. AIS is untouched at every horizon, exactly as the hindcast scorecard said.
 
 **So the headline for anyone reading the two figure sets side by side:** the
 change set did not move projected sea level. It moved *what projected sea level
-is made of*, and the glacier↔steric trade is nearly cancelling at 2100.
+is made of*, and the glacier and steric moves nearly cancel at 2100.
+
+**Do NOT call this a partition trade.** §4 tested that and it is false — the two
+are INDEPENDENT effects of similar size that happen to cancel. Reading the
+cancellation as coupling is what sent the first draft of this handoff after the
+wrong hypothesis.
 
 ---
 
-## 3. THE FINDING — `thermal_alpha` moved AWAY, and 81% of it is D2
+## 3. THE FINDING — `thermal_alpha` moved, and 81% of it is D2
 
 15b filed this as open question 2: "`thermal_alpha` sits at 0.16 against L10's
 0.150 and the precision-weighted steric optimum of 0.1395. D2 has NOT pulled it
@@ -111,15 +116,34 @@ by the OHC forcing alone, so α *is* the te panel.
   the move. The other **81% is D2**. Quoted, not recomputed — the `chain_D1_seed*`
   files were deleted after that analysis; only `adapted_cov_D1_seed*` and the
   logs survive. Re-deriving it means 4 × 250k fresh chains.
-- **Direction.** Level-implied optimum **0.1395**. L10 sat 0.0108 above; L11
-  sits 0.0206 above — **1.91× further**.
+- **Direction — NAME THE METRIC OR THE CLAIM REVERSES.** There are two optima
+  (`diag_te_weighted_and_seam.py` CHECK 2) and **L10 sits between them**:
 
-**Why this is not a cosmetic complaint.** The D2 basis was made orthogonal to the
-constant *for exactly this reason*. From the design entry: a mean-zero δ(t) "can
-absorb SHAPE and *cannot* absorb LEVEL, so `thermal_alpha` stays identified by
-the level. Sub-choice 4 resolved by construction." **The construction did not do
-the job it was designed for.** And it is not free: it is what puts the extra
-+1.7 cm of steric into the 2100 ssp585 deliverable.
+  | optimum | value | L10 → L11 |
+  |---|---|---|
+  | precision-weighted — *what the likelihood optimises* | 0.13950 | 0.0108 → 0.0206 = **1.91× FURTHER** |
+  | zero-mean-bias — unweighted level | 0.17711 | 0.0268 → 0.0170 = 0.64× closer |
+
+  **An earlier draft of this handoff called 0.1395 "the level-implied optimum".
+  It is not** — the level-implied one is 0.17711, in the opposite direction.
+  Verified independently from the closed form: mean(S_rebased) = −10.42 cm over
+  the 1900-2025 steric window, giving biases +0.2797 (L10) and +0.1776 (L11),
+  which match the scorecard's 0.2809 / 0.1747 to ~0.003 cm.
+
+**Why it is not free, and why it is NOT a failed gate.** The reconciliation is an
+**era trade**: steric 1900-1919 bias 0.418 → 0.162 and 1920-49 0.555 → 0.348
+(wide bands, low weight) bought at 1993-2026 0.133 → **0.216**, coverage 21.2% →
+**15.2%** (tiny bands, high weight). The projection is anchored on the era that
+got worse — that is where the extra +1.7 cm of 2100 ssp585 steric comes from.
+
+But the construction did **not** fail. The steric column is orthogonal to **S(t)
+itself**, not merely to the constant — corrected 2026-08-14 in `cb21def` after
+`L11tune2` measured `corr(d2_steric_1, thermal_alpha) = −0.724`. So δ cannot
+mimic a rescaling of α in the **plain** inner product. The likelihood metric is
+the AR(1)-correlated heteroskedastic precision, in which it does not hold, and
+`d2_basis` says so in its own comment ("the posterior metric is neither the plain
+nor the diagonal one ... whack-a-mole"). This is **documented residual coupling**,
+and §4 localises it to the steric stream.
 
 ---
 
