@@ -19,6 +19,16 @@ loss L_eq, in BRICK's own rate form 1/tau = alpha*T + beta:
     B        rate driver GMST,     L_eq linear in GMST,        2 channels
     A+B      rate driver REGIONAL, L_eq linear in regional,    2 channels
     A+B+C    rate driver REGIONAL, L_eq = PISM ladder(GMT-dT), 2 channels
+    A+B+C+D  as A+B+C,   plus a THROUGHPUT CAP on both channels   (q_f, q_s)
+    A+B'+C+D as A+B'+C,  plus a THROUGHPUT CAP on the slow channel (q_s)
+
+Option D (added 2026-08-16) is the piece pass 1 lacked. A proportional
+relaxation cannot serve both a 6 cm historical loss against a 71 cm commitment
+AND a 742 cm post-threshold commitment: as L_eq grows 20x the proportional rate
+grows with it, which is why A+B+C broke the hindcast (RMSE 1.675) and projected
+72 cm at 2100. D clips the annual flux to +/- q cm/yr, so past the threshold
+loss is limited by ice THROUGHPUT rather than by the disequilibrium. Each D cell
+nests its C counterpart bit-for-bit at q = CAP_INERT_CM_YR; see _throughput.
 
 Two channels means the commitment splits, fraction f realised fast (surface
 mass balance) and 1-f slow (dynamic discharge), each with its own alpha, beta.
@@ -85,6 +95,11 @@ REF_WIN = (1995, 2005)          # display/target baseline, as calibrate_mcmc_ext
 BASE_WIN = (1850, 1900)         # anomaly baseline of every temperature series
 FIT_WIN = (1900, 2025)          # the GIS target's span
 V0_CM = 742.0                   # Greenland volume, cm SLE
+# Option-D throughput cap at which the cap is PROVABLY INERT: no annual
+# relaxation increment can exceed L_eq, and L_eq <= V0_CM everywhere. Setting a
+# cap here reproduces the uncapped cell bit-for-bit, which is what makes the
+# D cells exact containers of the C cells.
+CAP_INERT_CM_YR = V0_CM
 DRIVER_ZONE = "south"           # Marcus 2026-08-10; "all" is the sensitivity arm
 SIGMA_FLOOR_CM = 0.05           # matches epsband() in calibrate_mcmc_ext.jl
 BAND_Z = 1.645                  # the target bands are 90%
@@ -142,7 +157,8 @@ PROJ_REF_WIN = (1995, 2014)     # the frame the comparison arms use
 FIT_SEED = 2026
 N_MULTISTART = 240
 MAXFEV = 20000
-LOG_AXES = ("alpha", "beta", "alpha_f", "beta_f", "alpha_s", "beta_s")
+LOG_AXES = ("alpha", "beta", "alpha_f", "beta_f", "alpha_s", "beta_s",
+            "q_f", "q_s")
 POLISH_ROUNDS = 12              # NM restarts from the incumbent best
 POLISH_TOL = 1e-9
 BASIN_ROUNDS = 40               # basin-hopping jitters around the incumbent best
@@ -220,8 +236,27 @@ def leq_ladder(gmt, dT):
     return np.interp(gmt - dT, LAD_T, LAD_L)
 
 
+def _throughput(delta, q):
+    """OPTION D. Clip one year's relaxation flux to +/- q cm/yr.
+
+    Past the threshold, loss is limited by how fast ice can physically leave the
+    ice sheet -- outlet-glacier discharge capacity, surface melt throughput --
+    NOT by the size of the disequilibrium. Proportional relaxation cannot serve
+    both a 6 cm historical loss against a 71 cm commitment and a 742 cm
+    post-threshold commitment (scoping, pass-1 failure): as L_eq grows 20x the
+    proportional rate grows 20x with it, which is exactly why A+B+C broke the
+    hindcast (RMSE 1.675) and gave 72 cm at 2100.
+
+    The clip is SYMMETRIC: regrowth is throughput-limited too.
+
+    q = CAP_INERT_CM_YR makes this provably inert -- no annual increment can
+    exceed L_eq <= V0_CM -- so a D cell nests its C counterpart exactly."""
+    return delta if q >= CAP_INERT_CM_YR else float(np.clip(delta, -q, q))
+
+
 def integrate(t_rate, leq, params, two_channel, n=None):
-    """Annual Euler on dL/dt = (L_eq - L) * (alpha*T + beta), per channel.
+    """Annual Euler on dL/dt = (L_eq - L) * (alpha*T + beta), per channel,
+    optionally throughput-capped (option D, see _throughput).
 
     Returns (L_total, L_fast). L(Y0) = 0: the model starts in equilibrium with
     the 1850 climate, and the 1995-2005 re-referencing absorbs the offset.
@@ -231,13 +266,16 @@ def integrate(t_rate, leq, params, two_channel, n=None):
     approximation -- the recursion is causal."""
     n = len(YEARS) if n is None else n
     g = params.get("g", 1.0)          # fraction of the 1850 commitment already realised
+    qf = params.get("q_f", CAP_INERT_CM_YR)   # option-D caps; inert unless the
+    qs = params.get("q_s", CAP_INERT_CM_YR)   # cell declares them
     if not two_channel:
         alpha, beta = params["alpha"], params["beta"]
         r = np.maximum(alpha * t_rate + beta, 1e-9)
         L = np.zeros(n)
         L[0] = g * leq[0]
         for i in range(1, n):
-            L[i] = L[i - 1] + (leq[i - 1] - L[i - 1]) * min(r[i - 1], 1.0)
+            L[i] = L[i - 1] + _throughput(
+                (leq[i - 1] - L[i - 1]) * min(r[i - 1], 1.0), qs)
         return L, np.zeros(n)
     rs = np.maximum(params["alpha_s"] * t_rate + params["beta_s"], 1e-9)
     Lf, Ls = np.zeros(n), np.zeros(n)
@@ -249,11 +287,16 @@ def integrate(t_rate, leq, params, two_channel, n=None):
         # a fixed fraction of it overshoots by an order of magnitude, and the
         # fit is forced to rail f at its floor. SMB physically responds to
         # temperature above a melt onset, which is what this is.
+        # The fast channel here is ALREADY a throughput form -- a direct melt
+        # flux in the regional driver, not a relaxation -- so option D adds a cap
+        # only to the slow (dynamic) channel, which is the one that explodes when
+        # L_eq reaches ~742 cm.
         k, t_on = params["k_smb"], params["t_on"]
         Ls[0] = g * leq[0]
         for i in range(1, n):
             Lf[i] = Lf[i - 1] + k * max(0.0, t_rate[i - 1] - t_on)
-            Ls[i] = Ls[i - 1] + (leq[i - 1] - Ls[i - 1]) * min(rs[i - 1], 1.0)
+            Ls[i] = Ls[i - 1] + _throughput(
+                (leq[i - 1] - Ls[i - 1]) * min(rs[i - 1], 1.0), qs)
             tot = Lf[i] + Ls[i]
             if tot > leq[i - 1]:            # cannot overshoot the commitment
                 Lf[i], Ls[i] = Lf[i] * leq[i - 1] / tot, Ls[i] * leq[i - 1] / tot
@@ -262,8 +305,10 @@ def integrate(t_rate, leq, params, two_channel, n=None):
     rf = np.maximum(params["alpha_f"] * t_rate + params["beta_f"], 1e-9)
     Lf[0], Ls[0] = g * f * leq[0], g * (1 - f) * leq[0]
     for i in range(1, n):
-        Lf[i] = Lf[i - 1] + (f * leq[i - 1] - Lf[i - 1]) * min(rf[i - 1], 1.0)
-        Ls[i] = Ls[i - 1] + ((1 - f) * leq[i - 1] - Ls[i - 1]) * min(rs[i - 1], 1.0)
+        Lf[i] = Lf[i - 1] + _throughput(
+            (f * leq[i - 1] - Lf[i - 1]) * min(rf[i - 1], 1.0), qf)
+        Ls[i] = Ls[i - 1] + _throughput(
+            ((1 - f) * leq[i - 1] - Ls[i - 1]) * min(rs[i - 1], 1.0), qs)
     return Lf + Ls, Lf
 
 
@@ -289,6 +334,13 @@ CELLS = {
     "A+B'":     dict(rate_driver="regional", leq="linear", two_channel="smbrate"),
     "A+B+C":    dict(rate_driver="regional", leq="ladder", two_channel="share"),
     "A+B'+C":   dict(rate_driver="regional", leq="ladder", two_channel="smbrate"),
+    # OPTION D, 2026-08-16. Throughput-capped relaxation (see _throughput). Each
+    # nests its C counterpart exactly at q = CAP_INERT_CM_YR, so by the file's
+    # nesting discipline neither can score worse than the cell it contains.
+    "A+B+C+D":  dict(rate_driver="regional", leq="ladder", two_channel="share",
+                     cap=("q_f", "q_s")),
+    "A+B'+C+D": dict(rate_driver="regional", leq="ladder", two_channel="smbrate",
+                     cap=("q_s",)),
 }
 
 # Bounds are wide on purpose: a rail means the fit left the feasible set, which
@@ -308,6 +360,11 @@ PBOUNDS = {
     # fit the hindcast at all. Same freedom for every cell, so the comparison is
     # like-for-like.
     "g": (0.0, 1.0),
+    # OPTION D throughput caps, cm SLE per year, per channel. The floor is far
+    # below the observed modern total rate (0.0841 cm/yr) and the ceiling is
+    # CAP_INERT_CM_YR, at which the cap is provably inert -- no annual increment
+    # can exceed L_eq <= V0_CM -- so the D cells nest the C cells EXACTLY.
+    "q_f": (1e-4, V0_CM), "q_s": (1e-4, V0_CM),
 }
 
 
@@ -329,7 +386,19 @@ def _lift_one_to_two(p):
     return q
 
 
-NEST_MAP = {"B": ("stock", _lift_one_to_two), "A+B": ("A", _lift_one_to_two)}
+def _lift_uncapped(p):
+    """Lift a C cell into its C+D container by switching the caps OFF. At
+    CAP_INERT_CM_YR no annual increment can reach the cap, so the lifted point
+    reproduces the C cell BIT-FOR-BIT and D's optimum cannot be worse. This is
+    the whole reason D is expressed as a cap on the existing flux rather than as
+    a replacement rate law -- it keeps the nesting, so a D-versus-C score
+    difference is attributable to the cap and to nothing else."""
+    return dict(p, q_f=CAP_INERT_CM_YR, q_s=CAP_INERT_CM_YR)
+
+
+NEST_MAP = {"B": ("stock", _lift_one_to_two), "A+B": ("A", _lift_one_to_two),
+            "A+B+C+D": ("A+B+C", _lift_uncapped),
+            "A+B'+C+D": ("A+B'+C", _lift_uncapped)}
 
 
 def cell_params(cell):
@@ -343,7 +412,7 @@ def cell_params(cell):
         p += ["f", "alpha_f", "beta_f", "alpha_s", "beta_s"]
     else:
         p += ["alpha", "beta"]
-    return p + ["g"]
+    return p + ["g"] + list(s.get("cap", ()))
 
 
 def run_cell(cell, theta, t_reg, t_gmst, n=None):

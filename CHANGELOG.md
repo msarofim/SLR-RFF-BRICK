@@ -145,6 +145,29 @@ explodes when L_eq goes to ~742 cm.
 inert and C still fails), or the hindcast only fits when the cap binds
 historically (ridge moved, not broken, per 1).
 
+**AMENDMENT to prediction 1, written while the fit was still running and BEFORE
+any C+D cell had been fitted** (the log at the time of writing had reached cell
+`A`; `A+B+C+D` and `A+B'+C+D` are last in the run order). Working through the
+algebra properly, "the ridge narrows" is only one of **two** outcomes, and the
+other is more likely and arguably the better one for the deliverable:
+
+- **(i) ridge BROKEN** — the hindcast starts to constrain `k`, i.e. the k-rows
+  stop reproducing the 5.78 cm target equally well. This needs the cap to bind
+  *within* the historical window.
+- **(ii) ridge DEFUSED** — the hindcast still cannot constrain `k`, but because
+  `q` is **not** rescaled by `k`, once the cap binds in projection the 2300
+  trajectory becomes **insensitive to `k`**. The unidentified quantity stops
+  propagating to the reported number.
+
+Outcome (ii) is what the algebra actually predicts if the cap is slack
+historically and binding in projection, which is the physically natural
+configuration. **The harm the ridge does (§1) is that 2300 moves 14.59 → 58.29
+on an unidentified `k`; (ii) removes that harm without identifying `k`.** So (ii)
+should be scored a SUCCESS, not a partial one — but it must be reported as
+"unidentified and no longer load-bearing", never as "identified". The
+diagnostic must therefore report BOTH the hindcast spread across k AND the 2300
+spread across k, since (i) and (ii) differ in which one collapses.
+
 ### DECISION 4 RESOLVED → not blocking; the premise does not hold
 Marcus chose "test the downstream τ effect first". The test is structural and
 quantitative, not a run (`python/diag_greenland_exposure_in_pulse_metrics.py`).
