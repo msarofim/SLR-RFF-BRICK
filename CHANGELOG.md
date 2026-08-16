@@ -3,6 +3,90 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-16d — C+D RESULTS: a throughput cap cannot serve C, and the reason is algebraic
+
+Ran the pre-registered C+D cells. **Both fail the first pre-registered gate**,
+and the failure is structural rather than a tuning problem. Scores are CSV
+(post-repair), not the pre-repair values the log prints:
+
+| cell | n_par | nlp | hindcast RMSE | 2100 spread | 2100 ssp585 | railed |
+|---|---|---|---|---|---|---|
+| A+B (incumbent structure) | 8 | **17.86** | **0.062** | 10.44 | 17.37 | `beta_s` |
+| A+B+C (pass 1) | 7 | 563.20 | 0.844 | 0.28 | 10.62 | `alpha_f`\|`alpha_s`\|`g` |
+| **A+B+C+D** | 9 | **47.04** | **0.128** | **0.00** | 7.01 | `beta_f`\|`beta_s`\|`g` |
+| A+B'+C (pass 1) | 6 | 118.15 | 0.350 | 6.24 | 16.31 | `alpha_s`\|`beta_s` |
+| **A+B'+C+D** | 7 | **109.01** | **0.349** | **5.75** | 15.54 | `dT`\|`beta_s`\|`g` |
+
+**Pre-registered gate 4 (hindcast RMSE back to A+B's 0.06–0.10): FAILED.** 0.128
+and 0.349 against 0.062. D improves A+B+C 12× on score (563 → 47) but does not
+reach the gate; it barely moves A+B'+C at all (0.350 → 0.349).
+**Neither cap railed**, so the "D is inert" abandon criterion did *not* fire —
+the caps are doing real work. They are doing the wrong work.
+
+### The caps SATURATE, and that is the whole story
+Measured directly: in projection the capped channels sit **at** the cap in
+**99–100% of years**. A+B+C+D's total then reduces to `dL/dt = q_f + q_s =
+0.073631 cm/yr` — constant — and the model returns **7.0091 cm at 2100 under all
+three SSPs, identical to 6 dp**. That exactly-equal triple is the
+suspicious-uniformity signature, and it is arithmetic, not physics:
+0.073631 cm/yr × 95 yr ≈ 7.01 cm. **A+B+C+D has no scenario response at all.**
+
+A+B'+C+D keeps a scenario response (9.79 / 11.60 / 15.54) only because its
+`smbrate` fast channel is an **uncapped, temperature-dependent flux** — its
+capped slow channel is saturated 100% of years too.
+
+### THE ALGEBRAIC OBSTRUCTION — this is the finding
+`dL/dt = min(r·(L_eq − L), q)`. **Wherever the min selects `q`, `dL/dt` is
+independent of `L_eq`.** So a binding throughput cap does not merely limit the
+commitment's influence — it *removes* it. Confirmed empirically by scaling the
+ladder with everything else held fixed:
+
+| cell | 2300 (cm) across ladder scale k = 0.5 → 22.6 | range | |
+|---|---|---|---|
+| A+B+C (uncapped) | 17.14 → 774.56 | 757.42 cm | ladder live |
+| A+B'+C (uncapped) | 117.78 → 122.06 | 4.29 cm | ladder mostly inert already |
+| A+B+C+D | 12.08 → 21.76 (flat above k=1) | 9.68 cm | inert where it matters |
+| **A+B'+C+D** | **110.34 → 110.35** | **0.00 cm** | **LADDER FULLY INERT** |
+
+**D neuters C.** Scoping §5's design brief asks for both "near-total loss at high
+sustained warming" (point 3, which needs `L_eq` to drive the answer) and "a rate
+that is THROUGHPUT-limited past the threshold" (point 4, which makes `L_eq`
+irrelevant exactly where it acts). **Those two requirements are in direct
+conflict**, and no tuning of a cap resolves it. The brief needs revising, not the
+parameters.
+
+### The ridge verdict is REAL but VACUOUS — do not quote it as a win
+`python/diag_cd_ridge_break.py`. Uncapped A+B+C shows the ridge in textbook form:
+hindcast RMSE flat across k (spread 0.062 cm) while 2300 runs **24.27 → 246.61
+cm** (spread 222 cm). Capped, the 2300 spread collapses to **0.13 cm** and RMSE
+rises with k, so the script's rule fires **(i) RIDGE BROKEN**.
+
+**That verdict must not be reported as a success.** 2300 stopped depending on `k`
+because the model stopped depending on *anything* — it is a constant-rate ramp.
+The pre-registered (i)/(ii) split assumed a cap that engages past the threshold;
+a cap that binds always satisfies (i) trivially and meaninglessly. **The
+diagnostic needs a third verdict — "collapsed, not identified" — gated on
+whether the capped channels are saturated.** Logged as a defect in my own gate.
+
+For A+B'+C+D the ridge test is **uninformative by construction**: with the slow
+channel saturated, scaling the relaxation rate has no effect, so the bisection
+cannot reach the 5.78 cm endpoint at any scale (UNREACHABLE at every k). That is
+a limitation of the test on that cell, not a model result.
+
+### What this reframes, and the question it puts to Marcus
+There is a physical reading under which "the ladder is inert at 2300" is
+**correct rather than broken**: reaching 7.42 m by 2300 needs ~2.65 cm/yr
+sustained, which no plausible throughput allows. If 2300 Greenland is genuinely
+**throughput-limited rather than commitment-limited**, then the commitment's
+*magnitude* should not move 2300 — only whether the threshold was crossed. That
+is the same conclusion §19.3 reached from Bochow's millennial τ, and which §20
+downgraded to "plausible and unverified" — now reached independently, from the
+ladder and our own transient rather than from the retracted Table 2.
+
+But it directly triggers scoping §7's own abandon test: *"If 2300 does not move,
+the change is not worth its complexity."* **Open question for Marcus, not mine to
+settle** — see the handoff.
+
 ## [unreleased] — 2026-08-16c — Thread 5 decisions; "PISM graded vs Yelmo step" is a SAMPLING ARTEFACT
 
 Marcus settled the four blocking decisions in
