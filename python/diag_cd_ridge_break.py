@@ -66,7 +66,13 @@ COLLAPSE_TOL_CM = 1.0
 # An RMSE rise this large across the k range counts as "k is constrained".
 IDENTIFY_TOL_CM = 0.05
 
-CELLS_UNDER_TEST = ("A+B+C+D", "A+B'+C+D")
+CELLS_UNDER_TEST = ("A+B+C+D", "A+B'+C+D", "A+B'+C+D2")
+# A ladder-scale range below this means option C is INERT: scaling the committed
+# loss from 0.5x to 22.6x does not move 2300, so the ladder is not doing the job
+# C was added for. This gates the "collapsed, not identified" verdict -- added
+# 2026-08-16 after the D run exposed it as a hole in this script's own logic.
+LADDER_INERT_TOL_CM = 2.0
+LADDER_SCALES = (0.5, 1.0, 2.0, 5.0, 22.6)
 
 
 def parse_params(s):
@@ -150,15 +156,17 @@ def main():
           f"{want:.2f} cm")
     print(f"  projection {PROJ_SSP} at {PROJ_YEAR_2300}\n")
 
-    rows = []
+    rows, ladder_range = [], {}
     for cell in CELLS_UNDER_TEST:
         if cell not in fits.index:
             print(f"  {cell}: NOT in {os.path.basename(FITS_CSV)} -- skipped")
             continue
         p = parse_params(fits.loc[cell, "params"])
-        caps = {c: p[c] for c in CAP_PARAMS if c in p}
+        caps = {c: p[c] for c in list(CAP_PARAMS) + ["q_dyn", "q_thalf", "q_marine"]
+                if c in p}
         print(f"=== {cell} === fitted caps: " +
-              ", ".join(f"{c}={v:.4g} cm/yr" for c, v in caps.items()))
+              (", ".join(f"{c}={v:.4g}" for c, v in caps.items()) or "state-dependent"))
+        ladder_range[cell] = ladder_leverage(cell, p, ctx)
         for capped in (False, True):
             tag = "CAPPED (option D on)" if capped else "uncapped (C only)"
             print(f"\n  {tag}")
@@ -192,26 +200,58 @@ def main():
     if rows:
         pd.DataFrame(rows).to_csv(OUT, index=False)
         print(f"wrote {os.path.relpath(OUT, REPO)}")
-        verdict(pd.DataFrame(rows))
+        verdict(pd.DataFrame(rows), ladder_range)
 
 
-def verdict(df):
+def ladder_leverage(cell, p, ctx):
+    """C's OWN leverage: how far 2300 moves when the committed loss is scaled
+    with every other parameter held fixed. If this is ~0 the ladder is inert and
+    option C is inoperative, whatever the ridge numbers say."""
+    v = [project_2300(cell, p, ctx, k, 1.0, True) for k in LADDER_SCALES]
+    return max(v) - min(v)
+
+
+def verdict(df, ladder_range):
     """Name which pre-registered outcome the numbers support, per cell."""
     print("\n=== VERDICT (against the pre-registered (i)/(ii) split) ===")
-    for cell, g in df[df.reachable].groupby("cell"):
-        cap = g[g.capped]
-        unc = g[~g.capped]
+    for cell in ladder_range:
+        g = df[(df.cell == cell) & df.reachable] if "reachable" in df else df.iloc[0:0]
+        cap, unc = g[g.capped], g[~g.capped]
         if cap.empty or unc.empty:
+            # The rate-scale bisection cannot reach the endpoint on the smbrate
+            # cells: their loss is dominated by the k_smb melt FLUX, which the
+            # ridge scaling deliberately does not touch, so the relaxation rate
+            # has no leverage. The ridge test is structurally uninformative here
+            # -- but the ladder-leverage number is not, and is the one that
+            # actually decides whether option C is doing anything.
+            print(f"\n  {cell}")
+            print("    ridge test UNINFORMATIVE (rate-scale bisection unreachable:")
+            print("    an smbrate cell's loss is carried by the unscaled melt flux)")
+            print(f"    LADDER range (C's own leverage): {ladder_range[cell]:8.2f} cm")
+            if ladder_range[cell] < LADDER_INERT_TOL_CM:
+                print("    -> COLLAPSED, NOT IDENTIFIED: the ladder is inert;")
+                print("       option C is inoperative in this cell.")
             continue
         d_rmse = cap.hind_rmse_cm.max() - cap.hind_rmse_cm.min()
         d_2300 = cap.proj_2300_cm.max() - cap.proj_2300_cm.min()
         d_2300_u = unc.proj_2300_cm.max() - unc.proj_2300_cm.min()
+        lad = ladder_range.get(cell, np.nan)
         print(f"\n  {cell}")
         print(f"    uncapped 2300 spread across k : {d_2300_u:8.2f} cm  "
               f"(the ridge's harm)")
         print(f"    CAPPED   2300 spread across k : {d_2300:8.2f} cm")
         print(f"    CAPPED   hindcast RMSE spread : {d_rmse:8.4f} cm")
-        if d_rmse > IDENTIFY_TOL_CM:
+        print(f"    LADDER range (C's own leverage): {lad:8.2f} cm")
+        # THIRD VERDICT, added after the D run. A cap that binds everywhere makes
+        # 2300 independent of k by making the model independent of everything,
+        # which satisfies (i) and (ii) trivially and meaninglessly. Check whether
+        # option C still has any leverage BEFORE crediting either outcome.
+        if np.isfinite(lad) and lad < LADDER_INERT_TOL_CM:
+            print("    -> COLLAPSED, NOT IDENTIFIED: scaling the committed loss")
+            print(f"       0.5x-22.6x moves 2300 by only {lad:.2f} cm, so the ladder")
+            print("       is inert and option C is not doing its job. Any ridge")
+            print("       verdict here is VACUOUS -- do not report it as a win.")
+        elif d_rmse > IDENTIFY_TOL_CM:
             print("    -> (i) RIDGE BROKEN: the hindcast shape now discriminates k.")
         elif d_2300 < COLLAPSE_TOL_CM < d_2300_u:
             print("    -> (ii) RIDGE DEFUSED: k is still unidentified, but 2300 no")

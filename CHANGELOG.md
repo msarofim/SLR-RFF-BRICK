@@ -3,6 +3,89 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-16e — D2 RESULTS: the best fit is the one that uses C least
+
+Marcus proposed a physically smarter cap (rise → plateau, with secondary
+mechanisms continuing past the plateau). Implemented as **D2** — Michaelis-Menten
+rise-then-plateau in temperature × marine-margin extinction in cumulative loss —
+with **one correction to the proposed mechanism**: moulins / basal lubrication
+cannot supply the growing tail, because the literature has that mechanism
+**self-limiting** (melt switches the bed from a cavity system to a channelized
+one with lower water pressure and *reduced* motion — Shannon et al. 2013 PNAS
+10.1073/pnas.1212647110; Andrews et al. 2016 Nat Comms 7:13903). The term that
+keeps growing is surface melt, already the uncapped `smbrate` channel — so the
+physics is a **handover** from dynamic discharge to SMB. The decline (not just
+plateau) of discharge is Aschwanden et al. 2019 (Sci Adv 10.1126/sciadv.aav9396):
+by 2300 under RCP8.5 almost all NW Greenland outlet glaciers are land-terminating
+and discharge is greatly reduced — on our own horizon.
+
+### D2 scorecard against the pre-registration
+
+| prediction | result | |
+|---|---|---|
+| 4. hindcast RMSE back to 0.06–0.10 | **0.0815 cm** | **PASS** — the first C-cell ever to clear it |
+| 2. G4 2100 spread LOWER than A+B's 10.44 | **15.69 cm** | **FAIL** — it went *up*, not down |
+| 3. 2100 ssp585 inside AR6 ~9–18 cm | **27.54 cm** | **FAIL** |
+| 1. ridge narrows | uninformative + ladder inert | **COLLAPSED, NOT IDENTIFIED** |
+| 5. 2300 moves materially up | 253 cm | moves, but implausibly far |
+
+Prediction 2 is the one I flagged in advance as "a prediction I could be
+flattered by". It **failed outright** — worth recording, since the flag was the
+reason to distrust it either way.
+
+### Why D2 fits: it deletes the machinery it was given
+Fitted `A+B'+C+D2`: `q_thalf` **railed at its upper bound (20)**, which drives the
+Michaelis-Menten factor to 0.024→0.286 over 0.5–8 K, i.e. **near-linear — the
+saturation shape was railed OFF by the data**. `q_marine` = **11.02 cm**, barely
+above its 10.0 floor, so the marine margin is exhausted almost immediately and the
+dynamic throughput reaches **exactly 0.00000 cm/yr by 2100 in all three SSPs**.
+`alpha_s` → 0. The fit's solution is to **switch the dynamic channel off** and let
+the uncapped, temperature-driven SMB flux (`k_smb` = 0.100, `t_on` = 1.745) carry
+everything — which is why the hindcast fits and why an unbounded linear-in-T flux
+then overshoots AR6 at 2100.
+
+### THE SYNTHESIS — the better the fit, the deader the ladder
+
+| cell | nlp | hindcast RMSE | **ladder leverage** (2300 range over 0.5×–22.6×) |
+|---|---|---|---|
+| A+B+C | 563.20 | 0.844 | **757.42 cm** (live, unfittable) |
+| A+B'+C | 118.15 | 0.350 | 4.29 cm |
+| A+B'+C+D | 109.01 | 0.349 | **0.00 cm** |
+| A+B+C+D | 47.04 | 0.128 | 9.68 cm |
+| **A+B'+C+D2** | **20.96** | **0.082** | **1.14 cm** |
+| A+B (no C at all) | 17.86 | 0.062 | n/a |
+
+The single cell in which the ladder is genuinely live is **by far the worst fit**.
+Every cell that fits acceptably has ladder leverage ≤ 9.68 cm, and the
+best-fitting has **1.14 cm** — while `A+B`, with **no C at all**, still fits best
+of everything at 17.86 / 0.062. **Across five structures, no configuration was
+found in which option C both fits the hindcast and moves 2300.**
+
+### Verdict on scoping §7's own abandon test
+*"If 2300 does not move, the change is not worth its complexity."* On this
+evidence **C does not earn its complexity for realised 2300 sea level**, in any
+structure tried. Three independent routes now agree that 2300 Greenland is
+**throughput-limited, not commitment-limited**: this fit series, §19.3's
+millennial-τ argument (from the retracted table, so weak), and the arithmetic
+(7.42 m by 2300 needs ~2.65 cm/yr sustained).
+
+**This does NOT retire the ladder.** Per §19.5 point 2, threshold location matters
+for **committed loss**, which is a separately reported diagnostic — and that is
+exactly where the PISM/Yelmo arm from decision 2 lives (3.52× at SSP1-2.6). The
+recommendation is to **carry C as a committed-loss diagnostic, not as a driver of
+realised SLR**. Marcus's call.
+
+### Defect in my own gate, now fixed
+`diag_cd_ridge_break.py` originally fired "(i) RIDGE BROKEN" for `A+B+C+D` — a
+verdict that was true but **vacuous**, because 2300 stopped depending on `k` only
+because the model stopped depending on anything. Added the third verdict
+**"COLLAPSED, NOT IDENTIFIED"**, gated on ladder leverage < 2.0 cm, which now
+fires correctly for both smbrate D cells. Also recorded: the ridge test is
+**structurally uninformative on smbrate cells** — their loss is carried by the
+`k_smb` melt flux, which the ridge scaling deliberately does not touch, so the
+rate-scale bisection cannot reach the endpoint at any scale (UNREACHABLE at every
+k). That is a property of the test, not a model result, and is now printed as such.
+
 ## [unreleased] — 2026-08-16d — C+D RESULTS: a throughput cap cannot serve C, and the reason is algebraic
 
 Ran the pre-registered C+D cells. **Both fail the first pre-registered gate**,
