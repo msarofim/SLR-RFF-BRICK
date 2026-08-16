@@ -3,6 +3,97 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-16c — Thread 5 decisions; "PISM graded vs Yelmo step" is a SAMPLING ARTEFACT
+
+Marcus settled the four blocking decisions in
+`notes/scoping_2026-08-16_thread5_greenland_2300.md` §6. Three as recommended:
+Bochow **2026 preprint = benchmark only** (the C calibration target is the
+*published* Bochow **2023** ladder — verified, see below, so calibration embeds
+no preprint); **offline first**, no vintage committed; **test the downstream τ
+effect before adopting any form**. Decision 2 was conditional — carry the
+PISM/Yelmo arm *unless* outside information tips it to one family.
+
+**Two provenance facts verified before starting** (§6.1 asked for exactly this):
+
+| object | status | role |
+|---|---|---|
+| Bochow et al. **2023**, Nature 622:528, doi 10.1038/s41586-023-06503-9 | **published**, Zenodo CC-BY-4.0 model output | the equilibrium ladder → `V_eq(T)` fits = the Option-C **calibration target** |
+| Bochow et al. **2026**, EGUsphere doi 10.5194/egusphere-2026-614 | **preprint**, provisional; and its Table 2 is already **retracted** by scoping §20 | benchmark projections only |
+
+### The handoff mis-attributed its own load-bearing number
+`scoping_2026-08-16_thread5_greenland_2300.md` §2 cites "**28 cm (PISM-like) vs
+86 cm (Yelmo-like)**, a factor of three" as a **§19** finding arguing the arm is
+decisive. It is not. That number is **§16**'s, from `scope_greenland_commitment.py`
+run on curves §16 itself labels *"illustrative … not proposed calibration forms"*,
+and it is superseded from both directions:
+
+- **§19.3** ("CORRECTION 1 — the threshold-location arm is not decisive after
+  all") explicitly retracts it as an artefact of a ten-times-too-fast transient;
+- **§20** then voids §19.3's own basis — the Bochow-2026 Table 2 transcription
+  gives `a, c` both negative, so the cubic is strictly monotonic and **has no
+  fold at all** — downgrading §19.3 to "plausible and **unverified**", and
+  states the 85.7 cm figure "came from my own illustrative logistic (§16), which
+  is also **superseded**".
+
+So the arm's decisiveness was an **open question**, not a settled argument, and
+the handoff would have had the next session defend a retracted figure.
+
+### Resolved from the raw ladder: `python/diag_ladder_transition_resolution.py`
+§18 item 4 and §20 both left "confirm the PISM ladder shape from `pism_debm.zip`"
+outstanding. The PISM ladder has been extracted since (2026-08-10), so this is
+now cheap — and it kills the last practical argument for preferring PISM:
+
+| family | rungs | GMT grid | largest jump | width | in its OWN finest intervals | drift at jump |
+|---|---|---|---|---|---|---|
+| PISM-dEBM | 16 | **0.420 K uniform** | 4.64 m | 0.420 K | **1.0× → UNRESOLVED** | 0.047 / 0.106 m |
+| Yelmo-REMBO | 15 | 0.084–1.681 K (**refined near its threshold**) | 4.14 m | 0.084 K | **1.0× → UNRESOLVED** | 0.000 / 0.000 m |
+
+**Both transitions are exactly one grid interval wide.** Neither ladder resolves
+its own transition, so each apparent width is an **upper bound set by the
+sampling design**, not a measured model property. PISM looks "graded" only
+because its grid is 5× coarser there than Yelmo's refinement. This confirms
+§19.4's "both are cliffs, they differ only in *where*" **from the raw model
+output** rather than from the retracted preprint text.
+
+### Where the arm IS decisive — committed loss at low warming only
+| SSP | peak GMT (L11) | PISM committed | Yelmo committed | ratio |
+|---|---|---|---|---|
+| **SSP1-2.6** | **1.92 K** | **1.48–1.64 m** | **4.90–6.05 m** | **3.52×** |
+| SSP2-4.5 | 3.19 K | 6.79–7.01 m | 6.60–7.05 m | 1.01× |
+| SSP5-8.5 | 7.81 K | saturated 7.40 m | saturated 7.42 m | 1.00× |
+
+Brackets are deliberately **not interpolated** — interpolating across a
+transition neither model resolved would invent a shape. This reproduces §19.5
+point 2 exactly: **threshold location matters for *commitment*, not for realised
+2300 sea level.** Note SSP5-8.5's peak (7.81 K) lies **above the ladder's top
+rung** (6.80 K); both families are saturated there, so extrapolation is harmless
+at the top but must be stated.
+
+### Tried, and it does NOT adjudicate: the Last Interglacial
+The one candidate external constraint. Published GrIS LIG contributions cluster
+**3.7–5.5 m** (ranges from 0.4–4.4 up to 4.1–6.2 across methods), which taken at
+face value sits near **Yelmo's** post-threshold branch, not PISM's — the
+*opposite* of the direction a PISM lean would want. **It cannot be used**, and
+the reason is quantified in the source: only ~55% of the Eemian surface-mass-
+balance change is attributable to ambient temperature, **~45% to higher
+insolation and associated nonlinear feedbacks** (van de Berg et al., Nature
+Geoscience doi 10.1038/ngeo1245), whose own conclusion is that projections built
+on Eemian temperature–melt relations "may **overestimate** the future
+vulnerability of the ice sheet". LIG forcing is orbital / NH-summer; the
+ladder's axis is sustained GHG-driven GMT. The mapping is confounded in the
+direction that would spuriously favour Yelmo, and the published spread brackets
+both families anyway.
+
+### DECISION 2 RESOLVED → carry the arm
+No outside information tips it. Bochow's own authors decline to adjudicate and
+call for a coordinated intercomparison; **standing** favours PISM (twice in
+ISMIP6-Greenland, Goelzer et al. 2020 TC 14:3071; Yelmo not in that ensemble);
+**physics on the disputed mechanism** favours Yelmo (REMBO's retreat-precipitation
+negative feedback, which dEBM-simple cannot represent); the **graded-vs-cliff**
+tiebreak is now measured to be a sampling artefact; and the **paleo** constraint
+is confounded. Marcus's stated condition therefore resolves to **carry both arms
+through to the reported results**, per scoping §19.5's committed-loss diagnostic.
+
 ## [unreleased] — 2026-08-16b — ANSWERED: the D2 **steric** basis carries the `thermal_alpha` shift
 
 8 chains, 4 x 250k per arm, acceptance 0.279-0.295
