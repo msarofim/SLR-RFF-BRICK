@@ -3,6 +3,75 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-16 — L11 deliverable figures; the change set is neutral on the total and moves `thermal_alpha` AWAY
+
+### The figure chain is `--tag=`-driven end to end
+The three memo figures existed only on L10, and every driver below
+`posterior_predictive_ladrillo.jl` still wrote a bare or L10-hardcoded filename —
+so producing L11 figures would have silently overwritten the L10 deliverable in
+place. Tagged the rest of the chain the way the hindcast driver already was:
+
+| driver | now |
+|---|---|
+| `julia/project_ssps_components_ladrillo.jl` | `--tag=`; `OUT` follows it |
+| `python/ladrillo_model_comparison.py` | `--tag=`; outputs suffixed **symmetrically** |
+| `python/plot_ladrillo_memo_figures.py` | `--tag=`; drives inputs, figure filenames, and a `VINTAGE` title stamp |
+
+**Symmetrically** is the choice worth recording: there is no bare filename that
+silently means one vintage. `ladrillo_model_comparison.csv` became
+`..._L10.csv`. And an undeclared tag is a hard error — a new vintage must be
+added to `TAG_DESC` or the figure script refuses to run, so a title cannot go
+stale behind a renamed input.
+
+**Regression-gated on L10 at every step.** `ssps_components_2300_L10.csv` and
+`ladrillo_model_comparison_L10{,_spread}.csv` regenerate **bit-identical**;
+`ladrillo_L10_fig1` differs from the retired untagged figure only in pixel rows
+26-54, the suptitle. All six suites pass. Retired
+`figures/ladrillo_fig{1,2,3}_*.png`; nothing referenced those names.
+
+**Figure 1's total panel, L11.** D1 drops the Dangendorf total from the
+likelihood, so the total has no calibrated error model and its predictive band is
+all-NaN. `fill_between` draws *nothing* from NaN — the panel would have looked
+like an ordinary result while the legend still promised a predictive band. It is
+now marked OUT-OF-SAMPLE in red with the reason on the panel, keyed off the data
+rather than off the tag.
+
+### The projection half of the comparison — `python/diag_l10_vs_l11_projection.py`
+The scorecard scores the hindcast, which is where the change set was argued and
+accepted. This asks what it does to what the posterior is actually licensed to
+produce.
+
+**Near-neutral on the TOTAL; a partition trade underneath it.** Total at 2100
+moves **−0.28 / +0.27 / +0.83 cm** across SSP1-2.6 / 2-4.5 / 5-8.5 — but in every
+scenario glaciers fall ~1.0-1.2 cm while steric rises ~0.9-1.7 cm. By 2300 under
+ssp585: glaciers +0.7, gis +2.9, te +6.4, **total +8.3 cm**. AIS untouched, as
+the hindcast scorecard already said.
+
+**`thermal_alpha` 0.15026 → 0.16006, +1.31 L10 sd — and this one is a finding.**
+Mixing-gated under the `22635dd` rule: worst between-chain spread in either arm
+is 0.00050, so the **mix ratio is 19.7** against a threshold of 2.0. All eight
+chains agree. `te_sea_level` is exactly `te_s0 + te_α·S(t)` with `te_s0 = 0` and
+`S` set by the OHC forcing alone, so α *is* the te panel — no confounder.
+
+- **Attribution.** D1 alone moved α only 0.15023 → 0.15205 (`22635dd`; those
+  chains were deleted, so quoted, not recomputed) = **19%** of the move. The
+  other 81% is D2.
+- **Direction.** Level-implied optimum **0.1395**. L10 sat 0.0108 above it; L11
+  sits 0.0206 above — **1.91× further, not closer.**
+
+The D2 basis was made orthogonal to the constant *specifically* so a mean-zero
+discrepancy could not absorb the steric level and steal α's identification (the
+design entry below: "`thermal_alpha` stays identified by the level. Sub-choice 4
+resolved by construction"). **It did not hold.** Handoff 15b filed this as open
+question 2 on the grounds that D2 had "NOT pulled it toward the steric optimum";
+that is too mild — D2 pushed it away, and that is what puts the extra +1.7 cm of
+steric into the 2100 ssp585 deliverable.
+
+**NOT resolved:** *which* D2 stream. `D2chk3` carries both `d2_gsic_*` and
+`d2_steric_*`, so no existing chain separates a steric-basis leak from a gsic
+partition trade — glaciers falling while steric rises by a similar amount is
+equally the signature of the latter. Separating them needs one chain per stream.
+
 ## [unreleased] — 2026-08-15 — L10 → L11 hindcast scorecard: D2 works, and D1's price is quantified
 
 `posterior_predictive_ladrillo.jl` is now `--tag=`-driven (posterior AND every
