@@ -158,7 +158,7 @@ FIT_SEED = 2026
 N_MULTISTART = 240
 MAXFEV = 20000
 LOG_AXES = ("alpha", "beta", "alpha_f", "beta_f", "alpha_s", "beta_s",
-            "q_f", "q_s")
+            "q_f", "q_s", "q_dyn", "q_thalf", "q_marine")
 POLISH_ROUNDS = 12              # NM restarts from the incumbent best
 POLISH_TOL = 1e-9
 BASIN_ROUNDS = 40               # basin-hopping jitters around the incumbent best
@@ -236,6 +236,42 @@ def leq_ladder(gmt, dT):
     return np.interp(gmt - dT, LAD_T, LAD_L)
 
 
+def dyn_throughput(t, L, p):
+    """OPTION D2 (2026-08-16, Marcus's physics). A STATE-DEPENDENT dynamic
+    throughput, replacing D's constant cap -- which failed because a constant
+    small enough to fit the 6 cm hindcast binds in 99-100% of projection years,
+    collapsing the cell to a constant-rate ramp with zero scenario response.
+
+    Two mechanisms, both sourced rather than assumed:
+
+    RISE-THEN-PLATEAU IN TEMPERATURE, Michaelis-Menten:  Tp / (Tp + q_thalf).
+      Warming raises discharge, but individual outlet glaciers hit geometric
+      limits, so the primary mechanism saturates rather than growing without
+      bound.
+
+    EXTINCTION IN CUMULATIVE LOSS:  max(0, 1 - L / q_marine).
+      Discharge is a MARINE-terminating process. Aschwanden et al. 2019
+      (Sci Adv, doi 10.1126/sciadv.aav9396) find that by 2300 under RCP8.5
+      almost all northwest Greenland outlet glaciers have become LAND
+      terminating and ice discharge there is greatly reduced -- i.e. the
+      dynamic channel does not merely plateau, it PEAKS AND DECLINES as the
+      marine margin is consumed. King et al. 2020 (Comms Earth Env 1:1) give
+      the coupling: ~4-5% speedup per km of retreat. q_marine is the cumulative
+      loss (cm SLE) at which the marine margin is exhausted.
+
+    NOT INCLUDED, on purpose: moulin drainage / basal lubrication as a growing
+    tail. The literature has that mechanism SELF-LIMITING, not growing --
+    increasing melt switches the bed from a cavity system to a channelized one
+    with lower water pressure and REDUCED ice motion (Shannon et al. 2013, PNAS
+    doi 10.1073/pnas.1212647110; Andrews et al. 2016, Nat Comms 7:13903). The
+    term that keeps growing at high warming is surface melt, which is already
+    the uncapped `smbrate` fast channel -- so the physical picture is a HANDOVER
+    from dynamic discharge to SMB, not a dynamic tail."""
+    tp = max(0.0, t)
+    mm = tp / (tp + p["q_thalf"]) if (tp + p["q_thalf"]) > 0 else 0.0
+    return p["q_dyn"] * mm * max(0.0, 1.0 - L / p["q_marine"])
+
+
 def _throughput(delta, q):
     """OPTION D. Clip one year's relaxation flux to +/- q cm/yr.
 
@@ -292,11 +328,14 @@ def integrate(t_rate, leq, params, two_channel, n=None):
         # only to the slow (dynamic) channel, which is the one that explodes when
         # L_eq reaches ~742 cm.
         k, t_on = params["k_smb"], params["t_on"]
+        dyn = "q_dyn" in params        # option D2: state-dependent throughput
         Ls[0] = g * leq[0]
         for i in range(1, n):
             Lf[i] = Lf[i - 1] + k * max(0.0, t_rate[i - 1] - t_on)
+            cap = (dyn_throughput(t_rate[i - 1], Lf[i - 1] + Ls[i - 1], params)
+                   if dyn else qs)
             Ls[i] = Ls[i - 1] + _throughput(
-                (leq[i - 1] - Ls[i - 1]) * min(rs[i - 1], 1.0), qs)
+                (leq[i - 1] - Ls[i - 1]) * min(rs[i - 1], 1.0), cap)
             tot = Lf[i] + Ls[i]
             if tot > leq[i - 1]:            # cannot overshoot the commitment
                 Lf[i], Ls[i] = Lf[i] * leq[i - 1] / tot, Ls[i] * leq[i - 1] / tot
@@ -341,6 +380,13 @@ CELLS = {
                      cap=("q_f", "q_s")),
     "A+B'+C+D": dict(rate_driver="regional", leq="ladder", two_channel="smbrate",
                      cap=("q_s",)),
+    # OPTION D2. The constant cap is replaced by a state-dependent dynamic
+    # throughput (see dyn_throughput): Michaelis-Menten rise-then-plateau in
+    # temperature, times an extinction factor as the marine margin is consumed.
+    # The SMB fast channel stays UNCAPPED -- per the literature it is the term
+    # that keeps growing once discharge declines.
+    "A+B'+C+D2": dict(rate_driver="regional", leq="ladder", two_channel="smbrate",
+                      cap=("q_dyn", "q_thalf", "q_marine")),
 }
 
 # Bounds are wide on purpose: a rail means the fit left the feasible set, which
@@ -365,6 +411,13 @@ PBOUNDS = {
     # CAP_INERT_CM_YR, at which the cap is provably inert -- no annual increment
     # can exceed L_eq <= V0_CM -- so the D cells nest the C cells EXACTLY.
     "q_f": (1e-4, V0_CM), "q_s": (1e-4, V0_CM),
+    # OPTION D2. q_dyn is the throughput scale (cm/yr) at large Tp and a full
+    # marine margin; q_thalf is the Michaelis-Menten half-saturation temperature
+    # (K of the regional driver); q_marine is the cumulative loss (cm SLE) at
+    # which the marine-terminating margin is exhausted and dynamic discharge
+    # goes to zero. q_marine's floor is above the 5.78 cm observed loss, so the
+    # channel cannot be extinguished inside the fit window by construction.
+    "q_dyn": (1e-4, V0_CM), "q_thalf": (1e-3, 20.0), "q_marine": (10.0, 5.0 * V0_CM),
 }
 
 
@@ -396,9 +449,22 @@ def _lift_uncapped(p):
     return dict(p, q_f=CAP_INERT_CM_YR, q_s=CAP_INERT_CM_YR)
 
 
+def _lift_d_to_d2(p):
+    """Lift the constant-cap cell into the state-dependent one. Nesting here is
+    ASYMPTOTIC, not bit-exact: q_thalf at its floor drives the Michaelis-Menten
+    factor to ~1 and q_marine at its ceiling drives the extinction factor to ~1,
+    so q_dyn recovers the constant cap q_s to within those two limits. Stated
+    plainly because the other NEST_MAP entries ARE bit-exact and this one is
+    not -- it is a warm start, not a containment proof."""
+    q = {k: v for k, v in p.items() if k != "q_s"}
+    return dict(q, q_dyn=p.get("q_s", 1.0),
+                q_thalf=PBOUNDS["q_thalf"][0], q_marine=PBOUNDS["q_marine"][1])
+
+
 NEST_MAP = {"B": ("stock", _lift_one_to_two), "A+B": ("A", _lift_one_to_two),
             "A+B+C+D": ("A+B+C", _lift_uncapped),
-            "A+B'+C+D": ("A+B'+C", _lift_uncapped)}
+            "A+B'+C+D": ("A+B'+C", _lift_uncapped),
+            "A+B'+C+D2": ("A+B'+C+D", _lift_d_to_d2)}
 
 
 def cell_params(cell):
