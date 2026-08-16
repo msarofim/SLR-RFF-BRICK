@@ -94,6 +94,57 @@ tiebreak is now measured to be a sampling artefact; and the **paleo** constraint
 is confounded. Marcus's stated condition therefore resolves to **carry both arms
 through to the reported results**, per scoping §19.5's committed-loss diagnostic.
 
+### PRE-REGISTRATION for C+D — written BEFORE the first C+D cell was run
+Scoping §7 requires these stated in advance. Commit `f15b76d` is the last commit
+before any C+D fit existed; this block was written against it.
+
+**The design.** D = a **throughput cap** on the relaxation flux: the annual
+increment is clipped to ±`q` (cm/yr) per channel, so past the threshold loss is
+limited by how fast ice can leave the sheet, not by the size of the
+disequilibrium. Two new cells, each nesting its pass-1 counterpart exactly (at
+`q` = upper bound the cap never binds, so the container's optimum cannot be
+worse — the file's existing nesting discipline):
+
+| cell | rate driver | L_eq | fast channel | slow channel |
+|---|---|---|---|---|
+| `A+B+C+D` | regional | ladder | share, **capped** `q_f` | share, **capped** `q_s` |
+| `A+B'+C+D` | regional | ladder | smbrate (**already** a flux form) | relaxation, **capped** `q_s` |
+
+Note `A+B'`'s `smbrate` channel is *already* throughput-like by construction,
+which is the most likely reason `A+B'+C` scored **118.15** against `A+B+C`'s
+**563.20** in pass 1 — a 4.8× improvement from making one channel a flux. **The
+missing piece is the same treatment on the slow channel**, which is the one that
+explodes when L_eq goes to ~742 cm.
+
+**Predictions, in order of how much they would teach us:**
+
+1. **THE STRUCTURAL CLAIM (§5's reason for D).** The φ·L_eq ridge should
+   **narrow**. Scaling `(c1, c0)` by `k` and re-solving the rate scale leaves
+   `r·(L_eq − L)` invariant while `L_eq ≫ L`, which is why §1's ridge table has
+   every `k` fitting the hindcast identically. A cap is **not** rescaled by `k`,
+   so the invariance breaks — *but only to the extent the cap actually binds*.
+   **Named failure mode, pre-registered:** if the cap binds *throughout* the
+   historical window, the hindcast constrains `q` instead of L_eq and the ridge
+   merely **moves** rather than breaking. The diagnostic is whether the k-rows
+   stop reproducing the 5.78 cm hindcast equally well — not whether the fit
+   improves.
+2. **G4 scenario spread → LOWER.** A+B is 10.44 cm, **above** the 6.3–7.3 band.
+   The cap binds hardest where the disequilibrium is largest (SSP5-8.5), so it
+   should compress the high scenario toward the low ones. Down is the desirable
+   direction, so this one is a prediction I could be flattered by — treat a pass
+   here as weak evidence and the ridge test as the real one.
+3. **2100 SSP5-8.5 back inside AR6's ~9–18 cm.** Pass 1 gave **72 cm**; capping
+   the flux is precisely the mechanism meant to fix that.
+4. **Hindcast RMSE back to A+B's ~0.06–0.10**, from pass 1's 1.675 / 1.009, and
+   G1/G2/G3 pass. This is the first gate, not an afterthought.
+5. **2300 SSP5-8.5 moves materially UP** from A+B's 14.59 cm — that is the point
+   of C — but **bounded** by the cap rather than running to the ~60 cm the
+   uncapped ridge saturates at.
+
+**What would make me abandon the form:** cap rails at its upper bound (D is
+inert and C still fails), or the hindcast only fits when the cap binds
+historically (ridge moved, not broken, per 1).
+
 ### DECISION 4 RESOLVED → not blocking; the premise does not hold
 Marcus chose "test the downstream τ effect first". The test is structural and
 quantitative, not a run (`python/diag_greenland_exposure_in_pulse_metrics.py`).
