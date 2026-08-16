@@ -20,7 +20,8 @@ Repo `SLR-RFF-BRICK`, branch **`brick-mengel-vnext`**. All six suites pass.
 | `postprocess --accept-slr` | **DONE** — canonical L11 posterior written |
 | R19 re-measurement (the §5.1 question) | **DONE — the alarm is RETRACTED** |
 | Thread 5 (Greenland 2300) | untouched, still the one confirmed structural failure |
-| Deliverable figures / scorecard on L11 | **NOT STARTED** |
+| L10-vs-L11 hindcast scorecard | **DONE** — see §1b |
+| Deliverable FIGURES on L11 | **NOT STARTED** |
 
 **The deliverable is `data/MimiBRICK/parameters_subsample_brick_mengel_L11.csv`**
 — 10k-member subsample of 4M pooled draws, plus `outputs/mcmc/adapted_cov_L11.csv`.
@@ -73,6 +74,47 @@ plausible melt rate to anyone not checking. The rebase subtraction cancels in a
 difference, so re-referencing does not enter.
 
 ---
+
+## 1b. THE SCORECARD — D2 works; D1 has a measured price
+
+`python/scope_l10_vs_l11_scorecard.py` → `outputs/scope_l10_vs_l11_scorecard.csv`.
+Both arms from `posterior_predictive_ladrillo.jl --tag=`, same forcing, baseline,
+targets, 2000 draws, noise seed. Bias = model p50 − obs (cm); coverage = 90%
+PARAMETER band.
+
+| component | Δbias full | Δcoverage full | reading |
+|---|---|---|---|
+| ais | +0.001 | +0.0 | untouched, as expected |
+| glaciers | +0.013 | **+16.1 pts** (63.7→79.8; satellite era 35.5→**80.6**) | **D2 working** |
+| gis | +0.003 | −2.4 | reparam was a conditioning fix; behaved like one |
+| te | **−0.106** | +0.8 | early century much better, satellite era worse |
+| total | **+0.425** | **−27.2** | **out-of-sample for L11 — this is D1's price** |
+
+**D2 on gsic reshaped the band, not the median** — exactly what a mean-zero
+discrepancy term should do (|Δbias| ≤ 0.05 cm in every window).
+
+**D2 on steric traded eras**: 1900-1919 +0.418→+0.162, 1920-1949 +0.555→+0.348,
+but 1993-2026 +0.133→**+0.216** with coverage 21.2%→15.2%. This is a second
+symptom of the `thermal_alpha` = 0.16 open question (§5.2), not a new problem.
+
+**D1's price is entirely PRE-1950.** Total bias by window, L10 → L11:
+1900-1919 **+0.146 → +1.125**; 1920-1949 +0.201 → +0.918; 1950-1992 +0.300 →
++0.617; **1993-2026 +0.181 → +0.130 (IMPROVED, coverage 21.9→40.6%)**. Without
+the total, nothing holds the component sum to the observed total and the sum
+runs ~+1 cm high in the early record where the obs are weakest. Does NOT say D1
+was wrong (its case was that the total pins R19 at a saturated state, `3a9e64b`);
+it numbers the discard the spec flagged.
+
+**TRAP, and I fell in it first:** glaciers must be scored against
+`glaciers_obs_delta_corrected`, NOT the raw `glaciers_obs` — the gsic obs carry a
+per-draw M15/Roe-2021 ramp on the OBS side over 1900-1959. The raw target
+inflates the early-century glacier bias ~7× (+1.28 vs +0.20 cm over 1900-1919 on
+L10) and reports a large spurious regression.
+
+`posterior_predictive_ladrillo.jl` is now `--tag=`-driven; the default L10 path
+reproduces its three outputs bit-identically. For an L11 posterior the total has
+no calibrated error model (no `sd_dang`/`rho_dang`), so its predictive band is
+NaN and `in_sample=false` is carried in the bias/coverage CSVs.
 
 ## 2. THE PRODUCTION RUN
 
