@@ -448,7 +448,19 @@ const DELTA_RAMP = [y < 1960 ? (1960.0 - y)/10.0 : 0.0 for y in S.gsic.years]
 # is an RMS discrepancy in cm and the prior sd is directly interpretable.
 const D2_BASIS_N  = 2        # polynomial dof per stream AFTER orthogonalisation
 const D2_BASIS_SD = 0.5      # cm, prior sd on each coefficient (residuals are 0.3-0.6)
-const D2_STREAMS  = ["gsic", "steric"]
+# --d2-streams=steric (or =gsic) runs ONE stream's discrepancy term. Default is
+# both = the shipped L11 configuration, unchanged. This exists for the 2026-08-16
+# attribution question: L10 -> L11 moved thermal_alpha +1.31 L10 sd (mix ratio
+# 19.7) and no chain in the repo separates a steric-basis coupling from a gsic
+# one, because D2chk/D2chk2/D2chk3 all carry both. Restricting the list drops the
+# other stream's coefficients from FREE and from D2_IDX, and `d2()` is already
+# keyed on haskey(D2_IDX, st), so the other stream reverts to no-discrepancy
+# exactly.
+const D2_STREAMS  = let a = _argval("--d2-streams=")
+    a === nothing ? ["gsic", "steric"] : split(a, ",")
+end
+issubset(D2_STREAMS, ["gsic", "steric"]) ||
+    error("--d2-streams= takes gsic and/or steric, got $(D2_STREAMS)")
 
 """Orthonormal (unit-RMS) discrepancy basis for one stream: shifted Legendre-like
 powers of scaled time, Gram-Schmidt'd against `protect` and against each other,
@@ -1342,6 +1354,29 @@ const L11A_NAMES = vcat(
 const L10_NAMES = vcat([k.name for k in FREE],
                        vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
 
+# The L11 PRODUCTION layout: both D2 streams, D1 noise block. Built independently
+# of the live D2_STREAMS so a one-stream run can still name-map the L11 covariance.
+#
+# SIZE COLLISION, and it is why this exists. L10_NAMES and the L11 layout are BOTH
+# 57 long — L10 = 53 physical + 2 gis-native + 10 five-stream noise; L11 = 53
+# physical + 2 gis-reparam + 4 D2 + 8 four-stream noise. So `size(old,1) ==
+# length(L10_NAMES)` MATCHES AN L11 COVARIANCE, and a --d2-streams= run (NK=55)
+# silently mapped adapted_cov_L11tune3 through L10's names: d2 coefficients landed
+# on noise parameters, the Greenland pair on the wrong coordinates, and the chain
+# accepted EXACTLY 0 of 2000 proposals. Caught 2026-08-16 by the acceptance being
+# 0.0 rather than merely low. The shipped L11 production run is NOT affected — at
+# NK=57 the `size(old,1) == NK` branch fires first and uses the matrix as-is,
+# which is correct — so this is a latent trap the new flag exposed, not a defect
+# in any published result. Dispatch on the file's VINTAGE, never on its size.
+const L11_NAMES = vcat(
+    [k.name for k in FREE if !startswith(k.name, "d2_")],
+    ["d2_$(st)_$(k)" for st in ["gsic", "steric"] for k in 1:D2_BASIS_N],
+    vcat([["sd_$s","rho_$s"] for s in SERIES]...))
+"""Covariance files whose rows are in the L11 production ordering."""
+const L11_VINTAGE_ADCOV = ["adapted_cov_L11tune2_seed2026.csv",
+                           "adapted_cov_L11tune3_seed2026.csv",
+                           "adapted_cov_L11_seed2026.csv"]
+
 function embed_cov!(cov0, old, old_names; skip_gic::Bool=false)
     oi = Int[]; ni = Int[]
     for (i, nm) in enumerate(old_names)
@@ -1370,7 +1405,19 @@ if isfile(ADCOV)
         nmap = embed_cov!(cov0, old, L11A_NAMES)
         println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
                 "$(basename(ADCOV)); fresh diagonal for gis_slow_ell, gis_slow_w)")
+    elseif basename(ADCOV) in L11_VINTAGE_ADCOV && size(old,1) == length(L11_NAMES)
+        # MUST precede the L10 branch: the two layouts are the same length (see
+        # the L11_NAMES comment), so size alone cannot tell them apart.
+        nmap = embed_cov!(cov0, old, L11_NAMES)
+        println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+                "$(basename(ADCOV)) as L11 layout; dropped " *
+                join(setdiff(L11_NAMES, pn0), ", ") * ")")
     elseif size(old,1) == length(L10_NAMES)
+        basename(ADCOV) in L11_VINTAGE_ADCOV &&
+            error("$(basename(ADCOV)) is an L11-vintage covariance but did not match " *
+                  "L11_NAMES ($(size(old,1)) vs $(length(L11_NAMES))); refusing to " *
+                  "read it under L10 names — that is the size collision, and it " *
+                  "produces a zero-acceptance chain rather than an obvious failure")
         nmap = embed_cov!(cov0, old, L10_NAMES)
         println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
                 "$(basename(ADCOV)); dropped " *

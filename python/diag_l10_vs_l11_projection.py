@@ -48,10 +48,24 @@ COMPONENTS = ("glaciers", "gis", "ais", "te", "total")
 MIX_RATIO_MIN = 2.0
 CHAIN_STRIDE = 100                       # 2.29 GB chains; one column, post-burn
 PARAM = "thermal_alpha"
-# thermal_alpha implied by the observed steric LEVEL, precision-weighted over the
-# decadal windows (CHANGELOG, the D2 design entry). This is the value the D2
-# steric basis was made orthogonal-to-the-constant to leave identified.
-ALPHA_LEVEL_OPTIMUM = 0.1395
+# THE OPTIMUM IS METRIC-DEPENDENT, AND THE TWO POINT IN OPPOSITE DIRECTIONS.
+# Both are produced by python/diag_te_weighted_and_seam.py, CHECK 2.
+#
+#   PRECISION-WEIGHTED 0.13950 — weights each year by the calibrator's own band
+#     sigma, eps = max((hi-lo)/(2*1.645), 0.05). This IS what the likelihood
+#     optimises, so it is the one to headline. Modern years have tiny bands and
+#     therefore dominate; they want a LOWER alpha.
+#   ZERO-MEAN-BIAS 0.17711 — the alpha that zeroes the unweighted full-window
+#     bias. The early century, where the bands are wide and the weight is small,
+#     wants a HIGHER alpha.
+#
+# L10 0.1503 sits BETWEEN them. So "alpha moved toward/away from the optimum" is
+# meaningless without naming the metric: L10 -> L11 moves AWAY from the
+# precision-weighted optimum and TOWARD the zero-mean-bias one. Reporting either
+# alone is a directional claim that reverses under the other. This script prints
+# both, and the era-split below is what actually reconciles them.
+ALPHA_PRECISION_WEIGHTED = 0.13950
+ALPHA_ZERO_MEAN_BIAS = 0.17711
 # D1-only arm, recorded in 22635dd from 4 x 250k --drop-total chains, both arms
 # tightly mixed. Quoted, not recomputed — see the module docstring.
 ALPHA_D1 = (0.15023, 0.15205)
@@ -125,19 +139,33 @@ def part2_thermal_alpha():
     print(f"\n  ATTRIBUTION. D1 alone moved it {ALPHA_D1[0]:.5f} -> {ALPHA_D1[1]:.5f} "
           f"({d1_shift / sd:+.2f} L10 sd, 22635dd), i.e. {d1_shift / shift * 100:.0f}% "
           "of the L10->L11 move. The remainder is D2.")
-    print(f"  DIRECTION. Level-implied optimum {ALPHA_LEVEL_OPTIMUM}: L10 is "
-          f"{abs(m['L10'] - ALPHA_LEVEL_OPTIMUM):.4f} away, L11 is "
-          f"{abs(m['L11'] - ALPHA_LEVEL_OPTIMUM):.4f} — "
-          f"{abs(m['L11'] - ALPHA_LEVEL_OPTIMUM) / abs(m['L10'] - ALPHA_LEVEL_OPTIMUM):.2f}x FURTHER.")
-    print("  The D2 steric basis was built orthogonal to the constant SO THAT a\n"
-          "  mean-zero discrepancy could not absorb the level and steal alpha's\n"
-          "  identification. Alpha moved anyway, and away. The construction did not\n"
-          "  do the job it was designed for; this measurement does not say which of\n"
-          "  the two D2 streams (steric or gsic) is responsible.")
+    print("\n  DIRECTION — state the metric or the claim reverses:")
+    for lbl, opt in (("precision-weighted (what the likelihood optimises)", ALPHA_PRECISION_WEIGHTED),
+                     ("zero-mean-bias (unweighted level)", ALPHA_ZERO_MEAN_BIAS)):
+        d10, d11 = abs(m["L10"] - opt), abs(m["L11"] - opt)
+        print(f"    vs {opt:.5f}  {lbl}")
+        print(f"      L10 {d10:.4f} away -> L11 {d11:.4f} away = {d11 / d10:.2f}x "
+              f"{'FURTHER' if d11 > d10 else 'CLOSER'}")
+    print("  L10 sits BETWEEN the two optima, so the change set moves alpha AWAY from\n"
+          "  the precision-weighted optimum and TOWARD the zero-mean-bias one. That is\n"
+          "  an ERA TRADE, and the scorecard shows the same thing on the residuals:\n"
+          "  steric 1900-1919 bias 0.418 -> 0.162 and 1920-49 0.555 -> 0.348 (wide\n"
+          "  bands, low weight) bought at 1993-2026 0.133 -> 0.216 with coverage\n"
+          "  21.2% -> 15.2% (tiny bands, high weight). The projection is anchored on\n"
+          "  the modern era, which is the era that got worse.")
+    print("\n  The D2 steric basis is orthogonal to S(t) ITSELF, not merely to the\n"
+          "  constant -- corrected 2026-08-14 after L11tune2 measured\n"
+          "  corr(d2_steric_1, thermal_alpha) = -0.724 -- so delta CANNOT mimic a\n"
+          "  rescaling of alpha in the plain inner product. But the likelihood metric\n"
+          "  is the AR(1)-correlated heteroskedastic precision, in which that\n"
+          "  orthogonality does NOT hold, and the calibrator says so in as many words.\n"
+          "  So this is documented residual coupling, NOT a failed gate. What is open\n"
+          "  is the MAGNITUDE, and which of the two D2 streams carries it.")
     return dict(param=PARAM, med_L10=m["L10"], med_L11=m["L11"], shift=shift,
                 shift_in_L10_sd=shift / sd, chain_spread=spread, mix_ratio=ratio,
                 verdict=verdict, d1_share=d1_shift / shift,
-                level_optimum=ALPHA_LEVEL_OPTIMUM)
+                opt_precision_weighted=ALPHA_PRECISION_WEIGHTED,
+                opt_zero_mean_bias=ALPHA_ZERO_MEAN_BIAS)
 
 
 if __name__ == "__main__":

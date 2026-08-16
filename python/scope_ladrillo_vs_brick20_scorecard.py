@@ -33,13 +33,20 @@ Writes outputs/scope_ladrillo_vs_brick20_scorecard.csv
 """
 import os
 
+import sys
+
 import numpy as np
 import pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(REPO, "outputs/scope_ladrillo_vs_brick20_scorecard.csv")
+# --tag= (default L10) picks the Ladrillo arm and travels into the output name,
+# so a scorecard file always says which posterior vintage it scored.
+LADRILLO_TAG = next((a[len("--tag="):] for a in sys.argv[1:]
+                     if a.startswith("--tag=")), "L10")
+OUT = os.path.join(REPO,
+                   f"outputs/scope_ladrillo_vs_brick20_scorecard_{LADRILLO_TAG}.csv")
 
-L10_TS = os.path.join(REPO, "outputs/postpred_L10_components_timeseries.csv")
+L10_TS = os.path.join(REPO, f"outputs/postpred_{LADRILLO_TAG}_components_timeseries.csv")
 B20_TS = os.path.join(REPO, "outputs/postpred_oldbrick_components_timeseries.csv")
 TARGETS = os.path.join(REPO, "outputs/recalib_targets_ext.csv")
 

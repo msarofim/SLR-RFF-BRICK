@@ -56,16 +56,34 @@ chains agree. `te_sea_level` is exactly `te_s0 + te_α·S(t)` with `te_s0 = 0` a
 - **Attribution.** D1 alone moved α only 0.15023 → 0.15205 (`22635dd`; those
   chains were deleted, so quoted, not recomputed) = **19%** of the move. The
   other 81% is D2.
-- **Direction.** Level-implied optimum **0.1395**. L10 sat 0.0108 above it; L11
-  sits 0.0206 above — **1.91× further, not closer.**
+- **Direction — and the metric has to be named, because the claim reverses.**
+  `diag_te_weighted_and_seam.py` CHECK 2 produces *two* optima and L10 sits
+  **between** them:
 
-The D2 basis was made orthogonal to the constant *specifically* so a mean-zero
-discrepancy could not absorb the steric level and steal α's identification (the
-design entry below: "`thermal_alpha` stays identified by the level. Sub-choice 4
-resolved by construction"). **It did not hold.** Handoff 15b filed this as open
-question 2 on the grounds that D2 had "NOT pulled it toward the steric optimum";
-that is too mild — D2 pushed it away, and that is what puts the extra +1.7 cm of
-steric into the 2100 ssp585 deliverable.
+  | optimum | value | L10 → L11 |
+  |---|---|---|
+  | precision-weighted (**what the likelihood optimises**) | 0.13950 | 0.0108 → 0.0206 = **1.91× FURTHER** |
+  | zero-mean-bias (unweighted level) | 0.17711 | 0.0268 → 0.0170 = 0.64× closer |
+
+  So this is an **era trade**, and the residuals say the same: steric 1900-1919
+  bias 0.418 → 0.162 and 1920-49 0.555 → 0.348 (wide bands, low weight) bought at
+  1993-2026 0.133 → **0.216** with coverage 21.2% → **15.2%** (tiny bands, high
+  weight). **The projection is anchored on the era that got worse** — which is
+  where the +1.7 cm of extra 2100 ssp585 steric comes from.
+
+**Correcting the record within this entry.** The first draft called 0.1395 "the
+level-implied optimum" and concluded the D2 orthogonality "did not hold". Both
+were wrong. 0.1395 is the *precision-weighted* optimum; the level-implied one is
+0.17711, in the opposite direction. And the steric basis is orthogonal to **S(t)
+itself**, not merely to the constant — corrected 2026-08-14 (`cb21def`) after
+`L11tune2` measured `corr(d2_steric_1, thermal_alpha) = −0.724` — so δ cannot
+mimic a rescaling of α *in the plain inner product*. The likelihood metric is the
+AR(1)-correlated heteroskedastic precision, in which that orthogonality does not
+hold, and `d2_basis` says so explicitly ("the posterior metric is neither the
+plain nor the diagonal one ... chasing posterior correlation by changing the
+design metric is whack-a-mole"). So the α shift is **documented residual
+coupling, not a failed gate.** What is open is its magnitude and which stream
+carries it.
 
 **NOT resolved:** *which* D2 stream. `D2chk3` carries both `d2_gsic_*` and
 `d2_steric_*`, so no existing chain separates a steric-basis leak from a gsic
