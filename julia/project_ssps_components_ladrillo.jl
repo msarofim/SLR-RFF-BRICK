@@ -46,17 +46,23 @@ const NTHIN    = let p = filter(a -> !startswith(a, "--"), ARGS)
     isempty(p) ? 2000 : parse(Int, p[1])
 end
 ## POSTERIOR TAG drives BOTH the input posterior and the output filename, so a
-## run on L11 cannot write a file labelled L10. Default L10 = the previous
-## behaviour exactly. Passing --tag=X asserts the file exists rather than
-## silently falling back.
+## run on one vintage cannot write a file labelled with another. The default
+## tracks the CANONICAL posterior (L11 since 2026-08-17; L10 before that), so it
+## is derived from LADRILLO_POSTERIOR_CSV rather than written out again — the
+## two cannot drift. Passing --tag=X asserts the file exists rather than
+## silently falling back, and older vintages stay reachable that way.
+const DEFAULT_TAG = let b = basename(LADRILLO_POSTERIOR_CSV)
+    replace(replace(b, "parameters_subsample_brick_mengel_" => ""), ".csv" => "")
+end
 const POST_TAG = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
-    i === nothing ? "L10" : ARGS[i][7:end]
+    i === nothing ? DEFAULT_TAG : ARGS[i][7:end]
 end
 const POSTERIOR = joinpath(LADRILLO_REPO,
     "data/MimiBRICK/parameters_subsample_brick_mengel_$(POST_TAG).csv")
 isfile(POSTERIOR) || error("no posterior for --tag=$POST_TAG at $POSTERIOR")
-POST_TAG != "L10" || POSTERIOR == LADRILLO_POSTERIOR_CSV ||
-    error("the L10 path drifted from LADRILLO_POSTERIOR_CSV: $POSTERIOR vs $LADRILLO_POSTERIOR_CSV")
+POST_TAG != DEFAULT_TAG || POSTERIOR == LADRILLO_POSTERIOR_CSV ||
+    error("the default tag '$DEFAULT_TAG' resolved to $POSTERIOR, which is not " *
+          "LADRILLO_POSTERIOR_CSV ($LADRILLO_POSTERIOR_CSV)")
 const OUT      = joinpath(LADRILLO_REPO, "outputs/ssps_components_2300_$(POST_TAG).csv")
 const SSPS     = [("ssp126", "SSP1-2.6"), ("ssp245", "SSP2-4.5"), ("ssp585", "SSP5-8.5")]
 const HORIZONS = (2100, 2150, 2300)

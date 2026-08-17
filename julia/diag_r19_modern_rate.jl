@@ -116,7 +116,7 @@ rows = NamedTuple[]
 if "--check-l10" in ARGS
     ## The unit/coordinate guard. L10 is the NATIVE-Greenland posterior, so this
     ## also exercises the branch where ladrillo_native_greenland! is a no-op.
-    r = report("L10 (anchor)", LADRILLO_POSTERIOR_CSV; burn=false)
+    r = report("L10 (anchor)", LADRILLO_POSTERIOR_L10_CSV; burn=false)
     push!(rows, r)
     if abs(r.p50 - L10_ANCHOR) > L10_ANCHOR_TOL
         error("ANCHOR FAILED: L10 gives $(round(r.p50, digits=4)) mm/yr, expected " *

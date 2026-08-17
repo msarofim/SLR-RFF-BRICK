@@ -27,8 +27,11 @@
 using CSV, DataFrames, Printf, Statistics, MCMCDiagnosticTools
 
 const REPO  = abspath(joinpath(@__DIR__, ".."))
+## Default = the CANONICAL vintage. Not derived from LADRILLO_POSTERIOR_CSV
+## (ladrillo_projection.jl pulls in Mimi/MimiBRICK, and this is a pure-CSV
+## diagnostic) — that constant remains the authority, so update both together.
 const TAG   = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
-    i === nothing ? "L10" : ARGS[i][7:end]
+    i === nothing ? "L11" : ARGS[i][7:end]
 end
 const SEEDS = [2026, 2027, 2028, 2029]
 const NITER = 2000000

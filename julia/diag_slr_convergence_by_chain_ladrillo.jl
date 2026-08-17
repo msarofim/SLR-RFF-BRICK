@@ -55,8 +55,15 @@ const REPO       = LADRILLO_REPO
 const SEEDS      = [2026, 2027, 2028, 2029]
 const NITER      = 2000000
 const NBURN      = 1000000                # discard the FIRST HALF
+## Default tracks the CANONICAL posterior (L11 since 2026-08-17), derived from
+## LADRILLO_POSTERIOR_CSV so the two cannot drift. This diagnostic GATES
+## `postprocess --accept-slr`, so a stale default here would accept a new
+## vintage against the previous one's chains. --tag=X reaches older vintages.
 const CHAIN_TAG  = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
-    i === nothing ? "L10" : ARGS[i][7:end]
+    i === nothing ?
+        replace(replace(basename(LADRILLO_POSTERIOR_CSV),
+                        "parameters_subsample_brick_mengel_" => ""), ".csv" => "") :
+        ARGS[i][7:end]
 end
 const N_TARGET   = let p = findfirst(a -> !startswith(a, "--"), ARGS)
     p === nothing ? 400 : parse(Int, ARGS[p])

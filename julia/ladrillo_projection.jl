@@ -77,17 +77,34 @@ include(joinpath(@__DIR__, "brick_mengel.jl"))
 const LADRILLO_REPO = abspath(joinpath(@__DIR__, ".."))
 const LADRILLO_OBS  = joinpath(LADRILLO_REPO, "data/observations")
 
-"""Canonical Ladrillo 1.0 posterior subsample: tag L10, 4 x 2M chains (seeds
-2026-2029, acceptance 0.236-0.237), ACCEPTED ON THE DELIVERABLE 2026-08-13
-(commit 6d73349) — SLR@2100 R-hat 1.000 across chains while 19 parameter
-marginals are NOT converged (`ais_iceflow0` R-hat 2.359). Consequence, carried
-here because this file is what every driver reads: the posterior MAY be used for
-projected SLR and anything derived from it, and MAY NOT be used for
+"""Canonical Ladrillo posterior subsample: tag L11, 4 x 2M chains (seeds
+2026-2029, acceptance 0.236-0.238), ACCEPTED ON THE DELIVERABLE 2026-08-15 —
+projected SLR converges at R-hat 1.002 @2100 / 1.005 @2150 (ESS ~1300) while 18
+parameter marginals are NOT converged (`ais_iceflow0` R-hat 2.449). Consequence,
+carried here because this file is what every driver reads: the posterior MAY be
+used for projected SLR and anything derived from it, and MAY NOT be used for
 parameter-level inference (the pooled AIS-geometry marginals are a mixture of
-four chains that never merged, not posteriors). 55 columns; Greenland is the A+B
-variant, so consumers must build the model with `ladrillo_setup(gis_ab=true)` —
-`ladrillo_posterior_variant()` reads that off the file."""
+four chains that never merged, not posteriors). Pooled SLR, cm rel. 1995-2014:
+2100 = 45.28 [41.63, 75.57]; 2150 = 70.78 [62.64, 155.29].
+
+57 columns; Greenland is the A+B variant, so consumers must build the model with
+`ladrillo_setup(gis_ab=true)` — `ladrillo_posterior_variant()` reads that off the
+file. UNLIKE L10 this posterior carries the slow channel in the REPARAMETERISED
+`(gis_slow_ell, gis_slow_w)` coordinates, not native `(gis_alpha_s,
+gis_beta_s)`, so anything doing parameter-level work on the Greenland channels
+must go through `ladrillo_native_greenland!` first. It also adds the four `d2_*`
+basis columns and drops `sd_dang`/`rho_dang` (D1)."""
 const LADRILLO_POSTERIOR_CSV =
+    joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_L11.csv")
+"""The L10 posterior (accepted 2026-08-13, commit 6d73349), which L11 supersedes.
+
+Kept as a named constant for the same reason `LADRILLO_POSTERIOR_EXTC_CSV` is:
+it is the provenance of every L10-vintage deliverable, AND it is the last
+NATIVE-Greenland posterior, so it is the only fixture that exercises the branch
+where `ladrillo_native_greenland!` is a no-op. `diag_r19_modern_rate.jl
+--check-l10` anchors on it deliberately — do NOT repoint that at the canonical
+constant, or the anchor silently starts measuring L11 under an L10 label."""
+const LADRILLO_POSTERIOR_L10_CSV =
     joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_L10.csv")
 """The extC posterior (accepted 2026-08-10, commit 205ccbf), which Ladrillo 1.0
 supersedes. Kept as a named constant because it is the stock-SIMPLE Greenland
