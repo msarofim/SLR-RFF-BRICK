@@ -729,6 +729,42 @@ const D2_IDX = D2_ON ?
          for st in D2_STREAMS) : Dict{String,Vector{Int}}()
 const GIS_ELL_IDX = GIS_REPARAM ? findfirst(k -> k.name == "gis_slow_ell", FREE) : nothing
 const GIS_W_IDX   = GIS_REPARAM ? findfirst(k -> k.name == "gis_slow_w", FREE) : nothing
+const GIS_ALPHA_F_IDX = findfirst(k -> k.name == "gis_alpha_f", FREE)
+const GIS_BETA_F_IDX  = findfirst(k -> k.name == "gis_beta_f", FREE)
+## ---------------------------------------------------------------------------
+## CHANNEL ORDERING (--gis-ordered), Marcus 2026-08-17.
+##
+## The A+B channels are NAMED fast (surface mass balance) and slow (dynamic
+## discharge), but nothing in the 126-yr hindcast assigns those labels: the two
+## enter L_total symmetrically, so swapping them leaves the residual
+## BIT-IDENTICAL (diag_gis_channel_inversion.py, T1). The labels are carried
+## entirely by the Mouginot prior, which pins the SMB share of the modern loss
+## RATE at 0.735 -- and a share cannot pin a sensitivity (T2). The result is
+## that in ~32% of L11 draws the channel Mouginot names SMB is also the one
+## with the LONGER timescale, which contradicts what SMB is: it tracks
+## temperature near-instantaneously while discharge carries the century memory.
+##
+## Relabelling cannot fix that, because swapping the channels also swaps the
+## share and so breaks Mouginot (T1 measured the swap at 44.20 nlp, all of it
+## the Mouginot term). The two constraints pick out DIFFERENT channels, so the
+## ordering has to be imposed here, jointly, where the sampler can find the
+## region in which both hold.
+##
+## In the SAMPLED (ell, w) coordinates the constraint is a WEDGE, not a box:
+##     alpha_s = w*exp(ell)/TBAR <= alpha_f   AND   beta_s = (1-w)*exp(ell) <= beta_f
+## Both bounds are joint in (ell, w) AND coupled to alpha_f/beta_f, so this
+## CANNOT be expressed by moving any parameter's lo/hi -- it needs the -Inf
+## region below. Priced offline at +0.067 nlp with the hindcast RMSE IMPROVING
+## 0.0617 -> 0.0604 (handoff 2026-08-16 thread-5 section 5, T3); measured on the
+## L11 posterior to move total SLR by <=0.85 cm @2100 and <=3.44 cm @2300
+## (diag_gis_ordering_projection_cost.py).
+##
+## OFF by default: L11 and every earlier vintage must stay bit-reproducible.
+const GIS_ORDERED = "--gis-ordered" in ARGS
+if GIS_ORDERED && !GIS_REPARAM
+    error("--gis-ordered needs the (ell, w) reparameterisation; the " *
+          "native-coordinate branch would need its own wedge.")
+end
 const DELTA_IDX  = findfirst(k -> k.name == "gic_delta", FREE)
 const UPRE_IDX   = findfirst(k -> k.name == "gic_u_pre", FREE)
 const SR5_IDX    = findfirst(k -> k.name == "gic_s_r5", FREE)
@@ -987,6 +1023,11 @@ println("MCMC: $NP physical (incl $(length(GEO_IDX)) DAIS-geometry under a joint
 GIS_REPARAM && println("Greenland slow channel: (log r_s, w) at Tbar = " *
         "$(round(GIS_TBAR, digits=4)) K | ell ~ N($(round(GIS_ELL_MU, digits=4)), " *
         "$GIS_ELL_SD) | w flat on [0,1], centred $(round(GIS_W_MU, digits=4))")
+println("Greenland channel ordering: " * (GIS_ORDERED ?
+        "IMPOSED (--gis-ordered) -- alpha_s <= alpha_f AND beta_s <= beta_f, a " *
+        "WEDGE in (ell, w); the labels are otherwise carried only by Mouginot" :
+        "FREE (default) -- channels are exchangeable in the likelihood, so the " *
+        "fast/slow labels rest entirely on the Mouginot share prior"))
 println("D2 discrepancy: " * (D2_ON ? "ON" : "OFF (--no-d2)") *
         " | $D2_BASIS_N dof per stream on " * join(D2_STREAMS, "+") *
         " | prior sd $D2_BASIS_SD cm | orthogonal to the constant" *
@@ -1021,6 +1062,14 @@ function logposterior(θ)
     @inbounds for k in 1:NP; (θ[k]<FREE[k].lo || θ[k]>FREE[k].hi) && return -Inf; end
     σn = θ[NP+1:2:NK]; ρn = θ[NP+2:2:NK]
     (any(σn .<= 0) || any(ρn .< 0) || any(ρn .>= 0.99)) && return -Inf
+    # the channel-ordering wedge (see GIS_ORDERED above). Evaluated HERE, with
+    # the other hard rejections and BEFORE run(m), so a rejected proposal costs
+    # no model evaluation.
+    if GIS_ORDERED
+        r_s = exp(θ[GIS_ELL_IDX]); w_s = θ[GIS_W_IDX]
+        (w_s * r_s / GIS_TBAR > θ[GIS_ALPHA_F_IDX]) && return -Inf   # alpha_s <= alpha_f
+        ((1 - w_s) * r_s > θ[GIS_BETA_F_IDX])       && return -Inf   # beta_s  <= beta_f
+    end
     @inbounds for k in 1:NP
         (k == AMP_IDX || k == TON_IDX || k in SETP_SKIP) && continue   # derived/likelihood-only
         setp!(FREE[k], θ[k])
@@ -1212,6 +1261,35 @@ for k in 1:NP
     end
 end
 append!(θ0, repeat([1.0, 0.5], length(SERIES)))
+## --gis-ordered: the DEFAULT START VIOLATES THE WEDGE, so it must be repaired.
+##
+## GIS_NATIVE_MU is (alpha_s = 0.0070727, beta_s = 0.0010) while gis_alpha_f is
+## centred at 0.0028487 — i.e. the prior centre is itself INVERTED, which is the
+## defect the constraint exists to remove. Starting there gives
+## logposterior(θ0) = -Inf, and then every MH ratio is (-Inf) - (-Inf) = NaN,
+## which compares false: acceptance collapses to EXACTLY 0.0 and the chain never
+## moves. Measured (3k smoke, seed 2026): 0.0 with --gis-ordered against 0.257
+## without it, which is what identified this.
+##
+## Repaired to L11's ORD-half medians (`split_l11_by_gis_ordering.py`):
+## alpha_s 0.00147, beta_s 0.00237 against alpha_f 0.00415, beta_f 0.00754.
+## Chosen over §5's T3 ordered optimum because that optimum binds at EQUALITY
+## (alpha_f = alpha_s = 0.0036625) and rails beta_s at 1e-6 — starting on a
+## constraint boundary and a rail would reject half the local proposals. These
+## values are strictly INTERIOR and carry real posterior mass behind them.
+##
+## Only the START moves. The PRIORS are left exactly as they are, so the
+## constraint is the clean operation "the same prior, TRUNCATED to the ordered
+## region" rather than a different prior — recentring would change the model,
+## not just enforce the labelling.
+if GIS_ORDERED
+    local a_s0, b_s0 = 0.00147, 0.00237          # L11 ORD-half medians
+    local r_s0 = a_s0 * GIS_TBAR + b_s0
+    θ0[GIS_ELL_IDX] = log(r_s0)
+    θ0[GIS_W_IDX]   = a_s0 * GIS_TBAR / r_s0
+    θ0[GIS_ALPHA_F_IDX] = max(θ0[GIS_ALPHA_F_IDX], 0.00415)
+    θ0[GIS_BETA_F_IDX]  = max(θ0[GIS_BETA_F_IDX],  0.00754)
+end
 # extC: cap the proposal scale at (hi-lo)/4 — the flat-prior params (σ=10 / 1e3) would
 # otherwise get absurd initial proposal widths; RAM adapts from a sane start instead
 prop = vcat([0.1*Float64(min(k.σ, (k.hi - k.lo)/4)) for k in FREE],
@@ -1502,6 +1580,19 @@ if OVERDISPERSE
             SEED, si, lp0, logposterior(θmap))
 else
     println("logpost(θ0) = ", round(logposterior(θ0), digits=2), "  (start = MAP; common across seeds -> R̂ is ANTI-CONSERVATIVE)")
+end
+## STRUCTURAL GUARD. --overdisperse already asserts this for its own start rows;
+## the default path only PRINTED it, which is how a -Inf start reached a smoke
+## run as "accept 0.0" rather than as an error. A non-finite start does not
+## degrade sampling, it disables it: every MH ratio becomes NaN and the chain
+## freezes at θ0 with sd ~ 1e-15 on every parameter. Fail loudly instead.
+let lp0 = logposterior(θ0)
+    isfinite(lp0) || error("logposterior(θ0) = $lp0 — the start point is in a " *
+        "rejected region, so every MH ratio would be NaN and acceptance would " *
+        "be exactly 0.0 with the chain frozen. " *
+        (GIS_ORDERED ? "With --gis-ordered, check the channel-ordering wedge: " *
+                       "alpha_s <= alpha_f AND beta_s <= beta_f must hold AT θ0." :
+                       "Check the parameter bounds and the noise-term limits."))
 end
 
 # ---- --gis-check: acceptance gate for the Ladrillo 1.0 Greenland wiring -------------
