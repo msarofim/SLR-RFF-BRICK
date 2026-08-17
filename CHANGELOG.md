@@ -4222,3 +4222,42 @@ new `lo`/`hi`. Priced before recommending, not after.
 New: `python/diag_gis_ordering_in_l11_posterior.py`,
 `python/split_l11_by_gis_ordering.py`,
 `python/diag_gis_ordering_projection_cost.py`.
+
+## 2026-08-17 — L12 PRE-REGISTRATION (written while L12tune is still running)
+
+Marcus green-lit fixing the channel inversion rather than documenting it:
+pairwise constraint, full re-tune → 4×2M → re-acceptance. Recording the
+predictions now, before any L12 chain exists, so they can fail.
+
+**P1 — the headline SLR barely moves.** `diag_gis_ordering_projection_cost.py`
+measured the ORD-vs-INV contrast on L11 at ≤0.85 cm @2100 and ≤3.44 cm @2300 on
+total SLR. If the constraint behaves as measured, **L12's total SLR@2100 lands
+within ~1 cm of L11's 45.28 cm**, and GIS@2300 ssp585 rises by a few cm from
+41.97. *Falsifier:* a shift >2 cm @2100 means the re-tune did something the
+ORD-filter could not reach — most likely the other parameters re-adjusting (§5
+saw `c0` move 61.99 → 6.75 between the two offline optima), which is exactly the
+scope limit stated on that diagnostic.
+
+**P2 — the ordering share goes to 100 %.** By construction, every L12 draw must
+satisfy `alpha_s ≤ alpha_f AND beta_s ≤ beta_f`. Re-running
+`diag_gis_ordering_in_l11_posterior.py` against L12 must report 100.00 %, not
+37.53 %. *This is a wiring check, not a result* — anything below 100 % means the
+wedge is not actually live in the production path.
+
+**P3 — the timescale separation widens.** L11's ORD half had τ_fast 62.9 /
+τ_slow 174.9 yr against INV's degenerate 79.6 / 75.5. L12 should look like the
+ORD half: **a clearly separated pair, with median max(τ) above L11's 113 yr.**
+*Falsifier:* if L12's channels come out degenerate (τ_fast ≈ τ_slow), the
+constraint is being satisfied trivially by collapsing both channels onto the
+boundary rather than by separating them — the same failure mode D2 showed when
+it "fit by deleting the machinery it was given".
+
+**P4 — acceptance stays in family.** L11 ran 0.236–0.238. The wedge truncates
+~62 % of the prior region, so some drop is expected; **below ~0.15 would say the
+truncated geometry needs its own proposal scaling**, not just a re-tuned
+covariance.
+
+**A prediction I could be flattered by, flagged as such:** P1 is the one where
+"no change" is the comfortable answer, since it would confirm the earlier
+measurement. It is also the one most likely to be wrong, because the re-tune has
+freedom the ORD-filter did not.
