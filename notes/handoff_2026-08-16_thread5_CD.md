@@ -1,8 +1,17 @@
 # Handoff — Thread 5: options C and D resolved; the channel inversion priced
 
 **Start-here document for the next session.** Repo `SLR-RFF-BRICK`, branch
-`brick-mengel-vnext`, HEAD `da31780`. **9 commits, NOT YET PUSHED** (`63e91cf`
-→ `da31780`). Predecessor: `notes/scoping_2026-08-16_thread5_greenland_2300.md`.
+**`ladrillo-dev`**, HEAD `0bafe2a`, **pushed and in sync with origin**.
+Predecessor: `notes/scoping_2026-08-16_thread5_greenland_2300.md`.
+
+> **BRANCH RENAMED 2026-08-16: `brick-mengel-vnext` → `ladrillo-dev`.** The old
+> remote branch is **deleted**; `main`, `brick-mengel` and `brick-v1.2-vehicle`
+> are untouched, and `main` remains the default. **Every note dated before
+> 2026-08-16 refers to `brick-mengel-vnext`** — those notes are deliberately
+> FROZEN (records of what was known when written), so read the old name as this
+> branch rather than editing them. This closes the rename carried from handoff
+> 13d. The name was chosen because Ladrillo 1.0 requires Greenland pass-1 step 5,
+> which has **not** been run, so everything here is still pre-1.0.
 
 **Bottom line: C is abandoned, D and D2 both fail, and the one genuine blocker
 (the channel inversion) turned out to cost 0.067 nlp to fix. Nothing is left
@@ -270,10 +279,17 @@ inversion documented?
 
 ## 8. NON-OBVIOUS STATE
 
-- **9 commits unpushed**; **branch rename still outstanding** (carried from
-  handoff 13d).
+- **All work is PUSHED** (11 commits, `63e91cf` → `0bafe2a`), and the **branch
+  rename carried from handoff 13d is DONE** — see the banner at the top. Both
+  items are off the outstanding list.
 - Working tree clean except `figures/diag_gis_regional_driver.png`, modified
   **before** this session — not ours.
+- `FaIRtoFrEDI/CLAUDE.md` documents this repo's branches as *main /
+  brick-mengel (archived) / brick-v1.2-vehicle* and **never listed the working
+  branch at all**, so it did not go stale in the rename — but it also does not
+  mention `ladrillo-dev`. Worth adding when someone next edits that file;
+  deliberately not done here, since restructuring the cross-repo branch table is
+  outside this thread.
 - **Mid-session the macOS TCC grant for `~/Documents` was lost** (metadata
   readable, `open` denied, unaffected by disabling the sandbox, and Claude's own
   `request_directory` grant did **not** fix it). Fixed via System Settings →

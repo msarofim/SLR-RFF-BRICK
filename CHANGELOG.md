@@ -3,6 +3,33 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-16g — BRANCH RENAMED `brick-mengel-vnext` → `ladrillo-dev`
+
+Closes the rename carried from handoff 13d, and left open as **D3** in
+`notes/scoping_2026-08-11_ladrillo_rename.md` — which asked that it be done "in
+the same commit window so the CHANGELOG entry can name both". Naming both here.
+
+| | |
+|---|---|
+| old | `brick-mengel-vnext` (deleted on origin) |
+| **new** | **`ladrillo-dev`** (pushed, tracking `origin/ladrillo-dev`) |
+| default branch | `main` — unchanged, and never involved |
+| untouched | `main`, `brick-mengel` (archived), `brick-v1.2-vehicle` |
+| open PRs affected | none (checked before the delete) |
+
+The 2026-08-12 Ladrillo rename deliberately left the branch name alone, so this
+is the last `brick-*` identifier on the active line. **`ladrillo-dev`, not
+`ladrillo`**: Ladrillo 1.0 is defined as the posterior carrying Greenland
+**and** GSIC **and** Antarctic — i.e. Greenland pass-1 **step 5**, which has not
+been run — so everything on this branch is still **pre-1.0** and the name should
+not imply otherwise.
+
+**Reading older notes:** every note dated before 2026-08-16 says
+`brick-mengel-vnext`. Those notes are **FROZEN by convention** (records of what
+was known when written) and were NOT rewritten — read the old name as this
+branch. Same discipline as the 2026-08-12 rename, which froze dated notes and put
+the path-mapping table in the CHANGELOG rather than editing history.
+
 ## [unreleased] — 2026-08-16f — CHANNEL INVERSION: cosmetic, and fixable for 0.067 nlp
 
 `python/diag_gis_channel_inversion.py`. Three tests chosen to separate the
