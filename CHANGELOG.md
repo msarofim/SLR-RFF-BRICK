@@ -3,6 +3,63 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-16f — CHANNEL INVERSION: cosmetic, and fixable for 0.067 nlp
+
+`python/diag_gis_channel_inversion.py`. Three tests chosen to separate the
+hypotheses rather than confirm one. Marcus also settled two scope items: **C is
+abandoned**, and **G4 is downgraded from blocker to documented divergence**.
+
+### T1 — the hindcast cannot tell the channels apart AT ALL
+Swapping the channels (`f`→1−`f`, `alpha_f`↔`alpha_s`, `beta_f`↔`beta_s`) leaves
+the hindcast residual **bit-identical: max difference 0.000e+00 cm**. The two
+channels enter `L_total` symmetrically, so the 126-year target carries **zero**
+information about which is which. The swap costs **44.20 nlp**, and *all* of it
+is the Mouginot penalty. **Every bit of label assignment rests on one prior term
+with sigma 0.05.**
+
+### T2 — and nothing at all pins the temperature sensitivity
+The constraint pins the fast share of the **extra loss RATE** (0.7351, target
+0.735). The parameter `f` is the fast share of the **COMMITMENT** (0.7827). They
+differ by 0.048 and coincide only when the channels share a timescale. Neither is
+a constraint on `alpha`: **a share cannot pin a sensitivity.** Hence
+`alpha_f − alpha_s = −0.00424` — the "slow" channel is the more
+temperature-sensitive one — with the timescales crossing at
+**T_south = 1.740 K**.
+
+### T3 — THE DECISIVE ONE: imposing the ordering is nearly free
+
+| | nlp | hindcast RMSE |
+|---|---|---|
+| unconstrained (shipped structure) | 17.856 | 0.0617 |
+| ordered (`alpha_s ≤ alpha_f`, `beta_s ≤ beta_f`) | **17.923** | **0.0604** |
+| **cost of the ordering** | **+0.067** | *improves* |
+
+0.067 nlp against a 2.0 threshold. The ordered optimum is correctly ordered at
+**every** temperature — τ_fast/τ_slow = 242/10⁹, 128/10⁶, 87/273, 66/137, 45/68
+yr at T_south = −1/0/1/2/4 K — so it also **restores a long-timescale reservoir**,
+answering the "nothing exceeds ~221 yr" half of the defect. **Verdict: COSMETIC.**
+
+### The honest caveat — the ordering is IMPOSED, not identified
+At the ordered optimum `alpha_f = alpha_s = 0.0036625` **exactly**: the constraint
+binds at equality. The data are **indifferent** about which channel carries the
+temperature sensitivity, so the ordering is carried entirely by the baseline rate
+(`beta_f` = 0.0078 vs `beta_s` = 1e-6, still railed at its floor). This must be
+reported as **a prior we chose, not a result the data supported**. Corroborating
+the flatness: `c0` moves 61.99 → 6.75 and `g` moves 0.917 → 0.244 between the two
+optima, i.e. a very different parameter point at essentially the same fit.
+
+### What this means for finalizing
+- The channel inversion is **no longer a blocker**: impose the ordering as a
+  calibration constraint at negligible cost, and the channels mean what they are
+  named.
+- **It must be applied at the calibration level, not by relabelling the existing
+  posterior.** This test is on the OFFLINE A+B optimum; the shipped L11 posterior
+  is a different object (it carries `gis_slow_ell`/`gis_slow_w`, not native
+  `alpha_s`/`beta_s`), so carrying the constraint into the deliverable requires a
+  re-tune. That is the remaining cost question.
+- `beta_s` rails at 1e-6 in **both** the constrained and unconstrained optima —
+  a persistent rail, still undiagnosed, carried forward.
+
 ## [unreleased] — 2026-08-16e — D2 RESULTS: the best fit is the one that uses C least
 
 Marcus proposed a physically smarter cap (rise → plateau, with secondary
