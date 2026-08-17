@@ -1,0 +1,13 @@
+quantity,value
+n_draws,10000.0
+tbar_K,1.9630832753234997
+frac_alpha_ordered,0.6483
+frac_beta_ordered,0.6095
+frac_both_ordered,0.3753
+frac_tau_ordered,0.6754
+median_alpha_f,0.003727435078245
+median_alpha_s,0.0021971074208921235
+median_beta_f,0.0064379303348146
+median_beta_s,0.004182355733175568
+median_tau_fast_yr,71.81238166333763
+median_tau_slow_yr,105.41637878849181

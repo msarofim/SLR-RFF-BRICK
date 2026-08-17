@@ -4157,3 +4157,68 @@ CO2 0.01 Gt well-resolved (15–30× float32 ULP, ×magnitude ~1%); posteriors a
 - LHS-10k conditional-BRICK ensemble (ESS = 7,037).
 - Hawkins-Sutton 4-way decomposition of total SLR and pulse-marginal SLR.
 - Zenodo DOI: 10.5281/zenodo.20312325.
+
+## 2026-08-17 — the Greenland channel ordering, priced on the DELIVERABLE
+
+Handoff `notes/handoff_2026-08-16_thread5_CD.md` §7 left one open decision: buy a
+re-tune + 4×2M + re-acceptance (~5 h) + a new vintage to carry the channel
+ordering into the shipped posterior, or ship L11 with the inversion documented.
+§5 had priced the constraint at **0.067 nlp on the offline A+B MAP**. That is a
+statement about one point; the deliverable is a 10,000-draw posterior. Measured
+it instead.
+
+**The inversion is a MAP property, not a posterior property.** In L11 the
+Greenland medians are already correctly ordered — `alpha_s` 0.00220 < `alpha_f`
+0.00373, `beta_s` 0.00418 < `beta_f` 0.00644 — the opposite of the offline
+optimum's `alpha_f − alpha_s = −0.00424`. The pairwise constraint holds in
+**37.53 %** of draws; the physically meaningful τ ordering holds in **67.5 %**.
+
+**The τ share is flat (61–69 %) across T = 0–15 K**, so there is no temperature
+crossover in the sample — §5's T2 crossover at `T_south` = 1.740 K is a MAP
+feature that does not survive into the posterior. This is a *labelling*
+degeneracy, consistent with T1's bit-identical exchangeability.
+
+**The '~221 yr reservoir' defect is also mostly a MAP artefact:** 13.6 % of draws
+exceed 221 yr, p95 = 323 yr, p99 = 448 yr — though the median draw still tops out
+at 113 yr.
+
+**What the re-tune would buy, measured.** Split L11 into its ordered (ORD) and
+inverted (INV) halves, size-matched at 2000 draws, and projected both:
+
+| | GIS @2300 ssp585 | TOTAL @2100 ssp585 | TOTAL @2300 ssp585 |
+|---|---|---|---|
+| ORD | 44.51 | 95.42 | 468.30 |
+| INV | 40.15 | 94.56 | 464.86 |
+| **ORD − INV** | **4.35 cm** | **0.85 cm** | **3.44 cm** |
+| L11's own 5–95 band | 26.1 | 49.6 | 241.4 |
+
+The constraint is worth **≤ 0.85 cm at 2100** and **≤ 3.44 cm at 2300** on total
+SLR — 1.4–1.7 % of the posterior's own band, and an order of magnitude below the
+AIS module spread (−2.32 to +35.45 cm at 2100) that already dominates.
+
+**Two gates, and one that failed honestly.** The *signature* gate passed: the GIS
+difference GROWS monotonically with horizon in all three SSPs (+0.15→+0.29→+0.89,
++0.19→+0.54→+1.53, +0.38→+1.47→+4.35), which is the long-reservoir signature; a
+flat offset would have indicted a code path instead. The *mixture* gate (L11 must
+lie between ORD and INV) passed **9/9 on GIS** but failed on `total` SSP2-4.5
+@2300 by 0.83 cm. Rather than label that noise, added `ais` as a **null control** —
+no AIS parameter is touched by the Greenland split. AIS's own excursion in that
+same cell is **2.33 cm**, ~3× the total's, so the failure is sampling noise
+inherited from AIS. (The gate is only exact in the infinite-sample limit: the
+published L11 run is its own 2000-draw thinning of the 10,000, not the union of
+these two halves.)
+
+**Scope, stated because it bounds the conclusion:** ORD-filtering holds every
+other parameter's sampled value fixed, whereas a native re-tune would let them
+re-adjust (§5 saw `c0` move 61.99 → 6.75 between the two offline optima). This
+measures the constraint's effect *through the Greenland channels* — the mechanism
+in dispute — not a full simulation of a re-tune.
+
+Also recorded: the constraint is a **wedge** in the sampled (ℓ, w) coordinates,
+`w·e^ℓ ≤ alpha_f·T̄` and `(1−w)·e^ℓ ≤ beta_f`, jointly coupled to `alpha_f`/`beta_f`
+— **not a box**, so imposing it natively needs a −∞ region in the log-prior, not
+new `lo`/`hi`. Priced before recommending, not after.
+
+New: `python/diag_gis_ordering_in_l11_posterior.py`,
+`python/split_l11_by_gis_ordering.py`,
+`python/diag_gis_ordering_projection_cost.py`.
