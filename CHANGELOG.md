@@ -4261,3 +4261,40 @@ covariance.
 "no change" is the comfortable answer, since it would confirm the earlier
 measurement. It is also the one most likely to be wrong, because the re-tune has
 freedom the ORD-filter did not.
+
+## 2026-08-17 — L12tune done; P2/P3/P4 pass, P1 still open
+
+`calibrate_mcmc_ext.jl 1000000 2026 --tag=L12tune --gis-ordered`, ~1 h,
+**acceptance 0.238**. Scored against the pre-registration written before any L12
+chain existed.
+
+| pre-reg | prediction | outcome |
+|---|---|---|
+| **P2** ordering share → 100 % | wiring check | **100.0000 %**, 0 violations in 500k post-burn draws — **PASS** |
+| **P3** timescales separate, median max(τ) > 113 yr | result | τ_fast **62.1** / τ_slow **181.0** yr; max(τ) median **181.0**; τ_slow > τ_fast in **100 %** — **PASS** |
+| **P4** acceptance stays above ~0.15 | proposal geometry | **0.238**, inside L11's 0.236–0.238 — **PASS** |
+| **P1** SLR@2100 within ~1 cm of 45.28 | result | **not yet testable** — needs the production posterior |
+
+**P3's falsifier did not fire.** The worry was that the constraint would be
+satisfied trivially by collapsing both channels onto the boundary — the failure
+mode D2 showed when it "fit by deleting the machinery it was given". Instead the
+pair separated: 62.1 vs 181.0 yr, against L11's degenerate INV half (79.6 vs
+75.5). It also landed almost exactly where the ORD-filter predicted (ORD half:
+62.9 / 174.9), which is independent support for the ORD-vs-INV contrast being a
+fair proxy — and therefore for P1.
+
+**Status distinction worth keeping:** P2 is structural — the wedge rejects inside
+`logposterior`, so no chain can contain a violation at any convergence state, and
+100 % on a tuning chain is conclusive for wiring. P3 and P4 are single-chain,
+common-start, unconverged numbers and must be re-checked on the production
+posterior; the D2chk3 precedent (200k, unconverged, ~4× off) is the reason.
+
+**Buffering confirmed, not assumed.** The `--gis-ordered` banner was absent from
+the live log and appeared at exit, as predicted — stdout is block-buffered when
+redirected while the progress bar writes to stderr. The log now records
+`Greenland channel ordering: IMPOSED (--gis-ordered)` for provenance.
+
+**L12 production launched**: 4 × 2M, seeds 2026-29, `--gis-ordered --overdisperse`,
+BLAS pinned to 1 thread/chain. Starts rebuilt from the L12tune chain (L11's file
+backed up to `overdispersed_starts.csv.pre_l12_bak`); `ais_iceflow0` spread
+0.848–1.101 across the four. Early acceptance 0.216–0.286, ETA ~3.5 h.
