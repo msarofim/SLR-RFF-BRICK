@@ -3,6 +3,76 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-18a — COMMITTED-LOSS DIAGNOSTIC (option C's surviving use)
+
+`python/diag_gis_committed_loss.py`. The one item left at the top of the L12
+handoff's §7. Option C — the Bochow-2023 equilibrium ladder as a **driver** of
+realised SLR — was abandoned 2026-08-16; the surviving use recommended at that
+time was to evaluate the equilibrium on each scenario's GMST as **post-processing**
+and report it separately. This is that. **No refit, no new vintage**: it reads the
+shipped `outputs/ssps_components_2300_L12.csv` and the published ladder.
+
+### The headline
+
+**Between 1.7 % and 8.5 % of Greenland's multi-millennial commitment is
+discharged by 2300** — every SSP, both ladder arms. That is the
+throughput-limited-not-commitment-limited finding stated as a fraction rather
+than as a failed fit.
+
+| SSP | level @2300 | committed, PISM-dEBM | committed, Yelmo-REMBO | realised @2300 | discharged |
+|---|---|---|---|---|---|
+| SSP1-2.6 | 1.74 K | 0.66 – 1.48 m | **0.76 – 4.90 m** (straddles) | 0.091 m | 3.2–8.5 % |
+| SSP2-4.5 | 3.15 K | 6.79 – 7.01 m | 6.60 – 7.05 m | 0.168 m | 2.4–2.5 % |
+| SSP5-8.5 | 7.81 K | 7.40 m (saturated) | 7.42 m (saturated) | 0.456 m | 6.1–6.2 % |
+
+Arithmetic cross-check of the SSP5-8.5 row: 7.42 m by 2300 needs ~2.65 cm/yr
+sustained; L12 realises 45.6 cm over 280 yr = 0.163 cm/yr, a factor 16.3 short,
+against the 6.1 % (= 1/16.3) reported. Independent of the ladder lookup.
+
+### Three deliberate design choices
+
+1. **Brackets, never interpolation.** Neither family resolves its own transition
+   (both largest jumps are exactly one grid interval —
+   `diag_ladder_transition_resolution.py`), so the committed loss is reported as
+   the two rungs either side. A bracket that straddles a transition is wide
+   *because the ladder genuinely does not know*, and is flagged as such. The
+   bracket rule and the transition locator are **imported** from that script, not
+   re-implemented.
+2. **Both arms carried throughout.** Nothing tips PISM vs Yelmo. The arm is
+   decisive **only at low warming** — 3.52× at SSP1-2.6's peak, 1.00–1.01× at
+   SSP2-4.5 and SSP5-8.5, which reproduces the arm table exactly and serves as a
+   regression check on the whole path.
+3. **Every ratio is against realised SLR at 2300**, including for the path peak.
+   Dividing a commitment incurred at SSP1-2.6's 2071 peak by the rise banked *by
+   2071* would understate discharge for no reason; realised-at-the-evaluation-year
+   is carried alongside as context only.
+
+### What the peaking path exposes
+
+SSP1-2.6 is the one scenario where the evaluation level matters: it **peaks at
+1.92 K, above Yelmo's transition, and settles to 1.744 K, inside it**. Peak and
+2300 are therefore two different questions and both are reported. The ladder is
+an equilibrium object and **cannot represent overshoot reversibility** — it
+cannot say whether the peak excursion commits the loss irreversibly. Flagged in
+the script's caveats, not papered over.
+
+### Gates mutation-tested, not just passed
+
+Four deliberate perturbations, all firing correctly: a GMT inside PISM's
+transition flags `straddles` for PISM **and not for Yelmo**; one inside Yelmo's
+does the converse; above the top rung flags `saturated`; below the lowest flags
+`below_ladder`. Also checked the exactly-on-a-rung edge (bracket contains the
+truth, conservatively wide).
+
+### Caveats shipped in the script header
+
+The equilibrium is measured from each model's own control ice sheet (zero-forcing
+reference ≈ +0.5 K GMT) while realised SLR is relative to 1995-2014; the offset is
+sub-0.1 m, far inside the bracket widths, and is **not** corrected for. GMT
+compatibility was verified rather than assumed — `ladrillo_projection.jl:454`
+confirms the projection's `gmst` is rel. 1850-1900, and the ladder's `gmt_K` is
+above preindustrial by construction.
+
 ## [unreleased] — 2026-08-16g — BRANCH RENAMED `brick-mengel-vnext` → `ladrillo-dev`
 
 Closes the rename carried from handoff 13d, and left open as **D3** in
