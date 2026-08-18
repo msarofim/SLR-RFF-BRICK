@@ -88,10 +88,15 @@ ZONES = {
     "south": (59.0, 70.0),          # HEADLINE: the ablation-dominated south
     "all": (59.0, 84.0),            # pre-registered sensitivity arm
 }
-# Carried through the confidence/relevance table only -- they are not written to
-# the driver file. They exist so the zone choice is re-validated on THIS mask
-# rather than inherited from the box-masked scoping table it corrects.
+# Originally carried through the confidence/relevance table only; PROMOTED to
+# the driver file 2026-08-18 for the Greenland basin work (the dormant mid/high
+# basins need their own zone drivers). The headline zone and every existing
+# consumer (GIS_ZONE = "south") are untouched -- columns are ADDED, and the
+# build asserts the south/all columns reproduce the previous file exactly
+# before overwriting, so the calibration driver cannot move as a side effect.
 DIAG_ZONES = {"central": (70.0, 77.0), "north": (77.0, 84.0)}
+DRIVER_ZONES = {**ZONES, **DIAG_ZONES}      # columns written to t_gis_zones.csv
+DRIVER_GUARD_TOL = 1e-9                     # existing-column reproduction gate
 HEADLINE_ZONE = "south"
 
 # ---- construction constants ------------------------------------------------
@@ -349,12 +354,31 @@ def main():
     # headline driver: every zone, one file, full precision (the Julia port
     # validation compares at 1e-9 and 6-decimal rounding has broken it before)
     hp = "HadCRUT5"
-    drv = pd.concat({z: series[(hp, z)] for z in ZONES}, axis=1)
+    drv = pd.concat({z: series[(hp, z)] for z in DRIVER_ZONES}, axis=1)
     drv.index.name = "year"
+    # the guard: adding the northern columns must not move the existing ones.
+    # If the raw products changed since the last build, this build would
+    # silently retune the CALIBRATION driver -- abort instead.
+    if os.path.exists(OUT_DRIVER):
+        prev = pd.read_csv(OUT_DRIVER).set_index("year")
+        for z in prev.columns:
+            join = pd.concat([prev[z], drv[z]], axis=1, join="inner").dropna()
+            worst = float((join.iloc[:, 0] - join.iloc[:, 1]).abs().max())
+            if worst > DRIVER_GUARD_TOL or len(join) < len(prev[z].dropna()):
+                raise SystemExit(
+                    f"DRIVER GUARD: rebuilt zone '{z}' differs from the "
+                    f"existing {os.path.basename(OUT_DRIVER)} (max "
+                    f"|diff| = {worst:.2e} over {len(join)} shared years vs "
+                    f"{len(prev[z].dropna())} existing). The raw products have "
+                    f"changed since the last build -- refusing to move the "
+                    f"calibration driver as a side effect. Rebuild deliberately "
+                    f"or restore the raw files.")
+        print(f"  driver guard PASSED: existing zone columns "
+              f"{list(prev.columns)} reproduced to {DRIVER_GUARD_TOL:g}")
     drv.to_csv(OUT_DRIVER, float_format="%.12f")
 
-    allp = pd.concat({f"{p}_{z}": series[(p, z)] for p in PRODUCTS for z in ZONES},
-                     axis=1)
+    allp = pd.concat({f"{p}_{z}": series[(p, z)] for p in PRODUCTS
+                      for z in DRIVER_ZONES}, axis=1)
     allp.index.name = "year"
     allp.to_csv(OUT_ALLPROD, float_format="%.12f")
 
@@ -451,6 +475,8 @@ Degrees C, anomalies relative to the stated baseline, full precision
 
 ## Outputs
 - `data/observations/t_gis_zones.csv` -- headline HadCRUT5 driver, one column per zone
+  (zones: {', '.join(DRIVER_ZONES)}; `central`/`north` promoted 2026-08-18 for the
+  basin work, with the existing columns asserted unchanged at {DRIVER_GUARD_TOL:g})
 - `data/observations/t_gis_zones_allproducts.csv` -- every product x zone
 - `outputs/gis_driver_constants.csv` -- amplification + melt-rate correlation
 """)

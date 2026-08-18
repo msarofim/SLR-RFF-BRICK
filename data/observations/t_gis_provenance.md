@@ -1,6 +1,6 @@
 # t_gis_zones provenance
 
-Built by `python/build_t_gis.py` at commit `bed91d2`.
+Built by `python/build_t_gis.py` at commit `5620e4a`.
 
 ## What this is
 The observed Greenland regional temperature driver for the BRICK-F\* Greenland
@@ -33,7 +33,7 @@ Annual = calendar-year mean of 12 monthly values; a year is kept only with
 ## Amplification
 Through-origin fit of the zone anomaly on the same product's global mean
 anomaly. Headline window `full` = (1901, 2024),
-matching `brickf_data.AMP_FIT_WIN` so the Greenland and glacier amplifications
+matching `ladrillo_data.AMP_FIT_WIN` so the Greenland and glacier amplifications
 are like-for-like.
 
 Zone `south`, window `full`: mean **1.922**,
@@ -53,5 +53,7 @@ Degrees C, anomalies relative to the stated baseline, full precision
 
 ## Outputs
 - `data/observations/t_gis_zones.csv` -- headline HadCRUT5 driver, one column per zone
+  (zones: south, all, central, north; `central`/`north` promoted 2026-08-18 for the
+  basin work, with the existing columns asserted unchanged at 1e-09)
 - `data/observations/t_gis_zones_allproducts.csv` -- every product x zone
 - `outputs/gis_driver_constants.csv` -- amplification + melt-rate correlation
