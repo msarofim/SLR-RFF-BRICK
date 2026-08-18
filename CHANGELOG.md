@@ -3,6 +3,55 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-18j — The basin mock in ZONE SPACE: the pass region maps over cell-for-cell.
+
+`python/scope_gis_basin_zonespace_vs_literature.py` →
+`outputs/scope_gis_basin_zonespace_vs_literature.csv`. Projection-side only;
+no chain, no posterior moved, L12 canonical and untouched.
+
+**Marcus's four choices (2026-08-18), wired as named constants:** MID basin on
+the **central** zone (70–77 N), HIGH on **north** (77–84 N); amp window **full**
+for both; ramp width **GMT-equivalent** per zone; dormant basins
+**projection-side only** — the hindcast cannot see them, so the calibrator is
+not touched.
+
+- **Z1 — the pass region SURVIVES intact.** 59/720 in zone space, the **same 59
+  cells** as GMT space (in both 59, zone-only 0, GMT-only 0). Ratio 10.1–17.6×
+  against literature 7.9–31.9×; G4 1.000–1.133× of shipped; 41 passers with an
+  active mid basin, 18 single-basin. Section 6.1's expectation is confirmed.
+- **Z2 — the shift is small and signed.** Per-cell ssp585 dormant loss at 2300
+  moves by median **−0.0024 m (−0.16%)**, range [−0.0067, −0.0002]. Uniformly
+  negative, from the map's curvature inside the ramp; not zero, which is what
+  distinguishes a real re-parameterisation from a no-op.
+- **Z3 / Z3b PASS** — no combination activates on a low scenario that was inert
+  in GMT space, and dormant loss among passers is identically 0.0 on both
+  ssp126 and ssp245, so they stay bit-identical to shipped.
+- **Onset translation** (along ssp585): mid → central 5.39 / 6.46 / 7.50 / 8.59
+  / 10.69 K; high → north 13.55 / 16.29 / 19.00 K. W_zone 2.10–2.15 (central),
+  2.71–2.75 (north) — i.e. 2.1× and 2.7× the 1 K GMT ramp, as measured in 18i.
+
+### Read this before quoting the Z1 result
+
+The zone-space run reproduces GMT space **because W was set GMT-equivalent and
+the map is monotone** — that combination makes the translation close to a pure
+re-parameterisation *along the median-parameter ssp585 path*. So Z1 is a
+consistency result, not independent evidence for the basin structure. What zone
+space actually buys is a knob GMT space does not have: the dormant basins now
+respond to their own zone's amplification, which is uncertain (north full
+N(2.83, 0.92), a 2.2× product spread). Whether the pass region survives THAT is
+a separate question and is not answered here.
+
+### One wrong gate, recorded rather than deleted
+
+The first Z3 draft gated the dormant response against **zero in absolute
+terms** and reported SSP2-4.5 non-inert at 6.1e-1 — which would have read as a
+zone-splice failure. It is not: the **2.5 and 3.0 K mid onsets sit below
+ssp245's 2300 GMT of 3.15 K and are already active on ssp245 in GMT space**
+(unit response 0.541 and 0.114 at tau = 100, verified directly against
+`mock.dormant_unit`). The gate had to be **parity** — inert in GMT space implies
+inert in zone space — plus a separate deliverable gate on the passing cells.
+8 of the 64 low-scenario combinations are in the already-active class.
+
 ## [unreleased] — 2026-08-18i — Zone-space pre-check: the onset map translates cleanly, and W does NOT.
 
 Before writing any zone-space wiring (handoff 2026-08-18c §6 item 1), measured
