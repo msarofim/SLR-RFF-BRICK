@@ -3,6 +3,55 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-18g — The MULTI-BASIN mock CLEARS the whole 2300 scorecard offline. First candidate structure that does.
+
+`python/scope_gis_basin_mock_vs_literature.py` + `python/plot_gis_basin_mock.py`
+(→ `figures/gis_basin_mock_L12.png`). Marcus's question: could breaking Greenland
+into basins help the way breaking GSIC into three groups (glaciers_nu3
+R19/SLOWP/FAST) helped? Both single-law fixes died because ONE law ties the
+scenarios together; the basin structure staggers onsets instead. The mock:
+shipped A+B stays as the hindcast-bearing SOUTH basin (k=1, s re-bisected,
+reproduction-gated vs the ridge k=1 row at 6e-17); two DORMANT basins
+(MID ~NW, HIGH ~NE+N) with soft-ramp equilibria `V_b·clip((G−T_on)/1K, 0, 1)`
+and first-order relaxation, onsets in GMT space (per-zone drivers don't exist
+yet — a zone driver would rescale onsets, not change feasibility). 720-cell
+grid over onsets × volume × split × tau; dormant loss is linear in V so unit
+responses factor out.
+
+### F1 — YES: 59 of 720 cells clear everything
+
+Three 2300 bands + G4 within 15% of shipped + inventory. Ratio lands
+**10.1–17.6×** (literature 7.9–31.9×) — the quantity the ridge capped at 3.36×
+and the rate-power law at 4.71×.
+
+### F2 — a plateau, not a knife-edge
+
+Passers at every tau (50–400 yr), every volume (1.5–4.5 m), high-onsets 5–7 K,
+with and without an active mid basin (41 vs 18 cells). Densest at
+(onset 6 K, tau 200): 12 of 64 combos. Exemplar (widest 585 margin): onsets
+5/6 K, V = 2.5 m (70% high), tau = 100 → 0.092 / 0.172 / **2.433** m, G4
+1.000× of shipped, ratio 14.2×.
+
+### F3 — physically placed, falsifier clean
+
+Every passing onset sits BETWEEN the scenarios' 2300 GMTs (3.15 / 7.81 K);
+ZERO passers need a mid onset below ssp245's 2300 GMT. The binding constraint
+is 2100-keeping (162/720) — and it selects exactly the physical regime: onsets
+≥5 K cross under ssp585 in 2107+ (5K:2107, 6K:2135, 7K:2179), so dormant
+basins are inert at 2100 BY CONSTRUCTION and SSP1-2.6/SSP2-4.5 stay
+bit-identical to shipped. The fix acts only on the defective column.
+
+### What the mock is NOT
+
+Not a calibration and not evidence the onsets/volumes are RIGHT — it
+establishes the structure CAN represent the literature separation (which both
+single-law families provably cannot) with parameters in the physically
+motivated range. Next tier if bought: pin volumes/onsets against Mouginot
+sector inventories + Aschwanden 2019 / ISMIP6-2300 per-sector behavior, build
+per-zone drivers + amp laws (t_gis_zones.csv carries only south/all today),
+and decide sampled-vs-pinned per the glacier precedent (fix structure offline,
+sample few params).
+
 ## [unreleased] — 2026-08-18f — The convex fast-channel rate law CANNOT fix ssp585 either. Handoff §5 item 1 closed NEGATIVE.
 
 `python/scope_gis_rate_power_vs_literature.py` +
