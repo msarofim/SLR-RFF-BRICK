@@ -4298,3 +4298,60 @@ redirected while the progress bar writes to stderr. The log now records
 BLAS pinned to 1 thread/chain. Starts rebuilt from the L12tune chain (L11's file
 backed up to `overdispersed_starts.csv.pre_l12_bak`); `ais_iceflow0` spread
 0.848–1.101 across the four. Early acceptance 0.216–0.286, ETA ~3.5 h.
+
+## 2026-08-18 — L12 ACCEPTED on deliverable; all four pre-registered predictions hold
+
+4 × 2M, seeds 2026-29, `--gis-ordered --overdisperse`, ~4h45. **Acceptance 0.237
+on all four chains** — that uniformity is the RAM sampler converging to its
+`opt_α=0.234` target (`calibrate_mcmc_ext.jl:1658`), not a code path; L11 ran
+0.236–0.238 the same way. Checked rather than assumed, per the suspicious-
+uniformity rule.
+
+**Deliverable gate: PASSED.** SLR@2100 R̂ **1.002** (ESS 1445), SLR@2150 R̂
+**1.004** (ESS 1400.9), chain-median spread 0.019/0.027 of within-chain sd.
+**16 parameter marginals unconverged** against L11's 18 and L10's 19;
+`ais_iceflow0` R̂ **1.755** against L11's 2.449. Accepted on the deliverable
+criterion (Marcus 2026-07-19). The usual caveat still ships: projected SLR and
+anything derived from it, NOT parameter-level inference.
+
+### Scoring the pre-registration (written 2026-08-17, before any L12 chain)
+
+| | prediction | outcome |
+|---|---|---|
+| **P1** | total SLR@2100 within ~1 cm of L11 | **+0.04 / +0.13 / +0.24 cm** (ssp585/245/126) — **PASS** |
+| **P2** | ordering share → 100 % | **100.00 %**, 10000/10000 — **PASS** |
+| **P3** | τ separate, median max(τ) > 113 yr | τ_fast **61.7** / τ_slow **194.1** yr; ordered at **100 %** across T = 0–15 K — **PASS** |
+| **P4** | acceptance above ~0.15 | **0.237** — **PASS** |
+
+**P1 was flagged in advance as "the one I could be flattered by".** It passed,
+and the corroboration is that GIS moved in the predicted direction and by
+roughly the predicted amount: ssp585@2300 GIS **41.97 → 45.59** (+3.61) against
+the ORD-vs-INV contrast's forecast of +4.35, with ORD's absolute 44.51 landing
+within ~1 cm of L12's 45.59. The ORD-filter was a fair proxy for a constrained
+calibration.
+
+**The p95 concern raised at the gate did NOT survive.** The convergence
+diagnostic showed p95@2100 moving 75.57 → 78.55, which I flagged as unexplained
+by P1. On the full projection the band widths are essentially unchanged
+(ssp585@2100 49.6 → 47.9; ssp245@2100 35.0 → 36.3). The apparent widening was
+that diagnostic's own 1600-draw sampling, not a change in posterior spread.
+
+**Largest total-SLR move is ssp245@2300, −6.22 cm on a 272–283 cm band** — the
+AIS-tipping cell, where the null-control measurement from 2026-08-17 put
+sampling noise alone at ~2.3 cm. Not read as a Greenland effect.
+
+**The "~221 yr reservoir" defect is repaired.** Draws exceeding 221 yr:
+**13.61 % → 39.96 %**; max(τ) p95 **323 → 474 yr**, p99 **448 → 705 yr**. This
+was the substantive half of the original §5 defect ("no century-plus dynamic
+reservoir"), and unlike the labelling half it was a real physical deficiency.
+
+**NOT claimed as an L12 achievement:** the `beta_s` 1e-6 rail is absent (0.000 %
+of `beta_f` at the rail), but that rail was a NATIVE-coordinate artefact already
+gone in L11 under the (ℓ, w) reparameterisation — it is not something the
+ordering constraint fixed.
+
+Diagnostic generalised to `--tag=`, with tag-suffixed outputs so a re-run cannot
+overwrite the L11 measurement the decision rested on, and with a distinct verdict
+for constrained vintages (100 % is a WIRING check, not evidence the constraint
+was needed — the old "a filter would do instead" text was written for L11 and
+would have been misleading here).

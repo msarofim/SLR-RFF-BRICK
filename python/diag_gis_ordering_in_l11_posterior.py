@@ -32,20 +32,30 @@ NOT a box in the sampled coordinates, which is why it cannot be imposed by
 moving `lo`/`hi` and would need a -Inf region in the log-prior.
 """
 import os
+import sys
 import numpy as np
 import pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Vintage under test. Defaults to L11 (the vintage this diagnostic was written
+# against); pass a tag to re-check a later one -- e.g. L12, where the ordering
+# share is a WIRING check that must read exactly 100 %.
+TAG = next((a.split("=", 1)[1] for a in sys.argv[1:]
+            if a.startswith("--tag=")), "L11")
 POSTERIOR_CSV = os.path.join(
-    REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_L11.csv")
+    REPO, f"data/MimiBRICK/parameters_subsample_brick_mengel_{TAG}.csv")
 GIS_DRIVER_CSV = os.path.join(REPO, "data/observations/t_gis_zones.csv")
 GIS_ZONE = "south"            # == ladrillo_projection.jl's LADRILLO_GIS_ZONE
 TBAR_WIN = (2015, 2024)
 TBAR_ASSERTED = 1.963          # the calibrator's own assertion
 TBAR_TOL = 5e-3
-OUT_CSV = os.path.join(REPO, "outputs/diag_gis_ordering_in_l11_posterior.csv")
+# Output paths carry the TAG, so re-running on a later vintage cannot silently
+# overwrite the L11 measurement the L12 decision was based on.
+_SUF = "" if TAG == "L11" else f"_{TAG}"
+OUT_CSV = os.path.join(
+    REPO, f"outputs/diag_gis_ordering_in_l11_posterior{_SUF}.csv")
 OUT_TSWEEP_CSV = os.path.join(
-    REPO, "outputs/diag_gis_ordering_in_l11_posterior_tsweep.csv")
+    REPO, f"outputs/diag_gis_ordering_in_l11_posterior{_SUF}_tsweep.csv")
 # Regional (south-zone) temperature range the projections visit. The zone runs
 # ~GIS_AMP x GMST, GIS_AMP ~ 1.92, and L11's SSP peak GMSTs are 1.92 / 3.19 /
 # 7.81 K (handoff 2026-08-16 thread-5 section 2) -> ~3.7 / 6.1 / 15 K regional.
@@ -163,7 +173,16 @@ def main():
           f"{np.percentile(w,95):.4f}]")
 
     frac = float(ok_both.mean())
-    if frac > 0.80:
+    # A CONSTRAINED vintage must read exactly 100 %: the wedge rejects inside
+    # logposterior, so no draw can violate it at any convergence state. This
+    # case is a WIRING check, not a diagnosis, and must not be reported with
+    # the "a filter would do instead" message written for unconstrained L11.
+    if frac == 1.0:
+        verdict = ("CONSTRAINED VINTAGE -- every draw satisfies the ordering, as\n"
+                   "  the --gis-ordered wedge requires. This confirms the constraint\n"
+                   "  is LIVE in the production path; it is not evidence about\n"
+                   "  whether the constraint was needed.")
+    elif frac > 0.80:
         verdict = ("(a) MOSTLY ORDERED -- a rejection filter on the existing "
                    "posterior is the cheap equivalent of the re-tune")
     elif frac > 0.20:
