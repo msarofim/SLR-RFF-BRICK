@@ -3,6 +3,56 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-18l — amp is a PRIOR-DRIVEN quantity, and the obs-vs-CMIP6 anchor is the live choice.
+
+Two results bearing on Marcus's co-calibration question. Same script,
+`python/scope_gis_basin_zonespace_amp_sens.py`, plus a direct driver probe.
+
+### 1. The hindcast is nearly blind to amp — MEASURED, not argued
+
+`regional_driver` returns the OBSERVED zone series for every year the
+observations cover and only splices `amp * S(dT) * GMST` on afterwards. The
+observations run to 2024 and the calibration window is **1900–2025**. So:
+
+- **amp changes the south driver in exactly ONE year of the 126-year hindcast**
+  (first year of any difference: **2025**; max |Δ| inside the window 0.154 K for
+  amp 1.50 vs 2.50, all of it in that single year).
+- The dormant basins are additionally inert until **2087**, so amp_central and
+  amp_north have **exactly zero** effect anywhere in the hindcast.
+
+Corroboration: the shipped `gis_amp` posterior is **1.9169** against a prior mean
+of **1.9222** — it moved **0.3%**, which is what a near-flat likelihood looks
+like. Reproduce with:
+`python3 -c "...regional_driver(rb, [1.5], S) vs [2.5]; first differing year"`.
+
+**⇒ Putting the dormant zones' amp in the calibrator returns the prior.** The
+likelihood cannot see them, structurally — the same shape of argument as the Leq
+ridge, where the hindcast constrains only the product φ·Leq. Propagating the amp
+prior at PROJECTION time delivers the identical uncertainty without asserting an
+identification the data does not support.
+
+### 2. The ANCHOR choice — and it has a core, unlike the others
+
+New third arm family. The shipped driver takes the amp **LEVEL from
+observations** and only the **SHAPE from CMIP6** (`amp = S(dT) * obs_full`,
+stated as such in `diag_gis_amp_cmip6_summary.md`). For a basin that activates
+far outside the observed range, the models' own amplification is arguably the
+relevant number — and **CMIP6 runs well below observations**:
+
+| zone | CMIP6 @anchor | observed full | obs/CMIP6 | CMIP6 @8 K | obs-anchored @8 K |
+|---|---|---|---|---|---|
+| south | 1.494 | 1.922 | **1.29×** | 1.284 | 1.652 |
+| central | 1.707 | 2.359 | **1.38×** | 1.548 | 2.139 |
+| north | 1.911 | 2.828 | **1.48×** | 1.851 | 2.740 |
+
+Passers (of 720): both-CMIP6 **82**, CMIP6-central/obs-north 162, obs-central/
+CMIP6-north 31, both-observed **59** (the base).
+
+**The ANCHOR diagonal core is 4 cells — and all 4 are in the base 59.** That is
+the first non-empty core in this analysis: the obs-vs-CMIP6 gap (1.29–1.48×) is
+narrower than the product-range envelope (central 1.78×, north 2.2×), so unlike
+RANGE and SIGMA it leaves survivors. A write-up should quote those 4.
+
 ## [unreleased] — 2026-08-18k — Amp sensitivity: the structure survives everywhere, but NO parameter cell does.
 
 `python/scope_gis_basin_zonespace_amp_sens.py` →

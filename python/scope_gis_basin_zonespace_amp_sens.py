@@ -100,7 +100,14 @@ REPRO_TOL, RIDGE_CSV = zs.REPRO_TOL, zs.RIDGE_CSV
 POST, TARGETS, HIND, HIND_DRIVER = zs.POST, zs.TARGETS, zs.HIND, zs.HIND_DRIVER
 MAP_SSP, INERT_TOL = zs.MAP_SSP, zs.INERT_TOL
 
-ARM_FAMILIES = {"RANGE": ("lo", "mean", "hi"), "SIGMA": ("-1sd", "mean", "+1sd")}
+ARM_FAMILIES = {"RANGE": ("lo", "mean", "hi"), "SIGMA": ("-1sd", "mean", "+1sd"),
+                # ANCHOR: what the amp LEVEL is anchored on. The shipped driver
+                # takes the level from OBSERVATIONS and only the SHAPE from
+                # CMIP6 (amp = S(dT) * obs_full). For a basin that activates at
+                # a warming level far outside the observed range, the models'
+                # own amplification is the arguably relevant number, and CMIP6
+                # runs 1.29x (south) to 1.48x (north) BELOW observations.
+                "ANCHOR": ("cmip6", "mean")}
 BASE_CSV = zs.OUT
 OUT = os.path.join(REPO, "outputs/scope_gis_basin_zonespace_amp_sens.csv")
 KEY = ["t_on_mid", "t_on_high", "v_tot", "mid_share", "tau"]
@@ -109,8 +116,18 @@ KEY = ["t_on_mid", "t_on_high", "v_tot", "mid_share", "tau"]
 def amp_arms(zone):
     pri = pd.read_csv(os.path.join(REPO, "outputs/gis_amp_prior.csv"))
     r = pri[(pri.zone == zone) & (pri.window == AMP_WINDOW)].iloc[0]
+    # the CMIP6-anchored level: R_secant at the anchor warming level, i.e. the
+    # models' own amplification rather than the observed one. S(dT) is shared,
+    # so this rescales the whole curve by r_anchor / obs_amp_full.
+    mp = (os.path.join(REPO, "outputs/gis_amp_shape_meta.csv") if zone == "south"
+          else os.path.join(REPO, f"outputs/gis_amp_shape_meta_{zone}.csv"))
+    m = pd.read_csv(mp).iloc[0]
+    assert abs(float(m.obs_amp_full) - float(r["mean"])) < 1e-9, (
+        f"{zone}: shape-meta obs_amp_full {m.obs_amp_full} != prior mean "
+        f"{r['mean']} — the two tables have drifted apart")
     return {"lo": float(r.lo), "mean": float(r["mean"]), "hi": float(r.hi),
-            "-1sd": float(r["mean"] - r.sd), "+1sd": float(r["mean"] + r.sd)}
+            "-1sd": float(r["mean"] - r.sd), "+1sd": float(r["mean"] + r.sd),
+            "cmip6": float(m.r_anchor)}
 
 
 def main():
