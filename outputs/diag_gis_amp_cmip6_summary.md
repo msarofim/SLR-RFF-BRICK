@@ -1,6 +1,6 @@
 # CMIP6 Greenland amplification vs warming level (zone = south)
 
-- commit `f340962`; 40 CMIP6 models; scenarios ['ssp126', 'ssp245', 'ssp585']
+- commit `d59ce12`; 40 CMIP6 models; scenarios ['ssp126', 'ssp245', 'ssp585']
 - window 30 yr, anomalies rel 1850-1900, windows dropped if centre < 1950 or mean dT_glob < 0.5 K
 - bootstrap over models, 2000 resamples, seed 2026
 - observed prior for comparison: south/full **1.922** (the value Ladrillo 1.0 uses), south/modern 1.792
