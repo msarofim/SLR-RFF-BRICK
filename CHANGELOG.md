@@ -3,6 +3,80 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-18e — THE Leq(T) REFIT CANNOT FIX ssp585. Measured before buying it.
+
+`python/scope_gis_leq_ridge_vs_literature.py`. Marcus asked to start on the
+`Leq(T)` fix. **The first step was to check that it can work — and it cannot.**
+Offline, no chain, no calibrator edit.
+
+### The argument
+
+`scope_gis_2300_relaxation.py` established that the 1900-2025 hindcast constrains
+only the PRODUCT `phi·Leq`, so scaling `(c1,c0)` by k and re-solving the rate
+scale fits identically at every k — a **ridge**. An external `Leq(T)` target
+selects a point *on* that ridge; it cannot move the model off it. So the refit can
+only succeed if some ridge point is acceptable for all three scenarios at once.
+**None is.**
+
+| k | rate s | Leq@585 | SSP1-2.6 | SSP2-4.5 | SSP5-8.5 | 2100 vs k=1 |
+|---|---|---|---|---|---|---|
+| **1.0 (as shipped)** | 1.010 | 0.54 | **0.092\*** | **0.172\*** | 0.469 | 1.00× |
+| 12.0 | 0.044 | 6.47 | 0.291 | 0.526 | **1.754\*** | 1.05× |
+| **14.0 (the ceiling)** | 0.037 | 7.42 | 0.298 | 0.535 | **1.794\*** | 1.05× |
+| 22.6 (Bochow-matched) | 0.023 | 7.42 | 0.305 | 0.555 | 1.318 | 1.05× |
+| 50.0 | 0.010 | 7.42 | 0.297 | 0.389 | 0.670 | 0.34× |
+
+\* = inside that scenario's 2300 literature band. **k = 1, the shipped model, is
+the BEST point on the ridge** (2/3). Every k that repairs ssp585 breaks the two
+scenarios that are currently right.
+
+### Two findings worth keeping
+
+**1. The ridge has a CEILING and is NON-MONOTONE in k.** ssp585@2300 peaks at
+**1.794 m at k = 14** — barely touching the *bottom* of the 1.732–3.127 m band —
+then FALLS (1.318 at k=22.6, 0.670 at k=50). `Leq` clips at `V0 = 7.42 m`, so past
+k≈14 more commitment is unavailable while the rate keeps slowing. The commitment
+cannot be pushed arbitrarily far even in principle. At that peak SSP1-2.6 is
+**1.8×** over its band top and SSP2-4.5 **2.5×** over.
+
+**2. THE INVARIANT — the ssp585/ssp245 ratio at 2300.** Band membership is coarse;
+this is the thing the ridge cannot change:
+
+> literature demands **7.9×–31.9×**; the ridge delivers **1.72×–3.36×** at any k.
+
+A linear `Leq` **ties the scenarios together** — raising it to lift ssp585 lifts
+the cooler ones by nearly the same factor, so the ratio barely moves. The
+literature's ratio is **2.4–9.5× beyond anything this family can reach**. That,
+not band membership, is why an external `Leq(T)` target cannot be the fix.
+
+### Consequence for the work
+
+The shortfall is **not an identification problem**, so re-identifying it is not
+the answer. What the literature's ratio implies is a **threshold/nonlinearity in
+the DYNAMICS**, not merely a larger equilibrium: SSP2-4.5 stays near the
+threshold and little happens, while ssp585 crosses far above it and the
+melt-elevation feedback runs away. Option C supplied a threshold in `Leq` **only**,
+with the rate left linear in T — which is consistent with why it failed. A
+candidate structure has to put the nonlinearity in the **rate** as well.
+
+**Not started — this is a structural change and a methodological choice for
+Marcus**, between (a) a nonlinear rate law, (b) a threshold form carrying both
+`Leq` and rate, and (c) accepting the ssp585 2300 column with the 3.8–6.9×
+shortfall as a stated caveat. Flagging rather than picking.
+
+### Implementation notes
+
+L12 carries the slow channel as **(ell, w) only** — L10 was the last native
+vintage — so the scan maps back via `ladrillo_native_greenland!`'s exact formula,
+with `TBAR` **derived** from the driver over 2015-2024 (1.9631 K) and asserted
+against the Julia's own tolerance rather than hardcoded.
+
+**A trap in my own first draft:** it tested the median-parameter 2100 G4 against
+the *ensemble* 6.3–7.3 cm band and reported "G4 out" for k=1 — i.e. it indicted
+the shipped model. Medians are not multiplicative (the same trap behind the
+retracted "56% redundant"). G4 is now judged **relative to k=1**, which is the
+only meaningful comparison at median parameters.
+
 ## [unreleased] — 2026-08-18d — LITERATURE CHECK on the discharged fraction, and a framing correction
 
 Marcus asked whether the <10 % discharge is defensible against the literature.
