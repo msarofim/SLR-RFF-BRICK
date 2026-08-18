@@ -3,6 +3,70 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-18d — LITERATURE CHECK on the discharged fraction, and a framing correction
+
+Marcus asked whether the <10 % discharge is defensible against the literature.
+Answering it surfaced an error in 18a's framing and produced a scenario-dependent
+verdict. Also records his acceptance of 18c.
+
+### FRAMING CORRECTION (mine, in 18a)
+
+18a called the low fraction "throughput-limited, not commitment-limited". **That
+is wrong for the shipped module.** It imported a phrase that belongs to the
+option-C/D fit series — where a throughput cap made `L_eq` algebraically
+irrelevant — and applied it to A+B, which behaves the opposite way. A+B relaxes
+*faster* than the stock SIMPLE it replaced and is **99 % equilibrated by 2300**
+(φ = L/L_eq = 0.987 / 0.991 / 0.989). It has essentially finished discharging.
+
+So the 1.7–8.5 % is **not** a rate limitation. It is arithmetically the same fact
+as the already-recorded defect that **A+B's own committed loss is 19–24× below
+Bochow** (0.137 / 0.205 / 0.454 m vs 3.11–3.37 / 4.84–5.06 / 8.56–8.71 m). The
+diagnostic did not discover a new mechanism; it re-expressed a known one against
+an external ladder. Worth having, but it must not be sold as more.
+
+### THE LITERATURE VERDICT — scenario-dependent, and the obvious comparison is a trap
+
+| SSP | Ladrillo @2300 | stabilised-forcing lit | continued-warming lit | verdict |
+|---|---|---|---|---|
+| SSP1-2.6 | 0.091 m | 0.058–0.163 | **0.092** | CONSISTENT (essentially exact) |
+| SSP2-4.5 | 0.168 m | 0.098–0.218 | not reported | inside the stabilised range |
+| SSP5-8.5 | 0.456 m | 0.282–1.230 | **1.732–3.127** | **LOW by 3.8–6.9×** |
+
+**The trap:** Ladrillo's 0.456 m sits comfortably inside the stabilised-forcing
+band 0.282–1.230 m and looks validated. It is not an apples-to-apples comparison.
+That band holds **year-2100 climate constant** to 2300, whereas Ladrillo keeps
+warming — ssp585 reaches **7.81 K at 2300** against 4.69 K at 2100. Compared
+against the arm that actually keeps warming, Ladrillo is 3.8–6.9× low. Both arms
+are carried in the script so the flattering one cannot be quoted by accident.
+
+**Discharged fraction, SSP5-8.5: Ladrillo 6.2 % against a literature 23.4–42.2 %.**
+
+### What this changes about the answer
+
+- At **SSP1-2.6 and SSP2-4.5 the low fraction IS defensible** — realised SLR
+  matches physically-based ice-sheet models, and the equilibrium genuinely is
+  multi-millennial (TC 20:309 reaches 5.1–7.1 m only by **3000**, and its two-way
+  coupled run does not equilibrate even then).
+- At **SSP5-8.5 it is not.** The fraction should be roughly a third, not a
+  sixteenth. This is the 19–24× commitment deficit biting hardest where the
+  commitment is largest.
+
+**This corroborates a previously single-sourced claim.** The 2300 shortfall rested
+on Bochow 2026 — an EGUsphere preprint whose Table 2 this project itself retracted
+and whose referees raised UQ concerns. Two peer-reviewed, physically-based sources
+now agree, and at a *larger* factor (3.8–6.9× vs the preprint's 4.3×).
+
+Sources: **TC 19:6887 (2025)** doi 10.5194/tc-19-6887-2025 (GrIS ensemble, both
+arms; SSP5-8.5-ext from IPSL-CM6A-LR and CESM2-WACCM); **TC 20:309 (2026)** doi
+10.5194/tc-20-309-2026 (MAR–GISM coupled, SSP5-8.5 IPSL-CM6A-LR, 0/1/2-way:
+1.732 / 2.149 / 2.201 m at 2300, 5.122 / 5.635 / 7.135 m at 3000).
+
+### amp(GMST): ACCEPTED
+
+Marcus accepted 18c's measurement 2026-08-18. The §6 caveat moves from **open** to
+**justified** — the amplification approach stands as implemented, no refit. The
+flat-hold sub-choice above 2.75 K remains separately open.
+
 ## [unreleased] — 2026-08-18c — amp(GMST) MISMATCH MEASURED: nominal, not material
 
 `python/diag_gis_amp_calib_projection_gap.py`. The caveat every handoff since L10
@@ -94,9 +158,12 @@ shipped `outputs/ssps_components_2300_L12.csv` and the published ladder.
 ### The headline
 
 **Between 1.7 % and 8.5 % of Greenland's multi-millennial commitment is
-discharged by 2300** — every SSP, both ladder arms. That is the
+discharged by 2300** — every SSP, both ladder arms. ~~That is the
 throughput-limited-not-commitment-limited finding stated as a fraction rather
-than as a failed fit.
+than as a failed fit.~~ **THAT SECOND SENTENCE IS WRONG — corrected in 2026-08-18d
+below.** The shipped A+B module is ~99 % equilibrated against its OWN `L_eq`; it is
+not throughput-limited at all. "Throughput-limited" describes the option-C/D fit
+series, not the module that ships.
 
 | SSP | level @2300 | committed, PISM-dEBM | committed, Yelmo-REMBO | realised @2300 | discharged |
 |---|---|---|---|---|---|

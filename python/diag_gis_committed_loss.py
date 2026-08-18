@@ -85,7 +85,35 @@ LADDER = os.path.join(REPO, "data/observations/greenland_equilibrium_bochow2023.
 OUT = os.path.join(REPO, "outputs/diag_gis_committed_loss.csv")
 GIS_COMPONENT = "gis"
 EVAL_YEARS = [2100, 2300]          # levels evaluated in addition to the path peak
+
+# --- literature benchmark for the REALISED 2300 contribution, m SLE ----------
+# Added 2026-08-18 after Marcus asked whether the discharged fraction is
+# defensible. The distinction between the two arms is LOAD-BEARING:
+#
+#   "stabilised" = year-2100 forcing repeated to 2300. Comparing Ladrillo to this
+#       arm FLATTERS it, because Ladrillo keeps warming (ssp585 reaches 7.81 K by
+#       2300 against ~4.69 K at 2100). Carried only to make that trap explicit.
+#   "warming"    = climate forcing continued to 2300. This is the apples-to-apples
+#       arm for Ladrillo's own GMST paths.
+#
+# Sources:
+#   TC19:6887 (2025) doi 10.5194/tc-19-6887-2025 — physically-based GrIS ensemble,
+#       both arms; SSP5-8.5-ext from IPSL-CM6A-LR and CESM2-WACCM.
+#   TC20:309  (2026) doi 10.5194/tc-20-309-2026 — MAR-GISM coupled, SSP5-8.5
+#       IPSL-CM6A-LR, 0/1/2-way coupling; reaches 5.1-7.1 m by 3000.
+LIT_2300_M = {
+    "SSP1-2.6": {"stabilised": (0.058, 0.163), "warming": (0.092, 0.092)},
+    "SSP2-4.5": {"stabilised": (0.098, 0.218), "warming": None},
+    "SSP5-8.5": {"stabilised": (0.282, 1.230), "warming": (1.732, 3.127)},
+}
+LIT_CITE = ("TC 19:6887 (2025) doi 10.5194/tc-19-6887-2025; "
+            "TC 20:309 (2026) doi 10.5194/tc-20-309-2026")
 HORIZON_YEAR = 2300                # realised SLR is discharged against THIS year
+PLOT_LEVEL_KEY = "y2300"           # the evaluation level the literature check uses
+SSP_ORDER = ["SSP1-2.6", "SSP2-4.5", "SSP5-8.5"]
+# within this factor of the literature arm counts as agreement rather than a
+# discrepancy: a single-model extension is not precise enough to call a 10% gap
+AGREEMENT_TOL = 1.25
 CM_PER_M = 100.0
 
 
@@ -188,6 +216,42 @@ def main():
                                  ladrillo_tag=tag, **b))
             ratio = max(mids.values()) / min(mids.values())
             print(f"         -> arms differ by {ratio:.2f}x\n")
+
+    print("=" * 66)
+    print("LITERATURE CHECK on the REALISED 2300 contribution (the numerator)")
+    print(f"  {LIT_CITE}\n")
+    print("  The discharged fraction is only as defensible as the realised SLR")
+    print("  feeding it. Compare against the CONTINUED-WARMING arm: Ladrillo keeps")
+    print("  warming, so the stabilised arm is not apples-to-apples and comparing")
+    print("  to it flatters the model.\n")
+    for s_ in SSP_ORDER:
+        sub = pd.DataFrame(rows)
+        sub = sub[(sub.ssp == s_) & (sub.level == PLOT_LEVEL_KEY)]
+        if not len(sub):
+            continue
+        real = float(sub.realised_horizon_m.iloc[0])
+        lit = LIT_2300_M[s_]
+        st, wm = lit["stabilised"], lit["warming"]
+        print(f"  {s_}  Ladrillo {real:.3f} m")
+        print(f"      stabilised-forcing lit {st[0]:.3f}-{st[1]:.3f} m"
+              f"   {'INSIDE' if st[0] <= real <= st[1] else 'OUTSIDE'}"
+              f"  (not apples-to-apples)")
+        if wm is None:
+            print("      continued-warming lit  not reported for this scenario")
+        else:
+            lo_f = wm[0] / real
+            hi_f = wm[1] / real
+            if wm[0] <= real <= wm[1] or max(lo_f, 1 / hi_f) <= AGREEMENT_TOL:
+                verdict = "CONSISTENT"
+            elif real < wm[0]:
+                verdict = f"LADRILLO LOW by {lo_f:.1f}-{hi_f:.1f}x"
+            else:
+                verdict = "LADRILLO HIGH"
+            print(f"      continued-warming lit  {wm[0]:.3f}-{wm[1]:.3f} m   {verdict}")
+            cmid = float(sub.committed_mid_m.mean())
+            print(f"      => discharged: Ladrillo {100 * real / cmid:.1f}% vs "
+                  f"literature {100 * wm[0] / cmid:.1f}-{100 * wm[1] / cmid:.1f}%")
+        print()
 
     pd.DataFrame(rows).to_csv(OUT, index=False)
     print(f"wrote {os.path.relpath(OUT, REPO)}")
