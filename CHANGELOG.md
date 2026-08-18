@@ -3,6 +3,49 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-18i — Zone-space pre-check: the onset map translates cleanly, and W does NOT.
+
+Before writing any zone-space wiring (handoff 2026-08-18c §6 item 1), measured
+the assumption it rests on. `python/diag_gis_zone_driver_scope.py` →
+`outputs/diag_gis_zone_driver_scope.csv`. No chain, no posterior, L12 untouched.
+
+- **M1 PASS** — the GMT → zone-driver map along SSP5-8.5 is strictly increasing
+  across the whole (3.15, 7.81] K bracket, every zone × amp window (min annual
+  step 2.4e-4 K). Each GMT-space onset therefore has a unique zone-space image;
+  the 59-cell pass region maps over one-for-one.
+- **M2 PASS** — all 24 translated onsets stay above SSP1-2.6/SSP2-4.5's 2300
+  zone drivers; **min margin 1.30 K** (south/modern, 4 K onset). The dormant
+  basins stay inert on the low scenarios by construction in zone space too, so
+  ssp126/245 remain bit-identical to shipped.
+- **M3 — the finding.** The mock's fixed 1 K GMT ramp is **1.58 K (south),
+  2.07 K (central), 2.66 K (north)** in zone units. W does not translate; fixing
+  W = 1 K in zone units would sharpen the onset by those factors. **W is a
+  CHOICE, not a unit conversion** — it goes to Marcus with the other §6 item 2
+  choices rather than being silently carried over.
+- Translated onsets (full-window amp): south 6.37/7.99/9.65/11.28, central
+  8.59/10.69/12.84/14.95, north 10.86/13.55/16.29/19.00 K, at crossing years
+  2087/2107/2135/2179. Modern-window amp shifts these down 3–4%.
+
+### Two things corrected in the making, recorded so they are not repeated
+
+1. The first draft gated on monotonicity of the driver **time series** and
+   reported FAIL for all six zone × window combinations. Wrong test — SSP1-2.6
+   peaks and declines, so its driver legitimately falls. §6.1's claim is about
+   the GMT → driver **map**. Replaced by M1.
+2. The first draft also measured the **scenario spread** of the zone-driver
+   value at each onset and printed a NaN-driven "NOT stable" verdict. That test
+   is **vacuous by construction**: the mock's own falsifier F3 established that
+   no passing onset sits below SSP2-4.5's 2300 GMT, so SSP5-8.5 is the only
+   scenario that ever crosses one. Replaced by M2's inertness margin, which is
+   the question that spread was standing in for.
+
+### Provenance footnote pinned in the script
+
+The handoff's per-zone anchors (south 1.9631, central 2.7667, north 3.2714) are
+**10-yr 2015–2024 means**; the splice's own anchor is the **`ANCHOR_N` = 11-yr
+2014–2024** window: south **1.9904**, central **2.7758**, north **3.2384**.
+Both correct, different windows; only the 11-yr one enters `regional_driver`.
+
 ## [unreleased] — 2026-08-18h — Basin tier 1 + tier 2: the pass region survives Mouginot, and the per-zone drivers + amp laws are BUILT.
 
 Marcus bought tiers 1 and 2 of the basin structure. Three commits.
