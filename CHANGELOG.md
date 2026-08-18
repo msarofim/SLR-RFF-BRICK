@@ -3,6 +3,66 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-18c — amp(GMST) MISMATCH MEASURED: nominal, not material
+
+`python/diag_gis_amp_calib_projection_gap.py`. The caveat every handoff since L10
+has shipped — *"the amp(GMST) law is projection-side only; the calibrator runs at
+constant GIS_AMP = 1.92. **Justify or align. Still open.**"* — and which L12 §6
+called the largest unaddressed methodological caveat. **Measured, on two
+independent legs. Both say nominal.**
+
+### Leg 1 — over the years the calibrator actually fitted, the law IS the constant
+
+S is anchored so `S == 1` exactly at `dT_eff = 0.940 K`. The question was never
+"is S ever far from 1" (at 2100 it is 0.86) but "is S far from 1 anywhere the
+calibrator looked".
+
+| window | S spans | mean S | worst-year amp departure |
+|---|---|---|---|
+| calibration 1850-2026 | 0.9796 – 1.0023 | 1.0012 | 0.0391 = **0.19 posterior sd** |
+| GIS targets 1900-2026 | 0.9796 – 1.0023 | 1.0007 | 0.0391 = **0.19 posterior sd** |
+| *2100 (contrast)* | *0.8604* | — | *1.33 posterior sd* |
+
+Expressed against the parameter's **own** posterior sd (0.2011), because a shift
+in amp only matters relative to the uncertainty amp already carries. The
+departure is a **fifth of one sd at the single worst year**, against a stated
+materiality threshold of 0.5 sd. At 2100 it is 1.33 sd — i.e. the whole effect
+lives in the projection period, which is where the law was designed to act.
+
+### Leg 2 — gis_amp is likelihood-inert, re-verified ON L12
+
+The wedge truncates the Greenland block, so inertness could not be inherited
+from L10/L11 and was re-measured. Marginal reproduces its own truncated prior:
+posterior mean/sd **1.9107 / 0.2011** vs prior **1.9049 / 0.2013**.
+
+**The correlation null had to be fixed before it could be read.** The standing
+`|r| <= 0.05` figure was an **iid** comparison, and these are MCMC draws. L12's
+max is `|r| = 0.0799` (`ais_mu`), which against an iid null would look like an
+8-sigma coupling and a regression from L11. Against the correct ESS-aware null it
+is nothing: **ESS 641** of 10,000 draws, null max|r| over 56 parameters **median
+0.0988, 95th pct 0.1309** — the observed value sits *below the null median*.
+**Superseded: quote the ESS-aware null, not `|r| <= 0.05`.**
+
+Two corroborating signs it is noise: the identity of the top correlate is
+unstable across vintages (L11 `gis_c0` 0.056 → L12 `ais_mu` 0.080), and L12's top
+correlates are all **AIS** parameters — the block with 16 unconverged marginals,
+where non-mixing manufactures exactly this. No mechanism couples gis_amp to AIS.
+
+**An ESS trap en route, worth not repeating.** A first pass capped the
+autocorrelation sum at 50 lags and got ESS 983; the sum had not yet terminated
+(it runs to 111 lags), so truncating it *inflated* the ESS and *narrowed* the
+null. Cap at 200, let the initial-positive-sequence rule stop it. Cf. the known
+`maxlag` trap, opposite direction.
+
+### Consequence
+
+Aligning would move a **likelihood-inert** parameter by **0.19 sd** over the
+fitted period. **A refit is not justified by this caveat.** Recommend
+reclassifying it in §6 from *open* to *justified, with the measurement cited* —
+Marcus's call, but the "justify" branch is now discharged rather than deferred.
+This does **not** touch the separate, still-open sub-choice 1 (flat-hold above
+2.75 K).
+
 ## [unreleased] — 2026-08-18b — LADDER DIAGNOSTIC REPOINTED L11 -> L12 (label, verified no-op)
 
 `python/diag_ladder_transition_resolution.py` still read
