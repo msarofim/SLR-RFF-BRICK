@@ -3,6 +3,61 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-18f — The convex fast-channel rate law CANNOT fix ssp585 either. Handoff §5 item 1 closed NEGATIVE.
+
+`python/scope_gis_rate_power_vs_literature.py` +
+`python/plot_gis_rate_power_scan.py` (→ `figures/gis_rate_power_scan_L12.png`).
+The 2026-08-18b handoff's §5 candidate, tested exactly as specified: a 2-D (k, p)
+scan of `r_f(T) = alpha_f·Tbar·(max(T,0)/Tbar)^p + beta_f` on the FAST/SMB
+channel only (anchored at `Tbar` = 1.9631 K, derived and asserted), slow channel
+unchanged, hindcast re-bisected at every cell. Offline, L12 median params, no
+chain. Reproduction gate: the incumbent law through this plumbing matches the
+ridge CSV to 1e-9; the p=1 nesting gap (the `max(T,0)` floor in negative-driver
+years) is 3.6e-3 m.
+
+### The pre-registered predictions: P1 FAIL, P2 FAIL, P3 PASS, P4 vacuous
+
+- **P1 (ratio monotone in p): FAIL at every k.** The ssp585/ssp245 ratio RISES
+  THEN FALLS, peaking at p ≈ 1.5–2.5 (later for larger k).
+- **P2 (some p in 1.5–3 reaches the literature 7.9–31.9×): FAIL.** The whole
+  surface peaks at **4.71× at (k = 14, p = 2)** — still 1.7× short of the band
+  bottom.
+- **P3 (hindcast satisfiable everywhere): PASS.** No railing; every cell within
+  0.02 cm.
+- **The D2 falsifier did NOT fire.** `s` moves DOWN with p (0.6–0.8× of its p=1
+  value), not up by orders of magnitude — the failure is not "fit by deleting
+  the machinery". It is more instructive:
+
+### Why it self-limits (the finding worth keeping)
+
+The mechanism WORKED as designed — differential equilibration is real. At the
+peak cell, φ@2300 = 0.27 (ssp245) vs 0.54 (ssp585), against ~0.99/0.99 shipped.
+But convexity anchored at ~2 K cannot separate scenarios whose 2300 regional
+drivers sit at **4.92 K (ssp245) and 12.59 K (ssp585)**: both are far above the
+anchor, so any p fast enough to close ssp585 on its commitment also accelerates
+ssp245, and past the sweet spot the cool scenario equilibrates too — the ratio
+falls back toward the clip-compressed `Leq` ratio. Two ceilings compose: the
+`V0` = 7.42 m clip compresses the COMMITMENT ratio in k (the ridge-scan
+finding), and above-anchor convexity re-ties the REALISED fractions in p. The
+product tops out at 4.71×.
+
+And the near-peak cells are not fixes anyway: at (k=14, p=2) SSP1-2.6 is 2.2×
+its band top, SSP2-4.5 3.9× over, and the 2100 G4 spread is **2.8×** its
+accepted value. **The best all-round cell on the whole surface is (k=1, p=1) —
+the shipped model** — exactly as k=1 was the best point on the 1-D ridge.
+
+### Consequence
+
+Sanity cross-check: at the peak cell the commitment ratio is 7.42/2.87 = 2.59
+and the φ ratio 2.04, product ≈ realised ratio 4.71 ✓ (small rebase residual).
+Since φ ≤ 1, this family's ratio is bounded by 2.59/φ245 — and p cannot push
+φ245 down without pushing φ585 down more. What the literature separation
+requires is a threshold BETWEEN the two scenarios' 2300 driver temperatures
+(~5–12.6 K regional); no smooth law anchored at 2 K supplies that. Remaining
+options per handoff §5.6: **(b)** a threshold form carrying both `Leq` and rate,
+or **(c)** ship ssp585/2300 with the 3.8–6.9× shortfall as a stated caveat.
+The 2100 deliverable is unaffected either way. Choice is Marcus's.
+
 ## [unreleased] — 2026-08-18e — THE Leq(T) REFIT CANNOT FIX ssp585. Measured before buying it.
 
 `python/scope_gis_leq_ridge_vs_literature.py`. Marcus asked to start on the
