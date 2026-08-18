@@ -3,6 +3,59 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-18k — Amp sensitivity: the structure survives everywhere, but NO parameter cell does.
+
+`python/scope_gis_basin_zonespace_amp_sens.py` →
+`outputs/scope_gis_basin_zonespace_amp_sens.csv` (+ `_robust_core.csv`).
+The test the zone-space wiring existed to make askable, since 18j's 59/59 was a
+near-tautology. Onsets PINNED in zone units (the basin taps at a LOCAL
+temperature — re-translating per amp maps back to GMT space and finds nothing
+by construction); per-zone amp varied over its measured envelope. Full
+factorial, two arm families: RANGE (product lo/mean/hi) and SIGMA (mean ± 1sd).
+Projection-side only; L12 untouched.
+
+- **A2a PASS — the deliverable is safe.** In all 18 amp cells across both
+  families, **no PASSING cell moves ssp126 or ssp245 at 2300**. They stay
+  bit-identical to shipped at every amp arm.
+- **A1 — the structure survives everywhere.** The pass region is non-empty in
+  **18/18** amp cells, but its SIZE swings hard: 2 to 172 of 720.
+- **A3 — central amp dominates, and it is the narrower prior.** Mean passers by
+  central arm 15.3 (hi) → 49.3 (mean) → 133.7 (lo), a ~9× swing; by north arm
+  40.0 → 78.3 → 74.3, ~2×. Counterintuitive: north carries the WIDER spread
+  (2.2× product range, N(2.83, 0.92)) but matters less, because its inertness
+  margin is large and the binding constraint is 2100-keeping, which the central
+  basin reaches first.
+- **A4 — THE ROBUST CORE IS EMPTY, and that is the finding.** No cell clears the
+  scorecard across the amp envelope: full factorial core 0 (union 284), and the
+  physically defensible DIAGONAL core (both zones moved together, since the two
+  numbers come from the same products over adjacent latitude bands) is **also
+  0** — union 161, arm sizes 90 / 59 / 24. Evidenced pairwise rather than
+  inferred: **lo&mean = 3, mean&hi = 9, lo&hi = 0**. The low-amp and high-amp
+  passing sets are DISJOINT, so a three-way core cannot exist.
+- **None of the 59 base passers is in any core.**
+
+### What this means for the §6 item 3 pricing decision
+
+The basin structure clears the 2300 scorecard at every amplification arm, but
+with a DIFFERENT (onset, V, share, tau) cell each time. So the onsets and
+volumes cannot be pinned offline independently of amp, which was the plan the
+glacier precedent suggested. Three live readings, none of them chosen here:
+(a) amp must be co-calibrated with the basin parameters — this is the argument
+FOR the calibrator restructure, and it is now a measurement rather than a
+preference; (b) the onset is really a GMT-space property, in which case zone
+space buys nothing and one re-translates per amp; (c) ship with the caveat,
+which §6 item 3 keeps legitimate throughout.
+
+### Metric error caught before reporting, recorded
+
+The first A2 draft counted every grid cell with a non-zero low-scenario
+response as an amp-induced leak, and reported 288 leaks in the mean/mean cell —
+which is the BASE itself, not an amp effect: the 2.5 and 3.0 K mid onsets sit
+below ssp245's 2300 GMT and are active at every amp, in GMT space too. Same
+apples-to-oranges shape as the Z3 error in 18j. Split into A2a (leak among
+PASSERS — the deliverable question) and A2b (leak in EXCESS of the base — the
+part attributable to amp; ±144 cells, driven entirely by the central arm).
+
 ## [unreleased] — 2026-08-18j — The basin mock in ZONE SPACE: the pass region maps over cell-for-cell.
 
 `python/scope_gis_basin_zonespace_vs_literature.py` →
