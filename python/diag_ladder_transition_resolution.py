@@ -33,7 +33,7 @@ WHAT IT MEASURES
   arm is decisive at policy-relevant warming.
 
 READS   data/observations/greenland_equilibrium_bochow2023.csv  (the ladder)
-        outputs/ssps_components_2300_L11.csv                    (SSP GMST paths)
+        outputs/ssps_components_2300_<LADRILLO_TAG>.csv          (SSP GMST paths)
 WRITES  outputs/diag_ladder_transition_resolution.csv
 
   python3 python/diag_ladder_transition_resolution.py
@@ -45,12 +45,17 @@ import pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LADDER = os.path.join(REPO, "data/observations/greenland_equilibrium_bochow2023.csv")
-SSPS = os.path.join(REPO, "outputs/ssps_components_2300_L11.csv")
+# Repointed L11 -> L12 on the promotion, 2026-08-18. This is a LABEL fix, not a
+# numbers fix: section 2 depends on the SSP GMST paths only, and those are the FaIR
+# mean forcing, identical across posterior vintages (verified bit-identical,
+# max|dGMST| = 0.0). Kept deriving from the tag so the next promotion follows.
+LADRILLO_TAG = "L12"
+SSPS = os.path.join(REPO, f"outputs/ssps_components_2300_{LADRILLO_TAG}.csv")
 OUT = os.path.join(REPO, "outputs/diag_ladder_transition_resolution.csv")
 
 # --- named constants that the labels below derive from -----------------------
 LADDER_TAG = "Bochow et al. 2023 equilibrium ladder (Nature 622:528, Zenodo 8155423)"
-SSP_TAG = "L11 posterior projections"
+SSP_TAG = f"{LADRILLO_TAG} posterior projections"
 GMT_COL, LOSS_COL = "gmt_K", "loss_m_sle"
 DRIFT_COL = "drift_over_window_m"
 # a transition spanning <= this many of the model's own finest grid intervals is

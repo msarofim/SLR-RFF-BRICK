@@ -3,6 +3,25 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-18b — LADDER DIAGNOSTIC REPOINTED L11 -> L12 (label, verified no-op)
+
+`python/diag_ladder_transition_resolution.py` still read
+`ssps_components_2300_L11.csv` and stamped its output "L11 posterior
+projections". It is **not** on the L12 handoff §5 pinned-provenance list, so that
+was staleness, not deliberate anchoring. Now derives from a `LADRILLO_TAG`
+constant so the next promotion follows automatically.
+
+**Verified a no-op before claiming it was one.** Its §2 depends on the SSP GMST
+paths only, and GMST is the FaIR mean forcing — *not* a posterior quantity.
+Checked directly: `max|GMST_L11 − GMST_L12| = 0.0`, bit-identical across all
+three SSPs and all years. Both output tables re-ran **byte-identical**. Only the
+stamp changed, which is the entire point — the numbers were already right and the
+label was already wrong.
+
+For contrast, the quantities that *are* posterior-dependent did move on the same
+promotion: GIS @2300 SSP5-8.5 **41.97 → 45.59 cm**. That is the split this repoint
+relies on — forcing invariant, response not.
+
 ## [unreleased] — 2026-08-18a — COMMITTED-LOSS DIAGNOSTIC (option C's surviving use)
 
 `python/diag_gis_committed_loss.py`. The one item left at the top of the L12
