@@ -63,6 +63,16 @@ GRIDS_OK = ("gn", "gr", "gr1", "gr2")
 # Zones taken from build_t_gis so they cannot drift from the observed prior.
 ZONE_SOUTH = BTG.ZONES["south"]      # (59, 70) -- HEADLINE, ablation-dominated
 ZONE_ALL = BTG.ZONES["all"]          # (59, 84) -- pre-registered sensitivity arm
+# Northern zones added 2026-08-18 for the basin work; identical machinery. A
+# rebuild that only ADDS columns pins the model panel to the 40 files already
+# on disk (EXISTING_ONLY) so a drifted catalog cannot swap the ensemble, and
+# skips files that already carry every expected column so interrupted runs
+# resume.
+ZONE_CENTRAL = BTG.DIAG_ZONES["central"]   # (70, 77) -- ~NW/CW/CE latitudes
+ZONE_NORTH = BTG.DIAG_ZONES["north"]       # (77, 84) -- ~NO/NE latitudes
+EXPECTED_COLS = ["year", "member", "tas_global", "tas_gis_south", "tas_gis_all",
+                 "tas_gis_central", "tas_gis_north", "scenario"]
+EXISTING_ONLY = True                 # pin the panel to the shipped 40 models
 
 warnings.filterwarnings("ignore")
 os.makedirs(OUT_DIR, exist_ok=True)
@@ -118,8 +128,20 @@ def main():
 
     models = sorted(m for m in tas.source_id.unique()
                     if set(EXPERIMENTS) <= set(tas[tas.source_id == m].experiment_id))
-    print(f"{len(models)} candidate models with {EXPERIMENTS}; cap {MAX_MODELS}",
-          flush=True)
+    if EXISTING_ONLY:
+        import glob as _glob
+        ondisk = sorted(os.path.basename(f)[len("tas_series_gis_"):-len(".csv")]
+                        for f in _glob.glob(os.path.join(OUT_DIR,
+                                                         "tas_series_gis_*.csv")))
+        missing = [m for m in ondisk if m not in models]
+        if missing:
+            raise SystemExit(f"panel pin: {missing} on disk but no longer in "
+                             f"the catalog -- resolve deliberately")
+        models = ondisk
+        print(f"panel PINNED to the {len(models)} models on disk", flush=True)
+    else:
+        print(f"{len(models)} candidate models with {EXPERIMENTS}; "
+              f"cap {MAX_MODELS}", flush=True)
 
     done = 0
     for model in models:
@@ -127,9 +149,13 @@ def main():
             break
         out_csv = os.path.join(OUT_DIR, f"tas_series_gis_{model}.csv")
         if os.path.exists(out_csv):
-            print(f"SKIP {model} (exists)")
-            done += 1
-            continue
+            have = pd.read_csv(out_csv, nrows=0).columns
+            if set(EXPECTED_COLS) <= set(have):
+                print(f"SKIP {model} (exists, all columns)")
+                done += 1
+                continue
+            print(f"REDO {model} (missing "
+                  f"{sorted(set(EXPECTED_COLS) - set(have))})", flush=True)
         t0 = time.time()
         try:
             sub = tas[tas.source_id == model]
@@ -149,11 +175,17 @@ def main():
             wg = (np.cos(np.deg2rad(lat)) * xr.ones_like(lon, dtype=float))
             w_south = zone_weight_da(lat, lon, rings, land_at, ZONE_SOUTH)
             w_all = zone_weight_da(lat, lon, rings, land_at, ZONE_ALL)
+            w_central = zone_weight_da(lat, lon, rings, land_at, ZONE_CENTRAL)
+            w_north = zone_weight_da(lat, lon, rings, land_at, ZONE_NORTH)
             if float(w_south.sum()) == 0.0:
                 print(f"PASS {model}: empty southern-Greenland mask", flush=True)
                 continue
+            if float(w_north.sum()) == 0.0 or float(w_central.sum()) == 0.0:
+                print(f"PASS {model}: empty northern-zone mask", flush=True)
+                continue
             weights = {"tas_global": wg, "tas_gis_south": w_south,
-                       "tas_gis_all": w_all}
+                       "tas_gis_all": w_all, "tas_gis_central": w_central,
+                       "tas_gis_north": w_north}
 
             frames = []
             for exp in EXPERIMENTS:

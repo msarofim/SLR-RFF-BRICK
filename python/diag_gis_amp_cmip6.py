@@ -53,6 +53,7 @@ Outputs:
 Requires python/diag_gis_amp_anchor.py to have been run (it supplies the anchor
 warming level dT_eff; there is no fallback).
 """
+import argparse
 import glob
 import os
 import subprocess
@@ -70,6 +71,17 @@ import build_t_gis as BTG
 
 REPO = BTG.REPO
 IN_DIR = os.path.join(REPO, "data/cmip6_gis")
+# Zone-parameterized 2026-08-18 for the basin work. --zone south (the default)
+# keeps every canonical output path and must stay byte-identical to the shipped
+# results; other zones write "_<zone>"-suffixed outputs so nothing downstream
+# can pick one up by accident.
+def _suffixed(path, zone):
+    if zone == "south":
+        return path
+    stem, ext = os.path.splitext(path)
+    return f"{stem}_{zone}{ext}"
+
+
 OUT_CSV = os.path.join(REPO, "outputs/diag_gis_amp_cmip6.csv")
 OUT_BINNED = os.path.join(REPO, "outputs/diag_gis_amp_cmip6_binned.csv")
 OUT_MD = os.path.join(REPO, "outputs/diag_gis_amp_cmip6_summary.md")
@@ -78,6 +90,7 @@ OUT_FIG = os.path.join(REPO, "figures/diag_gis_amp_cmip6.png")
 # kernel consumes, on a fine grid, plus its provenance row.
 OUT_SHAPE = os.path.join(REPO, "outputs/gis_amp_shape.csv")
 OUT_SHAPE_META = os.path.join(REPO, "outputs/gis_amp_shape_meta.csv")
+PRIOR_CSV = os.path.join(REPO, "outputs/gis_amp_prior.csv")
 # Where the anchor comes from: python/diag_gis_amp_anchor.py, which measures the
 # x^2-weighted warming level dT_eff = sum(x^3)/sum(x^2) of the SAME through-origin
 # fit that produced the observed amplification. There is no fallback constant --
@@ -89,7 +102,7 @@ ANCHOR_SCRIPT = "python/diag_gis_amp_anchor.py"
 SHAPE_ALT_STEM = "gis_amp_shape_fullcurve"
 
 # ---- named constants: every label below derives from these --------------------
-ZONE = "south"                     # headline zone; matches build_t_gis.HEADLINE_ZONE
+ZONE = "south"                     # default; overridden by --zone (see main)
 ZONE_COL = f"tas_gis_{ZONE}"
 BASE = BTG.BASE                    # (1850, 1900) anomaly baseline, multi-year rule
 SMOOTH_WIN = 30                    # running-window length, years (Antarctic precedent)
@@ -100,8 +113,25 @@ HIST = "historical"
 BIN_EDGES = np.arange(0.5, 6.01, 0.5)   # warming-level bins, K
 N_BOOT = 2000
 BOOT_SEED = 2026
-OBS_AMP_FULL = 1.9221976385152952  # outputs/gis_amp_prior.csv south/full -- the value in use
-OBS_AMP_MODERN = 1.7918384323792236  # south/modern
+# Observed comparison values now read per zone from outputs/gis_amp_prior.csv;
+# these south receipts remain as an assertion so the default run cannot drift.
+OBS_AMP_FULL_SOUTH_RECEIPT = 1.9221976385152952   # south/full -- the value in use
+OBS_AMP_MODERN_SOUTH_RECEIPT = 1.7918384323792236  # south/modern
+OBS_AMP_FULL = OBS_AMP_FULL_SOUTH_RECEIPT          # rebound per zone in main()
+OBS_AMP_MODERN = OBS_AMP_MODERN_SOUTH_RECEIPT
+
+
+def obs_amp(zone):
+    """(full, modern) observed amplification for `zone` from the prior CSV."""
+    pr = pd.read_csv(PRIOR_CSV).set_index(["zone", "window"])
+    full = float(pr.loc[(zone, "full"), "mean"])
+    modern = float(pr.loc[(zone, "modern"), "mean"])
+    if zone == "south":
+        assert abs(full - OBS_AMP_FULL_SOUTH_RECEIPT) < 1e-9, \
+            "south/full prior moved -- gis_amp_prior.csv no longer matches the receipt"
+        assert abs(modern - OBS_AMP_MODERN_SOUTH_RECEIPT) < 1e-9, \
+            "south/modern prior moved"
+    return full, modern
 # Shape support. Below SHAPE_DT_MIN and above SHAPE_DT_MAX the shape is HELD FLAT
 # rather than extrapolated. SHAPE_DT_MAX = 2.75 is the last bin below the 3.25 K
 # bump; that bump survives the balanced panel (so it is not model dropout) and is
@@ -227,6 +257,21 @@ def shape_table(pooled, dt_anchor, dt_max=SHAPE_DT_MAX):
 
 
 def main():
+    global ZONE, ZONE_COL, OBS_AMP_FULL, OBS_AMP_MODERN
+    global OUT_CSV, OUT_BINNED, OUT_MD, OUT_FIG, OUT_SHAPE, OUT_SHAPE_META
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--zone", default=ZONE,
+                    choices=list(BTG.ZONES) + list(BTG.DIAG_ZONES))
+    args = ap.parse_args()
+    ZONE = args.zone
+    ZONE_COL = f"tas_gis_{ZONE}"
+    OBS_AMP_FULL, OBS_AMP_MODERN = obs_amp(ZONE)
+    for name in ("OUT_CSV", "OUT_BINNED", "OUT_MD", "OUT_FIG", "OUT_SHAPE",
+                 "OUT_SHAPE_META"):
+        globals()[name] = _suffixed(globals()[name], ZONE)
+    print(f"zone {ZONE} (obs full {OBS_AMP_FULL:.3f} / modern "
+          f"{OBS_AMP_MODERN:.3f})", flush=True)
+
     files = sorted(glob.glob(os.path.join(IN_DIR, "tas_series_gis_*.csv")))
     if not files:
         sys.exit(f"no inputs in {IN_DIR}; run python/reduce_cmip6_tas_gis.py first")
@@ -331,7 +376,7 @@ def main():
     # can be RUN (LADRILLO_GIS_SHAPE=gis_amp_shape_fullcurve) rather than argued.
     alt_max = float(pooled_sec.dt_bin.max())
     alt_grid, alt_r = shape_table(pooled_sec, dt_anchor, dt_max=alt_max)
-    alt_stem = os.path.join(REPO, f"outputs/{SHAPE_ALT_STEM}")
+    alt_stem = _suffixed(os.path.join(REPO, f"outputs/{SHAPE_ALT_STEM}"), ZONE)
     alt_grid.to_csv(f"{alt_stem}.csv", index=False)
     pd.DataFrame([dict(anchor_dt=dt_anchor, r_anchor=alt_r,
                        obs_amp_full=OBS_AMP_FULL, estimator="secant",
@@ -370,7 +415,7 @@ def main():
               f"held {sfun(3.0):.3f}/{sfun(4.0):.3f}/{sfun(5.0):.3f}.", ""]
 
     win_csv = os.path.join(REPO, "outputs/diag_gis_amp_cmip6_windows.csv")
-    if os.path.exists(win_csv):
+    if ZONE == "south" and os.path.exists(win_csv):   # that file is south-only
         r_win = float(pd.read_csv(win_csv)[BTG.AMP_WINDOW_HEADLINE].median())
         lines += [f"- **anchor cross-check:** estimator-matched denominator "
                   f"(CMIP6 median full-window through-origin) = {r_win:.3f} vs the "

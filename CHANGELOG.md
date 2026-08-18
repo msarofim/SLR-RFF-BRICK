@@ -3,6 +3,66 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-18h — Basin tier 1 + tier 2: the pass region survives Mouginot, and the per-zone drivers + amp laws are BUILT.
+
+Marcus bought tiers 1 and 2 of the basin structure. Three commits.
+
+### Tier 1 — the literature check (`python/diag_gis_basin_lit_check.py`)
+
+**28 of the 59 mock passers survive the STRICT Mouginot inventory gate**
+(high basin ≤ 2.73 m = NO+NE; mid ≤ 1.27 m = NW; 33 under the loose reading),
+and **all 59 onsets sit inside the (4.69, 7.81] K GMT bracket** implied by the
+TC 19:6887 stabilised-vs-continued arms — the marginal volume tap activates
+above the held year-2100 ssp585 climate. The dormancy premise is in the
+observational record: per Dataset S2 (parse-gated against the paper's printed
+cumulative losses), **NO+NE hold 37% of the ice sheet's SLE but contributed
+20% of the 1972–2018 loss**, with Mouginot's own conclusion naming their
+evolution "of greatest relevance to future sea level rise" (273 cm potential,
+low discharge behind buttressing shelves). The surviving region still spans
+every tau (50–400 yr) and onsets 5–7 K; the exemplar survives unchanged.
+Honesty items: tau has no independent published gate (stated in output); NE
+first-response has already begun (Zachariae shelf loss) — the mock's onset is
+the VOLUME-TAP onset, which is what the stabilised-arm bracket measures.
+
+### Tier 2a — per-zone drivers (`build_t_gis.py`)
+
+`t_gis_zones.csv` + allproducts now carry **central (70–77 N)** and
+**north (77–84 N)** observed series (always computed for the confidence
+table, never persisted). A new **driver guard** asserts the existing
+south/all columns reproduce the shipped file to 1e-9 before overwriting —
+PASSED — so the calibration driver cannot move as a rebuild side effect.
+Julia consumers read by column name; verified unaffected. Per-zone 2015–2024
+anchors: south **1.9631** (= the known TBAR, cross-validating the build),
+central **2.7667**, north **3.2714 K**. Observed amp priors already existed
+per zone (north full-window N(2.83, 0.92), central N(2.36, 0.53)).
+
+### Tier 2b — per-zone CMIP6 amp shapes (`reduce_cmip6_tas_gis.py` + `diag_gis_amp_cmip6.py --zone`)
+
+The reducer now emits `tas_gis_central`/`tas_gis_north`; the re-reduction
+**pinned the panel to the shipped 40 models** (a drifted catalog cannot swap
+the ensemble) and reproduced every original column to **0.0** across all 40
+files. `diag_gis_amp_cmip6.py` is zone-parameterized; the default south run
+re-verified **byte-identical** shape outputs (only the provenance commit hash
+moved). New deliverables `outputs/gis_amp_shape_{central,north}.csv` (+ meta,
+fullcurve arms, summaries, figures):
+
+- **north: FLAT** — secant slope −0.0195/K [−0.0390, +0.0069], CI includes
+  zero (slope estimator agrees). The north amp law is effectively the
+  CONSTANT observed amplification at every warming level — the simplest
+  possible wiring for the high basin.
+- **central: DECLINING** — −0.0307/K [−0.0631, −0.0010], CI excludes zero,
+  same character as the south's known decline.
+
+### What the wiring now needs (NOT yet done — the next decision)
+
+Re-express the mock's dormant basins on their own zone drivers: obs zone
+series + per-zone amp×S splice (the regional_driver machinery, zone
+parameterized), onsets translated from GMT into zone space (north zone-space
+onset ≈ amp_north × S × GMT onset ≈ 2.8 × [5–7 K] ≈ 14–19 K north-zone
+anomaly rel 1850–1900, vs 3.27 K observed 2015–2024), then re-run the mock
+scorecard in zone space. Only after that is pricing the calibrator
+restructure on the table.
+
 ## [unreleased] — 2026-08-18g — The MULTI-BASIN mock CLEARS the whole 2300 scorecard offline. First candidate structure that does.
 
 `python/scope_gis_basin_mock_vs_literature.py` + `python/plot_gis_basin_mock.py`

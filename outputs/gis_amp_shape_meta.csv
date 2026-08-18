@@ -1,2 +1,2 @@
 anchor_dt,r_anchor,obs_amp_full,estimator,dt_min,dt_max,grid_step,grid_max,n_models,zone,commit
-0.939826733054467,1.4942493826789536,1.9221976385152952,secant,0.75,2.75,0.01,8.0,40,south,f340962
+0.939826733054467,1.4942493826789536,1.9221976385152952,secant,0.75,2.75,0.01,8.0,40,south,d59ce12
