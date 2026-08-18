@@ -91,13 +91,13 @@ SEED = 2026
 # Ladrillo's own Greenland. READ, not hardcoded, and no longer the extC vintage:
 # this compared against stock SIMPLE when it was written (2026-08-10), and the
 # shipped model is now A+B with the amp(GMST) law. Re-pointed extC -> L10
-# (2026-08-14) and L10 -> L11 (2026-08-17, when L11 became canonical); each time
+# (2026-08-14), L10 -> L11 (2026-08-17) and L11 -> L12 (2026-08-18); each time
 # the live comparison is whatever vintage is accepted on the deliverable, which
 # is why the extC quarantine README lists this script as "re-running against the
 # current vintage is work, not a path edit". LADRILLO_TAG must move with the
 # path — it labels every figure and table this script emits.
-LADRILLO_SSP_CSV = os.path.join(REPO, "outputs/ssps_components_2300_L11.csv")
-LADRILLO_TAG = "Ladrillo (L11, A+B + amp law)"
+LADRILLO_SSP_CSV = os.path.join(REPO, "outputs/ssps_components_2300_L12.csv")
+LADRILLO_TAG = "Ladrillo (L12, A+B + amp law + ordered channels)"
 LADRILLO_COMPONENT = "gis"
 SSP_LABEL_TO_KEY = {"SSP1-2.6": "ssp126", "SSP2-4.5": "ssp245", "SSP5-8.5": "ssp585"}
 

@@ -20,11 +20,13 @@
 ##   on its OWN area-weighted surface-temperature driver T_b.
 ##
 ## POSTERIOR
-##   data/MimiBRICK/parameters_subsample_brick_mengel_L10.csv — 10 000 draws
-##   from 4 x 2M chains (seeds 2026-2029, acceptance 0.236-0.237), accepted on
-##   the deliverable 2026-08-13 (SLR@2100 R-hat 1.000). 55 columns = the 52
+##   data/MimiBRICK/parameters_subsample_brick_mengel_L12.csv — 10 000 draws
+##   from 4 x 2M chains (seeds 2026-2029, acceptance 0.237), accepted on the
+##   deliverable 2026-08-18 (SLR@2100 R-hat 1.002), with the Greenland channel
+##   ordering imposed. 57 columns = the 52
 ##   below with the five stock-SIMPLE Greenland columns replaced by the eight
-##   Ladrillo 1.0 ones (7 sampled gis_* + gis_amp). Its predecessor
+##   Ladrillo ones (7 sampled gis_* + gis_amp), PLUS the four d2_* basis columns
+##   and MINUS sd_dang/rho_dang (dropped by D1). Its predecessor
 ##   parameters_subsample_brick_mengel_extC.csv (stock SIMPLE, 52 columns) is
 ##   LADRILLO_POSTERIOR_EXTC_CSV. The column layout of the 52:
 ##     21 non-glacier physical params applied directly       (PHYSICAL_PARAMS)
@@ -77,24 +79,45 @@ include(joinpath(@__DIR__, "brick_mengel.jl"))
 const LADRILLO_REPO = abspath(joinpath(@__DIR__, ".."))
 const LADRILLO_OBS  = joinpath(LADRILLO_REPO, "data/observations")
 
-"""Canonical Ladrillo posterior subsample: tag L11, 4 x 2M chains (seeds
-2026-2029, acceptance 0.236-0.238), ACCEPTED ON THE DELIVERABLE 2026-08-15 —
-projected SLR converges at R-hat 1.002 @2100 / 1.005 @2150 (ESS ~1300) while 18
-parameter marginals are NOT converged (`ais_iceflow0` R-hat 2.449). Consequence,
-carried here because this file is what every driver reads: the posterior MAY be
-used for projected SLR and anything derived from it, and MAY NOT be used for
+"""Canonical Ladrillo posterior subsample: tag L12, 4 x 2M chains (seeds
+2026-2029, acceptance 0.237 on all four), ACCEPTED ON THE DELIVERABLE
+2026-08-18 — projected SLR converges at R-hat 1.002 @2100 / 1.004 @2150 (ESS
+1445 / 1401) while 16 parameter marginals are NOT converged (`ais_iceflow0`
+R-hat 1.755, improved from L11's 2.449 and L10's 2.359). Consequence, carried
+here because this file is what every driver reads: the posterior MAY be used for
+projected SLR and anything derived from it, and MAY NOT be used for
 parameter-level inference (the pooled AIS-geometry marginals are a mixture of
 four chains that never merged, not posteriors). Pooled SLR, cm rel. 1995-2014:
-2100 = 45.28 [41.63, 75.57]; 2150 = 70.78 [62.64, 155.29].
+2100 = 45.53 [41.64, 78.55]; 2150 = 70.84 [63.01, 156.74].
+
+L12 = L11's change set PLUS the Greenland CHANNEL-ORDERING constraint
+(`--gis-ordered`): every draw satisfies `alpha_s <= alpha_f AND beta_s <=
+beta_f`, verified 100.00 % on all 10,000. Timescales are correctly ordered at
+every temperature the projections visit (tau_fast 61.7 / tau_slow 194.1 yr at
+Tbar), and the long-lived reservoir the earlier vintages lacked is present:
+39.96 % of draws exceed 221 yr against L11's 13.61 %. Total SLR is essentially
+unchanged from L11 (+0.04 to +0.24 cm @2100), so the constraint bought
+interpretability, not different numbers.
 
 57 columns; Greenland is the A+B variant, so consumers must build the model with
 `ladrillo_setup(gis_ab=true)` — `ladrillo_posterior_variant()` reads that off the
-file. UNLIKE L10 this posterior carries the slow channel in the REPARAMETERISED
+file. Like L11 and UNLIKE L10 it carries the slow channel in the REPARAMETERISED
 `(gis_slow_ell, gis_slow_w)` coordinates, not native `(gis_alpha_s,
 gis_beta_s)`, so anything doing parameter-level work on the Greenland channels
-must go through `ladrillo_native_greenland!` first. It also adds the four `d2_*`
+must go through `ladrillo_native_greenland!` first. Also carries the four `d2_*`
 basis columns and drops `sd_dang`/`rho_dang` (D1)."""
 const LADRILLO_POSTERIOR_CSV =
+    joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_L12.csv")
+"""The L11 posterior (accepted 2026-08-15), which L12 supersedes.
+
+Kept as a named constant on the `LADRILLO_POSTERIOR_L10_CSV` precedent: it is
+the provenance of every L11-vintage deliverable, and it is the last
+UNCONSTRAINED-Greenland posterior, so it is the fixture for any test that needs
+a vintage where the channel ordering does NOT hold — 37.53 % of its draws
+satisfy the wedge. `diag_gis_ordering_in_l11_posterior.py` defaults to it
+deliberately: its unsuffixed output IS the L11 measurement that the decision to
+build L12 rested on, so do not repoint that default at the canonical constant."""
+const LADRILLO_POSTERIOR_L11_CSV =
     joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_L11.csv")
 """The L10 posterior (accepted 2026-08-13, commit 6d73349), which L11 supersedes.
 

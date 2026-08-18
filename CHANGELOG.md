@@ -4355,3 +4355,30 @@ overwrite the L11 measurement the decision rested on, and with a distinct verdic
 for constrained vintages (100 % is a WIRING check, not evidence the constraint
 was needed — the old "a filter would do instead" text was written for L11 and
 would have been misleading here).
+
+## 2026-08-18 — L12 promoted to CANONICAL (Marcus)
+
+`LADRILLO_POSTERIOR_CSV` → `parameters_subsample_brick_mengel_L12.csv`. Added
+`LADRILLO_POSTERIOR_L11_CSV` on the L10/extC precedent: L11 is the provenance of
+its own deliverables AND the last UNCONSTRAINED-Greenland posterior, so it is the
+fixture for any test needing a vintage where the ordering does not hold (37.53 %
+of its draws satisfy the wedge).
+
+Swept for the trap that caught L10: nothing anchors on L11 the way
+`diag_r19_modern_rate.jl --check-l10` anchors on L10, so no fixture needed
+pinning. The tag defaults in `project_ssps_components_ladrillo.jl`,
+`posterior_predictive_ladrillo.jl` and `diag_slr_convergence_by_chain_ladrillo.jl`
+derive from the canonical constant and followed automatically;
+`diag_gis_block_convergence.jl` (pure-CSV, no Mimi include) and
+`scope_greenland_bochow2026.py` were updated by hand, the latter with its
+`LADRILLO_TAG` label in the same edit.
+
+Also fixed the module header of `ladrillo_projection.jl`, which still described
+**L10 and 55 columns** — stale since the L11 promotion and missed then. Now L12,
+57 columns, with the column arithmetic spelled out (+4 `d2_*`, −`sd_dang`/
+`rho_dang`).
+
+Verified after the repoint: canonical and `DEFAULT_TAG` both resolve to L12,
+variant reads `:ab`, the drift guard fires for none of L12/L11/L10, the L10
+anchor still reproduces **0.1490 [0.0544, 0.2300], 3.03×**, and the Bochow
+comparison re-runs against L12.
