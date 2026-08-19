@@ -24,6 +24,7 @@ include(joinpath(@__DIR__, "glaciers_mengel_component.jl"))
 include(joinpath(@__DIR__, "glaciers_nu_component.jl"))
 include(joinpath(@__DIR__, "glaciers_nu3_component.jl"))
 include(joinpath(@__DIR__, "greenland_ab_component.jl"))
+include(joinpath(@__DIR__, "greenland_3basin_component.jl"))
 include(joinpath(@__DIR__, "brick_param_updates.jl"))
 
 const _MENGEL_GLAC_SLOT = :glaciers_small_icecaps   # name kept by Mimi replace!
@@ -248,6 +249,37 @@ cell's centimetres; see python/emit_gis_port_reference.py).
 function update_gis_ab!(m, gis)
     for f in (:c1, :c0, :v0, :f, :alpha_f, :beta_f, :alpha_s, :beta_s, :g)
         update_param!(m, _GIS_SLOT, Symbol("gis_$f"), Float64(getproperty(gis, f)))
+    end
+    return m
+end
+
+"""
+    build_brick_nu3_gis3(; ssp, y0, y1, lws=:seeded, lws_seed=LWS_SEED)
+
+`build_brick_nu3` with the 3-BASIN Greenland (`greenland_3basin`) in the Greenland
+slot — Mouginot sectors south{SW,CW,CE,SE} / mid{NW} / high{NO,NE} on ONE shared
+regional driver. Same unbound-driver contract as `build_brick_nu3_gis`: call
+`set_glacier_forcing3!` and `set_gis_forcing!` before `run(m)`.
+"""
+function build_brick_nu3_gis3(; ssp::String="ssp245", y0::Int=1850, y1::Int=2026,
+                              lws::Symbol=:seeded, lws_seed::Int=LWS_SEED)
+    m = build_brick_nu3(; ssp=ssp, y0=y0, y1=y1, lws=lws, lws_seed=lws_seed)
+    replace!(m, _GIS_SLOT => greenland_3basin)
+    return m
+end
+
+"""
+    update_gis3_shares!(m; k=GIS3_VSHARE, s=(south=1.0, mid=1.0, high=1.0))
+
+Set the 3-basin volume shares (FIXED geometry) and rate scales (the sampled knobs).
+Defaults put every basin at its Mouginot volume share and unit rate scale.
+`k=(south=1.0, mid=0.0, high=0.0)` with unit rate scales is the NESTING point at
+which this component must reproduce `greenland_ab` exactly.
+"""
+function update_gis3_shares!(m; k=GIS3_VSHARE, s=(south=1.0, mid=1.0, high=1.0))
+    for b in GIS3_BASINS
+        update_param!(m, _GIS_SLOT, Symbol("gis_k_$b"), Float64(getproperty(k, b)))
+        update_param!(m, _GIS_SLOT, Symbol("gis_s_$b"), Float64(getproperty(s, b)))
     end
     return m
 end
