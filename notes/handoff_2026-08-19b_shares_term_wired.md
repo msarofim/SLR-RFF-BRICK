@@ -128,7 +128,8 @@ them `0.1*min(σ, (hi-lo)/4) = 0.05` dex against a smoke posterior sd of ~0.01
 dex, and `GEO_PROP_SCALE = 0.02` is the precedent for a dedicated scale
 (0.02 × 0.5 = 0.01, which matches).
 
-The chain was still running at handoff; let it finish, then §6 step 3.
+**FINAL: the 40k chain finished at accept 0.319** — ABOVE the control's 0.268.
+The layout is sound and the question is closed.
 
 **Do not read the smoke posteriors as results.** `GISB1`'s 2nd half held only
 **32 unique values in 1500 rows** — the chain had barely moved.
@@ -168,6 +169,33 @@ existing tuning chain, and no chain in existence contains `gis_s_mid` /
 simply **goes stale** — the new layout cannot load it at all (the guard refuses).
 It still matters if anyone re-runs an L12-layout chain; flag it again then.
 
+### The run is NAMED L13, and it is LAUNCHED
+
+Marcus chose "match the L12 production configuration" (2026-08-19), so the layout
+is **L13 = L12 + the 3-basin sector restructure**, and
+`julia/run_l13_production.sh` mirrors `run_l12_production.sh` exactly — 4 × 2M,
+seeds 2026-2029, `--gis-ordered --gis-basins --overdisperse` — with the
+precondition checks adapted to assert the `gis_s_mid` / `gis_s_high` columns.
+
+**`L13tune` (1,000,000 iterations, seed 2026) was LAUNCHED at 07:44 on
+2026-08-19** and is the blocking step. Measured rate ≈ 3,000 iter/min, so:
+
+| step | estimate |
+|---|---|
+| `L13tune`, 1M | **~5.5 h** |
+| rebuild starts from it | seconds |
+| `run_l13_production.sh`, 4 × 2M | **~11 h** (4 chains in parallel, 1 thread each) |
+
+NB the L10 note in the production script reports 2M in 2h15m, which is ~5×
+faster than the rate measured here. That discrepancy is NOT resolved — the
+measured runs overlapped with other julia processes, so 3,000 iter/min may be
+pessimistic. Re-measure from `L13tune` on a quiet machine before trusting the
+11 h figure.
+
+**Next session, in order:** check `L13tune` finished → rebuild the starts →
+`./julia/run_l13_production.sh` (it refuses to run if any precondition fails) →
+`postprocess_mcmc_ext.jl --tag=L13 --accept-slr`.
+
 ---
 
 ## 7. NESTING — the gate that says the restructure adds nothing by itself
@@ -205,10 +233,14 @@ term OFF — the handoff's step 2, and the diagnostic that exonerated the term).
 
 **Logs:** `outputs/mcmc/log_{GISB0CTRL,GISBNOSH,GISB1,GISB2,GISBTUNE}_seed2026.txt`.
 
-**Flagged, not silently resolved:** the per-basin commitment is clamped to the
-WHOLE-SHEET [0, v0] as the prototype's `ab_series()` does, not to `k_b*v0`. The
-two agree at the nesting point and across the hindcast, and differ only for the
-high basin late under SSP5-8.5. One-line change if wanted.
+**RESOLVED (Marcus 2026-08-19): the commitment clamp is PER-BASIN**, `[0,
+k_b*v0]`, not the prototype's whole-sheet `[0, v0]`. It is also the form that
+keeps the partition exact — `min(max(k*x,0), k*v0) == k*min(max(x,0), v0)`, so
+`eq_b == k_b * eq_whole` identically, saturated or not. The prototype's form
+agrees over the hindcast (the cap never binds there, so its P1/P2/P3 stand) but
+BREAKS additivity once the commitment exceeds v0. All three nesting gates
+unchanged, which also proves the cap binds nowhere through 2300 under ssp245 —
+so the tuning chain was unaffected by the change.
 
 **Still true from the predecessor:** expect SLR@2100 = 45.53 cm to MOVE once a
 production chain runs; say so before it surprises anyone. macOS has no `timeout`;
