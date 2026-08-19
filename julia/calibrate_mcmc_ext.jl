@@ -1801,6 +1801,17 @@ if "--gis-check" in ARGS
         θchk[GIS_W_IDX]   = a_s * GIS_TBAR / r_s
         append!(applied, ["gis_slow_ell", "gis_slow_w"])
     end
+    # PIN THE BASIN SCALES AT s = 1 IN THE REFERENCE VECTOR. --gis-check compares
+    # against the A+B offline cell, and the 3-basin model equals A+B exactly only at
+    # s = 1 (partition invariance, gated at 4.4e-16 by the nesting test). Today theta0
+    # carries s = 1 anyway, because the basin params are absent from the MAP/medoid
+    # CSVs and fall back to their prior centre of 0 in log10 — but the moment theta0
+    # is rebuilt from an L13 posterior with s_b != 1, this gate would start failing
+    # for a reason that has nothing to do with the wiring it tests. Pin it, so the
+    # diagnostic keeps measuring the wiring rather than the posterior.
+    if GIS_BASINS
+        for b in GISB_FREE_BASINS; θchk[GISB_IDX3[b]] = 0.0; end   # log10(1) = 0
+    end
     # NO SILENT SKIPS. Every offline key must reach a parameter, or the diagnostic
     # is comparing a vector that is not the reference vector — which is precisely
     # how this went unnoticed. Under GIS_REPARAM the native slow pair is consumed
