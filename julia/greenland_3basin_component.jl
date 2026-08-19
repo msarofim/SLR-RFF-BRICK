@@ -38,13 +38,21 @@
 # floating-point level). That is the analogue of the mock's 6e-17 gate and is what
 # separates a wiring bug from a physics result.
 #
-# COMMITMENT CLAMP — a flagged methodological choice. The per-basin equilibrium is
-# clamped to [0, gis_v0], the WHOLE-SHEET cap, exactly as the prototype's
-# ab_series() does, NOT to the basin's own k_b * gis_v0. The two are identical at
-# the nesting point and over the whole hindcast (the cap never binds there), and
-# they differ only for the high basin late under SSP5-8.5. Matching the prototype
-# was chosen so its P1/P2/P3 results remain the reference for this port; the
-# per-basin cap is the more physical choice and is a one-line change here.
+# COMMITMENT CLAMP — PER-BASIN, [0, k_b * gis_v0] (Marcus 2026-08-19). A basin
+# cannot lose more ice than it has, and the 2300 regime under SSP5-8.5 — where a
+# whole-sheet cap and a per-basin cap diverge for the high basin — is exactly the
+# regime the restructure exists to get right.
+#
+# It is also the choice that keeps the partition EXACT rather than merely
+# approximate, which the prototype's form does not:
+#
+#     min(max(k*x, 0), k*v0)  ==  k * min(max(x, 0), v0)     for k > 0
+#
+# so eq_b == k_b * eq_whole IDENTICALLY, in the saturated regime as well as out of
+# it, and sum_b eq_b == eq_whole always. The prototype's ab_series() clamps each
+# basin to the WHOLE-SHEET v0, which agrees over the hindcast (the cap never binds
+# there, so P1/P2/P3 are unaffected) but BREAKS additivity once the commitment
+# exceeds v0: the basins would then sum to x rather than to v0.
 #
 # OUTPUT CONTRACT. greenland_sea_level / gis_fast / gis_slow are the BASIN SUMS and
 # keep their meaning from greenland_ab, so every downstream consumer — the slot
@@ -145,9 +153,10 @@ const GIS3_BASINS = (:south, :mid, :high)
     end
 end
 
-"""Basin committed loss, commitment scaled by k_b. Clamped to [0, v0] — the
-WHOLE-SHEET cap, matching ab_series() in the prototype; see the header note."""
-_gis3_eq(T, k, c1, c0, v0) = min(max(k * (c1 * T + c0), 0.0), v0)
+"""Basin committed loss, commitment scaled by k_b and clamped to the basin's OWN
+capacity [0, k_b*v0]. Identically equal to k_b * (the whole-sheet committed loss),
+saturated or not — see the header note."""
+_gis3_eq(T, k, c1, c0, v0) = min(max(k * (c1 * T + c0), 0.0), k * v0)
 
 """Relaxation rate per year, BOTH channels scaled by the basin rate scale s_b.
 The 1e-9 floor and 1.0 ceiling are applied AFTER the scaling, matching
