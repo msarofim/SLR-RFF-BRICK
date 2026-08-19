@@ -78,6 +78,11 @@ MOUGINOT_CUM_GT = {"NO": -474, "NE": -532, "NW": -1578, "CW": -738,
 CUM_GATE_TOL_GT = 60          # published +/- errors are 30-91 Gt
 DORMANCY_WIN = (1972, 2018)
 RECENT_WIN = (2010, 2018)
+# share-term design: windows to scan, and the smallest total rate whose
+# reciprocal is trustworthy as a share denominator
+WINDOW_SCAN = [(1972, 1981), (1982, 1991), (1992, 2001), (2002, 2011),
+               (2012, 2018), (1995, 2018), (2000, 2018), (2010, 2018)]
+SHARE_MIN_RATE_GT = 50.0
 
 # ---- the basin -> sector mapping being invoked ------------------------------
 HIGH_SECTORS = ("NO", "NE")   # the mock's HIGH basin: shelf-buttressed north
@@ -111,6 +116,15 @@ ASCHWANDEN_NW_QUOTE = ("By the year 2300 (RCP 8.5) or 2500 (RCP 4.5), almost "
                        "all outlet glaciers in northwest Greenland have become "
                        "land terminating, and ice discharge there is greatly "
                        "reduced.")
+
+
+def _annual_mb():
+    """Annual per-region mass balance (Gt/yr) from Dataset S2 — the same parse
+    sd02_per_region gates, exposed per year for the window scan."""
+    rows = load_sheet()
+    years, vcols, _ = find_year_header(rows)
+    blocks = find_blocks(rows)
+    return {r: series(blocks["MB"], r, years, vcols) for r in MOUGINOT_SLE_CM}
 
 
 def sd02_per_region():
@@ -212,17 +226,39 @@ def main():
         fa = 100 * sum(per[s]["cum_gt"] for s in secs) / tot_cum
         fr = 100 * sum(per[s]["recent_gt_yr"] for s in secs) / tot_rec
         print(f"  {name:32s} {fv:5.1f}% {fa:15.1f}% {fr:15.1f}% {fr - fa:+7.1f}pt")
-    print("\n  ⇒ the partition is DEMONSTRABLY NON-STATIONARY inside the "
-          "observed record itself.\n    A single fixed split cannot be pinned "
-          "over 1900-2025 when it moves this much over 46 yr;\n    the "
-          "per-sector likelihood should be TIME-RESOLVED (Dataset S2 carries "
-          "annual series),\n    which removes the assumption rather than "
-          "documenting it.")
-    print("\n  What IS robust across both windows: the HIGH basin's dormancy "
-          "(loss/vol 0.54 then 0.48).\n    What moves is the MID basin's "
-          "over-activity (1.83 -> 1.36). So the design — high tapped,\n    mid "
-          "active — survives; only the MAGNITUDE of mid's over-activity is "
-          "window-dependent.\n")
+    # WHERE the instability actually lives — scan windows and flag the ones
+    # whose TOTAL is too near zero for a share to mean anything. Greenland was
+    # close to balance until the mid-1990s, so early "shares" are not a moving
+    # partition, they are a ratio with a vanishing denominator (and mixed signs:
+    # the south basin was GAINING mass in 1972-1990).
+    mba = _annual_mb()
+    print("\n  WHERE the instability lives — basin share of the mean rate, "
+          "by window:\n")
+    print(f"    {'window':11s} {'total Gt/yr':>11s} "
+          + " ".join(f"{b:>7s}" for b, _ in basins) + "   usable?")
+    for a, b in WINDOW_SCAN:
+        tt = sum(float(mba[s].loc[a:b].mean()) for s in MOUGINOT_SLE_CM)
+        sh = [sum(float(mba[s].loc[a:b].mean()) for s in secs) / tt
+              for _, secs in basins]
+        ok = "yes" if abs(tt) > SHARE_MIN_RATE_GT else "NO — near balance"
+        print(f"    {a}-{b}  {tt:11.1f} " + " ".join(f"{v:7.3f}" for v in sh)
+              + f"   {ok}")
+    print(f"\n  ⇒ the partition is NOT drifting steadily — it is UNDEFINED "
+          f"where the total is near zero\n    (|rate| < "
+          f"{SHARE_MIN_RATE_GT} Gt/yr before ~1995; shares there run to 2.27 "
+          f"and -0.91) and STABLE after.\n    From 2002 on it holds to about "
+          f"±0.03: south ~0.58, mid ~0.23, high ~0.19.")
+    print("\n  ⇒ SO: a shares term must be restricted to windows where the "
+          "denominator is safe, and the\n    cumulative 1972-2018 split "
+          "(48.1/31.7/20.2) should NOT be used as the target — it mixes a\n"
+          "    near-balance era into a ratio. The modern rate shares are the "
+          "well-posed quantity.")
+    print("\n  What IS robust: on the MODERN shares the high basin is still "
+          "dormant (0.19 vs 0.37 of\n    volume, ratio ~0.51) and the mid "
+          "basin still over-active (0.23 vs 0.17, ratio ~1.3 —\n    lower "
+          "than the cumulative 1.83, but the same sign). The design — high "
+          "tapped, mid\n    active — survives on either measure; only the "
+          "MAGNITUDE of mid's over-activity moves.\n")
 
     mid_fl = sum(per[s]["cum_gt"] for s in MID_SECTORS) / tot_cum
     dorm_fl = mid_fl + hi_cum / tot_cum

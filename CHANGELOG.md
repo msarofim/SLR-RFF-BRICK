@@ -3,6 +3,55 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-19a — The share instability is a vanishing DENOMINATOR, not a drifting partition — and the calibrator already has the term to copy.
+
+Two findings while scoping the calibrator wiring Marcus approved (shares-only,
+time-resolved).
+
+### 1. Correcting entry 18o's own framing
+
+18o said "the partition is demonstrably non-stationary." True as stated, but the
+window scan (`diag_gis_basin_lit_check.py`, extended block 1c) locates it:
+
+| window | total Gt/yr | south | mid | high | usable? |
+|---|---|---|---|---|---|
+| 1972–1981 | +15.9 | 2.272 | −0.911 | −0.361 | **NO — near balance** |
+| 1982–1991 | −40.0 | −0.052 | 0.786 | 0.266 | **NO** |
+| 1992–2001 | −43.5 | 0.691 | 0.289 | 0.020 | **NO** |
+| 2002–2011 | −245.6 | 0.592 | 0.207 | 0.201 | yes |
+| 2012–2018 | −264.3 | 0.554 | 0.262 | 0.183 | yes |
+| 2000–2018 | −233.8 | 0.581 | 0.231 | 0.188 | yes |
+
+**The partition is not drifting steadily — it is UNDEFINED where the total is
+near zero and STABLE after.** Greenland was close to balance until the
+mid-1990s (the south basin was *gaining* mass in 1972–1990), so early "shares"
+are a ratio with a vanishing denominator, not a moving partition. From 2002 on
+it holds to about **±0.03: south ~0.58, mid ~0.23, high ~0.19**.
+
+**⇒ the cumulative 1972–2018 split (48.1/31.7/20.2) must NOT be the target** —
+it mixes a near-balance era into a ratio. The modern **rate** shares are the
+well-posed quantity, and the term must be restricted to windows where the
+denominator is safe (|rate| > 50 Gt/yr, i.e. ~1995 on).
+
+The design is unaffected: on modern shares the high basin is still dormant
+(0.19 vs 0.37 of volume, ratio ~0.51) and the mid basin still over-active (0.23
+vs 0.17, ratio ~1.3 — lower than the cumulative 1.83, same sign).
+
+### 2. The calibrator ALREADY carries a shares-only Mouginot term
+
+`calibrate_mcmc_ext.jl:1189–1205`, gated on `GIS_AB`. It constrains the FAST
+channel's share of the **extra** loss rate of 2000–2018 over 1972–1990 against
+`MOUG_SHARE = 0.735 ± 0.05`, and its own comment records why the extra-rate form
+was chosen: *"Scale-free, so the m-vs-cm unit difference does not enter."* The
+codebase already reached the design recommended in 18o, for the SMB/discharge
+split. The per-sector term should be built by direct analogy, in the same
+function, gated on its own flag.
+
+Note this also independently vindicates the extra-rate form: computing per-basin
+shares on the calibrator's own reference window gives −1.458 / 1.850 / 0.608,
+because that window straddles balance. The extra-rate shares are well behaved
+(0.694 / 0.141 / 0.164).
+
 ## [unreleased] — 2026-08-18o — The partition is NON-STATIONARY, which specifies the weighting decision.
 
 Marcus asked what the "weighting decision" and the "stationarity caveat"
