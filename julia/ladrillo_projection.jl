@@ -297,6 +297,15 @@ const LADRILLO_GIS_SLOW_NATIVE_COLS  = ["gis_alpha_s", "gis_beta_s"]
 const LADRILLO_GIS_AB_REPARAM_COLS =
     vcat(setdiff(LADRILLO_GIS_AB_COLS, LADRILLO_GIS_SLOW_NATIVE_COLS),
          LADRILLO_GIS_SLOW_REPARAM_COLS)
+"""The two SAMPLED 3-basin rate scales, as an L13+ posterior carries them: LOG10
+scales, matching the calibrator's `10.0^theta[GISB_IDX3[b]]`. `gis_s_south` is the
+pinned reference (s = 1) and is never sampled, so it is not here.
+
+A chain that carries these was fitted with `greenland_3basin` in the Greenland
+slot. Projecting it through `greenland_ab` silently evaluates it at s = 1 — the
+partition-invariance null — which is a model that was never calibrated."""
+const LADRILLO_GIS_BASIN_COLS = ["gis_s_mid", "gis_s_high"]
+
 const LADRILLO_PHYSICAL_PARAMS_NOGIS =
     [p for p in LADRILLO_PHYSICAL_PARAMS if !(p[1] in LADRILLO_GIS_STOCK_COLS)]
 
@@ -315,6 +324,8 @@ function ladrillo_gis_variant(cols)
     # Both A+B coordinate sets is not an error: an L11 posterior that has already
     # been through ladrillo_native_greenland! legitimately carries both, and the
     # transform is idempotent. Native wins because it is what the model takes.
+    hasb3 = all(c -> c in cols, LADRILLO_GIS_BASIN_COLS)
+    (hasab || hasrp) && hasb3 && return :basins
     (hasab || hasrp) && return :ab
     hasst && return :stock
     error("ladrillo_gis_variant: posterior carries NEITHER Greenland column set. " *
@@ -385,7 +396,8 @@ const LADRILLO_DERIVED_COLS = vcat(
 """Every posterior column this kernel reads, for a given Greenland variant."""
 ladrillo_used_cols(variant::Symbol) = vcat(
     [p[1] for p in LADRILLO_PHYSICAL_PARAMS_NOGIS],
-    variant === :ab ? LADRILLO_GIS_AB_COLS : LADRILLO_GIS_STOCK_COLS,
+    variant === :stock ? LADRILLO_GIS_STOCK_COLS : LADRILLO_GIS_AB_COLS,
+    variant === :basins ? LADRILLO_GIS_BASIN_COLS : String[],
     LADRILLO_GLACIER_COLS, LADRILLO_DERIVED_COLS)
 ## No variant-free column list: it would silently mean ":stock" and every
 ## consumer of it would check the wrong contract on a Ladrillo 1.0 posterior
@@ -459,7 +471,7 @@ struct Ladrillo
     obs_mask::BitVector                      # years <= last observed driver year
     nu::Dict{String,Float64}                 # FIXED per-block nu
     funch_unit::Vector{Float64}              # F_unch profile per mm of gic_u_unch (m SLE)
-    gis_variant::Symbol                      # :ab (Ladrillo 1.0) or :stock (SIMPLE)
+    gis_variant::Symbol                      # :ab (Ladrillo 1.0), :basins (L13 3-basin), :stock (SIMPLE)
     gis_obs::Vector{Float64}                 # observed regional Greenland T, padded to `years`
     gis_anchor::Float64                      # mean observed regional T over the splice anchor
     gis_mask::BitVector                      # years <= last observed Greenland driver year
@@ -509,6 +521,7 @@ function ladrillo_setup(; ssp::String="ssp245", y0::Int=1850, y1::Int=2300,
                       gmst::Union{Nothing,Vector{<:Real}}=nothing,
                       ohc::Union{Nothing,Vector{<:Real}}=nothing,
                       lws::Symbol=:seeded, gis_ab::Bool=false,
+                      gis_variant::Union{Nothing,Symbol}=nothing,
                       gis_shape::Bool=true)
     years = collect(y0:y1)
     yi(y) = findfirst(==(y), years)
@@ -548,7 +561,16 @@ function ladrillo_setup(; ssp::String="ssp245", y0::Int=1850, y1::Int=2300,
     # with the same anchor-preserving splice the calibrator uses, so the projection
     # and the calibration see the same construction. GIS_AMP is not sampled (the
     # calibrator fixes it too), so the driver is fixed and computed once.
-    gis_variant = gis_ab ? :ab : :stock
+    # `gis_variant=` is the full three-way selector; `gis_ab=` is the older boolean
+    # and stays exact for :ab / :stock. Passing both must AGREE -- silently
+    # preferring one would let a caller ask for the 3-basin model and get A+B,
+    # which is the very failure this variant exists to close.
+    gis_variant === nothing && (gis_variant = gis_ab ? :ab : :stock)
+    gis_variant in (:ab, :basins, :stock) ||
+        error("ladrillo_setup: unknown gis_variant :$gis_variant")
+    (gis_ab && gis_variant === :stock) &&
+        error("ladrillo_setup: gis_ab=true contradicts gis_variant=:stock")
+    gis_ab = gis_variant !== :stock          # the A+B-shaped Greenland driver path
     gis_obs, gis_anchor, gis_mask = Float64[], 0.0, falses(length(years))
     gis_shape_v, gis_shape_anchor = Float64[], 0.0
     if gis_ab
@@ -570,8 +592,9 @@ function ladrillo_setup(; ssp::String="ssp245", y0::Int=1850, y1::Int=2300,
         ianch = [yi(y) for y in ganch]
         gis_shape_anchor = mean(gis_shape_v[ianch] .* gmst_rb[ianch])
     end
-    m = gis_ab ? build_brick_nu3_gis(ssp=ssp, y0=y0, y1=y1, lws=lws) :
-                 build_brick_nu3(ssp=ssp, y0=y0, y1=y1, lws=lws)
+    m = gis_variant === :basins ? build_brick_nu3_gis3(ssp=ssp, y0=y0, y1=y1, lws=lws) :
+        gis_variant === :ab     ? build_brick_nu3_gis(ssp=ssp, y0=y0, y1=y1, lws=lws) :
+                                  build_brick_nu3(ssp=ssp, y0=y0, y1=y1, lws=lws)
     medoid = CSV.read(LADRILLO_MEDOID_CSV, DataFrame)[1, :]
     # Initialise from the medoid + the anchored glacier solve. Everything the
     # posterior samples is overwritten per draw; this only fixes the params the
@@ -590,6 +613,12 @@ function ladrillo_setup(; ssp::String="ssp245", y0::Int=1850, y1::Int=2300,
         update_param!(m, :greenland_icesheet, :gis_v0, LADRILLO_GIS_V0_M)   # structural
         update_param!(m, :greenland_icesheet, :gis_g,  LADRILLO_GIS_G)      # item 4.1: fixed 0
     end
+    # Mouginot volume shares + unit rate scales, matching calibrate_mcmc_ext.jl's
+    # `GIS_BASINS && update_gis3_shares!(m)`. The three `gis_s_b` are unbound
+    # Parameters after `build_brick_nu3_gis3`, so this is required, not cosmetic;
+    # the two SAMPLED scales are overwritten per draw in `ladrillo_apply_draw!`
+    # and `gis_s_south` stays pinned at the reference value 1.
+    gis_variant === :basins && update_gis3_shares!(m)
 
     return Ladrillo(m, ssp, years, [yi(y) for y in ref[1]:ref[2]],
                   Float64.(gmst), gmst_rb, obs_driver, obs_anchor,
@@ -649,14 +678,23 @@ function ladrillo_apply_draw!(bf::Ladrillo, row)
     # The row and the model must agree on which Greenland structure they are.
     # Without this the kernel would apply whatever it could and leave the slot at
     # its initialised values -- projections that are neither variant, silently.
-    gis_params = bf.gis_variant === :ab ? LADRILLO_GIS_AB_PARAMS :
-        [p for p in LADRILLO_PHYSICAL_PARAMS if p[1] in LADRILLO_GIS_STOCK_COLS]
+    gis_params = bf.gis_variant === :stock ?
+        [p for p in LADRILLO_PHYSICAL_PARAMS if p[1] in LADRILLO_GIS_STOCK_COLS] :
+        LADRILLO_GIS_AB_PARAMS
     @inbounds for (col, comp, sym) in Iterators.flatten((LADRILLO_PHYSICAL_PARAMS_NOGIS,
                                                          gis_params))
         update_param!(m, comp, sym, Float64(row[col]))
     end
-    bf.gis_variant === :ab &&
+    bf.gis_variant !== :stock &&
         set_gis_forcing!(m, ladrillo_gis_driver(bf, Float64(row["gis_amp"])))
+    # The two sampled basin rate scales, LOG10 as the chain carries them --
+    # identical to calibrate_mcmc_ext.jl's `10.0^theta[GISB_IDX3[b]]`. south is
+    # the pinned reference and keeps the s = 1 bound at setup.
+    bf.gis_variant === :basins &&
+        update_gis3_shares!(m; k = GIS3_VSHARE,
+                            s = (south = 1.0,
+                                 mid   = 10.0^Float64(row["gis_s_mid"]),
+                                 high  = 10.0^Float64(row["gis_s_high"])))
     @inbounds for col in LADRILLO_GLACIER_COLS
         update_param!(m, _GLAC, _GLACIER_SYMS[col], Float64(row[col]))
     end

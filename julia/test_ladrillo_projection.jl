@@ -52,7 +52,7 @@ end
 ## so the python reference is comparable.
 ## ---------------------------------------------------------------------------
 println("[setup] calibration window 1850-2026, forcing ssp245harm")
-hind = ladrillo_setup(gis_ab = VARIANT === :ab, ssp="ssp245", y0=1850, y1=2026, forcing_tag="ssp245harm", ref=(1995, 2005))
+hind = ladrillo_setup(gis_variant = VARIANT, ssp="ssp245", y0=1850, y1=2026, forcing_tag="ssp245harm", ref=(1995, 2005))
 @assert Int.(REF.year) == hind.years "port reference year grid mismatch"
 # The A+B Greenland slot has NO defaults: ladrillo_setup deliberately leaves its
 # seven parameters unset so a projection cannot silently run on placeholder
@@ -132,7 +132,7 @@ check("F_unch total stock == u", abs(1000 * funch_m[end] - u) <= 1e-9,
       @sprintf("%.4f mm", 1000 * funch_m[end]))
 # In a 1995-2014-referenced projection the whole term is a constant offset that
 # the re-referencing all but removes: quantify the residual sliver.
-proj = ladrillo_setup(gis_ab = VARIANT === :ab, ssp="ssp245", y0=1850, y1=2300)
+proj = ladrillo_setup(gis_variant = VARIANT, ssp="ssp245", y0=1850, y1=2300)
 ladrillo_run_draw!(proj, post[1, :])
 sliver = maximum(abs.(ladrillo_series(proj, :glaciers; funch=u) .-
                       ladrillo_series(proj, :glaciers))[[ladrillo_yi(proj, y) for y in 2050:2300]])
@@ -146,7 +146,7 @@ println("\n[6] scenario monotonicity at 2100 ($(nrow(post)) matched draws)")
 const MONO_COMPONENTS = (:glaciers, :gis, :ais, :te, :total)
 meds = Dict{String,Dict{Symbol,Float64}}()
 for ssp in ("ssp126", "ssp245", "ssp585")
-    bf = ssp == "ssp245" ? proj : ladrillo_setup(gis_ab = VARIANT === :ab, ssp=ssp, y0=1850, y1=2300)
+    bf = ssp == "ssp245" ? proj : ladrillo_setup(gis_variant = VARIANT, ssp=ssp, y0=1850, y1=2300)
     i2100 = ladrillo_yi(bf, 2100)
     vals = Dict(c => Float64[] for c in MONO_COMPONENTS)
     for r in eachrow(post)

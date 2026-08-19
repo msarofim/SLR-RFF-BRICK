@@ -134,7 +134,7 @@ isempty(UNFITTED) ||
     println("NOTE: no calibrated error model for $(join(UNFITTED, ", ")) — reported " *
             "OUT-OF-SAMPLE, parameter band only, predictive band NaN")
 bf   = ladrillo_setup(ssp="ssp245", y0=Y0, y1=Y1, forcing_tag=FORCING, ref=FIT_REF,
-                      gis_ab = VARIANT === :ab)
+                      gis_variant = VARIANT)
 imy  = [ladrillo_yi(bf, y) for y in FY]
 ny   = length(FY)
 

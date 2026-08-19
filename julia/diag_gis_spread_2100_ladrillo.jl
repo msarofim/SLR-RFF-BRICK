@@ -82,7 +82,7 @@ post = ladrillo_posterior(path = POSTERIOR_CSV, nthin = NTHIN)
 
 gis = Dict(ssp => Vector{Float64}(undef, nrow(post)) for (ssp, _) in SSPS)
 for (ssp, label) in SSPS
-    bf = ladrillo_setup(ssp = ssp, y0 = Y0, y1 = Y1, gis_ab = VARIANT === :ab,
+    bf = ladrillo_setup(ssp = ssp, y0 = Y0, y1 = Y1, gis_variant = VARIANT,
                         gis_shape = GIS_SHAPE)
     iy = ladrillo_yi(bf, PROJ_YEAR)
     t0 = time()
@@ -95,11 +95,11 @@ for (ssp, label) in SSPS
             label, nrow(post), time() - t0, PROJ_YEAR, median(gis[ssp]))
 
     if CHECK_HORIZON && ssp == SSP_HI
-        bf3 = ladrillo_setup(ssp = ssp, y0 = Y0, y1 = 2300, gis_ab = VARIANT === :ab,
+        bf3 = ladrillo_setup(ssp = ssp, y0 = Y0, y1 = 2300, gis_variant = VARIANT,
                              gis_shape = GIS_SHAPE)
         ladrillo_run_draw!(bf3, first(eachrow(post)))
         v3 = ladrillo_series(bf3, :gis)[ladrillo_yi(bf3, PROJ_YEAR)]
-        bf1 = ladrillo_setup(ssp = ssp, y0 = Y0, y1 = Y1, gis_ab = VARIANT === :ab,
+        bf1 = ladrillo_setup(ssp = ssp, y0 = Y0, y1 = Y1, gis_variant = VARIANT,
                              gis_shape = GIS_SHAPE)
         ladrillo_run_draw!(bf1, first(eachrow(post)))
         v1 = ladrillo_series(bf1, :gis)[ladrillo_yi(bf1, PROJ_YEAR)]

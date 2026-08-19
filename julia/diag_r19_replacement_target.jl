@@ -52,7 +52,7 @@ const D1_TOFF = -0.323618          # D1 posterior median (outputs/diag_d1_vs_l10
 
 post = ladrillo_posterior(nthin=NDRAW)
 bf = ladrillo_setup(ssp="ssp245", y0=Y0, y1=Y1,
-                    gis_ab = ladrillo_posterior_variant() === :ab)
+                    gis_variant = ladrillo_posterior_variant())
 yi(y) = findfirst(==(y), bf.years)
 @printf("R19 replacement target | %s | %d draws\n",
         basename(LADRILLO_POSTERIOR_CSV), nrow(post))

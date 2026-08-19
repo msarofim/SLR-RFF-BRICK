@@ -40,7 +40,7 @@ const OUT = joinpath(LADRILLO_REPO, "outputs/diag_ais_param_sensitivity.csv")
 
 const VARIANT = ladrillo_posterior_variant()
 post = ladrillo_posterior(nthin = NTHIN)
-bf = ladrillo_setup(ssp = SSP, y0 = Y0, y1 = Y1, gis_ab = VARIANT === :ab)
+bf = ladrillo_setup(ssp = SSP, y0 = Y0, y1 = Y1, gis_variant = VARIANT)
 @printf("AIS parameter sensitivity | %s (%d draws) | %s | %d-%d\n",
         basename(LADRILLO_POSTERIOR_CSV), nrow(post), SSP, Y0, Y1)
 

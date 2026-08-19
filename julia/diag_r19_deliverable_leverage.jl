@@ -64,7 +64,7 @@ const ARMS = [("BASE_L10",        String[]),
 
 function run_arm(post, ssp)
     bf = ladrillo_setup(ssp=ssp, y0=Y0, y1=Y1,
-                        gis_ab = ladrillo_posterior_variant() === :ab)
+                        gis_variant = ladrillo_posterior_variant())
     iy = Dict(y => findfirst(==(y), bf.years) for y in HORIZONS)
     acc = Dict(c => Dict(y => Float64[] for y in HORIZONS) for c in COMPONENTS)
     for r in eachrow(post)

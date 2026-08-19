@@ -3,6 +3,145 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-19c — The L13 SLR certificate ran the wrong Greenland (−1.66 cm), and the convergence failure is a DEGENERATE PROPOSAL in `ais_c`.
+
+### 1. `ladrillo_projection.jl` had no 3-basin variant, so every L13 projection ran at s = 1
+
+L13 samples two 3-basin Greenland rate scales (`gis_s_mid`, `gis_s_high`, LOG10)
+under `greenland_3basin`. The projection kernel knew only `:stock` and `:ab`:
+
+* `ladrillo_gis_variant` returned `:ab` for an L13 chain — the A+B columns are all
+  present, and nothing looked for the basin columns;
+* `ladrillo_used_cols(:ab)` therefore did not even READ `gis_s_mid`/`gis_s_high`,
+  so the SLR gate never touched them and could not have warned;
+* `ladrillo_setup(gis_ab=true)` built `build_brick_nu3_gis` (A+B).
+
+So `diag_slr_convergence_by_chain_ladrillo.jl --tag=L13` projected the L13
+posterior through the **partition-invariance null, s = 1** — while the shared
+Greenland parameters had been fitted against s_high ≈ 0.26. This is silent because
+of nesting gate [3]: at s = 1 the two Greenlands are algebraically identical, so
+nothing errors, nothing looks wrong, and the wrong model runs cleanly.
+
+The `s = 1` null is not a small perturbation of the fitted model: Σ k_b s_b =
+0.456·1 + 0.173·0.933 + 0.371·0.255 = **0.712**, i.e. the projection ran the
+Greenland rate ~40 % hotter than calibration. The compensating inflation is visible
+in the posterior — every Greenland shared parameter moved UP L12 → L13 (post-burn
+medians, seed2026): `gis_c1` 0.0385→0.0425, `gis_c0` 0.0467→0.0585,
+`gis_alpha_f` 0.00409→0.00531, `gis_beta_f` 0.00762→0.00920.
+
+**Added `:basins`** — variant detection, `ladrillo_used_cols`, a builder branch to
+`build_brick_nu3_gis3`, `update_gis3_shares!` at setup (the three `gis_s_b` are
+unbound Parameters after the builder), and the per-draw `10.0^` scales in
+`ladrillo_apply_draw!`, matching `calibrate_mcmc_ext.jl` exactly. `gis_ab=` still
+works for `:ab`/`:stock`; passing both must agree or it errors.
+
+Swept 16 callers from `gis_ab = X === :ab` to `gis_variant = X`. That idiom mapped
+`:basins` silently to `:stock`, which would have failed later with a confusing
+"missing greenland_a". `diag_slr_convergence_by_chain_ladrillo.jl` now accepts
+`:basins` and certifies it through the 3-basin model.
+
+### 2. What it was worth: −1.66 cm at 2100 (`julia/diag_l13_projection_variant.jl`)
+
+Three arms over the SAME chains, burn-in and thinning the certificate uses, so the
+`:ab` arm must reproduce `slr_convergence_L13.csv` — it does, exactly (47.89 pooled,
+R̂ 1.057, ESS 65.6, sd(medians) 1.411, per-chain 48.91/47.39/48.86/45.94).
+
+**Nesting gate: `max|basins at s=1 − ab| = 1.28e-12 cm`.** So every difference below
+is the fitted scales and nothing else.
+
+| horizon | `ab_shipped` | `basins_fitted_s` | move |
+|---|---|---|---|
+| 2100 | 47.89 | **46.23** | −1.66 cm |
+| 2150 | 76.78 | **74.71** | −2.07 cm |
+
+The +2.36 cm L12→L13 "move" reported in 19b was mostly this artefact: against L12's
+45.53 cm the corrected L13 median is +0.70 cm, well inside the 3.10 cm the four
+chains disagree by.
+
+### 3. It does NOT explain the convergence failure
+
+The hypothesis that the mis-projection caused the R̂ failure is **wrong**:
+
+| | R̂@2100 | sd(medians) |
+|---|---|---|
+| `ab_shipped` | 1.057 | 1.411 |
+| `basins_fitted_s` | 1.061 | 1.441 |
+
+Correcting the model moves the level and leaves the between-chain disagreement
+where it was (marginally worse). The scales act as a near-constant per-chain
+multiplier. **L12 stays canonical at 45.53 cm; 46.23 may not be quoted as a result
+either — it is a corrected diagnostic on chains that failed their gate.**
+
+### 4. §3 RESOLVED: the L13 proposal covariance is degenerate in `ais_c`
+
+`ais_c` is not slow-mixing in L13 — it is **frozen**. Post-burn q05→q95 across all
+four chains spans 88.809052 → 88.809179, a range of 1.3e-4, against L12's 56.7 →
+124.1. Four independent chains agreeing to 7 significant figures on one coordinate
+of a 7-D joint prior is a code path, not a posterior.
+
+The receipt is in the proposal, not the starts (diagonal of the adapted covariance,
+seed2026, as proposal sd):
+
+| param | L12 production | L13 production | shared seed `adapted_cov_L11tune3` |
+|---|---|---|---|
+| `ais_c` | 1.282 | **7.92e-07** | 0.606 |
+| `ais_mu` | 0.1145 | 6.81e-04 | 0.0520 |
+| `ais_bedheight0` | 0.962 | 0.156 | 0.567 |
+| `ais_runoff_Ton` | 0.0137 | 0.0416 | 0.0139 |
+| `ais_precip0_LOG` | 0.0276 | 0.0446 | 0.0163 |
+
+L12tune and L13tune seeded from the SAME file (`adapted_cov_L11tune3_seed2026.csv`,
+healthy at 0.606) — L12tune kept it (0.762), L13tune collapsed it by ~10⁶ and L13
+production inherited the collapse. `embed_cov!` maps by NAME, so this is not the
+positional-shift trap of 19b §5.1; the collapse happened inside L13tune's own
+adaptation. The AIS geometry block is now exploring a 5-D slice of its 7-D prior
+and compensating in the two directions that stayed open — `ais_runoff_Ton` (3×
+wider than L12) and `ais_precip0_LOG` (1.6× wider).
+
+**And that is exactly where the chains split.** The four chains cluster 2+2 —
+{2026, 2028} high, {2027, 2029} low — and the parameters that separate the clusters
+CLEANLY (no overlap) are the AIS block, led by the two directions the degenerate
+proposal forced the block into:
+
+| param | 2026 | 2028 | 2027 | 2029 | r with chain SLR median |
+|---|---|---|---|---|---|
+| `ais_precip0_LOG` | −0.326 | −0.291 | −0.577 | −0.599 | +0.93 |
+| `ais_runoff_Ton` | −20.88 | −21.74 | −17.81 | −17.82 | −0.89 |
+| `anto_alpha` | 0.2435 | 0.2366 | 0.2734 | 0.2791 | −0.94 |
+| `sd_ais` | 0.0214 | 0.0220 | 0.0140 | 0.0116 | +0.97 |
+
+So the answer to "why does L13 fail the SLR gate where L12 passed with the same AIS
+pathology" is that **it is not the same pathology**: L12's proposal could still move
+`ais_c` (sd 1.28) and its chains converged; L13's cannot (7.9e-07) and its geometry
+block has partitioned into two non-communicating modes.
+
+**Both of 19b's other candidates are refuted by measurement, not argument.**
+
+*Candidate 1, `gis_amp`:* the 4-chain-median correlation (r = 0.81 in L13 vs 0.15 in
+L12) is spurious. Regressed WITHIN chains on the 1600-draw dump, `gis_amp` moves
+SLR@2100 by 1.79 cm per unit with r = 0.028 — its 0.113 between-chain spread buys
+0.20 cm of the observed 3.10 cm. Spearman is +0.221/+0.210/+0.047/+0.073 across the
+four chains, i.e. not even consistent in size. No dumped parameter carries the
+within-chain variance; the largest and only stable one is `thermal_alpha`
+(ρ = +0.239/+0.279/+0.250/+0.269), and it accounts for 0.06 cm.
+
+*Candidate 2, "Greenland via the TAIL, not the median":* the shift is in the BULK.
+Restricting to draws below 50 cm, the per-chain medians are 46.24 / 44.54 / 45.76 /
+43.36 — a 2.88 cm spread that is essentially the whole 3.10 cm. The tail fraction
+moves too (P(>60 cm) = 0.215 / 0.230 vs 0.165 / 0.160, splitting on the same 2+2)
+but it is not where the median disagreement lives, and within-chain sd is stable at
+12.2–13.0 throughout. This is a location shift of the whole distribution.
+
+**The fix is to reseed, not to re-run.** A repeat of L13 production from the same
+proposal will freeze `ais_c` again and cost ~4 h. Reseed from a covariance in which
+`ais_c` actually moves — `adapted_cov_L12_seed2026.csv`, name-mapped into the
+59-param layout, which `embed_cov!` already supports — and re-tune. **Still open:
+what collapsed `ais_c` inside L13tune from a healthy 0.606 seed.** Whether the
+adaptation carries a ridge/ε floor is the first thing to look at.
+
+`outputs/mcmc/projection_variant_L13.csv`, `projection_variant_draws_L13.csv`
+(1600 draws × per-arm SLR + 11 parameters), `log_projvariant_L13.txt`.
+
 ## [unreleased] — 2026-08-19b — The sector shares term is WIRED, and `--gis-check` has been inert for the whole L12 line.
 
 Implements the term scoped in 19a, per Marcus's four decisions of 2026-08-19:

@@ -39,7 +39,7 @@ const COMPONENTS = [:glaciers, :total]
 
 post = ladrillo_posterior(nthin=NDRAW)
 bf = ladrillo_setup(ssp="ssp245", y0=Y0, y1=Y1,
-                    gis_ab = ladrillo_posterior_variant() === :ab)
+                    gis_variant = ladrillo_posterior_variant())
 hi = [i for (i, y) in enumerate(bf.years) if HIND[1] <= y <= HIND[2]]
 @printf("R19 hindcast visibility | %d draws | %d-%d\n", nrow(post), HIND...)
 

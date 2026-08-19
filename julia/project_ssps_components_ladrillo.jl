@@ -81,7 +81,7 @@ out = DataFrame(year=Int[], ssp=String[], component=String[], gmst=Float64[],
                 n_finite=Int[])
 
 for (ssp, label) in SSPS
-    bf = ladrillo_setup(ssp=ssp, y0=Y0, y1=Y1, gis_ab = VARIANT === :ab)
+    bf = ladrillo_setup(ssp=ssp, y0=Y0, y1=Y1, gis_variant = VARIANT)
     ny = length(bf.years)
     series = Dict(c => Array{Float64}(undef, ny, nrow(post)) for c in COMPONENTS)
     t0 = time()

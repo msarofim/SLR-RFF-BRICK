@@ -32,7 +32,7 @@ rows = DataFrame(block=String[], ssp=String[], year=Int[], med=Float64[],
         nrow(post), REF)
 for ssp in SSPS
     bf = ladrillo_setup(ssp=ssp, y0=1850, y1=2300,
-                        gis_ab = ladrillo_posterior_variant() === :ab)
+                        gis_variant = ladrillo_posterior_variant())
     yi(y) = findfirst(==(y), bf.years)
     acc = Dict(b => Dict(y => Float64[] for y in (2100, 2300)) for b in keys(SLOTS))
     for r in eachrow(post)

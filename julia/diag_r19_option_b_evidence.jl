@@ -43,7 +43,7 @@ tg = CSV.read(TARGETS, DataFrame)
 bc = CSV.read(BLOCKC, DataFrame); r19row = bc[findfirst(==("R19"), bc.block), :]
 post = ladrillo_posterior(nthin=NDRAW)
 bf = ladrillo_setup(ssp="ssp245", y0=1850, y1=2026,
-                    gis_ab = ladrillo_posterior_variant() === :ab)
+                    gis_variant = ladrillo_posterior_variant())
 yi(y) = findfirst(==(y), bf.years)
 ibref = [yi(y) for y in FIT_REF[1]:FIT_REF[2]]
 @printf("R19: is Option B right on observations and physics? | %d draws\n", nrow(post))

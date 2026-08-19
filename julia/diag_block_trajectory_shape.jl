@@ -40,7 +40,7 @@ const ACOL  = Dict("R19" => "gic_a_R19", "SLOWP" => "gic_a_SLOWP", "FAST" => "gi
 
 post = ladrillo_posterior(nthin=NDRAW)
 bf = ladrillo_setup(ssp=SSP, y0=1850, y1=2300,
-                    gis_ab = ladrillo_posterior_variant() === :ab)
+                    gis_variant = ladrillo_posterior_variant())
 yi(y) = findfirst(==(y), bf.years)
 acc = Dict(b => Dict(y => Float64[] for y in YEARS) for (b, _) in SLOTS)
 for r in eachrow(post)

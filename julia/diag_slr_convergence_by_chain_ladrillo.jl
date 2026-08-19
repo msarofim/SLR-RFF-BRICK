@@ -97,11 +97,17 @@ allequal(values(VARIANTS)) || error("the $(length(SEEDS)) chains disagree on the
     "variant: $(join(["seed$sd=>:$(VARIANTS[sd])" for sd in SEEDS], ", ")). " *
     "Mixing vintages in one R-hat would compare different models, not chains.")
 const VARIANT = VARIANTS[SEEDS[1]]
-VARIANT === :ab || error("chains read as :$VARIANT, not :ab — this is the Ladrillo 1.0 " *
-    "(greenland_ab) diagnostic; use diag_slr_convergence_by_chain_extc.jl for " *
-    "stock-SIMPLE chains")
+# :basins (L13+) is accepted alongside :ab and certified through the 3-basin
+# Greenland with the chain's OWN sampled rate scales. Before 2026-08-19 the kernel
+# had no :basins, so an L13 chain read as :ab and was projected at s = 1 — the
+# partition-invariance null — which is NOT the model those chains were fitted
+# under; see diag_l13_projection_variant.jl for what that was worth (-1.7 cm on
+# the 2100 median at 4 draws/chain). Only :stock is refused here.
+VARIANT in (:ab, :basins) || error("chains read as :$VARIANT — this is the Ladrillo 1.0 " *
+    "(greenland_ab / greenland_3basin) diagnostic; use " *
+    "diag_slr_convergence_by_chain_extc.jl for stock-SIMPLE chains")
 
-bf = ladrillo_setup(ssp=SSP, y0=Y0, y1=Y1, gis_ab = VARIANT === :ab,
+bf = ladrillo_setup(ssp=SSP, y0=Y0, y1=Y1, gis_variant = VARIANT,
                     gis_shape = GIS_SHAPE)
 
 @printf("Ladrillo 1.0 SLR convergence-by-chain diagnostic\n")

@@ -65,7 +65,7 @@ hdr(sd) = String.(propertynames(CSV.read(chain_path(sd), DataFrame; limit = 0)))
 for sd in SEEDS; isfile(chain_path(sd)) || error("missing chain $(chain_path(sd))"); end
 const VARIANT = ladrillo_gis_variant(hdr(SEEDS[1]))
 
-bf = ladrillo_setup(ssp = SSP, y0 = Y0, y1 = Y1, gis_ab = VARIANT === :ab)
+bf = ladrillo_setup(ssp = SSP, y0 = Y0, y1 = Y1, gis_variant = VARIANT)
 @printf("Does %s reach the deliverable? | tag %s | %s | %d-%d | %d draws/chain\n",
         PARAM, TAG, SSP, Y0, Y1, N_TARGET)
 @printf("  amp law ON (the shipped model) | rebaseline %d-%d\n\n",

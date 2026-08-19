@@ -57,7 +57,7 @@ println("R19 transient loss 2015-2100, % of 2015 mass  (Zekollari et al. 2024, T
 for (arm, over) in ["L10"=>Dict{String,Float64}(), "D1"=>D1]
     p = copy(post); for (k,v) in over; p[!,k] .= v; end
     for ssp in ("ssp126","ssp585")
-        bf = ladrillo_setup(ssp=ssp, y0=1850, y1=2100, gis_ab = ladrillo_posterior_variant()===:ab)
+        bf = ladrillo_setup(ssp=ssp, y0=1850, y1=2100, gis_variant = ladrillo_posterior_variant())
         yi(y)=findfirst(==(y), bf.years)
         pct = Float64[]
         for r in eachrow(p)

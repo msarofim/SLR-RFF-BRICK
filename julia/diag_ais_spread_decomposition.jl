@@ -91,7 +91,7 @@ end
 """Median :ais at YEAR, the finite share, and the share of draws whose Antarctic
 surface temperature ever reaches `antarctic_temp_threshold` — one pass."""
 function run_arm(post, ssp)
-    bf = ladrillo_setup(ssp=ssp, y0=Y0, y1=Y1, gis_ab = ladrillo_posterior_variant() === :ab)
+    bf = ladrillo_setup(ssp=ssp, y0=Y0, y1=Y1, gis_variant = ladrillo_posterior_variant())
     iy = findfirst(==(YEAR), bf.years)
     vals, crossed = Float64[], 0
     for r in eachrow(post)

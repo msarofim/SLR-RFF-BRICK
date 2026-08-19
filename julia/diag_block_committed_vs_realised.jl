@@ -23,7 +23,7 @@
 using CSV, DataFrames, Mimi, Printf, Statistics
 include(joinpath(@__DIR__, "ladrillo_projection.jl"))
 post = ladrillo_posterior(nthin=200)
-bf = ladrillo_setup(ssp="ssp126", y0=1850, y1=2300, gis_ab = ladrillo_posterior_variant()===:ab)
+bf = ladrillo_setup(ssp="ssp126", y0=1850, y1=2300, gis_variant = ladrillo_posterior_variant())
 yi(y)=findfirst(==(y), bf.years)
 BLK = ["R19"=>:gsic_r19, "SLOWP"=>:gsic_slowp, "FAST"=>:gsic_fast]
 println("Ladrillo ssp126: COMMITTED vs REALISED at 2300, % of 2015 block mass")
