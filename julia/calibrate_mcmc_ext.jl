@@ -278,6 +278,21 @@ const GISB_SHARE_SD = 0.05
 # than a mild bias. The windows above are chosen to sit far from it — this catches
 # a PROPOSAL that wanders there, not the target.
 const GISB_TOT_FLOOR = 1e-12
+# REFERENCE BASIN — pinned at s = 1, NOT sampled. Measured 2026-08-19, and it is a
+# property of the reduced form rather than a tuning choice: the basin rate is
+# clip(s_b * (alpha*T + beta)), so scaling EVERY s_b by c while scaling the shared
+# shape rates (alpha_f, beta_f, and r_s through ell) by 1/c leaves the model
+# EXACTLY invariant — verified at 0.0 max|diff| over c in [0.25, 10], with 1.1e-16
+# at c = 10 as pure roundoff. The common mode of the three log s_b is therefore a
+# perfectly flat likelihood direction, broken only by the priors, and sampling it
+# collapsed acceptance from 0.268 to 0.012-0.014 (measured with the shares term
+# both ON and OFF, so it is the DIMENSION and not the term).
+# Only the RATIOS carry information, which is exactly what the shares term can
+# identify: two independent shares per window. Pinning south makes mid and high
+# read as "rate relative to the south basin" and leaves the overall level where it
+# already lived — in the shipped shape parameters.
+const GISB_REF = :south
+const GISB_FREE_BASINS = Tuple(b for b in GIS3_BASINS if b != GISB_REF)
 # gis_g is FIXED AT 0 (item 4.1, 2026-08-12): profiled over [0, 0.8] the offline
 # objective moves 4e-4 nlp and the 2100 projections do not move at all, and it is
 # confounded with gis_c0. 0 is also stock SIMPLE's own initial condition.
@@ -368,8 +383,9 @@ if GIS_AB
     @printf("greenland driver: t_gis_zones.csv[%s] 1850-%d + amp %.2f x GMST splice | gis_g FIXED %.1f | Mouginot share %.3f+/-%.3f\n",
             GIS_ZONE, TGZ_LAST, GIS_AMP, GIS_G, MOUG_SHARE, MOUG_SHARE_SD)
     if GIS_BASINS
-        @printf("greenland basins: 3 Mouginot sectors on the SHARED %s driver | k FIXED %.4f/%.4f/%.4f | sector shares term %s\n",
+        @printf("greenland basins: 3 Mouginot sectors on the SHARED %s driver | k FIXED %.4f/%.4f/%.4f | rate scales sampled for %s (%s PINNED at 1: the common mode is exactly degenerate with the shape rates) | sector shares term %s\n",
                 GIS_ZONE, GIS3_VSHARE.south, GIS3_VSHARE.mid, GIS3_VSHARE.high,
+                join(GISB_FREE_BASINS, "+"), GISB_REF,
                 GISB_TERM ? "ON" : "OFF (--no-gis-shares)")
         GISB_TERM && for (w, sh) in zip(GISB_WINS, GISB_SHARE)
             @printf("    %d-%d target: %s scored at %.3f/%.3f +/- %.3f (high %.3f follows by sum-to-one)\n",
@@ -694,7 +710,7 @@ if GIS_AB
         # this run is still on `south`. s = 1 is the honest null — "no basin
         # re-scaling", the exact nesting point at which this model IS greenland_ab —
         # and sigma 0.5 in log10 puts the prototype's whole range inside 1 sd.
-        for b in GIS3_BASINS
+        for b in GISB_FREE_BASINS
             push!(FREE, (name="gis_s_$b", comp=GISC, sym=Symbol("gis_s_$b"),
                          μ=0.0, σ=0.5, lo=-2.0, hi=2.0, islog=false))
         end
@@ -846,7 +862,7 @@ const GISAMP_IDX = findfirst(k -> k.name == "gis_amp", FREE)   # nothing when --
 # the three basin rate scales, sampled as log10 -- the component gets 10^θ, so they
 # are DERIVED in the same sense gic_kappa is and must be skipped by the setp! loop.
 const GISB_IDX3 = GIS_BASINS ?
-    Dict(b => findfirst(k -> k.name == "gis_s_$b", FREE) for b in GIS3_BASINS) :
+    Dict(b => findfirst(k -> k.name == "gis_s_$b", FREE) for b in GISB_FREE_BASINS) :
     Dict{Symbol,Int}()
 const SETP_SKIP  = Set(vcat(collect(values(KAPPA_IDX3)),
                             [UUNCH_IDX, DELTA_IDX, UPRE_IDX, SR5_IDX],
@@ -1175,7 +1191,9 @@ function logposterior(θ)
     end
     # basin rate scales: sampled as log10, the component takes the linear value
     if GIS_BASINS
-        for b in GIS3_BASINS
+        # the reference basin stays pinned at 1 (set once at build); only the
+        # information-carrying ratios are sampled
+        for b in GISB_FREE_BASINS
             update_param!(m, _GIS_SLOT, Symbol("gis_s_$b"), 10.0^θ[GISB_IDX3[b]])
         end
     end
@@ -1566,7 +1584,7 @@ const OLD54_NAMES = vcat(
 # safe (visible warning -> fresh diagonal) rather than catastrophically, but it
 # throws away the tuned proposal shape and would be read as "the covariance is
 # incompatible" when in fact 57 of its 60 rows map perfectly. Filter them out.
-const GISB_PNAMES = ["gis_s_$b" for b in GIS3_BASINS]
+const GISB_PNAMES = ["gis_s_$b" for b in GIS3_BASINS]   # all three; only some are sampled
 prelayout(fr) = [k for k in fr if !(k.name in GISB_PNAMES)]
 
 const L11A_NAMES = vcat(
