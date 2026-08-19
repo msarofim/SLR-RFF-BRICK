@@ -198,6 +198,50 @@ pessimistic. Re-measure from `L13tune` on a quiet machine before trusting the
 
 ---
 
+## 6a. THE TWO ARTEFACTS: both KEPT, the cruft around them retired (Marcus 2026-08-19)
+
+**`--gis-check` — KEEP. It has coverage nothing else has.**
+`validate_greenland_ab.jl` READS the driver from a CSV and feeds it in;
+`--gis-check` runs the real `logposterior`, whose driver is built from
+`t_gis_zones.csv[GIS_ZONE]` + the amp splice + the anchor offset. **The driver
+construction, the splice, the calibrator frame and the `S.gis` index alignment
+are tested by `--gis-check` and by nothing else** — exactly the class that broke
+silently for the whole L12 line (§2).
+
+*Hardened:* θchk now pins the basin scales at s = 1, because the 3-basin model
+equals A+B only there. θ0 carries s = 1 today by accident (the basin params are
+absent from the MAP/medoid CSVs and fall back to their prior centre), but once θ0
+is rebuilt from an L13 posterior that accident ends and the gate would fail for a
+reason unrelated to the wiring it tests.
+
+*Its real update trigger* is the `GIS_ZONE` `"south"` → `"all"` switch: the
+offline reference was fitted on the south driver, so it will fail LEGITIMATELY
+then. Regenerate the reference — **do not widen the tolerance.**
+
+**`overdispersed_starts.csv` — KEEP the file, RETIRE the modification.** It is
+referenced by 10 files including every production script, and R̂ is only valid
+with over-dispersed starts. What was retired is the uncommitted 2026-08-17
+modification that rode along for six handoffs with no record of its provenance:
+it is unusable going forward anyway (the loader reads by column NAME and
+hard-errors, so the L13 layout cannot load it at all), committing it would have
+silently changed what future chains start from, and leaving it in the tree
+invited silent retrieval by any L12 re-run.
+
+Preserved at `outputs/quarantine/20260819_unexplained_starts/` with a README
+(**on disk only — `outputs/` is gitignored**, so the rationale lives in commit
+`9ab499d` and here). Tree restored to committed HEAD = the L12-vintage starts the
+canonical posterior actually used. `.pre_l12_bak` was deleted as **byte-identical
+to HEAD** (md5 `1f3ce48…`) — git already held it. `.pre_extc_bak` is a genuinely
+distinct earlier vintage and was left alone.
+
+**Still open, the third inherited modification:** `figures/diag_gis_regional_driver.png`
+has been modified-uncommitted for seven handoffs. It is reproducible from
+`python/diag_gis_regional_driver.py`, so its working-tree state carries no unique
+information — regenerate it and commit, or `git checkout --` it. Not resolved
+here because it was not asked about and its content could not be diffed.
+
+---
+
 ## 7. NESTING — the gate that says the restructure adds nothing by itself
 
 `julia/test_greenland_3basin_nesting.jl`, all pass:
