@@ -3,6 +3,68 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-18o — The partition is NON-STATIONARY, which specifies the weighting decision.
+
+Marcus asked what the "weighting decision" and the "stationarity caveat"
+precisely are. Entry 18n named both but under-specified them. Measured the
+second (`diag_gis_basin_lit_check.py` block 1c) and it largely resolves the
+first.
+
+### The stationarity caveat, quantified — and it FAILS
+
+Constraining the split with Mouginot's 1972–2018 partition, over a 1900–2025
+window of which 64% predates 1972, assumes the partition is stationary. Tested
+against the same dataset's recent window:
+
+| basin | %vol | %loss 1972–2018 | %loss 2010–2018 | swing |
+|---|---|---|---|---|
+| south | 45.6% | 48.1% | **58.7%** | **+10.5 pt** |
+| mid (NW) | 17.3% | 31.7% | **23.6%** | **−8.1 pt** |
+| high (NO+NE) | 37.1% | 20.2% | 17.7% | −2.4 pt |
+
+**The partition is demonstrably non-stationary inside the observed record
+itself.** A single fixed split cannot be pinned over 125 years when it moves
+this much over 46. ⇒ **the per-sector term should be TIME-RESOLVED** (Dataset S2
+carries annual series), which removes the assumption rather than documenting it.
+
+**What survives both windows: the HIGH basin's dormancy** (loss/vol 0.54 then
+0.48). What moves is the MID basin's over-activity (1.83 → 1.36). **The design —
+high tapped, mid active — is robust; only the magnitude of mid's over-activity
+is window-dependent.**
+
+### The weighting decision, decomposed into its four separable parts
+
+1. **Absolute sector losses vs SHARES ONLY.** Absolute puts the sector term in
+   direct conflict with the total term, because the datasets disagree on the
+   total by **1.227×** — far outside Mouginot's published per-region errors
+   (30–91 Gt against a ~1,100 Gt total gap). Shares make the terms orthogonal:
+   the total sets magnitude, the sectors set the split.
+2. **Double counting.** The existing total term already spans 1900–2025, which
+   *includes* 1972–2018. An absolute sector term over those same years counts
+   that data twice. A ratio carries no magnitude information, so shares avoid it.
+3. **Effective sample size.** 126 annual points in the total term against 3
+   cumulative sector numbers — even at equal per-observation weight the total
+   dominates ~40:1, so an absolute sector term is nearly inert unless
+   deliberately up-weighted, and "up-weighted by how much" is precisely the
+   arbitrary knob worth not having.
+4. **What uncertainty to put on the sector term.** Mouginot's published errors
+   are far too tight to accommodate the inter-dataset disagreement, so a formal
+   likelihood built on them would declare the two terms incompatible.
+
+**Recommendation: shares-only and time-resolved.** It is the one option where
+the weighting is not a free knob — the sector data constrains what it is
+actually good for, and (1)–(4) all dissolve.
+
+### Refinement of 18n's own framing
+
+18n said the per-sector and total terms "pull against each other by ~25% and the
+calibrator must weight them deliberately." That is true of the **absolute**
+variant. Under shares-only the pull largely dissolves, because the sector term
+stops making any claim about magnitude. **The ~25% two-window tension does not
+go away — but it was never created by the sector term**; it is pre-existing in
+the single-basin fit (−25.1% control) and remains a property of the model /
+driver / target.
+
 ## [unreleased] — 2026-08-18n — 3-basin partition prototype: the structure works, and the two-window tension is PRE-EXISTING.
 
 `python/scope_gis_3basin_partition.py` → `outputs/scope_gis_3basin_partition.csv`.

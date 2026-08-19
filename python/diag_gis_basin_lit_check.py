@@ -198,6 +198,32 @@ def main():
              "proportional")
         print(f"  {name:32s} {100 * fs:5.1f}% {100 * fl:5.1f}% "
               f"{fl / fs:9.2f}  {v}")
+    # ---- 1c. is the partition even STATIONARY inside the observed window? --
+    # The recalibration plan would constrain the basin split with the 1972-2018
+    # partition, over a 1900-2025 calibration window of which 64% predates 1972.
+    # That assumes stationarity. Test it against the SAME dataset's recent
+    # window before assuming it.
+    tot_rec = sum(per[r]["recent_gt_yr"] for r in MOUGINOT_SLE_CM)
+    print(f"=== IS THE PARTITION STATIONARY? same dataset, two windows ===\n")
+    print(f"  {'basin':32s} {'%vol':>6s} {'%loss ' + str(DORMANCY_WIN[0]) + '-' + str(DORMANCY_WIN[1]):>16s} "
+          f"{'%loss ' + str(RECENT_WIN[0]) + '-' + str(RECENT_WIN[1]):>16s} {'swing':>8s}")
+    for name, secs in basins:
+        fv = 100 * sum(MOUGINOT_SLE_CM[s] for s in secs) / tot_sle
+        fa = 100 * sum(per[s]["cum_gt"] for s in secs) / tot_cum
+        fr = 100 * sum(per[s]["recent_gt_yr"] for s in secs) / tot_rec
+        print(f"  {name:32s} {fv:5.1f}% {fa:15.1f}% {fr:15.1f}% {fr - fa:+7.1f}pt")
+    print("\n  ⇒ the partition is DEMONSTRABLY NON-STATIONARY inside the "
+          "observed record itself.\n    A single fixed split cannot be pinned "
+          "over 1900-2025 when it moves this much over 46 yr;\n    the "
+          "per-sector likelihood should be TIME-RESOLVED (Dataset S2 carries "
+          "annual series),\n    which removes the assumption rather than "
+          "documenting it.")
+    print("\n  What IS robust across both windows: the HIGH basin's dormancy "
+          "(loss/vol 0.54 then 0.48).\n    What moves is the MID basin's "
+          "over-activity (1.83 -> 1.36). So the design — high tapped,\n    mid "
+          "active — survives; only the MAGNITUDE of mid's over-activity is "
+          "window-dependent.\n")
+
     mid_fl = sum(per[s]["cum_gt"] for s in MID_SECTORS) / tot_cum
     dorm_fl = mid_fl + hi_cum / tot_cum
     print(f"\n  ⇒ the two basins the mock holds DORMANT contributed "
