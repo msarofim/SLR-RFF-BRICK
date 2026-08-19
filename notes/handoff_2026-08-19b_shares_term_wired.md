@@ -234,11 +234,27 @@ canonical posterior actually used. `.pre_l12_bak` was deleted as **byte-identica
 to HEAD** (md5 `1f3ce48…`) — git already held it. `.pre_extc_bak` is a genuinely
 distinct earlier vintage and was left alone.
 
-**Still open, the third inherited modification:** `figures/diag_gis_regional_driver.png`
-has been modified-uncommitted for seven handoffs. It is reproducible from
-`python/diag_gis_regional_driver.py`, so its working-tree state carries no unique
-information — regenerate it and commit, or `git checkout --` it. Not resolved
-here because it was not asked about and its content could not be diffed.
+**RESOLVED — `figures/diag_gis_regional_driver.png`, modified-uncommitted for
+seven handoffs, was pure churn.** `python/diag_gis_regional_driver.py:92` stamps
+`git rev-parse --short HEAD` into the figure's suptitle, so **any incidental
+re-run dirties the PNG whether or not the science moved.** That is the whole
+explanation for seven handoffs of noise. Tree restored to HEAD; do not regenerate
+it casually.
+
+**Verified, not assumed.** The byte delta was only 230 bytes (consistent with a
+title string), but its main input `outputs/recalib_targets_ext.csv` was touched
+2026-08-12, six days AFTER the figure was committed — so a cosmetic-only diff
+could not be inferred. Re-ran the script: **r05 +0.714 vs global +0.159, ETCW
+5.5x, 1940-1990 trend -1.81 C/century**, reproducing the numbers recorded in
+commit `f74d70c` (+0.71 / +0.16 / 5.5x) exactly. The 08-12 target revision does
+not touch the GIS column over 1900-2018.
+
+**Keep the figure.** It is the evidence behind adopting the regional Greenland
+driver — the foundation of the whole Greenland arc, and the reason
+`GIS_ZONE`/`GIS_AMP` exist at all. It is a CLOSED diagnostic, though, not a live
+one: it reads only the GIS target and two obs temperature series, and touches
+NOTHING the L13 analysis produces, so there was never a reason to wait for the
+chains. It is equally unaffected by the deferred `south` -> `all` switch.
 
 ---
 
