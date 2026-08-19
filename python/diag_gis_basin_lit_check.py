@@ -93,7 +93,24 @@ GMT_TOL = 0.05
 ONSET_CITE = ("TC 19:6887 (2025) stabilised arm 0.282-1.230 m vs continued "
               "1.732-3.127 m at 2300; ssp245 stabilised 0.098-0.218 m")
 ASCHWANDEN_CITE = ("Aschwanden et al. 2019, Sci. Adv. 5:eaav9396: RCP8.5 2300 "
-                   "= 94-374 cm (16-84%); NW outlets land-terminating by 2300")
+                   "= 94-374 cm (16-84%), 3000 = 538-728 cm; NW outlets "
+                   "land-terminating by 2300")
+# Fetched from PMC6584365 2026-08-18 to answer "how long before 2300, and does
+# it argue for a tap?". The paper's own words, and the SIGN is the point:
+#   "By the year 2300 (RCP 8.5) or 2500 (RCP 4.5), almost all outlet glaciers
+#    in northwest Greenland have become land terminating, and ice discharge
+#    there is greatly reduced."
+# So the NW transition is a DECELERATION arriving AT the end of our horizon —
+# the opposite sign from a volume tap, and too late to matter much for a 2300
+# number. Meanwhile the mechanism that DOES open up under RCP8.5 is the one the
+# HIGH basin represents: "mass loss is sufficiently large for the ice margin to
+# retreat into interior areas below sea level, resulting in large calving
+# fronts and increased ice discharge." NW shuts down; the deep interior basins
+# open. That is exactly the mid-active / high-tapped partition.
+ASCHWANDEN_NW_QUOTE = ("By the year 2300 (RCP 8.5) or 2500 (RCP 4.5), almost "
+                       "all outlet glaciers in northwest Greenland have become "
+                       "land terminating, and ice discharge there is greatly "
+                       "reduced.")
 
 
 def sd02_per_region():
@@ -244,6 +261,11 @@ def main():
               f"ratio {best.ratio_585_over_245:.1f}x, "
               f"G4 {best.g4_rel_to_ref:.3f}x")
     print(f"\n  corroboration: {ASCHWANDEN_CITE}")
+    print(f"  NW timing (PMC6584365, quoted): \"{ASCHWANDEN_NW_QUOTE}\"")
+    print("    ⇒ a DECELERATION at the horizon's end, not an activation — it "
+          "argues AGAINST giving\n      the mid basin a tap, and the "
+          "interior-below-sea-level mechanism it contrasts with is\n      "
+          "precisely what the HIGH basin's tap represents.")
     print("  NOT independently gated: tau (jointly constrained by the "
           "scorecard; no per-basin\n  published e-folding time exists to "
           "gate against).")
