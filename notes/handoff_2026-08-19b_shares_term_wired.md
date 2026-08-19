@@ -11,10 +11,10 @@ decisions are implemented. Three things the predecessor did not anticipate.
 reporting STALE STATE for the entire L12 line; repaired, and it now reads
 0.0000 on all four gates. (2) The reduced parameterisation contains a PROVABLY
 FLAT direction, so it is two sampled parameters, not three. (3) Acceptance on a
-3000-iteration smoke is 0.017 against a control's 0.268, and the trace says
-warm-up rather than a broken layout — a 40k tuning chain was running at handoff.
-Nothing else is blocking; no production chain has been run and no headline has
-moved yet.**
+3000-iteration smoke is 0.017 against a control's 0.268, which is WARM-UP, not a
+broken layout — the 40k tuning chain reaches 0.233 by 14k and closes the
+question. Nothing is blocking; no production chain has been run and no headline
+has moved yet.**
 
 ---
 
@@ -117,14 +117,18 @@ name-maps 57 rows and adapts the rest from a poor start. **3000 iterations is
 too short for the enlarged layout** — the adaptation has not converged, so the
 final number is not a property of the layout.
 
-**A 40k tuning chain (`--tag=GISBTUNE`, seed 2026) was RUNNING at handoff.**
-First thing next session: read its acceptance trace.
-- If it plateaus at a workable rate → proceed to §6, the two-stage launch.
-- If it plateaus near 0.02 → the layout genuinely is badly conditioned, and the
-  next suspect is the initial proposal width on the new dims: `prop` gives them
-  `0.1*min(σ, (hi-lo)/4) = 0.05` dex, while the smoke's posterior sd was ~0.01
-  dex. The `GEO_PROP_SCALE = 0.02` block is the precedent for a dedicated scale
-  (0.02 × 0.5 = 0.01, which matches). That test was NOT run.
+**CONFIRMED — the 40k tuning chain (`--tag=GISBTUNE`, seed 2026) settles it.**
+Acceptance climbs `0.017 @3k → 0.0997 @8k → 0.233 @14k`, i.e. essentially the
+control's 0.268. **The layout is fine; 3000 iterations was simply warm-up.** No
+redesign is needed and the proposal-width suspicion below was never required.
+
+Left on the record as the test that was NOT needed: had it plateaued near 0.02,
+the next suspect was the initial proposal width on the new dims — `prop` gives
+them `0.1*min(σ, (hi-lo)/4) = 0.05` dex against a smoke posterior sd of ~0.01
+dex, and `GEO_PROP_SCALE = 0.02` is the precedent for a dedicated scale
+(0.02 × 0.5 = 0.01, which matches).
+
+The chain was still running at handoff; let it finish, then §6 step 3.
 
 **Do not read the smoke posteriors as results.** `GISB1`'s 2nd half held only
 **32 unique values in 1500 rows** — the chain had barely moved.
