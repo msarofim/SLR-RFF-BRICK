@@ -1,266 +1,151 @@
-# Handoff — the sector shares term is WIRED; the open item is chain tuning
+# Handoff — L13 shipped but is NOT certified, and the next question is splitting AIS
 
-**Start-here document for the next session.** Repo `SLR-RFF-BRICK`, branch
-**`ladrillo-dev`**, HEAD `f577fdc`. Predecessor:
-`notes/handoff_2026-08-19_calibrator_sector_shares.md` (the HOW-to-wire-it doc;
-this one is what happened when it was wired).
+**Start-here document.** Repo `SLR-RFF-BRICK`, branch **`ladrillo-dev`**, pushed and
+in sync. Predecessor: `notes/handoff_2026-08-19_calibrator_sector_shares.md`.
 
-**Bottom line: the term is built, gated, and committed, and all four of Marcus's
-decisions are implemented. Three things the predecessor did not anticipate.
-(1) `--gis-check` — the acceptance gate the whole plan rests on — has been
-reporting STALE STATE for the entire L12 line; repaired, and it now reads
-0.0000 on all four gates. (2) The reduced parameterisation contains a PROVABLY
-FLAT direction, so it is two sampled parameters, not three. (3) Acceptance on a
-3000-iteration smoke is 0.017 against a control's 0.268, which is WARM-UP, not a
-broken layout — the 40k tuning chain reaches 0.233 by 14k and closes the
-question. Nothing is blocking; no production chain has been run and no headline
-has moved yet.**
+**Bottom line. The 3-basin Greenland + per-sector shares term is BUILT, GATED and
+COMMITTED, and it does what it was designed to do (partition reproduced to 1.08σ
+on level). Production ran clean — 4 × 2M, accept 0.245-0.247 — and then BOTH
+convergence gates refused. No SLR@2100 number may be quoted; L12's 45.53 cm
+remains canonical. The blocking question is not Greenland: every unconverged
+offender is in the AIS block, and why L12 passed the SLR gate while L13 fails it
+is UNRESOLVED. Marcus's next question is whether to split AIS into East and West
+Antarctica, as GSIC and Greenland were split — §1 is written to answer it.**
 
 ---
 
-## 1. MARCUS'S FOUR DECISIONS (2026-08-19), AS IMPLEMENTED
+## 1. THE NEXT QUESTION: would splitting AIS into EAIS / WAIS help?
 
-| decision | as built |
-|---|---|
-| **Reduced parameterisation**, k_b fixed, s_b free, no tap | `julia/greenland_3basin_component.jl`; k_b = Mouginot volume shares, FIXED. **But see §3 — it is 2 free knobs, not 3.** |
-| **Driver switch deferred** to its own commit | untouched: `GIS_ZONE` is still `"south"`. Not a one-line change — `GIS_AMP` 1.92→2.347 and the amp prior N(1.92,0.32) on [1.51,2.28] move with it. |
-| **Two modern windows, level shares, score south+mid** | `GISB_WINS` = (2002-2011), (2012-2018); `GISB_SCORED` = (south, mid); σ = 0.05. high follows by sum-to-one. |
-| **Rebuild the starts for the new layout** | NOT yet possible, and that is a sequencing fact, not an oversight — see §6. |
+### 1.1 What the two prior splits ACTUALLY bought — the mechanism matters
 
----
+The premise "splitting GSIC and Greenland was helpful" is true, but **the thing
+that made them work was DATA, not structure**, and that is decisive for AIS.
 
-## 2. `--gis-check` WAS INERT FOR THE WHOLE L12 LINE — the most important finding
+| split | pieces | per-piece DRIVER | per-piece LIKELIHOOD |
+|---|---|---|---|
+| **GSIC** | R19 / SLOWP / FAST | `t_glac_blocks.csv` | GlaMBIE per-block rates + partition share |
+| **Greenland** | south / mid / high | `t_gis_zones.csv` | Mouginot sectors, `greenland_partition_mouginot2019.csv` |
+| **AIS (proposed)** | EAIS / WAIS | **does not exist** | **does not exist** |
 
-The predecessor makes `--gis-check` the acceptance gate for this work, so it was
-run first. **It failed all four gates on untouched HEAD**, and the control
-reproduces that byte-for-byte, so it is not a regression from the restructure.
+Both existing splits were scored against a per-piece observational product that
+was already local. The Greenland handoff states the principle outright: the mid
+basin is worth keeping separate *"for exactly one reason: the likelihood"* — a
+lumped basin has nothing to score, and with a shared driver a third channel on
+the same forcing is otherwise just a re-parameterised multi-exponential.
 
-**Two independent silent defects:**
+**In this calibrator, `grep -ci 'imbie|otosaka|eais|wais|apis'` returns 1, and
+`data/observations/` contains no Antarctic regional product at all.** The AIS
+likelihood today scores exactly two whole-sheet things: the `S.ais` sea-level
+series (1900-2025, from `recalib_targets_ext.csv`) and the SMB anchor
+(`SMB_TARGET_GT = 1863.4` Gt/yr, area-scaled Rignot).
 
-1. `GIS_OFFLINE_G0` is keyed on the NATIVE names `gis_alpha_s` / `gis_beta_s`,
-   which **do not exist in `FREE` under `GIS_REPARAM`**. Both overrides were
-   silently skipped, so θchk kept whatever slow channel θ0 carried. Under
-   `--gis-ordered`, θ0's slow channel is deliberately overwritten with the L11
-   ORD-half medians — giving `r_s = 0.00526` against the offline `0.01389`, a
-   factor **2.6**, which is the entire four-gate failure.
-2. The offline reference vector legitimately has `alpha_s > alpha_f` (it predates
-   the ordering convention), so the wedge — a hard rejection evaluated BEFORE
-   `run(m)` — rejected it, `run(m)` never happened, and the diagnostic read the
-   PREVIOUS call's model state. It reported θ0's Mouginot share of 0.8699 as
-   though it were the reference vector's.
+**⇒ A split done today would add parameters with NOTHING to identify them.** That
+is the exact failure mode the Greenland design avoided.
 
-**Why it went unnoticed:** without `--gis-ordered` it PASSED, because θ0's MAP
-happened to sit near the offline slow channel. The defect was masked in exactly
-the configuration that ships — `--gis-ordered` is the L12 canonical setting.
+### 1.2 What you would need first
 
-**Repaired** (all in `logposterior` / the `--gis-check` block): the offline slow
-pair is mapped into (ell, w); `WEDGE_OFF` bypasses the wedge for this ONE fixed
-reference vector; `logposterior(θchk)` must be finite or it errors; and **no
-offline key may match zero parameters** without erroring. After the repair all
-four gates read **|diff| = 0.0000** — *tighter* than the unordered run that
-"passed" (0.0017/0.0031/0.0002/0.0005), which is how you can tell θchk is now
-genuinely the reference vector. The no-silent-skip guard was **mutation-tested**
-with a bogus key and fires.
+1. **A per-region mass-balance product.** IMBIE-3 / Otosaka et al. 2023 gives
+   EAIS / WAIS / APIS mass balance 1992-2020 — the direct analogue of Mouginot
+   for Greenland. **NOT local; must be fetched.** Check
+   `~/Documents/2026/ClaudeDocs/Papers/` first (memory `claudedocs_papers_folder`).
+2. **A decision on the driver**, and Greenland's answer probably transfers: ONE
+   shared driver, geometry living in the likelihood. Greenland showed a single
+   amplification was acceptable and avoided a whole per-zone driver build.
+   Note the AIS driver is not a surface-temperature amplification anyway — it is
+   the `antarctic_ocean` (anto) sub-model plus `ais_gmst_amp`.
+3. **A shares-vs-absolute decision.** Greenland's answer — SHARES ONLY,
+   scale-free, orthogonal to the total — was forced by a **1.227×** disagreement
+   between Mouginot's sector sum and the calibration total. Expect the same class
+   of inter-product disagreement for Antarctica and plan for shares.
 
-**No published result is affected** (it is a diagnostic, not a model path), but
-**every "GIS WIRING OK" printed under `--gis-ordered` should be treated as
-unverified.** The L12 line never printed one.
+### 1.3 The structural obstacle, and why AIS is NOT cheap the way Greenland was
 
----
+Greenland's split cost **two** sampled parameters, because a reduction existed:
+commitment scaled by a FIXED volume share `k_b`, one free rate scale `s_b` per
+basin, everything else shared. That worked because the A+B Greenland model is a
+lumped commitment-relaxation with no spatial geometry.
 
-## 3. THE REDUCED FORM HAS A PROVABLY FLAT DIRECTION — 2 knobs, not 3
+**DAIS is not.** It is a single axisymmetric ice sheet with ONE radius and ONE
+grounding line — `ais_mu` is *"the ice-profile constant (sets volume per radius)"*,
+and `ais_iceflow0` is a *grounding-line flux coefficient*
+(`julia/diag_ais_param_sensitivity.jl`). Its 7 geometry parameters
+(`GEO_NAMES` = `ais_mu, ais_bedheight0, ais_slope, ais_iceflow0, ais_precip0_LOG,
+ais_runoff_Ton, ais_c`) are sampled **jointly under an MvNormal paleo-covariance
+prior** (`paleo_geo_prior_ton.csv`, Strategy B), with a further 8 params
+(`antarctic_alpha/nu/lambda/gamma/kappa/temp_threshold`, `anto_alpha/beta`).
 
-The basin rate is `clip(s_b * (alpha*T + beta), 1e-9, 1)`. Scaling **every** s_b
-by c while scaling the shared shape rates (`alpha_f`, `beta_f`, and `r_s` through
-`ell`) by 1/c leaves the model **exactly** invariant.
+So a split means: **two geometries, two grounding lines, and a decision about how
+to split a JOINT PALEO PRIOR that was constructed for one ice sheet.** There is no
+`k_b × s_b` reduction here that preserves the physics — which is exactly the
+point below.
 
-**Measured, not argued:** `max|diff| = 0.0` for c in {0.25, 0.5, 2, 4}, and
-1.1e-16 at c = 10 (pure roundoff), against a Greenland signal of 0.2279 m.
+### 1.4 The physical argument FOR, which is genuinely strong
 
-So the common mode of the three `log s_b` is a perfectly flat likelihood
-direction, broken only by the priors. **Only the RATIOS carry information —
-exactly what the shares term can identify (two independent shares per window).**
-`GISB_REF = :south` is pinned at s = 1; mid and high are sampled and read as
-"rate relative to the south basin". The overall level stays where it already
-lived, in the shipped shape parameters.
+EAIS and WAIS are not two halves of one object. WAIS is marine-based on a
+**retrograde** bed and carries the MICI/collapse behaviour; EAIS is largely
+terrestrial and far more stable. A single axisymmetric bed profile cannot
+represent both, and the shipped model applies ONE grounding-line law to their sum.
+That is a stronger physical case than the Greenland split had.
 
-Reproduce with the scratch driver pattern in §8 (the degeneracy script).
+**But note the tension:** the strength of the physical case and the cost of the
+change come from the same fact. Cheap splits are cheap because the pieces are
+dynamically similar; EAIS/WAIS are not, which is why it is worth doing and why it
+cannot be a reduced-form knob.
 
----
+### 1.5 The premise check — "helpful" in WHICH sense?
 
-## 4. THE OPEN ITEM: acceptance, and why it is probably NOT a design problem
+Be precise about what the Greenland split demonstrably bought, because this run
+is the evidence:
 
-| run | shares term | 3000-iter accept |
-|---|---|---|
-| `GISB0CTRL` — no basins | — | **0.268** |
-| `GISBNOSH` — basins, term OFF | off | 0.014 |
-| `GISB1` — basins, term ON, 3 knobs | on | 0.012 |
-| `GISB2` — basins, term ON, 2 knobs (ref pinned) | on | **0.017** |
+- **Realism / partition: YES.** The observed sector split is now reproduced
+  (worst scored |z| = 1.08σ) against an `s=1` null that was ~3σ off.
+- **Convergence: NO — it got WORSE.** 37 flagged params vs L12's 16, and the SLR
+  gate went from PASS (R̂ 1.002) to FAIL (R̂ 1.057).
+- **Trend: NO.** The partition is reproduced in LEVEL only; the model's split is
+  static while the observations show mid gaining and high losing share (§2.3).
 
-**Two things are settled by this table.** The **shares term is innocent** — 0.014
-with it OFF vs 0.012 ON, so the collapse comes from the added DIMENSIONS, not the
-likelihood. And **the degeneracy was not the main driver** — pinning the flat
-direction moved acceptance only 0.012 → 0.017. (It is kept anyway, on
-identifiability grounds: a provably flat direction should not be sampled.)
+**So "splitting has been helpful" should not be carried into the AIS decision as
+"splitting improves convergence."** It has not, here. AIS is ALREADY the
+worst-mixing block in the model (τ = 190k-330k, ≈3-5 effective samples per chain
+over 1M post-burn draws). Adding parameters to it is at least as likely to
+worsen mixing as to improve it, and a badly-mixing block is precisely where extra
+freedom hurts most.
 
-**What the TRACE says, and this is the actual diagnosis.** Sample the running
-acceptance rather than the final number:
+### 1.6 Recommendation
 
-- control: `0.5 → 0.44 → 0.32 → 0.259 → 0.261 → 0.262 → 0.268` — **plateaus by
-  ~40% through.**
-- basins:  `0.0 → 0.0024 → 0.0051 → 0.0067 → 0.0081 → 0.0088 → 0.0102 → 0.0105
-  → 0.0117 → 0.0145 → 0.0156` — **starts at exactly 0.0 and is still climbing
-  monotonically at the end.**
+**Do not split AIS yet — settle §3 first.** The one unresolved failure in this run
+lives inside the AIS block. Restructuring it now would confound the diagnosis:
+if the split were done and SLR still failed to converge, there would be no way to
+tell whether the split caused it, fixed something else, or was irrelevant.
 
-The control's covariance matches `NK` and is used AS-IS; the basins run
-name-maps 57 rows and adapts the rest from a poor start. **3000 iterations is
-too short for the enlarged layout** — the adaptation has not converged, so the
-final number is not a property of the layout.
+**Order of operations:**
+1. Resolve why L13 fails the SLR gate where L12 passed (§3). Cheap; no new model.
+2. Fetch IMBIE-3 / Otosaka 2023 and check the EAIS/WAIS partition is stable on
+   modern windows — the exact `diag_gis_basin_lit_check.py` block-1c treatment
+   that saved the Greenland term from a vanishing denominator. **This is the step
+   that decides whether the split is even scorable**, and it is offline, cheap,
+   and independent of everything else. It can start immediately and in parallel.
+3. Only then price the structural change.
 
-**CONFIRMED — the 40k tuning chain (`--tag=GISBTUNE`, seed 2026) settles it.**
-Acceptance climbs `0.017 @3k → 0.0997 @8k → 0.233 @14k`, i.e. essentially the
-control's 0.268. **The layout is fine; 3000 iterations was simply warm-up.** No
-redesign is needed and the proposal-width suspicion below was never required.
-
-Left on the record as the test that was NOT needed: had it plateaued near 0.02,
-the next suspect was the initial proposal width on the new dims — `prop` gives
-them `0.1*min(σ, (hi-lo)/4) = 0.05` dex against a smoke posterior sd of ~0.01
-dex, and `GEO_PROP_SCALE = 0.02` is the precedent for a dedicated scale
-(0.02 × 0.5 = 0.01, which matches).
-
-**FINAL: the 40k chain finished at accept 0.319** — ABOVE the control's 0.268.
-The layout is sound and the question is closed.
-
-**Do not read the smoke posteriors as results.** `GISB1`'s 2nd half held only
-**32 unique values in 1500 rows** — the chain had barely moved.
-
----
-
-## 5. TRAP 1 IN A NEW DRESS, caught before it bit
-
-`L11_NAMES` / `L10_NAMES` / `L11A_NAMES` are derived from the **live** `FREE`, so
-the new rows lengthened them 57 → 60 and the `size(old,1) == length(L11_NAMES)`
-dispatch MISSED the L12 covariance entirely. Fails safe (warning → fresh
-diagonal) but throws away the tuned proposal shape. Fixed by filtering the basin
-names out of the file-layout tables — the same principle the `ALL_SERIES` comment
-already states. Verified in the log: *"name-mapped 57 of 57 rows of
-adapted_cov_L11tune3_seed2026.csv"*.
-
-**The lesson generalises: any table that describes a FILE's layout must not be
-built from the live parameter set.** There are three such tables and all three
-had the bug.
+**Reusable as-is if it goes ahead:** the shares-term pattern (`GISB_*` constants,
+the guarded ratio in `logposterior`), the nesting-gate pattern
+(`test_greenland_3basin_nesting.jl` — collapse / additivity / partition
+invariance), and the lesson in §5 about file-layout name tables.
 
 ---
 
-## 6. THE STARTS FILE — a sequencing fact, not an oversight
+## 2. WHAT SHIPPED, AND WHAT IT DOES
 
-Marcus chose "rebuild for the new layout". **It cannot be done yet.** The loader
-reads by column NAME and hard-errors on missing columns, so there is no
-positional trap — but `build_overdispersed_starts.jl` picks REAL DRAWS from an
-existing tuning chain, and no chain in existence contains `gis_s_mid` /
-`gis_s_high`. The documented two-stage launch applies:
+### 2.1 The component and the term
 
-1. ✅ build the 3-basin state + shares term
-2. ⏳ **common-start** tuning chain under the new layout (`GISBTUNE`, running)
-3. rebuild `overdispersed_starts.csv` from THAT chain
-4. production with `--overdisperse`
+`julia/greenland_3basin_component.jl` — Mouginot sectors south{SW,CW,CE,SE} /
+mid{NW} / high{NO,NE} on ONE shared driver; geometry lives entirely in the
+likelihood. Commitment scaled by the FIXED volume share `k_b`, clamped
+**per basin** to `[0, k_b*v0]` (Marcus 2026-08-19). That clamp is also the form
+that keeps the partition exact: `min(max(k*x,0), k*v0) == k*min(max(x,0), v0)`,
+so `eq_b == k_b * eq_whole` identically, saturated or not.
 
-`outputs/mcmc/overdispersed_starts.csv` therefore stays modified-uncommitted and
-simply **goes stale** — the new layout cannot load it at all (the guard refuses).
-It still matters if anyone re-runs an L12-layout chain; flag it again then.
-
-### The run is NAMED L13, and it is LAUNCHED
-
-Marcus chose "match the L12 production configuration" (2026-08-19), so the layout
-is **L13 = L12 + the 3-basin sector restructure**, and
-`julia/run_l13_production.sh` mirrors `run_l12_production.sh` exactly — 4 × 2M,
-seeds 2026-2029, `--gis-ordered --gis-basins --overdisperse` — with the
-precondition checks adapted to assert the `gis_s_mid` / `gis_s_high` columns.
-
-**`L13tune` (1,000,000 iterations, seed 2026) was LAUNCHED at 07:44 on
-2026-08-19** and is the blocking step. Measured rate ≈ 3,000 iter/min, so:
-
-| step | estimate |
-|---|---|
-| `L13tune`, 1M | **~5.5 h** |
-| rebuild starts from it | seconds |
-| `run_l13_production.sh`, 4 × 2M | **~11 h** (4 chains in parallel, 1 thread each) |
-
-NB the L10 note in the production script reports 2M in 2h15m, which is ~5×
-faster than the rate measured here. That discrepancy is NOT resolved — the
-measured runs overlapped with other julia processes, so 3,000 iter/min may be
-pessimistic. Re-measure from `L13tune` on a quiet machine before trusting the
-11 h figure.
-
-**Next session, in order:** check `L13tune` finished → rebuild the starts →
-`./julia/run_l13_production.sh` (it refuses to run if any precondition fails) →
-`postprocess_mcmc_ext.jl --tag=L13 --accept-slr`.
-
----
-
-## 6a. THE TWO ARTEFACTS: both KEPT, the cruft around them retired (Marcus 2026-08-19)
-
-**`--gis-check` — KEEP. It has coverage nothing else has.**
-`validate_greenland_ab.jl` READS the driver from a CSV and feeds it in;
-`--gis-check` runs the real `logposterior`, whose driver is built from
-`t_gis_zones.csv[GIS_ZONE]` + the amp splice + the anchor offset. **The driver
-construction, the splice, the calibrator frame and the `S.gis` index alignment
-are tested by `--gis-check` and by nothing else** — exactly the class that broke
-silently for the whole L12 line (§2).
-
-*Hardened:* θchk now pins the basin scales at s = 1, because the 3-basin model
-equals A+B only there. θ0 carries s = 1 today by accident (the basin params are
-absent from the MAP/medoid CSVs and fall back to their prior centre), but once θ0
-is rebuilt from an L13 posterior that accident ends and the gate would fail for a
-reason unrelated to the wiring it tests.
-
-*Its real update trigger* is the `GIS_ZONE` `"south"` → `"all"` switch: the
-offline reference was fitted on the south driver, so it will fail LEGITIMATELY
-then. Regenerate the reference — **do not widen the tolerance.**
-
-**`overdispersed_starts.csv` — KEEP the file, RETIRE the modification.** It is
-referenced by 10 files including every production script, and R̂ is only valid
-with over-dispersed starts. What was retired is the uncommitted 2026-08-17
-modification that rode along for six handoffs with no record of its provenance:
-it is unusable going forward anyway (the loader reads by column NAME and
-hard-errors, so the L13 layout cannot load it at all), committing it would have
-silently changed what future chains start from, and leaving it in the tree
-invited silent retrieval by any L12 re-run.
-
-Preserved at `outputs/quarantine/20260819_unexplained_starts/` with a README
-(**on disk only — `outputs/` is gitignored**, so the rationale lives in commit
-`9ab499d` and here). Tree restored to committed HEAD = the L12-vintage starts the
-canonical posterior actually used. `.pre_l12_bak` was deleted as **byte-identical
-to HEAD** (md5 `1f3ce48…`) — git already held it. `.pre_extc_bak` is a genuinely
-distinct earlier vintage and was left alone.
-
-**RESOLVED — `figures/diag_gis_regional_driver.png`, modified-uncommitted for
-seven handoffs, was pure churn.** `python/diag_gis_regional_driver.py:92` stamps
-`git rev-parse --short HEAD` into the figure's suptitle, so **any incidental
-re-run dirties the PNG whether or not the science moved.** That is the whole
-explanation for seven handoffs of noise. Tree restored to HEAD; do not regenerate
-it casually.
-
-**Verified, not assumed.** The byte delta was only 230 bytes (consistent with a
-title string), but its main input `outputs/recalib_targets_ext.csv` was touched
-2026-08-12, six days AFTER the figure was committed — so a cosmetic-only diff
-could not be inferred. Re-ran the script: **r05 +0.714 vs global +0.159, ETCW
-5.5x, 1940-1990 trend -1.81 C/century**, reproducing the numbers recorded in
-commit `f74d70c` (+0.71 / +0.16 / 5.5x) exactly. The 08-12 target revision does
-not touch the GIS column over 1900-2018.
-
-**Keep the figure.** It is the evidence behind adopting the regional Greenland
-driver — the foundation of the whole Greenland arc, and the reason
-`GIS_ZONE`/`GIS_AMP` exist at all. It is a CLOSED diagnostic, though, not a live
-one: it reads only the GIS target and two obs temperature series, and touches
-NOTHING the L13 analysis produces, so there was never a reason to wait for the
-chains. It is equally unaffected by the deferred `south` -> `all` switch.
-
----
-
-## 7. NESTING — the gate that says the restructure adds nothing by itself
-
-`julia/test_greenland_3basin_nesting.jl`, all pass:
+`greenland_ab` is UNTOUCHED, so the nesting gate is a genuine A-vs-B run:
 
 | gate | result |
 |---|---|
@@ -268,115 +153,170 @@ chains. It is equally unaffected by the deferred `south` -> `all` switch.
 | [2] additivity at production shares | 2.2e-16 |
 | [3] partition invariance, Mouginot k, s=1 → total does not move | 4.4e-16 |
 
-[3] is the strong one: it fails on clamp / initial-condition / k wiring errors
-that a single loaded basin would hide. **It was also confirmed inside the live
-calibrator**, independently: the basins-on and control `--gis-check` A+B gates
-are byte-identical, and the logpost difference is exactly the first-principles
-prediction — shares term +0.841 (four z-scores from the volume-share null) plus
-three new priors −0.677 = +0.164; observed −633.94 → −633.78.
+The term: shares-only, guarded, scoring **south and mid** over **2002-2011** and
+**2012-2018** at σ=0.05; high follows by sum-to-one. `--gis-basins` turns the
+state on, `--no-gis-shares` runs it with the term off.
 
-At s = 1 the shares come out at the VOLUME shares exactly (0.456/0.173/0.371)
-against observed 0.592/0.207/0.201. **That gap is what the calibration must
-close, and it is the number to watch.**
+### 2.2 Only TWO sampled parameters, because the third is provably flat
 
----
+`rate_b = clip(s_b*(alpha*T+beta))`, so scaling every `s_b` by `c` while scaling
+the shared shape rates by `1/c` is EXACTLY invariant — measured `max|diff| = 0.0`
+for c ∈ {0.25, 0.5, 2, 4}, 1.1e-16 at c=10, against a 0.2279 m signal. Only the
+RATIOS are identifiable, which is exactly what the shares term constrains.
+`GISB_REF = :south` is pinned at s=1; mid and high are sampled.
 
-## 8. FILES AND FLAGS
+### 2.3 It reproduces the LEVEL, not the TREND — state it that way
 
-**New:** `julia/greenland_3basin_component.jl`,
-`julia/test_greenland_3basin_nesting.jl`.
-**Changed:** `julia/calibrate_mcmc_ext.jl`, `julia/brick_mengel.jl`
-(`build_brick_nu3_gis3`, `update_gis3_shares!`), `CHANGELOG.md` (entry 19b).
+Fitted (L13tune median): south 1.0 pinned, mid 0.9328, high **0.2554**.
 
-**Flags:** `--gis-basins` (3-basin state on), `--no-gis-shares` (basins with the
-term OFF — the handoff's step 2, and the diagnostic that exonerated the term).
+| window | south | mid | high | target | worst scored |z| |
+|---|---|---|---|---|---|
+| 2002-2011 | 0.586 | 0.214 | 0.200 | 0.592/0.207/0.201 | 0.14 |
+| 2012-2018 | 0.561 | 0.208 | 0.231 | 0.554/0.262/0.183 | **1.08** |
 
-**Logs:** `outputs/mcmc/log_{GISB0CTRL,GISBNOSH,GISB1,GISB2,GISBTUNE}_seed2026.txt`.
+against an `s=1` null of 0.456/0.173/0.371. **But the partition does not evolve:**
+observed mid rises 0.207→0.262 while the model is flat 0.214→0.208; observed high
+falls 0.201→0.183 while the model RISES 0.200→0.231. Expected rather than wrong —
+with one shared driver and fixed volume shares the only route to a time-varying
+partition is differing nonlinear rate response, which is weak. Inside tolerance,
+so the term is not violated. **No writeup may claim the trend.**
 
-**RESOLVED (Marcus 2026-08-19): the commitment clamp is PER-BASIN**, `[0,
-k_b*v0]`, not the prototype's whole-sheet `[0, v0]`. It is also the form that
-keeps the partition exact — `min(max(k*x,0), k*v0) == k*min(max(x,0), v0)`, so
-`eq_b == k_b * eq_whole` identically, saturated or not. The prototype's form
-agrees over the hindcast (the cap never binds there, so its P1/P2/P3 stand) but
-BREAKS additivity once the commitment exceeds v0. All three nesting gates
-unchanged, which also proves the cap binds nowhere through 2300 under ssp245 —
-so the tuning chain was unaffected by the change.
-
-**Still true from the predecessor:** expect SLR@2100 = 45.53 cm to MOVE once a
-production chain runs; say so before it surprises anyone. macOS has no `timeout`;
-pin `OPENBLAS_NUM_THREADS=1`.
+Reproduce: `julia/diag_l13_basin_shares.jl`.
 
 ---
 
-## 11. PRODUCTION RAN, AND IS **NOT CERTIFIED**. No SLR@2100 number may be quoted.
+## 3. THE BLOCKER: production is NOT certified, and the cause is UNRESOLVED
 
-Added 2026-08-19 ~16:40, after L13 production completed.
+`L13tune` 1M (accept 0.246) → starts rebuilt → 4 × 2M production, accept
+0.245/0.245/0.245/0.247. All four completed. **Both gates then refused.**
 
-**What ran.** `L13tune` 1M (accept 0.246) → starts rebuilt → `run_l13_production.sh`,
-4 × 2M, seeds 2026-2029, accept **0.245/0.245/0.245/0.247**. All four completed.
-
-**Both gates REFUSED.**
-
-1. `postprocess_mcmc_ext.jl --tag=L13` → **37 params not converged** (L12: 16).
-   It refused to write the canonical posterior subsample or the proposal seed.
+1. `postprocess_mcmc_ext.jl --tag=L13` → **37 params not converged** (L12: 16);
+   refused to write the canonical posterior or the proposal seed.
 2. `diag_slr_convergence_by_chain_ladrillo.jl --tag=L13` → **SLR@2100 R̂ = 1.057**
-   (threshold 1.05). SLR@2150 R̂ = 1.033 passes. VERDICT: not converged.
+   (threshold 1.05); @2150 R̂ = 1.033 passes. VERDICT: not converged.
 
-**THE HEADLINE MOVE IS NOT RESOLVABLE. Do not quote 47.89 cm.**
+**THE HEADLINE MOVE IS NOT RESOLVABLE — do not quote 47.89 cm.**
 
 | | R̂ | ESS | sd(medians) | per-chain SLR@2100 medians |
 |---|---|---|---|---|
 | L12 | 1.002 | 1445 | 0.228 | 45.24, 45.40, 45.72, 45.66 |
 | L13 | 1.057 | 65.6 | 1.411 | 48.91, 47.39, 48.86, 45.94 |
 
-Pooled L13 SLR@2100 = **47.89 cm** against L12's 45.53 — a +2.36 cm move, but the
-four chains **disagree by 2.97 cm**, which is LARGER than the move. The shift is
-in the predicted direction and may well be real, but this run cannot demonstrate
-it. ESS fell 22x (1445 → 65.6) and sd(medians) rose 6x.
+Pooled L13 = 47.89 cm vs L12's 45.53, a **+2.36 cm** move — but the chains
+disagree by **2.97 cm**, larger than the move. Direction is as predicted and may
+be real; this run cannot show it. **L12 stays canonical at 45.53 cm.**
 
-**WHAT DIVERGED — measured, per-chain 2nd-half medians:**
+**What diverged (per-chain 2nd-half medians, measured):**
 
-| param | across the 4 chains | verdict |
+| param | across 4 chains | verdict |
 |---|---|---|
-| `ais_c` | 88.8091 x4, identical to 4 dp | **FROZEN**, never left its start |
+| `ais_c` | 88.8091 ×4, identical to 4 dp | **FROZEN**, never left its start |
 | `ais_iceflow0` | 0.955 → 1.211 | **genuine, 24%** |
 | `gis_amp` | 1.957 → 1.834 | modest, ~0.38 prior-sd |
-| `gis_s_mid` | s 0.937 → 0.918 | **fine, 2%** |
-| `gis_s_high` | s 0.260 → 0.249 | **fine, 4%** |
+| `gis_s_mid` | s 0.937 → 0.918 | fine, 2% |
+| `gis_s_high` | s 0.260 → 0.249 | fine, 4% |
 
-**THE RESTRUCTURE'S OWN PARAMETERS ARE NOT THE PROBLEM.** `gis_s_mid` and
-`gis_s_high` are absent from postprocess's flag list entirely and agree across
-chains to 2-4%. Every worst offender is AIS geometry.
+**The restructure's own parameters are NOT the problem** — both are absent from
+postprocess's flag list and agree to 2-4%.
 
 **`ais_c`'s R̂ = 2.239 IS NOT INTERPRETABLE.** All four chains sit at 88.8091 with
-τ = 327k against 1M post-burn draws (≈3 effective samples). Between- AND
-within-chain variance are both ≈0, so the ratio is numerical noise. Do not read
-it as "twice as bad as L12".
+τ = 327k against 1M post-burn draws. Between- and within-chain variance are both
+≈0, so the ratio is numerical noise. It is frozen, not diverging. Do not read it
+as "twice as bad as L12."
 
-**WHAT IS NOT ESTABLISHED — do not repeat my first guess.** I initially blamed the
-starts: `build_overdispersed_starts.jl` picks draws at `ais_iceflow0` quantiles
-from the L13tune chain, which has τ≈300k in the AIS block, so the L13 starts are
-degenerate there (`ais_c` spread **1.15e-05** vs the L12-vintage file's **30.92**).
-That is TRUE and worth fixing on its own. **But it does not explain the SLR
-failure**: L12 started its chains FAR APART in `ais_c` and still agreed to 0.48 cm,
-so AIS start dispersion evidently does not control the SLR median. **Why L12
-passes the SLR gate and L13 fails it, with the same AIS pathology, is UNRESOLVED.**
-Find the mechanism before re-running — a longer chain that fails the same way
-costs another ~4 h.
+**MY FIRST DIAGNOSIS WAS WRONG — do not repeat it.** I blamed the starts:
+`build_overdispersed_starts.jl` picks draws at `ais_iceflow0` quantiles from the
+L13tune chain, which has τ≈300k in the AIS block, so the L13 starts ARE degenerate
+there (`ais_c` spread **1.15e-05** vs the L12-vintage file's **30.92**). True, and
+worth fixing on its own — R̂ requires over-dispersed starts to be valid at all.
+**But it does NOT explain the SLR failure:** L12 started its chains FAR APART in
+`ais_c` and still agreed to 0.48 cm, so AIS start dispersion evidently does not
+control the SLR median. **Why L12 passes and L13 fails with the same AIS pathology
+is UNRESOLVED.** Find the mechanism before re-running — a re-run that fails the
+same way costs ~4 h.
 
 **Candidates, untested, in the order I would test them:**
-1. Is it Greenland after all, via a route the medians hide? The per-chain medians
-   agree, but SLR@2100 is driven by the upper tail (q95 ≈ 81 cm). Compare the
-   per-chain Greenland *tails*, not medians.
-2. `gis_amp` spreads 0.123 across chains and is the DOMINANT control on the 2100
-   projection (its own prior block says so: 2100 spread runs 7.4 → 12.6 cm across
-   its prior). 0.38 prior-sd of between-chain disagreement could plausibly do this.
-   **This is the first thing to check.**
+1. **`gis_amp` — check this first.** It spreads 0.123 across chains (~0.38
+   prior-sd) and its own prior block documents it as the DOMINANT control on the
+   2100 projection (2100 spread runs 7.4 → 12.6 cm across its prior).
+2. Greenland via the TAIL, not the median. SLR@2100 is driven by the upper tail
+   (q95 ≈ 81 cm); per-chain medians agreeing does not clear it. Compare tails.
 3. The shares term interacting with `gis_amp`/`gis_f` to create a ridge that did
    not exist in L12.
 
-**Reproduce the numbers:** `outputs/mcmc/log_postprocess_L13.txt`,
-`outputs/mcmc/log_slrconv_L13.txt`, `outputs/mcmc/slr_convergence_L13.csv`,
-and `julia/diag_l13_basin_shares.jl` for the partition.
+---
 
-**L12 REMAINS CANONICAL.** SLR@2100 = 45.53 cm stands. Nothing here supersedes it.
+## 4. `--gis-check` WAS INERT FOR THE WHOLE L12 LINE (repaired)
+
+Run first because the plan made it the gate — **it failed all four gates on
+untouched HEAD**, and the control reproduces that byte-for-byte. Two silent
+defects: (1) `GIS_OFFLINE_G0` is keyed on `gis_alpha_s`/`gis_beta_s`, which do not
+exist in `FREE` under `GIS_REPARAM`, so both overrides were silently skipped and
+θchk kept θ0's slow channel — under `--gis-ordered` that is the L11 ORD-half
+medians, `r_s = 0.00526` vs the offline `0.01389`, a factor **2.6**; (2) the
+offline vector legitimately has `alpha_s > alpha_f`, so the wedge rejected it
+BEFORE `run(m)` and the diagnostic read the previous call's model state.
+
+It PASSED without `--gis-ordered` only because θ0's MAP sat near the offline slow
+channel — **broken in exactly the configuration that ships.** Repaired: the slow
+pair is mapped into (ell, w); `WEDGE_OFF` bypasses the wedge for that one fixed
+reference vector; `logposterior(θchk)` must be finite or it errors; no offline key
+may match zero parameters without erroring (mutation-tested); and θchk pins the
+basin scales at s=1 so a future L13-derived θ0 cannot break it. All four gates now
+read **|diff| = 0.0000**, tighter than the unordered run that "passed."
+
+**No published result is affected** (it is a diagnostic), but every "GIS WIRING OK"
+printed under `--gis-ordered` is unverified. Its real update trigger is the
+`GIS_ZONE` `"south"` → `"all"` switch, which will fail it LEGITIMATELY —
+regenerate the reference, do not widen the tolerance.
+
+---
+
+## 5. TRAPS AND CONVENTIONS WORTH CARRYING TO THE AIS WORK
+
+1. **File-layout name tables must NOT be built from the live `FREE`.**
+   `L11_NAMES`/`L10_NAMES`/`L11A_NAMES` were, so two new rows lengthened them
+   57→60 and the size dispatch MISSED the L12 covariance. Fails safe (warning →
+   fresh diagonal) but discards the tuned proposal. Fixed via `prelayout()`.
+   **All three tables had it. An AIS split will hit this again.**
+2. **Judge acceptance on the TRACE, not the final number.** A 3000-iteration
+   smoke gave 0.017 and looked like the ADCOV trap; the same configuration
+   reaches 0.319 by 40k. The control plateaus by ~40% through while a name-mapped
+   run starts at exactly 0.0 and climbs monotonically. Short-run acceptance is
+   not a property of the layout.
+3. **Verify wiring quantitatively.** Basins-on vs control differed in logpost by
+   exactly the first-principles prediction (shares term +0.841, three new priors
+   −0.677 = +0.164; −633.94 → −633.78), and their `--gis-check` gates were
+   byte-identical. That is partition invariance confirmed in the live calibrator.
+4. **The starts file is provenance.** Rebuilt from `L13tune` and COMMITTED,
+   because the production chains started from it. The unexplained Aug-17 version
+   was retired to `outputs/quarantine/20260819_unexplained_starts/` (on disk only
+   — `outputs/` is gitignored; rationale in commit `9ab499d`).
+5. `figures/diag_gis_regional_driver.png` churns because the script stamps
+   `git rev-parse HEAD` into the suptitle. Verified the science is unchanged
+   (r05 +0.714 vs global +0.159, ETCW 5.5×, −1.81 °C/century, reproducing commit
+   `f74d70c`). Do not regenerate it casually.
+6. macOS has no `timeout`; pin `OPENBLAS_NUM_THREADS=1`.
+
+---
+
+## 6. FILES, FLAGS, TIMINGS
+
+**New:** `greenland_3basin_component.jl`, `test_greenland_3basin_nesting.jl`,
+`diag_l13_basin_shares.jl`, `run_l13_production.sh`.
+**Changed:** `calibrate_mcmc_ext.jl`, `brick_mengel.jl`
+(`build_brick_nu3_gis3`, `update_gis3_shares!`), `CHANGELOG.md` (19b).
+
+**Flags:** `--gis-basins`, `--no-gis-shares`, `--gis-check`, `--gis-ordered`.
+
+**Logs:** `outputs/mcmc/log_{GISB0CTRL,GISBNOSH,GISB1,GISB2,GISBTUNE,L13tune,L13_seed*,postprocess_L13,slrconv_L13}.txt`.
+
+**Measured timings (M4, `OPENBLAS_NUM_THREADS=1`):** 1M single chain ≈ 3 h 20 m;
+4 × 2M in parallel ≈ 4 h 25 m (chains contend — the single-chain ETA understates
+badly); postprocess over 8.8 GB ≈ 12 min; SLR diagnostic ≈ 3 min.
+
+**Open decisions for Marcus:**
+- the AIS split (§1) — recommendation: not yet; start the IMBIE-3 data check now
+- `GIS_ZONE` `"south"` → `"all"`, still deferred; NOT one line
+  (`GIS_AMP` 1.92→2.347 and the amp prior on [1.51, 2.28] move with it)
+- whether to add the high-basin volume tap (deferred; only bites near 2300)
