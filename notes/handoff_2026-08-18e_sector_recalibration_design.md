@@ -168,7 +168,9 @@ Same discipline that governed the whole arc: the mock proved the structure
 *could* make the 2300 separation before anyone priced a refit. The new question
 is strictly harder and **could fail**, so it gets the same treatment.
 
-1. **`scope_gis_3basin_partition.py` (the next build).** Three basins on ONE
+**STATUS: step 1 is DONE — results in §5a below. Step 2 (the calibrator) is next.**
+
+1. **`scope_gis_3basin_partition.py` — BUILT AND RUN (commit below).** Three basins on ONE
    `all` driver, each fitted to its OWN Mouginot sector loss, then scored on:
    (F-a) can three basins on a shared driver reproduce the observed **48/32/20**
    partition *and* the total at once? They differ only in rate constants, so
@@ -177,10 +179,30 @@ is strictly harder and **could fail**, so it gets the same treatment.
    decides whether the restructure moves the headline; (F-c) does the 2300
    scorecard still clear with the high tap on top?
 2. **Only then** touch `calibrate_mcmc_ext.jl` and the per-sector likelihood.
+   **This is now the live next step.**
 3. **Expect SLR@2100 = 45.53 cm to MOVE.** That is the headline number and it is
    downstream of the south basin's parameters. Say so before it surprises anyone.
 4. Ship-with-caveat remains legitimate throughout; the 2100 deliverable stands
    on the current model until this lands.
+
+## 5a. RESULTS OF STEP 1 (`scope_gis_3basin_partition.py`)
+
+- **P1 — the two-window tension is PRE-EXISTING.** 3-basin fitted 1972–2018
+  predicts −23.1% on 1900–2025; the **single basin with no partition misses by
+  −25.1%** on the identical test. The partition slightly REDUCES it. **⇒ the
+  per-sector term (1972–2018) and the total term (1900–2025) pull against each
+  other by ~25%, and the calibrator must weight them deliberately.** This is the
+  single most important thing to carry into step 2.
+- **P2 — the headline moves less than feared.** Whole-sheet 2300: single basin
+  24.09 / 62.71 cm vs 3-basin sum 21.66 / 58.56 (SSP2-4.5 / SSP5-8.5) —
+  0.899× / 0.934×.
+- **P3 — the scorecard clears with the mid tap REMOVED**: 10/64 tap cells pass,
+  three fewer parameters than the mock. The active-channel-no-tap call holds.
+- Data facts measured: target/Mouginot disagree on the 1972–2018 total by
+  **1.227×** (peripheral glaciers the obvious but UNVERIFIED candidate — shares
+  from Mouginot, total from the target); **64% of the calibration signal
+  predates 1972**.
+- Built `outputs/gis_amp_shape_all.csv` en route (CMIP6 1.674 vs observed 2.347).
 
 **A partition assumption that needs stating in the write-up:** Mouginot's window
 is **1972–2018**; the calibration window is **1900–2025**. Applying the 48/32/20

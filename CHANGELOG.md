@@ -3,6 +3,57 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-18n — 3-basin partition prototype: the structure works, and the two-window tension is PRE-EXISTING.
+
+`python/scope_gis_3basin_partition.py` → `outputs/scope_gis_3basin_partition.csv`.
+Prove the sector design offline before touching `calibrate_mcmc_ext.jl`, same
+discipline as the mock. Three basins on ONE `all` driver (single Greenland amp
+2.347), each keeping the shipped A+B shape with commitment scaled by its volume
+share and ONE free rate scale bisected to its own Mouginot sector loss —
+exactly identified, which makes the total a genuine out-of-sample prediction.
+Built the `all` amp law first (`diag_gis_amp_cmip6.py --zone all`: CMIP6 1.674
+vs observed 2.347, slope −0.0335/K, CI excludes zero).
+
+**Two data facts measured up front, neither assumed away:**
+1. The target and Mouginot **disagree on the total** — 1972–2018 target 1.689 cm
+   vs Mouginot's sector sum 1.377 cm, factor **1.227**. Peripheral glaciers are
+   the obvious candidate; NOT verified, so it is flagged, not explained. The fit
+   takes **shares** from Mouginot and the **total** from the target.
+2. **64% of the calibration signal predates 1972** (3.715 of 5.781 cm). The
+   partition is pinned over barely a third of the window.
+
+- **P1 — the two-window tension is PRE-EXISTING and is NOT the partition's
+  fault.** 3-basin, fitted 1972–2018, predicts **−23.1%** on 1900–2025. But the
+  **single basin — no partition at all — misses by −25.1%** on the identical
+  test (and +27.8% in the reverse direction). The partition slightly **reduces**
+  the tension. This is a finding about the model / driver / target across the
+  two windows, not about the basin split.
+  **Consequence for the restructure:** a per-sector likelihood term can only
+  constrain 1972–2018 while the total term constrains 1900–2025, and they pull
+  against each other by ~25%. **The calibrator must weight them deliberately**;
+  left implicit it shows up as a biased compromise or as poor mixing.
+- **P2 — the restructure moves the headline much less than it first looked.**
+  Whole-sheet 2300: single basin 24.09 / 62.71 cm (SSP2-4.5 / SSP5-8.5) vs
+  3-basin sum 21.66 / 58.56 cm — **0.899× / 0.934×**. South ends up at 48–50% of
+  the sum against 46% of the volume, i.e. close to proportional.
+- **P3 — the scorecard still clears with the mid tap REMOVED.** 3-basin base is
+  in band at SSP1-2.6 (0.119) and SSP2-4.5 (0.217) and out at SSP5-8.5 (0.586,
+  as expected); with a high-basin tap only, **10 of 64 cells** clear all three
+  2300 bands plus G4 within 15%. Marcus's active-channel-no-tap call for NW is
+  viable, at three fewer parameters than the mock.
+
+### The control that changed the answer, recorded
+
+The first draft of P1 shipped **without a single-basin control** and concluded
+"the reduction is too stiff; per-basin commitment parameters are needed too."
+That was wrong — the control shows the tension exists with no partition at all.
+P1 is now documented as useless without its control, and the docstring says so.
+A second presentation error in the same run: P2 compared the **south basin alone**
+(45.6% of the volume) against the **single basin** (100%) and made the
+restructure look like a halving. Rate scales were likewise compared across
+different k, which the ridge already showed trade off exactly. Both fixed; the
+wrong framings are named in the script so they are not repeated.
+
 ## [unreleased] — 2026-08-18m — The mock's dormancy premise HOLDS for the high basin and FAILS for the mid one.
 
 Marcus asked (2026-08-18) whether a dormant basin that actually contributes to
