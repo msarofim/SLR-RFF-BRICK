@@ -305,3 +305,78 @@ so the tuning chain was unaffected by the change.
 **Still true from the predecessor:** expect SLR@2100 = 45.53 cm to MOVE once a
 production chain runs; say so before it surprises anyone. macOS has no `timeout`;
 pin `OPENBLAS_NUM_THREADS=1`.
+
+---
+
+## 11. PRODUCTION RAN, AND IS **NOT CERTIFIED**. No SLR@2100 number may be quoted.
+
+Added 2026-08-19 ~16:40, after L13 production completed.
+
+**What ran.** `L13tune` 1M (accept 0.246) → starts rebuilt → `run_l13_production.sh`,
+4 × 2M, seeds 2026-2029, accept **0.245/0.245/0.245/0.247**. All four completed.
+
+**Both gates REFUSED.**
+
+1. `postprocess_mcmc_ext.jl --tag=L13` → **37 params not converged** (L12: 16).
+   It refused to write the canonical posterior subsample or the proposal seed.
+2. `diag_slr_convergence_by_chain_ladrillo.jl --tag=L13` → **SLR@2100 R̂ = 1.057**
+   (threshold 1.05). SLR@2150 R̂ = 1.033 passes. VERDICT: not converged.
+
+**THE HEADLINE MOVE IS NOT RESOLVABLE. Do not quote 47.89 cm.**
+
+| | R̂ | ESS | sd(medians) | per-chain SLR@2100 medians |
+|---|---|---|---|---|
+| L12 | 1.002 | 1445 | 0.228 | 45.24, 45.40, 45.72, 45.66 |
+| L13 | 1.057 | 65.6 | 1.411 | 48.91, 47.39, 48.86, 45.94 |
+
+Pooled L13 SLR@2100 = **47.89 cm** against L12's 45.53 — a +2.36 cm move, but the
+four chains **disagree by 2.97 cm**, which is LARGER than the move. The shift is
+in the predicted direction and may well be real, but this run cannot demonstrate
+it. ESS fell 22x (1445 → 65.6) and sd(medians) rose 6x.
+
+**WHAT DIVERGED — measured, per-chain 2nd-half medians:**
+
+| param | across the 4 chains | verdict |
+|---|---|---|
+| `ais_c` | 88.8091 x4, identical to 4 dp | **FROZEN**, never left its start |
+| `ais_iceflow0` | 0.955 → 1.211 | **genuine, 24%** |
+| `gis_amp` | 1.957 → 1.834 | modest, ~0.38 prior-sd |
+| `gis_s_mid` | s 0.937 → 0.918 | **fine, 2%** |
+| `gis_s_high` | s 0.260 → 0.249 | **fine, 4%** |
+
+**THE RESTRUCTURE'S OWN PARAMETERS ARE NOT THE PROBLEM.** `gis_s_mid` and
+`gis_s_high` are absent from postprocess's flag list entirely and agree across
+chains to 2-4%. Every worst offender is AIS geometry.
+
+**`ais_c`'s R̂ = 2.239 IS NOT INTERPRETABLE.** All four chains sit at 88.8091 with
+τ = 327k against 1M post-burn draws (≈3 effective samples). Between- AND
+within-chain variance are both ≈0, so the ratio is numerical noise. Do not read
+it as "twice as bad as L12".
+
+**WHAT IS NOT ESTABLISHED — do not repeat my first guess.** I initially blamed the
+starts: `build_overdispersed_starts.jl` picks draws at `ais_iceflow0` quantiles
+from the L13tune chain, which has τ≈300k in the AIS block, so the L13 starts are
+degenerate there (`ais_c` spread **1.15e-05** vs the L12-vintage file's **30.92**).
+That is TRUE and worth fixing on its own. **But it does not explain the SLR
+failure**: L12 started its chains FAR APART in `ais_c` and still agreed to 0.48 cm,
+so AIS start dispersion evidently does not control the SLR median. **Why L12
+passes the SLR gate and L13 fails it, with the same AIS pathology, is UNRESOLVED.**
+Find the mechanism before re-running — a longer chain that fails the same way
+costs another ~4 h.
+
+**Candidates, untested, in the order I would test them:**
+1. Is it Greenland after all, via a route the medians hide? The per-chain medians
+   agree, but SLR@2100 is driven by the upper tail (q95 ≈ 81 cm). Compare the
+   per-chain Greenland *tails*, not medians.
+2. `gis_amp` spreads 0.123 across chains and is the DOMINANT control on the 2100
+   projection (its own prior block says so: 2100 spread runs 7.4 → 12.6 cm across
+   its prior). 0.38 prior-sd of between-chain disagreement could plausibly do this.
+   **This is the first thing to check.**
+3. The shares term interacting with `gis_amp`/`gis_f` to create a ridge that did
+   not exist in L12.
+
+**Reproduce the numbers:** `outputs/mcmc/log_postprocess_L13.txt`,
+`outputs/mcmc/log_slrconv_L13.txt`, `outputs/mcmc/slr_convergence_L13.csv`,
+and `julia/diag_l13_basin_shares.jl` for the partition.
+
+**L12 REMAINS CANONICAL.** SLR@2100 = 45.53 cm stands. Nothing here supersedes it.
