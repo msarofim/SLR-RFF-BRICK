@@ -3,6 +3,41 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-18m — The mock's dormancy premise HOLDS for the high basin and FAILS for the mid one.
+
+Marcus asked (2026-08-18) whether a dormant basin that actually contributes to
+historical loss forces a recalibration of all three. Scored the mock's asserted
+historical partition against the Mouginot Dataset S2 parse the tier-1 script
+already owns (`python/diag_gis_basin_lit_check.py`, new block 1b).
+
+| basin | %SLE | %loss 1972–2018 | loss/SLE | verdict |
+|---|---|---|---|---|
+| south (the shipped A+B) | 45.6% | 48.1% | 1.06 | proportional |
+| **mid = NW** | 17.3% | **31.7%** | **1.83** | **OVER-ACTIVE — premise FAILS** |
+| high = NO+NE | 37.1% | 20.2% | 0.54 | dormant premise HOLDS |
+
+**The two basins the mock holds dormant contributed 52% of the 1972–2018 loss,
+and NW alone is the single LARGEST contributor (32%) while holding only 17% of
+the volume.** The mock treats the most over-active region in Greenland as
+dormant. The shipped A+B absorbs all of that loss while being driven by
+SOUTH-zone temperature alone, so its calibrated parameters are compensating for
+mass loss that physically came from other basins on other drivers.
+
+This is not a corner case: **41 of the 59 passers have an active mid basin.**
+
+**⇒ The projection-side-only decision (choice 4, taken this morning) does not
+survive this.** A structure whose historical partition is wrong cannot be bolted
+onto a calibration that was fitted under the wrong partition. This is the
+calibrator restructure §6 item 3 was going to price — now motivated by the
+historical partition being wrong rather than by the ssp585 shortfall, which is a
+better reason.
+
+**It also reverses the amp recommendation from entry 18l.** That recommendation
+rested on the dormant basins being invisible to the likelihood. Give them
+historical channels and their zones' amps become visible, at which point
+co-calibrating amp is genuinely informative rather than prior-returning —
+Marcus's original instinct, contingent on exactly this.
+
 ## [unreleased] — 2026-08-18l — amp is a PRIOR-DRIVEN quantity, and the obs-vs-CMIP6 anchor is the live choice.
 
 Two results bearing on Marcus's co-calibration question. Same script,

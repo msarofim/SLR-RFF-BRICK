@@ -159,6 +159,39 @@ def main():
           "(The paper's own words:\n  their evolution is 'of greatest relevance "
           "to future sea level rise'.)\n")
 
+    # ---- 1b. the premise holds for HIGH but FAILS for MID -------------------
+    # The mock treats BOTH dormant basins as contributing nothing historically.
+    # Scored per basin against the same dataset, that is right for the high
+    # basin and wrong for the mid one: a loss share ABOVE its volume share means
+    # the region is over-active today, not dormant. Marcus flagged the general
+    # issue 2026-08-18; this is its size.
+    tot_sle = sum(MOUGINOT_SLE_CM.values())
+    basins = [("south basin (the shipped A+B)",
+               tuple(s for s in MOUGINOT_SLE_CM
+                     if s not in HIGH_SECTORS + MID_SECTORS)),
+              ("mid basin " + "+".join(MID_SECTORS), MID_SECTORS),
+              ("high basin " + "+".join(HIGH_SECTORS), HIGH_SECTORS)]
+    print("=== THE HISTORICAL PARTITION the mock asserts, scored ===\n")
+    print(f"  {'basin':32s} {'%SLE':>6s} {'%loss':>6s} {'loss/SLE':>9s}  verdict")
+    for name, secs in basins:
+        fs = sum(MOUGINOT_SLE_CM[s] for s in secs) / tot_sle
+        fl = sum(per[s]["cum_gt"] for s in secs) / tot_cum
+        v = ("DORMANT premise HOLDS" if fl / fs < 0.75 else
+             "OVER-ACTIVE — premise FAILS" if fl / fs > 1.25 else
+             "proportional")
+        print(f"  {name:32s} {100 * fs:5.1f}% {100 * fl:5.1f}% "
+              f"{fl / fs:9.2f}  {v}")
+    mid_fl = sum(per[s]["cum_gt"] for s in MID_SECTORS) / tot_cum
+    dorm_fl = mid_fl + hi_cum / tot_cum
+    print(f"\n  ⇒ the two basins the mock holds DORMANT contributed "
+          f"{100 * dorm_fl:.0f}% of the 1972-2018 loss,\n    and "
+          f"{'+'.join(MID_SECTORS)} alone is the single LARGEST contributor "
+          f"({100 * mid_fl:.0f}%) while holding only "
+          f"{100 * sum(MOUGINOT_SLE_CM[s] for s in MID_SECTORS) / tot_sle:.0f}% "
+          f"of the volume.\n    The shipped A+B absorbs all of it while being "
+          f"driven by SOUTH-zone temperature alone, so its\n    calibrated "
+          f"parameters are compensating for loss that came from other basins.\n")
+
     # ---- 2 + 3. gate the passing cells --------------------------------------
     win = (lvl["gmt2100_585"], lvl["gmt2300_585"])
     winners["inv_strict"] = np.where(
