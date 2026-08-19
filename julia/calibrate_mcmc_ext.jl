@@ -236,6 +236,48 @@ const GIS_AB = !("--stock-gis" in ARGS)
 const GIS_ZONE = "south"          # Marcus 2026-08-10; "all" is the sensitivity arm
 const GIS_AMP = 1.92              # outputs/gis_amp_prior.csv, south/full: N(1.92, 0.32)
 const GIS_V0_M = 7.42             # Greenland volume, m SLE — STRUCTURAL, not sampled
+# ---- 3-basin (Mouginot sector) Greenland + the per-sector SHARES term ---------
+# Handoff notes/handoff_2026-08-19_calibrator_sector_shares.md. The shipped A+B is
+# calibrated to the TOTAL Greenland loss on a single regional driver, so its rate
+# constants absorb mass that came from basins it does not represent — NW alone is
+# 17.3% of the volume and 31.7% of the 1972-2018 loss. --gis-basins puts the three
+# Mouginot sector groups in the slot (julia/greenland_3basin_component.jl, gated by
+# julia/test_greenland_3basin_nesting.jl) and adds ONE rate scale per basin. The
+# geometry — the volume shares k_b — is FIXED, never sampled.
+const GIS_BASINS = "--gis-basins" in ARGS
+GIS_BASINS && !GIS_AB && error("--gis-basins requires the A+B Greenland module (drop --stock-gis)")
+# The term itself is separable from the state, so step 2 of the handoff's order of
+# work (basins in, term OFF, confirm the total is unchanged) is reachable as a run.
+const GISB_TERM = GIS_BASINS && !("--no-gis-shares" in ARGS)
+
+# TARGET — the MODERN RATE shares, NOT the cumulative 1972-2018 split. Greenland was
+# near balance before the mid-1990s (the south basin was GAINING mass in 1972-1990,
+# whole-sheet +15.9 Gt/yr in 1972-1981), so an early-window share is a ratio with a
+# vanishing denominator: the 1972-1981 "shares" come out 2.272 / -0.911 / -0.361.
+# Post-2002 the split is stable to about ±0.03. Two well-separated modern windows,
+# so the term is TIME-RESOLVED (Marcus 2026-08-19) and the drift between them is
+# itself information about whether the model reproduces the EVOLUTION of the
+# partition, not merely its level.
+# Provenance: python/diag_gis_basin_lit_check.py block 1c ->
+# outputs/diag_gis_basin_lit_check.csv, parsed from Mouginot 2019 Dataset S2.
+const GISB_WINS = ((2002, 2011), (2012, 2018))
+# ONLY south and mid are scored. The three shares sum to 1, so a third term adds no
+# information and makes the block rank-deficient by one — it would just re-weight
+# the same constraint by ~1.5x. high follows, and --gis-check prints it.
+const GISB_SCORED = (:south, :mid)
+const GISB_SHARE = ((south = 0.592, mid = 0.207, high = 0.201),    # 2002-2011, -245.6 Gt/yr
+                    (south = 0.554, mid = 0.262, high = 0.183))    # 2012-2018, -264.3 Gt/yr
+# sigma on a SHARE, matching MOUG_SHARE_SD and comfortably covering the ±0.03
+# window-to-window spread. Deliberately NOT Mouginot's published per-region mass
+# errors (30-91 Gt): those are far too tight to accommodate the 1.227x total
+# disagreement between Mouginot's sector sum and the calibration target.
+const GISB_SHARE_SD = 0.05
+# A vanishing total rate makes every share undefined. The guard is load-bearing here
+# in a way it is not for MOUG_SHARE: with sectors the denominator genuinely passes
+# through zero in the early record, so dividing without it produces garbage rather
+# than a mild bias. The windows above are chosen to sit far from it — this catches
+# a PROPOSAL that wanders there, not the target.
+const GISB_TOT_FLOOR = 1e-12
 # gis_g is FIXED AT 0 (item 4.1, 2026-08-12): profiled over [0, 0.8] the offline
 # objective moves 4e-4 nlp and the 2100 projections do not move at all, and it is
 # confounded with gis_c0. 0 is also stock SIMPLE's own initial condition.
@@ -325,6 +367,16 @@ end
 if GIS_AB
     @printf("greenland driver: t_gis_zones.csv[%s] 1850-%d + amp %.2f x GMST splice | gis_g FIXED %.1f | Mouginot share %.3f+/-%.3f\n",
             GIS_ZONE, TGZ_LAST, GIS_AMP, GIS_G, MOUG_SHARE, MOUG_SHARE_SD)
+    if GIS_BASINS
+        @printf("greenland basins: 3 Mouginot sectors on the SHARED %s driver | k FIXED %.4f/%.4f/%.4f | sector shares term %s\n",
+                GIS_ZONE, GIS3_VSHARE.south, GIS3_VSHARE.mid, GIS3_VSHARE.high,
+                GISB_TERM ? "ON" : "OFF (--no-gis-shares)")
+        GISB_TERM && for (w, sh) in zip(GISB_WINS, GISB_SHARE)
+            @printf("    %d-%d target: %s scored at %.3f/%.3f +/- %.3f (high %.3f follows by sum-to-one)\n",
+                    w[1], w[2], join(GISB_SCORED, "+"), sh.south, sh.mid,
+                    GISB_SHARE_SD, sh.high)
+        end
+    end
 else
     println("greenland: STOCK SIMPLE (--stock-gis) — the extC parameter set")
 end
@@ -628,6 +680,25 @@ if GIS_AB
     # prior-propagated into the projections, not estimated.
     push!(FREE, (name="gis_amp", comp=:likelihood_only, sym=:none,
                  μ=GIS_AMP, σ=0.32, lo=1.51, hi=2.28, islog=false))
+    if GIS_BASINS
+        # The ONE free knob per basin: a multiplicative scale on BOTH of that
+        # basin's channel rates. Sampled as log10, the gic_log10_kappa pattern, and
+        # for the same reason — it is a positive SCALE spanning a decade (the
+        # offline prototype's exactly-identified fit returned 0.562 / 2.513 / 0.216),
+        # so a linear proposal would step badly at the small end.
+        #
+        # PRIOR CENTRED AT s = 1, NOT at the prototype's fitted values, on the same
+        # principle as the gis_f comment above: the prototype was fitted to the SAME
+        # Mouginot partition the new likelihood term scores, so centring on it would
+        # count that observation twice. It was also fitted on the `all` driver while
+        # this run is still on `south`. s = 1 is the honest null — "no basin
+        # re-scaling", the exact nesting point at which this model IS greenland_ab —
+        # and sigma 0.5 in log10 puts the prototype's whole range inside 1 sd.
+        for b in GIS3_BASINS
+            push!(FREE, (name="gis_s_$b", comp=GISC, sym=Symbol("gis_s_$b"),
+                         μ=0.0, σ=0.5, lo=-2.0, hi=2.0, islog=false))
+        end
+    end
 else
     push!(FREE, P("greenland_a",:greenland_icesheet,:greenland_a)); push!(FREE, P("greenland_b",:greenland_icesheet,:greenland_b))
     push!(FREE, P("greenland_alpha",:greenland_icesheet,:greenland_α)); push!(FREE, P("greenland_beta",:greenland_icesheet,:greenland_β))
@@ -772,6 +843,11 @@ const AMPB_IDX3  = SAMPLED_AMP ?
     Dict(b => findfirst(k -> k.name == "gic_amp_$b", FREE) for b in BLOCKS) :
     Dict{String,Int}()
 const GISAMP_IDX = findfirst(k -> k.name == "gis_amp", FREE)   # nothing when --stock-gis
+# the three basin rate scales, sampled as log10 -- the component gets 10^θ, so they
+# are DERIVED in the same sense gic_kappa is and must be skipped by the setp! loop.
+const GISB_IDX3 = GIS_BASINS ?
+    Dict(b => findfirst(k -> k.name == "gis_s_$b", FREE) for b in GIS3_BASINS) :
+    Dict{Symbol,Int}()
 const SETP_SKIP  = Set(vcat(collect(values(KAPPA_IDX3)),
                             [UUNCH_IDX, DELTA_IDX, UPRE_IDX, SR5_IDX],
                             collect(values(AMPB_IDX3)),
@@ -782,7 +858,8 @@ const SETP_SKIP  = Set(vcat(collect(values(KAPPA_IDX3)),
                             # (ell, w) are DERIVED: they set gis_alpha_s/gis_beta_s
                             # in logposterior, they are not Mimi parameters.
                             GIS_REPARAM ? [GIS_ELL_IDX, GIS_W_IDX] : Int[],
-                            GISAMP_IDX === nothing ? Int[] : [GISAMP_IDX]))
+                            GISAMP_IDX === nothing ? Int[] : [GISAMP_IDX],
+                            collect(values(GISB_IDX3))))
 # sampled mode: the κ prior is amp-dependent (center k10c(amp)) — exclude κ from the
 # generic Normal(μ,σ) prior loop and add the explicit term in logposterior
 const PRIOR_SKIP = SAMPLED_AMP ? Set(values(KAPPA_IDX3)) : Set{Int}()
@@ -1035,8 +1112,9 @@ println("D2 discrepancy: " * (D2_ON ? "ON" : "OFF (--no-d2)") *
 
 # ---- model base (medoid + glacier init), forcing once -- extC 3-reservoir build ----
 medoid = CSV.read(joinpath(REPO,"outputs/recalib_central_row.csv"), DataFrame)[1,:]
-m = GIS_AB ? build_brick_nu3_gis(ssp="ssp245", y0=Y0, y1=Y1) :
-             build_brick_nu3(ssp="ssp245", y0=Y0, y1=Y1)
+m = GIS_BASINS ? build_brick_nu3_gis3(ssp="ssp245", y0=Y0, y1=Y1) :
+    GIS_AB     ? build_brick_nu3_gis(ssp="ssp245", y0=Y0, y1=Y1) :
+                 build_brick_nu3(ssp="ssp245", y0=Y0, y1=Y1)
 gic3_init = (; (Symbol(b) => (a=Float64(bcrow(b).a0),
                               b=Float64(bcrow(b)["b_fit_$(FIT_BASIS)"]),
                               T_off=Float64(bcrow(b)["T_off_fit_$(FIT_BASIS)"]),
@@ -1049,12 +1127,29 @@ if GIS_AB
     set_gis_forcing!(m, tgis)         # REGIONAL driver; the GIS slot never sees raw GMST
     # structural, never sampled: the commitment cap and the 1850 initial condition
     update_param!(m, _GIS_SLOT, :gis_v0, GIS_V0_M)
+    # the basin volume shares are FIXED Mouginot geometry, set once and never
+    # sampled; the rate scales are overwritten every logposterior call below
+    GIS_BASINS && update_gis3_shares!(m)
     update_param!(m, _GIS_SLOT, :gis_g, GIS_G)
 end
 # Indices for the Mouginot partition term. Defined unconditionally so the name is
 # always bound; only the GIS_AB branch of the likelihood reads it.
+# Per-basin share windows, mirroring MOUG_I. Bound unconditionally so the name
+# always exists; only the GISB_TERM branch reads it.
+const GISB_I = [(i0=idx(w[1]), i1=idx(w[2]), n=w[2]-w[1]) for w in GISB_WINS]
 const MOUG_I = (r0=idx(MOUG_REF_WIN[1]),  r1=idx(MOUG_REF_WIN[2]),
                 l0=idx(MOUG_LATE_WIN[1]), l1=idx(MOUG_LATE_WIN[2]))
+# --gis-check ONLY. The ordering wedge is a hard rejection evaluated BEFORE run(m),
+# which is right for a sampled proposal and WRONG for a fixed reference vector: the
+# offline A+B fit that --gis-check compares against predates the ordering convention
+# and legitimately has alpha_s (0.00707) > alpha_f (0.00285), so the wedge rejected
+# it, run(m) never happened, and the diagnostic read whatever state the PREVIOUS
+# logposterior call left in `m` — reporting theta0's numbers as if they were the
+# reference vector's. That is how it came to report a Mouginot share of 0.8699
+# (theta0's) against the offline 0.7351 and call it a wiring failure. Found
+# 2026-08-19; --gis-check has been inert this way for the whole L12 line, since
+# --gis-ordered is the canonical configuration. Never set outside the diagnostic.
+const WEDGE_OFF = Ref(false)
 setp!(k,v)=update_param!(m,k.comp,k.sym, k.islog ? log(v) : v)
 reref(v)=100 .* (v .- sum(v[ib])/length(ib))
 
@@ -1065,7 +1160,7 @@ function logposterior(θ)
     # the channel-ordering wedge (see GIS_ORDERED above). Evaluated HERE, with
     # the other hard rejections and BEFORE run(m), so a rejected proposal costs
     # no model evaluation.
-    if GIS_ORDERED
+    if GIS_ORDERED && !WEDGE_OFF[]
         r_s = exp(θ[GIS_ELL_IDX]); w_s = θ[GIS_W_IDX]
         (w_s * r_s / GIS_TBAR > θ[GIS_ALPHA_F_IDX]) && return -Inf   # alpha_s <= alpha_f
         ((1 - w_s) * r_s > θ[GIS_BETA_F_IDX])       && return -Inf   # beta_s  <= beta_f
@@ -1077,6 +1172,12 @@ function logposterior(θ)
     # extC: per-block κ sampled as log10 -- the component gets the linear value
     for b in BLOCKS
         update_param!(m, G, Symbol("gic_kappa_$b"), 10.0^θ[KAPPA_IDX3[b]])
+    end
+    # basin rate scales: sampled as log10, the component takes the linear value
+    if GIS_BASINS
+        for b in GIS3_BASINS
+            update_param!(m, _GIS_SLOT, Symbol("gis_s_$b"), 10.0^θ[GISB_IDX3[b]])
+        end
     end
     # A4: runoff line -- reconstruct h0 from the identified direction
     update_param!(m, :antarctic_icesheet, :ais_runoffline_snowheight₀, -θ[TON_IDX] * θ[C_IDX])
@@ -1201,6 +1302,39 @@ function logposterior(θ)
         # the term there rather than dividing through, and so does this.
         if abs(d_tot) > 1e-12
             ll += logpdf(Normal(MOUG_SHARE, MOUG_SHARE_SD), d_fast / d_tot)
+        end
+    end
+    # Mouginot 2019 per-SECTOR partition — the constraint that stops one basin
+    # absorbing all of Greenland's loss. Built as a direct analogue of the term
+    # above: a SHARES-ONLY, scale-free ratio, so it is orthogonal to the total
+    # term (which already spans 1900-2025 and would otherwise be double-counted)
+    # and immune to the 1.227x disagreement between Mouginot's sector sum and the
+    # calibration target over 1972-2018.
+    #
+    # LEVEL shares of the MEAN LOSS RATE in two modern windows — NOT the extra
+    # rate over a 1972-1990 reference, and NOT the cumulative 1972-2018 split.
+    # Both of those divide by a denominator that passes through zero: Greenland
+    # was near balance until the mid-1990s. See the constant block for the
+    # window scan that establishes it.
+    #
+    # Only GISB_SCORED (south, mid) is scored; high follows by sum-to-one. Adding
+    # it would make the block rank-deficient by one, not add an observation.
+    if GISB_TERM
+        bsl = (south = m[_GIS_SLOT, :gis_sl_south],
+               mid   = m[_GIS_SLOT, :gis_sl_mid],
+               high  = m[_GIS_SLOT, :gis_sl_high])
+        for (wi, tgt) in zip(GISB_I, GISB_SHARE)
+            d = map(b -> (Float64(getproperty(bsl, b)[wi.i1]) -
+                          Float64(getproperty(bsl, b)[wi.i0])) / wi.n, GIS3_BASINS)
+            dtot = sum(d)
+            # A vanishing total rate makes every share undefined; skip rather than
+            # divide through, exactly as the two share terms above do.
+            if abs(dtot) > GISB_TOT_FLOOR
+                for b in GISB_SCORED
+                    j = findfirst(==(b), GIS3_BASINS)
+                    ll += logpdf(Normal(getproperty(tgt, b), GISB_SHARE_SD), d[j] / dtot)
+                end
+            end
         end
     end
     # priors: independent Gaussian on physical (EXCEPT the geometry block, which gets the
@@ -1424,12 +1558,23 @@ const OLD54_NAMES = vcat(
 # The L11tune layout: the current FREE set with the Greenland pair in its NATIVE
 # coordinates, i.e. what the first tuning run sampled. Lets that covariance be
 # name-mapped once the reparameterisation is on.
+# THE SAME TRAP AS ALL_SERIES ABOVE, one layer out. These tables describe the
+# layout of FILES ON DISK, so they must NOT follow the live FREE either: with
+# --gis-basins the three gis_s_* rows do not exist in ANY pre-existing covariance,
+# and letting them lengthen L11_NAMES from 57 to 60 makes the `size(old,1) ==
+# length(L11_NAMES)` dispatch below MISS the L12 covariance entirely. That fails
+# safe (visible warning -> fresh diagonal) rather than catastrophically, but it
+# throws away the tuned proposal shape and would be read as "the covariance is
+# incompatible" when in fact 57 of its 60 rows map perfectly. Filter them out.
+const GISB_PNAMES = ["gis_s_$b" for b in GIS3_BASINS]
+prelayout(fr) = [k for k in fr if !(k.name in GISB_PNAMES)]
+
 const L11A_NAMES = vcat(
     [k.name == "gis_slow_ell" ? "gis_alpha_s" :
-     k.name == "gis_slow_w"   ? "gis_beta_s"  : k.name for k in FREE],
+     k.name == "gis_slow_w"   ? "gis_beta_s"  : k.name for k in prelayout(FREE)],
     vcat([["sd_$s","rho_$s"] for s in SERIES]...))
 
-const L10_NAMES = vcat([k.name for k in FREE],
+const L10_NAMES = vcat([k.name for k in prelayout(FREE)],
                        vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
 
 # The L11 PRODUCTION layout: both D2 streams, D1 noise block. Built independently
@@ -1447,7 +1592,7 @@ const L10_NAMES = vcat([k.name for k in FREE],
 # which is correct — so this is a latent trap the new flag exposed, not a defect
 # in any published result. Dispatch on the file's VINTAGE, never on its size.
 const L11_NAMES = vcat(
-    [k.name for k in FREE if !startswith(k.name, "d2_")],
+    [k.name for k in prelayout(FREE) if !startswith(k.name, "d2_")],
     ["d2_$(st)_$(k)" for st in ["gsic", "steric"] for k in 1:D2_BASIS_N],
     vcat([["sd_$s","rho_$s"] for s in SERIES]...))
 """Covariance files whose rows are in the L11 production ordering."""
@@ -1616,10 +1761,51 @@ if "--gis-check" in ARGS
         "gis_alpha_f" => 0.00284865, "gis_beta_f" => 0.00736838,
         "gis_alpha_s" => 0.00707271, "gis_beta_s" => 1e-6)
     θchk = copy(θ0)
+    applied = String[]
     for (k, fr) in enumerate(FREE)
-        haskey(GIS_OFFLINE_G0, fr.name) && (θchk[k] = GIS_OFFLINE_G0[fr.name])
+        haskey(GIS_OFFLINE_G0, fr.name) &&
+            (θchk[k] = GIS_OFFLINE_G0[fr.name]; push!(applied, fr.name))
     end
-    logposterior(θchk)                            # sets params and runs the model
+    # THE SLOW CHANNEL NEEDS THE (ell, w) MAP, and this is the second half of the
+    # 2026-08-19 --gis-check repair. GIS_OFFLINE_G0 is keyed on the NATIVE names
+    # gis_alpha_s / gis_beta_s, which do not exist in FREE under GIS_REPARAM — so
+    # both overrides were silently skipped and θchk kept whatever slow channel θ0
+    # carried. Under --gis-ordered θ0's slow channel is deliberately overwritten
+    # with the L11 ORD-half medians (see the GIS_ORDERED block above), giving
+    # r_s = 0.00526 against the offline cell's 0.01389, a factor 2.6 — which is
+    # the whole of the four-gate failure. WITHOUT --gis-ordered it passed only
+    # because θ0's MAP happened to sit near the offline slow channel, so the
+    # defect was masked in exactly the configuration nobody ships.
+    if GIS_REPARAM
+        a_s, b_s = GIS_OFFLINE_G0["gis_alpha_s"], GIS_OFFLINE_G0["gis_beta_s"]
+        r_s = a_s * GIS_TBAR + b_s
+        θchk[GIS_ELL_IDX] = log(r_s)
+        θchk[GIS_W_IDX]   = a_s * GIS_TBAR / r_s
+        append!(applied, ["gis_slow_ell", "gis_slow_w"])
+    end
+    # NO SILENT SKIPS. Every offline key must reach a parameter, or the diagnostic
+    # is comparing a vector that is not the reference vector — which is precisely
+    # how this went unnoticed. Under GIS_REPARAM the native slow pair is consumed
+    # by the map above rather than matched by name.
+    let want = Set(keys(GIS_OFFLINE_G0)),
+        got = Set(GIS_REPARAM ? vcat(applied, ["gis_alpha_s", "gis_beta_s"]) : applied)
+        missed = setdiff(want, got)
+        isempty(missed) || error("--gis-check: $(length(missed)) offline reference " *
+            "value(s) matched no free parameter and were SILENTLY DROPPED: " *
+            join(sort(collect(missed)), ", ") * ". θchk is then not the reference " *
+            "vector and every gate below is meaningless.")
+    end
+    # Bypass the ordering wedge for the reference vector (see WEDGE_OFF), and ASSERT
+    # the evaluation was real. A non-finite logposterior means run(m) never happened,
+    # so every number below would be stale state from the previous call rather than a
+    # measurement — the failure mode this guard exists to make impossible.
+    lp_chk = WEDGE_OFF[] = true
+    lp_chk = logposterior(θchk)                   # sets params and runs the model
+    WEDGE_OFF[] = false
+    isfinite(lp_chk) || error("--gis-check: logposterior(θchk) = $lp_chk, so run(m) " *
+        "never executed and every diagnostic below would be STALE STATE from the " *
+        "previous evaluation, not a measurement. Check the bounds on the offline " *
+        "reference vector — the ordering wedge is already bypassed here.")
     gser = reref(m[_GIS_SLOT, :greenland_sea_level])       # cm, calibrator frame
     r = gser[S.gis.myi] .- S.gis.obs
     rmse = sqrt(sum(abs2, r) / length(r))
@@ -1636,6 +1822,39 @@ if "--gis-check" in ARGS
     # offline A+B at g=0 (outputs/gis_offline_cell_fits.csv + gis_g_betaf_variants.csv)
     REF = (rmse=0.0617, bias=0.0146, rate=0.7749, share=0.7351)
     TOL = (rmse=0.005,  bias=0.010,  rate=0.020,  share=0.010)
+    # Per-basin modern shares at this same theta. Printed BEFORE any verdict on the
+    # shares term, because a diagnostic that can already measure the thing is how
+    # you tell a wiring bug from a physics result (handoff 2026-08-19 step 1).
+    # NB with the basin rate scales at their prior centre (s = 1) these MUST come
+    # out at the VOLUME shares 0.456/0.173/0.371 — the model is linear in the
+    # commitment split and the channel rates do not depend on k, so anything else
+    # is a wiring bug, not a result. julia/test_greenland_3basin_nesting.jl [3]
+    # gates exactly that at 4e-16.
+    if GIS_BASINS
+        bsl = (south = m[_GIS_SLOT, :gis_sl_south],
+               mid   = m[_GIS_SLOT, :gis_sl_mid],
+               high  = m[_GIS_SLOT, :gis_sl_high])
+        println("\n--gis-check | per-basin shares of the mean loss RATE, this theta")
+        @printf("  %-12s %8s %8s %8s   %s\n", "window", "south", "mid", "high", "total cm/yr")
+        for (wi, w, tgt) in zip(GISB_I, GISB_WINS, GISB_SHARE)
+            d = map(b -> (Float64(getproperty(bsl, b)[wi.i1]) -
+                          Float64(getproperty(bsl, b)[wi.i0])) / wi.n, GIS3_BASINS)
+            dtot = sum(d)
+            if abs(dtot) > GISB_TOT_FLOOR
+                @printf("  %-12s %8.3f %8.3f %8.3f   %11.4f\n",
+                        "$(w[1])-$(w[2])", (d ./ dtot)..., 100 * dtot)
+            else
+                @printf("  %-12s %s\n", "$(w[1])-$(w[2])",
+                        "total rate below floor — shares undefined, term SKIPPED")
+            end
+            @printf("  %-12s %8.3f %8.3f %8.3f   (Mouginot target; %s scored, sd %.2f)\n",
+                    "  target", tgt.south, tgt.mid, tgt.high,
+                    join(GISB_SCORED, "+"), GISB_SHARE_SD)
+        end
+        @printf("  volume shares (the s = 1 null): %.3f %.3f %.3f\n",
+                GIS3_VSHARE.south, GIS3_VSHARE.mid, GIS3_VSHARE.high)
+    end
+
     println("\n--gis-check | calibrator wiring vs the offline A+B cell at the SAME parameter vector")
     checks = [("RMSE cm", rmse, REF.rmse, TOL.rmse),
               ("1942-1982 bias cm", bias, REF.bias, TOL.bias),

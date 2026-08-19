@@ -3,6 +3,114 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-19b — The sector shares term is WIRED, and `--gis-check` has been inert for the whole L12 line.
+
+Implements the term scoped in 19a, per Marcus's four decisions of 2026-08-19:
+reduced per-basin parameterisation, driver switch deferred to its own commit,
+two-window level shares scoring south+mid, starts rebuilt after a tuning run.
+
+### 1. The 3-basin Greenland component (`julia/greenland_3basin_component.jl`)
+
+Mouginot sectors south{SW,CW,CE,SE} / mid{NW} / high{NO,NE} on ONE shared
+regional driver. Reduced parameterisation matching
+`python/scope_gis_3basin_partition.py` so its P1/P2/P3 stay the reference:
+commitment scaled by the FIXED volume share `k_b`, one free rate scale `s_b`
+per basin. **Three sampled parameters added, none removed.** No tap yet — the
+high-basin tap is deferred; the mid basin gets none at all (Aschwanden
+PMC6584365 has NW *decelerating* by 2300, the opposite sign from a tap).
+
+`greenland_ab` is untouched, so the nesting gate is a genuine A-vs-B run.
+`julia/test_greenland_3basin_nesting.jl`, all pass:
+
+| gate | result |
+|---|---|
+| [1] collapse, k=(1,0,0), s=1 → reproduces `greenland_ab` | 0.0 |
+| [2] additivity at production shares | 2.2e-16 |
+| [3] partition invariance, Mouginot k, s=1 → total does not move | 4.4e-16 |
+
+[3] is the strong one: it says the three `s_b` are the ONLY thing the
+restructure adds, and it fails on clamp / initial-condition / `k` wiring errors
+that a single loaded basin would hide. At s=1 the 1972–2018 loss shares come out
+at the VOLUME shares exactly (0.456/0.173/0.371), as linearity predicts, against
+observed 0.592/0.207/0.201 — that gap is what the `s_b` are fitted to close.
+
+**Flagged, not silently resolved:** the per-basin commitment is clamped to the
+WHOLE-SHEET [0, v0] as the prototype's `ab_series()` does, not to `k_b*v0`. The
+two agree at the nesting point and across the hindcast, and differ only for the
+high basin late under SSP5-8.5.
+
+### 2. The shares term, and two traps paid for
+
+The term is a direct analogue of `MOUG_SHARE`: shares-only, scale-free, guarded
+against a vanishing denominator, scoring **south and mid only** over
+**2002–2011** and **2012–2018** at σ=0.05. High follows by sum-to-one — scoring
+it too would make the block rank-deficient by one, not add an observation.
+`--no-gis-shares` runs the basins with the term OFF (handoff step 2).
+
+**Trap 1 in a new dress, caught before it bit.** `L11_NAMES` / `L10_NAMES` /
+`L11A_NAMES` are derived from the live `FREE`, so the three new rows lengthened
+them 57 → 60 and the `size(old,1) == length(L11_NAMES)` dispatch MISSED the L12
+covariance entirely. That fails safe (warning → fresh diagonal) but throws away
+the tuned proposal shape. Fixed by filtering the basin params out of the
+file-layout tables — the same principle the `ALL_SERIES` comment already states.
+Verified: *"name-mapped 57 of 57 rows of adapted_cov_L11tune3_seed2026.csv"*.
+
+**Quantitative wiring check.** Basins-on vs control differ in logpost by exactly
+the amount predicted from first principles: shares term +0.841 (four z-scores
+from the volume-share null) plus three new priors −0.677 = +0.164; observed
+−633.94 → −633.78. And the two runs' `--gis-check` A+B gates are byte-identical,
+which is partition invariance confirmed *inside the live calibrator*.
+
+### 3. `--gis-check` has been reporting STALE STATE since the reparameterisation
+
+The handoff makes `--gis-check` the acceptance gate for this work, so it got
+run first — and it FAILED all four gates on untouched HEAD. It is not a
+regression from the restructure; the control reproduces it byte-for-byte.
+
+**Two independent defects, both silent:**
+
+1. `GIS_OFFLINE_G0` is keyed on the NATIVE names `gis_alpha_s` / `gis_beta_s`,
+   which **do not exist in `FREE` under `GIS_REPARAM`**. Both overrides were
+   silently skipped, so θchk kept whatever slow channel θ0 carried. Under
+   `--gis-ordered` θ0's slow channel is deliberately overwritten with the L11
+   ORD-half medians, giving `r_s = 0.00526` against the offline `0.01389` — a
+   factor **2.6**, and the whole of the four-gate failure. WITHOUT
+   `--gis-ordered` it passed only because θ0's MAP happened to sit near the
+   offline slow channel. **So the diagnostic was masked in exactly the
+   configuration that ships:** `--gis-ordered` is the L12 canonical setting.
+2. The offline reference vector legitimately has `alpha_s > alpha_f` (it
+   predates the ordering convention), so the wedge — a hard rejection evaluated
+   BEFORE `run(m)` — rejected it, `run(m)` never happened, and the diagnostic
+   read the previous call's model state. It reported θ0's Mouginot share of
+   0.8699 as the reference vector's.
+
+Fixed: the offline slow pair is mapped into (ell, w); the wedge is bypassed for
+this one fixed reference vector (`WEDGE_OFF`); `logposterior(θchk)` must be
+finite or it errors; and **no offline key may match zero parameters** without
+erroring. After the repair all four gates read `|diff| = 0.0000` — *tighter*
+than the unordered run that "passed" (0.0017/0.0031/0.0002/0.0005), which is how
+you can tell the vector is now genuinely the reference one. The no-silent-skip
+guard was mutation-tested with a bogus key and fires.
+
+**No published result is affected** — this is a diagnostic, not a model path —
+but every "GIS WIRING OK" printed under `--gis-ordered` should be treated as
+unverified, and the L12 line never printed one.
+
+### Tried and NOT done
+
+- **Centring the `s_b` priors on the prototype's fitted 0.562/2.513/0.216.**
+  Rejected: the prototype was fitted to the SAME Mouginot partition the new term
+  scores, so centring on it would count that observation twice — the reasoning
+  the `gis_f` comment already records. It was also fitted on the `all` driver
+  while this run is still on `south`. Priors sit at **s=1**, the honest null and
+  the exact nesting point, σ=0.5 in log10 (covering the prototype's range).
+- **Switching `GIS_ZONE` to `all` in this commit.** Deferred by Marcus so the
+  partition effect and the driver effect stay separable. Note it is NOT a
+  one-line change: `GIS_AMP` 1.92 → 2.347 and the amp prior N(1.92, 0.32) on
+  [1.51, 2.28] both move with it.
+
+---
+
 ## [unreleased] — 2026-08-19a — The share instability is a vanishing DENOMINATOR, not a drifting partition — and the calibrator already has the term to copy.
 
 Two findings while scoping the calibrator wiring Marcus approved (shares-only,
