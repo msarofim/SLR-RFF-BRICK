@@ -233,8 +233,47 @@ end
 # Do not promote it to a required input -- that drop-in property is what
 # distinguishes Ladrillo from MAGICC-SLR.
 const GIS_AB = !("--stock-gis" in ARGS)
-const GIS_ZONE = "south"          # Marcus 2026-08-10; "all" is the sensitivity arm
-const GIS_AMP = 1.92              # outputs/gis_amp_prior.csv, south/full: N(1.92, 0.32)
+# --gis-zone=<south|all|central|north>. A FLAG, not a source edit, for the same
+# reason --adcov is: the arm becomes runnable, reviewable in the run script, and
+# recorded in the log, instead of living as an uncommitted one-character diff.
+# Default "south" = the shipped L11/L12/L13 line (Marcus 2026-08-10).
+const GIS_ZONE = something(_argval("--gis-zone="), "south")
+GIS_ZONE in ("south","all","central","north") ||
+    error("--gis-zone=$GIS_ZONE is not a column of t_gis_zones.csv " *
+          "(south, all, central, north)")
+const GIS_AMP_WINDOW = "full"     # gis_amp_prior.csv row selector; "early"/"modern" are arms
+#
+# THE AMP PRIOR IS READ FROM ITS SOURCE, keyed on (GIS_ZONE, GIS_AMP_WINDOW).
+# Until 2026-08-20 all four numbers — mean, sd, lo, hi — were hand-transcribed
+# literals and only the MEAN carried a name; the sd/lo/hi sat inline in the FREE
+# push! a few hundred lines below, with no reference to GIS_ZONE at all. So
+# flipping GIS_ZONE to "all" would have moved GIS_AMP 1.92 -> 2.347 while silently
+# LEAVING the prior at south's N(., 0.32) on [1.51, 2.28] — a prior whose upper
+# bound (2.28) sits BELOW the new mean (2.347), i.e. the sampler would have been
+# pinned against a bound it could never leave, with no error. That is the
+# `~/.claude/CLAUDE.md` "labels derive from named constants" rule and it is the
+# same failure shape as the L11_NAMES mis-map: a hand-maintained copy of data that
+# lives somewhere else, silently wrong when the key changes.
+const GIS_AMP_PRIOR = let f = joinpath(REPO, "outputs/gis_amp_prior.csv")
+    isfile(f) || error("missing $f — regenerate with python/diag_gis_amp_cmip6.py")
+    df = CSV.read(f, DataFrame)
+    i = findfirst(r -> r.zone == GIS_ZONE && r.window == GIS_AMP_WINDOW, eachrow(df))
+    isnothing(i) && error("gis_amp_prior.csv has no row for zone=$GIS_ZONE " *
+                          "window=$GIS_AMP_WINDOW; rows present: " *
+                          join(["$(r.zone)/$(r.window)" for r in eachrow(df)], ", "))
+    r = df[i, :]
+    (mean=Float64(r.mean), sd=Float64(r.sd), lo=Float64(r.lo), hi=Float64(r.hi))
+end
+const GIS_AMP = GIS_AMP_PRIOR.mean
+# PROVENANCE: the shipped L11/L12/L13 line ran with GIS_AMP hardcoded to the
+# ROUNDED 1.92, not the CSV's 1.9221976. Deriving moves the prior mean by +0.0022
+# (0.007 sd) and the built driver's post-2024 splice with it, so an L12 re-run from
+# this file is no longer bit-identical to the shipped L12 — it is 0.007 sd away.
+# Bounded and stated rather than silently absorbed; reproduce the exact shipped L12
+# from commit ab069bd or earlier.
+GIS_ZONE != "south" || abs(GIS_AMP - 1.92) < 5e-3 ||
+    error("south/full amp is $GIS_AMP, not within 5e-3 of the shipped 1.92 — " *
+          "gis_amp_prior.csv has changed under the calibration; re-check before running")
 const GIS_V0_M = 7.42             # Greenland volume, m SLE — STRUCTURAL, not sampled
 # ---- 3-basin (Mouginot sector) Greenland + the per-sector SHARES term ---------
 # Handoff notes/handoff_2026-08-19_calibrator_sector_shares.md. The shipped A+B is
@@ -324,9 +363,40 @@ const TGZ_LAST = Int(maximum(tgz.year))
 const GIS_TBAR_WIN = (2015, 2024)
 const GIS_TBAR = mean(Float64(tgz[i, GIS_ZONE]) for i in 1:nrow(tgz)
                       if GIS_TBAR_WIN[1] <= Int(tgz[i, :year]) <= GIS_TBAR_WIN[2])
-abs(GIS_TBAR - 1.963) < 5e-3 ||
-    error("GIS_TBAR = $GIS_TBAR from $(GIS_TBAR_WIN) disagrees with the 1.963 K on " *
-          "which the reparameterisation was chosen (notes/spec_2026-08-14 section 4)")
+# THE ASSERTION IS ZONE-AWARE. It used to compare against a bare 1.963 for every
+# zone, which is SOUTH's anchor: switching GIS_ZONE to "all" (Tbar 2.6543) tripped an
+# error whose text blamed t_gis_zones.csv drift. That failed safe — loudly, and it is
+# why this is a cheap fix rather than a postmortem — but the message pointed at the
+# wrong cause and the real constraint went unstated. The real constraint is that the
+# (ell, w) SLOW-CHANNEL REPARAMETERISATION was chosen at south's Tbar = 1.963
+# (notes/spec_2026-08-14 §4): ell = log r_s and w are defined RELATIVE to the anchor,
+# so moving the anchor moves what the (ell, w) priors mean. Switching zones is
+# therefore NOT a one-line change — it re-anchors the reparameterisation, and the
+# priors must be re-derived at the new Tbar before the run is meaningful.
+const GIS_TBAR_REPARAM_ANCHOR = 1.963      # spec_2026-08-14 §4, GIS_ZONE = "south"
+if GIS_ZONE == "south"
+    abs(GIS_TBAR - GIS_TBAR_REPARAM_ANCHOR) < 5e-3 ||
+        error("GIS_TBAR = $GIS_TBAR from $(GIS_TBAR_WIN) disagrees with the " *
+              "$GIS_TBAR_REPARAM_ANCHOR K on which the reparameterisation was chosen " *
+              "(notes/spec_2026-08-14 section 4) — t_gis_zones.csv has drifted")
+else
+    error("GIS_ZONE = \"$GIS_ZONE\" gives Tbar = $(round(GIS_TBAR, digits=4)) K against " *
+          "south's $GIS_TBAR_REPARAM_ANCHOR K.\n" *
+          "  The (ell, w) priors themselves are FINE — GIS_ELL_MU/GIS_W_MU already derive " *
+          "from GIS_TBAR, so they re-anchor automatically (south ell -4.2074 w 0.9328 -> " *
+          "all ell -3.9234 w 0.9494).\n" *
+          "  WHAT DOES NOT MOVE is the offline A+B fit those centres are built on: " *
+          "GIS_NATIVE_MU (the native alpha_s/beta_s centres, defined below) " *
+          "and the gis_c1/gis_c0/gis_f/gis_alpha_f/gis_beta_f prior centres, plus the " *
+          "GIS_OFFLINE_G0 reference --gis-check scores against. Those are PHYSICAL rate " *
+          "constants fitted against the SOUTH temperature series; the same alpha_s on a " *
+          "driver $(round(GIS_TBAR/GIS_TBAR_REPARAM_ANCHOR, digits=3))x hotter at the anchor " *
+          "produces correspondingly more melt, so the priors would be centred on the wrong " *
+          "physics.\n" *
+          "  PREREQUISITE: re-run the offline A+B Greenland fit on the \"$GIS_ZONE\" driver, " *
+          "update GIS_NATIVE_MU + the five gis_* centres + GIS_OFFLINE_G0, regenerate the " *
+          "--gis-check reference (do NOT widen its tolerance), then relax this branch.")
+end
 # PRIORS ARE SPECIFIED DIRECTLY IN (ell, w), NOT inherited through the transform.
 # Only 33.2% of draws from the (alpha_s, beta_s) priors fall inside the native
 # bounds, so what those priors actually encode is a pair of heavily truncated
@@ -694,8 +764,10 @@ if GIS_AB
     # runs to 2025, so ONE of its 126 years falls in the spliced region. The
     # effect is negligible and it is not modelled; gis_amp is therefore
     # prior-propagated into the projections, not estimated.
+    # sd/lo/hi FROM THE PRIOR FILE, keyed on GIS_ZONE — never inline literals.
     push!(FREE, (name="gis_amp", comp=:likelihood_only, sym=:none,
-                 μ=GIS_AMP, σ=0.32, lo=1.51, hi=2.28, islog=false))
+                 μ=GIS_AMP, σ=GIS_AMP_PRIOR.sd,
+                 lo=GIS_AMP_PRIOR.lo, hi=GIS_AMP_PRIOR.hi, islog=false))
     if GIS_BASINS
         # The ONE free knob per basin: a multiplicative scale on BOTH of that
         # basin's channel rates. Sampled as log10, the gic_log10_kappa pattern, and
