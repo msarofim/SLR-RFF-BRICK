@@ -3,6 +3,159 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-20c — THE TAP IS PRICED, on the certified L13 posterior and with no MCMC: 25 of 140 admissible cells clear everything, ratio 9.8–16.4x.
+
+Handoff `notes/handoff_2026-08-20_gis_zone_and_tap.md` §6 item 1, delivered.
+`python/scope_gis_tap_l13.py` → `outputs/scope_gis_tap_l13.csv`.
+
+**What is new against the mock and the prototype.** (1) The rate scales are **measured,
+not bisected** — both predecessors solved `s_b` offline against an exactly-identified
+target; L13 fitted them, and the tap sits on top of `s_high`. (2) The posterior is
+**propagated, not collapsed to its median** — the deliverable IS a ratio, and ratios of
+medians are not medians of ratios. (3) The driver is **L13's `south`, not the design's
+`all`** — scoring L13 on `all` would price a model nobody has fitted. (4) The per-basin
+commitment clamp is the **Julia's `k_b*v0`**, not the prototype's whole-sheet `v0`; the
+two agree over the hindcast and diverge at 2300 under ssp585, the only regime this is about.
+
+### The base: L13 alone does NOT buy the separation, and that was expected
+
+| scenario | 2100 cm | 2300 m | 2300 lit band | |
+|---|---|---|---|---|
+| SSP1-2.6 | 6.43 [5.73, 7.15] | 0.097 [0.080, 0.117] | 0.058–0.163 | **IN** |
+| SSP2-4.5 | 8.41 [7.38, 9.54] | 0.177 [0.142, 0.218] | 0.098–0.218 | **IN** |
+| SSP5-8.5 | 13.86 [11.58, 16.41] | 0.480 [0.369, 0.613] | 1.732–3.127 | **out** |
+
+**ssp585/ssp245 @2300 = 2.71× [2.56, 2.85]** against the literature's 7.9–31.9× — short by
+2.9×, and squarely inside the single-law ridge ceiling of 1.72–3.36×. **The sector
+restructure fixed the PARTITION, not the SEPARATION**, exactly as `ladrillo_leq_ridge_ceiling`
+§6 predicted. This is the first time that ratio has been measured on a fitted 3-basin
+posterior rather than an offline reduction.
+
+### The tap: PASS, and a plateau rather than a knife-edge
+
+**25 of 140 admissible cells** (onset in (4.69, 7.81] K, V ≤ 2.73 m) clear all three 2300
+level bands, the ratio band, the 2100 spread and the inventory. Passers span onsets
+**5.0–7.0 K**, V **1.5–2.5 m**, τ **50–200 yr**, with **ratio 9.77–16.41×**. Consistent with
+the mock's 59/720 at 10.1–17.6× and the prototype's 10/64. **The binding constraint is the
+2300 LEVEL band (25/140), not the ratio band (37/140)** — 140/140 keep 2100.
+
+**The tap acts only on the defective column, and it is now MEASURED, not argued.** Over all
+25 passers, ssp126 and ssp245 deviate from the untapped base at 2300 by **exactly
+0.000e+00 m**, and ssp585's 2100 tap contribution is **exactly zero**, so G4 is
+**1.0000×** on every passer. The high basin has **2.58 m [2.54, 2.62]** of ice left at 2300
+under ssp585 against a 2.73 m Mouginot inventory, so the cap binds in **≤0.05%** of draws.
+
+### Three gates, all hard, and one of them mutation-tests itself
+
+* **G1 CROSS-LANGUAGE** — the Python 3-basin reproduces `julia/diag_l13_basin_shares.jl` on
+  the same chain: rate scales to 3.0e-06 / 3.2e-05, both windows' sector shares to <1e-3.
+  Worst deviation **0.48 of its tolerance**.
+* **G2 INERTNESS** — max |tap ramp| over 1900–2025, across all 108 (scenario, onset, τ)
+  combinations, is **exactly 0.0**. The likelihood-inertness claim is now verified rather
+  than asserted.
+* **G2b FIRST-FIRE YEAR** — added because "inert over the calibration window" is necessary
+  but not sufficient. Inside the Tier-1 bracket the tap fires on **SSP5-8.5 only** and
+  never before 2100 (5.0 K → 2108, 6.0 K → 2136, 7.81 K → 2300); on ssp126/ssp245 it fires
+  **never**, at every admissible onset. **The gate carries its own mutation test**: the
+  out-of-bracket 4.00 K onset fires in **2088**, and 4.69 K in **2101** — so the detector
+  provably has something to detect, and the Tier-1 bracket's lower bound turns out to be
+  exactly the "do not move 2100" constraint.
+* **G3 NESTING** — V = 0 reproduces the base bit-identically on every scenario at both ends
+  of the onset and τ grids.
+
+### An observation, not a claim
+
+The base **G4 = 7.42 cm [5.63, 9.48]** sits just above the 6.3–7.3 cm evaluation range that
+`gis_offline_cell.py` records from the comparison models (MAGICC-SLR 7.09, emuGrIS 7.26,
+bamber19 7.23, FACTS FittedISMIP 6.34). It is an ensemble median, so the comparison is
+legitimate — unlike the median-parameter version that once wrongly indicted the shipped
+model. 0.12 cm above the top of a range of four models is not a failure; it is worth a look
+when L13 promotion is decided, and nothing here turns on it.
+
+### Consequences
+
+**No MCMC is needed for the tap** — confirmed by measurement, not by the headroom argument
+alone. The remaining calibration question is the `--gis-zone=all` arm only, so the Torch
+verdict in the handoff §4 stands.
+
+## [unreleased] — 2026-08-20b — The offline A+B fit is LOCATED (and carried the same amp bug as the calibrator); the certified L13 posterior subsample is written.
+
+Continues `notes/handoff_2026-08-20_gis_zone_and_tap.md` §6, items 1 and 2.
+
+### The L13 posterior subsample now exists — and this is NOT a promotion
+
+Next-action 1 ("scope the tap offline against the **certified L13 posterior**") had an
+unmet prerequisite nobody had noticed: **there was no L13 posterior subsample.**
+`postprocess_mcmc_ext.jl` ran at 01:50 on 2026-08-20, *before*
+`diag_slr_convergence_by_chain_ladrillo.jl` wrote `slr_convergence_L13.csv` at 01:53, so
+its `--accept-slr` branch found no file and it refused the canonical write. The 08-20
+entry above records the re-run as "deliberately not run" on promotion grounds. It is now
+run, because item 1 cannot proceed without it, and the promotion concern does not apply:
+
+* `LADRILLO_POSTERIOR_CSV` (`ladrillo_projection.jl:109`) is a **hardcoded L12 path** —
+  verified, not assumed. Nothing any driver reads changes.
+* The `ADCOV` preference list (`calibrate_mcmc_ext.jl:1541`) is an explicit list of named
+  files and does **not** include `adapted_cov_L13.csv`.
+* Both writes are tag-suffixed.
+
+**L12 remains canonical at 45.53 cm** (Marcus, 2026-08-20: "leave L12 as the canonical
+version for now, even though L13 is the preferred configuration").
+
+**A LATENT TRAP THIS CREATES, flagged not fixed.** `adapted_cov_L13.csv` is a **nameless**
+59×59 written as `DataFrame(cov(M), :auto)`, at a canonical (non-seed-suffixed) name, and
+it appears in **no** vintage name list (`L11_VINTAGE_ADCOV` et al.). That is exactly the
+`nameless_matrix_order` shape that made L13's first line void. Nothing reads it today;
+anything that later passes `--adcov=` at it must gate the diagonal first.
+
+### Next-action 2: the offline A+B fit exists and needs no rebuilding (commit `1b2c90a`)
+
+The handoff said "locate or rebuild", and ruled out `julia/fit_greenland_only.jl`
+correctly. The real chain, verified end to end:
+
+| link | file |
+|---|---|
+| the cell fit | `python/gis_offline_cell.py` (`DRIVER_ZONE`, `FIT_WIN` 1900–2025) |
+| the g = 0 re-fit | `python/diag_gis_g_betaf.py` — imports the model/objective/gates wholesale |
+| the artefact | `outputs/gis_g_betaf_variants.csv`, row `g=0` |
+| the consumer | `GIS_OFFLINE_G0` + the five `gis_*` prior centres, `calibrate_mcmc_ext.jl:1983` |
+
+The `g=0` row is those constants **bit-for-bit** (cm ÷ 100), and
+`julia/validate_gis_projection_ab.jl:45` already names the chain in a comment.
+
+**A TRAP FOR WHOEVER RE-DERIVES ON `all`.** The centres are the **g = 0** arm. The headline
+`A+B` row of `gis_offline_cell_fits.csv` has `c0 = 61.99 cm` at `g = 0.917`; the calibrator
+uses `c0 = 4.04 cm` at `g = 0`. Four of the five centres agree to 4 significant figures
+either way, so **`c0` alone looks like a 15× error if you check against the wrong file.**
+
+**THE BUG — Class B again, in the one tool the zone switch depends on.** `AMP_MEAN` was
+`1.92`, a rounded south/full literal with no reference to `DRIVER_ZONE`, while
+`AMP_PRIOR_CSV` was **defined and never read**. Identical shape to the `gis_amp` prior
+fixed in `09eec0a` one commit earlier: a hand-maintained copy of data that lives somewhere
+else. `--zone=all` would have spliced an `all` observed driver onto **south's** 1.92
+amplification, silently. Now derived from `gis_amp_prior.csv` keyed on
+`(DRIVER_ZONE, AMP_WINDOW)`: south **1.9221976**, all **2.3470378**.
+
+**Blast radius, measured rather than assumed.** `AMP_MEAN` enters `splice_regional` ONLY,
+i.e. past `last_obs_year`. `FIT_WIN` is 1900–2025 on the **observed** driver, so no fitted
+parameter — and therefore **none of the prior centres this script exists to supply** —
+can move. What the defect corrupts is `proj_SSP*` and `spread_2100_cm`, the G4 EVALUATION
+column, which would then have read as a result of the zone switch.
+
+**Provenance cost, on the record.** The south arm moves `1.92 → 1.9221976`, so a re-run
+from HEAD is no longer bit-identical to the artefacts `GIS_OFFLINE_G0` traces to. Same
++0.0022 story as `GIS_AMP` in `09eec0a`.
+
+**`--zone=<south|all|central|north>` is now a flag**, parsed in `gis_offline_cell` so it
+reaches `diag_gis_g_betaf` through the import. Outputs are zone-tagged via `zoned()` for
+anything but south, because **the south artefacts ARE the provenance of the shipped
+calibration** and an `all` run must not write over them.
+
+Both gates **mutation-tested before being trusted** (`mutation_test_gates`): `--zone=bogus`
+is rejected, and injected drift in `gis_amp_prior.csv` fires the shipped-literal guard.
+
+**Deliberately NOT done:** no `all` fit is run, and no calibrator centre or gate is
+touched. Adopting new prior centres is a methodological choice, not a mechanical one.
+
 ## [unreleased] — 2026-08-20 — L13 RE-RUN CERTIFIES. SLR@2100 = 44.97 cm; the L12→L13 move is −0.56 cm, and the 2+2 chain split was entirely the broken proposal.
 
 Full re-run on the corrected seeder (19e). Re-tune 1 M (accept 0.239, 1 h 21 m) →

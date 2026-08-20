@@ -1,0 +1,39 @@
+Combining 4 chains:
+  chain_L13_seed2026_n2000000.csv  (1000000 post-burn)
+  chain_L13_seed2027_n2000000.csv  (1000000 post-burn)
+  chain_L13_seed2028_n2000000.csv  (1000000 post-burn)
+  chain_L13_seed2029_n2000000.csv  (1000000 post-burn)
+
+4 chains × 1000000 draws. Convergence (target R̂<1.05, ESS>400):
+  ais_ocean_temperature₀   R̂=1.133 ESS=43.8 τ=91293  <-- check
+  antarctic_alpha          R̂=1.615 ESS=14.3 τ=280643  <-- check
+  antarctic_nu             R̂=1.100 ESS=56.7 τ=70509  <-- check
+  anto_alpha               R̂=1.066 ESS=85.9 τ=46543  <-- check
+  anto_beta                R̂=1.240 ESS=26.3 τ=151835  <-- check
+  gis_c0                   R̂=1.012 ESS=393.0 τ=10178  <-- check
+  gis_f                    R̂=1.016 ESS=278.3 τ=14373  <-- check
+  gis_slow_ell             R̂=1.019 ESS=291.0 τ=13747  <-- check
+  ais_mu                   R̂=1.026 ESS=239.1 τ=16730  <-- check
+  ais_bedheight0           R̂=1.035 ESS=129.8 τ=30813  <-- check
+  ais_slope                R̂=1.413 ESS=17.8 τ=225133  <-- check
+  ais_iceflow0             R̂=2.007 ESS=12.6 τ=316997  <-- check
+  ais_runoff_Ton           R̂=1.030 ESS=184.4 τ=21688  <-- check
+  rho_gsic                 R̂=1.031 ESS=151.3 τ=26446  <-- check
+  14 params NOT converged.
+
+--accept-slr: deliverable-level convergence from slr_convergence_L13.csv:
+  SLR@2100  R̂=1.002  ESS=1458.6
+  SLR@2150  R̂=1.003  ESS=1493.6
+ACCEPTED ON DELIVERABLE: parameter marginals not converged (compensating
+AIS-geometry ridge), but projected SLR R̂<1.05 at all horizons -> writing
+canonical outputs (accepted-on-deliverable criterion, Marcus 2026-07-19).
+
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/data/MimiBRICK/parameters_subsample_brick_mengel_L13.csv  (10000-member subsample of 4000000 pooled draws)
+Wrote adapted_cov_L13.csv (empirical posterior cov) -> seeds the next ext run.
+
+Key-param medians  (ext vs 2018-baseline):
+  ais_ocean_temperature₀   ext 0.964   base 0.981   Δ -0.0171
+  anto_alpha               ext 0.307   base 0.405   Δ -0.0982
+  thermal_alpha            ext 0.16   base 0.164   Δ -0.0046
+
+** 14 marginals not converged; ACCEPTED ON DELIVERABLE (--accept-slr). **
