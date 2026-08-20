@@ -46,9 +46,14 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import gis_offline_cell as goc  # noqa: E402
 
 REPO = goc.REPO
-OUT_VARIANTS = os.path.join(REPO, "outputs/gis_g_betaf_variants.csv")
-OUT_PROFILES = os.path.join(REPO, "outputs/gis_g_betaf_profiles.csv")
-OUT_FIG = os.path.join(REPO, "figures/gis_g_betaf.png")
+# Zone-tagged through goc.zoned() for the reason stated there: the SOUTH row of
+# gis_g_betaf_variants.csv IS the provenance of GIS_OFFLINE_G0 and of the five
+# gis_* prior centres in calibrate_mcmc_ext.jl, so a --zone=all run must not
+# write over it. The --zone flag is parsed in gis_offline_cell and reaches this
+# script through the import.
+OUT_VARIANTS = goc.zoned(os.path.join(REPO, "outputs/gis_g_betaf_variants.csv"))
+OUT_PROFILES = goc.zoned(os.path.join(REPO, "outputs/gis_g_betaf_profiles.csv"))
+OUT_FIG = goc.zoned(os.path.join(REPO, "figures/gis_g_betaf.png"))
 
 CELL = "A+B"                    # the module; handoff decision 4
 REPORTED_NLP = 42.522760        # outputs/gis_offline_cell_fits.csv, for the audit
@@ -204,7 +209,9 @@ def profile(ctx, name, grid, x0):
 # =============================================================================
 def main():
     print(f"diag_gis_g_betaf | commit={goc.COMMIT} | cell={CELL} | "
-          f"zone={goc.DRIVER_ZONE}")
+          f"zone={goc.DRIVER_ZONE} | amp={goc.AMP_MEAN:.7f} "
+          f"({goc.AMP_WINDOW} window, derived from gis_amp_prior.csv)")
+    print(f"  writes {os.path.relpath(OUT_VARIANTS, REPO)}")
     print(f"  protocol: {N_START} starts (log-scaled on rate axes), "
           f"maxfev={MAXFEV}, polish<={POLISH_ROUNDS} rounds")
     print(f"  PRE-REGISTERED: keep a parameter only if 2*Delta(nlp) > "

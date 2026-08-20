@@ -71,6 +71,7 @@ Writes:
 """
 import os
 import subprocess
+import sys
 
 import numpy as np
 import pandas as pd
@@ -84,10 +85,10 @@ MOUGINOT_CSV = os.path.join(OBS, "greenland_partition_mouginot2019.csv")
 LADDER_CURVE_CSV = os.path.join(REPO, "outputs/gis_veq_pism_curve.csv")
 AMP_PRIOR_CSV = os.path.join(REPO, "outputs/gis_amp_prior.csv")
 
-OUT_FITS = os.path.join(REPO, "outputs/gis_offline_cell_fits.csv")
-OUT_SERIES = os.path.join(REPO, "outputs/gis_offline_cell_series.csv")
-OUT_RIDGE = os.path.join(REPO, "outputs/gis_offline_cell_ridge.csv")
-OUT_FIG = os.path.join(REPO, "figures/gis_offline_cell.png")
+_OUT_FITS = os.path.join(REPO, "outputs/gis_offline_cell_fits.csv")
+_OUT_SERIES = os.path.join(REPO, "outputs/gis_offline_cell_series.csv")
+_OUT_RIDGE = os.path.join(REPO, "outputs/gis_offline_cell_ridge.csv")
+_OUT_FIG = os.path.join(REPO, "figures/gis_offline_cell.png")
 
 # ---- frame ------------------------------------------------------------------
 Y0, Y1 = 1850, 2300
@@ -100,7 +101,42 @@ V0_CM = 742.0                   # Greenland volume, cm SLE
 # cap here reproduces the uncapped cell bit-for-bit, which is what makes the
 # D cells exact containers of the C cells.
 CAP_INERT_CM_YR = V0_CM
-DRIVER_ZONE = "south"           # Marcus 2026-08-10; "all" is the sensitivity arm
+# ZONE IS A FLAG, not a source edit (--zone=<south|all|central|north>), for the
+# same reason --gis-zone is one in calibrate_mcmc_ext.jl: the sensitivity arm
+# becomes runnable, reviewable in the run line, and RECORDED IN THE LOG, instead
+# of living as an uncommitted one-word diff. python/diag_gis_g_betaf.py imports
+# this module, so the same flag reaches BOTH entry points.
+#
+# Marcus 2026-08-10 set the default to "south"; "all" is the sensitivity arm and
+# is the driver the 3-basin design specifies (notes/handoff_2026-08-20_gis_zone_and_tap.md
+# section 1.3), so re-deriving the prior centres on it is the named prerequisite
+# for relaxing the calibrator's GIS_ZONE gate.
+ZONE_CHOICES = ("south", "all", "central", "north")
+DRIVER_ZONE = next((a.split("=", 1)[1] for a in sys.argv[1:]
+                    if a.startswith("--zone=")), "south")
+if DRIVER_ZONE not in ZONE_CHOICES:
+    raise SystemExit(f"--zone={DRIVER_ZONE!r} is not one of {ZONE_CHOICES}")
+SHIPPED_ZONE = "south"          # the zone GIS_OFFLINE_G0 and the prior centres came from
+
+
+def zoned(path):
+    """Tag an output path with the zone unless it is the shipped one.
+
+    The south artefacts are the PROVENANCE of GIS_OFFLINE_G0 and of the five
+    gis_* prior centres in calibrate_mcmc_ext.jl. An `all` run writing to the
+    same filenames would overwrite the record that the shipped calibration was
+    ever fitted, and the next reader would trace the centres to a file that no
+    longer contains them. So the sensitivity arm carries its zone in its name."""
+    if DRIVER_ZONE == SHIPPED_ZONE:
+        return path
+    stem, ext = os.path.splitext(path)
+    return f"{stem}_{DRIVER_ZONE}{ext}"
+
+
+OUT_FITS = zoned(_OUT_FITS)
+OUT_SERIES = zoned(_OUT_SERIES)
+OUT_RIDGE = zoned(_OUT_RIDGE)
+OUT_FIG = zoned(_OUT_FIG)
 SIGMA_FLOOR_CM = 0.05           # matches epsband() in calibrate_mcmc_ext.jl
 BAND_Z = 1.645                  # the target bands are 90%
 
@@ -116,7 +152,39 @@ DT_PRIOR = dict(mu=-0.63, sigma=0.55, lo=-1.58, hi=0.22)
 # ---- amplification, for the projection splice only -------------------------
 # Headline full-window (1901-2024) cross-product mean from build_t_gis.py.
 # NOTE the correction: the scoping note's N(2.9, 0.2) was a masking artifact.
-AMP_MEAN = 1.92
+#
+# DERIVED FROM AMP_PRIOR_CSV, KEYED ON THE ZONE — not a literal. Until 2026-08-20
+# this was `AMP_MEAN = 1.92`, a rounded south/full number with NO reference to
+# DRIVER_ZONE, while AMP_PRIOR_CSV was defined and never read. That is the same
+# Class-B defect as the calibrator's gis_amp prior (fixed there in 09eec0a): a
+# hand-maintained copy of data that lives somewhere else, silently wrong the
+# moment the key changes. Flipping the zone would have spliced an `all` observed
+# driver onto SOUTH's 1.92 amplification, and nothing would have raised an error.
+#
+# BLAST RADIUS, STATED. AMP_MEAN enters splice_regional ONLY, i.e. years after
+# last_obs_year. FIT_WIN is 1900-2025 on the OBSERVED driver, so no fitted
+# parameter — and therefore none of the prior centres this script exists to
+# supply — can move. What the defect corrupts is proj_SSP* and spread_2100_cm,
+# the G4 EVALUATION column, which would then read as a result of the zone switch.
+AMP_WINDOW = "full"             # matches the shipped south choice
+_ampp = pd.read_csv(AMP_PRIOR_CSV)
+_amprow = _ampp[(_ampp["zone"] == DRIVER_ZONE) & (_ampp["window"] == AMP_WINDOW)]
+if len(_amprow) != 1:
+    raise SystemExit(f"{os.path.relpath(AMP_PRIOR_CSV, REPO)} has {len(_amprow)} rows "
+                     f"for (zone={DRIVER_ZONE}, window={AMP_WINDOW}); expected exactly 1")
+AMP_MEAN = float(_amprow["mean"].iloc[0])
+AMP_SD = float(_amprow["sd"].iloc[0])
+# PROVENANCE COST, on the record: for the shipped zone the derived value is
+# 1.9221976 against the literal's 1.92, so a re-run of the south arm from HEAD is
+# no longer bit-identical to the artefacts GIS_OFFLINE_G0 traces to. Same
+# +0.0022 story as GIS_AMP in 09eec0a. Reproduce the exact shipped south fit
+# from a pre-2026-08-20 checkout.
+AMP_SHIPPED_LITERAL = 1.92
+AMP_LITERAL_TOL = 5e-3
+if DRIVER_ZONE == SHIPPED_ZONE and abs(AMP_MEAN - AMP_SHIPPED_LITERAL) > AMP_LITERAL_TOL:
+    raise SystemExit(f"zone={DRIVER_ZONE} amp {AMP_MEAN:.7f} is more than "
+                     f"{AMP_LITERAL_TOL} from the shipped literal "
+                     f"{AMP_SHIPPED_LITERAL} — gis_amp_prior.csv has drifted")
 SPLICE_ANCHOR_YEARS = 11        # the anchor-preserving splice window, as ladrillo_projection.jl
 
 # =============================================================================
@@ -713,6 +781,10 @@ def ridge_profile(cell, theta, ctx, ax1, ax2):
 def main():
     print(f"gis_offline_cell | commit={COMMIT} | zone={DRIVER_ZONE} | "
           f"fit {FIT_WIN[0]}-{FIT_WIN[1]}")
+    print(f"  splice amp = {AMP_MEAN:.7f} (sd {AMP_SD:.4f}), zone={DRIVER_ZONE} "
+          f"window={AMP_WINDOW}, DERIVED from "
+          f"{os.path.relpath(AMP_PRIOR_CSV, REPO)} — projections only, never the fit")
+    print(f"  writes {os.path.relpath(OUT_FITS, REPO)}")
     share_obs = mouginot_surface_share()
     assert abs(share_obs - MOUG_SURFACE_SHARE) < 0.01, \
         f"Mouginot surface share {share_obs:.3f} != the constant {MOUG_SURFACE_SHARE}"
