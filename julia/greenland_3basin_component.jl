@@ -97,6 +97,30 @@ const GIS2_VSHARE = (south = GIS3_VSHARE.south + GIS3_VSHARE.mid,
                      mid   = 0.0,
                      high  = GIS3_VSHARE.high)
 
+# ---- the HIGH-BASIN VOLUME TAP (Marcus 2026-08-20) ---------------------------
+# WHAT IT IS. A third discharge channel on the high (NO+NE) basin that opens above
+# a GLOBAL temperature onset: a unit tap S_t relaxes with timescale tau toward a
+# soft ramp in GMT, and V*S_t of extra loss is released. Form ported verbatim from
+# python/scope_gis_tap_l13.py's tap_unit().
+#
+# WHY IT EXISTS. No basin structure buys the 2300 scenario separation: 1/2/3 basins
+# give ssp585/ssp245 Greenland ratios 2.69x / 2.73x / 2.72x — and the CALIBRATED
+# L14 confirms it at 2.73x (50.0 vs 18.3 cm) — against the literature's 7.9-31.9x.
+# The restructure fixes the PARTITION; the tap fixes the SEPARATION.
+#
+# IT IS A PRIOR SPECIFICATION, NOT A FIT — say so in any methods text. The cell was
+# chosen by a DESIGN PRINCIPLE: the tap must not move any horizon at which the model
+# has independent validation. The 2300 scorecard identifies only the combination
+# Vtilde = V*u_2300 in [1.252, 2.647] m (reproduces all_pass 25/25); the free
+# direction costs up to 0.82 m at 2150 and exactly 0.000 m at 2100, so the principle
+# extended to 2150 gives onset >= 6.5 K (6.5 K first fires 2155, 7.0 K 2180).
+const GIS_TAP_CELL = (onset_K = 6.5, V_m = 2.0, tau_yr = 50.0, ramp_w_K = 1.0)
+# THE ONSET IS IN GLOBAL MEAN TEMPERATURE, NOT the regional Greenland driver. The
+# Tier-1 bracket (4.69, 7.81] K is quoted in GMT — 4.69 K IS ssp585's 2100 GMT — so
+# the component takes its OWN gmt series. Using the regional driver would fire the
+# tap roughly `gis_amp` (~1.92x) too early, and nothing would flag it.
+const GIS_TAP_OFF = 0.0        # gis_tap_v = 0 is the OFF switch; the default
+
 @defcomp greenland_3basin begin
     gis_c1      = Parameter()   # equilibrium sensitivity, m SLE per K of the REGIONAL driver
     gis_c0      = Parameter()   # committed loss at zero driver anomaly, m SLE
@@ -118,6 +142,13 @@ const GIS2_VSHARE = (south = GIS3_VSHARE.south + GIS3_VSHARE.mid,
     gis_s_high  = Parameter()
 
     greenland_surface_temperature = Parameter(index=[time])   # REGIONAL, shared by all basins
+    # --- the high-basin volume tap. gis_tap_v = 0 is OFF and is the default, so
+    # every existing consumer is bit-identical until it is switched on.
+    gis_tap_v      = Parameter()              # m SLE released by the tap; 0 = OFF
+    gis_tap_onset  = Parameter()              # K, GLOBAL mean temp rel 1850-1900
+    gis_tap_tau    = Parameter()              # yr, tap discharge timescale
+    gis_tap_ramp_w = Parameter()              # K, width of the soft GMT ramp
+    gis_tap_gmt    = Parameter(index=[time])  # GLOBAL driver, K rel 1850-1900
 
     gis_eq              = Variable(index=[time])   # WHOLE-SHEET committed loss, m SLE
     # per-basin CHANNEL state. These are the integrated quantities — the basin
@@ -132,8 +163,15 @@ const GIS2_VSHARE = (south = GIS3_VSHARE.south + GIS3_VSHARE.mid,
     gis_sl_south        = Variable(index=[time])
     gis_sl_mid          = Variable(index=[time])
     gis_sl_high         = Variable(index=[time])
+    # tap diagnostics. `wanted` is V*S_t before the capacity clamp and `applied` is
+    # what reached the basin, so `wanted - applied` measures EXACTLY how much the
+    # k_b*v0 cap bit — the difference between this wiring and the offline mock's
+    # uncapped additive tap, which is what the cell was priced on.
+    gis_tap_s           = Variable(index=[time])   # the unit tap S_t, in [0, 1]
+    gis_tap_wanted      = Variable(index=[time])   # V * S_t, m
+    gis_tap_applied     = Variable(index=[time])   # after the capacity clamp, m
     gis_fast            = Variable(index=[time])   # basin SUM — contract preserved
-    gis_slow            = Variable(index=[time])   # basin SUM — contract preserved
+    gis_slow            = Variable(index=[time])   # basin SUM + the tap — see below
     greenland_sea_level = Variable(index=[time])   # the slot contract
 
     function run_timestep(p, v, d, t)
@@ -166,12 +204,42 @@ const GIS2_VSHARE = (south = GIS3_VSHARE.south + GIS3_VSHARE.mid,
             end
         end
         v.gis_fast_south[t], v.gis_fast_mid[t], v.gis_fast_high[t] = fast_b
+        # THE CHANNEL STATES ARE PURE. The tap is deliberately NOT folded into
+        # gis_slow_high[t]: that variable is carried to t+1 and relaxes toward
+        # (1-f)*eq, so adding the tap to it would feed the tap back through the
+        # basin's own relaxation and decay it — a completely different model from
+        # the one the cell was priced on, and one that would look plausible.
         v.gis_slow_south[t], v.gis_slow_mid[t], v.gis_slow_high[t] = slow_b
+        # --- the high-basin volume tap -------------------------------------
+        # S_t = first-order relaxation toward a soft ramp in GMT, using the
+        # PREVIOUS year's ramp value, exactly as the fast/slow channels use T[t-1].
+        # Ported from python/scope_gis_tap_l13.py tap_unit().
+        if is_first(t)
+            v.gis_tap_s[t] = 0.0
+        else
+            seqm = min(max((p.gis_tap_gmt[t-1] - p.gis_tap_onset) / p.gis_tap_ramp_w,
+                           0.0), 1.0)
+            v.gis_tap_s[t] = v.gis_tap_s[t-1] + (seqm - v.gis_tap_s[t-1]) / p.gis_tap_tau
+        end
+        v.gis_tap_wanted[t] = p.gis_tap_v * v.gis_tap_s[t]
+        # CAPACITY CLAMP, per the component's own standing principle: a basin cannot
+        # lose more ice than it has, [0, k_b*v0]. The offline mock's tap is UNCAPPED
+        # additive, so this is the one place the wiring can differ from the pricing —
+        # which is why `wanted` and `applied` are both exported rather than just the
+        # sum. If the headroom never binds, the two are identical and the offline
+        # pricing transfers exactly; that is a measurement, not an assumption.
+        head = max(ks[3] * p.gis_v0 - (fast_b[3] + slow_b[3]), 0.0)
+        v.gis_tap_applied[t] = min(v.gis_tap_wanted[t], head)
         v.gis_sl_south[t] = fast_b[1] + slow_b[1]
         v.gis_sl_mid[t]   = fast_b[2] + slow_b[2]
-        v.gis_sl_high[t]  = fast_b[3] + slow_b[3]
+        v.gis_sl_high[t]  = fast_b[3] + slow_b[3] + v.gis_tap_applied[t]
         v.gis_fast[t] = fast_b[1] + fast_b[2] + fast_b[3]
-        v.gis_slow[t] = slow_b[1] + slow_b[2] + slow_b[3]
+        # THE TAP RIDES IN gis_slow, not gis_fast. It is a DYNAMIC discharge, not
+        # surface mass balance, so this keeps gis_fast/total meaning "the SMB share"
+        # — which is what the Mouginot surface-share term scores — and it keeps the
+        # output contract greenland_sea_level == gis_fast + gis_slow intact, which
+        # every downstream consumer and nesting gate [2] rely on.
+        v.gis_slow[t] = slow_b[1] + slow_b[2] + slow_b[3] + v.gis_tap_applied[t]
         v.greenland_sea_level[t] = v.gis_fast[t] + v.gis_slow[t]
     end
 end

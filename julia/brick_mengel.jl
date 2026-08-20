@@ -265,6 +265,64 @@ function build_brick_nu3_gis3(; ssp::String="ssp245", y0::Int=1850, y1::Int=2026
                               lws::Symbol=:seeded, lws_seed::Int=LWS_SEED)
     m = build_brick_nu3(; ssp=ssp, y0=y0, y1=y1, lws=lws, lws_seed=lws_seed)
     replace!(m, _GIS_SLOT => greenland_3basin)
+    # TAP OFF BY DEFAULT (gis_tap_v = 0), so every existing consumer of this builder
+    # is bit-identical until it opts in. The other three carry the chosen cell so a
+    # caller that switches only V on gets the specified tap rather than a zero tau.
+    update_param!(m, _GIS_SLOT, :gis_tap_v,      GIS_TAP_OFF)
+    update_param!(m, _GIS_SLOT, :gis_tap_onset,  GIS_TAP_CELL.onset_K)
+    update_param!(m, _GIS_SLOT, :gis_tap_tau,    GIS_TAP_CELL.tau_yr)
+    update_param!(m, _GIS_SLOT, :gis_tap_ramp_w, GIS_TAP_CELL.ramp_w_K)
+    update_param!(m, _GIS_SLOT, :gis_tap_gmt,    zeros(length(y0:y1)))
+    return m
+end
+
+"""
+    update_gis3_tap!(m, gmt; v=GIS_TAP_CELL.V_m, onset=..., tau=..., ramp_w=...)
+
+Switch the high-basin volume tap ON with the GLOBAL temperature series `gmt`
+(K rel 1850-1900, one value per model year).
+
+`gmt` IS GLOBAL, NOT the regional Greenland driver. The Tier-1 onset bracket
+(4.69, 7.81] K is quoted in GMT — 4.69 K is ssp585's own 2100 GMT — so passing the
+amplified regional series would fire the tap about `gis_amp` (~1.92x) too early.
+Nothing downstream can detect that, which is why it is asserted here.
+"""
+function update_gis3_tap!(m, gmt; v::Real = GIS_TAP_CELL.V_m,
+                          onset::Real = GIS_TAP_CELL.onset_K,
+                          tau::Real = GIS_TAP_CELL.tau_yr,
+                          ramp_w::Real = GIS_TAP_CELL.ramp_w_K)
+    g = Float64.(collect(gmt))
+    # A tap with V > 0 and an all-zero (or never-reaching-onset) driver is SILENTLY
+    # INERT: it returns exactly the untapped model and looks like "the tap does
+    # nothing", which is the wrong conclusion drawn from a wiring mistake. The
+    # builder's default IS all-zeros, so this is a live trap, not a hypothetical.
+    if v > 0
+        # THE GUARD IS ON A DEGENERATE DRIVER, NOT A COOL ONE. The first version of
+        # this errored whenever max(gmt) <= onset — which rejected ssp126 and ssp245,
+        # where a tap that never fires is the CORRECT and expected behaviour and is
+        # exactly what gate G2b asserts. Caught by that gate on the first run.
+        # What must be refused is a driver that carries no scenario at all: the
+        # builder binds all-zeros by default, so a caller who forgets the series gets
+        # silence rather than a result.
+        (maximum(g) > minimum(g)) || error("update_gis3_tap!: v = $v but the GLOBAL " *
+            "driver is CONSTANT at $(round(first(g), digits=3)) K — almost certainly " *
+            "the builder's all-zero default rather than a scenario. The tap would be " *
+            "silently inert. Pass the GMT series (NOT the regional Greenland driver).")
+        tau > 0 || error("update_gis3_tap!: tau must be > 0, got $tau")
+        ramp_w > 0 || error("update_gis3_tap!: ramp_w must be > 0, got $ramp_w")
+        # A real scenario that never reaches the onset is legitimate — say so, do not
+        # fail. Cool scenarios deviating EXACTLY 0.0 is a designed property of the
+        # Tier-1 bracket, not an error.
+        maximum(g) > onset ||
+            @info("update_gis3_tap!: this driver peaks at " *
+                  "$(round(maximum(g), digits=3)) K, below the onset $onset K — the " *
+                  "tap will not fire on this scenario. Expected for cool scenarios.")
+    end
+    update_param!(m, _GIS_SLOT, :gis_tap_v,      Float64(v))
+    update_param!(m, _GIS_SLOT, :gis_tap_onset,  Float64(onset))
+    update_param!(m, _GIS_SLOT, :gis_tap_tau,    Float64(tau))
+    update_param!(m, _GIS_SLOT, :gis_tap_ramp_w, Float64(ramp_w))
+    update_param!(m, _GIS_SLOT, :gis_tap_gmt,    g)
     return m
 end
 

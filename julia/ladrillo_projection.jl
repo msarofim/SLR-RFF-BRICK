@@ -514,6 +514,32 @@ struct Ladrillo
     gis_shape_on::Bool                       # whether amp(GMST) is applied at all
 end
 
+"""
+    ladrillo_set_tap!(bf; v=GIS_TAP_CELL.V_m, onset=..., tau=..., ramp_w=...)
+
+Switch the high-basin volume tap on for a built `Ladrillo`, driven by **`bf.gmst`** —
+the GLOBAL series as fed, rel. 1850-1900, which is the space the Tier-1 onset bracket
+is quoted in. NOT `bf.gis_obs` and NOT the amplified regional driver: those would fire
+the tap about `gis_amp` (~1.92x) too early and nothing downstream could detect it.
+
+Only the basin variants can carry a tap — it is a parameter of `greenland_3basin`, and
+`:ab` / `:stock` have no high basin to tap. Refused rather than silently ignored.
+
+The tap is PRIOR-PROPAGATED, not sampled: the calibration tops out at 1.385 K in 2025
+against a 6.5 K onset, so it is exactly likelihood-inert and needs no chain.
+"""
+function ladrillo_set_tap!(bf::Ladrillo; v::Real = GIS_TAP_CELL.V_m,
+                           onset::Real = GIS_TAP_CELL.onset_K,
+                           tau::Real = GIS_TAP_CELL.tau_yr,
+                           ramp_w::Real = GIS_TAP_CELL.ramp_w_K)
+    bf.gis_variant in (:basins, :basins2) ||
+        error("ladrillo_set_tap!: the tap lives in greenland_3basin, but this Ladrillo " *
+              "is :$(bf.gis_variant). Build with gis_variant=:basins2 (or :basins).")
+    update_gis3_tap!(bf.m, bf.gmst; v=v, onset=onset, tau=tau, ramp_w=ramp_w)
+    return bf
+end
+
+
 """Centred running mean of `v` over `w` years, shrinking at the ends. `w = 1`
 returns `v`. Matches the CMIP6 window that measured S (30 yr, centre = window
 midpoint)."""

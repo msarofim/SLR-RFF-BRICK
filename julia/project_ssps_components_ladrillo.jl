@@ -57,13 +57,18 @@ end
 const POST_TAG = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
     i === nothing ? DEFAULT_TAG : ARGS[i][7:end]
 end
+const TAP_ON = "--tap" in ARGS
+## THE TAP STATE IS IN THE FILENAME. A tapped and an untapped 2300 projection differ
+## by ~180 cm on ssp585 and are otherwise identical in shape, units and header — the
+## one thing that must never be ambiguous about a file on disk is which arm it is.
+const TAG = TAP_ON ? "$(POST_TAG)_tap$(replace(string(GIS_TAP_CELL.onset_K), "." => "p"))K_V$(replace(string(GIS_TAP_CELL.V_m), "." => "p"))m_tau$(Int(GIS_TAP_CELL.tau_yr))" : POST_TAG
 const POSTERIOR = joinpath(LADRILLO_REPO,
     "data/MimiBRICK/parameters_subsample_brick_mengel_$(POST_TAG).csv")
 isfile(POSTERIOR) || error("no posterior for --tag=$POST_TAG at $POSTERIOR")
 POST_TAG != DEFAULT_TAG || POSTERIOR == LADRILLO_POSTERIOR_CSV ||
     error("the default tag '$DEFAULT_TAG' resolved to $POSTERIOR, which is not " *
           "LADRILLO_POSTERIOR_CSV ($LADRILLO_POSTERIOR_CSV)")
-const OUT      = joinpath(LADRILLO_REPO, "outputs/ssps_components_2300_$(POST_TAG).csv")
+const OUT      = joinpath(LADRILLO_REPO, "outputs/ssps_components_2300_$(TAG).csv")
 const SSPS     = [("ssp126", "SSP1-2.6"), ("ssp245", "SSP2-4.5"), ("ssp585", "SSP5-8.5")]
 const HORIZONS = (2100, 2150, 2300)
 const COMPONENTS = [:glaciers, :gis, :ais, :te, :lws, :total]
@@ -82,6 +87,13 @@ out = DataFrame(year=Int[], ssp=String[], component=String[], gmst=Float64[],
 
 for (ssp, label) in SSPS
     bf = ladrillo_setup(ssp=ssp, y0=Y0, y1=Y1, gis_variant = VARIANT)
+    ## --tap switches the high-basin volume tap ON at GIS_TAP_CELL. PRIOR-PROPAGATED,
+    ## not sampled: the calibration tops out at 1.385 K against a 6.5 K onset, so the
+    ## tap is exactly likelihood-inert and the same posterior serves both arms.
+    ## Gated by julia/test_gis_tap_wiring.jl — 2100 and 2150 move by 0.000e+00 and
+    ## cooler scenarios deviate EXACTLY 0.0, so a --tap run is directly comparable
+    ## to an untapped one at every horizon the model is validated at.
+    TAP_ON && ladrillo_set_tap!(bf)
     ny = length(bf.years)
     series = Dict(c => Array{Float64}(undef, ny, nrow(post)) for c in COMPONENTS)
     t0 = time()
