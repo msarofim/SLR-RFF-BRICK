@@ -61,7 +61,15 @@ run(m)
 
 bsl = (south=m[_GIS_SLOT, :gis_sl_south], mid=m[_GIS_SLOT, :gis_sl_mid],
        high=m[_GIS_SLOT, :gis_sl_high])
-@printf("L13tune posterior median | %s\n", basename(chain_path))
+# The tag is DERIVED from the file, not hardcoded. It read "L13tune posterior
+# median" for every input, so running it on a PRODUCTION chain printed a header
+# naming the tuning run — the same label-vs-content drift that
+# `~/.claude/CLAUDE.md` makes a structural rule, and exactly the class of thing
+# this session spent two days chasing in other guises.
+@printf("%s posterior median | %s\n",
+        something(match(r"chain_([A-Za-z0-9]+)_seed", basename(chain_path)),
+                  (captures=["(unknown tag)"],)).captures[1],
+        basename(chain_path))
 @printf("  rate scales: south 1.0000 (pinned)  mid %.4f  high %.4f\n", s.mid, s.high)
 @printf("\n  %-11s %8s %8s %8s   %s\n", "window", "south", "mid", "high", "total cm/yr")
 maxz = Ref(0.0)
