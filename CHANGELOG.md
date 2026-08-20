@@ -3,6 +3,65 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-20g — The TAP is wired and the separation is BOUGHT: 2.73x -> 12.58x.
+
+Cell as specified: onset 6.5 K / V 2.0 m / tau 50 yr. **A PRIOR SPECIFICATION, NOT A
+FIT** — say so in any methods text. Prior-propagated, not sampled; no chain needed.
+**L12 remains canonical. This promotes nothing.**
+
+### Greenland @2300, full 2000-draw L14 ensemble
+
+| scenario | untapped | tapped | shift |
+|---|---|---|---|
+| ssp126 | 10.1 | 10.1 | **0.0** |
+| ssp245 | 18.3 | 18.3 | **0.0** |
+| ssp585 | 50.0 | **230.3** | +180.3 |
+
+**ssp585/ssp245 ratio: 2.73x -> 12.58x**, against the literature's **7.9-31.9x**. The
+untapped 2.73x sits inside the single-law ridge ceiling (1.72-3.36x) and outside the
+literature; the tapped 12.58x is inside it. **The restructure fixed the PARTITION; the
+tap fixes the SEPARATION** — stated as a prediction in handoff 20c section 6, now measured.
+
+**2100 and 2150 do not move on ANY scenario, on the full ensemble** — that is the design
+principle the cell was chosen by, holding at 2000 draws and not merely at the 6 the gate
+uses.
+
+### Both "do not assume" questions resolve YES
+
+1. **The k_b*v0 capacity clamp NEVER binds**: max(wanted - applied) = **0.0000 m**. The
+   offline mock's tap is uncapped additive while the component clamps per basin, so this
+   was the one place wiring could diverge from pricing. It does not, at this cell — so
+   this wiring IS the mock's tap and the offline pricing transfers exactly. Measured, via
+   two exported variables, not argued.
+2. **The Vtilde collapse SURVIVES wiring, exactly.** Cell A (V 2.00 m, tau 50, u_2300
+   0.9015) and cell B (V 4.05 m, tau 200, u_2300 0.4448) carry the same
+   Vtilde = 1.8031 m and agree at Greenland@2300 to **+0.000 cm**. The six-cell shortlist
+   carries over rather than needing recomputation.
+
+### A coupled response, verified rather than assumed
+
+Total@2300 ssp585 moves **+182.1 cm** while Greenland moves +180.3. The missing **+2.0 cm
+is the AIS**, and the mechanism was confirmed from the model graph, not inferred:
+`global_sea_level.sea_level_rise -> antarctic_icesheet.global_sea_level`, i.e. BRICK's
+DAIS grounding-line sea-level feedback responding to 1.8 m of extra Greenland meltwater.
+The tap is properly INSIDE the coupled model, not bolted on after it.
+
+### A guard of mine was wrong, and its own gate caught it
+
+`update_gis3_tap!` errored whenever `max(gmt) <= onset`, which rejected ssp126 and
+ssp245 — where a tap that never fires is the CORRECT behaviour and is exactly what gate
+G2b asserts. Narrowed to a DEGENERATE driver (a constant series = the builder's all-zero
+default), which is the real trap. A real but cool scenario now logs and proceeds.
+
+### Two wiring decisions, both load-bearing
+
+* **The onset is in GLOBAL mean temperature**, not the regional Greenland driver — the
+  Tier-1 bracket is quoted in GMT (4.69 K IS ssp585's 2100 GMT). The regional driver
+  would fire it ~`gis_amp` (1.92x) early and nothing downstream could detect it.
+* **The tap rides in `gis_slow`, NOT in `gis_slow_high`.** The latter is carried to t+1
+  and relaxes toward `(1-f)*eq`, so folding the tap in would feed it back through the
+  basin's own relaxation and decay it — a different model that would look plausible.
+
 ## [unreleased] — 2026-08-20f — L14 LANDS: the offline 2-basin result TRANSFERRED, worst |z| 0.56.
 
 4 x 2M, tag `L14`, `--gis-ordered --gis-basins2`, zone `south`. Tune 11:20 (acceptance
