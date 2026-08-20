@@ -1,0 +1,62 @@
+scope_gis_basin_structure | commit=53bc4aa | zone=south | fit 1900-2025
+  volumes cm SLE: south 335 (k=0.4558)  mid 127 (k=0.1728)  high 273 (k=0.3714)
+  share targets sigma 0.05, windows ((2002, 2011), (2012, 2018))
+  log10 scale prior N(0.0, 0.5) on (-2.0, 2.0)  (the calibrator's own)
+
+=== G1 — B1 must reproduce gis_offline_cell.py's A+B cell ===
+
+  param            B1 refit    harness A+B    rel diff
+  c1                3.27803        3.27802    3.26e-06
+  c0                61.9862        61.9872    1.65e-05
+  f                0.782674       0.782673    1.32e-06
+  alpha_f        0.00284318      0.0028432    8.02e-06
+  beta_f         0.00737125     0.00737126    1.76e-06
+  alpha_s        0.00707932     0.00707921    1.54e-05
+  beta_s              1e-06          1e-06    1.29e-06
+  g                0.917489        0.91749    1.55e-06
+  nlp             17.855910      17.855910    2.38e-10
+
+  G1 PASS — the basin machinery at k=1, s=1 IS the whole-sheet A+B (worst param rel diff 1.6e-05).
+
+=== fitting B2 — basins ('active', 'high'), scored ('high',) ===
+  nlp 19.331841   (433 s elapsed)
+
+=== fitting B3 — basins ('south', 'mid', 'high'), scored ('south', 'mid') ===
+  nlp 19.506192   (949 s elapsed)
+
+=== COMPARISON ===
+
+       npar  total nlp    target  channel   share  worst|z|   scales
+  B1      8    17.8559   17.8559   0.0000  0.7351      0.00   (none — pinned only)
+  B2      9    19.3318   18.2241   0.0000  0.7350      0.69   high 0.229
+  B3     10    19.5062   18.2238   0.0000  0.7350      1.01   mid 1.024  high 0.259
+
+  the SHARED terms (target + channel) are the only like-for-like nlp comparison:
+  B1 17.8559   B2 18.2241   B3 18.2238
+
+  2300 projections, cm rel (1995, 2014) (basin sum):
+    B1  2100 SSP1-2.6   6.93  SSP2-4.5   9.84  SSP5-8.5  17.39   |  2300 ssp585   46.23   ratio  2.69x
+    B2  2100 SSP1-2.6   7.08  SSP2-4.5   9.95  SSP5-8.5  17.38   |  2300 ssp585   55.12   ratio  2.73x
+    B3  2100 SSP1-2.6   7.06  SSP2-4.5   9.94  SSP5-8.5  17.37   |  2300 ssp585   54.14   ratio  2.72x
+
+=== PROFILE — s_mid in B3, everything else re-optimised at each point ===
+
+  s_mid  0.251   nlp   25.7826   Δnlp  +6.2764
+  s_mid  0.316   nlp   23.9985   Δnlp  +4.4923
+  s_mid  0.398   nlp   22.4870   Δnlp  +2.9808
+  s_mid  0.501   nlp   21.2695   Δnlp  +1.7633
+  s_mid  0.631   nlp   20.3522   Δnlp  +0.8460
+  s_mid  0.794   nlp   19.7514   Δnlp  +0.2453
+  s_mid  1.000   nlp   19.5084   Δnlp  +0.0023
+  s_mid  1.259   nlp   19.6892   Δnlp  +0.1830
+  s_mid  1.585   nlp   20.3727   Δnlp  +0.8665
+  s_mid  1.995   nlp   21.6250   Δnlp  +2.1188
+  s_mid  2.512   nlp   23.4498   Δnlp  +3.9437
+  s_mid  3.162   nlp   25.1670   Δnlp  +5.6608
+  s_mid  3.981   nlp   26.7749   Δnlp  +7.2687
+
+  s_mid within Δnlp <= 0.5 (1 sigma, 1 dof): [0.794, 1.259]
+  does that interval contain s_mid = 1 (NW indistinguishable from south)? YES
+  cost of PINNING s_mid = 1: Δnlp = +0.0023 (at the grid point s_mid = 1.000)
+
+wrote outputs/scope_gis_basin_structure.csv and outputs/scope_gis_basin_structure_profile.csv  (1855 s)
