@@ -1695,6 +1695,11 @@ function embed_cov!(cov0, old, old_names; skip_gic::Bool=false)
     cov0[ni, ni] = old[oi, oi]
     return length(oi)
 end
+# The seeding message is CAPTURED, not just printed: the run log is overwritten by
+# ProgressMeter within seconds, and "which name list did this run map through" is the
+# single most important fact about a seeded proposal. It is written to seed_diag_*.txt
+# alongside the geometry gate below.
+adcov_msg = "(no adapted covariance found; diagonal proposal)"
 if isfile(ADCOV)
     adf = CSV.read(ADCOV, DataFrame)
     old = Matrix(adf)
@@ -1711,25 +1716,25 @@ if isfile(ADCOV)
     if adcov_named
         nmap = embed_cov!(cov0, old, names(adf))
         dropped = setdiff(names(adf), pn0)
-        println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
                 "$(basename(ADCOV)) using the FILE'S OWN header" *
                 (isempty(dropped) ? "" : "; dropped " * join(dropped, ", ")) * ")")
     elseif size(old,1) == NK &&
        !(GIS_REPARAM && basename(ADCOV) == "adapted_cov_L11tune_seed2026.csv")
         cov0 = old
-        println("(seeding proposal from adapted covariance $(basename(ADCOV)))")
+        adcov_msg = ("(seeding proposal from adapted covariance $(basename(ADCOV)))")
     elseif basename(ADCOV) == "adapted_cov_L11tune_seed2026.csv" &&
            size(old,1) == length(L11A_NAMES)
         # native-coordinate Greenland rows are deliberately NOT mapped onto
         # (ell, w): the scales and meanings differ, so they keep a fresh diagonal.
         nmap = embed_cov!(cov0, old, L11A_NAMES)
-        println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
                 "$(basename(ADCOV)); fresh diagonal for gis_slow_ell, gis_slow_w)")
     elseif basename(ADCOV) in L11_VINTAGE_ADCOV && size(old,1) == length(L11_NAMES)
         # MUST precede the L10 branch: the two layouts are the same length (see
         # the L11_NAMES comment), so size alone cannot tell them apart.
         nmap = embed_cov!(cov0, old, L11_NAMES)
-        println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
                 "$(basename(ADCOV)) as L11 layout; dropped " *
                 join(setdiff(L11_NAMES, pn0), ", ") * ")")
     elseif size(old,1) == length(L10_NAMES)
@@ -1739,39 +1744,40 @@ if isfile(ADCOV)
                   "read it under L10 names — that is the size collision, and it " *
                   "produces a zero-acceptance chain rather than an obvious failure")
         nmap = embed_cov!(cov0, old, L10_NAMES)
-        println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
                 "$(basename(ADCOV)); dropped " *
                 join(setdiff(L10_NAMES, pn0), ", ") * ")")
     elseif size(old,1) == length(OLD54_NAMES)
         nmap = embed_cov!(cov0, old, OLD54_NAMES)
-        println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
                 "$(basename(ADCOV)); fresh diagonal for " *
                 join(setdiff(pn0[1:NP], OLD54_NAMES), ", ") * ")")
     elseif size(old,1) == length(OLD52_NAMES)
         nmap = embed_cov!(cov0, old, OLD52_NAMES)
-        println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
                 "$(basename(ADCOV)); fresh diagonal for " *
                 join(setdiff(pn0[1:NP], OLD52_NAMES), ", ") * ")")
     elseif size(old,1) == length(OLD38_NAMES)
         nmap = embed_cov!(cov0, old, OLD38_NAMES; skip_gic=true)
-        println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
                 "$(basename(ADCOV)); fresh diagonal for the extC glacier/ledger block " *
                 join([nm for nm in pn0[1:NP] if startswith(nm,"gic_")], ", ") * ")")
     elseif size(old,1) == length(OLD39_NAMES)
         nmap = embed_cov!(cov0, old, OLD39_NAMES; skip_gic=true)
-        println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
                 "$(basename(ADCOV)); fresh diagonal for the extB3 glacier block " *
                 join([nm for nm in pn0[1:NP] if startswith(nm,"gic_")], ", ") * ")")
     elseif size(old,1) == length(OLD35_NAMES)
         nmap = embed_cov!(cov0, old, OLD35_NAMES; skip_gic=true)
-        println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
                 "$(basename(ADCOV)); diagonal for " *
                 join(setdiff(pn0[1:NP], OLD35_NAMES), ", ") * ")")
     else
-        println("(WARNING: $(basename(ADCOV)) is $(size(old,1))x$(size(old,1)), incompatible " *
+        adcov_msg = ("(WARNING: $(basename(ADCOV)) is $(size(old,1))x$(size(old,1)), incompatible " *
                 "with NK=$NK -- falling back to the diagonal proposal)")
     end
 end
+println(adcov_msg)
 isposdef(cov0) || error("seed proposal covariance is not positive definite")
 
 # ---- GEOMETRY SEED GATE (Marcus 2026-08-19; handoff_2026-08-19c §1.1) -------------
@@ -1789,7 +1795,17 @@ isposdef(cov0) || error("seed proposal covariance is not positive definite")
 const GEO_SEED_FLOOR = Dict("ais_c" => 0.05, "ais_mu" => 3e-3, "ais_bedheight0" => 0.03,
                             "ais_slope" => 1e-8, "ais_iceflow0" => 3e-4,
                             "ais_precip0_LOG" => 1e-3, "ais_runoff_Ton" => 5e-4)
-let sd = sqrt.(diag(cov0)), bad = String[]
+# The table also goes to its OWN file. ProgressMeter writes cursor-up escapes to the
+# same stream the setup output went to, so in a redirected run log the seeding line and
+# this table are overwritten within seconds and the run's provenance is unrecoverable —
+# which is half of why the mis-map went unnoticed for a whole L13 line. A plain file
+# cannot be scribbled over.
+let sd = sqrt.(diag(cov0)), bad = String[], rep = IOBuffer()
+    println(rep, "proposal seed for tag=$TAG seed=$SEED")
+    println(rep, "  ADCOV = $ADCOV")
+    println(rep, "  NK = $NK")
+    println(rep, "  $adcov_msg")
+    println(rep, "AIS geometry block (sqrt of the covariance diagonal):")
     println("proposal seed, AIS geometry block (sqrt of the covariance diagonal):")
     for nm in GEO_NAMES
         j = findfirst(==(nm), pn0); isnothing(j) && continue
@@ -1797,7 +1813,10 @@ let sd = sqrt.(diag(cov0)), bad = String[]
         ok = sd[j] >= flr
         ok || push!(bad, "$nm = $(sd[j]) < $flr")
         @printf("  %-18s %-12.4g floor %-10.4g %s\n", nm, sd[j], flr, ok ? "ok" : "TOO SMALL")
+        @printf(rep, "  %-18s %-12.4g floor %-10.4g %s\n", nm, sd[j], flr, ok ? "ok" : "TOO SMALL")
     end
+    mkpath(joinpath(REPO,"outputs/mcmc"))
+    write(joinpath(REPO,"outputs/mcmc/seed_diag_$(TAG)_seed$(SEED).txt"), take!(rep))
     isempty(bad) || error("proposal seed is degenerate in the AIS geometry block: " *
         join(bad, "; ") * ". These parameters would be FROZEN for the whole run while " *
         "global acceptance looks healthy. Check that the vintage name list used to read " *
