@@ -3,6 +3,92 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-19e — The frozen `ais_c` was a MIS-ORDERED name list in the proposal seeder, not an adaptation collapse. L13 is void; L12 unaffected.
+
+Closes the open question left by `notes/handoff_2026-08-19c` §1 ("what collapsed
+`ais_c` inside L13tune"). Nothing collapsed. It was **born dead at the seed**.
+
+**The bug.** Adapted-covariance CSVs were written with `DataFrame(covout, :auto)`, so
+they carry the header `x1..xN` and name none of their rows; the reader recovered the
+row order from a hardcoded per-vintage list. `L11_NAMES` was built as
+`[non-d2 physical] ++ [d2 block] ++ noise` — pulling the four `d2_*` params out of
+their `FREE` position and re-appending them after the AIS geometry block. But `FREE`
+pushes `d2_*` right after `gic_s_r5` and **before** `antarctic_lambda`, so on disk they
+are rows 35–38 while the literal placed them at 45–48. **Rows 35–49 were all shifted by
+four.** The name *set* still matched, so `embed_cov!` logged `name-mapped 57 of 57 rows
+… dropped ⟨nothing⟩` and produced a valid, positive-definite permutation of a valid
+matrix.
+
+**What it cost.** Live `ais_c` received `ais_slope`'s variance — **8.005e-07**, against
+a posterior that spans ~95 units. RAM's update `M = L(I + η(α−α*)uu'/|u|²)L'` is
+multiplicative and rank-one along `L·u`, so a coordinate whose row of `L` is ~0
+contributes ~0 to every proposal, `α` carries no information about it, and it can never
+be re-inflated. The seed is the only chance the coordinate gets.
+
+| receipt | value |
+|---|---|
+| `ais_c` span, `chain_L13tune_seed2026` (1M iter, 245,938 moves) | **7.84e-05** |
+| `ais_c` span, `chain_L12tune_seed2026` (1M iter, same θ0 = 88.809137) | **95.0** (47.50–142.49) |
+| `ais_c` span, `chain_L13_seed2026` (2M iter) | 9.87e-05 |
+| global acceptance, L13tune / L13 production | **0.246 / 0.245** — healthy throughout |
+
+Also mis-seeded by the same shift: `ais_runoff_Ton` ← `ais_bedheight0` (0.567 vs
+0.0139), `ais_precip0_LOG` ← `ais_mu`, and `d2_steric_2` ← `ais_c` (0.607 vs 0.0201).
+So 19c §3.2's "the AIS block partitioned into two non-communicating modes, led by
+`ais_precip0_LOG`" was reading a proposal in which **three** of the AIS parameters had
+another parameter's scale.
+
+**Scope.** The branch fires only when the ADCOV is L11-vintage **and** `NK ≠ 57`; at
+`NK == 57` an earlier branch uses the matrix as-is, correctly. Affected, from the run
+logs: `L13tune`, `L13_seed{2026..2029}`, `D2G_seed{2026..2029}`,
+`D2S_seed{2026..2029}`, `D2Sprobe`, `GISB1`, `GISB2`, `GISBNOSH`, `GISBTUNE`.
+**Unaffected:** `L11tune3`, `L11_*`, `L12tune`, `L12_*`, `D2chk*`, `GISB0CTRL`, and the
+`extC`/`ext`/`D1` lines. **The canonical L12 posterior (SLR@2100 = 45.53 cm) is not
+affected and remains canonical.**
+
+**Quarantined**, with a full write-up:
+`outputs/quarantine/20260819_adcov_l11names_misorder/` — all four L13 production
+chains, the tuning chain, their covariances and logs, the postprocess / convergence /
+projection-variant products, and the `overdispersed_starts.csv` built from the frozen
+tuning chain (its `ais_c` dispersion of 1.15e-05, flagged in 19b, was a direct
+consequence). `outputs/mcmc/overdispersed_starts.csv` restored from the L12 vintage.
+**Neither 47.89 nor 19c's corrected 46.23 cm may be quoted** — both are diagnostics on
+chains whose AIS geometry never mixed.
+
+**The fix**, in `julia/calibrate_mcmc_ext.jl`:
+
+1. `L11_NAMES` is now a **frozen literal transcribed from the header of
+   `chain_L11tune3_seed2026_n1000000.csv`** (written in `pn0` order, i.e. exactly the
+   order RAM wrote the covariance in). It no longer derives from the live `FREE` —
+   derived-from-live is what broke it. A set-equality check against the live layout
+   warns if the two ever diverge.
+2. Adapted covariances are now written `DataFrame(covout, pn0)` — **the header is the
+   parameter names.** New files describe their own row order and never need a vintage
+   entry. The reader prefers a file's own header whenever it is not `x1..xN`.
+3. A **geometry seed gate**: `sqrt(diag(cov0))` is printed for the seven `GEO_NAMES`
+   and the run `error`s out before sampling if any falls below a floor (`ais_c` ≥ 0.05,
+   ~1/30 of L12's 1.282; `ais_slope`'s 8e-07 is five orders below it). Receiving a
+   neighbouring parameter's scale now fails at second zero instead of after 4 h 25 m.
+4. `--adcov=<name-or-path>` overrides the seed-preference list explicitly.
+5. The five L12-line covariances are added to `L11_VINTAGE_ADCOV` — verified by
+   comparing chain headers (all six L11/L12 chains are identical in order), so an
+   L13-layout run can reseed from the **canonical** posterior's proposal rather than
+   the two-vintages-older L11tune3.
+
+**Verified end to end**: a 200-iteration L13-config run seeded
+`--adcov=adapted_cov_L12_seed2026.csv` now reports `ais_c` = **1.282** and every other
+geometry sd reproduces 19c §3.1's independently measured L12 production column exactly
+(`ais_mu` 0.1145, `ais_bedheight0` 0.962, `ais_runoff_Ton` 0.0137, `ais_precip0_LOG`
+0.0276). `ais_c` acquires sd 3.1 within 200 iterations — against 7.8e-05 over 1M before.
+
+**Tried and abandoned:** the ridge/ε-floor hypothesis from 19c §1 (that RAM's
+adaptation carries a floor, or that an all-rejections stretch drives a direction to
+zero irreversibly). Reading `RobustAdaptiveMetropolisSampler.jl` confirms there is no
+ridge and no floor, and the irreversibility argument is real — but neither is the
+cause here, because the first-iteration trace shows `ais_c` was already frozen at
+iteration 1. Measuring *when* it froze, rather than reasoning about the adaptation,
+is what settled it.
+
 ## [unreleased] — 2026-08-19d — IMBIE-3 regional data fetched: an EAIS/WAIS split is NOT scorable the way Greenland was.
 
 Answers 19b §1.2 step 1 — the offline, cheap check that decides whether the AIS

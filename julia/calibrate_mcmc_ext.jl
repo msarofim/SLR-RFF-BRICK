@@ -1490,8 +1490,21 @@ const ADCOV = let l11c = joinpath(REPO,"outputs/mcmc/adapted_cov_L11tune3_seed20
     cands = String[]
     GIS_AB && append!(cands, [l11c, l11b, l11a, l10b, l10])
     append!(cands, [c1s, c1, b3c, b2, e])
-    i = findfirst(isfile, cands)
-    isnothing(i) ? b : cands[i]
+    # --adcov=<name-or-path> overrides the preference list entirely. Added for the
+    # L13 reseed: the list is ordered for the L11/L12 line and would keep handing an
+    # L13-layout run the L11tune3 covariance, when the covariance actually wanted is
+    # the CANONICAL L12 production one. An explicit flag also puts the choice in the
+    # run script, where it is reviewable, instead of in a preference ordering.
+    ov = _argval("--adcov=")
+    if !isnothing(ov)
+        a = ov
+        f = isabspath(a) ? a : joinpath(REPO, "outputs/mcmc", a)
+        isfile(f) || error("--adcov=$a: no such file ($f)")
+        f
+    else
+        i = findfirst(isfile, cands)
+        isnothing(i) ? b : cands[i]
+    end
 end
 cov0 = Matrix(Diagonal(prop.^2))
 # Column order of the 35-param v-next chains/covs (18 physical + 7 geometry with the OLD
@@ -1609,14 +1622,67 @@ const L10_NAMES = vcat([k.name for k in prelayout(FREE)],
 # NK=57 the `size(old,1) == NK` branch fires first and uses the matrix as-is,
 # which is correct — so this is a latent trap the new flag exposed, not a defect
 # in any published result. Dispatch on the file's VINTAGE, never on its size.
-const L11_NAMES = vcat(
-    [k.name for k in prelayout(FREE) if !startswith(k.name, "d2_")],
-    ["d2_$(st)_$(k)" for st in ["gsic", "steric"] for k in 1:D2_BASIS_N],
-    vcat([["sd_$s","rho_$s"] for s in SERIES]...))
+#
+# IT MUST BE THE FILE'S PHYSICAL ROW ORDER, AND FOR A YEAR IT WAS NOT. The first
+# version of this constant was built as `[non-d2 physical...] ++ [d2...] ++ noise`
+# -- i.e. it PULLED the d2 block out of its FREE position and re-appended it after
+# the AIS geometry block. The d2 params are pushed into FREE right after gic_s_r5
+# and BEFORE antarctic_lambda, so on disk they are rows 35-38 while that literal
+# put them at 45-48. The name SET still matched, so `embed_cov!` mapped 57 of 57
+# rows and logged "dropped <nothing>" -- while shifting every row from 35 to 49 by
+# four. Live `ais_c` was handed `ais_slope`'s variance, 8.005e-07 instead of 0.6065,
+# which is a proposal that cannot move a parameter whose posterior spans ~95 units.
+# That is the whole of the L13 "frozen ais_c": it was never an adaptation collapse,
+# it was born dead at the seed (measured 2026-08-19d; see notes/handoff_2026-08-19c).
+# RAM's update is multiplicative and rank-one along L*u, so a coordinate whose row
+# of L is ~0 contributes ~0 to every proposal and can never be re-inflated -- the
+# seed is the only chance the coordinate gets.
+#
+# So this is now a FROZEN LITERAL transcribed from the header of
+# chain_L11tune3_seed2026_n1000000.csv (which is written in pn0 order, i.e. exactly
+# the order RAM wrote the covariance in). It deliberately does NOT derive from the
+# live FREE/SERIES: the file is a historical artefact and its layout cannot change,
+# whereas FREE moves with every flag. Derived-from-live is what broke it.
+const L11_NAMES = [
+    "ais_ocean_temperature₀", "antarctic_alpha", "antarctic_nu", "antarctic_temp_threshold",
+    "anto_alpha", "anto_beta", "gis_c1", "gis_c0",
+    "gis_f", "gis_alpha_f", "gis_beta_f", "gis_slow_ell",
+    "gis_slow_w", "gis_amp", "thermal_alpha", "gic_a_R19",
+    "gic_b_R19", "gic_T_off_R19", "gic_log10_kappa_R19", "gic_a_SLOWP",
+    "gic_b_SLOWP", "gic_T_off_SLOWP", "gic_log10_kappa_SLOWP", "gic_a_FAST",
+    "gic_b_FAST", "gic_T_off_FAST", "gic_log10_kappa_FAST", "gic_amp_R19",
+    "gic_amp_SLOWP", "gic_amp_FAST", "gic_u_unch", "gic_delta",
+    "gic_u_pre", "gic_s_r5", "d2_gsic_1", "d2_gsic_2",
+    "d2_steric_1", "d2_steric_2", "antarctic_lambda", "antarctic_gamma",
+    "antarctic_kappa", "ais_gmst_amp", "ais_mu", "ais_bedheight0",
+    "ais_slope", "ais_iceflow0", "ais_precip0_LOG", "ais_runoff_Ton",
+    "ais_c", "sd_ais", "rho_ais", "sd_gsic",
+    "rho_gsic", "sd_gis", "rho_gis", "sd_steric",
+    "rho_steric"]
+# The literal is checked against the live derivation as a SET (order is the whole
+# point of the literal, so it is the one thing that must not be re-derived). A live
+# config that cannot reproduce the L11 name set has no business reading an L11 file.
+let live = Set(vcat([k.name for k in prelayout(FREE)],
+                    ["d2_$(st)_$(k)" for st in ["gsic","steric"] for k in 1:D2_BASIS_N],
+                    vcat([["sd_$s","rho_$s"] for s in SERIES]...)))
+    Set(L11_NAMES) ⊆ live || @warn "L11_NAMES has names absent from the live layout; " *
+        "the L11-vintage branch will leave those rows on the fresh diagonal: " *
+        join(setdiff(Set(L11_NAMES), live), ", ")
+end
 """Covariance files whose rows are in the L11 production ordering."""
+# The L12 line adds NO parameters (--gis-ordered is a log-prior wedge), so every L12
+# covariance is byte-for-byte in this same 57-row order -- verified 2026-08-19 by
+# comparing the chain headers, which are written in pn0 order: all six L11/L12 chains
+# compare equal to chain_L11tune3's. Listing them lets an L13-layout run reseed from
+# the CANONICAL posterior's proposal instead of the two-vintages-older L11tune3.
 const L11_VINTAGE_ADCOV = ["adapted_cov_L11tune2_seed2026.csv",
                            "adapted_cov_L11tune3_seed2026.csv",
-                           "adapted_cov_L11_seed2026.csv"]
+                           "adapted_cov_L11_seed2026.csv",
+                           "adapted_cov_L12tune_seed2026.csv",
+                           "adapted_cov_L12_seed2026.csv",
+                           "adapted_cov_L12_seed2027.csv",
+                           "adapted_cov_L12_seed2028.csv",
+                           "adapted_cov_L12_seed2029.csv"]
 
 function embed_cov!(cov0, old, old_names; skip_gic::Bool=false)
     oi = Int[]; ni = Int[]
@@ -1630,12 +1696,25 @@ function embed_cov!(cov0, old, old_names; skip_gic::Bool=false)
     return length(oi)
 end
 if isfile(ADCOV)
-    old = Matrix(CSV.read(ADCOV, DataFrame))
+    adf = CSV.read(ADCOV, DataFrame)
+    old = Matrix(adf)
+    # SELF-DESCRIBING FILES FIRST. Files written before 2026-08-19 used
+    # DataFrame(covout, :auto) and carry the placeholder header x1..xN, so their
+    # row order is recoverable only from a vintage table (the ladder below, and
+    # the source of the L11_NAMES order bug). Files written from now on carry pn0
+    # as the header, so they name their own rows and need no vintage entry ever.
+    adcov_named = !all(nm -> occursin(r"^x\d+$", nm), names(adf))
     # SIZE IS NOT IDENTITY. adapted_cov_L11tune is 57x57 and NK is 57, but its
     # Greenland rows are (alpha_s, beta_s) while ours are (ell, w) — taking it
     # as-is would apply an alpha_s proposal scale of ~0.005 to an ell of ~-4.2.
     # That is the positional-index trap; match on NAMES whenever they can differ.
-    if size(old,1) == NK &&
+    if adcov_named
+        nmap = embed_cov!(cov0, old, names(adf))
+        dropped = setdiff(names(adf), pn0)
+        println("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+                "$(basename(ADCOV)) using the FILE'S OWN header" *
+                (isempty(dropped) ? "" : "; dropped " * join(dropped, ", ")) * ")")
+    elseif size(old,1) == NK &&
        !(GIS_REPARAM && basename(ADCOV) == "adapted_cov_L11tune_seed2026.csv")
         cov0 = old
         println("(seeding proposal from adapted covariance $(basename(ADCOV)))")
@@ -1694,6 +1773,36 @@ if isfile(ADCOV)
     end
 end
 isposdef(cov0) || error("seed proposal covariance is not positive definite")
+
+# ---- GEOMETRY SEED GATE (Marcus 2026-08-19; handoff_2026-08-19c §1.1) -------------
+# A mis-ordered vintage table hands a live parameter another parameter's variance.
+# It is positive definite, it is a valid permutation of a valid matrix, and nothing
+# downstream complains: the chain runs at a healthy 0.246 global acceptance while one
+# coordinate never moves. L13 spent 4x2M iterations and ~4h25m learning nothing about
+# ais_c that way. RAM's rank-one multiplicative update means the seed is the ONLY
+# chance a coordinate gets, so the seed is where the check belongs.
+#
+# Floors are the AIS paleo-geometry block's L12-production proposal sds divided by
+# ~30 -- loose enough that a legitimately better-tuned proposal passes, tight enough
+# that receiving a NEIGHBOURING parameter's scale fails. (ais_slope, the row L13
+# actually got, is 8e-07 against ais_c's floor of 0.05: five orders of margin.)
+const GEO_SEED_FLOOR = Dict("ais_c" => 0.05, "ais_mu" => 3e-3, "ais_bedheight0" => 0.03,
+                            "ais_slope" => 1e-8, "ais_iceflow0" => 3e-4,
+                            "ais_precip0_LOG" => 1e-3, "ais_runoff_Ton" => 5e-4)
+let sd = sqrt.(diag(cov0)), bad = String[]
+    println("proposal seed, AIS geometry block (sqrt of the covariance diagonal):")
+    for nm in GEO_NAMES
+        j = findfirst(==(nm), pn0); isnothing(j) && continue
+        flr = GEO_SEED_FLOOR[nm]
+        ok = sd[j] >= flr
+        ok || push!(bad, "$nm = $(sd[j]) < $flr")
+        @printf("  %-18s %-12.4g floor %-10.4g %s\n", nm, sd[j], flr, ok ? "ok" : "TOO SMALL")
+    end
+    isempty(bad) || error("proposal seed is degenerate in the AIS geometry block: " *
+        join(bad, "; ") * ". These parameters would be FROZEN for the whole run while " *
+        "global acceptance looks healthy. Check that the vintage name list used to read " *
+        "$(basename(ADCOV)) is in the FILE'S row order, not a re-derived one.")
+end
 
 # ---- over-dispersed starts (--overdisperse) ----------------------------------------
 # R̂ is only a valid convergence diagnostic when chains start OVER-DISPERSED relative to
@@ -1905,7 +2014,11 @@ if abspath(PROGRAM_FILE) == @__FILE__
 Random.seed!(SEED)
 @time chain, accept, covout, lp = RAM_sample(logposterior, θ0, cov0, N_ITER; opt_α=0.234, output_log_probability_x=true)
 mkpath(joinpath(REPO,"outputs/mcmc"))
-CSV.write(joinpath(REPO,"outputs/mcmc/adapted_cov_$(TAG)_seed$(SEED).csv"), DataFrame(covout, :auto))
+# Header = pn0, NOT :auto. A nameless covariance can only be re-read through a
+# hardcoded vintage table, and getting one of those orderings wrong is silent (it
+# is a valid permutation of a valid matrix) -- that is how L13's ais_c was seeded
+# with ais_slope's variance. A named file re-seeds correctly under ANY future layout.
+CSV.write(joinpath(REPO,"outputs/mcmc/adapted_cov_$(TAG)_seed$(SEED).csv"), DataFrame(covout, pn0))
 println("RAM run: $N_ITER iter, acceptance = ", round(accept, digits=3))
 pn = pn0
 burn = chain[(N_ITER÷2+1):end, :]

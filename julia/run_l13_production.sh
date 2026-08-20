@@ -18,6 +18,18 @@
 # understates acceptance badly: a 3000-iteration smoke gave 0.017 while the same
 # configuration reaches 0.319 by 40000. Do not judge the layout on a short run.
 #
+# THE FIRST L13 LINE (2026-08-19) WAS VOID — read this before re-running. The tuning
+# run was seeded through `L11_NAMES`, a hardcoded row-order list for the nameless
+# adapted-cov CSVs that had the four d2_* rows in the WRONG POSITION (appended after
+# the AIS block instead of at rows 35-38, where FREE puts them). The name set matched,
+# so the seeder logged "name-mapped 57 of 57 rows, dropped <nothing>" and handed live
+# ais_c the variance of ais_slope: 8.005e-07 against a posterior that spans ~95. RAM's
+# rank-one multiplicative update can never re-inflate a coordinate whose row of L is
+# ~0, so ais_c was frozen for all 4x2M iterations while global acceptance sat at a
+# healthy 0.245. Quarantined: outputs/quarantine/20260819_adcov_l11names_misorder/.
+# SEED FROM THE L12 PRODUCTION COVARIANCE and let the geometry gate confirm it:
+# the run refuses to start unless sqrt(diag(cov0))[ais_c] >= 0.05 (L12's is 1.282).
+#
 # WHY THE STARTS NEED NO EXTRA GATE: build_overdispersed_starts.jl picks REAL
 # draws from the tuning chain's 2nd half. That chain is itself run with
 # --gis-ordered --gis-basins, so every draw already satisfies the wedge AND
@@ -44,7 +56,7 @@ STARTS=outputs/mcmc/overdispersed_starts.csv
 TUNECHAIN=outputs/mcmc/chain_L13tune_seed2026_n1000000.csv
 
 [[ -f "$ADCOV" ]] || { echo "MISSING $ADCOV — run the L13tune tuning run first:"; \
-  echo "  julia --project=julia_v2 julia/calibrate_mcmc_ext.jl 1000000 2026 --tag=L13tune --gis-ordered --gis-basins"; exit 1; }
+  echo "  julia --project=julia_v2 julia/calibrate_mcmc_ext.jl 1000000 2026 --tag=L13tune --gis-ordered --gis-basins --adcov=adapted_cov_L12_seed2026.csv"; exit 1; }
 [[ -f "$STARTS" ]] || { echo "MISSING $STARTS"; exit 1; }
 
 # The starts must carry the L13 columns. The calibrator's by-name assertion is
