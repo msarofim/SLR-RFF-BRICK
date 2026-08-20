@@ -50,9 +50,14 @@ WHAT COMES OUT
 
   python3 python/diag_block_ridge.py [--nrows=N]
 Outputs:
-  outputs/diag_block_ridge_pairs.csv       pairwise |r| above the threshold, per block x chain
-  outputs/diag_block_ridge_spectrum.csv    eigen-spectrum + loadings, per block x chain
-  outputs/diag_block_ridge.md              the readable verdict per block
+  outputs/diag_block_ridge_pairs_<TAG>.csv     pairwise |r| above threshold, per block x chain
+  outputs/diag_block_ridge_spectrum_<TAG>.csv  eigen-spectrum + loadings, per block x chain
+  outputs/diag_block_ridge_<TAG>.md            the readable verdict per block
+
+  ALL THREE CARRY THE TAG. They did not until 2026-08-20, so running this with
+  --tag= overwrote the previous vintage's committed analysis in place. The
+  pre-existing L10 artefacts keep their original vintage-free names for provenance;
+  everything written from now on is vintage-scoped.
 """
 import os
 import subprocess
@@ -63,7 +68,7 @@ import pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CHAIN = os.path.join(REPO, "outputs/mcmc/chain_{tag}_seed{seed}_n{n}.csv")
-TAG, NITER = "L10", 2000000
+TAG, NITER = "L10", 2000000          # overridable: --tag=, --niter=
 SEEDS = [2026, 2027, 2028, 2029]
 NBURN_FRAC = 0.5                  # discard the FIRST HALF, as postprocess does
 THIN = 200                        # every THIN-th post-burn row; tau ~ 3e5 means
@@ -79,14 +84,28 @@ BLOCKS = {
     "ais_other": ["ais_ocean_temperature₀", "antarctic_alpha", "antarctic_nu",
                   "antarctic_temp_threshold", "antarctic_lambda", "antarctic_gamma",
                   "antarctic_kappa", "anto_alpha", "anto_beta", "ais_gmst_amp"],
+    # BOTH slow-channel coordinate sets are listed, plus the basin scales. Which
+    # ones EXIST depends on the vintage: L10 carries native (alpha_s, beta_s);
+    # L11+ carries the reparameterised (ell, w); L13 adds gis_s_mid + gis_s_high;
+    # L14 (--gis-basins2) drops gis_s_mid. Blocks are intersected with the chain
+    # header below and WHAT WAS DROPPED IS PRINTED — a block that silently shrinks
+    # is an eigen-analysis of a different model than the label claims.
     "greenland": ["gis_c1", "gis_c0", "gis_f", "gis_alpha_f", "gis_beta_f",
-                  "gis_alpha_s", "gis_beta_s"],
+                  "gis_alpha_s", "gis_beta_s", "gis_slow_ell", "gis_slow_w",
+                  "gis_s_mid", "gis_s_high"],
 }
 # Prior sd from calibrate_mcmc_ext.jl (the Greenland block is written there
 # literally; the AIS geometry block's sd comes from the paleo prior file).
 GIS_PRIOR_SD = {"gis_c1": 0.050, "gis_c0": 0.100, "gis_f": 0.30,
                 "gis_alpha_f": 0.020, "gis_beta_f": 0.050,
-                "gis_alpha_s": 0.020, "gis_beta_s": 0.020}
+                "gis_alpha_s": 0.020, "gis_beta_s": 0.020,
+                # L11+ reparameterised slow channel: GIS_ELL_SD = 1.0 in the
+                # calibrator. gis_slow_w is pushed with sigma 1e3 on [0, 1], i.e.
+                # EFFECTIVELY UNIFORM — its honest prior width is 1/sqrt(12),
+                # not 1e3, and using 1e3 would make every width ratio ~0.
+                "gis_slow_ell": 1.0, "gis_slow_w": 1.0 / (12 ** 0.5),
+                # L13+ basin rate scales, sampled as log10 with sigma 0.5
+                "gis_s_mid": 0.50, "gis_s_high": 0.50}
 GEO_PRIOR_FILE = os.path.join(REPO, "outputs/paleo_geo_prior_ton.csv")
 
 COMMIT = subprocess.run(["git", "-C", REPO, "rev-parse", "--short", "HEAD"],
@@ -174,10 +193,36 @@ def loadings_str(vec, names, k=N_LOAD):
 
 
 def main():
+    global TAG, NITER, BLOCKS
     nrows = None
     for a in sys.argv[1:]:
         if a.startswith("--nrows="):
             nrows = int(a.split("=")[1])
+        elif a.startswith("--tag="):
+            TAG = a.split("=", 1)[1]
+        elif a.startswith("--niter="):
+            NITER = int(a.split("=")[1])
+
+    # INTERSECT THE BLOCKS WITH THE ACTUAL CHAIN HEADER, and say what went. The
+    # vintages in this line do not share a parameter set (L10 native slow channel,
+    # L11+ reparameterised, L13 +2 basin scales, L14 +1), so a fixed block list
+    # either crashes on a missing column or — worse, once anyone adds a try/except —
+    # quietly analyses a smaller block under the old label.
+    probe = CHAIN.format(tag=TAG, seed=SEEDS[0], n=NITER)
+    if not os.path.exists(probe):
+        sys.exit(f"no chain for --tag={TAG}: {probe}")
+    have = set(pd.read_csv(probe, nrows=0).columns)
+    print(f"tag {TAG}: chain header carries {len(have)} columns", flush=True)
+    for b, v in list(BLOCKS.items()):
+        keep = [c for c in v if c in have]
+        drop = [c for c in v if c not in have]
+        BLOCKS[b] = keep
+        if drop:
+            print(f"  block {b}: dropped {len(drop)} column(s) absent from this "
+                  f"vintage — {', '.join(drop)}", flush=True)
+        if not keep:
+            print(f"  block {b}: EMPTY for this vintage, skipped", flush=True)
+    BLOCKS = {b: v for b, v in BLOCKS.items() if len(v) >= 2}
 
     psd = prior_sd()
     cols = sorted({c for v in BLOCKS.values() for c in v})
@@ -285,10 +330,14 @@ def main():
             lines.append("")
 
     pd.DataFrame(pair_rows).to_csv(
-        os.path.join(REPO, "outputs/diag_block_ridge_pairs.csv"), index=False)
+        os.path.join(REPO, f"outputs/diag_block_ridge_pairs_{TAG}.csv"), index=False)
     pd.DataFrame(spec_rows).to_csv(
-        os.path.join(REPO, "outputs/diag_block_ridge_spectrum.csv"), index=False)
-    out_md = os.path.join(REPO, "outputs/diag_block_ridge.md")
+        os.path.join(REPO, f"outputs/diag_block_ridge_spectrum_{TAG}.csv"), index=False)
+    # TAG-SCOPED, 2026-08-20. These were nameless: running with --tag=L14 overwrote
+    # the COMMITTED L10 analysis (7c42573) in place, with no warning and a valid-looking
+    # file left behind. A vintage-specific artefact at a vintage-free path is the same
+    # defect class as a nameless covariance — see memory `nameless_matrix_order`.
+    out_md = os.path.join(REPO, f"outputs/diag_block_ridge_{TAG}.md")
     with open(out_md, "w") as fh:
         fh.write("\n".join(lines) + "\n")
     print("\n".join(lines))

@@ -42,8 +42,18 @@ const REPO     = LADRILLO_REPO
 const SEEDS    = [2026, 2027, 2028, 2029]
 const NITER    = 2000000
 const NBURN    = 1000000
-const TAG      = "L10"
-const N_TARGET = length(ARGS) >= 1 ? parse(Int, ARGS[1]) : 400
+## --tag=, so this can be re-measured on a later vintage. It was hardcoded to
+## "L10", which is the vintage the conclusion on record ("the axis does not reach
+## the deliverable, R-hat 2.359 is a REPORTING CAVEAT") was measured on. That
+## conclusion is four vintages old and should not be carried forward unchecked.
+const TAG      = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
+    i === nothing ? "L10" : ARGS[i][7:end]
+end
+## The positional arg must skip flags — `parse(Int, "--tag=L14")` throws, which is
+## how a tag-aware rewrite of an ARGS[1] script usually breaks first.
+const N_TARGET = let p = findfirst(a -> !startswith(a, "--"), ARGS)
+    p === nothing ? 400 : parse(Int, ARGS[p])
+end
 const SSP      = "ssp245"
 const Y0, Y1   = 1850, 2300
 const HORIZONS = [2100, 2150, 2300]
@@ -58,7 +68,7 @@ const PARAM    = "ais_iceflow0"
 const CONTROLS = ["antarctic_temp_threshold", "ais_gmst_amp", "antarctic_alpha",
                   "antarctic_gamma", "ais_mu"]
 const COMPONENTS = [:ais, :total]
-const OUT      = joinpath(REPO, "outputs/diag_iceflow0_propagation.csv")
+const OUT      = joinpath(REPO, "outputs/diag_iceflow0_propagation_$(TAG).csv")
 
 chain_path(sd) = joinpath(REPO, "outputs/mcmc", "chain_$(TAG)_seed$(sd)_n$(NITER).csv")
 hdr(sd) = String.(propertynames(CSV.read(chain_path(sd), DataFrame; limit = 0)))
@@ -76,10 +86,24 @@ vals = Dict((c, y) => Vector{Float64}[] for c in COMPONENTS, y in HORIZONS)
 par  = Vector{Float64}[]
 ctl  = Dict{String,Vector{Float64}}[]
 for sd in SEEDS
+    ## THE SLOW-CHANNEL COORDINATES. This file predates the L11 (ell, w)
+    ## reparameterisation — it only ever ran on L10, whose chains carry the NATIVE
+    ## (gis_alpha_s, gis_beta_s), which is exactly why its tag was hardcoded. Every
+    ## L11+ chain carries (gis_slow_ell, gis_slow_w) instead, so selecting the native
+    ## names throws "column gis_alpha_s not found". Same handling as
+    ## diag_l13_projection_variant.jl and diag_slr_convergence_by_chain_ladrillo.jl:
+    ## read the coordinates the FILE has, then map to native before applying.
     need = vcat(ladrillo_used_cols(VARIANT), [PARAM]) |> unique
-    df = CSV.read(chain_path(sd), DataFrame; select = need)
+    h = hdr(sd)
+    rd = ladrillo_gis_needs_native(h) ?
+        vcat(setdiff(need, LADRILLO_GIS_SLOW_NATIVE_COLS),
+             LADRILLO_GIS_SLOW_REPARAM_COLS) |> unique : need
+    missing_cols = setdiff(rd, h)
+    isempty(missing_cols) || error("chain_$(TAG)_seed$(sd) is missing: " *
+        join(missing_cols, ", ") * " — this diagnostic cannot read that vintage")
+    df = CSV.read(chain_path(sd), DataFrame; select = rd)
     step = max(1, (nrow(df) - NBURN) ÷ N_TARGET)
-    draws = df[collect((NBURN + 1):step:nrow(df))[1:N_TARGET], :]
+    draws = ladrillo_native_greenland!(df[collect((NBURN + 1):step:nrow(df))[1:N_TARGET], :])
     df = nothing; GC.gc()
 
     v = Dict((c, y) => Float64[] for c in COMPONENTS, y in HORIZONS)
