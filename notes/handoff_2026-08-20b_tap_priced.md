@@ -296,19 +296,62 @@ Worth a look when L13 promotion is decided; **nothing in this handoff turns on i
 
 ---
 
+## 5.5 DECISIONS TAKEN (Marcus, 2026-08-20)
+
+**TAP CELL: onset 6.5 K / V 2.0 m / τ 50 yr** — candidate #5 of the six in §2.4.
+Chosen over #2 (τ 100) on ROBUSTNESS, not fit: #2 sits at band position **0.09**, hard
+against the bottom of the 1.732–3.127 m band, and the 2-basin restructure MOVES THE BASE
+(the offline harness alone shifts ssp585@2300 by ~1 cm; a recalibration can move it more).
+A band-edge cell can fall out under a base shift it had nothing to do with. #5 sits at
+**0.40**, keeps V at **73%** of the NO+NE inventory rather than #4/#6's near-railing 92%,
+and takes the onset at the design principle's minimum. τ 50 vs 100 is unconstrained either
+way — no published gate. **This is a PRIOR SPECIFICATION, not a fit; say so in any methods text.**
+
+| # | onset K | V m | τ yr | fires | 2200 m | 2300 m | ratio | band pos | V/inv |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | 6.5 | 1.5 | 50 | 2155 | 0.834 | 1.832 | 10.32× | 0.07 | 55% |
+| 2 | 6.5 | 2.0 | 100 | 2155 | 0.729 | 1.860 | 10.48× | 0.09 | 73% |
+| 3 | 7.0 | 2.5 | 50 | 2180 | 0.521 | 2.004 | 11.29× | 0.19 | 92% |
+| 4 | 6.5 | 2.5 | 100 | 2155 | 0.815 | 2.205 | 12.42× | 0.34 | 92% |
+| **5 ✓** | **6.5** | **2.0** | **50** | **2155** | **0.984** | **2.283** | **12.87×** | **0.40** | **73%** |
+| 6 | 6.5 | 2.5 | 50 | 2155 | 1.134 | 2.734 | 15.41× | 0.72 | 92% |
+
+**BASIN STRUCTURE: TWO basins**, `active` = {SW,CW,CE,SE,**NW**} + `high` = {NO,NE},
+`k = (0.628571, 0.371429)`, ONE sampled rate scale. **Three basins RETAINED as the
+documented fallback** with named revert conditions — see memory `gis_two_basin_decision`.
+
+### NO NEW MIMI COMPONENT IS NEEDED — verified bit-identical
+
+`greenland_3basin` with **`k_mid = 0`** reproduces a genuine two-basin model EXACTLY:
+`max |gis_sl_mid| = 0.0`, and active / high / total all differ by **0.000e+00 m**
+(`array_equal` True). The two-basin model is a `k`-CONFIGURATION of the component that
+already exists, so the nesting is exact by construction rather than by test.
+
+**Three things the wiring must get right, none optional:**
+
+1. **DROP `gis_s_mid` from `FREE`.** At `k_mid = 0` it multiplies a zero-commitment basin
+   and does nothing. A dead sampled parameter is a random walk that inflates the proposal
+   and hides defects.
+2. **NK goes 59 → 58**, so no existing covariance matches by size ⇒ `embed_cov!` **BY
+   NAME**. This is the third layout change in this arc and both previous ones bit
+   (`ladrillo_adcov_size`, `nameless_matrix_order`).
+3. **`GISB_TERM` switches to the 2-way targets**: active **0.799 / 0.816**, high
+   **0.201 / 0.183**, σ 0.05. Only ONE share is independent now.
+
+**Not yet done: the recalibration.** The offline evidence is the Greenland-ONLY cell — no
+BRICK coupling, no AR(1) noise, none of the other likelihood terms. Whether it transfers to
+the full calibrator is exactly what the recalibration tests, and it has not been run.
+
+---
+
 ## 6. NEXT ACTIONS, in order
 
-1. **Decide the tap cell.** §2.4 narrows the 25-cell plateau to **six** on a stated design
-   principle (the tap must not move a horizon that has independent validation), and
-   recommends **onset 6.5 K / V 2.0 m / τ 100 yr**. This is a PRIOR SPECIFICATION for a
-   projection-side mechanism, not a fit — state it as one. Marcus's call.
-2. **Decide the basin structure.** §2.5 says two, and quantifies the cost of the third as
-   Δnlp 0.002. **If a recalibration is bought for `--gis-zone=all`, fold the 2-basin
-   collapse into the same run** — it removes a parameter and improves the partition fit, so
-   the marginal cost is zero. If not, keep L13 and **report `s_mid` as measured-and-
-   consistent-with-1**, never as evidence NW differs from the south. Marcus's call.
-3. **Wire the tap into `greenland_3basin_component.jl`** (or its 2-basin successor) on the
-   projection side. Verify with the same nesting discipline — tap-on vs tap-off
+1. **Wire the 2-basin mode into `calibrate_mcmc_ext.jl`** per §5.5 — `k_mid = 0`, drop
+   `gis_s_mid` from `FREE`, 2-way `GISB_TERM`, `embed_cov!` by name. Mechanical, but all
+   three items are load-bearing. Then re-tune + production: **~7 h**, and the sequencing
+   question is whether to run it on the current `south` zone (runnable NOW) or wait to
+   combine it with `--gis-zone=all` (still blocked on item 4). **Ask before burning the run.**
+2. **Wire the tap** at the decided cell (§5.5) on the projection side. Verify with the same nesting discipline — tap-on vs tap-off
    bit-identical to 2025, diverging only at the onset year; G2/G2b/G3 here are the offline
    versions of exactly that check. **AND re-test the Ṽ collapse of §2.4**, which is a
    property of the additive mock and may not survive the wiring.
