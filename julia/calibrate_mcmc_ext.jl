@@ -1497,10 +1497,15 @@ const ADCOV = let l11c = joinpath(REPO,"outputs/mcmc/adapted_cov_L11tune3_seed20
     # run script, where it is reviewable, instead of in a preference ordering.
     ov = _argval("--adcov=")
     if !isnothing(ov)
+        # Accept an absolute path, a path relative to the repo root (what the
+        # run_*.sh scripts define, e.g. outputs/mcmc/adapted_cov_L13tune_seed2026.csv),
+        # a path relative to the cwd, or a bare filename in outputs/mcmc/.
         a = ov
-        f = isabspath(a) ? a : joinpath(REPO, "outputs/mcmc", a)
-        isfile(f) || error("--adcov=$a: no such file ($f)")
-        f
+        cands_ov = [a, joinpath(REPO, a), joinpath(REPO, "outputs/mcmc", a)]
+        k = findfirst(isfile, cands_ov)
+        isnothing(k) && error("--adcov=$a: no such file (tried " *
+                              join(cands_ov, ", ") * ")")
+        cands_ov[k]
     else
         i = findfirst(isfile, cands)
         isnothing(i) ? b : cands[i]

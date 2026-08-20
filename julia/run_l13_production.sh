@@ -79,13 +79,20 @@ done
   exit 1; }
 
 echo "L13 production: 4 x $N_ITER, seeds $SEEDS, tag=$TAG  (--gis-ordered --gis-basins)"
+# --adcov IS PASSED, and before 2026-08-19 it was NOT. The script defined $ADCOV,
+# checked it existed and echoed it as "proposal seed", but never handed it to the
+# calibrator — which then fell through to its own preference list, where
+# adapted_cov_L11tune3_seed2026.csv always wins. So the void L13 production seeded from
+# L11tune3 (its log says so), the L13tune covariance was discarded, and the two basin
+# rows got a fresh diagonal AGAIN despite a 1M-iteration run existing to tune them.
+# The echo below was a false provenance label. It is now true.
 echo "  proposal seed: $ADCOV"
 echo "  starts:        $STARTS"
 echo "  EXPECT SLR@2100 = 45.53 cm TO MOVE — that is the point of the restructure."
 for SEED in $SEEDS; do
   OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 \
     julia --project=julia_v2 --threads=1 julia/calibrate_mcmc_ext.jl "$N_ITER" "$SEED" \
-      --tag=$TAG --gis-ordered --gis-basins --overdisperse \
+      --tag=$TAG --gis-ordered --gis-basins --overdisperse --adcov="$ADCOV" \
       > "outputs/mcmc/log_${TAG}_seed${SEED}.txt" 2>&1 &
 done
 wait
