@@ -56,15 +56,55 @@ chk(label, ok, detail="") = begin
 end
 
 println("[1] Greenland constants agree between the calibrator and the projector")
+# THIS GATE WAS DEAD, 2026-08-20. It regex-scrapes the calibrator source, and two of
+# the four constants stopped being source literals:
+#   * GIS_ZONE became `something(_argval("--gis-zone="), "south")` when the zone became
+#     a FLAG, so `const GIS_ZONE = "south"` no longer matched;
+#   * GIS_AMP became `GIS_AMP_PRIOR.mean`, READ FROM outputs/gis_amp_prior.csv, when the
+#     hand-transcribed amp literals were replaced by their source (09eec0a).
+# Both regexes returned nothing and `want !== nothing` made them FAIL — loudly, so
+# nothing was silently wrong, but the parity they exist to check went unmeasured and
+# ./run_ladrillo_tests.sh exited non-zero. Verified pre-existing: the same two report
+# NOT FOUND against HEAD's calibrator as against the working tree.
+# THE FIX IS TO READ WHAT THE CALIBRATOR READS, not to re-scrape a moved literal —
+# a hand-maintained copy of data that lives somewhere else is the failure this whole
+# check exists to catch.
 src = read(joinpath(@__DIR__, "calibrate_mcmc_ext.jl"), String)
 grab(pat) = (m = match(pat, src); m === nothing ? nothing : m.captures[1])
-for (label, got, pat, parse_as) in (
-        ("GIS_ZONE",  LADRILLO_GIS_ZONE,  r"const GIS_ZONE\s*=\s*\"([a-z]+)\"", :str),
-        ("GIS_AMP",   LADRILLO_GIS_AMP,   r"const GIS_AMP\s*=\s*([0-9.]+)",     :num),
-        ("GIS_V0_M",  LADRILLO_GIS_V0_M,  r"const GIS_V0_M\s*=\s*([0-9.]+)",    :num),
-        ("GIS_G",     LADRILLO_GIS_G,     r"const GIS_G\s*=\s*([0-9.]+)",       :num))
+# The DEFAULT zone — what a run with no --gis-zone= uses, which is the configuration
+# the projector is written against. A non-default zone is an arm, and the projector
+# would have to be re-anchored for it (see the GIS_TBAR_REPARAM_ANCHOR branch).
+const CAL_ZONE = grab(r"const GIS_ZONE\s*=\s*something\(_argval\(\"--gis-zone=\"\),\s*\"([a-z]+)\"\)")
+const CAL_AMP_WINDOW = grab(r"const GIS_AMP_WINDOW\s*=\s*\"([a-z]+)\"")
+# The calibrator's amp is GIS_AMP_PRIOR.mean out of this file, keyed on
+# (zone, window). Read it the same way.
+const CAL_AMP = let f = joinpath(@__DIR__, "..", "outputs/gis_amp_prior.csv")
+    if CAL_ZONE === nothing || CAL_AMP_WINDOW === nothing || !isfile(f)
+        nothing
+    else
+        df = CSV.read(f, DataFrame)
+        i = findfirst(r -> r.zone == CAL_ZONE && r.window == CAL_AMP_WINDOW, eachrow(df))
+        i === nothing ? nothing : Float64(df[i, :mean])
+    end
+end
+chk("GIS_ZONE matches calibrate_mcmc_ext.jl (default zone)",
+    CAL_ZONE !== nothing && CAL_ZONE == LADRILLO_GIS_ZONE,
+    "projector $LADRILLO_GIS_ZONE vs calibrator $(something(CAL_ZONE, "NOT FOUND"))")
+# TOLERANCE, and it is 5e-3 for a stated reason, not to make a test pass. The shipped
+# L11/L12/L13 line ran with the ROUNDED 1.92, which is what the projector carries; the
+# calibrator now derives 1.9221976 from the CSV. The calibrator's OWN guard accepts that
+# gap at |diff| < 5e-3 (0.007 posterior sd) and documents it as bounded-and-stated. This
+# check uses the SAME bound, so the two files cannot disagree by more than the
+# rounding the calibrator has already declared acceptable.
+const AMP_PARITY_TOL = 5e-3
+chk("GIS_AMP matches calibrate_mcmc_ext.jl (zone $(something(CAL_ZONE, "?"))/$(something(CAL_AMP_WINDOW, "?")), tol $AMP_PARITY_TOL)",
+    CAL_AMP !== nothing && abs(CAL_AMP - LADRILLO_GIS_AMP) < AMP_PARITY_TOL,
+    "projector $LADRILLO_GIS_AMP vs calibrator $(something(CAL_AMP, "NOT FOUND"))")
+for (label, got, pat) in (
+        ("GIS_V0_M", LADRILLO_GIS_V0_M, r"const GIS_V0_M\s*=\s*([0-9.]+)"),
+        ("GIS_G",    LADRILLO_GIS_G,    r"const GIS_G\s*=\s*([0-9.]+)"))
     raw = grab(pat)
-    want = raw === nothing ? nothing : (parse_as === :str ? raw : parse(Float64, raw))
+    want = raw === nothing ? nothing : parse(Float64, raw)
     chk("$label matches calibrate_mcmc_ext.jl", want !== nothing && want == got,
         "projector $got vs calibrator $(something(want, "NOT FOUND"))")
 end
