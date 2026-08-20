@@ -283,11 +283,59 @@ const GIS_V0_M = 7.42             # Greenland volume, m SLE — STRUCTURAL, not 
 # Mouginot sector groups in the slot (julia/greenland_3basin_component.jl, gated by
 # julia/test_greenland_3basin_nesting.jl) and adds ONE rate scale per basin. The
 # geometry — the volume shares k_b — is FIXED, never sampled.
-const GIS_BASINS = "--gis-basins" in ARGS
+const GIS_BASINS2 = "--gis-basins2" in ARGS
+const GIS_BASINS = ("--gis-basins" in ARGS) || GIS_BASINS2
 GIS_BASINS && !GIS_AB && error("--gis-basins requires the A+B Greenland module (drop --stock-gis)")
+# ---- --gis-basins2: the TWO-basin configuration (Marcus 2026-08-20) -----------
+# NO NEW COMPONENT. `greenland_3basin` at k_mid = 0 IS a two-basin model, and it is
+# so BY CONSTRUCTION rather than by test: eq_b == k_b * eq_whole identically (see
+# the clamp algebra in greenland_3basin_component.jl), so a zero share contributes
+# a zero series to every sum. Measured anyway at max|gis_sl_mid| = 0.0 and
+# active/high/total differing by 0.000e+00, and gated by
+# julia/test_greenland_3basin_nesting.jl [4].
+#
+#   active = SW + CW + CE + SE + NW   (the merged basin, carried in the `south` slot)
+#   high   = NO + NE                  (unchanged)
+#
+# WHY. A full refit of every structure in the offline harness returns s_mid = 1.024;
+# pinning it to 1 costs Delta nlp 0.0023, and the PROFILE IS WELL CURVED (+6.3 at
+# s_mid 0.25, +7.3 at 3.98), so s_mid is IDENTIFIED-and-equal-to-1 rather than merely
+# unconstrained. Two basins also fit the Mouginot windows BETTER — worst |z| 0.69 vs
+# 1.01 — with one fewer parameter, because a single NW scale cannot span the
+# two-window tension 0.207 -> 0.262. Evidence: 03df3d2,
+# outputs/scope_gis_basin_structure{,_profile}.csv; handoff_2026-08-20b/c.
+#
+# THE `south` SLOT IS NOT RENAMED. It carries the merged `active` basin. The output
+# contract (gis_fast / gis_slow / greenland_sea_level as basin sums, plus
+# gis_sl_{south,mid,high}) is what every downstream consumer reads; renaming buys
+# nothing and would silently break diag_l13_basin_shares.jl and ladrillo_projection.
+#
+# STANDING CAVEAT on all of the above: the evidence is the Greenland-ONLY offline
+# cell — no BRICK coupling, no AR(1) noise, none of the other likelihood terms. It
+# has NOT been shown to transfer. That transfer is what the L14 run tests.
+GIS_BASINS2 && !GIS_BASINS && error("--gis-basins2 implies the basin component")
 # The term itself is separable from the state, so step 2 of the handoff's order of
 # work (basins in, term OFF, confirm the total is unchanged) is reachable as a run.
 const GISB_TERM = GIS_BASINS && !("--no-gis-shares" in ARGS)
+# THE VOLUME SHARES ACTUALLY USED. Both tables are DERIVED from GIS3_VOL_M in
+# greenland_3basin_component.jl, never typed as literals here: the two-basin k is
+# (south + mid, 0, high) = (0.628571, 0, 0.371429), and a literal would silently stop
+# tracking the Mouginot inventory if it is ever revised. Everything downstream — the
+# setup banner, --gis-check's s = 1 null, the component wiring — reads GISB_K, so
+# there is exactly one place the geometry lives.
+const GISB_K = GIS_BASINS2 ? GIS2_VSHARE : GIS3_VSHARE
+abs(sum(GISB_K) - 1) < 1e-12 ||
+    error("basin volume shares must sum to 1, got $(sum(GISB_K)) for k = $GISB_K")
+# The basins with a NON-ZERO share. A zero-share basin has no state, so a rate scale
+# on it multiplies nothing: it would be a DEAD SAMPLED PARAMETER — a random walk that
+# inflates the proposal and hides defects. Dropping gis_s_mid here is what takes NK
+# from 59 to 58, which is why the L13 covariance must be embedded BY NAME.
+const GISB_LIVE = Tuple(b for b in GIS3_BASINS if getproperty(GISB_K, b) > 0)
+# Every banner, target line and diagnostic label derives from HERE, so a flag change
+# cannot leave a run log claiming a structure it did not run.
+const GISB_MODE_LABEL = GIS_BASINS2 ?
+    "2 basins, active{SW+CW+CE+SE+NW} / high{NO+NE} (--gis-basins2, k_mid = 0)" :
+    "3 Mouginot sectors, south{SW+CW+CE+SE} / mid{NW} / high{NO+NE}"
 
 # TARGET — the MODERN RATE shares, NOT the cumulative 1972-2018 split. Greenland was
 # near balance before the mid-1990s (the south basin was GAINING mass in 1972-1990,
@@ -303,9 +351,23 @@ const GISB_WINS = ((2002, 2011), (2012, 2018))
 # ONLY south and mid are scored. The three shares sum to 1, so a third term adds no
 # information and makes the block rank-deficient by one — it would just re-weight
 # the same constraint by ~1.5x. high follows, and --gis-check prints it.
-const GISB_SCORED = (:south, :mid)
-const GISB_SHARE = ((south = 0.592, mid = 0.207, high = 0.201),    # 2002-2011, -245.6 Gt/yr
-                    (south = 0.554, mid = 0.262, high = 0.183))    # 2012-2018, -264.3 Gt/yr
+# `high` is the DEPENDENT share — the one that follows by sum-to-one and is
+# therefore never scored. Named, so the "score all but one" rule below is a
+# derivation rather than a hand-maintained pair of lists that can drift apart.
+const GISB_DEPENDENT = :high
+const GISB_SCORED = Tuple(b for b in GISB_LIVE if b != GISB_DEPENDENT)
+# The Mouginot 3-way table. NEVER read directly by the likelihood — GISB_SHARE below
+# is what is scored, and under --gis-basins2 it is the MERGED table.
+const GISB_SHARE3 = ((south = 0.592, mid = 0.207, high = 0.201),   # 2002-2011, -245.6 Gt/yr
+                     (south = 0.554, mid = 0.262, high = 0.183))   # 2012-2018, -264.3 Gt/yr
+# TWO-BASIN TARGETS ARE THE MERGE, not a separate measurement: active = south + mid,
+# giving 0.799 / 0.201 and 0.816 / 0.183. Derived rather than typed for the same
+# reason GISB_K is — one revision of Mouginot, one place to change. Only ONE share is
+# independent now, so GISB_SCORED collapses to (:south,); scoring both would
+# double-count the single observation.
+const GISB_SHARE = GIS_BASINS2 ?
+    Tuple((south = sh.south + sh.mid, mid = 0.0, high = sh.high) for sh in GISB_SHARE3) :
+    GISB_SHARE3
 # sigma on a SHARE, matching MOUG_SHARE_SD and comfortably covering the ±0.03
 # window-to-window spread. Deliberately NOT Mouginot's published per-region mass
 # errors (30-91 Gt): those are far too tight to accommodate the 1.227x total
@@ -331,7 +393,8 @@ const GISB_TOT_FLOOR = 1e-12
 # read as "rate relative to the south basin" and leaves the overall level where it
 # already lived — in the shipped shape parameters.
 const GISB_REF = :south
-const GISB_FREE_BASINS = Tuple(b for b in GIS3_BASINS if b != GISB_REF)
+# LIVE basins only: a zero-share basin gets no sampled scale (see GISB_LIVE).
+const GISB_FREE_BASINS = Tuple(b for b in GISB_LIVE if b != GISB_REF)
 # gis_g is FIXED AT 0 (item 4.1, 2026-08-12): profiled over [0, 0.8] the offline
 # objective moves 4e-4 nlp and the 2100 projections do not move at all, and it is
 # confounded with gis_c0. 0 is also stock SIMPLE's own initial condition.
@@ -453,14 +516,16 @@ if GIS_AB
     @printf("greenland driver: t_gis_zones.csv[%s] 1850-%d + amp %.2f x GMST splice | gis_g FIXED %.1f | Mouginot share %.3f+/-%.3f\n",
             GIS_ZONE, TGZ_LAST, GIS_AMP, GIS_G, MOUG_SHARE, MOUG_SHARE_SD)
     if GIS_BASINS
-        @printf("greenland basins: 3 Mouginot sectors on the SHARED %s driver | k FIXED %.4f/%.4f/%.4f | rate scales sampled for %s (%s PINNED at 1: the common mode is exactly degenerate with the shape rates) | sector shares term %s\n",
-                GIS_ZONE, GIS3_VSHARE.south, GIS3_VSHARE.mid, GIS3_VSHARE.high,
+        @printf("greenland basins: %s on the SHARED %s driver | k FIXED %s | rate scales sampled for %s (%s PINNED at 1: the common mode is exactly degenerate with the shape rates) | sector shares term %s\n",
+                GISB_MODE_LABEL, GIS_ZONE,
+                join((@sprintf("%s %.6f", b, getproperty(GISB_K, b)) for b in GIS3_BASINS), " / "),
                 join(GISB_FREE_BASINS, "+"), GISB_REF,
                 GISB_TERM ? "ON" : "OFF (--no-gis-shares)")
         GISB_TERM && for (w, sh) in zip(GISB_WINS, GISB_SHARE)
-            @printf("    %d-%d target: %s scored at %.3f/%.3f +/- %.3f (high %.3f follows by sum-to-one)\n",
-                    w[1], w[2], join(GISB_SCORED, "+"), sh.south, sh.mid,
-                    GISB_SHARE_SD, sh.high)
+            @printf("    %d-%d target: %s scored at %s +/- %.3f (%s %.3f follows by sum-to-one)\n",
+                    w[1], w[2], join(GISB_SCORED, "+"),
+                    join((@sprintf("%.3f", getproperty(sh, b)) for b in GISB_SCORED), "/"),
+                    GISB_SHARE_SD, GISB_DEPENDENT, getproperty(sh, GISB_DEPENDENT))
         end
     end
 else
@@ -1217,7 +1282,10 @@ if GIS_AB
     update_param!(m, _GIS_SLOT, :gis_v0, GIS_V0_M)
     # the basin volume shares are FIXED Mouginot geometry, set once and never
     # sampled; the rate scales are overwritten every logposterior call below
-    GIS_BASINS && update_gis3_shares!(m)
+    # k = GISB_K, NOT the component's default: under --gis-basins2 that default
+    # would silently load the mid basin the flag exists to switch off, and the run
+    # would be a 3-basin run wearing a 2-basin label.
+    GIS_BASINS && update_gis3_shares!(m; k=GISB_K)
     update_param!(m, _GIS_SLOT, :gis_g, GIS_G)
 end
 # Indices for the Mouginot partition term. Defined unconditionally so the name is
@@ -1407,8 +1475,12 @@ function logposterior(θ)
     # was near balance until the mid-1990s. See the constant block for the
     # window scan that establishes it.
     #
-    # Only GISB_SCORED (south, mid) is scored; high follows by sum-to-one. Adding
-    # it would make the block rank-deficient by one, not add an observation.
+    # Only GISB_SCORED is scored; GISB_DEPENDENT (high) follows by sum-to-one.
+    # Adding it would make the block rank-deficient by one, not add an observation.
+    # Under --gis-basins2 that is ONE term per window, not two — the merged `active`
+    # share is the single independent number the two-basin partition has.
+    # The sum over GIS3_BASINS below is still right in that mode: k_mid = 0 makes
+    # gis_sl_mid identically zero, so it contributes exactly 0.0 to dtot.
     if GISB_TERM
         bsl = (south = m[_GIS_SLOT, :gis_sl_south],
                mid   = m[_GIS_SLOT, :gis_sl_mid],
@@ -1871,7 +1943,24 @@ isposdef(cov0) || error("seed proposal covariance is not positive definite")
 # actually got, is 8e-07 against ais_c's floor of 0.05: five orders of margin.)
 const GEO_SEED_FLOOR = Dict("ais_c" => 0.05, "ais_mu" => 3e-3, "ais_bedheight0" => 0.03,
                             "ais_slope" => 1e-8, "ais_iceflow0" => 3e-4,
-                            "ais_precip0_LOG" => 1e-3, "ais_runoff_Ton" => 5e-4)
+                            "ais_precip0_LOG" => 1e-3, "ais_runoff_Ton" => 5e-4,
+                            # THE BASIN SCALES GET THE SAME GATE, and --gis-basins2 is
+                            # exactly when they need it: dropping gis_s_mid takes NK
+                            # 59 -> 58, so no covariance on disk matches by size and
+                            # every seed goes through embed_cov! BY NAME. That is the
+                            # third layout change in this arc and both previous ones
+                            # bit (the ADCOV size collision -> acceptance 0.0; the
+                            # L11_NAMES mis-order -> ais_c frozen for 4x2M). Floor is
+                            # L13's own production proposal sd / ~30, the GEO_SEED_FLOOR
+                            # convention: gis_s_high tuned to 0.0234 in L13, and the
+                            # smallest sd anywhere in that layout is ais_slope's 8e-07,
+                            # three orders below this floor.
+                            "gis_s_south" => 1e-3, "gis_s_mid" => 1e-3,
+                            "gis_s_high" => 1e-3)
+# The gate runs over the AIS geometry block PLUS whichever basin scales are actually
+# sampled. Derived from GISB_FREE_BASINS so it cannot list a parameter the run does
+# not have (nor miss one it does).
+const SEED_GATE_NAMES = vcat(GEO_NAMES, ["gis_s_$b" for b in GISB_FREE_BASINS])
 # The table also goes to its OWN file. ProgressMeter writes cursor-up escapes to the
 # same stream the setup output went to, so in a redirected run log the seeding line and
 # this table are overwritten within seconds and the run's provenance is unrecoverable —
@@ -1882,9 +1971,9 @@ let sd = sqrt.(diag(cov0)), bad = String[], rep = IOBuffer()
     println(rep, "  ADCOV = $ADCOV")
     println(rep, "  NK = $NK")
     println(rep, "  $adcov_msg")
-    println(rep, "AIS geometry block (sqrt of the covariance diagonal):")
-    println("proposal seed, AIS geometry block (sqrt of the covariance diagonal):")
-    for nm in GEO_NAMES
+    println(rep, "AIS geometry block + sampled basin scales (sqrt of the covariance diagonal):")
+    println("proposal seed, AIS geometry block + sampled basin scales (sqrt of the covariance diagonal):")
+    for nm in SEED_GATE_NAMES
         j = findfirst(==(nm), pn0); isnothing(j) && continue
         flr = GEO_SEED_FLOOR[nm]
         ok = sd[j] >= flr
@@ -1894,7 +1983,7 @@ let sd = sqrt.(diag(cov0)), bad = String[], rep = IOBuffer()
     end
     mkpath(joinpath(REPO,"outputs/mcmc"))
     write(joinpath(REPO,"outputs/mcmc/seed_diag_$(TAG)_seed$(SEED).txt"), take!(rep))
-    isempty(bad) || error("proposal seed is degenerate in the AIS geometry block: " *
+    isempty(bad) || error("proposal seed is degenerate in the gated block: " *
         join(bad, "; ") * ". These parameters would be FROZEN for the whole run while " *
         "global acceptance looks healthy. Check that the vintage name list used to read " *
         "$(basename(ADCOV)) is in the FILE'S row order, not a re-derived one.")
@@ -2060,10 +2149,10 @@ if "--gis-check" in ARGS
     # shares term, because a diagnostic that can already measure the thing is how
     # you tell a wiring bug from a physics result (handoff 2026-08-19 step 1).
     # NB with the basin rate scales at their prior centre (s = 1) these MUST come
-    # out at the VOLUME shares 0.456/0.173/0.371 — the model is linear in the
-    # commitment split and the channel rates do not depend on k, so anything else
-    # is a wiring bug, not a result. julia/test_greenland_3basin_nesting.jl [3]
-    # gates exactly that at 4e-16.
+    # out at the VOLUME shares GISB_K (3-basin 0.456/0.173/0.371; --gis-basins2
+    # 0.629/0.000/0.371) — the model is linear in the commitment split and the
+    # channel rates do not depend on k, so anything else is a wiring bug, not a
+    # result. julia/test_greenland_3basin_nesting.jl [3] and [4] gate exactly that.
     if GIS_BASINS
         bsl = (south = m[_GIS_SLOT, :gis_sl_south],
                mid   = m[_GIS_SLOT, :gis_sl_mid],
@@ -2085,8 +2174,8 @@ if "--gis-check" in ARGS
                     "  target", tgt.south, tgt.mid, tgt.high,
                     join(GISB_SCORED, "+"), GISB_SHARE_SD)
         end
-        @printf("  volume shares (the s = 1 null): %.3f %.3f %.3f\n",
-                GIS3_VSHARE.south, GIS3_VSHARE.mid, GIS3_VSHARE.high)
+        @printf("  volume shares (the s = 1 null): %.3f %.3f %.3f   [%s]\n",
+                GISB_K.south, GISB_K.mid, GISB_K.high, GISB_MODE_LABEL)
     end
 
     println("\n--gis-check | calibrator wiring vs the offline A+B cell at the SAME parameter vector")

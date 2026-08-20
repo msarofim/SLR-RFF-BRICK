@@ -3,6 +3,78 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-20e — TWO basins are WIRED and gated; `--gis-basins2`, L14 ready to tune.
+
+Execution of `notes/handoff_2026-08-20c_two_basin_plan.md` §3, Run A. **L12 remains
+canonical (SLR@2100 45.53 cm); nothing here promotes anything.**
+
+### No new component, and the nesting is exact BY CONSTRUCTION
+
+`greenland_3basin` at `k_mid = 0` **is** a two-basin model: the per-basin clamp gives
+`eq_b == k_b * eq_whole` identically, so a zero share contributes a zero series to every
+sum. `GIS2_VSHARE = (0.628571, 0, 0.371429)` is **derived** from `GIS3_VOL_M` in the
+component file — one place, so the calibrator and the test cannot drift apart, and a
+revision of the Mouginot inventory propagates to both.
+
+Measured anyway, as gate **[4]** of `test_greenland_3basin_nesting.jl`: mid identically
+zero (0.000e+00), active + high == the slot output (2.2e-16), and total / `gis_fast` /
+`gis_slow` == whole-sheet `greenland_ab` (4.4e-16, 4.4e-16, 8.3e-17). *(The handoff
+quoted 0.0e+00 from the offline harness; inside Mimi it is fp roundoff at 4e-16, the
+same order gate [3] has always run at.)*
+
+**Gate [5] MUTATION-TESTS gate [4]**, because a gate that has only ever passed proves
+nothing. Two mutations that fail through different mechanisms: `k_mid = 0.05` with the
+sum still 1 (partition wrong, total conserved — catches a `k` on the wrong slot) trips at
+4.0e-02, and `sum(k) = 0.963` (catches a `k` that never reaches the component) at
+3.0e-02. Gate [5] also asserts MUT-A leaves the **total unchanged** — if that moved, [4]
+would be passing for the wrong reason.
+
+### What `--gis-basins2` changes, and the one thing that is not optional
+
+* `GISB_K` -> `GIS2_VSHARE`; the component is loaded with it explicitly, because the
+  default argument would silently reload the basin the flag exists to switch off.
+* **`gis_s_mid` is DROPPED from `FREE`.** At `k_mid = 0` it multiplies a zero-commitment
+  basin: a dead sampled parameter is a random walk that inflates the proposal and hides
+  defects. Verified **NK 59 -> 58**.
+* Therefore **no covariance on disk matches by size** and every seed goes through
+  `embed_cov!` BY NAME. This is the THIRD layout change in this arc and **both previous
+  ones bit** (the ADCOV size collision -> acceptance exactly 0.0; the `L11_NAMES`
+  mis-order -> `ais_c` frozen for 4x2M). The seed-diagonal gate now covers the sampled
+  basin scales as well as the AIS geometry block, floor 1e-3 against L13's tuned 0.0234.
+* `GISB_SHARE` switches to the **2-way targets**, derived as `active = south + mid`:
+  0.799 / 0.201 and 0.816 / 0.183, sd 0.05. Only **one** share per window is scored —
+  with two basins only one is independent.
+* Every banner and target line derives from `GISB_MODE_LABEL` / `GISB_K` / `GISB_SCORED`,
+  so a run log cannot claim a structure it did not run.
+
+### `--gis-check` scores 0.0000 in all three configurations
+
+No basins, `--gis-basins`, `--gis-basins2`, each with `--gis-ordered`: RMSE 0.0617,
+1942-1982 bias 0.0146, 2003-2018 rate 0.7749, Mouginot surface share 0.7351 — |diff|
+0.0000 on all four in all three. **Tolerances untouched.** The s = 1 null prints the
+volume shares the mode actually runs: 0.456/0.173/0.371 vs 0.629/0.000/0.371.
+
+### Tried and NOT done
+
+* **Comparing `GIS2_VSHARE` to the handoff's published 6-dp numbers at the file's
+  bit-level `TOL`.** 4.62/7.35 differs from a 6-dp literal by 4.3e-07, so that check
+  would have failed on rounding. Split into a separate 6-dp comparison plus an exact
+  sum-to-one check, rather than widening `TOL` for everything else in the file.
+* **Renaming the `south` slot to `active`.** The output contract is what every
+  downstream consumer reads; renaming buys nothing and breaks `diag_l13_basin_shares.jl`
+  and `ladrillo_projection.jl`.
+* **`--gis-zone=all`.** Deliberately not folded in — that is L15, and it has its own
+  prerequisite chain (handoff 20c §4). One variable at a time is the whole point.
+
+### Standing caveat, on the record
+
+All the evidence for two basins is the Greenland-**only** offline cell — no BRICK
+coupling, no AR(1) noise, none of the other likelihood terms. It has **not** been shown
+to transfer. **The L14 run is the transfer test.** Expected from the offline 2-basin
+refit: `s_high` ~ 0.20-0.30, worst |z| ~ 0.7, hindcast RMSE ~ 0.0617 cm. And per handoff
+20c §6, the 2300 ratio is expected to stay near **2.7x** untapped — no basin structure
+buys the separation; the restructure fixes the PARTITION, the tap fixes the SEPARATION.
+
 ## [unreleased] — 2026-08-20d — The tap narrows from 25 cells to SIX on a design principle, and the hindcast supports TWO Greenland basins, not three.
 
 `python/scope_gis_basin_structure.py`; commit `03df3d2`.

@@ -21,6 +21,16 @@
 #       or the k wiring is wrong in a way that a single loaded basin hides.
 #       It is ALSO the statement that the three s_b are the ONLY thing the
 #       restructure adds — at s = 1 the model has not moved at all.
+#   [4] TWO BASINS (added 2026-08-20, for --gis-basins2). k = GIS2_VSHARE =
+#       (0.628571, 0, 0.371429), s = (1, 1, 1): the mid basin must be identically
+#       zero, active + high must be the whole sheet, and the total must STILL equal
+#       greenland_ab. This is what makes "greenland_3basin at k_mid = 0 IS a
+#       two-basin model" a measurement rather than an assertion, and it is why
+#       --gis-basins2 needs no new Mimi component.
+#   [5] MUTATION TEST of [4] — per the mutation_test_gates discipline, a gate that
+#       has only ever passed proves nothing. [5] perturbs a k and REQUIRES the [4]
+#       comparisons to fail. If [5] does not trip, [4] is not measuring anything and
+#       the whole file exits non-zero.
 #
 # Run:  julia --project=julia_v2 julia/test_greenland_3basin_nesting.jl
 
@@ -137,10 +147,84 @@ if i72 !== nothing && i18 !== nothing
     println("  ⇒ the gap between those rows is exactly what the s_b are fitted to close.")
 end
 
+println("\n[4] TWO BASINS — k = GIS2_VSHARE, s = 1: k_mid = 0 IS a two-basin model")
+@printf("  two-basin volume shares: active %.6f  mid %.6f  high %.6f  (sum %.15f)\n",
+        GIS2_VSHARE.south, GIS2_VSHARE.mid, GIS2_VSHARE.high, sum(GIS2_VSHARE))
+# The handoff's published numbers. Pinned here so a revision of GIS3_VOL_M shows up
+# as a failing test naming the old numbers, rather than as a silent drift away from
+# the configuration the offline evidence was collected at. Compared at the SIX
+# DECIMALS they were published to — `check`'s 1e-12 is a bit-level tolerance for
+# comparing two model runs, and 4.62/7.35 differs from a 6-dp literal by 4.3e-07.
+const K2_PUBLISHED = (south = 0.628571, high = 0.371429)
+function check6(label, got, want)
+    ok = round(got, digits=6) == want
+    @printf("  %-46s %.15f vs %.6f  %s\n", label, got, want, ok ? "PASS" : "FAIL")
+    ok || push!(fails, label)
+    return ok
+end
+check6("[4] k active == published (6 dp)", GIS2_VSHARE.south, K2_PUBLISHED.south)
+check6("[4] k high == published (6 dp)", GIS2_VSHARE.high, K2_PUBLISHED.high)
+check("[4] k sums to exactly 1", [sum(GIS2_VSHARE)], [1.0])
+m4 = run3(GIS2_VSHARE, UNIT_S)
+b4 = (Float64.(m4[_GIS_SLOT, :gis_sl_south]), Float64.(m4[_GIS_SLOT, :gis_sl_mid]),
+      Float64.(m4[_GIS_SLOT, :gis_sl_high]))
+check("[4] mid basin is identically zero", b4[2], zeros(length(ab_sl)))
+check("[4] active + high == greenland_sea_level", m4[_GIS_SLOT, :greenland_sea_level],
+      b4[1] .+ b4[3])
+check("[4] greenland_sea_level (m) == greenland_ab", m4[_GIS_SLOT, :greenland_sea_level], ab_sl)
+check("[4] gis_fast (m) == greenland_ab", m4[_GIS_SLOT, :gis_fast], ab_fast)
+check("[4] gis_slow (m) == greenland_ab", m4[_GIS_SLOT, :gis_slow], ab_slow)
+if i72 !== nothing && i18 !== nothing
+    d4 = [b4[i][i18] - b4[i][i72] for i in 1:3]
+    @printf("  s = 1 gives 1972-2018 loss shares  active %.3f  mid %.3f  high %.3f\n",
+            (d4 ./ sum(d4))...)
+    @printf("  observed (Mouginot modern rate, 2002-2011) active 0.799  mid 0.000  high 0.201\n")
+end
+
+# --- [5] MUTATION TEST of [4] -------------------------------------------------
+# A gate that has only ever passed proves nothing (memory `mutation_test_gates`).
+# Perturb k and REQUIRE the [4] comparisons to break. Two distinct mutations, because
+# they fail through different mechanisms: MUT-A moves mass between basins with the sum
+# still 1 (the partition is wrong but the total is conserved, so only the PER-BASIN
+# series move — this is the mutation that catches a k wired to the wrong slot), while
+# MUT-B breaks sum-to-one (the TOTAL moves, catching a k that never reaches the
+# component at all).
+println("\n[5] MUTATION TEST — [4] must FAIL when k is perturbed")
+mutfails = String[]
+function mustfail(label, got, want)
+    d = maximum(abs.(Float64.(got) .- Float64.(want)))
+    broke = d > TOL
+    @printf("  %-46s max|diff| = %.3e  %s\n", label, d, broke ? "detected" : "NOT DETECTED")
+    broke || push!(mutfails, label)
+    return broke
+end
+const K2_MUT_A = (south = GIS2_VSHARE.south - 0.05, mid = 0.05, high = GIS2_VSHARE.high)
+const K2_MUT_B = (south = GIS2_VSHARE.south, mid = 0.0, high = GIS2_VSHARE.high * 0.9)
+mA = run3(K2_MUT_A, UNIT_S)
+mustfail("[5A] mid = 0.05 must break 'mid is zero'", mA[_GIS_SLOT, :gis_sl_mid],
+         zeros(length(ab_sl)))
+mustfail("[5A] mid = 0.05 must break 'active + high == total'",
+         mA[_GIS_SLOT, :greenland_sea_level],
+         Float64.(mA[_GIS_SLOT, :gis_sl_south]) .+ Float64.(mA[_GIS_SLOT, :gis_sl_high]))
+mB = run3(K2_MUT_B, UNIT_S)
+mustfail("[5B] sum(k) = 0.963 must break '== greenland_ab'",
+         mB[_GIS_SLOT, :greenland_sea_level], ab_sl)
+# and the mutations must not be trivially detected by moving something unrelated:
+# MUT-A conserves the total, so the whole-sheet series is UNCHANGED. If this one
+# reports a difference, the per-basin clamp is not exact and [4] is passing for the
+# wrong reason.
+check("[5A] total is CONSERVED (k still sums to 1)",
+      mA[_GIS_SLOT, :greenland_sea_level], ab_sl)
+if !isempty(mutfails)
+    push!(fails, "MUTATION TEST DID NOT TRIP: " * join(mutfails, "; ") *
+                 " — gate [4] is not measuring what it claims")
+end
+
 println()
 if isempty(fails)
     println("ALL NESTING GATES PASS — the 3-basin component is a strict " *
-            "generalisation of greenland_ab.")
+            "generalisation of greenland_ab, and at k_mid = 0 it is exactly the " *
+            "two-basin model --gis-basins2 runs.")
 else
     println("FAILURES: ", join(fails, ", "))
     exit(1)

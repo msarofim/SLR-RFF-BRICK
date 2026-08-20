@@ -73,6 +73,29 @@ const GIS3_VSHARE = (south = GIS3_VOL_M.south / sum(GIS3_VOL_M),
                      mid   = GIS3_VOL_M.mid   / sum(GIS3_VOL_M),
                      high  = GIS3_VOL_M.high  / sum(GIS3_VOL_M))
 const GIS3_BASINS = (:south, :mid, :high)
+# ---- the TWO-BASIN configuration (Marcus 2026-08-20) --------------------------
+# Merge NW into the active basin; leave the high basin alone. k_mid = 0 makes this
+# component a genuine two-basin model BY CONSTRUCTION rather than by test: the clamp
+# algebra above gives eq_b == k_b * eq_whole IDENTICALLY, so a zero share contributes
+# a zero series to every sum and to gis_fast / gis_slow / greenland_sea_level.
+#
+#   active = SW + CW + CE + SE + NW   carried in the `south` SLOT, which is NOT
+#                                     renamed: the output contract is what every
+#                                     downstream consumer reads
+#   high   = NO + NE                  unchanged
+#
+# = (0.628571, 0, 0.371429). DERIVED here, ONCE, so the calibrator's --gis-basins2
+# and test_greenland_3basin_nesting.jl [4] cannot drift apart, and so a revision of
+# the Mouginot inventory (GIS3_VOL_M) propagates to both.
+#
+# WHY two. Refitting every structure in the offline harness returns s_mid = 1.024;
+# pinning it to 1 costs Delta nlp 0.0023 and the profile is WELL CURVED (+6.3 at
+# s_mid 0.25, +7.3 at 3.98), so s_mid is IDENTIFIED-and-equal-to-1, not merely
+# unconstrained. Two basins also fit the Mouginot windows better (worst |z| 0.69 vs
+# 1.01) with one fewer parameter. See notes/handoff_2026-08-20b_tap_priced.md.
+const GIS2_VSHARE = (south = GIS3_VSHARE.south + GIS3_VSHARE.mid,
+                     mid   = 0.0,
+                     high  = GIS3_VSHARE.high)
 
 @defcomp greenland_3basin begin
     gis_c1      = Parameter()   # equilibrium sensitivity, m SLE per K of the REGIONAL driver
