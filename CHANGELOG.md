@@ -3,6 +3,78 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-20d — The tap narrows from 25 cells to SIX on a design principle, and the hindcast supports TWO Greenland basins, not three.
+
+`python/scope_gis_basin_structure.py`; commit `03df3d2`.
+
+### The 2300 scorecard identifies ONE number, not three
+
+The tap is additive, so ssp585@2300 = `base + V·u₂₃₀₀(T_on, τ)` and the level band
+constrains a **single combination** Ṽ ≡ V·u₂₃₀₀ ∈ [1.252, 2.647] m. Tested, not asserted:
+"Ṽ in that window" reproduces `all_pass` **exactly, 25/25**. A 1-D identified quantity and a
+**2-D degenerate surface** — the same shape as the `φ·L_eq` ridge this arc has been fighting.
+
+**The free direction is free at 2300 and expensive at 2150.** At fixed Ṽ, 2150 still ranges
+by up to **0.82 m**; at 2100 the spread is exactly 0.000 m. So the choice is invisible where
+the model is validated and loud where it is reported — and it is worst on **τ, the one axis
+with no independent published gate.**
+
+**Resolved by a DESIGN PRINCIPLE, not a fit.** Selecting on FittedISMIP's 2150 would breach
+`gis_offline_cell.py`'s own rule (fitting the intercomparison "would make Ladrillo's
+Greenland a second-hand FACTS FittedISMIP"). It is not needed: *the tap must not move any
+horizon at which the model has independent validation.* That is exactly how the Tier-1
+bracket's 4.69 K floor arose — it IS ssp585's 2100 GMT. Extending it to 2150 gives
+**onset ≥ 6.5 K** (6.5 K first fires 2155, 7.0 K 2180). **Six cells** leave 2100 AND 2150
+bit-identical; recommended **onset 6.5 K / V 2.0 m / τ 100 yr** (ratio 10.5×, 2300 1.86 m).
+FittedISMIP agreement then stays an EVALUATION (untapped base 0.279 m vs its median 0.273).
+
+**Caveat:** the collapse is a property of the MOCK's additive tap. Re-test after wiring.
+
+### Two basins, not three
+
+Every structure refits its **full** parameter set against the same objective in the offline
+harness's own integrator, bounds and multistart+basin-hop protocol. **G1 PASS**: B1
+reproduces the harness's A+B to 1.6e-05 per parameter, 2.4e-10 on nlp.
+
+| | npar | shared terms | worst \|z\| | s_mid | s_high |
+|---|---|---|---|---|---|
+| B1 one basin | 8 | 17.8559 | — | — | — |
+| **B2 two basins** | **9** | **18.2241** | **0.69** | — | **0.229** |
+| B3 three basins | 10 | 18.2238 | 1.01 | **1.024** | 0.259 |
+
+Identical RMSE (0.0617 cm), all gates passed. **The NW split costs a parameter and buys
+nothing** — shared terms agree to 4 decimals, the share fit gets WORSE (one NW scale cannot
+span 0.207 vs 0.262). L13's −1.09 only moves to 1.01 under a clean refit.
+
+**The profile is decisive**: `s_mid` 0.501 +1.76 | 0.794 +0.25 | **1.000 +0.0023** | 1.259
++0.18 | 1.995 +2.12. It is **well-curved, not flat** (+6.3 at 0.25, +7.3 at 3.98), so
+`s_mid` is genuinely **IDENTIFIED** — not "we cannot tell" but **"we can tell, and it is 1"**.
+1σ [0.794, 1.259]; **pinning `s_mid` = 1 costs Δnlp 0.0023**; the prototype's **4.47× is
+excluded at Δnlp > 7** — "do not chase 4.47" is now a measurement. No profile point below
+the optimum ⇒ converged.
+
+**A CORRECTION TO 2026-08-20c's reading.** I had called `s_mid` *unidentified*. That was too
+strong: L13's posterior sd (0.147 in log10) is **3.4× narrower** than the calibrator's
+N(0, 0.5) prior, so the likelihood was informing it all along. The refit gives the stronger
+and correct statement.
+
+**What does NOT change: the separation.** B1/B2/B3 give ssp585@2300 = 46.2 / 55.1 / 54.1 cm,
+ratios **2.69× / 2.73× / 2.72×** — all inside the ridge ceiling. **No basin structure buys
+the separation**; the tap stays load-bearing either way. Dormancy holds throughout
+(s_high 0.229 / 0.259 vs L13's posterior 0.268).
+
+**Caveats.** Greenland-only offline cell — no BRICK coupling, no AR(1) noise, none of the
+other likelihood terms. B2 and B3 are scored on DIFFERENT data by construction, so the
+comparison is on shared terms and each structure's own worst |z|, **never total nlp**. And
+Mouginot sectors are drainage basins while `t_gis_zones` are latitude bands (NW straddles
+central and north), so per-zone drivers can never cleanly carry sector geometry — an
+argument FOR keeping geometry in the likelihood.
+
+### Housekeeping
+
+Two background waiters hung on a `pgrep -f` **self-match**: the waiting shell's own command
+line contains the pattern, so `! pgrep` is never true. Poll an output file instead.
+
 ## [unreleased] — 2026-08-20c — THE TAP IS PRICED, on the certified L13 posterior and with no MCMC: 25 of 140 admissible cells clear everything, ratio 9.8–16.4x.
 
 Handoff `notes/handoff_2026-08-20_gis_zone_and_tap.md` §6 item 1, delivered.
