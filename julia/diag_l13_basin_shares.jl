@@ -1,5 +1,12 @@
-# diag_l13_basin_shares.jl — does the FITTED 3-basin model reproduce the observed
+# diag_l13_basin_shares.jl — does the FITTED basin model reproduce the observed
 # Mouginot sector partition? This is the number the whole restructure exists for.
+#
+# WORKS FOR BOTH STRUCTURES, and it DETECTS which one from the chain rather than
+# taking a flag (2026-08-20). A --gis-basins2 chain has no `gis_s_mid` column,
+# because that parameter is dropped from FREE when k_mid = 0; a 3-basin chain has
+# one. Reading the structure off the posterior it is about to summarise is the only
+# version of this that cannot be pointed at the wrong table — a flag would let a
+# 2-basin chain be scored against the 3-way targets and print a header saying so.
 #
 # EXACT-DRIVER NOTE. Both shares windows (2002-2011, 2012-2018) end well before
 # TGZ_LAST = 2024, and the model is integrated forward from 1850, so EVERY year
@@ -9,7 +16,9 @@
 # not an approximation of the calibrator's driver, but identical to it over the
 # span that matters. That is why this needs no forcing file.
 #
-# Run:  julia --project=julia_v2 julia/diag_l13_basin_shares.jl [chain.csv]
+# Run:  julia --project=julia_v2 julia/diag_l13_basin_shares.jl [chain.csv | --tag=L14]
+#       --tag= POOLS the second half of every chain_<TAG>_seed*_n*.csv, which is the
+#       right posterior for a production run; a bare path reads that one chain.
 
 using CSV, DataFrames, Mimi, MimiBRICK, Printf, Statistics
 const REPO = abspath(joinpath(@__DIR__, ".."))
@@ -18,14 +27,44 @@ include(joinpath(REPO, "julia", "brick_mengel.jl"))
 const GIS_ZONE, GIS_V0_M, GIS_G = "south", 7.42, 0.0
 const GIS_TBAR = 1.9631            # as printed by the calibrator for this zone
 const WINS = ((2002, 2011), (2012, 2018))
-const TARGET = ((south=0.592, mid=0.207, high=0.201),
-                (south=0.554, mid=0.262, high=0.183))
+# The Mouginot 3-way table. The 2-basin table is the MERGE of it (active = south +
+# mid), derived rather than typed, exactly as the calibrator's GISB_SHARE is.
+const TARGET3 = ((south=0.592, mid=0.207, high=0.201),
+                 (south=0.554, mid=0.262, high=0.183))
+const TARGET2 = Tuple((south = t.south + t.mid, mid = 0.0, high = t.high) for t in TARGET3)
 
-chain_path = length(ARGS) >= 1 ? ARGS[1] :
-    joinpath(REPO, "outputs/mcmc/chain_L13tune_seed2026_n1000000.csv")
-df = CSV.read(chain_path, DataFrame)
-h = df[(nrow(df)÷2 + 1):end, :]
+# ---- input: one chain path, or --tag= to pool a production set ----------------
+tagarg = findfirst(a -> startswith(a, "--tag="), ARGS)
+chain_paths, src_label = if tagarg !== nothing
+    tg = ARGS[tagarg][7:end]
+    mcmcdir = joinpath(REPO, "outputs/mcmc")
+    ps = sort([joinpath(mcmcdir, f) for f in readdir(mcmcdir)
+               if occursin(Regex("^chain_" * tg * "_seed\\d+_n\\d+\\.csv\$"), f)])
+    isempty(ps) && error("--tag=$tg matched no chain_$(tg)_seed*_n*.csv in $d")
+    ps, "$tg, $(length(ps)) chain(s) POOLED"
+else
+    p1 = length(ARGS) >= 1 ? ARGS[1] :
+        joinpath(REPO, "outputs/mcmc/chain_L13tune_seed2026_n1000000.csv")
+    [p1], basename(p1)
+end
+# Second half of EACH chain, then pooled — never the second half of the concatenation,
+# which would keep all of the last chain's burn-in and none of the first chain's tail.
+h = reduce(vcat, [(ch = CSV.read(p, DataFrame); ch[(nrow(ch)÷2 + 1):end, :])
+                  for p in chain_paths])
 med(c) = median(skipmissing(h[!, c]))
+
+# ---- STRUCTURE DETECTION, from the posterior itself ---------------------------
+const TWO_BASIN = !("gis_s_mid" in names(h))
+const KV     = TWO_BASIN ? GIS2_VSHARE : GIS3_VSHARE
+const TARGET = TWO_BASIN ? TARGET2 : TARGET3
+# `high` is the dependent share and is never scored; with two basins that leaves ONE.
+const SCORED = TWO_BASIN ? (:south,) : (:south, :mid)
+const MODE_LABEL = TWO_BASIN ?
+    "2 basins, active{SW+CW+CE+SE+NW} / high{NO+NE}" :
+    "3 Mouginot sectors, south{SW+CW+CE+SE} / mid{NW} / high{NO+NE}"
+# Column headers follow the structure too — printing "south" over a merged basin is
+# the label-vs-content drift this file's own tag comment already warns about.
+const COLHDR = TWO_BASIN ? ("active", "(mid=0)", "high") : ("south", "mid", "high")
 
 tgz = CSV.read(joinpath(REPO, "data/observations/t_gis_zones.csv"), DataFrame)
 y0, y1 = 1850, Int(maximum(tgz.year))
@@ -39,10 +78,12 @@ r_s = exp(med("gis_slow_ell")); w_s = med("gis_slow_w")
 gis = (c1=med("gis_c1"), c0=med("gis_c0"), v0=GIS_V0_M, f=med("gis_f"),
        alpha_f=med("gis_alpha_f"), beta_f=med("gis_beta_f"),
        alpha_s=w_s * r_s / GIS_TBAR, beta_s=(1 - w_s) * r_s, g=GIS_G)
-s = (south=1.0, mid=10.0^med("gis_s_mid"), high=10.0^med("gis_s_high"))
+s = (south = 1.0,
+     mid  = TWO_BASIN ? 1.0 : 10.0^med("gis_s_mid"),   # inert at k_mid = 0
+     high = 10.0^med("gis_s_high"))
 
 m = build_brick_nu3_gis3(ssp="ssp245", y0=y0, y1=y1)
-update_gis_ab!(m, gis); update_gis3_shares!(m; k=GIS3_VSHARE, s=s)
+update_gis_ab!(m, gis); update_gis3_shares!(m; k=KV, s=s)
 set_gis_forcing!(m, driver)
 bc = CSV.read(joinpath(REPO, "outputs/extc_block_constants.csv"), DataFrame)
 brow(b) = only(eachrow(bc[bc.block .== b, :]))
@@ -67,11 +108,12 @@ bsl = (south=m[_GIS_SLOT, :gis_sl_south], mid=m[_GIS_SLOT, :gis_sl_mid],
 # `~/.claude/CLAUDE.md` makes a structural rule, and exactly the class of thing
 # this session spent two days chasing in other guises.
 @printf("%s posterior median | %s\n",
-        something(match(r"chain_([A-Za-z0-9]+)_seed", basename(chain_path)),
-                  (captures=["(unknown tag)"],)).captures[1],
-        basename(chain_path))
-@printf("  rate scales: south 1.0000 (pinned)  mid %.4f  high %.4f\n", s.mid, s.high)
-@printf("\n  %-11s %8s %8s %8s   %s\n", "window", "south", "mid", "high", "total cm/yr")
+        something(match(r"chain_([A-Za-z0-9]+)_seed", basename(chain_paths[1])),
+                  (captures=["(unknown tag)"],)).captures[1], src_label)
+@printf("  structure DETECTED from the chain columns: %s\n", MODE_LABEL)
+@printf("  rate scales: %s 1.0000 (pinned)%s  high %.4f\n", COLHDR[1],
+        TWO_BASIN ? "" : @sprintf("  mid %.4f", s.mid), s.high)
+@printf("\n  %-11s %8s %8s %8s   %s\n", "window", COLHDR..., "total cm/yr")
 maxz = Ref(0.0)
 for (w, tgt) in zip(WINS, TARGET)
     i0, i1, n = idx(w[1]), idx(w[2]), w[2] - w[1]
@@ -81,10 +123,18 @@ for (w, tgt) in zip(WINS, TARGET)
     @printf("  %-11s %8.3f %8.3f %8.3f   %11.4f\n", "$(w[1])-$(w[2])", sh..., 100*sum(d))
     @printf("  %-11s %8.3f %8.3f %8.3f\n", "  target", tgt.south, tgt.mid, tgt.high)
     z = [(sh[i] - getproperty(tgt, b)) / 0.05 for (i, b) in enumerate(GIS3_BASINS)]
-    @printf("  %-11s %8.2f %8.2f %8.2f   (sigma = 0.05; high is NOT scored)\n",
-            "  z-score", z...)
-    maxz[] = max(maxz[], maximum(abs.(z[1:2])))
+    @printf("  %-11s %8.2f %8.2f %8.2f   (sigma = 0.05; scored: %s)\n",
+            "  z-score", z..., join(SCORED, "+"))
+    for b in SCORED
+        maxz[] = max(maxz[], abs(z[findfirst(==(b), GIS3_BASINS)]))
+    end
 end
 @printf("\n  s = 1 null, for reference: %.3f %.3f %.3f (the volume shares)\n",
-        GIS3_VSHARE.south, GIS3_VSHARE.mid, GIS3_VSHARE.high)
+        KV.south, KV.mid, KV.high)
 @printf("  worst |z| on a SCORED share: %.2f\n", maxz[])
+# Pre-registered expectations from the offline refits, so the reader does not have to
+# go and look them up: 3-basin L13 gave worst |z| 1.09 and s_high 0.268; the offline
+# 2-basin refit gives worst |z| 0.69 and s_high 0.229.
+println(TWO_BASIN ?
+    "  EXPECTED (offline 2-basin refit): worst |z| ~ 0.69, s_high ~ 0.229 (range 0.20-0.30)" :
+    "  EXPECTED (L13 3-basin posterior):  worst |z| ~ 1.09, s_high ~ 0.268")
