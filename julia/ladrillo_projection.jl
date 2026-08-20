@@ -305,6 +305,24 @@ A chain that carries these was fitted with `greenland_3basin` in the Greenland
 slot. Projecting it through `greenland_ab` silently evaluates it at s = 1 — the
 partition-invariance null — which is a model that was never calibrated."""
 const LADRILLO_GIS_BASIN_COLS = ["gis_s_mid", "gis_s_high"]
+const LADRILLO_GIS_BASIN3_COLS = LADRILLO_GIS_BASIN_COLS
+"""The ONE sampled rate scale a `--gis-basins2` (L14+) posterior carries. `gis_s_mid`
+is DROPPED from that layout — at `k_mid = 0` it multiplies a zero-commitment basin —
+so a 2-basin posterior is identified by `gis_s_high` PRESENT and `gis_s_mid` ABSENT.
+
+THE ABSENCE IS LOAD-BEARING, not a convenience. Testing only for presence made
+`all(c in cols for LADRILLO_GIS_BASIN_COLS)` false for an L14 chain, which fell
+through to `:ab` and would have projected the whole sheet at s = 1 — the exact
+failure this variant exists to close, and the one that cost -1.7 cm on the 2100
+median when an L13 chain fell through the same hole before 2026-08-19."""
+const LADRILLO_GIS_BASIN2_COLS = ["gis_s_high"]
+"""The FIXED volume shares each basin variant projects under. One place, so the
+projector cannot use the 3-basin geometry on a 2-basin posterior — which would be
+silent: both are valid `k` vectors summing to 1."""
+ladrillo_basin_k(variant::Symbol) =
+    variant === :basins  ? GIS3_VSHARE :
+    variant === :basins2 ? GIS2_VSHARE :
+    error("ladrillo_basin_k: :$variant is not a basin variant")
 
 const LADRILLO_PHYSICAL_PARAMS_NOGIS =
     [p for p in LADRILLO_PHYSICAL_PARAMS if !(p[1] in LADRILLO_GIS_STOCK_COLS)]
@@ -324,8 +342,23 @@ function ladrillo_gis_variant(cols)
     # Both A+B coordinate sets is not an error: an L11 posterior that has already
     # been through ladrillo_native_greenland! legitimately carries both, and the
     # transform is idempotent. Native wins because it is what the model takes.
-    hasb3 = all(c -> c in cols, LADRILLO_GIS_BASIN_COLS)
+    hasb3 = all(c -> c in cols, LADRILLO_GIS_BASIN3_COLS)
+    # 2-basin is presence of gis_s_high AND ABSENCE of gis_s_mid. Checking presence
+    # alone would make an L14 chain indistinguishable from a 3-basin one; checking
+    # nothing at all is what made it read as :ab. See LADRILLO_GIS_BASIN2_COLS.
+    hasb2 = all(c -> c in cols, LADRILLO_GIS_BASIN2_COLS) &&
+            !("gis_s_mid" in cols)
     (hasab || hasrp) && hasb3 && return :basins
+    (hasab || hasrp) && hasb2 && return :basins2
+    # A+B columns plus a PARTIAL basin set is not :ab — it is a file we do not
+    # understand, and :ab is the answer that silently projects a never-calibrated
+    # model. Refuse instead.
+    if (hasab || hasrp) && ("gis_s_mid" in cols) && !("gis_s_high" in cols)
+        error("ladrillo_gis_variant: posterior carries gis_s_mid but NOT gis_s_high. " *
+              "No calibrated layout looks like that (3-basin has both, 2-basin has " *
+              "only gis_s_high); falling back to :ab would project a model that was " *
+              "never calibrated.")
+    end
     (hasab || hasrp) && return :ab
     hasst && return :stock
     error("ladrillo_gis_variant: posterior carries NEITHER Greenland column set. " *
@@ -397,7 +430,8 @@ const LADRILLO_DERIVED_COLS = vcat(
 ladrillo_used_cols(variant::Symbol) = vcat(
     [p[1] for p in LADRILLO_PHYSICAL_PARAMS_NOGIS],
     variant === :stock ? LADRILLO_GIS_STOCK_COLS : LADRILLO_GIS_AB_COLS,
-    variant === :basins ? LADRILLO_GIS_BASIN_COLS : String[],
+    variant === :basins  ? LADRILLO_GIS_BASIN3_COLS :
+    variant === :basins2 ? LADRILLO_GIS_BASIN2_COLS : String[],
     LADRILLO_GLACIER_COLS, LADRILLO_DERIVED_COLS)
 ## No variant-free column list: it would silently mean ":stock" and every
 ## consumer of it would check the wrong contract on a Ladrillo 1.0 posterior
@@ -471,7 +505,7 @@ struct Ladrillo
     obs_mask::BitVector                      # years <= last observed driver year
     nu::Dict{String,Float64}                 # FIXED per-block nu
     funch_unit::Vector{Float64}              # F_unch profile per mm of gic_u_unch (m SLE)
-    gis_variant::Symbol                      # :ab (Ladrillo 1.0), :basins (L13 3-basin), :stock (SIMPLE)
+    gis_variant::Symbol                      # :ab (Ladrillo 1.0), :basins (L13 3-basin), :basins2 (L14 2-basin), :stock (SIMPLE)
     gis_obs::Vector{Float64}                 # observed regional Greenland T, padded to `years`
     gis_anchor::Float64                      # mean observed regional T over the splice anchor
     gis_mask::BitVector                      # years <= last observed Greenland driver year
@@ -566,7 +600,7 @@ function ladrillo_setup(; ssp::String="ssp245", y0::Int=1850, y1::Int=2300,
     # preferring one would let a caller ask for the 3-basin model and get A+B,
     # which is the very failure this variant exists to close.
     gis_variant === nothing && (gis_variant = gis_ab ? :ab : :stock)
-    gis_variant in (:ab, :basins, :stock) ||
+    gis_variant in (:ab, :basins, :basins2, :stock) ||
         error("ladrillo_setup: unknown gis_variant :$gis_variant")
     (gis_ab && gis_variant === :stock) &&
         error("ladrillo_setup: gis_ab=true contradicts gis_variant=:stock")
@@ -592,7 +626,10 @@ function ladrillo_setup(; ssp::String="ssp245", y0::Int=1850, y1::Int=2300,
         ianch = [yi(y) for y in ganch]
         gis_shape_anchor = mean(gis_shape_v[ianch] .* gmst_rb[ianch])
     end
-    m = gis_variant === :basins ? build_brick_nu3_gis3(ssp=ssp, y0=y0, y1=y1, lws=lws) :
+    # :basins2 builds the SAME component as :basins — greenland_3basin at k_mid = 0
+    # IS the two-basin model. Only the k vector differs, and it is bound below.
+    m = gis_variant in (:basins, :basins2) ?
+                                  build_brick_nu3_gis3(ssp=ssp, y0=y0, y1=y1, lws=lws) :
         gis_variant === :ab     ? build_brick_nu3_gis(ssp=ssp, y0=y0, y1=y1, lws=lws) :
                                   build_brick_nu3(ssp=ssp, y0=y0, y1=y1, lws=lws)
     medoid = CSV.read(LADRILLO_MEDOID_CSV, DataFrame)[1, :]
@@ -618,7 +655,8 @@ function ladrillo_setup(; ssp::String="ssp245", y0::Int=1850, y1::Int=2300,
     # Parameters after `build_brick_nu3_gis3`, so this is required, not cosmetic;
     # the two SAMPLED scales are overwritten per draw in `ladrillo_apply_draw!`
     # and `gis_s_south` stays pinned at the reference value 1.
-    gis_variant === :basins && update_gis3_shares!(m)
+    gis_variant in (:basins, :basins2) &&
+        update_gis3_shares!(m; k = ladrillo_basin_k(gis_variant))
 
     return Ladrillo(m, ssp, years, [yi(y) for y in ref[1]:ref[2]],
                   Float64.(gmst), gmst_rb, obs_driver, obs_anchor,
@@ -690,10 +728,15 @@ function ladrillo_apply_draw!(bf::Ladrillo, row)
     # The two sampled basin rate scales, LOG10 as the chain carries them --
     # identical to calibrate_mcmc_ext.jl's `10.0^theta[GISB_IDX3[b]]`. south is
     # the pinned reference and keeps the s = 1 bound at setup.
-    bf.gis_variant === :basins &&
-        update_gis3_shares!(m; k = GIS3_VSHARE,
+    # k FOLLOWS THE VARIANT. Using GIS3_VSHARE on a 2-basin draw would be silent —
+    # both are valid k vectors summing to 1 — and would load a basin the calibration
+    # held empty. s_mid is 1.0 under :basins2: the column does not exist, and at
+    # k_mid = 0 the value is inert anyway.
+    bf.gis_variant in (:basins, :basins2) &&
+        update_gis3_shares!(m; k = ladrillo_basin_k(bf.gis_variant),
                             s = (south = 1.0,
-                                 mid   = 10.0^Float64(row["gis_s_mid"]),
+                                 mid   = bf.gis_variant === :basins2 ? 1.0 :
+                                         10.0^Float64(row["gis_s_mid"]),
                                  high  = 10.0^Float64(row["gis_s_high"])))
     @inbounds for col in LADRILLO_GLACIER_COLS
         update_param!(m, _GLAC, _GLACIER_SYMS[col], Float64(row[col]))

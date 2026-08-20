@@ -21,6 +21,13 @@
 #                                       Ladrillo 1.0 posterior and builds
 #                                       Greenland the same way the calibrator
 #                                       does (constant parity + end-to-end)
+#   7. julia/test_ladrillo_basins2_variant.jl the projector can tell a 2-basin
+#                                       posterior from a 3-basin one and projects
+#                                       it under the right k. 6 checks the kernel
+#                                       against ONE variant's constants; this
+#                                       checks that the variant is CHOSEN right,
+#                                       which is where the -1.7 cm silent-wrong-
+#                                       model error lived.
 #   5. calibrate_mcmc_ext.jl --gis-check the CALIBRATOR wires that component up
 #                                       correctly. 4 validates the component in
 #                                       isolation; the driver, the fixed g and v0,
@@ -44,13 +51,13 @@ NDRAW="${1:-100}"
 JULIA="julia --project=julia_v2"
 
 echo "=============================================================="
-echo "[1/6] python/test_ladrillo_data.py"
+echo "[1/7] python/test_ladrillo_data.py"
 echo "=============================================================="
 (cd python && "$PYTHON" test_ladrillo_data.py)
 
 echo
 echo "=============================================================="
-echo "[2/6] julia/validate_glaciers_nu3.jl (both amp bases)"
+echo "[2/7] julia/validate_glaciers_nu3.jl (both amp bases)"
 echo "=============================================================="
 for basis in regchar obsfit; do
     echo "--- amp basis: $basis ---"
@@ -59,29 +66,35 @@ done
 
 echo
 echo "=============================================================="
-echo "[3/6] julia/test_ladrillo_projection.jl ($NDRAW draws)"
+echo "[3/7] julia/test_ladrillo_projection.jl ($NDRAW draws)"
 echo "=============================================================="
 $JULIA julia/test_ladrillo_projection.jl "$NDRAW"
 
 echo
 echo "=============================================================="
-echo "[4/6] julia/validate_greenland_ab.jl"
+echo "[4/7] julia/validate_greenland_ab.jl"
 echo "=============================================================="
 "$PYTHON" python/emit_gis_port_reference.py
 $JULIA julia/validate_greenland_ab.jl
 
 echo
 echo "=============================================================="
-echo "[5/6] julia/calibrate_mcmc_ext.jl --gis-check (calibrator wiring)"
+echo "[5/7] julia/calibrate_mcmc_ext.jl --gis-check (calibrator wiring)"
 echo "=============================================================="
 $JULIA julia/calibrate_mcmc_ext.jl 1 2026 --tag=gischeck --gis-check \
     | sed -n '/--gis-check/,$p'
 
 echo
 echo "=============================================================="
-echo "[6/6] julia/validate_gis_projection_ab.jl (projection kernel)"
+echo "[6/7] julia/validate_gis_projection_ab.jl (projection kernel)"
 echo "=============================================================="
 $JULIA julia/validate_gis_projection_ab.jl
+
+echo
+echo "=============================================================="
+echo "[7/7] julia/test_ladrillo_basins2_variant.jl (2-basin variant)"
+echo "=============================================================="
+$JULIA julia/test_ladrillo_basins2_variant.jl
 
 echo
 echo "ALL Ladrillo MODEL TESTS PASS"

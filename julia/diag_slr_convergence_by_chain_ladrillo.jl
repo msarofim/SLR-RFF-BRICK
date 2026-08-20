@@ -103,7 +103,12 @@ const VARIANT = VARIANTS[SEEDS[1]]
 # partition-invariance null — which is NOT the model those chains were fitted
 # under; see diag_l13_projection_variant.jl for what that was worth (-1.7 cm on
 # the 2100 median at 4 draws/chain). Only :stock is refused here.
-VARIANT in (:ab, :basins) || error("chains read as :$VARIANT — this is the Ladrillo 1.0 " *
+# :basins2 (L14+) joins them 2026-08-20, and for exactly the same reason: an L14 chain
+# carries gis_s_high but NOT gis_s_mid, so the pre-fix presence-only test made it read as
+# :ab and it would have been projected at s = 1 — the SAME hole, the SAME -1.7 cm class of
+# silent error, one layout later. The projector now distinguishes them by the ABSENCE of
+# gis_s_mid and binds GIS2_VSHARE rather than GIS3_VSHARE.
+VARIANT in (:ab, :basins, :basins2) || error("chains read as :$VARIANT — this is the Ladrillo 1.0 " *
     "(greenland_ab / greenland_3basin) diagnostic; use " *
     "diag_slr_convergence_by_chain_extc.jl for stock-SIMPLE chains")
 
