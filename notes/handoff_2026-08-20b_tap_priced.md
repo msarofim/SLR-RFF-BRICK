@@ -1,17 +1,22 @@
-# Handoff — the tap is PRICED, the offline A+B fit is LOCATED, and L13 fixed the partition but not the separation
+# Handoff — the tap is PRICED and narrowed to six cells, the hindcast supports TWO basins,
+# and L13 fixed the partition but not the separation
 
 **Start-here document.** Repo `SLR-RFF-BRICK`, branch **`ladrillo-dev`**.
 Predecessor: `notes/handoff_2026-08-20_gis_zone_and_tap.md`.
-Commits: `1b2c90a` (offline fit), `6c4f907` (tap pricing).
+Commits: `1b2c90a` (offline fit), `6c4f907` (tap pricing), `03df3d2` (basin structure).
 
 **Bottom line. (1) THE TAP CLEARS. 25 of 140 admissible cells pass every gate at ratio
 9.77–16.41×, and the tap moves ssp126/ssp245 by EXACTLY zero. (2) BUT L13 ALONE DOES NOT.
 Its own untapped ssp585/ssp245 2300 ratio is 2.71× against the literature's 7.9–31.9× —
 inside the single-law ridge ceiling. The sector restructure fixed the PARTITION, not the
-SEPARATION, exactly as predicted; the tap is still load-bearing. (3) Item 1 was blocked on
-a prerequisite nobody had spotted: there was no L13 posterior subsample. (4) Item 2's
-offline A+B fit EXISTS and needed no rebuilding — but it carried the SAME amp bug the
-calibrator had fixed one commit earlier.**
+SEPARATION, exactly as predicted; the tap is still load-bearing. (3) THE 2300 SCORECARD
+IDENTIFIES ONLY ONE COMBINATION of (T_on, V, τ), and the free direction is expensive at
+2150 — resolved by a DESIGN PRINCIPLE, not a fit: onset ≥ 6.5 K leaves 2100 AND 2150
+bit-identical. (4) THE HINDCAST SUPPORTS TWO BASINS, NOT THREE: refit, s_mid = 1.024, and
+pinning it to 1 costs Δnlp 0.002. (5) Item 1 was blocked on a prerequisite nobody had
+spotted: there was no L13 posterior subsample. (6) Item 2's offline A+B fit EXISTS and
+needed no rebuilding — but it carried the SAME amp bug the calibrator had fixed one
+commit earlier.**
 
 ---
 
@@ -103,6 +108,115 @@ being clipped, the passing cells are genuinely feasible.
 
 ---
 
+## 2.4 THE TAP HAS ONE IDENTIFIED NUMBER, NOT THREE — and the free direction costs 2150
+
+The tap enters additively, so ssp585 at 2300 is `base + V·u₂₃₀₀(T_on, τ)`. The level band
+therefore constrains a **single combination**, Ṽ ≡ V·u₂₃₀₀ ∈ **[1.252, 2.647] m**. Tested,
+not asserted: *"Ṽ in that window"* reproduces `all_pass` **exactly, 25 of 25**. There is a
+1-D identified quantity and a **2-D degenerate surface** — the same shape as the `φ·L_eq`
+commitment ridge this whole arc has been fighting.
+
+**The degenerate direction is free at 2300 and expensive at 2150.** Holding Ṽ fixed and
+moving along it, 2150 still ranges by up to **0.82 m** (e.g. Ṽ = 1.889 ± 0.06: 2300 spans
+2.369–2.427 while 2150 spans 0.350–1.169). At 2100 the spread is exactly 0.000 m. **So the
+choice is invisible where the model is validated and loud where it is reported.** Worse,
+the degeneracy is worst on the one axis with **no independent published gate** — τ.
+
+### The resolution is a DESIGN PRINCIPLE, not a fit
+
+`gis_offline_cell.py` states the rule: fitting to the FACTS/MAGICC intercomparison "would
+make Ladrillo's Greenland a second-hand FACTS FittedISMIP and destroy the comparison's
+independence" — which is why G4 is *reported*, never in the objective. Selecting the tap
+cell on FittedISMIP's 2150 would breach exactly that rule.
+
+**It is not needed.** The same answer follows from: *the tap must not move any horizon at
+which the model has independent validation.* That is precisely how the Tier-1 bracket's
+4.69 K floor arose — it IS ssp585's 2100 GMT. Extending the identical logic to 2150 gives
+**onset ≥ 6.5 K**, because 6.5 K first fires in **2155** and 7.0 K in **2180**.
+
+Six cells clear 2300 while leaving 2100 **and** 2150 bit-identical to the untapped model:
+
+| onset K | V m | τ yr | ratio | 2300 m |
+|---|---|---|---|---|
+| 6.5 | 1.5 | 50 | 10.32× | 1.832 |
+| **6.5** | **2.0** | **100** | **10.48×** | **1.860** |
+| 7.0 | 2.5 | 50 | 11.29× | 2.004 |
+| 6.5 | 2.5 | 100 | 12.42× | 2.205 |
+| 6.5 | 2.0 | 50 | 12.87× | 2.283 |
+| 6.5 | 2.5 | 50 | 15.41× | 2.734 |
+
+**Recommended: onset 6.5 K, V 2.0 m, τ 100 yr** (bold row) — low in the band, tap = 73% of
+the NO+NE inventory — with the other five as the sensitivity set. The FittedISMIP agreement
+then stays what it must be: an EVALUATION you report, not a target you fit.
+
+*The independent 2150 comparison, for reporting:* FittedISMIP 0.273 [0.180, 0.429],
+bamber19 0.381 [0.039, 1.257], Ladrillo L11 0.271 — against L13's untapped base of
+**0.279 m**, already on FittedISMIP's median.
+
+**CAVEAT.** The exact 1-D collapse is a property of the MOCK's ADDITIVE tap. Wired inside
+`greenland_3basin_component.jl` the tap interacts with the basin's own relaxation and its
+`k_b·v0` clamp. **Re-test the collapse after wiring; do not assume it survives.**
+
+---
+
+## 2.5 THE HINDCAST SUPPORTS TWO BASINS, NOT THREE (commit `03df3d2`)
+
+`python/scope_gis_basin_structure.py`. Every structure refits its **full** parameter set
+against the same objective, in `gis_offline_cell.py`'s own integrator, bounds and
+multistart-plus-basin-hop protocol. **G1 PASS**: B1 reproduces the harness's own A+B cell
+to 1.6e-05 on every parameter and 2.4e-10 on nlp, so what follows is structure, not wiring.
+
+| | npar | shared terms | worst \|z\| | s_mid | s_high |
+|---|---|---|---|---|---|
+| B1 one basin | 8 | 17.8559 | — | — | — |
+| **B2 two basins** | **9** | **18.2241** | **0.69** | — | **0.229** |
+| B3 three basins | 10 | 18.2238 | 1.01 | **1.024** | 0.259 |
+
+All pass every pre-registered gate at identical RMSE (0.0617 cm). **Adding the NW split
+costs a parameter and buys nothing** — shared terms agree to 4 decimals and the share fit
+gets WORSE, because one NW rate scale still cannot span the two-window tension
+(0.207 vs 0.262). L13's −1.09 only moves to 1.01 under a clean refit.
+
+**THE PROFILE IS DECISIVE.** Refit properly, B3 puts `s_mid` at **1.024**, not L13's
+posterior median 0.949:
+
+```
+s_mid 0.501 +1.76 | 0.794 +0.25 | 1.000 +0.0023 | 1.259 +0.18 | 1.995 +2.12
+```
+
+The profile is **well-curved, not flat** (+6.3 at 0.25, +7.3 at 3.98). So `s_mid` is
+genuinely **IDENTIFIED** — this is not "we cannot tell", it is **"we can tell, and it is
+1"**, which is the stronger claim. *(This corrects my own earlier over-claim that `s_mid`
+was unidentified: L13's posterior sd of 0.147 in log10 is 3.4× NARROWER than the
+calibrator's N(0, 0.5) prior, so the likelihood was informing it all along.)*
+
+* 1σ interval (Δnlp ≤ 0.5, 1 dof): **[0.794, 1.259]**
+* **cost of pinning `s_mid` = 1: Δnlp = +0.0023** — free
+* the offline prototype's **4.47× is excluded at Δnlp > 7**. "Do not chase 4.47" is now a
+  measurement, not an instruction.
+* no profile point falls below the B3 optimum ⇒ the fit converged.
+
+**The other three criteria agree.** *Process models:* Aschwanden has NW going
+land-terminating with discharge "greatly reduced" by 2300 — a DECELERATION; the accelerating
+mechanism (margin retreat into below-sea-level interior) is NO+NE. *Fundamentals:* SMB melt
+vs marine dynamic discharge is the first-order partition, and a third channel with the same
+functional form on a shared driver "is not dynamically distinct". *Simplicity:* one sampled
+scale instead of two, and only one share is independently identified anyway.
+
+**WHAT DOES NOT CHANGE: the separation.** B1/B2/B3 give ssp585 2300 = 46.2 / 55.1 / 54.1 cm,
+ratios **2.69× / 2.73× / 2.72×** — all inside the ridge ceiling. **No basin structure buys
+the separation.** The tap stays load-bearing whichever is chosen.
+
+**CAVEATS.** This is the Greenland-only offline cell — no BRICK coupling, no AR(1) noise,
+none of the other likelihood terms. B2 and B3 are scored on DIFFERENT data by construction
+(one independent share per window vs two), which is why the comparison is on shared terms
+and each structure's own worst |z|, **never on total nlp**. And Mouginot sectors are
+*drainage basins* while `t_gis_zones` are *latitude bands* (central 70–77 N, north 77–84 N)
+— NW straddles both, so per-zone drivers can never cleanly carry sector geometry. That is an
+argument for keeping geometry in the LIKELIHOOD, i.e. the single-amp design.
+
+---
+
 ## 3. THE GATES, and the one that mutation-tests itself
 
 * **G1 CROSS-LANGUAGE.** The Python 3-basin reproduces `julia/diag_l13_basin_shares.jl` on
@@ -184,20 +298,30 @@ Worth a look when L13 promotion is decided; **nothing in this handoff turns on i
 
 ## 6. NEXT ACTIONS, in order
 
-1. **Decide the tap's cell.** The scoping delivers a 25-cell plateau, not a point. Picking
-   (T_on, V, τ) is a methodological choice: it is a prior specification for a
-   projection-side mechanism, and it should be stated as one rather than tuned. The plateau
-   is wide (every τ 50–200, every V 1.5–2.5, onsets 5–7 K), so a defensible default is the
-   centre of it rather than an extremum.
-2. **Wire the tap into `greenland_3basin_component.jl`** on the projection side, and verify
-   with the same nesting discipline: tap-on vs tap-off bit-identical to 2025, and diverging
-   only at the onset year. G2/G2b/G3 here are the offline versions of exactly that check.
-3. **Run the `all` arm of the offline A+B fit** (`--zone=all`), now unblocked and cheap.
-   Adopting its centres into the calibrator remains Marcus's call.
-4. **L13 promotion** — still open from 19d.
-5. Only if a zone × amp factorial is bought: stand up Torch (predecessor §4 stands, and
-   §2.2 here strengthens it — the tap needed no chain).
+1. **Decide the tap cell.** §2.4 narrows the 25-cell plateau to **six** on a stated design
+   principle (the tap must not move a horizon that has independent validation), and
+   recommends **onset 6.5 K / V 2.0 m / τ 100 yr**. This is a PRIOR SPECIFICATION for a
+   projection-side mechanism, not a fit — state it as one. Marcus's call.
+2. **Decide the basin structure.** §2.5 says two, and quantifies the cost of the third as
+   Δnlp 0.002. **If a recalibration is bought for `--gis-zone=all`, fold the 2-basin
+   collapse into the same run** — it removes a parameter and improves the partition fit, so
+   the marginal cost is zero. If not, keep L13 and **report `s_mid` as measured-and-
+   consistent-with-1**, never as evidence NW differs from the south. Marcus's call.
+3. **Wire the tap into `greenland_3basin_component.jl`** (or its 2-basin successor) on the
+   projection side. Verify with the same nesting discipline — tap-on vs tap-off
+   bit-identical to 2025, diverging only at the onset year; G2/G2b/G3 here are the offline
+   versions of exactly that check. **AND re-test the Ṽ collapse of §2.4**, which is a
+   property of the additive mock and may not survive the wiring.
+4. **Run the `all` arm of the offline A+B fit** (`--zone=all`), now unblocked and cheap
+   (§4). Adopting its centres into the calibrator remains a methodological choice.
+5. **L13 promotion** — still open from 19d. L12 canonical meanwhile.
+6. Only if a zone × amp factorial is bought: stand up Torch. The predecessor §4 verdict
+   stands and §2 here strengthens it — the tap needed no chain at all.
 
-**Open decisions for Marcus:** the tap cell (item 1); L13 promotion; whether the D2G/D2S
-arms get re-run; whether L13's mid-basin −1.09 z justifies a second rate-scale knob;
-and whether to adopt `all`-driver prior centres.
+**Open decisions for Marcus:** the tap cell; the basin structure; L13 promotion; whether
+the D2G/D2S arms get re-run; whether to adopt `all`-driver prior centres.
+
+**Housekeeping trap for the next session.** Two background waiters in this session hung on
+a `pgrep -f <pattern>` **self-match** — the waiting shell's own command line contains the
+pattern, so `! pgrep` is never true and the loop spins to timeout. Use `pgrep -f` with a
+pattern that cannot match the waiter, or poll on an output file instead.
