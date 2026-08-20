@@ -9,7 +9,18 @@ box. **L12 remains canonical (SLR@2100 45.53 cm). Nothing here promotes anything
 
 ---
 
-## 0. WHAT IS RUNNING, and how to check it
+## 0. LANDED 2026-08-20 15:12 — RESULT FIRST
+
+**The transfer test PASSED.** `s_high` **0.2265** (pre-registered 0.20–0.30), worst |z|
+**0.56** (pre-registered ~0.69; L13 1.07). **SLR@2100 45.01 cm / @2150 70.58 cm**,
+projected SLR converged at R̂ 1.017 / 1.015, ESS 953 / 967. Subsample written, 10000
+members. 20 marginals unconverged (the usual AIS ridge) ⇒ projections only.
+**L12 remains canonical at 45.53 cm — promotion is Marcus's call.** Full numbers and the
+comparison table are in `CHANGELOG.md` 2026-08-20f and memory `gis_two_basin_decision`.
+
+Production ran **2 h 36 m**, not the 5.5 h estimated. Both drivers completed clean.
+
+## 0b. WHAT WAS RUNNING, and how it was checked
 
 Two detached drivers, both polling FILES (never `pgrep` — it self-matches the waiting
 shell; that hung two waiters in this arc):

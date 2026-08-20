@@ -3,6 +3,63 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-20f — L14 LANDS: the offline 2-basin result TRANSFERRED, worst |z| 0.56.
+
+4 x 2M, tag `L14`, `--gis-ordered --gis-basins2`, zone `south`. Tune 11:20 (acceptance
+0.238), production 11:21-13:57 (**2 h 36 m**), post-processing done 15:12. Acceptance
+**0.237 / 0.235 / 0.236 / 0.236** — tightly clustered and level with L13's 0.237, so
+dropping a sampled parameter cost the proposal nothing.
+
+**L12 REMAINS CANONICAL (45.53 cm). This promotes nothing — that is Marcus's call.**
+
+### The transfer test PASSED, and beat its own pre-registration
+
+| quantity | pre-registered | L14 | L13 (3-basin) |
+|---|---|---|---|
+| `s_high` | 0.20-0.30 (offline 0.229) | **0.2265** | 0.2638 |
+| worst \|z\| on a scored share | ~0.69 | **0.56** | 1.07 |
+
+The standing caveat on all the 2-basin evidence was that it came from the Greenland-ONLY
+offline cell — no BRICK coupling, no AR(1) noise, none of the other likelihood terms —
+and **had not been shown to transfer**. It transferred.
+
+**WHY it beats three basins**, which is the same reason the offline refit did: the merged
+`active` basin never has to reconcile NW's window-to-window drift. L13's worst z was
+`mid` at **-1.07** in 2012-2018, precisely the 0.207 -> 0.262 tension a single NW scale
+cannot span. L14's two windows come in at +0.38 and -0.56. One fewer parameter, a better
+fit. *(Not a like-for-like count — L14 scores ONE share per window, L13 scored two. With
+two basins `high` is exactly `1 - active`, so its z is the same information: -0.38 and
++0.58, no failure hiding in the unscored row.)*
+
+### The deliverable
+
+| | L12 (canonical) | L13 | **L14** |
+|---|---|---|---|
+| SLR@2100, cm | 45.53 | 44.97 | **45.01** |
+| SLR@2150, cm | 70.84 | 70.89 | **70.58** |
+
+Projected SLR **IS** converged: R-hat **1.017** / **1.015**, ESS **953** / **967** at
+2100 / 2150. Pooled q05-q95 41.18-77.07 (2100), 61.93-153.72 (2150). Subsample written:
+`data/MimiBRICK/parameters_subsample_brick_mengel_L14.csv`, 10000 members.
+
+**20 parameter marginals not converged** — the same compensating AIS-geometry ridge as
+every vintage in this line (`ais_iceflow0` R-hat 2.244, `ais_slope` 1.750,
+`antarctic_alpha` 1.777), accepted on the deliverable criterion. Memory records **16**
+for L12; L13's count is not on disk, so 16 -> 20 is **not** a like-for-like comparison
+and is flagged rather than claimed. **Projections only; NOT parameter-level inference.**
+
+### The projector fix earned itself in production
+
+The convergence diagnostic's own header reads `Greenland :basins2`. Before `6b5f650`
+that same chain would have read `:ab` and been projected as whole-sheet `greenland_ab`
+at s = 1 — a model never calibrated, silently, exactly as an L13 chain was before
+2026-08-19 at a cost of -1.7 cm on the 2100 median.
+
+### Not done, and not a failure
+
+The 2300 scenario ratio was **expected** to stay near 2.7x untapped and nothing here
+tests otherwise. The restructure fixes the PARTITION; the TAP fixes the SEPARATION.
+
 ## [unreleased] — 2026-08-20e — TWO basins are WIRED and gated; `--gis-basins2`, L14 ready to tune.
 
 Execution of `notes/handoff_2026-08-20c_two_basin_plan.md` §3, Run A. **L12 remains
