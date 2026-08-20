@@ -105,8 +105,37 @@ file. Like L11 and UNLIKE L10 it carries the slow channel in the REPARAMETERISED
 `(gis_slow_ell, gis_slow_w)` coordinates, not native `(gis_alpha_s,
 gis_beta_s)`, so anything doing parameter-level work on the Greenland channels
 must go through `ladrillo_native_greenland!` first. Also carries the four `d2_*`
-basis columns and drops `sd_dang`/`rho_dang` (D1)."""
+basis columns and drops `sd_dang`/`rho_dang` (D1).
+
+CANONICAL = **L14** since 2026-08-20 (Marcus): the TWO-BASIN Greenland
+(`--gis-basins2`), SLR@2100 **45.01 cm** / @2150 **70.58 cm**, projected SLR converged
+at R-hat 1.017 / 1.015. It reads as `:basins2`, NOT `:ab` — it carries `gis_s_high` and
+NOT `gis_s_mid` — so anything asserting the canonical posterior is `:ab` is now wrong;
+use `LADRILLO_POSTERIOR_L12_CSV` for that fixture. **20 parameter marginals are not
+converged** (the compensating AIS-geometry ridge, re-measured on L14 and confirmed not
+to reach the deliverable), so this posterior is for PROJECTIONS, not parameter-level
+inference."""
 const LADRILLO_POSTERIOR_CSV =
+    joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_L14.csv")
+"""The L13 posterior (3-basin Mouginot sectors, certified 2026-08-20), which L14
+supersedes. L13 was never promoted — L12 held canonical through its whole life — so
+this is the provenance of no shipped deliverable, but it is kept as a named constant
+for two reasons: it is the FALLBACK named in memory `gis_two_basin_decision` if any of
+the three revert conditions ever fires, and it is the only `:basins` (three-basin)
+posterior, so it is the fixture for every test that needs a vintage carrying
+`gis_s_mid` — including the `:basins`-vs-`:basins2` detection gates in
+`test_ladrillo_basins2_variant.jl`."""
+const LADRILLO_POSTERIOR_L13_CSV =
+    joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_L13.csv")
+"""The L12 posterior (accepted 2026-08-18), which L14 supersedes. It was CANONICAL from
+2026-08-18 to 2026-08-20 and is therefore the provenance of every deliverable quoting
+**SLR@2100 45.53 cm / @2150 70.84 cm** — the number in circulation for most of this arc.
+
+It is also the last WHOLE-SHEET Greenland posterior: L13 and L14 both carry basin rate
+scales, so L12 is the only vintage that exercises the `:ab` branch of
+`ladrillo_gis_variant` end to end. Any test needing an `:ab` canonical-shaped fixture
+should point HERE explicitly rather than at the canonical constant."""
+const LADRILLO_POSTERIOR_L12_CSV =
     joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_L12.csv")
 """The L11 posterior (accepted 2026-08-15), which L12 supersedes.
 

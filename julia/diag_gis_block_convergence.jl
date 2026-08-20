@@ -31,7 +31,7 @@ const REPO  = abspath(joinpath(@__DIR__, ".."))
 ## (ladrillo_projection.jl pulls in Mimi/MimiBRICK, and this is a pure-CSV
 ## diagnostic) — that constant remains the authority, so update both together.
 const TAG   = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
-    i === nothing ? "L12" : ARGS[i][7:end]
+    i === nothing ? "L14" : ARGS[i][7:end]
 end
 const SEEDS = [2026, 2027, 2028, 2029]
 const NITER = 2000000

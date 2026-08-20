@@ -14,8 +14,9 @@
 # a day (handoff 2026-08-20b §1).
 #
 # Every output is TAG-SCOPED (chain_L14_*, slr_convergence_L14.csv,
-# parameters_subsample_brick_mengel_L14.csv), so nothing here can clobber L12 (canonical)
-# or L13 (certified).
+# parameters_subsample_brick_mengel_L14.csv), so nothing here can clobber L12 or L13.
+# NOTE: L14 became canonical 2026-08-20, AFTER this script ran; re-running it now
+# rewrites the CANONICAL subsample, which is correct but no longer inert.
 set -uo pipefail          # NOT -e: a failing step must still report, not kill the log
 cd "$(dirname "$0")/.."
 

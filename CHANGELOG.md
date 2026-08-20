@@ -3,6 +3,61 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-20h — **L14 IS CANONICAL.** SLR@2100 45.53 -> 45.01 cm.
+
+Marcus 2026-08-20. The two-basin Greenland supersedes L12, which held canonical from
+08-18. L13 was never promoted. `LADRILLO_POSTERIOR_CSV` is the authority and now points
+at `parameters_subsample_brick_mengel_L14.csv`.
+
+| | L12 (was canonical) | **L14 (canonical)** |
+|---|---|---|
+| SLR@2100, cm | 45.53 | **45.01** |
+| SLR@2150, cm | 70.84 | **70.58** |
+| Greenland | whole-sheet A+B, `:ab` | 2 basins, **`:basins2`** |
+| unconverged marginals | 16 | 20 |
+
+**PROJECTIONS ONLY, not parameter-level inference** — the compensating AIS-geometry
+ridge, re-measured on L14 and confirmed not to reach the deliverable.
+
+### Most things followed automatically; THREE did not
+
+`project_ssps_components_ladrillo.jl`, `posterior_predictive_ladrillo.jl` and
+`diag_slr_convergence_by_chain_ladrillo.jl` all derive their default tag from the
+authority's basename, so they moved on their own. The exceptions, each fixed:
+
+1. **`validate_gis_projection_ab.jl` asserted the canonical posterior reads as `:ab`.**
+   Promotion broke it CORRECTLY — L14 is `:basins2`. Generalised to "a projectable A+B
+   variant", **plus a new gate** pinning `LADRILLO_POSTERIOR_L12_CSV` as the `:ab` fixture
+   so that coverage is not lost.
+2. **`test_ladrillo_projection.jl` seeded its hindcast model only when
+   `VARIANT === :ab`** — so under `:basins2` the seed was skipped and `run()` could not
+   build (`greenland_3basin` carries the same seven unset shape parameters). The comment
+   above that line already gave the right reason ("the A+B Greenland slot has NO
+   defaults"); the CONDITION just never matched it. Now `!== :stock`. **A latent defect
+   that promotion exposed, not one it created.**
+3. `diag_gis_block_convergence.jl` carries a deliberately hardcoded default (it is a
+   pure-CSV diagnostic that must not pull in Mimi); its own comment says to update it
+   with the constant. Now `L14`.
+
+`./run_ladrillo_tests.sh` passes all **7** steps with L14 canonical.
+
+### Two superseded vintages get named constants, per the standing pattern
+
+* **`LADRILLO_POSTERIOR_L12_CSV`** — provenance of every deliverable quoting **45.53 cm**,
+  and **the last whole-sheet vintage**, so it is the `:ab` fixture. Point `:ab` tests
+  here, never at the canonical constant.
+* **`LADRILLO_POSTERIOR_L13_CSV`** — never promoted, so provenance of nothing shipped,
+  but it is the named FALLBACK and **the only `:basins` posterior**, so it is the fixture
+  for anything needing `gis_s_mid`.
+
+### Deliberately NOT repointed
+
+The eight `python/*.py` scripts carrying `LADRILLO_TAG = "L12"` / `"L13"`. Each is a
+vintage-specific analysis whose unsuffixed output IS the measurement a past decision
+rested on — the same reason `diag_gis_ordering_in_l11_posterior.py` stays on L11.
+**Blanket-repointing them would silently relabel old measurements.** Re-run individually
+at L14 if a particular number is wanted at the new vintage.
+
 ## [unreleased] — 2026-08-20g — The TAP is wired and the separation is BOUGHT: 2.73x -> 12.58x.
 
 Cell as specified: onset 6.5 K / V 2.0 m / tau 50 yr. **A PRIOR SPECIFICATION, NOT A

@@ -59,7 +59,14 @@ hind = ladrillo_setup(gis_variant = VARIANT, ssp="ssp245", y0=1850, y1=2026, for
 # Greenland (Mimi refuses to build instead). The glacier tests below only need
 # the model to build, so seed it with one posterior draw; [1]-[3] then overwrite
 # every glacier parameter they actually test.
-VARIANT === :ab && ladrillo_apply_draw!(hind, ladrillo_posterior(nthin=1)[1, :])
+#
+# THE CONDITION IS "not :stock", NOT ":ab". It was `=== :ab` until 2026-08-20, which
+# was correct only while :ab was the sole non-stock variant. `greenland_3basin` carries
+# the SAME seven unset shape parameters, so under :basins / :basins2 the seed was
+# skipped and run(hind.m) failed to build — which is exactly what happened the moment
+# L14 was promoted and VARIANT became :basins2. The reason in the comment above was
+# always the right one; the condition just did not match it.
+VARIANT !== :stock && ladrillo_apply_draw!(hind, ladrillo_posterior(nthin=1)[1, :])
 
 ## ---------------------------------------------------------------------------
 ## [1] drivers vs the python reference, both fixed amp bases

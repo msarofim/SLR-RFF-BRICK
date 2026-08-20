@@ -114,8 +114,18 @@ stock_hdr = String.(propertynames(CSV.read(LADRILLO_POSTERIOR_EXTC_CSV, DataFram
 chk("the extC posterior reads as :stock", ladrillo_gis_variant(stock_hdr) === :stock)
 ab_hdr = vcat([c for c in stock_hdr if !(c in LADRILLO_GIS_STOCK_COLS)], LADRILLO_GIS_AB_COLS)
 chk("an A+B header reads as :ab", ladrillo_gis_variant(ab_hdr) === :ab)
-chk("the CANONICAL posterior reads as :ab", ladrillo_posterior_variant() === :ab,
-    basename(LADRILLO_POSTERIOR_CSV))
+## THIS ASSERTED :ab UNTIL 2026-08-20, and promotion to L14 broke it correctly: the
+## canonical posterior is now :basins2. What the gate is FOR is that the canonical
+## posterior is a recognised A+B-family variant the kernel can project — not that it is
+## any particular one — so it now names the variant it found and still fails on :stock
+## or on a file the detector refuses. The dedicated :ab fixture is
+## LADRILLO_POSTERIOR_L12_CSV, the last whole-sheet vintage.
+chk("the CANONICAL posterior reads as a projectable A+B variant",
+    ladrillo_posterior_variant() in (:ab, :basins, :basins2),
+    "$(basename(LADRILLO_POSTERIOR_CSV)) -> :$(ladrillo_posterior_variant())")
+chk("the L12 fixture is still the :ab vintage",
+    ladrillo_posterior_variant(LADRILLO_POSTERIOR_L12_CSV) === :ab,
+    basename(LADRILLO_POSTERIOR_L12_CSV))
 partial = [c for c in ab_hdr if c != "gis_beta_s"]
 chk("a header missing one gis_* column is REJECTED",
     (try; ladrillo_gis_variant(partial); false; catch; true; end))

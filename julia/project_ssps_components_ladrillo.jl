@@ -47,7 +47,8 @@ const NTHIN    = let p = filter(a -> !startswith(a, "--"), ARGS)
 end
 ## POSTERIOR TAG drives BOTH the input posterior and the output filename, so a
 ## run on one vintage cannot write a file labelled with another. The default
-## tracks the CANONICAL posterior (L11 since 2026-08-17; L10 before that), so it
+## tracks the CANONICAL posterior (L14 since 2026-08-20; L12 from 08-18, L11 from
+## 08-17, L10 before that), so it
 ## is derived from LADRILLO_POSTERIOR_CSV rather than written out again — the
 ## two cannot drift. Passing --tag=X asserts the file exists rather than
 ## silently falling back, and older vintages stay reachable that way.
