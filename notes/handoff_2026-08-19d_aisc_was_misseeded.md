@@ -17,6 +17,47 @@ another parameter's scale — it is not a physical finding.**
 
 ---
 
+## 0. ADDENDUM — the re-tune LANDED and PASSED; production is running
+
+All four checks from §1 pass. The re-tune (1 M, acceptance 0.239, 1 h 21 m):
+
+| check | void L13 | **new L13tune** | healthy reference |
+|---|---|---|---|
+| seed `ais_c` (gate) | 8.005e-07 | **1.282** | L12 prod 1.282 |
+| **tuned** `ais_c` (the step 19c was missing) | 7.92e-07 | **1.804** | L12 prod 1.282 |
+| `ais_c` trace span, 1 M iter | 7.84e-05 | **94.99** (47.51–142.50) | L12tune 95.0 |
+| `ais_c` start dispersion | 1.15e-05 | **22.88** | — |
+
+`ais_mu` 0.1469, `ais_bedheight0` 1.299, `ais_runoff_Ton` 0.01277 — all in or above the
+L12 range. Starts rebuilt (59 cols, `gis_s_mid`/`gis_s_high` present). **L13 production
+launched: 4 × 2 M, ETA ~5–7 h**, all four chains cleared the seed gate at `ais_c` = 1.804.
+
+### A SECOND, INDEPENDENT DEFECT, found while doing check [2]
+
+`run_l12_production.sh` and `run_l13_production.sh` both define `$ADCOV`, check it exists,
+and echo it as "proposal seed" — **but never pass it to the calibrator.** Julia fell
+through to its own preference list, where `adapted_cov_L11tune3_seed2026.csv` always wins.
+The logs record it plainly: void L13 production seeded from L11tune3, and so did **L12
+production**. So the echoed provenance label was false in both lines and **neither tuning
+run's covariance was ever used** — for L13 that meant the two basin rows got a fresh
+diagonal in production despite a 1 M-iteration run existing to shape them.
+
+`run_l13_production.sh` now passes `--adcov="$ADCOV"`; the seeder reports
+**"name-mapped 59 of 59 rows using the FILE'S OWN header"**, i.e. the new self-describing
+format in use and both basin rows carrying tuned shape.
+
+**L12's results are unaffected** — L11tune3 is a legitimately tuned 57-row covariance and
+at NK = 57 it goes through the correct `size == NK` as-is branch. Only the label was wrong.
+`run_l12_production.sh` is therefore **pinned to what actually ran** rather than switched
+to L12tune, so it still reproduces the canonical 45.53 cm. Commit `0a5b0cc`.
+
+**Trap worth carrying:** a shell variable that is defined, existence-checked, and echoed
+still is not *used*. Two scripts printed a seed they were not using, for two model lines.
+Grep for the variable at the invocation, not at the definition — cf.
+`audit_live_paths` (grep finds call sites, not live ones).
+
+---
+
 ## 1. WHAT IS RUNNING RIGHT NOW, AND WHAT TO DO WHEN IT LANDS
 
 ```bash
