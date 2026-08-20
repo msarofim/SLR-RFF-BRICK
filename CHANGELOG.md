@@ -3,6 +3,55 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-19d — IMBIE-3 regional data fetched: an EAIS/WAIS split is NOT scorable the way Greenland was.
+
+Answers 19b §1.2 step 1 — the offline, cheap check that decides whether the AIS
+split is even possible before anything is priced.
+
+**Fetched** the six IMBIE-3 / Otosaka 2023 Antarctic regional files (EAIS / WAIS /
+APIS × Gt and mm) from the same BAS PDC DOI the whole-sheet file came from
+(10.5285/77b64c55-…, RAMADDA entry, OGL v3.0, sizes verified against the catalogue).
+So the premise in 19b §1.1 — "does not exist" — is corrected: the per-region product
+exists and is open. The conclusion nonetheless holds, for a different reason.
+
+**`python/diag_ais_region_lit_check.py`**, the Antarctic analogue of
+`diag_gis_basin_lit_check.py`:
+
+**[1] Closure PASSES.** EAIS + WAIS + APIS reproduce the published whole sheet to
+4.5e-07 on rate and 3.7e-08 on cumulative. So Antarctica does NOT have Greenland's
+1.227× product-vs-total disagreement, and absolute per-region targets are legitimate
+— the option the Greenland design did not have.
+
+**[2]/[3] Shares are the WRONG parameterisation here.** Mass-loss shares by window:
+
+| window | total Gt/yr | EAIS | WAIS | APIS |
+|---|---|---|---|---|
+| 2002–2011 | 96.2 | **−0.207** | 0.998 | 0.209 |
+| 2012–2018 | 142.8 | 0.009 | 0.936 | 0.055 |
+| 1992–2020 | 92.1 | −0.031 | 0.891 | 0.140 |
+| 2002–2020 | 117.0 | −0.052 | 0.896 | 0.156 |
+
+EAIS's share is **negative in 3 of 4 windows** — East Antarctica gains mass while the
+sheet loses — so the three "shares" do not live on a simplex and the `GISB`-style
+`Normal(target, 0.05)` on `d[j]/dtot` has no valid target. And the drift across the
+two Greenland-term windows is **4.33σ** (EAIS +0.216) against Greenland's worst of
+1.1σ, so a STATIC shares term would be fitting a partition that moves four times
+harder than the one Greenland barely got away with.
+
+**[4] As absolute rates, only WAIS is measured.** |loss|/σ on the published
+uncertainties: WAIS **1.76–2.79**, EAIS **0.02–0.25**, APIS **0.30–0.80**. EAIS and
+APIS are consistent with zero in every window.
+
+**⇒ Recommendation, now with receipts: do not split AIS.** The single region that is
+distinguishable from zero is WAIS, which is already 89–100 % of the whole-sheet loss
+the AIS likelihood scores today (`S.ais` + the SMB anchor). A split would add a
+second geometry, a second grounding line and a decision about splitting a JOINT
+paleo prior (19b §1.3) in exchange for **no new likelihood information** — the exact
+failure mode 19b §1.1 identified, reached by a different route. The physical case in
+§1.4 (retrograde marine WAIS vs terrestrial EAIS) is unaffected and remains the
+argument for revisiting this if a per-region product with real EAIS constraint
+appears.
+
 ## [unreleased] — 2026-08-19c — The L13 SLR certificate ran the wrong Greenland (−1.66 cm), and the convergence failure is a DEGENERATE PROPOSAL in `ais_c`.
 
 ### 1. `ladrillo_projection.jl` had no 3-basin variant, so every L13 projection ran at s = 1

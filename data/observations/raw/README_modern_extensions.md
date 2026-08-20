@@ -13,6 +13,24 @@ re-calibration (Marcus, 2026-06-13). Consumed by `python/prep_recalib_targets_ex
 | `noaa_thermosteric_w0-2000m_yearly.dat` | TE/steric | NOAA NCEI World-Ocean 0–2000 m thermosteric sea level anomaly (mm, yearly) | 2005–2025 | ncei.noaa.gov/access/global-ocean-heat-content (open) |
 | `imbie_antarctica_2021_mm.csv` | AIS (xcheck) | IMBIE 2023 / Otosaka et al. *ESSD*, Antarctic cumulative mass balance (mm SLE) | 1992–2020 | 10.5285/77B64C55-… (BAS PDC, open) |
 | `imbie_greenland_2021_mm.csv` | GIS (xcheck) | IMBIE 2023, Greenland cumulative mass balance (mm SLE) | 1992–2020 | 10.5285/77B64C55-… |
+| `imbie_{east_antarctica,west_antarctica,antarctic_peninsula}_2021_{Gt,mm}.csv` | AIS regional | IMBIE 2023, per-region mass balance (EAIS / WAIS / APIS) | 1992–2020 | same DOI, RAMADDA entry `77b64c55-…`, OGL v3.0 |
+
+### IMBIE Antarctic REGIONAL files (acquired 2026-08-19)
+
+Fetched from the same DOI's RAMADDA entry
+(`https://ramadda.data.bas.ac.uk/repository/entry/show?entryid=77b64c55-7166-4a06-9def-2e400398e452`),
+byte-sizes verified against the catalogue listing. Full citation: Shepherd, A.,
+Ivins, E., Rignot, E., Smith, B., van den Broeke, M., Velicogna, I., et al. (2021),
+*Antarctic and Greenland Ice Sheet mass balance 1992-2020 for IPCC AR6* (v1.0),
+UK Polar Data Centre / NERC / UKRI. Licence: Open Government Licence v3.0.
+
+Acquired to answer whether an EAIS/WAIS split of DAIS is SCORABLE — the Antarctic
+analogue of the Mouginot sector check that gated the Greenland 3-basin term.
+Verdict in `python/diag_ais_region_lit_check.py`: the regions CLOSE against the
+published whole sheet (1e-7), but the partition is NOT usable as shares (EAIS's
+share is NEGATIVE in 3 of 4 windows and drifts 4.33x the sigma the Greenland term
+uses), and as absolute rates only WAIS is distinguishable from zero (1.8-2.8 sigma
+vs EAIS 0.02-0.25, APIS 0.3-0.8).
 
 Total constraint extended with NOAA STAR altimetry GMSL (`../nasa_gmsl_annual.csv`, 1993–2024).
 
