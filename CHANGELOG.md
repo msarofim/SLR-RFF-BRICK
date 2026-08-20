@@ -3,6 +3,57 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-20 — L13 RE-RUN CERTIFIES. SLR@2100 = 44.97 cm; the L12→L13 move is −0.56 cm, and the 2+2 chain split was entirely the broken proposal.
+
+Full re-run on the corrected seeder (19e). Re-tune 1 M (accept 0.239, 1 h 21 m) →
+starts rebuilt → 4 × 2 M production (accept 0.236–0.237) → postprocess → SLR gate.
+
+**`ais_c` is fully recovered in every production chain** — post-burn span 94.98–95.00
+(min ≈ 47.50, max ≈ 142.50) against the void line's ~1e-04 with all four pinned at
+88.809. Chain means 88.21 / 92.01 / 91.59 / 91.13 on a post-burn sd of ~19.
+
+**The deliverable gate PASSES, projected through `Greenland :basins`:**
+
+| | **L13 (new)** | L12 (canonical) | void L13 |
+|---|---|---|---|
+| R̂ @2100 | **1.0020** | 1.0019 | 1.0568 |
+| ESS @2100 | **1458.6** | 1445.0 | 65.6 |
+| sd(medians) @2100 | **0.293** | 0.228 | 1.411 |
+| **SLR@2100 median** | **44.97 cm** | 45.53 cm | 47.89 cm |
+| R̂ @2150 | 1.0030 | 1.0040 | 1.0334 |
+| SLR@2150 median | 70.89 cm | 70.84 cm | 76.78 cm |
+
+L13's convergence now essentially matches L12's at 2100; at 2150 sd(medians) is 1.90
+against L12's 0.887, still passing at R̂ 1.003.
+
+**THE L12 → L13 MOVE IS −0.56 cm @2100 (+0.05 @2150)** — the fourth and first
+*certified* value for this quantity. The three predecessors: **+2.36** (mis-projected at
+s = 1), **+0.70** (19c's corrected diagnostic, on chains that failed their gate), and now
+**−0.56**. The restructure moves SLR@2100 far less than the artefacts suggested, and in
+the opposite direction.
+
+**The 2+2 chain split is GONE.** Per-chain 2100 medians are 44.72 / 44.92 / 44.92 / 45.40,
+spread **0.68 cm**, with no clustering by seed — against the void run's 48.91 / 47.39 /
+48.86 / 45.94, spread 3.10, split {2026,2028} high vs {2027,2029} low. **19c §3.2's "the
+AIS geometry block has partitioned into two non-communicating modes led by
+`ais_precip0_LOG`" was entirely an artefact of the degenerate proposal.** It is not a
+physical finding and must not be carried forward.
+
+**Parameter-level convergence is unchanged in character.** `postprocess_mcmc_ext.jl`
+reports **14 non-converged marginals** (led by `ais_iceflow0` R̂ 2.007 / ESS 12.6 and
+`ais_slope` R̂ 1.413 / ESS 17.8) and refuses to write the canonical subsample. **This is
+not a regression**: canonical L12 carries 16, which is exactly why its standing caveat is
+"projections only, NOT parameter-level inference", and the `--overdisperse` starts are
+designed to make R̂ look worse. **`ais_c` is NOT among the 14** — the coordinate that was
+dead is now converged.
+
+**Promotion to canonical is NOT taken here.** The gate passing makes L13 *eligible*;
+which calibration version is canonical is a methodological choice for Marcus (and
+`~/.claude/CLAUDE.md` requires it be explicit). **L12 remains canonical at 45.53 cm**
+until that call is made. Re-running `postprocess_mcmc_ext.jl --tag=L13 --accept-slr`
+now that `slr_convergence_L13.csv` exists is the one command that would write the
+canonical subsample + proposal seed; it has deliberately not been run.
+
 ## [unreleased] — 2026-08-19e — The frozen `ais_c` was a MIS-ORDERED name list in the proposal seeder, not an adaptation collapse. L13 is void; L12 unaffected.
 
 Closes the open question left by `notes/handoff_2026-08-19c` §1 ("what collapsed
