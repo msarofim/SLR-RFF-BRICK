@@ -81,6 +81,41 @@ geometry sd reproduces 19c §3.1's independently measured L12 production column 
 (`ais_mu` 0.1145, `ais_bedheight0` 0.962, `ais_runoff_Ton` 0.0137, `ais_precip0_LOG`
 0.0276). `ais_c` acquires sd 3.1 within 200 iterations — against 7.8e-05 over 1M before.
 
+**BLAST RADIUS, measured rather than assumed.** The affected-run list above was derived
+from the log messages; it was then *verified against the chains*, and the prediction holds
+6/6 with a clean control:
+
+| chain | `ais_c` span | |
+|---|---|---|
+| `D2G_seed2026` (250k) | 4.12e-05 | FROZEN |
+| `D2S_seed2026` (250k) | 3.60e-05 | FROZEN |
+| `GISB1` / `GISB2` / `GISBNOSH` (3k each) | 4.1e-07 / 1.4e-06 / 8.9e-07 | FROZEN |
+| `GISBTUNE` (40k) | 2.79e-05 | FROZEN |
+| **`GISB0CTRL` (3k)** — took the as-is branch | **31.89** | **ok** |
+
+`ais_c` is not the only casualty: in `D2S`, `ais_mu` is frozen too (sd ratio 0.004 vs
+`L11`) and **pinned at 8.42 against L11's 10.61**, and `ais_bedheight0` is 6× under-
+dispersed and pinned at 804.8 vs 786.2. (`ais_runoff_Ton` and `ais_precip0_LOG` received
+scales that were too *large*, ~4× and ~3×, which degrades mixing but does not freeze —
+their sd ratios are 0.95 and 0.92.)
+
+**Does this overturn the 2026-08-16b D2 stream attribution?** No, and the reason is
+measured, not argued. The AIS geometry block is essentially orthogonal to
+`thermal_alpha` in the healthy L12 posterior: `corr(ais_c, ·) = −0.035`,
+`corr(ais_mu, ·) = +0.014`, `corr(ais_bedheight0, ·) = −0.006`, with quintile medians of
+`thermal_alpha` flat to 0.10 sd across `ais_c`'s full 95-unit range (so no nonlinearity
+is hiding under the correlation). Propagating D2S's *actual* pinning through those
+slopes moves `thermal_alpha` by **−0.00018 (`ais_mu`) and −0.00004 (`ais_bedheight0`)** —
+together ~2 % of the +0.01106 steric effect, 0.03 L12 sd. The steric result
+(**+1.24 L10 sd**) stands with ~50× margin; the gsic arm's verdict was already "250k
+cannot resolve an effect" and is unchanged. `ladrillo_l11_thermal` is NOT retracted.
+
+**Still provisional:** the `GISB*` acceptance readings. The 3-basin `s_b` common-mode
+degeneracy itself is a deterministic model-structure measurement (0.0 over c ∈ [0.25,10])
+and does not depend on the sampler, so `gis_basin_scale_degeneracy` stands; but any
+posterior-level or acceptance-level statement from those four scoping runs was made on a
+frozen AIS block and should be re-measured if it is ever load-bearing.
+
 **Tried and abandoned:** the ridge/ε-floor hypothesis from 19c §1 (that RAM's
 adaptation carries a floor, or that an all-rejections stretch drives a direction to
 zero irreversibly). Reading `RobustAdaptiveMetropolisSampler.jl` confirms there is no
