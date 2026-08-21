@@ -48,10 +48,10 @@ THE FALSIFIER (the likely one — D2's failure mode)
 
 READS   the ridge scan's whole harness (posterior, targets, drivers, bands) plus
         outputs/scope_gis_leq_ridge_vs_literature.csv (reproduction gate)
-WRITES  outputs/scope_gis_rate_power_vs_literature.csv
+WRITES  outputs/scope_gis_rate_power_vs_literature_<targetset>.csv
 
   source ~/climate-env/bin/activate
-  python3 python/scope_gis_rate_power_vs_literature.py
+  python3 python/scope_gis_rate_power_vs_literature.py [--targets=matched|lit]
 """
 import os
 import sys
@@ -73,9 +73,17 @@ from scope_gis_2300_relaxation import (  # noqa: E402
 LADRILLO_TAG = ridge.LADRILLO_TAG
 POST, TARGETS = ridge.POST, ridge.TARGETS
 HIND, HIND_DRIVER, SSPS = ridge.HIND, ridge.HIND_DRIVER, ridge.SSPS
-LIT_2300_M, LIT_2300_NOTE = ridge.LIT_2300_M, ridge.LIT_2300_NOTE
+## 2026-08-21g: scored against a NAMED target set. `--targets=lit` reproduces the
+## published verdict (this family was killed at 4.71x against a 7.9-31.9x band);
+## `--targets=matched` scores the forcing-matched bands, whose ratio floor is
+## 2.00x. The set is in the printout AND the output filename.
+import gis_targets  # noqa: E402
+LIT_2300_M, TARGET_SET = gis_targets.from_argv(sys.argv)
+TARGET_WORD = gis_targets.SET_WORD[TARGET_SET]
+LIT_2300_NOTE = {lab: gis_targets.note(lab, TARGET_SET) for lab in LIT_2300_M}
 RIDGE_CSV = ridge.OUT
-OUT = os.path.join(REPO, "outputs/scope_gis_rate_power_vs_literature.csv")
+OUT = gis_targets.out_path(
+    os.path.join(REPO, "outputs/scope_gis_rate_power_vs_literature.csv"), TARGET_SET)
 
 K_GRID = ridge.K_GRID                       # identical k axis to the ridge scan
 P_GRID = [1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0]
@@ -227,10 +235,10 @@ def main():
           f"max(T,0) in negative-driver years): {max(nest):.2e} m\n")
 
     # ---- the headline grid: the ssp585/ssp245 ratio at 2300 -----------------
-    lit_lo = LIT_2300_M["SSP5-8.5"][0] / LIT_2300_M["SSP2-4.5"][1]
-    lit_hi = LIT_2300_M["SSP5-8.5"][1] / LIT_2300_M["SSP2-4.5"][0]
-    print(f"=== ssp585/ssp245 RATIO AT 2300 — literature demands "
-          f"{lit_lo:.1f}x-{lit_hi:.1f}x; the 1-D ridge capped at 3.36x ===\n")
+    lit_lo, lit_hi = gis_targets.ratio_band(LIT_2300_M)
+    print("  " + gis_targets.banner(TARGET_SET).replace("\n", "\n  ") + "\n")
+    print(f"=== ssp585/ssp245 RATIO AT 2300 — {TARGET_WORD} demands "
+          f"{lit_lo:.2f}x-{lit_hi:.2f}x; the 1-D ridge capped at 3.36x ===\n")
     hdr = "  k \\ p " + "".join(f"{p:>8g}" for p in P_GRID)
     print(hdr)
     for k in K_GRID:
@@ -240,7 +248,7 @@ def main():
             mark = "*" if lit_lo <= v <= lit_hi else " "
             line += f"{v:7.2f}{mark}"
         print(line)
-    print(f"\n  (* = ratio inside the literature band {lit_lo:.1f}-{lit_hi:.1f}x)\n")
+    print(f"\n  (* = ratio inside the {TARGET_WORD} band {lit_lo:.2f}-{lit_hi:.2f}x)\n")
 
     print("=== ssp585 @2300, m SLE — band "
           f"{LIT_2300_M['SSP5-8.5'][0]:.3f}-{LIT_2300_M['SSP5-8.5'][1]:.3f} "

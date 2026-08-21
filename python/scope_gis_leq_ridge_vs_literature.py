@@ -49,6 +49,8 @@ import pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "python"))
+
+import gis_targets  # noqa: E402
 # the A+B re-implementation, its drivers and its reproduction gate are defined
 # once, in the script that established the ridge. Do not re-implement them here.
 from scope_gis_2300_relaxation import (  # noqa: E402
@@ -61,7 +63,13 @@ LADRILLO_TAG = "L12"
 POST = os.path.join(REPO,
                     f"data/MimiBRICK/parameters_subsample_brick_mengel_{LADRILLO_TAG}.csv")
 TARGETS = os.path.join(REPO, "outputs/recalib_targets_ext.csv")
-OUT = os.path.join(REPO, "outputs/scope_gis_leq_ridge_vs_literature.csv")
+## 2026-08-21g: this module's OWN scoring switches on --targets; the LIT_2300_M
+## re-export above stays the RAW literature dict, because four other scripts
+## import it by that name and must not have it change under them.
+BANDS, TARGET_SET = gis_targets.from_argv(sys.argv)
+TARGET_WORD = gis_targets.SET_WORD[TARGET_SET]
+OUT = gis_targets.out_path(
+    os.path.join(REPO, "outputs/scope_gis_leq_ridge_vs_literature.csv"), TARGET_SET)
 HIND = (1900, 2025)
 HIND_DRIVER = "ssp245"        # history is observed t_gis, so this choice is inert
 SSPS = [("ssp126", "SSP1-2.6"), ("ssp245", "SSP2-4.5"), ("ssp585", "SSP5-8.5")]
@@ -75,7 +83,6 @@ K_GRID = [1.0, 1.5, 2.0, 3.0, 5.0, 8.0, 10.0, 12.0, 14.0, 16.0, 22.6, 32.0, 50.0
 # transcription that lived here (TC 19:6887 (2025) doi 10.5194/tc-19-6887-2025;
 # TC 20:309 (2026) doi 10.5194/tc-20-309-2026). Scripts that want the matched set
 # call gis_targets.from_argv / gis_targets.get.
-import gis_targets  # noqa: E402
 LIT_2300_M, LIT_2300_NOTE = gis_targets.LIT_2300_M, gis_targets.LIT_2300_NOTE
 # G4 = the 2100 scenario spread (ssp585 - ssp126, cm) that A+B was SELECTED on.
 # The evaluation band is 6.3-7.3 cm, but that band applies to the ENSEMBLE median,
@@ -166,10 +173,7 @@ def main():
           f"median params, offline")
     print(f"  hindcast {HIND[0]}-{HIND[1]} = {want_cm:.2f} cm, restored by "
           f"bisection at every k (so it never discriminates)")
-    print(f"  2300 literature targets, m SLE:")
-    for _, lab in SSPS:
-        lo, hi = LIT_2300_M[lab]
-        print(f"    {lab:9s} {lo:.3f}-{hi:.3f}   [{LIT_2300_NOTE[lab]}]")
+    print("  " + gis_targets.banner(TARGET_SET).replace("\n", "\n  "))
     print(f"  2100 G4 spread judged RELATIVE to k=1 (median-params, not the ensemble "
           f"band); >{100 * G4_DEGRADE_TOL:.0f}% change = 2100 broken\n")
 
@@ -190,7 +194,7 @@ def main():
         leq585 = float(np.clip(k * (pa["gis_c1"] * drivers["SSP5-8.5"][i23]
                                     + pa["gis_c0"]), 0, GIS_V0_M))
         g4 = 100.0 * (v2100["SSP5-8.5"] - v2100["SSP1-2.6"])
-        ok = {lab: LIT_2300_M[lab][0] <= v2300[lab] <= LIT_2300_M[lab][1]
+        ok = {lab: BANDS[lab][0] <= v2300[lab] <= BANDS[lab][1]
               for _, lab in SSPS}
         rows.append(dict(tag=LADRILLO_TAG, k=k, rate_scale=s, leq_585_2300_m=leq585,
                          g4_2100_cm=g4,
@@ -228,37 +232,56 @@ def main():
         print(f"     Best any k manages: "
               f"{sum(best[f'in_band_{lab}'] for _, lab in SSPS)}/3, at k = {best['k']}.")
         top = max(rows, key=lambda r: r["m2300_SSP5-8.5"])
-        lo_lit = LIT_2300_M["SSP5-8.5"][0]
+        lo_lit = BANDS["SSP5-8.5"][0]
         print(f"\n  THE RIDGE HAS A CEILING, and it is NON-MONOTONE in k.")
-        print(f"     ssp585@2300 peaks at {top['m2300_SSP5-8.5']:.3f} m (k = {top['k']}), "
-              f"barely reaching the BOTTOM of the {lo_lit:.3f}-"
-              f"{LIT_2300_M['SSP5-8.5'][1]:.3f} m band.")
+        pk = top["m2300_SSP5-8.5"]
+        print(f"     ssp585@2300 peaks at {pk:.3f} m (k = {top['k']}), "
+              + (f"barely reaching the BOTTOM of the " if pk < lo_lit * 1.1 else
+                 f"CLEARING ({pk / lo_lit:.2f}x) the bottom of the ")
+              + f"{lo_lit:.3f}-{BANDS['SSP5-8.5'][1]:.3f} m {TARGET_WORD} band.")
         print(f"     Beyond that it FALLS: Leq clips at V0 = {GIS_V0_M} m, so further k")
         print(f"     buys no more commitment while still slowing the rate. Raising the")
         print(f"     commitment cannot be pushed arbitrarily far even in principle.")
         at_top = top
-        print(f"     And at that peak SSP1-2.6 is {at_top['m2300_SSP1-2.6'] / LIT_2300_M['SSP1-2.6'][1]:.1f}x "
+        print(f"     And at that peak SSP1-2.6 is {at_top['m2300_SSP1-2.6'] / BANDS['SSP1-2.6'][1]:.1f}x "
               f"over its band top and SSP2-4.5 "
-              f"{at_top['m2300_SSP2-4.5'] / LIT_2300_M['SSP2-4.5'][1]:.1f}x over its.")
+              f"{at_top['m2300_SSP2-4.5'] / BANDS['SSP2-4.5'][1]:.1f}x over its.")
 
     # The invariant that actually decides it. Band membership is a coarse test;
     # the ssp585/ssp245 RATIO at 2300 is what the ridge cannot change, and it is
     # what separates this model family from the literature.
-    lit_lo = LIT_2300_M["SSP5-8.5"][0] / LIT_2300_M["SSP2-4.5"][1]
-    lit_hi = LIT_2300_M["SSP5-8.5"][1] / LIT_2300_M["SSP2-4.5"][0]
+    lit_lo, lit_hi = gis_targets.ratio_band(BANDS)
     ratios = [(r["k"], r["m2300_SSP5-8.5"] / r["m2300_SSP2-4.5"]) for r in rows]
     rmin, rmax = min(x[1] for x in ratios), max(x[1] for x in ratios)
     kbest = max(ratios, key=lambda t: t[1])[0]
     for r in rows:
         r["ratio_585_over_245"] = r["m2300_SSP5-8.5"] / r["m2300_SSP2-4.5"]
     print("\n=== THE INVARIANT: the ssp585/ssp245 ratio at 2300 ===\n")
-    print(f"  literature demands  {lit_lo:.1f}x - {lit_hi:.1f}x")
+    print(f"  {TARGET_WORD} demands  {lit_lo:.2f}x - {lit_hi:.2f}x")
     print(f"  the ridge delivers  {rmin:.2f}x - {rmax:.2f}x  (best {rmax:.2f}x at k = {kbest})")
     print(f"\n  A LINEAR Leq ties the scenarios together: raising it to lift ssp585")
     print(f"  raises the cooler scenarios by nearly the same factor, so the RATIO")
-    print(f"  barely moves. The literature's ratio is {lit_lo / rmax:.1f}-{lit_hi / rmax:.1f}x")
-    print(f"  beyond anything this family can reach at ANY k. That, not band")
-    print(f"  membership, is why an external Leq(T) target cannot be the fix.")
+    print(f"  barely moves. Whether that is FATAL depends entirely on the target set,")
+    print(f"  which is why this verdict is printed against a NAMED one:")
+    ## The 2026-08-21g re-target moved this from a verdict into a question. Against
+    ## the raw literature bands the reachable ratio is nowhere near the demanded one
+    ## and the family is dead; against the forcing-matched bands the demanded floor
+    ## drops to 2.00x and the family reaches it. Computed, never narrated.
+    if rmax < lit_lo:
+        print(f"    the best reachable {rmax:.2f}x is {lit_lo / rmax:.1f}-"
+              f"{lit_hi / rmax:.1f}x SHORT of the {lit_lo:.2f}-{lit_hi:.2f}x band.")
+        print(f"    => DEAD on the ratio: an external Leq(T) target cannot be the fix,")
+        print(f"       and that is a stronger statement than band membership.")
+    else:
+        kin = [k for k, r in ratios if lit_lo <= r <= lit_hi]
+        print(f"    the reachable range OVERLAPS the {lit_lo:.2f}-{lit_hi:.2f}x band;")
+        print(f"    k inside it: {kin if kin else 'none'} (best {rmax:.2f}x at k = {kbest}).")
+        print(f"    => NOT dead on the ratio against this target set. The ratio "
+              f"argument\n       that killed this family was built on the {'raw literature' if TARGET_SET == 'matched' else 'current'} "
+              f"pair, whose ssp585\n       band is the PROTECT x2300 family at 13.8 K "
+              f"against our 7.8 K.")
+    print(f"\n  (scored against the {TARGET_SET.upper()} target set; re-run with "
+          f"--targets={'lit' if TARGET_SET == 'matched' else 'matched'} for the other)")
 
     pd.DataFrame(rows).to_csv(OUT, index=False)
     print(f"\nwrote {os.path.relpath(OUT, REPO)}")

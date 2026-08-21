@@ -1,0 +1,63 @@
+  slow-channel coordinates mapped (ell, w) -> native at TBAR = 1.9631 K over 2015-2024
+CAN AN EXTERNAL Leq(T) TARGET FIX ssp585@2300?  — Ladrillo L12, median params, offline
+  hindcast 1900-2025 = 5.78 cm, restored by bisection at every k (so it never discriminates)
+  TARGET SET = LIT (raw literature, each band at ITS OWN forcing -- NOT like-for-like)
+    SSP1-2.6     5.8-16.3   cm   [stabilised+ext (ext = 0.092)]
+    SSP2-4.5     9.8-21.8   cm   [stabilised (no continued-warming run reported)]
+    SSP5-8.5   173.2-312.7  cm   [CONTINUED-WARMING (the apples-to-apples arm)]
+    FORCING OF EACH BAND (measured 2026-08-21g):
+      SSP1-2.6  r2300 1.96 K (int 544) + x2300 2.48 K (int 651) vs OURS 1.73 K (int 495) -- integral ratio 1.10x, MATCHED
+      SSP2-4.5  r2300 2.99 K (int 790) vs OURS 3.14 K (int 790) -- integral ratio 1.00x, MATCHED
+      SSP5-8.5  x2300 13.80 K (int 2614) vs OURS 7.80 K (int 1626) -- integral ratio 1.61x, MISMATCHED; this band scores a hotter world than ours
+  2100 G4 spread judged RELATIVE to k=1 (median-params, not the ensemble band); >15% change = 2100 broken
+
+       k   rate s   Leq585 |  SSP1-2.6  SSP2-4.5  SSP5-8.5 |  G4_100 vs k=1  verdict
+  ----------------------------------------------------------------------------------
+     1.0   1.0098    0.539 |    0.092*    0.172*    0.469  |    8.07   1.00x  2/3 @2300
+     1.5   0.4863    0.809 |    0.140*    0.249     0.680  |    7.90   0.98x  1/3 @2300
+     2.0   0.3257    1.078 |    0.173     0.304     0.847  |    7.97   0.99x  0/3 @2300
+     3.0   0.1974    1.617 |    0.213     0.376     1.096  |    8.12   1.01x  0/3 @2300
+     5.0   0.1108    2.695 |    0.251     0.448     1.390  |    8.27   1.03x  0/3 @2300
+     8.0   0.0669    4.313 |    0.276     0.497     1.610  |    8.37   1.04x  0/3 @2300
+    10.0   0.0529    5.391 |    0.285     0.514     1.694  |    8.41   1.04x  0/3 @2300
+    12.0   0.0438    6.469 |    0.291     0.526     1.754* |    8.43   1.05x  1/3 @2300
+    14.0   0.0373    7.420 |    0.295     0.535     1.794* |    8.45   1.05x  1/3 @2300
+    16.0   0.0325    7.420 |    0.298     0.542     1.689  |    8.46   1.05x  0/3 @2300
+    22.6   0.0228    7.420 |    0.305     0.555     1.318  |    8.48   1.05x  0/3 @2300
+    32.0   0.0160    7.420 |    0.310     0.556     0.987  |    6.36   0.79x  0/3 @2300, 2100 broken
+    50.0   0.0103    7.420 |    0.297     0.389     0.670  |    2.73   0.34x  0/3 @2300, 2100 broken
+
+  (* = inside that scenario's 2300 literature band; Leq585 = committed loss at ssp585/2300)
+
+=== VERDICT ===
+
+  NO point on the ridge satisfies all three scenarios plus the 2100 band.
+  -> The ssp585 shortfall is NOT an identification problem. An external
+     Leq(T) target moves the model ALONG this ridge, and no point on it
+     is acceptable, so the refit CANNOT fix it. The commitment's SHAPE
+     in temperature has to change, not its scale.
+     Best any k manages: 2/3, at k = 1.0.
+
+  THE RIDGE HAS A CEILING, and it is NON-MONOTONE in k.
+     ssp585@2300 peaks at 1.794 m (k = 14.0), barely reaching the BOTTOM of the 1.732-3.127 m literature band.
+     Beyond that it FALLS: Leq clips at V0 = 7.42 m, so further k
+     buys no more commitment while still slowing the rate. Raising the
+     commitment cannot be pushed arbitrarily far even in principle.
+     And at that peak SSP1-2.6 is 1.8x over its band top and SSP2-4.5 2.5x over its.
+
+=== THE INVARIANT: the ssp585/ssp245 ratio at 2300 ===
+
+  literature demands  7.94x - 31.91x
+  the ridge delivers  1.72x - 3.36x  (best 3.36x at k = 14.0)
+
+  A LINEAR Leq ties the scenarios together: raising it to lift ssp585
+  raises the cooler scenarios by nearly the same factor, so the RATIO
+  barely moves. Whether that is FATAL depends entirely on the target set,
+  which is why this verdict is printed against a NAMED one:
+    the best reachable 3.36x is 2.4-9.5x SHORT of the 7.94-31.91x band.
+    => DEAD on the ratio: an external Leq(T) target cannot be the fix,
+       and that is a stronger statement than band membership.
+
+  (scored against the LIT target set; re-run with --targets=matched for the other)
+
+wrote outputs/scope_gis_leq_ridge_vs_literature_lit.csv
