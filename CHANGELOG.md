@@ -3,6 +3,124 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-21h — **RE-TARGET: the cool bands were already forcing-matched, so k ≤ 1.25 survives — but the ssp585 band was not, and the tap's admissible set INVERTS to disjoint.**
+
+Marcus's call (2026-08-21): do option 1 (re-target) first. Done, all four steps of
+`notes/handoff_2026-08-21d_preflight_done_retarget_first.md` §2.1.
+
+### Step 1 — the forcing behind every band, and the pre-registered falsifier
+
+`python/scope_gis_cool_band_forcing.py`. The PROTECT-Greenland long runs at ssp126 and
+ssp245, split by forcing family exactly as the ssp585 arms were, with the n-weighted GSAT
+path each family was actually forced by. r2300 = the GCM's own scenario to 2100 then held
+at its 2081–2100 mean; x2300 = the natural CMIP6 extension. Entirely offline — the cached
+`data/cmip6_gis/` series carry ssp126/ssp245 to 2100 for CESM2 and MPI-ESM1-2-HR, and
+CESM2-WACCM's ssp126 store runs to 2299. ssp585 READS the two prebuilt forcing CSVs rather
+than re-deriving the kernel a fourth time.
+
+| band | family | GSAT @2300 | ∫ 2015–2300 | ours @2300 | ours ∫ | ratio | verdict |
+|---|---|---|---|---|---|---|---|
+| SSP1-2.6 | r2300 | 1.96 K | 544 K·yr | 1.73 K | 495 | **1.10×** | MATCHED |
+| SSP1-2.6 | x2300 | 2.48 K | 651 | 1.73 K | 495 | 1.32× | hotter, but its SLR is *lower* |
+| SSP2-4.5 | r2300 | 2.99 K | 790 | 3.14 K | 790 | **1.00×** | MATCHED |
+| SSP5-8.5 | r2300 | 5.58 K | 1406 | 7.80 K | 1626 | 0.86× | theirs COOLER |
+| SSP5-8.5 | x2300 | **13.80 K** | 2614 | 7.80 K | 1626 | **1.61×** | the verified mismatch |
+
+**The falsifier resolves in the direction that keeps Q1.** The handoff pre-registered: if the
+stabilised arms sit near our plateaus, Q1 stands and the model needs a ~2× lift at 2300 with
+2100 held — a shape problem, not a scale problem. They do. **The pre-flight's kill of k = 2–3
+survives re-targeting**, and option 2 (state-dependent relaxation rate) remains the right
+next move.
+
+### Step 2 — the matched target set, and one place for it
+
+`python/build_gis_matched_targets.py` → `outputs/gis_matched_targets_2300.csv`; the bands
+live in **`python/gis_targets.py`**, which carries BOTH sets and is imported by all eight
+consumers. Six scripts scored against `LIT_2300_M`; four imported it and **two carried their
+own copied literals**, so no single edit could correct them all. `--targets=lit|matched`
+selects, `banner()` is printed by every scorecard, and the set is in every output filename.
+
+PCHIP through log(SLR@2300) against the **2015–2300 GSAT integral** — an ice sheet integrates
+forcing, and two paths agreeing at 2300 can differ by centuries of melt. The 2300-*level* arm
+is carried as the stated sensitivity. Five anchors, 1.96–13.80 K.
+
+| | MATCHED | LIT | rule |
+|---|---|---|---|
+| SSP1-2.6 | 6.2–15.9 cm | 5.8–16.3 | union of bracketing anchors (10% below the hull) |
+| SSP2-4.5 | 10.6–21.5 cm | 9.8–21.8 | PCHIP, inside the hull |
+| SSP5-8.5 | **42.9–145.0 cm** | 173.2–312.7 | PCHIP, inside the hull |
+
+p50 98.5 cm reproduces the memory's ~100 cm bracket independently, but the band is now
+*derived* rather than the two anchors' p50s quoted as a range, and all three bands are the
+same kind of interval — the LIT ssp585 band was a span across two sources, the cool ones
+p05–p95-like. **ssp126 does NOT get the interpolated number**: its predictor is 10% below the
+anchor hull and PCHIP's left end-slope is set by a *decreasing* segment that is a change of
+family and GCM, not a forcing response; extrapolating on it flares the band to 4.8–25.5 cm.
+Hull rule stated once, applied mechanically. Caveat carried with every number: **every anchor
+past 2100 is NORCE-CISM** — one ice sheet model, so the spread is climate-forcing spread, not
+structural.
+
+### Step 3 — the scorecards. Both reproduction gates exact under `--targets=lit`.
+
+The ssp585/ssp245 **ratio band is a derived quantity** and inherits the mismatch:
+**7.94–31.91× → 2.00–13.68×**.
+
+**Tap pricer.** The untapped base clears *everything* at matched forcing — ssp585 0.500 m
+inside 0.429–1.450, ratio 2.73× inside 2.00–13.68×. The separation shortfall the tap exists
+to buy does not survive re-targeting. The **shipped cell** (6.5 K / 2.0 m / 50 yr, 2.303 m)
+goes `bands_ok True → FALSE`, **1.59× above the band top**.
+
+> **THE TWO ADMISSIBLE SETS ARE EXACTLY DISJOINT.** 25 lit passers, 104 matched passers,
+> **intersection 0**. The 25 lit passers span 1.753–2.933 m; the matched band tops out at
+> 1.450, and 0/25 clear the matched LEVEL bands (19/25 still clear the ratio band — the level
+> is what kills them). The 104 matched passers span 0.500–1.444 m, and **0.500 is the untapped
+> base**: the scorecard now passes largely by turning the tap DOWN.
+
+**ssp_bands k-scan.** The binding scenario *flips*: against lit, ssp585 failed at 16/16 k;
+against matched it fails at 1/16 and the cool pair binds (ssp126 12/16, ssp245 15/16).
+**k = 1 is ALL PASS** — the first k on this grid ever to satisfy all four criteria. The V0-clip
+ceiling verdict inverts too: the 1.463 m peak was 1.18× SHORT of the lit floor and CLEARS the
+matched floor 3.41×. The cool-band kill is unchanged in direction and slightly **tighter**:
+**k ≤ 1.0**, because ssp245's matched band (0.106–0.215) is narrower than lit's.
+
+**Ridge-vs-PROTECT scan: byte-identical, and structurally so.** It runs our model on THEIR
+forcing, so it was already matched and never touched `LIT_2300_M`. Re-run and diffed against
+the committed log to confirm rather than assume. **Its k = 2–3 optimum therefore still stands,
+and the §1 tension is NOT resolved by re-targeting** — the shape evidence still wants k = 2–3
+and the cool bands still allow only k ≤ 1.
+
+### Step 4 — both single-law death certificates are VOID, but the survivor is the shipped model
+
+Both were killed on the **ratio** band, the most forcing-sensitive quantity in the scorecard.
+
+| variant | `--targets=lit` (reproduces) | `--targets=matched` |
+|---|---|---|
+| Leq ridge | 3.36× vs 7.94–31.91×, 2.4–9.5× SHORT, *"cannot be the fix"* | range OVERLAPS, 11/13 k inside, k=[1.0] satisfies ALL → *"CAN work"* |
+| rate-power | P2 FAIL, no cell clears all three bands | P2 PASS, k=1 p=1 and k=1 p=1.25 clear everything |
+
+**Do not read this as "the variants now work."** The cell that survives in both is **k = 1,
+p = 1 — the shipped base model** (no ridge move, linear rate). Under matched targets
+essentially the whole ratio grid is inside the band, shipped 2.73× included, so the ratio
+criterion has almost no discriminating power left. The correct reading is that the base model
+already passes and neither variant is *needed*; whether either *helps* is now a question for
+the shape scorecard, not the 2300 bands. The narrative text was rewritten to compute its
+verdict from the target set — the old code printed *"is why an external Leq(T) target cannot
+be the fix"* unconditionally, which is false against matched.
+
+### Corroboration found on the way
+
+`diag_gis_committed_loss.py`'s hand-transcribed ssp585 **stabilised** band (0.282–1.230 m) is
+independently reproduced by this session's extraction of the PROTECT **r2300** ssp585 family
+(35 runs): p05–p95 **0.298–1.087 m**. A transcription and the raw NetCDFs agreeing on the same
+arm. That arm is forced to 5.58 K — *cooler* than ours — so neither raw arm brackets our
+scenario, which is exactly why the matched band interpolates between them.
+
+### Not done
+
+The mock / partition / zonespace scorecards were **wired but not re-run** — they now print
+`banner()` so the target set cannot be inherited silently. No gate changed, no cell moved, no
+chain started.
+
 ## [unreleased] — 2026-08-21g — **Item 5: the tap cannot be re-priced onto a moved base, and raising k makes the tap's job HARDER, not easier.**
 
 Handoff §4 item 5 expected that "a base model with k = 2-3 needs a much smaller tap, or
