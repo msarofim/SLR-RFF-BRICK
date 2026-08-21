@@ -1,0 +1,179 @@
+scope_gis_tap — pricing the high-basin volume tap on the certified L14 posterior (TWO-basin)
+  NOTE the module is still named scope_gis_tap_l13.py (notes and memory reference it
+       by that name); the TAG above is the authority and OUT is derived from it.
+  posterior  data/MimiBRICK/parameters_subsample_brick_mengel_L14.csv
+  driver     GIS_ZONE = 'south' (L13 as CALIBRATED; the 3-basin DESIGN's `all` zone is still gated)
+  basins     south k=0.6286 (3.35 m)  mid k=0.0000 (1.27 m)  high k=0.3714 (2.73 m)
+  TARGET SET = MATCHED (forcing-matched to OUR scenarios; PROTECT-Greenland (Goelzer 2025) doi 10.11582/2025.lf9m2wd0, NORCE-CISM long runs, control-drift-corrected, rel 2015)
+    SSP1-2.6     6.2-15.9   cm   [UNION of the bracketing anchors -- our integral is 10% BELOW the anchor hull, so this band is if anything GENEROUS]
+    SSP2-4.5    10.6-21.5   cm   [PCHIP interpolation at our forcing (inside the anchor hull)]
+    SSP5-8.5    42.9-145.0  cm   [PCHIP interpolation at our forcing (inside the anchor hull)]
+    CAVEAT: every anchor past 2100 is NORCE-CISM -- ONE ice sheet model, so the p05-p95 is CLIMATE-forcing spread, NOT structural spread
+  implied ssp585/ssp245 RATIO band 2.00-13.68x (this is a DERIVED quantity -- it inherits the set's forcing basis)
+
+=== G1 — cross-language reproduction of diag_l13_basin_shares.jl on 4 chain(s), seeds 2026, 2027, 2028, 2029 ===
+
+  rate scale         python      julia     |diff|
+  high               0.2265     0.2265   2.44e-05
+  2002-2011: south 0.818 (julia 0.818)  mid 0.000 (julia 0.000)  high 0.182 (julia 0.182)
+  2012-2018: south 0.788 (julia 0.788)  mid 0.000 (julia 0.000)  high 0.212 (julia 0.212)
+
+  G1 PASS — worst deviation 0.16 of its tolerance.
+
+  2000 draws; gis_amp 1.9022 [1.5634, 2.2252] (PRIOR-propagated: likelihood-inert past the splice)
+
+=== G2 — tap inertness over the calibration window 1900-2025 ===
+
+  SSP1-2.6  GMT -0.029 -> +1.383 K   headroom below the lowest onset 2.617 K
+  SSP2-4.5  GMT -0.029 -> +1.362 K   headroom below the lowest onset 2.638 K
+  SSP5-8.5  GMT -0.029 -> +1.398 K   headroom below the lowest onset 2.602 K
+
+  max |tap ramp| over 1900-2025, over all 108 (scenario, onset, tau) combinations: 0.0e+00
+  G2 PASS — EXACTLY zero. The tap cannot have been informed by the hindcast, as claimed.
+
+=== G2b — first year the tap is non-zero, by scenario and onset ===
+
+   onset K     SSP1-2.6    SSP2-4.5    SSP5-8.5
+      4.00        never       never        2088   (outside the Tier-1 bracket)
+      4.69        never       never        2101   (outside the Tier-1 bracket)
+      5.00        never       never        2108
+      5.50        never       never        2121
+      6.00        never       never        2136
+      6.50        never       never        2155
+      7.00        never       never        2180
+      7.50        never       never        2222
+      7.81        never       never        2300
+
+  G2b PASS — inside the Tier-1 bracket the tap fires on SSP5-8.5 ONLY, and never before 2100.
+  So ssp126/ssp245 are untouched by construction, and the accepted 2100 deliverable cannot move: the tap acts only on the defective column.
+
+=== BASE — L14, NO tap (m SLE rel 1995-2014) ===
+
+  scenario              2100 cm                 2300 m      2300 lit band
+  SSP1-2.6      6.48 [  5.77,  7.20]   0.101 [ 0.083, 0.124]   0.062-0.159 IN
+  SSP2-4.5      8.46 [  7.41,  9.55]   0.183 [ 0.148, 0.230]   0.106-0.215 IN
+  SSP5-8.5     13.90 [ 11.62, 16.41]   0.500 [ 0.388, 0.657]   0.429-1.450 IN
+
+  ssp585/ssp245 @2300 ratio     2.73x [2.55, 2.88]   forcing-matched 2.0-13.7x   IN
+  G4 = SSP5-8.5 - SSP1-2.6 @2100    7.40 cm [5.56, 9.48]  (the reference the tap must not degrade)
+  high-basin ice remaining at 2300, ssp585: 2.58 m [2.54, 2.62]  (capacity 2.76 m; Mouginot inventory 2.73 m)
+
+=== TAP GRID — 9x5x4 = 180 cells, ensemble-propagated over 2000 draws ===
+
+  G3 PASS — a zero tap reproduces the base bit-identically on every scenario, at both ends of the onset and tau grids.
+
+  admissible cells (onset in (4.69, 7.81] K, V <= 2.73 m): 140/180
+  ratio over the admissible cells: 2.73x - 16.01x   (forcing-matched 2.0-13.7x)
+    clearing 2300 level bands     104/140
+    clearing ratio band           134/140
+    clearing 2100 spread kept     140/140
+  cells clearing EVERYTHING: 104/140
+  VERDICT: PASS
+
+  passing cells (onset K / V m / tau yr -> ratio, ssp585 2300 m):
+     7.81  0.50  400  ->    2.73x [2.55, 2.88]   0.500 m   G4 1.0000x
+     7.81  0.50  200  ->    2.73x [2.55, 2.88]   0.500 m   G4 1.0000x
+     7.81  1.00  400  ->    2.73x [2.55, 2.88]   0.500 m   G4 1.0000x
+     7.81  1.50  400  ->    2.73x [2.55, 2.88]   0.500 m   G4 1.0000x
+     7.81  1.00  200  ->    2.73x [2.55, 2.88]   0.500 m   G4 1.0000x
+     7.81  0.50  100  ->    2.73x [2.55, 2.88]   0.500 m   G4 1.0000x
+     7.81  2.00  400  ->    2.73x [2.55, 2.88]   0.500 m   G4 1.0000x
+     7.81  2.50  400  ->    2.73x [2.55, 2.88]   0.500 m   G4 1.0000x
+     7.81  1.50  200  ->    2.73x [2.55, 2.88]   0.500 m   G4 1.0000x
+     7.81  0.50   50  ->    2.73x [2.55, 2.88]   0.500 m   G4 1.0000x
+     7.81  2.00  200  ->    2.73x [2.55, 2.88]   0.500 m   G4 1.0000x
+     7.81  1.00  100  ->    2.73x [2.55, 2.88]   0.500 m   G4 1.0000x
+     7.81  2.50  200  ->    2.73x [2.55, 2.88]   0.500 m   G4 1.0000x
+     7.81  1.50  100  ->    2.73x [2.55, 2.88]   0.500 m   G4 1.0000x
+     7.81  2.00  100  ->    2.73x [2.55, 2.88]   0.500 m   G4 1.0000x
+     7.81  1.00   50  ->    2.73x [2.55, 2.88]   0.500 m   G4 1.0000x
+     7.81  2.50  100  ->    2.73x [2.55, 2.88]   0.500 m   G4 1.0000x
+     7.81  1.50   50  ->    2.73x [2.55, 2.88]   0.500 m   G4 1.0000x
+     7.81  2.00   50  ->    2.73x [2.55, 2.88]   0.500 m   G4 1.0000x
+     7.81  2.50   50  ->    2.73x [2.55, 2.88]   0.500 m   G4 1.0000x
+     7.50  0.50  400  ->    2.83x [2.66, 2.96]   0.517 m   G4 1.0000x
+     7.50  0.50  200  ->    2.91x [2.75, 3.03]   0.532 m   G4 1.0000x
+     7.50  1.00  400  ->    2.92x [2.76, 3.05]   0.534 m   G4 1.0000x
+     7.50  1.50  400  ->    3.02x [2.86, 3.13]   0.551 m   G4 1.0000x
+     7.50  0.50  100  ->    3.04x [2.88, 3.15]   0.555 m   G4 1.0000x
+     7.50  1.00  200  ->    3.08x [2.93, 3.19]   0.563 m   G4 1.0000x
+     7.50  2.00  400  ->    3.11x [2.95, 3.22]   0.568 m   G4 1.0000x
+     7.00  0.50  400  ->    3.14x [2.98, 3.24]   0.573 m   G4 1.0000x
+     7.50  2.50  400  ->    3.21x [3.05, 3.31]   0.585 m   G4 1.0000x
+     7.50  0.50   50  ->    3.21x [3.05, 3.32]   0.587 m   G4 1.0000x
+     7.50  1.50  200  ->    3.26x [3.10, 3.37]   0.595 m   G4 1.0000x
+     7.50  1.00  100  ->    3.35x [3.19, 3.45]   0.611 m   G4 1.0000x
+     7.50  2.00  200  ->    3.43x [3.28, 3.55]   0.627 m   G4 1.0000x
+     6.50  0.50  400  ->    3.43x [3.28, 3.55]   0.627 m   G4 1.0000x
+     7.00  0.50  200  ->    3.46x [3.30, 3.58]   0.632 m   G4 1.0000x
+     7.00  1.00  400  ->    3.54x [3.38, 3.68]   0.647 m   G4 1.0000x
+     6.00  0.50  400  ->    3.56x [3.41, 3.70]   0.651 m   G4 1.0000x
+     7.50  2.50  200  ->    3.61x [3.45, 3.75]   0.659 m   G4 1.0000x
+     7.50  1.50  100  ->    3.64x [3.48, 3.80]   0.667 m   G4 1.0000x
+     5.50  0.50  400  ->    3.65x [3.49, 3.81]   0.668 m   G4 1.0000x
+     7.50  1.00   50  ->    3.68x [3.52, 3.85]   0.674 m   G4 1.0000x
+     5.00  0.50  400  ->    3.72x [3.56, 3.90]   0.681 m   G4 1.0000x
+     7.00  0.50  100  ->    3.90x [3.73, 4.12]   0.716 m   G4 1.0000x
+     7.00  1.50  400  ->    3.93x [3.75, 4.16]   0.721 m   G4 1.0000x
+     6.50  0.50  200  ->    3.94x [3.76, 4.16]   0.722 m   G4 1.0000x
+     7.50  2.00  100  ->    3.94x [3.76, 4.17]   0.722 m   G4 1.0000x
+     6.50  1.00  400  ->    4.11x [3.91, 4.38]   0.755 m   G4 1.0000x
+     6.00  0.50  200  ->    4.13x [3.92, 4.39]   0.757 m   G4 1.0000x
+     7.50  1.50   50  ->    4.15x [3.94, 4.41]   0.761 m   G4 1.0000x
+     7.00  1.00  200  ->    4.16x [3.96, 4.43]   0.764 m   G4 1.0000x
+     7.50  2.50  100  ->    4.24x [4.02, 4.53]   0.778 m   G4 1.0000x
+     5.50  0.50  200  ->    4.25x [4.03, 4.54]   0.780 m   G4 1.0000x
+     7.00  2.00  400  ->    4.33x [4.09, 4.64]   0.794 m   G4 1.0000x
+     5.00  0.50  200  ->    4.34x [4.10, 4.65]   0.796 m   G4 1.0000x
+     6.00  1.00  400  ->    4.38x [4.14, 4.69]   0.803 m   G4 1.0000x
+     7.00  0.50   50  ->    4.38x [4.14, 4.70]   0.804 m   G4 1.0000x
+     5.50  1.00  400  ->    4.56x [4.29, 4.91]   0.836 m   G4 1.0000x
+     6.50  0.50  100  ->    4.61x [4.32, 4.97]   0.845 m   G4 1.0000x
+     7.50  2.00   50  ->    4.62x [4.34, 4.99]   0.848 m   G4 1.0000x
+     5.00  1.00  400  ->    4.70x [4.40, 5.09]   0.862 m   G4 1.0000x
+     7.00  2.50  400  ->    4.73x [4.43, 5.13]   0.868 m   G4 1.0000x
+     6.00  0.50  100  ->    4.81x [4.50, 5.22]   0.882 m   G4 1.0000x
+     6.50  1.50  400  ->    4.81x [4.50, 5.23]   0.883 m   G4 1.0000x
+     7.00  1.50  200  ->    4.89x [4.56, 5.32]   0.896 m   G4 1.0000x
+     5.50  0.50  100  ->    4.92x [4.59, 5.36]   0.903 m   G4 1.0000x
+     5.00  0.50  100  ->    5.00x [4.65, 5.46]   0.917 m   G4 1.0000x
+     7.00  1.00  100  ->    5.08x [4.71, 5.56]   0.931 m   G4 1.0000x
+     7.50  2.50   50  ->    5.10x [4.73, 5.58]   0.935 m   G4 1.0000x
+     6.50  1.00  200  ->    5.15x [4.77, 5.65]   0.944 m   G4 1.0000x
+     6.50  0.50   50  ->    5.18x [4.80, 5.69]   0.950 m   G4 1.0000x
+     6.00  1.50  400  ->    5.21x [4.82, 5.72]   0.955 m   G4 1.0000x
+     6.00  0.50   50  ->    5.30x [4.89, 5.83]   0.972 m   G4 1.0000x
+     5.50  0.50   50  ->    5.35x [4.93, 5.89]   0.981 m   G4 1.0000x
+     5.00  0.50   50  ->    5.38x [4.96, 5.92]   0.986 m   G4 1.0000x
+     5.50  1.50  400  ->    5.48x [5.04, 6.05]   1.005 m   G4 1.0000x
+     6.50  2.00  400  ->    5.51x [5.06, 6.09]   1.010 m   G4 1.0000x
+     6.00  1.00  200  ->    5.53x [5.08, 6.11]   1.014 m   G4 1.0000x
+     7.00  2.00  200  ->    5.61x [5.14, 6.21]   1.028 m   G4 1.0000x
+     5.00  1.50  400  ->    5.69x [5.21, 6.31]   1.043 m   G4 1.0000x
+     5.50  1.00  200  ->    5.78x [5.28, 6.42]   1.060 m   G4 1.0000x
+     5.00  1.00  200  ->    5.96x [5.43, 6.64]   1.093 m   G4 1.0000x
+     6.00  2.00  400  ->    6.03x [5.49, 6.73]   1.107 m   G4 1.0000x
+     7.00  1.00   50  ->    6.05x [5.50, 6.75]   1.109 m   G4 1.0000x
+     6.50  2.50  400  ->    6.20x [5.62, 6.94]   1.138 m   G4 1.0000x
+     7.00  1.50  100  ->    6.26x [5.66, 7.00]   1.147 m   G4 1.0000x
+     7.00  2.50  200  ->    6.33x [5.72, 7.09]   1.160 m   G4 1.0000x
+     6.50  1.50  200  ->    6.36x [5.75, 7.14]   1.167 m   G4 1.0000x
+     5.50  2.00  400  ->    6.40x [5.78, 7.18]   1.173 m   G4 1.0000x
+     6.50  1.00  100  ->    6.49x [5.85, 7.29]   1.190 m   G4 1.0000x
+     5.00  2.00  400  ->    6.68x [6.00, 7.52]   1.224 m   G4 1.0000x
+     6.00  2.50  400  ->    6.87x [6.15, 7.75]   1.258 m   G4 1.0000x
+     6.00  1.00  100  ->    6.90x [6.17, 7.79]   1.264 m   G4 1.0000x
+     6.00  1.50  200  ->    6.94x [6.21, 7.85]   1.272 m   G4 1.0000x
+     5.50  1.00  100  ->    7.13x [6.36, 8.08]   1.306 m   G4 1.0000x
+     5.00  1.00  100  ->    7.29x [6.48, 8.27]   1.335 m   G4 1.0000x
+     5.50  1.50  200  ->    7.31x [6.50, 8.31]   1.340 m   G4 1.0000x
+     5.50  2.50  400  ->    7.32x [6.51, 8.32]   1.341 m   G4 1.0000x
+     7.00  2.00  100  ->    7.44x [6.60, 8.47]   1.363 m   G4 1.0000x
+     6.50  2.00  200  ->    7.58x [6.72, 8.64]   1.389 m   G4 1.0000x
+     5.00  1.50  200  ->    7.59x [6.72, 8.65]   1.390 m   G4 1.0000x
+     6.50  1.00   50  ->    7.65x [6.77, 8.72]   1.401 m   G4 1.0000x
+     5.00  2.50  400  ->    7.67x [6.79, 8.75]   1.405 m   G4 1.0000x
+     7.00  1.50   50  ->    7.72x [6.83, 8.81]   1.414 m   G4 1.0000x
+     6.00  1.00   50  ->    7.89x [6.96, 9.01]   1.444 m   G4 1.0000x
+
+wrote outputs/scope_gis_tap_l14_matched.csv

@@ -43,8 +43,14 @@ SCAN = os.path.join(REPO, "outputs/scope_gis_basin_mock_vs_literature.csv")
 # --- named constants; every label and filename derives from these ------------
 LADRILLO_TAG = "L12"
 FIGSTEM = "gis_basin_mock"
-LIT_2300_M = {"SSP1-2.6": (0.058, 0.163), "SSP2-4.5": (0.098, 0.218),
-              "SSP5-8.5": (1.732, 3.127)}
+## 2300 target bands. IMPORTED 2026-08-21g, not copied: this file used to carry
+## its own literals, so correcting the ssp585 band (the PROTECT x2300 family at
+## 13.8 K vs our ssp585's 7.8 K) could not reach it. `--targets=lit|matched`
+## selects the set and the FIGURE FILENAME carries it, so a matched-set figure
+## cannot be mistaken for the published literature-set one.
+import gis_targets  # noqa: E402
+LIT_2300_M, TARGET_SET = gis_targets.from_argv(sys.argv)
+TARGET_WORD = gis_targets.SET_WORD[TARGET_SET]
 SSP_COLOR = {"SSP1-2.6": "#1b7837", "SSP2-4.5": "#2166ac", "SSP5-8.5": "#b2182b"}
 PLOT_Y0 = 2000                    # left-panel time window start
 COUNT_CMAP = "Blues"
@@ -186,7 +192,8 @@ def main():
                  "mock, median params",
                  fontsize=10, x=0.005, ha="left")
     fig.tight_layout(rect=(0, 0, 1, 0.94))
-    out = os.path.join(FIGDIR, f"{FIGSTEM}_{args.tag}.png")
+    out = gis_targets.out_path(
+        os.path.join(FIGDIR, f"{FIGSTEM}_{args.tag}.png"), TARGET_SET)
     fig.savefig(out, dpi=180)
     plt.close(fig)
     print(f"wrote {os.path.relpath(out, REPO)}")

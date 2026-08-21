@@ -1,0 +1,103 @@
+scope_gis_tap — pricing the high-basin volume tap on the certified L14 posterior (TWO-basin)
+  NOTE the module is still named scope_gis_tap_l13.py (notes and memory reference it
+       by that name); the TAG above is the authority and OUT is derived from it.
+  posterior  data/MimiBRICK/parameters_subsample_brick_mengel_L14.csv
+  driver     GIS_ZONE = 'south' (L13 as CALIBRATED; the 3-basin DESIGN's `all` zone is still gated)
+  basins     south k=0.6286 (3.35 m)  mid k=0.0000 (1.27 m)  high k=0.3714 (2.73 m)
+  TARGET SET = LIT (raw literature, each band at ITS OWN forcing -- NOT like-for-like)
+    SSP1-2.6     5.8-16.3   cm   [stabilised+ext (ext = 0.092)]
+    SSP2-4.5     9.8-21.8   cm   [stabilised (no continued-warming run reported)]
+    SSP5-8.5   173.2-312.7  cm   [CONTINUED-WARMING (the apples-to-apples arm)]
+    FORCING OF EACH BAND (measured 2026-08-21g):
+      SSP1-2.6  r2300 1.96 K (int 544) + x2300 2.48 K (int 651) vs OURS 1.73 K (int 495) -- integral ratio 1.10x, MATCHED
+      SSP2-4.5  r2300 2.99 K (int 790) vs OURS 3.14 K (int 790) -- integral ratio 1.00x, MATCHED
+      SSP5-8.5  x2300 13.80 K (int 2614) vs OURS 7.80 K (int 1626) -- integral ratio 1.61x, MISMATCHED; this band scores a hotter world than ours
+  implied ssp585/ssp245 RATIO band 7.94-31.91x (this is a DERIVED quantity -- it inherits the set's forcing basis)
+
+=== G1 — cross-language reproduction of diag_l13_basin_shares.jl on 4 chain(s), seeds 2026, 2027, 2028, 2029 ===
+
+  rate scale         python      julia     |diff|
+  high               0.2265     0.2265   2.44e-05
+  2002-2011: south 0.818 (julia 0.818)  mid 0.000 (julia 0.000)  high 0.182 (julia 0.182)
+  2012-2018: south 0.788 (julia 0.788)  mid 0.000 (julia 0.000)  high 0.212 (julia 0.212)
+
+  G1 PASS — worst deviation 0.16 of its tolerance.
+
+  2000 draws; gis_amp 1.9022 [1.5634, 2.2252] (PRIOR-propagated: likelihood-inert past the splice)
+
+=== G2 — tap inertness over the calibration window 1900-2025 ===
+
+  SSP1-2.6  GMT -0.029 -> +1.383 K   headroom below the lowest onset 2.617 K
+  SSP2-4.5  GMT -0.029 -> +1.362 K   headroom below the lowest onset 2.638 K
+  SSP5-8.5  GMT -0.029 -> +1.398 K   headroom below the lowest onset 2.602 K
+
+  max |tap ramp| over 1900-2025, over all 108 (scenario, onset, tau) combinations: 0.0e+00
+  G2 PASS — EXACTLY zero. The tap cannot have been informed by the hindcast, as claimed.
+
+=== G2b — first year the tap is non-zero, by scenario and onset ===
+
+   onset K     SSP1-2.6    SSP2-4.5    SSP5-8.5
+      4.00        never       never        2088   (outside the Tier-1 bracket)
+      4.69        never       never        2101   (outside the Tier-1 bracket)
+      5.00        never       never        2108
+      5.50        never       never        2121
+      6.00        never       never        2136
+      6.50        never       never        2155
+      7.00        never       never        2180
+      7.50        never       never        2222
+      7.81        never       never        2300
+
+  G2b PASS — inside the Tier-1 bracket the tap fires on SSP5-8.5 ONLY, and never before 2100.
+  So ssp126/ssp245 are untouched by construction, and the accepted 2100 deliverable cannot move: the tap acts only on the defective column.
+
+=== BASE — L14, NO tap (m SLE rel 1995-2014) ===
+
+  scenario              2100 cm                 2300 m      2300 lit band
+  SSP1-2.6      6.48 [  5.77,  7.20]   0.101 [ 0.083, 0.124]   0.058-0.163 IN
+  SSP2-4.5      8.46 [  7.41,  9.55]   0.183 [ 0.148, 0.230]   0.098-0.218 IN
+  SSP5-8.5     13.90 [ 11.62, 16.41]   0.500 [ 0.388, 0.657]   1.732-3.127 out
+
+  ssp585/ssp245 @2300 ratio     2.73x [2.55, 2.88]   literature 7.9-31.9x   SHORT by 2.9x
+  G4 = SSP5-8.5 - SSP1-2.6 @2100    7.40 cm [5.56, 9.48]  (the reference the tap must not degrade)
+  high-basin ice remaining at 2300, ssp585: 2.58 m [2.54, 2.62]  (capacity 2.76 m; Mouginot inventory 2.73 m)
+
+=== TAP GRID — 9x5x4 = 180 cells, ensemble-propagated over 2000 draws ===
+
+  G3 PASS — a zero tap reproduces the base bit-identically on every scenario, at both ends of the onset and tau grids.
+
+  admissible cells (onset in (4.69, 7.81] K, V <= 2.73 m): 140/180
+  ratio over the admissible cells: 2.73x - 16.01x   (literature 7.9-31.9x)
+    clearing 2300 level bands      25/140
+    clearing ratio band            36/140
+    clearing 2100 spread kept     140/140
+  cells clearing EVERYTHING: 25/140
+  VERDICT: PASS
+
+  passing cells (onset K / V m / tau yr -> ratio, ssp585 2300 m):
+     5.00  1.50  100  ->    9.57x [8.31, 11.10]   1.753 m   G4 1.0000x
+     6.00  2.50  200  ->    9.76x [8.46, 11.33]   1.787 m   G4 1.0000x
+     6.50  1.50   50  ->   10.12x [8.75, 11.77]   1.852 m   G4 1.0000x
+     6.50  2.00  100  ->   10.27x [8.87, 11.95]   1.879 m   G4 1.0000x
+     5.50  2.50  200  ->   10.38x [8.96, 12.09]   1.900 m   G4 1.0000x
+     6.00  1.50   50  ->   10.47x [9.03, 12.20]   1.916 m   G4 1.0000x
+     5.50  1.50   50  ->   10.62x [9.15, 12.39]   1.944 m   G4 1.0000x
+     5.00  1.50   50  ->   10.71x [9.22, 12.49]   1.959 m   G4 1.0000x
+     5.00  2.50  200  ->   10.84x [9.32, 12.66]   1.984 m   G4 1.0000x
+     7.00  2.50   50  ->   11.05x [9.49, 12.92]   2.023 m   G4 1.0000x
+     6.00  2.00  100  ->   11.08x [9.52, 12.96]   2.029 m   G4 1.0000x
+     5.50  2.00  100  ->   11.54x [9.88, 13.53]   2.113 m   G4 1.0000x
+     5.00  2.00  100  ->   11.85x [10.13, 13.91]   2.170 m   G4 1.0000x
+     6.50  2.50  100  ->   12.15x [10.36, 14.28]   2.224 m   G4 1.0000x
+     6.50  2.00   50  ->   12.57x [10.71, 14.80]   2.303 m   G4 1.0000x
+     6.00  2.00   50  ->   13.04x [11.08, 15.38]   2.389 m   G4 1.0000x
+     6.00  2.50  100  ->   13.17x [11.18, 15.53]   2.411 m   G4 1.0000x
+     5.50  2.00   50  ->   13.24x [11.24, 15.63]   2.425 m   G4 1.0000x
+     5.00  2.00   50  ->   13.36x [11.33, 15.77]   2.446 m   G4 1.0000x
+     5.50  2.50  100  ->   13.75x [11.64, 16.25]   2.517 m   G4 1.0000x
+     5.00  2.50  100  ->   14.13x [11.95, 16.73]   2.588 m   G4 1.0000x
+     6.50  2.50   50  ->   15.04x [12.66, 17.85]   2.753 m   G4 1.0000x
+     6.00  2.50   50  ->   15.62x [13.13, 18.57]   2.861 m   G4 1.0000x
+     5.50  2.50   50  ->   15.87x [13.33, 18.89]   2.907 m   G4 1.0000x
+     5.00  2.50   50  ->   16.01x [13.44, 19.06]   2.933 m   G4 1.0000x
+
+wrote outputs/scope_gis_tap_l14_lit.csv

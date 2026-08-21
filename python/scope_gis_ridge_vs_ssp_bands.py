@@ -58,10 +58,13 @@ medians are taken over the SAME draws.
 READS   data/MimiBRICK/parameters_subsample_brick_mengel_<TAG>.csv
         outputs/ssps_components_2300_<TAG>.csv   (the untapped shipped arm)
         outputs/recalib_targets_ext.csv
-WRITES  outputs/scope_gis_ridge_vs_ssp_bands.csv
+WRITES  outputs/scope_gis_ridge_vs_ssp_bands_<targetset>.csv
 
   source ~/climate-env/bin/activate
-  python3 python/scope_gis_ridge_vs_ssp_bands.py
+  python3 python/scope_gis_ridge_vs_ssp_bands.py [--targets=matched|lit]
+
+TARGET SET (2026-08-21g). Default MATCHED. The old unsuffixed CSV is the
+pre-retarget artefact and is left where it is.
 """
 import os
 import sys
@@ -75,8 +78,14 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 ## it). Imported, never retyped.
 from scope_gis_ridge_vs_protect import basin2_series, rebase_cm  # noqa: E402
 from scope_gis_leq_ridge_vs_literature import (  # noqa: E402
-    G4_DEGRADE_TOL, G4_REF_K, LIT_2300_M, LIT_2300_NOTE, gis_tbar, native_greenland,
+    G4_DEGRADE_TOL, G4_REF_K, gis_tbar, native_greenland,
 )
+## 2026-08-21g: the 2300 bands now come from gis_targets, which carries BOTH the
+## raw literature set and the forcing-matched one. Default is MATCHED --
+## LIT's ssp585 band is the PROTECT x2300 family at 13.8 K against our 7.8 K.
+## `--targets=lit` reproduces every pre-retarget verdict; the OUTPUT FILENAME
+## carries the set so neither can overwrite the other's artefact.
+import gis_targets  # noqa: E402
 from scope_gis_2300_relaxation import (  # noqa: E402
     YEARS, gis_shape_table, gmst_rebased, regional_driver,
 )
@@ -86,7 +95,10 @@ TAG = "L14"
 POST = os.path.join(REPO, f"data/MimiBRICK/parameters_subsample_brick_mengel_{TAG}.csv")
 SHIPPED = os.path.join(REPO, f"outputs/ssps_components_2300_{TAG}.csv")
 TARGETS = os.path.join(REPO, "outputs/recalib_targets_ext.csv")
-OUT = os.path.join(REPO, "outputs/scope_gis_ridge_vs_ssp_bands.csv")
+LIT_2300_M, TARGET_SET = gis_targets.from_argv(sys.argv)
+TARGET_WORD = gis_targets.SET_WORD[TARGET_SET]
+OUT = gis_targets.out_path(
+    os.path.join(REPO, "outputs/scope_gis_ridge_vs_ssp_bands.csv"), TARGET_SET)
 SSPS = [("ssp126", "SSP1-2.6"), ("ssp245", "SSP2-4.5"), ("ssp585", "SSP5-8.5")]
 HIND = (1900, 2025)
 HIND_DRIVER = "SSP2-4.5"        # near-inert, but NOT exactly; MEASURED in cm below
@@ -216,10 +228,7 @@ def main():
 
     print(f"hindcast {HIND[0]}-{HIND[1]} = {want_cm:.2f} cm, restored by per-draw "
           f"bisection at every k (so it never discriminates)")
-    print("  2300 literature targets, m SLE:")
-    for _, lab in SSPS:
-        lo, hi = LIT_2300_M[lab]
-        print(f"    {lab:9s} {lo:.3f}-{hi:.3f}   [{LIT_2300_NOTE[lab]}]")
+    print("  " + gis_targets.banner(TARGET_SET).replace("\n", "\n  "))
     print(f"  G4 band {GATE_SPREAD_RANGE_CM[0]:.1f}-{GATE_SPREAD_RANGE_CM[1]:.1f} cm "
           f"(ensemble median, applied DIRECTLY -- this scan is per draw), and also "
           f"relative to k={G4_REF_K:g} at {100 * G4_DEGRADE_TOL:.0f}%")
@@ -275,7 +284,7 @@ def main():
               + cells + f" | {r['cm2100_SSP5-8.5']:8.2f} {r['g4_2100_cm']:6.2f} "
               f"{r['g4_rel_to_k1']:6.2f}x  {verdict}")
 
-    print(f"\n  (* = inside that scenario's 2300 literature band; tau_sl = slow-channel "
+    print(f"\n  (* = inside that scenario's 2300 {TARGET_WORD} band; tau_sl = slow-channel "
           f"1/rate at {TAU_REF_K} K, yr)")
     ## The k = 1 ROW IS NOT THE SHIPPED MODEL. Every row, k = 1 included, has its
     ## rate re-bisected onto the hindcast target, and the shipped posterior does not
@@ -317,14 +326,30 @@ def main():
     top = df.loc[df["m2300_SSP5-8.5"].idxmax()]
     lo585, hi585 = LIT_2300_M["SSP5-8.5"]
     print(f"\n  THE RIDGE CEILING at {TAG}: ssp585@2300 peaks at "
-          f"{top['m2300_SSP5-8.5']:.3f} m (k = {top.k:g}) against a literature band of "
+          f"{top['m2300_SSP5-8.5']:.3f} m (k = {top.k:g}) against a {TARGET_WORD} band of "
           f"{lo585:.3f}-{hi585:.3f} m")
-    print(f"     -> the peak is {lo585 / top['m2300_SSP5-8.5']:.2f}x SHORT of the band "
-          f"FLOOR; Leq clips at V0 so more k buys commitment it cannot realise")
+    reach = [r["k"] for r in rows if lo585 <= r["m2300_SSP5-8.5"] <= hi585]
+    peak = top["m2300_SSP5-8.5"]
+    if peak < lo585:
+        print(f"     -> the peak is {lo585 / peak:.2f}x SHORT of the band FLOOR; Leq "
+              f"clips at V0 so more k buys commitment it cannot realise")
+    else:
+        print(f"     -> the peak CLEARS the band floor ({peak / lo585:.2f}x it); the "
+              f"V0 clip is NOT what binds against this target set")
+    print(f"     k reaching INSIDE the ssp585 band: "
+          f"{reach if reach else 'NONE on this grid'}")
+    ## Which scenario actually binds is now a question, not a given: against LIT it
+    ## was always ssp585, against MATCHED it is the cool pair. Reported, not assumed.
+    binds = {lab: [r["k"] for r in rows if not r[f"in_band_{lab}"]] for _, lab in SSPS}
+    print(f"     BINDING scenario(s): " + ", ".join(
+        f"{lab} fails at {len(v)}/{len(rows)} k" for lab, v in binds.items()))
     print(f"     ssp585/ssp245 at 2300 spans {df.ratio_585_over_245.min():.2f}x-"
           f"{df.ratio_585_over_245.max():.2f}x over the grid")
     print(f"\n  JOINT: k satisfying all three plus the 2300 ssp585 band = "
           f"{kwin if kwin else 'NONE on this grid'}")
+    print(f"\n  (scored against the {TARGET_SET.upper()} target set; "
+          f"re-run with --targets={'lit' if TARGET_SET == 'matched' else 'matched'} "
+          f"for the other)")
 
     df.to_csv(OUT, index=False)
     print(f"\nwrote {os.path.relpath(OUT, REPO)}")

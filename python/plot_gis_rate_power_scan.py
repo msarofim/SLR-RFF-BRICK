@@ -23,6 +23,7 @@ Inputs  outputs/scope_gis_rate_power_vs_literature.csv   (run the scope first)
 """
 import argparse
 import os
+import sys
 
 import numpy as np
 import pandas as pd
@@ -31,6 +32,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "python"))
 FIGDIR = os.path.join(REPO, "figures")
 SCAN = os.path.join(REPO, "outputs/scope_gis_rate_power_vs_literature.csv")
 
@@ -41,9 +43,14 @@ LAW_LABEL = r"$r_f(T)=\alpha_f\bar{T}\,(\max(T,0)/\bar{T})^p+\beta_f$, slow chan
 K_SHOWN = [1.0, 3.0, 5.0, 8.0, 14.0, 22.6, 50.0]   # subset; full grid in the CSV
 K_DIRECT_LABELED = [1.0, 14.0, 50.0]               # <=4 direct labels, rest legend
 BEST_K = 14.0                                      # the peak-ratio k from the scan
-# 2300 literature bands, m SLE — must mirror the scope's LIT_2300_M
-LIT_2300_M = {"SSP1-2.6": (0.058, 0.163), "SSP2-4.5": (0.098, 0.218),
-              "SSP5-8.5": (1.732, 3.127)}
+## 2300 target bands. IMPORTED 2026-08-21g, not copied: this file used to carry
+## its own literals, so correcting the ssp585 band (the PROTECT x2300 family at
+## 13.8 K vs our ssp585's 7.8 K) could not reach it. `--targets=lit|matched`
+## selects the set and the FIGURE FILENAME carries it, so a matched-set figure
+## cannot be mistaken for the published literature-set one.
+import gis_targets  # noqa: E402
+LIT_2300_M, TARGET_SET = gis_targets.from_argv(sys.argv)
+TARGET_WORD = gis_targets.SET_WORD[TARGET_SET]
 # house Ladrillo SSP palette (plot_ladrillo_memo_figures.py) — color follows
 # the entity across the figure set; every curve is also direct-labeled
 SSP_COLOR = {"SSP1-2.6": "#1b7837", "SSP2-4.5": "#2166ac", "SSP5-8.5": "#b2182b"}
@@ -138,7 +145,8 @@ def main():
                  f"median params, offline\n{LAW_LABEL}",
                  fontsize=9.5, x=0.005, ha="left")
     fig.tight_layout(rect=(0, 0, 1, 0.91))
-    out = os.path.join(FIGDIR, f"{FIGSTEM}_{args.tag}.png")
+    out = gis_targets.out_path(
+        os.path.join(FIGDIR, f"{FIGSTEM}_{args.tag}.png"), TARGET_SET)
     fig.savefig(out, dpi=180)
     plt.close(fig)
     print(f"wrote {os.path.relpath(out, REPO)}")

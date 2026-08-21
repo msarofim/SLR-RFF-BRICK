@@ -124,8 +124,17 @@ GATE_CHAIN = GATE_CHAINS[0]     # for messages that name a single file
 # 140-cell result the shipped cell rests on reproduces unchanged.
 K_SCAN = [float(x) for a in sys.argv[1:] if a.startswith("--k=")
           for x in a.split("=", 1)[1].split(",")]
+## TARGET SET (2026-08-21g). Default MATCHED: LIT's ssp585 2300 band is the PROTECT
+## x2300 family at 13.8 K against our ssp585's 7.8 K, so both the LEVEL bands and
+## the ssp585/ssp245 RATIO band derived from it score a hotter world than ours. The
+## set is in the FILENAME as well as the printout -- a matched-set scan must not
+## overwrite the artefact the published 25/140 rests on.
+import gis_targets  # noqa: E402
+_TARGET_BANDS, TARGET_SET = gis_targets.from_argv(sys.argv)
+TARGET_WORD = gis_targets.SET_WORD[TARGET_SET]
 OUT = os.path.join(REPO, f"outputs/scope_gis_tap_{LADRILLO_TAG.lower()}"
-                   + ("_kscan" if K_SCAN else "") + ".csv")
+                   + ("_kscan" if K_SCAN else "")
+                   + gis_targets.SET_SUFFIX[TARGET_SET] + ".csv")
 
 # --- the 3-basin geometry, mirroring julia/greenland_3basin_component.jl -----
 BASINS = ("south", "mid", "high")
@@ -171,9 +180,8 @@ ONSET_LO_K, ONSET_HI_K = lit.GMT2100_585_EXPECT, lit.GMT2300_585_EXPECT
 V_TAP_MAX_M = lit.V_HIGH_MAX    # 2.73 m = the NO+NE Mouginot inventory
 
 # --- the scorecard ----------------------------------------------------------
-LIT_2300_M = ridge.LIT_2300_M
-RATIO_LO = LIT_2300_M["SSP5-8.5"][0] / LIT_2300_M["SSP2-4.5"][1]
-RATIO_HI = LIT_2300_M["SSP5-8.5"][1] / LIT_2300_M["SSP2-4.5"][0]
+LIT_2300_M = _TARGET_BANDS
+RATIO_LO, RATIO_HI = gis_targets.ratio_band(LIT_2300_M)
 G4_DEGRADE_TOL = ridge.G4_DEGRADE_TOL
 G4_PAIR = ("SSP5-8.5", "SSP1-2.6")      # the 2100 spread A+B was selected on
 CALIB_WIN = ridge.HIND                  # (1900, 2025) — the inertness window
@@ -398,7 +406,7 @@ def price_at(k_c, s_r, post, drivers, gmt, rows, v_grid):
                f"SHORT by {RATIO_LO / br:.1f}x" if br < RATIO_LO else
                f"OVER by {br / RATIO_HI:.1f}x")
     print(f"\n  ssp585/ssp245 @2300 ratio   {br:6.2f}x [{brl:.2f}, {brh:.2f}]"
-          f"   literature {RATIO_LO:.1f}-{RATIO_HI:.1f}x   {verdict}")
+          f"   {TARGET_WORD} {RATIO_LO:.1f}-{RATIO_HI:.1f}x   {verdict}")
     print(f"  G4 = {G4_PAIR[0]} - {G4_PAIR[1]} @2100  {g4m:6.2f} cm "
           f"[{g4l:.2f}, {g4h:.2f}]  (the reference the tap must not degrade)")
     print(f"  {TAPPED}-basin ice remaining at 2300, ssp585: "
@@ -472,7 +480,7 @@ def price_at(k_c, s_r, post, drivers, gmt, rows, v_grid):
     print(f"\n  admissible cells (onset in ({ONSET_LO_K}, {ONSET_HI_K}] K, "
           f"V <= {V_TAP_MAX_M:.2f} m): {nbracket}/{len(cells)}")
     print(f"  ratio over the admissible cells: {adm['ratio_med'].min():.2f}x - "
-          f"{adm['ratio_med'].max():.2f}x   (literature {RATIO_LO:.1f}-{RATIO_HI:.1f}x)")
+          f"{adm['ratio_med'].max():.2f}x   ({TARGET_WORD} {RATIO_LO:.1f}-{RATIO_HI:.1f}x)")
     for nm, col in (("2300 level bands", "bands_ok"), ("ratio band", "ratio_ok"),
                     ("2100 spread kept", "g4_ok")):
         print(f"    clearing {nm:20s} {int(adm[col].sum()):3d}/{len(adm)}")
@@ -516,6 +524,9 @@ def main():
           f"DESIGN's `all` zone is still gated)")
     print(f"  basins     " + "  ".join(
         f"{b} k={GIS3_VSHARE[b]:.4f} ({GIS3_VOL_M[b]:.2f} m)" for b in BASINS))
+    print("  " + gis_targets.banner(TARGET_SET).replace("\n", "\n  "))
+    print(f"  implied ssp585/ssp245 RATIO band {RATIO_LO:.2f}-{RATIO_HI:.2f}x "
+          f"(this is a DERIVED quantity -- it inherits the set's forcing basis)")
 
     gate_crosslanguage(rows)
 

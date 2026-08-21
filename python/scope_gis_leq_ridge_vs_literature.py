@@ -67,13 +67,16 @@ HIND_DRIVER = "ssp245"        # history is observed t_gis, so this choice is ine
 SSPS = [("ssp126", "SSP1-2.6"), ("ssp245", "SSP2-4.5"), ("ssp585", "SSP5-8.5")]
 K_GRID = [1.0, 1.5, 2.0, 3.0, 5.0, 8.0, 10.0, 12.0, 14.0, 16.0, 22.6, 32.0, 50.0]
 
-# 2300 literature, m SLE. Continued-warming arm where reported, else stabilised.
-# TC 19:6887 (2025) doi 10.5194/tc-19-6887-2025; TC 20:309 (2026) doi 10.5194/tc-20-309-2026
-LIT_2300_M = {"SSP1-2.6": (0.058, 0.163), "SSP2-4.5": (0.098, 0.218),
-              "SSP5-8.5": (1.732, 3.127)}
-LIT_2300_NOTE = {"SSP1-2.6": "stabilised+ext (ext = 0.092)",
-                 "SSP2-4.5": "stabilised (no continued-warming run reported)",
-                 "SSP5-8.5": "CONTINUED-WARMING (the apples-to-apples arm)"}
+# 2300 targets. MOVED 2026-08-21g into python/gis_targets.py, which is now the ONE
+# place both the raw literature bands and the forcing-matched set live -- six
+# scripts scored against these and two carried their own copied literals, so no
+# single edit could correct them all. Re-exported here under the OLD names because
+# four scripts import them from this module; the values are byte-identical to the
+# transcription that lived here (TC 19:6887 (2025) doi 10.5194/tc-19-6887-2025;
+# TC 20:309 (2026) doi 10.5194/tc-20-309-2026). Scripts that want the matched set
+# call gis_targets.from_argv / gis_targets.get.
+import gis_targets  # noqa: E402
+LIT_2300_M, LIT_2300_NOTE = gis_targets.LIT_2300_M, gis_targets.LIT_2300_NOTE
 # G4 = the 2100 scenario spread (ssp585 - ssp126, cm) that A+B was SELECTED on.
 # The evaluation band is 6.3-7.3 cm, but that band applies to the ENSEMBLE median,
 # and this scan runs at MEDIAN PARAMETERS -- medians are not multiplicative, so the
