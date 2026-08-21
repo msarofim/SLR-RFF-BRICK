@@ -47,13 +47,24 @@ head -1 "$STARTS" | tr ',' '\n' | grep -qx "d2_gsic_1" || {
 head -1 "$STARTS" | tr ',' '\n' | grep -qx "gis_slow_ell" || {
   echo "$STARTS predates the Greenland (ell, w) reparam — rebuild it from the L11tune3 chain"; exit 1; }
 
+# --adcov IS PASSED. Before 2026-08-21 it was not: the script defined $ADCOV,
+# hard-failed if it was missing, and echoed it as "proposal seed", but the
+# invocation omitted the flag, so the calibrator fell through to its PREFERENCE
+# LIST instead. That was harmless HERE only by coincidence -- with GIS_AB on the
+# list's first candidate IS adapted_cov_L11tune3_seed2026.csv, the same file the
+# banner names -- so this change is behaviour-preserving and the archived chains
+# still reproduce. What it removes is the TEMPLATE TRAP: copy this script for a
+# new vintage, point $ADCOV at the new tune file, and without the flag the
+# preference list silently hands the run an L11-layout covariance while the
+# banner claims the new one. That is the exact failure --adcov was added for
+# (the L13 reseed), and run_l13/run_l14_production.sh already pass it.
 echo "L11 production: 4 x $N_ITER, seeds $SEEDS, tag=$TAG"
 echo "  proposal seed: $ADCOV"
 echo "  starts:        $STARTS"
 for SEED in $SEEDS; do
   OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 \
     julia --project=julia_v2 --threads=1 julia/calibrate_mcmc_ext.jl "$N_ITER" "$SEED" \
-      --tag=$TAG --overdisperse \
+      --tag=$TAG --overdisperse --adcov="$ADCOV" \
       > "outputs/mcmc/log_${TAG}_seed${SEED}.txt" 2>&1 &
 done
 wait

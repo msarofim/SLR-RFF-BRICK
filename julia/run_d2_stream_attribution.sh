@@ -55,7 +55,7 @@ for ARM in steric gsic; do
   for S in $SEEDS; do
     echo "launching $TAG seed $S (--d2-streams=$ARM, $N_ITER iter)"
     julia --project=julia_v2 julia/calibrate_mcmc_ext.jl "$N_ITER" "$S" \
-      --overdisperse --d2-streams="$ARM" --tag="$TAG" \
+      --overdisperse --d2-streams="$ARM" --tag="$TAG" --adcov="$ADCOV" \
       > "outputs/mcmc/log_${TAG}_seed${S}.txt" 2>&1 &
   done
 done
