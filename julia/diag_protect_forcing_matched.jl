@@ -32,7 +32,7 @@
 ##   already smooth, the PROTECT path is one member per GCM, and the tap consumes
 ##   gmt unsmoothed. `--unsmoothed` reruns the PROTECT arms on annual values.
 ##
-##   julia --project=julia_v2 julia/diag_protect_forcing_matched.jl [n_draws] [--set] [--untapped] [--unsmoothed]
+##   julia --project=julia_v2 julia/diag_protect_forcing_matched.jl [n_draws] [--family=r2300] [--set] [--untapped] [--unsmoothed]
 ##   julia --project=julia_v2 julia/diag_protect_forcing_matched.jl --scan=<cells.csv>   (exploratory)
 ## ============================================================================
 
@@ -62,6 +62,20 @@ const SCAN_CSV = let i = findfirst(a -> startswith(a, "--scan="), ARGS)
 end
 !(!isempty(SCAN_CSV) && DO_SET) || error("--scan and --set are different arms; pass one")
 const UNSMOOTHED = "--unsmoothed" in ARGS
+## --family selects WHICH PROTECT experiment family this arm compares against.
+##   x2300  natural CMIP6 extension. 18 runs, 2 GCMs, several CISM configs, and it
+##          runs at 9.8-13.6 K -- far above our own 4.7-7.8 K.
+##   r2300  forcing HELD at the 2100 level (Goelzer 2025). 35 usable runs, 5 GCMs,
+##          ONE CISM config, plateau 5.58 K. Closer to our scenario and a wider
+##          climate sample, but the tap NEVER FIRES on it (plateau < 6.5 K onset),
+##          so it tests the BASE model's committed-loss response, not the tap.
+## The family is in the output filename: the two arms are otherwise identical in
+## schema and would be indistinguishable on disk.
+const FAMILY = let i = findfirst(a -> startswith(a, "--family="), ARGS)
+    i === nothing ? "x2300" : ARGS[i][10:end]
+end
+FAMILY in ("x2300", "r2300") || error("--family must be x2300 or r2300, got $FAMILY")
+const FAM_TAG = FAMILY == "x2300" ? "" : "_$(FAMILY)"
 const SSP        = "ssp585"
 const LABEL      = "SSP5-8.5"
 const HORIZONS   = (2100, 2150, 2300)
@@ -79,10 +93,10 @@ end
 const SHAPE_TAG = LADRILLO_GIS_SHAPE_STEM == "gis_amp_shape" ? "" :
     "_" * replace(LADRILLO_GIS_SHAPE_STEM, "gis_amp_shape_" => "shape")
 const OUT = joinpath(LADRILLO_REPO,
-    "outputs/diag_protect_forcing_matched_$(TAG)$(SHAPE_TAG)$(DO_SET ? "_set" : "")$(isempty(SCAN_CSV) ? "" : "_scan")$(UNTAPPED ? "_untapped" : "")$(UNSMOOTHED ? "_raw" : "").csv")
+    "outputs/diag_protect_forcing_matched_$(TAG)$(FAM_TAG)$(SHAPE_TAG)$(DO_SET ? "_set" : "")$(isempty(SCAN_CSV) ? "" : "_scan")$(UNTAPPED ? "_untapped" : "")$(UNSMOOTHED ? "_raw" : "").csv")
 
-const FORCING = joinpath(LADRILLO_REPO, "outputs/protect_x2300_forcing_gmst.csv")
-isfile(FORCING) || error("no $FORCING — run python3 python/build_protect_x2300_forcing.py")
+const FORCING = joinpath(LADRILLO_REPO, "outputs/protect_$(FAMILY)_forcing_gmst.csv")
+isfile(FORCING) || error("no $FORCING — run python3 python/build_protect_$(FAMILY)_forcing.py")
 fdf = CSV.read(FORCING, DataFrame)
 years = collect(Y0:Y1)
 fmap(col) = (d = Dict(Int(fdf[i, "year"]) => Float64(fdf[i, col]) for i in 1:nrow(fdf));
@@ -124,8 +138,8 @@ end
 
 const VARIANT = ladrillo_posterior_variant(LADRILLO_POSTERIOR_CSV)
 post = ladrillo_posterior(path=LADRILLO_POSTERIOR_CSV, nthin=NTHIN)
-@printf("PROTECT x2300 matched-forcing | posterior %s (%d draws) | Greenland :%s | %s | %d cell(s) | %s\n",
-        basename(LADRILLO_POSTERIOR_CSV), nrow(post), VARIANT, LABEL, length(CELLS),
+@printf("PROTECT %s matched-forcing | posterior %s (%d draws) | Greenland :%s | %s | %d cell(s) | %s\n",
+        FAMILY, basename(LADRILLO_POSTERIOR_CSV), nrow(post), VARIANT, LABEL, length(CELLS),
         UNSMOOTHED ? "PROTECT arms ANNUAL (unsmoothed)" : "PROTECT arms 11-yr centred")
 @printf("  amp law: %s, fitted support %.2f-%.2f K, FLAT-HELD above it | amp*S high-dT = %.3f\n",
         LADRILLO_GIS_SHAPE_STEM, _GIS_SHAPE_META.dt_min, _GIS_SHAPE_META.dt_max,

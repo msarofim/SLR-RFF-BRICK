@@ -196,15 +196,23 @@ fig.savefig(os.path.join(REPO, "figures/gis_tap_shape_candidates.png"), dpi=160,
 ## r2300 world plateaus by 2100, ours keeps warming to 2300, and an ice sheet
 ## integrates the path, not the mean). Quoted to the nearest 10 cm for that reason.
 r2300 = ann[ann.exp.str.contains("r2300") & ann.exp.str.contains("ssp585|rcp85")]
+r2300 = r2300[~r2300.exp.str.startswith("ACCESS1.3")]     # match the forcing's 35 runs
 R = r2300.groupby("year").gis_cm.quantile([.05, .5, .95]).unstack() + OFFSET
 X = x.groupby("year").gis_cm.quantile([.05, .5, .95]).unstack() + OFFSET
-T_R, T_X = 5.12, 13.64           # r2300 plateau (4 GCMs available); x2300 at 2290
+## Both anchors are now MEASURED matched-forcing plateaus from the built drivers,
+## not hand-averages: r2300 was run 2026-08-21c and its n-weighted plateau is the
+## value the model was actually driven with. The r2300 band is restricted to the
+## same 35 runs whose forcing was reconstructed (ACCESS1.3 dropped from both sides).
+fR = pd.read_csv(os.path.join(REPO, "outputs/protect_r2300_forcing_gmst.csv")).set_index("year")
+T_R = float(fR.loc[2200, "gmst_spliced"])
+T_X = float(f.loc[2290, "gmst_spliced_11yr"])
 o = pd.read_csv(os.path.join(REPO, "data/observations/fair_mean_gmst_ssp585.csv")).set_index("year").gmst_C
 T_us = float(o.loc[2100:2300].mean())
 lo, hi = R.loc[2300, 0.5], X.loc[2300, 0.5]
 mid = lo + (hi - lo) * (T_us - T_R) / (T_X - T_R)
 print(f"\nWHAT THE PHYSICS IMPLIES FOR OUR OWN ssp585 (mean 2100-2300 warming {T_us:.2f} K)")
-print(f"  r2300, forcing HELD at ~{T_R:.2f} K, n=40 / 6 GCMs / 1 CISM config:")
+print(f"  r2300, forcing HELD at ~{T_R:.2f} K, n={len(r2300.groupby(['group','model','exp']))}"
+      f" / 5 GCMs / 1 CISM config (ACCESS1.3 dropped, CMIP5):")
 print(f"    Greenland@2300  p05 {R.loc[2300,0.05]:5.1f}  p50 {R.loc[2300,0.5]:5.1f}  p95 {R.loc[2300,0.95]:5.1f} cm")
 print(f"  x2300, ~{T_X:.2f} K, n=18 / 2 GCMs: p50 {X.loc[2300,0.5]:.1f} cm")
 print(f"  crude two-point interpolation to our {T_us:.2f} K  ->  ~{round(mid,-1):.0f} cm "
