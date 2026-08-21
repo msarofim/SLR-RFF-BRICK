@@ -3,6 +3,66 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-21i — **The shape scorecard now holds all three scenarios at matched forcing. The argmins disagree, and the shipped model sits on the cool side of the disagreement.**
+
+`handoff_2026-08-21e` §3.1, done. Every arm runs **our model on that arm's own forcing**
+and scores it against **that arm's own runs** — scenario *and* family matched on both sides.
+Marcus's standing instruction, 2026-08-21: make every comparison as like-for-like as
+possible, forcing trajectory first.
+
+`python/build_protect_cool_forcing.py` → the three missing drivers
+(`protect_ssp126_r2300`, `protect_ssp126_x2300`, `protect_ssp245_r2300`).
+`python/scope_gis_shape_all_scenarios.py` → the five-arm, 20-horizon scorecard.
+
+### Six gates, because the cool arms have no Julia counterpart
+
+| gate | what | result |
+|---|---|---|
+| splice arithmetic | re-splice the published ssp585 `gmst_raw`, must reproduce `gmst_spliced` | **1.8e-15** |
+| hold construction | `gcm_path(·, ssp585, r2300)` vs `cmip6_gsat_r2300_gcms.csv` | **4.4e-16**, 4 cached GCMs; UKESM1-0-LL reported as NOT checked |
+| 1 | the two ssp585 arms vs the published shape scan, 12 k × 4 cells | **2.8e-14 cm** |
+| 2 | rel-2015 → rel-1995-2014 offset scenario-invariant? | spread **0.0000 cm** — measured, not assumed |
+| 3 | hindcast re-solved under each arm's own history | **0.000 cm** at 2300 |
+| 4 | band composition == forcing composition, per GCM per arm | **MATCH**, all five |
+
+**Gate 4 caught a real counting trap.** A *run* is a `(group, model, exp)` triple; counting
+unique `exp` **names** undercounts x2300 by a third — 12 vs 18 at ssp585, 4 vs 6 at ssp126 —
+because one experiment name appears under several ice-sheet-model directories. The bands were
+correct; the reported `n` was not, and the gate now asserts the two sides are the same runs.
+
+### Three misfits, reported separately and never pooled
+
+`rms_ssp585` is over the **same 8 horizons** as the published scan and reproduces it exactly
+(0.293 at k=3, 0.497 at k=1). `rms_cool` is the 12 new ones. `rms_all` is all 20 and is **NOT**
+comparable to 0.293 — quoting it against the published number would be the same category error
+this whole arc is about, so the output says so.
+
+| | best k | score | at k = 1 |
+|---|---|---|---|
+| ssp585 arms only | **3** | 0.293 | 0.497 |
+| cool arms only | **0.75** | 0.229 | 0.262 |
+| all five arms | 1 | 0.374 | — |
+
+Cost of each choice in the *other's* own metric: **2.23×** and **2.96×**. A scale cannot serve
+both — which is the case for a state-dependent relaxation rate rather than another ridge point.
+
+**And the shipped model is not symmetrically placed.** At k = 1 it is **1.14× off the cool
+optimum and 1.70× off the ssp585 one**: essentially all of the deficiency is on the warm arm.
+A correction therefore has to act *selectively* there, which is what a state-dependent term
+does and what k cannot.
+
+### Selectivity, measured twice — because the arms are not our scenarios
+
+A term ∝ `L/V0` has **4.1×** more leverage on the warmest arm than on any cool one. But the
+arms **bracket** our ssp585 (5.61 and 13.63 K against our 7.81) rather than matching it, so on
+**our own deliverable drivers** the selectivity is **2.3×** (ssp585 `L/V0` = 0.0753 vs ssp245
+0.0327), not 4.1×. The arm number must not be quoted for the deliverable.
+
+Sizing note for the offline γ grid, **not** a fit: our ssp585 reaches `L/V0` = 0.075, so under
+`r = r0·(1 + γ·L_b/(k_b·V0))` a 2× late-rate boost needs γ of order **13** on the total-V0
+basis (less by ~1/k_b per basin), and the cool arms would move by **0.43** of that. **That is
+the trade γ has to beat** — a measurement to run, not a mechanism to assume.
+
 ## [unreleased] — 2026-08-21h — **RE-TARGET: the cool bands were already forcing-matched, so k ≤ 1.25 survives — but the ssp585 band was not, and the tap's admissible set INVERTS to disjoint.**
 
 Marcus's call (2026-08-21): do option 1 (re-target) first. Done, all four steps of
