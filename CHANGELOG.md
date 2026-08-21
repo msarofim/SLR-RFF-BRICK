@@ -3,6 +3,96 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-21b — **The PROTECT x2300 comparison was never at matched forcing.** The tap is too EARLY, not too late.
+
+Follows 2026-08-21a, which landed the PROTECT-Greenland physics ensemble and read
+"2300 agrees to 1.4%, 2150 is 38% low" as evidence the tap onset was set too LATE. That
+entry's own next step was to check the x2300 forcing path first. Checked. It is not ours,
+and the reading inverts.
+
+### The forcing gap
+
+The x2300 arm is forced by exactly two GCMs, 12 IPSL-CM6A-LR : 6 CESM2-WACCM. The PROTECT
+scalar files carry ice variables only, and the Pangeo CMIP6 zarr mirror **truncates ssp585
+at 2100** for both models, so 2101-2300 came from ESGF (`scripts/fetch_cmip6_ssp585ext.sh`,
+md5-pinned; `python/reduce_cmip6_gsat_ssp585ext.py`).
+
+| 11-yr GSAT, °C vs 1850-1900 | 2100 | 2150 | 2300 |
+|---|---|---|---|
+| ours (`fair_mean_gmst_ssp585`) | 4.70 | 6.40 | 7.78 |
+| **PROTECT x2300 (12:6 weighted)** | **6.61** | **9.86** | **13.64** |
+
+Our path crosses the 6.5 K tap onset in **2154**; theirs in **2097-2101**. The 2150
+comparison was between worlds 3.5 °C apart; the 2300 "agreement" between worlds 5.9 °C
+apart.
+
+### At matched forcing (`julia/diag_protect_forcing_matched.jl`)
+
+GIS only — OHC stays on ours, so `te`/`total` from that driver are meaningless and are not
+written. The `ours` arm reproduces the shipped run exactly (13.9 / 28.2 / 230.3 cm).
+
+| Greenland, cm, all under the PROTECT forcing | 2100 | 2150 | 2300 |
+|---|---|---|---|
+| PROTECT x2300 p50 (on our basis) | 12.2 | 46.5 | 234.4 |
+| ours, tap OFF | 19.9 | **45.2** | 90.0 |
+| ours, shipped cell | 19.9 | **161.3** | 286.0 |
+
+`--untapped` splits the two candidate explanations: the **base** Greenland matches the
+physics at 2150 to 3%, and the entire 2150 excess is the tap draining at τ = 50 yr from an
+onset the PROTECT world crosses in 2097. **0 of 25** admissible cells lands inside the
+physics band at 2150 (16 of 25 do at 2300); the set spans 100-224 cm there against 45-53.
+
+### The finding is the SHAPE, not the cell
+
+Tap needed (physics − our base) vs tap given: **−7.0 vs 46.2** at 2120, **−2.3 vs 97.3** at
+2140, **144.4 vs 195.9** at 2300. The physics wants nothing until ~2147 and then a term
+still accelerating at 2300 (0.68 cm/yr over 2160-2200, 1.25 over 2260-2300); the shipped
+exponential is front-loaded and saturating. No single exponential fits both ends — τ = 158 yr
+matches 2300 and still puts 57 cm at 2150 where ~1 is wanted.
+
+An exploratory `--scan` outside the priced grid finds onset **9.5-10.0 K, τ 80-120 yr** does
+clear both horizons — and those cells are **EXACTLY inert** on our own ssp585 (peak 7.81 K;
+measured difference from untapped at 2300 is 0.0 cm, i.e. Greenland@2300 230.3 → 50.0).
+That is a statement about the functional form: an exponential can only be back-loaded by
+moving the onset past our scenario's reach. The onset bracket (4.69, 7.81] is itself our
+ssp585's own 2100 and 2300 GMST, so it cannot be tested by a hotter ensemble from inside.
+
+### A second, smaller mismatch: amplification
+
+Greenland-region / global amplification, 11-yr, from the same reducer using the repo's own
+`build_t_gis` mask: IPSL 1.60 → 1.45 → 1.31 and CESM2-WACCM 1.42 → 1.39 → 1.30 across
+2100/2150/2290, against our effective `amp·S(dT)` **pinned at 1.65** by the S table's
+flat-hold above 2.75 K. So even at matched *global* temperature we feed Greenland 7% (2100)
+to 27% (2290) more warming than the PROTECT ice sheet saw. The GCMs' continued decline is
+what the pre-registered `gis_amp_shape_fullcurve` arm assumes — an argument for running it,
+not for adopting it.
+
+### Tried and set aside
+
+- **Pangeo/Google CMIP6 zarr for the extension.** Carries `ssp585` for both models but every
+  member stops at 2100-12 (1032 monthly steps). Abandoned for ESGF file downloads.
+- **`info_p11` as a forcing source.** It carries experiment/model/percentile inventories and
+  no climate variable at all; neither do the scalar NetCDFs (`ivol`/`ivaf`/`lim`/`slc`/`sle`).
+- **Raw vs spliced GMST, and annual vs 11-yr smoothed**, both run rather than assumed
+  (`--unsmoothed`). The splice choice moves 2300 GSAT by 0.17 °C and Greenland by 3.5 cm at
+  2150 / 0.1 cm at 2300; smoothing moves Greenland by 0.0 cm at 2150 and 0.1 at 2300. Neither
+  is load-bearing at the 100 cm scale of the finding, and the `spliced`/11-yr arm is reported.
+
+### Caught
+
+`--scan` printed twelve identical console blocks on first run — the horizon selector matched
+(year, arm, component) but not the cell, so every cell after the first reported the first
+one's rows. The same trap `project_ssps_components_ladrillo.jl` carries a warning about for
+its `--tap-set` arm. CSV was always right; only the console lied. Two label bugs in the
+figure likewise: `n` counting the 12 experiment ids rather than the 18 runs, and the
+zero-crossing picking the first non-negative year (2015, the start of the record).
+
+### NOT acted on
+
+No gate changed, no cell moved, admissible set still all 25. Caveats now stacked three deep:
+n = 18, **one** ice sheet model (NORCE-CISM), **two** GCMs at **one** member each — and only
+`gis` is interpretable from the matched-forcing driver.
+
 ## [unreleased] — 2026-08-20h — **L14 IS CANONICAL.** SLR@2100 45.53 -> 45.01 cm.
 
 Marcus 2026-08-20. The two-basin Greenland supersedes L12, which held canonical from
