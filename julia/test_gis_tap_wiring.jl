@@ -33,8 +33,33 @@ const Y0, Y1     = 1850, 2300
 const N_DRAWS    = 6
 const EXACT_TOL  = 1e-12        # cm; "bit-identical" for a projection comparison
 const LIVE_TOL   = 1e-2         # cm; a "must MOVE" check needs a floor
-## The horizon the tap must not move, and the first year it may. 6.5 K first fires
-## 2155 on ssp585 per the offline narrowing, so 2150 is protected and 2155 is not.
+## The horizon this test asserts the SHIPPED cell does not move, and the first year
+## it may.
+##
+## READ THIS BEFORE REUSING 2150 AS A CRITERION (rewritten 2026-08-21). The previous
+## comment here read "6.5 K first fires 2155 ... so 2150 is protected and 2155 is
+## not", which derives the protected horizon FROM THE CHOSEN CELL'S OWN FIRST-FIRE
+## YEAR. That is circular: the cell was selected to protect 2150 (greenland_3basin_
+## component.jl: the free direction "costs up to 0.82 m at 2150 and exactly 0.000 m
+## at 2100, so the principle extended to 2150 gives onset >= 6.5 K"), and 2150 was
+## then called protected because the cell fires at 2155. As a REGRESSION GATE on the
+## shipped cell that is perfectly sound -- it pins behaviour that other results
+## depend on. As EVIDENCE that 2150 is a horizon the tap must not move, it is not.
+##
+## What the evidence actually says, measured 2026-08-21:
+##   * 2100 is the validated horizon, and it does NOT discriminate among cells --
+##     the free direction costs exactly 0.000 m there, so all 25 admissible cells
+##     already satisfy the principle proper.
+##   * 2150 for Greenland has TWO comparison sources, both non-physics:
+##     FACTS-FittedISMIP (an emulator fitted to ISMIP6) and bamber19 (structured
+##     expert judgment, p17-p83 [15.1, 78.8] cm on ssp585). emuGrIS and MAGICC-SLR
+##     both stop at 2100.
+##   * The PHYSICS-based post-2100 constraints are at 2300 (TC19:6887 2025,
+##     TC20:309 2026) and they already define the 25-cell admissible set.
+## So do NOT narrow the admissible set on 2150 without a physics-based source at
+## that horizon -- that would replace stronger evidence with weaker. Marcus
+## 2026-08-21: use the looser gate unless FACTS qualifies as physics-based; it does
+## not. See notes/handoff_2026-08-21_zone_axis_closed.md.
 const PROTECTED_THRU = 2150
 const FIRST_FIRE_MAX = 2200     # it must actually fire by here, or the cell is inert
 const SUB = joinpath(REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_$(TAG).csv")

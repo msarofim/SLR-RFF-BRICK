@@ -114,6 +114,19 @@ const GIS2_VSHARE = (south = GIS3_VSHARE.south + GIS3_VSHARE.mid,
 # Vtilde = V*u_2300 in [1.252, 2.647] m (reproduces all_pass 25/25); the free
 # direction costs up to 0.82 m at 2150 and exactly 0.000 m at 2100, so the principle
 # extended to 2150 gives onset >= 6.5 K (6.5 K first fires 2155, 7.0 K 2180).
+#
+# "EXTENDED" IS DOING REAL WORK IN THAT SENTENCE (clarified 2026-08-21). At 2100 --
+# the horizon with independent validation -- the free direction costs EXACTLY 0.000 m,
+# so the principle proper does NOT discriminate among cells: all 25 that clear the
+# 2300 scorecard satisfy it. Only the extension to 2150 selects onset >= 6.5 K, and
+# 2150 was chosen because it is where the unidentified direction BITES, not because
+# the model is validated there. Measured 2026-08-21, Greenland at 2150 has two
+# comparison sources and BOTH are non-physics: FACTS-FittedISMIP (an emulator fitted
+# to ISMIP6) and bamber19 (structured expert judgment); emuGrIS and MAGICC-SLR stop
+# at 2100. The physics-based post-2100 constraints are the 2300 bands themselves.
+# CONSEQUENCE: this cell remains the shipped central estimate, but the ADMISSIBLE SET
+# must not be narrowed on 2150 -- see julia/test_gis_tap_wiring.jl PROTECTED_THRU and
+# notes/handoff_2026-08-21_zone_axis_closed.md.
 const GIS_TAP_CELL = (onset_K = 6.5, V_m = 2.0, tau_yr = 50.0, ramp_w_K = 1.0)
 # THE ONSET IS IN GLOBAL MEAN TEMPERATURE, NOT the regional Greenland driver. The
 # Tier-1 bracket (4.69, 7.81] K is quoted in GMT — 4.69 K IS ssp585's 2100 GMT — so
