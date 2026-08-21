@@ -460,6 +460,30 @@ CELLS = {
 # Bounds are wide on purpose: a rail means the fit left the feasible set, which
 # is information, and every rail is reported. 1/tau in [1e-6, 0.2] spans
 # e-folding times from 5 yr to 1e6 yr.
+# Plot style, one entry per CELLS key. THIS IS GATED AGAINST CELLS BELOW, and the
+# gate is why it lives up here beside CELLS rather than inside make_figure: the
+# figure is the LAST thing main() does, after ~1 h of fitting, so a cell added to
+# CELLS without a style entry used to throw KeyError and discard the whole run.
+# The CSVs are written before make_figure and survived, but the compute did not.
+CELL_STYLE = {c: dict(color=col, ls=ls, lw=lw) for c, col, ls, lw in [
+    ("incumbent", "C6", "--", 2.2), ("stock", "0.55", "-", 1.3),
+    ("A", "C0", "-", 1.8), ("B", "C1", "-", 1.3), ("A+B", "C2", "-", 2.0),
+    ("A+B'", "C4", "-", 1.8), ("A+B+C", "C3", ":", 1.3),
+    ("A+B'+C", "C5", ":", 1.3),
+    # the D (throughput-cap) cells, added 2026-08-21 -- absent since option D
+    # landed 2026-08-16, which is the KeyError 'A+B+C+D' in the CD/CD2 logs.
+    ("A+B+C+D", "C3", "-.", 1.6), ("A+B'+C+D", "C5", "-.", 1.6),
+    ("A+B'+C+D2", "C8", "-.", 2.0)]}
+
+_missing = [c for c in CELLS if c not in CELL_STYLE]
+_extra = [c for c in CELL_STYLE if c not in CELLS]
+if _missing or _extra:
+    raise SystemExit(
+        "CELL_STYLE does not cover CELLS -- fix before fitting, not after:\n"
+        f"  in CELLS but not styled: {_missing}\n"
+        f"  styled but not in CELLS: {_extra}")
+
+
 PBOUNDS = {
     "c1": (0.0, 400.0), "c0": (-200.0, 400.0),
     "alpha": (0.0, 0.2), "beta": (1e-6, 0.2),
@@ -974,11 +998,7 @@ def make_figure(series, ctx, fit):
     t = pd.read_csv(TARGETS_CSV).set_index("year")
     g = t[["gis", "gis_lo", "gis_hi"]].dropna().loc[FIT_WIN[0]:FIT_WIN[1]]
     s = pd.DataFrame(series).set_index("year")
-    style = {c: dict(color=col, ls=ls, lw=lw) for c, col, ls, lw in [
-        ("incumbent", "C6", "--", 2.2), ("stock", "0.55", "-", 1.3),
-        ("A", "C0", "-", 1.8), ("B", "C1", "-", 1.3), ("A+B", "C2", "-", 2.0),
-        ("A+B'", "C4", "-", 1.8), ("A+B+C", "C3", ":", 1.3),
-        ("A+B'+C", "C5", ":", 1.3)]}
+    style = CELL_STYLE
 
     fig, axes = plt.subplots(1, 3, figsize=(18, 5.4))
     for ax, (x0, x1) in zip(axes[:2], [FIT_WIN, GATE_MIDCEN_WIN]):

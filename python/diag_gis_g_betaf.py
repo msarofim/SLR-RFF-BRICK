@@ -56,7 +56,28 @@ OUT_PROFILES = goc.zoned(os.path.join(REPO, "outputs/gis_g_betaf_profiles.csv"))
 OUT_FIG = goc.zoned(os.path.join(REPO, "figures/gis_g_betaf.png"))
 
 CELL = "A+B"                    # the module; handoff decision 4
-REPORTED_NLP = 42.522760        # outputs/gis_offline_cell_fits.csv, for the audit
+
+# The audit's reference is READ FROM the zone's own fits file, not hardcoded.
+# It used to be the literal 42.522760, captioned "outputs/gis_offline_cell_fits.csv"
+# but frozen at a pre-2026-08-12 vintage -- i.e. from before fit_cell was
+# corrected. By 2026-08-21 the real south value was 17.856 and all was 33.629,
+# so the audit line reported a spurious "+8.9 improvement" in BOTH zones and
+# read as a convergence failure that was not one. Deriving it also makes the
+# audit meaningful on a zone whose fits file is not south's.
+_FITS_CSV = goc.OUT_FITS        # already zone-tagged by goc.zoned()
+
+
+def _reported_nlp():
+    if not os.path.exists(_FITS_CSV):
+        return None             # zone never fitted; audit prints "n/a"
+    d = pd.read_csv(_FITS_CSV)
+    r = d[d["cell"] == CELL]
+    if len(r) != 1:
+        return None
+    return float(r["neg_log_post"].iloc[0])
+
+
+REPORTED_NLP = _reported_nlp()
 
 # ---- the harder fitting protocol -------------------------------------------
 # The incumbent used 60 Nelder-Mead starts from uniform draws over bounds that
@@ -221,9 +242,15 @@ def main():
 
     print("\n[1] convergence audit — refit the full 8-parameter A+B")
     theta_full, nlp_full = fit(ctx)
-    print(f"  reported  nlp = {REPORTED_NLP:.4f}")
-    print(f"  converged nlp = {nlp_full:.4f}   "
-          f"(improvement {REPORTED_NLP - nlp_full:+.4f})")
+    if REPORTED_NLP is None:
+        print(f"  reported  nlp = n/a ({os.path.basename(_FITS_CSV)} absent "
+              f"or has no {CELL} row)")
+        print(f"  converged nlp = {nlp_full:.4f}")
+    else:
+        print(f"  reported  nlp = {REPORTED_NLP:.4f}   "
+              f"(from {os.path.basename(_FITS_CSV)})")
+        print(f"  converged nlp = {nlp_full:.4f}   "
+              f"(improvement {REPORTED_NLP - nlp_full:+.4f})")
     print("  " + "; ".join(f"{k}={theta_full[k]:.6g}"
                            for k in goc.cell_params(CELL)))
 
