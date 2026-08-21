@@ -33,6 +33,7 @@
 ##   gmt unsmoothed. `--unsmoothed` reruns the PROTECT arms on annual values.
 ##
 ##   julia --project=julia_v2 julia/diag_protect_forcing_matched.jl [n_draws] [--set] [--untapped] [--unsmoothed]
+##   julia --project=julia_v2 julia/diag_protect_forcing_matched.jl --scan=<cells.csv>   (exploratory)
 ## ============================================================================
 
 using CSV, DataFrames, Mimi, Printf, Statistics
@@ -49,6 +50,17 @@ const DO_SET     = "--set" in ARGS
 ## Running v = 0 on the same forcing measures (a) alone; the tapped-minus-untapped
 ## difference is (b). Without this split the 3.5x is uninterpretable.
 const UNTAPPED   = "--untapped" in ARGS
+## --scan=<csv> runs ARBITRARY cells, INCLUDING ones outside the priced grid, and
+## is EXPLORATORY ONLY. It deliberately skips the --set membership check: the
+## question it answers is "what shape would fit the physics", and by construction
+## the answer may lie outside the admissible set. Nothing from a --scan run is a
+## candidate for shipping until it has been through the pre-registered 2300 gates
+## (python/scope_gis_tap_l13.py) on OUR forcing, where an onset above ssp585's own
+## 7.81 K peak fires never and contributes exactly zero.
+const SCAN_CSV = let i = findfirst(a -> startswith(a, "--scan="), ARGS)
+    i === nothing ? "" : ARGS[i][8:end]
+end
+!(!isempty(SCAN_CSV) && DO_SET) || error("--scan and --set are different arms; pass one")
 const UNSMOOTHED = "--unsmoothed" in ARGS
 const SSP        = "ssp585"
 const LABEL      = "SSP5-8.5"
@@ -59,7 +71,7 @@ const TAG        = let b = basename(LADRILLO_POSTERIOR_CSV)
     replace(replace(b, "parameters_subsample_brick_mengel_" => ""), ".csv" => "")
 end
 const OUT = joinpath(LADRILLO_REPO,
-    "outputs/diag_protect_forcing_matched_$(TAG)$(DO_SET ? "_set" : "")$(UNTAPPED ? "_untapped" : "")$(UNSMOOTHED ? "_raw" : "").csv")
+    "outputs/diag_protect_forcing_matched_$(TAG)$(DO_SET ? "_set" : "")$(isempty(SCAN_CSV) ? "" : "_scan")$(UNTAPPED ? "_untapped" : "")$(UNSMOOTHED ? "_raw" : "").csv")
 
 const FORCING = joinpath(LADRILLO_REPO, "outputs/protect_x2300_forcing_gmst.csv")
 isfile(FORCING) || error("no $FORCING — run python3 python/build_protect_x2300_forcing.py")
@@ -81,7 +93,13 @@ const ARMS = [("ours", OURS_SHIPPED),
               ("spliced", fmap("gmst_spliced$(SUF)")),
               ("raw", fmap("gmst_raw$(SUF)"))]
 
-const CELLS = if !DO_SET
+const CELLS = if !isempty(SCAN_CSV)
+    isfile(SCAN_CSV) || error("--scan: no file at $SCAN_CSV")
+    d = CSV.read(SCAN_CSV, DataFrame)
+    println("--scan: $(nrow(d)) EXPLORATORY cells from $SCAN_CSV — NOT an admissible set")
+    [(onset_K=Float64(r.tap_onset_K), V_m=Float64(r.tap_V_m),
+      tau_yr=Float64(r.tap_tau), ramp_w_K=GIS_TAP_CELL.ramp_w_K) for r in eachrow(d)]
+elseif !DO_SET
     [GIS_TAP_CELL]
 else
     csv = joinpath(LADRILLO_REPO, "outputs/gis_tap_admissible_$(TAG).csv")
@@ -125,10 +143,18 @@ for cell in CELLS, (arm, gm) in ARMS
                     quantile(v, 0.17), quantile(v, 0.83), quantile(v, 0.95), length(v),
                     cell.onset_K, cell.V_m, cell.tau_yr))
     end
-    if !DO_SET
-        @printf("\n%-8s %d draws in %.0fs\n", arm, nrow(post), time() - t0)
+    if !DO_SET && (isempty(SCAN_CSV) || arm == "spliced")
+        @printf("\n%-8s onset %.1f K V %.1f m tau %.0f yr | %d draws in %.0fs\n",
+                arm, cell.onset_K, cell.V_m, cell.tau_yr, nrow(post), time() - t0)
         for y in HORIZONS
-            r = out[(out.year .== y) .& (out.arm .== arm) .& (out.component .== "gis"), :]
+            ## PIN THE CELL. `out` accumulates across cells, so a selector on
+            ## (year, arm, component) alone returns the FIRST cell's row for every
+            ## later cell — which printed twelve identical scan lines before this
+            ## was caught. Same trap project_ssps_components_ladrillo.jl flags for
+            ## its --tap-set arm; the CSV was always right, only the console lied.
+            r = out[(out.year .== y) .& (out.arm .== arm) .& (out.component .== "gis") .&
+                    (out.tap_onset_K .== cell.onset_K) .& (out.tap_V_m .== cell.V_m) .&
+                    (out.tap_tau .== cell.tau_yr), :]
             @printf("  @%d GMST %+0.2f | gis %6.1f [%6.1f, %6.1f] cm\n",
                     y, bf.gmst[ladrillo_yi(bf, y)], r.med[1], r.p05[1], r.p95[1])
         end
