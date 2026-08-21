@@ -3,6 +3,45 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-21g — **Item 5: the tap cannot be re-priced onto a moved base, and raising k makes the tap's job HARDER, not easier.**
+
+Handoff §4 item 5 expected that "a base model with k = 2-3 needs a much smaller tap, or
+none". Measured, on L14, 2000 draws, 360 cells per k (V grid refined 0.5 → 0.25 m):
+`python3 python/scope_gis_tap_l13.py --tag=L14 --k=1,1.25,1.5,2,3`.
+
+| k | rate s | base 585@2300 | base ratio | high-basin head | cells passing | V range | ratio range |
+|---|---|---|---|---|---|---|---|
+| **1.00** | 1.0167 | 0.499 | 2.73× | 2.58 m | **43/280** | 1.50–2.50 | 2.73–**16.00×** |
+| **1.25** | 0.6519 | 0.587 | 2.72× | 2.57 m | **52/280** | 1.25–2.50 | 2.72–13.98× |
+| 1.50 | 0.4832 | 0.662 | 2.73× | 2.57 m | **0/280** | — | 2.73–12.73× |
+| 2.00 | 0.3206 | 0.795 | 2.75× | 2.56 m | **0/280** | — | 2.75–11.19× |
+| 3.00 | 0.1928 | 0.990 | 2.83× | 2.55 m | **0/280** | — | 2.83–**9.78×** |
+
+* **Above k = 1.25 NOTHING passes, and not for a tap reason.** The failing criterion is the
+  2300 **level** bands (0/280 at every k ≥ 1.5), and it fails on **ssp126/ssp245** — the two
+  scenarios the tap provably never touches (G2b: inside the Tier-1 bracket it fires on
+  ssp585 only). The ratio band still has 41/28/17 passers at k = 1.5/2/3. So the tap is not
+  what breaks; the base is, and it is the same Q1 failure from 2026-08-21f arriving through
+  a second scorecard. **The tap and the ridge do not compose.**
+* **Raising k makes the tap's job harder.** The best ratio any admissible cell reaches falls
+  **16.00× → 9.78×** from k = 1 to k = 3. Moving up the ridge raises ssp245 (0.183 → 0.349,
+  1.9×) nearly as fast as ssp585 (0.499 → 0.990, 2.0×), so the same V buys *less* separation
+  against a larger denominator. The handoff's expectation is **backwards** — it is right only
+  in the narrow sense that at k = 1.25 the smallest passing V drops 1.50 → 1.25 m, a 1.2×
+  effect, not "much smaller or none".
+* **The inventory is NOT the binding constraint.** High-basin ice remaining at 2300/ssp585
+  moves only 2.58 → 2.55 m across k = 1–3, against a 2.73 m Mouginot inventory. The obvious
+  hypothesis — a bigger commitment eats the headroom the tap needs — is measured false.
+
+**Scope, stated:** this is the 2300-ENDPOINT scorecard (three level bands + ratio + G4). It
+is **not** the PROTECT matched-forcing trajectory test, which separately found **0/25 cells
+fit at 2150** and diagnosed the exponential's SHAPE ([[protect_matched_forcing]]). A cell
+passing here is not a cell that fits the physics; the docstring now says so.
+
+Default path (no `--k`) is **byte-identical** to the committed CSV apart from a new `k_c`
+column, so the published 25/140 is untouched. A `--k` run writes `..._kscan.csv` and cannot
+overwrite the k = 1 artefact.
+
 ## [unreleased] — 2026-08-21f — **The pre-flight kills k = 2-3: it breaks BOTH cool scenarios' 2300 bands, and at L14 the ridge never reaches the ssp585 band at all.**
 
 Handoff 2026-08-21c §4 listed five pre-flight measurements, none of them done, each able to

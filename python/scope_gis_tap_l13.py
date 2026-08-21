@@ -51,6 +51,19 @@ GATES (all hard; none skippable)
       be verified rather than assumed.
   G3  NESTING. At V = 0 the tapped series must be bit-identical to the base.
 
+RE-PRICING ALONG THE RIDGE (--k=, 2026-08-21f, handoff 2026-08-21c §4 item 5)
+  The 25-cell admissible set was scored against a k = 1 base, and every cell is
+  void the moment the commitment scale moves — the tap's job is defined RELATIVE
+  to what the base already delivers. `--k=1,1.5,3` scales (c1, c0) by each k and
+  re-solves the rate by per-draw bisection onto the same 1900-2025 hindcast, then
+  re-runs the whole grid at each point, on a 0.25 m V grid. Without --k the file
+  behaves exactly as before and reproduces the published 25/140.
+
+  NOTE what this scorecard IS: the 2300-ENDPOINT one (three level bands + the
+  ssp585/ssp245 ratio + G4). It is NOT the PROTECT matched-forcing trajectory
+  test, which separately found 0/25 cells fitting at 2150 and diagnosed the
+  exponential's SHAPE. A cell passing here is not a cell that fits the physics.
+
 READS   data/MimiBRICK/parameters_subsample_brick_mengel_L13.csv (certified posterior)
         outputs/mcmc/chain_L13_seed2026_n2000000.csv (G1 only)
         the ridge harness (drivers, literature bands), the Mouginot parse
@@ -58,6 +71,7 @@ WRITES  outputs/scope_gis_tap_l13.csv
 
   source ~/climate-env/bin/activate
   python3 python/scope_gis_tap_l13.py
+  python3 python/scope_gis_tap_l13.py --tag=L14 --k=1,1.25,1.5,2,3
 """
 import os
 import sys
@@ -100,7 +114,18 @@ G1_SEEDS = {"L13": (2026,), "L14": (2026, 2027, 2028, 2029)}
 GATE_CHAINS = [os.path.join(REPO, f"outputs/mcmc/chain_{LADRILLO_TAG}_seed{sd}_n2000000.csv")
                for sd in G1_SEEDS.get(LADRILLO_TAG, (2026,))]
 GATE_CHAIN = GATE_CHAINS[0]     # for messages that name a single file
-OUT = os.path.join(REPO, f"outputs/scope_gis_tap_{LADRILLO_TAG.lower()}.csv")
+# --k=1,1.25,... RE-PRICES THE TAP ON A MOVED BASE (handoff 2026-08-21c §4 item 5).
+# The 25-cell admissible set was scored against a k = 1 base; every cell in it is
+# void the moment the commitment scale moves, because the tap's job is defined
+# RELATIVE to what the base already delivers. Given, each k scales (c1, c0) and
+# re-solves the rate by per-draw bisection so the 1900-2025 hindcast still holds --
+# i.e. it moves ALONG the phi*Leq ridge, exactly as the ridge scans do.
+# NOT given, this file behaves EXACTLY as before: no bisection, s_r = 1, and the
+# 140-cell result the shipped cell rests on reproduces unchanged.
+K_SCAN = [float(x) for a in sys.argv[1:] if a.startswith("--k=")
+          for x in a.split("=", 1)[1].split(",")]
+OUT = os.path.join(REPO, f"outputs/scope_gis_tap_{LADRILLO_TAG.lower()}"
+                   + ("_kscan" if K_SCAN else "") + ".csv")
 
 # --- the 3-basin geometry, mirroring julia/greenland_3basin_component.jl -----
 BASINS = ("south", "mid", "high")
@@ -135,6 +160,11 @@ TAP_ONSET_K = [4.0, 4.69, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 7.81]
 TAP_V_M = [0.5, 1.0, 1.5, 2.0, 2.5]
 TAP_TAU = [50, 100, 200, 400]
 TAP_RAMP_W_K = 1.0
+# The default V grid is 0.5 m coarse, which was enough to answer "does any cell
+# clear". It is NOT enough to answer "how much smaller does the tap get", so the
+# k-scan uses a 0.25 m grid. Kept separate so the default path's cell count -- and
+# therefore the published 25/140 -- cannot move.
+TAP_V_M_KSCAN = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5]
 # Tier-1 admissible onset bracket: above ssp585's 2100 GMT (nothing may fire in
 # the accepted 2100 deliverable) and at or below its 2300 GMT (it must fire).
 ONSET_LO_K, ONSET_HI_K = lit.GMT2100_585_EXPECT, lit.GMT2300_585_EXPECT
@@ -201,19 +231,26 @@ def basin_scales(p):
             "high": 10.0 ** p["gis_s_high"].to_numpy()}
 
 
-def run_3basin(T, p):
+def run_3basin(T, p, k_c=1.0, s_r=1.0):
     """julia/greenland_3basin_component.jl, vectorised over draws.
     T is (ndraw, nyear) REGIONAL driver; returns {basin: loss (ndraw, nyear)}.
 
     The commitment clamp is PER BASIN, [0, k_b*v0] — identically k_b times the
-    whole-sheet clamped commitment — NOT the prototype's whole-sheet clamp."""
+    whole-sheet clamped commitment — NOT the prototype's whole-sheet clamp.
+
+    k_c scales the COMMITMENT and s_r scales BOTH channel rates, per draw. The
+    V0 clamp does NOT scale with k_c: V0 is the physical ice inventory, so a
+    larger commitment saturates against the SAME ceiling — which is the whole
+    reason the ridge is non-monotone in k. At (1.0, 1.0) every operation below
+    is arithmetically identical to the un-scaled original."""
     c1 = p["gis_c1"].to_numpy()[:, None]
     c0 = p["gis_c0"].to_numpy()[:, None]
     f = p["gis_f"].to_numpy()
     af, bf = p["gis_alpha_f"].to_numpy(), p["gis_beta_f"].to_numpy()
     a_s, bs = p["gis_alpha_s"].to_numpy(), p["gis_beta_s"].to_numpy()
     s = basin_scales(p)
-    eq_w = np.clip(c1 * T + c0, 0.0, GIS_V0_M)          # whole-sheet, m SLE
+    s_r = np.atleast_1d(np.asarray(s_r, float))
+    eq_w = np.clip(k_c * (c1 * T + c0), 0.0, GIS_V0_M)  # whole-sheet, m SLE
     n, ny = T.shape
     out = {}
     for b in BASINS:
@@ -224,8 +261,8 @@ def run_3basin(T, p):
         slow[:, 0] = GIS_G * (1.0 - f) * eq[:, 0]
         for i in range(1, ny):
             Tm = T[:, i - 1]
-            rf = np.clip(s[b] * (af * Tm + bf), 1e-9, 1.0)
-            rs = np.clip(s[b] * (a_s * Tm + bs), 1e-9, 1.0)
+            rf = np.clip(s[b] * s_r * (af * Tm + bf), 1e-9, 1.0)
+            rs = np.clip(s[b] * s_r * (a_s * Tm + bs), 1e-9, 1.0)
             fast[:, i] = fast[:, i - 1] + (f * eq[:, i - 1] - fast[:, i - 1]) * rf
             slow[:, i] = slow[:, i - 1] + ((1.0 - f) * eq[:, i - 1] - slow[:, i - 1]) * rs
         out[b] = fast + slow
@@ -323,6 +360,143 @@ def gate_crosslanguage(rows):
 
 
 # ---------------------------------------------------------------------------
+def price_at(k_c, s_r, post, drivers, gmt, rows, v_grid):
+    """Base + the full tap grid at ONE ridge point. k_c scales the commitment and
+    s_r the rates; (1.0, 1.0) is the certified model and reproduces the original
+    pricing exactly. Every row appended carries k_c, so one CSV holds the whole
+    scan and no k can be confused for another."""
+    ktag = "" if k_c == 1.0 and np.isscalar(s_r) and s_r == 1.0 else f", k = {k_c:g}"
+    # ---- base: L13 with no tap -------------------------------------------
+    base, base_high_head = {}, {}
+    print(f"\n=== BASE — {LADRILLO_TAG}{ktag}, NO tap "
+          f"(m SLE rel {REF[0]}-{REF[1]}) ===\n")
+    print(f"  {'scenario':10s} {'2100 cm':>18s} {'2300 m':>22s}   "
+          f"{'2300 lit band':>16s}")
+    for _, lab in SSPS:
+        bsl = run_3basin(drivers[lab], post, k_c, s_r)
+        tot = sum(bsl.values())
+        ref = tot[:, IREF].mean(axis=1, keepdims=True)
+        base[lab] = {y: (tot[:, IY[y]] - ref[:, 0]) for y in HORIZONS}
+        # the tapped basin's remaining ice at 2300: its capacity less its own loss
+        cap = GIS3_VSHARE[TAPPED] * GIS_V0_M
+        base_high_head[lab] = np.clip(cap - bsl[TAPPED][:, IY[2300]], 0.0, None)
+        m21, l21, h21 = q(100.0 * base[lab][2100])
+        m23, l23, h23 = q(base[lab][2300])
+        lo, hi = LIT_2300_M[lab]
+        print(f"  {lab:10s} {m21:7.2f} [{l21:6.2f},{h21:6.2f}] "
+              f"{m23:7.3f} [{l23:6.3f},{h23:6.3f}]   {lo:.3f}-{hi:.3f} "
+              f"{'IN' if lo <= m23 <= hi else 'out'}")
+        rows.append(dict(quantity="base", k_c=k_c, ssp=lab, cm2100_med=m21, cm2100_q05=l21,
+                         cm2100_q95=h21, m2300_med=m23, m2300_q05=l23,
+                         m2300_q95=h23, lit_lo=lo, lit_hi=hi,
+                         in_band=bool(lo <= m23 <= hi)))
+    base_ratio = base["SSP5-8.5"][2300] / base["SSP2-4.5"][2300]
+    br, brl, brh = q(base_ratio)
+    base_g4 = 100.0 * (base[G4_PAIR[0]][2100] - base[G4_PAIR[1]][2100])
+    g4m, g4l, g4h = q(base_g4)
+    verdict = ("IN" if RATIO_LO <= br <= RATIO_HI else
+               f"SHORT by {RATIO_LO / br:.1f}x" if br < RATIO_LO else
+               f"OVER by {br / RATIO_HI:.1f}x")
+    print(f"\n  ssp585/ssp245 @2300 ratio   {br:6.2f}x [{brl:.2f}, {brh:.2f}]"
+          f"   literature {RATIO_LO:.1f}-{RATIO_HI:.1f}x   {verdict}")
+    print(f"  G4 = {G4_PAIR[0]} - {G4_PAIR[1]} @2100  {g4m:6.2f} cm "
+          f"[{g4l:.2f}, {g4h:.2f}]  (the reference the tap must not degrade)")
+    print(f"  {TAPPED}-basin ice remaining at 2300, ssp585: "
+          f"{np.median(base_high_head['SSP5-8.5']):.2f} m "
+          f"[{np.quantile(base_high_head['SSP5-8.5'], QLO):.2f}, "
+          f"{np.quantile(base_high_head['SSP5-8.5'], QHI):.2f}]  "
+          f"(capacity {GIS3_VSHARE[TAPPED] * GIS_V0_M:.2f} m; Mouginot inventory "
+          f"{V_TAP_MAX_M:.2f} m)")
+    rows.append(dict(quantity="base_ratio", k_c=k_c, ratio_med=br, ratio_q05=brl,
+                     ratio_q95=brh, lit_lo=RATIO_LO, lit_hi=RATIO_HI,
+                     g4_cm_med=g4m))
+
+    # ---- G3 + the grid ----------------------------------------------------
+    print(f"\n=== TAP GRID{ktag} — {len(TAP_ONSET_K)}x{len(v_grid)}x{len(TAP_TAU)} = "
+          f"{len(TAP_ONSET_K) * len(v_grid) * len(TAP_TAU)} cells, ensemble-propagated "
+          f"over {len(post)} draws ===\n")
+    # G3 — NESTING. A zero tap must reproduce the base bit-identically, on every
+    # scenario and at every onset/tau. This is the same gate that caught the
+    # :basins mis-projection: a wiring bug that looks like physics.
+    for _, lab in SSPS:
+        for t_on in (min(TAP_ONSET_K), max(TAP_ONSET_K)):
+            for tau in (min(TAP_TAU), max(TAP_TAU)):
+                z = base[lab][2300] + np.minimum(0.0, base_high_head[lab]) \
+                    * tap_unit(gmt[lab], t_on, tau)[IY[2300]]
+                if not np.array_equal(z, base[lab][2300]):
+                    raise SystemExit(f"G3 FAILED: V=0 moves {lab} at "
+                                     f"(onset {t_on}, tau {tau})")
+    rows.append(dict(quantity="g3_nesting", k_c=k_c, python=0.0, tol=0.0))
+    print(f"  G3 PASS — a zero tap reproduces the base bit-identically on every "
+          f"scenario, at both ends of the onset and tau grids.")
+
+    npass, nbracket = 0, 0
+    for t_on in TAP_ONSET_K:
+        for V in v_grid:
+            for tau in TAP_TAU:
+                r = dict(quantity="tap_cell", k_c=k_c, basin=TAPPED, tap_onset_K=t_on,
+                         tap_V_m=V, tap_tau=tau,
+                         in_lit_bracket=bool(ONSET_LO_K < t_on <= ONSET_HI_K),
+                         within_inventory=bool(V <= V_TAP_MAX_M))
+                y23, y21 = {}, {}
+                bind = 0.0
+                for _, lab in SSPS:
+                    u = tap_unit(gmt[lab], t_on, tau)
+                    # a basin cannot lose more ice than it has left
+                    Veff = np.minimum(V, base_high_head[lab])
+                    bind = max(bind, float((Veff < V - 1e-12).mean()))
+                    y23[lab] = base[lab][2300] + Veff * u[IY[2300]]
+                    y21[lab] = base[lab][2100] + Veff * u[IY[2100]]
+                    r[f"m2300_{lab}_med"] = float(np.median(y23[lab]))
+                    r[f"tap2100_{lab}_m"] = float(np.median(Veff * u[IY[2100]]))
+                ratio = y23["SSP5-8.5"] / y23["SSP2-4.5"]
+                r["ratio_med"], r["ratio_q05"], r["ratio_q95"] = q(ratio)
+                g4 = 100.0 * (y21[G4_PAIR[0]] - y21[G4_PAIR[1]])
+                r["g4_cm_med"] = float(np.median(g4))
+                r["g4_rel_to_base"] = r["g4_cm_med"] / g4m
+                r["headroom_bind_frac"] = bind
+                r["bands_ok"] = bool(all(
+                    LIT_2300_M[l][0] <= r[f"m2300_{l}_med"] <= LIT_2300_M[l][1]
+                    for _, l in SSPS))
+                r["ratio_ok"] = bool(RATIO_LO <= r["ratio_med"] <= RATIO_HI)
+                r["g4_ok"] = bool(abs(r["g4_rel_to_base"] - 1.0) <= G4_DEGRADE_TOL)
+                r["all_pass"] = bool(r["bands_ok"] and r["ratio_ok"] and r["g4_ok"]
+                                     and r["within_inventory"] and r["in_lit_bracket"])
+                npass += int(r["all_pass"])
+                nbracket += int(r["in_lit_bracket"] and r["within_inventory"])
+                rows.append(r)
+
+    cells = pd.DataFrame([r for r in rows if r["quantity"] == "tap_cell"
+                          and r["k_c"] == k_c])
+    adm = cells[cells["in_lit_bracket"] & cells["within_inventory"]]
+    print(f"\n  admissible cells (onset in ({ONSET_LO_K}, {ONSET_HI_K}] K, "
+          f"V <= {V_TAP_MAX_M:.2f} m): {nbracket}/{len(cells)}")
+    print(f"  ratio over the admissible cells: {adm['ratio_med'].min():.2f}x - "
+          f"{adm['ratio_med'].max():.2f}x   (literature {RATIO_LO:.1f}-{RATIO_HI:.1f}x)")
+    for nm, col in (("2300 level bands", "bands_ok"), ("ratio band", "ratio_ok"),
+                    ("2100 spread kept", "g4_ok")):
+        print(f"    clearing {nm:20s} {int(adm[col].sum()):3d}/{len(adm)}")
+    print(f"  cells clearing EVERYTHING: {npass}/{nbracket}")
+    print(f"  VERDICT: {'PASS' if npass else 'NO admissible cell clears — REPORT, do not tune'}")
+    if npass:
+        w = adm[adm["all_pass"]].sort_values("ratio_med")
+        print(f"\n  passing cells (onset K / V m / tau yr -> ratio, ssp585 2300 m):")
+        for _, x in w.iterrows():
+            print(f"    {x.tap_onset_K:5.2f} {x.tap_V_m:5.2f} {int(x.tap_tau):4d}"
+                  f"  ->  {x.ratio_med:6.2f}x [{x.ratio_q05:.2f}, {x.ratio_q95:.2f}]"
+                  f"   {x['m2300_SSP5-8.5_med']:.3f} m   G4 {x.g4_rel_to_base:.4f}x")
+
+    return dict(k_c=k_c, rate_scale=float(np.median(np.atleast_1d(s_r))),
+                base_ratio=br, base_g4_cm=g4m,
+                base_m2300_585=float(np.median(base["SSP5-8.5"][2300])),
+                n_cells=len(cells), n_admissible=nbracket, n_pass=npass,
+                ratio_lo=float(adm["ratio_med"].min()),
+                ratio_hi=float(adm["ratio_med"].max()),
+                v_pass_lo=(float(adm[adm.all_pass].tap_V_m.min()) if npass else float("nan")),
+                v_pass_hi=(float(adm[adm.all_pass].tap_V_m.max()) if npass else float("nan")),
+                head_med=float(np.median(base_high_head["SSP5-8.5"])))
+
+
 def main():
     rows = []
     if not os.path.exists(POST):
@@ -425,129 +599,72 @@ def main():
     print(f"  So ssp126/ssp245 are untouched by construction, and the accepted 2100 "
           f"deliverable cannot move: the tap acts only on the defective column.")
 
-    # ---- base: L13 with no tap -------------------------------------------
-    base, base_high_head = {}, {}
-    print(f"\n=== BASE — {LADRILLO_TAG} as certified, NO tap "
-          f"(m SLE rel {REF[0]}-{REF[1]}) ===\n")
-    print(f"  {'scenario':10s} {'2100 cm':>18s} {'2300 m':>22s}   "
-          f"{'2300 lit band':>16s}")
-    for _, lab in SSPS:
-        bsl = run_3basin(drivers[lab], post)
-        tot = sum(bsl.values())
-        ref = tot[:, IREF].mean(axis=1, keepdims=True)
-        base[lab] = {y: (tot[:, IY[y]] - ref[:, 0]) for y in HORIZONS}
-        # the tapped basin's remaining ice at 2300: its capacity less its own loss
-        cap = GIS3_VSHARE[TAPPED] * GIS_V0_M
-        base_high_head[lab] = np.clip(cap - bsl[TAPPED][:, IY[2300]], 0.0, None)
-        m21, l21, h21 = q(100.0 * base[lab][2100])
-        m23, l23, h23 = q(base[lab][2300])
-        lo, hi = LIT_2300_M[lab]
-        print(f"  {lab:10s} {m21:7.2f} [{l21:6.2f},{h21:6.2f}] "
-              f"{m23:7.3f} [{l23:6.3f},{h23:6.3f}]   {lo:.3f}-{hi:.3f} "
-              f"{'IN' if lo <= m23 <= hi else 'out'}")
-        rows.append(dict(quantity="base", ssp=lab, cm2100_med=m21, cm2100_q05=l21,
-                         cm2100_q95=h21, m2300_med=m23, m2300_q05=l23,
-                         m2300_q95=h23, lit_lo=lo, lit_hi=hi,
-                         in_band=bool(lo <= m23 <= hi)))
-    base_ratio = base["SSP5-8.5"][2300] / base["SSP2-4.5"][2300]
-    br, brl, brh = q(base_ratio)
-    base_g4 = 100.0 * (base[G4_PAIR[0]][2100] - base[G4_PAIR[1]][2100])
-    g4m, g4l, g4h = q(base_g4)
-    verdict = ("IN" if RATIO_LO <= br <= RATIO_HI else
-               f"SHORT by {RATIO_LO / br:.1f}x" if br < RATIO_LO else
-               f"OVER by {br / RATIO_HI:.1f}x")
-    print(f"\n  ssp585/ssp245 @2300 ratio   {br:6.2f}x [{brl:.2f}, {brh:.2f}]"
-          f"   literature {RATIO_LO:.1f}-{RATIO_HI:.1f}x   {verdict}")
-    print(f"  G4 = {G4_PAIR[0]} - {G4_PAIR[1]} @2100  {g4m:6.2f} cm "
-          f"[{g4l:.2f}, {g4h:.2f}]  (the reference the tap must not degrade)")
-    print(f"  {TAPPED}-basin ice remaining at 2300, ssp585: "
-          f"{np.median(base_high_head['SSP5-8.5']):.2f} m "
-          f"[{np.quantile(base_high_head['SSP5-8.5'], QLO):.2f}, "
-          f"{np.quantile(base_high_head['SSP5-8.5'], QHI):.2f}]  "
-          f"(capacity {GIS3_VSHARE[TAPPED] * GIS_V0_M:.2f} m; Mouginot inventory "
-          f"{V_TAP_MAX_M:.2f} m)")
-    rows.append(dict(quantity="base_ratio", ratio_med=br, ratio_q05=brl,
-                     ratio_q95=brh, lit_lo=RATIO_LO, lit_hi=RATIO_HI,
-                     g4_cm_med=g4m))
+    # ---- price, at k = 1 or along the ridge -------------------------------
+    if not K_SCAN:
+        price_at(1.0, 1.0, post, drivers, gmt, rows, TAP_V_M)
+    else:
+        ## MOVING THE BASE ALONG THE RIDGE. The hindcast pins only the product
+        ## phi*Leq, so each k re-solves the rate by PER-DRAW bisection to the same
+        ## 1900-2025 increment -- the same construction the ridge scans use, so the
+        ## k axis here is the same k axis there. History is the OBSERVED driver, so
+        ## the bisection is run on 1850-{CAL} only: the model is causal and the
+        ## window is all that constrains it, which makes the solve ~2.5x cheaper.
+        tgt = pd.read_csv(os.path.join(REPO, "outputs/recalib_targets_ext.csv")
+                          ).set_index("year")["gis"]
+        want_cm = float(tgt.loc[CALIB_WIN[1]] - tgt.loc[CALIB_WIN[0]])
+        ih = {y: int(np.where(YEARS == y)[0][0]) for y in CALIB_WIN}
+        Th = drivers["SSP2-4.5"][:, :ih[CALIB_WIN[1]] + 1]
 
-    # ---- G3 + the grid ----------------------------------------------------
-    print(f"\n=== TAP GRID — {len(TAP_ONSET_K)}x{len(TAP_V_M)}x{len(TAP_TAU)} = "
-          f"{len(TAP_ONSET_K) * len(TAP_V_M) * len(TAP_TAU)} cells, ensemble-propagated "
-          f"over {len(post)} draws ===\n")
-    # G3 — NESTING. A zero tap must reproduce the base bit-identically, on every
-    # scenario and at every onset/tau. This is the same gate that caught the
-    # :basins mis-projection: a wiring bug that looks like physics.
-    for _, lab in SSPS:
-        for t_on in (min(TAP_ONSET_K), max(TAP_ONSET_K)):
-            for tau in (min(TAP_TAU), max(TAP_TAU)):
-                z = base[lab][2300] + np.minimum(0.0, base_high_head[lab]) \
-                    * tap_unit(gmt[lab], t_on, tau)[IY[2300]]
-                if not np.array_equal(z, base[lab][2300]):
-                    raise SystemExit(f"G3 FAILED: V=0 moves {lab} at "
-                                     f"(onset {t_on}, tau {tau})")
-    rows.append(dict(quantity="g3_nesting", python=0.0, tol=0.0))
-    print(f"  G3 PASS — a zero tap reproduces the base bit-identically on every "
-          f"scenario, at both ends of the onset and tau grids.")
+        def solve_rate(k):
+            lo = np.full(len(post), 1e-4)
+            hi = np.full(len(post), 1e3)
+            for _ in range(80):
+                mid = np.sqrt(lo * hi)
+                tot = sum(run_3basin(Th, post, k, mid).values())
+                below = 100.0 * (tot[:, ih[CALIB_WIN[1]]]
+                                 - tot[:, ih[CALIB_WIN[0]]]) < want_cm
+                lo = np.where(below, mid, lo)
+                hi = np.where(below, hi, mid)
+            return np.sqrt(lo * hi)
 
-    npass, nbracket = 0, 0
-    for t_on in TAP_ONSET_K:
-        for V in TAP_V_M:
-            for tau in TAP_TAU:
-                r = dict(quantity="tap_cell", basin=TAPPED, tap_onset_K=t_on,
-                         tap_V_m=V, tap_tau=tau,
-                         in_lit_bracket=bool(ONSET_LO_K < t_on <= ONSET_HI_K),
-                         within_inventory=bool(V <= V_TAP_MAX_M))
-                y23, y21 = {}, {}
-                bind = 0.0
-                for _, lab in SSPS:
-                    u = tap_unit(gmt[lab], t_on, tau)
-                    # a basin cannot lose more ice than it has left
-                    Veff = np.minimum(V, base_high_head[lab])
-                    bind = max(bind, float((Veff < V - 1e-12).mean()))
-                    y23[lab] = base[lab][2300] + Veff * u[IY[2300]]
-                    y21[lab] = base[lab][2100] + Veff * u[IY[2100]]
-                    r[f"m2300_{lab}_med"] = float(np.median(y23[lab]))
-                    r[f"tap2100_{lab}_m"] = float(np.median(Veff * u[IY[2100]]))
-                ratio = y23["SSP5-8.5"] / y23["SSP2-4.5"]
-                r["ratio_med"], r["ratio_q05"], r["ratio_q95"] = q(ratio)
-                g4 = 100.0 * (y21[G4_PAIR[0]] - y21[G4_PAIR[1]])
-                r["g4_cm_med"] = float(np.median(g4))
-                r["g4_rel_to_base"] = r["g4_cm_med"] / g4m
-                r["headroom_bind_frac"] = bind
-                r["bands_ok"] = bool(all(
-                    LIT_2300_M[l][0] <= r[f"m2300_{l}_med"] <= LIT_2300_M[l][1]
-                    for _, l in SSPS))
-                r["ratio_ok"] = bool(RATIO_LO <= r["ratio_med"] <= RATIO_HI)
-                r["g4_ok"] = bool(abs(r["g4_rel_to_base"] - 1.0) <= G4_DEGRADE_TOL)
-                r["all_pass"] = bool(r["bands_ok"] and r["ratio_ok"] and r["g4_ok"]
-                                     and r["within_inventory"] and r["in_lit_bracket"])
-                npass += int(r["all_pass"])
-                nbracket += int(r["in_lit_bracket"] and r["within_inventory"])
-                rows.append(r)
+        print(f"\n=== RE-PRICING ALONG THE RIDGE — k = "
+              f"{', '.join(f'{k:g}' for k in K_SCAN)} ===\n")
+        print(f"  handoff 2026-08-21c §4 item 5: the 25-cell admissible set was "
+              f"scored against a k = 1 base,\n  and every cell in it is void the "
+              f"moment k moves. V grid refined to "
+              f"{TAP_V_M_KSCAN[1] - TAP_V_M_KSCAN[0]:.2f} m for this scan.")
+        print(f"  hindcast {CALIB_WIN[0]}-{CALIB_WIN[1]} = {want_cm:.2f} cm, held by "
+              f"per-draw bisection at every k")
+        summ = [price_at(k, solve_rate(k), post, drivers, gmt, rows, TAP_V_M_KSCAN)
+                for k in K_SCAN]
+
+        print(f"\n=== THE RE-PRICED TAP ===\n")
+        print(f"  {'k':>6} {'rate s':>8} {'base 585':>9} {'base ratio':>11} "
+              f"{'head m':>7} | {'pass':>9} {'V range m':>12} {'ratio range':>14}")
+        for r in summ:
+            vr = ("--" if r["n_pass"] == 0
+                  else f"{r['v_pass_lo']:.2f}-{r['v_pass_hi']:.2f}")
+            print(f"  {r['k_c']:6.2f} {r['rate_scale']:8.4f} "
+                  f"{r['base_m2300_585']:9.3f} {r['base_ratio']:11.2f}x "
+                  f"{r['head_med']:7.2f} | {r['n_pass']:4d}/{r['n_admissible']:<4d} "
+                  f"{vr:>12} "
+                  f"{r['ratio_lo']:6.2f}-{r['ratio_hi']:<7.2f}")
+        print(f"\n  (head = {TAPPED}-basin ice left at 2300/ssp585 BEFORE the tap; "
+              f"it is what caps V)")
+        base1 = next((r for r in summ if r["k_c"] == 1.0), None)
+        if base1 is not None:
+            for r in summ:
+                if r["k_c"] == 1.0 or r["n_pass"] == 0 or base1["n_pass"] == 0:
+                    continue
+                print(f"  k = {r['k_c']:g}: the tap that clears is "
+                      f"{base1['v_pass_hi'] / r['v_pass_hi']:.2f}x SMALLER at the top "
+                      f"of its V range than at k = 1, and the base already delivers "
+                      f"{r['base_m2300_585'] / base1['base_m2300_585']:.2f}x as much "
+                      f"ssp585@2300")
 
     df = pd.DataFrame(rows)
-    cells = df[df["quantity"] == "tap_cell"]
-    adm = cells[cells["in_lit_bracket"] & cells["within_inventory"]]
-    print(f"\n  admissible cells (onset in ({ONSET_LO_K}, {ONSET_HI_K}] K, "
-          f"V <= {V_TAP_MAX_M:.2f} m): {nbracket}/{len(cells)}")
-    print(f"  ratio over the admissible cells: {adm['ratio_med'].min():.2f}x - "
-          f"{adm['ratio_med'].max():.2f}x   (literature {RATIO_LO:.1f}-{RATIO_HI:.1f}x)")
-    for nm, col in (("2300 level bands", "bands_ok"), ("ratio band", "ratio_ok"),
-                    ("2100 spread kept", "g4_ok")):
-        print(f"    clearing {nm:20s} {int(adm[col].sum()):3d}/{len(adm)}")
-    print(f"  cells clearing EVERYTHING: {npass}/{nbracket}")
-    print(f"  VERDICT: {'PASS' if npass else 'NO admissible cell clears — REPORT, do not tune'}")
-    if npass:
-        w = adm[adm["all_pass"]].sort_values("ratio_med")
-        print(f"\n  passing cells (onset K / V m / tau yr -> ratio, ssp585 2300 m):")
-        for _, x in w.iterrows():
-            print(f"    {x.tap_onset_K:5.2f} {x.tap_V_m:5.2f} {int(x.tap_tau):4d}"
-                  f"  ->  {x.ratio_med:6.2f}x [{x.ratio_q05:.2f}, {x.ratio_q95:.2f}]"
-                  f"   {x['m2300_SSP5-8.5_med']:.3f} m   G4 {x.g4_rel_to_base:.4f}x")
-
     df.to_csv(OUT, index=False)
     print(f"\nwrote {os.path.relpath(OUT, REPO)}")
-
 
 if __name__ == "__main__":
     main()
