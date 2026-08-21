@@ -1,0 +1,79 @@
+diag_gis_g_betaf | commit=ce460a4 | cell=A+B | zone=all | amp=2.3470378 (full window, derived from gis_amp_prior.csv)
+  writes outputs/gis_g_betaf_variants_all.csv
+  protocol: 240 starts (log-scaled on rate axes), maxfev=20000, polish<=12 rounds
+  PRE-REGISTERED: keep a parameter only if 2*Delta(nlp) > 3.841 (1 dof, p=0.05) AND some 2100 projection moves more than 0.3 cm
+
+[1] convergence audit — refit the full 8-parameter A+B
+  reported  nlp = 42.5228
+  converged nlp = 33.6288   (improvement +8.8939)
+  c1=1.7221; c0=8.25415; f=0.529989; alpha_f=0.0135564; beta_f=0.000433212; alpha_s=6.25114e-15; beta_s=0.0145195; g=0.350927
+
+[2] nested variants
+  full             nlp=  33.6288 rmse=0.089 spread= 7.03 G1+G2+G3+
+  g=0              nlp=  33.6288 rmse=0.089 spread= 7.03 G1+G2+G3+  LR 2d=+0.000 vs chi2(1)=3.841 -> restriction OK
+  beta_f=0         nlp=  33.6304 rmse=0.089 spread= 6.97 G1+G2+G3+  LR 2d=+0.003 vs chi2(1)=3.841 -> restriction OK
+  beta_f=1/10yr    nlp=  94.4499 rmse=0.143 spread= 6.92 G1+G2+G3+  LR 2d=+121.642 vs chi2(1)=3.841 -> REJECT restriction
+  g=0 & beta_f=0   nlp=  33.6304 rmse=0.089 spread= 6.97 G1+G2+G3+  LR 2d=+0.003 vs chi2(2)=5.991 -> restriction OK
+
+[3] full-range profiles (the ridge redone against a converged reference)
+    beta_f=1e-06        nlp=   33.6304
+    beta_f=1.54869e-06  nlp=   33.6304
+    beta_f=2.39845e-06  nlp=   33.6304
+    beta_f=3.71447e-06  nlp=   33.6304
+    beta_f=5.75258e-06  nlp=   33.6303
+    beta_f=8.90899e-06  nlp=   33.6303
+    beta_f=1.37973e-05  nlp=   33.6303
+    beta_f=2.13678e-05  nlp=   33.6302
+    beta_f=3.30922e-05  nlp=   33.6302
+    beta_f=5.12497e-05  nlp=   33.6301
+    beta_f=7.93701e-05  nlp=   33.6299
+    beta_f=0.00012292   nlp=   33.6297
+    beta_f=0.000190365  nlp=   33.6294
+    beta_f=0.000294818  nlp=   33.6290
+    beta_f=0.000456583  nlp=   33.6288
+    beta_f=0.000707107  nlp=   33.6295
+    beta_f=0.00109509   nlp=   33.6326
+    beta_f=0.00169596   nlp=   33.6476
+    beta_f=0.00262653   nlp=   33.6952
+    beta_f=0.00406769   nlp=   33.8183
+    beta_f=0.00629961   nlp=   33.8595
+    beta_f=0.00975616   nlp=   34.0910
+    beta_f=0.0151093    nlp=   34.9960
+    beta_f=0.0233997    nlp=   41.1885
+    beta_f=0.036239     nlp=   51.8006
+    beta_f=0.0561231    nlp=   66.0317
+    beta_f=0.0869175    nlp=   86.9601
+    beta_f=0.134609     nlp=  109.9645
+    beta_f=0.208468     nlp=  128.5387
+    beta_f=0.322853     nlp=  138.7183
+    beta_f=0.5          nlp=  142.0645
+    g=0            nlp=   33.6288
+    g=0.05         nlp=   33.6288
+    g=0.1          nlp=   33.6288
+    g=0.15         nlp=   33.6288
+    g=0.2          nlp=   33.6288
+    g=0.25         nlp=   33.6288
+    g=0.3          nlp=   33.6288
+    g=0.35         nlp=   33.6288
+    g=0.4          nlp=   33.6288
+    g=0.45         nlp=   33.6288
+    g=0.5          nlp=   33.6288
+    g=0.55         nlp=   33.6288
+    g=0.6          nlp=   33.6288
+    g=0.65         nlp=   33.6288
+    g=0.7          nlp=   33.6288
+    g=0.75         nlp=   33.6288
+    g=0.8          nlp=   33.6288
+    g=0.85         nlp=   33.6288
+    g=0.9          nlp=   33.6288
+    g=0.95         nlp=   33.6288
+    g=1            nlp=   62.2590
+
+SUMMARY
+  g        2*Delta=  +0.000 (chi2=3.841) accept restriction; max |Delta proj 2100| = 0.000 cm (<= 0.3) -> FIX
+  beta_f   2*Delta=  +0.003 (chi2=3.841) accept restriction; max |Delta proj 2100| = 0.090 cm (<= 0.3) -> FIX
+  beta_f full-range profile: Delta<2.3 over 1e-06 to 0.0151 (74% of the 1e-06-0.5 grid)
+  g      full-range profile: Delta<2.3 over 0 to 0.95 (95% of [0,1])
+wrote outputs/gis_g_betaf_variants_all.csv
+wrote outputs/gis_g_betaf_profiles_all.csv
+wrote figures/gis_g_betaf_all.png
