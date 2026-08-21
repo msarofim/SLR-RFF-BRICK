@@ -137,10 +137,14 @@ that arm, not for adopting it** (two GCMs, one member each).
 
 ## 5. NEXT
 
-1. **Run the `gis_amp_shape_fullcurve` sensitivity** (`LADRILLO_GIS_SHAPE` env
-   var) on the matched-forcing driver. It is pre-registered, it is one env var,
-   and it removes the flat-hold that produces the 27% gap in §4. Do this before
-   anything structural.
+1. ~~Run the `gis_amp_shape_fullcurve` sensitivity.~~ **DONE 2026-08-21c — nearly
+   INERT, do not propose it again as the fix.** Tapped 2150 overshoot 3.53× → 3.42×;
+   the base model's 2150 agreement gets *worse* (0.97× → 0.92×); our own deliverable
+   moves ≤2.3 cm. **Reason:** `fullcurve` extends the *fitted* support 2.75 → 5.75 K,
+   but **both** tables flat-hold above that (`grid_max` 8.0), and this comparison runs
+   at **9.8-13.6 K** — 4-8 K into pure extrapolation. Effective `amp·S` 1.653 → 1.586
+   against the GCMs' 1.31: four points of a 26% gap. Closing it needs the amp law's
+   **support extended**, not a different fitted arm. That is now the open question in §4.
 2. **Price a convex tap form** against the same physics residual — the residual
    curve in §3 is the target, and it is close to a power law in (t − t_onset).
    `outputs/diag_protect_forcing_matched_L14_untapped.csv` minus

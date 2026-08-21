@@ -3,6 +3,47 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-21c — **The `fullcurve` amp arm is nearly inert.** Both shape tables extrapolate where the comparison lives.
+
+Ran the pre-registered `gis_amp_shape_fullcurve` arm that 2026-08-21b named as the first
+next step. It does not close the amplification gap and changes no conclusion.
+
+| Matched forcing (spliced), Greenland cm | 2100 | 2150 | 2300 |
+|---|---|---|---|
+| base, tap OFF — default → fullcurve | 19.9 → 19.1 (1.57× physics) | 45.2 → 42.9 (0.92×) | 90.0 → 86.1 (0.37×) |
+| shipped cell — default → fullcurve | 19.9 → 19.1 | 161.3 → **159.0** (3.42×) | 286.0 → 282.0 (1.20×) |
+
+The tapped 2150 overshoot goes **3.53× → 3.42×**. The base model's near-exact 2150
+agreement gets slightly **worse** (0.97× → 0.92×), not better. Our own ssp585 deliverable
+moves by at most **2.3 cm (≤1%)**: `gis@2300` 230.3 → 228.0, `total@2300` 649.7 → 647.4.
+`gis@2100` goes **up** (+0.3) — the fullcurve S is not a monotone reduction; it bumps to
+0.883 near 3-4 K before falling to 0.825.
+
+### Why it cannot help — the actual finding
+
+`fullcurve` extends the **fitted** support from 2.75 K to 5.75 K. Above that **both** tables
+flat-hold (`grid_max` 8.0; S clamped at 0.860 default, 0.825 fullcurve). The matched-forcing
+comparison runs at **9.8-13.6 K** — 4 to 8 K beyond either table's support, in pure flat-hold
+extrapolation. Our effective `amp·S` goes 1.653 → 1.586 against the forcing GCMs' **1.31** at
+2290: four points of a 26% gap. **The amplification mismatch is not the explanation for the
+tap result**, and closing it needs the amp law's *support* extended, not a different fitted
+arm. Recorded so `fullcurve` is not proposed again as the fix.
+
+### A latent defect in the CANONICAL driver, fixed first
+
+Neither `project_ssps_components_ladrillo.jl` nor the diagnostic put `LADRILLO_GIS_SHAPE`
+into the output filename. A `fullcurve` run of the canonical driver would have **overwritten
+the shipped deliverable** with a sensitivity-arm result under the deliverable's own name —
+same schema, same units, same header, undetectable afterwards. `SHAPE_TAG` resolves to `""`
+on the default table, so default runs keep their exact filenames and are bit-identical;
+verified `ssps_components_2300_L14_tap6p5K_V2p0m_tau50.csv` is untouched by this run.
+
+### Memory index
+
+`INDEX_slr.md`'s Ladrillo section was 26 lines against a 20-line budget. Merge pass folded
+six pairs to one line each (L13 arc, L14 promotion, tap setup, the two "looks like structure"
+artefacts, and two housekeeping pairs). Back at 20, zero links lost, zero orphans.
+
 ## [unreleased] — 2026-08-21b — **The PROTECT x2300 comparison was never at matched forcing.** The tap is too EARLY, not too late.
 
 Follows 2026-08-21a, which landed the PROTECT-Greenland physics ensemble and read
