@@ -38,6 +38,14 @@ THREE CORRECTIONS APPLIED, each of which changes the number
 
 WRITES outputs/protect_greenland_gis_summary.csv  (per scenario x year quantiles)
        outputs/protect_greenland_gis_runs.csv     (per run, for auditing)
+       outputs/protect_greenland_gis_annual.csv   (ANNUAL series, LONG runs only)
+
+  The annual file was added 2026-08-21 for the matched-forcing comparison
+  (julia/diag_protect_forcing_matched.jl): the four REPORT_YEARS are enough to
+  compare LEVELS, but the question that opened up -- whether the tap's shape in
+  time is right, not just its endpoint -- needs the trajectory. Long runs only,
+  because those are the only ones with anything past 2100 to say. Same three
+  corrections, same code path; it is the identical `corr` array, not a re-derivation.
 
   python3 python/extract_protect_greenland.py
 """
@@ -53,6 +61,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(REPO, "data/comparison/protect_greenland")
 OUT_SUM = os.path.join(REPO, "outputs/protect_greenland_gis_summary.csv")
 OUT_RUN = os.path.join(REPO, "outputs/protect_greenland_gis_runs.csv")
+OUT_ANN = os.path.join(REPO, "outputs/protect_greenland_gis_annual.csv")
 
 YEAR0 = 2015                 # dataset README: first entry = end of 2015
 BASIS = "rel 2015"           # NOT re-baselined to 1995-2014; see docstring item 3
@@ -105,7 +114,7 @@ def main():
             controls[k] = c
     print(f"  control runs found: {len(controls)} (group, model) pairs")
 
-    rows, dropped = [], []
+    rows, dropped, annual = [], [], []
     for f in files:
         p = f.split(os.sep)
         exp, model, group = p[-2], p[-3], p[-4]
@@ -129,6 +138,10 @@ def main():
             i = y - YEAR0
             rec[f"y{y}"] = float(corr[i]) if 0 <= i < n else np.nan
         rows.append(rec)
+        if rec["long"]:
+            annual.append(pd.DataFrame({
+                "year": np.arange(YEAR0, YEAR0 + n), "group": group, "model": model,
+                "exp": exp, "ssp": ssp, "var": var, "gis_cm": corr}))
 
     runs = pd.DataFrame(rows)
     if dropped:
@@ -162,7 +175,13 @@ def main():
     print(f"\n  ⚠ COVERAGE: rows whose `groups` is a single entry are ONE ice "
           f"sheet model.\n    Past 2100 that is NORCE only — climate-forcing "
           f"spread, not structural spread.")
-    for p in (OUT_SUM, OUT_RUN):
+    ann = pd.concat(annual, ignore_index=True)
+    ann["basis"] = BASIS
+    ann.to_csv(OUT_ANN, index=False)
+    print(f"\n  annual series for {ann.exp.nunique()} experiment ids / "
+          f"{len(annual)} long runs, {int(ann.year.min())}-{int(ann.year.max())}")
+
+    for p in (OUT_SUM, OUT_RUN, OUT_ANN):
         print("wrote", os.path.relpath(p, REPO))
 
 

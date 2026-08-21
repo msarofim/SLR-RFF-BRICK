@@ -234,3 +234,8 @@ data/comparison/protect_greenland/NORCE/
 data/comparison/protect_greenland/VUB/
 data/comparison/protect_greenland/info_p11/
 data/comparison/protect_greenland/README.txt
+
+# CMIP6 ssp585 EXTENSION tas (2101-2300), ~400 MB, re-fetchable:
+#   bash scripts/fetch_cmip6_ssp585ext.sh   (md5s pinned in that script)
+# The DERIVED outputs/cmip6_ssp585ext_gsat.csv IS tracked.
+data/cmip6_gsat_ext/*.nc
