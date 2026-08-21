@@ -1,0 +1,451 @@
+Ladrillo SSP components | posterior parameters_subsample_brick_mengel_L14.csv (2000 draws) | Greenland :basins2 | base 1995-2014 | horizon 2300
+--tap-set: 25 admissible cells from outputs/gis_tap_admissible_L14.csv
+........
+SSP1-2.6  2000 draws in 15s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 12s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 12s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  95.0  ais   94.9  te  49.7  lws  4.2 | TOTAL  265.9 [240.0,  295.9] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 195.9  ais  283.2  te  99.7  lws  8.5 | TOTAL  615.3 [544.8,  694.5] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 12s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 13s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 12s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  66.7  ais   94.7  te  49.7  lws  4.2 | TOTAL  237.4 [211.5,  267.4] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 175.3  ais  282.8  te  99.7  lws  8.5 | TOTAL  594.3 [523.8,  673.5] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 12s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 13s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 13s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis 117.2  ais   95.0  te  49.7  lws  4.2 | TOTAL  288.3 [262.4,  318.4] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 244.6  ais  283.8  te  99.7  lws  8.5 | TOTAL  664.6 [594.2,  743.8] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 13s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 13s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 13s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  79.5  ais   94.7  te  49.7  lws  4.2 | TOTAL  250.3 [224.4,  280.3] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 217.0  ais  283.3  te  99.7  lws  8.5 | TOTAL  636.5 [566.0,  715.8] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 13s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 13s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 13s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis 139.5  ais   95.2  te  49.7  lws  4.2 | TOTAL  310.7 [284.8,  340.8] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 293.3  ais  284.5  te  99.7  lws  8.5 | TOTAL  713.9 [643.5,  793.1] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 13s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 13s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 13s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  92.3  ais   94.8  te  49.7  lws  4.2 | TOTAL  263.2 [237.3,  293.2] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 258.8  ais  283.8  te  99.7  lws  8.5 | TOTAL  678.8 [608.3,  758.0] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 13s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 12s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 13s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  62.7  ais   94.6  te  49.7  lws  4.2 | TOTAL  233.4 [207.5,  263.4] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 198.4  ais  283.0  te  99.7  lws  8.5 | TOTAL  617.6 [547.0,  696.8] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 13s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 13s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 13s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  63.9  ais   94.6  te  49.7  lws  4.2 | TOTAL  234.5 [208.7,  264.6] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 194.4  ais  283.1  te  99.7  lws  8.5 | TOTAL  613.7 [543.1,  692.9] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 13s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 13s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 13s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  75.8  ais   94.7  te  49.7  lws  4.2 | TOTAL  246.5 [220.7,  276.6] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 242.5  ais  283.7  te  99.7  lws  8.5 | TOTAL  662.4 [591.9,  741.6] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 12s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 12s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 12s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  54.3  ais   94.5  te  49.7  lws  4.2 | TOTAL  224.9 [199.0,  254.9] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 211.3  ais  283.2  te  99.7  lws  8.5 | TOTAL  630.7 [560.1,  709.9] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 13s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 12s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 13s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  87.7  ais   94.8  te  49.7  lws  4.2 | TOTAL  258.5 [232.6,  288.5] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 290.7  ais  284.3  te  99.7  lws  8.5 | TOTAL  711.1 [640.7,  790.4] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 12s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 12s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 12s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  60.8  ais   94.6  te  49.7  lws  4.2 | TOTAL  231.5 [205.6,  261.5] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 251.7  ais  283.6  te  99.7  lws  8.5 | TOTAL  671.5 [601.0,  750.7] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 12s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 13s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 12s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  45.3  ais   94.5  te  49.7  lws  4.2 | TOTAL  215.9 [190.0,  245.9] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 190.0  ais  282.9  te  99.7  lws  8.5 | TOTAL  609.1 [538.5,  688.3] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 12s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 13s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 13s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  36.4  ais   94.4  te  49.7  lws  4.2 | TOTAL  206.9 [181.0,  236.9] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 191.6  ais  283.0  te  99.7  lws  8.5 | TOTAL  610.8 [540.2,  690.0] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 13s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 13s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 12s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  39.1  ais   94.4  te  49.7  lws  4.2 | TOTAL  209.6 [183.8,  239.7] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 238.9  ais  283.5  te  99.7  lws  8.5 | TOTAL  658.5 [588.0,  737.7] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 13s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 13s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 13s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  33.9  ais   94.4  te  49.7  lws  4.2 | TOTAL  204.4 [178.5,  234.4] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 202.9  ais  283.0  te  99.7  lws  8.5 | TOTAL  622.0 [551.5,  701.2] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 12s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 13s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 12s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  41.9  ais   94.4  te  49.7  lws  4.2 | TOTAL  212.4 [186.5,  242.4] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 286.1  ais  284.0  te  99.7  lws  8.5 | TOTAL  706.3 [635.8,  785.5] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 12s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 12s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 12s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  35.3  ais   94.4  te  49.7  lws  4.2 | TOTAL  205.8 [179.9,  235.9] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 241.1  ais  283.4  te  99.7  lws  8.5 | TOTAL  660.7 [590.1,  739.9] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 13s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 12s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 12s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  31.8  ais   94.4  te  49.7  lws  4.2 | TOTAL  202.3 [176.4,  232.3] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 178.7  ais  282.7  te  99.7  lws  8.5 | TOTAL  597.5 [527.0,  676.7] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 12s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 12s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 12s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  28.2  ais   94.3  te  49.7  lws  4.2 | TOTAL  198.6 [172.7,  228.7] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 185.2  ais  282.8  te  99.7  lws  8.5 | TOTAL  604.1 [533.6,  683.3] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 12s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 12s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 12s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  28.2  ais   94.3  te  49.7  lws  4.2 | TOTAL  198.6 [172.7,  228.7] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 230.3  ais  283.2  te  99.7  lws  8.5 | TOTAL  649.7 [579.1,  728.9] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 13s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 12s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 12s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  28.2  ais   94.3  te  49.7  lws  4.2 | TOTAL  198.6 [172.7,  228.7] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 187.9  ais  282.7  te  99.7  lws  8.5 | TOTAL  606.8 [536.3,  686.0] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 12s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 12s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 12s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  28.2  ais   94.3  te  49.7  lws  4.2 | TOTAL  198.6 [172.7,  228.7] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 275.3  ais  283.7  te  99.7  lws  8.5 | TOTAL  695.2 [624.7,  774.4] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 12s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 12s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 13s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  28.2  ais   94.3  te  49.7  lws  4.2 | TOTAL  198.6 [172.7,  228.7] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 222.4  ais  283.1  te  99.7  lws  8.5 | TOTAL  641.7 [571.1,  720.9] cm  (finite 2000/2000)
+........
+SSP1-2.6  2000 draws in 14s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 12s
+  @2100 GMST +2.74 | glac  10.0  gis   8.5  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.7,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.4  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.7 [ 64.7,  127.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  18.3  ais  131.3  te  41.9  lws  8.5 | TOTAL  219.1 [107.8,  323.0] cm  (finite 2000/2000)
+........[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 5.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 5.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 5.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 5.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 5.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 5.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 5.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 5.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 5.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 5.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 5.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 5.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 5.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 5.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 5.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 5.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 5.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 5.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 5.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 5.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 5.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 5.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 5.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 5.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 5.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 5.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 6.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 6.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 6.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 6.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 6.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 6.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 6.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 6.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 6.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 6.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 6.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 6.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 6.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 6.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 6.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 6.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 6.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 6.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 6.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 6.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 6.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 6.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 7.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 7.0 K — the tap will not fire on this scenario. Expected for cool scenarios.
+
+SSP5-8.5  2000 draws in 12s
+  @2100 GMST +4.69 | glac  14.3  gis  13.9  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.7 [ 81.5,  110.7] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  28.2  ais   94.3  te  49.7  lws  4.2 | TOTAL  198.6 [172.7,  228.7] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 202.3  ais  282.7  te  99.7  lws  8.5 | TOTAL  621.3 [550.8,  700.5] cm  (finite 2000/2000)
+
+wrote outputs/ssps_components_2300_L14_tapset.csv
+wrote outputs/ssps_components_2300_L14_tapset_envelope.csv
+
+=== CELL-CHOICE BAND vs SAMPLED SPREAD (cm) — reported separately ===
+  year   ssp       comp      shipped          cell band    width  posterior p05-p95
+  2100   SSP1-2.6  gis           6.5  [   6.5,    6.5]      0.0  [   5.8,    7.2]    1.4
+  2100   SSP1-2.6  total        35.1  [  35.1,   35.1]      0.0  [  32.6,   37.5]    4.9
+  2100   SSP2-4.5  gis           8.5  [   8.5,    8.5]      0.0  [   7.4,    9.5]    2.1
+  2100   SSP2-4.5  total        44.9  [  44.9,   44.9]      0.0  [  41.2,   78.6]   37.4
+  2100   SSP5-8.5  gis          13.9  [  13.9,   13.9]      0.0  [  11.6,   16.4]    4.8
+  2100   SSP5-8.5  total        94.7  [  94.7,   94.7]      0.0  [  74.3,  124.5]   50.1
+  2150   SSP1-2.6  gis           7.9  [   7.9,    7.9]      0.0  [   6.9,    9.1]    2.2
+  2150   SSP1-2.6  total        45.8  [  45.8,   45.8]      0.0  [  42.7,   49.0]    6.3
+  2150   SSP2-4.5  gis          12.4  [  12.4,   12.4]      0.0  [  10.6,   14.5]    3.9
+  2150   SSP2-4.5  total        70.7  [  70.7,   70.7]      0.0  [  61.9,  159.0]   97.1
+  2150   SSP5-8.5  gis          28.2  [  28.2,  139.5]    111.3  [  22.8,   34.4]   11.5
+  2150   SSP5-8.5  total       198.6  [ 198.6,  310.7]    112.1  [ 157.8,  252.7]   94.9
+  2300   SSP1-2.6  gis          10.1  [  10.1,   10.1]      0.0  [   8.3,   12.4]    4.1
+  2300   SSP1-2.6  total        67.1  [  67.1,   67.1]      0.0  [  62.2,   72.1]    9.8
+  2300   SSP2-4.5  gis          18.3  [  18.3,   18.3]      0.0  [  14.8,   23.0]    8.2
+  2300   SSP2-4.5  total       219.1  [ 219.1,  219.1]      0.0  [ 102.1,  386.0]  283.9
+  2300   SSP5-8.5  gis         230.3  [ 175.3,  293.3]    118.0  [ 219.1,  246.0]   26.9
+  2300   SSP5-8.5  total       649.7  [ 594.3,  713.9]    119.6  [ 537.1,  790.9]  253.8

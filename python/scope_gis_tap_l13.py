@@ -75,11 +75,31 @@ from scope_gis_2300_relaxation import (  # noqa: E402
 )
 
 # --- provenance, and every label below derives from it ----------------------
-LADRILLO_TAG = "L13"
+# --tag= REPRICES ON ANOTHER VINTAGE (Marcus 2026-08-21). The 25-cell admissible
+# set was priced on L13, but L14 is canonical and differs in exactly the two
+# places the tap rides on: it is TWO-basin (no gis_s_mid at all) and its
+# s_high is 0.2265, not L13's 0.268. Shipping an L13-priced band on an
+# L14 deliverable would be quoting an admissible set nobody re-scored.
+#
+# THE FILENAME IS HISTORICAL. This module is still scope_gis_tap_l13.py because
+# notes and memory reference it by that name; the TAG is the authority, and the
+# banner says so whenever they disagree. OUT is tag-derived, so an L14 run writes
+# scope_gis_tap_l14.csv and CANNOT overwrite the L13 artefact that the 25-cell
+# result rests on.
+LADRILLO_TAG = next((a.split("=", 1)[1] for a in sys.argv[1:]
+                     if a.startswith("--tag=")), "L13")
 POST = os.path.join(REPO,
                     f"data/MimiBRICK/parameters_subsample_brick_mengel_{LADRILLO_TAG}.csv")
-GATE_CHAIN = os.path.join(
-    REPO, f"outputs/mcmc/chain_{LADRILLO_TAG}_seed2026_n2000000.csv")
+# G1_SEEDS mirrors HOW EACH REFERENCE WAS PRODUCED, and the two vintages differ:
+# the L13 julia log is headed "chain_L13_seed2026_n2000000.csv" (ONE chain) while
+# the L14 log is headed "L14, 4 chain(s) POOLED". Comparing a pooled reference
+# against a single-chain python median is not a cross-language test, it is a
+# pooling test -- it fails at 3.8e-03 on s_high purely from that, which looks
+# exactly like a port bug. Set alongside G1_REF so the two cannot drift apart.
+G1_SEEDS = {"L13": (2026,), "L14": (2026, 2027, 2028, 2029)}
+GATE_CHAINS = [os.path.join(REPO, f"outputs/mcmc/chain_{LADRILLO_TAG}_seed{sd}_n2000000.csv")
+               for sd in G1_SEEDS.get(LADRILLO_TAG, (2026,))]
+GATE_CHAIN = GATE_CHAINS[0]     # for messages that name a single file
 OUT = os.path.join(REPO, f"outputs/scope_gis_tap_{LADRILLO_TAG.lower()}.csv")
 
 # --- the 3-basin geometry, mirroring julia/greenland_3basin_component.jl -----
@@ -88,7 +108,22 @@ SECTORS = {"south": ("SW", "CW", "CE", "SE"), "mid": lit.MID_SECTORS,
            "high": lit.HIGH_SECTORS}
 GIS3_VOL_M = {b: sum(lit.MOUGINOT_SLE_CM[s] for s in SECTORS[b]) / 100.0
               for b in BASINS}
-GIS3_VSHARE = {b: GIS3_VOL_M[b] / sum(GIS3_VOL_M.values()) for b in BASINS}
+_V3 = {b: GIS3_VOL_M[b] / sum(GIS3_VOL_M.values()) for b in BASINS}
+# TWO-BASIN detection is from the POSTERIOR ITSELF, not a flag: a two-basin
+# vintage simply has no gis_s_mid column, so there is nothing to guess and no way
+# for the mode and the file to disagree. Shares then mirror julia/
+# greenland_3basin_component.jl GIS2_VSHARE exactly -- NW merges into the active
+# basin, high untouched, k_mid = 0. A zero share contributes a zero series to
+# every sum, which is why the component calls k_mid = 0 "a genuine two-basin
+# model BY CONSTRUCTION rather than by test".
+def _post_cols(path):
+    with open(path) as fh:
+        return fh.readline().rstrip("\n").split(",")
+
+
+TWO_BASIN = os.path.exists(POST) and "gis_s_mid" not in _post_cols(POST)
+GIS3_VSHARE = ({"south": _V3["south"] + _V3["mid"], "mid": 0.0,
+                "high": _V3["high"]} if TWO_BASIN else _V3)
 PINNED_BASIN = "south"          # its rate scale is s = 1 by construction
 TAPPED = "high"                 # NO+NE; mid gets no tap (Aschwanden: deceleration)
 
@@ -117,9 +152,34 @@ QLO, QHI = 0.05, 0.95
 
 # --- G1 reference: julia/diag_l13_basin_shares.jl on GATE_CHAIN -------------
 G1_WINS = ((2002, 2011), (2012, 2018))
-G1_SCALES = {"mid": 0.9375, "high": 0.2644}
-G1_SHARES = ({"south": 0.583, "mid": 0.213, "high": 0.204},
-             {"south": 0.558, "mid": 0.207, "high": 0.234})
+# KEYED BY VINTAGE, not hardcoded to one. These are transcriptions of the JULIA
+# diagnostic's own output on that vintage's chain -- L13 from
+# julia/diag_l13_basin_shares.jl, L14 from outputs/mcmc/log_L14_basinshares.txt
+# (the same tool, which detects the 2-basin structure from the chain columns).
+# A single hardcoded set is the stale-fixture bug this file already carries once
+# elsewhere: run --tag=L14 against L13's numbers and G1 fails on a REAL
+# difference (L14's s_high is 0.2265, L13's 0.2644) while looking like a code
+# fault. DO NOT WIDEN G1_TOL_* to make a new vintage pass -- add its row here,
+# transcribed from the julia log, or the cross-language gate stops meaning
+# anything.
+G1_REF = {
+    "L13": dict(
+        scales={"mid": 0.9375, "high": 0.2644},
+        shares=({"south": 0.583, "mid": 0.213, "high": 0.204},
+                {"south": 0.558, "mid": 0.207, "high": 0.234})),
+    # two-basin: `mid` is not sampled and k_mid = 0, so it is NOT SCORED.
+    "L14": dict(
+        scales={"high": 0.2265},
+        shares=({"south": 0.818, "mid": 0.000, "high": 0.182},
+                {"south": 0.788, "mid": 0.000, "high": 0.212})),
+}
+if LADRILLO_TAG not in G1_REF:
+    raise SystemExit(
+        f"G1 has no reference for tag {LADRILLO_TAG!r}. Add one to G1_REF, "
+        f"transcribed from the julia basin-shares diagnostic run on that "
+        f"vintage's chain. Do NOT relax G1_TOL_* instead.")
+G1_SCALES = G1_REF[LADRILLO_TAG]["scales"]
+G1_SHARES = G1_REF[LADRILLO_TAG]["shares"]
 G1_TOL_SCALE, G1_TOL_SHARE = 5e-4, 1e-3
 G1_TBAR = 1.9631                # the calibrator's printed anchor for this zone
 
@@ -134,7 +194,10 @@ def basin_scales(p):
     other two as LOG10 scales, matching the calibrator's 10.0^theta."""
     n = len(p)
     return {"south": np.ones(n),
-            "mid": 10.0 ** p["gis_s_mid"].to_numpy(),
+            # a two-basin posterior has no gis_s_mid; k_mid is 0 there, so the
+            # value is arithmetically irrelevant and 1.0 keeps the rate finite.
+            "mid": (np.ones(n) if TWO_BASIN
+                    else 10.0 ** p["gis_s_mid"].to_numpy()),
             "high": 10.0 ** p["gis_s_high"].to_numpy()}
 
 
@@ -193,11 +256,17 @@ def gate_crosslanguage(rows):
     post-burn half, same medians, same OBSERVED driver (every year of both
     windows predates the amp splice, so no forcing file enters)."""
     cols = ["gis_c1", "gis_c0", "gis_f", "gis_alpha_f", "gis_beta_f",
-            "gis_slow_ell", "gis_slow_w", "gis_s_mid", "gis_s_high"]
-    if not os.path.exists(GATE_CHAIN):
-        raise SystemExit(f"G1: {os.path.relpath(GATE_CHAIN, REPO)} not found")
-    ch = pd.read_csv(GATE_CHAIN, usecols=cols)
-    h = ch.iloc[len(ch) // 2:]
+            "gis_slow_ell", "gis_slow_w", "gis_s_high"]
+    if not TWO_BASIN:
+        cols.append("gis_s_mid")
+    for gc in GATE_CHAINS:
+        if not os.path.exists(gc):
+            raise SystemExit(f"G1: {os.path.relpath(gc, REPO)} not found")
+    # post-burn half of EACH chain, then concatenate -- pooling the halves, not
+    # halving the pool. For a single-seed vintage this is the previous behaviour
+    # exactly.
+    h = pd.concat([pd.read_csv(gc, usecols=cols).iloc[lambda d: slice(len(d) // 2, None)]
+                   for gc in GATE_CHAINS], ignore_index=True)
     pa = h.median(numeric_only=True)
 
     tbar = ridge.gis_tbar()
@@ -217,10 +286,13 @@ def gate_crosslanguage(rows):
 
     s = basin_scales(p)
     print(f"\n=== G1 — cross-language reproduction of diag_l13_basin_shares.jl "
-          f"on {os.path.basename(GATE_CHAIN)} ===\n")
+          f"on {len(GATE_CHAINS)} chain(s), seeds "
+          f"{', '.join(str(x) for x in G1_SEEDS.get(LADRILLO_TAG, (2026,)))} ===\n")
     print(f"  {'rate scale':<14s} {'python':>10s} {'julia':>10s} {'|diff|':>10s}")
     worst = 0.0
     for b in ("mid", "high"):
+        if b not in G1_SCALES:      # e.g. `mid` on a two-basin vintage
+            continue
         d = abs(float(s[b][0]) - G1_SCALES[b])
         worst = max(worst, d / G1_TOL_SCALE)
         print(f"  {b:<14s} {float(s[b][0]):10.4f} {G1_SCALES[b]:10.4f} {d:10.2e}")
@@ -258,8 +330,13 @@ def main():
             f"{os.path.relpath(POST, REPO)} not found. The certified {LADRILLO_TAG} "
             f"posterior subsample is written by\n  julia --project=julia_v2 "
             f"julia/postprocess_mcmc_ext.jl --tag={LADRILLO_TAG} --accept-slr")
-    print(f"scope_gis_tap_{LADRILLO_TAG.lower()} — pricing the {TAPPED}-basin volume "
-          f"tap on the certified {LADRILLO_TAG} posterior")
+    print(f"scope_gis_tap — pricing the {TAPPED}-basin volume tap on the "
+          f"certified {LADRILLO_TAG} posterior "
+          f"({'TWO' if TWO_BASIN else 'THREE'}-basin)")
+    if LADRILLO_TAG != "L13":
+        print(f"  NOTE the module is still named scope_gis_tap_l13.py (notes and "
+              f"memory reference it\n       by that name); the TAG above is the "
+              f"authority and OUT is derived from it.")
     print(f"  posterior  {os.path.relpath(POST, REPO)}")
     print(f"  driver     GIS_ZONE = {GIS_ZONE!r} (L13 as CALIBRATED; the 3-basin "
           f"DESIGN's `all` zone is still gated)")

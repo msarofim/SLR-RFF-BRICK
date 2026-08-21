@@ -59,10 +59,29 @@ const POST_TAG = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
     i === nothing ? DEFAULT_TAG : ARGS[i][7:end]
 end
 const TAP_ON = "--tap" in ARGS
+## --tap-set RUNS THE WHOLE ADMISSIBLE SET, not one cell (Marcus 2026-08-21).
+##
+## WHY. The tap is a PRIOR SPECIFICATION, not a fit: its cell was chosen by the
+## don't-move-a-validated-horizon principle, and 25 cells of the priced grid clear
+## EVERY pre-registered 2300 gate. Shipping one of them as a point estimate hides
+## the larger of the two uncertainties on tapped Greenland@2300 --
+##   sampled p05-p95 (reported)      0.268 m
+##   cell choice across the 25       1.180 m   <- 4.4x bigger, previously unreported
+## The two are different in KIND -- one is posterior spread, the other a choice
+## among admissible priors -- so this arm reports them SEPARATELY and never sums
+## them. The shipped cell stays the central line; the set gives it a band.
+const TAP_SET = any(a -> a == "--tap-set" || startswith(a, "--tap-set="), ARGS)
+const TAP_SET_CSV = let i = findfirst(a -> startswith(a, "--tap-set="), ARGS)
+    i === nothing ? "" : ARGS[i][11:end]
+end
+TAP_SET && TAP_ON &&
+    error("--tap and --tap-set are different arms: --tap runs GIS_TAP_CELL alone, " *
+          "--tap-set runs the admissible set. Pass one.")
 ## THE TAP STATE IS IN THE FILENAME. A tapped and an untapped 2300 projection differ
 ## by ~180 cm on ssp585 and are otherwise identical in shape, units and header — the
 ## one thing that must never be ambiguous about a file on disk is which arm it is.
-const TAG = TAP_ON ? "$(POST_TAG)_tap$(replace(string(GIS_TAP_CELL.onset_K), "." => "p"))K_V$(replace(string(GIS_TAP_CELL.V_m), "." => "p"))m_tau$(Int(GIS_TAP_CELL.tau_yr))" : POST_TAG
+const TAG = TAP_ON ? "$(POST_TAG)_tap$(replace(string(GIS_TAP_CELL.onset_K), "." => "p"))K_V$(replace(string(GIS_TAP_CELL.V_m), "." => "p"))m_tau$(Int(GIS_TAP_CELL.tau_yr))" :
+            TAP_SET ? "$(POST_TAG)_tapset" : POST_TAG
 const POSTERIOR = joinpath(LADRILLO_REPO,
     "data/MimiBRICK/parameters_subsample_brick_mengel_$(POST_TAG).csv")
 isfile(POSTERIOR) || error("no posterior for --tag=$POST_TAG at $POSTERIOR")
@@ -82,12 +101,48 @@ post = ladrillo_posterior(path=POSTERIOR, nthin=NTHIN)
 VARIANT === :ab && @printf("  amp law ON: S anchored at dT_eff = %.3f K, %d-yr window\n",
                            LADRILLO_GIS_SHAPE_ANCHOR_DT, LADRILLO_GIS_SHAPE_WIN)
 
-out = DataFrame(year=Int[], ssp=String[], component=String[], gmst=Float64[],
-                med=Float64[], p05=Float64[], p17=Float64[], p83=Float64[], p95=Float64[],
-                n_finite=Int[])
+## Non-set arms keep the EXACT pre-existing schema so downstream consumers of the
+## single-cell files are untouched; the set arm adds three identity columns.
+out = TAP_SET ?
+    DataFrame(year=Int[], ssp=String[], component=String[], gmst=Float64[],
+              med=Float64[], p05=Float64[], p17=Float64[], p83=Float64[], p95=Float64[],
+              n_finite=Int[], tap_onset_K=Float64[], tap_V_m=Float64[], tap_tau=Float64[]) :
+    DataFrame(year=Int[], ssp=String[], component=String[], gmst=Float64[],
+              med=Float64[], p05=Float64[], p17=Float64[], p83=Float64[], p95=Float64[],
+              n_finite=Int[])
 
-for (ssp, label) in SSPS
+## The cells to run. Non-set arms run exactly one "cell" of `nothing`, which
+## leaves the pre-existing code path bit-identical.
+const CELLS = if !TAP_SET
+    [nothing]
+else
+    csv = isempty(TAP_SET_CSV) ?
+        joinpath(LADRILLO_REPO, "outputs/gis_tap_admissible_$(POST_TAG).csv") : TAP_SET_CSV
+    isfile(csv) || error("--tap-set: no admissible-set file at $csv. Produce it with\n" *
+                         "  python3 python/scope_gis_tap_l13.py --tag=$(POST_TAG)\n" *
+                         "which writes the passing cells. The set MUST be priced on the " *
+                         "SAME vintage being projected — an L13-priced set on an L14 " *
+                         "projection is an admissible set nobody re-scored.")
+    d = CSV.read(csv, DataFrame)
+    cells = [(onset_K=Float64(r.tap_onset_K), V_m=Float64(r.tap_V_m),
+              tau_yr=Float64(r.tap_tau)) for r in eachrow(d)]
+    isempty(cells) && error("--tap-set: $csv has no rows")
+    ## The SHIPPED cell must be a member, or the central line of the band is not
+    ## the number every other deliverable reports.
+    any(c -> c.onset_K == GIS_TAP_CELL.onset_K && c.V_m == GIS_TAP_CELL.V_m &&
+             c.tau_yr == GIS_TAP_CELL.tau_yr, cells) ||
+        error("--tap-set: GIS_TAP_CELL (onset $(GIS_TAP_CELL.onset_K) K, V " *
+              "$(GIS_TAP_CELL.V_m) m, tau $(GIS_TAP_CELL.tau_yr) yr) is NOT in $csv. " *
+              "Either the shipped cell no longer clears the gates on this vintage — " *
+              "which is a finding, report it — or the set is from another grid.")
+    println("--tap-set: $(length(cells)) admissible cells from ", relpath(csv, LADRILLO_REPO))
+    cells
+end
+
+for cell in CELLS, (ssp, label) in SSPS
     bf = ladrillo_setup(ssp=ssp, y0=Y0, y1=Y1, gis_variant = VARIANT)
+    cell === nothing || ladrillo_set_tap!(bf; v=cell.V_m, onset=cell.onset_K,
+                                          tau=cell.tau_yr)
     ## --tap switches the high-basin volume tap ON at GIS_TAP_CELL. PRIOR-PROPAGATED,
     ## not sampled: the calibration tops out at 1.385 K against a 6.5 K onset, so the
     ## tap is exactly likelihood-inert and the same posterior serves both arms.
@@ -110,11 +165,19 @@ for (ssp, label) in SSPS
     for c in COMPONENTS, (i, y) in enumerate(bf.years)
         y >= REPORT0 || continue
         v = filter(isfinite, @view series[c][i, :])
-        push!(out, (y, label, string(c), bf.gmst[i], median(v), quantile(v, 0.05),
-                    quantile(v, 0.17), quantile(v, 0.83), quantile(v, 0.95), length(v)))
+        base = (y, label, string(c), bf.gmst[i], median(v), quantile(v, 0.05),
+                quantile(v, 0.17), quantile(v, 0.83), quantile(v, 0.95), length(v))
+        push!(out, TAP_SET ? (base..., cell.onset_K, cell.V_m, cell.tau_yr) : base)
     end
     for y in HORIZONS
-        row(c) = out[(out.year .== y) .& (out.ssp .== label) .& (out.component .== string(c)), :]
+        ## in the set arm `out` holds every cell, so the row selector MUST also
+        ## pin the cell or it silently averages across the admissible set.
+        sel(c) = TAP_SET ?
+            (out.year .== y) .& (out.ssp .== label) .& (out.component .== string(c)) .&
+                (out.tap_onset_K .== cell.onset_K) .& (out.tap_V_m .== cell.V_m) .&
+                (out.tap_tau .== cell.tau_yr) :
+            (out.year .== y) .& (out.ssp .== label) .& (out.component .== string(c))
+        row(c) = out[sel(c), :]
         @printf("  @%d GMST %+0.2f | glac %5.1f  gis %5.1f  ais %6.1f  te %5.1f  lws %4.1f | TOTAL %6.1f [%5.1f, %6.1f] cm  (finite %d/%d)\n",
                 y, bf.gmst[ladrillo_yi(bf, y)], row(:glaciers).med[1], row(:gis).med[1],
                 row(:ais).med[1], row(:te).med[1], row(:lws).med[1], row(:total).med[1],
@@ -124,3 +187,39 @@ end
 
 CSV.write(OUT, out)
 println("\nwrote ", relpath(OUT, LADRILLO_REPO))
+
+## ---- the ENVELOPE: the cell-choice band, reported SEPARATELY -----------------
+## Across cells we take the spread of the per-cell MEDIANS. That is the term a
+## single-cell deliverable omits. It is NOT combined with the within-cell p05-p95:
+## posterior spread and choice-among-admissible-priors are different in kind, and
+## summing them would misrepresent both.
+if TAP_SET
+    env = DataFrame(year=Int[], ssp=String[], component=String[],
+                    med_shipped=Float64[], cell_lo=Float64[], cell_hi=Float64[],
+                    cell_width=Float64[], post_p05=Float64[], post_p95=Float64[],
+                    post_width=Float64[], n_cells=Int[])
+    ship = (out.tap_onset_K .== GIS_TAP_CELL.onset_K) .&
+           (out.tap_V_m .== GIS_TAP_CELL.V_m) .& (out.tap_tau .== GIS_TAP_CELL.tau_yr)
+    for y in HORIZONS, (_, label) in SSPS, c in COMPONENTS
+        m = (out.year .== y) .& (out.ssp .== label) .& (out.component .== string(c))
+        any(m) || continue
+        meds = out.med[m]
+        sh = out[m .& ship, :]
+        nrow(sh) == 1 || continue
+        push!(env, (y, label, string(c), sh.med[1], minimum(meds), maximum(meds),
+                    maximum(meds) - minimum(meds), sh.p05[1], sh.p95[1],
+                    sh.p95[1] - sh.p05[1], count(m)))
+    end
+    ENVOUT = replace(OUT, "_tapset.csv" => "_tapset_envelope.csv")
+    CSV.write(ENVOUT, env)
+    println("wrote ", relpath(ENVOUT, LADRILLO_REPO))
+    println("\n=== CELL-CHOICE BAND vs SAMPLED SPREAD (cm) — reported separately ===")
+    @printf("  %-6s %-9s %-8s %8s %18s %8s %18s\n",
+            "year", "ssp", "comp", "shipped", "cell band", "width", "posterior p05-p95")
+    for r in eachrow(env)
+        r.component in ("gis", "total") || continue
+        @printf("  %-6d %-9s %-8s %8.1f  [%6.1f, %6.1f] %8.1f  [%6.1f, %6.1f] %6.1f\n",
+                r.year, r.ssp, r.component, r.med_shipped, r.cell_lo, r.cell_hi,
+                r.cell_width, r.post_p05, r.post_p95, r.post_width)
+    end
+end
