@@ -3,6 +3,86 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-21d — **r2300 at matched forcing: the base model is not CONVEX enough**, confirmed on 5 GCMs with the tap inert.
+
+The second matched-forcing arm, and the one 2026-08-21b's §5 item 2 asked for. `r2300`
+holds each GCM's 2100 forcing to 2300 — Goelzer et al. 2025 (doi 10.5194/egusphere-2025-3098,
+open discussion): the forcing "is held constant and repeated through 2300", and a reviewer
+calls it "arguably more plausible" than the extended arm. It plateaus at **5.58 K**, far
+closer to our 4.7-7.8 K than x2300's 9.8-13.6, and carries **five** usable forcing GCMs
+against x2300's two.
+
+**No post-2100 CMIP6 data was needed** — the forcing is held at 2100, so each GCM's ssp585
+through 2100 is enough, which is exactly what the Pangeo mirror has and exactly why it was
+fatal for x2300. UKESM1-0-LL came from Pangeo; the other four were already in `data/cmip6_gis`.
+
+**The tap never fires here, and that is the point.** The n-weighted plateau is below the
+6.5 K onset, so this arm isolates the **base** model — the half x2300 could not separate from
+the tap. Verified, not assumed: tapped and untapped agree to **0.00e+00 cm at every year**.
+
+| Greenland cm, under the r2300 forcing | 2100 | 2150 | 2200 | 2300 |
+|---|---|---|---|---|
+| PROTECT r2300 p50 (our basis, n=35) | 16.5 | 31.6 | 45.5 | **72.3** |
+| p05 - p95 | 7.9-25.0 | 14.9-48.5 | 20.6-69.7 | 30.6-109.5 |
+| ours (base) | 19.5 | 28.1 | 32.0 | **35.7** |
+| ratio | 1.18 | 0.89 | 0.70 | **0.49** |
+
+### The same shape of error, on an independent family
+
+| ours ÷ PROTECT median | 2100 | 2150 | 2300 |
+|---|---|---|---|
+| x2300 (2 GCMs, 9.8-13.6 K) | 1.63 | 0.97 | 0.38 |
+| r2300 (5 GCMs, 5.58 K) | 1.18 | 0.89 | 0.49 |
+
+**The diagnosis is a timescale, not a gain.** Over 2200-2300 the physics is still climbing at
+**26.7 cm/century under constant forcing** while ours manages **3.7** — a 7.2× rate deficit
+(x2300: 134.3 vs 22.8, 5.9×). Our slow channel equilibrates far too fast, which is precisely
+why the error is high early and low late on both families.
+
+The two ratio curves converge between ~2170 and ~2250 despite forcings 8 K apart. Checked
+rather than admired: distinct series, max |diff| 0.700 at 2073, only 60 of 261 years agreeing
+within 0.05 — a genuine crossing, not duplicated data.
+
+### A bracket for our own ssp585
+
+Now anchored on two **measured** matched-forcing plateaus rather than a hand-average:
+r2300 5.61 K → 72.3 cm, x2300 13.59 K → 234.4 cm; crude two-point interpolation to our
+6.95 K mean 2100-2300 warming → **~100 cm (bracket 70-230)**. Our untapped 50.0 is low; the
+shipped cell's 230.3 is **~2.3× the central and 2.1× the r2300 p95**.
+
+### Tap-shape options, priced offline first
+
+`python/scope_gis_tap_shape.py` fitted four forms to the x2300 residual, in two modes. The
+**pinned-onset** mode is the decisive one — a good free-onset fit proves nothing, because
+pushing the onset past 7.81 K is the already-measured inert-on-our-own-scenario failure.
+
+| onset pinned at 6.5 K | rmse | tap@2150 | tap@2300 | on our ssp585 @2300 |
+|---|---|---|---|---|
+| A current (saturating target) | 25.8 | 30.6 | 114.7 | 76.5 |
+| B unsaturating target | 11.5 | 13.6 | 133.2 | 19.2 |
+| C rate ∝ warming excess | 9.3 | 12.5 | 136.4 | 18.9 |
+| D power law in time (T-blind) | 3.7 | 7.7 | 145.8 | 145.8 |
+| shipped cell / **target** | — | 116.1 / **1.3** | 195.9 / **144.4** | 195.9 |
+
+Removing **one clip** (A → B; the target no longer saturates at 1) cuts the error 2.2× and
+the 2150 overshoot 2.3× with no new machinery. D fits best and is disqualified — it is
+temperature-blind after onset, so it cannot separate scenarios. **Size, not shape, is the
+binding constraint**: every physics-tracking form delivers ~19 cm on our ssp585 at 2300
+against the shipped 195.9.
+
+### Tried and rejected
+
+- **A melt-rate limit.** Option D of the 2026-08-16 series: wherever a throughput cap binds,
+  `dL/dt` is independent of the driving term — measured 7.0091 cm at 2100 *identical to 6 dp
+  across all three SSPs*. A cap linearises; the physics is convex. Wrong direction.
+- **Going back to 3 basins.** The partition does not touch the tap's time dependence, and
+  per-basin drivers were already tested and rejected (`0aeff5f`). It bears only on the
+  capacity-clamp head, which is a separate question.
+
+### NOT acted on
+
+No gate changed, no cell moved, admissible set still all 25.
+
 ## [unreleased] — 2026-08-21c — **The `fullcurve` amp arm is nearly inert.** Both shape tables extrapolate where the comparison lives.
 
 Ran the pre-registered `gis_amp_shape_fullcurve` arm that 2026-08-21b named as the first

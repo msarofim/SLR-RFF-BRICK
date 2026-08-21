@@ -145,13 +145,25 @@ that arm, not for adopting it** (two GCMs, one member each).
    at **9.8-13.6 K** — 4-8 K into pure extrapolation. Effective `amp·S` 1.653 → 1.586
    against the GCMs' 1.31: four points of a 26% gap. Closing it needs the amp law's
    **support extended**, not a different fitted arm. That is now the open question in §4.
-2. **Price a convex tap form** against the same physics residual — the residual
-   curve in §3 is the target, and it is close to a power law in (t − t_onset).
-   `outputs/diag_protect_forcing_matched_L14_untapped.csv` minus
-   `outputs/protect_greenland_gis_annual.csv` is the fitting target, already on
-   disk.
+2. ~~Price a convex tap form.~~ **DONE 2026-08-21d**, `python/scope_gis_tap_shape.py`,
+   onset PINNED at 6.5 K (the free-onset mode is not evidence — it re-finds the
+   inert-on-our-scenario failure). Removing ONE clip so the target stops saturating
+   (form B) cuts the error 2.2× and the 2150 overshoot 2.3× with no new machinery;
+   rate ∝ warming excess (C) is marginally better; a time power law fits best and is
+   disqualified as temperature-blind. **But size, not shape, is the binding
+   constraint** — every physics-tracking form gives ~19 cm on our ssp585 at 2300
+   against the shipped 195.9.
+2b. **`r2300` RUN 2026-08-21d** and it changes the diagnosis: the base model's
+   deficit is a **TIMESCALE**, not a gain. Under constant forcing the physics climbs
+   26.7 cm/century over 2200-2300 and ours manages 3.7 (7.2×). Error is high early
+   (1.18× at 2100) and low late (0.49× at 2300) on BOTH families. **The next
+   structural question is the slow channel's relaxation time, not the tap.**
 3. **The τ axis of the priced grid should be extended** regardless of form —
    200 yr is the ceiling and it is not slow enough to reach the physics.
+3b. **A bracket for our own ssp585 now exists**: r2300 5.61 K → 72.3 cm and x2300
+   13.59 K → 234.4 cm, interpolating to ~100 cm (70-230) at our 6.95 K. Untapped 50.0
+   is LOW; the shipped 230.3 is ~2.3× the central and 2.1× the r2300 p95. So the tap's
+   EXISTENCE is supported; its SIZE looks ~2× high and its TIMING wrong by ~150 yr.
 4. **Per-basin check still available and still unused**: `scalars_rm_GIS` carries
    IMBIE2-Rignot basins, so **NO+NE is exactly our high basin** — a direct physics
    check on the tap's own basin rather than the sheet total.
