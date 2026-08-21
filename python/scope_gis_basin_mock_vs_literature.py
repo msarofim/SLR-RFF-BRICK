@@ -62,9 +62,16 @@ from scope_gis_2300_relaxation import (  # noqa: E402
 LADRILLO_TAG = ridge.LADRILLO_TAG
 POST, TARGETS = ridge.POST, ridge.TARGETS
 HIND, HIND_DRIVER, SSPS = ridge.HIND, ridge.HIND_DRIVER, ridge.SSPS
-LIT_2300_M = ridge.LIT_2300_M
+## 2026-08-21g: the 2300 bands come from gis_targets, which carries BOTH the raw
+## literature set and the forcing-matched one. Default MATCHED. This scorecard has
+## NOT been re-run under the matched set (see the 2026-08-21g handoff §5) -- the
+## banner below is what makes that visible the moment anyone does.
+import gis_targets  # noqa: E402
+LIT_2300_M, TARGET_SET = gis_targets.from_argv(sys.argv)
+TARGET_WORD = gis_targets.SET_WORD[TARGET_SET]
 RIDGE_CSV = ridge.OUT
-OUT = os.path.join(REPO, "outputs/scope_gis_basin_mock_vs_literature.csv")
+OUT = gis_targets.out_path(
+    os.path.join(REPO, "outputs/scope_gis_basin_mock_vs_literature.csv"), TARGET_SET)
 
 G4_DEGRADE_TOL = ridge.G4_DEGRADE_TOL        # >15% change in 2100 spread = broken
 REPRO_TOL = 1e-9
@@ -210,8 +217,8 @@ def main():
     winners = df[df.all_pass]
 
     # ---- census: which constraint kills the failing cells -------------------
-    lit_lo = LIT_2300_M["SSP5-8.5"][0] / LIT_2300_M["SSP2-4.5"][1]
-    lit_hi = LIT_2300_M["SSP5-8.5"][1] / LIT_2300_M["SSP2-4.5"][0]
+    lit_lo, lit_hi = gis_targets.ratio_band(LIT_2300_M)
+    print("  " + gis_targets.banner(TARGET_SET).replace("\n", "\n  "))
     print(f"=== CENSUS — {len(df)} cells ===\n")
     for crit, ok in [("SSP1-2.6 band @2300", df["in_band_SSP1-2.6"]),
                      ("SSP2-4.5 band @2300", df["in_band_SSP2-4.5"]),

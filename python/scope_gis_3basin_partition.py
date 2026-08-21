@@ -147,9 +147,17 @@ GT_PER_MM_SLE = 361.8
 MOUGINOT_WIN = lit.DORMANCY_WIN            # (1972, 2018)
 CALIB_WIN = ridge.HIND                     # (1900, 2025)
 POST, TARGETS = ridge.POST, ridge.TARGETS
-LIT_2300_M, G4_DEGRADE_TOL = ridge.LIT_2300_M, ridge.G4_DEGRADE_TOL
+## 2026-08-21g: the 2300 bands come from gis_targets, which carries BOTH the raw
+## literature set and the forcing-matched one. Default MATCHED. This scorecard has
+## NOT been re-run under the matched set (see the 2026-08-21g handoff §5) -- the
+## banner below is what makes that visible the moment anyone does.
+import gis_targets  # noqa: E402
+LIT_2300_M, TARGET_SET = gis_targets.from_argv(sys.argv)
+TARGET_WORD = gis_targets.SET_WORD[TARGET_SET]
+G4_DEGRADE_TOL = ridge.G4_DEGRADE_TOL
 RIDGE_CSV, REPRO_TOL = ridge.OUT, 1e-9
-OUT = os.path.join(REPO, f"outputs/scope_gis_3basin_partition{CONFIG_TAG}.csv")
+OUT = gis_targets.out_path(
+    os.path.join(REPO, f"outputs/scope_gis_3basin_partition{CONFIG_TAG}.csv"), TARGET_SET)
 
 # the tap grid — mid has NO tap now, so this is the high basin only
 TAP_ONSET_K = [4.0, 5.0, 6.0, 7.0]         # GMT K rel 1850-1900

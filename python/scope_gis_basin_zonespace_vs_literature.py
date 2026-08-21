@@ -99,7 +99,14 @@ CHOICE_TAG = (f"mid={ZONE_OF['mid']}, high={ZONE_OF['high']}, amp={AMP_WINDOW}, 
 LADRILLO_TAG = mock.LADRILLO_TAG
 POST, TARGETS = mock.POST, mock.TARGETS
 HIND, HIND_DRIVER = mock.HIND, mock.HIND_DRIVER
-LIT_2300_M, RIDGE_CSV = mock.LIT_2300_M, mock.RIDGE_CSV
+## 2026-08-21g: the 2300 bands come from gis_targets, which carries BOTH the raw
+## literature set and the forcing-matched one. Default MATCHED. This scorecard has
+## NOT been re-run under the matched set (see the 2026-08-21g handoff §5) -- the
+## banner below is what makes that visible the moment anyone does.
+import gis_targets  # noqa: E402
+LIT_2300_M, TARGET_SET = gis_targets.from_argv(sys.argv)
+TARGET_WORD = gis_targets.SET_WORD[TARGET_SET]
+RIDGE_CSV = mock.RIDGE_CSV
 G4_DEGRADE_TOL, REPRO_TOL = mock.G4_DEGRADE_TOL, mock.REPRO_TOL
 GMT_2300_EXPECT, GMT_2300_TOL = mock.GMT_2300_EXPECT, mock.GMT_2300_TOL
 T_ON_MID, T_ON_HIGH = mock.T_ON_MID, mock.T_ON_HIGH
@@ -107,7 +114,8 @@ V_TOT, MID_SHARE, TAU = mock.V_TOT, mock.MID_SHARE, mock.TAU
 RAMP_W_GMT_K = mock.RAMP_W
 
 GMT_MOCK_CSV = mock.OUT
-OUT = os.path.join(REPO, "outputs/scope_gis_basin_zonespace_vs_literature.csv")
+OUT = gis_targets.out_path(
+    os.path.join(REPO, "outputs/scope_gis_basin_zonespace_vs_literature.csv"), TARGET_SET)
 INERT_TOL = 0.0            # choice-3 gate Z3: dormant loss on ssp126/245 must be 0
 MAP_SSP = "SSP5-8.5"       # the only scenario reaching the onsets (mock F3)
 
@@ -312,8 +320,8 @@ def main():
 
     df = pd.DataFrame(rows)
     winners = df[df.all_pass]
-    lit_lo = LIT_2300_M["SSP5-8.5"][0] / LIT_2300_M["SSP2-4.5"][1]
-    lit_hi = LIT_2300_M["SSP5-8.5"][1] / LIT_2300_M["SSP2-4.5"][0]
+    lit_lo, lit_hi = gis_targets.ratio_band(LIT_2300_M)
+    print("  " + gis_targets.banner(TARGET_SET).replace("\n", "\n  "))
 
     print(f"=== CENSUS — {len(df)} cells ===\n")
     for crit, ok in [("SSP1-2.6 band @2300", df["in_band_SSP1-2.6"]),
