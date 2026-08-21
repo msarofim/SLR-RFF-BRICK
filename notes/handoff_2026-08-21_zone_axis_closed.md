@@ -6,7 +6,7 @@ Predecessor: `handoff_2026-08-20e_tap_wired.md`. Companion:
 
 ---
 
-## 0. THE STATE, in seven lines
+## 0. THE STATE, in eight lines
 
 * **L14 remains CANONICAL.** Nothing this session changed a shipped number.
   SLR@2100 45.01 cm / @2150 70.58 cm.
@@ -15,9 +15,11 @@ Predecessor: `handoff_2026-08-20e_tap_wired.md`. Companion:
 * **Per-basin drivers TESTED and REJECTED** — central/north costs hindcast
   fidelity and buys exactly no separation. See §2.
 * **Four defects fixed** (figure KeyError, stale audit fixture, unpassed
-  `$ADCOV` x2, nameless covariances quarantined). See §3.
+  `$ADCOV` x2, nameless covariances quarantined). See §5.
+* **The TAP ADMISSIBLE-SET ARM is BUILT** and repriced on L14. The cell choice is
+  4.4x the reported posterior spread at 2300, and **2150 is not protected**. See §3.
 * **The Greenland reparameterisation is DRAFTED, not built** — and its stated
-  objective was wrong. See §4.
+  objective was wrong. See §5.
 * **20 unconverged marginals are an AIS problem, measured.** Greenland's worst
   is R-hat 1.031. See §4.
 * Nothing is running. Working tree clean at the commit this note lands in.
@@ -121,7 +123,70 @@ a chain. The P1 degradation is not subject to that caveat and is sufficient to s
 
 ---
 
-## 3. DEFECTS CLOSED THIS SESSION
+## 3. THE TAP ADMISSIBLE-SET ARM — built, and 2150 is NOT protected
+
+The tap is a PRIOR SPECIFICATION, not a fit, and **25 grid cells clear every
+pre-registered 2300 gate**. Shipping one as a point estimate omitted the LARGER
+of the two uncertainties.
+
+**Repriced on L14 first.** `scope_gis_tap_l13.py` gains `--tag=`; two-basin
+structure is detected FROM THE POSTERIOR (L14 has no `gis_s_mid`), shares then
+mirroring julia `GIS2_VSHARE` exactly. **L13 default reproduces BIT-IDENTICALLY.**
+The set is stable across the vintage — same 25 cells, identical membership, band
+width identical at 1.180 m, everything shifted +0.020 m. Cross-check: the pricing
+script puts the shipped cell at 2.303 m, exactly the tapped projection's
+Greenland@2300 median of 230.27 cm, two codebases agreeing.
+
+**The arm.** `project_ssps_components_ladrillo.jl --tap-set` runs the set and
+writes per-cell series + an ENVELOPE. Cell band and posterior p05-p95 are reported
+**SEPARATELY and never summed** — one is posterior spread, the other a choice among
+admissible priors. It ERRORS if `GIS_TAP_CELL` is not a member (if the shipped cell
+stops clearing the gates that is a finding, not a band to recentre). Non-set runs
+keep the original schema.
+
+| ssp585 (cm) | shipped | cell band | width | posterior p05-p95 |
+|---|---|---|---|---|
+| 2100 gis | 13.9 | [13.9, 13.9] | **0.0** | 4.8 |
+| 2150 gis | 28.2 | [28.2, **139.5**] | **111.3** | 11.5 |
+| 2300 gis | 230.3 | [175.3, 293.3] | **118.0** | 26.9 |
+| 2300 total | 649.7 | [594.3, 713.9] | 119.6 | 253.8 |
+
+**1. The 2100 deliverable is safe across the WHOLE set** — band exactly 0.0 at 2100
+on every scenario, and exactly 0.0 at every horizon on ssp126/ssp245. The wiring
+gates showed that for one cell; it holds for all 25.
+
+**2. The 2150 horizon is NOT protected, and this qualifies the design principle.**
+The cell was chosen so as not to move a horizon with independent validation, and
+the shipped cell does not move 2150 (28.2 cm = untapped). That property belongs to
+the ONSET, not to admissibility:
+
+| onset | 2150 gis (cm) |
+|---|---|
+| 6.5, 7.0 | 28.2 (untapped) |
+| 6.0 | 31.8 - 41.9 |
+| 5.5 | 45.3 - 87.7 |
+| 5.0 | 62.7 - 139.5 |
+
+**15 of 25 admissible cells move 2150, by up to 5x**, and the shipped cell is TIED
+AT THE MINIMUM (rank 6 of 25). So the published 2150 tapped number is the most
+CONSERVATIVE admissible choice, not a central one. The 2300 gates that admitted the
+other 24 never required the 2150 property.
+
+**PRICED, so the decision is informed** — restricting the set to onset >= 6.5:
+
+| | all 25 | onset >= 6.5 (6 cells) |
+|---|---|---|
+| 2150 gis band | 111.3 cm | **0.0 cm** |
+| 2300 gis band | 118.0 cm | 90.2 cm (**-24%**) |
+| separation ratio | 9.57 - 16.01x | 10.12 - 15.04x |
+
+Full 2150 protection costs only 24% of the 2300 band and keeps the ratio well
+inside the literature's 7.9-31.9x. **RECOMMENDED: adopt it** — the design principle
+that chose the central cell should govern the SET, or the band admits cells that
+principle would have rejected. Marcus's call; not applied.
+
+
+## 4. DEFECTS CLOSED THIS SESSION
 
 1. **`gis_offline_cell.py` `make_figure` KeyError 'A+B+C+D'** — the style table
    listed 8 cells while `CELLS` has had 11 since option D landed 2026-08-16, so
@@ -150,7 +215,7 @@ a chain. The P1 degradation is not subject to that caveat and is sufficient to s
 
 ---
 
-## 4. THE GREENLAND REPARAMETERISATION — drafted, and its premise was WRONG
+## 5. THE GREENLAND REPARAMETERISATION — drafted, and its premise was WRONG
 
 Full spec: `spec_2026-08-21_greenland_reparameterisation.md`.
 
@@ -182,17 +247,29 @@ in the spec (prior-equivalence) is the one to get right.
 
 ---
 
-## 5. NEXT — a choice, in the order I would take it
+## 6. NEXT — recommended order
 
-1. **DECIDE THE ZONE.** My recommendation: **stay on `south`, drop L15.** The zone
-   axis has now cost two investigations and returned nothing that improves the model,
-   and `all`'s `alpha_s` rail actively hurts the separation problem.
-2. **If the reparameterisation proceeds**, build §4's gates FIRST and pre-register
-   the ESS metric — its success criterion is NOT R-hat, which has no room to move.
-3. **The general nameless-covariance gate** (§3 item 4), landed with a run-test.
-4. **Re-price the tap if its cell moves.** Unchanged from 20e.
+1. **DECIDE THE 2150 GATE (§3).** Cheapest decision with the largest effect on what
+   gets published, and it is already priced: adopting "must not move 2150" collapses
+   the set to 6 cells, takes the 2150 band from 111.3 cm to **exactly 0.0**, costs
+   only **24%** of the 2300 band, and leaves the separation ratio at 10.12-15.04x,
+   well inside the literature's 7.9-31.9x. My recommendation is to adopt it: the
+   design principle that selected the central cell should govern the SET too.
+   Mechanically it is one filter on `outputs/gis_tap_admissible_L14.csv` plus a
+   re-run of `--tap-set` (~18 min), no recalibration.
+2. **THEN propagate tapped numbers to the other deliverables** (20e §4 item 4 —
+   only `project_ssps_components_ladrillo.jl` has a tap arm). Do this AFTER 1, so
+   what propagates is the settled band rather than a point estimate that will move.
+3. **The general nameless-covariance gate** (§4 item 4), landed with a run-test.
+4. **The Greenland reparameterisation (§5) — LOW priority.** It buys ESS on a block
+   whose worst R-hat is 1.031, costs ~7 h of runs, and moves no shipped number.
+5. **Re-price the tap if its cell moves.** Unchanged from 20e.
 
-## 6. STILL OPEN, unchanged from 20e
+**NOT on this list, deliberately:** the zone axis (§1, §2). It has now cost two
+investigations and returned nothing that improves the model. Marcus decided
+2026-08-21 to stay on `south`; L15 is dropped.
+
+## 7. STILL OPEN, unchanged from 20e
 
 * D2G / D2S arms — whether re-run; bounded at ~2% of the steric effect.
 * `diag_l13_projection_variant.jl` still hard-requires `:basins`.
@@ -200,7 +277,7 @@ in the spec (prior-equivalence) is the one to get right.
   specific number is wanted at L14. Blanket-repointing relabels old measurements.
 * Base G4 = 7.42 cm sits 0.12 cm above the four comparison models' 6.3-7.3 range.
 
-## 7. TRAPS ADDED TODAY
+## 8. TRAPS ADDED TODAY
 
 * **A pipeline's exit code is its LAST command's.** `python3 ... | tee log | tail`
   reported exit 0 while Python died with a traceback; I reported a clean run that was
@@ -211,6 +288,12 @@ in the spec (prior-equivalence) is the one to get right.
   Gate its inputs at import, where it costs a second.
 * **The shell cwd resets between calls.** Relative paths silently pointed at
   `FaIRtoFrEDI/`; I briefly believed an output file had vanished. Use absolute paths.
+* **A gate keyed to ONE vintage fails loudly on the next, and the failure looks
+  like a code fault.** G1's reference was hardcoded to L13 (`s_high` 0.2644 vs
+  L14's 0.2265), and then its POOLING differed too (L13's julia log is one chain,
+  L14's is "4 chain(s) POOLED"). Both were real differences; neither was fixed by
+  widening a tolerance. Key the reference by vintage, and record HOW it was
+  produced, not just its value.
 * **Check the ACTUAL numbers before repeating a handoff's characterisation.** "The
   cheapest win on convergence" and "20e's (ell,w) values" were both wrong, and both
   took one measurement to falsify.
