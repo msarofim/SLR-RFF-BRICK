@@ -184,7 +184,44 @@ with the `rms_log_misfit` column, `greenland_3basin_component.jl` untouched unti
 (a) 2100 must not move, (b) the V0 clip's role, (c) the hindcast does NOT come free
 the way it does for k.
 
-### 3.1 The one NEW measurement this session makes possible, and it is cheap
+### 3.1 DONE 2026-08-21i — the cool arms are IN the shape scorecard, and the answer is quantified
+
+`python/build_protect_cool_forcing.py` (three drivers) +
+`python/scope_gis_shape_all_scenarios.py` (5 arms, 20 horizons). Every arm runs our
+model on THAT arm's forcing against THAT arm's runs — scenario AND family matched
+on both sides.
+
+| | best k | score | at k = 1 |
+|---|---|---|---|
+| ssp585 arms (the published scan's own 8 horizons, reproduced exactly) | **3** | 0.293 | 0.497 |
+| cool arms (12 new horizons) | **0.75** | 0.229 | 0.262 |
+| all five (**NOT** comparable to 0.293) | 1 | 0.374 | — |
+
+**The argmins disagree**, costing each other 2.23× / 2.96× in the other's metric —
+a scale cannot serve both, confirming §3's premise rather than assuming it.
+**But the shipped model is not symmetrically placed: at k = 1 it is 1.14× off the
+COOL optimum and 1.70× off the ssp585 one.** Essentially all the deficiency is on
+the warm arm, so the correction must act SELECTIVELY there.
+
+**Selectivity, measured twice.** A term ∝ `L/V0` has **4.1×** more leverage on the
+warmest arm than any cool one — but the arms **bracket** our ssp585 (5.61 and
+13.63 K vs our 7.81) rather than matching it, so on **our own deliverable drivers**
+it is **2.3×** (ssp585 0.0753 vs ssp245 0.0327). **Do not quote 4.1× for the
+deliverable.** Sizing for the offline grid, not a fit: a 2× late-rate boost needs
+γ ~ **13** on the total-V0 basis, and the cool arms move **0.43** of that. That is
+the trade γ has to beat, and 2.3× is *modest* — γ is not guaranteed to clear it.
+**Run it; do not assume it.**
+
+Six gates, all passing: splice arithmetic 1.8e-15, hold construction 4.4e-16
+(UKESM1-0-LL not cached and reported as NOT checked), ssp585 reproduction 2.8e-14
+cm, rel-2015 offset scenario-invariant (spread 0.0000 cm, measured), hindcast
+history choice 0.000 cm, and **band composition == forcing composition per GCM per
+arm** — which caught a live counting trap: a PROTECT *run* is a
+`(group, model, exp)` triple, and counting unique `exp` NAMES undercounts x2300 by
+a third (12 vs 18 at ssp585, 4 vs 6 at ssp126) because one experiment name appears
+under several ice-sheet-model directories.
+
+### 3.2 SUPERSEDED — the original framing of §3.1, kept for provenance
 
 The shape scorecard currently runs **ssp585 arms only**. The cool-scenario PROTECT
 long runs and their forcing paths now exist
