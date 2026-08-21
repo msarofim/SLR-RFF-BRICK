@@ -1,0 +1,63 @@
+PROTECT x2300 matched-forcing | posterior parameters_subsample_brick_mengel_L14.csv (2000 draws) | Greenland :basins2 | SSP5-8.5 | 1 cell(s) | PROTECT arms 11-yr centred
+  amp law: gis_amp_shape_fullcurve, fitted support 0.75-5.75 K, FLAT-HELD above it | amp*S high-dT = 1.586
+  GIS ONLY — OHC is left on ours, so te/total from this driver are meaningless.
+....
+ours     onset 6.5 K V 2.0 m tau 50 yr | 2000 draws in 15s
+  @2100 GMST +4.69 | gis   14.2 [  11.8,   16.7] cm
+  @2150 GMST +6.40 | gis   27.0 [  21.9,   32.8] cm
+  @2300 GMST +7.81 | gis  228.0 [ 217.4,  242.9] cm
+....
+spliced  onset 6.5 K V 2.0 m tau 50 yr | 2000 draws in 12s
+  @2100 GMST +6.51 | gis   19.1 [  15.5,   23.1] cm
+  @2150 GMST +9.77 | gis  159.0 [ 150.0,  169.5] cm
+  @2300 GMST +13.63 | gis  282.0 [ 261.5,  311.2] cm
+....
+raw      onset 6.5 K V 2.0 m tau 50 yr | 2000 draws in 13s
+  @2100 GMST +6.68 | gis   19.4 [  15.8,   23.4] cm
+  @2150 GMST +9.94 | gis  162.4 [ 153.5,  172.9] cm
+  @2300 GMST +13.80 | gis  282.1 [ 261.7,  311.3] cm
+
+wrote outputs/diag_protect_forcing_matched_L14_shapefullcurve.csv
+=== UNTAPPED ===
+PROTECT x2300 matched-forcing | posterior parameters_subsample_brick_mengel_L14.csv (2000 draws) | Greenland :basins2 | SSP5-8.5 | 1 cell(s) | PROTECT arms 11-yr centred
+  amp law: gis_amp_shape_fullcurve, fitted support 0.75-5.75 K, FLAT-HELD above it | amp*S high-dT = 1.586
+  TAP OFF (v = 0) — this arm measures the BASE Greenland model only.
+  GIS ONLY — OHC is left on ours, so te/total from this driver are meaningless.
+....
+ours     onset 6.5 K V 2.0 m tau 50 yr | 2000 draws in 17s
+  @2100 GMST +4.69 | gis   14.2 [  11.8,   16.7] cm
+  @2150 GMST +6.40 | gis   27.0 [  21.9,   32.8] cm
+  @2300 GMST +7.81 | gis   47.7 [  37.1,   62.5] cm
+....
+spliced  onset 6.5 K V 2.0 m tau 50 yr | 2000 draws in 13s
+  @2100 GMST +6.51 | gis   19.1 [  15.5,   23.1] cm
+  @2150 GMST +9.77 | gis   42.9 [  33.9,   53.4] cm
+  @2300 GMST +13.63 | gis   86.1 [  65.6,  115.3] cm
+....
+raw      onset 6.5 K V 2.0 m tau 50 yr | 2000 draws in 13s
+  @2100 GMST +6.68 | gis   19.0 [  15.4,   23.0] cm
+  @2150 GMST +9.94 | gis   42.8 [  33.8,   53.3] cm
+  @2300 GMST +13.80 | gis   86.0 [  65.5,  115.2] cm
+
+wrote outputs/diag_protect_forcing_matched_L14_shapefullcurve_untapped.csv
+=== OUR OWN SSPs, TAPPED (shipped cell) ===
+Ladrillo SSP components | posterior parameters_subsample_brick_mengel_L14.csv (2000 draws) | Greenland :basins2 | base 1995-2014 | horizon 2300
+........
+SSP1-2.6  2000 draws in 15s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 12s
+  @2100 GMST +2.74 | glac  10.0  gis   8.4  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.6,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.6  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.9 [ 64.8,  127.9] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  19.1  ais  131.4  te  41.9  lws  8.5 | TOTAL  220.0 [108.5,  324.0] cm  (finite 2000/2000)
+........[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 6.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 6.5 K — the tap will not fire on this scenario. Expected for cool scenarios.
+
+SSP5-8.5  2000 draws in 13s
+  @2100 GMST +4.69 | glac  14.3  gis  14.2  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.9 [ 81.7,  111.0] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  27.0  ais   94.3  te  49.7  lws  4.2 | TOTAL  197.4 [171.5,  227.3] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis 228.0  ais  283.2  te  99.7  lws  8.5 | TOTAL  647.4 [576.9,  726.4] cm  (finite 2000/2000)
+
+wrote outputs/ssps_components_2300_L14_tap6p5K_V2p0m_tau50_shapefullcurve.csv

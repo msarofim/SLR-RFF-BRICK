@@ -70,8 +70,16 @@ const SUF        = UNSMOOTHED ? "" : "_11yr"
 const TAG        = let b = basename(LADRILLO_POSTERIOR_CSV)
     replace(replace(b, "parameters_subsample_brick_mengel_" => ""), ".csv" => "")
 end
+## THE SHAPE TABLE IS IN THE FILENAME. `LADRILLO_GIS_SHAPE` swaps the amp(GMST)
+## law for a pre-registered sensitivity arm, and a fullcurve run and a default run
+## are otherwise identical in schema, units and header — so without this, running
+## the arm OVERWRITES the deliverable with a sensitivity result under the
+## deliverable's own name. Default resolves to "" so default runs keep their exact
+## pre-existing filenames and are bit-identical.
+const SHAPE_TAG = LADRILLO_GIS_SHAPE_STEM == "gis_amp_shape" ? "" :
+    "_" * replace(LADRILLO_GIS_SHAPE_STEM, "gis_amp_shape_" => "shape")
 const OUT = joinpath(LADRILLO_REPO,
-    "outputs/diag_protect_forcing_matched_$(TAG)$(DO_SET ? "_set" : "")$(isempty(SCAN_CSV) ? "" : "_scan")$(UNTAPPED ? "_untapped" : "")$(UNSMOOTHED ? "_raw" : "").csv")
+    "outputs/diag_protect_forcing_matched_$(TAG)$(SHAPE_TAG)$(DO_SET ? "_set" : "")$(isempty(SCAN_CSV) ? "" : "_scan")$(UNTAPPED ? "_untapped" : "")$(UNSMOOTHED ? "_raw" : "").csv")
 
 const FORCING = joinpath(LADRILLO_REPO, "outputs/protect_x2300_forcing_gmst.csv")
 isfile(FORCING) || error("no $FORCING — run python3 python/build_protect_x2300_forcing.py")
@@ -119,6 +127,9 @@ post = ladrillo_posterior(path=LADRILLO_POSTERIOR_CSV, nthin=NTHIN)
 @printf("PROTECT x2300 matched-forcing | posterior %s (%d draws) | Greenland :%s | %s | %d cell(s) | %s\n",
         basename(LADRILLO_POSTERIOR_CSV), nrow(post), VARIANT, LABEL, length(CELLS),
         UNSMOOTHED ? "PROTECT arms ANNUAL (unsmoothed)" : "PROTECT arms 11-yr centred")
+@printf("  amp law: %s, fitted support %.2f-%.2f K, FLAT-HELD above it | amp*S high-dT = %.3f\n",
+        LADRILLO_GIS_SHAPE_STEM, _GIS_SHAPE_META.dt_min, _GIS_SHAPE_META.dt_max,
+        1.922 * ladrillo_gis_shape(99.0))
 UNTAPPED && println("  TAP OFF (v = 0) — this arm measures the BASE Greenland model only.")
 println("  GIS ONLY — OHC is left on ours, so te/total from this driver are meaningless.")
 

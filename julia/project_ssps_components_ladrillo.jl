@@ -88,7 +88,15 @@ isfile(POSTERIOR) || error("no posterior for --tag=$POST_TAG at $POSTERIOR")
 POST_TAG != DEFAULT_TAG || POSTERIOR == LADRILLO_POSTERIOR_CSV ||
     error("the default tag '$DEFAULT_TAG' resolved to $POSTERIOR, which is not " *
           "LADRILLO_POSTERIOR_CSV ($LADRILLO_POSTERIOR_CSV)")
-const OUT      = joinpath(LADRILLO_REPO, "outputs/ssps_components_2300_$(TAG).csv")
+## THE SHAPE TABLE IS IN THE FILENAME. `LADRILLO_GIS_SHAPE` swaps the amp(GMST)
+## law for a pre-registered sensitivity arm, and a fullcurve run and a default run
+## are otherwise identical in schema, units and header — so without this, running
+## the arm OVERWRITES the deliverable with a sensitivity result under the
+## deliverable's own name. Default resolves to "" so default runs keep their exact
+## pre-existing filenames and are bit-identical.
+const SHAPE_TAG = LADRILLO_GIS_SHAPE_STEM == "gis_amp_shape" ? "" :
+    "_" * replace(LADRILLO_GIS_SHAPE_STEM, "gis_amp_shape_" => "shape")
+const OUT      = joinpath(LADRILLO_REPO, "outputs/ssps_components_2300_$(TAG)$(SHAPE_TAG).csv")
 const SSPS     = [("ssp126", "SSP1-2.6"), ("ssp245", "SSP2-4.5"), ("ssp585", "SSP5-8.5")]
 const HORIZONS = (2100, 2150, 2300)
 const COMPONENTS = [:glaciers, :gis, :ais, :te, :lws, :total]
@@ -210,7 +218,7 @@ if TAP_SET
                     maximum(meds) - minimum(meds), sh.p05[1], sh.p95[1],
                     sh.p95[1] - sh.p05[1], count(m)))
     end
-    ENVOUT = replace(OUT, "_tapset.csv" => "_tapset_envelope.csv")
+    ENVOUT = replace(OUT, "_tapset$(SHAPE_TAG).csv" => "_tapset$(SHAPE_TAG)_envelope.csv")
     CSV.write(ENVOUT, env)
     println("wrote ", relpath(ENVOUT, LADRILLO_REPO))
     println("\n=== CELL-CHOICE BAND vs SAMPLED SPREAD (cm) — reported separately ===")
