@@ -90,17 +90,66 @@ from scope_gis_2300_relaxation import (  # noqa: E402
 from diag_gis_zone_driver_scope import amp_mean, shape_fun, zone_driver  # noqa: E402
 
 # --- the design, as named constants -----------------------------------------
-DRIVER_ZONE = "all"            # single Greenland amp; geometry lives in the likelihood
+# PER-BASIN DRIVERS (Marcus 2026-08-21). The shipped design puts ONE driver under
+# every basin -- "geometry lives in the likelihood" -- and the component header
+# books the cost: "a single amp assumes the basin temperature RATIOS stay fixed,
+# and they do not (north amp 2.83 vs south 1.92). Cheap to revisit -- the per-zone
+# drivers exist and are guard-proved." Measured 2026-08-21, the ratio does not
+# merely drift, it REVERSES: regressing north on south through the origin gives
+# 0.795 (1900-1959), 0.807 (1960-1999), 1.292 (2000-2024). North used to be COOLER
+# than south and is now HOTTER, so no single (driver, amp) can serve both halves
+# of the calibration window.
+#
+# --basin-zones maps each basin to its own zone column of t_gis_zones.csv. The
+# DEFAULT is every basin on REF_ZONE, i.e. exactly the shipped single-driver
+# design, so an unflagged run is bit-identical to the committed analysis.
+REF_ZONE = "all"               # whole-sheet reference; the single-driver default
 AMP_WINDOW = "full"            # matches the shipped south choice
-BASINS = {"south": ("SW", "CW", "CE", "SE"), "mid": ("NW",), "high": ("NO", "NE")}
+BASINS3 = {"south": ("SW", "CW", "CE", "SE"), "mid": ("NW",), "high": ("NO", "NE")}
+# The TWO-basin configuration, matching canonical L14: NW merges into the active
+# basin (julia/greenland_3basin_component.jl GIS2_VSHARE), high is untouched.
+BASINS2 = {"south": ("SW", "CW", "CE", "SE", "NW"), "high": ("NO", "NE")}
 TAPPED = "high"                # only NO+NE gets a volume tap
+
+_ARGS = sys.argv[1:]
+TWO_BASIN = "--basins2" in _ARGS
+BASINS = BASINS2 if TWO_BASIN else BASINS3
+
+_bz = next((a.split("=", 1)[1] for a in _ARGS
+            if a.startswith("--basin-zones=")), None)
+ZONE_CHOICES = ("south", "all", "central", "north")
+if _bz is None:
+    BASIN_ZONE = {b: REF_ZONE for b in BASINS}
+else:
+    BASIN_ZONE = {b: REF_ZONE for b in BASINS}
+    for tok in _bz.split(","):
+        if ":" not in tok:
+            raise SystemExit(f"--basin-zones entry {tok!r} is not <basin>:<zone>")
+        b, z = tok.split(":", 1)
+        if b not in BASINS:
+            raise SystemExit(f"--basin-zones names basin {b!r}; this run has "
+                             f"{sorted(BASINS)}")
+        if z not in ZONE_CHOICES:
+            raise SystemExit(f"--basin-zones gives zone {z!r}, not one of "
+                             f"{ZONE_CHOICES}")
+        BASIN_ZONE[b] = z
+
+# A per-basin-driver run is a DIFFERENT measurement from the shipped single-driver
+# one. Same discipline as goc.zoned(): the unsuffixed artefact is the provenance of
+# the shipped design and must not be overwritten. Running a vintage-parameterised
+# tool over a vintage-free path already destroyed two committed analyses once
+# (handoff 2026-08-20e section 5), so the tag is derived, not optional.
+_MULTI = len(set(BASIN_ZONE.values())) > 1 or set(BASIN_ZONE.values()) != {REF_ZONE}
+CONFIG_TAG = ("" if not (TWO_BASIN or _MULTI) else
+              ("_b2" if TWO_BASIN else "_b3")
+              + "_" + "-".join(f"{b}{BASIN_ZONE[b][0]}" for b in sorted(BASIN_ZONE)))
 GT_PER_MM_SLE = 361.8
 MOUGINOT_WIN = lit.DORMANCY_WIN            # (1972, 2018)
 CALIB_WIN = ridge.HIND                     # (1900, 2025)
 POST, TARGETS = ridge.POST, ridge.TARGETS
 LIT_2300_M, G4_DEGRADE_TOL = ridge.LIT_2300_M, ridge.G4_DEGRADE_TOL
 RIDGE_CSV, REPRO_TOL = ridge.OUT, 1e-9
-OUT = os.path.join(REPO, "outputs/scope_gis_3basin_partition.csv")
+OUT = os.path.join(REPO, f"outputs/scope_gis_3basin_partition{CONFIG_TAG}.csv")
 
 # the tap grid — mid has NO tap now, so this is the high basin only
 TAP_ONSET_K = [4.0, 5.0, 6.0, 7.0]         # GMT K rel 1850-1900
@@ -133,16 +182,28 @@ def tap_unit(G, t_on, tau):
 def main():
     post = pd.read_csv(POST)
     pa = ridge.native_greenland(post.median(numeric_only=True), ridge.gis_tbar())
-    S_all = shape_fun(DRIVER_ZONE)
-    amp = amp_mean(DRIVER_ZONE, AMP_WINDOW)
+    zones_used = sorted(set(BASIN_ZONE.values()) | {REF_ZONE})
+    S_z = {z: shape_fun(z) for z in zones_used}
+    amp_z = {z: amp_mean(z, AMP_WINDOW) for z in zones_used}
+    amp = amp_z[REF_ZONE]
 
-    drivers, gmt = {}, {}
+    # zdrivers[zone][scenario]; `drivers` stays the REF_ZONE whole-sheet series so
+    # every single-basin reference (P2 s_shipped, P1 control) is unchanged and
+    # stays comparable across arms.
+    zdrivers, gmt = {z: {} for z in zones_used}, {}
     for ssp, lab in SSPS:
         _, rb = gmst_rebased(ssp)
         gmt[lab] = rb
-        drivers[lab], _ = zone_driver(rb, DRIVER_ZONE, amp, S_all)
-    T_hind = drivers[dict(SSPS)[ridge.HIND_DRIVER]]
+        for z in zones_used:
+            zdrivers[z][lab], _ = zone_driver(rb, z, amp_z[z], S_z[z])
+    drivers = zdrivers[REF_ZONE]
+    # each basin sees ITS OWN zone
+    bdrv = {b: zdrivers[BASIN_ZONE[b]] for b in BASINS}
+    hind_lab = dict(SSPS)[ridge.HIND_DRIVER]
+    T_hind = drivers[hind_lab]
+    T_hind_b = {b: bdrv[b][hind_lab] for b in BASINS}
 
+    idx2015_24 = np.isin(YEARS, np.arange(2015, 2025))
     idx = {y: int(np.where(YEARS == y)[0][0])
            for y in (CALIB_WIN[0], CALIB_WIN[1], MOUGINOT_WIN[0], MOUGINOT_WIN[1],
                      2100, 2300)}
@@ -159,10 +220,20 @@ def main():
           for b, secs in BASINS.items()}
     vshare = {b: v0[b] / sum(v0.values()) for b in BASINS}
 
-    print("THREE BASINS ON ONE GREENLAND DRIVER — can they hold the partition "
-          "AND the total?")
-    print(f"  driver zone {DRIVER_ZONE!r}, single amp {amp:.4f} ({AMP_WINDOW}); "
-          f"sectors = the likelihood's geometry")
+    _nb = "TWO" if TWO_BASIN else "THREE"
+    _one = len(set(BASIN_ZONE.values())) == 1
+    print(f"{_nb} BASINS ON {'ONE GREENLAND DRIVER' if _one else 'PER-BASIN DRIVERS'}"
+          f" — can they hold the partition AND the total?")
+    for b in BASINS:
+        z = BASIN_ZONE[b]
+        print(f"  {b:6s} <- zone {z:8s} amp {amp_z[z]:.4f} ({AMP_WINDOW})"
+              f"  Tbar(2015-24) {zdrivers[z]['SSP2-4.5'][idx2015_24].mean():.4f} K")
+    if _one:
+        print("  sectors = the likelihood's geometry (the shipped design)")
+    else:
+        print("  geometry now lives PARTLY IN THE DRIVERS — this is the arm "
+              "that tests whether that\n  buys anything the single-amp design "
+              "cannot.")
     print(f"  calibration total {CALIB_WIN[0]}-{CALIB_WIN[1]} = "
           f"{tot_calib_cm:.3f} cm; Mouginot window {MOUGINOT_WIN[0]}-"
           f"{MOUGINOT_WIN[1]} = {tot_mou_cm:.3f} cm")
@@ -190,20 +261,20 @@ def main():
                             idx[CALIB_WIN[0]], idx[CALIB_WIN[1]])
     rec = pd.read_csv(RIDGE_CSV).set_index("k")
     print(f"=== P2 reference — the SHIPPED single basin, refitted on the "
-          f"{DRIVER_ZONE!r} driver ===\n")
+          f"{REF_ZONE!r} driver ===\n")
     print(f"  rate scale s = {s_shipped:.4f}  (the south-driver value recorded "
           f"in the ridge k=1 row: {float(rec.loc[1.0, 'rate_scale']):.4f})")
-    print("  NOTE these are not expected to match — the driver changed from "
-          "'south' to 'all'.\n  That difference is itself part of what the "
-          "restructure costs.\n")
+    print(f"  NOTE these are not expected to match — the driver changed from "
+          f"'south' to {REF_ZONE!r}.\n  That difference is itself part of what "
+          f"the restructure costs.\n")
 
     # ---- fit each basin to its own sector loss ------------------------------
     rows, loss = [], {}
     for b in BASINS:
         want = share[b] * tot_mou_cm / 100.0
-        s_b = bisect_rate(T_hind, pa, vshare[b], want,
+        s_b = bisect_rate(T_hind_b[b], pa, vshare[b], want,
                           idx[MOUGINOT_WIN[0]], idx[MOUGINOT_WIN[1]])
-        L = ridge.ab_series(T_hind, pa, vshare[b], s_b)[0]
+        L = ridge.ab_series(T_hind_b[b], pa, vshare[b], s_b)[0]
         loss[b] = dict(s=s_b, L=L,
                        fit_cm=100.0 * (L[idx[MOUGINOT_WIN[1]]] - L[idx[MOUGINOT_WIN[0]]]),
                        want_cm=100.0 * want,
@@ -291,9 +362,9 @@ def main():
         g23 = 100.0 * (Lg[idx[2300]] - Lg[IREF].mean())
         tot = np.zeros(len(YEARS))
         for b in BASINS:
-            tot = tot + ridge.ab_series(drivers[lab], pa, vshare[b], loss[b]["s"])[0]
+            tot = tot + ridge.ab_series(bdrv[b][lab], pa, vshare[b], loss[b]["s"])[0]
         t23 = 100.0 * (tot[idx[2300]] - tot[IREF].mean())
-        sou = ridge.ab_series(drivers[lab], pa, vshare["south"],
+        sou = ridge.ab_series(bdrv["south"][lab], pa, vshare["south"],
                               loss["south"]["s"])[0]
         s23 = 100.0 * (sou[idx[2300]] - sou[IREF].mean())
         print(f"  {lab} @2300: single basin {g23:7.2f} cm   3-basin SUM "
@@ -309,7 +380,7 @@ def main():
     for _, lab in SSPS:
         tot = np.zeros(len(YEARS))
         for b in BASINS:
-            tot = tot + ridge.ab_series(drivers[lab], pa, vshare[b], loss[b]["s"])[0]
+            tot = tot + ridge.ab_series(bdrv[b][lab], pa, vshare[b], loss[b]["s"])[0]
         base23[lab] = float(tot[idx[2300]] - tot[IREF].mean())
         base21[lab] = float(tot[idx[2100]] - tot[IREF].mean())
     print(f"\n=== P3 — the 3-basin base, before any tap (m SLE rel 1995-2014) "
@@ -321,7 +392,7 @@ def main():
     g4_base = 100.0 * (base21["SSP5-8.5"] - base21["SSP1-2.6"])
 
     head_high = v0["high"] - float(np.clip(
-        vshare["high"] * (pa["gis_c1"] * drivers["SSP5-8.5"][idx[2300]]
+        vshare["high"] * (pa["gis_c1"] * bdrv["high"]["SSP5-8.5"][idx[2300]]
                           + pa["gis_c0"]), 0, v0["high"]))
     npass = 0
     for t_on in TAP_ONSET_K:
