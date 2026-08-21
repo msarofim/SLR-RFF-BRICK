@@ -222,3 +222,15 @@ outputs/quarantine/**/chain_ext_seed*.csv
 
 # GlacierMIP3 big per-experiment netCDF: untracked by design (re-fetch recipe in data/observations/raw/README_modern_extensions.md)
 data/observations/raw/gmip3/GMIP3_reg_glacier_model_data/*.nc
+
+# PROTECT-Greenland (Goelzer 2025) physics ensemble — 74 MB of tarballs + 3136
+# unpacked NetCDFs. Fetch with scripts/fetch_protect_greenland.sh; provenance and
+# md5s in data/comparison/protect_greenland/README.md. The DERIVED summary
+# (outputs/protect_greenland_gis_summary.csv) IS tracked — that is the artefact.
+data/comparison/protect_greenland/*.tgz
+data/comparison/protect_greenland/IGE/
+data/comparison/protect_greenland/IMAU/
+data/comparison/protect_greenland/NORCE/
+data/comparison/protect_greenland/VUB/
+data/comparison/protect_greenland/info_p11/
+data/comparison/protect_greenland/README.txt
