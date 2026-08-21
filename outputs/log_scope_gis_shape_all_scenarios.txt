@@ -1,0 +1,92 @@
+scope_gis_shape_all_scenarios — our model on THEIR forcing, per arm,
+  scored against THAT arm's own runs. L14, 10000 draws, arm = 'spliced'.
+
+GATE 1 — the two ssp585 arms vs scope_gis_ridge_vs_protect.csv, tol 1e-06 cm
+  GATE 1 PASSED, worst 2.842e-14 cm over 12 k x 4 cells
+
+GATE 2 — rel-2015 offset by arm: SSP5-8.5 r2300 0.781, SSP5-8.5 x2300 0.781, SSP1-2.6 r2300 0.781, SSP1-2.6 x2300 0.781, SSP2-4.5 r2300 0.781
+  GATE 2 PASSED, spread 0.0000 cm -> OFF = 0.781 cm
+
+GATE 3 — re-solving the hindcast under each arm's own history moves a 2300 median by at most 0.000 cm
+
+GATE 4 — band composition vs forcing composition, per arm:
+  SSP5-8.5 r2300: 35 runs, CESM2-Leo:10, UKESM1-0-LL-Robin:10, CNRM-ESM2-1:5, IPSL-CM6A-LR:5, MPI-ESM1-2-HR:5  MATCH
+  SSP5-8.5 x2300: 18 runs, IPSL-CM6A-LR:12, CESM2-WACCM:6  MATCH
+  SSP1-2.6 r2300: 10 runs, CESM2:5, MPI-ESM1-2-HR:5  MATCH
+  SSP1-2.6 x2300:  6 runs, CESM2-WACCM:6  MATCH
+  SSP2-4.5 r2300: 15 runs, CESM2:10, MPI-ESM1-2-HR:5  MATCH
+  GATE 4 PASSED — every arm scores our model under its own forcing against its own runs
+
+PROTECT bands (p05-p95, cm on our basis), and the forcing each was run at:
+  SSP5-8.5 r2300 (n=35,  5.61 K @2300): 2100    7.9-25.0    2150   14.9-48.5    2200   20.6-69.7    2300   30.6-109.5 
+  SSP5-8.5 x2300 (n=18, 13.63 K @2300): 2100    9.2-14.7    2150   44.6-53.2    2200   95.0-116.8   2300  218.7-301.9 
+  SSP1-2.6 r2300 (n=10,  1.95 K @2300): 2100    3.3-8.1     2150    4.4-11.0    2200    5.3-13.2    2300    7.0-16.7  
+  SSP1-2.6 x2300 (n= 6,  2.44 K @2300): 2100    4.0-4.4     2150    6.1-6.7     2200    7.6-8.2     2300   10.3-11.2  
+  SSP2-4.5 r2300 (n=15,  2.98 K @2300): 2100    4.6-9.0     2150    6.9-13.4    2200    8.7-16.8    2300   11.4-22.3  
+
+hindcast 1900-2025 = 5.78 cm, restored by per-draw bisection at every k (so it never discriminates)
+
+     k   rate s    tau |    8.5r    8.5x    2.6r    2.6x    4.5r |    585   cool    all  in-band
+------------------------------------------------------------------------------------------------
+  0.50 1000.0000      0 |   0.982   0.984   1.071   0.769   0.599 |  0.983  0.836  0.898  4/20
+  0.75   2.4683     23 |   0.585   0.719   0.228   0.263   0.190 |  0.655  0.229  0.451  11/20
+  1.00   1.0152     55 |   0.408   0.573   0.116   0.362   0.246 |  0.497  0.262  0.374  12/20
+  1.50   0.4826    116 |   0.239   0.432   0.295   0.554   0.421 |  0.349  0.436  0.404  9/20
+  2.00   0.3201    175 |   0.183   0.374   0.417   0.671   0.536 |  0.294  0.551  0.466  6/20
+  3.00   0.1924    290 |   0.217   0.353   0.549   0.797   0.664 |  0.293  0.677  0.557  5/20
+  5.00   0.1073    521 |   0.315   0.393   0.658   0.902   0.776 |  0.356  0.785  0.648  5/20
+  8.00   0.0646    865 |   0.389   0.426   0.719   0.963   0.841 |  0.408  0.847  0.705  5/20
+ 12.00   0.0422   1324 |   0.424   0.387   0.754   0.996   0.878 |  0.406  0.882  0.730  1/20
+ 14.00   0.0360   1553 |   0.418   0.365   0.763   1.006   0.889 |  0.392  0.891  0.734  3/20
+ 22.60   0.0220   2539 |   0.195   0.383   0.785   1.026   0.898 |  0.304  0.908  0.729  5/20
+ 50.00   0.0105   5304 |   0.418   0.809   0.576   0.778   0.474 |  0.644  0.622  0.631  6/20
+
+  (per-arm columns are RMS log-misfit over that arm's 4 horizons; tau = slow-channel 1/rate at 5.6 K, yr)
+
+=== THE VERDICT: DOES ONE k SATISFY BOTH? ===
+
+  ssp585 arms only : best k = 3 (0.293), k=1 scores 0.497
+       [the published ssp585-only scan reads 0.293 at k=3 and 0.497 at k=1 -- same 8 horizons, so directly comparable]
+  cool arms only   : best k = 0.75 (0.229), k=1 scores 0.262
+  all five arms    : best k = 1 (0.374)
+       [NOT comparable to the published 0.293 -- 20 horizons, not 8]
+
+  -> THE ARGMINS DISAGREE: ssp585 wants k = 3, the cool arms want k = 0.75.
+     Cost of each choice to the other, in that other's own metric:
+       at the cool optimum k=0.75, ssp585 scores 0.655 vs its own best 0.293  (2.23x worse)
+       at the ssp585 optimum k=3, cool scores 0.677 vs its own best 0.229  (2.96x worse)
+     A SCALE cannot serve both. That is the case for a state-dependent
+     relaxation rate rather than another point on this ridge.
+
+     AND THE SHIPPED MODEL IS NOT SYMMETRICALLY PLACED. At k = 1:
+       cool   0.262 vs its best 0.229  -> 1.14x off
+       ssp585 0.497 vs its best 0.293  -> 1.70x off
+     The shipped model is already close to the cool optimum; ~all of the
+     deficiency is on the ssp585 side. A correction must therefore act
+     SELECTIVELY on the warm arm, which is what a state-dependent term does
+     and what a scale k cannot.
+
+     LEVERAGE OF A STATE-DEPENDENT TERM (realised loss fraction L/V0 at k=1, median draw):
+       SSP5-8.5 r2300: L/V0 @2300 = 0.0561   (  2.4x the ssp126-r2300 arm)
+       SSP5-8.5 x2300: L/V0 @2300 = 0.1295   (  5.6x the ssp126-r2300 arm)
+       SSP1-2.6 r2300: L/V0 @2300 = 0.0230   (  1.0x the ssp126-r2300 arm)
+       SSP1-2.6 x2300: L/V0 @2300 = 0.0241   (  1.0x the ssp126-r2300 arm)
+       SSP2-4.5 r2300: L/V0 @2300 = 0.0318   (  1.4x the ssp126-r2300 arm)
+     => a term proportional to L/V0 has 4.1x more leverage on the warmest arm
+        than on any cool one -- but see the deliverable numbers below before quoting that.
+
+     THE SAME LEVERAGE ON OUR OWN DELIVERABLE SCENARIOS (k=1):
+       SSP1-2.6 ( 1.74 K @2300): L/V0 = 0.0215   (  1.0x our ssp126)
+       SSP2-4.5 ( 3.15 K @2300): L/V0 = 0.0327   (  1.5x our ssp126)
+       SSP5-8.5 ( 7.81 K @2300): L/V0 = 0.0753   (  3.5x our ssp126)
+     => on the DELIVERABLE the selectivity is 2.3x, not 4.1x.
+        The arms BRACKET our ssp585 (7.81 K) rather than matching it, so the arm
+        number must not be quoted for the deliverable.
+
+     SIZING gamma (for the offline grid, not a fit): our ssp585 reaches L/V0 = 0.075,
+     so under r = r0*(1 + gamma*L_b/(k_b*V0)) a 2x late-rate boost needs gamma of order
+     13 on the total-V0 basis, less by ~1/k_b on the per-basin one. The cool arms
+     would then move by 0.43 of that -- which is the trade gamma has to beat, and the
+     reason this is a MEASUREMENT to run, not a mechanism to assume.
+
+wrote outputs/scope_gis_shape_all_scenarios.csv
