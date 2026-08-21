@@ -3,6 +3,61 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-21e — **The PROTECT trajectories break the φ·Leq ridge.** It wants τ 175-290 yr, not 55 — but only with a 2-3× commitment.
+
+Asked to modify the slow channel's relaxation time. Two prior measurements say that is not
+a knob on its own: A+B is **99% equilibrated at 2300** (φ = 0.987-0.991), so lengthening τ
+alone makes 2300 *lower*; and the 1900-2025 hindcast constrains only the **product φ·Leq**,
+so scaling `(c1, c0)` by k and re-solving the rate fits it identically at every k. τ is not
+identified separately from the commitment.
+
+**What is new:** the earlier ridge scans scored 2300 *endpoints* against literature bands.
+The PROTECT arms are 200 years of *shape* under a known forcing — the observable a φ·Leq
+degeneracy cannot survive.
+
+| k | τ_slow | RMS log-misfit, 8 horizons (2 families × 4 years) |
+|---|---|---|
+| **1.0** | **55 yr** | **0.497** ← shipped |
+| 1.5 | 116 yr | 0.349 |
+| 2.0 | 175 yr | 0.294 |
+| **3.0** | **290 yr** | **0.293** ← best |
+| 5.0 | 521 yr | 0.356 |
+| 14.0 | 1553 yr | 0.392 |
+| 50.0 | 5304 yr | 0.644 |
+
+The hindcast is held by per-draw bisection at every k, so it never discriminates — and the
+trajectories still give a clear **interior optimum at k = 2-3**, where shipped k = 1 is
+**1.7× worse**. Misfit rises again past k ≈ 5, the same `V0`-clip non-monotonicity the
+2026-08-18 ridge scan found. So the physics does want a longer relaxation time, but **only
+jointly with a 2-3× larger commitment** — neither coordinate moves alone.
+
+**What the ridge does not fix:** the 2100 over-prediction is ridge-*invariant*, 1.2-1.4×
+(r2300) and 1.6-1.9× (x2300) at every k. A separate defect; the independently measured amp
+excess (7-27%) does not cover the x2300 half of it.
+
+### The reproduction gate earned its keep
+
+The offline 2-basin emulator failed its 0.5 cm gate **by 30 cm**. The tolerance was not
+widened. Three real bugs, all one-signed and all growing with time — the exact signature that
+must not be explained away as "medians are not multiplicative":
+
+1. channels initialised at `f*eq[0]`; `gis_g` (the 1850 realised fraction) is **fixed at 0**.
+2. `gis_s_high` used as a linear rate scale. The posterior carries **log10** (the Julia does
+   `10.0^row["gis_s_high"]`), so the raw −0.6451 was a *negative* rate that clipped to the
+   1e-9 floor and froze the high basin. Linear value 0.2264.
+3. the GMST driver rebased on 1995-2014 instead of `DRIVER_BASE = (1850, 1900)` — the SLR
+   reporting baseline is a different window for a different quantity.
+
+Gate now passes at **0.16 cm** worst-case, both families, all four horizons. Switching
+median-parameters → ensemble-median moved 2300 by under 2 cm and was **not** the fix.
+
+### NOT acted on — scoping, not a recommendation
+
+`c1`/`c0` are **calibrated**, so k ≠ 1 needs a refit or an explicit prior-propagation
+argument. Untested: what k = 2-3 does to the ssp126/ssp245 2300 literature bands and the 2100
+G4 spread, both pre-registered gates the earlier ridge work found raising k can break. No
+gate changed, no cell moved, admissible set still all 25.
+
 ## [unreleased] — 2026-08-21d — **r2300 at matched forcing: the base model is not CONVEX enough**, confirmed on 5 GCMs with the tap inert.
 
 The second matched-forcing arm, and the one 2026-08-21b's §5 item 2 asked for. `r2300`
