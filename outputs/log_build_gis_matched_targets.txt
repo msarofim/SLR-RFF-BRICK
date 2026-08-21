@@ -1,0 +1,24 @@
+anchors: 5 (scenario x forcing family) from scope_gis_cool_band_targets.csv
+  anchor                  int K.yr  T2300 K     p05    p17    p50    p83    p95
+  SSP1-2.6 r2300               544     1.96     6.2    6.7   11.1   15.2   15.9
+  SSP1-2.6 x2300               651     2.48     9.5    9.6    9.8   10.2   10.4
+  SSP2-4.5 r2300               790     2.99    10.6   11.2   15.4   20.8   21.5
+  SSP5-8.5 r2300              1406     5.58    29.8   55.5   71.5  103.3  108.7
+  SSP5-8.5 x2300              2614    13.80   217.9  218.7  233.6  296.9  301.1
+  NON-MONOTONE p50 across anchors (carried, not smoothed): SSP1-2.6 r2300 -> SSP1-2.6 x2300
+
+MATCHED targets at OUR forcing, predictor = GSAT integral 2015-2300 (K.yr)
+  scenario    ours int     MATCHED p05-p95 cm     p50      T-arm p05-p95     LIT p05-p95 cm  shift
+  SSP1-2.6         495        4.8-25.5           13.8      4.8-28.5           5.8-16.3       1.37x  EXTRAPOLATED
+  SSP2-4.5         790       10.6-21.5           15.4     11.0-24.8           9.8-21.8       1.02x
+  SSP5-8.5        1626       42.9-145.0          98.5     58.6-172.2        173.2-312.7      0.39x
+
+  ADOPTED band (what the scorecards import) and the rule that set it:
+  SSP1-2.6       6.2-15.9    cm  vs LIT    5.8-16.3    [UNION of bracketing anchors (our predictor is below the anchor hull by 10%)]
+  SSP2-4.5      10.6-21.5    cm  vs LIT    9.8-21.8    [PCHIP interpolation at our forcing (inside the anchor hull)]
+  SSP5-8.5      42.9-145.0   cm  vs LIT  173.2-312.7   [PCHIP interpolation at our forcing (inside the anchor hull)]
+
+  CAVEAT, carried with every number above: every anchor past 2100 is NORCE-CISM.
+  ONE ice sheet model -- the spread is CLIMATE forcing, not ice-sheet structure.
+
+wrote outputs/gis_matched_targets_2300.csv
