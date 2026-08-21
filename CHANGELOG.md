@@ -3,6 +3,81 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-21f — **The pre-flight kills k = 2-3: it breaks BOTH cool scenarios' 2300 bands, and at L14 the ridge never reaches the ssp585 band at all.**
+
+Handoff 2026-08-21c §4 listed five pre-flight measurements, none of them done, each able to
+kill the PROTECT-preferred ridge point. Items 1–3 are now done, at **L14, per draw**, behind
+a reproduction gate that matches the shipped untapped projection to **0.00 cm** on all three
+SSPs at 2100/2150/2300 (`python/scope_gis_ridge_vs_ssp_bands.py`).
+
+| k | τ_slow | SSP1-2.6 @2300 | SSP2-4.5 @2300 | SSP5-8.5 @2300 | 585@2100 | G4 |
+|---|---|---|---|---|---|---|
+| **1.0** | 55 yr | **0.101** ✓ | **0.183** ✓ | 0.499 | 13.95 | 7.46 |
+| 1.25 | 86 yr | 0.122 ✓ | 0.216 ✓ | 0.587 | 14.25 | 7.20 |
+| 1.5 | 116 yr | 0.139 ✓ | 0.243 ✗ | 0.662 | 14.60 | 7.15 |
+| **2.0** | 174 yr | 0.167 ✗ | 0.289 ✗ | 0.795 | 15.18 | 7.17 |
+| **3.0** | 290 yr | 0.203 ✗ | 0.349 ✗ | 0.990 | 15.87 | 7.27 |
+| 12.0 | 1321 yr | 0.279 ✗ | 0.489 ✗ | **1.463** ← peak | 17.08 | 7.56 |
+
+Bands: SSP1-2.6 0.058–0.163, SSP2-4.5 0.098–0.218, SSP5-8.5 1.732–3.127 m SLE.
+
+* **Q1 (cool scenarios) KILLS IT.** The cool bands hold only at **k ≤ 1.25**. SSP2-4.5 leaves
+  first, at k = 1.5; SSP1-2.6 at k = 2.0. At the PROTECT optimum k = 3 they are **1.25×** and
+  **1.60×** over their band tops. The 2026-08-18 conflict is therefore not an artefact of the
+  L12 vintage — it reproduces at L14 per draw, and it bites *below* k = 2, not above k = 12.
+* **Q2 (G4 2100 spread) does NOT kill it.** Over k = 1–16 the spread moves only
+  7.15–7.56 cm (0.96–1.01× of k = 1); it breaks only at k ≥ 32, far past anything under
+  consideration. The earlier worry that raising k drags 2100 off its selection point is
+  **retired for the k range that matters**.
+* **Q3 (AR6 2100) does NOT kill it.** ssp585 Greenland@2100 stays inside ~9–18 cm at *every*
+  k on a 1–50 grid (13.95 → 17.08 cm at k = 12). The handoff's concern that k = 3's 1.33×
+  over-prediction would break the 2100 deliverable does not materialise.
+
+### Re-derived, not quoted: the ridge ceiling MOVED at L14
+
+Handoff §6 warned that absolute levels from the L12 median-parameter scans must be
+re-derived. They must: at L12 the ridge peaked at **1.794 m** (k = 14), which clipped into
+the bottom of the ssp585 band. At **L14 it peaks at 1.463 m (k = 12) — 1.18× SHORT of the
+band FLOOR.** The two-basin restructure *lowered* the reachable ceiling by ~18%, so at L14
+**no k on the ridge reaches the ssp585 2300 band at all**, not even marginally. The
+ssp585/ssp245 ratio spans 1.66–3.09× against a literature 7.9–31.9×, the same invariant.
+
+### The headline metric is reproducible now
+
+The k = 2-3 recommendation was reported on an **RMS log-misfit** that was computed ad hoc and
+never written to the CSV — the number driving the decision could not be regenerated from
+committed code. It is a column in `scope_gis_ridge_vs_protect.py` now, and it **reproduces
+the 2026-08-21e table exactly** (k=1 0.497, k=2 0.294, k=3 0.293, 1.70× worse at shipped).
+Two additions the earlier table's grid hid: k=8 is 0.408, and **k=22.6 is 0.304** — a second,
+nearly-as-good lobe on the far side of the V0 clip. The optimum is double-lobed, not simply
+interior. (Band membership saturates at 5/8 across most of the ridge and does NOT locate the
+optimum; the script now prints both and says which is which.)
+
+### Two things the gate caught on the way
+
+* **`HIND_DRIVER` is not exactly inert.** `t_gis_zones` ends in **2024**, so 2025 — one year
+  of the 1900–2025 hindcast window — is already spliced and scenario-dependent (0.043 K
+  spread). The L12 scan called the choice inert on the assumption history is fully observed.
+  The consequence was measured rather than assumed: re-solving the rate under each scenario's
+  history moves 2300 by **< 0.001 cm**, so the choice is inert *in consequence*, which is the
+  claim that was needed.
+* **The k = 1 row is not the shipped model.** Every row re-bisects the rate onto the hindcast
+  target, and the shipped posterior does not sit exactly on it (s = 1.0167 at k = 1). The
+  gate block, at s = 1, is the shipped model. The script now says so in its own output.
+
+`scope_gis_ridge_vs_protect.py`'s body moved into `main()` so its gated kernel can be
+imported rather than retyped; output is **byte-identical** to the committed CSV.
+
+### Where this leaves the calibration decision
+
+The PROTECT *shape* evidence and the cool-scenario *endpoint* evidence now point in opposite
+directions, and both are measured on the shipped model: shape wants k = 2–3, endpoints allow
+k ≤ 1.25. Route (A)/(B)/(C) of handoff §3 is Marcus's call, but **none of the three can be
+executed as "move to k = 2–3"** — that point is now known to break two pre-registered bands.
+§4 items 4 (can a refit reach the hindcast at k = 2–3) and 5 (re-price the tap) are still
+not done, and item 5's premise is unchanged: the 25-cell admissible set is scored against a
+k = 1 base.
+
 ## [unreleased] — 2026-08-21e — **The PROTECT trajectories break the φ·Leq ridge.** It wants τ 175-290 yr, not 55 — but only with a 2-3× commitment.
 
 Asked to modify the slow channel's relaxation time. Two prior measurements say that is not

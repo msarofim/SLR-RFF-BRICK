@@ -88,6 +88,8 @@ GATE_TOL = 0.5                      # cm; the offline emulator vs the Julia runs
 K_SOUTH, K_HIGH = 0.6286, 0.3714
 FAMILIES = ("r2300", "x2300")
 ARM = "spliced"
+## 1995-2014 is the SLR REPORTING baseline (not DRIVER_BASE, which rebases GMST).
+IB = [int(np.where(YEARS == y)[0][0]) for y in range(1995, 2015)]
 
 
 def basin2_series(T, P, k_c, s_r):
@@ -126,113 +128,134 @@ def rebase_cm(L):
     return 100.0 * (L - L[:, IB].mean(axis=1, keepdims=True))
 
 
-post = pd.read_csv(POST)
-tbar = gis_tbar()
-## native_greenland maps the sampled (ell, w) back to (alpha_s, beta_s). It is
-## written for a Series; applied here to the whole frame, per draw.
-r_s = np.exp(post["gis_slow_ell"].to_numpy())
-post["gis_alpha_s"] = post["gis_slow_w"].to_numpy() * r_s / tbar
-post["gis_beta_s"] = (1.0 - post["gis_slow_w"].to_numpy()) * r_s
-pa = native_greenland(post.median(numeric_only=True), tbar)
-S = gis_shape_table()
-IB = [int(np.where(YEARS == y)[0][0]) for y in range(1995, 2015)]
-idx = {y: int(np.where(YEARS == y)[0][0]) for y in list(HORIZONS) + list(HIND)}
+def main():
+    post = pd.read_csv(POST)
+    tbar = gis_tbar()
+    ## native_greenland maps the sampled (ell, w) back to (alpha_s, beta_s). It is
+    ## written for a Series; applied here to the whole frame, per draw.
+    r_s = np.exp(post["gis_slow_ell"].to_numpy())
+    post["gis_alpha_s"] = post["gis_slow_w"].to_numpy() * r_s / tbar
+    post["gis_beta_s"] = (1.0 - post["gis_slow_w"].to_numpy()) * r_s
+    pa = native_greenland(post.median(numeric_only=True), tbar)
+    S = gis_shape_table()
+    idx = {y: int(np.where(YEARS == y)[0][0]) for y in list(HORIZONS) + list(HIND)}
 
-drivers, julia = {}, {}
-for fam in FAMILIES:
-    f = pd.read_csv(os.path.join(REPO, f"outputs/protect_{fam}_forcing_gmst.csv")).set_index("year")
-    g = f[f"gmst_{ARM}"].reindex(YEARS).to_numpy()
-    ## DRIVER_BASE (1850-1900), NOT the 1995-2014 SLR baseline — see docstring bug 2.
-    ibd = (YEARS >= DRIVER_BASE[0]) & (YEARS <= DRIVER_BASE[1])
-    rb = g - g[ibd].mean()
-    drivers[fam] = regional_driver(rb, post["gis_amp"].to_numpy(), S)   # (ndraw, nyear)
-    suf = "" if fam == "x2300" else f"_{fam}"
-    d = pd.read_csv(os.path.join(REPO,
-        f"outputs/diag_protect_forcing_matched_{TAG}{suf}_untapped.csv"))
-    julia[fam] = d[(d.component == "gis") & (d.arm == ARM)].set_index("year").med
-
-# --- REPRODUCTION GATE ------------------------------------------------------
-print(f"reproduction gate at (k=1, s=1) vs the Julia untapped runs, tol {GATE_TOL} cm")
-worst = 0.0
-for fam in FAMILIES:
-    L = np.median(rebase_cm(basin2_series(drivers[fam], post, 1.0, 1.0)), axis=0)
-    for y in HORIZONS:
-        d = abs(L[idx[y]] - julia[fam].loc[y])
-        worst = max(worst, d)
-        print(f"    {fam} {y}: offline {L[idx[y]]:7.2f}  julia {julia[fam].loc[y]:7.2f}  "
-              f"diff {L[idx[y]] - julia[fam].loc[y]:+.2f}")
-if worst >= GATE_TOL:
-    sys.exit(f"GATE FAILED: worst |offline - julia| = {worst:.2f} cm >= {GATE_TOL}. "
-             f"The offline emulator is not the shipped model; no k is reportable.")
-print(f"  GATE PASSED, worst {worst:.2f} cm\n")
-
-# --- the ridge --------------------------------------------------------------
-tgt = pd.read_csv(TARGETS).set_index("year")["gis"]
-want_cm = float(tgt.loc[HIND[1]] - tgt.loc[HIND[0]])
-Th = drivers["r2300"]          # history is the observed driver in both; choice inert
-
-
-def solve_rate(k):
-    """Per-draw bisection: every draw's rate is re-solved so that draw still hits
-    the 1900-2025 hindcast. Holding it only at median parameters would let the
-    ensemble drift off the target it is supposed to be pinned to."""
-    lo = np.full(len(post), 1e-4)
-    hi = np.full(len(post), 1e3)
-    for _ in range(80):
-        mid = np.sqrt(lo * hi)
-        L = basin2_series(Th, post, k, mid)
-        below = 100.0 * (L[:, idx[HIND[1]]] - L[:, idx[HIND[0]]]) < want_cm
-        lo = np.where(below, mid, lo)
-        hi = np.where(below, hi, mid)
-    return np.sqrt(lo * hi)
-
-
-ann = pd.read_csv(os.path.join(REPO, "outputs/protect_greenland_gis_annual.csv"))
-OFF = float(pd.read_csv(os.path.join(REPO,
-    f"outputs/diag_protect_forcing_matched_{TAG}_untapped.csv")
-    ).query("component=='gis' and arm=='ours' and year==2015").med.iloc[0])
-band = {}
-for fam in FAMILIES:
-    sub = ann[ann.exp.str.contains(f"ssp585-{fam}")] if fam == "x2300" else \
-          ann[ann.exp.str.contains("r2300") & ann.exp.str.contains("ssp585|rcp85")
-              & ~ann.exp.str.startswith("ACCESS1.3")]
-    q = sub.groupby("year").gis_cm
-    band[fam] = {y: (q.quantile(.05)[y] + OFF, q.median()[y] + OFF, q.quantile(.95)[y] + OFF)
-                 for y in HORIZONS}
-
-print(f"hindcast {HIND[0]}-{HIND[1]} = {want_cm:.2f} cm, restored by bisection at every k "
-      f"(so it never discriminates)")
-print(f"{'k':>6} {'rate s':>8} {'tau@5.6K':>9} | " +
-      " ".join(f"{fam} {y}" for fam in FAMILIES for y in (2150, 2300)) + "   in-band")
-rows = []
-for k in K_GRID:
-    s = solve_rate(k)
-    rec = dict(k=k, rate_s=float(np.median(s)))
-    hits = 0
+    drivers, julia = {}, {}
     for fam in FAMILIES:
-        L = np.median(rebase_cm(basin2_series(drivers[fam], post, k, s)), axis=0)
-        for y in HORIZONS:
-            lo, med, hi = band[fam][y]
-            rec[f"{fam}_{y}"] = L[idx[y]]
-            rec[f"{fam}_{y}_in"] = bool(lo <= L[idx[y]] <= hi)
-            hits += int(lo <= L[idx[y]] <= hi)
-    rec["n_in_band"] = hits
-    rec["n_horizons"] = len(FAMILIES) * len(HORIZONS)
-    T56 = pa["gis_alpha_s"] * 5.6 * pa["gis_amp"] + pa["gis_beta_s"]
-    rec["tau_slow_yr"] = float(np.median(1.0 / np.maximum(s * T56, 1e-12)))
-    rows.append(rec)
-    print(f"{k:6.2f} {rec['rate_s']:8.4f} {rec['tau_slow_yr']:9.0f} | " +
-          " ".join(f"{rec[f'{fam}_{y}']:9.1f}" for fam in FAMILIES for y in (2150, 2300)) +
-          f"   {hits}/{rec['n_horizons']}")
+        f = pd.read_csv(os.path.join(REPO, f"outputs/protect_{fam}_forcing_gmst.csv")).set_index("year")
+        g = f[f"gmst_{ARM}"].reindex(YEARS).to_numpy()
+        ## DRIVER_BASE (1850-1900), NOT the 1995-2014 SLR baseline — see docstring bug 2.
+        ibd = (YEARS >= DRIVER_BASE[0]) & (YEARS <= DRIVER_BASE[1])
+        rb = g - g[ibd].mean()
+        drivers[fam] = regional_driver(rb, post["gis_amp"].to_numpy(), S)   # (ndraw, nyear)
+        suf = "" if fam == "x2300" else f"_{fam}"
+        d = pd.read_csv(os.path.join(REPO,
+            f"outputs/diag_protect_forcing_matched_{TAG}{suf}_untapped.csv"))
+        julia[fam] = d[(d.component == "gis") & (d.arm == ARM)].set_index("year").med
 
-print("\nPROTECT bands (p05-p95, our basis):")
-for fam in FAMILIES:
-    print(f"  {fam}: " + "  ".join(
-        f"{y} {band[fam][y][0]:.0f}-{band[fam][y][2]:.0f}" for y in HORIZONS))
-out = pd.DataFrame(rows)
-out.to_csv(OUT, index=False)
-best = out.loc[out.n_in_band.idxmax()]
-print(f"\nbest ridge point: k = {best.k:g} ({int(best.n_in_band)}/{int(best.n_horizons)} "
-      f"horizons in band), shipped k = 1 scores "
-      f"{int(out.loc[out.k == 1.0, 'n_in_band'].iloc[0])}/{int(best.n_horizons)}")
-print(f"wrote {os.path.relpath(OUT, REPO)}")
+    # --- REPRODUCTION GATE ------------------------------------------------------
+    print(f"reproduction gate at (k=1, s=1) vs the Julia untapped runs, tol {GATE_TOL} cm")
+    worst = 0.0
+    for fam in FAMILIES:
+        L = np.median(rebase_cm(basin2_series(drivers[fam], post, 1.0, 1.0)), axis=0)
+        for y in HORIZONS:
+            d = abs(L[idx[y]] - julia[fam].loc[y])
+            worst = max(worst, d)
+            print(f"    {fam} {y}: offline {L[idx[y]]:7.2f}  julia {julia[fam].loc[y]:7.2f}  "
+                  f"diff {L[idx[y]] - julia[fam].loc[y]:+.2f}")
+    if worst >= GATE_TOL:
+        sys.exit(f"GATE FAILED: worst |offline - julia| = {worst:.2f} cm >= {GATE_TOL}. "
+                 f"The offline emulator is not the shipped model; no k is reportable.")
+    print(f"  GATE PASSED, worst {worst:.2f} cm\n")
+
+    # --- the ridge --------------------------------------------------------------
+    tgt = pd.read_csv(TARGETS).set_index("year")["gis"]
+    want_cm = float(tgt.loc[HIND[1]] - tgt.loc[HIND[0]])
+    Th = drivers["r2300"]          # history is the observed driver in both; choice inert
+
+
+    def solve_rate(k):
+        """Per-draw bisection: every draw's rate is re-solved so that draw still hits
+        the 1900-2025 hindcast. Holding it only at median parameters would let the
+        ensemble drift off the target it is supposed to be pinned to."""
+        lo = np.full(len(post), 1e-4)
+        hi = np.full(len(post), 1e3)
+        for _ in range(80):
+            mid = np.sqrt(lo * hi)
+            L = basin2_series(Th, post, k, mid)
+            below = 100.0 * (L[:, idx[HIND[1]]] - L[:, idx[HIND[0]]]) < want_cm
+            lo = np.where(below, mid, lo)
+            hi = np.where(below, hi, mid)
+        return np.sqrt(lo * hi)
+
+
+    ann = pd.read_csv(os.path.join(REPO, "outputs/protect_greenland_gis_annual.csv"))
+    OFF = float(pd.read_csv(os.path.join(REPO,
+        f"outputs/diag_protect_forcing_matched_{TAG}_untapped.csv")
+        ).query("component=='gis' and arm=='ours' and year==2015").med.iloc[0])
+    band = {}
+    for fam in FAMILIES:
+        sub = ann[ann.exp.str.contains(f"ssp585-{fam}")] if fam == "x2300" else \
+              ann[ann.exp.str.contains("r2300") & ann.exp.str.contains("ssp585|rcp85")
+                  & ~ann.exp.str.startswith("ACCESS1.3")]
+        q = sub.groupby("year").gis_cm
+        band[fam] = {y: (q.quantile(.05)[y] + OFF, q.median()[y] + OFF, q.quantile(.95)[y] + OFF)
+                     for y in HORIZONS}
+
+    print(f"hindcast {HIND[0]}-{HIND[1]} = {want_cm:.2f} cm, restored by bisection at every k "
+          f"(so it never discriminates)")
+    print(f"{'k':>6} {'rate s':>8} {'tau@5.6K':>9} | " +
+          " ".join(f"{fam} {y}" for fam in FAMILIES for y in (2150, 2300)) +
+          "   in-band  RMSlog")
+    rows = []
+    for k in K_GRID:
+        s = solve_rate(k)
+        rec = dict(k=k, rate_s=float(np.median(s)))
+        hits, lsq = 0, []
+        for fam in FAMILIES:
+            L = np.median(rebase_cm(basin2_series(drivers[fam], post, k, s)), axis=0)
+            for y in HORIZONS:
+                lo, med, hi = band[fam][y]
+                rec[f"{fam}_{y}"] = L[idx[y]]
+                rec[f"{fam}_{y}_in"] = bool(lo <= L[idx[y]] <= hi)
+                hits += int(lo <= L[idx[y]] <= hi)
+                lsq.append(np.log(L[idx[y]] / med) ** 2)
+        rec["n_in_band"] = hits
+        ## RMS LOG-MISFIT is the metric the k = 2-3 recommendation was reported on
+        ## (CHANGELOG 2026-08-21e). It was computed ad hoc and never written to the
+        ## CSV, so the headline number could not be regenerated from the committed
+        ## code. It is a column now. Log, not level, so that all eight horizons --
+        ## which span 8 to 300 cm -- weigh equally; band membership is the coarse
+        ## companion test and the two disagree, deliberately (see the printout).
+        rec["rms_log_misfit"] = float(np.sqrt(np.mean(lsq)))
+        rec["n_horizons"] = len(FAMILIES) * len(HORIZONS)
+        T56 = pa["gis_alpha_s"] * 5.6 * pa["gis_amp"] + pa["gis_beta_s"]
+        rec["tau_slow_yr"] = float(np.median(1.0 / np.maximum(s * T56, 1e-12)))
+        rows.append(rec)
+        print(f"{k:6.2f} {rec['rate_s']:8.4f} {rec['tau_slow_yr']:9.0f} | " +
+              " ".join(f"{rec[f'{fam}_{y}']:9.1f}" for fam in FAMILIES for y in (2150, 2300)) +
+              f"   {hits}/{rec['n_horizons']}   {rec['rms_log_misfit']:.3f}")
+
+    print("\nPROTECT bands (p05-p95, our basis):")
+    for fam in FAMILIES:
+        print(f"  {fam}: " + "  ".join(
+            f"{y} {band[fam][y][0]:.0f}-{band[fam][y][2]:.0f}" for y in HORIZONS))
+    out = pd.DataFrame(rows)
+    out.to_csv(OUT, index=False)
+    best = out.loc[out.n_in_band.idxmax()]
+    print(f"\nbest ridge point: k = {best.k:g} ({int(best.n_in_band)}/{int(best.n_horizons)} "
+          f"horizons in band), shipped k = 1 scores "
+          f"{int(out.loc[out.k == 1.0, 'n_in_band'].iloc[0])}/{int(best.n_horizons)}")
+    ## Band membership saturates -- the p05-p95 PROTECT bands are wide enough that
+    ## most of the ridge scores 5/8 -- so it is the RMS log-misfit, not the count,
+    ## that locates the optimum. Reported explicitly so the two are never confused.
+    bl = out.loc[out.rms_log_misfit.idxmin()]
+    k1 = float(out.loc[out.k == 1.0, "rms_log_misfit"].iloc[0])
+    print(f"best by RMS log-misfit: k = {bl.k:g} ({bl.rms_log_misfit:.3f}), shipped "
+          f"k = 1 scores {k1:.3f} -- {k1 / bl.rms_log_misfit:.2f}x worse")
+    print(f"wrote {os.path.relpath(OUT, REPO)}")
+
+
+
+if __name__ == "__main__":
+    main()
