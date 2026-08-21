@@ -101,6 +101,24 @@ EVAL_YEARS = [2100, 2300]          # levels evaluated in addition to the path pe
 #       both arms; SSP5-8.5-ext from IPSL-CM6A-LR and CESM2-WACCM.
 #   TC20:309  (2026) doi 10.5194/tc-20-309-2026 — MAR-GISM coupled, SSP5-8.5
 #       IPSL-CM6A-LR, 0/1/2-way coupling; reaches 5.1-7.1 m by 3000.
+# 2026-08-21g. This is the ONE place in the repo that legitimately keeps its own
+# 2300 dict: it is a TWO-ARM structure (stabilised vs continued-warming), not the
+# single band gis_targets serves, and it carries an ssp585 stabilised band that
+# appears nowhere else. Left as-is, with the re-target's finding attached:
+#
+#   The "warming" ssp585 band (1.732-3.127 m) is the PROTECT x2300 family, forced
+#   to 13.80 K at 2300 against our ssp585's 7.80 K -- so the "LOW by 3.8-6.9x"
+#   this file prints against it is partly a comparison at two different forcings.
+#   The forcing-matched band for our own ssp585 is gis_targets.MATCHED_2300_M
+#   ["SSP5-8.5"] = 0.429-1.450 m, against which the untapped base (0.500 m) is IN.
+#
+#   The "stabilised" ssp585 band transcribed here (0.282-1.230 m) is INDEPENDENTLY
+#   CORROBORATED by the 2026-08-21g extraction: the PROTECT r2300 ssp585 family
+#   (35 runs, forcing held at each GCM's 2081-2100 mean) gives p05-p95
+#   0.298-1.087 m. Same arm, same range, transcription and raw NetCDFs agreeing.
+#   Note that arm is forced to 5.58 K, COOLER than our 7.80 K -- so it is not
+#   apples-to-apples either, in the opposite direction. Neither raw arm brackets
+#   our scenario; the matched band is the interpolation between them.
 LIT_2300_M = {
     "SSP1-2.6": {"stabilised": (0.058, 0.163), "warming": (0.092, 0.092)},
     "SSP2-4.5": {"stabilised": (0.098, 0.218), "warming": None},
