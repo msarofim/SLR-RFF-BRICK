@@ -274,13 +274,62 @@ which basin to charge the proxy to does not make it the right object.
 * **Keep whole-sheet as the fallback parameterisation if Stage 2 fails**, with the low-T
   contradiction documented rather than quietly carried.
 
+## 4c. ⚠ THE WHOLE SCORECARD IS GCM-FRAGILE — this reverses §4b's "Stage 2 next"
+
+Prompted by the MPI finding, the same leave-one-GCM-out was run on the **level** bands
+that every criterion in this arc is scored against. Edge shift is the worst movement of
+either band edge when one GCM is dropped, as a fraction of the band's own width.
+
+| arm | horizon | band | width | worst edge shift | nGCM |
+|---|---|---|---|---|---|
+| SSP5-8.5 r2300 | 2150 | 14.1-47.7 | 33.6 | **31.9 %** | 5 |
+| SSP5-8.5 r2300 | 2300 | 29.8-108.7 | 78.9 | **33.0 %** | 5 |
+| SSP5-8.5 x2300 | 2150 | 43.8-52.5 | 8.6 | 14.1 % | 2 |
+| SSP5-8.5 x2300 | 2300 | 217.9-301.1 | 83.2 | **94.1 %** | 2 |
+| SSP1-2.6 r2300 | 2300 | 6.2-15.9 | 9.7 | **87.9 %** | 2 |
+| SSP1-2.6 x2300 | 2300 | 9.5-10.4 | **0.9** | undefined | **1** |
+| SSP2-4.5 r2300 | 2300 | 10.6-21.5 | 10.9 | **84.5 %** | 2 |
+
+**Four of the five arms rest on ≤2 GCMs, and one on a single GCM.** The ssp126 x2300
+"band" is 6 runs of one climate model at three ISM percentiles — a 0.9 cm width that is
+parameter spread, not model spread. And **every x2300 arm is NORCE / CISM16x-MAR312 at
+p25/p50/p75**: one ice-sheet model, three percentile variants, which are not independent.
+
+This sharpens the parent handoff's §8 ("every anchor past 2100 is NORCE-CISM, so the
+p05-p95 is CLIMATE-forcing spread, not structural spread") in the direction that matters:
+**the climate-forcing spread is itself 1-2 GCMs on four of the five arms.**
+
+**Consequence for sequencing.** Stage 2 introduces a **calibration-ACTIVE** change (a
+convex `L_eq` acts in the hindcast ⇒ refit, not prior-propagation), i.e. Stage 3/4's
+~3-5 days plus 6-8 h compute across ~10 edit sites, three of which have each caused a
+silent result-voiding failure here. It would be **fitted to the x2300 arm (1 ISM × 2
+GCMs)** and **judged by bands whose edges move 78-94 % of their own width on a single
+GCM drop**. That is the expensive move first.
+
+⇒ **§4b's "Stage 2 is the next real step" is WITHDRAWN.** The next step is to price the
+targets, not to build against them. Revised order in §5.
+
 ## 5. NEXT
 
 1. **§4.1, the NPV sensitivity to τ** — still unrun, still the cheapest item, and it may
    retire the τ question outright.
 2. **Decide the two flagged choices in §3.** The band basis changes how many cells pass;
    the promotion decision moves a cell.
-3. **The high-basin vs whole-sheet fork is laid out in §4b with the capacity numbers,
-   and the recommendation there is that it is a false binary** — keep the
-   inventory-capped high-basin reservoir and put the remainder on a convex slow-channel
-   `L_eq`. That makes **Stage 2 the next real step**, not a follow-on.
+3. **NOT Stage 2 — see §4c.** Cheapest-first, and the first two re-price everything
+   already concluded:
+   * **(a) Propagate the leave-one-GCM-out through the whole scorecard.** The machinery
+     exists; it is one scan re-run per dropped GCM (~15 s each). It directly re-prices
+     86/216, 526 -> 7, and the k=2-3 vs k<=1.0 tension. Report which verdicts are
+     GCM-robust and which are not.
+   * **(b) Settle the band-construction choice** (run-level vs GCM-clustered). §4c makes
+     it non-cosmetic: with 1-2 GCMs on four arms, run-level quantiles are quantiles of
+     ISM percentile variants, not of models.
+   * **(c) Run §3.2's two-stage gate** — `corr(d(history)/dp, d(2300 rates)/dp)` at the
+     optimum. The parent handoff names this as the precondition for "fit the ensemble
+     first", which is exactly the strategy Stage 2/3 would use. Cheap and offline, and
+     it determines *how* Stage 2 is run if it runs.
+   * **(d) §4.1, the NPV sensitivity** — still the parent handoff's own stated gate
+     before any model change; deprioritised by Marcus, so his call whether it stays so.
+   * **THEN Stage 2**, with the target's structural width known.
+4. **The §4b fork does not need deciding yet.** It is a physics/wiring call, and (a)
+   may change which side the evidence falls on — cell A already survives on one GCM.
