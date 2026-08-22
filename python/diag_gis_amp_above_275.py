@@ -48,6 +48,7 @@ sys.path.insert(0, os.path.join(REPO, "python"))
 os.chdir(REPO)
 
 import scope_gis_shape_all_scenarios as A  # noqa: E402
+import gis_targets  # noqa: E402
 from scope_gis_ridge_vs_protect import (  # noqa: E402
     basin2_series, rebase_cm, K_SOUTH, K_HIGH, GIS_V0_M,
 )
@@ -88,7 +89,9 @@ RATE_WIN = (2250, 2300)             # the rate window; handoff section 1.2
 RATE_ARM = ("ssp585", "r2300")      # the rate target: constant-forcing, tap-inert
 RATE_ARM_LABEL = "SSP5-8.5"
 LEVEL_SSP = "SSP5-8.5"              # our own deliverable scenario
-MATCHED_P50_CM = 98.5               # matched-forcing p50 for our ssp585 @2300
+## DERIVED, never a literal: gis_targets owns the matched bands and their p50s, and a
+## hardcoded 98.5 goes stale silently the next time the targets are re-derived.
+MATCHED_P50_CM = 100.0 * gis_targets.MATCHED_2300_P50_M[LEVEL_SSP]
 Y2100_TOL_CM = 0.10
 REPRO_TOL_CM = 1e-9                 # the HELD law must reproduce the shipped driver
 OURS = [("ssp126", "SSP1-2.6"), ("ssp245", "SSP2-4.5"), ("ssp585", "SSP5-8.5")]
@@ -228,19 +231,24 @@ def main():
           f"{T5 / CMIP6_DATA_HI_K:19.1f}")
 
     # --- 2. the four laws, as effective amplification ---------------------------
-    print(f"\n=== 2. THE FOUR LAWS — median effective amplification amp*S(dT) ===\n")
+    amp_med = float(np.median(amp))
+    print(f"\n=== 2. THE FOUR LAWS — effective amplification at the POSTERIOR MEDIAN\n    gis_amp = {amp_med:.4f} (NOT the observed anchor {OBS_AMP_FULL:.4f}; they differ\n    {OBS_AMP_FULL / amp_med:.4f}x and mislabelling this row overstates every entry) ===\n")
     probe = np.array([1.0, 2.0, 2.75, 4.0, 5.75, 7.81, 13.63])
     print(f"  {'law':46}" + "".join(f"{p:>8.2f}" for p in probe))
     for lab, kind in AMP_LAWS:
         if kind == "summer":
-            vals = BOCHOW_SUMMER_SLOPE * (probe - BOCHOW_SUMMER_GMT0_K) / probe
+            vals = (amp_med / OBS_AMP_FULL) * BOCHOW_SUMMER_SLOPE * (
+                probe - BOCHOW_SUMMER_GMT0_K) / probe
         else:
             S = {"held": _shipped_S(HELD_STEM), "full": _shipped_S(FULL_STEM),
                  "decl": _declining_S()}[kind]
-            vals = OBS_AMP_FULL * np.asarray(S(probe))
+            vals = amp_med * np.asarray(S(probe))
         print(f"  {lab:46}" + "".join(f"{v:8.3f}" for v in vals))
     print(f"\n  (GMT probe in K. 2.75 = the fit ceiling; 5.75 = the last CMIP6 bin;\n"
-          f"   7.81 = our ssp585 @2300; 13.63 = the x2300 arm @2300.)")
+          f"   7.81 = our ssp585 @2300; 13.63 = the x2300 arm @2300.)\n"
+          f"  The `summer` row is an AFFINE map, so below {BOCHOW_SUMMER_GMT0_K:g} K it "
+          f"is not a ratio at all\n  and its 1.00 K entry is DISPLAY-ONLY: the spliced "
+          f"region never goes below 1.38 K.")
 
     # --- 3. per law: re-bisect, base, ceiling, and the required flux -------------
     tgt = pd.read_csv(A.TARGETS).set_index("year")["gis"]
@@ -340,7 +348,6 @@ def main():
           f"({hi_psi / lo_psi:.2f}x),")
     print(f"  against the shipped {held.psi_rate_cm_per_yr:.3f} and the handoff's "
           f"quoted {PSI_B_CM_PER_YR:.3f}.")
-    worst_ceil = out[cols].max().max()
     warm = [c for c in cols if "ssp585" in c]
     print(f"  the phi=1 shortfall on the WARM arms stays above 1 for EVERY law "
           f"(min {out[warm].min().min():.2f}x, max {out[warm].max().max():.2f}x)"

@@ -65,6 +65,9 @@ RAMP_W_SHIPPED = R.RAMP_W_K
 ## STAGE 1b. The rate window and how the target band is built.
 RATE_WIN = (2250, 2300)
 RATE_ARMS = SSP585_ARMS          # the cool arms' rates are 1.3-2.5 cm/century: no signal
+## The constant-forcing arm. It is the one the LOGO test is run on, because it is the
+## only arm any grid cell can reach at all (x2300 is 0/1080 by a 1.5x margin).
+RATE_ARM_FAM = "r2300"
 ## ENSEMBLE-CONSTRUCTION CHOICE, FLAGGED NOT RESOLVED (see the printout). The shipped
 ## LEVEL bands are RUN-level quantiles, so the rate band is built the same way for
 ## consistency; but a "run" is one of 5 percentile variants of a GCM x RCM pair, so
@@ -162,7 +165,7 @@ def main():
     ann = pd.read_csv(A.ANN)
     offs = float(np.median(rebase_cm(
         basin2_series(drivers[("ssp585", "r2300")], post, 1.0, 1.0))[:, idx[2015]]))
-    band, rband, rband_gcm = {}, {}, {}
+    band, rband, rband_gcm, rate_by_run = {}, {}, {}, {}
     for ssp, lab, fam, _ in ARMS:
         sub = A.protect_band(ann, lab, fam)
         q = sub.groupby("year").gis_cm
@@ -174,8 +177,12 @@ def main():
         per_run = (w[RATE_WIN[1]] - w[RATE_WIN[0]]) / (RATE_WIN[1] - RATE_WIN[0]) * 100.0
         rband[(ssp, fam)] = (per_run.quantile(RATE_Q[0]), per_run.median(),
                              per_run.quantile(RATE_Q[1]), len(per_run))
-        gcm = per_run.reset_index().assign(
-            gcm=lambda d: d.exp.str.split("_").str[0]).groupby("gcm")[0].median()
+        ## NAME the column. reset_index() on an unnamed Series calls it `0`, which is
+        ## a silent trap the moment pandas changes that default.
+        pr = per_run.rename("rate").reset_index()
+        pr["gcm"] = pr.exp.str.split("_").str[0]
+        rate_by_run[(ssp, fam)] = pr
+        gcm = pr.groupby("gcm").rate.median()
         rband_gcm[(ssp, fam)] = (gcm.quantile(RATE_Q[0]), gcm.median(),
                                  gcm.quantile(RATE_Q[1]), len(gcm))
     MB = {lab: (100 * gis_targets.MATCHED_2300_M[lab][0],
@@ -385,6 +392,35 @@ def main():
     ## both cells because 35 "runs" are only 5 GCM clusters.
     rb = rband[("ssp585", "r2300")]
     rbg = rband_gcm[("ssp585", "r2300")]
+    # --- HOW MANY CLIMATE MODELS IS THE VERDICT RESTING ON? ----------------------
+    ## The parent handoff's section 7 says "35/35 runs is not p = 2^-35; cluster by
+    ## GCM". The same trap applies to a BAND built from those runs: its p05 can be set
+    ## by a single model. Leave-one-GCM-out, on the criterion's own survivors.
+    print(f"\n=== LEAVE-ONE-GCM-OUT — how many models is the rate verdict resting on? ===\n")
+    surv = out[out.pass_rate_r2300]
+    for ssp, lab, fam, _ in RATE_ARMS:
+        pr = rate_by_run[(ssp, fam)]
+        gcms = sorted(pr.gcm.unique())
+        print(f"  {lab} {fam}: {len(pr)} runs, {len(gcms)} GCMs "
+              f"-- per-GCM median rates "
+              f"{np.round(sorted(pr.groupby('gcm').rate.median()), 1).tolist()}")
+        if fam != RATE_ARM_FAM:
+            gmin, gmax = pr.rate.min(), out[f"rate_{ssp}_{fam}"].max()
+            print(f"    the grid's BEST achievable rate is {gmax:.1f} against the "
+                  f"single SLOWEST run {gmin:.1f}\n    => the {int(out[f'rate_{ssp}_{fam}_in'].sum())}"
+                  f"/{len(out)} verdict is BAND-INDEPENDENT ({gmin / gmax:.1f}x gap); "
+                  f"the 2-GCM basis does not\n       weaken it, because no band width "
+                  f"could admit a cell.")
+            continue
+        for g in gcms:
+            k = pr[pr.gcm != g]
+            lo, hi = k.rate.quantile(RATE_Q[0]), k.rate.quantile(RATE_Q[1])
+            n = int(((surv[f"rate_{ssp}_{fam}"] >= lo)
+                     & (surv[f"rate_{ssp}_{fam}"] <= hi)).sum())
+            flag = "   <-- LOAD-BEARING" if n == 0 and len(surv) else ""
+            print(f"    drop {g:20} band {lo:6.1f}-{hi:6.1f}   survivors "
+                  f"{n}/{len(surv)}{flag}")
+
     print(f"\n=== POINT TEST vs BAND TEST — the disagreement with handoff 1.2 ===\n")
     print(f"  cell A (psi {PSI_CELL_A_CM_PER_YR:.3f}) rate 12.0 cm/century:")
     print(f"    vs the PROTECT MEDIAN {rb[1]:.1f}          -> {rb[1] / 12.0:.1f}x short "
@@ -434,19 +470,26 @@ def main():
     ## REGARDLESS of how V and tau are split. Section 1.3's argument needs tau >> the
     ## 200-yr window (the separating curvature is O((s/tau)^2)), so the regime is
     ## reported SEPARATELY rather than averaged over a grid that includes tau=100.
-    for nm, sub in (("ALL tau", out[out.within_inventory]),
+    ## GROUP BY (psi, onset), NOT psi ALONE. Cells sharing a psi but differing in
+    ## ONSET are not expected to score alike -- the degeneracy claim is about how
+    ## (V, tau) are split at a FIXED onset. Grouping on psi alone silently folds the
+    ## onset spread into the answer and inflates it (1.244x -> the true 1.220x at
+    ## tau>=800, and the median 1.112x -> 1.041x).
+    for nm, sub in ((f"ALL tau", out[out.within_inventory]),
                     (f"tau >= {TAU_LONG_YR}", out[out.within_inventory
                                                   & (out.tau_yr >= TAU_LONG_YR)]),
                     (f"tau >= {TAU_LONG_YR}, w = {RAMP_W_SHIPPED:g}",
                      out[out.within_inventory & (out.tau_yr >= TAU_LONG_YR)
                          & (out.ramp_w_K == RAMP_W_SHIPPED)])):
-        g = sub.groupby("psi_cm_per_yr").rms_all
-        n = sub.groupby("psi_cm_per_yr").size()
-        r = (g.max() / g.min())[n > 1]
-        if r.empty:
-            continue
-        print(f"\n  {nm:34} rms_all within one psi varies by <= {r.max():.3f}x "
-              f"(median {r.median():.3f}x, {len(r)} psi values)")
+        for keys, tag in ((["psi_cm_per_yr"], "psi alone (MIXES onsets)"),
+                          (["psi_cm_per_yr", "onset_K"], "psi x onset (CORRECT)")):
+            g = sub.groupby(keys).rms_all
+            n = sub.groupby(keys).size()
+            r = (g.max() / g.min())[n > 1]
+            if r.empty:
+                continue
+            print(f"  {nm:26}{tag:26} <= {r.max():.3f}x  "
+                  f"(median {r.median():.3f}x, {len(r)} groups)")
     print(f"\n  => the degeneracy is a LONG-tau statement, exactly as section 1.3's "
           f"O((s/tau)^2)\n  curvature argument requires. It is NOT a property of the "
           f"whole grid.")

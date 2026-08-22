@@ -1,4 +1,75 @@
-Traceback (most recent call last):
-  File "/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/diag_gis_amp_above_275.py", line 43, in <module>
-    import numpy as np
-ModuleNotFoundError: No module named 'numpy'
+diag_gis_amp_above_275 — section 4.2 of the 2026-08-22 handoff, L14, 10000 draws
+  the shipped law fits CMIP6 over 0.75-2.75 K and HOLDS FLAT above; the arms run to 13.63 K.
+
+GATE — max |driver_with_law('held') - regional_driver| over all 8 drivers x 10000 draws: 3.553e-15 K
+  => the local driver IS the shipped one; the three other laws differ ONLY in the amp field.
+
+=== 1. WHERE THE CMIP6 EVIDENCE STOPS (secant, binned medians) ===
+
+  scenario    last bin K  n_models   bins with n>=20 up to
+  ssp126            2.75         9   2.25 K
+  ssp245            3.75        10   2.75 K
+  ssp585            5.75         7   4.75 K
+
+  arm                       GSAT@2300 K  x beyond the FIT  x beyond ANY data
+  SSP5-8.5 r2300                   5.61               2.0                1.0
+  SSP5-8.5 x2300                  13.63               5.0                2.4
+  SSP1-2.6 r2300                   1.95               0.7                0.3
+  SSP1-2.6 x2300                   2.44               0.9                0.4
+  SSP2-4.5 r2300                   2.98               1.1                0.5
+  OUR SSP5-8.5                     7.81               2.8                1.4
+
+=== 2. THE FOUR LAWS — effective amplification at the POSTERIOR MEDIAN
+    gis_amp = 1.9081 (NOT the observed anchor 1.9222; they differ
+    1.0074x and mislabelling this row overstates every entry) ===
+
+  law                                               1.00    2.00    2.75    4.00    5.75    7.81   13.63
+  held    S flat above 2.75 K  [SHIPPED]           1.905   1.749   1.640   1.640   1.640   1.640   1.640
+  full    CMIP6 binned to 5.75 K, then flat        1.905   1.749   1.640   1.685   1.575   1.575   1.575
+  decl    full + the -0.0503/K secant decline CONTINUED   1.905   1.749   1.640   1.685   1.575   1.442   1.069
+  summer  Bochow melt-relevant summer, GMT*1.19 above 0.5 K   0.591   0.886   0.966   1.034   1.079   1.106   1.138
+
+  (GMT probe in K. 2.75 = the fit ceiling; 5.75 = the last CMIP6 bin;
+   7.81 = our ssp585 @2300; 13.63 = the x2300 arm @2300.)
+  The `summer` row is an AFFINE map, so below 0.5 K it is not a ratio at all
+  and its 1.00 K entry is DISPLAY-ONLY: the spliced region never goes below 1.38 K.
+
+=== 3. THE REQUIRED FLUX psi, PER LAW (tau = 2200 yr HELD FIXED — it is a prior, not a fit) ===
+
+  rate target  26.5 cm/century  (ssp585 r2300, 2250-2300, PROTECT median)
+  level target 98.5 cm       (our SSP5-8.5 @2300, matched p50)
+  cell B as shipped in the handoff: psi = 0.273 cm/yr (V=6 m / tau=2200 yr)
+
+  law                                            base rate  psi_rate  base lvl  psi_lvl   ratio   V@tau
+  held    S flat above 2.75 K  [SHIPPED]               2.9     0.279      49.9    0.269    0.97     6.1
+  full    CMIP6 binned to 5.75 K, then flat            2.8     0.280      47.7    0.282    1.01     6.2
+  decl    full + the -0.0503/K secant decline CONTINUED       2.8     0.280      43.8    0.304    1.08     6.2
+  summer  Bochow melt-relevant summer, GMT*1.19 above 0.5 K       2.6     0.282      38.1    0.335    1.19     6.2
+
+  psi in cm/yr.  'ratio' = psi_level/psi_rate: 1.00 means ONE flux satisfies BOTH
+  requirements, which is cell B's whole claim. 'V@tau' is the volume that flux implies
+  at the fixed tau, in m SLE — against the 2.73 m NO+NE inventory and 7.42 m whole sheet.
+
+=== 4. THE phi=1 CEILING (handoff 1.1) UNDER EACH LAW ===
+
+  ratio = PROTECT median / what the LINEAR L_eq can deliver at phi=1.
+  ratio > 1 => no rate law reaches that arm, whatever the amp law.
+
+  law                                                8.5 r2     8.5 x2     2.6 r2     2.6 x2     4.5 r2
+  held    S flat above 2.75 K  [SHIPPED]              1.93x      2.41x      1.00x      0.76x      0.84x
+  full    CMIP6 binned to 5.75 K, then flat           2.03x      2.52x      1.00x      0.76x      0.82x
+  decl    full + the -0.0503/K secant decline CONTINUED      2.03x      3.81x      1.00x      0.76x      0.82x
+  summer  Bochow melt-relevant summer, GMT*1.19 above 0.5 K      2.43x      3.23x      1.11x      0.84x      0.97x
+
+=== 5. WHAT THE AMP LAW DOES TO THE DELIVERABLE ===
+
+  psi spans 0.279-0.282 cm/yr across the four laws (1.01x),
+  against the shipped 0.279 and the handoff's quoted 0.273.
+  the phi=1 shortfall on the WARM arms stays above 1 for EVERY law (min 1.93x, max 3.81x)
+  the rate scale s is IDENTICAL across all four laws (1.015246, spread 1.000000x) => the law above 2.75 K is
+  EXACTLY hindcast-inert and revisable at projection time, no refit. Same reason as gis_amp itself.
+  2100 stays inert under every law: max |d2100| on our SSP5-8.5 = 0.0000 cm (tol 0.1).
+
+  RAMP_W_K is 1 and is NOT scanned here — that is stage 1a, a separate axis.
+
+wrote outputs/diag_gis_amp_above_275.csv
