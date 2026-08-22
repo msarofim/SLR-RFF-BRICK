@@ -3,6 +3,99 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-22c — **The flux survives the amplification question; the ramp shape is a STOP; and the rate criterion cuts 526 cells to 7 — but lands on ψ = 0.125, not 0.273.**
+
+Read-only session. Two new scripts, no shipped scan edited, no gate moved, no cell shipped, no
+chain started. `python/diag_gis_amp_above_275.py` (handoff §4.2) and
+`python/scope_gis_reservoir_rate_rank.py` (handoff stages 1a + 1b). §4.1, the NPV/SC-GHG
+sensitivity, was **deliberately not run** — Marcus set it aside for this session, so it is still
+the one unrun item of handoff §4.
+
+### §4.2 — the amplification law above 2.75 K does NOT move the deliverable
+
+Four laws spanning the defensible range of sub-choice 1 (memory `ladrillo_gis_amp`): the shipped
+flat-hold, the raw CMIP6 binned curve out to 5.75 K, that curve with the measured −0.0503/K
+secant decline **continued**, and Bochow's melt-relevant summer map (`GMT = f_conv/1.19 + 0.5`,
+inverted) as a deliberate lower bound. Effective amplification at our own ssp585 @2300 spans
+**1.652 → 1.114, a 1.48× spread**. Gated: the local driver reproduces `regional_driver` under the
+shipped law to **3.6e-15 K**, so the other three differ *only* in the amp field.
+
+* **ψ is invariant.** Solved in closed form against the PROTECT 2250-2300 rate (the reservoir ramp
+  keys off GMT, not the regional driver, so the contribution is exactly linear in ψ at fixed τ —
+  no scan): **0.279 / 0.280 / 0.280 / 0.282 cm/yr, a 1.01× spread.** The base model's own rate is
+  2.6-2.9 cm/century against a 26.5 target, so the reservoir supplies ~90 % of it under every law
+  and the amp cannot move what is already nearly dead. **ψ ≈ 0.28 cm/yr is not an artefact of the
+  flat-hold.**
+* **The LEVEL requirement is not invariant, and that is the real caveat.** The base 2300 level
+  moves 49.9 → 38.1 cm (1.31×), so ψ_level goes 0.269 → 0.335 and the level/rate agreement cell B
+  rests on degrades from **0.97× to 1.19×**. One flux satisfies both requirements under the
+  shipped and fullcurve laws; under the two lower-amp laws it no longer quite does.
+* **Exactly hindcast-inert.** The bisected rate scale is identical to all printed digits across
+  all four laws (1.015246, spread 1.000000×) — the driver is observed south-Greenland T through
+  2024 and only spliced after, so a law differing only above 2.75 K cannot touch the fitted
+  period. Sub-choice 1 stays revisable at projection time with **no refit**, the same standing as
+  `gis_amp` itself.
+* **Handoff §1.1 confirmed robust, and now quantitative.** The φ=1 ceiling ratio on the warm arms
+  stays above 1 under every law, **1.93×-3.81×**; the handoff predicted 2.41 → ~3.4 and `decl`
+  (3.81) and `summer` (3.23) bracket it. ⚠ The summer law also pushes ssp126 r2300 to **1.11×**,
+  so "the cool arms are at or above their ceiling" is amp-law dependent in a way the warm-arm
+  reading is not.
+
+**Where the evidence actually stops:** the CMIP6 secant curve has ≥20 models only to 4.75 K and
+any models only to 5.75 K. Our own ssp585 @2300 (7.81 K) is **1.4× beyond any data**; the x2300
+arm (13.63 K) is **2.4× beyond**.
+
+### Stage 1a — `RAMP_W_K` is a **STOP**, and the verdict had to be taken off the level score
+
+1080 cells = the shipped 216 × a 5-point w axis. The w=1 slice reproduces the shipped
+**(135 all_pass, 86 also clearing both 2150 bands) exactly**, asserted as a gate, and the
+w-parameterised ramp is bit-identical to the shipped one at w=1.
+
+Widening the ramp improves `rms_all` by **1.074×**, so an `rms_all`-only reading returns GO. But
+`rms_all` is a **LEVEL** score and the criterion the model *fails* is the **RATE**: passing cells
+go **4 → 0** for every w > 1, and every w > 1 winner sits at **τ ≤ 400 yr** against the
+equilibrium literature's 2-3 kyr. The ramp shape buys a small level gain by trading away the
+rate. By the §2 identity `RAMP_W_K` **is** a common-τ ladder's `v(θ)` half ⇒ **a ladder cannot pay
+for its extra parameters either. Do not build N>1.**
+
+### Stage 1b — the rate criterion is powerful, and it re-opens the selection the other way
+
+526 cells clear every shipped criterion incl. 2150; **7** also clear the r2300 rate band;
+**ZERO** clear the x2300 band (0/1080 grid-wide), which confirms §3.1 over the full grid rather
+than by argument. The 7 survivors carry **ψ 0.094-0.125 cm/yr** and the re-ranked winner is
+**V=1 / onset 4.69 / τ=800 — cell A, the cell the handoff demoted.**
+
+* **POINT vs BAND.** Cell A's 12.0 cm/century is 2.2× below the PROTECT **median** 26.5 (the
+  handoff's demotion) and **inside** the run-level **band** 9.7-41.5 (this scan's winner). Both
+  are correct arithmetic; they are different criteria. The band spans **4.3× on 35 runs that are
+  only 5 GCM clusters**, and the clustered band (11.6-36.9, 3.2×) still holds both cells. ⇒ the
+  rate criterion narrows the set hard but **does NOT identify ψ to better than ~2×**. "The rate
+  criterion identifies the flux" holds against the **median**, not the band.
+* **The inventory ceiling is what excludes cell B.** `ψ = 100·V/τ`, so a hard cap on V is a
+  τ-dependent cap on ψ: at the handoff's own **τ = 2200 yr** the NO+NE inventory (2.73 m) caps ψ
+  at **0.124 cm/yr** against the **0.273** it needs — short by **2.2×**. Cell B is not merely
+  outside this grid, it is **outside the high basin**. The flux and the literature τ *together*
+  force a whole-sheet object; that is a wiring constraint, not a scan setting.
+* **The ψ degeneracy is a LONG-τ statement.** Within one ψ, `rms_all` varies by ≤2.872× over all
+  τ, **≤1.244× at τ≥800**, ≤1.150× at τ≥800 with w fixed — exactly as §1.3's O((s/τ)²) curvature
+  argument requires. §1.3 confirmed, with its domain of validity now **measured** rather than
+  assumed.
+
+### Choices FLAGGED, not resolved
+
+* **Rate-band basis.** Built run-level to match how the shipped LEVEL bands are built, which makes
+  it the *narrower* and therefore *stricter* of the two. `RATE_BAND_BASIS` switches it to
+  GCM-clustered; both are printed. Awaiting direction.
+* **Promotion.** Both new files write their own CSVs; `scope_gis_reservoir_offline.py` and its
+  output are untouched, because folding the rate criterion in would overwrite the provenance for
+  86/216 and for the shipped cell's selection. **Promotion moves a cell and is a separate call.**
+
+### Tried and abandoned
+
+* **Ranking stage 1a on `rms_all` alone.** Returns GO off a 1.07× level gain while the rate pass
+  count goes to zero. Kept only as the cautionary path in the script's comment — the stop/go must
+  read the criterion that binds, not the one that does not.
+
 ## [unreleased] — 2026-08-22b — **Step back: the defect is the LINEAR commitment law, the deliverable is a FLUX not a (V, τ), and 86/216 was the correct answer all along.**
 
 Read-only session — **nothing in `python/scope_gis_*` or `julia/` changed, no gate moved, no cell
