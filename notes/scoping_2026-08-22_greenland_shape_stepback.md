@@ -398,3 +398,164 @@ put it in the **threshold** (`theta_eff = theta - lambda*L`), not in the gain.
   winter, and winter warming does not drive melt. 1.9 vs a melt-relevant ~1.17 is a
   **1.6× extrapolation hazard** that `c1` absorbs at calibration temperatures and will
   not absorb at 10-14 K. **Worth a check; not yet run.**
+
+---
+
+# ADDENDUM 3 — the statistical review. One more correction to §2, and the honest deliverable
+
+## 16. CORRECTION: "`tau_eff` IS A COMMITMENT-FREE ESTIMATOR" IS TRUE ONLY FOR A SINGLE EXPONENTIAL
+
+§2 leaned on this and it is wrong for a mixture. On a held arm the rate is
+`R(s) = INT a(theta) exp(-s/tau(theta)) d theta` with **`a(theta) = v(theta)(1-phi_theta(0))/tau(theta)`**
+— the flux weight carries `(1-phi_theta(0))`, which depends on the whole ramp history
+and hence on the commitment. Two models with identical `tau(theta)` and different
+`v(theta)` give different `tau_eff`. **`tau_eff` is a functional of the spectrum AND
+the commitment.** Everywhere §2 called it clean, it is not.
+
+## 17. THE DELIVERABLE FROM CELL B IS A FLUX, NOT A `(V, tau)`
+
+Exact degeneracy: for any component with `tau >>` the window, `phi ~ s/tau`, so both
+the level and the rate depend only on **`psi = V/tau`**. The curvature separating them
+is `O((s/tau)^2)`: a **3x change in `tau` at matched flux moves the 200-yr level by
+6.3 %** — against the 5.61 K arm's own p05-p95 factor of **3.6**. So the 86/216 was
+the correct answer, not a fitting failure, and no better optimiser or finer grid fixes it.
+
+**This reads §13's table correctly.** Cell A has `psi = 1.0/800 = 0.125 cm/yr`; cells B
+and B' BOTH have `psi = 6/2200 = 3/1100 = 0.273 cm/yr`. The measured rates are 12.0 for
+A and **26.0 / 24.1 for B and B'** — the 2.2x A→B ratio is exactly the flux ratio, and
+B vs B' (a 2x change in `tau` at matched flux) differ by **7.9 %**, right at the
+predicted curvature size. **The rate criterion identifies `psi`. It does not identify
+`V` or `tau`, and it never will.**
+
+> **So state the finding as: an additional sustained flux of `psi ~ 0.27 cm/yr` opening
+> above ~4.7 K.** `V = 6 m / tau = 2200 yr` is one point on that ray, chosen because the
+> equilibrium literature says the ray should be entered near `V ~ V0` on a 2-3 kyr clock.
+> That is a PRIOR choosing a point on an unidentified line — exactly the tap's own
+> "IT IS A PRIOR SPECIFICATION, NOT A FIT" discipline
+> (`greenland_3basin_component.jl:111`). Say so wherever it is quoted.
+
+## 18. WHOLE FAMILIES REFUTED BY AN EXACT BOUND
+
+For **any** completely monotone response — every positive mixture of exponentials,
+which includes the ladder, Prony series, stretched exponential, Mittag-Leffler /
+fractional relaxation and every power-law memory kernel —
+
+  **`d ln tau_eff / d ln s < 1`, always.**
+
+(Stretched exponential: `tau_eff = t/[beta*u^beta - (beta-1)]`, numerical max of the
+exponent over `beta` in (0.02,0.99) and `u` in [1e-4,1e3] is **0.9997**. Regular
+variation with index `-p` gives `tau_eff ~ s/p`, exponent → 1.)
+
+The warm arm gives **1.31** (elapsed time from the 2100 hold) or 3.31 (my earlier
+convention). **Above 1 either way.** An exponent > 1 means `R(s)` is not decaying like
+any power law — **it is approaching a PLATEAU.** A 2-term Prony reproduces
+631/1525/2675 exactly as "one fast component that dies (40 yr) + a near-constant flux
+(3871 yr carrying 95 % of the 2100-2150 rate)".
+
+**That is the same statement as §17.** The warm arm is measuring a sustained flux, not
+a long timescale. Stop looking for a timescale there.
+
+**Also dropped:** a sigmoid `L_eq` with FIXED `tau` gives `tau_eff = tau` identically —
+no growth in `s`, none in `T`. It is the right answer for the 2300 LEVELS (§3, and the
+`x2300` arm of §13) and useless for the shape signature. **Two different constraints;
+do not conflate them.** And the continuum ladder cannot deliver the within-arm half at
+all: `a(theta)` carries `1/tau`, so short-`tau` bins are doubly weighted and
+`tau_eff(0) → 2*tau_min` **independent of `tau_max`** (verified: `tau` log-uniform on
+[50,3000] gives 98.4 yr, analytic 98.4). You cannot see a 2700-yr bin inside a 200-yr
+window. A 5-parameter ladder fit drove its `tau(theta)` exponent to 0.5 and abandoned
+the mechanism.
+
+## 19. THE ONE FAMILY THAT WORKS MECHANISTICALLY — AND WHY THE PHYSICS KILLS IT
+
+`L_eq = A(T + lambda*L)^q` with a single `tau` gives, in two lines,
+
+  **`tau_eff = tau / (1 - g)`,  `g = lambda * dL_eq/dL`**
+
+`g` rises with `L` (hence with elapsed time, for `q>1`) and with `T`. **Both halves of
+the signature, and the exponent is UNBOUNDED as `g → 1`** — which is how it clears the
+`< 1` ceiling that refutes every completely-monotone family. Best rms-per-parameter in
+the sweep (4 params, 0.212). Note it needs the CONVEXITY: a linear feedback gives
+`tau_eff = tau/(1-a*lambda)`, constant in `s`.
+
+**But the two reviews falsify it against each other.** The fit needs
+`lambda = 0.223 K/cm` = **22.3 K per m SLE**. §14's physical melt-elevation coefficient
+is **~1.5 K/m uniform, 3-5 K/m melt-weighted**. **The fit requires 4.5-15x more
+elevation feedback than the physics allows**, and it sits at `g = 0.94` — 94 % of the
+way to runaway, where the `L_eq` clip stops being incidental and becomes load-bearing,
+and a 10k-member ensemble will draw members with `g > 1`. **Do not adopt family C as
+physics.** Its value is that it names the flat direction "distance to runaway", which
+has an external prior; but `rho(ln lambda, ln tau) = -0.98` and condition number 1.07e5
+— **its identifiability is no better.**
+
+## 20. STAGE-0 IS CLOSED, AND THE HISTORY/ARMS CONFLICT IS NOW TWO-ROUTE
+
+The statistical review named its highest-value check as: verify the ISM boundary
+conditions are actually held after 2100, not just GSAT — because a common-mode drift
+would produce growing `tau_eff` in every run and no per-run sign test could see it.
+**§12 already closes it**: Goelzer's `r2300` holds the 2091-2100 forcing in randomised
+order AND the **2100 retreat mask constant**. Residual risk is bedrock/GIA and the
+ISM's own internal thermal adjustment, not ocean-forcing lag.
+
+**And the history/arms conflict now has two independent routes.** §9: pin `L_eq` to
+Bochow, fit `c` to the arms → hindcast 0.47 cm vs 5.78 (0.08x). Statistical review:
+fit family C to the arms with NO history information, run forward on 1900-2025 →
+**~1.5 cm vs 5.78 (0.26x)**. Different form, different fit, same direction, several-fold.
+**This is a finding about the ISM ensemble, not only about our emulator** — ISM
+ensembles under-reproducing recent observed GrIS acceleration is a live concern, and a
+JOINT fit would have converted it into a slightly-off parameter and hidden it.
+**⇒ fit the ensemble first, check history second.** Condition: measure
+`corr(d(history)/dp, d(2300 rates)/dp)` at the optimum; two-stage is safe only if
+|rho| < ~0.3.
+
+## 21. STATISTICS TO ADOPT
+
+* **Report `k = 1/tau`, not `tau`.** `dtau/tau = (tau/50)*d ln(R1/R2)`, so noise is
+  amplified **57.8x** at `tau = 2890`. The 5.61 K arm's `tau` is **one-sided at every
+  noise level** — even at 1 % noise on the median rate ratio the 95 % interval is
+  [1306, INF). Write "`tau` > ~900 yr (95 %), point estimate not meaningful."
+  **Every `tau_eff` in §2 and §11 of this note should be re-read that way.**
+* **35/35 is not p = 2^-35.** Cluster by GCM: 7 GCMs → **7/7, p ~ 0.008**. Still
+  significant, four orders of magnitude weaker than it looks.
+* **Serial correlation.** Fitting 285 annual points without an AR(1)/GP noise model
+  gives effective n ~ 5-6, so every interval comes out ~7x too tight.
+* **Profile along the SLOPPY EIGENDIRECTIONS, not the coordinate axes.** A coordinate
+  grid samples a curved ridge as a blob — **that is probably why 216 cells looked like a
+  fat admissible set.** Check clip activation first: `clip(alpha*T+beta, 1e-9, 1)` and
+  `clip(L_eq, 0, k*V0)` are non-smooth and invalidate every Hessian diagnostic at a
+  binding clip.
+* **The cross-arm claim rests on ONE arm.** 1.95 K and 2.98 K overlap (218/224/254 vs
+  174/241/462) and the FIRST window is non-monotone in T. The 13.63 K arm is rising and
+  yields no `tau`. So "`tau_eff` grows with temperature" is the 5.61 K arm alone — the
+  one whose `tau` is least measurable.
+
+## 22. IS ANY OF THIS WORTH IDENTIFYING? — COMPUTE BEFORE SPENDING
+
+Signature (E) is a **sub-noise target**: the warm arm's whole `tau` discrepancy is
+**2.6 % per rate**, below the best-fitting model's own 14.4 % residual and far below
+the ensemble spread. It looks big only because `tau_eff` amplifies it 58x. And the
+downstream discount factor at 3 % is **0.024 at 2150, 0.0012 at 2250**.
+
+**⇒ compute the NPV sensitivity to `tau` BEFORE spending anything more on identifying
+it.** If this feeds SC-GHG, a 6 % difference in the 2300 level is worth essentially
+nothing. It matters for 2300-LEVEL and commitment statements per se, and for tail
+statements — and those are exactly the uses where a BOUND should be quoted rather than
+a point estimate. **NOT YET COMPUTED. It should be the next thing run, ahead of any
+model change.**
+
+## 23. AMPLIFICATION — BOTH REVIEWS FLAGGED IT, IT IS ALREADY KNOWN-UNRESOLVED, AND THE DIRECTION HELPS §1
+
+`gis_amp ~ 1.92` is an ANNUAL-MEAN amplification; most Arctic amplification is winter
+and does not drive melt. Melt-relevant Greenland SUMMER warming is ~**1.17x** GMT
+(Bochow's own conversion). The projection shape law `S(dT)` already handles part of
+this — but **`S` saturates at 0.8596 by 2.75 K and is FLAT above it**, so the effective
+amp is a constant **1.650** for every T from 2.75 K to 13.63 K, and memory
+[[ladrillo_gis_amp]] item 4 already says *"Trust the shape over 0.75-2.75 K;
+unresolved above."* **Every arm in this analysis except ssp126 sits in the unvalidated
+region**, and at 13.63 K the driver is 22.5 K.
+
+**Direction check, which matters.** If the melt-relevant amplification is LOWER at high
+T than 1.650, the regional driver at 13.63 K falls by up to ~1.4x, `L_eq` is linear in
+it, so the φ=1 ceiling falls too and §1's shortfall gets **worse** (2.41x → ~3.4x).
+**§1's conclusion is robust to the amplification question in the direction that
+matters.** But nothing else at high T is, and this is now a blocking check rather than
+a background caveat.
