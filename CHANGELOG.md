@@ -3,6 +3,59 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-21j — **Option 2 priced offline and it FAILS. γ is bounded by 1/φ, and φ is already 0.84–0.92, so the error is not that we realise the commitment too slowly — it is that the commitment is too small.**
+
+`handoff_2026-08-21e` §3. `r = r0(T)·(1 + γ·L_b/(k_b·V0))` added to the kernel behind a `gamma`
+argument; **`greenland_3basin_component.jl` untouched**, as the handoff requires.
+
+**Nesting gate.** At `gamma = 0.0` the feedback branch is not entered at all, so the kernel is
+**bit-identical by construction, not by tolerance** — asserted on all three `gamma_on` settings,
+and `scope_gis_ridge_vs_protect.py` re-runs byte-identical.
+
+### The pre-check, run before the scan and decisive on its own
+
+A rate accelerator can only move `L` toward `L_eq`; it cannot raise `L_eq`. So its ceiling at any
+horizon is **1/φ**, where φ = L/L_eq is the equilibration fraction already reached.
+
+| arm | φ(2300) | ceiling | | φ(2300) | ceiling |
+|---|---|---|---|---|---|
+| ssp585 r2300 | 0.905 | ×1.105 | **OURS ssp126** | 0.835 | ×1.197 |
+| ssp585 x2300 | 0.920 | ×1.087 | **OURS ssp245** | 0.850 | ×1.177 |
+| ssp126 r2300 | 0.839 | ×1.192 | **OURS ssp585** | **0.889** | **×1.125** |
+| ssp245 r2300 | 0.860 | ×1.163 | | | |
+
+Our ssp585 @2300 is **49.9 cm** against a matched-band p50 of **98.5** (1.97×). The ceiling is
+×1.125, so **γ is 1.8× short of the p50 at γ → ∞.** It is *not* short of the band **floor**
+(42.9 cm), which the base already clears.
+
+> The memory's *"A+B is 99% equilibrated by 2300"* (φ = 0.987–0.991) is the **L12 single-basin**
+> figure. L14 two-basin is 0.84–0.92. Re-derived, not quoted — `handoff_2026-08-21d` §6 rules out
+> transferring L12 absolute levels.
+
+### The scan confirms it — 3 `gamma_on` × 9 γ, against all four watch-items
+
+| watch-item | result |
+|---|---|
+| **hindcast** | held to **0.0000 cm** — re-solved per draw at every γ, as required; unlike k, γ does not preserve it for free |
+| **shape** | best `rms_all` 0.372 vs 0.374 = **1.006× better**. Best `rms_ssp585` 0.474 vs 0.497 = **1.050×**, against the 1.70× that would reach the ssp585 optimum |
+| **level** | max ×1.141 rebased — but only **×1.113 is extra ice loss** (see below) |
+| **2100** | **MOVES**, by up to +4.72 cm (+0.88 at γ=10). Watch-item (a) **FAILS** |
+| **likelihood** | **NOT inert** — the feedback changes the calibration-window rate by up to **2.3 fractional**. γ cannot be prior-propagated the way the tap and `gis_amp` were |
+
+**One number exceeded its own ceiling, and was chased rather than reported.** The rebased ×1.141
+runs ahead of the ×1.125 bound because lowering `r0` — which the bisection does at every γ — also
+shrinks the **1995–2014 subtrahend** (0.05855 → 0.05175 m). The **raw**-loss ratio is what the
+ceiling bounds, and it is ×1.113, **inside**. So part of γ's apparent gain is baseline shift, not
+ice: quoting the rebased number would overstate γ. Both columns are in the CSV.
+
+### What it means
+
+**Option 2 is dead**, and the pre-check says why in one line: **the error is not that we realise
+the commitment too slowly, it is that the commitment is too small.** That is exactly the
+distinction `handoff_2026-08-21e` §4 item 3 draws in naming a third, genuinely slow **reservoir**
+as the fallback — it **adds** commitment rather than realising existing commitment faster, so it
+escapes the 1/φ ceiling *by construction*. That is now the live option.
+
 ## [unreleased] — 2026-08-21i — **The shape scorecard now holds all three scenarios at matched forcing. The argmins disagree, and the shipped model sits on the cool side of the disagreement.**
 
 `handoff_2026-08-21e` §3.1, done. Every arm runs **our model on that arm's own forcing**
