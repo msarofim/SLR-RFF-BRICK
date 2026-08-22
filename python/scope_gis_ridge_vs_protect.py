@@ -92,12 +92,25 @@ ARM = "spliced"
 IB = [int(np.where(YEARS == y)[0][0]) for y in range(1995, 2015)]
 
 
-def basin2_series(T, P, k_c, s_r):
+def basin2_series(T, P, k_c, s_r, gamma=0.0, gamma_on="both"):
     """L14 two-basin Greenland, VECTORISED OVER DRAWS. T is (ndraw, nyear) -- each
     draw carries its own amp, so the regional driver differs per draw. k_c scales
     the commitment, s_r scales BOTH channel rates (broadcast per draw or scalar).
     Mirrors greenland_3basin_component.jl with k_mid = 0, s_south = 1,
-    s_high = gis_s_high."""
+    s_high = gis_s_high.
+
+    `gamma` (2026-08-21j, handoff 2026-08-21e §3) adds the STATE-DEPENDENT
+    relaxation rate  r = r0(T) * (1 + gamma * L_b / (k_b * V0))  -- the relaxation
+    accelerates as loss proceeds (elevation-SMB feedback + marine-terminus retreat).
+    `gamma_on` selects which channel carries it: "both" (the handoff's form),
+    "slow", or "fast".
+
+    AT gamma = 0.0 THE FEEDBACK BRANCH IS NOT ENTERED AT ALL, so this is
+    bit-identical to the pre-gamma kernel by construction rather than by tolerance
+    -- the G3-style nesting gate, and the reason every caller that does not pass
+    gamma is unaffected. Asserted in scope_gis_gamma_offline.py."""
+    if gamma_on not in ("both", "slow", "fast"):
+        raise ValueError(f"gamma_on must be both|slow|fast, got {gamma_on!r}")
     col = lambda c: P[c].to_numpy()[:, None]
     f, c1, c0 = col("gis_f"), col("gis_c1"), col("gis_c0")
     af, bf = col("gis_alpha_f"), col("gis_beta_f")
@@ -116,9 +129,22 @@ def basin2_series(T, P, k_c, s_r):
         fast = np.zeros_like(T); slow = np.zeros_like(T)
         fast[:, 0] = GIS_G * f[:, 0] * eq[:, 0]
         slow[:, 0] = GIS_G * (1 - f[:, 0]) * eq[:, 0]
+        cap = kb * GIS_V0_M
         for i in range(1, T.shape[1]):
-            fast[:, i] = fast[:, i-1] + (f[:, 0] * eq[:, i-1] - fast[:, i-1]) * rf[:, i-1]
-            slow[:, i] = slow[:, i-1] + ((1 - f[:, 0]) * eq[:, i-1] - slow[:, i-1]) * rs[:, i-1]
+            rfi, rsi = rf[:, i-1], rs[:, i-1]
+            if gamma:
+                ## The feedback reads the PREVIOUS step's realised loss in THIS
+                ## basin, normalised by that basin's own capacity -- so a basin that
+                ## has lost little is untouched, which is the whole point. Clipped
+                ## at 1.0 like the base rates: a relaxation increment above 1 would
+                ## overshoot the target within a single annual step.
+                fb = 1.0 + gamma * (fast[:, i-1] + slow[:, i-1]) / cap
+                if gamma_on in ("both", "fast"):
+                    rfi = np.minimum(rfi * fb, 1.0)
+                if gamma_on in ("both", "slow"):
+                    rsi = np.minimum(rsi * fb, 1.0)
+            fast[:, i] = fast[:, i-1] + (f[:, 0] * eq[:, i-1] - fast[:, i-1]) * rfi
+            slow[:, i] = slow[:, i-1] + ((1 - f[:, 0]) * eq[:, i-1] - slow[:, i-1]) * rsi
         out = out + fast + slow
     return out
 
