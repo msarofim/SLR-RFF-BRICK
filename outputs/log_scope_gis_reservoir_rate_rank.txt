@@ -1,0 +1,106 @@
+scope_gis_reservoir_rate_rank — stages 1a (RAMP_W_K) + 1b (the rate criterion), L14, 10000 draws
+
+GATE — max |reservoir_unit_w(w=1) - R.reservoir_unit| over every (onset,tau,driver): 0.000e+00
+  BIT-IDENTICAL => the w=1 slice IS the shipped 216-cell grid.
+
+=== THE NEW CRITERION — PROTECT 2250-2300 RATE, cm/century ===
+
+  arm                          p05     p50     p95    n   | GCM-CLUSTERED p05/p50/p95, n
+  SSP5-8.5 r2300               9.7    26.5    41.5   35   |   11.6   26.5   36.9   5   base 2.9
+  SSP5-8.5 x2300             122.8   141.1   189.0   18   |  135.3  160.5  185.7   2   base 16.6
+
+  ENSEMBLE-CONSTRUCTION CHOICE, FLAGGED: the pass criterion uses the RUN-level band,
+  matching how the shipped LEVEL bands are built. A run is one of 5 percentile variants of a
+  GCM x RCM pair, so the run-level band is the NARROWER of the two and the criterion is
+  correspondingly the STRICTER. Switch with RATE_BAND_BASIS. Not resolved here.
+
+BASELINE (no reservoir): rms_ssp585 0.497  rms_cool 0.262  rms_all 0.374
+
+=== GRID — 6x6x6x5 = 1080 cells ===
+
+  at w=1 (the shipped slice): pass_shipped 135/216, of which 86 also clear both 2150 bands
+  => reproduces the shipped (135, 86) EXACTLY.
+
+  over the whole 1080-cell grid:
+    2100 + 2300 bands + shape + inventory          740/1080
+    ... + both ssp585 2150 bands                   526/1080
+    ... + the r2300 RATE band                        7/1080
+    ... + the x2300 RATE band too                    0/1080
+
+=== STAGE 1a — IS ANYTHING FLAT IN `RAMP_W_K`? ===
+
+     w (K)  pass_2150  +r2300 rate  best rms_all  psi of best  tau of best
+       0.5         81            3        0.2992        0.375          400
+       1.0         86            4        0.3015        0.188          800
+       2.0         95            0        0.2911        0.250          800
+       4.0        117            0        0.2836        0.500          400
+       8.0        147            0        0.2807        0.500          400
+
+  best rms_all across w: 0.2807-0.3015, a 1.0740x spread.
+  => NOT flat on the LEVEL score: widening the ramp buys 1.0740x on rms_all.
+     BUT the RATE criterion goes 4 -> 0 passing cells for every w > 1,
+     and every w > 1 winner sits at tau <= 400 yr, against the equilibrium literature's 2-3 kyr.
+     ==> STOP. The ramp SHAPE buys a small LEVEL gain by trading away the RATE, which is
+     the criterion the model fails. By the section-2 identity `RAMP_W_K` IS a common-tau
+     ladder's v(theta) half, so a LADDER cannot pay for its extra parameters either. Do not build N>1.
+
+=== STAGE 1b — WHAT THE RATE CRITERION REMOVES ===
+
+  cells clearing every SHIPPED criterion incl. 2150: 526
+  ... and ALSO the r2300 2250-2300 rate band: 7   (519 killed)
+  ... and ALSO the x2300 rate band:                  0
+
+  the SHIPPED ranking's winner (best rms_all, no rate criterion):
+    V=1.5 m  onset=7.5 K  tau=200 yr  w=4   psi=0.750 cm/yr
+      SSP5-8.5 r2300 rate    2.9 vs band 9.7-41.5 (p50 26.5)  OUT
+      SSP5-8.5 x2300 rate   56.5 vs band 122.8-189.0 (p50 141.1)  OUT
+
+  the RE-RANKED winner (rate criterion enforced):
+    V=1 m  onset=4.69 K  tau=800 yr  w=1   psi=0.125 cm/yr
+    our 2300: SSP1-2.6 10.1  SSP2-4.5 18.3  SSP5-8.5 70.9
+
+=== POINT TEST vs BAND TEST — the disagreement with handoff 1.2 ===
+
+  cell A (psi 0.125) rate 12.0 cm/century:
+    vs the PROTECT MEDIAN 26.5          -> 2.2x short = the handoff's demotion of A
+    vs the run-level BAND 9.7-41.5   -> INSIDE = this scan's re-ranked winner
+  the band spans 4.3x on 35 runs, which are only 5 GCM clusters;
+  the clustered band 11.6-36.9 spans 3.2x and still holds both cells.
+  ==> the RATE criterion narrows the admissible set hard (526 -> 7 cells),
+      but it does NOT identify psi to better than a factor of ~2. Handoff 1.3's
+      'the rate criterion identifies the flux' holds against the median, not the band.
+
+=== THE INVENTORY CEILING ON psi — why cell B is NOT in this grid ===
+
+  psi = 100*V/tau, so a HARD cap on V is a hard, tau-dependent cap on psi.
+    tau (yr)  psi_max @V_MAX  psi_max @V_grid  x short of 0.273
+         100           2.730            2.000             0.10x
+         200           1.365            1.000             0.20x
+         400           0.682            0.500             0.40x
+         800           0.341            0.250             0.80x
+        1600           0.171            0.125             1.60x
+        2200           0.124            0.091             2.20x   <- the handoff's tau
+        3200           0.085            0.062             3.20x
+
+  At the handoff's own tau = 2200 yr the NO+NE inventory (2.73 m) caps psi at
+  0.124 cm/yr, against the 0.273 it needs — short by 2.2x. So cell B is not merely outside
+  this grid, it is outside the HIGH BASIN: the flux and the literature tau together
+  force a WHOLE-SHEET object. That is a wiring constraint, not a scan setting.
+
+=== IS THE PASSING SET A psi RAY? (handoff 1.3/1.4, on 1080 cells) ===
+
+  shipped + 2150       n= 526   psi 0.008-1.500 cm/yr (15 distinct)   V [0.25, 0.5, 0.75, 1.0, 1.5, 2.0]
+                       tau [100, 200, 400, 800, 1600, 3200]  w [0.5, 1.0, 2.0, 4.0, 8.0]
+  + r2300 rate         n=   7   psi 0.094-0.125 cm/yr (2 distinct)   V [0.5, 0.75, 1.0, 1.5]
+                       tau [400, 800, 1600]  w [0.5, 1.0]
+
+  ALL tau                            rms_all within one psi varies by <= 2.872x (median 1.180x, 16 psi values)
+
+  tau >= 800                         rms_all within one psi varies by <= 1.244x (median 1.112x, 10 psi values)
+
+  tau >= 800, w = 1                  rms_all within one psi varies by <= 1.150x (median 1.089x, 10 psi values)
+
+  => the degeneracy is a LONG-tau statement, exactly as section 1.3's O((s/tau)^2)
+  curvature argument requires. It is NOT a property of the whole grid.
+
+wrote outputs/scope_gis_reservoir_rate_rank.csv
