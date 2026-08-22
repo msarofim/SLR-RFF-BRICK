@@ -1,0 +1,54 @@
+diag_gis_residual_band — the residual band end-to-end, L14, 10000 draws
+
+  arm                   GCM                      ISM    ours   d=ISM-ours   r=ISM/ours
+  SSP5-8.5 r2300        CESM2-Leo               77.7    34.7         43.1         2.24
+  SSP5-8.5 r2300        CNRM-ESM2-1             56.3    32.3         24.0         1.74
+  SSP5-8.5 r2300        IPSL-CM6A-LR            71.5    36.3         35.2         1.97
+  SSP5-8.5 r2300        MPI-ESM1-2-HR           30.0    23.5          6.5         1.28
+  SSP5-8.5 r2300        UKESM1-0-LL-Robin      106.7    41.8         65.0         2.56
+  SSP1-2.6 r2300        CESM2                   15.0    12.4          2.6         1.21
+  SSP1-2.6 r2300        MPI-ESM1-2-HR            6.7     8.4         -1.6         0.80
+  SSP2-4.5 r2300        CESM2                   18.0    18.9         -0.9         0.95
+  SSP2-4.5 r2300        MPI-ESM1-2-HR           11.1    13.5         -2.4         0.82
+
+=== THE RESIDUAL BAND AT OUR OWN FORCING (2300, cm) ===
+
+  scenario     n   base               SHIPPED     RESID add minmax         RESID add t-PI        widths sh/mm/t
+  SSP1-2.6     2   10.1       6.2-15.9            7.7-12.6            -35.7-56.8             10/5/93
+  SSP2-4.5     2   18.3      10.6-21.5           16.0-17.4              0.3-33.1             11/1/33
+  SSP5-8.5     5   49.9      42.9-145.0          47.6-110.5            18.5-150.9           102/63/132
+
+  ** THE minmax BAND EXCLUDES OUR OWN BASE ON SSP2-4.5 ** (top 17.4 vs base 18.3),
+  and the reservoir can only ADD — so under minmax NO cell can pass, on any drop. That is not a
+  model failure, it is 2 GCMs agreeing to 1.5 cm being read as a 1.5 cm uncertainty.
+
+=== LEAVE-ONE-GCM-OUT: RAW matched band vs RESIDUAL band (additive, t_pi) ===
+
+  cells clearing the three 2300 bands + the 2100 tolerance, of 1080
+
+  dropped GCM             RAW band   RESIDUAL band
+  (none) FULL                  750             752
+  CESM2                          0       UNDEFINED   SSP1-2.6 r2300 down to 1 GCM
+  CESM2-Leo                    750             759
+  CNRM-ESM2-1                  750             762
+  IPSL-CM6A-LR                 750             763
+  MPI-ESM1-2-HR                126       UNDEFINED   SSP1-2.6 r2300 down to 1 GCM
+  UKESM1-0-LL-Robin            739             741
+
+=== DID BANDING ON THE RESIDUAL FIX THE FRAGILITY? ===
+
+  RAW matched band       baseline  750   over the 6 DEFINED drops    0- 750   zeroed: 1/6
+  RESIDUAL band          baseline  752   over the 4 DEFINED drops  741- 763   zeroed: 0/4   (2 undefined)
+
+  ** THE COOL ARMS HAVE 2 GCMs, SO NO DROP IS DEFINED FOR THEM. ** Only the ssp585 arm
+  (n=5) can carry a leave-one-out at all. The RAW band appears to survive cool-arm drops
+  only because it quantiles RUN-level percentile variants rather than models — which is
+  the same over-counting diag_gis_scorecard_logo.py flagged.
+
+  RESID_FORM = 'additive', RESID_INTERVAL = 't_pi' — both FLAGGED, not resolved.
+  Built on THREE r2300 anchors, not the shipped five: an x2300 arm cannot be T-normalised
+  without post-2100 CMIP6. Our ssp585 forcing sits ABOVE that 3-anchor hull, so its band
+  comes from the hull rule rather than interpolation — weaker than the shipped
+  construction exactly where our headline scenario lives.
+
+wrote outputs/diag_gis_residual_band.csv
