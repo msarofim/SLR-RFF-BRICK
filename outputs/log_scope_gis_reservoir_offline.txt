@@ -1,0 +1,46 @@
+scope_gis_reservoir_offline — the tap's reservoir at MILLENNIAL tau, L14, 10000 draws, k=1
+
+G-INERT — max |reservoir ramp| over (1900, 2025), over ALL 36 (onset,tau) x every driver: 0.000e+00
+  EXACTLY zero => the hindcast, the bisection and the base rate solution are UNCHANGED,
+  so the reservoir is prior-propagatable like the tap and gis_amp -- and unlike gamma.
+
+BASELINE (no reservoir): rms_ssp585 0.497  rms_cool 0.262  rms_all 0.374
+  our 2300: SSP1-2.6 10.1  SSP2-4.5 18.3  SSP5-8.5 49.9   (matched bands 6-16, 11-22, 43-145)
+
+=== GRID — 6x6x6 = 216 cells, all within the 2.73 m inventory ===
+
+  keeps 2100 (|d| < 0.1 cm)       147/216
+  all three 2300 matched bands         200/216
+  improves the 5-arm shape             186/216
+  ALL OF THE ABOVE                     135/216
+
+  BEST BY 5-ARM SHAPE among passing cells:
+    V=1.5 m  onset=4.69 K  tau=800 yr
+      rms_all 0.302 vs 0.374 baseline (1.241x better);  rms_ssp585 0.353 vs 0.497 (1.409x)
+      our 2300: SSP1-2.6 10.1  SSP2-4.5 18.3  SSP5-8.5 81.4
+      2150 on the ssp585 arms: r2300 39.1 (band 15-49, IN)  x2300 57.1 (band 45-53, out)
+
+  TAU OF THE PASSING CELLS: [100, 200, 400, 800, 1600, 3200]   (the tap's own grid stops at 400)
+  V   OF THE PASSING CELLS: [0.25, 0.5, 0.75, 1.0, 1.5, 2.0]
+  ONSET OF THE PASSING CELLS: [4.0, 4.69, 5.5, 6.5, 7.5]
+
+  75/135 passing cells have tau > 400 yr, i.e. lie OUTSIDE the grid every
+  previous tap pricing ever scanned.
+
+=== 2150, THE HORIZON THE TAP SCORED 0/25 ON ===
+
+  cells clearing everything AND both ssp585 2150 bands: 86/135
+  best: V=1 m  onset=4.69 K  tau=800 yr
+    rms_all 0.307 (1.22x baseline), rms_ssp585 0.365 (1.36x), rms_cool 0.262 (baseline 0.262)
+    our 2300 cm: SSP1-2.6 10.1  SSP2-4.5 18.3  SSP5-8.5 70.9;  d2100 ssp585 +0.0000 cm
+    2150: r2300 35.4 (band 15-49)   x2300 53.1 (band 45-53.2)
+
+  DECOMPOSITION — what actually opened the door:
+    inside the OLD tau grid (<=400): 17 cells clear everything, best rms_all 0.312
+    in the NEW tau range   (>400) : 69 cells, best rms_all 0.307
+    => extending tau past 400 buys 1.016x. It is NOT what opened the door.
+    THE RE-TARGET IS. The best cell adds 21.0 cm at 2300 (49.9 -> 70.9); against the RAW literature
+       floor of 173 cm that is 2.4x SHORT, which is exactly why no small-V
+       reservoir was ever admissible before 2026-08-21g.
+
+wrote outputs/scope_gis_reservoir_offline.csv
