@@ -239,3 +239,10 @@ data/comparison/protect_greenland/README.txt
 #   bash scripts/fetch_cmip6_ssp585ext.sh   (md5s pinned in that script)
 # The DERIVED outputs/cmip6_ssp585ext_gsat.csv IS tracked.
 data/cmip6_gsat_ext/*.nc
+
+# Large fetched ice-sheet archives (2026-08-22). Keep the README and PROVENANCE.txt
+# tracked; the multi-GB zips/netCDFs are re-downloadable from the DOIs recorded there.
+# Without this a `git add -A` sweeps in ~4.9 GB.
+data/gis_post2100/**/*.zip
+data/gis_post2100/**/*.nc
+data/gis_post2100/**/*.pdf
