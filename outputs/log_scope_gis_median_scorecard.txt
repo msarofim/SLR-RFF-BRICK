@@ -1,0 +1,48 @@
+scope_gis_median_scorecard — the scorecard on MEDIANS, L14, 10000 draws
+
+  LOSS = weighted mean of |log(ours / PROTECT median)| over horizons (2100, 2150, 2200, 2300)
+  PLUS the 2250-2300 RATE (weight 1, ssp585 arms only), RMS over arms.
+  p05/p95 are NEVER read. A RANKING, not an admissibility test — no band, so no edge.
+  The rate term is NOT optional: without it the ranking re-selects the wide-ramp cell
+  that stage 1a rejected for trading the rate away.
+
+=== RANKING, best 8 of 775 cells within inventory and 2100-preserving ===
+
+      V  onset    tau    w     psi  loss_all   ssp585    cool  our 2300   name
+      2   4.69    200    8   1.000    0.3182   0.4112  0.2367      89.1   
+      2   4.69    400    4   0.500    0.3222   0.4190  0.2367      96.6   
+      2   4.69    400    2   0.500    0.3249   0.4240  0.2367     120.0   
+    1.5   4.69    400    2   0.375    0.3298   0.4334  0.2367     102.5   
+      2   4.69    800    1   0.250    0.3341   0.4415  0.2367      91.9   
+      2   4.69    200    4   1.000    0.3346   0.4425  0.2367     128.3   
+      2   4.69    800    2   0.250    0.3372   0.4474  0.2367      88.8   
+    1.5   4.69    200    8   0.750    0.3372   0.4475  0.2367      79.3   
+
+  named reference cells:
+    base, no reservoir                           loss_all 0.5130  rank 771
+    A  (shipped offline optimum, psi 0.125)      loss_all 0.3716  rank 43
+
+=== IS THE RANKING GCM-ROBUST? (the pass/fail scorecard was NOT) ===
+
+  dropped GCM                best cell (V,onset,tau,w)     psi  loss_all  same cell?
+  (none) FULL                             2,4.69,200,8   1.000    0.3182         YES
+  ACCESS1.3                               2,4.69,200,8   1.000    0.3182         YES
+  CESM2                                   2,4.69,200,8   1.000    0.4492         YES
+  CESM2-Leo                               2,4.69,200,8   1.000    0.3209         YES
+  CESM2-WACCM                             2,4.69,200,8   1.000    0.3142         YES
+  CNRM-ESM2-1                             2,4.69,400,2   0.500    0.3196          no
+  IPSL-CM6A-LR                            2,4.69,200,8   1.000    0.3600         YES
+  MPI-ESM1-2-HR                           2,4.69,400,2   0.500    0.3220          no
+  UKESM1-0-LL-Robin                       2,4.69,200,8   1.000    0.3078         YES
+
+  best cell unchanged under 6/8 drops; psi over the drops 0.500-1.000 (full 1.000)
+  loss_all of the winner over the drops 0.3078-0.4492 (full 0.3182)
+
+  Compare diag_gis_scorecard_logo.py, where 2 of 7 drops took the admissible set to ZERO.
+  A median ranking has no edge to fall off, so the question becomes 'does the WINNER move',
+  which is answerable — and is the form every downstream statement should now take.
+
+  ** THIS EMITS NO ADMISSIBLE SET, DELIBERATELY. ** Re-adding a pass/fail band would
+  reintroduce exactly the edge dependence this removes. Quote a RANK and its stability.
+
+wrote outputs/scope_gis_median_scorecard.csv
