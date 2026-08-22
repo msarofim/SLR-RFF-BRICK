@@ -158,7 +158,56 @@ question for the shape scorecard, not the 2300 bands.
 
 ---
 
-## 3. THE JOB — option 2, and the tension it has to resolve
+## 3. OPTION 2 IS DEAD (2026-08-21j). THE JOB IS OPTION 3.
+
+**Priced offline exactly as §3 below specified, and it fails on all four
+watch-items.** `python/scope_gis_gamma_offline.py`; the kernel carries a `gamma`
+argument that at 0.0 **does not enter the feedback branch at all**, so it is
+bit-identical by construction and `scope_gis_ridge_vs_protect.py` re-runs
+byte-identical. Julia untouched.
+
+**The pre-check killed it before the scan, and is the whole story.** A rate
+accelerator moves `L` toward `L_eq` but cannot raise `L_eq`, so its ceiling is
+**1/φ**. At L14, k = 1: φ(2300) = 0.905 / 0.920 on the ssp585 arms, 0.839 / 0.860
+on the cool arms, **0.889 on our own ssp585 ⇒ ceiling ×1.125**. Our ssp585 @2300 is
+49.9 cm against the matched p50 of 98.5 — **1.97×**. **γ is 1.8× short at γ → ∞.**
+
+> ⚠ The remembered *"A+B is 99% equilibrated by 2300"* (φ 0.987–0.991) is the **L12
+> single-basin** figure. L14 two-basin is 0.84–0.92. §6's rule about not
+> transferring L12 absolute levels applies to φ as well.
+
+The scan (3 `gamma_on` × 9 γ) confirms it: **shape** 1.006× better on `rms_all` and
+1.050× on `rms_ssp585` against the 1.70× needed; **2100 MOVES** up to +4.72 cm
+(watch-item (a) fails); **likelihood NOT inert** — the calibration-window rate moves
+by up to 2.3 fractional, so γ **cannot** be prior-propagated the way the tap and
+`gis_amp` were. The hindcast *is* held (0.0000 cm), but only because it is
+re-solved per draw at every γ, which is watch-item (c) behaving exactly as warned.
+
+**One number exceeded its own ceiling and was chased, not reported**: the rebased
+ratio reaches ×1.141 against the ×1.125 bound because lowering `r0` also shrinks the
+1995–2014 subtrahend (0.05855 → 0.05175 m). The **raw**-loss ratio is what 1/φ
+bounds and it is ×1.113, inside. Part of γ's apparent gain is baseline shift, not
+ice — quoting the rebased number would overstate it.
+
+### ⇒ THE JOB IS NOW §4 ITEM 3: a third, genuinely slow RESERVOIR
+
+The pre-check states the diagnosis in one line: **the error is not that we realise
+the commitment too slowly, it is that the commitment is too small.** Every knob
+priced so far — k along the ridge, the tap, γ — either redistributes a fixed
+commitment or realises it faster, and 1/φ caps all of them near ×1.1. A new
+reservoir **adds** commitment, so it escapes the ceiling by construction, and §4
+item 3 already names why it also escapes the ridge scan's objection: lengthening an
+existing channel's τ *lowers* 2300 because the commitment is fixed, whereas a new
+channel raises it. Build it the same way γ was built — offline, behind a default-off
+argument with a bit-identical nesting gate, scored on
+`scope_gis_shape_all_scenarios.py`'s five arms **and** the matched 2300 bands, with
+the same four watch-items (2100, hindcast, V0 clip, likelihood inertness) measured
+rather than assumed. **Price its likelihood inertness early** — γ's failure there
+was the surprise, and a new reservoir active over the hindcast would need a refit.
+
+---
+
+## 3-OLD. SUPERSEDED — the option-2 case, kept because its diagnosis still stands
 
 `scope_gis_ridge_vs_protect.py` **re-ran byte-identical** (re-run and diffed
 against the committed log, not assumed), because it runs our model on THEIR
