@@ -1,0 +1,58 @@
+diag_gis_k_vs_residual — the cool-arm kill of k, re-run on the residual basis, L14, 10000 draws
+
+       k      SSP1-2.6 shipped    SSP2-4.5 shipped         SSP1-2.6 residual         SSP2-4.5 residual
+     0.5        2.3 OUT             7.1 OUT           -57.4-74.8     IN        -34.8-53.1     IN    
+    0.75        7.2 IN             14.0 IN            -51.1-58.2     IN        -25.9-31.0     IN    
+       1       10.1 IN             18.3 IN            -45.8-46.7     IN        -18.0-14.7     IN    
+     1.5       13.9 IN             24.3 OUT           -37.2-30.0     IN        -10.0--4.9     OUT   
+       2       16.7 OUT            28.8 OUT           -30.2-17.0     IN        -29.6-6.1      IN    
+       3       20.3 OUT            34.9 OUT           -19.5--1.5     OUT       -59.1-23.7     IN    
+       5       24.0 OUT            41.5 OUT           -22.4--6.7     OUT       -94.2-45.9     IN    
+       8       26.4 OUT            46.0 OUT           -37.0-2.6      IN       -120.3-63.2     IN    
+      12       27.8 OUT            48.8 OUT           -46.1-8.5      IN       -136.8-74.2     IN    
+      14       28.2 OUT            49.6 OUT           -49.1-10.5     IN       -141.8-77.6     IN    
+    22.6       29.2 OUT            50.5 OUT           -54.0-13.3     IN       -135.9-69.8     IN    
+      50       24.6 OUT            31.6 OUT           -59.8-32.1     IN        -35.8-4.7      IN    
+
+=== THE COOL-ARM CEILING ON k ===
+
+  test                                    SSP1-2.6      SSP2-4.5     JOINT
+  SHIPPED matched band                         1.5             1         1
+  RESIDUAL, sample-size-respecting              50            50        50
+
+  largest k on the shipped K_GRID at which that arm still clears its criterion.
+  The RESIDUAL column asks 'is 0 inside the residual prediction interval', i.e. is the
+  model UNBIASED against the ISMs at this k — the reservoir is inert on the cool arms,
+  so no cell can rescue or spoil either test.
+
+=== POWER CHECK — is the residual test measuring k, or model crossing? ===
+
+  arm           n     PI width min-max over k    swing   monotone in k?
+  SSP1-2.6      2          15.7-132.3               8x            False
+  SSP2-4.5      2           5.1-219.4              43x            False
+
+  With n = 2 the half-width is exactly t(1,0.975)*|d1-d2|*sqrt(3)/2 = 11.0*|d1-d2|.
+  A non-monotone width means the interval is tracking where the two models CROSS, not k.
+
+=== WHAT THIS DOES TO THE k TENSION ===
+
+  ssp585 shape optimum (diag_gis_scorecard_logo): k* = 2-3 under every GCM drop.
+  cool ceiling, SHIPPED bands : k <= 1
+  cool ceiling, RESIDUAL      : NONE — the test has NO POWER on SSP1-2.6, SSP2-4.5
+
+  ==> DO NOT read this as 'the ceiling relaxes to k <= 50'. Read it as: with 2 GCMs the cool arms
+      CANNOT CONSTRAIN k AT ALL. The shipped k <= 1 comes from treating a 2-model RANGE as a
+      2-model UNCERTAINTY; and the one k where the residual test does bite (k = 1.5 on
+      SSP2-4.5) is two models coincidentally agreeing to ~0.5 cm, not evidence.
+
+  ** THE DISTINCTION THAT MATTERS **
+    PREFERENCE  the cool arms' rms argmin against the band MEDIANS is k ~ 0.75-1.0 and is
+                ROBUST 8/8 to GCM drops (diag_gis_scorecard_logo). Band WIDTH does not enter
+                an rms against medians, so THIS IS UNCHANGED.
+    EXCLUSION   the cool arms' ability to RULE OUT larger k is what collapses here.
+
+  ==> the k tension survives as a disagreement of PREFERENCES and does NOT survive as a
+      CONSTRAINT. 'One law asked to be steep at 6 K and flat at 2 K' still describes the
+      fit; it no longer describes a box the model is forced into.
+
+wrote outputs/diag_gis_k_vs_residual.csv
