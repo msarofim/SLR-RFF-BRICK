@@ -186,3 +186,89 @@ Read-only scratchpad scripts, `/private/tmp/.../scratchpad/`:
   `L_eq` acts in the hindcast, so it is a **refit**, not a prior-propagation.
   §4's split (literature `L_eq`, PROTECT `c`, history as a check) is the proposal
   for containing that cost — it has not been priced.
+
+---
+
+# ADDENDUM (same day) — two results that sharpen §3 and one that partly refutes it
+
+## 8. A COMMON-`tau` LADDER IS EXACTLY ONE RESERVOIR WITH A SHAPED RAMP
+
+Measured, not argued (code review, 2026-08-22): for a linear system driven through
+one LTI kernel, summation commutes with relaxation, so
+
+```
+sum_theta v(theta) * relax_tau( ramp(T; theta) )  ==  relax_tau( sum_theta v(theta) * ramp(T; theta) )
+```
+
+N=25 rungs, `tau`=400 yr, 451 yr: **max |difference| 3.3e-16**. Disperse `tau`
+log-uniformly over 100-3200 and they separate by 9.2 % of the reservoir's range.
+
+**So a "ladder of threshold reservoirs" decomposes into exactly two halves:** its
+`v(theta)` half **is** the `RAMP_W_K` constant in `scope_gis_reservoir_offline.py:75`
+— **pinned at 1.0 and never scanned** — and only `tau(theta)` dispersion is new,
+worth ~9 %. **Scan `RAMP_W_K` before proposing any ladder.** It is an afternoon
+against a scan that already runs in seconds, and a flat response would retire three
+of four proposed parameters.
+
+This does NOT apply to §3's form, which is a NONLINEAR ODE — `Theta(L)` makes the
+LTI argument fail. It applies to the ladder framing, and it is a reason to prefer
+§3's form over a ladder: the ladder's extra parameters are mostly already reachable.
+
+## 9. THE LITERATURE EQUILIBRIUM CURVE AND THE 1900-2025 RECORD ARE INCOMPATIBLE UNDER ANY ONE-CHANNEL LAW
+
+§4 concluded "take `L_eq` from the equilibrium literature". **That was run, and it
+fails** — the Bochow-2023 ladder is already tracked at
+`data/observations/greenland_equilibrium_bochow2023.csv` (Yelmo-REMBO and PISM-dEBM,
+via the authors' own `GMT = f_conv/1.19 + 0.5`).
+
+Pin `L_eq` to each ladder, fit only `c`:
+
+| | `c` fitted to the 5 arms | hindcast 1900-2025 | ssp585 r2300 @2300 | ssp126 r2300 @2300 |
+|---|---|---|---|---|
+| PISM-dEBM | 0.0297 | **0.47 cm vs 5.78 obs (0.08×)** | 35.3 vs 71.5 | 11.4 vs 11.1 |
+| Yelmo-REMBO | 0.0292 | **0.47 cm (0.08×)** | 34.2 vs 71.5 | 11.5 vs 11.1 |
+
+The arms want `c = 0.030`; the history wants **0.107**. A **3.6× conflict**, and the
+cool arms fit beautifully while the warm arms come out 2× low.
+
+**The mechanism, and it is the same obstruction option C hit, mirrored.** Both
+ladders are extremely sensitive at low `T` — PISM commits 85 % of the sheet by
+2.6 K, Yelmo 66 % by 1.76 K — so `Theta(0) = 0.5 K` (Bochow's zero-forcing reference
+is +0.5 K GMT, stated in their own figure code) and `max(T - Theta, 0)` is ZERO for
+most of 1900-2025. `A+B+C` broke the hindcast by making the rate too BIG (proportional
+relaxation, RMSE 1.675, 72 cm at 2100); the T-space form breaks it by making the rate
+too SMALL. **Either way the Bochow equilibrium curve cannot carry the observed
+historical loss on its own.**
+
+> ⚠ And the ladders' transitions are **one grid interval wide in both models**
+> (Yelmo 1.676→1.760 K, PISM 2.181→2.601 K), so the transition WIDTH is a sampling
+> artefact. `[[ladrillo_ladder_arms]]` — carry both, never fit the width.
+
+**What this implies for the design, and it narrows the change rather than widening
+it.** The fast channel is doing real work that the threshold law cannot do: history
+and 2100 are SMB-driven and respond to `T` directly, not to `(T - Theta)`. So the
+structural change belongs on the **SLOW channel only** —
+
+```
+fast   dL_f/dt = ( f*L_eq_lin(T) - L_f ) * r_f(T)        UNCHANGED; carries history + 2100
+slow   dL_s/dt = c_s * ( T - Theta(L_s) )_+              NEW; carries 2150-2300 at high T
+```
+
+which is contained, keeps every gate the fast channel already passes, and matches the
+physical split the repo already uses (`gis_offline_cell.py`: f = surface mass balance,
+1-f = dynamic discharge). **NOT YET RUN.** It is the next measurement, and it should
+be run before anything is proposed to the calibrator.
+
+## 10. THE §3 FIT'S `L_eq` IS NOT THE LITERATURE'S, AND THAT IS THE HONEST TENSION
+
+§3's fitted curve gives 18.7 % of the sheet committed at 5 K; PISM gives 98.7 % and
+Yelmo 98.4 %. The fit is not measuring the equilibrium — it is measuring a
+**300-year effective commitment**, which is the only thing 285 years of transient can
+see (§4). Do not present the §3 `L_eq` as an equilibrium curve. Two curves are in
+play and they answer different questions:
+
+* **`L_eq^{300yr}`** — what the arms identify, ~19 % at 5 K, sets the deliverable.
+* **`L_eq^{eq}`** — Bochow, ~99 % at 5 K, sets the multi-millennial story and is
+  **irrelevant to a 2300 deliverable** except as a ceiling.
+
+The whole `k`-ridge / `gamma` / tap arc has been implicitly conflating them.
