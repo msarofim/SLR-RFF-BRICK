@@ -309,6 +309,55 @@ GCM drop**. That is the expensive move first.
 ⇒ **§4b's "Stage 2 is the next real step" is WITHDRAWN.** The next step is to price the
 targets, not to build against them. Revised order in §5.
 
+## 4d. STEP 1 RUN — the commitment-law diagnosis is GCM-robust; the cell selection is not
+
+`python/diag_gis_scorecard_logo.py`. Two gates: the baseline matched-band rebuild
+reproduces the shipped `gis_targets` to **0.03 cm**, and **ACCESS1.3** — already
+excluded by `protect_band` — drops as an **exact no-op** (null control), so the sweep
+measures the drop and not the rebuild.
+
+| dropped GCM | 135 | 86 | 2150 | +r2300 rate | best ψ | k*(585) | k*(cool) |
+|---|---|---|---|---|---|---|---|
+| **(none)** | 135 | 86 | 526 | 7 | 0.125 | 3 | 0.75 |
+| ACCESS1.3 *(null control)* | 135 | 86 | 526 | 7 | 0.125 | 3 | 0.75 |
+| **CESM2** | **0** | **0** | **0** | **0** | — | 3 | 0.75 |
+| CESM2-Leo | 135 | 86 | 526 | 7 | 0.125 | 3 | 0.75 |
+| CESM2-WACCM | 134 | 82 | 504 | 4 | 0.094 | 2 | 1.00 |
+| CNRM-ESM2-1 | 138 | 86 | 526 | 7 | 0.125 | 3 | 0.75 |
+| IPSL-CM6A-LR | 137 | 78 | 493 | 4 | 0.094 | 3 | 0.75 |
+| **MPI-ESM1-2-HR** | **33** | **0** | **0** | **0** | — | 3 | 1.00 |
+| UKESM1-0-LL-Robin | 129 | 86 | 526 | 7 | 0.125 | 2 | 0.75 |
+
+**NOT ROBUST — every cell-selection verdict.** Two single models each void the whole
+admissible set, by **different** mechanisms, and the mechanism matters more than the
+count:
+
+* **CESM2** — the **ssp245** matched band collapses **10.6-21.5 → 10.1-12.3** and the
+  base model's 18.3 cm falls **outside** it. The reservoir is inert below its onset, so
+  **no cell can repair a cool-band failure**: 1080 → 0. The ssp245 criterion is one GCM.
+* **MPI-ESM1-2-HR** — the **ssp585** matched band's floor rises **42.9 → 77.6** and the
+  base 49.9 falls out. Cells *can* add loss there, so 135 → 33, but 2150 kills the rest.
+  This is the same model already load-bearing for the rate band (§2.3).
+
+**ROBUST — the structural conclusion, which is what the step-back actually rests on.**
+
+* **The k tension survives 8/8.** ssp585 wants k ∈ {2, 3} and cool wants k ∈
+  {0.75, 1.0} under **every** drop. So *"one law is being asked to be steep at 6 K and
+  flat at 2 K"* — the reading that identified the **linear `L_eq`** as the defect — is
+  **not a one-model artefact.**
+* The x2300 rate verdict is 0 under every drop (already band-independent, §2.3).
+* ψ of the winning cell stays **0.094-0.125** whenever anything survives — never near
+  the handoff's 0.273.
+
+**⇒ The §1.1 commitment-law diagnosis stands. What does not stand is any cell chosen
+against these bands** — including the shipped cell, cell A and cell B alike.
+
+**Stated approximation.** Level, rate and matched-anchor *quantiles* are rebuilt exactly
+from the reduced run set; the matched bands' PCHIP *predictor* (each anchor's 2015-2300
+GSAT integral) is **held**, because per-GCM GSAT is not on disk. Within one arm every
+GCM follows the same scenario, so the forcing-integral spread is far narrower than the
+SLR-response spread — the smaller of the two errors.
+
 ## 5. NEXT
 
 1. **§4.1, the NPV sensitivity to τ** — still unrun, still the cheapest item, and it may
@@ -317,10 +366,9 @@ targets, not to build against them. Revised order in §5.
    the promotion decision moves a cell.
 3. **NOT Stage 2 — see §4c.** Cheapest-first, and the first two re-price everything
    already concluded:
-   * **(a) Propagate the leave-one-GCM-out through the whole scorecard.** The machinery
-     exists; it is one scan re-run per dropped GCM (~15 s each). It directly re-prices
-     86/216, 526 -> 7, and the k=2-3 vs k<=1.0 tension. Report which verdicts are
-     GCM-robust and which are not.
+   * **(a) DONE — see §4d.** The commitment-law diagnosis (the k tension) is
+     GCM-robust 8/8; every cell-selection verdict is not, and two single models void
+     the admissible set outright.
    * **(b) Settle the band-construction choice** (run-level vs GCM-clustered). §4c makes
      it non-cosmetic: with 1-2 GCMs on four arms, run-level quantiles are quantiles of
      ISM percentile variants, not of models.
