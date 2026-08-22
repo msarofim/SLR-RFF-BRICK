@@ -3,6 +3,73 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-22a — **Option 3 works offline: 86 cells clear everything including 2150 — and the RE-TARGET, not the τ extension, is what opened the door.**
+
+`handoff_2026-08-21e` §4 item 3. **Not new machinery**: the tap already *is* a reservoir —
+`tap_unit` relaxes a state S toward a soft GMT ramp at rate 1/τ and adds `V·S`. Four things had
+never been done, and the decomposition below **measures** which of them did the work.
+
+### The pre-check — only a threshold form can work
+
+ssp585 must rise **×1.97** to the matched p50 while ssp245 has **×1.17** of headroom to its band
+top (and is already ×1.19 *above* its p50), so the minimum selectivity is **×1.68**.
+
+| form | selectivity | outcome |
+|---|---|---|
+| commitment ∝ T | ~1.0 | this is the ridge's failure |
+| state-dependent `L/V0` (γ) | 2.3 | still failed on level, 2026-08-21j |
+| **GMT threshold** | **exactly 0 below onset** | our cool scenarios peak at 1.73 / 3.15 K, so any onset above 3.15 K removes the cool constraint entirely |
+
+### G-INERT, and why it makes the scan cheap
+
+Max |ramp| over 1900–2025, over all 36 (onset, τ) × every driver = **exactly 0.000e+00**. The
+hindcast, the bisection and the base rate solution are therefore unchanged, the reservoir is
+prior-propagatable like the tap and `gis_amp` — and **unlike γ, which failed this same test at
+2.3 fractional**. Each cell is one addition rather than one model run.
+
+### Grid: 6 V × 6 onset × 6 τ (to 3200 yr), all inside the 2.73 m inventory
+
+| criterion | cells |
+|---|---|
+| keeps 2100 (\|d\| < 0.1 cm) | 147/216 |
+| all three 2300 matched bands | 200/216 |
+| improves the 5-arm shape | 186/216 |
+| **all of the above** | **135/216** |
+| **… and both ssp585 2150 bands** | **86/216** — the tap scored **0/25** at 2150 |
+
+**Best: V = 1 m, onset = 4.69 K, τ = 800 yr.**
+
+| | with reservoir | baseline |
+|---|---|---|
+| `rms_all` | **0.307** | 0.374 (1.22× better) |
+| `rms_ssp585` | **0.365** | 0.497 (1.36× better) |
+| `rms_cool` | **0.262** | 0.262 — **exactly unchanged** |
+| our 2300 | ssp126 10.1, ssp245 18.3 (**both exactly unchanged**), ssp585 **70.9 cm** | 10.1 / 18.3 / 49.9 |
+| Δ2100 | **+0.0000 cm** | — |
+| 2150 | r2300 35.4 (band 15–49), x2300 53.1 (band 45–53.2, at the edge) | — |
+
+The threshold is inert on the cool arms *by construction* — which is precisely the thing neither
+k nor γ could do.
+
+### The decomposition, and it corrects the framing this entry opened with
+
+Splitting the 86 passing cells at the old τ ceiling: **17 lie inside the old grid** (best
+`rms_all` 0.312) and 69 outside (best 0.307). **Extending τ past 400 yr buys 1.016×. It is not
+what opened the door.** The re-target is: the best cell adds **21.0 cm** at 2300, and against the
+**raw** literature floor of 173 cm that is **2.4× short** — which is exactly why no small-V
+reservoir was ever admissible before 2026-08-21g. The cells existed; they were being scored
+against a band produced at 13.8 K.
+
+### A units bug, caught by its own suspicious uniformity
+
+`V` is in metres and every base series is in cm, so the first run added 1/100th of each cell's
+effect: a 2 m reservoir landed as **1.8 cm** at 2300 and **216/216 cells "passed"**. That
+uniformity is what exposed it. `CM_PER_M` is a named constant now, and the fix was checked
+against the closed form — S(2300) = 1 − exp(−200/τ) = 0.865 predicted, 0.870 measured.
+
+**Not acted on:** offline only, `greenland_3basin_component.jl` untouched, no gate changed, no
+cell moved.
+
 ## [unreleased] — 2026-08-21j — **Option 2 priced offline and it FAILS. γ is bounded by 1/φ, and φ is already 0.84–0.92, so the error is not that we realise the commitment too slowly — it is that the commitment is too small.**
 
 `handoff_2026-08-21e` §3. `r = r0(T)·(1 + γ·L_b/(k_b·V0))` added to the kernel behind a `gamma`
