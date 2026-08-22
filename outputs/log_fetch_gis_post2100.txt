@@ -1,0 +1,49 @@
+
+greve_chambers_2022 (10.5281/zenodo.6029867): Dataset for "Mass loss of the Greenland ice sheet until the year 3000 under a sustained la
+  HAVE exp05_long.zip 305.4 MB
+  GET  ctrl_proj_long.zip 344.9 MB
+       ok 344.9 MB
+  GET  run_specs_headers.zip 0.2 MB
+       ok 0.2 MB
+  GET  _README.pdf 0.2 MB
+       ok 0.2 MB
+  GET  hist.zip 159.8 MB
+       ok 159.8 MB
+  GET  expb05_long.zip 300.0 MB
+       ok 300.0 MB
+  GET  expb04_long.zip 285.9 MB
+       ok 285.9 MB
+  GET  expb03_long.zip 286.5 MB
+       ok 286.5 MB
+  GET  expb02_long.zip 324.2 MB
+       ok 324.2 MB
+  GET  expb01_long.zip 297.0 MB
+       ok 297.0 MB
+  GET  expa03_long.zip 311.7 MB
+       ok 311.7 MB
+  GET  expa02_long.zip 319.8 MB
+       ok 319.8 MB
+  GET  expa01_long.zip 306.7 MB
+       ok 306.7 MB
+  GET  exp10_long.zip 306.0 MB
+       ok 306.0 MB
+  GET  exp09_long.zip 304.7 MB
+       ok 304.7 MB
+  GET  exp08_long.zip 306.6 MB
+       ok 306.6 MB
+  GET  exp07_long.zip 331.1 MB
+       ok 331.1 MB
+  GET  exp06_long.zip 312.9 MB
+       ok 312.9 MB
+
+ismip6_scalars (10.5281/zenodo.4498331): Results of ISMIP6 CMIP6 forced simulations: a multi-model ensemble of the Greenland and An
+  GET  README.txt 0.0 MB
+       ok 0.0 MB
+  GET  CMIP5_CMIP6_Scalars_Paper.zip 1.2 MB
+       ok 1.2 MB
+
+climberx_10kyr (10.5281/zenodo.19312031): Publication data for: "Long-term future Greenland ice loss determined by peak global warmi
+  GET  grl.zip 254.4 MB
+       ok 254.4 MB
+
+ALLDONE

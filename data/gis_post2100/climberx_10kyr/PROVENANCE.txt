@@ -1,0 +1,7 @@
+Publication data for: "Long-term future Greenland ice loss determined by peak global warming"
+DOI: 10.5281/zenodo.19312031
+published: 2026-03-29
+creators: ['Willeit, Matteo', 'Robinson, Alexander', 'Kaufhold, Christine', 'Ganopolski, Andrey']
+license: {'id': 'cc-by-4.0'}
+fetched 2026-08-22
+WHY: Willeit/Robinson/Kaufhold CLIMBER-X, 10,000-yr coupled runs, dynamic GrIS, extended SSPs

@@ -1,0 +1,7 @@
+Dataset for "Mass loss of the Greenland ice sheet until the year 3000 under a sustained late-21st-century climate"
+DOI: 10.5281/zenodo.6029867
+published: 2022-03-14
+creators: ['Greve, Ralf', 'Chambers, Christopher']
+license: {'id': 'cc-by-4.0'}
+fetched 2026-08-22
+WHY: Greve & Chambers 2022, mass loss to year 3000, SICOPOLIS -- the tau~3300yr source the handoff cites
