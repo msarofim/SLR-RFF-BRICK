@@ -3,6 +3,100 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-22b — **Step back: the defect is the LINEAR commitment law, the deliverable is a FLUX not a (V, τ), and 86/216 was the correct answer all along.**
+
+Read-only session — **nothing in `python/scope_gis_*` or `julia/` changed, no gate moved, no cell
+shipped, no chain started.** Ten diagnostics promoted to `python/diag_gis_stepback_*.py` +
+`plot_gis_shape_stepback.py`; record in `notes/scoping_2026-08-22_greenland_shape_stepback.md`
+(23 sections), executive layer in `notes/handoff_2026-08-22_greenland_flux_deliverable.md`.
+
+### What was established
+
+**The φ=1 ceiling kills the entire rate side without a scan** (`diag_gis_stepback_ceiling.py`).
+Fully equilibrate L14 at each arm's own 2300 driver: the linear `L_eq = c1·T + c0` reaches
+37.1 cm against ssp585-r2300's own median of 71.5 (**1.93×** short) and 96.8 against
+ssp585-x2300's 233.6 (**2.41×**), while clearing all three cool arms (0.76-1.00×). So `γ`, a
+longer τ and any re-shaped `r(T)` are bounded below the target simultaneously — generalising
+`γ`'s 1/φ certificate — and the `k=2-3` (shape) vs `k≤1.0` (cool levels) tension dissolves: one
+law is being asked to be steep at 6 K and flat at 2 K, which a SCALE cannot do and CURVATURE can.
+
+**Score the RATE, not just the level** (`diag_gis_stepback_rate_crit.py`). Every tap/reservoir
+cell had been selected on LEVEL bands. At 2250-2300, matched forcing, ssp585 r2300: PROTECT
+**26.5** cm/century, base 2.9, the shipped offline optimum **V=1/τ=800 only 12.0 (2.2× low)**,
+**V=6/τ=2200 = 26.0** with our ssp585 at 99.1 cm vs the matched p50 98.5 — Δ2100 and the cool
+arms exactly 0.000 in both. The shipped cell passes every level test and would be wrong again by
+2400.
+
+**But only the FLUX is identified.** For τ ≫ the window, level and rate both collapse onto
+`ψ = V/τ`; the separating curvature is O((s/τ)²) — a 3× change in τ at matched flux moves the
+200-yr level **6.3 %** against the arm's own p05-p95 factor of **3.6**. Demonstrated: V=6/τ=2200
+and V=3/τ=1100 share ψ=0.273 cm/yr and score 26.0 vs 24.1, while V=1/τ=800 (ψ=0.125) scores 12.0
+— exactly the flux ratio. **⇒ 86/216 was the CORRECT answer, not a grid failure; a bigger scan
+cannot resolve it.** Quote the result as *a sustained flux ψ ≈ 0.27 cm/yr opening above ~4.7 K*,
+with (V, τ) chosen by PRIOR from the equilibrium literature.
+
+### Tried and ABANDONED, with the reason
+
+* **Continuum ladder of threshold reservoirs.** Two independent kills. (a) At common τ it is
+  EXACTLY one reservoir with a shaped ramp — max diff **3.3e-16** over 451 yr at N=25 — so its
+  `v(θ)` half **is** `RAMP_W_K`, which sits pinned at 1.0 in `scope_gis_reservoir_offline.py:75`
+  and **has never been scanned**. (b) The flux weight carries 1/τ, so `τ_eff(0) → 2·τ_min`
+  *independent of τ_max* (log-uniform [50,3000] ⇒ 98.4 yr, analytic 98.4): a 2700-yr bin is
+  invisible inside a 200-yr window. A 5-parameter ladder fit drove its τ(θ) exponent to 0.5 and
+  abandoned the mechanism.
+* **Stretched exponential, Mittag-Leffler / fractional relaxation, power-law memory kernels,
+  Prony.** REFUTED by an exact bound, not merely disfavoured: for any completely monotone
+  response `d ln τ_eff / d ln s < 1` always (numerical max **0.9997**); the warm arm gives
+  **1.31**. An exponent > 1 means the rate is approaching a **PLATEAU** — the flux statement again.
+* **`L_eq = A(T + λ·L)^q`** (convex commitment + melt-elevation feedback). Works mechanically —
+  `τ_eff = τ/(1−g)`, `g = λ·dL_eq/dL`, unbounded exponent as g→1, the only family clearing the
+  <1 ceiling, best rms-per-parameter (4 params, 0.212). **Dead as physics**: needs
+  **λ = 22.3 K per m SLE** against a physical 1.5 (uniform) to 5 (melt-weighted) — 4.5-15× too
+  much feedback — sitting at g = 0.94 where the `L_eq` clip becomes load-bearing.
+* **Pin `L_eq` to the Bochow-2023 equilibrium ladder and fit only `c`.** Hindcast collapses to
+  **0.47 cm vs 5.78 observed (0.08×)**; the arms want c=0.030 against the history's 0.107. Both
+  ladders commit most of the sheet below 2.6 K and Θ(0)=0.5 K, so (T−Θ)₊ is ZERO through most of
+  1900-2025. `A+B+C` broke the hindcast by making the rate too BIG; this breaks it by making the
+  rate too SMALL. **⇒ the fast SMB channel is load-bearing; structural change belongs on the SLOW
+  channel only.**
+* **A T-space relaxation `dL/dt = c·(T − L_eq⁻¹(L))₊` with a FITTED sigmoid `L_eq`.** Reproduces
+  the non-monotone τ_eff from 3 parameters and its `c` agrees with the history to 1.08-1.36× on
+  the WARM arms — but its `L_eq` (19 % of the sheet at 5 K) is a **300-year effective
+  commitment**, not an equilibrium (Bochow: ~99 %), and a (Tc,q) profile with c refit spans
+  **3 %-100 %** committed at 5 K at near-equal misfit. Kept as a framing, not as a fit.
+
+### Three corrections this session made to its OWN framing
+
+1. **"τ_eff is a commitment-free estimator" holds only for a SINGLE exponential.** For a mixture
+   the flux weight is `a(θ)=v(θ)(1−φ_θ(0))/τ(θ)` and the (1−φ₀) factor depends on the whole ramp
+   history.
+2. **"τ_eff grows with elapsed time" is near-tautological** — guaranteed by log-convexity for any
+   positive mixture. 35/35 rules out the medianing artefact and nothing else, and clustered by
+   GCM it is 7/7, p ≈ 0.008 — not 2⁻³⁵.
+3. **"τ is longer at higher T" is the wrong physical gloss** and contradicts Levermann &
+   Winkelmann 2016 (3500 yr at 0.5 °C above threshold vs 500 yr at 5 °C) and Van Breedam 2020
+   (~2 kyr vs ~10 kyr). Do NOT re-sign `r(T)`; the signal is COMPOSITION, which `τ_eff = L_eq'(T)/c`
+   already says.
+
+### Two checks that come BEFORE any model change
+
+1. **NPV sensitivity to τ.** The whole warm-arm τ discrepancy is **2.6 % per rate** — below the
+   best model's own 14.4 % residual — and the 3 % discount factor is 0.0012 at 2250. **This may
+   retire the question outright** for an SC-GHG deliverable. Not computed.
+2. **The amplification law above 2.75 K.** `S(dT)` saturates at **0.8596 by 2.75 K and is FLAT to
+   13.63 K** (effective amp a constant 1.650; driver 22.5 K at 13.63 K), and memory already flags
+   the law as unresolved above 2.75 K. **Every arm but ssp126 sits there.** Direction check
+   already done: a lower high-T amp makes the φ=1 shortfall WORSE, so that conclusion is robust.
+
+### Checked and rejected
+
+`r2300` holds the **2100 retreat mask and SMB forcing**, not just GSAT ⇒ 26.5 cm/century is a
+LOWER bound, the flat rate is interior drawdown not marine retreat, and the "is it
+boundary-condition drift?" concern is CLOSED. The 6.5 K tap onset is a design principle
+(`greenland_3basin_component.jl:112-129`), **not** a Bochow attribution. The Bochow conversion is
+`GMT = f_conv/1.19 + 0.5` as the repo has it — only that direction reproduces the paper's
+"~1.4 °C regional summer (1.7 °C GMT)".
+
 ## [unreleased] — 2026-08-22a — **Option 3 works offline: 86 cells clear everything including 2150 — and the RE-TARGET, not the τ extension, is what opened the door.**
 
 `handoff_2026-08-21e` §4 item 3. **Not new machinery**: the tap already *is* a reservoir —
