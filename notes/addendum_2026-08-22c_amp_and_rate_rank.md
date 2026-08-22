@@ -358,6 +358,80 @@ GSAT integral) is **held**, because per-GCM GSAT is not on disk. Within one arm 
 GCM follows the same scenario, so the forcing-integral spread is far narrower than the
 SLR-response spread — the smaller of the two errors.
 
+## 4e. STEP (b) — the residual band, built and tested
+
+`python/diag_gis_gcm_tdecomp.py`, `python/reduce_cmip6_tas_gis_extra.py`,
+`python/diag_gis_residual_band.py`. Marcus's framing: the two things separating the
+GCMs are the **rate of local temperature change** (correctable) and **precipitation**
+(not). That makes the band-basis question "how much of the width is correctable", not
+"run-level or GCM-clustered".
+
+**Most of it is correctable.** On ssp585 r2300, now complete at **n=5** (UKESM1-0-LL
+fetched — it was never missing data, `reduce_cmip6_tas_gis.py` caps at 40 models
+alphabetically and stops at NorESM2-MM):
+
+| route | R² | rank r | resid sd / ISM sd |
+|---|---|---|---|
+| **GMST (our production path)** | **0.95** | 0.90 | **0.23** |
+| DIRECT, south-zone T | 0.80 | 0.90 | 0.45 |
+| DIRECT, all-zone T | 0.80 | 0.90 | 0.44 |
+
+Adding the arm's **largest** member (UKESM, 106.7 cm) *improved* the fit (0.92 → 0.95).
+Guidance from the arms too small to fit: the single pairwise contrast puts **0.49×**
+(ssp126) and **0.78×** (ssp245) of the gap on local temperature — both correctly
+ordered, and the ssp245 number is on the exact arm where CESM2 was load-bearing.
+
+⚠ **Driving with the GCM's own regional T makes predictions WORSE** (R² 0.80 vs 0.95).
+`c1` was calibrated against the observed south driver and absorbs the amplification
+level, so feeding a weaker driver without it under-predicts. The GMST route already
+carries the correction.
+
+### The band, and the result that reversed my expectation
+
+| dropped GCM | RAW band | RESIDUAL band |
+|---|---|---|
+| **(none)** | 750 | 752 |
+| CESM2 | **0** | *undefined* (ssp126 → 1 GCM) |
+| CESM2-Leo | 750 | 759 |
+| CNRM-ESM2-1 | 750 | 762 |
+| IPSL-CM6A-LR | 750 | 763 |
+| MPI-ESM1-2-HR | **126** | *undefined* |
+| UKESM1-0-LL-Robin | 739 | 741 |
+
+1. **On ssp585 the residual band is stable** — 741-763 against a 752 baseline, none
+   zeroed, against the raw band's MPI drop taking 750 → 126. Banding on the residual
+   fixes the **position**, which is what the fragility was.
+2. **Width was never the problem.** The naive min/max residual band collapses ssp245 to
+   1.5 cm and **excludes our own base** (top 17.4 vs base 18.3); the reservoir only
+   adds, so nothing passes. Respect the sample size with a Student-t prediction
+   interval and it inverts:
+
+   | scenario | n | base | SHIPPED | minmax | t-PI | widths sh/mm/t |
+   |---|---|---|---|---|---|---|
+   | SSP1-2.6 | 2 | 10.1 | 6.2-15.9 | 7.7-12.6 | −35.7-56.8 | 10 / 5 / **93** |
+   | SSP2-4.5 | 2 | 18.3 | 10.6-21.5 | 16.0-17.4 | 0.3-33.1 | 11 / 1 / **33** |
+   | SSP5-8.5 | 5 | 49.9 | 42.9-145.0 | 47.6-110.5 | 18.5-150.9 | 102 / 63 / 132 |
+
+   **The honest cool-arm bands are 3-9× WIDER than shipped.** So the raw bands were not
+   too wide — they were arbitrarily **placed** and **spuriously precise** on the cool
+   arms. ⚠ **The cool-arm 2300 criterion is far weaker evidence than it looks**, and it
+   is what kills k ≥ 1.5.
+3. **No leave-one-out is defined on a 2-GCM arm** — dropping one leaves a single model
+   with no spread. My first pass took min==max, produced a zero-width band, and it read
+   as "this GCM is load-bearing" when it means "this arm has 2 models". The raw band
+   only *appears* to survive cool-arm drops because it quantiles run-level percentile
+   variants rather than models.
+
+**Flagged, not resolved:** `RESID_FORM` (additive vs multiplicative) and
+`RESID_INTERVAL` (minmax vs t-PI); both computed and printed.
+**Limitation:** built on **three** r2300 anchors, not the shipped five — an x2300 arm
+cannot be T-normalised without post-2100 CMIP6. Our ssp585 forcing sits **above** that
+3-anchor hull, so its band comes from the hull rule rather than interpolation.
+
+**Provenance:** UKESM went into `data/cmip6_gis_extra/`, NOT the shipped panel, because
+`diag_gis_amp_cmip6.py` globs `data/cmip6_gis/` and a 41st file would silently change
+`gis_amp_shape.csv` on re-derivation.
+
 ## 5. NEXT
 
 1. **§4.1, the NPV sensitivity to τ** — still unrun, still the cheapest item, and it may
@@ -369,9 +443,10 @@ SLR-response spread — the smaller of the two errors.
    * **(a) DONE — see §4d.** The commitment-law diagnosis (the k tension) is
      GCM-robust 8/8; every cell-selection verdict is not, and two single models void
      the admissible set outright.
-   * **(b) Settle the band-construction choice** (run-level vs GCM-clustered). §4c makes
-     it non-cosmetic: with 1-2 GCMs on four arms, run-level quantiles are quantiles of
-     ISM percentile variants, not of models.
+   * **(b) DONE — see §4e.** Both options I had proposed were wrong: run-level and
+     GCM-clustered both quantile the TOTAL. The residual basis is right and is stable
+     on the one arm that can test it — but the cool arms cannot be tested at all, and
+     their honest bands are 3-9x WIDER than shipped, not narrower.
    * **(c) Run §3.2's two-stage gate** — `corr(d(history)/dp, d(2300 rates)/dp)` at the
      optimum. The parent handoff names this as the precondition for "fit the ensemble
      first", which is exactly the strategy Stage 2/3 would use. Cheap and offline, and
