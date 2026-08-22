@@ -200,13 +200,87 @@ above ~4.7 K, with (V, τ) by prior."* After this session:
   it does mean the high-basin option should never be quoted as "the rate criterion
   selects it" without the leave-one-out attached.
 
+## 4b. HIGH BASIN vs WHOLE SHEET — the fork, with the numbers
+
+**Capacity, measured** (`K_SOUTH, K_HIGH = 0.6286, 0.3714`, `GIS_V0_M = 7.42 m`):
+
+| | capacity | base L_eq @our ssp585 2300 | headroom | clip active |
+|---|---|---|---|---|
+| south | 4.664 m | 0.400 m (8.6 %) | 4.264 m | 0.0 % of draws |
+| **high (NO+NE)** | **2.756 m** | 0.237 m (8.6 %) | **2.519 m** | 0.0 % |
+| whole sheet | 7.420 m | 0.637 m | **6.783 m** | — |
+
+**The model's high-basin capacity is the Mouginot NO+NE inventory to 1 %** (2.756 vs
+2.73 m) — the physical bound is already structurally encoded, not bolted on. And the
+base model's clip is **nowhere near binding** (0.0 % of draws, 8.6 % of capacity used,
+still only 1.06 m at the x2300 arm's 13.63 K), so "re-opens the capacity clamp" is a
+statement about the *reservoir*, not about the base colliding with it.
+
+### High basin
+
+**For.** The threshold is *defensible physics for this specific ice*: Mouginot 2019's
+own conclusion is that NO+NE hold the largest potential SLE (273 cm), currently
+discharge little (25.9 + 39.5 Gt/yr in 2018) because shelves still buttress them, and
+are "of greatest relevance to future sea level rise" — a margin-retreat-into-deep-basin
+threshold is exactly that process. The dormancy premise survived its own audit (NW is
+the over-active region; NO+NE dormancy holds). It is **already wired**
+(`greenland_3basin_component.jl`), the capacity bound is a citable inventory number, and
+the tap is calibration-inert with 3.3 K of headroom.
+
+**Against.** `ψ = 100·V/τ` with V ≤ 2.73 m caps **ψ ≤ 0.124 cm/yr at τ = 2200 yr** —
+**2.2× short** of the flux that matches the PROTECT rate median. To reach ψ = 0.273
+inside the basin you need **τ ≤ 1000 yr**, against the equilibrium literature's 2-3 kyr
+(Van Breedam 2020 ~2 kyr; Greve & Chambers 2022 ⇒ τ ≈ 3300 yr). And the cells that do
+survive sit at the **bottom** of the PROTECT band and only because **one GCM** puts the
+floor there (§2.3).
+
+### Whole sheet
+
+**For.** Relieves the ψ cap: V = 6 m at τ = 2200 gives ψ = 0.273, matching the rate
+median *and* (under the shipped and fullcurve amp laws) the level p50 simultaneously.
+It **fits** — 6.0 m of 6.78 m headroom. And it is the object the equilibrium literature
+actually reports: Van Breedam and Greve & Chambers describe **whole-sheet** response on
+a 2-3 kyr clock, so a V ≈ V₀ / τ ≈ 2-3 kyr reservoir puts the prior on the right thing.
+§1.1's φ=1 ceiling is itself a whole-sheet statement (it sums both basins).
+
+**Against.** Three, and the first is the serious one.
+1. **It takes the literature's τ and V but discards the literature's low-T commitment
+   shape.** A whole-sheet object with *exactly zero* commitment below 4.69 K and 6 m
+   above is the opposite of what the same equilibrium literature says: both Bochow-2023
+   ladders are extremely sensitive at low T (PISM commits 85 % of the sheet by 2.6 K,
+   Yelmo 66 % by 1.76 K). A high-basin threshold does not have this problem, because
+   NO+NE activation genuinely *is* a high-T marginal process.
+2. **It consumes 88 % of the remaining headroom** (6.0 of 6.78 m), so the `L_eq` clip
+   goes from never-binding to near-binding — and §7 already flags the clip as
+   non-smooth and invalidating gradients wherever it binds.
+3. **No existing wiring.** The tap is on the high basin; a whole-sheet term is new
+   structure, i.e. Stage 4's ~10 edit sites in `calibrate_mcmc_ext.jl`, three of which
+   have each caused a silent result-voiding failure in this repo's history.
+
+### Recommendation — it is a false binary, and §1.1 already said so
+
+**Neither assignment fixes the actual defect.** §1.1 says the broken thing is the
+**commitment law**; §3.1 (now 0/1080 and band-independent) says **no fixed-V reservoir
+can ever match x2300**. A reservoir is a *proxy* for missing commitment, and choosing
+which basin to charge the proxy to does not make it the right object.
+
+**Proposed split, which is Stage 2 with a reason it is not optional:**
+* **Keep the reservoir on the HIGH BASIN, inventory-capped** (ψ ≤ 0.124 at literature
+  τ). It is already wired, calibration-inert, capacity-bounded by a citable number, and
+  its threshold is defensible physics for that ice specifically.
+* **Put the remaining shortfall on a convex slow-channel `L_eq`** — what §1.1 says is
+  broken, what x2300 needs, and what avoids asserting 6 m of whole-sheet commitment
+  behind a threshold the equilibrium literature contradicts at low T.
+* **Keep whole-sheet as the fallback parameterisation if Stage 2 fails**, with the low-T
+  contradiction documented rather than quietly carried.
+
 ## 5. NEXT
 
 1. **§4.1, the NPV sensitivity to τ** — still unrun, still the cheapest item, and it may
    retire the τ question outright.
 2. **Decide the two flagged choices in §3.** The band basis changes how many cells pass;
    the promotion decision moves a cell.
-3. **Decide whether the flux is a high-basin or whole-sheet object** (§2.2). This is now
-   the fork, and it is a physics/wiring call, not a scan call. Stage 2 of the parent
-   handoff (pricing the reservoir against a convex slow-channel `L_eq` for x2300) should
-   wait on it, because a whole-sheet reservoir re-opens the capacity clamp.
+3. **The high-basin vs whole-sheet fork is laid out in §4b with the capacity numbers,
+   and the recommendation there is that it is a false binary** — keep the
+   inventory-capped high-basin reservoir and put the remainder on a convex slow-channel
+   `L_eq`. That makes **Stage 2 the next real step**, not a follow-on.
