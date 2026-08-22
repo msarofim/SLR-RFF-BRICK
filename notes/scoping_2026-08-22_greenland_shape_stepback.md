@@ -272,3 +272,129 @@ play and they answer different questions:
   **irrelevant to a 2300 deliverable** except as a ceiling.
 
 The whole `k`-ridge / `gamma` / tap arc has been implicitly conflating them.
+
+---
+
+# ADDENDUM 2 — the Greenland-physics review, one correction to §2, and a cell that beats the shipped one
+
+## 11. CORRECTION TO §2's GLOSS (the measurement stands, the prescription was wrong)
+
+Two things in §2 were over-read.
+
+**(a) "`tau_eff` grows with elapsed time" is nearly content-free.** For ANY
+superposition of relaxation modes, `tau_eff(t)` rises monotonically toward the
+slowest mode by construction. "35/35 runs" is what a two-mode system does
+deterministically — it rules out the medianing artefact and nothing else. The
+composition change behind it is real and documented (Aschwanden 2019: by 2300 under
+RCP8.5 almost all NW outlets have gone land-terminating and discharge collapses), but
+it is EXPECTED, not diagnostic. **Do not carry this as evidence.**
+
+**(b) "`tau` is longer at higher T" is the wrong physical gloss and contradicts the
+literature.** Drainage gets FASTER in a warmer world:
+
+* Levermann & Winkelmann 2016 (TC 10, 1799): losing 10 % of Greenland takes
+  **~3500 yr at 0.5 °C above threshold, ~500 yr at 5 °C**.
+* Van Breedam, Goelzer & Huybrechts 2020 (ESD 11, 953): complete loss in **~2000 yr**
+  at highest forcing vs **~10 000 yr at 2 °C**.
+
+So **do not re-sign `r(T)`.** The right reading of the measurement is
+**COMPOSITION**: `tau_i` rises with a reservoir's THRESHOLD (deep interior ice is
+intrinsically slower than the marine periphery) while every `tau_i` FALLS with
+ambient T. At 5.6 K the system is past every published bifurcation, so there is no
+nearby equilibrium to relax toward and `tau_eff` → ∞ is a symptom of the commitment
+being far away. **This is consistent with §1 and §3** — `tau_eff = L_eq'(T)/c` is a
+composition statement, not a rate statement — but §2's phrasing invited the wrong fix
+and is corrected here.
+
+## 12. THE `r2300` ARM IS BIASED LOW, SO 26.5 cm/century IS A LOWER BOUND
+
+Goelzer 2025's `r2300` holds not only GSAT but the **2100 retreat mask, constant**,
+and the SMB forcing. So the post-2100 loss there is near-pure SMB drawdown plus
+adjustment to an already-imposed retreat. Two consequences: the flat rate **cannot**
+be attributed to runaway marine retreat (it is interior/ablation-zone drawdown), and
+the arm **understates** the sustained-warming response. My §2 worry that `r2300`
+"holds GSAT but not ocean forcing" is inverted — the ocean forcing is held more
+rigidly than the atmosphere.
+
+## 13. THE MISSING CRITERION, AND A CELL THAT PASSES IT
+
+Every tap/reservoir cell to date was scored on LEVELS and on an RMS of log-levels.
+**None was scored on the RATE at the last horizon** — so a cell can land on the 2300
+level with the wrong slope and be wrong again by 2400. Adding the 2250-2300 rate per
+arm at matched forcing:
+
+| cell | 8.5 r2300 | 8.5 x2300 | 2.6 r2300 | 4.5 r2300 | our ssp585 @2300 | Δ2100 | ssp245 dev |
+|---|---|---|---|---|---|---|---|
+| **PROTECT (target)** | **26.5** | **139.7** | 2.3 | 3.5 | matched p50 98.5 | — | — |
+| base, no reservoir | 2.9 | 16.6 | 1.3 | 1.9 | 49.9 | 0 | 0 |
+| **A** V=1.0, onset 4.69, τ=800 (the shipped offline optimum) | 12.0 | 26.4 | 1.3 | 1.9 | 70.9 | +0.0000 | +0.000 |
+| **B** V=6.0, onset 4.69, τ=2200 | **26.0** | 41.6 | 1.3 | 1.9 | **99.1** | +0.0000 | +0.000 |
+| B' V=3.0, onset 4.69, τ=1100 | 24.1 | 39.5 | 1.3 | 1.9 | 97.1 | +0.0000 | +0.000 |
+
+**Cell A matches the LEVEL and misses the RATE by 2.2×; cell B matches BOTH** — and
+lands our own ssp585 at 99.1 cm against the matched p50 of 98.5. Both are exactly
+inert at 2100 and on the cool scenarios. B is not a fitted stub: `V ≈ V0` on a
+**2-3 kyr clock** is what the equilibrium literature says (Van Breedam ~2 kyr at high
+forcing; Greve & Chambers 2022, SICOPOLIS under sustained late-21st-century climate,
+**1.79 ± 0.80 m by 3000** ⇒ single-exponential τ ≈ 3300 yr).
+
+**Two things cell B does NOT fix, and they must be said with it:**
+
+* **`V = 6 m` EXCEEDS `V_MAX_M = 2.73 m`**, the NO+NE Mouginot inventory. Cell B
+  cannot be the high-basin tap — it is a **whole-sheet** object. B' at V=3.0 is still
+  over. Wiring it means re-deciding what the reservoir is charged against, and
+  re-opening the capacity clamp.
+* **The `x2300` arm stays 3.4× short** (41.6 vs 139.7). No FIXED-`V` reservoir can
+  produce an accelerating rate at 13.6 K; that arm needs the commitment itself to
+  keep growing with T — i.e. §3's sigmoid `L_eq`, not a reservoir. **The reservoir
+  and the sigmoid are answering different arms.**
+
+## 14. LITERATURE ANCHORS WORTH HAVING ON RECORD
+
+Equilibrium committed loss vs sustained GMST — the curve is a **sigmoid**: small
+offset at T=0, steep (in some models discontinuous) rise between **~1.5 and ~3.5 K**,
+saturating near 7.4 m by **4-6 K**, with hysteresis and at least one intermediate
+state.
+
+| source | threshold (GMST above PI) | committed |
+|---|---|---|
+| Robinson, Calov & Ganopolski 2012, NCC 2, 429 | ~1.6 K (paper argues 1-2 K) | multiple stable states up to complete |
+| Bochow et al. 2023, Nature 622, 528 | **1.7-2.3 K** | <1 m at 1.5 K; PISM 3 regimes, Yelmo 2 |
+| Höning et al. 2023, GRL 2022GL101827 | ~0.6 and ~1.6 K | non-linear drop at each |
+| Gregory, George & Smith 2020, TC 14, 4299 | **no sharp threshold** — monotonic | 3 K ⇒ >5 m lost; 5 K ⇒ >7 m lost |
+| Zeitz et al. 2022, ESD 13, 1077 | irreversible at 3 K (lapse ≥6 K/km) | 61-93 % of present volume in the partial regime |
+| Van Breedam et al. 2020, ESD 11, 953 | none — complete in all scenarios | ~7 m, 2 kyr (high) to 10 kyr (2 K) |
+
+**Melt-elevation feedback: 0-20 % at 2300, not 7×.** My §1-era back-of-envelope of
+~6 % was the right order but used a 2000 m mean thickness; BedMachine gives ~1670 m,
+so 0.5 m SLE ⇒ ~112 m thinning ⇒ 0.73 K, and λ ≈ **1.5 K per m SLE** uniform,
+plausibly 3-5 melt-weighted. Gregory 2020 measures **~20 % additional SMB decline by
+centuries 2-3**; TC 19, 2289 (2025) finds fixed-lapse-rate runs **overestimate** loss
+by 17.0 ± 0.4 % at 4×CO2, and Zeitz 2022 has isostasy offsetting ~⅓ of thinning. So
+put it in the **threshold** (`theta_eff = theta - lambda*L`), not in the gain.
+
+**Two flags on the target data itself:**
+* **ssp126 `r2300` (7-17 cm at 1.95 K) is BELOW Box et al. 2022's already-committed
+  274 ± 68 mm** from 2000-2019 climate alone. One low-sensitivity model should not
+  set our low-end commitment.
+* The ssp126 `x2300` / `r2300` **inversion** — the WARMER arm (2.44 K) gives LOWER
+  and far narrower loss (10.3-11.2 vs 7.0-16.7) — is GCM composition, n=6 vs 10.
+  **The cool arms are two loosely-constrained points, not a temperature-response
+  slope.** This is the same signal as §3's 3.3× `c` disagreement between them.
+
+## 15. TWO CLAIMS FROM THE REVIEW THAT DO **NOT** SURVIVE CHECKING
+
+* **"The 6.5 K tap onset may be misattributed to Bochow."** It is not.
+  `greenland_3basin_component.jl:112-129` derives it from a design principle — the tap
+  must not move any horizon with independent validation — extended to 2150. No Bochow
+  attribution appears anywhere near it. **No action.**
+* **"Bochow's mapping is ΔGMT = 1.19 × ΔT_JJA + 0.5, so Greenland summer warms
+  0.84 K per K GMST."** Inverted. `build_greenland_equilibrium_ladder.py` takes the
+  authors' own `GMT = f_conv/1.19 + 0.5` from their figure code, and only that
+  direction reproduces the paper's stated "~1.4 °C regional summer (1.7 °C GMT)":
+  1.4/1.19 + 0.5 = 1.68. So Greenland **summer** warming is ~**1.17×** GMT.
+  **The underlying concern survives even though the number was backwards**: our
+  `gis_amp ≈ 1.9` is an ANNUAL-MEAN amplification, most Arctic amplification is
+  winter, and winter warming does not drive melt. 1.9 vs a melt-relevant ~1.17 is a
+  **1.6× extrapolation hazard** that `c1` absorbs at calibration temperatures and will
+  not absorb at 10-14 K. **Worth a check; not yet run.**
