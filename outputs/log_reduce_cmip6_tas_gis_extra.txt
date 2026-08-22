@@ -1,0 +1,18 @@
+reduce_cmip6_tas_gis_extra — 1 named model(s) into data/cmip6_gis_extra
+  shipped panel at data/cmip6_gis (40 files) is NOT touched.
+
+  UKESM1-0-LL: PROTECT ssp585 r2300 forcing GCM (UKESM1-0-LL-Robin); the arm's highest member, 106.7 cm at 2300
+
+building the Greenland mask rings (GTN-G region 05) — imported from build_t_gis, so the mask is bit-identical to the shipped panel's ...
+
+UKESM1-0-LL: member r1i1p1f2 (fallback sorted(common)[0])
+I0822 13:59:33.855268 21210445 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I0822 13:59:33.859335 21210483 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(23, generation: 1)
+  historical: 165 yr, to 2014 [13s]
+  ssp126: 86 yr, to 2100 [22s]
+  ssp245: 86 yr, to 2100 [26s]
+  ssp585: 86 yr, to 2100 [31s]
+  wrote data/cmip6_gis_extra/tas_series_gis_UKESM1-0-LL.csv  (423 rows, 31s)
+
+DONE. Consumers must opt in to data/cmip6_gis_extra explicitly;
+anything globbing data/cmip6_gis is unchanged and still reproduces.

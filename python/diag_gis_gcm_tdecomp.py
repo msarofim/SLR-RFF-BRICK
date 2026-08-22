@@ -75,6 +75,11 @@ OUT = os.path.join(REPO, "outputs/diag_gis_gcm_tdecomp.csv")
 # --- named constants ---------------------------------------------------------
 TAG = A.TAG
 CMIP6_DIR = os.path.join(REPO, "data/cmip6_gis")
+## The shipped 40-model panel is capped alphabetically at NorESM2-MM, so UKESM1-0-LL
+## lives in a SEPARATE directory (reduce_cmip6_tas_gis_extra.py) precisely so that
+## diag_gis_amp_cmip6.py's glob over the shipped panel -- and therefore the shipped
+## gis_amp_shape.csv -- cannot change. Searched second; opting in is explicit.
+CMIP6_EXTRA_DIR = os.path.join(REPO, "data/cmip6_gis_extra")
 TAS_GLOBAL, TAS_REG = "tas_global", f"tas_gis_{GIS_ZONE}"
 ## The ISM responds to the WHOLE sheet; our emulator's driver zone is `south`. Both are
 ## carried, because the difference between them turned out to be the main result.
@@ -99,6 +104,8 @@ def gcm_series(model, ssp):
     """That model's own (GMST, Greenland-south) on the r2300 convention, rebased to
     DRIVER_BASE. Returns None if the model is not in data/cmip6_gis."""
     p = os.path.join(CMIP6_DIR, f"tas_series_gis_{model}.csv")
+    if not os.path.exists(p):
+        p = os.path.join(CMIP6_EXTRA_DIR, f"tas_series_gis_{model}.csv")
     if not os.path.exists(p):
         return None
     d = pd.read_csv(p)
@@ -218,7 +225,10 @@ def main():
                              reg_2300_K=ser["reg"][idx[2300]],
                              own_amp=own_amp, our_amp=our_amp,
                              resid_gmst=ism - L2300_g, resid_direct=ism - L2300_d,
-                             resid_allzone=ism - L2300_a))
+                             resid_allzone=ism - L2300_a,
+                             src=("shipped" if os.path.exists(os.path.join(
+                                 CMIP6_DIR, f"tas_series_gis_{model}.csv"))
+                                 else "extra")))
             print(f"  {gcm:22}{rcm:22}{ism:9.1f}{L2300_g:11.1f}{L2300_d:9.1f}"
                   f"{L2300_a:10.1f}{own_amp:9.2f}{our_amp:9.2f}")
         print()
@@ -252,7 +262,7 @@ def main():
     for arm, g in out.groupby("arm"):
         if len(g) < MIN_GCM_FOR_FIT:
             print(f"  {arm:22}{len(g):5d}{g.ism_2300_cm.std(ddof=1):9.1f}  "
-                  f"n < {MIN_GCM_FOR_FIT} GCMs — NO regression possible on this arm")
+                  f"n < {MIN_GCM_FOR_FIT} — NOT FITTED; see the GUIDANCE block below")
             continue
         first = True
         for col, nm in (("pred_gmst_cm", "GMST (ours)"), ("pred_direct_cm", "DIRECT-south"),
@@ -274,6 +284,29 @@ def main():
           f"COOL\n  arms have 2 GCMs each and CANNOT be assessed this way at all — "
           f"which includes ssp245,\n  the arm where CESM2 was load-bearing in "
           f"diag_gis_scorecard_logo.py.")
+
+    # --- GUIDANCE FROM THE UNDER-POWERED ARMS ------------------------------------
+    ## Marcus 2026-08-22: an arm with too few GCMs to fit is still usable for GUIDANCE.
+    ## With n = 2 there is exactly one pairwise contrast, and it answers the same
+    ## question a regression would -- does our route move in the right direction, and
+    ## by how much of the gap -- without pretending to be an estimate.
+    print(f"\n=== GUIDANCE FROM THE ARMS TOO SMALL TO FIT (pairwise, n = 2) ===\n")
+    print(f"  {'arm':22}{'contrast':34}{'ISM gap':>9}{'ours':>8}{'explained':>11}"
+          f"{'residual':>10}")
+    for arm, g in out.groupby("arm"):
+        if len(g) != 2:
+            continue
+        g = g.sort_values("ism_2300_cm")
+        a, bq = g.iloc[0], g.iloc[1]
+        ism_gap = bq.ism_2300_cm - a.ism_2300_cm
+        our_gap = bq.pred_gmst_cm - a.pred_gmst_cm
+        print(f"  {arm:22}{bq.gcm + ' - ' + a.gcm:34}{ism_gap:9.1f}{our_gap:8.1f}"
+              f"{our_gap / ism_gap:10.2f}x{ism_gap - our_gap:10.1f}")
+    print(f"\n  'explained' = our GMST-route gap over the ISM gap. 1.00x would mean "
+          f"local temperature\n  accounts for the whole difference between those two "
+          f"models; negative would mean our\n  route orders them the WRONG WAY. One "
+          f"contrast is guidance, not an estimate — but it is\n  the only evidence "
+          f"these arms can give, and discarding it would leave them unexamined.")
 
     # --- THE ZONE RESULT ---------------------------------------------------------
     print(f"\n=== THE ZONE — our driver is SOUTH Greenland carrying a NORTH-sized "
@@ -330,9 +363,10 @@ def main():
           f"residual band is\n      ~{1 / max(ratio, 1e-9):.1f}x narrower, so one "
           f"GCM moves proportionally less of it. NOT YET MEASURED\n      — that is "
           f"the next step, and it needs the cool arms, which have only 2 GCMs each.")
-    print(f"\n  ==> BLOCKER for doing it properly: UKESM1-0-LL is absent from "
-          f"data/cmip6_gis and is\n      the HIGHEST ISM arm member (106.7 cm). "
-          f"Adding it would change the fit materially.")
+    nex = int((out.src == "extra").sum())
+    print(f"\n  ==> UKESM1-0-LL is now INCLUDED ({nex} model(s) from "
+          f"data/cmip6_gis_extra), so the ssp585\n      arm is complete at n="
+          f"{len(g5)} — every GCM PROTECT forced it with.")
 
     print(f"\nwrote {os.path.relpath(OUT, REPO)}")
 

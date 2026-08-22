@@ -8,7 +8,7 @@ diag_gis_gcm_tdecomp — local-T vs precipitation in the GCM spread, L14, 10000 
   CNRM-ESM2-1           MARv3.12                   56.3       32.3     22.1      28.7     1.15     1.64
   IPSL-CM6A-LR          MARv3.12                   71.5       36.3     31.4      36.3     1.34     1.64
   MPI-ESM1-2-HR         MARv3.12                   30.0       23.5     17.4      23.0     1.24     1.64
-  UKESM1-0-LL-Robin     MARv3.12/MARv3.9          106.7             ABSENT from data/cmip6_gis
+  UKESM1-0-LL-Robin     MARv3.12/MARv3.9          106.7       41.8     33.5      39.3     1.39     1.64
 
 === SSP1-2.6 r2300 ===
 
@@ -22,26 +22,35 @@ diag_gis_gcm_tdecomp — local-T vs precipitation in the GCM spread, L14, 10000 
   CESM2                 MARv3.12/RACMO2.3p2        18.0       18.9      5.9       9.9     0.69     1.64
   MPI-ESM1-2-HR         MARv3.12                   11.1       13.5      9.3      11.8     1.27     1.70
 
-  NOT T-NORMALISABLE (absent from data/cmip6_gis): SSP5-8.5 r2300 / UKESM1-0-LL-Robin (-> UKESM1-0-LL)
-
 === HOW MUCH OF THE ACROSS-GCM SPREAD IS LOCAL TEMPERATURE? ===
 
   arm                    nGCM   ISM sd  route              R2  rank r   resid sd / ISM sd
-  SSP1-2.6 r2300            2      5.8  n < 3 GCMs — NO regression possible on this arm
-  SSP2-4.5 r2300            2      4.9  n < 3 GCMs — NO regression possible on this arm
-  SSP5-8.5 r2300            4     21.3  GMST (ours)      0.92    0.80                0.28
-                                        DIRECT-south     0.66    0.80                0.58
-                                        DIRECT-all       0.63    0.80                0.61
+  SSP1-2.6 r2300            2      5.8  n < 3 — NOT FITTED; see the GUIDANCE block below
+  SSP2-4.5 r2300            2      4.9  n < 3 — NOT FITTED; see the GUIDANCE block below
+  SSP5-8.5 r2300            5     28.2  GMST (ours)      0.95    0.90                0.23
+                                        DIRECT-south     0.80    0.90                0.45
+                                        DIRECT-all       0.80    0.90                0.44
 
   R2 = across-GCM variance in the ISM 2300 level explained by that route; 'rank r' is
   Spearman, which does not assume linearity. 'resid sd / ISM sd' = the fraction of the
   band's own width surviving the best linear rescale of that predictor — the IRREDUCIBLE
   share: precipitation / SMB + ISM structure + member, which this cannot separate further.
 
-  ** n IS SMALL. ** The only arm with enough GCMs to fit is ssp585 r2300, and it has 4 — a 2-parameter fit on
-  4 points. Read R2 as indicative, not as an estimate with an interval. The two COOL
+  ** n IS SMALL. ** The only arm with enough GCMs to fit is ssp585 r2300, and it has 5 — a 2-parameter fit on
+  5 points. Read R2 as indicative, not as an estimate with an interval. The two COOL
   arms have 2 GCMs each and CANNOT be assessed this way at all — which includes ssp245,
   the arm where CESM2 was load-bearing in diag_gis_scorecard_logo.py.
+
+=== GUIDANCE FROM THE ARMS TOO SMALL TO FIT (pairwise, n = 2) ===
+
+  arm                   contrast                            ISM gap    ours  explained  residual
+  SSP1-2.6 r2300        CESM2 - MPI-ESM1-2-HR                   8.3     4.1      0.49x       4.2
+  SSP2-4.5 r2300        CESM2 - MPI-ESM1-2-HR                   6.9     5.4      0.78x       1.5
+
+  'explained' = our GMST-route gap over the ISM gap. 1.00x would mean local temperature
+  accounts for the whole difference between those two models; negative would mean our
+  route orders them the WRONG WAY. One contrast is guidance, not an estimate — but it is
+  the only evidence these arms can give, and discarding it would leave them unexamined.
 
 === THE ZONE — our driver is SOUTH Greenland carrying a NORTH-sized amplification ===
 
@@ -52,6 +61,7 @@ diag_gis_gcm_tdecomp — local-T vs precipitation in the GCM spread, L14, 10000 
   SSP5-8.5 r2300        CNRM-ESM2-1        5.01      1.15      1.48      1.52      1.83      1.64
   SSP5-8.5 r2300        IPSL-CM6A-LR       6.03      1.34      1.56      1.58      1.79      1.64
   SSP5-8.5 r2300        MPI-ESM1-2-HR      3.92      1.24      1.60      1.64      1.98      1.64
+  SSP5-8.5 r2300        UKESM1-0-LL-Robin   6.52      1.39      1.60      1.58      1.87      1.64
   SSP1-2.6 r2300        CESM2              2.33      0.63      0.95      0.91      1.39      1.71
   SSP1-2.6 r2300        MPI-ESM1-2-HR      1.58      1.51      1.74      1.70      2.06      1.82
   SSP2-4.5 r2300        CESM2              3.28      0.69      0.99      0.93      1.43      1.64
@@ -59,23 +69,23 @@ diag_gis_gcm_tdecomp — local-T vs precipitation in the GCM spread, L14, 10000 
 
   OUR law applies 1.64-1.82 to the `south` zone. These models put `south` at
   0.63-1.51 and `north` at 1.39-2.06 — so the law applies a NORTH-sized
-  amplification to a SOUTH-zone driver, over-driving it by 1.38x at the median.
+  amplification to a SOUTH-zone driver, over-driving it by 1.33x at the median.
 
   This is a DIRECT measurement of section 4.2's sub-choice 1, on the very models
-  PROTECT used: the flat-hold's 1.64 against a measured 1.19. It does NOT
+  PROTECT used: the flat-hold's 1.64 against a measured 1.24. It does NOT
   by itself mean the emulator is wrong — c1 was calibrated against the OBSERVED south
   driver and absorbs the level — which is exactly why the DIRECT routes above UNDER-predict.
 
 === ALIAS SENSITIVITY — dropping CESM2-Leo, the one GCM whose cmip6_gis series is an ALIAS ===
 
-  with    it: n=4  GMST-route R2 0.92  rank r 0.80  resid sd / ISM sd 0.28
-  without it: n=3  GMST-route R2 1.00  rank r 1.00  resid sd / ISM sd 0.06
-  (dropping it leaves n=3, the bare minimum for a fit — treat as a direction, not a number.)
+  with    it: n=5  GMST-route R2 0.95  rank r 0.90  resid sd / ISM sd 0.23
+  without it: n=4  GMST-route R2 0.96  rank r 1.00  resid sd / ISM sd 0.21
+  (dropping it leaves n=4, the bare minimum for a fit — treat as a direction, not a number.)
 
 === THE ANSWER TO THE BAND-BASIS QUESTION ===
 
-  On the one arm that can be fitted, OUR OWN production drive route explains R2 = 0.92
-  of the across-GCM variance, and only 28% of the band's width survives it. So most
+  On the one arm that can be fitted, OUR OWN production drive route explains R2 = 0.95
+  of the across-GCM variance, and only 23% of the band's width survives it. So most
   of what the raw band calls uncertainty is LOCAL TEMPERATURE the emulator already tracks,
   not ice-sheet disagreement.
 
@@ -84,10 +94,10 @@ diag_gis_gcm_tdecomp — local-T vs precipitation in the GCM spread, L14, 10000 
       Run-level and GCM-clustered were the WRONG two options; both quantile the total.
 
   ==> Expected effect on the diag_gis_scorecard_logo.py fragility: a residual band is
-      ~3.6x narrower, so one GCM moves proportionally less of it. NOT YET MEASURED
+      ~4.4x narrower, so one GCM moves proportionally less of it. NOT YET MEASURED
       — that is the next step, and it needs the cool arms, which have only 2 GCMs each.
 
-  ==> BLOCKER for doing it properly: UKESM1-0-LL is absent from data/cmip6_gis and is
-      the HIGHEST ISM arm member (106.7 cm). Adding it would change the fit materially.
+  ==> UKESM1-0-LL is now INCLUDED (1 model(s) from data/cmip6_gis_extra), so the ssp585
+      arm is complete at n=5 — every GCM PROTECT forced it with.
 
 wrote outputs/diag_gis_gcm_tdecomp.csv
