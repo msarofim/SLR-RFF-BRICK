@@ -432,27 +432,86 @@ cannot be T-normalised without post-2100 CMIP6. Our ssp585 forcing sits **above*
 `diag_gis_amp_cmip6.py` globs `data/cmip6_gis/` and a 41st file would silently change
 `gis_amp_shape.csv` on re-derivation.
 
+## 4f. PROPAGATED — the cool arms cannot constrain k at all
+
+`python/diag_gis_k_vs_residual.py`. On the residual basis the cool criterion reduces
+cleanly to **"is 0 inside the residual prediction interval"** — is the model unbiased
+against the ISMs at that k. The reservoir is inert on the cool arms, so no cell can
+rescue or spoil it.
+
+| cool ceiling on k | |
+|---|---|
+| SHIPPED matched bands | **k ≤ 1** |
+| RESIDUAL, sample-size-respecting | **NONE — the test has no power** |
+
+**Do not read the second row as "the ceiling relaxes to k ≤ 50"** (which a first pass
+printed). With n = 2 the t prediction half-width is exactly
+`t(1,0.975)·|d₁−d₂|·√3/2 = 11.0·|d₁−d₂|`, set entirely by how close the two models
+happen to fall at that k — and it is **non-monotone**, swinging **8×** on ssp126
+(15.7-132.3 cm) and **43×** on ssp245 (5.1-219.4 cm). The one k where the residual test
+bites (k = 1.5 on ssp245) is two models coincidentally agreeing to ~0.5 cm. The interval
+tracks where two curves cross, not k.
+
+**The distinction that decides what survives:**
+
+* **PREFERENCE** — the cool arms' rms argmin against the band **medians** is k ≈
+  0.75-1.0 and is **robust 8/8** to GCM drops. Band *width* does not enter an rms
+  against medians, so this is **unchanged**.
+* **EXCLUSION** — the cool arms' ability to **rule out** larger k is what collapses.
+
+⇒ **The k tension survives as a disagreement of preferences and does NOT survive as a
+constraint.** "One law asked to be steep at 6 K and flat at 2 K" still describes the
+fit; it no longer describes a box the model is forced into. **§1.1's φ=1 ceiling
+argument is untouched** — it compares to medians, not to band edges.
+
+## 4g. WHERE THE WHOLE ARC NOW STANDS
+
+**Survives** (all compare to medians, or are band-independent):
+* §1.1 the commitment-law defect — the φ=1 ceiling vs the arms' own medians.
+* §3.1 no fixed-V reservoir matches x2300 — 0/1080, and band-independent by a 1.5×
+  margin.
+* ψ ≈ 0.28 cm/yr invariant to the amplification law (1.01× over a 1.48× amp spread).
+* The k **preference** disagreement, robust 8/8.
+
+**Does not survive:**
+* Every **cell selection** — shipped, A and B alike. CESM2 and MPI-ESM1-2-HR each void
+  the admissible set.
+* The cool-arm **exclusion** of k ≥ 1.5.
+* Any claim resting on a **band edge** post-2100.
+
+**The root cause is one thing:** the post-2100 target set is **1 ice-sheet model** with
+**1-5 GCMs per arm**, and the two cool arms have no constraining power at all. That is
+what limits every structural conclusion, and no reanalysis of these runs can fix it.
+
 ## 5. NEXT
 
 1. **§4.1, the NPV sensitivity to τ** — still unrun, still the cheapest item, and it may
    retire the τ question outright.
 2. **Decide the two flagged choices in §3.** The band basis changes how many cells pass;
    the promotion decision moves a cell.
-3. **NOT Stage 2 — see §4c.** Cheapest-first, and the first two re-price everything
-   already concluded:
-   * **(a) DONE — see §4d.** The commitment-law diagnosis (the k tension) is
-     GCM-robust 8/8; every cell-selection verdict is not, and two single models void
-     the admissible set outright.
-   * **(b) DONE — see §4e.** Both options I had proposed were wrong: run-level and
-     GCM-clustered both quantile the TOTAL. The residual basis is right and is stable
-     on the one arm that can test it — but the cool arms cannot be tested at all, and
-     their honest bands are 3-9x WIDER than shipped, not narrower.
-   * **(c) Run §3.2's two-stage gate** — `corr(d(history)/dp, d(2300 rates)/dp)` at the
-     optimum. The parent handoff names this as the precondition for "fit the ensemble
-     first", which is exactly the strategy Stage 2/3 would use. Cheap and offline, and
-     it determines *how* Stage 2 is run if it runs.
-   * **(d) §4.1, the NPV sensitivity** — still the parent handoff's own stated gate
-     before any model change; deprioritised by Marcus, so his call whether it stays so.
-   * **THEN Stage 2**, with the target's structural width known.
+3. **NOT Stage 2 — see §4c/§4g.** Revised again after §4e/§4f. Cheapest and
+   highest-value first:
+   * **(a) DONE (§4d), (b) DONE (§4e/§4f).**
+   * **(NEW, RECOMMENDED FIRST) Test whether the amp/zone error explains the 2100
+     over-prediction.** §8 records a separate, still-open, ridge-invariant defect: we
+     run **20-45 % fast before 2100** on the warm/mid arms. §4e measured that our law
+     applies **1.64** to the `south` zone where these same models give **~1.24** at
+     2081-2100 — a 1.33× over-driving *in exactly the warming range 2100 sits in*.
+     That is a concrete, testable causal hypothesis for an unexplained defect. And
+     **2100 is the ONE horizon with independent evaluation** (MAGICC-SLR, FACTS
+     FittedISMIP, emuGrIS, bamber19) rather than 1 ISM × 2 GCMs — so it is the only
+     place the evidence can currently carry a structural conclusion.
+     ⚠ The test must include a **refit**: `c1` was calibrated against the observed
+     south driver and absorbs the level, which is why the DIRECT routes under-predicted
+     (§4e). The experiment is *"does the zone/amp correction plus a refit fix 2100
+     without breaking the hindcast?"*, not *"swap the driver"*.
+   * **Restate the scorecard on MEDIANS.** Medians survive, band edges do not (§4g).
+     Cheap, and it makes everything already done usable rather than caveated away.
+   * **Add an INDEPENDENT post-2100 ice-sheet source** — Aschwanden 2019, Van Breedam
+     2020, Greve & Chambers 2022. This is the only move that addresses the root cause
+     (§4g) and it is the one that would let a structural change be justified. Bigger
+     job; worth scoping before Stage 2 is reconsidered.
+   * **(c) §3.2's two-stage gate** and **(d) §4.1 NPV** — unchanged, still open.
+   * **THEN Stage 2**, if the target set can support it.
 4. **The §4b fork does not need deciding yet.** It is a physics/wiring call, and (a)
    may change which side the evidence falls on — cell A already survives on one GCM.
