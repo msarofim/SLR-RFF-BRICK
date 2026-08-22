@@ -63,7 +63,8 @@ for its extra parameters either. Do not build N>1.**
 526 cells clear every shipped criterion incl. 2150; **7** also clear the r2300 rate band;
 **ZERO** clear the x2300 band (0/1080 grid-wide), which confirms §3.1 over the full grid rather
 than by argument. The 7 survivors carry **ψ 0.094-0.125 cm/yr** and the re-ranked winner is
-**V=1 / onset 4.69 / τ=800 — cell A, the cell the handoff demoted.**
+**V=1 / onset 4.69 / τ=800 — cell A, the cell the handoff demoted.** ⚠ **But see the
+code-review section below: all 7 survive only because of one GCM.**
 
 * **POINT vs BAND.** Cell A's 12.0 cm/century is 2.2× below the PROTECT **median** 26.5 (the
   handoff's demotion) and **inside** the run-level **band** 9.7-41.5 (this scan's winner). Both
@@ -80,6 +81,37 @@ than by argument. The 7 survivors carry **ψ 0.094-0.125 cm/yr** and the re-rank
   τ, **≤1.244× at τ≥800**, ≤1.150× at τ≥800 with w fixed — exactly as §1.3's O((s/τ)²) curvature
   argument requires. §1.3 confirmed, with its domain of validity now **measured** rather than
   assumed.
+
+### Code review of the above — one climate model is load-bearing
+
+Self-review run as tests, not eyeballed. **No scan logic changed; both CSVs are
+byte-identical.** Six defects; one changes a conclusion.
+
+* **⚠ LOAD-BEARING GCM, and it was not checked.** Leave-one-GCM-out on the r2300 rate
+  band: dropping **MPI-ESM1-2-HR** moves the p05 from 9.7 to 19.2 and **all 7 survivors
+  die (0/7)**; every other GCM drops harmlessly (7/7). The band's p05 *is* the lowest
+  per-GCM median. So "the rate criterion admits cell A" is a **one-model** result, and
+  its failure mode **strengthens the whole-sheet reading** — without MPI the
+  inventory-capped grid is empty. Now its own printed section. **The x2300 verdict is
+  band-independent** by contrast: grid best 81.3 vs the single slowest run 122.2, a
+  1.5× gap, so the 2-GCM basis does not weaken it.
+* **The ψ-degeneracy measurement mixed onsets.** Grouping by ψ alone folds the onset
+  spread into a claim about (V, τ) splits at *fixed* onset. Corrected to (ψ, onset), and
+  it makes §1.3 **stronger**: at τ≥800 with w fixed, **1.011× (median 1.003×)** against
+  the 1.150×/1.089× first reported. Both groupings printed side by side.
+* **The level target was a hardcoded 98.5** → derived from
+  `gis_targets.MATCHED_2300_P50_M`. Same value; a literal goes stale silently.
+* **The amp probe row was mislabelled "median"** — it used `OBS_AMP_FULL` 1.9222 while
+  the posterior median `gis_amp` is 1.9081 (1.0074×), overstating every printed entry.
+  Results unaffected: the scan always used the draws.
+* **Brittle implicit column name** (`reset_index()` on an unnamed Series → column `0`);
+  named. **Dead variable** removed; the summer law's affine map documented as
+  not-a-ratio below 0.5 K, its 1.00 K probe entry marked display-only.
+
+**Checked and clean:** no NaN or duplicate rows in the per-run rate pivot (35 and 18
+runs, maxdup 1); the summer law never reaches its divide-by-zero or negative-ratio
+region in the spliced period (min 1.38 K); `full` and `decl` agree exactly on r2300 as
+they must, that arm peaking at 5.61 K below their 5.75 K divergence.
 
 ### Choices FLAGGED, not resolved
 

@@ -1,7 +1,9 @@
 # Addendum to `handoff_2026-08-22_greenland_flux_deliverable.md` — §4.2 discharged, stages 1a/1b run
 
 Written 2026-08-22. Repo `SLR-RFF-BRICK`, branch `ladrillo-dev`.
-Commits: `3f920fb` (§4.2), `c087ba2` (stages 1a+1b), CHANGELOG `2026-08-22c`.
+Commits: `3f920fb` (§4.2), `c087ba2` (stages 1a+1b), `730645d` (CHANGELOG),
+`438990e` (code review — §2.3 and §2.4 below are its findings; no scan logic
+changed, both CSVs byte-identical).
 
 **§4.1 — the NPV/SC-GHG sensitivity to τ — was deliberately NOT run** (Marcus set it
 aside for this session). It remains the one unrun item of the parent handoff's §4, and
@@ -129,11 +131,40 @@ The 7 survivors carry **ψ 0.094–0.125 cm/yr**, and the re-ranked winner is
   2.2×.** Cell B is not merely outside this grid — it is outside the high basin. The flux
   and the literature τ *together* force a whole-sheet object.
 
-### 2.3 §1.3 confirmed, with its domain measured
+### 2.3 ⚠ ONE CLIMATE MODEL IS LOAD-BEARING (added after code review)
 
-Within one ψ, `rms_all` varies by **≤2.872× over all τ**, **≤1.244× at τ≥800**, and
-**≤1.150× at τ≥800 with w fixed** — exactly as the O((s/τ)²) curvature argument
-requires. **The degeneracy is a long-τ statement, not a property of the grid.**
+Leave-one-GCM-out on the r2300 rate band. The parent handoff's §7 says *"35/35 runs is
+not p = 2^-35; cluster by GCM"* — the same trap applies to a **band** built from those
+runs, and it was not checked in the first pass.
+
+| dropped GCM | band p05-p95 | survivors |
+|---|---|---|
+| — (all 5) | 9.7-41.5 | 7/7 |
+| CESM2-Leo | 9.6-41.5 | 7/7 |
+| CNRM-ESM2-1 | 9.7-41.5 | 7/7 |
+| IPSL-CM6A-LR | 9.7-41.5 | 7/7 |
+| **MPI-ESM1-2-HR** | **19.2-41.5** | **0/7** |
+| UKESM1-0-LL-Robin | 9.6-36.7 | 7/7 |
+
+**The band's p05 (9.7) is exactly the lowest per-GCM median.** Drop that one model and
+the floor moves to 19.2, cell A's 12.0 falls outside, and **no high-basin cell clears
+the rate band at all.** So §2.2's "the criterion admits cell A" is a one-model result —
+and its failure mode **strengthens the whole-sheet reading**, because without MPI the
+inventory-capped grid is simply empty.
+
+**By contrast the x2300 verdict is band-independent** despite resting on only 2 GCMs:
+the grid's best achievable rate is **81.3** against the single *slowest* run at
+**122.2**, a 1.5× gap. No band width could admit a cell, so 0/1080 stands.
+
+### 2.4 §1.3 confirmed, with its domain measured
+
+Grouped by **(ψ, onset)** — grouping on ψ alone folds the onset spread into a claim
+that is about how (V, τ) split at *fixed* onset, and inflates it. Corrected, `rms_all`
+within one group varies by **≤2.297× over all τ**, **≤1.220× at τ≥800**, and
+**≤1.011× (median 1.003×) at τ≥800 with w fixed** — exactly as the O((s/τ)²) curvature
+argument requires, and **substantially tighter than the ψ-alone numbers first
+reported** (1.150×/1.089×). **The degeneracy is a long-τ statement, not a property of
+the grid.**
 
 ---
 
@@ -162,7 +193,12 @@ above ~4.7 K, with (V, τ) by prior."* After this session:
   flux is charged to the whole sheet (V ≈ 6 m at τ = 2200), or the high basin caps it at
   **ψ ≤ 0.124** and the model lands on cell A's ψ ≈ 0.125 with a 2250-2300 rate at the
   **bottom** of the PROTECT band rather than at its median.
-* **The x2300 arm is untouched by any of this** — 0/1080 cells, exactly as §3.1 said.
+* **The x2300 arm is untouched by any of this** — 0/1080 cells, exactly as §3.1 said,
+  and band-independent (§2.3).
+* **⚠ The high-basin case is one model wide.** Cell A survives only because
+  MPI-ESM1-2-HR sets the band floor (§2.3). That is not a reason to prefer cell B, but
+  it does mean the high-basin option should never be quoted as "the rate criterion
+  selects it" without the leave-one-out attached.
 
 ## 5. NEXT
 
