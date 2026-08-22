@@ -189,7 +189,64 @@ ratio reaches ×1.141 against the ×1.125 bound because lowering `r0` also shrin
 bounds and it is ×1.113, inside. Part of γ's apparent gain is baseline shift, not
 ice — quoting the rebased number would overstate it.
 
-### ⇒ THE JOB IS NOW §4 ITEM 3: a third, genuinely slow RESERVOIR
+### §4 ITEM 3 IS DONE (2026-08-22a) AND IT CLEARS — `scope_gis_reservoir_offline.py`
+
+**It is not new machinery.** The tap already *is* a reservoir: `tap_unit` relaxes S
+toward a soft GMT ramp at rate 1/τ and adds `V·S`. What had never been done was
+scanning it against a forcing-matched target.
+
+**Pre-check — only a threshold form can work.** ssp585 must rise ×1.97 to the
+matched p50 while ssp245 has ×1.17 of headroom to its band top (and is already
+×1.19 *above* its p50) ⇒ minimum selectivity **×1.68**. ∝T gives ~1.0 (the ridge's
+failure); `L/V0` gave 2.3 and still failed on level; a **GMT threshold gives exactly
+0 below onset**, and our cool scenarios peak at 1.73 / 3.15 K, so any onset above
+3.15 K removes the cool constraint outright.
+
+**G-INERT: max |ramp| over 1900–2025 = exactly 0.000e+00** across all 36 (onset, τ)
+× every driver. Hindcast, bisection and base rate solution unchanged ⇒
+prior-propagatable like the tap and `gis_amp`, **unlike γ**, which failed this same
+test at 2.3 fractional. It also makes each cell one addition rather than one run.
+
+**Grid 6 V × 6 onset × 6 τ (to 3200 yr), all inside the 2.73 m inventory:**
+135/216 clear 2100 + all three matched 2300 bands + the 5-arm shape;
+**86/216 also clear both ssp585 2150 bands — the horizon the tap scored 0/25 on.**
+
+**Best: V = 1 m, onset = 4.69 K, τ = 800 yr.** `rms_all` 0.307 vs 0.374 (**1.22×**),
+`rms_ssp585` 0.365 vs 0.497 (**1.36×**), **`rms_cool` 0.262 exactly unchanged**; our
+2300 = 10.1 / 18.3 (**both exactly unchanged**) / **70.9 cm**; **Δ2100 +0.0000 cm**;
+2150 r2300 35.4 (band 15–49), x2300 53.1 (band 45–53.2, **at the edge**).
+
+> ⚠ **THE DECOMPOSITION CORRECTS THE OBVIOUS STORY.** Split the 86 at the old τ
+> ceiling: **17 lie INSIDE the old ≤400 grid** (best 0.312), 69 outside (best 0.307).
+> **Extending τ past 400 yr buys only 1.016× — it is NOT what opened the door. The
+> RE-TARGET is.** The best cell adds 21.0 cm at 2300; against the raw literature
+> floor of 173 cm that is 2.4× short, which is why no small-V reservoir was ever
+> admissible. The cells existed and were being scored against a 13.8 K band.
+
+**A units bug caught by its own suspicious uniformity:** V in metres added to a cm
+series, so a 2 m reservoir landed as 1.8 cm and **216/216 cells "passed"**.
+`CM_PER_M` is named now and the fix was checked against the closed form
+(S(2300) = 1 − exp(−200/τ): 0.865 predicted, 0.870 measured).
+
+### WHAT IS STILL OPEN ON THE RESERVOIR — do not wire it yet
+
+* **86 cells is a wide admissible set, and it has NOT been narrowed.** τ spans
+  100–3200 and V spans 0.25–2.0 among passers; only 1.016× separates the best old-τ
+  cell from the best new-τ one, so the data does not currently identify τ. Pick a
+  cell on stated physical grounds, or report the set — do not let best-by-RMS stand
+  in for identification. `[[argmax_flat_optima]]`
+* **x2300 2150 sits AT the band edge (53.1 vs 53.2).** One horizon, one arm, n = 18,
+  ONE ice sheet model. Do not treat that as a fitted constraint.
+* **It is scored on the SAME PROTECT ensemble that defines the matched targets**, so
+  the shape and level tests are not independent evidence. Say so wherever it is
+  quoted.
+* **Offline only.** `greenland_3basin_component.jl` untouched. Wiring it means
+  re-opening the capacity clamp (the clamp not binding is a property of the SHIPPED
+  cell) and re-running the tap's own G1/G2/G2b/G3.
+* **The tap and the reservoir are the same object.** Decide whether this REPLACES
+  the tap or re-cells it — shipping both would double-count the same commitment.
+
+### ⇒ SUPERSEDED — the case for §4 item 3, kept for provenance
 
 The pre-check states the diagnosis in one line: **the error is not that we realise
 the commitment too slowly, it is that the commitment is too small.** Every knob
