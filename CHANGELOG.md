@@ -3,6 +3,52 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-23e — **ISMIP6 PASSES the priority-1 observational gate (first application), so 2100-highest is evidence-supported — and under that weighting the onset STAYS at 4.69 K while V and τ move to the Greve-pinned ψ.**
+
+`diag_gis_obs_scorecard.py` + weighted scoring in `scope_gis_onset_rescan.py`. Read-only.
+
+**The candidate "good reason not to", tested rather than asserted.** Handoff §2.2 established:
+gate a model on the observed record before using its transient horizons. Greve **passed**
+(0.440–0.988 mm/yr, obs 0.593 inside) and was used; CLIMBER-X **failed** (0.117, 5.1× slow) and was
+dropped. **ISMIP6 — the ensemble supplying the 2100 target — had never been gated.** Hypothesis: if
+it under-runs observations, part of our "1.32× fast at 2100" is the target's own slow bias.
+**REFUTED by its own numbers.** ssp585/standard, 48 runs across 14 ice-sheet models, 2016–2050:
+**median 0.682 mm/yr = 1.15× the observed 0.593**, obs **inside** the spread, **11/14** models at or
+above observations. No correction is available and none should be applied: **our 1.32× is ours**,
+ISMIP6 is admissible by this repo's own standard, and **weighting 2100 highest is evidence-supported**,
+not merely decision-relevant.
+
+⚠ **Caveat on the CONVENTION, not this run** (it attaches equally to the Greve and CLIMBER-X verdicts
+already on record): the gate compares a **2016–2050 projected** rate to a **1995–2024 observed** one.
+The projection window is later and warmer, so a well-behaved model *should* exceed the observed rate.
+It is a **floor, not a calibration** — and read that way the notable number is that **3/14** models
+fail to reach a past observed rate in a future window.
+
+**Our model vs observations.** The calibration-window total is **fitted** (bisection, 1.0000×) and is
+not evidence. What is **free**: 1900–1950 **1.00×**, 1950–1990 **0.95×**, 1993–2010 **1.01×**,
+2010–2024 **1.03×**, 1995–2024 **1.07×** observed — better than the ISMIP6 median's 1.15×. **The
+hindcast is not where the problem is.** The recent-end defect is **ACCELERATION: 0.65× observed over
+1993–2024**. We match the LEVEL and the RATE, under-run the CURVATURE, and then arrive 1.32× high at
+2100.
+
+**The weighted verdict — and it reverses the direction of travel.** Under **3:2:1** (and equal, 4:2:1
+and 6:3:1 alike) **the onset does NOT move: 4.69 K wins every weight set.** But the winning **cell**
+is not the shipped one:
+
+| | V | τ | ψ | w-score (3:2:1) | 2100 ratio | ssp585@2300 |
+|---|---|---|---|---|---|---|
+| shipped cell A | 1.00 m | 800 yr | 0.125 | 0.584 | 1.43× | 70.4 cm |
+| **winner** | **7.42 m** | **2700 yr** | **0.275** | **0.412** | 1.47× | 99.4 cm |
+
+**1.42× better than cell A**, and that ψ is exactly what the Greve year-3001 requirement
+(0.179–0.341) and the 2250–2300 rate criterion (0.273–0.282) independently pinned — so **handoff §4
+item 3 ("pin V to the ladder, let τ follow from ψ") is answered as a by-product and is
+self-consistent.** The reservoir is worth having under every weighting (0.404 vs baseline 0.752 at
+6:3:1, **1.86×**).
+
+**The 2100 term degrades under every cell** (1.32× → 1.47× at the winner). No onset and no cell can
+fix it — it is the separate defect the acceleration finding above now localises.
+
 ## [unreleased] — 2026-08-23d — **Onset re-scan: the shipped 4.69 K onset does NOT do the job it was chosen for, and the G-inert floor is 1.588 K, not 1.398 K.**
 
 `scope_gis_onset_rescan.py`. Handoff §4 item 2, with the **ssp245 2300 band dropped as a gate**
