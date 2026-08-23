@@ -1,0 +1,20 @@
+Ladrillo SSP components | posterior parameters_subsample_brick_mengel_L14.csv (2000 draws) | Greenland :basins2 | base 1995-2014 | horizon 2300
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+........
+SSP1-2.6  2000 draws in 15s
+  @2100 GMST +1.84 | glac   7.9  gis   6.5  ais    4.4  te  13.7  lws  2.6 | TOTAL   35.1 [ 33.7,   36.5] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    6.8  te  17.1  lws  4.2 | TOTAL   45.8 [ 44.0,   47.6] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.4  gis  10.1  ais   13.5  te  22.7  lws  8.5 | TOTAL   67.1 [ 64.3,   70.0] cm  (finite 2000/2000)
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+........
+SSP2-4.5  2000 draws in 12s
+  @2100 GMST +2.74 | glac  10.0  gis   8.4  ais    5.6  te  17.9  lws  2.6 | TOTAL   44.9 [ 42.6,   59.0] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  14.0  gis  12.6  ais   11.9  te  26.6  lws  4.2 | TOTAL   70.9 [ 64.8,  127.9] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  19.1  gis  19.1  ais  131.4  te  41.9  lws  8.5 | TOTAL  220.0 [108.5,  324.0] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 12s
+  @2100 GMST +4.69 | glac  14.3  gis  14.2  ais   37.1  te  26.9  lws  2.6 | TOTAL   94.9 [ 81.7,  111.0] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  22.0  gis  29.5  ais   94.4  te  49.7  lws  4.2 | TOTAL  200.0 [174.1,  229.9] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis  96.4  ais  281.7  te  99.7  lws  8.5 | TOTAL  514.5 [443.8,  593.3] cm  (finite 2000/2000)
+
+wrote outputs/ssps_components_2300_L14_tap4p69K_V6p0m_tau800_n2_ws_shapefullcurve.csv
