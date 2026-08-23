@@ -1,0 +1,17 @@
+measurement,exp,forcing,sico_2100,ours_2100,sico_2150,ours_2150,cell,band,ours_cm,lo_cm,hi_cm,in_band
+sicopolis_vs_ours,expb01,CNRM-CM6-1 ssp585,14.24973755406378,19.489007966434677,31.814040737272357,28.15913955451451,,,,,,
+sicopolis_vs_ours,expb03,UKESM1-0-LL ssp585,20.820443961485516,24.213872008983934,44.851291691855955,33.57967397558329,,,,,,
+sicopolis_vs_ours,expb04,CESM2 ssp585,19.590179188919404,19.136732272860044,44.73330236364036,27.270436528809284,,,,,,
+sicopolis_vs_ours,expb05,CNRM-ESM2-1 ssp585,13.784162149488646,17.019302324235603,28.8495683627428,25.05112297551075,,,,,,
+veto,,,,,,,base (no reservoir),shipped (climate spread only),45.191,44.6,53.2,True
+veto,,,,,,,base (no reservoir),+ ISM interquartile (0.93-1.07x),45.191,41.52239919948369,56.90410903207695,True
+veto,,,,,,,base (no reservoir),+ ISM full range (0.64-1.25x),45.191,28.611845888284012,66.65059937817676,True
+veto,,,,,,,cell A (n=1),shipped (climate spread only),53.12062090842127,44.6,53.2,True
+veto,,,,,,,cell A (n=1),+ ISM interquartile (0.93-1.07x),53.12062090842127,41.52239919948369,56.90410903207695,True
+veto,,,,,,,cell A (n=1),+ ISM full range (0.64-1.25x),53.12062090842127,28.611845888284012,66.65059937817676,True
+veto,,,,,,,08-23b winner (n=1),shipped (climate spread only),63.12765282586457,44.6,53.2,False
+veto,,,,,,,08-23b winner (n=1),+ ISM interquartile (0.93-1.07x),63.12765282586457,41.52239919948369,56.90410903207695,False
+veto,,,,,,,08-23b winner (n=1),+ ISM full range (0.64-1.25x),63.12765282586457,28.611845888284012,66.65059937817676,True
+veto,,,,,,,"cascade (n=2, V=6, tau=800)",shipped (climate spread only),52.45466742267517,44.6,53.2,True
+veto,,,,,,,"cascade (n=2, V=6, tau=800)",+ ISM interquartile (0.93-1.07x),52.45466742267517,41.52239919948369,56.90410903207695,True
+veto,,,,,,,"cascade (n=2, V=6, tau=800)",+ ISM full range (0.64-1.25x),52.45466742267517,28.611845888284012,66.65059937817676,True
