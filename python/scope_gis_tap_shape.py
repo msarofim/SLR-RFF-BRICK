@@ -57,12 +57,13 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAG = "L14"
 ## THE COMPARISON NUMBERS ARE READ, NOT HARDCODED (2026-08-23). This file used to
 ## carry `50.0` and `230.3` as literals for the untapped and shipped Greenland@2300.
-## The cell was replaced on 2026-08-23 -- 6.5 K / 2.0 m / 50 yr first-order became a
-## 2-stage cascade at 4.69 K / 6.0 m / 800 yr, whole-sheet -- and a literal cannot
+## The cell was replaced TWICE on 2026-08-23 -- 6.5 K / 2.0 m / 50 yr first-order
+## became a 2-stage cascade at 4.69 K, whose V then moved 6.0 -> 5.64 m -- and a literal
+## cannot
 ## follow that. SHIPPED_TAP_TAG is the ONE place the cell appears; if it stops
 ## resolving, that is the signal the cell moved again, and the error says so.
 UNTAPPED_CSV = os.path.join(REPO, f"outputs/ssps_components_2300_{TAG}.csv")
-SHIPPED_TAP_TAG = "tap4p69K_V6p0m_tau800_n2_ws"
+SHIPPED_TAP_TAG = "tap4p69K_V5p64m_tau800_n2_ws"
 SHIPPED_TAP_CSV = os.path.join(
     REPO, f"outputs/ssps_components_2300_{TAG}_{SHIPPED_TAP_TAG}.csv")
 

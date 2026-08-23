@@ -168,7 +168,7 @@ for cell in CELLS, (ssp, label) in SSPS
     cell === nothing || ladrillo_set_tap!(bf; v=cell.V_m, onset=cell.onset_K,
                                           tau=cell.tau_yr, stages=1, wholesheet=false)
     ## --tap switches the Greenland volume tap ON at GIS_TAP_CELL — a 2-stage cascade,
-    ## V = 6.0 m, tau = 800 yr, onset 4.69 K, whole-sheet home. PRIOR-PROPAGATED, not
+    ## V = 5.64 m, tau = 800 yr, onset 4.69 K, whole-sheet home. PRIOR-PROPAGATED, not
     ## sampled: the calibration tops out at 1.385 K against the 4.69 K onset, so the
     ## tap is exactly likelihood-inert and the same posterior serves both arms.
     ## Gated by julia/test_gis_tap_wiring.jl — 2100 moves by 0.000e+00, cooler

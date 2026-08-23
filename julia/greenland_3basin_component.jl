@@ -116,7 +116,7 @@ const GIS2_VSHARE = (south = GIS3_VSHARE.south + GIS3_VSHARE.mid,
 # larger decision, not one this cell implies.
 #
 # ---- THE SHIPPED CELL, chosen 2026-08-23 (Marcus) ---------------------------
-#   stages 2 (CASCADE) | V 6.0 m | tau 800 yr | onset 4.69 K | whole-sheet home
+#   stages 2 (CASCADE) | V 5.64 m | tau 800 yr | onset 4.69 K | whole-sheet home
 #
 # WHY A CASCADE, AND NOT THE FIRST-ORDER FORM THIS BLOCK USED TO SHIP. The joint
 # constraint is <= 8.1 cm added at 2150 on the ssp585 x2300 arm and 48.6 cm needed
@@ -168,10 +168,43 @@ const GIS2_VSHARE = (south = GIS3_VSHARE.south + GIS3_VSHARE.mid,
 # like-for-like in forcing. The chosen cell sits inside BOTH bands, which is why the
 # contradiction does not block it.
 #
-# SUPERSEDED CELL, for provenance: (onset_K = 6.5, V_m = 2.0, tau_yr = 50.0,
-# ramp_w_K = 1.0), first-order, high-basin home. Its outputs are quarantined under
-# outputs/quarantine/20260823_old_tap_cell/.
-const GIS_TAP_CELL = (onset_K = 4.69, V_m = 6.0, tau_yr = 800.0, ramp_w_K = 1.0,
+# WHY V = 5.64 AND NOT 6.0 (Marcus 2026-08-23, second pass). V = 6.0 was the value
+# that put our ssp585 Greenland@2300 exactly on the matched p50 (1.001x). It also
+# MISSED the 2250-2300 melt-rate criterion at 1.055x the band top -- the criterion
+# that is one of the two independent sources pinning the flux, and which had never
+# been evaluated at n = 2 because psi = 100*V/tau is a first-order parameterisation
+# that does not exist on a cascade. Scored on a V ladder at fixed (onset, tau,
+# stages), the answer is not a compromise:
+#
+#   V     2100/ISMIP6   2300/Greve   3001/Greve   w(6:3:1)   ssp585@2300
+#   5.20     1.361        0.757        0.921       0.3268        91.7
+#   5.40     1.363        0.767        0.953       0.3260        93.3
+#   5.64     1.365        0.780        0.990       0.3258 <-min  95.3
+#   5.80     1.367        0.788        1.015       0.3260        96.6
+#   6.00     1.369        0.798        1.046       0.3267        98.2
+#
+# 5.64 is the MINIMUM under the 2100>2300>3001 weighting the evidence supports, is
+# within 0.1% of the minimum under every other weight set, lands Greve at 3001 at
+# 0.990x, and is EXACTLY the largest V clearing the melt-rate band when that is
+# solved in this component rather than in the offline emulator (5.66 m offline, 5.64
+# wired -- a 0.4% port, but the cell sits ON the boundary so 0.4% decides it). Two
+# independent criteria 700 years apart -- the 2250-2300 rate ceiling and the Greve
+# 3001 commitment -- land within 1% of each other here. It costs 2.6% of the 2300
+# level relative to V = 6.0 (95.3 vs 98.2 cm, 0.969x vs 1.001x the matched p50).
+#
+# WHAT IT DOES NOT FIX: the 2100 ratio is ~1.365x at EVERY V on that ladder (the
+# whole 5.2-6.0 range spans 0.6%). The 2100 fast bias is a separate defect and
+# diag_gis_2100_bias_decomp.py localises it: driven by each GCM's OWN Greenland
+# temperature our ice response lands ON the ISMIP6 median (0.99x), and driven through
+# our amplification law it over-shoots 1.31x. The defect is the AMP LAW, not the ice
+# response and not this cell.
+#
+# SUPERSEDED CELLS, for provenance:
+#   (6.5 K, 2.0 m, 50 yr) first-order, high-basin -- outputs quarantined under
+#     outputs/quarantine/20260823_old_tap_cell/
+#   (4.69 K, 6.0 m, 800 yr) cascade, whole-sheet -- shipped for part of 2026-08-23,
+#     outputs quarantined under outputs/quarantine/20260823_v6p0_cell/
+const GIS_TAP_CELL = (onset_K = 4.69, V_m = 5.64, tau_yr = 800.0, ramp_w_K = 1.0,
                       stages = 2.0, wholesheet = true)
 # THE ONSET IS IN GLOBAL MEAN TEMPERATURE, NOT the regional Greenland driver.
 # 4.69 K is quoted in GMT — it is our own fair_mean ssp585's 2100 GMT — so the

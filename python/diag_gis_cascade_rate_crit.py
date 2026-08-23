@@ -71,11 +71,15 @@ RATE_BAND_BASIS = RR.RATE_BAND_BASIS      # {"run","gcm"}; the pass criterion us
 RATE_ARM_FAM = RR.RATE_ARM_FAM            # the constant-forcing arm, the only reachable one
 ## THE SHIPPED CELL, and the cells the arc argued over. Carried by name so this table
 ## is comparable to the ones already written rather than a fresh ranking with no anchors.
-SHIPPED = dict(V_m=6.0, onset_K=4.69, tau_yr=800.0, stages=2)
+SHIPPED = dict(V_m=5.64, onset_K=4.69, tau_yr=800.0, stages=2)
+## V=6.0 is kept as a NAMED row, not dropped: it was shipped for part of 2026-08-23
+## and it is the cell that lands exactly on the matched p50, so every table that
+## compares the two stays reproducible from this file.
 CELLS = [("base (no reservoir)",            0.0, 0.0,  1.0,    1),
-         ("A   V=1.0 tau  800 n=1",         1.0, 4.69,  800.0, 1),
-         ("B   V=6.0 tau 2200 n=1",         6.0, 4.69, 2200.0, 1),
-         ("SHIPPED V=6.0 tau 800 n=2",      SHIPPED["V_m"], SHIPPED["onset_K"],
+         ("A   V=1.0  tau  800 n=1",        1.0, 4.69,  800.0, 1),
+         ("B   V=6.0  tau 2200 n=1",        6.0, 4.69, 2200.0, 1),
+         ("  V=6.0  tau 800 n=2 (was shipped)", 6.0, 4.69, 800.0, 2),
+         ("SHIPPED V=5.64 tau 800 n=2",     SHIPPED["V_m"], SHIPPED["onset_K"],
                                             SHIPPED["tau_yr"], SHIPPED["stages"])]
 ## THE SCAN GRID. The ONSET IS HELD at the shipped 4.69 K on purpose: it was settled
 ## 2026-08-23 on the between-scenario criterion, and re-opening it here would answer a

@@ -48,8 +48,8 @@ const OUT     = joinpath(REPO, "outputs/diag_gis_cell_vs_priority_ladder.csv")
 const ARMS = [
     ("original BRICK (:stock SIMPLE)", "brick_mengel_extC", nothing),
     ("Ladrillo L14, untapped",         "brick_mengel_L14",  nothing),
-    ("Ladrillo L14 + V=5.66 cascade",  "brick_mengel_L14",  5.66),
-    ("Ladrillo L14 + V=6.00 cascade",  "brick_mengel_L14",  GIS_TAP_CELL.V_m),
+    ("Ladrillo L14 + V=5.64 (SHIPPED)", "brick_mengel_L14", GIS_TAP_CELL.V_m),
+    ("Ladrillo L14 + V=6.00 cascade",  "brick_mengel_L14",  6.0),
 ]
 ## PRIORITY 1. The windows the hindcast bisection does NOT control, so they are the
 ## evidence; the calibration-window total is fitted and is reported as such.
@@ -315,6 +315,15 @@ for (nm, tag, vcell) in ARMS
     push!(out, (nm, 3, "rate_2250_2300_r2300_cm_per_century", "r2300", rate,
                 R2300_RATE_BAND[2], rate / R2300_RATE_BAND[2]))
 end
+## THE SHIPPED CELL IS ON THE CEILING, NOT INSIDE IT, AND THAT IS DELIBERATE. V was
+## chosen AS the largest value clearing the band, so which side of 41.5 it lands on is
+## decided by the third significant figure: the offline emulator reads 41.4 and this
+## wired run reads 41.5 at 300 draws. Both are "at the ceiling"; neither is evidence
+## of margin. Printed rather than absorbed into a tolerance, because inventing a
+## band-edge tolerance here would be choosing the verdict.
+println("\n     ⚠ the shipped cell is AT the ceiling by construction (V was solved to")
+println("       clear it), so its verdict turns on the 3rd significant figure: 41.4")
+println("       offline vs 41.5 here. Read it as ON the boundary, not inside or out.")
 
 ## ---- THE RATE-CLEARING V, SOLVED IN THE WIRED MODEL --------------------------
 ## The 5.66 m figure came from a bisection on the OFFLINE emulator

@@ -1,7 +1,7 @@
 ## ============================================================================
 ## test_gis_tap_wiring.jl — is the GREENLAND VOLUME TAP wired the way it was priced?
 ##
-## The shipped cell (2-STAGE CASCADE, onset 4.69 K / V 6.0 m / tau 800 yr,
+## The shipped cell (2-STAGE CASCADE, onset 4.69 K / V 5.64 m / tau 800 yr,
 ## WHOLE-SHEET home) is a PRIOR SPECIFICATION, not a fit, and it was priced on an
 ## OFFLINE MOCK whose reservoir is UNCAPPED ADDITIVE
 ## (python/scope_gis_reservoir_offline.py). Inside greenland_3basin it meets a

@@ -34,7 +34,7 @@
   arm                                  126     245     585 SSP5-8.5/SSP2-4.5 SSP5-8.5/SSP1-2.6
   original BRICK (:stock SIMPLE)      19.1    25.7    48.8      1.90x (0.30)      2.56x (0.29)
   Ladrillo L14, untapped              10.0    18.3    49.7      2.72x (0.42)      4.99x (0.56)
-  Ladrillo L14 + V=5.66 cascade       10.0    18.3    95.6      5.23x (0.82)      9.60x (1.08)
+  Ladrillo L14 + V=5.64 (SHIPPED)     10.0    18.3    95.5      5.22x (0.82)      9.58x (1.08)
   Ladrillo L14 + V=6.00 cascade       10.0    18.3    98.4      5.38x (0.84)      9.88x (1.11)
   (parenthesis = ratio / the matched p50 ratio [B])
 
@@ -42,7 +42,7 @@
   arm                                   SSP1-2.6      SSP2-4.5      SSP5-8.5
   original BRICK (:stock SIMPLE)           1.72x         1.67x         0.50x
   Ladrillo L14, untapped                   0.90x         1.19x         0.50x
-  Ladrillo L14 + V=5.66 cascade            0.90x         1.19x         0.97x
+  Ladrillo L14 + V=5.64 (SHIPPED)          0.90x         1.19x         0.97x
   Ladrillo L14 + V=6.00 cascade            0.90x         1.19x         1.00x
 
 wrote outputs/diag_gis_separation_target.csv
