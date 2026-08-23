@@ -1,0 +1,68 @@
+diag_gis_matched_band_score -- L14 canonical (two-basin), extended axis 1850-3001, thinned posterior
+  matched-target literals VERIFIED against the derivation CSV
+
+TARGET SET = MATCHED (forcing-matched to OUR scenarios; PROTECT-Greenland (Goelzer 2025) doi 10.11582/2025.lf9m2wd0, NORCE-CISM long runs, control-drift-corrected, rel 2015)
+  SSP1-2.6     6.2-15.9   cm   [UNION of the bracketing anchors -- our integral is 10% BELOW the anchor hull, so this band is if anything GENEROUS]
+  SSP2-4.5    10.6-21.5   cm   [PCHIP interpolation at our forcing (inside the anchor hull)]
+  SSP5-8.5    42.9-145.0  cm   [PCHIP interpolation at our forcing (inside the anchor hull)]
+  CAVEAT: every anchor past 2100 is NORCE-CISM -- ONE ice sheet model, so the p05-p95 is CLIMATE-forcing spread, NOT structural spread
+
+=== GATE 1 -- the no-reservoir base, reconstructed from all 210 scan rows ===
+  SSP1-2.6  base@2300 =   9.396 cm   spread across rows 7.105e-15 cm  [OK]
+  SSP2-4.5  base@2300 =  17.725 cm   spread across rows 5.684e-14 cm  [OK]
+  SSP5-8.5  base@2300 =  49.472 cm   spread across rows 5.684e-14 cm  [OK]
+  => the scan's 2300 column IS base + CM_PER_M*V*reservoir_unit(onset,tau), RAMP_W_K=1. Nothing else is in it.
+
+=== SCORED AGAINST THE GSAT integral 2015-2300 (ADOPTED) ARM ===
+  cell                        scenario      ours     p05     p50     p95  ours/p50   pctile  band
+  base (no reservoir)         SSP5-8.5      49.5    42.9    98.5   145.0     0.502      5.6   in [42.9-145.0]
+  base (no reservoir)         SSP2-4.5      17.7    10.6    15.4    21.5     1.148     62.2   in [10.6-21.5]
+  base (no reservoir)         SSP1-2.6       9.4     4.8    13.8    25.5     0.682     37.5   in [6.2-15.9]
+  cell A (shipped)            SSP5-8.5      70.4    42.9    98.5   145.0     0.715     12.8   in [42.9-145.0]
+  cell A (shipped)            SSP2-4.5      17.7    10.6    15.4    21.5     1.148     62.2   in [10.6-21.5]
+  cell A (shipped)            SSP1-2.6       9.4     4.8    13.8    25.5     0.682     37.5   in [6.2-15.9]
+  WINNER (weighted verdict)   SSP5-8.5      99.4    42.9    98.5   145.0     1.009     51.1   in [42.9-145.0]
+  WINNER (weighted verdict)   SSP2-4.5      17.7    10.6    15.4    21.5     1.148     62.2   in [10.6-21.5]
+  WINNER (weighted verdict)   SSP1-2.6       9.4     4.8    13.8    25.5     0.682     37.5   in [6.2-15.9]
+
+=== SCORED AGAINST THE GSAT level at 2300 (stated sensitivity) ARM ===
+  cell                        scenario      ours     p05     p50     p95  ours/p50   pctile  band
+  base (no reservoir)         SSP5-8.5      49.5    58.6   120.2   172.2     0.412  --   in [42.9-145.0]
+  base (no reservoir)         SSP2-4.5      17.7    11.0    17.3    24.8     1.026     52.3   in [10.6-21.5]
+  base (no reservoir)         SSP1-2.6       9.4     4.8    14.1    28.5     0.665     37.2   in [6.2-15.9]
+  cell A (shipped)            SSP5-8.5      70.4    58.6   120.2   172.2     0.586      6.4   in [42.9-145.0]
+  cell A (shipped)            SSP2-4.5      17.7    11.0    17.3    24.8     1.026     52.3   in [10.6-21.5]
+  cell A (shipped)            SSP1-2.6       9.4     4.8    14.1    28.5     0.665     37.2   in [6.2-15.9]
+  WINNER (weighted verdict)   SSP5-8.5      99.4    58.6   120.2   172.2     0.827     16.6   in [42.9-145.0]
+  WINNER (weighted verdict)   SSP2-4.5      17.7    11.0    17.3    24.8     1.026     52.3   in [10.6-21.5]
+  WINNER (weighted verdict)   SSP1-2.6       9.4     4.8    14.1    28.5     0.665     37.2   in [6.2-15.9]
+
+=== THE VERDICT ON THE WINNER (weighted verdict) CELL, ssp585@2300 ===
+  ours 99.4 cm.
+  ADOPTED (integral) arm: 1.009x the p50 (98.5), percentile 51 -- IN band.
+  LEVEL arm (the stated sensitivity): 0.827x the p50 (120.2), percentile 17 -- still in the adopted band,
+  but NOT 'on the central estimate'. The lands-on-the-p50 reading is PREDICTOR-DEPENDENT and
+  must be quoted with the predictor named.
+  Legacy quote for comparison ONLY -- 100 cm (70-230): 2026-08-21d two-anchor quote, SUPERSEDED 2026-08-21g by the derived band in gis_targets.py.
+  99.4 is inside it too, at 0.99x its centre -- but that bracket is 2.9x wider than the derived band on the
+  high side, so agreement with it is a much weaker statement.
+
+=== IS THIS CIRCULAR? NO, BUT STATE THE PATH ===
+  Selection used 2100 = ISMIP6 16-model medians; 2300/3001 = Greve/SICOPOLIS.
+  The band is PROTECT-Greenland / NORCE-CISM -- a DIFFERENT ice-sheet model from SICOPOLIS, so the 2300
+  agreement is out-of-sample with respect to what selected the cell. Two qualifications:
+    (a) `ssp585_in_band` IS a column in the scan, but it is a reported flag, not a
+        filter -- the winner is the argmin of score_w, and every cell in the table is in band.
+    (b) NORCE-CISM is ALSO one member of the ISMIP6 ensemble supplying the 2100 term,
+        so the two evidence streams are not perfectly disjoint at 2100. They are at 2300.
+
+=== WHAT THE COOL SCENARIOS DO NOT SAY ===
+  SSP2-4.5  winner   17.7 cm, base   17.7 cm, reservoir contribution 0.000e+00 cm
+  SSP1-2.6  winner    9.4 cm, base    9.4 cm, reservoir contribution 0.000e+00 cm
+  The onset is 4.69 K and these scenarios peak below it, so their 2300 values are the
+  BASE model's, EXACTLY unchanged. They neither corroborate nor refute the cell -- they only
+  confirm the reservoir did not break what already passed.
+
+  CAVEAT THAT TRAVELS WITH EVERY NUMBER ABOVE: every anchor past 2100 is NORCE-CISM -- ONE ice sheet model, so the p05-p95 is CLIMATE-forcing spread, NOT structural spread.
+
+WROTE outputs/diag_gis_matched_band_score.csv
