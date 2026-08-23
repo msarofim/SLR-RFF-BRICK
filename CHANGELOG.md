@@ -3,6 +3,33 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-23b — **Greve/SICOPOLIS closes the commitment finding: an INDEPENDENT model that CLEARS the observed rate delivers 5.8-9.5x our φ=1 ceiling by year 3000, and we are 2.1x short already at 2300.**
+
+`diag_gis_greve_year3000.py`. Greve & Chambers 2022 (SICOPOLIS 5 km, doi 10.5281/zenodo.6029867),
+14 ISMIP6-protocol runs extended to 3001 under a HELD 2091-2100 climate — the same convention as
+PROTECT's r2300 arms, so our own r2300 driver route applies unchanged.
+
+* **It clears the priority-1 gate CLIMBER-X failed.** SICOPOLIS does 0.440–0.988 mm/yr over
+  2016–2050; the observed 1995–2024 rate, 0.593 mm/yr, sits INSIDE that spread (median 0.575).
+* **Year 3001:** 72–354 cm on the 12 high-forcing runs, 17–41 cm on the 2 low-forcing ones.
+  Final-century rate ÷ 2016–2050 rate is **1.1–2.9× for high forcing but 0.17–0.42× for low** —
+  runaway above, plateau below. That split is threshold behaviour, the shape CLIMBER-X shows.
+* **Like-for-like on the 5 CMIP6 cells** (each GCM's own GMST, Greve's own 2081–2100 hold,
+  extended axis to 3001, gated to reproduce `regional_driver` on 1850–2300 at 0.0e+00 °C):
+  SICOPOLIS exceeds our **φ = 1 ceiling** — our *maximum possible*, fully-equilibrated loss — in
+  **5/5 cells, by 5.8–9.5×** on ssp585.
+* **The crossover is early, and that is the headline for the deliverable.** ours/SICOPOLIS is
+  **1.23× at 2100** (the same fast bias 16 ISMIP6 models confirmed), **0.48× at 2300**, 0.18× at
+  3001. The 2.1×-short at 2300 independently reproduces §1.1's 1.93× against PROTECT's own 2300
+  medians. **Three models (NORCE-CISM, CLIMBER-X, SICOPOLIS), one number.**
+
+**The one-model caveat is gone** for the direction and the size. What is STILL one-model is the
+threshold LOCATION (1.44–2.24 K) — Greve holds a late-century climate rather than scanning
+stabilisation levels, so CLIMBER-X remains the only source for where the curve turns over.
+
+Fetched selectively per the handoff's warning: **856 KB** of scalar series out of the 4.6 GB
+archive; the 3D fields are never needed.
+
 ## [unreleased] — 2026-08-23 — **Re-ordered to Marcus's priorities. Volume PASSES; the linear `L_eq` is refuted in SHAPE (0.19 m vs 7.3 m); and 16 ice-sheet models confirm the 2100 fast bias is ours.**
 
 Read-only session. Two new scripts, no gate moved, no cell shipped, no chain started, nothing in
