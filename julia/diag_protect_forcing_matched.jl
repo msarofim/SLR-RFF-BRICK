@@ -67,8 +67,15 @@ const UNSMOOTHED = "--unsmoothed" in ARGS
 ##          runs at 9.8-13.6 K -- far above our own 4.7-7.8 K.
 ##   r2300  forcing HELD at the 2100 level (Goelzer 2025). 35 usable runs, 5 GCMs,
 ##          ONE CISM config, plateau 5.58 K. Closer to our scenario and a wider
-##          climate sample, but the tap NEVER FIRES on it (plateau < 6.5 K onset),
-##          so it tests the BASE model's committed-loss response, not the tap.
+##          climate sample.
+##          ⚠ THE TAP DOES FIRE ON THIS ARM at the shipped cell, and this block said
+##          the opposite until 2026-08-23. It was written for the ORIGINAL 6.5 K
+##          onset, which the plateau sat below; at the shipped 4.69 K the plateau
+##          (5.58 K) and the spliced peak (6.32 K) both clear it, so r2300 is NOT a
+##          base-model arm by construction any more. To read the BASE model's
+##          committed-loss response on this forcing, pass --untapped, which is what
+##          the *_r2300_untapped.csv outputs are. python/build_protect_r2300_forcing.py
+##          asserts the regime (EXPECT_TAP_FREE) so it cannot drift back silently.
 ## The family is in the output filename: the two arms are otherwise identical in
 ## schema and would be indistinguishable on disk.
 const FAMILY = let i = findfirst(a -> startswith(a, "--family="), ARGS)

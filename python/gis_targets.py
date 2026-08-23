@@ -37,6 +37,7 @@ THE COVERAGE CAVEAT TRAVELS WITH THE MATCHED SET
   A target, never a hard cut.
 """
 import os
+import re
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MATCHED_CSV = os.path.join(REPO, "outputs/gis_matched_targets_2300.csv")
@@ -149,6 +150,48 @@ def ratio_band(bands=None):
     bands = bands or MATCHED_2300_M
     return (bands["SSP5-8.5"][0] / bands["SSP2-4.5"][1],
             bands["SSP5-8.5"][1] / bands["SSP2-4.5"][0])
+
+
+# --- THE SHIPPED TAP CELL, READ FROM THE JULIA COMPONENT --------------------
+# WHY THIS IS PARSED AND NOT RETYPED (2026-08-23). The cell has moved three times
+# -- (6.5 K, 2.0 m, 50 yr) first-order -> (4.69 K, 6.0 m, 800 yr) cascade ->
+# (4.69 K, 5.64 m, 800 yr) cascade -- and each move left a copied literal behind on
+# the python side. One of them was not a stale comment but a DEAD GUARD:
+# build_protect_r2300_forcing.py asserted its arm was "tap-free" against ONSET_K =
+# 6.5 long after the shipped onset had dropped to 4.69, so the assertion certified a
+# threshold nothing was being tested at. The Julia const is the authority; this
+# reads it, so a fourth move needs no python edit at all.
+GIS3_COMPONENT_JL = os.path.join(REPO, "julia/greenland_3basin_component.jl")
+_TAP_CELL_RE = re.compile(r"^const\s+GIS_TAP_CELL\s*=\s*\((.*?)\)\s*$",
+                          re.MULTILINE | re.DOTALL)
+_TAP_FIELD_RE = re.compile(r"(\w+)\s*=\s*([-\d.eE+]+|true|false)")
+
+
+def tap_cell(path=GIS3_COMPONENT_JL):
+    """The SHIPPED tap cell as a dict, parsed from `const GIS_TAP_CELL` in
+    julia/greenland_3basin_component.jl -- the single source of truth. Keys are the
+    Julia field names (onset_K, V_m, tau_yr, ramp_w_K, stages, wholesheet); numbers
+    come back as float, `true`/`false` as bool. Raises if the constant is absent or
+    has lost a field, because a partial parse would silently hand back a default."""
+    with open(path) as fh:
+        m = _TAP_CELL_RE.search(fh.read())
+    if m is None:
+        raise SystemExit(f"gis_targets.tap_cell: no `const GIS_TAP_CELL = (...)` in "
+                         f"{os.path.relpath(path, REPO)} -- has the component moved?")
+    cell = {k: (v == "true") if v in ("true", "false") else float(v)
+            for k, v in _TAP_FIELD_RE.findall(m.group(1))}
+    missing = {"onset_K", "V_m", "tau_yr", "ramp_w_K", "stages", "wholesheet"} - set(cell)
+    if missing:
+        raise SystemExit(f"gis_targets.tap_cell: GIS_TAP_CELL is missing "
+                         f"{', '.join(sorted(missing))} -- refusing a partial cell")
+    return cell
+
+
+def tap_cell_label(cell=None):
+    """One-line human label for the shipped cell, for console banners and captions."""
+    c = cell or tap_cell()
+    return (f"onset {c['onset_K']:.2f} K / V {c['V_m']:.2f} m / tau {c['tau_yr']:.0f} yr "
+            f"/ n={int(c['stages'])} / {'whole-sheet' if c['wholesheet'] else 'high-basin'}")
 
 
 def _verify():

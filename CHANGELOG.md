@@ -3,6 +3,112 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-23j — **The suite was certifying a Greenland the deliverables are not produced with; and the r2300 arm's "tap-free" guard had been dead for a month.**
+
+Four finalization items on the way to Greenland being a Ladrillo module on the same
+footing as GSIC. No projection number moves: every output touched here is verified
+byte-identical, and the two runs are new certificates, not revisions.
+
+### 1. `run_ladrillo_tests.sh` now gates the Greenland that SHIPS — 7 steps → 10
+
+Steps 1–7 gate the glacier module and the **A+B whole-sheet** Greenland that L14
+superseded. The three gates covering what is actually shipped —
+`test_greenland_3basin_nesting.jl` (collapse to `greenland_ab`, exact partition under
+the per-basin clamp, the Mouginot-derived 2-basin `k`), `test_gis_ordering_wedge.jl`
+(the channel-ordering prior, mutation-tested) and `test_gis_tap_wiring.jl` (the
+shipped cell: 2100 exactly unmoved, 2150 inside a spread-scaled bound, the cell
+actually fires, both mutations caught) — were run **by hand**, named only in the
+L12/L13/L14 production runbooks and in handoffs. A green suite was therefore a
+statement about a model no deliverable is produced with.
+
+The suite gains **one dependency on `outputs/`**, deliberately: step 10 reads
+Greenland's own sampled p05–p95 at 2150 out of `ssps_components_2300_<TAG>.csv` to
+scale its tolerance rather than hardcoding a centimetre bound. It errors with the
+regeneration command if that file is absent.
+
+### 2. The Greenland block has a convergence certificate at the CANONICAL vintage — for the first time
+
+`outputs/mcmc/gis_block_convergence_L14.csv`. The only certificate that had ever
+existed was **L10 = whole-sheet `greenland_ab` with the native slow channel**, i.e.
+Ladrillo 1.0. `diag_gis_block_convergence.jl` carried ONE hardcoded column list, so at
+its own L14 default it would have **hard-errored**: L12 reparameterised the slow
+channel to `(gis_slow_ell, gis_slow_w)` and L14 added the sampled `gis_s_high`. The
+column set is now composed from the chain header with every branch named, and the
+A+B path is verified **identical on every pre-existing column**.
+
+**AND THE SHIPPING GREENLAND IS BETTER CONVERGED THAN LADRILLO 1.0'S, which the
+standing caveat does not say.**
+
+| | L10 (Ladrillo 1.0) | **L14 (canonical)** |
+|---|---|---|
+| not converged | 4 of 8 | **3 of 9** |
+| worst R̂ | `gis_f` 1.335 | `gis_f` **1.075** |
+| slow channel | `gis_alpha_s` 1.180 / ESS 34 | `gis_slow_w` **1.005 / ESS 1598**, `gis_slow_ell` 1.055 |
+| slow-rate median spread | **2.8×** | **1.30×** (native scale) |
+| new basin knob | — | `gis_s_high` R̂ **1.001**, ESS 5796 — the best-converged parameter in the block |
+
+The reparameterisation LADRILLO.md §7 listed as an open thread is done and it worked:
+the residual slow-channel problem is now `gis_slow_ell` alone at a marginal 1.055.
+**LADRILLO.md §2's Greenland caveat — "chain medians spanning 2.8×" — describes L10
+and overstates the model that ships.** It is not corrected in this entry because §1 of
+that file still describes `greenland_ab` as the module; the whole section needs the
+rewrite, not a patched number.
+
+**A statistic that would have reported the OPPOSITE of what it claims.**
+`med_spread_ratio` is max/min of the four chain medians, and it exists to carry "four
+medians spanning 3× is four chains sampling four places". That only means what it says
+for a **positive, linearly-sampled** parameter. Both parameters the restructure added
+are sampled on a log scale and are **negative over their whole support**
+(`gis_slow_ell` ∈ [−7.06, −3.89], `gis_s_high` ∈ [−1.24, −0.11]), where max/min is < 1
+and **shrinks as the true spread grows**. The ratio is now taken on the native scale
+(`exp`, `10^`, per the projection kernel's own map) and a `scale` column is written so
+the two can never be silently compared. Every 1.0 column is `:linear`, hence the
+byte-identical regression.
+
+### 3. `ONSET_K = 6.5` was not a stale comment, it was a DEAD GUARD
+
+`python/build_protect_r2300_forcing.py` asserted that the r2300 arm is **tap-free** —
+"the tap never fires on the driver that is run; this is a BASE-MODEL test". That
+assertion was written for the original 6.5 K cell. At the shipped **4.69 K** onset it
+is false:
+
+| driver fed to the model | peak | 2200 plateau |
+|---|---|---|
+| `gmst_raw` | **6.29 K** | 5.58 K |
+| `gmst_spliced` | **6.32 K** | 5.61 K |
+
+All above 4.69, and four of the five GCM clusters clear the onset individually. The
+assertion went on **passing** because it tested a threshold nothing was being run at.
+
+Fixed at the root: `gis_targets.tap_cell()` **parses `const GIS_TAP_CELL` out of the
+Julia component**, so the onset is never retyped on the python side again — the cell
+has moved three times and each move left a copied literal behind. The guard now
+asserts the **regime** (`EXPECT_TAP_FREE = False`) rather than a one-sided bound, so a
+future onset that puts the arm back below the peak fails loudly instead of silently
+restoring a claim nobody rechecked. `julia/diag_protect_forcing_matched.jl` carried the
+same false sentence in its `--family` block and now says the opposite, and points at
+`--untapped` (which is what the existing `*_r2300_untapped.csv` outputs are) as the way
+to read the base model on this forcing.
+
+**No number moves**: `protect_r2300_forcing_gmst.csv` and `cmip6_gsat_r2300_gcms.csv`
+both re-run **byte-identical**. The melt-rate criterion that selected V = 5.64 measures
+`psi_eff` with the tap deliberately on, so it was never relying on the false claim.
+
+### 4. Two labels that had drifted off their constants
+
+* `greenland_3basin_component.jl` justified onset 4.69 with "lands ssp585@2300 on the
+  matched p50 (98.6 vs 98.5 cm)" — **a V = 6.0 reading**, corrected forty lines below
+  by the V block. The onset argument survives the V change because it rests on the
+  SEPARATION; the level numbers moved with V and are now quoted only where they are
+  live (95.3 cm = 0.969×, Greve@3001 0.990×).
+* `plot_protect_forcing_matched.py` labelled its curves "**shipped cell** (6.5 K,
+  2.0 m, τ=50 yr)" — two cell generations stale, on a figure regenerated as recently as
+  2026-08-21. Its inputs were produced at that cell, so re-pointing the labels without
+  regenerating would have relabelled a superseded measurement instead of correcting it.
+  The constants are now pinned and NAMED as the `2026-08-21` cell, and an import-time
+  banner prints the gap against `gis_targets.tap_cell()`. It is allowed to describe a
+  superseded cell; it is not allowed to do so silently.
+
 ## [unreleased] — 2026-08-23i — **The 2100 fast bias is the AMPLIFICATION LAW, not the ice response — and V ships at 5.64 m, where the melt-rate ceiling and the Greve year-3001 commitment agree to within 1%.**
 
 ### The 2100 bias, split for the first time — `python/diag_gis_2100_bias_decomp.py`

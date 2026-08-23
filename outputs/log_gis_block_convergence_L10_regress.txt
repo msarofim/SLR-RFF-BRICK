@@ -1,0 +1,20 @@
+  chain_L10_seed2026_n2000000.csv  (1000000 post-burn)
+  chain_L10_seed2027_n2000000.csv  (1000000 post-burn)
+  chain_L10_seed2028_n2000000.csv  (1000000 post-burn)
+  chain_L10_seed2029_n2000000.csv  (1000000 post-burn)
+
+Greenland block convergence | tag L10 | 4 chains x 1000000 post-burn | R-hat OK < 1.05
+slow channel: native (gis_alpha_s, gis_beta_s)
+
+param           scale     rhat       ess medratio  per-chain medians (sampled scale)
+gis_c1         linear    1.015     272.6    1.051  0.0334 0.0334 0.0318 0.0330  
+gis_c0         linear    1.102      51.5    1.164  0.0416 0.0413 0.0472 0.0406  NOT CONVERGED
+gis_f          linear    1.335      21.4    1.174  0.8177 0.7218 0.8475 0.7656  NOT CONVERGED
+gis_alpha_f    linear    1.029     223.3    1.346  0.0031 0.0041 0.0033 0.0037  
+gis_beta_f     linear    1.025     228.7    1.301  0.0052 0.0055 0.0042 0.0052  
+gis_alpha_s    linear    1.180      33.9    2.823  0.0067 0.0027 0.0076 0.0044  NOT CONVERGED
+gis_beta_s     linear    1.137      38.9    2.430  0.0074 0.0055 0.0134 0.0062  NOT CONVERGED
+gis_amp        linear    1.001    6475.6    1.005  1.9050 1.9122 1.9077 1.9151  
+
+4 of 8 NOT converged
+wrote outputs/mcmc/gis_block_convergence_L10.csv

@@ -54,6 +54,9 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import gis_targets  # noqa: E402
+
 warnings.filterwarnings("ignore")
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -69,7 +72,18 @@ HOLD_LO, HOLD_HI = 2081, 2100        # the 20-yr level r2300 repeats after 2100
 SPLICE_YEAR = 2014                   # last year from our own path in the spliced arm
 REF0, REF1 = 1995, 2014
 SMOOTH = 11
-ONSET_K = 6.5                        # GIS_TAP_CELL.onset_K — the assertion below
+## THE ONSET IS READ FROM THE JULIA CONSTANT, NEVER RETYPED. It was retyped here
+## as 6.5, and when the shipped cell moved to 4.69 K the assertion below went on
+## passing against a threshold nothing was being tested at. See gis_targets.tap_cell.
+ONSET_K = gis_targets.tap_cell()["onset_K"]
+## WHAT THIS ARM IS, DECLARED SO EITHER DIRECTION OF DRIFT IS CAUGHT. At the shipped
+## onset the r2300 driver DOES clear the onset, so this forcing is NOT tap-free and
+## a run on it is not a base-model test unless the tap is explicitly switched off
+## (julia/diag_protect_forcing_matched.jl --untapped). It was tap-free at the
+## original 6.5 K cell. The expectation is asserted rather than the bound, so a
+## future onset that puts the arm back below it fails here and sends whoever
+## changed it to the consumers that describe this arm.
+EXPECT_TAP_FREE = False
 ALIAS = {"CESM2-Leo": "CESM2", "UKESM1-0-LL-Robin": "UKESM1-0-LL"}
 DROP = {"ACCESS1.3"}                 # CMIP5, dropped from BOTH sides
 
@@ -152,19 +166,28 @@ ours = pd.read_csv(os.path.join(REPO, "data/observations/fair_mean_gmst_ssp585.c
 off = ours.loc[REF0:REF1].mean() - gcm.loc[REF0:REF1].mean()
 spliced = pd.concat([ours.loc[:SPLICE_YEAR], gcm.loc[SPLICE_YEAR + 1:] + off])
 
-## THE TAP CANNOT FIRE ON THE DRIVER THAT IS RUN, and that is the point of the arm.
-## Asserted rather than trusted: a future re-weighting could push the n-weighted
-## plateau over the onset and this arm would quietly stop being a base-model test.
-## The assertion is on the DRIVERS FED TO THE MODEL (n-weighted raw and spliced),
-## NOT on the per-GCM paths — one of those does clear the onset, reported below.
+## DOES THE TAP FIRE ON THE DRIVER THAT IS RUN? Measured on the DRIVERS FED TO THE
+## MODEL (n-weighted raw and spliced), not on the per-GCM paths, and checked against
+## EXPECT_TAP_FREE rather than against a one-sided bound — the bound version passed
+## for a month after the onset it was written for had been superseded.
 peak = max(float(spliced.max()), float(gcm.max()))
-assert peak < ONSET_K, (f"the n-weighted r2300 driver peaks at {peak:.2f} K, at or "
-                        f"above the {ONSET_K} K onset — this arm is no longer tap-free")
+tap_free = peak < ONSET_K
+assert tap_free == EXPECT_TAP_FREE, (
+    f"the n-weighted r2300 driver peaks at {peak:.2f} K against a {ONSET_K} K onset, "
+    f"so this arm is {'' if tap_free else 'NOT '}tap-free — but EXPECT_TAP_FREE is "
+    f"{EXPECT_TAP_FREE}. The shipped cell has moved across this arm's peak: update "
+    f"EXPECT_TAP_FREE **and** every consumer that describes the arm "
+    f"(julia/diag_protect_forcing_matched.jl names it in its --family block).")
 hot = {g: float(p.loc[2200]) for g, p in paths.items() if float(p.loc[2200]) >= ONSET_K}
-print(f"\nn-weighted plateau {gcm.loc[2200]:.2f} K, spliced peak {spliced.max():.2f} K — "
-      f"both below the {ONSET_K} K onset")
-print(f"  => the tap never fires on the driver that is run; this is a BASE-MODEL test.")
-print("  per-GCM plateaus AT OR ABOVE the onset (would NOT be tap-free on their own): "
+print(f"\nn-weighted plateau {gcm.loc[2200]:.2f} K, spliced peak {spliced.max():.2f} K, "
+      f"onset {ONSET_K} K ({gis_targets.tap_cell_label()})")
+if tap_free:
+    print("  => the tap never fires on the driver that is run; this is a BASE-MODEL test.")
+else:
+    print("  => the driver CLEARS the onset: the tap FIRES on this arm. A run on this "
+          "forcing is NOT a base-model test unless the tap is switched off explicitly "
+          "(diag_protect_forcing_matched.jl --untapped).")
+print("  per-GCM plateaus AT OR ABOVE the onset: "
       + (", ".join(f"{g} {v:.2f} K" for g, v in hot.items()) if hot else "none"))
 print(f"splice offset over {REF0}-{REF1}: {off:+.3f} C")
 

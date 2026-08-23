@@ -1,0 +1,349 @@
+==============================================================
+[1/10] python/test_ladrillo_data.py
+==============================================================
+[1] regression vs the committed artifacts
+  t_glac_blocks.csv                                              PASS  (identical)
+  extc_block_constants.csv                                       PASS  (identical)
+  recalib_targets_ext_gsicadj.csv                                PASS  (identical)
+
+[1b] provenance vs the exec-prefix chain artifacts (tol 1e-06)
+  extc_block_constants.csv                                       PASS  (max|diff| 1.691e-08 in T_off_fit_regchar)
+
+[1c] order-independence of build_artifacts (reservoir spec reversed)
+  t_glac_blocks.csv                                              PASS  (identical)
+  extc_block_constants.csv                                       PASS  (identical)
+  recalib_targets_ext_gsicadj.csv                                PASS  (identical)
+
+[2] reservoir partition
+  every inventory region covered exactly once                    PASS  (18 regions, region 05 excluded (ice-sheet scope))
+  reservoir inventories sum to the Farinotti total               PASS  (0.2900 vs 0.2900 m SLE)
+
+[3] anchored transient reproduces both response times
+  R19: tau50 matches tau15 and tau30                             PASS  (828/828 yr, 213/213 yr)
+  SLOWP: tau50 matches tau15 and tau30                           PASS  (523/523 yr, 113/113 yr)
+  FAST: tau50 matches tau15 and tau30                            PASS  (130/130 yr, 37/37 yr)
+
+[4] fitted equilibrium curve reproduces the committed ladder
+  R19: every rung within 2 sigma of the fit                      PASS  (worst |z| 0.13)
+  SLOWP: every rung within 2 sigma of the fit                    PASS  (worst |z| 0.09)
+  FAST: every rung within 2 sigma of the fit                     PASS  (worst |z| 0.14)
+
+[5] region-19 seam adjustment
+  identity before the seam                                       PASS  (119 years unchanged)
+  removal equals the observed GlaMBIE region-19 cumulative       PASS  (max|diff| 8.33e-17)
+  net removal is positive at the series end                      PASS  (net 0.381 mm by 2023)
+
+[6] per-reservoir drivers
+  no gaps                                                        PASS  (1850-2024)
+  zero mean over the 1850-1900 frame                             PASS
+  SLOWP warms most, R19 least (the reason for the split)         PASS  (R19 +0.60 K  SLOWP +2.50 K  FAST +1.42 K)
+
+==========================================================================
+ladrillo_data: ALL TESTS PASS
+
+==============================================================
+[2/10] julia/validate_glaciers_nu3.jl (both amp bases)
+==============================================================
+--- amp basis: regchar ---
+┌ Warning: L11_NAMES has names absent from the live layout; the L11-vintage branch will leave those rows on the fresh diagonal: gic_amp_SLOWP, gic_amp_FAST, gic_amp_R19
+└ @ Main ~/Documents/2026/CodeProjects/SLR-RFF-BRICK/julia/calibrate_mcmc_ext.jl:1817
+[1] driver R19: max|diff| = 4.4220183070819985e-13 PASS
+[1] driver SLOWP: max|diff| = 5.608846720406291e-13 PASS
+[1] driver FAST: max|diff| = 5.295763827461997e-13 PASS
+[2] series R19: max|diff| = 4.972780627082946e-13 PASS
+[2] series SLOWP: max|diff| = 4.946360161739438e-13 PASS
+[2] series FAST: max|diff| = 4.996879646168573e-13 PASS
+[3] slot contract gsic_sea_level == hind + r19: max|diff| = 0.0 PASS
+[4] logposterior(theta0) = -622.6092247086656 PASS
+VALIDATION PASS (basis=regchar)
+--- amp basis: obsfit ---
+┌ Warning: L11_NAMES has names absent from the live layout; the L11-vintage branch will leave those rows on the fresh diagonal: gic_amp_SLOWP, gic_amp_FAST, gic_amp_R19
+└ @ Main ~/Documents/2026/CodeProjects/SLR-RFF-BRICK/julia/calibrate_mcmc_ext.jl:1817
+[1] driver R19: max|diff| = 3.7769787297747826e-13 PASS
+[1] driver SLOWP: max|diff| = 4.11226608321158e-13 PASS
+[1] driver FAST: max|diff| = 1.2212453270876722e-12 PASS
+[2] series R19: max|diff| = 4.93970858141124e-13 PASS
+[2] series SLOWP: max|diff| = 4.999624846069306e-13 PASS
+[2] series FAST: max|diff| = 4.986393242756293e-13 PASS
+[3] slot contract gsic_sea_level == hind + r19: max|diff| = 0.0 PASS
+[4] logposterior(theta0) = -629.7774754940787 PASS
+VALIDATION PASS (basis=obsfit)
+
+==============================================================
+[3/10] julia/test_ladrillo_projection.jl (100 draws)
+==============================================================
+[setup] calibration window 1850-2026, forcing ssp245harm
+
+[1] per-block drivers vs python reference
+  driver R19 [regchar]                                       PASS  (max|diff| 4.42e-13)
+  driver SLOWP [regchar]                                     PASS  (max|diff| 5.61e-13)
+  driver FAST [regchar]                                      PASS  (max|diff| 5.30e-13)
+  driver R19 [obsfit]                                        PASS  (max|diff| 3.78e-13)
+  driver SLOWP [obsfit]                                      PASS  (max|diff| 4.11e-13)
+  driver FAST [obsfit]                                       PASS  (max|diff| 1.22e-12)
+
+[2] per-block melt series at the reference theta vs python integrator
+  series R19 [regchar]                                       PASS  (max|diff| 4.97e-13)
+  series SLOWP [regchar]                                     PASS  (max|diff| 4.95e-13)
+  series FAST [regchar]                                      PASS  (max|diff| 5.00e-13)
+  series R19 [obsfit]                                        PASS  (max|diff| 4.94e-13)
+  series SLOWP [obsfit]                                      PASS  (max|diff| 5.00e-13)
+  series FAST [obsfit]                                       PASS  (max|diff| 4.99e-13)
+
+[3] slot contract
+  gsic_sea_level == gsic_hind + gsic_r19                     PASS  (max|diff| 0.00e+00)
+
+[4] posterior contract
+  all kernel columns present in the subsample                PASS  (10000 draws x 60 cols)
+  re-running draw 1 is bit-identical                         PASS
+
+[5] F_unch convention
+  F_unch flat after 2005                                     PASS
+  F_unch total stock == u                                    PASS  (25.0000 mm)
+  F_unch projection sliver < 2 mm at u=25.0 mm               PASS  (0.008 cm)
+
+[6] scenario monotonicity at 2100 (100 matched draws)
+  ssp126   glaciers    7.8  gis    6.5  ais    4.4  te   13.7  total   35.2  (finite 100/100)
+  ssp245   glaciers    9.9  gis    8.6  ais    5.4  te   17.9  total   45.3  (finite 100/100)
+  ssp585   glaciers   14.4  gis   14.1  ais   37.5  te   26.9  total   95.6  (finite 100/100)
+  glaciers median rises ssp126 < ssp245 < ssp585             PASS
+  gis median rises ssp126 < ssp245 < ssp585                  PASS
+  ais median rises ssp126 < ssp245 < ssp585                  PASS
+  te median rises ssp126 < ssp245 < ssp585                   PASS
+  total median rises ssp126 < ssp245 < ssp585                PASS
+
+========================================================================
+ladrillo_projection: ALL TESTS PASS
+
+==============================================================
+[4/10] julia/validate_greenland_ab.jl
+==============================================================
+cell A+B, forcing ssp245, years 1850-2300
+  driver: obs to 2024, then amp=1.9221976385152952 splice
+  sea_level cm @2000 63.186542  @2100 73.404524  @2300 80.752640
+  fast+slow == total: max|diff| = 0.000e+00
+wrote outputs/gis_port_reference.csv
+wrote outputs/gis_port_reference_theta.csv
+greenland_ab port validation | 1850-2300 | forcing ssp245 | tol 1e-09
+[1-3] series identity against the python reference
+  [1] driver                         max|diff| = 0.000e+00  PASS
+  [2] gis_eq (m)                     max|diff| = 2.220e-16  PASS
+  [3] gis_fast (m)                   max|diff| = 5.551e-16  PASS
+  [3] gis_slow (m)                   max|diff| = 1.943e-16  PASS
+  [3] greenland_sea_level (m)        max|diff| = 6.661e-16  PASS
+[4] slot contract
+  [4] sea_level == fast + slow       max|diff| = 0.000e+00  PASS
+  [4] global_sea_level == 5 components max|diff| = 0.000e+00  PASS
+[5] initial condition is L(y0) = g*eq(y0), and not equilibrium
+  gis_g = 0.917490; L(1850) = 0.579502 m against a commitment of 0.631617 m
+  [5] PASS
+[6] zero-driver run is flat
+  monotone non-decreasing: yes; max overshoot of the commitment: -1.254e-02 m
+  (max annual step 2.951e-04 m — relaxation toward a constant commitment)
+
+ALL PASS — greenland_ab matches the offline cell at 1.0e-9.
+
+==============================================================
+[5/10] julia/calibrate_mcmc_ext.jl --gis-check (calibrator wiring)
+==============================================================
+--gis-check | calibrator wiring vs the offline A+B cell at the SAME parameter vector
+  RMSE cm                  got   0.0617   offline   0.0617   |diff|  0.0000  tol 0.01  PASS
+  1942-1982 bias cm        got   0.0146   offline   0.0146   |diff|  0.0000  tol 0.01  PASS
+  2003-2018 rate mm/yr     got   0.7749   offline   0.7749   |diff|  0.0000  tol 0.02  PASS
+  Mouginot surface share   got   0.7351   offline   0.7351   |diff|  0.0000  tol 0.01  PASS
+GIS WIRING OK
+
+==============================================================
+[6/10] julia/validate_gis_projection_ab.jl (projection kernel)
+==============================================================
+[1] Greenland constants agree between the calibrator and the projector
+  GIS_ZONE matches calibrate_mcmc_ext.jl (default zone) PASS  (projector south vs calibrator south)
+  GIS_AMP matches calibrate_mcmc_ext.jl (zone south/full, tol 0.005) PASS  (projector 1.92 vs calibrator 1.9221976385152952)
+  GIS_V0_M matches calibrate_mcmc_ext.jl               PASS  (projector 7.42 vs calibrator 7.42)
+  GIS_G matches calibrate_mcmc_ext.jl                  PASS  (projector 0.0 vs calibrator 0.0)
+
+[2] posterior variant detection
+  the extC posterior reads as :stock                   PASS
+  an A+B header reads as :ab                           PASS
+  the CANONICAL posterior reads as a projectable A+B variant PASS  (parameters_subsample_brick_mengel_L14.csv -> :basins2)
+  the L12 fixture is still the :ab vintage             PASS  (parameters_subsample_brick_mengel_L12.csv)
+  a header missing one gis_* column is REJECTED        PASS
+  an L11 reparameterised header reads as :ab           PASS
+  ...and is flagged as needing the native pair         PASS
+  a NATIVE header is NOT flagged as needing it         PASS
+  a reparam header missing gis_slow_w is REJECTED      PASS
+  (ell, w) -> native round-trips on alpha_s            PASS  (0.00707 vs 0.00707)
+  (ell, w) -> native round-trips on beta_s             PASS  (0.001 vs 0.001)
+  ladrillo_native_greenland! is idempotent             PASS
+  Tbar matches the calibrator's asserted 1.963 K       PASS  (1.9631 K)
+
+[3] end-to-end: an A+B draw reproduces the offline cell at 2100
+  ssp126 2100 GIS within 0.1 cm of the offline cell    PASS  (kernel 6.910 vs offline 6.928 cm)
+  ssp245 2100 GIS within 0.1 cm of the offline cell    PASS  (kernel 9.849 vs offline 9.834 cm)
+  ssp585 2100 GIS within 0.1 cm of the offline cell    PASS  (kernel 17.316 vs offline 17.367 cm)
+
+[4] gis_amp is live, not baked in at a fixed value
+  ssp585 2100 GIS at amp 1.51 / 1.92 / 2.28: 11.38 / 14.04 / 16.51 cm
+  changing gis_amp moves the projection                PASS  (range 5.13 cm)
+  and it moves MONOTONICALLY upward in amp             PASS
+
+[5] the amp(GMST) law
+  S(anchor dT_eff) == 1 exactly                        PASS  (dT_eff 0.9398 K, S 1.000000000000000)
+  amp law meets the calibrator at the anchor           PASS  (amp(dT_eff) 1.920000 vs calibrator GIS_AMP 1.920000)
+  S declines monotonically over the fitted support 0.75-2.75 K PASS  (S(0.75) 1.002 -> S(2.75) 0.860)
+  S is held FLAT above the fitted support              PASS
+  S is held FLAT below the fitted support              PASS
+  law OFF reproduces the constant-amp splice           PASS
+  the 11-yr splice anchor is preserved with the law ON PASS  (1.990399158023 vs 1.990399158023 K)
+  the law is inert over the observed years             PASS
+  the law LOWERS the ssp585 driver at 2100             PASS  (7.449 vs 8.687 K (S = 0.860))
+  ssp585 2100 GIS: law ON 14.04 cm vs OFF 17.32 cm (3.28 cm lower)
+  and it LOWERS the ssp585 2100 GIS projection         PASS
+
+ALL PASS — the projection kernel consumes Ladrillo 1.0 and matches the calibrator.
+
+==============================================================
+[7/10] julia/test_ladrillo_basins2_variant.jl (2-basin variant)
+==============================================================
+[1] variant DETECTION from the column set
+  a 3-basin header reads as :basins                        PASS  (:basins)
+  a 2-basin header reads as :basins2                       PASS  (:basins2)
+  a 2-basin header does NOT read as :ab (the -1.7 cm hole) PASS
+  a plain A+B header still reads as :ab                    PASS  (:ab)
+  gis_s_mid without gis_s_high is REFUSED                  PASS
+
+[2] the k vector FOLLOWS the variant
+  ladrillo_basin_k(:basins) is the 3-basin geometry        PASS
+  ladrillo_basin_k(:basins2) is the 2-basin geometry       PASS
+  the two geometries are NOT the same object               PASS  (3-basin south 0.455782 vs 2-basin 0.628571)
+  the 2-basin k has k_mid == 0 exactly                     PASS
+  both k vectors sum to 1                                  PASS
+  ladrillo_basin_k rejects a non-basin variant             PASS
+
+[3] the column contract
+  used_cols(:basins2) reads gis_s_high                     PASS
+  used_cols(:basins2) does NOT read gis_s_mid              PASS
+  used_cols(:basins) still reads both                      PASS
+
+[4] projection: :basins2 at s = 1 must reproduce :ab, draw for draw
+  [4] :basins2 at s = 1 == :ab                             PASS  (max|diff| = 1.421e-14 cm over 8 draws x 2 horizons)
+  [4] :basins2 == :basins at s_mid = 1 (the k identity)    PASS  (max|diff| = 1.421e-14 cm; k_active must equal k_south + k_mid)
+
+[5] LIVENESS — [4] must not be true for the trivial reason
+  [5] :basins2 at the FITTED s_high differs from :ab       PASS  (min|diff| = 0.4018 cm (s_high must actually bind))
+  [5] the fixture has draws away from the s_mid null       PASS  (6 of 8 draws with |log10 s_mid| > 0.0414)
+  [5] on those draws :basins2 differs from :basins         PASS  (min|diff| = 2.355e-03 cm over the 6 away-from-null draws (floor 1e-06; small BY DESIGN — see S_MID_LIVE_TOL))
+
+ALL BASINS2 VARIANT GATES PASS — a 2-basin posterior is detected as :basins2 and projected under GIS2_VSHARE, not silently as :ab.
+
+==============================================================
+[8/10] julia/test_greenland_3basin_nesting.jl (partition + 2-basin k)
+==============================================================
+greenland_3basin nesting gate | 1850-2300 | forcing ssp245 | tol 1e-12
+  Mouginot volume shares: south 0.455782  mid 0.172789  high 0.371429  (sum 1.000000000000000)
+
+[1] COLLAPSE — k = (1, 0, 0), s = 1: must reproduce greenland_ab
+  [1] greenland_sea_level (m)                    max|diff| = 0.000e+00  PASS
+  [1] gis_fast (m)                               max|diff| = 0.000e+00  PASS
+  [1] gis_slow (m)                               max|diff| = 0.000e+00  PASS
+  [1] south basin carries all of it              max|diff| = 0.000e+00  PASS
+  [1] mid basin is identically zero              max|diff| = 0.000e+00  PASS
+  [1] high basin is identically zero             max|diff| = 0.000e+00  PASS
+
+[2] ADDITIVITY — at the production shares, the parts sum to the whole
+  [2] sea_level == sum of the three basins       max|diff| = 2.220e-16  PASS
+  [2] sea_level == gis_fast + gis_slow           max|diff| = 0.000e+00  PASS
+  [2] gis_fast == sum of basin fast channels     max|diff| = 0.000e+00  PASS
+  [2] gis_slow == sum of basin slow channels     max|diff| = 0.000e+00  PASS
+  [2] global_sea_level == 5 components           max|diff| = 0.000e+00  PASS
+
+[3] PARTITION INVARIANCE — Mouginot k, s = 1: the total must NOT move
+  [3] greenland_sea_level (m)                    max|diff| = 5.551e-16  PASS
+  [3] gis_fast (m)                               max|diff| = 4.441e-16  PASS
+  [3] gis_slow (m)                               max|diff| = 1.388e-16  PASS
+  s = 1 gives 1972-2018 loss shares  south 0.456  mid 0.173  high 0.371
+  observed (Mouginot modern rate, 2002-2011) south 0.592  mid 0.207  high 0.201
+  ⇒ the gap between those rows is exactly what the s_b are fitted to close.
+
+[4] TWO BASINS — k = GIS2_VSHARE, s = 1: k_mid = 0 IS a two-basin model
+  two-basin volume shares: active 0.628571  mid 0.000000  high 0.371429  (sum 1.000000000000000)
+  [4] k active == published (6 dp)               0.628571428571429 vs 0.628571  PASS
+  [4] k high == published (6 dp)                 0.371428571428571 vs 0.371429  PASS
+  [4] k sums to exactly 1                        max|diff| = 0.000e+00  PASS
+  [4] mid basin is identically zero              max|diff| = 0.000e+00  PASS
+  [4] active + high == greenland_sea_level       max|diff| = 2.220e-16  PASS
+  [4] greenland_sea_level (m) == greenland_ab    max|diff| = 4.441e-16  PASS
+  [4] gis_fast (m) == greenland_ab               max|diff| = 4.441e-16  PASS
+  [4] gis_slow (m) == greenland_ab               max|diff| = 8.327e-17  PASS
+  s = 1 gives 1972-2018 loss shares  active 0.629  mid 0.000  high 0.371
+  observed (Mouginot modern rate, 2002-2011) active 0.799  mid 0.000  high 0.201
+
+[5] MUTATION TEST — [4] must FAIL when k is perturbed
+  [5A] mid = 0.05 must break 'mid is zero'       max|diff| = 4.038e-02  detected
+  [5A] mid = 0.05 must break 'active + high == total' max|diff| = 4.038e-02  detected
+  [5B] sum(k) = 0.963 must break '== greenland_ab' max|diff| = 2.999e-02  detected
+  [5A] total is CONSERVED (k still sums to 1)    max|diff| = 5.551e-16  PASS
+
+ALL NESTING GATES PASS — the 3-basin component is a strict generalisation of greenland_ab, and at k_mid = 0 it is exactly the two-basin model --gis-basins2 runs.
+
+==============================================================
+[9/10] julia/test_gis_ordering_wedge.jl (channel-ordering prior)
+==============================================================
+GIS ordering wedge — mutation test (Tbar = 1.9631 K)
+  [ok  ] inverse map round-trips alpha_s (0.0022 ~ 0.0022)
+  [ok  ] inverse map round-trips beta_s  (0.00418 ~ 0.00418)
+  [ok  ] ORDERED point is ACCEPTED
+  [ok  ] alpha_s > alpha_f (beta ok) is REJECTED
+  [ok  ] beta_s > beta_f (alpha ok) is REJECTED
+  [ok  ] both arms violated is REJECTED
+  [ok  ] the offline INVERTED optimum is REJECTED
+  [ok  ] the ordered optimum (binding at EQUALITY) is ACCEPTED
+  [ok  ] same (ell, w) REJECTED under a small alpha_f
+  [ok  ] same (ell, w) ACCEPTED under a large alpha_f
+  [ok  ] => verdict depends on alpha_f, so the region is a WEDGE not a BOX
+
+11 checks, 0 failed
+wedge OK
+
+==============================================================
+[10/10] julia/test_gis_tap_wiring.jl (the SHIPPED tap cell)
+==============================================================
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+GIS tap wiring gate | tag L14 | :basins2 | 1850-2300
+  shipped cell: onset 4.69 K / V 5.6 m / tau 800 yr / stages 2 / WHOLE-SHEET home
+  2150 gate: |move| < 0.50 x 11.54 = 5.77 cm  (Greenland ssp585 p05-p95, outputs/ssps_components_2300_L14.csv)
+
+[G3] NESTING — V = 0 must be bit-identical to the untapped model
+  [G3] V = 0 ignores onset and tau entirely                  PASS  (max|diff| = 0.000e+00 cm)
+  [G3] V = 0 applies exactly zero tap                        PASS
+
+[G2] HORIZONS — identity at 2100, spread-scaled at 2150
+  [G2] ssp585 total at 2100 is EXACTLY unmoved               PASS  (max|diff| = 0.000e+00 cm)
+  [G2] ssp585 total at 2150 moves < 50.0% of its own spread  PASS  (max|move| 2.44 cm = 21.1% of the 11.54 cm p05-p95 (median +2.44 cm))
+  [G2] first divergence is AFTER 2100                        PASS  (first year = 2102)
+  [G2] and it does fire by 2200                              PASS  (first year = 2102)
+  [G2] and it MOVES 2300                                     PASS  (median Greenland@2300 shift = +45.78 cm)
+
+[G2b] SCENARIOS — at the shipped onset the tap acts on ssp585 ONLY
+  [G2b] ssp126 deviates EXACTLY 0.0 over 1850-2300           PASS  (max|diff| = 0.000e+00 cm; peak GMT 1.92 K vs onset 4.7 K)
+  [G2b] ssp245 deviates EXACTLY 0.0 over 1850-2300           PASS  (max|diff| = 0.000e+00 cm; peak GMT 3.19 K vs onset 4.7 K)
+
+[CAP] does the capacity clamp bind? (whole-sheet home ⇒ v0, not k_high*v0)
+  [CAP] measured                                             PASS  (max(wanted - applied) = 0.0000 m over 6 draws)
+      ⇒ the clamp NEVER binds at this cell, so this wiring IS the mock's uncapped additive tap and the offline pricing transfers exactly.
+
+[VTILDE] does the 1-D collapse survive wiring? same V*u_2300, different (V, tau)
+  cell A: V 5.64 m  tau  800  u_2300 0.0812  Vtilde 0.4578 m
+  cell B: V 0.82 m  tau  200  u_2300 0.5617  Vtilde 0.4578 m
+  Greenland@2300 median difference between them: +0.000 cm  (cell B clamp bite 0.0000 m)
+      ⇒ the Vtilde collapse SURVIVES wiring (< 0.5 cm) — the scorecard's 1-D identification still holds and the shortlist carries over.
+
+[MUT] the gates must FAIL when the cell is perturbed
+  [MUT] tau 100 yr DOES breach the 2150 bound (so [G2] can fail) PASS  (max|move| = 101.13 cm vs bound 5.77 cm)
+  [MUT] onset 3.0 K DOES move 2100 (so [G2]'s identity gate can fail) PASS  (max|diff| = 0.936 cm)
+  [MUT] onset 2.0 K DOES fire on ssp245 (so [G2b] can fail)  PASS  (max|diff| = 57.925 cm)
+
+ALL TAP WIRING GATES PASS.
+
+ALL Ladrillo MODEL TESTS PASS

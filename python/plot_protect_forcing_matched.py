@@ -13,8 +13,9 @@ WHY (2026-08-21, notes/handoff_2026-08-21_protect_greenland.md)
 PANELS
   (a) the forcing gap, and where each path crosses the 6.5 K onset
   (b) Greenland at matched forcing: PROTECT p05-p95, our base (tap off), our
-      shipped cell. The 2150 relation reverses.
-  (c) what the tap must supply (PROTECT minus our base) against what the shipped
+      2026-08-21 cell (NOT the shipped one -- see the constants block).
+      The 2150 relation reverses.
+  (c) what the tap must supply (PROTECT minus our base) against what that
       exponential does supply. Front-loaded and saturating vs back-loaded and
       still accelerating -- a shape mismatch, not a mis-set onset.
 
@@ -32,14 +33,38 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import gis_targets  # noqa: E402
+
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAG = "L14"
 OUT = os.path.join(REPO, "figures/protect_forcing_matched.png")
 
+## THE DRIFT BANNER. Not an assertion: this figure is ALLOWED to describe a
+## superseded cell, it is only not allowed to do so silently.
+_shipped = gis_targets.tap_cell()
+
 ## LABELS DERIVE FROM THESE — a changed constant must move every caption with it.
+## ⚠ THESE ARE THE 2026-08-21 CELL, NOT THE SHIPPED ONE, and they are pinned here
+## DELIBERATELY: the CSVs this figure reads (diag_protect_forcing_matched_L14*) were
+## produced at (6.5 K, 2.0 m, 50 yr, first-order), so re-pointing the labels at the
+## shipped cell without regenerating the inputs would relabel a superseded
+## measurement instead of correcting it. The captions below say "2026-08-21 cell",
+## never "shipped". To move this figure onto the shipped cell, re-run
+## julia/diag_protect_forcing_matched.jl first, then set these from
+## gis_targets.tap_cell(). The banner at import reports the gap either way.
+CELL_DATE = "2026-08-21"
 ONSET_K = 6.5
 TAU_YR = 50
 V_M = 2.0
+if (_shipped["onset_K"], _shipped["V_m"], _shipped["tau_yr"]) != (ONSET_K, V_M, float(TAU_YR)):
+    print(f"NOTE: this figure is drawn at the {CELL_DATE} cell "
+          f"({ONSET_K} K, {V_M} m, tau={TAU_YR} yr, first-order), which is SUPERSEDED.\n"
+          f"      shipped is {gis_targets.tap_cell_label()}.\n"
+          f"      Captions say '{CELL_DATE} cell' so the figure does not misreport itself.\n"
+          f"      Regenerate diag_protect_forcing_matched.jl to move it.\n")
+
 BASIS = "cm rel 1995-2014"
 ## PROTECT reports rel 2015; this is our own gis(2015) on the 1995-2014 base, so
 ## adding it puts their series on ours. Measured, not assumed — see below.
@@ -90,7 +115,7 @@ ax[1].fill_between(p50.index, p05, p95, color=C_P, alpha=.18,
 ax[1].plot(p50.index, p50, color=C_P, lw=2.4, label="PROTECT x2300 median")
 ax[1].plot(U.index, U, color=C_U, lw=2.2, label="ours, tap OFF")
 ax[1].plot(T.index, T, color=C_T, lw=2.2,
-           label=f"ours, shipped cell ({ONSET_K} K, {V_M} m, τ={TAU_YR} yr)")
+           label=f"ours, {CELL_DATE} cell ({ONSET_K} K, {V_M} m, τ={TAU_YR} yr)")
 ax[1].plot(O.index, O, color=C_O, lw=1.6, ls="--", label="ours, tap OFF, OUR forcing")
 for yr in (2150, 2300):
     ax[1].axvline(yr, color="k", lw=.6, alpha=.3)
@@ -106,7 +131,7 @@ yrs = p50.index.intersection(U.index).intersection(T.index)
 need, give = (p50.loc[yrs] - U.loc[yrs]), (T.loc[yrs] - U.loc[yrs])
 ax[2].axhline(0, color="k", lw=.8)
 ax[2].plot(need.index, need, color=C_P, lw=2.4, label="NEEDED: PROTECT − our base")
-ax[2].plot(give.index, give, color=C_T, lw=2.4, label="GIVEN: shipped exponential")
+ax[2].plot(give.index, give, color=C_T, lw=2.4, label=f"GIVEN: {CELL_DATE} exponential")
 ax[2].fill_between(yrs, need.values, give.values, where=give.values >= need.values,
                    color=C_T, alpha=.13)
 ## The crossing is the LAST year the physics still wants LESS than our base, not

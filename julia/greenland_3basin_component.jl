@@ -134,10 +134,16 @@ const GIS2_VSHARE = (south = GIS3_VSHARE.south + GIS3_VSHARE.mid,
 # the precipitation level), just between-scenario spreads." Scored that way at 2300,
 # a LOW onset fires the reservoir in SSP2-4.5 and SHRINKS ssp585/ssp245 BELOW the
 # untapped model (2.73x -> 2.60x at onset 2.35) — the exact quantity the reservoir
-# exists to buy. 4.69 K gives the highest separation on the whole ladder (5.38x),
-# lands ssp585@2300 on the matched p50 (98.6 vs 98.5 cm) and is closest to Greve at
-# 3001 (1.05x). A composite w-score mildly preferred 4.35 K, and that score is the
-# one to DISCOUNT: it scores LEVEL agreement against ISM medians, which is a
+# exists to buy. 4.69 K gives the highest separation on the whole
+# ladder, and it was ALSO the onset that landed ssp585@2300 on the matched p50 and
+# came closest to Greve at 3001 -- but BOTH of those readings were taken at V = 6.0
+# and DO NOT DESCRIBE THE SHIPPED CELL. At V = 5.64 the same onset gives 95.3 cm =
+# 0.969x the matched p50 and Greve@3001 0.990x; the V block below is the live source
+# for both. The onset argument survives the V change because it rests on the
+# SEPARATION, which is the quantity the ladder was scanned on -- the LEVEL numbers
+# moved with V and are quoted there, not here.
+# A composite w-score mildly preferred 4.35 K, and that score is the one to
+# DISCOUNT: it scores LEVEL agreement against ISM medians, which is a
 # between-MODEL criterion in disguise. Report the scenario RATIO alongside any level
 # score, and let the ratio break ties.
 # CONSEQUENCE, recorded deliberately: the moderate-scenario per-tonne SC-GHG

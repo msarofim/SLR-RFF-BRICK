@@ -1,0 +1,21 @@
+  chain_L14_seed2026_n2000000.csv  (1000000 post-burn)
+  chain_L14_seed2027_n2000000.csv  (1000000 post-burn)
+  chain_L14_seed2028_n2000000.csv  (1000000 post-burn)
+  chain_L14_seed2029_n2000000.csv  (1000000 post-burn)
+
+Greenland block convergence | tag L14 | 4 chains x 1000000 post-burn | R-hat OK < 1.05
+slow channel: reparam (gis_slow_ell, gis_slow_w)
+
+param           scale     rhat       ess medratio  per-chain medians (sampled scale)
+gis_c1         linear    1.032      98.8    1.078  0.0446 0.0453 0.0465 0.0481  
+gis_c0         linear    1.058      66.6    1.132  0.0582 0.0597 0.0610 0.0658  NOT CONVERGED
+gis_f          linear    1.075      51.6    1.137  0.5790 0.5696 0.5350 0.5092  NOT CONVERGED
+gis_alpha_f    linear    1.007     897.1    1.087  0.0047 0.0046 0.0048 0.0050  
+gis_beta_f     linear    1.011     672.0    1.078  0.0093 0.0095 0.0096 0.0100  
+gis_slow_ell      log    1.055      66.8    1.296  -5.0301 -5.0544 -5.1342 -5.2897  NOT CONVERGED
+gis_slow_w     linear    1.005    1598.1    1.066  0.5256 0.5546 0.5235 0.5579  
+gis_amp        linear    1.003    3010.0    1.014  1.8984 1.9150 1.8949 1.9222  
+gis_s_high      log10    1.001    5795.7    1.027  -0.6377 -0.6449 -0.6493 -0.6476  
+
+3 of 9 NOT converged
+wrote outputs/mcmc/gis_block_convergence_L14.csv
