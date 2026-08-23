@@ -55,11 +55,41 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAG = "L14"
+## THE COMPARISON NUMBERS ARE READ, NOT HARDCODED (2026-08-23). This file used to
+## carry `50.0` and `230.3` as literals for the untapped and shipped Greenland@2300.
+## The cell was replaced on 2026-08-23 -- 6.5 K / 2.0 m / 50 yr first-order became a
+## 2-stage cascade at 4.69 K / 6.0 m / 800 yr, whole-sheet -- and a literal cannot
+## follow that. SHIPPED_TAP_TAG is the ONE place the cell appears; if it stops
+## resolving, that is the signal the cell moved again, and the error says so.
+UNTAPPED_CSV = os.path.join(REPO, f"outputs/ssps_components_2300_{TAG}.csv")
+SHIPPED_TAP_TAG = "tap4p69K_V6p0m_tau800_n2_ws"
+SHIPPED_TAP_CSV = os.path.join(
+    REPO, f"outputs/ssps_components_2300_{TAG}_{SHIPPED_TAP_TAG}.csv")
+
+
+def _gis2300(path, ssp="SSP5-8.5"):
+    if not os.path.isfile(path):
+        sys.exit(f"scope_gis_tap_shape: missing {os.path.relpath(path, REPO)}. If the "
+                 f"shipped tap cell moved, update SHIPPED_TAP_TAG -- do not re-add a "
+                 f"hardcoded cm figure here.")
+    d = pd.read_csv(path)
+    m = (d.year == 2300) & (d.ssp == ssp) & (d.component == "gis")
+    if m.sum() != 1:
+        sys.exit(f"scope_gis_tap_shape: {m.sum()} rows for gis/{ssp}/2300 in "
+                 f"{os.path.relpath(path, REPO)}, expected 1")
+    return float(d.med[m].iloc[0])
 ## Imported, not retyped — a shape scan run at a different ramp width than the
 ## priced grid used is a scan of a different tap. Asserted at import.
 from scope_gis_tap_l13 import TAP_RAMP_W_K as RAMP_W_K
 assert RAMP_W_K == 1.0, f"TAP_RAMP_W_K moved to {RAMP_W_K}; re-read this scan's conclusions"
-ONSET_SHIPPED, V_SHIPPED, TAU_SHIPPED = 6.5, 2.0, 50.0
+## THE ANCHOR CELL OF THIS DIAGNOSTIC IS THE ONE IT WAS WRITTEN ABOUT, AND IT IS NO
+## LONGER THE SHIPPED ONE (renamed 2026-08-23). This file asks whether any tap FORM
+## can reproduce the x2300 trajectory, with the first-order 6.5 K / 2.0 m / 50 yr cell
+## as the incumbent to beat; its "pinned" arm pins the onset at 6.5 K deliberately.
+## Rewiring it to the cascade would ask a different question, so the cell stays and
+## the NAME changes -- keeping `_SHIPPED` would have made every label in the printout
+## and the figure claim the superseded cell is what we ship.
+ONSET_SUPERSEDED, V_SUPERSEDED, TAU_SUPERSEDED = 6.5, 2.0, 50.0
 FIT_YEARS = (2150, 2200, 2250, 2300)   # the horizons the physics actually constrains
 OUR_PEAK_K = 7.815                  # fair_mean_gmst_ssp585 max — the (ii) constraint
 
@@ -113,7 +143,7 @@ SPECS = {  # name: (label, x0, bounds)
 ##          back-loading by pushing the onset past 7.81 K, which is precisely the
 ##          failure already measured in the --scan arm: exactly inert on our own
 ##          scenario. A good `free` fit is therefore NOT evidence for a form.
-##   pinned the onset is held at the SHIPPED 6.5 K. This asks the question that
+##   pinned the onset is held at the SUPERSEDED cell's 6.5 K. This asks the question that
 ##          matters: can the FORM alone back-load, without moving the onset out of
 ##          our scenario's reach?
 rows = []
@@ -123,8 +153,8 @@ for k, (label, x0, bnds) in SPECS.items():
         b = list(bnds)
         xx = list(x0)
         if mode == "pinned":
-            b[1] = (ONSET_SHIPPED, ONSET_SHIPPED)
-            xx[1] = ONSET_SHIPPED
+            b[1] = (ONSET_SUPERSEDED, ONSET_SUPERSEDED)
+            xx[1] = ONSET_SUPERSEDED
         cost = lambda p: float(np.sum((form(k, p, T_prot)[fit_i] - resid[fit_i]) ** 2))
         r = minimize(cost, xx, bounds=b, method="L-BFGS-B")
         p = r.x
@@ -148,27 +178,30 @@ print(f"  residual at 2100 {resid[np.where(yrs==2100)[0][0]]:+.1f} cm "
 print(f"  residual at 2150 {resid[fit_i[0]]:+.1f}, at 2300 {resid[-1]:+.1f} cm\n")
 for mode in ("free", "pinned"):
     print(f"--- onset {mode.upper()}" +
-          (f" at the shipped {ONSET_SHIPPED} K" if mode == "pinned" else " (free parameter)"))
+          (f" at the SUPERSEDED cell's {ONSET_SUPERSEDED} K" if mode == "pinned" else " (free parameter)"))
     print(f"{'form':36} {'rmse':>6} {'tap@2150':>9} {'tap@2300':>9} {'onset':>6} "
           f"{'fires?':>7} {'ours tap@2300':>13}")
     for r in out[out["mode"] == mode].itertuples():
         print(f"{r.label:36} {r.rmse_cm:6.1f} {r.tap2150:9.1f} {r.tap2300:9.1f} "
               f"{r.onset_K:6.2f} {str(r.fires_on_ours):>7} {r.ours_tap2300:13.1f}")
     print()
-print(f"\nshipped cell for reference: tap@2150 116.1, tap@2300 195.9 cm "
+_sup = CM * V_SUPERSEDED * relax(T_prot, ONSET_SUPERSEDED, TAU_SUPERSEDED, True)
+print(f"\nSUPERSEDED cell for reference (onset {ONSET_SUPERSEDED} K / V "
+      f"{V_SUPERSEDED} m / tau {TAU_SUPERSEDED:.0f} yr, first-order): "
+      f"tap@2150 {_sup[fit_i[0]]:.1f}, tap@2300 {_sup[-1]:.1f} cm "
       f"(target {resid[fit_i[0]]:.1f} and {resid[-1]:.1f})")
 
 # ---- figure ----------------------------------------------------------------
 fig, ax = plt.subplots(1, 2, figsize=(13.5, 5.2))
-ship = CM * V_SHIPPED * relax(T_prot, ONSET_SHIPPED, TAU_SHIPPED, True)
+ship = _sup
 for a, (v_idx, T, lab) in enumerate([(2, T_prot, "under the PROTECT x2300 forcing"),
                                      (3, T_ours, "under OUR ssp585 (peak 7.81 K)")]):
     if a == 0:
         ax[a].plot(yrs, resid, "k", lw=3, label="TARGET: physics − our base")
-        ax[a].plot(yrs, ship, color="#c1272d", lw=2, ls="--", label="shipped cell")
+        ax[a].plot(yrs, ship, color="#c1272d", lw=2, ls="--", label="superseded cell")
     else:
-        ax[a].plot(yrs, CM * V_SHIPPED * relax(T_ours, ONSET_SHIPPED, TAU_SHIPPED, True),
-                   color="#c1272d", lw=2, ls="--", label="shipped cell")
+        ax[a].plot(yrs, CM * V_SUPERSEDED * relax(T_ours, ONSET_SUPERSEDED, TAU_SUPERSEDED, True),
+                   color="#c1272d", lw=2, ls="--", label="superseded cell")
     for k, c in zip("ABCD", ("#1763b8", "#1a5c2a", "#e08214", "#7b3294")):
         ax[a].plot(yrs, curves[(k, "pinned")][v_idx], color=c, lw=2,
                    label=curves[(k, "pinned")][0])
@@ -177,7 +210,7 @@ for a, (v_idx, T, lab) in enumerate([(2, T_prot, "under the PROTECT x2300 forcin
     ax[a].grid(alpha=.25, lw=.6); ax[a].legend(fontsize=8.5, loc="upper left")
     ax[a].set_xlim(2015, 2300)
 fig.suptitle("Tap forms fitted to the physics residual at "
-             f"{FIT_YEARS} with the onset PINNED at the shipped {ONSET_SHIPPED} K — "
+             f"{FIT_YEARS} with the onset PINNED at the SUPERSEDED cell's {ONSET_SUPERSEDED} K — "
              "left: does the form alone back-load; right: what it does to our own ssp585",
              fontsize=10.5, y=1.01)
 fig.tight_layout()
@@ -217,8 +250,10 @@ print(f"    Greenland@2300  p05 {R.loc[2300,0.05]:5.1f}  p50 {R.loc[2300,0.5]:5.
 print(f"  x2300, ~{T_X:.2f} K, n=18 / 2 GCMs: p50 {X.loc[2300,0.5]:.1f} cm")
 print(f"  crude two-point interpolation to our {T_us:.2f} K  ->  ~{round(mid,-1):.0f} cm "
       f"(bracket ~{round(R.loc[2300,0.5],-1):.0f}-{round(X.loc[2300,0.5],-1):.0f})")
-print(f"  ours UNTAPPED@2300  50.0 cm   |   ours SHIPPED CELL@2300  230.3 cm")
-print(f"  => untapped is LOW, the shipped tap is ~{230.3/mid:.1f}x the interpolated central "
-      f"and {230.3/R.loc[2300,0.95]:.1f}x the r2300 p95")
+g_off, g_on = _gis2300(UNTAPPED_CSV), _gis2300(SHIPPED_TAP_CSV)
+print(f"  ours UNTAPPED@2300 {g_off:6.1f} cm   |   ours SHIPPED CELL@2300 {g_on:6.1f} cm "
+      f"({SHIPPED_TAP_TAG})")
+print(f"  => untapped is LOW, the shipped tap is ~{g_on/mid:.1f}x the interpolated central "
+      f"and {g_on/R.loc[2300,0.95]:.1f}x the r2300 p95")
 
 print("\nwrote outputs/scope_gis_tap_shape.csv, figures/gis_tap_shape_candidates.png")
