@@ -360,12 +360,19 @@ def main():
     print(f"\n  AND ON THE HIGH-FORCING CELLS IT IS A LOWER BOUND TWICE OVER: a HELD "
           f"late-century\n  climate rather than stabilised CO2, and a rate still "
           f"{sh.min():.1f}-{sh.max():.1f}x its early value in the\n  final century.")
+    ## CORRECTED 2026-08-23: the earlier text here said CLIMBER-X was the ONLY
+    ## source for the threshold LOCATION. It is not, and never was -- the Bochow
+    ## 2023 equilibrium ladders have been tracked at
+    ## data/observations/greenland_equilibrium_bochow2023.csv since 2026-08-10.
     print(f"\n  WHAT THIS DOES NOT SAY. It does not locate a threshold -- Greve's "
           f"protocol holds a\n  late-century climate rather than scanning stabilisation "
-          f"levels, so CLIMBER-X remains\n  the only source here for WHERE the "
-          f"commitment curve turns over, and that is still\n  one model. What is now "
-          f"multi-model is the direction and the SIZE: our linear L_eq\n  is far too "
-          f"small, and the defect is structural.")
+          f"levels. But the threshold LOCATION\n  is NOT one-model either: the tracked "
+          f"Bochow-2023 ladders put it at 1.68-1.76 K "
+          f"(Yelmo-REMBO)\n  and 2.18-2.60 K (PISM-dEBM), and CLIMBER-X's 1.44-2.24 K "
+          f"lands BETWEEN them -- so\n  CLIMBER-X CORROBORATES and adds nothing, and is "
+          f"the weakest-gated of the three\n  (5.1x below the observed early rate). "
+          f"What Greve adds is that the direction and the\n  SIZE are multi-model: our "
+          f"linear L_eq is far too small, and the defect is structural.")
 
     g.to_csv(OUT, index=False)
     cmp.to_csv(OUT_CMP, index=False)
