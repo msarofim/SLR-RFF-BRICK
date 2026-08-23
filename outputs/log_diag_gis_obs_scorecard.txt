@@ -1,0 +1,82 @@
+diag_gis_obs_scorecard -- L14 canonical (two-basin), extended axis, thinned posterior
+
+  pre-2015 hindcast is identical across all 8 drivers (max spread 0.0e+00 cm) -- one hindcast, as expected.
+
+=== 1. OUR GREENLAND MODEL vs OBSERVATIONS ===
+  obs source: outputs/recalib_targets_ext.csv ('gis'), 1900-2025
+
+  A. THE FITTED PART -- total change over the calibration window (1900, 2025):
+     observed   5.781 cm   ours   5.781 cm   ratio 1.0000x   <- MATCHED BY CONSTRUCTION (bisection)
+     This is not evidence. Everything below IS.
+
+  B. THE FREE PART -- rates the bisection does not control, mm/yr:
+     window            observed      ours   ours/obs
+     1900-1950            0.554     0.556       1.00x
+     1950-1990            0.294     0.281       0.95x
+     1993-2010            0.497     0.502       1.01x
+     2010-2024            0.680     0.701       1.03x
+     1995-2024            0.593     0.634       1.07x   <- the priority-1 obs rate
+
+  C. ACCELERATION over 1993-2024 (quadratic coeff x2, mm/yr^2):
+     observed +0.0146   ours +0.0094   ratio 0.65x
+
+=== 2. THE PRIORITY-1 GATE, APPLIED TO ISMIP6 FOR THE FIRST TIME ===
+  The gate Greve PASSED and CLIMBER-X FAILED, now run on the ensemble that
+  supplies the 2100 target. Window (2016, 2050), positional indexing from 2015.
+
+  observed GIS rate 1995-2024: 0.593 mm/yr
+  ISMIP6 2016-2050, ssp585 / standard protocol, 48 runs across 14 ice-sheet models:
+    min 0.215   p25 0.532   MEDIAN 0.682   p75 0.865   max 1.279
+
+  per ice-sheet model (median over its ssp585 runs), sorted:
+    JPL_ISSMPALEO            0.221 mm/yr   obs/model   2.69x   <- BELOW obs
+    UCIJPL_ISSM1             0.452 mm/yr   obs/model   1.31x   <- BELOW obs
+    LSCE_GRISLI2             0.467 mm/yr   obs/model   1.27x   <- BELOW obs
+    AWI_ISSM1                0.612 mm/yr   obs/model   0.97x
+    AWI_ISSM2                0.631 mm/yr   obs/model   0.94x
+    GSFC_ISSM                0.639 mm/yr   obs/model   0.93x
+    AWI_ISSM3                0.641 mm/yr   obs/model   0.93x
+    UAF_PISM1                0.682 mm/yr   obs/model   0.87x
+    ILTS_PIK_SICOPOLIS3      0.715 mm/yr   obs/model   0.83x
+    JPL_ISSM                 0.721 mm/yr   obs/model   0.82x
+    ILTS_PIK_SICOPOLIS2      0.725 mm/yr   obs/model   0.82x
+    IMAU_IMAUICE2            0.783 mm/yr   obs/model   0.76x
+    NCAR_CISM                0.870 mm/yr   obs/model   0.68x
+    VUB_GISMHOMv1            1.081 mm/yr   obs/model   0.55x
+
+  3/14 ice-sheet models run BELOW the observed rate, 11/14 at or above it.
+  ENSEMBLE MEDIAN 0.682 vs observed 0.593 mm/yr = 1.15x -- the ensemble is FASTER than
+  observations, not slower.
+  For comparison, on this same gate: Greve/SICOPOLIS 0.440-0.988 (PASSED, obs inside), 
+  CLIMBER-X 0.117 (FAILED, 5.1x slow, DROPPED as a target).
+
+  ==> ISMIP6 PASSES. The observed rate is INSIDE the model spread, and the median is not
+      slow against observations. **The gate does NOT disqualify the 2100 target.**
+
+=== 3. WHAT THIS DOES TO THE 2100 FINDING -- THE HYPOTHESIS IS REFUTED ===
+  The hypothesis this section was built to test: that the ISMIP6 median UNDER-runs
+  observations, so that part of our 1.32x 2100 excess is the target's own slow bias
+  rather than our defect. **That is refuted by its own numbers.** The median is
+  1.15x the observed rate, not below it, and 11/14 models sit at or above observations.
+
+  ==> NO CORRECTION IS AVAILABLE. The 2100 finding stands as measured: our 1.32x is
+      ours. ISMIP6 clears the same gate Greve cleared and CLIMBER-X failed, so it is
+      an admissible target by this repo's own standard, and weighting the 2100 term
+      HIGHEST is supported by the evidence, not merely by decision-relevance.
+
+  ONE CAVEAT ON THE GATE ITSELF, which applies equally to the Greve and CLIMBER-X
+  verdicts already on record: it compares a 2016-2050 PROJECTED rate to a
+  1995-2024 OBSERVED one. The projection window is later and warmer, so a
+  well-behaved model SHOULD exceed the observed rate. Read that way 1.15x is modest,
+  and the notable number is that 3/14 models fail to reach a PAST observed rate in a
+  FUTURE window. It does not change the verdict; it does mean the gate is a floor,
+  not a calibration.
+
+  AND OUR OWN STANDING, stated against the same yardstick: our 1995-2024 rate is
+  0.634 mm/yr = 1.07x observed -- better than the ISMIP6 median's 1.15x. The
+  hindcast is NOT where our problem is. The shape defect at the recent end is
+  ACCELERATION: 0.65x observed over 1993-2024 (section 1C). We match the LEVEL and
+  the RATE and under-run the CURVATURE -- and then arrive 1.32x high at 2100.
+
+WROTE outputs/diag_gis_obs_scorecard_ismip6_rates.csv
+WROTE outputs/diag_gis_obs_scorecard_ours.csv

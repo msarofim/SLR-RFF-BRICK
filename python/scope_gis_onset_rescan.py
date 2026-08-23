@@ -95,6 +95,18 @@ OURS = ["SSP1-2.6", "SSP2-4.5", "SSP5-8.5"]
 SSP_KEY = {"SSP1-2.6": "ssp126", "SSP2-4.5": "ssp245", "SSP5-8.5": "ssp585"}
 CALIB_WIN = A.HIND
 BASE_GATE_TOL_PCT = 0.5      # our 2100 must reproduce the Greve script's ours_2100
+## HORIZON WEIGHTS (Marcus 2026-08-23: "2100 highest, 2300 second, 3001 third").
+## Supported by evidence, not only by decision-relevance: diag_gis_obs_scorecard.py
+## put the priority-1 observational gate on ISMIP6 for the first time and it PASSES
+## (median 1.15x the observed rate, obs inside the spread, 11/14 models at or above
+## observations), so the 2100 target is admissible by this repo's own standard.
+## The EXACT weights are a choice, so three sets are scored and the winner's
+## robustness to them is reported rather than one set being presented as the answer.
+WEIGHT_SETS = {"equal":   {2100: 1.0, 2300: 1.0, Y_LAST: 1.0},
+               "3:2:1":   {2100: 3.0, 2300: 2.0, Y_LAST: 1.0},
+               "4:2:1":   {2100: 4.0, 2300: 2.0, Y_LAST: 1.0},
+               "6:3:1":   {2100: 6.0, 2300: 3.0, Y_LAST: 1.0}}
+WEIGHT_PRIMARY = "3:2:1"
 PSI_EVIDENCE = (0.179, 0.341)   # Greve@3001 per-cell requirement, median 0.242
 
 
@@ -251,6 +263,10 @@ def main():
                     rec[f"ratio_{y}_med"] = float(np.exp(np.median(lr)))
                 rec["score_all"] = float(np.sqrt(np.mean(
                     [rec[f"score_{y}"] ** 2 for y in HORIZONS])))
+                for wn, wd in WEIGHT_SETS.items():
+                    rec[f"score_w_{wn}"] = float(np.sqrt(
+                        sum(wd[y] * rec[f"score_{y}"] ** 2 for y in HORIZONS)
+                        / sum(wd.values())))
                 for lab in OURS:
                     rec[f"{SSP_KEY[lab]}_2300_cm"] = base[lab][ie[2300]] + \
                         addc[lab][ie[2300]]
@@ -344,6 +360,46 @@ def main():
               f"{bb.score_all:.3f} at {bb.onset_K:g} K -- and {ONSET_SHIPPED_K} K is "
               f"the WORST of the\n  {len(f8)} onsets at that cell. The earlier "
               f"per-onset table let V and tau float, which\n  masked this.")
+
+    # --- THE WEIGHTED VERDICT -------------------------------------------------
+    col = f"score_w_{WEIGHT_PRIMARY}"
+    bw = {}
+    for wn in WEIGHT_SETS:
+        c = f"score_w_{wn}"
+        bw[wn] = float(np.sqrt(sum(WEIGHT_SETS[wn][y] * np.mean(np.log(r0[y]) ** 2)
+                                   for y in HORIZONS)
+                               / sum(WEIGHT_SETS[wn].values())))
+    print(f"\n=== THE WEIGHTED VERDICT -- 2100 > 2300 > {Y_LAST} (Marcus 2026-08-23) ===")
+    print(f"  The weighting is evidence-supported: diag_gis_obs_scorecard.py put the "
+          f"priority-1\n  observational gate on ISMIP6 for the first time and it "
+          f"PASSES (median 1.15x the\n  observed rate, obs inside the spread), so the "
+          f"2100 target is admissible.\n")
+    print(f"  BEST ONSET UNDER EACH WEIGHT SET (within inventory; baseline in "
+          f"parentheses):")
+    print(f"  {'weights':>9}{'onset':>8}{'V_m':>7}{'tau':>7}{'psi':>7}"
+          f"{'score':>9}{'baseline':>10}{'  2100 ratio':>13}{'  585@2300':>11}")
+    for wn in WEIGHT_SETS:
+        c = f"score_w_{wn}"
+        sub = out[out.within_inventory]
+        b = sub.loc[sub[c].idxmin()]
+        star = " <- SHIPPED ONSET" if b.shipped_onset else ""
+        print(f"  {wn:>9}{b.onset_K:>8.2f}{b.V_m:>7.2f}{b.tau_yr:>7.0f}"
+              f"{b.psi_cm_per_yr:>7.3f}{b[c]:>9.3f}{bw[wn]:>10.3f}"
+              f"{b.ratio_2100_med:>12.2f}x{b.ssp585_2300_cm:>11.1f}{star}")
+    print(f"\n  BEST CELL AT EACH ONSET UNDER {WEIGHT_PRIMARY} "
+          f"(the primary weighting):")
+    print(f"  {'onset':>7}{'V_m':>7}{'tau':>7}{'psi':>7}{'  w-score':>10}"
+          f"{'  vs base':>10}{'  2100':>8}{'  2300':>8}{f'  {Y_LAST}':>8}"
+          f"{'  245@2300':>11}")
+    for on in ONSET_SCAN_K + [ONSET_SHIPPED_K]:
+        sub = out[(out.onset_K == on) & out.within_inventory]
+        b = sub.loc[sub[col].idxmin()]
+        star = " <- SHIPPED" if b.shipped_onset else ""
+        print(f"  {b.onset_K:>7.2f}{b.V_m:>7.2f}{b.tau_yr:>7.0f}"
+              f"{b.psi_cm_per_yr:>7.3f}{b[col]:>10.3f}"
+              f"{bw[WEIGHT_PRIMARY] / b[col]:>9.2f}x{b.score_2100:>8.3f}"
+              f"{b.score_2300:>8.3f}{b[f'score_{Y_LAST}']:>8.3f}"
+              f"{b.ssp245_2300_cm:>11.1f}{star}")
 
     print(f"\n  CELLS WHOSE psi SITS IN THE GREVE RANGE {PSI_EVIDENCE} AND WHOSE "
           f"ssp585@2300 IS IN BAND:")

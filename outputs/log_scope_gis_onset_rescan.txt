@@ -89,6 +89,28 @@ scope_gis_onset_rescan -- L14 canonical (two-basin), extended axis 1850-3001, th
   7 onsets at that cell. The earlier per-onset table let V and tau float, which
   masked this.
 
+=== THE WEIGHTED VERDICT -- 2100 > 2300 > 3001 (Marcus 2026-08-23) ===
+  The weighting is evidence-supported: diag_gis_obs_scorecard.py put the priority-1
+  observational gate on ISMIP6 for the first time and it PASSES (median 1.15x the
+  observed rate, obs inside the spread), so the 2100 target is admissible.
+
+  BEST ONSET UNDER EACH WEIGHT SET (within inventory; baseline in parentheses):
+    weights   onset    V_m    tau    psi    score  baseline   2100 ratio   585@2300
+      equal    4.69   7.42   2200  0.337    0.431     1.130        1.50x      110.3 <- SHIPPED ONSET
+      3:2:1    4.69   7.42   2700  0.275    0.412     0.885        1.47x       99.4 <- SHIPPED ONSET
+      4:2:1    4.69   7.42   2700  0.275    0.414     0.827        1.47x       99.4 <- SHIPPED ONSET
+      6:3:1    4.69   7.42   2700  0.275    0.404     0.752        1.47x       99.4 <- SHIPPED ONSET
+
+  BEST CELL AT EACH ONSET UNDER 3:2:1 (the primary weighting):
+    onset    V_m    tau    psi   w-score   vs base    2100    2300    3001   245@2300
+     1.60   3.00   2700  0.111     0.552     1.60x   0.587   0.396   0.691       43.3
+     1.85   4.50   3200  0.141     0.492     1.80x   0.584   0.288   0.514       48.5
+     2.10   4.50   2700  0.167     0.477     1.86x   0.570   0.240   0.523       50.4
+     2.35   4.50   2700  0.167     0.488     1.81x   0.543   0.274   0.626       42.0
+     2.60   6.00   3200  0.188     0.476     1.86x   0.550   0.252   0.573       35.2
+     2.85   6.00   3200  0.188     0.465     1.91x   0.528   0.255   0.574       26.0
+     4.69   7.42   2700  0.275     0.412     2.15x   0.426   0.256   0.588       17.7 <- SHIPPED
+
   CELLS WHOSE psi SITS IN THE GREVE RANGE (0.179, 0.341) AND WHOSE ssp585@2300 IS IN BAND:
     70 cells; best 8 by score_all:
       onset    V_m    tau    psi     all    2100    2300    3001   245@2300
