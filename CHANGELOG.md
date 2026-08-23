@@ -3,6 +3,106 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-23h — **The cascade cell SHIPS — and the 2250–2300 rate criterion, run on it for the first time, MISSES by 1.055×.**
+
+`GIS_TAP_CELL` is now **stages 2 (cascade) / V 6.0 m / τ 800 yr / onset 4.69 K / whole-sheet
+home**. Wiring, port test and evidence were all in place at `2b5e596`; this is the flip, the one
+test rewrite it needed, the regenerated deliverables, the quarantine — and one new result that
+does **not** come back clean.
+
+**THE FLIP, AND WHAT DELIBERATELY DID NOT MOVE.** `GIS_TAP_CELL` gains `stages` and `wholesheet`
+fields. The **component's build-time defaults stay first-order / high-basin**, so building
+`greenland_3basin` without asking for the tap is still bit-identical to everything predating
+2026-08-23; `update_gis3_tap!` / `ladrillo_set_tap!` default their two capability keywords to the
+cell's, so "turn the shipped tap on" is one call and "build a model" moves nothing. The
+projection filename gains `_n<stages>_ws|_hb` — a cascade run and a first-order run at the same
+(onset, V, τ) are different objects and would otherwise collide on one name. `--tap-set` now
+passes `stages=1, wholesheet=false` **explicitly**, because the new setter defaults would
+otherwise have silently re-run a first-order admissible set as cascades.
+
+**[G2] SPLITS INTO TWO GATES OF DIFFERENT KIND.** 2100 stays an **identity** gate (exactly
+0.000e+00 — the validated horizon, and the tap is inert there by construction). 2150 becomes a
+**plausibility** gate scaled to Greenland's own sampled p05–p95 width, **read from the untapped
+deliverable** rather than hardcoded: |move| < 0.5 × 11.54 = **5.77 cm**. The shipped cell moves it
+**2.59 cm = 22.5%** of the width. The old identity-at-2150 gate had named its own condition for
+revision — *"do NOT narrow the admissible set on 2150 without a physics-based source at that
+horizon"* — and `166e1d2` supplied one: **SICOPOLIS at 2150 reads 0.61–0.89×, i.e. we are LOW
+there, not high.**
+
+**[MUT] IS REPOINTED, NOT KEPT.** A mutation built to break an identity gate cannot break a
+spread-scaled one, and a gate whose mutation cannot fail is untested. τ is what the 2150 bound
+actually constrains, so **τ = 100 yr** is the perturbation now (107.59 cm against the 5.77 cm
+bound); a second mutation (onset 3.0 K) keeps the identity half tested. **[VTILDE] reads
+`gis_tap_s2`** on a cascade, not `gis_tap_s` — s₁ is an internal state, and reading it would have
+overstated u₂₃₀₀ ~4×, picked a matching V 4× too small, and still printed "SURVIVES". Its alt cell
+is now **faster, not slower**: matching Ṽ at longer τ needs V past the whole sheet, where the
+clamp binds and the comparison is of two different objects; the bite is checked and voids the
+gate.
+
+**THE DELIVERABLE.** Greenland ssp585@2300 **230.3 → 98.7 cm**, the 585/245 separation **12.57× →
+5.39×**, the total **649.7 → 516.7 cm**. 2100 and both cool scenarios exactly inert in both arms.
+Old outputs quarantined at `outputs/quarantine/20260823_old_tap_cell/` with a README recording
+that this is a **refutation, not a re-ranking** (the first-order form is bounded at R = 2.89
+against the R = 6.03 the joint 2150/2300 constraint needs, so no cell of it survives).
+
+**ONE THING HAS NO REPLACEMENT.** The `--tap-set` **cell-choice envelope** — 1.180 m at Greenland
+2300, **4.4× the sampled p05–p95** and the larger of the two uncertainties — was priced on the
+first-order form and is now **unquantified for the cascade**. Do not quote the quarantined
+envelope against the shipped cell. Producing a cascade-priced admissible set is open work.
+
+### The rate criterion, and it is a FAIL — `python/diag_gis_cascade_rate_crit.py`
+
+The last open piece of evidence in the finalization handoff. **ψ = 100·V/τ is a first-order
+parameterisation** — at n = 2 it is not even defined, because the delivered unit is the *second*
+stage — so the flux had to be **measured off the trajectory** and the cell re-scored.
+
+| cell | r2300 2250–2300 rate | band [9.7, 41.5] | our ssp585 2300 |
+|---|---|---|---|
+| base | 2.9 | out (low) | 49.9 |
+| A  V=1.0 τ 800 n=1 | 12.0 | IN | 70.9 |
+| B  V=6.0 τ 2200 n=1 | 26.0 | IN | 99.1 |
+| **SHIPPED V=6.0 τ 800 n=2** | **43.8** | **OUT (1.055×)** | **98.6** |
+
+The fail is **robust to how the band is built** — 1.19× over the GCM-clustered band, **0/5** on
+leave-one-GCM-out — but the margin is **2.3 cm/century on a band 4.3× wide resting on 5 GCM
+clusters**. A weak fail, not a decisive one.
+
+**IT IS NOT STRUCTURAL.** 16 of 72 cascade cells at the shipped onset clear all four gates (2100
+exactly inert, both ssp585 2150 bands, the matched 2300 band, the rate band). The shipped cell is
+simply not one of them — it is the cell in the whole scan **closest to the matched p50 (1.001×)**,
+and that is exactly what makes it steep at 2300.
+
+**AND THE PRICE IS SMALL.** Off the grid the tension reads as 12.2 cm at 2300, only because there
+is no grid point between V = 4.5 and V = 6.0. Bisecting at the shipped n and τ, the **largest V
+clearing the rate band is 5.66 m** — a 5.7% cut — and it lands **95.9 cm**, 0.974× the matched
+p50 against the shipped cell's 1.001×. **The rate gate costs 2.6% of the 2300 level, not 12%.**
+
+**METHODOLOGICAL CHOICE, FLAGGED NOT RESOLVED.** Whether the rate band joins the cell's selection
+criteria (⇒ V ≈ 5.66) or the p50 landing keeps priority (⇒ V = 6.0 stays) is Marcus's call.
+Nothing is changed pending it.
+
+**TWO TRAPS HANDLED IN PASSING.** The p50 is `gis_targets.MATCHED_2300_P50_M` (**98.5**), NOT the
+r2300 arm's own band median (**72.3**) — quoting the wrong one moves the verdict 1.36×, and
+"lands on the p50" is predictor-dependent. And `psi_eff` is **reported as measured**,
+form-agnostic, with the closed form printed only where it is defined.
+
+### Two stale-label bugs, both the class the standing rule exists to prevent
+
+`python/scope_gis_tap_shape.py` hardcoded `50.0` and `230.3` as the untapped and shipped
+Greenland@2300, so after the cell moved it was silently reporting the shipped tap as **2.3× the
+interpolated physics central and 2.1× the r2300 p95**. Both now read from the deliverables via one
+`SHIPPED_TAP_TAG`; the true figures are **1.0× and 0.9×**. And its anchor constants
+`ONSET/V/TAU_SHIPPED` (6.5 K / 2.0 m / 50 yr) are renamed **`*_SUPERSEDED`** — the cell stays,
+because rewiring it would ask a different question, but every printout label and the figure legend
+derived from it and were claiming the superseded cell is what we ship. The reference line's
+tap@2150 / tap@2300 are now computed and reproduce the old literals exactly (116.1, 195.9), which
+is the check that the de-hardcoding is faithful.
+
+`diag_gis_stepback_rate_crit.py` gains `--cells=legacy|shipped`; the default arm is verified
+**byte-identical** against HEAD's version. `.gitignore` now covers the three gridded
+surface-temperature NetCDFs (0.5 GB) that made `git add -A` stall.
+
+
 ## [unreleased] — 2026-08-23g — **The 2100 tolerance is now DERIVED from the sampled spread, not a bare 0.10 cm literal — and with it (plus the ssp245 band you already dropped) the ladder-corroborated 2.1–2.6 K onsets stop being excluded.**
 
 Marcus 2026-08-23: *"use the sampled spread for the tolerance. Generally, watch out for overly
