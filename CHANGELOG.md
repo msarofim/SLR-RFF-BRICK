@@ -3,6 +3,46 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-23d — **Onset re-scan: the shipped 4.69 K onset does NOT do the job it was chosen for, and the G-inert floor is 1.588 K, not 1.398 K.**
+
+`scope_gis_onset_rescan.py`. Handoff §4 item 2, with the **ssp245 2300 band dropped as a gate**
+(Marcus 2026-08-23) and reported as a diagnostic instead. Scored on history (hard exactly-zero
+G-INERT gate) + **2100** (ISMIP6 16-model median) + **2300** (SICOPOLIS + the ssp585 matched band)
++ **3001** (SICOPOLIS), across the 5 CMIP6 cells on the extended 1850–3001 axis. Read-only.
+
+**Two gates caught two things.**
+
+* **(1) The onset floor is 1.588 K, and it is now MEASURED rather than typed.** The first run
+  scanned from a hardcoded 1.5 K and **G-INERT fired at 1.204e-04**. The floor is *not* our own
+  drivers' 1.398 K but **CNRM-CM6-1's own hot recent history (1.588 K by 2023)** — which entered the
+  scoring set only when the Greve/ISMIP6 GCM cells did. Below 1.60 K the reservoir fires during the
+  hindcast and this stops being prior-propagation and becomes a **refit**. Yelmo-REMBO's 1.68–1.76 K
+  clears the floor by **0.092 K** and is testable; anything below is not reachable at all.
+* **(2) The premise of the shipped onset is spent.** 4.69 K exists because `gis_tap_priced_l13`
+  records it as *"exactly the 'don't move 2100' constraint"* — evaluated on **our** fair_mean ssp585
+  driver, which crosses 4.69 K at exactly 2100 **by construction**. The four ssp585 **GCM** cells
+  that carry the ISMIP6 and Greve evidence cross at **2069 / 2078 / 2082 / 2087** — 13–31 years
+  earlier. On the actual shipped cell (V = 1.0 m, τ = 800 yr) the 2100 median ratio already moves
+  **1.32× → 1.43×**. The shipped onset holds 2100 fixed on exactly one driver: the one it was tuned
+  against. **The "protect 2100" argument for keeping it is spent independently of the ladder
+  evidence.**
+
+**At the shipped V and τ, lowering the onset is unambiguously better:** `score_all` **0.718 at
+4.69 K vs 0.600 at 1.85 K**, and 4.69 K is the **worst** of the 7 onsets at that cell. The
+per-onset best-cell table masks this because it lets V and τ float.
+
+**The trade, stated in advance and then measured.** The reservoir is ADDITIVE and our 2100 is
+already 1.32× the ISMIP6 median, so **2100 can only get worse** — the handoff's "expect 2100 to
+move, and that is a feature" is only half right: it can move, but only upward. Best 2300+3001 score
+by onset: **0.266 at 2.10 K vs 0.416 at 4.69 K (1.56× better)** while the 2100 ratio goes
+**1.52× → 2.17×**. The late-horizon optimum at **2.10 K sits INSIDE the ladder's own 1.7–2.6 K
+range** — an independent corroboration, since nothing in this scoring set knows about the ladders.
+
+**What this does NOT settle.** `score_all` ties (4.69 K **0.431** vs 2.10 K **0.446**) only because
+2100 is one of three equally-weighted terms; **the weighting is a methodological choice and is not
+resolved here.** And the 2100 fast bias is a **separate** defect that no onset can fix — it now
+looks like the binding one.
+
 ## [unreleased] — 2026-08-23c — **§4.1 IS RUN. Discounting RETIRES τ; ψ is 20–60× more valuable; and the shipped onset DELETES the commitment term from a per-tonne SC-GHG entirely.**
 
 `diag_gis_npv_tau_sensitivity.py`. Open since 2026-08-22 (`scoping_2026-08-22_greenland_shape_stepback.md`
