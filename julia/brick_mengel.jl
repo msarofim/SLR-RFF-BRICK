@@ -272,6 +272,10 @@ function build_brick_nu3_gis3(; ssp::String="ssp245", y0::Int=1850, y1::Int=2026
     update_param!(m, _GIS_SLOT, :gis_tap_onset,  GIS_TAP_CELL.onset_K)
     update_param!(m, _GIS_SLOT, :gis_tap_tau,    GIS_TAP_CELL.tau_yr)
     update_param!(m, _GIS_SLOT, :gis_tap_ramp_w, GIS_TAP_CELL.ramp_w_K)
+    # Both additive capabilities default to the pre-existing behaviour: ONE stage
+    # (first-order) and the HIGH-BASIN home with its k_high*v0 clamp.
+    update_param!(m, _GIS_SLOT, :gis_tap_stages,     GIS_TAP_STAGES_DEFAULT)
+    update_param!(m, _GIS_SLOT, :gis_tap_wholesheet, GIS_TAP_WHOLESHEET_OFF)
     update_param!(m, _GIS_SLOT, :gis_tap_gmt,    zeros(length(y0:y1)))
     return m
 end
@@ -290,7 +294,9 @@ Nothing downstream can detect that, which is why it is asserted here.
 function update_gis3_tap!(m, gmt; v::Real = GIS_TAP_CELL.V_m,
                           onset::Real = GIS_TAP_CELL.onset_K,
                           tau::Real = GIS_TAP_CELL.tau_yr,
-                          ramp_w::Real = GIS_TAP_CELL.ramp_w_K)
+                          ramp_w::Real = GIS_TAP_CELL.ramp_w_K,
+                          stages::Real = GIS_TAP_STAGES_DEFAULT,
+                          wholesheet::Bool = false)
     g = Float64.(collect(gmt))
     # A tap with V > 0 and an all-zero (or never-reaching-onset) driver is SILENTLY
     # INERT: it returns exactly the untapped model and looks like "the tap does
@@ -322,6 +328,12 @@ function update_gis3_tap!(m, gmt; v::Real = GIS_TAP_CELL.V_m,
     update_param!(m, _GIS_SLOT, :gis_tap_onset,  Float64(onset))
     update_param!(m, _GIS_SLOT, :gis_tap_tau,    Float64(tau))
     update_param!(m, _GIS_SLOT, :gis_tap_ramp_w, Float64(ramp_w))
+    # `tau` is the TOTAL mean delay at every stage count, so stages = 1 reproduces
+    # the pre-existing recursion exactly and a cascade at the same tau is slower to
+    # start rather than simply smaller.
+    update_param!(m, _GIS_SLOT, :gis_tap_stages, Float64(stages))
+    update_param!(m, _GIS_SLOT, :gis_tap_wholesheet,
+                  wholesheet ? GIS_TAP_WHOLESHEET_ON : GIS_TAP_WHOLESHEET_OFF)
     update_param!(m, _GIS_SLOT, :gis_tap_gmt,    g)
     return m
 end

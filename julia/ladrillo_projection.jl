@@ -560,11 +560,14 @@ against a 6.5 K onset, so it is exactly likelihood-inert and needs no chain.
 function ladrillo_set_tap!(bf::Ladrillo; v::Real = GIS_TAP_CELL.V_m,
                            onset::Real = GIS_TAP_CELL.onset_K,
                            tau::Real = GIS_TAP_CELL.tau_yr,
-                           ramp_w::Real = GIS_TAP_CELL.ramp_w_K)
+                           ramp_w::Real = GIS_TAP_CELL.ramp_w_K,
+                           stages::Real = GIS_TAP_STAGES_DEFAULT,
+                           wholesheet::Bool = false)
     bf.gis_variant in (:basins, :basins2) ||
         error("ladrillo_set_tap!: the tap lives in greenland_3basin, but this Ladrillo " *
               "is :$(bf.gis_variant). Build with gis_variant=:basins2 (or :basins).")
-    update_gis3_tap!(bf.m, bf.gmst; v=v, onset=onset, tau=tau, ramp_w=ramp_w)
+    update_gis3_tap!(bf.m, bf.gmst; v=v, onset=onset, tau=tau, ramp_w=ramp_w,
+                     stages=stages, wholesheet=wholesheet)
     return bf
 end
 

@@ -133,6 +133,11 @@ const GIS_TAP_CELL = (onset_K = 6.5, V_m = 2.0, tau_yr = 50.0, ramp_w_K = 1.0)
 # the component takes its OWN gmt series. Using the regional driver would fire the
 # tap roughly `gis_amp` (~1.92x) too early, and nothing would flag it.
 const GIS_TAP_OFF = 0.0        # gis_tap_v = 0 is the OFF switch; the default
+# The two additive capabilities added 2026-08-23, each defaulting to the
+# pre-existing behaviour so the shipped cell and every gate stay bit-identical.
+const GIS_TAP_STAGES_DEFAULT = 1.0    # first-order; 2.0 = the cascade
+const GIS_TAP_WHOLESHEET_OFF = 0.0    # high-basin home + k_high*v0 clamp
+const GIS_TAP_WHOLESHEET_ON  = 1.0    # whole-sheet clamp, tap OUT of the basin ledger
 
 @defcomp greenland_3basin begin
     gis_c1      = Parameter()   # equilibrium sensitivity, m SLE per K of the REGIONAL driver
@@ -162,6 +167,12 @@ const GIS_TAP_OFF = 0.0        # gis_tap_v = 0 is the OFF switch; the default
     gis_tap_tau    = Parameter()              # yr, tap discharge timescale
     gis_tap_ramp_w = Parameter()              # K, width of the soft GMT ramp
     gis_tap_gmt    = Parameter(index=[time])  # GLOBAL driver, K rel 1850-1900
+    # --- TWO ADDITIVE CAPABILITIES, BOTH OFF BY DEFAULT (2026-08-23) ----------
+    # Each defaults to the pre-existing behaviour EXACTLY, so every existing
+    # consumer, every gate in test_gis_tap_wiring.jl and the shipped cell are
+    # bit-identical until they are switched on. See the block in run_timestep.
+    gis_tap_stages     = Parameter()   # 1 = first-order (DEFAULT); 2 = cascade
+    gis_tap_wholesheet = Parameter()   # 0 = high-basin home (DEFAULT); 1 = whole sheet
 
     gis_eq              = Variable(index=[time])   # WHOLE-SHEET committed loss, m SLE
     # per-basin CHANNEL state. These are the integrated quantities — the basin
@@ -181,6 +192,7 @@ const GIS_TAP_OFF = 0.0        # gis_tap_v = 0 is the OFF switch; the default
     # k_b*v0 cap bit — the difference between this wiring and the offline mock's
     # uncapped additive tap, which is what the cell was priced on.
     gis_tap_s           = Variable(index=[time])   # the unit tap S_t, in [0, 1]
+    gis_tap_s2          = Variable(index=[time])   # 2nd cascade stage, in [0, 1]
     gis_tap_wanted      = Variable(index=[time])   # V * S_t, m
     gis_tap_applied     = Variable(index=[time])   # after the capacity clamp, m
     gis_fast            = Variable(index=[time])   # basin SUM — contract preserved
@@ -223,29 +235,63 @@ const GIS_TAP_OFF = 0.0        # gis_tap_v = 0 is the OFF switch; the default
         # basin's own relaxation and decay it — a completely different model from
         # the one the cell was priced on, and one that would look plausible.
         v.gis_slow_south[t], v.gis_slow_mid[t], v.gis_slow_high[t] = slow_b
-        # --- the high-basin volume tap -------------------------------------
+        # --- the volume tap / reservoir ------------------------------------
         # S_t = first-order relaxation toward a soft ramp in GMT, using the
         # PREVIOUS year's ramp value, exactly as the fast/slow channels use T[t-1].
         # Ported from python/scope_gis_tap_l13.py tap_unit().
+        #
+        # STAGES (2026-08-23). `gis_tap_stages = 2` routes the ramp through a
+        # SECOND reservoir in series. Why it exists: the joint 2150/2300 constraint
+        # needs a delivery ratio of 6.03 and a single first-order reservoir cannot
+        # exceed 2.89 at ANY onset (python/diag_gis_2150_band_veto.py), because its
+        # response to a ramp is ~t early where a 2-stage cascade's is ~t^2. A
+        # cascade is also NOT completely monotone, so the exact bound that refuted
+        # the ladder / Prony / stretched-exponential / Mittag-Leffler / power-law
+        # families does not reach it.
+        #
+        # tau REMAINS THE TOTAL MEAN DELAY -- each stage runs at stages/tau -- so at
+        # stages = 1 the rate is 1/tau and this is the pre-existing recursion TERM
+        # FOR TERM. That is why the default is bit-identical and is gated as such,
+        # not argued. Mirrors scope_gis_reservoir_offline.reservoir_unit_n().
         if is_first(t)
             v.gis_tap_s[t] = 0.0
+            v.gis_tap_s2[t] = 0.0
         else
             seqm = min(max((p.gis_tap_gmt[t-1] - p.gis_tap_onset) / p.gis_tap_ramp_w,
                            0.0), 1.0)
-            v.gis_tap_s[t] = v.gis_tap_s[t-1] + (seqm - v.gis_tap_s[t-1]) / p.gis_tap_tau
+            rate = p.gis_tap_stages / p.gis_tap_tau
+            v.gis_tap_s[t] = v.gis_tap_s[t-1] + (seqm - v.gis_tap_s[t-1]) * rate
+            # stage 2 sees stage 1's PREVIOUS year, the same explicit scheme
+            v.gis_tap_s2[t] = v.gis_tap_s2[t-1] +
+                              (v.gis_tap_s[t-1] - v.gis_tap_s2[t-1]) * rate
         end
-        v.gis_tap_wanted[t] = p.gis_tap_v * v.gis_tap_s[t]
+        tap_u = p.gis_tap_stages >= 2 ? v.gis_tap_s2[t] : v.gis_tap_s[t]
+        v.gis_tap_wanted[t] = p.gis_tap_v * tap_u
         # CAPACITY CLAMP, per the component's own standing principle: a basin cannot
         # lose more ice than it has, [0, k_b*v0]. The offline mock's tap is UNCAPPED
         # additive, so this is the one place the wiring can differ from the pricing —
         # which is why `wanted` and `applied` are both exported rather than just the
         # sum. If the headroom never binds, the two are identical and the offline
         # pricing transfers exactly; that is a measurement, not an assumption.
-        head = max(ks[3] * p.gis_v0 - (fast_b[3] + slow_b[3]), 0.0)
+        #
+        # WHOLE-SHEET HOME (2026-08-23). The cells now under consideration carry
+        # V up to the WHOLE SHEET (6.0-7.42 m). Clamping that against the high
+        # basin's own k_high*v0 ~ 2.76 m ledger would silently deliver a fraction
+        # of what was priced, and booking it into gis_sl_high would attribute
+        # whole-sheet mass to one basin. `gis_tap_wholesheet = 1` clamps against
+        # the WHOLE sheet's headroom and keeps the tap OUT of the per-basin
+        # ledger entirely -- which is the component's own "THE CHANNEL STATES ARE
+        # PURE" principle applied one level up. gis_slow and the total still carry
+        # it, so the output contract is unchanged either way.
+        head = p.gis_tap_wholesheet >= 0.5 ?
+            max(p.gis_v0 - (fast_b[1] + fast_b[2] + fast_b[3] +
+                            slow_b[1] + slow_b[2] + slow_b[3]), 0.0) :
+            max(ks[3] * p.gis_v0 - (fast_b[3] + slow_b[3]), 0.0)
         v.gis_tap_applied[t] = min(v.gis_tap_wanted[t], head)
         v.gis_sl_south[t] = fast_b[1] + slow_b[1]
         v.gis_sl_mid[t]   = fast_b[2] + slow_b[2]
-        v.gis_sl_high[t]  = fast_b[3] + slow_b[3] + v.gis_tap_applied[t]
+        v.gis_sl_high[t]  = fast_b[3] + slow_b[3] +
+                            (p.gis_tap_wholesheet >= 0.5 ? 0.0 : v.gis_tap_applied[t])
         v.gis_fast[t] = fast_b[1] + fast_b[2] + fast_b[3]
         # THE TAP RIDES IN gis_slow, not gis_fast. It is a DYNAMIC discharge, not
         # surface mass balance, so this keeps gis_fast/total meaning "the SMB share"
