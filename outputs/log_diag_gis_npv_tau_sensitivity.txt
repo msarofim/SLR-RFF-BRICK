@@ -1,0 +1,164 @@
+diag_gis_npv_tau_sensitivity -- L14 canonical (two-basin), untapped base, median trajectory
+  NPV base year 2030, horizon 2300, SLR datum = mean(2015-2025), GMST rebased to (1850, 1900)
+
+=== 0. WHERE THE DISCOUNTED WEIGHT LIVES (weight = exp(-rho*(t-2030))) ===
+  rho_net        2100      2150      2200      2300
+    0.5%      0.7047    0.5488    0.4274    0.2592
+    1.0%      0.4966    0.3012    0.1827    0.0672
+    2.0%      0.2466    0.0907    0.0334    0.0045
+    3.0%      0.1225    0.0273    0.0061    0.0003
+  share of the 2030-2300 UNWEIGHTED-SLR^1 NPV falling AFTER 2150, SSP5-8.5:
+    rho_net  0.5%   74.4%
+    rho_net  1.0%   62.5%
+    rho_net  2.0%   36.8%
+    rho_net  3.0%   17.7%
+
+=== 1. THE CELLS -- reservoir ADD-ON in cm, and total GMSL (base+add) ===
+  cell                          psi    V_m    tau      +2100    +2150    +2200    +2300   | SSP5-8.5 total@2300
+  base (no reservoir)         0.000   0.00    800        0.0      0.0      0.0      0.0   |    462.6
+  A shipped                   0.125   1.00    800        0.0      4.6     10.4     21.0   |    483.6
+  A tau->2700 @fixed psi      0.125   3.38   2700        0.0      4.7     10.8     22.7   |    485.3
+  B psi=0.273 tau=2200        0.273   6.00   2200        0.0     10.3     23.6     49.2   |    511.8
+  B tau->2718 @fixed psi      0.273   7.42   2718        0.0     10.3     23.7     49.6   |    512.2
+  A psi->0.273 @fixed tau     0.273   2.18    800        0.0     10.2     22.8     45.8   |    508.4
+  A onset->2.0K               0.125   1.00    800        5.4     11.2     16.6     26.4   |    489.0
+  B onset->2.0K               0.273   7.42   2718       12.1     25.4     38.5     63.9   |    526.5
+  (SSP1-2.6 never crosses either onset -- its add-on is exactly 0 in every cell.)
+  VERIFIED: max |SSP1-2.6 add-on| over all cells = 0.000e+00 cm
+
+  SSP2-4.5 add-on at 2300 (0 at onset 4.69 K by construction):
+    base (no reservoir)           0.00 cm
+    A shipped                     0.00 cm
+    A tau->2700 @fixed psi        0.00 cm
+    B psi=0.273 tau=2200          0.00 cm
+    B tau->2718 @fixed psi        0.00 cm
+    A psi->0.273 @fixed tau       0.00 cm
+    A onset->2.0K                23.47 cm
+    B onset->2.0K                56.22 cm
+
+=== 2. FRACTIONAL CHANGE IN NPV, 2030 to 2300 ===
+
+  SSP1-2.6: every contrast is EXACTLY 0 (GMST never reaches either onset).
+
+  SSP2-4.5
+    ALPHA=1        rho 0.5%     rho 1.0%     rho 2.0%     rho 3.0%
+      tau 800->2700 at psi=0.125            0.00%        0.00%        0.00%        0.00%
+      tau 2200->2718 at psi=0.273           0.00%        0.00%        0.00%        0.00%
+      psi 0.125->0.273 at tau=800           0.00%        0.00%        0.00%        0.00%
+      onset 4.69->2.0 K at cell A           9.93%        9.08%        6.74%        4.51%
+      onset 4.69->2.0 K at cell B          22.94%       20.85%       15.28%       10.11%
+      reservoir off->cell A                 0.00%        0.00%        0.00%        0.00%
+      reservoir off->cell B                 0.00%        0.00%        0.00%        0.00%
+    ALPHA=2        rho 0.5%     rho 1.0%     rho 2.0%     rho 3.0%
+      tau 800->2700 at psi=0.125            0.00%        0.00%        0.00%        0.00%
+      tau 2200->2718 at psi=0.273           0.00%        0.00%        0.00%        0.00%
+      psi 0.125->0.273 at tau=800           0.00%        0.00%        0.00%        0.00%
+      onset 4.69->2.0 K at cell A          22.76%       22.26%       19.92%       15.85%
+      onset 4.69->2.0 K at cell B          56.77%       55.20%       48.67%       38.08%
+      reservoir off->cell A                 0.00%        0.00%        0.00%        0.00%
+      reservoir off->cell B                 0.00%        0.00%        0.00%        0.00%
+
+  SSP5-8.5
+    ALPHA=1        rho 0.5%     rho 1.0%     rho 2.0%     rho 3.0%
+      tau 800->2700 at psi=0.125            0.15%        0.11%        0.06%        0.02%
+      tau 2200->2718 at psi=0.273           0.04%        0.03%        0.02%        0.01%
+      psi 0.125->0.273 at tau=800           3.50%        2.99%        1.90%        1.04%
+      onset 4.69->2.0 K at cell A           2.53%        2.95%        3.69%        4.00%
+      onset 4.69->2.0 K at cell B           5.75%        6.63%        8.22%        8.88%
+      reservoir off->cell A                 3.05%        2.59%        1.63%        0.89%
+      reservoir off->cell B                 7.00%        5.91%        3.68%        2.00%
+    ALPHA=2        rho 0.5%     rho 1.0%     rho 2.0%     rho 3.0%
+      tau 800->2700 at psi=0.125            0.39%        0.34%        0.22%        0.12%
+      tau 2200->2718 at psi=0.273           0.10%        0.09%        0.06%        0.04%
+      psi 0.125->0.273 at tau=800           8.51%        7.89%        6.29%        4.53%
+      onset 4.69->2.0 K at cell A           4.01%        4.58%        6.05%        7.61%
+      onset 4.69->2.0 K at cell B           9.37%       10.60%       13.82%       17.30%
+      reservoir off->cell A                 7.41%        6.84%        5.40%        3.84%
+      reservoir off->cell B                17.51%       16.09%       12.55%        8.84%
+
+=== 3. RANKING THE THREE KNOBS (max |dNPV| over the whole ALPHA x rho block, warm arms only) ===
+  SSP5-8.5
+    tau        |dNPV/NPV| ranges   0.01% to   0.39%
+    psi        |dNPV/NPV| ranges   1.04% to   8.51%
+    onset      |dNPV/NPV| ranges   2.53% to  17.30%
+    structure  |dNPV/NPV| ranges   0.89% to  17.51%
+  SSP2-4.5
+    tau        exactly 0
+    psi        exactly 0
+    onset      |dNPV/NPV| ranges   4.51% to  56.77%
+    structure  exactly 0
+=== 4a. THE PULSE GMT RESPONSE IS A NEAR-STEP (FaIR v145 calib 1.4.5, ssp245 CO2 pulse 2030) ===
+  normalised to 1 mK at 2100:  2035: 1.052 mK  2050: 1.102 mK  2100: 1.000 mK  2200: 1.030 mK  2300: 1.079 mK
+  A near-flat step is what matters: after the crossing year the reservoir sees a CONSTANT GMT offset,
+  so the pulse acts by moving the ONSET CROSSING and by scaling the ramp -- neither of which involves tau.
+
+=== 4b. MARGINAL RESERVOIR SLR, and the CELL-TO-CELL RATIO ===
+
+  SSP5-8.5 -- d(reservoir add-on @2300) per +1 mK sustained GMT, cm/mK:
+  cell                             @10mK      @100mK      @300mK   linearity
+  base (no reservoir)            0.00000     0.00000     0.00000   (INERT -- contributes EXACTLY 0 per tonne)
+  A shipped                      0.00248     0.00240     0.00234    1.063x
+  A tau->2700 @fixed psi         0.00293     0.00284     0.00276    1.059x
+  B psi=0.273 tau=2200           0.00629     0.00609     0.00593    1.060x
+  B tau->2718 @fixed psi         0.00639     0.00619     0.00604    1.059x
+  A psi->0.273 @fixed tau        0.00542     0.00525     0.00510    1.063x
+  A onset->2.0K                  0.00229     0.00233     0.00240    1.050x
+  B onset->2.0K                  0.00620     0.00633     0.00653    1.054x
+
+  RATIO of the marginal between the paired cells (magnitude-free: the unknown
+  per-tonne scaling and the un-modelled AIS/TE/glacier marginals cancel):
+  contrast                        knob              @10mK      @100mK      @300mK
+  tau 800->2700 at psi=0.125      tau               1.179       1.180       1.182
+  tau 2200->2718 at psi=0.273     tau               1.017       1.017       1.018
+  psi 0.125->0.273 at tau=800     psi               2.184       2.184       2.184
+  onset 4.69->2.0 K at cell A     onset             0.921       0.971       1.028
+  onset 4.69->2.0 K at cell B     onset             0.969       1.022       1.082
+  reservoir off->cell A           structure     0 -> 0.00248 cm/mK: an INFINITE ratio, i.e. the knob CREATES the marginal
+  reservoir off->cell B           structure     0 -> 0.00639 cm/mK: an INFINITE ratio, i.e. the knob CREATES the marginal
+
+  SSP2-4.5 -- d(reservoir add-on @2300) per +1 mK sustained GMT, cm/mK:
+  cell                             @10mK      @100mK      @300mK   linearity
+  base (no reservoir)            0.00000     0.00000     0.00000   (INERT -- contributes EXACTLY 0 per tonne)
+  A shipped                      0.00000     0.00000     0.00000   (INERT -- contributes EXACTLY 0 per tonne)
+  A tau->2700 @fixed psi         0.00000     0.00000     0.00000   (INERT -- contributes EXACTLY 0 per tonne)
+  B psi=0.273 tau=2200           0.00000     0.00000     0.00000   (INERT -- contributes EXACTLY 0 per tonne)
+  B tau->2718 @fixed psi         0.00000     0.00000     0.00000   (INERT -- contributes EXACTLY 0 per tonne)
+  A psi->0.273 @fixed tau        0.00000     0.00000     0.00000   (INERT -- contributes EXACTLY 0 per tonne)
+  A onset->2.0K                  0.00956     0.00860     0.00706    1.355x
+  B onset->2.0K                  0.02487     0.02250     0.01865    1.334x
+
+  RATIO of the marginal between the paired cells (magnitude-free: the unknown
+  per-tonne scaling and the un-modelled AIS/TE/glacier marginals cancel):
+  contrast                        knob              @10mK      @100mK      @300mK
+  tau 800->2700 at psi=0.125      tau           both cells inert
+  tau 2200->2718 at psi=0.273     tau           both cells inert
+  psi 0.125->0.273 at tau=800     psi           both cells inert
+  onset 4.69->2.0 K at cell A     onset         0 -> 0.00956 cm/mK: an INFINITE ratio, i.e. the knob CREATES the marginal
+  onset 4.69->2.0 K at cell B     onset         0 -> 0.02487 cm/mK: an INFINITE ratio, i.e. the knob CREATES the marginal
+  reservoir off->cell A           structure     both cells inert
+  reservoir off->cell B           structure     both cells inert
+
+WROTE outputs/diag_gis_npv_tau_sensitivity_marginal.csv
+
+=== 4c. DOES THE SSP2-4.5 RESULT REST ON THE UNSCANNED RAMP_W_K (pinned 1, never scanned)? ===
+  SSP2-4.5 marginal @2300, cell A onset->2.0 K, cm/mK at +10 mK:
+    RAMP_W_K=0.5  SSP2-4.5 0.00525   SSP5-8.5 0.00222   ratio 245/585 2.36x
+    RAMP_W_K=1    SSP2-4.5 0.00956   SSP5-8.5 0.00229   ratio 245/585 4.18x
+    RAMP_W_K=2    SSP2-4.5 0.01374   SSP5-8.5 0.00210   ratio 245/585 6.53x
+    RAMP_W_K=4    SSP2-4.5 0.00687   SSP5-8.5 0.00223   ratio 245/585 3.08x
+  The 245>585 ORDERING is what the verdict uses; the ratio's SIZE is RAMP_W_K-dependent.
+
+=== 5. THE ONSET MOVE IS THE BIGGEST KNOB -- AND IT BREAKS THE COOL BAND ===
+  ssp         base gis@2300  matched top   headroom    add @onset 2.0 K (cell A / cell B)
+  SSP1-2.6             10.1         15.9        5.8                 0.0       0.0
+  SSP2-4.5             18.3         21.5        3.2                23.5      56.2   OVER by 7.4x / 17.7x
+  SSP5-8.5             50.0        145.0       95.0                26.4      63.9
+  NOTE, and it is NOT resolved here: this repo has already judged these cool bands
+  SPURIOUSLY PRECISE -- a sample-size-respecting t-PI makes them 3-9x WIDER (memory
+  `INDEX_slr`, band-basis step b). Whether the overshoot above is fatal or absorbed by
+  an honest band is a METHODOLOGICAL CHOICE and is left open.
+
+
+
+WROTE outputs/diag_gis_npv_tau_sensitivity.csv
+WROTE outputs/diag_gis_npv_tau_sensitivity_cells.csv

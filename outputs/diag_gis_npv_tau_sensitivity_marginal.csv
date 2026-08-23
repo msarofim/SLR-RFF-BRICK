@@ -1,0 +1,15 @@
+ssp,contrast,knob,marg_ratio_10mK,marg_ratio_100mK,marg_ratio_300mK
+SSP5-8.5,tau 800->2700 at psi=0.125,tau,1.1788906986413084,1.179931357839559,1.1824434141863769
+SSP5-8.5,tau 2200->2718 at psi=0.273,tau,1.017332050778165,1.017420330692926,1.0176334281717618
+SSP5-8.5,psi 0.125->0.273 at tau=800,psi,2.1840000000001663,2.1840000000000006,2.18400000000001
+SSP5-8.5,onset 4.69->2.0 K at cell A,onset,0.9212072718318838,0.9714215473884545,1.0278755130539894
+SSP5-8.5,onset 4.69->2.0 K at cell B,onset,0.96891073803528,1.0221933280588769,1.0819707771582447
+SSP5-8.5,reservoir off->cell A,structure,,,
+SSP5-8.5,reservoir off->cell B,structure,,,
+SSP2-4.5,tau 800->2700 at psi=0.125,tau,,,
+SSP2-4.5,tau 2200->2718 at psi=0.273,tau,,,
+SSP2-4.5,psi 0.125->0.273 at tau=800,psi,,,
+SSP2-4.5,onset 4.69->2.0 K at cell A,onset,,,
+SSP2-4.5,onset 4.69->2.0 K at cell B,onset,,,
+SSP2-4.5,reservoir off->cell A,structure,,,
+SSP2-4.5,reservoir off->cell B,structure,,,
