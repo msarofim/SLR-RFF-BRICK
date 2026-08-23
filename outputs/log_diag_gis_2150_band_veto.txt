@@ -1,0 +1,85 @@
+diag_gis_2150_band_veto -- L14 canonical (two-basin), L14, horizon 2150
+
+=== GATE -- rebuilt base vs the base implied by scope_gis_reservoir_offline_wideV.csv (528 cells) ===
+  SSP5-8.5 r2300  base@2150 rebuilt  28.1632 cm, implied  28.1632 cm  [OK]
+  SSP5-8.5 x2300  base@2150 rebuilt  45.1914 cm, implied  45.1914 cm  [OK]
+
+=== SSP5-8.5 r2300 at 2150: WHAT IS ACTUALLY BEHIND THE BAND ===
+  35 runs, 1 variants of ONE ice-sheet model (NORCE-CISM), 5 GCM cluster(s): CESM2-Leo n=10 med 34.0, CNRM-ESM2-1 n=5 med 25.8, IPSL-CM6A-LR n=5 med 30.4, MPI-ESM1-2-HR n=5 med 14.3, UKESM1-0-LL-Robin n=10 med 43.4
+    shipped runs 5-95%              14.9 -    48.5 cm   (width   33.6)
+    GCM-cluster min-max             15.0 -    44.2 cm   (width   29.1)
+    GCM-cluster t-PI 0.975          -2.3 -    63.0 cm   (width   65.2)
+
+=== SSP5-8.5 x2300 at 2150: WHAT IS ACTUALLY BEHIND THE BAND ===
+  18 runs, 3 variants of ONE ice-sheet model (NORCE-CISM), 2 GCM cluster(s): CESM2-WACCM n=6 med 45.0, IPSL-CM6A-LR n=12 med 45.7
+    shipped runs 5-95%              44.6 -    53.2 cm   (width    8.6)
+    GCM-cluster min-max             45.8 -    46.4 cm   (width    0.6)
+    GCM-cluster t-PI 0.975          39.2 -    53.0 cm   (width   13.8)
+
+=== THE VETO, RE-ASKED UNDER EACH CONSTRUCTION ===
+  SSP5-8.5 r2300
+    base (no reservoir)             28.2 cm   shipped:IN   GCM-cluster:IN   GCM-cluster:IN 
+    cell A                          35.4 cm   shipped:IN   GCM-cluster:IN   GCM-cluster:IN 
+    WINNER (weighted verdict)       44.6 cm   shipped:IN   GCM-cluster:OUT  GCM-cluster:IN 
+
+  SSP5-8.5 x2300
+    base (no reservoir)             45.2 cm   shipped:IN   GCM-cluster:OUT  GCM-cluster:IN 
+    cell A                          53.1 cm   shipped:IN   GCM-cluster:OUT  GCM-cluster:OUT
+    WINNER (weighted verdict)       63.1 cm   shipped:OUT  GCM-cluster:OUT  GCM-cluster:OUT
+
+=== VERDICT ON THE SSP5-8.5 x2300 @2150 VETO ===
+  The arm has 2 independent GCM cluster(s) and ONE ice-sheet model (its 3 `model`
+  values are MAR SMB percentile variants of NORCE-CISM, not independent ISMs).
+  Under the SHIPPED run-level band 44.6-53.2 the winner (63.1) is 1.19x the top and IS vetoed;
+  cell A (53.1) clears it by 0.12 cm -- 1.4% of the band width. The base alone is 45.2, i.e. the whole reservoir
+  headroom at this horizon is 8.1 cm.
+  Under a GCM-cluster t-PI on n=2 the same band is 39.2-53.0 cm, 1.6x wider, and the winner is STILL OUT.
+
+  THE HYPOTHESIS IS REFUTED, and it is reported as prominently as a confirmation would be.
+  The two GCM clusters AGREE at 2150 to 0.6 cm, so the band is NOT narrow because members were counted as
+  models -- it is narrow because the two climate models genuinely say the same thing here.
+  The veto SURVIVES the sample-size test. Cell A's 1.4%-of-band clearance is luck, not margin,
+  but the winner's 1.19x is a real miss and no widening rescues it.
+
+=== SO IT IS A SHAPE CONTRADICTION, AND THE PRE-CHECK IS ANALYTIC ===
+  Two requirements, both on the SAME reservoir, at two different horizons on two drivers:
+    at 2150 on SSP5-8.5 x2300: the reservoir may add at most 8.1 cm (band top 53.2 - base 45.2)
+    at 2300 on OUR ssp585:    it must add 48.6 cm to reach the matched p50 (98.5 - base 49.9)
+    => required delivery ratio R = 6.03
+
+  A reservoir's response to its ramp is an n-fold repeated integral: n=1 IS the first-order
+  exponential this arc has scanned exclusively; n>=2 is a CASCADE, which is back-loaded and is
+  NOT completely monotone, so the exact bound that refuted every CM family does not apply to
+  it. In the long-tau limit (the most back-loaded any given n can be) the achievable ratio is:
+      n stages   achievable ratio    verdict vs R
+             1               2.82           short
+             2               7.86          CLEARS
+             3              21.71          CLEARS
+
+  n = 2 IS ENOUGH, and n = 1 is not (2.82 vs 6.03 needed). The single exponential
+  cannot be small at 2150 and large at 2300 SIMULTANEOUSLY; a two-stage cascade can, by a factor
+  1.3x of margin. This is the same defect memory `protect_matched_forcing`
+  named on 2026-08-21b from the physics side -- "physics wants ~nothing until 2147 then a term
+  still accelerating at 2300; the exponential is front-loaded and saturating" -- arriving
+  independently from a band this session had not yet scored. IT IS A PRE-CHECK, NOT A FIT:
+  it says a cascade is not excluded, not that one passes the full scorecard.
+
+  "THEN MOVE THE ONSET" -- closed, because R is fixed by the targets and only the FORM's
+  achievable ratio is free:
+      onset K      n=1      n=2    n=1 vs R
+         1.60     2.29     5.22       short
+         2.10     2.36     5.52       short
+         3.20     2.57     6.56       short
+         4.00     2.72     7.34       short
+         4.69     2.82     7.86       short
+         5.50     2.89     8.27       short
+         6.50     2.70     7.32       short
+         7.50     0.51     1.01       short
+  No onset in 1.6-7.5 K lets the first-order form reach R = 6.03.
+
+  psi, the quantity actually in dispute: x2300@2150 caps it at 0.125 cm/yr at onset 4.69;
+  Greve@3001 wants 0.179-0.341, the 2250-2300 rate criterion 0.273-0.282. DISJOINT -- but psi is
+  a FIRST-ORDER parameterisation, so read the disjointness as evidence against the FORM,
+  not as two sources contradicting each other.
+
+WROTE outputs/diag_gis_2150_band_veto.csv

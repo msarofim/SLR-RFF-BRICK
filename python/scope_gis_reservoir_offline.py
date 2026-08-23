@@ -58,12 +58,12 @@ sys.path.insert(0, os.path.join(REPO, "python"))
 from scope_gis_ridge_vs_protect import basin2_series, rebase_cm  # noqa: E402
 from scope_gis_leq_ridge_vs_literature import gis_tbar  # noqa: E402
 from scope_gis_2300_relaxation import (  # noqa: E402
-    DRIVER_BASE, YEARS, gis_shape_table, regional_driver,
+    DRIVER_BASE, GIS_V0_M, YEARS, gis_shape_table, regional_driver,
 )
 import gis_targets  # noqa: E402
 import scope_gis_shape_all_scenarios as A  # noqa: E402
 
-OUT = os.path.join(REPO, "outputs/scope_gis_reservoir_offline.csv")
+OUT_STEM = os.path.join(REPO, "outputs/scope_gis_reservoir_offline")
 
 # --- named constants ---------------------------------------------------------
 TAG, HIND, HORIZONS, ARM, ARMS = A.TAG, A.HIND, A.HORIZONS, A.ARM, A.ARMS
@@ -87,6 +87,36 @@ RES_V_M = [0.25, 0.5, 0.75, 1.0, 1.5, 2.0]
 ## looks like a result. It was exactly that uniformity that exposed it.
 CM_PER_M = 100.0
 V_MAX_M = 2.73                   # NO+NE Mouginot inventory, the hard ceiling
+## --- THE WHOLE-SHEET ARM, `--wide-v` (2026-08-23) --------------------------
+## WHY IT EXISTS. The weighted verdict of handoff_2026-08-23b picked V = 7.42 m --
+## the WHOLE SHEET -- at tau = 2700 yr. Both lie OUTSIDE this scorecard's grid, and
+## V lies outside V_MAX_M, which is the NO+NE high-basin inventory that bounded the
+## reservoir for as long as it was conceived as a high-basin TAP. That matters here
+## and nowhere else: the 2150 ssp585 criterion below is the horizon every previous
+## tap cell failed (0/25 in band), it is the reason cell A was ever preferred, and
+## the winner has NEVER been scored on it. `--wide-v` extends the V and tau ladders
+## to cover the winner and moves the inventory ceiling with them.
+##
+## THE CEILING CHANGE IS A CLAIM, NOT A CONVENIENCE: V <= 7.42 m is admissible only
+## if the reservoir is a WHOLE-SHEET object. It is not a wider high-basin tap --
+## 100*V/tau at the 2.73 m ceiling caps psi at 0.124 against the 0.273 the Greve and
+## rate criteria both pin, 2.2x short. So the arm and the wiring stand or fall
+## together, and INVENTORY_NAME travels into every label and filename below.
+##
+## The DEFAULT path is untouched and its CSV must stay byte-identical.
+WIDE_V = "--wide-v" in sys.argv
+RES_V_M_WIDE = [2.73, 3.0, 4.5, 6.0, GIS_V0_M]
+RES_TAU_WIDE = [2200, 2700]
+WINNER_CELL = (GIS_V0_M, 4.69, 2700.0)   # (V_m, onset_K, tau_yr), handoff sec 1
+CELL_A = (1.0, 4.69, 800.0)              # the reservoir cell this file selected
+V_GRID = RES_V_M + RES_V_M_WIDE if WIDE_V else RES_V_M
+TAU_GRID = sorted(RES_TAU + RES_TAU_WIDE) if WIDE_V else RES_TAU
+V_CEIL_M = GIS_V0_M if WIDE_V else V_MAX_M
+INVENTORY_NAME = "whole sheet" if WIDE_V else "NO+NE high basin"
+ARM_SUFFIX = "_wideV" if WIDE_V else ""
+## The arm is in the FILENAME: a wide-V scan must never overwrite the artefact the
+## shipped 86/216 verdict rests on.
+OUT = OUT_STEM + ARM_SUFFIX + ".csv"
 CALIB_WIN = HIND
 Y2100_TOL_CM = 0.10
 OURS_GMT_2300 = {"SSP1-2.6": 1.73, "SSP2-4.5": 3.15, "SSP5-8.5": 7.81}
@@ -155,10 +185,10 @@ def main():
         g = ours_gmst[lab] if lab in ours_gmst else gmst[
             next((a[0], a[2]) for a in ARMS if f"{a[1]} {a[2]}" == lab)]
         for on in RES_ONSET_K:
-            for tau in RES_TAU:
+            for tau in TAU_GRID:
                 worst = max(worst, float(np.max(np.abs(reservoir_unit(g, on, tau)[iw]))))
     print(f"G-INERT — max |reservoir ramp| over {CALIB_WIN}, over ALL "
-          f"{len(RES_ONSET_K) * len(RES_TAU)} (onset,tau) x every driver: {worst:.3e}")
+          f"{len(RES_ONSET_K) * len(TAU_GRID)} (onset,tau) x every driver: {worst:.3e}")
     if worst != 0.0:
         sys.exit(f"G-INERT FAILED: the reservoir is not exactly calibration-inert "
                  f"({worst:.3e}); the base rate solution cannot be reused and this "
@@ -200,16 +230,16 @@ def main():
                                            for _, lab in OURS) + ")\n")
 
     rows = []
-    for V in RES_V_M:
+    for V in V_GRID:
         for on in RES_ONSET_K:
-            for tau in RES_TAU:
+            for tau in TAU_GRID:
                 aa = {(a[0], a[2]): CM_PER_M * V * reservoir_unit(
                           gmst[(a[0], a[2])], on, tau) for a in ARMS}
                 ao = {lab: CM_PER_M * V * reservoir_unit(ours_gmst[lab], on, tau)
                       for _, lab in OURS}
                 per, r585, rcool, rall = score(aa, ao)
                 rec = dict(V_m=V, onset_K=on, tau_yr=tau,
-                           within_inventory=bool(V <= V_MAX_M),
+                           within_inventory=bool(V <= V_CEIL_M),
                            rms_ssp585=r585, rms_cool=rcool, rms_all=rall)
                 for ssp, lab, fam, _ in ARMS:
                     rec[f"rms_{ssp}_{fam}"] = per[(ssp, fam)]
@@ -236,8 +266,9 @@ def main():
     out = pd.DataFrame(rows)
     out.to_csv(OUT, index=False)
     adm = out[out.within_inventory]
-    print(f"=== GRID — {len(RES_V_M)}x{len(RES_ONSET_K)}x{len(RES_TAU)} = {len(out)} "
-          f"cells, all within the {V_MAX_M} m inventory ===\n")
+    print(f"=== GRID — {len(V_GRID)}x{len(RES_ONSET_K)}x{len(TAU_GRID)} = {len(out)} "
+          f"cells; inventory ceiling {V_CEIL_M:g} m ({INVENTORY_NAME}), "
+          f"{int(out.within_inventory.sum())} within it ===\n")
     print(f"  keeps 2100 (|d| < {Y2100_TOL_CM} cm)      {int(adm.keeps_2100.sum()):4d}/{len(adm)}")
     print(f"  all three 2300 matched bands        {int(adm.bands_ok.sum()):4d}/{len(adm)}")
     print(f"  improves the 5-arm shape            {int(adm.shape_better.sum()):4d}/{len(adm)}")
