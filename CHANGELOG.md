@@ -3,6 +3,63 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-23l — **The reporting chain reaches the canonical vintage for the first time since L11 — and it can now see the tapped arm at all.**
+
+`postpred_L14_*`, `ladrillo_model_comparison_L14{,_spread}.csv`,
+`figures/ladrillo_L14_fig{1,2,3}_*.png`. The four canonical deliverables LADRILLO.md
+sec 3 names had stopped at **L11**, across two structural changes to Greenland (the
+ordering wedge at L12, two basins at L14), and the two python halves built their input
+paths by f-string so they could **only ever find the untapped file** — which is why no
+comparison or figure had ever been produced for the shipped model.
+
+### Hindcast at L14 — `posterior_predictive_ladrillo.jl 2000 --tag=L14`
+
+Arm-independent by construction: the tap's onset is 4.69 K against an observational
+record topping out at 1.385 K, so it is exactly inert here and postpred carries no arm
+suffix.
+
+| component | yrs | parameter-only coverage | predictive coverage | mean bias |
+|---|---|---|---|---|
+| ais | 126 | 85.7% | 98.4% | −0.00 cm |
+| glaciers | 124 | 79.8% | 100.0% | +0.01 cm |
+| gis | 126 | 63.5% | 99.2% | +0.00 cm |
+| te | 126 | 30.2% | 96.8% | +0.18 cm |
+| total | 125 | 30.4% | — | +0.65 cm (OUT-OF-SAMPLE: D1 dropped the total from the likelihood, so there is no fitted error model) |
+
+### The deliverable, on the arm that ships
+
+Ladrillo L14 TAPPED, cm rel. 1995–2014, median:
+
+| ssp | glaciers | gis | ais | te | **total (p17–p83)** |
+|---|---|---|---|---|---|
+| SSP1-2.6 @2100 | 7.92 | 6.48 | 4.40 | 13.70 | **35.1** [33.7, 36.5] |
+| SSP2-4.5 @2100 | 9.99 | 8.46 | 5.58 | 17.95 | **44.9** [42.7, 59.0] |
+| SSP5-8.5 @2100 | 14.29 | 13.90 | 37.07 | 26.92 | **94.7** [81.5, 110.7] |
+| SSP1-2.6 @2300 | 12.39 | 10.08 | 13.47 | 22.69 | **67.1** [64.3, 70.0] |
+| SSP2-4.5 @2300 | 19.08 | 18.32 | 131.35 | 41.85 | **219.1** [107.8, 323.0] |
+| SSP5-8.5 @2300 | 27.62 | **95.74** | 281.69 | 99.74 | **513.7** [443.3, 592.8] |
+
+**END-TO-END INERTNESS, MEASURED ON THE SHIPPED FILES**: tapped and untapped SSP2-4.5
+total at 2100 agree at **0.000e+00 cm**. Bands are posterior-parameter spread on
+FaIR-mean forcing only — no climate spread — as they were at L10.
+
+⚠ **44.95, not 45.01.** The SSP2-4.5 total at 2100 in the 2000-draw deliverable is
+**44.9465 cm**; the L14 promotion entry quotes **45.01**. That is a chain-level median
+against a thinned-projection median, and the gap (0.06 cm) is a tenth of the
+between-chain scatter at that horizon (`sd_medians` = 0.60 cm). Not a discrepancy to
+chase — but quote the file, not the promotion note, and say which.
+
+### Arm goes in the name, and the vintage stamp is declared
+
+`ladrillo_model_comparison_<TAG>.csv` and `ladrillo_<TAG>_fig*` are the TAPPED arm;
+`--no-tap` writes `_notap` variants. `plot_ladrillo_memo_figures.py` refuses an
+undeclared tag (so a figure can always say which vintage it is) — L12 and L14 are now
+declared, and the title stamp appends the cell straight from `gis_targets.tap_cell()`,
+so a title cannot disagree with the file it was drawn from.
+
+**Still open:** LADRILLO.md itself, which continues to define the module as
+`greenland_ab` on posterior L10.
+
 ## [unreleased] — 2026-08-23k — **The tap is part of the module: it is the DEFAULT arm now, and the base model has to be asked for by name.**
 
 Marcus 2026-08-23, on the measured evidence: the tap is exactly inert over the whole

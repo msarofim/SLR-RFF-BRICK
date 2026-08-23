@@ -1,0 +1,52 @@
+NOTE: no calibrated error model for total — reported OUT-OF-SAMPLE, parameter band only, predictive band NaN
+Ladrillo posterior predictive | parameters_subsample_brick_mengel_L14.csv | 2000 draws | 1900-2026 | base 1995-2005 | forcing ssp245harm
+........
+  2000 draws in 12s
+
+Component bias (model p50 - obs, cm; glaciers vs the delta-corrected target)
+ @1900:
+  ais       1900  obs   -0.63  p50   -0.64  bias  -0.01  in 90%
+  glaciers  1900  obs   -5.81  p50   -5.54  bias  +0.26  in 90%
+  gis       1900  obs   -4.13  p50   -4.08  bias  +0.05  in 90%
+  te        1900  obs   -3.61  p50   -4.08  bias  -0.47  OUT
+  total     1900  obs  -13.94  p50  -12.98  bias  +0.95  in 90%  [OUT-OF-SAMPLE]
+ @1950:
+  ais       1950  obs   -0.36  p50   -0.36  bias  +0.00  in 90%
+  glaciers  1950  obs   -2.40  p50   -2.55  bias  -0.15  in 90%
+  gis       1950  obs   -1.36  p50   -1.32  bias  +0.04  in 90%
+  te        1950  obs   -2.82  p50   -2.56  bias  +0.26  OUT
+  total     1950  obs   -5.99  p50   -5.34  bias  +0.64  OUT  [OUT-OF-SAMPLE]
+ @2000:
+  ais       2000  obs    0.00  p50   -0.01  bias  -0.01  OUT
+  glaciers  2000  obs   -0.01  p50   -0.00  bias  +0.01  OUT
+  gis       2000  obs   -0.04  p50   -0.05  bias  -0.01  OUT
+  te        2000  obs   -0.24  p50   -0.02  bias  +0.22  OUT
+  total     2000  obs   -0.29  p50   -0.30  bias  -0.01  OUT  [OUT-OF-SAMPLE]
+ @2018:
+  ais       2018  obs    0.70  p50    0.58  bias  -0.12  OUT
+  glaciers  2018  obs    1.21  p50    1.14  bias  -0.06  in 90%
+  gis       2018  obs    1.27  p50    1.27  bias  -0.00  in 90%
+  te        2018  obs    2.07  p50    2.61  bias  +0.53  OUT
+  total     2018  obs    5.97  p50    6.19  bias  +0.23  in 90%  [OUT-OF-SAMPLE]
+ @series end:
+  ais       2025  obs    0.77  p50    0.84  bias  +0.08  OUT
+  glaciers  2023  obs    1.63  p50    1.48  bias  -0.15  in 90%
+  gis       2025  obs    1.65  p50    1.66  bias  +0.01  in 90%
+  te        2025  obs    3.23  p50    3.82  bias  +0.59  OUT
+  total     2024  obs    8.23  p50    8.27  bias  +0.05  in 90%  [OUT-OF-SAMPLE]
+ AIS plateau (does the fit track the GRACE-FO pause?):
+  ais       2019  obs    0.69  p50    0.61  bias  -0.08  OUT
+  ais       2020  obs    0.74  p50    0.65  bias  -0.09  OUT
+  ais       2022  obs    0.71  p50    0.73  bias  +0.01  in 90%
+  ais       2024  obs    0.76  p50    0.80  bias  +0.04  in 90%
+  ais       2025  obs    0.77  p50    0.84  bias  +0.08  OUT
+
+90% coverage over the fit window (share of obs years inside the band)
+  parameter = posterior parameter spread only; predictive = + the calibrated AR(1)+obs error model
+  ais       126 years   parameter  85.7%   predictive  98.4%   mean bias -0.00 cm
+  glaciers  124 years   parameter  79.8%   predictive 100.0%   mean bias +0.01 cm
+  gis       126 years   parameter  63.5%   predictive  99.2%   mean bias +0.00 cm
+  te        126 years   parameter  30.2%   predictive  96.8%   mean bias +0.18 cm
+  total     125 years   parameter  30.4%   predictive   NaN%   mean bias +0.65 cm   [OUT-OF-SAMPLE: no fitted error model]
+
+wrote outputs/postpred_L14_components_timeseries.csv, outputs/postpred_L14_bias.csv, outputs/postpred_L14_coverage.csv

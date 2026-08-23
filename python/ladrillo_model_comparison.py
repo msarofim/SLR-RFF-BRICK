@@ -34,6 +34,9 @@ Writes outputs/ladrillo_model_comparison_<TAG>{,_spread}.csv
 import os
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import gis_targets  # noqa: E402
+
 import pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -44,10 +47,18 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # that silently means one vintage.
 LADRILLO_TAG = next((a[len("--tag="):] for a in sys.argv[1:]
                      if a.startswith("--tag=")), "L10")
-LADRILLO_CSV = os.path.join(REPO, f"outputs/ssps_components_2300_{LADRILLO_TAG}.csv")
-if not os.path.exists(LADRILLO_CSV):
-    raise SystemExit(f"no SSP projection for --tag={LADRILLO_TAG} at {LADRILLO_CSV}")
-OUT = os.path.join(REPO, f"outputs/ladrillo_model_comparison_{LADRILLO_TAG}.csv")
+## WHICH ARM. The tap is part of the module (2026-08-23), so the TAPPED deliverable is
+## what this comparison reports unless --no-tap is passed. Resolved through
+## gis_targets.ssps_csv, which rebuilds the cell-encoded filename from the same Julia
+## GIS_TAP_CELL the projection driver's own TAG derives from -- this script used to
+## build the path by f-string and could therefore only ever see the untapped file,
+## which is why no comparison had ever been produced for the shipped model.
+## The ARM IS IN THE OUTPUT NAME: an untapped comparison must not be mistakable for a
+## tapped one on disk, the same rule the projections themselves follow.
+TAPPED = "--no-tap" not in sys.argv[1:]
+LADRILLO_CSV = gis_targets.ssps_csv(LADRILLO_TAG, tapped=TAPPED)
+ARM_TAG = "" if TAPPED else "_notap"
+OUT = os.path.join(REPO, f"outputs/ladrillo_model_comparison_{LADRILLO_TAG}{ARM_TAG}.csv")
 BRICK20_GSIC_CSV = os.path.join(REPO, "outputs/ssps_gsic_2300.csv")
 MAGICC_CSV = os.path.join(REPO, "data/comparison/magicc_nauels_components.csv")
 FACTS_CSV = os.path.join(REPO, "outputs/facts_components_n200.csv")

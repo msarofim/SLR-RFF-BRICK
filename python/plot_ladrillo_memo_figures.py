@@ -22,6 +22,9 @@ carry climate spread too — medians are comparable, band widths are not.
 path, every output filename, and each figure's title stamp.
 
   L10  Ladrillo 1.0, accepted 2026-08-13.
+  L14  CANONICAL since 2026-08-20: two-basin Greenland, reparameterised slow
+       channel. Drawn on the TAPPED arm by default (the tap is part of the module);
+       pass --no-tap for the base Greenland, which lands in _notap filenames.
   L11  the D1+D2 change set, accepted 2026-08-15. D1 drops the Dangendorf TOTAL
        from the likelihood, so the L11 total has NO calibrated error model —
        figure 1's total panel therefore has no predictive band, and the total is
@@ -43,6 +46,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import gis_targets  # noqa: E402
+
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIGDIR = os.path.join(REPO, "figures")
 # Baselines, mirroring the drivers that produced the inputs. HINDCAST matches
@@ -60,18 +66,36 @@ LADRILLO_COLOR = "#2166ac"
 # figure's title, so an L11 run cannot overwrite or be mistaken for L10.
 LADRILLO_TAG = next((a[len("--tag="):] for a in sys.argv[1:]
                      if a.startswith("--tag=")), "L10")
+## WHICH ARM. The tap is part of the module (2026-08-23), so these figures are drawn
+## on the TAPPED deliverable unless --no-tap is passed. Resolved through
+## gis_targets.ssps_csv, which rebuilds the cell-encoded filename from the same Julia
+## GIS_TAP_CELL the projection driver's TAG derives from; the f-string this used to be
+## could only ever find the untapped file. The HINDCAST is arm-independent by
+## construction -- the tap's onset is 4.69 K against an observational record topping
+## out at 1.385 K, so it is exactly inert there and postpred carries no arm suffix.
+## THE ARM IS IN THE FIGURE STEM, so an untapped figure cannot be mistaken for a
+## tapped one on disk or in a talk.
+TAPPED       = "--no-tap" not in sys.argv[1:]
+ARM_TAG      = "" if TAPPED else "_notap"
 POSTPRED_CSV = f"outputs/postpred_{LADRILLO_TAG}_components_timeseries.csv"
-SSPS_CSV     = f"outputs/ssps_components_2300_{LADRILLO_TAG}.csv"
-CMP_CSV      = f"outputs/ladrillo_model_comparison_{LADRILLO_TAG}.csv"
-CMP_SPREAD_CSV = f"outputs/ladrillo_model_comparison_{LADRILLO_TAG}_spread.csv"
-FIGSTEM      = f"ladrillo_{LADRILLO_TAG}"
+SSPS_CSV     = os.path.relpath(gis_targets.ssps_csv(LADRILLO_TAG, tapped=TAPPED), REPO)
+CMP_CSV      = f"outputs/ladrillo_model_comparison_{LADRILLO_TAG}{ARM_TAG}.csv"
+CMP_SPREAD_CSV = f"outputs/ladrillo_model_comparison_{LADRILLO_TAG}{ARM_TAG}_spread.csv"
+FIGSTEM      = f"ladrillo_{LADRILLO_TAG}{ARM_TAG}"
 # What each vintage IS, for the title stamp. A new tag must be declared here.
+## THE VINTAGE STAMP IS DECLARED, NEVER DERIVED FROM THE TAG STRING — a figure that
+## cannot say which model it is is worse than no figure. The ARM is appended from the
+## same GIS_TAP_CELL the filename is built from, so a title cannot disagree with the
+## file it came from.
 TAG_DESC = {"L10": "Ladrillo 1.0 (L10)",
-            "L11": "Ladrillo L11 (D1: no total; D2: gsic+steric discrepancy)"}
+            "L11": "Ladrillo L11 (D1: no total; D2: gsic+steric discrepancy)",
+            "L12": "Ladrillo L12 (ordered Greenland channels, whole sheet)",
+            "L14": "Ladrillo L14 (two-basin Greenland)"}
 if LADRILLO_TAG not in TAG_DESC:
     raise SystemExit(f"undeclared --tag={LADRILLO_TAG}: add it to TAG_DESC so the "
                      "figure titles say what the vintage is")
-VINTAGE = TAG_DESC[LADRILLO_TAG]
+VINTAGE = TAG_DESC[LADRILLO_TAG] + (
+    f", tap {gis_targets.tap_cell_label()}" if TAPPED else ", NO TAP (base Greenland)")
 SOURCE_COLOR = {"Ladrillo": "#2166ac", "BRICK 2.0": "#7f7f7f",
                 "MAGICC-SLR": "#d62728", "FACTS": "#ff9900"}
 COMPONENT_TITLE = {"ais": "Antarctic ice sheet", "glaciers": "Glaciers",
