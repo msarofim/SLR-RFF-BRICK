@@ -199,9 +199,12 @@ Greenland median, cm rel. 1995–2014, 2000 draws, FaIR-mean forcing:
 
 | | SSP1-2.6 | SSP2-4.5 | SSP5-8.5 |
 |---|---|---|---|
-| 2100 | 6.42 | 8.47 | 13.91 |
-| 2150 | 7.87 | 12.32 | 30.55 |
+| 2100 | 6.48 | 8.46 | 13.90 |
+| 2150 | 7.92 | 12.43 | 30.60 |
 | 2300 | 10.08 | 18.32 | **95.74** |
+
+Anything quoting Greenland from the **priority ladder** instead (§5.1) will differ in
+the second decimal — that runs 295 draws, this file 2000. Say which.
 
 Bands elsewhere in the deliverable are **posterior-parameter spread on mean forcing
 only** — no climate spread. Say so wherever they meet FACTS workflows, which include it.
