@@ -1,0 +1,140 @@
+scope_gis_onset_rescan -- 2-stage cascade, L14 canonical (two-basin), extended axis 1850-3001, thinned posterior, L14
+  BASE GATE  our 2100 reproduces diag_gis_greve_year3000_cmp.csv to 0.0000% on 5 cells
+
+=== TARGETS (5 CMIP6 cells; SICOPOLIS held (2081, 2100)) ===
+  exp     forcing                ISM med 2100  ours 2100  SICO 2300  ours 2300  SICO 3001      ours
+  expb01  CNRM-CM6-1 ssp585              13.0       19.5       75.2       36.1      228.9      40.7
+  expb02  CNRM-CM6-1 ssp126               4.6        6.5       16.6       11.7       40.6      14.5
+  expb03  UKESM1-0-LL ssp585             18.5       24.2      105.9       42.0      307.4      46.6
+  expb04  CESM2 ssp585                   18.8       19.1      114.8       34.9      354.3      39.4
+  expb05  CNRM-ESM2-1 ssp585             12.9       17.0       67.1       32.6      200.4      37.0
+
+  BASE, no reservoir -- ours/target by horizon:
+    2100   1.02-1.49x   (median 1.32)
+    2300   0.30-0.70x   (median 0.48)
+    3001   0.11-0.36x   (median 0.18)
+  ssp585@2300 49.5 cm (matched band 43-145);  ssp245@2300 17.7;  ssp126@2300 9.4
+
+=== THE ONSET FLOOR IS MEASURED, NOT ASSUMED -- max GMST inside the calibration window (1900, 2025) ===
+  CNRM-CM6-1 ssp126         1.5878 K  <- SETS THE FLOOR
+  CNRM-CM6-1 ssp585         1.5377 K
+  UKESM1-0-LL ssp585        1.5287 K
+  CESM2 ssp585              1.4708 K
+  SSP5-8.5                  1.3979 K
+  CNRM-ESM2-1 ssp585        1.3916 K
+  SSP1-2.6                  1.3828 K
+  SSP2-4.5                  1.3617 K
+
+  floor = 1.5878 K, rounded up to 1.60 K.
+  OUR OWN drivers top out at 1.398 K -- so the floor is set by the GCM cells,
+  which joined the scoring set only when the Greve/ISMIP6 targets did. A scan built on
+  the 1.398 K figure would silently refit the hindcast.
+  CONSEQUENCE FOR THE LADDER: Yelmo-REMBO's threshold (1.68-1.76 K) sits only
+  0.092 K above the floor and is testable; anything BELOW 1.60 K is NOT reachable by
+  prior-propagation at all and would be a refit question.
+
+=== G-INERT GATE -- max |reservoir ramp| over the calibration window (1900, 2025), over ALL 490 cells x every driver ===
+  0.000e+00
+  EXACTLY zero => every onset down to the measured floor 1.60 K is still prior-propagatable.
+
+=== THE SCAN -- 13 onsets x 7 V x 5 tau (+ the shipped onset as a reference row) ===
+  BASELINE (no reservoir) score_all = 1.130
+
+  BEST CELL AT EACH ONSET (by score_all, within inventory):
+    onset    V_m    tau    psi     all    2100    2300    3001   585@2300  band   245@2300
+     1.60   5.66   1600    nan   0.441   0.365   0.416   0.526       72.6    in       38.8
+     1.85   3.00    800    nan   0.334   0.394   0.253   0.341       88.0    in       51.1
+     2.10   3.00    800    nan   0.314   0.369   0.242   0.318       86.6    in       45.8
+     2.35   3.00    800    nan   0.391   0.357   0.278   0.504       85.2    in       37.5
+     2.60   3.00    800    nan   0.390   0.347   0.285   0.505       83.9    in       29.5
+     2.85   3.00    800    nan   0.390   0.339   0.293   0.505       82.6    in       22.7
+     3.10   3.00    800    nan   0.390   0.331   0.300   0.505       81.4    in       18.3
+     3.35   3.00    800    nan   0.390   0.325   0.307   0.506       80.3    in       17.7
+     3.60   3.00    800    nan   0.390   0.320   0.313   0.506       79.1    in       17.7
+     3.85   3.00    800    nan   0.391   0.315   0.320   0.506       78.0    in       17.7
+     4.10   4.50    800    nan   0.384   0.319   0.231   0.536       90.5    in       17.7
+     4.35   4.50    800    nan   0.368   0.313   0.232   0.503       88.7    in       17.7
+     4.60   4.50    800    nan   0.377   0.309   0.272   0.507       86.7    in       17.7
+     4.69   5.66    800    nan   0.389   0.310   0.251   0.542       95.4    in       17.7 <- SHIPPED
+
+  THE TRADE, made explicit -- 2100 can only get WORSE (the reservoir is ADDITIVE
+  and our 2100 is already high), so read these two columns together:
+    onset  best 2300+3001 score   2100 score   2100 ratio (ours/ISM med)
+     1.60                 0.467        0.432                        1.51x
+     1.85                 0.300        0.394                        1.49x
+     2.10                 0.282        0.369                        1.45x
+     2.35                 0.407        0.357                        1.43x
+     2.60                 0.410        0.347                        1.43x
+     2.85                 0.413        0.339                        1.42x
+     3.10                 0.416        0.331                        1.40x
+     3.35                 0.418        0.325                        1.39x
+     3.60                 0.421        0.320                        1.38x
+     3.85                 0.423        0.324                        1.40x
+     4.10                 0.413        0.319                        1.38x
+     4.35                 0.392        0.313                        1.37x
+     4.60                 0.407        0.309                        1.36x
+     4.69                 0.423        0.310                        1.37x
+  (baseline 2100 score 0.297, ratio 1.32x -- the 1.30x ISMIP6 fast bias)
+
+=== DOES THE SHIPPED 4.69 K ONSET STILL DO THE JOB IT WAS CHOSEN FOR? ===
+  It exists because memory `gis_tap_priced_l13` records it as "exactly the 'don't move
+  2100' constraint". That was evaluated on OUR fair_mean ssp585 driver. Crossing years:
+    CNRM-CM6-1 ssp585           2082
+    CNRM-CM6-1 ssp126          never
+    UKESM1-0-LL ssp585          2069
+    CESM2 ssp585                2078
+    CNRM-ESM2-1 ssp585          2087
+    SSP1-2.6                   never
+    SSP2-4.5                   never
+    SSP5-8.5                    2100   <- the driver the onset was tuned against
+
+  Our own ssp585 crosses at exactly 2100 -- by construction. The FOUR ssp585 GCM cells
+  that carry the ISMIP6 and Greve evidence cross 13-31 years EARLIER, so the reservoir
+  is already running before 2100 on every one of them.
+
+  MEASURED on the actual shipped cell (V=1.0 m, tau=800 yr): the 2100 median ratio
+  moves 1.32x -> 1.32x. **The shipped onset does NOT hold 2100 fixed on the
+  cells the 2100 evidence lives on.** It holds it fixed on one driver: the one it was
+  tuned against. The 'protect 2100' argument for keeping 4.69 K is therefore already
+  spent, independently of the ladder evidence.
+
+  AND AT THE SHIPPED V AND tau, LOWERING THE ONSET IS UNAMBIGUOUSLY BETTER:
+  score_all 0.758 at 4.69 K vs 0.597 at 1.85 K -- and 4.69 K is the WORST of the
+  14 onsets at that cell. The earlier per-onset table let V and tau float, which
+  masked this.
+
+=== THE WEIGHTED VERDICT -- 2100 > 2300 > 3001 (Marcus 2026-08-23) ===
+  The weighting is evidence-supported: diag_gis_obs_scorecard.py put the priority-1
+  observational gate on ISMIP6 for the first time and it PASSES (median 1.15x the
+  observed rate, obs inside the spread), so the 2100 target is admissible.
+
+  BEST ONSET UNDER EACH WEIGHT SET (within inventory; baseline in parentheses):
+    weights   onset    V_m    tau    psi    score  baseline   2100 ratio   585@2300
+      equal    2.10   3.00    800    nan    0.314     1.130        1.45x       86.6
+      3:2:1    2.10   3.00    800    nan    0.323     0.885        1.45x       86.6
+      4:2:1    4.35   4.50    800    nan    0.328     0.827        1.37x       88.7
+      6:3:1    4.35   4.50    800    nan    0.317     0.752        1.37x       88.7
+
+  BEST CELL AT EACH ONSET UNDER 3:2:1 (the primary weighting):
+    onset    V_m    tau    psi   w-score   vs base    2100    2300    3001   245@2300
+     1.60   5.66   1600    nan     0.413     2.15x   0.365   0.416   0.526       38.8
+     1.85   3.00    800    nan     0.344     2.57x   0.394   0.253   0.341       51.1
+     2.10   3.00    800    nan     0.323     2.74x   0.369   0.242   0.318       45.8
+     2.35   3.00    800    nan     0.363     2.44x   0.357   0.278   0.504       37.5
+     2.60   3.00    800    nan     0.360     2.46x   0.347   0.285   0.505       29.5
+     2.85   3.00    800    nan     0.358     2.47x   0.339   0.293   0.505       22.7
+     3.10   3.00    800    nan     0.357     2.48x   0.331   0.300   0.505       18.3
+     3.35   4.50    800    nan     0.355     2.49x   0.339   0.231   0.552       17.7
+     3.60   4.50    800    nan     0.351     2.52x   0.331   0.232   0.551       17.7
+     3.85   4.50    800    nan     0.348     2.54x   0.324   0.233   0.551       17.7
+     4.10   4.50    800    nan     0.341     2.59x   0.319   0.231   0.536       17.7
+     4.35   4.50    800    nan     0.331     2.68x   0.313   0.232   0.503       17.7
+     4.60   4.50    800    nan     0.339     2.61x   0.309   0.272   0.507       17.7
+     4.69   5.66    800    nan     0.344     2.57x   0.310   0.251   0.542       17.7 <- SHIPPED
+
+  THE psi SECTION IS SKIPPED ON THE 2-stage cascade ARM: psi = 100*V/tau is a
+  FIRST-ORDER parameterisation and is undefined at stages > 1, so the Greve
+  range (0.179, 0.341) cannot be applied through it. Use the MEASURED
+  flux (`psi_eff`) in diag_gis_cascade_rate_crit.py instead.
+
+WROTE outputs/scope_gis_onset_rescan_n2_onsetladder_vx5p66.csv

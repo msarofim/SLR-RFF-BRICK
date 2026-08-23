@@ -1,0 +1,95 @@
+Greenland vs Marcus's PRIORITY LADDER | 300 draws/arm | obs outputs/recalib_targets_ext.csv ('gis', 1900-2025)
+
+original BRICK (:stock SIMPLE)   brick_mengel_extC      :stock     295 draws  v0 7.35 m
+Ladrillo L14, untapped           brick_mengel_L14       :basins2   295 draws  v0 7.42 m
+Ladrillo L14 + V=5.66 cascade    brick_mengel_L14       :basins2   295 draws  v0 7.42 m   tap V=5.66 m
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+Ladrillo L14 + V=6.00 cascade    brick_mengel_L14       :basins2   295 draws  v0 7.42 m   tap V=6.00 m
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+
+=== PRIORITY 1 — known physical constraints + HISTORICAL OBSERVATIONS ===
+
+  A. TOTAL over the calibration window 1900-2025, cm.  FITTED, not evidence.
+     arm                                  ours  observed     ratio
+     original BRICK (:stock SIMPLE)      5.718     5.781    0.989x
+     Ladrillo L14, untapped              5.734     5.781    0.992x
+     Ladrillo L14 + V=5.66 cascade       5.734     5.781    0.992x
+     Ladrillo L14 + V=6.00 cascade       5.734     5.781    0.992x
+
+  B. THE FREE PART — rates the calibration does not control, mm/yr
+     arm                                1900-1950   1950-1990   1993-2010   2010-2024   1995-2024   <- last col = the priority-1 rate
+     OBSERVED                               0.554       0.294       0.497       0.680       0.593
+     original BRICK (:stock SIMPLE)      0.406 0.73x    0.439 1.49x    0.522 1.05x    0.596 0.88x    0.561 0.95x
+     Ladrillo L14, untapped              0.551 1.00x    0.280 0.95x    0.496 1.00x    0.694 1.02x    0.629 1.06x
+     Ladrillo L14 + V=5.66 cascade       0.551 1.00x    0.280 0.95x    0.496 1.00x    0.694 1.02x    0.629 1.06x
+     Ladrillo L14 + V=6.00 cascade       0.551 1.00x    0.280 0.95x    0.496 1.00x    0.694 1.02x    0.629 1.06x
+
+  B2. THE LEVEL vs the observational uncertainty band [gis_lo, gis_hi],
+      both rebased to their 1900-1910 mean
+     arm                              yrs in band worst |excurs|  worst |miss|  worst year
+     original BRICK (:stock SIMPLE)        39/126         9.79       0.161 cm       2020
+     Ladrillo L14, untapped               105/126         4.67       0.077 cm       2020
+     Ladrillo L14 + V=5.66 cascade        105/126         4.67       0.077 cm       2020
+     Ladrillo L14 + V=6.00 cascade        105/126         4.67       0.077 cm       2020
+     band half-width: 1.068 cm at 1900 -> 0.016 cm at 2025 (65x narrower)
+
+  C. ACCELERATION over 1993-2024, mm/yr^2 (quadratic coeff x2)
+     OBSERVED                           +0.0146
+     original BRICK (:stock SIMPLE)     +0.0047   0.32x
+     Ladrillo L14, untapped             +0.0092   0.63x
+     Ladrillo L14 + V=5.66 cascade      +0.0092   0.63x
+     Ladrillo L14 + V=6.00 cascade      +0.0092   0.63x
+
+  D. TOTAL ICE VOLUME, m SLE — CLIMBER-X 7.3-7.68 m
+     original BRICK (:stock SIMPLE)       7.35   IN    sampled (greenland_v0)
+     Ladrillo L14, untapped               7.42   IN    structural (Mouginot sum)
+     Ladrillo L14 + V=5.66 cascade        7.42   IN    structural (Mouginot sum)
+     Ladrillo L14 + V=6.00 cascade        7.42   IN    structural (Mouginot sum)
+
+=== PRIORITY 2 — LONG-TERM COMMITMENT (2300), and PRIORITY 4 — TRANSIENT (2100) ===
+
+  Greenland median, cm, per scenario
+  arm                              2.6@2100 2.6@2150 2.6@2300 4.5@2100 4.5@2150 4.5@2300 8.5@2100 8.5@2150 8.5@2300
+  original BRICK (:stock SIMPLE)        6.6     10.0     19.1      7.3     12.0     25.7      8.8     17.7     48.8
+  Ladrillo L14, untapped                6.4      7.9     10.0      8.5     12.3     18.3     13.9     28.1     49.7
+  Ladrillo L14 + V=5.66 cascade         6.4      7.9     10.0      8.5     12.3     18.3     13.9     30.6     95.6
+  Ladrillo L14 + V=6.00 cascade         6.4      7.9     10.0      8.5     12.3     18.3     13.9     30.7     98.4
+
+  PRIORITY 2, our own ssp585 @2300 vs the MATCHED band [42.9, 145.0] cm, p50 98.5
+     original BRICK (:stock SIMPLE)       48.8 cm    0.495x the p50   IN band
+     Ladrillo L14, untapped               49.7 cm    0.504x the p50   IN band
+     Ladrillo L14 + V=5.66 cascade        95.6 cm    0.971x the p50   IN band
+     Ladrillo L14 + V=6.00 cascade        98.4 cm    0.999x the p50   IN band
+
+  SCENARIO SEPARATION at 2300 — the quantity the reservoir exists to buy
+     original BRICK (:stock SIMPLE)   ssp585/ssp245 =   1.90x
+     Ladrillo L14, untapped           ssp585/ssp245 =   2.72x
+     Ladrillo L14 + V=5.66 cascade    ssp585/ssp245 =   5.23x
+     Ladrillo L14 + V=6.00 cascade    ssp585/ssp245 =   5.38x
+
+=== PRIORITY 3 — MELT RATE, 2250-2300 on the PROTECT r2300 arm ===
+
+  band (9.7, 41.5) cm/century, run-level p05-p95 over 35 runs / 5 GCM clusters.
+  Marcus's stringency rule applies: 5 clusters ⇒ GUIDANCE, not a fit objective.
+
+     arm                                  cm/century       band   verdict
+     original BRICK (:stock SIMPLE)             14.0 [9.7, 41.5]   IN
+     Ladrillo L14, untapped                      3.1 [9.7, 41.5]   OUT (too SLOW)
+     Ladrillo L14 + V=5.66 cascade              41.7 [9.7, 41.5]   OUT (too FAST)
+     Ladrillo L14 + V=6.00 cascade              44.0 [9.7, 41.5]   OUT (too FAST)
+
+=== THE RATE-CLEARING V, SOLVED HERE IN THE WIRED MODEL ===
+     base rate 3.09, at V=6.00 m rate 43.98  ⇒  rate is linear in V at 6.816 per m
+     V clearing the band top (41.5) IN THE WIRED MODEL : 5.64 m
+     the OFFLINE emulator's answer                      : 5.66 m  (0.4% apart)
+     it gives our ssp585 Greenland@2300 = 95.4 cm = 0.969x the matched p50 98.5
+
+=== IS THE RESERVOIR REALLY INERT OVER THE OBSERVED RECORD? ===
+  The whole priority-1 argument rests on it, so it is measured on the SHIPPED
+  model rather than inherited from the emulator that produced the claim.
+     Ladrillo L14 + V=5.66 cascade    max|tapped - untapped| over 1850-2025 = 0.000e+00 cm
+     Ladrillo L14 + V=6.00 cascade    max|tapped - untapped| over 1850-2025 = 0.000e+00 cm
+
+wrote outputs/diag_gis_cell_vs_priority_ladder.csv

@@ -80,10 +80,16 @@ from diag_gis_greve_year3000 import (  # noqa: E402
 STAGES = next((int(a.split("=", 1)[1]) for a in sys.argv if a.startswith("--stages=")), 1)
 STAGES >= 1 or sys.exit("--stages must be >= 1")
 STAGE_WORD = "first-order reservoir" if STAGES == 1 else f"{STAGES}-stage cascade"
+## `--v-extra=` appends volumes to the ladder WITHOUT disturbing it, so a cell that
+## came out of a bisection elsewhere (e.g. the largest V clearing the 2250-2300 rate
+## band) can be scored against Greve and ISMIP6 on exactly this scan's footing. The
+## default list is untouched, so the shipped artefact stays byte-identical.
+_VX = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--v-extra=")), "")
 ## The arm is in the FILENAME: a cascade scan must not overwrite the artefact the
 ## weighted verdict rests on.
 ARM_SUFFIX = (f"_n{STAGES}" if STAGES > 1 else "") + \
-    ("_onsetladder" if any(a.startswith("--onset-max=") for a in sys.argv) else "")
+    ("_onsetladder" if any(a.startswith("--onset-max=") for a in sys.argv) else "") + \
+    (f"_vx{_VX.replace('.', 'p').replace(',', '_')}" if _VX else "")
 OUT = os.path.join(REPO, f"outputs/scope_gis_onset_rescan{ARM_SUFFIX}.csv")
 CMP_REF = os.path.join(REPO, "outputs/diag_gis_greve_year3000_cmp.csv")
 ISM_REF = os.path.join(REPO, "outputs/diag_gis_ismip6_2100_ism_spread_arms.csv")
@@ -115,6 +121,12 @@ ONSET_FLOOR_ROUND_K = 0.05     # the measured floor is rounded UP to this grid
 ## V free up to the whole sheet; tau free over the millennial range the commitment
 ## evidence points at (psi = 100*V/tau is DERIVED, never typed).
 V_SCAN_M = [1.0, 2.0, 3.0, 4.5, 6.0, GIS_V0_M]
+## `--v-extra=` (defined above with the other arm flags) appends volumes to the
+## ladder WITHOUT disturbing it, so a cell that came out of a bisection elsewhere --
+## e.g. the largest V clearing the 2250-2300 rate band -- can be scored against Greve
+## and ISMIP6 on exactly this scan's footing. Default list untouched.
+if _VX:
+    V_SCAN_M = sorted(set(V_SCAN_M) | {float(x) for x in _VX.split(",")})
 TAU_SCAN_YR = [800.0, 1600.0, 2200.0, 2700.0, 3200.0]
 HORIZONS = (2100, 2300, Y_LAST)
 OURS = ["SSP1-2.6", "SSP2-4.5", "SSP5-8.5"]
@@ -276,12 +288,22 @@ def main():
                                    max(float(np.max(np.abs(u[iw])))
                                        for u in unit.values()))
                 addc = {k: CM_PER_M * V * u for k, u in unit.items()}
+                ## psi = 100*V/tau IS A FIRST-ORDER PARAMETERISATION AND DOES NOT
+                ## EXIST AT stages > 1 (2026-08-23). At n >= 2 the delivered unit is
+                ## the LAST stage, so V/tau describes an internal state's relaxation,
+                ## not the flux the Greve range PSI_EVIDENCE was derived for -- the
+                ## shipped cascade reads 0.750 against a range topping out at 0.341
+                ## and that "2.2x violation" is an artefact of the formula, not a
+                ## finding. Emitted as NaN/None on the cascade arm so it cannot be
+                ## quoted; the form-agnostic version is `psi_eff` in
+                ## diag_gis_cascade_rate_crit.py, MEASURED off the trajectory.
+                _psi = CM_PER_M * V / tau if STAGES == 1 else float("nan")
                 rec = dict(onset_K=on, V_m=V, tau_yr=tau,
-                           psi_cm_per_yr=CM_PER_M * V / tau,
+                           psi_cm_per_yr=_psi,
                            shipped_onset=bool(on == ONSET_SHIPPED_K),
-                           psi_in_greve=bool(PSI_EVIDENCE[0]
-                                             <= CM_PER_M * V / tau
-                                             <= PSI_EVIDENCE[1]))
+                           psi_in_greve=(bool(PSI_EVIDENCE[0] <= _psi
+                                              <= PSI_EVIDENCE[1])
+                                         if STAGES == 1 else None))
                 if STAGES > 1:
                     rec["stages"] = STAGES
                 for y in HORIZONS:
@@ -430,6 +452,15 @@ def main():
               f"{b.score_2300:>8.3f}{b[f'score_{Y_LAST}']:>8.3f}"
               f"{b.ssp245_2300_cm:>11.1f}{star}")
 
+    if STAGES > 1:
+        print(f"\n  THE psi SECTION IS SKIPPED ON THE {STAGE_WORD} ARM: psi = 100*V/tau "
+              f"is a\n  FIRST-ORDER parameterisation and is undefined at stages > 1, so "
+              f"the Greve\n  range {PSI_EVIDENCE} cannot be applied through it. Use "
+              f"the MEASURED\n  flux (`psi_eff`) in diag_gis_cascade_rate_crit.py "
+              f"instead.\n")
+        out.to_csv(OUT, index=False)
+        print(f"WROTE {os.path.relpath(OUT, REPO)}")
+        return
     print(f"\n  CELLS WHOSE psi SITS IN THE GREVE RANGE {PSI_EVIDENCE} AND WHOSE "
           f"ssp585@2300 IS IN BAND:")
     q = out[out.psi_in_greve & out.ssp585_in_band & out.within_inventory]
