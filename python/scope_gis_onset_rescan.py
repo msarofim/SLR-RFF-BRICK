@@ -82,7 +82,8 @@ STAGES >= 1 or sys.exit("--stages must be >= 1")
 STAGE_WORD = "first-order reservoir" if STAGES == 1 else f"{STAGES}-stage cascade"
 ## The arm is in the FILENAME: a cascade scan must not overwrite the artefact the
 ## weighted verdict rests on.
-ARM_SUFFIX = f"_n{STAGES}" if STAGES > 1 else ""
+ARM_SUFFIX = (f"_n{STAGES}" if STAGES > 1 else "") + \
+    ("_onsetladder" if any(a.startswith("--onset-max=") for a in sys.argv) else "")
 OUT = os.path.join(REPO, f"outputs/scope_gis_onset_rescan{ARM_SUFFIX}.csv")
 CMP_REF = os.path.join(REPO, "outputs/diag_gis_greve_year3000_cmp.csv")
 ISM_REF = os.path.join(REPO, "outputs/diag_gis_ismip6_2100_ism_spread_arms.csv")
@@ -102,7 +103,14 @@ ONSET_SHIPPED_K = 4.69
 ## cells to the scoring set brings in GCMs that are HOT over the recent historical
 ## period (CNRM-CM6-1 reaches 1.588 K by 2023), and they set the floor instead.
 ## Scanning from a hardcoded 1.5 K broke G-INERT at 1.204e-04.
+## ONSET_MAX_K is overridable with `--onset-max=` so this scan can be run on the
+## SAME ladder as scope_gis_reservoir_offline.py and joined to it. The default 3.0
+## leaves a gap between the ladder range and the shipped 4.69 K onset that NEITHER
+## scorecard covers -- this file has no 2150 criterion, that one has no Greve or
+## ISMIP6 horizon, so an onset in the gap has never faced a complete criterion set.
 ONSET_MAX_K, ONSET_STEP_K = 3.0, 0.25
+ONSET_MAX_K = next((float(a.split("=", 1)[1]) for a in sys.argv
+                    if a.startswith("--onset-max=")), ONSET_MAX_K)
 ONSET_FLOOR_ROUND_K = 0.05     # the measured floor is rounded UP to this grid
 ## V free up to the whole sheet; tau free over the millennial range the commitment
 ## evidence points at (psi = 100*V/tau is DERIVED, never typed).

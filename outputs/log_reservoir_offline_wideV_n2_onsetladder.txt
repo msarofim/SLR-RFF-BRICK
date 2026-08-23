@@ -1,0 +1,46 @@
+scope_gis_reservoir_offline — 2-stage cascade at MILLENNIAL tau, L14, 10000 draws, k=1, inventory ceiling 7.42 m (whole sheet)
+
+G-INERT — max |reservoir ramp| over (1900, 2025), over ALL 112 (onset,tau) x every driver: 0.000e+00
+  EXACTLY zero => the hindcast, the bisection and the base rate solution are UNCHANGED,
+  so the reservoir is prior-propagatable like the tap and gis_amp -- and unlike gamma.
+
+BASELINE (no reservoir): rms_ssp585 0.497  rms_cool 0.262  rms_all 0.374
+  our 2300: SSP1-2.6 10.1  SSP2-4.5 18.3  SSP5-8.5 49.9   (matched bands 6-16, 11-22, 43-145)
+
+=== GRID — 11x14x8 = 1232 cells; inventory ceiling 7.42 m (whole sheet), 1232 within it ===
+
+  keeps 2100 (|d| < 0.1 cm)       652/1232
+  all three 2300 matched bands         769/1232
+  improves the 5-arm shape             807/1232
+  ALL OF THE ABOVE                     597/1232
+
+  BEST BY 5-ARM SHAPE among passing cells:
+    V=6 m  onset=4.69 K  tau=800 yr
+      rms_all 0.267 vs 0.374 baseline (1.402x better);  rms_ssp585 0.275 vs 0.497 (1.809x)
+      our 2300: SSP1-2.6 10.1  SSP2-4.5 18.3  SSP5-8.5 98.6
+      2150 on the ssp585 arms: r2300 34.8 (band 15-49, IN)  x2300 52.5 (band 45-53, IN)
+
+  TAU OF THE PASSING CELLS: [100, 200, 400, 800, 1600, 2200, 2700, 3200]   (the tap's own grid stops at 400)
+  V   OF THE PASSING CELLS: [0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 2.73, 3.0, 4.5, 6.0, 7.42]
+  ONSET OF THE PASSING CELLS: [1.85, 2.1, 2.35, 2.6, 2.85, 3.1, 3.35, 3.6, 3.85, 4.1, 4.35, 4.6, 4.69]
+
+  530/597 passing cells have tau > 400 yr, i.e. lie OUTSIDE the grid every
+  previous tap pricing ever scanned.
+
+=== 2150, THE HORIZON THE TAP SCORED 0/25 ON ===
+
+  cells clearing everything AND both ssp585 2150 bands: 560/597
+  best: V=6 m  onset=4.69 K  tau=800 yr
+    rms_all 0.267 (1.40x baseline), rms_ssp585 0.275 (1.81x), rms_cool 0.262 (baseline 0.262)
+    our 2300 cm: SSP1-2.6 10.1  SSP2-4.5 18.3  SSP5-8.5 98.6;  d2100 ssp585 +0.0000 cm
+    2150: r2300 34.8 (band 15-49)   x2300 52.5 (band 45-53.2)
+
+  DECOMPOSITION — what actually opened the door:
+    inside the OLD tau grid (<=400): 35 cells clear everything, best rms_all 0.272
+    in the NEW tau range   (>400) : 525 cells, best rms_all 0.267
+    => extending tau past 400 buys 1.020x. It is NOT what opened the door.
+    THE RE-TARGET IS. The best cell adds 48.7 cm at 2300 (49.9 -> 98.6); against the RAW literature
+       floor of 173 cm that is 1.8x SHORT, which is exactly why no small-V
+       reservoir was ever admissible before 2026-08-21g.
+
+wrote outputs/scope_gis_reservoir_offline_wideV_n2_onsetladder.csv

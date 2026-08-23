@@ -80,6 +80,22 @@ RES_TAU = [100, 200, 400, 800, 1600, 3200]
 ## cool constraint switches off exactly; 4.69 is the Tier-1 floor (ssp585 @2100, so
 ## nothing fires inside the accepted 2100 deliverable); 7.81 is ssp585 @2300.
 RES_ONSET_K = [3.2, 4.0, 4.69, 5.5, 6.5, 7.5]
+## --- THE ONSET-LADDER ARM, `--onsets=a,b,c` (2026-08-23) -------------------
+## WHY. The default ladder above STARTS at 3.2 K and `scope_gis_onset_rescan.py`
+## STOPS at 3.0 K, so the whole span between the ladder-corroborated 2.1 K optimum
+## and the shipped 4.69 K is covered by NEITHER scorecard: the rescan has no 2150
+## criterion and this file has no Greve/ISMIP6 horizons. Any onset in that gap has
+## therefore never been scored on a complete criterion set. The flag takes an
+## explicit list so the two files can be run on the SAME ladder and joined.
+##
+## THE GAP IS NOT SMOOTH, which is why it needs scanning rather than interpolating:
+## our SSP2-4.5 PEAKS at 3.19 K, so at any onset above that the moderate-scenario
+## term is EXACTLY zero, while just below it the crossing year moves violently
+## (2058 at 2.10 K, 2087 at 2.60, 2115 at 2.85, 2176 at 3.10) because that
+## scenario's GMST flattens near its peak.
+ONSETS_ARG = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--onsets=")), "")
+if ONSETS_ARG:
+    RES_ONSET_K = [float(x) for x in ONSETS_ARG.split(",")]
 RES_V_M = [0.25, 0.5, 0.75, 1.0, 1.5, 2.0]
 ## V is in METRES and every base_* series is in CM (rebase_cm). The conversion is a
 ## named constant because getting it wrong is silent: a 2 m reservoir added without
@@ -129,7 +145,8 @@ INVENTORY_NAME = "whole sheet" if WIDE_V else "NO+NE high basin"
 STAGES = next((int(a.split("=", 1)[1]) for a in sys.argv if a.startswith("--stages=")), 1)
 STAGES >= 1 or sys.exit("--stages must be >= 1")
 STAGE_WORD = "first-order reservoir" if STAGES == 1 else f"{STAGES}-stage cascade"
-ARM_SUFFIX = ("_wideV" if WIDE_V else "") + (f"_n{STAGES}" if STAGES > 1 else "")
+ARM_SUFFIX = (("_wideV" if WIDE_V else "") + (f"_n{STAGES}" if STAGES > 1 else "")
+              + ("_onsetladder" if ONSETS_ARG else ""))
 ## The arm is in the FILENAME: a wide-V scan must never overwrite the artefact the
 ## shipped 86/216 verdict rests on.
 OUT = OUT_STEM + ARM_SUFFIX + ".csv"
