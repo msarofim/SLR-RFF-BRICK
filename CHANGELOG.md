@@ -3,6 +3,76 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-23 — **Re-ordered to Marcus's priorities. Volume PASSES; the linear `L_eq` is refuted in SHAPE (0.19 m vs 7.3 m); and 16 ice-sheet models confirm the 2100 fast bias is ours.**
+
+Read-only session. Two new scripts, no gate moved, no cell shipped, no chain started, nothing in
+`julia/` touched. Both emit **no loss term, no band and no admissible set** — deliberately.
+
+### The priority ordering that reframed the session (Marcus, mid-session)
+
+1 known physical constraints (total Greenland ice) + historical obs · 2 physical ice models for
+**long-term commitment** · 3 melt-rate constraints · 4 **transient** ice models · 5 simplicity.
+Plus: **test stringency scales with the number of ice models and GCMs — few models ⇒ guidance,
+not fit optimization.** The arc had been spending itself on the 2100 transient match against
+**one** ice-sheet model, i.e. the lowest-ranked objective on the thinnest evidence. Saved to
+memory as `greenland_fit_priority`.
+
+### `diag_gis_ismip6_2100_ism_spread.py` — the 2100 defect priced against 16 ISMs
+
+Handoff item 1. ISMIP6 (Payne 2021, doi 10.5281/zenodo.4498331), 16 GrIS models, 4 CMIP6 GCMs,
+standard ocean protocol. The alternative to "our model is fast" was "NORCE-CISM is a low member".
+It is not: **0.87 / 0.99 / 1.11×** the multi-model median over the three shared cells. Swapping
+the 1-ISM target for a 16-ISM median leaves the bias intact, **1.17× → 1.30×**. The two cells
+with no PROTECT run at all (CNRM-CM6-1 ssp585, ssp126) had never been scored and are sharpest:
+**1.48× / 1.41×**, above *every* member. 5/5 cells at or above the ISM median, 3/5 above the
+highest member. **Keep the scale**: ISM structural spread at fixed GCM is **1.34–3.14×**, larger
+than our offset — we are at the high EDGE, not outside physics; what is damning is the DIRECTION
+repeating 5/5. Gated: the shared cells reproduce `diag_gis_amp_likeforlike_2100.csv` to 1e-6 cm.
+
+### `diag_gis_climberx_commitment.py` — priorities 1 and 2, and the session's real result
+
+CLIMBER-X `eqco2` (Willeit/Robinson/Kaufhold/Ganopolski, doi 10.5281/zenodo.19312031): coupled
+8 km GrIS, 19 fixed CO₂ levels 280–460 ppm, **fixed orbit** (the 280 ppm control drifts 0.058 K
+and 0.009 m over 100 kyr), 100,000 yr, 9 configs.
+
+* **Priority 1, volume: PASS.** `GIS_V0_M` = 7.42 m is inside their 7.30–7.68 m config range,
+  1.5 % from the 8km reference. *The problem is not how much ice there is.*
+* **Priority 2, commitment: the curve is a THRESHOLD and ours is a straight line.** < 0.32 m
+  committed below 1.55 K; **7.16–7.28 m (95–97 % of the sheet) above 1.94 K**; half the sheet at
+  **1.44–2.24 K** across all 9 configs. At 2.0 K theirs is 7.16 m and **ours 0.160 m — 45×**. At
+  2.45 K, the top of their range, we commit **0.189 m = 2.6 %** of the sheet. This is SHAPE, not
+  calibration, and §1.1's 1.93–2.41× φ=1 ceiling was its smallest visible symptom.
+
+**Two traps, both nearly cost a wrong headline.** (a) *A CO₂ step is not a temperature step* — at
+460 ppm their global anomaly is 1.30 K at year 300 against a 2.45 K asymptote and keeps climbing
+past 10 kyr as the sheet's own albedo goes; §3 therefore drives our emulator with CLIMBER-X's OWN
+`tg(t)`, gated to reproduce `regional_driver`'s projection branch exactly (0.0e+00 °C). (b)
+*Apply priority 1 to the TARGET* — §3 reads "we lose 4.0× too much in the first millennium",
+which looked like it stacked with the ISMIP6 2100 finding. It does not: CLIMBER-X's fastest first
+century is **0.117 mm/yr at 1.09 K against an observed 0.593 mm/yr — 5.1× too slow**. Its early
+horizons are **not admissible as a target**, and the 5.1× deficit and our 4.0× "excess" are one
+discrepancy seen from two sides. **The two findings must never be stacked.**
+
+**What survives** is the equilibrium, which does not depend on transient skill: the **(L_eq, τ)
+degeneracy**. A small reservoir emptied fast fits the observed record as well as a large one
+emptied slowly, and the **history-only** objective that set `c1`/`c0` cannot separate them. Our
+calibration took the small-fast branch; §1.1's φ=1 ceiling and §3.1's 0/1080 fixed-V reservoirs
+are that same fact seen from inside the model.
+
+**Tried and NOT concluded:** refitting to CLIMBER-X. Rejected — one model, 9 *parameter*
+perturbations of it (not structural spread), one lineage, and it misses the observed rate by
+5.1×. Under the stringency rule that is guidance. What it *does* license is that the **linear
+form** is wrong, which is structure, and structure is where a one-model result may bite.
+
+**Data trap recorded:** all 69 ISMIP6 GrIS scalar files carry exactly 86 annual records
+(2015–2100) but their `time` **attributes** disagree once decoded — AWI 2016–2101, UCIJPL
+2014–2099, UAF 2017–2438. Decoding mis-indexes 30 of 69 and reads two models as ~0 cm. Index
+**positionally**, gated on `n == 86` and `sle[0] == 0`.
+
+**Next:** Greve & Chambers 2022 SICOPOLIS to year 3000 — on disk, **independent** model. Two
+questions: does it also put the committed loss far above 0.19 m, and does *it* clear the observed
+rate CLIMBER-X misses?
+
 ## [unreleased] — 2026-08-22c — **The flux survives the amplification question; the ramp shape is a STOP; and the rate criterion cuts 526 cells to 7 — but lands on ψ = 0.125, not 0.273.**
 
 Read-only session. Two new scripts, no shipped scan edited, no gate moved, no cell shipped, no
