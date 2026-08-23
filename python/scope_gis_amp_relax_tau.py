@@ -79,8 +79,26 @@ TAUS = [np.inf, 400.0, 200.0, 100.0, 50.0, 25.0, 0.0]
 CELL = gis_targets.tap_cell()
 CM_PER_M = 100.0
 
+## PER-PRODUCT ANCHORS — THE DISCRIMINATOR (2026-08-23, after diag_gis_amp_variability).
+## The shipped anchor 1.9222 is the MEAN of three products whose own south-zone
+## full-record amps span 1.510-2.285 (1.513x) -- a spread LARGER than the 1.286x
+## offset the relaxation removes -- and Berkeley Earth alone lands on CMIP6's own
+## secant (1.011x). So re-run the ladder with the level offset defined by EACH
+## product, projection-side only (the hindcast keeps the committed mean-product
+## driver, so no refit is implied and gis_amp is untouched).
+##
+##   IF THE OFFSET IS A PRODUCT ARTIFACT : the BE arm wants tau = inf (nothing to
+##       relax) while the GISTEMP arm wants a short tau. The preferred tau then
+##       TRACKS THE PRODUCT, which means it is calibrating the observational chain.
+##   IF THE OFFSET IS PHYSICAL           : all three want a similar tau, because
+##       real-world variability does not know which product it is being measured in.
+PRODUCT_AMP = {"three-product mean (SHIPPED)": 1.9221976385152952,
+               "HadCRUT5": 1.9717620000000000,
+               "BerkeleyEarth": 1.5101660000000000,
+               "GISTEMP": 2.2846650000000000}
 
-def relax_factor(tau):
+
+def relax_factor(tau, obs_amp=None):
     """f(t) on the YEARS axis. 1 at and before the last observed year, decaying to
     1/LEVEL_OFFSET after it."""
     tgz = pd.read_csv(os.path.join(R2.OBS, "t_gis_zones.csv"))
@@ -92,10 +110,16 @@ def relax_factor(tau):
         decay = np.where(dt > 0, 0.0, 1.0)
     else:
         decay = np.exp(-dt / tau)
-    return (1.0 + (LEVEL_OFFSET - 1.0) * decay) / LEVEL_OFFSET
+    ## `obs_amp` selects WHICH product's level the offset is measured from. The
+    ## factor is expressed relative to the SHIPPED anchor so it composes with the
+    ## unchanged `amp` draws: at tau=inf it re-levels to that product, at tau=0 it
+    ## lands on the CMIP6 secant regardless of product.
+    oa = OBS_AMP_FULL if obs_amp is None else obs_amp
+    lo = oa / R_ANCHOR
+    return (oa / OBS_AMP_FULL) * (1.0 + (lo - 1.0) * decay) / lo
 
 
-def regional_driver_tau(gmst_rb, amp, S, tau):
+def regional_driver_tau(gmst_rb, amp, S, tau, obs_amp=None):
     """`regional_driver` with the level offset relaxed by f(t).
 
     MIRRORS scope_gis_2300_relaxation.regional_driver TERM FOR TERM -- the only change
@@ -111,7 +135,7 @@ def regional_driver_tau(gmst_rb, amp, S, tau):
     anchor = obs[ianch].mean()
     shape = S(R2._running_mean(gmst_rb, R2.SHAPE_WIN))
     shape_anchor = float((shape[ianch] * gmst_rb[ianch]).mean())
-    f = relax_factor(tau)
+    f = relax_factor(tau, obs_amp)
     amp = np.atleast_1d(np.asarray(amp, float))[:, None]
     spliced = (amp * f[None, :] * shape[None, :] * gmst_rb[None, :]
                + (anchor - amp * shape_anchor))     # f == 1 on the anchor window
@@ -260,6 +284,44 @@ def main():
     print(f"  2100 error falls monotonically as tau shortens: {mono21}")
     print(f"  2300 error rises monotonically as tau shortens: {mono23}")
     print(f"    => {'a pure TRADE with no interior optimum' if mono21 and mono23 else 'NOT a pure trade — look at the table'}")
+    ## ---- THE DISCRIMINATOR -------------------------------------------------
+    print(f"\n=== PER-PRODUCT ANCHOR — does the preferred tau TRACK THE PRODUCT? ===\n")
+    print(f"  {'anchor product':30}{'amp':>7}{'offset':>9}{'best tau':>10}"
+          f"{'joint@best':>12}{'joint@inf':>11}{'gain':>8}")
+    prows = []
+    for pname, pamp in PRODUCT_AMP.items():
+        sc = []
+        for tau in TAUS:
+            rs = []
+            for ssp, lab, fam, _ in ARMS_R2300:
+                sub2 = A.protect_band(ann, lab, fam)
+                for gcm in sorted(sub2.gcm.unique()):
+                    ser = TD.gcm_series(TD.GCM_ALIAS.get(gcm, gcm), SSP_OF[lab])
+                    gr = sub2[sub2.gcm == gcm]
+                    res2 = CM_PER_M * CELL["V_m"] * RO.reservoir_unit_n(
+                        ser["gmst"], CELL["onset_K"], CELL["tau_yr"],
+                        int(CELL["stages"]))
+                    c = curve(regional_driver_tau(ser["gmst"], amp, S_tab, tau, pamp))
+                    for y in HORIZONS_TEST:
+                        ismv = float(gr[gr.year == y].gis_cm.median())
+                        rs.append((y, (c[y] + res2[idx[y]] - res2[idx[2015]]) / ismv))
+            e21 = float(np.mean([abs(np.log(r)) for y, r in rs if y == 2100]))
+            e23 = float(np.mean([abs(np.log(r)) for y, r in rs if y == 2300]))
+            sc.append((tau, (2 * e21 + e23) / 3.0))       # Marcus's 2100 > 2300
+        b = min(sc, key=lambda x: x[1]); sh = [v for t, v in sc if np.isinf(t)][0]
+        prows.append(dict(product=pname, amp=pamp, offset=pamp / R_ANCHOR,
+                          best_tau=b[0], joint_best=b[1], joint_inf=sh))
+        print(f"  {pname:30}{pamp:7.3f}{pamp / R_ANCHOR:9.3f}"
+              f"{('inf' if np.isinf(b[0]) else f'{b[0]:.0f}'):>10}"
+              f"{b[1]:12.3f}{sh:11.3f}{sh / b[1]:8.2f}x")
+    pd.DataFrame(prows).to_csv(OUT.replace(".csv", "_byproduct.csv"), index=False)
+    taus_p = {r["product"]: r["best_tau"] for r in prows}
+    spread = [t for k, t in taus_p.items() if "SHIPPED" not in k]
+    same = len(set(spread)) == 1
+    print(f"\n  weighting is 2:1 (2100 > 2300), Marcus's stated priority.")
+    print(f"  best tau across the three products: "
+          f"{', '.join('inf' if np.isinf(t) else f'{t:.0f}' for t in spread)}")
+    print(f"    => {'the preferred tau is INVARIANT to the product — consistent with a PHYSICAL offset' if same else 'the preferred tau TRACKS THE PRODUCT — the relaxation is absorbing an OBSERVATIONAL disagreement'}")
     print(f"\nwrote {os.path.relpath(OUT, REPO)}")
 
 
