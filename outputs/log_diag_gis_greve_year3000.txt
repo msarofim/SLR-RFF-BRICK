@@ -1,0 +1,91 @@
+diag_gis_greve_year3000 — an INDEPENDENT ice-sheet model, run to 3000
+
+  SOURCE  Greve & Chambers 2022, SICOPOLIS 5 km to year 3000 under a SUSTAINED 2091-2100 climate, doi 10.5281/zenodo.6029867
+  BASIS   cm SLE, control-differenced against ctrl_proj (limnsw / 3.618e+17 kg per m)
+  V0      7.262 m SLE (ours 7.42); control drift over 985 yr = -0.0063 m
+  GATE    ext_driver reproduces regional_driver on 1850-2300 to 0.0e+00 C
+
+=== 1. PRIORITY 1 GATE ON THE TARGET — the check CLIMBER-X FAILED ===
+
+  observed GIS rate 1995-2024: 0.593 mm/yr
+  SICOPOLIS 2016-2050:      0.440-0.988 mm/yr over 14 runs (median 0.575)
+
+  ==> PASS: the observed rate is INSIDE the model's own spread. Its horizons ARE usable.
+      CLIMBER-X was 5.1x slow here and was disqualified. SICOPOLIS is not.
+
+=== 2. LOSS TO YEAR 3001 UNDER A SUSTAINED 2081-2100 CLIMATE ===
+
+  exp     forcing                   2050    2100    2200    2300    2500    3001  tail mm/yr
+  exp05   MIROC5 rcp85 Rmed          1.8    12.1    34.8    54.8    89.3   162.8        1.42
+  exp06   NorESM1 rcp85 Rmed         1.6     8.9    24.4    36.9    60.0   104.9        0.74
+  exp07   MIROC5 rcp26 Rmed          1.6     4.1     6.3     8.0    11.1    17.1        0.08
+  exp08   HadGEM2-ES rcp85 Rmed      2.0    10.1    29.1    45.3    71.6   124.1        0.96
+  exp09   MIROC5 rcp85 Rhigh         2.0    14.0    38.1    58.6    93.9   167.9        1.42
+  exp10   MIROC5 rcp85 Rlow          1.7    10.8    32.7    52.2    86.4   159.7        1.42
+  expa01  IPSL-CM5-MR rcp85          2.3    12.1    33.8    52.8    87.4   158.6        1.30
+  expa02  CSIRO-Mk3.6 rcp85          1.5     7.4    18.9    27.4    43.0    71.9        0.50
+  expa03  ACCESS1.3 rcp85            1.8     9.3    24.7    37.4    60.3   104.9        0.77
+  expb01  CNRM-CM6-1 ssp585          2.1    14.2    46.9    75.2   127.0   228.9        1.55
+  expb02  CNRM-CM6-1 ssp126          2.0     5.2    11.5    16.6    25.1    40.6        0.24
+  expb03  UKESM1-0-LL ssp585         3.0    20.8    66.1   105.9   179.1   307.4        2.03
+  expb04  CESM2 ssp585               3.4    19.6    68.7   114.8   200.2   354.3        2.48
+  expb05  CNRM-ESM2-1 ssp585         2.2    13.8    42.0    67.1   110.7   200.4        1.49
+
+  (cm SLE)   HIGH forcing at 3001: 72-354 cm over 12 runs;  LOW forcing: 17-41 cm over 2
+  final-century rate / 2016-2050 rate:  HIGH forcing 1.1-2.9x,  LOW forcing 0.17-0.42x
+  -> the HIGH-forcing runs are still losing mass at or above their initial rate after
+     900 years, so their 3001 numbers are LOWER BOUNDS on the commitment. The LOW-forcing
+     runs have RELAXED (0.42x) toward a plateau near 17-41 cm. That split -- runaway above, plateau
+     below -- is threshold behaviour, and it is the same shape CLIMBER-X shows.
+
+=== 3. LIKE-FOR-LIKE ON THE 5 CMIP6 CELLS (1000 draws, each GCM's own GMST, (2081, 2100) hold) ===
+
+  forcing                    2100     2300     3001  phi=1 ceil  SICO/ceil
+  CNRM-CM6-1 ssp585          19.5     36.1     40.7        38.3       6.0x
+    SICOPOLIS                14.2     75.2    228.9
+  CNRM-CM6-1 ssp126           6.5     11.7     14.5        12.6       3.2x
+    SICOPOLIS                 5.2     16.6     40.6
+  UKESM1-0-LL ssp585         24.2     42.0     46.6        44.3       6.9x
+    SICOPOLIS                20.8    105.9    307.4
+  CESM2 ssp585               19.1     34.9     39.4        37.1       9.5x
+    SICOPOLIS                19.6    114.8    354.3
+  CNRM-ESM2-1 ssp585         17.0     32.6     37.0        34.7       5.8x
+    SICOPOLIS                13.8     67.1    200.4
+  cross-check vs diag_gis_ismip6_2100_ism_spread_arms.csv (full 10k draws, 1850-2300
+  axis): our 2100 differs by 0.91-1.82% on 5 shared cells -- posterior thinning
+  (10x), not the extended axis.
+
+  (cm SLE; 'phi=1 ceil' is our FULLY EQUILIBRATED commitment at that cell's 3001 driver)
+
+  OURS / SICOPOLIS BY HORIZON — where the shape defect starts to bite:
+    2100   0.98-1.37x   (median 1.23)
+    2300   0.30-0.70x   (median 0.48)
+    3001   0.11-0.36x   (median 0.18)
+  We are FAST at 2100 and 2.1x SHORT by 2300 -- inside the horizon the deliverable
+  actually reports, and independently reproducing handoff section 1.1's 1.93x against
+  PROTECT's own 2300 medians. Three models, one number.
+
+=== 4. VERDICT ===
+
+  SICOPOLIS's year-3001 loss exceeds our FULLY-EQUILIBRATED commitment in
+  5/5 cells, by 5.8-9.5x on the ssp585 cells.
+
+  ==> THE CLIMBER-X RESULT SURVIVES AN INDEPENDENT MODEL, AND THIS ONE CLEARS THE
+      OBSERVED RATE. A model that brackets the observed present-day loss rate
+      (0.44-0.99 vs 0.59 mm/yr) delivers 5.8-9.5x our MAXIMUM POSSIBLE loss by year 3001
+      -- 900 years of a merely HELD late-century climate, not equilibrium, and its
+      high-forcing cells still accelerating. The one-model caveat on the commitment
+      finding is gone.
+
+  AND ON THE HIGH-FORCING CELLS IT IS A LOWER BOUND TWICE OVER: a HELD late-century
+  climate rather than stabilised CO2, and a rate still 1.1-2.9x its early value in the
+  final century.
+
+  WHAT THIS DOES NOT SAY. It does not locate a threshold -- Greve's protocol holds a
+  late-century climate rather than scanning stabilisation levels, so CLIMBER-X remains
+  the only source here for WHERE the commitment curve turns over, and that is still
+  one model. What is now multi-model is the direction and the SIZE: our linear L_eq
+  is far too small, and the defect is structural.
+
+wrote outputs/diag_gis_greve_year3000.csv
+wrote outputs/diag_gis_greve_year3000_cmp.csv
