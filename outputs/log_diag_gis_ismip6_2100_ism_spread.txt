@@ -1,0 +1,81 @@
+diag_gis_ismip6_2100_ism_spread — the 2100 defect, priced against 16 ice-sheet models
+
+  SOURCE  ISMIP6 CMIP6-forced GrIS scalars, Payne et al. 2021 GRL, doi 10.5281/zenodo.4498331
+  BASIS   cm sea-level contribution, 2100 rel 2015, control-removed, peripheral glaciers EXCLUDED
+  NOTE    PROTECT anchors are NORCE CISM16t-MAR39; the ISMIP6 CISM entry is NCAR_CISM -- same dynamical core, different institution, SMB and initialisation, so NOT the same run
+  read 69 files, 16 ice-sheet models, 0 skipped by the n==86 / sle[0]==0 gate
+
+  REPRO GATE PASSED: 6 values identical to diag_gis_amp_likeforlike_2100.csv within 1e-06 cm
+
+=== 1. THE ICE-SHEET-MODEL SPREAD AT 2100 (standard ocean protocol) ===
+
+  GCM           ssp       n     min  median     max  max/min    NCAR_CISM  rank   /med
+  CNRM-CM6-1    ssp126   14     1.8     4.6     5.8    3.14x          4.9  11/14   1.08
+  CESM2         ssp585    9    15.0    18.8    20.1    1.34x         19.5   8/9    1.04
+  CNRM-CM6-1    ssp585   14     8.4    13.0    15.8    1.89x         13.7   9/14   1.05
+  CNRM-ESM2-1   ssp585   12     7.7    12.9    16.1    2.11x         13.0   7/12   1.01
+  UKESM1-0-LL   ssp585   13    13.7    18.5    25.0    1.82x         19.8   9/13   1.07
+
+  the ISM structural spread is 1.34-3.14x at a FIXED GCM forcing. For scale, the defect being
+  chased is a median 1.39x against a single ISM.
+
+=== 2. WHERE THE TARGET SITS, AND WHERE WE SIT ===
+
+  GCM           ssp       PROTECT  /ISMmed  ISM med    ours  ours/PRO  ours/ISM  ours/max  pctile
+  CNRM-CM6-1    ssp126         --       --      4.6     6.4        --      1.41      1.11    100%
+  CESM2         ssp585       16.4     0.87     18.8    18.9      1.15      1.01      0.94     56%
+  CNRM-CM6-1    ssp585         --       --     13.0    19.3        --      1.48      1.22    100%
+  CNRM-ESM2-1   ssp585       12.8     0.99     12.9    16.8      1.32      1.31      1.04    100%
+  UKESM1-0-LL   ssp585       20.5     1.11     18.5    24.0      1.17      1.30      0.96     92%
+
+  IS THE TARGET LOW? PROTECT/ISMIP6-median over the 3 shared cells = 0.87, 0.99, 1.11
+    -> NORCE-CISM is a TYPICAL member of the ice-sheet-model distribution (threshold 0.90).
+
+  DOES THE ERROR SURVIVE THE TARGET SWAP? |log| mean over those same 3 cells:
+    vs PROTECT (1 ISM)                    0.191   median ratio 1.17x
+    vs ISMIP6 median (9-13 ISMs)           0.177   median ratio 1.30x
+  and on all 5 cells vs the ISMIP6 median: 0.253, median ratio 1.31x
+    (2 of those cells -- CNRM-CM6-1 ssp126, CNRM-CM6-1 ssp585 -- have NO PROTECT run at all
+     and are therefore evaluation points this arc has never scored against.)
+
+=== 3. VERDICT ===
+
+  Our 2100 sits at the 56-100 percentile of the ice-sheet-model ensemble in every cell
+  (5/5 at or above the median), and ABOVE THE HIGHEST OF ALL 9-14 MODELS
+  in 3/5 cells (by up to 1.22x).
+
+  ==> THE 2100 FAST BIAS IS CONFIRMED, AND STRENGTHENED, BY AN INDEPENDENT ENSEMBLE.
+      The single-ISM target is NOT the explanation: NORCE-CISM sits at 0.99x the
+      9-13-model median (range 0.87-1.11), a typical member, so swapping it for a
+      16-model median leaves the over-prediction intact -- 1.17x becomes 1.30x.
+      The two GCM cells with no PROTECT counterpart are the sharpest: we run 1.41-1.48x
+      the multi-model median there, above EVERY member.
+
+  BUT KEEP THE SCALE. The ISM structural spread at a FIXED GCM forcing is
+  1.34-3.14x -- comparable to or larger than our own 1.31x offset. We are at the
+  high EDGE of the ice-sheet-model range, not outside anything physical. What is damning
+  is the DIRECTION being the same in 5/5 cells across 4 GCMs and 2 scenarios,
+  not the magnitude.
+
+  PRIORITY CONTEXT (Marcus 2026-08-22). Matching transient ice models is priority 4
+  of 5, below volume+history, long-term commitment and melt-rate constraints; and
+  test stringency scales with the number of models behind it. 16 ice-sheet models (9-14 per cell)
+  over 4 GCMs is far more than the ONE this arc has been scoring against, so this test
+  earns more weight than the PROTECT-only one -- but it is still GUIDANCE. This file
+  emits NO loss term, NO band and NO admissible set, deliberately.
+
+  CAVEAT THAT TRAVELS. ISMIP6's CMIP6 GrIS forcing is MARv3.9-based; PROTECT uses
+  MARv3.12 / RACMO2.3p2. Part of the PROTECT-vs-ISMIP6 gap at a shared GCM is that
+  RCM version, not ice-sheet structure.
+
+=== 4. OPEN OCEAN PROTOCOL (reported separately, NOT pooled) ===
+
+  CNRM-CM6-1    ssp126  n=2  BGC_BISICLES 3.6, UAF_PISM2 4.0   | standard-protocol median 4.6
+  CNRM-CM6-1    ssp585  n=2  BGC_BISICLES 10.4, UAF_PISM2 9.7   | standard-protocol median 13.0
+  CNRM-ESM2-1   ssp585  n=1  UAF_PISM2 9.7   | standard-protocol median 12.9
+  UKESM1-0-LL   ssp585  n=2  BGC_BISICLES 16.9, UAF_PISM2 14.4   | standard-protocol median 18.5
+
+  7 runs from 2 models -- too few to form a spread; carried for provenance only.
+
+wrote outputs/diag_gis_ismip6_2100_ism_spread.csv
+wrote outputs/diag_gis_ismip6_2100_ism_spread_arms.csv
