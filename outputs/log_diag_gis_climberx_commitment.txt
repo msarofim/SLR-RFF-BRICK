@@ -1,0 +1,138 @@
+diag_gis_climberx_commitment — the commitment law vs a coupled model run to equilibrium
+
+  SOURCE   CLIMBER-X + dynamic 8 km GrIS, Willeit/Robinson/Kaufhold/Ganopolski, doi 10.5281/zenodo.19312031, experiment `eqco2` (fixed CO2, FIXED ORBIT)
+  GRID     9 configurations x 19 CO2 levels (280-460 ppm), 100,000 yr each
+  BASIS    both sides are anomalies rel PREINDUSTRIAL: ours DRIVER_BASE = (1850, 1900), theirs = the 280 ppm control
+  GATE     sustained_driver reproduces regional_driver's projection branch to 0.0e+00 C
+
+=== 1. PRIORITY 1 — TOTAL ICE VOLUME ===
+
+  ours GIS_V0_M                 7.420 m SLE
+  CLIMBER-X 8km reference      7.534 m SLE   (ours / theirs = 0.985x)
+  across all 9 configurations  7.304-7.679 m SLE
+
+  ==> PASS: our total volume is INSIDE the configuration range, 1.5% from the reference.
+      The volume constraint is met. The problem is not how much ice there is.
+
+=== 2. PRIORITY 2 — THE EQUILIBRIUM COMMITMENT CURVE (100 kyr) ===
+
+    CO2    dT_g  CLIMBER-X  (frac V0)     OURS  (frac V0)  theirs/ours
+    280    0.00      0.000       0.00    0.000       0.00           --
+    290    0.15     -0.002      -0.00    0.014       0.00           --
+    300    0.34     -0.005      -0.00    0.029       0.00           --
+    310    0.49      0.006       0.00    0.043       0.01           --
+    320    0.67      0.023       0.00    0.059       0.01         0.4x
+    330    0.83      0.035       0.00    0.073       0.01         0.5x
+    340    0.98      0.074       0.01    0.086       0.01         0.9x
+    350    1.14      0.030       0.00    0.099       0.01         0.3x
+    360    1.28      0.157       0.02    0.111       0.01         1.4x
+    370    1.39      0.227       0.03    0.119       0.02         1.9x
+    380    1.55      0.318       0.04    0.129       0.02         2.5x
+    390    1.67      3.232       0.43    0.137       0.02        23.6x
+    400    1.94      7.166       0.95    0.155       0.02        46.1x
+    410    2.02      7.165       0.95    0.161       0.02        44.4x
+    420    2.12      7.175       0.95    0.168       0.02        42.7x
+    430    2.21      7.188       0.95    0.174       0.02        41.2x
+    440    2.31      7.200       0.96    0.180       0.02        39.9x
+    450    2.39      7.217       0.96    0.185       0.02        38.9x
+    460    2.45      7.279       0.97    0.189       0.03        38.4x
+
+  (m SLE committed, relative to the 280 ppm equilibrium)
+
+  WHERE HALF THE SHEET GOES (dT_g at 50% of V0):
+    CLIMBER-X  1.44-2.24 K over 9/9 configurations (8km: 1.71 K)
+    ours       49.5 K   -- at dT = 2.45 K, the top of CLIMBER-X's own range, our committed
+               loss is 0.189 m, 2.6% of the sheet
+
+  AT dT_g = 2.0 K:  CLIMBER-X 7.16 m,  ours 0.160 m  -> 45x
+
+  ==> THE COMMITMENT LAW IS NOT SHORT BY A FACTOR OF TWO. It is short by
+      more than an ORDER OF MAGNITUDE wherever the coupled model crosses its
+      threshold. A LINEAR L_eq cannot represent a curve that is flat below
+      ~1.4 K and at the ceiling above ~2.2 K; the two disagree in SHAPE, not in
+      calibration. handoff section 1.1's 1.93-2.41x was the smallest visible
+      symptom of this.
+
+=== 3. LIKE-FOR-LIKE: OUR EMULATOR ON CLIMBER-X'S OWN tg(t) (8km, 250 draws) ===
+
+    CO2  dT@300  dT@end        100      300     1000     3000    10000    30000   100000
+    340    0.50    0.98  ours     0.014    0.035    0.056    0.071    0.085    0.100    0.103
+                         CX       0.003    0.006    0.006    0.005    0.029    0.052    0.073
+                         x         4.3x     6.1x     8.9x    13.5x     2.9x     1.9x     1.4x
+    380    0.78    1.53  ours     0.024    0.055    0.086    0.103    0.131    0.154    0.149
+                         CX       0.006    0.012    0.022    0.034    0.030    0.268    0.322
+                         x         4.1x     4.7x     3.9x     3.0x     4.4x     0.6x     0.5x
+    390    0.85    1.67  ours     0.026    0.061    0.094    0.120    0.132    0.161    0.158
+                         CX       0.006    0.014    0.027    0.035    0.039    0.472    3.212
+                         x         4.1x     4.5x     3.4x     3.4x     3.4x     0.3x     0.0x
+    400    0.93    1.94  ours     0.029    0.066    0.101    0.130    0.140    0.152    0.177
+                         CX       0.007    0.016    0.034    0.042    0.087    2.086    7.164
+                         x         4.0x     4.2x     3.0x     3.1x     1.6x     0.1x     0.0x
+    420    1.06    2.12  ours     0.034    0.076    0.114    0.143    0.153    0.175    0.191
+                         CX       0.009    0.020    0.045    0.074    0.272    3.456    7.175
+                         x         3.9x     3.8x     2.5x     1.9x     0.6x     0.1x     0.0x
+    460    1.30    2.45  ours     0.043    0.094    0.135    0.165    0.180    0.207    0.214
+                         CX       0.012    0.029    0.075    0.173    1.100    5.766    7.278
+                         x         3.7x     3.2x     1.8x     1.0x     0.2x     0.0x     0.0x
+
+  (m SLE lost; 'x' is ours/CLIMBER-X, >1 = we lose MORE)
+
+  EARLY (100-1000 yr):  median ours/CX = 4.0x  (1.8-8.9x)
+  LATE  (30-100 kyr), CLIMBER-X ABOVE its 1.71 K threshold (n=6):  median ours/CX = 0.033x = 1/31
+  LATE  (30-100 kyr), BELOW it (n=6):                     median ours/CX = 0.52x
+
+=== 3b. IS CLIMBER-X ADMISSIBLE AS AN EARLY-HORIZON TARGET? (PRIORITY 1 CHECK) ===
+
+  Priority 1 -- historical observations -- outranks priority 4. Before the section-3
+  early ratios mean anything, CLIMBER-X has to clear the observed record itself.
+
+  observed GIS loss rate 1995-2024 (recalib_targets_ext.csv): 0.593 mm/yr
+
+    CO2  dT@100yr  CLIMBER-X rate  vs observed
+    340      0.41         0.033 mm/yr        0.06x
+    380      0.66         0.058 mm/yr        0.10x
+    390      0.72         0.064 mm/yr        0.11x
+    400      0.77         0.072 mm/yr        0.12x
+    420      0.89         0.087 mm/yr        0.15x
+    460      1.09         0.117 mm/yr        0.20x
+
+  Its FASTEST first century is 0.117 mm/yr -- 5.1x SLOWER than the observed
+  rate, and that is at 1.09 K, close to today's warming.
+
+  ==> CLIMBER-X's 8 km GrIS is NOT admissible as an EARLY-horizon target (threshold: 2x).
+      The section-3 'we lose 4x too much in the first millennium' is therefore
+      CLIMBER-X being too SLOW, not us being too fast -- its 5.1x deficit against
+      observations is the same size as our 4.0x excess against it. It does NOT stack with
+      the ISMIP6 2100 finding, and must not be read as confirming it.
+
+=== 4. VERDICT ===
+
+  ONE DEFECT SURVIVES, AND IT IS THE COMMITMENT LAW'S SHAPE.
+
+    * SURVIVES -- the equilibrium. Above ~1.7 K CLIMBER-X commits the whole
+      7.5 m sheet; at 2.45 K our linear law commits 0.189 m, 3% of it.
+      That is a factor 31, and it is a statement about the SHAPE of L_eq(T): flat below the
+      threshold, at the ceiling above it, where ours is a straight line through both.
+    * DOES NOT SURVIVE -- the early horizons. Section 3b: this model runs 5.1x below
+      the OBSERVED present-day loss rate, so its first millennium cannot be a target.
+      Our 4x 'excess' there is its deficit seen from the other side.
+
+  THE EQUILIBRIUM RESULT IS THE (L_eq, tau) DEGENERACY SHOWING. A SMALL reservoir
+  emptied FAST fits the observed record as well as a LARGE one emptied SLOWLY, and
+  the historical fit -- all c1/c0 ever saw -- cannot separate them. Our calibration
+  took the small-fast branch. handoff section 1.1's phi=1 ceiling and section 3.1's
+  0/1080 fixed-V reservoirs are the same fact seen from inside the model.
+
+  WHAT IT LICENSES. Not a refit: one model, 9 PARAMETER perturbations of it (not
+  structural spread), from the group whose Greenland threshold is a long-standing
+  result of that same lineage -- and a model that misses the observed rate by 5.1x
+  has not earned a calibration target. Under Marcus's stringency rule this is GUIDANCE.
+  What it DOES support is that the linear FORM is wrong, which is structure, not
+  calibration, and structure is where a one-model result is allowed to bite.
+
+  NEXT, AND IT IS CHEAP: Greve & Chambers 2022 SICOPOLIS to year 3000 is on disk and
+  is an INDEPENDENT model. Two questions for it: does it also put the committed loss
+  far above 0.19 m, and does IT clear the observed rate that CLIMBER-X misses?
+
+wrote outputs/diag_gis_climberx_commitment.csv
+wrote outputs/diag_gis_climberx_commitment_trans.csv
