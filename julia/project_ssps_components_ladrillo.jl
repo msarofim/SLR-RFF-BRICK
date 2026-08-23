@@ -80,7 +80,15 @@ TAP_SET && TAP_ON &&
 ## THE TAP STATE IS IN THE FILENAME. A tapped and an untapped 2300 projection differ
 ## by ~180 cm on ssp585 and are otherwise identical in shape, units and header — the
 ## one thing that must never be ambiguous about a file on disk is which arm it is.
-const TAG = TAP_ON ? "$(POST_TAG)_tap$(replace(string(GIS_TAP_CELL.onset_K), "." => "p"))K_V$(replace(string(GIS_TAP_CELL.V_m), "." => "p"))m_tau$(Int(GIS_TAP_CELL.tau_yr))" :
+## THE STAGE COUNT AND THE HOME ARE IN THE FILENAME TOO (2026-08-23). A cascade run
+## and a first-order run at the SAME (onset, V, tau) are different objects — the
+## cascade is the whole reason the cell could move to V = 6.0 m — and they would
+## otherwise collide on one name. Same for the high-basin vs whole-sheet home, which
+## changes what the capacity clamp is measured against. Every element derives from
+## GIS_TAP_CELL, so the name cannot drift from the cell it was produced with.
+const TAP_STAGE_TAG = "_n$(Int(GIS_TAP_CELL.stages))"
+const TAP_HOME_TAG  = GIS_TAP_CELL.wholesheet ? "_ws" : "_hb"
+const TAG = TAP_ON ? "$(POST_TAG)_tap$(replace(string(GIS_TAP_CELL.onset_K), "." => "p"))K_V$(replace(string(GIS_TAP_CELL.V_m), "." => "p"))m_tau$(Int(GIS_TAP_CELL.tau_yr))$(TAP_STAGE_TAG)$(TAP_HOME_TAG)" :
             TAP_SET ? "$(POST_TAG)_tapset" : POST_TAG
 const POSTERIOR = joinpath(LADRILLO_REPO,
     "data/MimiBRICK/parameters_subsample_brick_mengel_$(POST_TAG).csv")
@@ -142,21 +150,31 @@ else
         error("--tap-set: GIS_TAP_CELL (onset $(GIS_TAP_CELL.onset_K) K, V " *
               "$(GIS_TAP_CELL.V_m) m, tau $(GIS_TAP_CELL.tau_yr) yr) is NOT in $csv. " *
               "Either the shipped cell no longer clears the gates on this vintage — " *
-              "which is a finding, report it — or the set is from another grid.")
+              "which is a finding, report it — or the set is from another grid.\n" *
+              "EXPECTED as of 2026-08-23: the shipped cell is a 2-STAGE CASCADE and " *
+              "every admissible set on disk was priced on the FIRST-ORDER form, which " *
+              "an exact n-fold-integral bound has since refuted at every (V, tau, " *
+              "onset). The set arm needs a cascade-priced set before it means anything.")
     println("--tap-set: $(length(cells)) admissible cells from ", relpath(csv, LADRILLO_REPO))
     cells
 end
 
 for cell in CELLS, (ssp, label) in SSPS
     bf = ladrillo_setup(ssp=ssp, y0=Y0, y1=Y1, gis_variant = VARIANT)
+    ## THE SET ARM IS EXPLICITLY FIRST-ORDER / HIGH-BASIN. Its cells were priced that
+    ## way, and `ladrillo_set_tap!` now DEFAULTS to the shipped cascade — so omitting
+    ## these two keywords would silently re-run a first-order admissible set as
+    ## cascades and report the spread of an object nobody scored.
     cell === nothing || ladrillo_set_tap!(bf; v=cell.V_m, onset=cell.onset_K,
-                                          tau=cell.tau_yr)
-    ## --tap switches the high-basin volume tap ON at GIS_TAP_CELL. PRIOR-PROPAGATED,
-    ## not sampled: the calibration tops out at 1.385 K against a 6.5 K onset, so the
+                                          tau=cell.tau_yr, stages=1, wholesheet=false)
+    ## --tap switches the Greenland volume tap ON at GIS_TAP_CELL — a 2-stage cascade,
+    ## V = 6.0 m, tau = 800 yr, onset 4.69 K, whole-sheet home. PRIOR-PROPAGATED, not
+    ## sampled: the calibration tops out at 1.385 K against the 4.69 K onset, so the
     ## tap is exactly likelihood-inert and the same posterior serves both arms.
-    ## Gated by julia/test_gis_tap_wiring.jl — 2100 and 2150 move by 0.000e+00 and
-    ## cooler scenarios deviate EXACTLY 0.0, so a --tap run is directly comparable
-    ## to an untapped one at every horizon the model is validated at.
+    ## Gated by julia/test_gis_tap_wiring.jl — 2100 moves by 0.000e+00, cooler
+    ## scenarios deviate EXACTLY 0.0, and 2150 moves by well under half Greenland's
+    ## own sampled spread there — so a --tap run stays comparable to an untapped one
+    ## at every horizon the model is validated at.
     TAP_ON && ladrillo_set_tap!(bf)
     ny = length(bf.years)
     series = Dict(c => Array{Float64}(undef, ny, nrow(post)) for c in COMPONENTS)

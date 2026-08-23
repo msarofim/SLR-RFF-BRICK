@@ -223,6 +223,15 @@ outputs/quarantine/**/chain_ext_seed*.csv
 # GlacierMIP3 big per-experiment netCDF: untracked by design (re-fetch recipe in data/observations/raw/README_modern_extensions.md)
 data/observations/raw/gmip3/GMIP3_reg_glacier_model_data/*.nc
 
+# Gridded surface-temperature products (0.5 GB combined), fetch-on-demand from the
+# providers. Only the DERIVED annual global-mean CSVs are committed, so nothing in
+# the pipeline needs these. Untracked AND unignored, they made `git add -A` stall
+# for long enough to look like a hang — see notes/handoff_2026-08-23d.
+data/observations/raw/HadCRUT.5.0.2.0.analysis.anomalies.ensemble_mean.nc
+data/observations/raw/Land_and_Ocean_LatLong1.nc
+data/observations/raw/gistemp1200_GHCNv4_ERSSTv5.nc
+data/observations/raw/gistemp1200_GHCNv4_ERSSTv5.nc.gz
+
 # PROTECT-Greenland (Goelzer 2025) physics ensemble — 74 MB of tarballs + 3136
 # unpacked NetCDFs. Fetch with scripts/fetch_protect_greenland.sh; provenance and
 # md5s in data/comparison/protect_greenland/README.md. The DERIVED summary

@@ -546,23 +546,29 @@ end
 """
     ladrillo_set_tap!(bf; v=GIS_TAP_CELL.V_m, onset=..., tau=..., ramp_w=...)
 
-Switch the high-basin volume tap on for a built `Ladrillo`, driven by **`bf.gmst`** —
-the GLOBAL series as fed, rel. 1850-1900, which is the space the Tier-1 onset bracket
-is quoted in. NOT `bf.gis_obs` and NOT the amplified regional driver: those would fire
-the tap about `gis_amp` (~1.92x) too early and nothing downstream could detect it.
+Switch the Greenland volume tap on for a built `Ladrillo`, driven by **`bf.gmst`** —
+the GLOBAL series as fed, rel. 1850-1900, which is the space the onset is quoted in.
+NOT `bf.gis_obs` and NOT the amplified regional driver: those would fire the tap about
+`gis_amp` (~1.92x) too early and nothing downstream could detect it.
+
+The `stages` and `wholesheet` defaults are `GIS_TAP_CELL`'s, i.e. **calling this with
+no keywords gives the SHIPPED cell in full** — a 2-stage cascade on the whole-sheet
+home. The component's own build-time defaults stay first-order / high-basin so that
+building a model without asking for the tap is bit-identical to the pre-2026-08-23
+line; pass `stages=1, wholesheet=false` to reproduce the superseded first-order arm.
 
 Only the basin variants can carry a tap — it is a parameter of `greenland_3basin`, and
 `:ab` / `:stock` have no high basin to tap. Refused rather than silently ignored.
 
 The tap is PRIOR-PROPAGATED, not sampled: the calibration tops out at 1.385 K in 2025
-against a 6.5 K onset, so it is exactly likelihood-inert and needs no chain.
+against the 4.69 K onset, so it is exactly likelihood-inert and needs no chain.
 """
 function ladrillo_set_tap!(bf::Ladrillo; v::Real = GIS_TAP_CELL.V_m,
                            onset::Real = GIS_TAP_CELL.onset_K,
                            tau::Real = GIS_TAP_CELL.tau_yr,
                            ramp_w::Real = GIS_TAP_CELL.ramp_w_K,
-                           stages::Real = GIS_TAP_STAGES_DEFAULT,
-                           wholesheet::Bool = false)
+                           stages::Real = GIS_TAP_CELL.stages,
+                           wholesheet::Bool = GIS_TAP_CELL.wholesheet)
     bf.gis_variant in (:basins, :basins2) ||
         error("ladrillo_set_tap!: the tap lives in greenland_3basin, but this Ladrillo " *
               "is :$(bf.gis_variant). Build with gis_variant=:basins2 (or :basins).")

@@ -281,22 +281,28 @@ function build_brick_nu3_gis3(; ssp::String="ssp245", y0::Int=1850, y1::Int=2026
 end
 
 """
-    update_gis3_tap!(m, gmt; v=GIS_TAP_CELL.V_m, onset=..., tau=..., ramp_w=...)
+    update_gis3_tap!(m, gmt; v=GIS_TAP_CELL.V_m, onset=..., tau=..., ramp_w=...,
+                     stages=..., wholesheet=...)
 
 Switch the high-basin volume tap ON with the GLOBAL temperature series `gmt`
 (K rel 1850-1900, one value per model year).
 
-`gmt` IS GLOBAL, NOT the regional Greenland driver. The Tier-1 onset bracket
-(4.69, 7.81] K is quoted in GMT — 4.69 K is ssp585's own 2100 GMT — so passing the
-amplified regional series would fire the tap about `gis_amp` (~1.92x) too early.
-Nothing downstream can detect that, which is why it is asserted here.
+`gmt` IS GLOBAL, NOT the regional Greenland driver. The onset is quoted in GMT —
+4.69 K is our own fair_mean ssp585's 2100 GMT — so passing the amplified regional
+series would fire the tap about `gis_amp` (~1.92x) too early. Nothing downstream can
+detect that, which is why it is asserted here.
+
+`stages` and `wholesheet` default to `GIS_TAP_CELL`'s values (2-stage cascade,
+whole-sheet home), so switching the tap on with no keywords gives the SHIPPED cell.
+The build-time parameter defaults remain first-order / high-basin — see the
+COMPONENT-LEVEL DEFAULTS note in greenland_3basin_component.jl.
 """
 function update_gis3_tap!(m, gmt; v::Real = GIS_TAP_CELL.V_m,
                           onset::Real = GIS_TAP_CELL.onset_K,
                           tau::Real = GIS_TAP_CELL.tau_yr,
                           ramp_w::Real = GIS_TAP_CELL.ramp_w_K,
-                          stages::Real = GIS_TAP_STAGES_DEFAULT,
-                          wholesheet::Bool = false)
+                          stages::Real = GIS_TAP_CELL.stages,
+                          wholesheet::Bool = GIS_TAP_CELL.wholesheet)
     g = Float64.(collect(gmt))
     # A tap with V > 0 and an all-zero (or never-reaching-onset) driver is SILENTLY
     # INERT: it returns exactly the untapped model and looks like "the tap does
@@ -318,7 +324,7 @@ function update_gis3_tap!(m, gmt; v::Real = GIS_TAP_CELL.V_m,
         ramp_w > 0 || error("update_gis3_tap!: ramp_w must be > 0, got $ramp_w")
         # A real scenario that never reaches the onset is legitimate — say so, do not
         # fail. Cool scenarios deviating EXACTLY 0.0 is a designed property of the
-        # Tier-1 bracket, not an error.
+        # onset choice, not an error.
         maximum(g) > onset ||
             @info("update_gis3_tap!: this driver peaks at " *
                   "$(round(maximum(g), digits=3)) K, below the onset $onset K — the " *

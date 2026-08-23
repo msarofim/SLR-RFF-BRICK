@@ -1,0 +1,37 @@
+GIS tap wiring gate | tag L14 | :basins2 | 1850-2300
+  shipped cell: onset 4.69 K / V 6.0 m / tau 800 yr / stages 2 / WHOLE-SHEET home
+  2150 gate: |move| < 0.50 x 11.54 = 5.77 cm  (Greenland ssp585 p05-p95, outputs/ssps_components_2300_L14.csv)
+
+[G3] NESTING — V = 0 must be bit-identical to the untapped model
+  [G3] V = 0 ignores onset and tau entirely                  PASS  (max|diff| = 0.000e+00 cm)
+  [G3] V = 0 applies exactly zero tap                        PASS
+
+[G2] HORIZONS — identity at 2100, spread-scaled at 2150
+  [G2] ssp585 total at 2100 is EXACTLY unmoved               PASS  (max|diff| = 0.000e+00 cm)
+  [G2] ssp585 total at 2150 moves < 50.0% of its own spread  PASS  (max|move| 2.59 cm = 22.5% of the 11.54 cm p05-p95 (median +2.59 cm))
+  [G2] first divergence is AFTER 2100                        PASS  (first year = 2102)
+  [G2] and it does fire by 2200                              PASS  (first year = 2102)
+  [G2] and it MOVES 2300                                     PASS  (median Greenland@2300 shift = +48.70 cm)
+
+[G2b] SCENARIOS — at the shipped onset the tap acts on ssp585 ONLY
+[ Info: update_gis3_tap!: this driver peaks at 1.919 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+  [G2b] ssp126 deviates EXACTLY 0.0 over 1850-2300           PASS  (max|diff| = 0.000e+00 cm; peak GMT 1.92 K vs onset 4.7 K)
+[ Info: update_gis3_tap!: this driver peaks at 3.187 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+  [G2b] ssp245 deviates EXACTLY 0.0 over 1850-2300           PASS  (max|diff| = 0.000e+00 cm; peak GMT 3.19 K vs onset 4.7 K)
+
+[CAP] does the capacity clamp bind? (whole-sheet home ⇒ v0, not k_high*v0)
+  [CAP] measured                                             PASS  (max(wanted - applied) = 0.0000 m over 6 draws)
+      ⇒ the clamp NEVER binds at this cell, so this wiring IS the mock's uncapped additive tap and the offline pricing transfers exactly.
+
+[VTILDE] does the 1-D collapse survive wiring? same V*u_2300, different (V, tau)
+  cell A: V 6.00 m  tau  800  u_2300 0.0812  Vtilde 0.4870 m
+  cell B: V 0.87 m  tau  200  u_2300 0.5617  Vtilde 0.4870 m
+  Greenland@2300 median difference between them: +0.000 cm  (cell B clamp bite 0.0000 m)
+      ⇒ the Vtilde collapse SURVIVES wiring (< 0.5 cm) — the scorecard's 1-D identification still holds and the shortlist carries over.
+
+[MUT] the gates must FAIL when the cell is perturbed
+  [MUT] tau 100 yr DOES breach the 2150 bound (so [G2] can fail) PASS  (max|move| = 107.59 cm vs bound 5.77 cm)
+  [MUT] onset 3.0 K DOES move 2100 (so [G2]'s identity gate can fail) PASS  (max|diff| = 0.996 cm)
+  [MUT] onset 2.0 K DOES fire on ssp245 (so [G2b] can fail)  PASS  (max|diff| = 61.622 cm)
+
+ALL TAP WIRING GATES PASS.

@@ -108,34 +108,84 @@ const GIS2_VSHARE = (south = GIS3_VSHARE.south + GIS3_VSHARE.mid,
 # L14 confirms it at 2.73x (50.0 vs 18.3 cm) — against the literature's 7.9-31.9x.
 # The restructure fixes the PARTITION; the tap fixes the SEPARATION.
 #
-# IT IS A PRIOR SPECIFICATION, NOT A FIT — say so in any methods text. The cell was
-# chosen by a DESIGN PRINCIPLE: the tap must not move any horizon at which the model
-# has independent validation. The 2300 scorecard identifies only the combination
-# Vtilde = V*u_2300 in [1.252, 2.647] m (reproduces all_pass 25/25); the free
-# direction costs up to 0.82 m at 2150 and exactly 0.000 m at 2100, so the principle
-# extended to 2150 gives onset >= 6.5 K (6.5 K first fires 2155, 7.0 K 2180).
+# IT IS A PRIOR SPECIFICATION, NOT A FIT — say so in any methods text. It is also
+# exactly LIKELIHOOD-INERT: G-INERT is 0.0 over the calibration window at this cell
+# (the onset is 4.69 K against a calibration topping out at 1.385 K), so it is
+# prior-propagated projection-side like `gis_amp` and needs NO refit. If anyone
+# asks for a recalibration on account of the tap, that is a separate and much
+# larger decision, not one this cell implies.
 #
-# "EXTENDED" IS DOING REAL WORK IN THAT SENTENCE (clarified 2026-08-21). At 2100 --
-# the horizon with independent validation -- the free direction costs EXACTLY 0.000 m,
-# so the principle proper does NOT discriminate among cells: all 25 that clear the
-# 2300 scorecard satisfy it. Only the extension to 2150 selects onset >= 6.5 K, and
-# 2150 was chosen because it is where the unidentified direction BITES, not because
-# the model is validated there. Measured 2026-08-21, Greenland at 2150 has two
-# comparison sources and BOTH are non-physics: FACTS-FittedISMIP (an emulator fitted
-# to ISMIP6) and bamber19 (structured expert judgment); emuGrIS and MAGICC-SLR stop
-# at 2100. The physics-based post-2100 constraints are the 2300 bands themselves.
-# CONSEQUENCE: this cell remains the shipped central estimate, but the ADMISSIBLE SET
-# must not be narrowed on 2150 -- see julia/test_gis_tap_wiring.jl PROTECTED_THRU and
-# notes/handoff_2026-08-21_zone_axis_closed.md.
-const GIS_TAP_CELL = (onset_K = 6.5, V_m = 2.0, tau_yr = 50.0, ramp_w_K = 1.0)
-# THE ONSET IS IN GLOBAL MEAN TEMPERATURE, NOT the regional Greenland driver. The
-# Tier-1 bracket (4.69, 7.81] K is quoted in GMT — 4.69 K IS ssp585's 2100 GMT — so
-# the component takes its OWN gmt series. Using the regional driver would fire the
-# tap roughly `gis_amp` (~1.92x) too early, and nothing would flag it.
+# ---- THE SHIPPED CELL, chosen 2026-08-23 (Marcus) ---------------------------
+#   stages 2 (CASCADE) | V 6.0 m | tau 800 yr | onset 4.69 K | whole-sheet home
+#
+# WHY A CASCADE, AND NOT THE FIRST-ORDER FORM THIS BLOCK USED TO SHIP. The joint
+# constraint is <= 8.1 cm added at 2150 on the ssp585 x2300 arm and 48.6 cm needed
+# at 2300 to reach the matched p50 — a delivery ratio R = 6.03. A reservoir's
+# response to its ramp is an n-fold repeated integral, so in the long-tau limit
+# (the most back-loaded any n can be) n=1 gives 2.82, n=2 gives 7.86, n=3 gives
+# 21.71; swept over onsets 1.6-7.5 K, n=1 peaks at 2.89. NO (V, tau, onset) of the
+# first-order form can do it, and the same exact bound refutes every completely
+# monotone family (ladder, Prony, stretched-exponential, Mittag-Leffler, power-law).
+# A cascade is NOT completely monotone, so the bound does not reach it. See
+# python/diag_gis_2150_band_veto.py and notes/handoff_2026-08-23c_form_refuted_cascade.md.
+#
+# WHY ONSET 4.69 AND NOT ~2.1-2.35 K, which several late-horizon scores prefer.
+# Marcus 2026-08-23: "we aren't trying to match between-model spread (we don't have
+# the precipitation level), just between-scenario spreads." Scored that way at 2300,
+# a LOW onset fires the reservoir in SSP2-4.5 and SHRINKS ssp585/ssp245 BELOW the
+# untapped model (2.73x -> 2.60x at onset 2.35) — the exact quantity the reservoir
+# exists to buy. 4.69 K gives the highest separation on the whole ladder (5.38x),
+# lands ssp585@2300 on the matched p50 (98.6 vs 98.5 cm) and is closest to Greve at
+# 3001 (1.05x). A composite w-score mildly preferred 4.35 K, and that score is the
+# one to DISCOUNT: it scores LEVEL agreement against ISM medians, which is a
+# between-MODEL criterion in disguise. Report the scenario RATIO alongside any level
+# score, and let the ratio break ties.
+# CONSEQUENCE, recorded deliberately: the moderate-scenario per-tonne SC-GHG
+# commitment term is EXACTLY ZERO at this onset. Buying it costs the scenario
+# separation the model exists to produce. A nonzero moderate-scenario term needs a
+# second, separately-justified arm, not a change to this cell.
+#
+# WHY THE WHOLE-SHEET HOME. V = 6.0 m exceeds the high basin's own k_high*v0 ~ 2.76 m
+# ledger, so the high-basin clamp would silently deliver a fraction of what was
+# priced. `wholesheet = 1` clamps against the whole sheet's headroom and keeps the
+# tap out of the per-basin ledger; port-tested at 400 draws, the clamp NEVER binds
+# (max(wanted - applied) = 0.0000 m), so the wiring IS the uncapped additive
+# reservoir the cell was priced on. See julia/diag_gis_cascade_port.jl.
+#
+# 2150 IS NO LONGER AN IDENTITY-PROTECTED HORIZON, and that is EVIDENCE-DRIVEN.
+# The old block protected 2150 because the free (V, tau) direction bit there, not
+# because the model was validated there — and it said so, adding: "do NOT narrow the
+# admissible set on 2150 without a physics-based source at that horizon". As of
+# commit 166e1d2 SICOPOLIS IS such a source at 2150, and it reads 0.61-0.89x: we are
+# LOW there, not high. The shipped cell moves 2150 by +2.58 cm = 22.3% of Greenland's
+# own sampled p05-p95 width there, inside every version of the 2150 band. The gate is
+# now a spread-scaled plausibility assertion, not an identity — see
+# julia/test_gis_tap_wiring.jl [G2].
+#
+# THE 2150 EVIDENCE IS GENUINELY CONTRADICTORY, and that is a reported result, not an
+# unresolved bug: NORCE-CISM on the hot x2300 forcing says adding mass by 2150 pushes
+# us out the top, SICOPOLIS on ssp585 GCM forcing says we are low. Both are
+# like-for-like in forcing. The chosen cell sits inside BOTH bands, which is why the
+# contradiction does not block it.
+#
+# SUPERSEDED CELL, for provenance: (onset_K = 6.5, V_m = 2.0, tau_yr = 50.0,
+# ramp_w_K = 1.0), first-order, high-basin home. Its outputs are quarantined under
+# outputs/quarantine/20260823_old_tap_cell/.
+const GIS_TAP_CELL = (onset_K = 4.69, V_m = 6.0, tau_yr = 800.0, ramp_w_K = 1.0,
+                      stages = 2.0, wholesheet = true)
+# THE ONSET IS IN GLOBAL MEAN TEMPERATURE, NOT the regional Greenland driver.
+# 4.69 K is quoted in GMT — it is our own fair_mean ssp585's 2100 GMT — so the
+# component takes its OWN gmt series. Using the regional driver would fire the tap
+# roughly `gis_amp` (~1.92x) too early, and nothing would flag it.
 const GIS_TAP_OFF = 0.0        # gis_tap_v = 0 is the OFF switch; the default
-# The two additive capabilities added 2026-08-23, each defaulting to the
-# pre-existing behaviour so the shipped cell and every gate stay bit-identical.
-const GIS_TAP_STAGES_DEFAULT = 1.0    # first-order; 2.0 = the cascade
+# ---- COMPONENT-LEVEL DEFAULTS vs THE SHIPPED CELL (kept DELIBERATELY apart) ---
+# These two are what a model gets at BUILD time, and they stay at the PRE-CASCADE
+# behaviour on purpose: anything that builds greenland_3basin without asking for the
+# tap is bit-identical to every result predating 2026-08-23. The shipped cell's
+# stages and home are carried by GIS_TAP_CELL and passed EXPLICITLY by
+# update_gis3_tap! / ladrillo_set_tap!, so "build the model" and "turn the shipped
+# tap on" are two separate acts and only the second one moves anything.
+const GIS_TAP_STAGES_DEFAULT = 1.0    # BUILD-time; first-order. Shipped cell = 2.0
 const GIS_TAP_WHOLESHEET_OFF = 0.0    # high-basin home + k_high*v0 clamp
 const GIS_TAP_WHOLESHEET_ON  = 1.0    # whole-sheet clamp, tap OUT of the basin ledger
 
