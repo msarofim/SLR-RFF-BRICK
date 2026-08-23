@@ -1,0 +1,48 @@
+=== THE 2250-2300 RATE CRITERION ON THE SHIPPED CASCADE | tag L14 ===
+
+  target band, cm/century (RUN-level = the pass criterion; GCM-clustered beside it)
+
+  arm                        p05     p50     p95    n   |  GCM p05    p50    p95   n
+  SSP5-8.5 r2300             9.7    26.5    41.5   35   |     11.6   26.5   36.9   5
+  SSP5-8.5 x2300           122.8   141.1   189.0   18   |    135.3  160.5  185.7   2
+
+  cell                             8.5 r2     8.5 x2  PASS r2300   psi_eff  100V/tau  our 2300
+  base (no reservoir)                 2.9       16.6        FAIL     0.000         -      49.9
+  A   V=1.0 tau  800 n=1             12.0       26.4        PASS    10.202     0.125      70.9
+  B   V=6.0 tau 2200 n=1             26.0       41.6        PASS    25.330     0.273      99.1  [V>inventory]
+  SHIPPED V=6.0 tau 800 n=2          43.8       61.0        FAIL    40.557         -      98.6  [V>inventory]
+
+  LEAVE-ONE-GCM-OUT on the r2300 band (run-level), shipped cell rate = 43.8 cm/century
+    drop CESM2-Leo            band [   9.6,   41.5]  n= 25   FAIL
+    drop CNRM-ESM2-1          band [   9.7,   41.5]  n= 30   FAIL
+    drop IPSL-CM6A-LR         band [   9.7,   41.5]  n= 30   FAIL
+    drop MPI-ESM1-2-HR        band [  19.2,   41.5]  n= 30   FAIL
+    drop UKESM1-0-LL-Robin    band [   9.6,   36.7]  n= 25   FAIL
+    ⇒ shipped cell passes 0/5 leave-one-GCM-out bands
+
+=== IS THE FAILURE STRUCTURAL? joint scan, onset held at 4.69 K ===
+
+  gates: 2100 EXACTLY inert | ssp585 r2300 & x2300 2150 in band | our ssp585 2300 in [42.9, 145.0] cm
+         | 2250-2300 r2300 rate in [9.7, 41.5] cm/century (run-level)
+
+  cells clearing the PRE-EXISTING gates (no rate term): 63/72
+  of those, also clearing the RATE band:                16/63
+  cells clearing EVERYTHING:                            16/72
+
+    rate range over the pre-rate set: 3.1 - 79.0 cm/century vs a band top of 41.5
+
+     n    V_m    tau    2300    rate   r2150   x2150  rate_in
+     3   2.00   3200    50.1     3.1    28.2    45.2  out
+     3   2.73   3200    50.2     3.2    28.2    45.2  out
+     3   3.00   3200    50.2     3.3    28.2    45.2  out
+     3   2.00   2700    50.2     3.3    28.2    45.2  out
+     3   2.73   2700    50.3     3.4    28.2    45.2  out
+     3   4.50   3200    50.3     3.4    28.2    45.2  out
+
+  THE COST OF THE RATE GATE, at the shipped n=2 / tau=800 / onset 4.69 K
+    largest V clearing the rate band : 5.66 m (rate 41.5 vs band top 41.5)
+    it gives our ssp585 2300         : 95.9 cm  = 0.972x the shipped 98.6 cm
+    matched p50 for reference        : 98.5 cm  ⇒ the rate-clearing cell is 0.974x it, the shipped one 1.001x
+    the shipped cell overshoots the rate band top by 1.055x (2.3 cm/century)
+
+wrote outputs/diag_gis_cascade_rate_crit_scan.csv
