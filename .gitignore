@@ -246,3 +246,8 @@ data/cmip6_gsat_ext/*.nc
 data/gis_post2100/**/*.zip
 data/gis_post2100/**/*.nc
 data/gis_post2100/**/*.pdf
+
+# Greve run-spec headers: re-extractable from the tracked-DOI zip (run_specs_headers.zip).
+# The experiment->GCM mapping they document is transcribed into EXPS in
+# python/diag_gis_greve_year3000.py, which is where it needs to be readable.
+data/gis_post2100/greve_chambers_2022/run_specs_headers/
