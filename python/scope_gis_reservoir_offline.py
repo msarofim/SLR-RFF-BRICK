@@ -113,13 +113,49 @@ V_GRID = RES_V_M + RES_V_M_WIDE if WIDE_V else RES_V_M
 TAU_GRID = sorted(RES_TAU + RES_TAU_WIDE) if WIDE_V else RES_TAU
 V_CEIL_M = GIS_V0_M if WIDE_V else V_MAX_M
 INVENTORY_NAME = "whole sheet" if WIDE_V else "NO+NE high basin"
-ARM_SUFFIX = "_wideV" if WIDE_V else ""
+## --- THE CASCADE ARM, `--stages=N` (2026-08-23) ----------------------------
+## WHY. diag_gis_2150_band_veto.py showed the joint constraint -- at most 8.1 cm at
+## 2150 on the ssp585 x2300 arm, 48.6 cm at 2300 on our own ssp585 -- needs a
+## delivery ratio R = 6.03, and that a FIRST-ORDER reservoir tops out at 2.89 over
+## every onset in 1.6-7.5 K. So no (V, tau) can be wired: the FORM is what fails.
+## An n-stage cascade responds as an n-fold repeated integral of the ramp, is
+## back-loaded, and -- decisively -- is NOT completely monotone, so the exact bound
+## that refuted the ladder, Prony, stretched-exponential, Mittag-Leffler and
+## power-law families does not reach it.
+##
+## PARAMETERISATION: `tau` stays the TOTAL mean delay, so each stage runs at
+## stages/tau and `stages=1` is the existing reservoir BIT-IDENTICALLY (gated by
+## re-running the default arm and diffing the CSV).
+STAGES = next((int(a.split("=", 1)[1]) for a in sys.argv if a.startswith("--stages=")), 1)
+STAGES >= 1 or sys.exit("--stages must be >= 1")
+STAGE_WORD = "first-order reservoir" if STAGES == 1 else f"{STAGES}-stage cascade"
+ARM_SUFFIX = ("_wideV" if WIDE_V else "") + (f"_n{STAGES}" if STAGES > 1 else "")
 ## The arm is in the FILENAME: a wide-V scan must never overwrite the artefact the
 ## shipped 86/216 verdict rests on.
 OUT = OUT_STEM + ARM_SUFFIX + ".csv"
 CALIB_WIN = HIND
 Y2100_TOL_CM = 0.10
 OURS_GMT_2300 = {"SSP1-2.6": 1.73, "SSP2-4.5": 3.15, "SSP5-8.5": 7.81}
+
+
+def reservoir_unit_n(gmt, onset, tau, stages=1):
+    """n-stage cascade of first-order reservoirs, TOTAL mean delay `tau` (each
+    stage runs at stages/tau). At stages=1 this is `reservoir_unit` term for term,
+    which is why the default arm can be gated byte-identical rather than argued.
+
+    The point of n > 1 is SHAPE, not size: the response to a ramp is an n-fold
+    repeated integral, so it is ~t^n early instead of ~t, which is the only way
+    the 2150 cap and the 2300 target stop contradicting each other."""
+    seq = np.clip((gmt - onset) / RAMP_W_K, 0.0, 1.0)
+    r = stages / tau
+    S = [np.zeros_like(gmt) for _ in range(stages)]
+    for i in range(1, len(gmt)):
+        upstream = seq[i - 1]
+        for k in range(stages):
+            prev = S[k][i - 1]
+            S[k][i] = prev + (upstream - prev) * r
+            upstream = prev          # stage k+1 sees stage k's PREVIOUS year
+    return S[-1]
 
 
 def reservoir_unit(gmt, onset, tau):
@@ -159,8 +195,9 @@ def main():
         ours_gmst[lab], ours_drv[lab] = load(
             os.path.join(REPO, f"data/observations/fair_mean_gmst_{ssp}.csv"), "gmst_C")
 
-    print(f"scope_gis_reservoir_offline — the tap's reservoir at MILLENNIAL tau, "
-          f"{TAG}, {len(post)} draws, k={K_FIXED:g}\n")
+    print(f"scope_gis_reservoir_offline — {STAGE_WORD} at MILLENNIAL tau, "
+          f"{TAG}, {len(post)} draws, k={K_FIXED:g}, inventory ceiling "
+          f"{V_CEIL_M:g} m ({INVENTORY_NAME})\n")
 
     # --- the base model, run ONCE: the reservoir is additive and calib-inert ----
     tgt = pd.read_csv(A.TARGETS).set_index("year")["gis"]
@@ -186,7 +223,8 @@ def main():
             next((a[0], a[2]) for a in ARMS if f"{a[1]} {a[2]}" == lab)]
         for on in RES_ONSET_K:
             for tau in TAU_GRID:
-                worst = max(worst, float(np.max(np.abs(reservoir_unit(g, on, tau)[iw]))))
+                worst = max(worst, float(np.max(np.abs(
+                    reservoir_unit_n(g, on, tau, STAGES)[iw]))))
     print(f"G-INERT — max |reservoir ramp| over {CALIB_WIN}, over ALL "
           f"{len(RES_ONSET_K) * len(TAU_GRID)} (onset,tau) x every driver: {worst:.3e}")
     if worst != 0.0:
@@ -233,14 +271,19 @@ def main():
     for V in V_GRID:
         for on in RES_ONSET_K:
             for tau in TAU_GRID:
-                aa = {(a[0], a[2]): CM_PER_M * V * reservoir_unit(
-                          gmst[(a[0], a[2])], on, tau) for a in ARMS}
-                ao = {lab: CM_PER_M * V * reservoir_unit(ours_gmst[lab], on, tau)
-                      for _, lab in OURS}
+                aa = {(a[0], a[2]): CM_PER_M * V * reservoir_unit_n(
+                          gmst[(a[0], a[2])], on, tau, STAGES) for a in ARMS}
+                ao = {lab: CM_PER_M * V * reservoir_unit_n(
+                          ours_gmst[lab], on, tau, STAGES) for _, lab in OURS}
                 per, r585, rcool, rall = score(aa, ao)
+                ## The default arm keeps its EXACT pre-existing schema, so a
+                ## stages=1 run stays byte-identical and every consumer of the
+                ## shipped CSV is untouched; the cascade arm carries its own column.
                 rec = dict(V_m=V, onset_K=on, tau_yr=tau,
                            within_inventory=bool(V <= V_CEIL_M),
                            rms_ssp585=r585, rms_cool=rcool, rms_all=rall)
+                if STAGES > 1:
+                    rec["stages"] = STAGES
                 for ssp, lab, fam, _ in ARMS:
                     rec[f"rms_{ssp}_{fam}"] = per[(ssp, fam)]
                     rec[f"{ssp}_{fam}_2150"] = base_arm[(ssp, fam)][idx[2150]] + \

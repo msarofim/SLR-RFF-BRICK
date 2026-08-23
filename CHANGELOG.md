@@ -3,6 +3,71 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-23f — **The weighted-verdict cell CANNOT be wired: it fails 2150, the veto survives its own sample-size test, and the first-order reservoir FORM is refuted at every onset. A 2-STAGE CASCADE clears 2150, the 2300 p50 AND Greve@3001 at once.**
+
+`scope_gis_reservoir_offline.py --wide-v --stages=N`, `scope_gis_onset_rescan.py --stages=N`,
+`diag_gis_2150_band_veto.py`, `diag_gis_matched_band_score.py`. **Read-only: no gate changed, no
+cell moved, Julia untouched; both default arms re-run BYTE-IDENTICAL.**
+
+**§1 The band agreement, scored (handoff §7 item 1).** The winner's ssp585@2300 = 99.4 cm was said
+to sit "almost exactly on the ~100 cm (70–230) physics bracket". That bracket is the 2026-08-21d
+two-anchor quote, **superseded** by the derived band in `gis_targets.py` (42.9–145.0, p50 98.5).
+Against the derived band: **1.009× the p50, percentile 51**. But `build_gis_matched_targets.py` kept
+a second predictor arm (GSAT **level** at 2300 rather than the 2015–2300 **integral**), and on that
+arm the same number is **0.827× the p50 (120.2), percentile 17** — in band, but not "on the central
+estimate". **The lands-on-the-p50 reading is PREDICTOR-DEPENDENT.** Not circular: selection used
+ISMIP6 (2100) and Greve/SICOPOLIS (2300/3001), the band is PROTECT/NORCE-CISM. The cool scenarios
+cannot corroborate it — their reservoir contribution is **exactly 0.000e+00 cm**.
+
+**§2 The grid never contained the winner.** The reservoir scorecard scanned V ≤ 2.0 m against a
+**2.73 m ceiling — the NO+NE high-basin inventory**, from when the reservoir was a high-basin tap —
+and no τ of 2200 or 2700. `--wide-v` extends both to the whole sheet (528 cells). Moving that
+ceiling is a **claim**: V = 7.42 m is admissible only if the reservoir is a whole-sheet object.
+
+**§3 The winner passes everything except 2150.** Three 2300 matched bands: in. 2100: **exactly
+0.0000 cm**. Five-arm shape: better. **ssp585 x2300 @2150: 63.1 cm against 44.6–53.2, 1.19× the
+top.** Cell A clears the same band by **0.12 cm = 1.4% of its width** — cell A was *selected* by
+this criterion and has no margin in it. As ψ the criteria are **disjoint**: 2150 caps ψ ≤ 0.125 at
+onset 4.69, Greve@3001 wants 0.179–0.341, the rate criterion 0.273–0.282.
+
+**§4 The rescue hypothesis is REFUTED, reported as prominently as a confirmation would be.** The
+2150 bands are run-level quantiles, and this repo has twice found PROTECT run counts are not sample
+sizes — so the band was rebuilt at the GCM-cluster level. The x2300 arm has **2 GCM clusters and ONE
+ice-sheet model** (its three `model` values are MAR SMB percentile variants of NORCE-CISM, not
+independent ISMs) — **but the two clusters agree at 2150 to 0.6 cm**. A t-PI on n=2 widens the band
+only **1.6×**, top 53.2 → 53.0, and the winner is out under **every** construction.
+
+**§5 So it is a SHAPE contradiction, and the pre-check is analytic.** ≤ 8.1 cm allowed at 2150 on
+x2300; 48.6 cm needed at 2300 on our ssp585 to reach the p50 ⇒ **required delivery ratio R = 6.03**.
+A reservoir's response to its ramp is an n-fold repeated integral; in the long-τ limit (the most
+back-loaded any n can be) **n=1 gives 2.82, n=2 gives 7.86, n=3 gives 21.71**. **No (V, τ) of the
+first-order form can satisfy both** — and swept over onsets 1.6–7.5 K, n=1 peaks at **2.89**, never
+reaching 6.03. This is the defect `protect_matched_forcing` named from the physics side on
+2026-08-21b ("physics wants ~nothing until 2147 then a term still accelerating at 2300; the
+exponential is front-loaded and saturating"), arriving independently from a band this arc had never
+scored. **A cascade is NOT completely monotone**, so the exact bound that refuted the ladder, Prony,
+stretched-exponential, Mittag-Leffler and power-law families does not reach it.
+
+**§6 The 2-stage cascade, priced.** Same criteria, `--stages=2`, τ kept as the TOTAL mean delay so
+`stages=1` is bit-identical. Best cell **V = 6.0 m / τ = 800 yr / onset 4.69 K**:
+
+| | 2100 ratio | ssp585@2300 | 3001 ratio | x2300@2150 | w-score (3:2:1) |
+|---|---|---|---|---|---|
+| cell A (n=1, V=1, τ=800) | 1.434× | 70.4 cm | 0.36× | 53.1 (edge) | 0.584 |
+| weighted winner (n=1, V=7.42, τ=2700) | 1.470× | 99.4 cm | 0.61× | **63.1 OUT** | 0.412 |
+| **n=2, V=6.0, τ=800** | **1.369×** | **98.2 cm** | **1.046×** | **52.5 in** | **0.346** |
+
+It clears both 2150 bands, lands on the matched p50, and hits **Greve@3001 to 1.05×** where every
+first-order cell was 0.36–0.61× — four horizons at once, with 2100 held at exactly 0.0000 cm and
+G-INERT exactly zero, so it is still prior-propagatable.
+
+**NOT ACTED ON, and three things are open.** (a) The **2100 fast bias survives** (1.32→1.37×) — a
+separate defect, as established. (b) V = 6.0 m is a **whole-sheet** object, but the Julia tap applies
+its volume to the **high basin** with a high-basin capacity clamp, so wiring needs a re-homing, not a
+constant edit. (c) Under the cascade the **onset reopens**: at equal/3:2:1/4:2:1 weights the best is
+**2.10 K** (V=3, τ=800), which the offline 2150 scorecard has never scanned — and a 2.10 K onset is
+exactly what would revive the moderate-scenario per-tonne SC-GHG term that handoff §6 flagged.
+
 ## [unreleased] — 2026-08-23e — **ISMIP6 PASSES the priority-1 observational gate (first application), so 2100-highest is evidence-supported — and under that weighting the onset STAYS at 4.69 K while V and τ move to the Greve-pinned ψ.**
 
 `diag_gis_obs_scorecard.py` + weighted scoring in `scope_gis_onset_rescan.py`. Read-only.

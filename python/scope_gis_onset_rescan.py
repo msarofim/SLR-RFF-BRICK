@@ -56,7 +56,9 @@ import gis_targets  # noqa: E402
 from scope_gis_ridge_vs_protect import basin2_series, GIS_V0_M  # noqa: E402
 from scope_gis_leq_ridge_vs_literature import gis_tbar  # noqa: E402
 from scope_gis_2300_relaxation import DRIVER_BASE, gis_shape_table  # noqa: E402
-from scope_gis_reservoir_offline import reservoir_unit, CM_PER_M  # noqa: E402
+from scope_gis_reservoir_offline import (  # noqa: E402
+    reservoir_unit, reservoir_unit_n, CM_PER_M,
+)
 import scope_gis_reservoir_offline as _RES  # noqa: E402
 ## The extended-axis machinery, IMPORTED from the file that built and gated it, so
 ## this scan cannot drift from the object that produced the Greve comparison.
@@ -65,7 +67,23 @@ from diag_gis_greve_year3000 import (  # noqa: E402
     ext_driver, gcm_gmst_ext, gate, read_greve,
 )
 
-OUT = os.path.join(REPO, "outputs/scope_gis_onset_rescan.csv")
+## --- THE CASCADE ARM, `--stages=N` ------------------------------------------
+## WHY IT REACHES THIS FILE TOO. `scope_gis_reservoir_offline.py --wide-v` found the
+## weighted-verdict cell fails the ssp585 x2300 2150 band, and
+## `diag_gis_2150_band_veto.py` showed the miss is the FORM's: the joint 2150/2300
+## constraint needs a delivery ratio of 6.03 and a first-order reservoir cannot
+## exceed 2.89 at any onset. A 2-stage cascade clears both offline. But a shape that
+## is back-loaded enough to spare 2150 must still be checked where the commitment
+## evidence lives -- Greve/SICOPOLIS at 2300 and 3001 -- because "later" can
+## overshoot as easily as it can fix. That is what this arm is for, and it is a
+## test the cascade can FAIL.
+STAGES = next((int(a.split("=", 1)[1]) for a in sys.argv if a.startswith("--stages=")), 1)
+STAGES >= 1 or sys.exit("--stages must be >= 1")
+STAGE_WORD = "first-order reservoir" if STAGES == 1 else f"{STAGES}-stage cascade"
+## The arm is in the FILENAME: a cascade scan must not overwrite the artefact the
+## weighted verdict rests on.
+ARM_SUFFIX = f"_n{STAGES}" if STAGES > 1 else ""
+OUT = os.path.join(REPO, f"outputs/scope_gis_onset_rescan{ARM_SUFFIX}.csv")
 CMP_REF = os.path.join(REPO, "outputs/diag_gis_greve_year3000_cmp.csv")
 ISM_REF = os.path.join(REPO, "outputs/diag_gis_ismip6_2100_ism_spread_arms.csv")
 
@@ -172,7 +190,7 @@ def build_base():
 
 
 def main():
-    print(f"scope_gis_onset_rescan -- {LINEAGE}, {TAG}")
+    print(f"scope_gis_onset_rescan -- {STAGE_WORD}, {LINEAGE}, {TAG}")
     gmst, base, ie, thin = build_base()
 
     # --- GATE 1: the base reproduces the script that produced the Greve numbers --
@@ -244,7 +262,8 @@ def main():
     for on in ONSET_SCAN_K + [ONSET_SHIPPED_K]:
         for V in V_SCAN_M:
             for tau in TAU_SCAN_YR:
-                unit = {k: reservoir_unit(g, on, tau) for k, g in gmst.items()}
+                unit = {k: reservoir_unit_n(g, on, tau, STAGES)
+                        for k, g in gmst.items()}
                 ginert_worst = max(ginert_worst,
                                    max(float(np.max(np.abs(u[iw])))
                                        for u in unit.values()))
@@ -255,6 +274,8 @@ def main():
                            psi_in_greve=bool(PSI_EVIDENCE[0]
                                              <= CM_PER_M * V / tau
                                              <= PSI_EVIDENCE[1]))
+                if STAGES > 1:
+                    rec["stages"] = STAGES
                 for y in HORIZONS:
                     lr = np.array([np.log((base[e][ie[y]] + addc[e][ie[y]])
                                           / (ismed[e] if y == 2100 else sico[e][y]))
