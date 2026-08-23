@@ -1,0 +1,108 @@
+scope_gis_onset_rescan -- L14 canonical (two-basin), extended axis 1850-3001, thinned posterior, L14
+  BASE GATE  our 2100 reproduces diag_gis_greve_year3000_cmp.csv to 0.0000% on 5 cells
+
+=== TARGETS (5 CMIP6 cells; SICOPOLIS held (2081, 2100)) ===
+  exp     forcing                ISM med 2100  ours 2100  SICO 2300  ours 2300  SICO 3001      ours
+  expb01  CNRM-CM6-1 ssp585              13.0       19.5       75.2       36.1      228.9      40.7
+  expb02  CNRM-CM6-1 ssp126               4.6        6.5       16.6       11.7       40.6      14.5
+  expb03  UKESM1-0-LL ssp585             18.5       24.2      105.9       42.0      307.4      46.6
+  expb04  CESM2 ssp585                   18.8       19.1      114.8       34.9      354.3      39.4
+  expb05  CNRM-ESM2-1 ssp585             12.9       17.0       67.1       32.6      200.4      37.0
+
+  BASE, no reservoir -- ours/target by horizon:
+    2100   1.02-1.49x   (median 1.32)
+    2300   0.30-0.70x   (median 0.48)
+    3001   0.11-0.36x   (median 0.18)
+  ssp585@2300 49.5 cm (matched band 43-145);  ssp245@2300 17.7;  ssp126@2300 9.4
+
+=== THE ONSET FLOOR IS MEASURED, NOT ASSUMED -- max GMST inside the calibration window (1900, 2025) ===
+  CNRM-CM6-1 ssp126         1.5878 K  <- SETS THE FLOOR
+  CNRM-CM6-1 ssp585         1.5377 K
+  UKESM1-0-LL ssp585        1.5287 K
+  CESM2 ssp585              1.4708 K
+  SSP5-8.5                  1.3979 K
+  CNRM-ESM2-1 ssp585        1.3916 K
+  SSP1-2.6                  1.3828 K
+  SSP2-4.5                  1.3617 K
+
+  floor = 1.5878 K, rounded up to 1.60 K.
+  OUR OWN drivers top out at 1.398 K -- so the floor is set by the GCM cells,
+  which joined the scoring set only when the Greve/ISMIP6 targets did. A scan built on
+  the 1.398 K figure would silently refit the hindcast.
+  CONSEQUENCE FOR THE LADDER: Yelmo-REMBO's threshold (1.68-1.76 K) sits only
+  0.092 K above the floor and is testable; anything BELOW 1.60 K is NOT reachable by
+  prior-propagation at all and would be a refit question.
+
+=== G-INERT GATE -- max |reservoir ramp| over the calibration window (1900, 2025), over ALL 210 cells x every driver ===
+  0.000e+00
+  EXACTLY zero => every onset down to the measured floor 1.60 K is still prior-propagatable.
+
+=== THE SCAN -- 6 onsets x 6 V x 5 tau (+ the shipped onset as a reference row) ===
+  BASELINE (no reservoir) score_all = 1.130
+
+  BEST CELL AT EACH ONSET (by score_all, within inventory):
+    onset    V_m    tau    psi     all    2100    2300    3001   585@2300  band   245@2300
+     1.60   4.50   3200  0.141   0.549   0.654   0.372   0.582       83.8    in       50.4
+     1.85   6.00   3200  0.188   0.466   0.666   0.255   0.376       94.3    in       58.7
+     2.10   7.42   3200  0.232   0.446   0.664   0.193   0.344      103.6    in       63.4
+     2.35   6.00   3200  0.188   0.488   0.572   0.249   0.572       92.3    in       45.2
+     2.60   7.42   3200  0.232   0.478   0.604   0.236   0.516      101.2    in       39.3
+     2.85   7.42   3200  0.232   0.468   0.578   0.236   0.516      100.1    in       28.0
+     4.69   7.42   2200  0.337   0.431   0.454   0.237   0.543      110.3    in       17.7 <- SHIPPED
+
+  THE TRADE, made explicit -- 2100 can only get WORSE (the reservoir is ADDITIVE
+  and our 2100 is already high), so read these two columns together:
+    onset  best 2300+3001 score   2100 score   2100 ratio (ours/ISM med)
+     1.60                 0.460        0.750                        2.07x
+     1.85                 0.310        0.723                        2.05x
+     2.10                 0.266        0.720                        2.17x
+     2.35                 0.400        0.682                        2.12x
+     2.60                 0.399        0.653                        2.04x
+     2.85                 0.398        0.624                        1.96x
+     4.69                 0.416        0.471                        1.52x
+  (baseline 2100 score 0.297, ratio 1.32x -- the 1.30x ISMIP6 fast bias)
+
+=== DOES THE SHIPPED 4.69 K ONSET STILL DO THE JOB IT WAS CHOSEN FOR? ===
+  It exists because memory `gis_tap_priced_l13` records it as "exactly the 'don't move
+  2100' constraint". That was evaluated on OUR fair_mean ssp585 driver. Crossing years:
+    CNRM-CM6-1 ssp585           2082
+    CNRM-CM6-1 ssp126          never
+    UKESM1-0-LL ssp585          2069
+    CESM2 ssp585                2078
+    CNRM-ESM2-1 ssp585          2087
+    SSP1-2.6                   never
+    SSP2-4.5                   never
+    SSP5-8.5                    2100   <- the driver the onset was tuned against
+
+  Our own ssp585 crosses at exactly 2100 -- by construction. The FOUR ssp585 GCM cells
+  that carry the ISMIP6 and Greve evidence cross 13-31 years EARLIER, so the reservoir
+  is already running before 2100 on every one of them.
+
+  MEASURED on the actual shipped cell (V=1.0 m, tau=800 yr): the 2100 median ratio
+  moves 1.32x -> 1.43x. **The shipped onset does NOT hold 2100 fixed on the
+  cells the 2100 evidence lives on.** It holds it fixed on one driver: the one it was
+  tuned against. The 'protect 2100' argument for keeping 4.69 K is therefore already
+  spent, independently of the ladder evidence.
+
+  AND AT THE SHIPPED V AND tau, LOWERING THE ONSET IS UNAMBIGUOUSLY BETTER:
+  score_all 0.718 at 4.69 K vs 0.600 at 1.85 K -- and 4.69 K is the WORST of the
+  7 onsets at that cell. The earlier per-onset table let V and tau float, which
+  masked this.
+
+  CELLS WHOSE psi SITS IN THE GREVE RANGE (0.179, 0.341) AND WHOSE ssp585@2300 IS IN BAND:
+    70 cells; best 8 by score_all:
+      onset    V_m    tau    psi     all    2100    2300    3001   245@2300
+       4.69   7.42   2200  0.337   0.431   0.454   0.237   0.543       17.7
+       4.69   7.42   2700  0.275   0.444   0.426   0.256   0.588       17.7
+       2.10   7.42   3200  0.232   0.446   0.664   0.193   0.344       63.4
+       2.10   6.00   2700  0.222   0.446   0.650   0.191   0.372       61.3
+       2.10   6.00   3200  0.188   0.448   0.601   0.209   0.443       54.7
+       4.69   6.00   2200  0.273   0.451   0.425   0.259   0.602       17.7
+       2.10   4.50   2200  0.205   0.453   0.625   0.197   0.431       57.5
+       4.69   4.50   1600  0.281   0.458   0.428   0.257   0.617       17.7
+
+  ssp245@2300 IS A DIAGNOSTIC, NOT A GATE (Marcus 2026-08-23). Its shipped matched
+  band top is 21.5 cm and the base sits at 17.7; the values above are printed so its
+  leverage stays visible without being imposed.
+
+WROTE outputs/scope_gis_onset_rescan.csv
