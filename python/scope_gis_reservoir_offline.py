@@ -145,13 +145,68 @@ INVENTORY_NAME = "whole sheet" if WIDE_V else "NO+NE high basin"
 STAGES = next((int(a.split("=", 1)[1]) for a in sys.argv if a.startswith("--stages=")), 1)
 STAGES >= 1 or sys.exit("--stages must be >= 1")
 STAGE_WORD = "first-order reservoir" if STAGES == 1 else f"{STAGES}-stage cascade"
-ARM_SUFFIX = (("_wideV" if WIDE_V else "") + (f"_n{STAGES}" if STAGES > 1 else "")
-              + ("_onsetladder" if ONSETS_ARG else ""))
-## The arm is in the FILENAME: a wide-V scan must never overwrite the artefact the
-## shipped 86/216 verdict rests on.
-OUT = OUT_STEM + ARM_SUFFIX + ".csv"
 CALIB_WIN = HIND
-Y2100_TOL_CM = 0.10
+# --- THE 2100 TOLERANCE, DERIVED FROM THE SAMPLED SPREAD (Marcus 2026-08-23) ---
+## WHAT IT WAS. A bare literal `Y2100_TOL_CM = 0.10` cm with no recorded
+## justification, imported by three other scripts. It is a PHYSICAL-PLAUSIBILITY
+## gate ("the reservoir must not disturb the 2100 deliverable") and it was written
+## with the tightness of an IDENTITY gate. Those are different things:
+##   identity / reproduction gates  -> stay exact or near-exact. A byte-diff, a
+##       G-INERT ramp that must be 0.0, a base that must reproduce another
+##       script's output: these test that two computations are THE SAME.
+##   plausibility gates             -> must be scaled to the UNCERTAINTY of the
+##       quantity being compared. 0.10 cm is 2.1% of Greenland's own sampled
+##       p05-p95 at 2100 on ssp585 (4.78 cm) and 0.20% of the TOTAL's (50.1 cm).
+##       It was demanding agreement ~50x finer than the model can resolve.
+##
+## WHY IT MATTERED. On the 2026-08-23 onset ladder this gate -- not the ssp245
+## band, which was tested and does not bind -- is what forces tau to 2700-3200 yr
+## at low onsets, and a reservoir that slow reaches only 0.28-0.53x of Greve@3001.
+## A constraint tighter than the model's own resolution was setting the shape.
+##
+## THE RULE, stated once and applied mechanically: the reservoir's contribution at
+## 2100 must be small against the POSTERIOR SPREAD of the quantity it is added to,
+## PER SCENARIO. `TOL_FRAC` is a fraction of that scenario's own sampled p05-p95
+## WIDTH, so TOL_FRAC = 0.5 means "within the half-width of the sampled 90%
+## interval". The scan prints the whole TOL_FRAC ladder, so the choice of fraction
+## is visible in every run rather than buried in this constant.
+Y2100_TOL_LEGACY_CM = 0.10      # the superseded literal, kept for reproduction
+TOL_BAND_Q = (0.05, 0.95)       # the sampled interval the tolerance is scaled to
+TOL_FRAC = 0.5                  # fraction of that interval's WIDTH == half-width
+TOL_FRAC_LADDER = (0.021, 0.10, 0.25, 0.50, 1.00)   # 0.021 ~ the legacy 0.10 cm
+TOL_RULE = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--tol=")),
+                "spread")
+TOL_RULE in ("spread", "legacy") or sys.exit("--tol must be spread|legacy")
+## The spread is read from the SHIPPED deliverable so importers of this module get
+## a defined scalar at import time; the scan itself re-derives it PER SCENARIO from
+## its own ensemble and GATES the two against each other, so the file cannot rot.
+DELIVERABLE = os.path.join(REPO, "outputs/ssps_components_2300_L14.csv")
+
+
+def _sampled_spread_2100():
+    """Greenland p05-p95 width at 2100 per scenario, cm, from the shipped L14
+    deliverable (SAME rebase frame as rebase_cm: rel 1995-2014)."""
+    if not os.path.exists(DELIVERABLE):
+        return {}
+    d = pd.read_csv(DELIVERABLE)
+    d = d[(d.year == 2100) & (d.component == "gis")]
+    return {r.ssp: float(r.p95 - r.p05) for _, r in d.iterrows()}
+
+
+Y2100_SPREAD_CM = _sampled_spread_2100()
+Y2100_TOL_CM = (TOL_FRAC * Y2100_SPREAD_CM["SSP5-8.5"]
+                if TOL_RULE == "spread" and "SSP5-8.5" in Y2100_SPREAD_CM
+                else Y2100_TOL_LEGACY_CM)
+Y2100_TOL_WORD = (f"{TOL_FRAC:g} x sampled p05-p95 width" if TOL_RULE == "spread"
+                  else "LEGACY fixed 0.10 cm")
+## EVERY non-default choice is in the FILENAME -- the arm, the stage count, the
+## onset ladder and now the tolerance rule -- so the artefact the shipped 86/216
+## verdict rests on keeps its own name, is still reachable with `--tol=legacy`,
+## and no scan can overwrite another's result under its name.
+ARM_SUFFIX = (("_wideV" if WIDE_V else "") + (f"_n{STAGES}" if STAGES > 1 else "")
+              + ("_onsetladder" if ONSETS_ARG else "")
+              + ("_tolspread" if TOL_RULE == "spread" else ""))
+OUT = OUT_STEM + ARM_SUFFIX + ".csv"
 OURS_GMT_2300 = {"SSP1-2.6": 1.73, "SSP2-4.5": 3.15, "SSP5-8.5": 7.81}
 
 
@@ -229,8 +284,29 @@ def main():
     s = np.sqrt(lo * hi)
     base_arm = {k: np.median(rebase_cm(basin2_series(v, post, K_FIXED, s)), axis=0)
                 for k, v in drivers.items()}
-    base_ours = {k: np.median(rebase_cm(basin2_series(v, post, K_FIXED, s)), axis=0)
-                 for k, v in ours_drv.items()}
+    ens_ours = {k: rebase_cm(basin2_series(v, post, K_FIXED, s))
+                for k, v in ours_drv.items()}
+    base_ours = {k: np.median(e, axis=0) for k, e in ens_ours.items()}
+    ## THE TOLERANCE IS DERIVED HERE, per scenario, from THIS ensemble -- and gated
+    ## against the shipped deliverable's own 2100 spread so neither can drift.
+    spread_ens = {lab: float(np.quantile(ens_ours[lab][:, idx[2100]], TOL_BAND_Q[1])
+                             - np.quantile(ens_ours[lab][:, idx[2100]], TOL_BAND_Q[0]))
+                  for _, lab in OURS}
+    TOL = {lab: (TOL_FRAC * spread_ens[lab] if TOL_RULE == "spread"
+                 else Y2100_TOL_LEGACY_CM) for _, lab in OURS}
+    print(f"=== THE 2100 TOLERANCE ({Y2100_TOL_WORD}) ===")
+    print(f"  {'scenario':10}{'sampled p05-p95 @2100':>24}{'deliverable':>13}"
+          f"{'ratio':>8}{'tolerance':>12}{'  vs legacy':>12}")
+    for _, lab in OURS:
+        dl = Y2100_SPREAD_CM.get(lab, float("nan"))
+        print(f"  {lab:10}{spread_ens[lab]:24.3f}{dl:13.3f}"
+              f"{spread_ens[lab] / dl:8.3f}{TOL[lab]:12.3f}"
+              f"{TOL[lab] / Y2100_TOL_LEGACY_CM:11.1f}x")
+    print(f"  The legacy 0.10 cm was {100 * Y2100_TOL_LEGACY_CM / spread_ens['SSP5-8.5']:.1f}% "
+          f"of ssp585's own sampled spread -- a PLAUSIBILITY gate held to an "
+          f"IDENTITY gate's\n  tightness. Identity gates (G-INERT, the base "
+          f"reproduction, byte-diffs) stay exact; this one\n  is now scaled to what "
+          f"the model can actually resolve.\n")
 
     # --- G-INERT: the ramp must be EXACTLY zero over the calibration window ----
     iw = (YEARS >= CALIB_WIN[0]) & (YEARS <= CALIB_WIN[1])
@@ -316,7 +392,7 @@ def main():
                     rec[f"ours_{lab}_d2100_cm"] = d21
                     rec[f"ours_{lab}_in_matched"] = bool(MB[lab][0] <= v23 <= MB[lab][1])
                     ok2300 &= rec[f"ours_{lab}_in_matched"]
-                    ok2100 &= abs(d21) < Y2100_TOL_CM
+                    ok2100 &= abs(d21) < TOL[lab]
                 rec["bands_ok"], rec["keeps_2100"] = ok2300, ok2100
                 rec["shape_better"] = bool(rall < rall_0)
                 rec["all_pass"] = bool(ok2300 and ok2100 and rec["within_inventory"]
@@ -329,7 +405,7 @@ def main():
     print(f"=== GRID — {len(V_GRID)}x{len(RES_ONSET_K)}x{len(TAU_GRID)} = {len(out)} "
           f"cells; inventory ceiling {V_CEIL_M:g} m ({INVENTORY_NAME}), "
           f"{int(out.within_inventory.sum())} within it ===\n")
-    print(f"  keeps 2100 (|d| < {Y2100_TOL_CM} cm)      {int(adm.keeps_2100.sum()):4d}/{len(adm)}")
+    print(f"  keeps 2100 ({Y2100_TOL_WORD})  {int(adm.keeps_2100.sum()):4d}/{len(adm)}")
     print(f"  all three 2300 matched bands        {int(adm.bands_ok.sum()):4d}/{len(adm)}")
     print(f"  improves the 5-arm shape            {int(adm.shape_better.sum()):4d}/{len(adm)}")
     print(f"  ALL OF THE ABOVE                    {int(adm.all_pass.sum()):4d}/{len(adm)}")

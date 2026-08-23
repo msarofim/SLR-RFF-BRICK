@@ -3,6 +3,14 @@
 **Start here.** Repo `SLR-RFF-BRICK`, branch `ladrillo-dev`, through `9cd8085`.
 Written 2026-08-23, to be picked up cold.
 
+> **⚠ PARTLY SUPERSEDED 2026-08-23g (CHANGELOG entry of that date).** Marcus directed that the
+> 2100 tolerance be derived from the **sampled spread** rather than the bare 0.10 cm literal, with
+> a standing instruction to watch for overly tight constraints. Every onset-ladder number in §5
+> item 2 was computed under the old tolerance and the frontier moves: the best early onset goes
+> from 2.1× worse than the best late one to **1.14×**, and the SC-GHG term at 2.35 K from +2.1 cm
+> to **+14.4 cm**. §1–§4 (the 2150 veto, the refuted rescue, the analytic form bound, the cascade)
+> are UNAFFECTED — none of them touches that gate.
+
 **Supersedes** `handoff_2026-08-23b_weighted_verdict.md` for its **§1 ("wire this cell")**
 and its **§7 items 1 and 2**. Its §2 (τ retired for discounted use), §3 (the onset's spent
 premise, the 1.588 K measured floor), §4 (ISMIP6 passes the obs gate; the 2100 acceleration

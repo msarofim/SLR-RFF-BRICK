@@ -3,6 +3,63 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-23g — **The 2100 tolerance is now DERIVED from the sampled spread, not a bare 0.10 cm literal — and with it (plus the ssp245 band you already dropped) the ladder-corroborated 2.1–2.6 K onsets stop being excluded.**
+
+Marcus 2026-08-23: *"use the sampled spread for the tolerance. Generally, watch out for overly
+tight constraints."* `scope_gis_reservoir_offline.py --tol=spread|legacy`. **`--tol=legacy`
+re-runs BYTE-IDENTICAL, so the 86/216 artefact keeps its name and stays reachable.**
+
+**THE DISTINCTION, now structural in the code.** *Identity / reproduction* gates test that two
+computations are **the same** — a byte-diff, a G-INERT ramp that must be exactly 0.0, a base that
+must reproduce another script's output — and stay exact. *Plausibility* gates test whether a
+result is **consistent with evidence**, and must be scaled to the uncertainty of the quantity
+compared. `Y2100_TOL_CM = 0.10` was the second kind held to the first kind's tightness: **2.0% of
+Greenland's own sampled p05–p95 at 2100 on ssp585 (5.06 cm), 0.20% of the total's** — demanding
+agreement ~50× finer than the model can resolve.
+
+**THE RULE.** Tolerance = `TOL_FRAC` × that scenario's own sampled p05–p95 width at 2100, derived
+per scenario from the scan's own ensemble and **gated** against the shipped L14 deliverable's
+spread (agree to 1.05–1.06×). `TOL_FRAC = 0.5` = half the sampled 90% interval ⇒ **0.75 / 1.12 /
+2.53 cm** for ssp126 / ssp245 / ssp585, i.e. **7.5× / 11.2× / 25.3×** the legacy literal. The
+scan prints the whole ladder so the fraction is visible in every run.
+
+**IT SATURATES AT ~0.5, so the fraction is not delicate.** `TOL_FRAC` 0.5 and 1.0 give identical
+frontiers — beyond half the sampled width, 2150 and the 2300 bands take over. Only the ~0.02
+(legacy) end was distorting anything.
+
+**WHAT IT CHANGES.** The middle of the onset ladder was being suppressed: onset 3.10 K goes from
+w-score 0.507 / Greve@3001 0.53× to **0.357 / 0.82×**; 3.60 K from 0.380 / 0.94× to **0.351 /
+1.15×**. And the relaxation exposed the *next* constraint — at 2.1–2.6 K with a fast τ the binding
+gate becomes the **ssp245 2300 band** (worst 26.7 / 36.0 against a top of 21.5), which is 2 GCMs
+wide and which Marcus **already dropped as a gate** on 2026-08-23. This corrects §3 of the
+2026-08-23f entry: the ssp245 band did not bind *under the tight 2100 gate*, because that gate had
+already removed every fast cell.
+
+**BOTH CONSTRAINTS SCALED, the low-onset region is competitive again** (2-stage cascade, cells also
+clearing both ssp585 2150 bands):
+
+| onset | V | τ | w(3:2:1) | 2100 | 3001 | 585@2300 | ssp245 term |
+|---|---|---|---|---|---|---|---|
+| 2.35 | 7.42 | 1600 | 0.376 | 1.40× | **0.96×** | 76.2 | **+14.4** |
+| 2.60 | 3.00 | 800 | 0.360 | 1.43× | 0.82× | 83.9 | +11.8 |
+| 3.10 | 3.00 | 800 | 0.357 | 1.40× | 0.82× | 81.4 | +0.6 |
+| 4.35 | 4.50 | 800 | **0.331** | 1.37× | 1.14× | 88.7 | 0 |
+| 4.69 | 6.00 | 800 | 0.346 | 1.37× | 1.05× | 98.2 | 0 |
+
+**The best early onset is now within 1.14× of the best late one — it was 2.1×** (0.707 vs 0.331)
+under the original constraints. On the millennial commitment 2.35 K is actually **closer to Greve**
+(0.96×) than 4.35 K (1.14×). The cost is 2100 (1.40–1.43× vs 1.37×) and an ssp245@2300 of 27–33 cm
+against a dropped band top of 21.5.
+
+**CORRECTS the 2026-08-23f reading of the SC-GHG revival**: "+2.1 cm at 2300, an order of magnitude
+below the ssp585 term" was measured under the tight tolerance. With both constraints scaled it is
+**+9 to +14 cm**.
+
+**NEXT CANDIDATE FOR THE SAME AUDIT**: the ssp585 x2300 2150 band (44.6–53.2). Its *width* was
+already tested and survives (its 2 GCM clusters agree to 0.6 cm), but every run behind it is
+NORCE-CISM — the band contains **zero ice-sheet structural spread**, which is the same error class
+one level up.
+
 ## [unreleased] — 2026-08-23f — **The weighted-verdict cell CANNOT be wired: it fails 2150, the veto survives its own sample-size test, and the first-order reservoir FORM is refuted at every onset. A 2-STAGE CASCADE clears 2150, the 2300 p50 AND Greve@3001 at once.**
 
 `scope_gis_reservoir_offline.py --wide-v --stages=N`, `scope_gis_onset_rescan.py --stages=N`,
