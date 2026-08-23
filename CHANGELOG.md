@@ -3,6 +3,116 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-23i — **The 2100 fast bias is the AMPLIFICATION LAW, not the ice response — and V ships at 5.64 m, where the melt-rate ceiling and the Greve year-3001 commitment agree to within 1%.**
+
+### The 2100 bias, split for the first time — `python/diag_gis_2100_bias_decomp.py`
+
+The 1.32× has driven the whole onset argument and was on record as *"ours, with no
+correction available"*. It had never been decomposed.
+
+**THE PARADOX IT RESOLVES.** Against observations we match the level (fitted), match the rate
+over four free windows (0.95–1.07×) and **under-run the acceleration (0.63×)**. A model that
+under-runs curvature while matching the rate should arrive **low** at 2100, not 1.32× high.
+Something between 2015 and 2100 more than reverses it.
+
+**THE TEST**, as 2015→2100 *change* so no level offset can produce any of it:
+
+| GCM | ssp | ISMIP6 med | GMST route | DIRECT route | GMST/ISM | DIR/ISM |
+|---|---|---|---|---|---|---|
+| CNRM-CM6-1 | ssp126 | 4.6 | 6.4 | 6.0 | 1.41× | 1.33× |
+| CESM2 | ssp585 | 18.8 | 18.9 | 12.1 | 1.01× | 0.65× |
+| CNRM-CM6-1 | ssp585 | 13.0 | 19.3 | 15.9 | 1.48× | 1.22× |
+| CNRM-ESM2-1 | ssp585 | 12.9 | 16.8 | 10.2 | 1.31× | 0.79× |
+| UKESM1-0-LL | ssp585 | 18.5 | 24.0 | 18.2 | 1.30× | 0.99× |
+| **MEDIAN** | | | | | **1.31×** | **0.99×** |
+
+**Driven by each GCM's own Greenland temperature, our ice response lands ON the ISMIP6
+median. Driven through our amplification law it over-shoots 1.31×. The response function is
+exonerated; the defect is the driver.** The magnitude closes: our **effective** amp (`amp × S`,
+derived from the driver — not the raw 1.91 parameter, which is not what gets applied) is
+**1.58–1.63** against these models' own south-zone **1.08–1.39**, a 1.40× over-drive against a
+1.32× SLR bias, i.e. near-linear response over this range.
+
+**AND IT IS PROJECTION-SIDE.** `regional_driver` returns *observed* southern-Greenland T for
+every year of the observational record and only splices `amp·S·GMST` after it, so the amp law
+has **exactly zero effect on the hindcast**. A correction is prior-propagatable like the
+reservoir, not a refit.
+
+⚠ n = 5 cells, one member each, and the DIRECT route's own spread is 0.65–1.33×. Per the
+stringency rule this is **guidance about a direction, not a correction factor**. It does **not**
+contradict the earlier "the GCM's own regional T makes it worse" — that was measured at 2300 on
+the r2300 arm, where our commitment is far too small and every route under-predicts.
+
+### V ships at 5.64 m
+
+| V | 2100/ISMIP6 | 2300/Greve | 3001/Greve | w(6:3:1) | ssp585@2300 |
+|---|---|---|---|---|---|
+| 5.20 | 1.361 | 0.757 | 0.921 | 0.3268 | 91.7 |
+| 5.40 | 1.363 | 0.767 | 0.953 | 0.3260 | 93.3 |
+| **5.64** | 1.365 | 0.780 | **0.990** | **0.3258** ← min | 95.3 |
+| 5.80 | 1.367 | 0.788 | 1.015 | 0.3260 | 96.6 |
+| 6.00 | 1.369 | 0.798 | 1.046 | 0.3267 | 98.2 |
+
+Minimum under the 2100 > 2300 > 3001 weighting, within 0.1% of the minimum under every other
+weight set, Greve@3001 at 0.990×, and **exactly the largest V clearing the 2250–2300 melt-rate
+band** solved in the wired component. **Two independent criteria 700 years apart land within 1%
+of each other.** Leave-one-GCM-out on the rate band: **0/5 → 4/5**.
+
+⚠ **It is ON the ceiling, not inside it**, and the diagnostic says so rather than absorbing it:
+V was solved *as* the clearing value, so the verdict turns on the third significant figure —
+41.4 offline, 41.5 wired at 300 draws, against a 41.5 top. Inventing a band-edge tolerance
+there would be choosing the verdict.
+
+**COST**: Greenland ssp585@2300 98.7 → 95.7 cm (0.999× → 0.969× the matched p50). 2150 moves
+2.44 cm (21.1% of the sampled spread); 2100, both cool scenarios and the whole 1850–2025
+hindcast unchanged at 0.000e+00. **NOT fixed by any V**: the 2100 ratio is ~1.365× across the
+entire 5.2–6.0 ladder (0.6% span).
+
+V=6.00 outputs quarantined at `outputs/quarantine/20260823_v6p0_cell/` — a **refinement within
+one family**, not a refutation like the first-order cell before it.
+
+### The separation "target" was an endpoint-division artefact — `python/diag_gis_separation_target.py`
+
+Both quoted numbers — ssp585/ssp245 **7.9–31.9×** (literature) and **2.00–13.68×** (matched) —
+are the 2300 bands' **endpoints divided**, the outer envelope under an independence assumption
+the ensemble does not satisfy: every anchor past 2100 is NORCE-CISM, so a run's ssp585 and its
+ssp126 share an ice-sheet model, a parameter set and a drift correction.
+
+**The like-for-like target is the matched p50 ratio**, since `MATCHED_2300_P50_M` is PCHIP'd to
+our own forcing integral: **ssp585/ssp245 = 6.40×, ssp585/ssp126 = 8.87×**.
+
+| arm | 585/245 | 585/126 |
+|---|---|---|
+| original BRICK | 1.90× (0.30) | 2.56× (0.29) |
+| Ladrillo untapped | 2.72× (0.42) | 4.99× (0.56) |
+| **V=5.64 (shipped)** | 5.22× (0.82) | **9.58× (1.08)** |
+
+**Per-scenario, ssp585 is now 0.97× the matched p50 while ssp126 is 0.90× and ssp245 1.19× — the
+COOL arms carry the residual separation error, and the reservoir is inert there by construction.**
+
+### The priority ladder, with original BRICK as a fourth arm — `julia/diag_gis_cell_vs_priority_ladder.jl`
+
+Four arms through the same setup, forcing, baseline and obs file; only the Greenland module
+differs (`:stock` SIMPLE on the extC posterior = original BRICK). **Priority 1: the cell choice
+is invisible** — `max|tapped − untapped|` over 1850–2025 = **0.000e+00** for every V, measured
+on the shipped model. Against original BRICK, Ladrillo is better on the historical shape
+(0.73×/1.49× → 1.00×/0.95×), the level (39/126 → **105/126** years inside the obs band) and the
+acceleration (0.32× → 0.63×) — but **not** on the 1995–2024 rate itself (BRICK 0.95× vs our
+1.06×), and **not** on priority 3, where BRICK's stock module is **inside** the melt-rate band
+at 14.0 cm/century.
+
+The obs band's half-width collapses 65× across the record (1.068 → 0.016 cm), so the absolute
+miss is printed beside the excursion: ours 0.077 cm, BRICK's 0.161 cm.
+
+### Bug found and fixed
+
+`scope_gis_onset_rescan.py` still emitted `psi = 100·V/tau` at `--stages=2` and tested it
+against the Greve range. That formula is first-order and undefined on a cascade — the cell read
+0.750 against a range topping out at 0.341, a "2.2× violation" that is pure artefact. Now
+NaN/None on the cascade arm, psi section skipped, pointer to the measured flux. `--stages=1`
+verified **byte-identical**, stdout and CSV. Also gains `--v-extra=`.
+
+
 ## [unreleased] — 2026-08-23h — **The cascade cell SHIPS — and the 2250–2300 rate criterion, run on it for the first time, MISSES by 1.055×.**
 
 `GIS_TAP_CELL` is now **stages 2 (cascade) / V 6.0 m / τ 800 yr / onset 4.69 K / whole-sheet
