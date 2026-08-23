@@ -3,6 +3,51 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-23c — **§4.1 IS RUN. Discounting RETIRES τ; ψ is 20–60× more valuable; and the shipped onset DELETES the commitment term from a per-tonne SC-GHG entirely.**
+
+`diag_gis_npv_tau_sensitivity.py`. Open since 2026-08-22 (`scoping_2026-08-22_greenland_shape_stepback.md`
+§22), put FIRST by `handoff_2026-08-23_commitment_evidence.md` §4 because it is the only item that
+can **retire** work. Read-only: nothing refit, no gate changed, no cell moved. `reservoir_unit` is
+**imported** from `scope_gis_reservoir_offline.py`, so this cannot drift from the object the 86/216
+scan scored.
+
+**No damage function is asserted.** The integrand is `SLR(t)^ALPHA · exp(-RHO_NET·(t−2030))` on
+**total** GMSL (L14 canonical, untapped base, median), and both axes are scanned: `ALPHA` ∈ {1, 2},
+`RHO_NET` ∈ {0.5, 1, 2, 3}%, where `RHO_NET` = consumption discount rate **minus** the growth rate of
+the exposed value. A verdict that holds across the whole 4×2 block is a verdict about discounting,
+not about a damage-function choice.
+
+* **τ IS RETIRED for any discounted use.** At fixed ψ, τ 800 → 2700 yr moves the 2030–2300 NPV by
+  **0.02–0.39 %** at SSP5-8.5 and by **exactly 0** at SSP2-4.5 and SSP1-2.6 (neither crosses the
+  shipped onset). At ψ = 0.273 the same move is **0.01–0.10 %**. ⚠ **τ still matters for the
+  2300-LEVEL and commitment statements** — those are undiscounted and this says nothing about them.
+* **RANKING, max |ΔNPV/NPV| over the block, SSP5-8.5:** τ **0.01–0.39 %** · ψ **1.04–8.51 %** ·
+  onset **2.53–17.30 %**. **ψ is 20–60× τ; the onset is another ~2× above ψ.**
+* **THE MARGINAL WAS COMPUTED, NOT ASSUMED** — a threshold object can be spikier per-tonne than in
+  level. Finite-differenced against the **FaIR 2.2.4 (calib 1.4.5)** ssp245 CO₂-pulse GMT response —
+  a **near-step**, verified (1.05/1.10/1.00/1.03/1.08 mK at 2035/2050/2100/2200/2300) — at **three**
+  perturbation sizes (10/100/300 mK; linearity 1.05–1.06× at ssp585). Cell-to-cell **ratios** are
+  magnitude-free, so the unknown per-tonne scaling and the un-modelled AIS/TE/glacier marginals
+  cancel. **ψ ratio = 2.184 exactly = 0.273/0.125** (the marginal is strictly proportional to ψ);
+  **τ ratio 1.02–1.18**. The level verdict carries over to the per-tonne quantity.
+* **THE FINDING NOBODY WAS LOOKING FOR — the per-tonne term is LARGEST in the MODERATE scenario,
+  which is exactly the one the shipped onset zeroes.** At onset 2.0 K the SSP2-4.5 marginal is
+  **0.00956 cm/mK** vs SSP5-8.5's **0.00229 — 4.2×** — because ssp245 sits **inside** the ramp while
+  ssp585 is past it and a pulse there only shifts the crossing year. At the **shipped 4.69 K onset
+  the SSP2-4.5 marginal is exactly 0.00000.** An RFF-SP-weighted SC-GHG lives in that scenario
+  space, so the shipped onset does not shrink the commitment term per tonne — it **deletes** it.
+  The 245 > 585 **ordering** survives the never-scanned `RAMP_W_K` (2.4–6.5× over 0.5–4.0); only the
+  ratio's **size** depends on it.
+* **COUNTERWEIGHT, stated not resolved.** Onset → 2.0 K overshoots the **SSP2-4.5** matched-2300 band
+  top by **7.4× (cell A) / 17.7× (cell B)** the available **3.2 cm** of headroom. This repo has
+  separately judged those cool bands spuriously precise (honest t-PI **3–9× wider**). Whether the
+  overshoot is fatal or absorbed is a **methodological choice** and is left open.
+
+**Consequence for the work queue.** Handoff §4 items 2–3 (re-scan onset, pin V) are **confirmed
+worth doing** and their justification changes: the onset is worth doing for the **SC-GHG**, not only
+for the cool-arm shape. Item 3's τ ≈ 2700 is worth doing for the **2300-level/commitment** claims
+only. Anything whose sole payoff is a better τ **at fixed ψ** should not be started.
+
 ## [unreleased] — 2026-08-23b — **Greve/SICOPOLIS closes the commitment finding: an INDEPENDENT model that CLEARS the observed rate delivers 5.8-9.5x our φ=1 ceiling by year 3000, and we are 2.1x short already at 2300.**
 
 `diag_gis_greve_year3000.py`. Greve & Chambers 2022 (SICOPOLIS 5 km, doi 10.5281/zenodo.6029867),
