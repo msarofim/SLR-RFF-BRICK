@@ -3,6 +3,51 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-23k — **The tap is part of the module: it is the DEFAULT arm now, and the base model has to be asked for by name.**
+
+Marcus 2026-08-23, on the measured evidence: the tap is exactly inert over the whole
+calibration record, at 2100, and on both cool scenarios at every year, and it moves the
+585/126 separation from 0.56x to **1.07x** of the forcing-matched target. `--tap` is gone
+as a switch; `--no-tap` produces the base arm.
+
+### The tidier-looking flip would have been WRONG
+
+The obvious move is to swap the filenames too, so the plain
+`ssps_components_2300_<TAG>.csv` means the shipped model. **Four live consumers read that
+name meaning the BASE model:**
+
+| consumer | what it calls it |
+|---|---|
+| `python/scope_gis_reservoir_offline.py` | `DELIVERABLE` — the offline emulator the whole cell selection is built on |
+| `python/scope_gis_ridge_vs_ssp_bands.py` | "the untapped shipped arm" |
+| `python/diag_gis_npv_tau_sensitivity.py` | "L14 canonical, UNTAPPED base" |
+| `julia/test_gis_tap_wiring.jl` | `SPREAD_SRC`, the 2150 tolerance |
+
+and the last would have become **self-referential**: it scales "how far may the tap move
+2150" by a sampled spread that would then already contain the tap. So **the default ARM
+moved and the filenames kept their meanings** — the tapped file keeps its cell-encoded
+name, the untapped keeps the plain one, and no file on disk silently changed what it is.
+Which arm you get is now chosen by an argument, never by which name is on disk.
+
+### Verified
+
+* no flags → `ssps_components_2300_L14_tap4p69K_V5p64m_tau800_n2_ws.csv`;
+  `--no-tap` → `ssps_components_2300_L14.csv`. Smoke-run at 4 draws, and **both real
+  2000-draw deliverables restored and md5-checked** afterwards.
+* `test_gis_tap_wiring.jl` passes unchanged; its regeneration hint now says `--no-tap`,
+  without which it would rebuild its own tolerance source as the tapped arm.
+* `--tap-set` is unaffected and now errors on `--no-tap` (there is no untapped arm of a
+  set of tap cells). `--tap` is still accepted and is a no-op.
+
+### `gis_targets.ssps_csv()` — one resolver for the reporting chain
+
+`python/plot_ladrillo_memo_figures.py` and `python/ladrillo_model_comparison.py` build the
+deliverable path by f-string and can therefore only ever see the untapped file. They now
+have a resolver that defaults to the **tapped** arm and reconstructs the cell-encoded name
+from `gis_targets.tap_cell()` — i.e. from the same Julia constant the driver's own TAG
+derives from, so the two cannot drift. It raises with the exact regeneration command
+rather than falling back to the other arm.
+
 ## [unreleased] — 2026-08-23j — **The suite was certifying a Greenland the deliverables are not produced with; and the r2300 arm's "tap-free" guard had been dead for a month.**
 
 Four finalization items on the way to Greenland being a Ladrillo module on the same

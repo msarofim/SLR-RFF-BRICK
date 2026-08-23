@@ -104,9 +104,13 @@ VARIANT in (:basins, :basins2) ||
 ## Greenland's OWN sampled p05-p95 width at PROTECTED_SCALED, on the scenario the
 ## 2150 gate is asserted on. Read, not assumed — and the read is asserted, because a
 ## silently-missing column would make the tolerance NaN and the gate vacuous.
+## ⚠ `--no-tap` IS REQUIRED IN THAT COMMAND. The driver's default arm became the
+## TAPPED one on 2026-08-23; this gate needs the BASE model's spread, or the
+## tolerance it scales by would already contain the effect it is bounding.
 isfile(SPREAD_SRC) || error("test_gis_tap_wiring: no untapped deliverable at " *
     "$SPREAD_SRC to measure the $(PROTECTED_SCALED) spread from. Produce it with\n" *
-    "  julia --project=julia_v2 julia/project_ssps_components_ladrillo.jl <n> --tag=$TAG")
+    "  julia --project=julia_v2 julia/project_ssps_components_ladrillo.jl <n> " *
+    "--tag=$TAG --no-tap")
 const SPREAD_2150 = let d = CSV.read(SPREAD_SRC, DataFrame),
                         m = (d.year .== PROTECTED_SCALED) .& (d.ssp .== "SSP5-8.5") .&
                             (d.component .== "gis")

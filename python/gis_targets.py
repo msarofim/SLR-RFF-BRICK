@@ -194,6 +194,41 @@ def tap_cell_label(cell=None):
             f"/ n={int(c['stages'])} / {'whole-sheet' if c['wholesheet'] else 'high-basin'}")
 
 
+def tap_tag(tag, cell=None):
+    """The filename infix a TAPPED projection carries, e.g.
+    `L14_tap4p69K_V5p64m_tau800_n2_ws`. MUST match the TAG expression in
+    julia/project_ssps_components_ladrillo.jl -- every element derives from the same
+    GIS_TAP_CELL, so the two cannot drift as long as both read the Julia constant."""
+    c = cell or tap_cell()
+    return (f"{tag}_tap{str(c['onset_K']).replace('.', 'p')}K"
+            f"_V{str(c['V_m']).replace('.', 'p')}m_tau{int(c['tau_yr'])}"
+            f"_n{int(c['stages'])}_{'ws' if c['wholesheet'] else 'hb'}")
+
+
+def ssps_csv(tag, tapped=True, shape_tag="", cell=None):
+    """Path to an SSP-components deliverable.
+
+    THE TAP IS PART OF THE MODULE, so `tapped=True` is the default and matches the
+    driver's default arm (Marcus 2026-08-23). The UNTAPPED file keeps the plain
+    `ssps_components_2300_<tag>.csv` name -- it was not renamed, because four live
+    consumers read that name meaning the base model and one of them (the tap gate's
+    2150 tolerance) would have become self-referential. So the arm you get is chosen
+    HERE, by an argument, and never by which name happens to be on disk.
+
+    Raises with the exact regeneration command rather than returning a path that is
+    not there, because a missing tapped file silently falling back to the untapped
+    one is the -1.7 cm silent-wrong-model class of error."""
+    stem = tap_tag(tag, cell) if tapped else tag
+    path = os.path.join(REPO, f"outputs/ssps_components_2300_{stem}{shape_tag}.csv")
+    if not os.path.exists(path):
+        raise SystemExit(
+            f"no {'tapped' if tapped else 'untapped'} SSP deliverable at "
+            f"{os.path.relpath(path, REPO)}. Produce it with\n"
+            f"  julia --project=julia_v2 julia/project_ssps_components_ladrillo.jl "
+            f"2000 --tag={tag}{'' if tapped else ' --no-tap'}")
+    return path
+
+
 def _verify():
     """Re-derive the MATCHED literals from the derivation CSV and refuse to import
     if they have drifted. The literals are here so a scorecard cannot silently

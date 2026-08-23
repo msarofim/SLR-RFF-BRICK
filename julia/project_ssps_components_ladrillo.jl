@@ -58,7 +58,25 @@ end
 const POST_TAG = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
     i === nothing ? DEFAULT_TAG : ARGS[i][7:end]
 end
-const TAP_ON = "--tap" in ARGS
+## THE TAP IS PART OF THE MODULE AND IS ON BY DEFAULT (Marcus 2026-08-23).
+## It was opt-in `--tap` while the cell was being chosen. Now that the cell is
+## settled, the arm this driver produces with no flags is the SHIPPED Greenland:
+## the base arm has to be asked for, by name, with `--no-tap`.
+##
+## WHAT DID **NOT** CHANGE, AND WHY. The untapped file keeps the plain
+## `ssps_components_2300_<TAG>.csv` name and the tapped one keeps its cell-encoded
+## name. Swapping the two would have been the tidier-looking flip and it is wrong:
+## FOUR live consumers read the plain name meaning the BASE model --
+##   python/scope_gis_reservoir_offline.py   (DELIVERABLE; the offline emulator the
+##                                            whole cell selection is built on)
+##   python/scope_gis_ridge_vs_ssp_bands.py  ("the untapped shipped arm")
+##   python/diag_gis_npv_tau_sensitivity.py  ("L14 canonical, UNTAPPED base")
+##   julia/test_gis_tap_wiring.jl            (SPREAD_SRC, the 2150 tolerance)
+## -- and the last of those would become SELF-REFERENTIAL: it scales "how far may
+## the tap move 2150" by a sampled spread that would then already contain the tap.
+## So: the DEFAULT ARM moves, the FILENAMES keep their meanings, and no file on disk
+## silently changes what it is. `--tap` is still accepted and is now a no-op.
+const NO_TAP = "--no-tap" in ARGS
 ## --tap-set RUNS THE WHOLE ADMISSIBLE SET, not one cell (Marcus 2026-08-21).
 ##
 ## WHY. The tap is a PRIOR SPECIFICATION, not a fit: its cell was chosen by the
@@ -74,9 +92,11 @@ const TAP_SET = any(a -> a == "--tap-set" || startswith(a, "--tap-set="), ARGS)
 const TAP_SET_CSV = let i = findfirst(a -> startswith(a, "--tap-set="), ARGS)
     i === nothing ? "" : ARGS[i][11:end]
 end
-TAP_SET && TAP_ON &&
-    error("--tap and --tap-set are different arms: --tap runs GIS_TAP_CELL alone, " *
-          "--tap-set runs the admissible set. Pass one.")
+TAP_SET && NO_TAP &&
+    error("--no-tap and --tap-set contradict: --tap-set runs the admissible SET of " *
+          "tap cells, so there is no untapped arm of it. Pass one.")
+## Resolved AFTER TAP_SET is known: the set arm carries its own per-cell taps.
+const TAP_ON = !NO_TAP && !TAP_SET
 ## THE TAP STATE IS IN THE FILENAME. A tapped and an untapped 2300 projection differ
 ## by ~180 cm on ssp585 and are otherwise identical in shape, units and header — the
 ## one thing that must never be ambiguous about a file on disk is which arm it is.
@@ -167,10 +187,11 @@ for cell in CELLS, (ssp, label) in SSPS
     ## cascades and report the spread of an object nobody scored.
     cell === nothing || ladrillo_set_tap!(bf; v=cell.V_m, onset=cell.onset_K,
                                           tau=cell.tau_yr, stages=1, wholesheet=false)
-    ## --tap switches the Greenland volume tap ON at GIS_TAP_CELL — a 2-stage cascade,
+    ## THE DEFAULT ARM: the Greenland volume tap at GIS_TAP_CELL — a 2-stage cascade,
     ## V = 5.64 m, tau = 800 yr, onset 4.69 K, whole-sheet home. PRIOR-PROPAGATED, not
     ## sampled: the calibration tops out at 1.385 K against the 4.69 K onset, so the
     ## tap is exactly likelihood-inert and the same posterior serves both arms.
+    ## `--no-tap` produces the base arm instead.
     ## Gated by julia/test_gis_tap_wiring.jl — 2100 moves by 0.000e+00, cooler
     ## scenarios deviate EXACTLY 0.0, and 2150 moves by well under half Greenland's
     ## own sampled spread there — so a --tap run stays comparable to an untapped one
