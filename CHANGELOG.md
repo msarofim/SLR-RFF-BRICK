@@ -3,6 +3,72 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-24d — **The AIS 2300 spread is ONE parameter, it is a PRIOR SAMPLE by construction, and which parameter it is CHANGES WITH SCENARIO.**
+
+`julia/diag_ais_block_propagation.jl`, `outputs/diag_ais_block_propagation_L14.csv`.
+2000 draws (500/chain × 4), both scenarios, three horizons, AIS component.
+
+`diag_iceflow0_propagation.jl` priced ONE parameter against the deliverable. Eleven of
+the seventeen had never been priced at all. Ranked by **decile contrast** — median(top
+decile) − median(bottom decile), as a fraction of the projection's own p05–p95 — because
+the AIS distribution is bimodal in tipped/not-tipped and a Pearson r understates a
+parameter that moves the *mixture weight* rather than the level. It does:
+`antarctic_lambda` at ssp245@2300 has r = 0.364 but a contrast of 0.563; `ais_runoff_Ton`
+r = 0.288, contrast 0.548.
+
+### The ranking is a different parameter in each scenario
+
+| rank | ssp245 @2300 | | ssp585 @2300 | |
+|---|---|---|---|---|
+| 1 | `antarctic_temp_threshold` | **−0.68** | `antarctic_lambda` | **+0.92** (R² **0.78**) |
+| 2 | `ais_gmst_amp` | +0.67 | `ais_gmst_amp` | +0.30 |
+| 3 | `antarctic_lambda` | +0.56 | `ais_c` | +0.26 |
+| 4 | `ais_runoff_Ton` | +0.55 | `ais_mu` | −0.23 |
+| 5 | `antarctic_alpha` | +0.21 | `ais_slope` | −0.21 |
+
+`antarctic_temp_threshold` is **rank 1 at ssp245 and rank 10 (−0.070) at ssp585**. That is
+not noise, it is the mechanism: λ is the DAIS **fast-dynamics disintegration rate**, fired
+by a hard annual step `if T_ant > temperature_threshold`. At ssp245 the binding question
+is *whether* a draw tips, so the threshold dominates; at ssp585 essentially every draw
+tips, *whether* stops discriminating, and *how fast* takes over completely. **This is the
+mechanism behind the bimodality the handoff flagged — and it means an AIS sensitivity
+quoted without its scenario is meaningless.**
+
+### And that parameter is a prior sample, by construction and by measurement
+
+`calibrate_mcmc_ext.jl:1093` says so in its own comment: the fast-dynamics parameters
+*"are observationally unidentified over the historical window (T_ant never crosses
+temperature_threshold), so their marginals will simply sample the prior. That is the
+point."* Measured against the paleo priors in `outputs/param_priors.csv`:
+
+| param | posterior median | paleo prior mean | displacement |
+|---|---|---|---|
+| `antarctic_lambda` | 0.01050 | 0.01040 | **+0.027 prior sd** |
+| `antarctic_temp_threshold` | −15.583 | −15.606 | **+0.053 prior sd** |
+| `antarctic_gamma` | 2.741 | 2.794 | −0.058 sd |
+| `antarctic_kappa` | 0.05897 | 0.06560 | −0.490 sd |
+
+⇒ **the 252 cm ssp585 AIS 2300 band is a PRIOR on the fast-dynamics rate, not an
+inference.** That makes the red team's "the AIS tail is prior- rather than data-driven"
+precise and quantified, and it relocates the leverage: not the sampler, not stock-vs-
+custom DAIS, but the **DAISfastdyn paleo prior on λ**. And because λ is exactly
+likelihood-inert — the same status as `gis_amp` and the Greenland tap onset — a revision
+is **prior-propagatable at projection time, with NO refit.**
+
+### The convergence cross, with the caveats it actually carries
+
+Against `ais_block_convergence_L14.csv`: **the top 3 in both scenarios are the block's
+best-mixed parameters** — `antarctic_lambda` R̂ 1.000 / ESS 7836, `antarctic_temp_threshold`
+1.002 / 6692, `ais_gmst_amp` 1.007 / 2612, `ais_c` 1.003 / 2652. So the 9-of-17 failure
+rate is largely in parameters that do not reach the deliverable.
+
+⚠ **But not entirely, and the earlier verdict was scenario-specific.** Two load-bearing
+parameters DO fail: `ais_runoff_Ton` (contrast 0.55 at ssp245, R̂ 1.092) and
+`antarctic_alpha` (0.21, R̂ **1.777**). And `ais_iceflow0` — whose "does not reach the
+deliverable" verdict was measured on **ssp245 alone** — carries **12× more R² at ssp585**
+(0.0031 → 0.0391, contrast 38.5 cm = 0.152 of the spread). Still far below λ, so
+"reporting caveat" survives; but it should be quoted with the scenario attached.
+
 ## [unreleased] — 2026-08-24c — **The Antarctic block has a convergence certificate at L14 for the first time: `ais_iceflow0` R̂ = 2.244, and 9 of 17 structural marginals fail — but every parameter that reaches the deliverable is converged.**
 
 Handoff 2026-08-24 §7 item 2: *"the L14 value has NOT been re-measured — do not quote one

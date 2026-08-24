@@ -1,0 +1,143 @@
+AIS block propagation | tag L14 | 500 draws/chain x 4 chains | component ais
+  decile contrast = median(top 10%) - median(bottom 10%), as a fraction of p05-p95
+
+  reading chain seed2026 ...
+  reading chain seed2027 ...
+  reading chain seed2028 ...
+  reading chain seed2029 ...
+  ssp245 seed2026: 500 draws in 5s
+  ssp245 seed2027: 500 draws in 3s
+  ssp245 seed2028: 500 draws in 3s
+  ssp245 seed2029: 500 draws in 3s
+
+ssp245 @2100 | n=2000 | median 5.58 cm | p05-p95 35.44 cm
+param                        pearson      R^2  spearman  contrast_cm       frac
+antarctic_temp_threshold      -0.554   0.3071    -0.463       -24.16     -0.682
+ais_gmst_amp                   0.431   0.1857     0.451        15.63      0.441
+ais_runoff_Ton                 0.255   0.0651     0.479         2.14      0.060
+antarctic_alpha                0.113   0.0129     0.392         2.09      0.059
+ais_slope                     -0.065   0.0042    -0.319        -1.46     -0.041
+ais_c                          0.081   0.0066     0.191         1.37      0.039
+ais_iceflow0                   0.044   0.0019     0.285         1.14      0.032
+ais_ocean_temperature₀        -0.028   0.0008    -0.091        -0.61     -0.017
+ais_mu                        -0.051   0.0026    -0.095        -0.59     -0.017
+antarctic_lambda               0.183   0.0336     0.066         0.54      0.015
+antarctic_kappa               -0.012   0.0001     0.041         0.49      0.014
+anto_beta                      0.040   0.0016     0.104         0.44      0.013
+anto_alpha                    -0.035   0.0012     0.015         0.44      0.013
+antarctic_nu                  -0.020   0.0004    -0.045        -0.15     -0.004
+ais_precip0_LOG               -0.024   0.0006     0.014         0.12      0.003
+antarctic_gamma                0.001   0.0000    -0.014        -0.01     -0.000
+ais_bedheight0                 0.030   0.0009     0.057         0.01      0.000
+
+ssp245 @2150 | n=2000 | median 11.91 cm | p05-p95 95.42 cm
+param                        pearson      R^2  spearman  contrast_cm       frac
+antarctic_temp_threshold      -0.632   0.3998    -0.610       -66.03     -0.692
+ais_gmst_amp                   0.476   0.2266     0.516        57.91      0.607
+ais_runoff_Ton                 0.274   0.0751     0.415        27.79      0.291
+antarctic_alpha                0.117   0.0136     0.253        17.71      0.186
+ais_ocean_temperature₀        -0.030   0.0009    -0.066        -4.79     -0.050
+ais_precip0_LOG               -0.026   0.0007    -0.012        -4.65     -0.049
+antarctic_lambda               0.264   0.0697     0.148         4.45      0.047
+ais_mu                        -0.070   0.0049    -0.075        -3.18     -0.033
+ais_slope                     -0.067   0.0045    -0.204        -3.17     -0.033
+antarctic_gamma               -0.002   0.0000    -0.016         3.15      0.033
+antarctic_kappa               -0.013   0.0002     0.005        -2.99     -0.031
+ais_iceflow0                   0.040   0.0016     0.180         2.48      0.026
+antarctic_nu                  -0.017   0.0003    -0.010         2.19      0.023
+ais_c                          0.061   0.0037     0.116        -0.76     -0.008
+ais_bedheight0                 0.043   0.0019     0.061         0.57      0.006
+anto_beta                      0.056   0.0031     0.085         0.43      0.005
+anto_alpha                    -0.033   0.0011    -0.016         0.23      0.002
+
+ssp245 @2300 | n=2000 | median 131.35 cm | p05-p95 280.77 cm
+param                        pearson      R^2  spearman  contrast_cm       frac
+antarctic_temp_threshold      -0.629   0.3951    -0.614      -190.59     -0.679
+ais_gmst_amp                   0.475   0.2260     0.496       188.75      0.672
+antarctic_lambda               0.364   0.1328     0.319       158.04      0.563
+ais_runoff_Ton                 0.288   0.0827     0.361       153.80      0.548
+antarctic_alpha                0.124   0.0153     0.192        58.62      0.209
+ais_bedheight0                 0.054   0.0029     0.070        34.06      0.121
+ais_mu                        -0.086   0.0074    -0.084       -25.46     -0.091
+ais_ocean_temperature₀        -0.053   0.0028    -0.069       -22.35     -0.080
+ais_precip0_LOG               -0.022   0.0005    -0.011       -16.58     -0.059
+ais_slope                     -0.087   0.0075    -0.155       -11.75     -0.042
+antarctic_kappa               -0.006   0.0000     0.008         9.87      0.035
+ais_c                          0.020   0.0004     0.061        -7.26     -0.026
+anto_alpha                    -0.040   0.0016    -0.029        -6.73     -0.024
+antarctic_nu                  -0.001   0.0000     0.004         6.49      0.023
+ais_iceflow0                   0.056   0.0031     0.131        -5.98     -0.021
+anto_beta                      0.050   0.0025     0.070        -5.87     -0.021
+antarctic_gamma               -0.023   0.0005    -0.035         3.32      0.012
+  ssp585 seed2026: 500 draws in 3s
+  ssp585 seed2027: 500 draws in 3s
+  ssp585 seed2028: 500 draws in 3s
+  ssp585 seed2029: 500 draws in 3s
+
+ssp585 @2100 | n=2000 | median 37.07 cm | p05-p95 50.56 cm
+param                        pearson      R^2  spearman  contrast_cm       frac
+antarctic_lambda               0.661   0.4367     0.654        36.07      0.713
+antarctic_temp_threshold      -0.528   0.2787    -0.525       -24.22     -0.479
+ais_gmst_amp                   0.455   0.2073     0.447        24.05      0.476
+ais_runoff_Ton                 0.301   0.0907     0.312        16.41      0.325
+antarctic_alpha                0.173   0.0300     0.161         9.75      0.193
+ais_mu                        -0.167   0.0280    -0.141        -7.68     -0.152
+ais_slope                     -0.151   0.0229    -0.142        -6.02     -0.119
+ais_bedheight0                 0.067   0.0044     0.078         3.59      0.071
+ais_ocean_temperature₀        -0.066   0.0043    -0.073        -3.49     -0.069
+ais_iceflow0                   0.117   0.0136     0.119         2.68      0.053
+ais_c                          0.071   0.0050     0.064         1.98      0.039
+antarctic_gamma               -0.042   0.0018    -0.041        -1.68     -0.033
+antarctic_kappa                0.018   0.0003     0.019         1.53      0.030
+anto_beta                      0.065   0.0043     0.068        -0.49     -0.010
+ais_precip0_LOG               -0.003   0.0000    -0.001         0.39      0.008
+antarctic_nu                  -0.016   0.0003    -0.004         0.38      0.007
+anto_alpha                    -0.039   0.0015    -0.048        -0.07     -0.001
+
+ssp585 @2150 | n=2000 | median 94.35 cm | p05-p95 94.79 cm
+param                        pearson      R^2  spearman  contrast_cm       frac
+antarctic_lambda               0.861   0.7421     0.866        85.15      0.898
+ais_gmst_amp                   0.321   0.1030     0.306        35.00      0.369
+antarctic_temp_threshold      -0.278   0.0773    -0.262       -22.49     -0.237
+ais_mu                        -0.229   0.0526    -0.198       -20.14     -0.213
+ais_runoff_Ton                 0.231   0.0535     0.232        19.78      0.209
+antarctic_alpha                0.184   0.0340     0.168        17.21      0.182
+ais_slope                     -0.194   0.0378    -0.182       -14.85     -0.157
+ais_c                          0.129   0.0167     0.126        11.13      0.117
+ais_iceflow0                   0.164   0.0270     0.167         6.65      0.070
+ais_bedheight0                 0.073   0.0053     0.087         6.56      0.069
+ais_ocean_temperature₀        -0.061   0.0038    -0.063        -3.96     -0.042
+antarctic_kappa                0.036   0.0013     0.035         2.78      0.029
+antarctic_gamma               -0.057   0.0032    -0.052        -2.75     -0.029
+anto_alpha                    -0.037   0.0014    -0.045        -1.86     -0.020
+ais_precip0_LOG                0.015   0.0002     0.015         0.68      0.007
+anto_beta                      0.062   0.0038     0.062         0.61      0.006
+antarctic_nu                  -0.025   0.0006    -0.018         0.56      0.006
+
+ssp585 @2300 | n=2000 | median 281.19 cm | p05-p95 252.36 cm
+param                        pearson      R^2  spearman  contrast_cm       frac
+antarctic_lambda               0.882   0.7774     0.886       231.13      0.916
+ais_gmst_amp                   0.265   0.0704     0.248        74.69      0.296
+ais_c                          0.254   0.0647     0.243        65.42      0.259
+ais_mu                        -0.250   0.0623    -0.220       -58.65     -0.232
+ais_slope                     -0.225   0.0508    -0.213       -52.11     -0.207
+ais_runoff_Ton                 0.185   0.0344     0.186        42.12      0.167
+antarctic_alpha                0.181   0.0326     0.163        39.37      0.156
+ais_iceflow0                   0.198   0.0391     0.203        38.47      0.152
+ais_ocean_temperature₀        -0.059   0.0035    -0.059       -22.34     -0.089
+antarctic_temp_threshold      -0.099   0.0098    -0.088       -17.65     -0.070
+ais_bedheight0                 0.069   0.0048     0.087        16.70      0.066
+antarctic_gamma               -0.083   0.0069    -0.075       -13.97     -0.055
+antarctic_nu                  -0.000   0.0000     0.001        13.03      0.052
+anto_alpha                    -0.046   0.0021    -0.052        -9.01     -0.036
+ais_precip0_LOG                0.032   0.0010     0.030        -2.34     -0.009
+antarctic_kappa                0.054   0.0029     0.050         1.39      0.006
+anto_beta                      0.053   0.0028     0.052         0.56      0.002
+
+wrote outputs/diag_ais_block_propagation_L14.csv
+
+==============================================================================
+RANKING at 2300 (the horizon Antarctica dominates)
+==============================================================================
+ssp245: top 5 by |contrast/spread|  antarctic_temp_threshold -0.68 | ais_gmst_amp 0.67 | antarctic_lambda 0.56 | ais_runoff_Ton 0.55 | antarctic_alpha 0.21
+ssp585: top 5 by |contrast/spread|  antarctic_lambda 0.92 | ais_gmst_amp 0.30 | ais_c 0.26 | ais_mu -0.23 | ais_slope -0.21
