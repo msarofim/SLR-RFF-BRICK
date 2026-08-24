@@ -1,0 +1,84 @@
+============================================================================================
+CURVATURE DEFICIT -- WITH AN ERROR BAR | tag L14
+============================================================================================
+  per-draw : diag_curvature_deficit_perdraw_L14.csv  10000 rows, 5 components x 2000 draws, 4 chains
+  panel    : diag_curvature_deficit_2x2_L14.csv
+  targets  : recalib_targets_ext.csv  1900-2026
+
+============================================================================================
+[2] THE SHIPPED NUMBER IS accel(MEDIAN TRAJECTORY), NOT median(accel PER DRAW)
+============================================================================================
+  component    accel(median)  median(accel)        diff      rel
+  ais               0.000601       0.000585   -0.000016   -2.68%
+  gis               0.000917       0.000918   +0.000001    0.10%
+  gsic_hind         0.001346       0.001362   +0.000016    1.17%
+  te                0.001488       0.001488   +0.000000    0.00%
+  total             0.005190       0.005178   -0.000012   -0.23%
+  -> the two estimators are reported separately throughout; the ratio column
+     labelled `shipped` always uses accel(median), the arc's own convention.
+
+============================================================================================
+[3] OBSERVATIONAL BARS -- [B] AR(1) estimator scatter, [C] the published band
+============================================================================================
+  [SE-MC] ais         1993-2024  analytic 0.000608 vs MC 0.000466 = 1.30x -> PASS (conservative)   [rho +0.718, inflation 2.47x]
+  [SE-MC] gis         1993-2024  analytic 0.001969 vs MC 0.000722 = 2.73x -> PASS (conservative)   [rho +0.918, inflation 4.83x]
+  [SE-MC] gsic_hind   1993-2023  analytic 0.000129 vs MC 0.000123 = 1.05x -> PASS (conservative)   [rho +0.223, inflation 1.25x]
+  [SE-MC] te          1993-2024  analytic 0.000929 vs MC 0.000846 = 1.10x -> PASS (conservative)   [rho +0.464, inflation 1.65x]
+  [SE-MC] total       1993-2024  analytic 0.002784 vs MC 0.002315 = 1.20x -> PASS (conservative)   [rho +0.638, inflation 2.13x]
+
+  component     obs accel   [B] AR(1)    [C] corr   [C] indep   panel obs
+  ais           +0.000826    0.000608    0.000181    0.000205   +0.000826
+  gis           +0.001458    0.001969    0.000067    0.000144   +0.001458
+  gsic_hind     +0.000436    0.000129    0.000342    0.000464   +0.000436
+  te            +0.000411    0.000929    0.000204    0.000484   +0.000411
+  total         +0.009093    0.002784    0.000221    0.003017   +0.009093
+  [IDENT] obs accel reproduces the shipped panel exactly for all components.
+
+============================================================================================
+[4] IS THE DEFICIT RESOLVED?  difference = ours - obs, z = difference / sigma
+============================================================================================
+  [A] is OUR posterior sd across draws. sigma_B = hypot([A],[B]); sigma_BC adds the
+  WIDER band arm in quadrature and is CONSERVATIVE (it double-counts the part of
+  the year-to-year scatter the published band already describes).
+
+  component      window   ours med    [A] sd        obs       diff     z_A    z_B   z_BC   z_MC obs pctile  verdict
+  ais         1993-2024  +0.000585  0.000260  +0.000826  -0.000242    -0.9  -0.37  -0.35  -0.45      79.5%  UNRESOLVED
+  gis         1993-2024  +0.000918  0.000074  +0.001458  -0.000540    -7.3  -0.27  -0.27  -0.74     100.0%  UNRESOLVED
+  gsic_hind   1993-2023  +0.001362  0.000295  +0.000436  +0.000926     3.1   2.87   1.64   2.89       0.0%  BAR-DEPENDENT
+  te          1993-2024  +0.001488  0.000070  +0.000411  +0.001077    15.4   1.16   1.03   1.27       0.0%  UNRESOLVED
+  total       1993-2024  +0.005178  0.000393  +0.009093  -0.003916   -10.0  -1.39  -0.95  -1.67     100.0%  UNRESOLVED
+
+  wrote outputs/diag_curvature_deficit_errorbar_summary_L14.csv
+
+============================================================================================
+[5] THE RATIO ours/obs, Monte-Carlo
+============================================================================================
+  numerator resampled from the 2000 posterior draws (empirical, not Gaussian); denominator ~ N(obs, sigma_B_obs).
+  `denom flip` is the fraction of MC draws in which the observed acceleration
+  changes SIGN -- above it the ratio band is unbounded and means nothing.
+
+  component    shipped   MC p50   MC p2.5  MC p97.5 denom flip  reading
+  ais            0.727    0.598    -5.806     7.277      9.80%  denominator sign not secure -- band tails meaningless
+  gis            0.629    0.341    -5.583     5.754     23.04%  denominator sign not secure -- band tails meaningless
+  gsic_hind      3.086    2.061   -29.077    31.618     18.15%  denominator sign not secure -- band tails meaningless
+  te             3.624    1.001   -20.301    20.922     34.64%  denominator sign not secure -- band tails meaningless
+  total          0.571    0.563     0.276     2.874      1.29%  denominator sign not secure -- band tails meaningless
+
+  wrote outputs/diag_curvature_deficit_errorbar_ratio_L14.csv
+
+============================================================================================
+[6] BETWEEN-CHAIN SPREAD OF THE REPORTED ACCELERATION (cm/yr^2)
+============================================================================================
+  component      seed2026    seed2027    seed2028    seed2029       range  / [A] sd
+  ais            0.000710    0.000482    0.000735    0.000424    0.000312     1.199
+      [EXCH] permutation p = 0.0000 (null median range 0.000031, observed 0.000312 = 10.0x) -> NOT MIXED
+  gis            0.000916    0.000928    0.000917    0.000913    0.000016     0.211
+      [EXCH] permutation p = 0.0070 (null median range 0.000007, observed 0.000016 = 2.2x) -> NOT MIXED
+  gsic_hind      0.001360    0.001363    0.001371    0.001348    0.000023     0.079
+      [EXCH] permutation p = 0.6192 (null median range 0.000027, observed 0.000023 = 0.9x) -> MIXED
+  te             0.001492    0.001488    0.001488    0.001483    0.000009     0.128
+      [EXCH] permutation p = 0.2015 (null median range 0.000007, observed 0.000009 = 1.3x) -> MIXED
+  total          0.005306    0.005105    0.005305    0.005001    0.000305     0.776
+      [EXCH] permutation p = 0.0000 (null median range 0.000040, observed 0.000305 = 7.7x) -> NOT MIXED
+
+  wrote outputs/diag_curvature_deficit_errorbar_chain_L14.csv

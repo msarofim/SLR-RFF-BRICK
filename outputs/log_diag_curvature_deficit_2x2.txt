@@ -16,6 +16,9 @@ te         FaIR-mean OHC                  1993-2024    0.1437    0.1300   1.105 
 total      mixed                          1993-2024    0.3104    0.3201   0.970 |    0.005190    0.009093   0.571
 
 wrote outputs/diag_curvature_deficit_2x2_L14.csv
+wrote outputs/diag_curvature_deficit_perdraw_L14.csv  (10000 rows = 5 components x 2000 draws)
+  [IDENT] max |new - shipped| = 0.000e+00 () -> PASS
+  [SHIFT] accel 2.645e-17 / rate 1.388e-17 under a +7.3 cm offset -> PASS
 
 ================================================================================================
 VERDICT

@@ -3,6 +3,111 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-24o — **ITEM 1 CLOSED: the three deficits that started the whole curvature arc are UNRESOLVED — 0.629× is 0.27 σ, 0.727× is 0.37 σ, 0.571× is 1.39 σ. They are 7–10 σ statements about the MODEL and sub-2 σ statements about the WORLD. Item 2 also closed: the GIA convention mismatch IS real (Caron-2018 vs ICE-6G_D) and is bounded at 0.024 mm/yr — it does not gate the LWS trend.**
+
+`julia/diag_curvature_deficit_2x2.jl` (extended, additively),
+`python/diag_curvature_deficit_errorbar.py` (new),
+`outputs/diag_curvature_deficit_perdraw_L14.csv`,
+`outputs/diag_curvature_deficit_errorbar_{summary,ratio,chain}_L14.csv`,
+`outputs/log_curvature_deficit_errorbar_L14.txt`. 2000 draws × 4 chains, one chain read.
+
+### ITEM 1 — the question `-24f` §9 asked, and its answer
+
+`-24f` attached error bars to the *target-side* claims and left the **model's own** deficits
+unmeasured, asking: *"if these are 1 σ effects the conclusion changes from 'explained by the
+reconstruction gap' to 'never measurable in the first place'."* **It is the second branch.**
+
+The obstacle was structural: `diag_curvature_deficit_2x2.jl` runs 2000 posterior draws and then
+collapses them to a **median trajectory** before measuring, so the model's posterior width never
+reached the ratio. The panel now also emits per-draw rate and accel on the **same** per-series
+window (`..._perdraw_<tag>.csv`); `OUT` is untouched and an **[IDENT]** gate asserts the shipped
+panel still reproduces — it does, at **0.000e+00**.
+
+| component | shipped ratio | ours (median) | [A] our sd | obs | **z_A** model-only | **z_B** | z_BC | z_MC | verdict |
+|---|---|---|---|---|---|---|---|---|---|
+| **gis** | **0.629×** | +0.000918 | 0.000074 | +0.001458 | **−7.3** | **−0.27** | −0.27 | −0.74 | **UNRESOLVED** |
+| **ais** | **0.727×** | +0.000585 | 0.000260 | +0.000826 | −0.9 | **−0.37** | −0.35 | −0.45 | **UNRESOLVED** |
+| **total** | **0.571×** | +0.005178 | 0.000393 | +0.009093 | **−10.0** | **−1.39** | −0.95 | −1.67 | **UNRESOLVED** |
+| gsic_hind | 3.086× | +0.001362 | 0.000295 | +0.000436 | +3.1 | +2.87 | +1.64 | +2.89 | BAR-DEPENDENT |
+| te | 3.624× | +0.001488 | 0.000070 | +0.000411 | **+15.4** | +1.16 | +1.03 | +1.27 | UNRESOLVED |
+
+### THE HEADLINE, and it is not "the model is uncertain"
+
+**The bar is almost entirely OBSERVATIONAL.** For Greenland our posterior sd is **0.000074**
+against an observational bar of **0.001969** — **27×** larger. Our acceleration is
+*extremely* well determined; the **31-year observed** acceleration is not.
+
+That resolves an apparent contradiction the table makes explicit for the first time. **Every one
+of 2000 draws** sits below the observed acceleration for `gis` and `total` (obs percentile
+**100.0%**), and `z_A` — the same difference divided by our posterior sd *alone* — is **−7.3**
+and **−10.0**. Both readings are true and they are compatible: *the deficit is enormous against
+the model's own width and invisible against the observation's.* The second governs, because the
+comparison being made is model-vs-observation.
+
+### THREE BARS, and the verdict survives all of them
+
+* **[A]** our posterior spread, per-draw — the bar item 1 asked for.
+* **[B]** AR(1)-inflated OLS se of 2·b₂, transcribed from `diag_curvature_postsplice_halving.py`
+  so the numbers compose with `-24f` §6. Gated against a matched MC and **required to be
+  conservative** (1.05–2.73×). ⚠ The inflation is **not** a formality: the Greenland residuals
+  carry **ρ = +0.918** (inflation **4.83×**), `ais` ρ = +0.718, `total` ρ = +0.638.
+* **[C]** the targets' own published `_lo`/`_hi`, **bracketed** by the two correlation structures
+  that bound it — perfectly correlated (a common z, non-zero because these bands *pinch* near
+  2019 and so have their own curvature) and perfectly independent.
+
+`z_MC` re-runs the verdict on the **least** conservative bar the [SE-MC] gate permits. Greenland's
+|z| moves 0.27 → 0.74 and `total`'s 1.39 → 1.67. **Nothing crosses 2 σ.** "UNRESOLVED" is not an
+artefact of an inflated error bar.
+
+### TWO ESTIMATOR CHOICES THAT TURNED OUT NOT TO MATTER, AND ONE THAT DOES
+
+* **accel(median trajectory) vs median(accel per draw)** — never previously reported as a choice.
+  They differ by **≤2.68%** (ais), 0.23% (total), **0.10%** (gis). Immaterial; both are carried.
+* **The RATIOS cannot carry a band at all.** Scored by Monte Carlo, never by dividing two bands'
+  endpoints (`endpoint_division_is_not_a_ratio_band`), the **denominator changes sign** in
+  **9.8%** (ais), **23.0%** (gis), **34.6%** (te) of draws. `total` is the only row under 2%
+  (1.29%) and its band is still **[0.276, 2.874]** — 1.0 comfortably inside. **A ratio is the
+  wrong object here; the difference carries the verdict.**
+* **[EXCH]** — a permutation test on the between-chain median range, in cm/yr² rather than an
+  R-hat column (`rhat_denominator_forgives`). `ais` **p = 0.0000, range 10.0× the null**;
+  `total` **7.7×**; `gis` 2.2×. `gsic_hind` and `te` mix. ⚠ For `ais` and `total` the **[A]** bar
+  is therefore **under**-stated — which only strengthens UNRESOLVED.
+
+### ITEM 2 — the GIA convention check, closed with a number
+
+**The conventions DO differ.** The JPL mascon solution removes GIA with **ICE-6G_D**
+(Peltier et al. 2017). Frederikse 2020 uses the **Caron et al. 2018** 128,000-member GIA
+ensemble, one prediction drawn per ensemble member and likelihood-weighted by GNSS vertical
+velocities and palaeo sea-level records (Methods, "Contemporary mass redistribution"). They ran
+**ICE-6G_D (VM5a) as an explicit sensitivity** (Extended Data Fig. 5) and report basin-mean
+sea-level GIA differences up to **0.3 mm/yr**, within their own ensemble's CI. Their 2003–2018
+mass term comes from the **same JPL RL06 mascon solution** we used.
+
+**Measured on our own quantity**, over the 2003–2018 overlap:
+
+| series | LWS trend | |
+|---|---|---|
+| ours (GRACE, ICE-6G_D) | **+0.3600 ± 0.0872** cm/decade | |
+| Frederikse (Caron 2018) | **+0.3843 ± 0.0875** cm/decade | |
+| **difference** | **−0.0242 ± 0.0111** cm/decade | **2.19 σ**, = **0.024 mm/yr** |
+
+⚠ The **level** agreement is by construction — `build_lws_grace_extension.py:86` offset-matches
+over exactly this window — so only the **trend** is informative. And the difference is an
+**UPPER BOUND** on the GIA effect, because glacier partitioning (Parkes-based splitting vs
+GlaMBIE subtraction) and mascon leakage handling are lumped into the same number.
+
+⇒ **Detectable but immaterial: 0.6% of the LWS trend itself and ~1/12 of the 0.3 mm/yr the
+paper quotes at basin scale. It does NOT gate the post-2018 LWS trend.** Flag closed.
+
+### What this does to the arc
+
+`curvature_deficit_is_recon_gap` claimed the deficit is *explained by* the reconstruction gap.
+With bars attached, the honest statement is weaker and cleaner: **at 31-year window lengths the
+observed acceleration is not measured well enough to establish that our model has a deficit at
+all.** The reconstruction gap remains the best available *explanation*; it is no longer needed,
+because there is no longer a resolved effect requiring one. `-24f` §2's demotion of the
+reconstruction-mixing choice from blocking **stands and is strengthened**.
+
 ## [unreleased] — 2026-08-24n — **LWS IS EXTENDED WITH GRACE, AND IT OVERTURNS 2026-08-24m: the hold-flat fiat was NOT an artifact — it got the level right to +0.018 cm and the post-splice halving is essentially all REAL.**
 
 `python/build_lws_grace_extension.py`, `outputs/lws_grace_extension_L14.{csv,png}`,

@@ -72,6 +72,14 @@ const PANEL = [(:ais,    "ais",    "FaIR-mean GMST"),
 const TARGETS_CSV = joinpath(REPO, "outputs/recalib_targets_ext.csv")
 const OUT = joinpath(REPO, "outputs",
                      "diag_curvature_deficit_2x2_$(TAG)$(SMOKE ? "_SMOKE" : "").csv")
+## ADDED 2026-08-24 (open item 1 of handoff -24g): the panel below collapses 2000 draws
+## to a MEDIAN before measuring, so the posterior spread of our own acceleration -- the
+## bar the 0.65x / 0.727x / 0.571x deficits have never carried -- is discarded. This
+## second output keeps the per-draw rate and accel on the SAME per-series window, so the
+## deficit can be scored against the ensemble's own width. `OUT` is unchanged and the
+## [IDENT] gate below asserts the shipped numbers still reproduce bit-for-bit.
+const OUT_PERDRAW = joinpath(REPO, "outputs",
+                     "diag_curvature_deficit_perdraw_$(TAG)$(SMOKE ? "_SMOKE" : "").csv")
 
 chain_path(sd) = joinpath(REPO, "outputs/mcmc", "chain_$(TAG)_seed$(sd)_n$(NITER).csv")
 hdr(sd) = String.(propertynames(CSV.read(chain_path(sd), DataFrame; limit = 0)))
@@ -109,6 +117,9 @@ end
 flush(stdout)
 const DRAWS = [(@printf("  reading chain seed%d ...\n", sd); flush(stdout); read_draws(sd))
                for sd in SEEDS]
+## draw index -> originating chain, in the SAME order the `for d in DRAWS, r in eachrow(d)`
+## loop below fills `acc`. Measured from the frames, never assumed to be N_TARGET each.
+const DRAW_SEED = vcat([fill(sd, nrow(d)) for (sd, d) in zip(SEEDS, DRAWS)]...)
 
 bf = ladrillo_setup(ssp = SSP, y0 = Y0, y1 = Y1, gis_variant = VARIANT)
 yrs = bf.years
@@ -122,6 +133,10 @@ end
 @printf("  %d draws run\n", length(acc[PANEL[1][1]]))
 
 const TGT = CSV.read(TARGETS_CSV, DataFrame)
+## snapshot of the shipped panel, read before CSV.write overwrites it, for [IDENT].
+const REF = isfile(OUT) ? CSV.read(OUT, DataFrame) : nothing
+perdraw = DataFrame(component = String[], draw = Int[], chain_seed = Int[],
+                    rate = Float64[], accel = Float64[])
 out = DataFrame(component = String[], driver = String[], fitted = Bool[],
                 ours_rate = Float64[], obs_rate = Float64[], rate_ratio = Float64[],
                 ours_accel = Float64[], obs_accel = Float64[], accel_ratio = Float64[],
@@ -147,6 +162,14 @@ for (c, col, drv) in PANEL
     mr = med .- med[i0]; ovr = ov .- ov[1]
     om, oa = rate_of(ovr, oy, rw), accel_of(ovr, oy, aw)
     mm, ma = rate_of(mr, yrs, rw), accel_of(mr, yrs, aw)
+    ## per-draw, on the SAME window `aw`/`rw` this component just resolved. Both
+    ## statistics are shift-invariant (a rate is a difference, an accel is the
+    ## quadratic term), so the `- s[i0]` baselining the median gets is irrelevant
+    ## here and is omitted rather than reproduced -- verified by [SHIFT] below.
+    for (k, sv) in enumerate(series)
+        push!(perdraw, (String(c), k, DRAW_SEED[k],
+                        rate_of(sv, yrs, rw), accel_of(sv, yrs, aw)))
+    end
     @printf("%-10s %-30s %-9s %9.4f %9.4f %7.3f | %11.6f %11.6f %7.3f\n",
             String(c), drv, "$(aw[1])-$(aw[2])", mm, om, mm / om, ma, oa, ma / oa)
     push!(out, (String(c), drv, true, mm, om, mm / om, ma, oa, ma / oa,
@@ -154,6 +177,41 @@ for (c, col, drv) in PANEL
 end
 CSV.write(OUT, out)
 @printf("\nwrote %s\n", relpath(OUT, REPO))
+CSV.write(OUT_PERDRAW, perdraw)
+@printf("wrote %s  (%d rows = %d components x %d draws)\n",
+        relpath(OUT_PERDRAW, REPO), nrow(perdraw), length(PANEL), length(DRAW_SEED))
+
+## ---- [IDENT] the shipped panel must be unchanged by this addition ---------
+## REF was read BEFORE CSV.write overwrote OUT (see the const near the top).
+function ident_gate(out, ref)
+    ref === nothing && (@printf("  [IDENT] no prior panel on disk -- nothing to compare\n"); return)
+    worst, worstc = 0.0, ""
+    for r in eachrow(out)
+        m = findfirst(==(r.component), ref.component)
+        m === nothing && error("[IDENT] component $(r.component) absent from the prior panel")
+        for f in (:ours_rate, :obs_rate, :ours_accel, :obs_accel)
+            d = abs(r[f] - ref[m, f])
+            if d > worst; worst = d; worstc = "$(r.component).$(f)"; end
+        end
+        r.accel_window == ref[m, :accel_window] ||
+            error("[IDENT] window moved for $(r.component)")
+    end
+    @printf("  [IDENT] max |new - shipped| = %.3e (%s) -> %s\n", worst, worstc,
+            worst < 1e-12 ? "PASS" : "FAIL")
+    ## a SMOKE reference was written at whatever --maxrows was in force at the time,
+    ## so it is reported but not asserted; only the full run gates.
+    SMOKE || @assert worst < 1e-12 "[IDENT] the panel moved; the per-draw addition was not additive"
+end
+ident_gate(out, REF)
+
+## ---- [SHIFT] the two statistics are shift-invariant, as claimed above ----
+let v = acc[PANEL[1][1]][1], w = (1993, 2020)
+    d1 = accel_of(v, yrs, w) - accel_of(v .+ 7.3, yrs, w)
+    d2 = rate_of(v, yrs, RATE_WIN) - rate_of(v .+ 7.3, yrs, RATE_WIN)
+    @printf("  [SHIFT] accel %.3e / rate %.3e under a +7.3 cm offset -> %s\n",
+            abs(d1), abs(d2), (abs(d1) < 1e-12 && abs(d2) < 1e-12) ? "PASS" : "FAIL")
+    @assert abs(d1) < 1e-12 && abs(d2) < 1e-12
+end
 
 ## ---- the verdict ---------------------------------------------------------
 obsdrv = out[occursin.("OBSERVED", out.driver), :]
