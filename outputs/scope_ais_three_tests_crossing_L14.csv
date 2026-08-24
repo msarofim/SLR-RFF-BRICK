@@ -1,0 +1,5 @@
+window,dT_ant_lo,dT_ant_hi,frac_fire_at_lo,frac_fire_at_hi,verdict
+LIG  ~120 kyr BP,3.0,6.0,0.6505,1.0,PARTIAL
+LGM  ~20 kyr BP,-10.0,-7.0,0.0,0.0,INERT — carries no lambda information
+MH   ~6 kyr BP,0.0,1.5,0.0,0.0,INERT — carries no lambda information
+instrumental 1992-2011,0.3,1.2,0.0,0.0,INERT — carries no lambda information

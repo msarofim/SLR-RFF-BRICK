@@ -1,0 +1,3 @@
+scenario,frac_ever_cross,cross_yr_p05,cross_yr_med,cross_yr_p95
+ssp245,0.6245,2062.4,2104.0,2201.0
+ssp585,1.0,2051.0,2068.0,2087.0

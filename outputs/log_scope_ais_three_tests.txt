@@ -1,0 +1,54 @@
+AIS three tests | tag L14 | 500 draws/chain x 4 chains
+  T_ant anchor -18.4340 degC | lambda ladder 15 points over [0.001723, 0.029524]
+  reading chain seed2026 ...
+  reading chain seed2027 ...
+  reading chain seed2028 ...
+  reading chain seed2029 ...
+
+==============================================================================
+TEST 1 — WHICH OF RUCKERT'S FOUR CONSTRAINTS TOUCHES lambda?
+==============================================================================
+Fast dynamics fires only where T_ant > Tcrit (antarctic_icesheet_component.jl:180).
+Posterior Tcrit: median -15.592, p05 -16.185, p95 -14.882 degC (absolute, DAIS paleo scale)
+Anchor T_ant(dGMST=0) = -18.4340  =>  Antarctic warming needed to fire:
+   median 2.842 degC  [p05 2.249, p95 3.552]
+
+constraint window            dT_ant lo   dT_ant hi    fire@lo    fire@hi   verdict
+LIG  ~120 kyr BP                  3.00        6.00      65.0%     100.0%   PARTIAL
+LGM  ~20 kyr BP                 -10.00       -7.00       0.0%       0.0%   INERT — carries no lambda information
+MH   ~6 kyr BP                    0.00        1.50       0.0%       0.0%   INERT — carries no lambda information
+instrumental 1992-2011            0.30        1.20       0.0%       0.0%   INERT — carries no lambda information
+
+Our drivers (transient amp, N(0.95,0.10)): dGMST needed to fire =
+   median 3.027 degC  [p05 2.267, p95 3.969]   (amp median 0.945)
+
+ssp245: 62.5% of draws EVER cross Tcrit by 2300; crossing year median 2104 [2062, 2201]
+   within the hindcast 1850-2024: 0.00% of ALL draws
+
+==============================================================================
+TEST 2 — AIS OBSERVED-DATA-FIRST SCORECARD
+==============================================================================
+quantity     window            ours       obs    ratio           obs band  status
+rate mm/yr   1900-1950       0.0056    0.0054    1.032  [-0.0013, 0.0121] IN  shape (partly fitted)
+rate mm/yr   1950-1990       0.0055    0.0054    1.016  [ 0.0007, 0.0102] IN  shape (partly fitted)
+rate mm/yr   1993-2010       0.0256    0.0262    0.980  [ 0.0241, 0.0283] IN  shape (partly fitted)
+rate mm/yr   2010-2024       0.0358    0.0338    1.061  [ 0.0280, 0.0395] IN  shape (partly fitted)
+rate mm/yr   1995-2024       0.0320    0.0296    1.081  [ 0.0270, 0.0322] IN  FREE — the priority-1 obs rate
+accel mm/yr2 1993-2024      0.00060   0.00083    0.727  [0.00047,0.00118] IN  FREE — the Greenland analogue (GIS was 0.65x)
+  ssp245 ladder done (15 lambda x 3 horizons)
+
+ssp585: 100.0% of draws EVER cross Tcrit by 2300; crossing year median 2068 [2051, 2087]
+   within the hindcast 1850-2024: 0.00% of ALL draws
+  ssp585 ladder done (15 lambda x 3 horizons)
+
+==============================================================================
+TEST 3 — lambda LADDER, and how linear the response really is
+==============================================================================
+ssp245 @2100 : median =     5.57 +         1 * lambda   max resid  0.037 cm (63.71% of range)
+ssp245 @2150 : median =    11.57 +        24 * lambda   max resid  0.387 cm (43.29% of range)
+ssp245 @2300 : median =    21.28 +     12551 * lambda   max resid  0.683 cm (0.20% of range)
+ssp585 @2100 : median =     7.41 +      2910 * lambda   max resid  0.154 cm (0.19% of range)
+ssp585 @2150 : median =    18.38 +      7297 * lambda   max resid  0.169 cm (0.08% of range)
+ssp585 @2300 : median =    70.67 +     19752 * lambda   max resid  0.699 cm (0.13% of range)
+
+Ladder written — any lambda band now maps to the deliverable with NO chain re-read.

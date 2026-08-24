@@ -3,6 +3,129 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-24f — **Three tests on the AIS fast-dynamics prior: it rests on ONE data point, Antarctica has Greenland's curvature deficit, and MWP-1A corroborates the prior's WIDTH from data the calibration never used.**
+
+`julia/scope_ais_three_tests.jl` (one chain read serves all three),
+`python/diag_ais_mwp1a_lambda.py`, outputs `scope_ais_three_tests_{crossing,scorecard,
+ladder,crossyear}_L14.csv`, `diag_ais_mwp1a_lambda_L14.csv`,
+`log_scope_ais_three_tests.txt`. 2000 draws (500/chain × 4), L14. Run at Marcus's
+direction after he raised three concerns about the prior priced in `2026-08-24e`.
+
+### TEST 1 — three of Ruckert's four constraints are EXACTLY inert; λ rests on the LIG
+
+Fast dynamics fires only above `temperature_threshold`, so a constraint window whose
+T_ant never crosses it carries **zero** information about λ. The DAIS map's anchor is
+preserved under the A6 amp resampling (`calibrate_mcmc_ext.jl:1106`), so
+T_ant = T_ANT0 + amp·ΔGMST with T_ANT0 = −18.4340 °C and the crossing is exact per draw.
+Posterior requirement: **+2.84 °C of Antarctic warming** (p05–p95 **+2.25 to +3.55**).
+
+| constraint (Ruckert et al. 2017) | ΔT_ant range | fires @cold | fires @warm | verdict |
+|---|---|---|---|---|
+| LIG ~120 kyr BP | +3.0 … +6.0 | 65.0% | 100% | **the only live one** |
+| LGM ~20 kyr BP | −10.0 … −7.0 | **0.0%** | **0.0%** | INERT |
+| mid-Holocene ~6 kyr BP | 0.0 … +1.5 | **0.0%** | **0.0%** | INERT |
+| instrumental 1992–2011 | +0.3 … +1.2 | **0.0%** | **0.0%** | INERT |
+
+Warm-end bounds were chosen **generously** so an "inert" verdict is conservative — even
+at the warm end three of four never cross. ⇒ **λ's entire observational constraint is the
+LIG**, the one window where the calibrating authors report their MICI-free model
+undershooting by ~26% (1 m). And **0.00% of draws cross within 1850–2024**, so the
+"observationally unidentified" claim is now MEASURED, not quoted from a source comment.
+
+In our own drivers the threshold is **ΔGMST ≈ 3.03 °C** [2.27, 3.97] (amp median 0.945).
+ssp245 tips **62.5%** of draws by 2300 (crossing year median 2104 [2062, 2201]); ssp585
+tips **100%** (median **2068** [2051, 2087]). That is the mechanism behind the
+scenario inversion in [[ais_spread_is_lambda_prior]], now dated.
+
+### TEST 2 — Antarctica carries the SAME curvature deficit as Greenland
+
+The observed-data-first gate that `diag_gis_obs_scorecard.py` applied to Greenland, run on
+AIS against `recalib_targets_ext.csv` (IMBIE-3-derived). ⚠ AIS is a **fitted** likelihood
+stream (`calibrate_mcmc_ext.jl:1242`), so levels over the target window are fitted by
+construction; the free quantities are the modern rate and the curvature.
+
+| quantity | window | ours | obs | ratio | status |
+|---|---|---|---|---|---|
+| rate mm/yr | 1900–1950 | 0.00560 | 0.00543 | 1.032× | shape (partly fitted) |
+| rate mm/yr | 1950–1990 | 0.00551 | 0.00543 | 1.016× | shape (partly fitted) |
+| rate mm/yr | 1993–2010 | 0.02563 | 0.02616 | 0.980× | shape (partly fitted) |
+| rate mm/yr | 2010–2024 | 0.03585 | 0.03377 | 1.061× | shape (partly fitted) |
+| rate mm/yr | 1995–2024 | 0.03202 | 0.02963 | **1.081×** | FREE |
+| **accel mm/yr²** | 1993–2024 | 0.000601 | 0.000826 | **0.727×** | FREE |
+
+**Greenland on the identical estimator and window: rates 0.95–1.07×, acceleration 0.65×
+([[gis_obs_accel_deficit]]). Antarctica: rates 0.98–1.08×, acceleration 0.727×.** Two
+independent ice sheets, same signature — level and rate matched, curvature under-run.
+
+⚠ **This argues AGAINST the amplification-law explanation.** The two components run at very
+different amplifications (AIS transient amp median **0.945**; Greenland's effective
+**1.58–1.63**, [[gis_2100_bias_is_amp_law]]) yet show a comparable deficit. The shared
+suspects are the driver's own recent curvature and the **AR(1)-on-levels likelihood**,
+which constrains levels and rates but not second derivatives. **HYPOTHESIS, not a
+conclusion** — it needs its own test.
+
+⚠ **The acceleration band is an OUTER bound and CANNOT reject.** It is the curvature of the
+level envelopes (`ais_lo`/`ais_hi`), not an uncertainty on the curvature — same family as
+[[endpoint_division_is_not_a_ratio_band]]. The **point-estimate ratio is the finding**; the
+"IN band" verdict is not evidence. A proper band needs the IMBIE error structure, which is
+strongly autocorrelated in a cumulative series, so an independent-error GLS would be far too
+tight and is deliberately not offered.
+
+### TEST 3 — a λ ladder, and MWP-1A as an observational RATE constraint
+
+**The ladder** (15 λ across the full paleo support, both scenarios, three horizons) replaces
+the 3-point fit and makes every future λ band a post-processing step with no chain re-read.
+It reproduces the 3-point law almost exactly: **ssp585@2300 median = 70.67 + 19752·λ cm**
+(vs 70.5 + 19769 from three points), max resid **0.699 cm = 0.13% of range**.
+
+⚠ **ssp245 @2100 and @2150 report 63.7% / 43.3% resid — that is NOT nonlinearity.** Those
+cells are **λ-inert**: the whole range across the entire paleo support is **0.028 cm** and
+**0.89 cm**, so the percentage has a near-zero denominator. Confirms the λ-blind-median trap
+from `2026-08-24e` §2.2 at a second horizon.
+
+**MWP-1A** — the one observational constraint on rapid Antarctic disintegration, and one the
+Ruckert calibration never used (it falls between the LGM and MH anchors). Not elicitation,
+not a fit to another model ensemble. Two independent published analyses, both carried:
+
+| estimate | AIS m SLE | yr | implied λ | paleo pctile | AIS@2300 ssp585 |
+|---|---|---|---|---|---|
+| Lin et al. 2021 fingerprinting | 0 – 1.3 – 5.9 | 500 | 0 – 0.01283 | 0 – 77.4 | 105 – 324 cm |
+| Liu et al. 2016 low branch | 0 – 6.9 | 340 | 0 – 0.02206 | 0 – 99.5 | 105 – 506 cm |
+| Liu et al. 2016 high branch | 4.1 – 10.0 | 340 | 0.01311 – 0.03197 | 79.3 – 100 | 330 – 655 cm |
+
+Lin, Hibbert, Whitehouse, Woodroffe, Purcell, Shennan & Bradley (2021) *Nat. Commun.*
+**12**:2015, doi:10.1038/s41467-021-21990-y (AIS 1.3 m, 0–5.9 95%, "strong preference for
+<15%"). Liu, Milne, Kopp, Clark & Shennan (2016) *Nature Geosci.* **9**:130,
+doi:10.1038/ngeo2616 (allowable AIS **either 4.1–10.0 or 0–6.9 m**, depending which North
+American estimate is used; max duration 340 yr; "unable to support or refute").
+
+**VERDICT: MWP-1A neither demands a prior outside the paleo support nor narrows it — but it
+independently CORROBORATES the support's width.** The shipped posterior median λ implies
+**3.31 m in 340 yr / 4.86 m in 500 yr**, inside both Lin's 95% range and Liu's low branch;
+the paleo **maximum** implies **9.24 m in 340 yr**, essentially Liu's high-branch top of
+10.0 m. The DAISfastdyn support and the MWP-1A literature bracket nearly the same range,
+from data the calibration never saw. The two analyses still disagree **7.7× on the upper
+bound** (5.9 vs 10.0 m), so this is corroboration of width, not a tightening.
+
+⚠ **The λ conversion is order-of-magnitude, with three biases stated and none corrected**
+(header of `diag_ais_mwp1a_lambda.py`): MWP-1A's Antarctic share includes the smooth
+channel (over-attributes to λ); the published durations assume above-threshold throughout
+(a sub-window RAISES implied λ, so the net sign is NOT established); and V₀ was larger at
+14.6 ka, so a given SLE rate implies a larger λ than today's 0.92 factor gives. **The
+AIS-2300 propagation itself is not approximate** — it reads the measured ladder, i.e. real
+model runs.
+
+### What this does to the three concerns
+
+1. **Paleo doesn't cover the processes** — CONFIRMED and sharpened: not "four constraints"
+   but **one**, at the single window whose authors report a 26% MICI undershoot. The model
+   form also carries **no rate dependence and no hysteresis** (binary constant flux).
+2. **Coulon as a fit target** — stands as a PLACEMENT only; the observed-data-first route is
+   Test 2, and it now has a result.
+3. **MICI without elicitation** — MWP-1A works as a route and has been run. It corroborates
+   rather than moves the prior, so the MICI branch remains unreachable
+   ([[ais_lambda_prior_envelope]]) and a separate flagged arm is still the only way to carry it.
+
 ## [unreleased] — 2026-08-24e — **The λ prior's FUNCTIONAL FORM is worth ≤6% of the AIS band; the CHOICE of λ inside the paleo support is worth 2.18× it — and the MICI branch is outside what the prior can represent at all.**
 
 `julia/scope_ais_lambda_prior.jl`, `outputs/scope_ais_lambda_prior_L14.csv`,
