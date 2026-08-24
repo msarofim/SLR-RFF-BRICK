@@ -3,6 +3,158 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-24k — **ITEM 4: the two badly-mixed AIS parameters do NOT corrupt the band — `ais_runoff_Ton` is retired at <=0.6%, and the degeneracy is a STIFF direction, not a flat ridge.**
+
+`julia/diag_ais_item4_sampler.jl`; `outputs/diag_ais_item4_{deliverable,fluxes,arms,perdraw}_L14.csv`,
+`outputs/log_item4_sampler_L14.txt`. 2000 draws (500/chain x 4), L14, ssp245 + ssp585,
+horizons 2100/2150/2300. Item 4 of Marcus's 6 -> 4 -> 5 ordering, the last of the three.
+
+THE QUESTION. The L14 certificate fails 9 of 17 structural AIS marginals, and two of the
+failures also reach the projection: `ais_runoff_Ton` (R-hat 1.092, rank 4 at ssp245) and
+`antarctic_alpha` (R-hat 1.777, rank 5). Those two, not `ais_iceflow0`, are what a
+sampler-side effort would be spent on. Price the defect before spending it.
+
+### [1] The deliverable is converged in 11 of 12 cells -- including the one that sets the band
+
+| scen | cmp | yr | R-hat | ESS | chain-median range | p05-p95 |
+|---|---|---|---|---|---|---|
+| ssp245 | ais | 2100 | **1.070** | **38.4** | 1.40 cm | 35.44 |
+| ssp245 | ais | 2150 | 1.034 | 97.7 | 7.89 | 95.42 |
+| ssp245 | ais | 2300 | 1.025 | 183.2 | 39.25 | 280.77 |
+| ssp585 | ais | 2300 | **1.026** | 163.8 | 37.25 | 252.36 |
+| ssp585 | total | 2300 | 1.024 | 216.9 | 34.84 | 253.44 |
+
+**ssp585 AIS @2300 -- 55% of the total and the whole lambda story -- PASSES at 1.026.** The
+single failure is ssp245 AIS @2100, and it fails on ESS (38.4), not on displacement: it has
+the SMALLEST between-chain median range in the table (1.40 cm, 0.116 within-chain sd).
+`diag_slr_convergence_by_chain_ladrillo.jl` had certified only the TOTAL at ssp245 /
+2100-2150; the AIS component, 2300, and ssp585 had never been measured.
+
+WARNING, and it belongs in any report of the band: **R-hat passes at ssp585 @2300 because
+the band is WIDE, not because the chains agree.** Their medians span 37.25 cm = 13.2% of the
+281 cm median. R-hat is a ratio and a 252 cm denominator forgives a lot.
+
+### [2] The prediction INVERTED -- and that is the finding
+
+`calibrate_mcmc_ext.jl:1166` records a 34:1 input-output degeneracy (SMB - discharge pinned
+to -145 +/- 15 Gt/yr while each flux is individually +/- ~505), and `ais_iceflow0` /
+`antarctic_alpha` are exactly the discharge side of it. So the mechanistic hypothesis was
+that the chains slide along that ridge -- disagreeing on the fluxes, agreeing on their net.
+Measured on the model's own `beta_total` and `ice_flux`:
+
+| window | smb | discharge | **net** |
+|---|---|---|---|
+| anchored 1979-2008 (Rignot A5) | 1.012 (ESS 923) | 1.008 (ESS 1027) | **1.069 (ESS 43)** FAIL |
+| unobserved 2281-2300 (ssp245) | 1.070 FAIL | 1.073 FAIL | 1.018 |
+| unobserved 2281-2300 (ssp585) | 1.029 | 1.176 FAIL | 1.025 |
+
+**Where the data are, the chains agree on BOTH fluxes and disagree on the tightly-pinned
+NET; where the data are not, the pattern flips.** That is the opposite of a flat ridge in
+the anchored window. The cancellation is real and large -- net p05-p95 28.0 Gt/yr against
+391 for either flux, a **14:1** squeeze, the same order as the calibrator's 34:1 -- and it
+is precisely the squeeze that makes the net fail: ESS drops 24x (1027 -> 43) on the
+quantity the likelihood constrains hardest. That is the signature of a **STIFF direction**,
+not a flat one, and the two imply different fixes. A flat ridge is fixed by reparameterising
+onto the ridge coordinate; a stiff direction is fixed by proposals scaled to it, i.e. the
+adapted covariance is not capturing it.
+
+### [3] `ais_runoff_Ton` is retired; `antarctic_alpha` is the only live one
+
+Deterministic monotone transport of one column onto each chain's own marginal, all other
+columns untouched. ENVELOPE = the range of the four arms' medians.
+
+| cell | `antarctic_alpha` | | `ais_runoff_Ton` | |
+|---|---|---|---|---|
+| ssp245 @2100 | 5.26 cm | 14.9% | 0.15 cm | 0.4% |
+| ssp245 @2300 | 21.19 cm | 7.5% | 0.64 cm | 0.2% |
+| ssp585 @2100 | 8.28 cm | 16.4% | 0.18 cm | 0.3% |
+| ssp585 @2150 | 18.61 cm | 19.6% | 0.41 cm | 0.4% |
+| ssp585 @2300 | **57.22 cm** | **22.7%** | 1.50 cm | 0.6% |
+
+**`ais_runoff_Ton` is <=0.6% of the band in all six cells** despite its rank-4 propagation
+contrast at ssp245 -- rank 4 in a decile contrast and 0.4% of the band are not in tension,
+because the contrast measures the parameter's own leverage while this measures how far the
+CHAINS DISAGREE about it, and its four chain medians span only 0.88 within-chain sd. It is
+retired as a sampler target.
+
+`antarctic_alpha`'s envelope GROWS with horizon and scenario (14.9% -> 22.7%) and is
+monotone in the chains' own alpha medians (seed2028, alpha 0.5052, is highest in every one
+of the six cells; seed2029, alpha 0.1043, is lowest) -- the correct sign, since higher alpha
+means more ocean sensitivity of the grounding-line flux.
+
+**But the bound is loose, and by a MEASURED amount.** A one-column transport breaks the
+posterior correlations -- [RIDGE-CORR] measures max |corr| 0.703 (alpha, with `ais_slope`,
+itself R-hat 1.750) and 0.613 (Ton, with `ais_gmst_amp`). The consequence is visible
+directly: alpha's as-if-independent envelope at ssp585 @2300 is **57.22 cm, which is 1.54x
+the ENTIRE correlation-respecting between-chain range of the deliverable at the same cell
+(37.25 cm) from all seventeen parameters at once.** One parameter cannot really be worth
+more than all of them jointly; the excess is the broken correlations. Quote test [1]'s
+number for what the sampler actually costs and test [3]'s for an upper bound.
+
+### [4] The unifying hypothesis I formed was REFUTED -- and the test found the real target
+
+The one deliverable cell that fails test [1] (ssp245 AIS @2100, R-hat 1.070 / ESS 38.4) and
+the one flux quantity that fails test [2] (anchored net, 1.069 / 43.6) have nearly the same
+R-hat and nearly the same ESS. I hypothesised they were the same direction. **They are not.**
+Measured per-draw on `outputs/diag_ais_item4_perdraw_L14.csv` -- and on the DECILE CONTRAST,
+not Pearson, because ssp245 @2100 is the bimodal tipped/not-tipped cell where the propagation
+file already established that r understates:
+
+`python/diag_ais_item4_perdraw_contrast.py`, `outputs/diag_ais_item4_contrast_L14.csv`:
+
+| pair | pearson | spearman | contrast | / spread |
+|---|---|---|---|---|
+| anchored net -> AIS@2100 (ssp245) | +0.017 | +0.126 | +0.91 cm | **+0.026** |
+| anchored net -> AIS@2300 (ssp245) | +0.034 | +0.055 | +19.81 cm | +0.071 |
+| anchored net -> AIS@2300 (**ssp585**) | +0.188 | +0.155 | **+62.85 cm** | **+0.249** |
+| anchored SMB -> AIS@2300 (ssp585) | -0.028 | -0.019 | -16.41 cm | -0.065 |
+| anchored discharge -> AIS@2300 (ssp585) | +0.042 | +0.029 | +20.55 cm | +0.081 |
+| 1979-2008 rate -> AIS@2300 (ssp245) | +0.028 | -0.014 | +10.23 cm | +0.036 |
+| 1979-2008 rate -> AIS@2300 (ssp585) | -0.047 | -0.041 | -17.17 cm | -0.068 |
+
+At ssp585 @2300 the NET carries **3.1x either flux separately** (0.249 vs 0.065 / 0.081), so
+it is the combination that reaches the band, not the two fluxes it is built from.
+
+Two slow directions, not one: matching ESS is not evidence of a shared direction, and the
+coincidence would have been reported as a mechanism had it not been tested.
+
+**What the test found instead is more useful than the hypothesis it killed.** By the very
+criterion that put `ais_runoff_Ton` and `antarctic_alpha` on the item-4 list -- fails R-hat
+AND reaches the deliverable -- the **anchored net mass balance** qualifies more strongly than
+either: R-hat 1.069 with a **0.249 decile contrast on the band-setting ssp585 @2300 cell**.
+(Not directly comparable with sec [3]'s percentages -- those are BETWEEN-CHAIN envelopes,
+while this is the quantity's own leverage, the same statistic the propagation ranking uses.
+The like-for-like comparison is `diag_ais_block_propagation_L14.csv` at the same cell, where
+`ais_runoff_Ton` scores **0.167** and `antarctic_alpha` **0.156** -- so the anchored net's
+**0.249 exceeds BOTH named parameters** on their own statistic, at the cell that sets the
+band.) **Any future AIS sampler effort should target that
+direction, not the two named parameters.** It is a stiff direction (sec [2]), so the lever is
+proposal scaling, not reparameterisation.
+
+WARNING: the SIGN of that dependence is counterintuitive -- a LESS negative present-day net
+(the sheet losing less mass now) goes with MORE SLR at 2300 -- and I have no tested mechanism
+for it. At ssp585 @2300 the projection is dominated by fast dynamics rather than by the slow
+mass balance, so a shared-geometry route is plausible and untested. Recorded as an open
+question, not explained.
+
+**A fourth, independent line on "the AIS band is a prior."** Memory `ais_spread_is_lambda_prior`
+rests on three legs (the calibrator's own comment, a 0.027-prior-sd posterior displacement,
+and KS 0.0141 vs the prior). This adds a fourth from a different direction: **the 1979-2008
+hindcast RATE is nearly uncorrelated with the projection it is supposed to constrain** --
+contrast +0.036 (ssp245) and -0.068 (ssp585) of the 2300 spread. NARROW CLAIM: this measures
+the 1979-2008 rate window specifically, NOT the whole `S.ais` stream, which runs 1900-2018.
+
+### Gates
+
+* **[IDENT]** the control arm reproduces `diag_ais_block_propagation_L14.csv` at rel
+  **0.00e+00** on all six scenario x horizon cells -- same draws, same kernel.
+* **[SMB]** the anchored-window SMB lands at **1836.7 Gt/yr, -0.23 sigma** of the Rignot A5
+  target the calibrator itself anchors (1863.4 +/- 118.1) -- so the flux extraction is
+  reading the same quantity the likelihood scored.
+* **[HIST-IDENT]** the anchored-window fluxes are **bit-identical** between the two
+  scenarios (rel 0.00e+00), as the shared historical forcing requires. Without this the
+  "where the data are" leg would not be established, only asserted.
+
 ## [unreleased] — 2026-08-24j — **The curvature REFERENCE is unusable at every level — and Marcus's natural-variability mechanism is CONFIRMED for AIS but NOT for steric.**
 
 Follow-up to `2026-08-24i`, on Marcus's hypothesis: our FaIR-mean drivers are ensemble

@@ -1,0 +1,179 @@
+AIS ITEM 4 -- the two badly-mixed parameters that reach the deliverable
+  tag L14 | 500 draws/chain x 4 chains | Greenland :basins2
+  subjects: antarctic_alpha (R-hat 1.777) and ais_runoff_Ton (R-hat 1.092)
+  flux windows: anchored 1979-2008 (Rignot A5) | unobserved 2281-2300
+  reading chain seed2026 ...
+  reading chain seed2027 ...
+  reading chain seed2028 ...
+  reading chain seed2029 ...
+
+==============================================================================
+GATES
+==============================================================================
+[RIDGE-CORR] antarctic_alpha    max |corr| with any used param = 0.7031  (ais_slope)
+[RIDGE-CORR] ais_runoff_Ton     max |corr| with any used param = 0.6130  (ais_gmst_amp)
+[RIDGE-CORR] pairwise |corr| inside the discharge group ais_iceflow0, antarctic_alpha, ais_ocean_temperature₀, anto_alpha, anto_beta, antarctic_gamma:
+             ais_iceflow0           antarctic_alpha        +0.549
+             antarctic_alpha        anto_alpha             -0.397
+             antarctic_alpha        anto_beta              +0.274
+  ssp245 / chain                        :  2000 draws in    16s | AIS@2300 median   131.35  p05-p95   280.77 cm
+  ssp245 / antarctic_alpha_to_seed2026  :  2000 draws in    12s | AIS@2300 median   137.16  p05-p95   287.22 cm
+  ssp245 / antarctic_alpha_to_seed2027  :  2000 draws in    12s | AIS@2300 median   129.00  p05-p95   282.63 cm
+  ssp245 / antarctic_alpha_to_seed2028  :  2000 draws in    12s | AIS@2300 median   143.68  p05-p95   298.20 cm
+  ssp245 / antarctic_alpha_to_seed2029  :  2000 draws in    12s | AIS@2300 median   122.49  p05-p95   285.15 cm
+  ssp245 / ais_runoff_Ton_to_seed2026   :  2000 draws in    12s | AIS@2300 median   131.12  p05-p95   280.94 cm
+  ssp245 / ais_runoff_Ton_to_seed2027   :  2000 draws in    12s | AIS@2300 median   131.50  p05-p95   280.75 cm
+  ssp245 / ais_runoff_Ton_to_seed2028   :  2000 draws in    12s | AIS@2300 median   130.95  p05-p95   280.98 cm
+  ssp245 / ais_runoff_Ton_to_seed2029   :  2000 draws in    12s | AIS@2300 median   131.59  p05-p95   280.99 cm
+  ssp585 / chain                        :  2000 draws in    12s | AIS@2300 median   281.19  p05-p95   252.36 cm
+  ssp585 / antarctic_alpha_to_seed2026  :  2000 draws in    12s | AIS@2300 median   291.18  p05-p95   250.58 cm
+  ssp585 / antarctic_alpha_to_seed2027  :  2000 draws in    12s | AIS@2300 median   272.29  p05-p95   245.19 cm
+  ssp585 / antarctic_alpha_to_seed2028  :  2000 draws in    12s | AIS@2300 median   313.59  p05-p95   263.71 cm
+  ssp585 / antarctic_alpha_to_seed2029  :  2000 draws in    12s | AIS@2300 median   256.36  p05-p95   244.71 cm
+  ssp585 / ais_runoff_Ton_to_seed2026   :  2000 draws in    12s | AIS@2300 median   280.62  p05-p95   252.40 cm
+  ssp585 / ais_runoff_Ton_to_seed2027   :  2000 draws in    12s | AIS@2300 median   281.59  p05-p95   252.91 cm
+  ssp585 / ais_runoff_Ton_to_seed2028   :  2000 draws in    12s | AIS@2300 median   280.41  p05-p95   252.46 cm
+  ssp585 / ais_runoff_Ton_to_seed2029   :  2000 draws in    12s | AIS@2300 median   281.90  p05-p95   253.15 cm
+
+[SAME-Q] ssp245 per-draw corr(AIS@2100, anchored net)   = +0.0166
+[SAME-Q] ssp245 per-draw corr(AIS@2100, anchored SMB)   = -0.0143
+[SAME-Q] ssp245 per-draw corr(AIS@2100, anchored disch) = +0.0155
+[SAME-Q] ssp245 per-draw corr(AIS@2100, anchored rate)  = +0.0199
+[SAME-Q] ssp245 per-draw corr(AIS@2300, anchored net)   = +0.0335
+
+==============================================================================
+[1] DOES THE BLOCK'S FAILURE REACH THE DELIVERABLE?  (R-hat OK < 1.05)
+==============================================================================
+scen     cmp         yr    R-hat       ESS   med range     /sd_wc    p05-p95
+ssp245   ais       2100    1.070      38.4       1.40       0.116      35.44  NOT CONVERGED
+ssp245   ais       2150    1.034      97.7       7.89       0.236      95.42  
+ssp245   ais       2300    1.025     183.2      39.25       0.387     280.77  
+ssp245   total     2100    1.013     810.0       1.29       0.106      37.42  
+ssp245   total     2150    1.014     815.1       5.08       0.151      97.10  
+ssp245   total     2300    1.018     464.5      38.19       0.375     283.87  
+ssp585   ais       2100    1.014     650.2       6.54       0.427      50.56  
+ssp585   ais       2150    1.021     377.1      13.76       0.481      94.79  
+ssp585   ais       2300    1.026     163.8      37.25       0.495     252.36  
+ssp585   total     2100    1.012     794.0       6.28       0.404      50.13  
+ssp585   total     2150    1.018     598.5      10.95       0.378      94.92  
+ssp585   total     2300    1.024     216.9      34.84       0.458     253.44  
+
+VERDICT: the projection is NOT converged in 1 of 12 cells
+
+==============================================================================
+[2] IS THE DISCHARGE DEGENERACY PINNED WHERE THE DATA ARE?  (Gt/yr)
+==============================================================================
+scen     quantity   window        units    R-hat       ESS      median     /sd_wc    p05-p95
+ssp245   smb        anchored      Gt/yr    1.012     923.3     1836.68      0.229     391.46  
+ssp245   smb        unobserved    Gt/yr    1.070      40.4     1790.19      0.792     574.61  NOT CONVERGED
+ssp245   discharge  anchored      Gt/yr    1.008    1027.2    -1905.50      0.169     391.71  
+ssp245   discharge  unobserved    Gt/yr    1.073      36.2    -2006.97      0.880     806.82  NOT CONVERGED
+ssp245   net        anchored      Gt/yr    1.069      42.6      -69.02      0.664      28.03  NOT CONVERGED
+ssp245   net        unobserved    Gt/yr    1.018     404.9     -228.06      0.383     544.44  
+ssp245   ais_rate   anchored      mm/yr    1.037     100.6        0.17      0.576       0.05  
+ssp245   ais_rate   unobserved    mm/yr    1.028     145.3        6.93      0.316      13.68  
+ssp585   smb        anchored      Gt/yr    1.012     923.3     1836.68      0.229     391.46  
+ssp585   smb        unobserved    Gt/yr    1.029     121.1     1152.44      0.389    2544.34  
+ssp585   discharge  anchored      Gt/yr    1.008    1027.2    -1905.50      0.169     391.71  
+ssp585   discharge  unobserved    Gt/yr    1.176      15.7    -2338.70      1.329    1550.09  NOT CONVERGED
+ssp585   net        anchored      Gt/yr    1.069      42.6      -69.02      0.664      28.03  NOT CONVERGED
+ssp585   net        unobserved    Gt/yr    1.025     208.4    -1202.05      0.351    2171.15  
+ssp585   ais_rate   anchored      mm/yr    1.037     100.6        0.17      0.576       0.05  
+ssp585   ais_rate   unobserved    mm/yr    1.026     152.8       12.44      0.489      10.72  
+[SMB]   ssp245 anchored SMB median 1836.7 Gt/yr vs Rignot A5 target 1863.4 +/- 118.1 => -0.23 sigma  OK
+[SMB]   ssp585 anchored SMB median 1836.7 Gt/yr vs Rignot A5 target 1863.4 +/- 118.1 => -0.23 sigma  OK
+[NET]   ssp245 anchored NET (beta_total + ice_flux, no ISO/fast-dyn) median -69.0 Gt/yr;
+        the calibrator quotes the SMB-discharge pin as -145 +/- 15 Gt/yr
+[NET]   ssp585 anchored NET (beta_total + ice_flux, no ISO/fast-dyn) median -69.0 Gt/yr;
+        the calibrator quotes the SMB-discharge pin as -145 +/- 15 Gt/yr
+[HIST-IDENT] max cross-scenario rel. difference in the ANCHORED window = 0.00e+00 (all)  IDENTICAL, as the shared forcing requires
+[IDENT] ssp245 @2100 control p05-p95   35.438 vs shipped   35.438 cm  rel 0.00e+00  IDENTICAL
+[IDENT] ssp245 @2150 control p05-p95   95.417 vs shipped   95.417 cm  rel 0.00e+00  IDENTICAL
+[IDENT] ssp245 @2300 control p05-p95  280.768 vs shipped  280.768 cm  rel 0.00e+00  IDENTICAL
+[IDENT] ssp585 @2100 control p05-p95   50.558 vs shipped   50.558 cm  rel 0.00e+00  IDENTICAL
+[IDENT] ssp585 @2150 control p05-p95   94.789 vs shipped   94.789 cm  rel 0.00e+00  IDENTICAL
+[IDENT] ssp585 @2300 control p05-p95  252.355 vs shipped  252.355 cm  rel 0.00e+00  IDENTICAL
+
+==============================================================================
+[3] WHAT THE BETWEEN-CHAIN DISAGREEMENT IS WORTH (AIS component, cm)
+==============================================================================
+    as-if-independent: a one-column transport breaks the ridge correlations
+    reported by [RIDGE-CORR]; read test [1] for the correlation-respecting number.
+
+
+ssp245 @2100   control: median     5.58  p05-p95    35.44 cm
+  antarctic_alpha_to_seed2026    median     6.78 (  +1.20)  spread    36.48 (x1.030)
+  antarctic_alpha_to_seed2027    median     4.84 (  -0.74)  spread    37.06 (x1.046)
+  antarctic_alpha_to_seed2028    median     9.30 (  +3.71)  spread    38.69 (x1.092)
+  antarctic_alpha_to_seed2029    median     4.03 (  -1.55)  spread    39.61 (x1.118)
+  antarctic_alpha                ENVELOPE median +5.26 cm = 14.9% of the control p05-p95
+  ais_runoff_Ton_to_seed2026     median     5.54 (  -0.05)  spread    35.42 (x0.999)
+  ais_runoff_Ton_to_seed2027     median     5.63 (  +0.05)  spread    35.46 (x1.000)
+  ais_runoff_Ton_to_seed2028     median     5.51 (  -0.07)  spread    35.40 (x0.999)
+  ais_runoff_Ton_to_seed2029     median     5.66 (  +0.08)  spread    35.47 (x1.001)
+  ais_runoff_Ton                 ENVELOPE median +0.15 cm = 0.4% of the control p05-p95
+
+ssp245 @2150   control: median    11.91  p05-p95    95.42 cm
+  antarctic_alpha_to_seed2026    median    16.50 (  +4.60)  spread    98.85 (x1.036)
+  antarctic_alpha_to_seed2027    median    10.24 (  -1.67)  spread    97.22 (x1.019)
+  antarctic_alpha_to_seed2028    median    24.47 ( +12.56)  spread   100.10 (x1.049)
+  antarctic_alpha_to_seed2029    median     9.27 (  -2.64)  spread   100.48 (x1.053)
+  antarctic_alpha                ENVELOPE median +15.20 cm = 15.9% of the control p05-p95
+  ais_runoff_Ton_to_seed2026     median    11.84 (  -0.07)  spread    95.41 (x1.000)
+  ais_runoff_Ton_to_seed2027     median    12.06 (  +0.15)  spread    95.44 (x1.000)
+  ais_runoff_Ton_to_seed2028     median    11.76 (  -0.14)  spread    95.42 (x1.000)
+  ais_runoff_Ton_to_seed2029     median    12.13 (  +0.23)  spread    95.50 (x1.001)
+  ais_runoff_Ton                 ENVELOPE median +0.37 cm = 0.4% of the control p05-p95
+
+ssp245 @2300   control: median   131.35  p05-p95   280.77 cm
+  antarctic_alpha_to_seed2026    median   137.16 (  +5.81)  spread   287.22 (x1.023)
+  antarctic_alpha_to_seed2027    median   129.00 (  -2.35)  spread   282.63 (x1.007)
+  antarctic_alpha_to_seed2028    median   143.68 ( +12.34)  spread   298.20 (x1.062)
+  antarctic_alpha_to_seed2029    median   122.49 (  -8.86)  spread   285.15 (x1.016)
+  antarctic_alpha                ENVELOPE median +21.19 cm = 7.5% of the control p05-p95
+  ais_runoff_Ton_to_seed2026     median   131.12 (  -0.23)  spread   280.94 (x1.001)
+  ais_runoff_Ton_to_seed2027     median   131.50 (  +0.15)  spread   280.75 (x1.000)
+  ais_runoff_Ton_to_seed2028     median   130.95 (  -0.40)  spread   280.98 (x1.001)
+  ais_runoff_Ton_to_seed2029     median   131.59 (  +0.24)  spread   280.99 (x1.001)
+  ais_runoff_Ton                 ENVELOPE median +0.64 cm = 0.2% of the control p05-p95
+
+ssp585 @2100   control: median    37.07  p05-p95    50.56 cm
+  antarctic_alpha_to_seed2026    median    38.27 (  +1.20)  spread    50.86 (x1.006)
+  antarctic_alpha_to_seed2027    median    35.67 (  -1.41)  spread    49.97 (x0.988)
+  antarctic_alpha_to_seed2028    median    41.71 (  +4.64)  spread    52.69 (x1.042)
+  antarctic_alpha_to_seed2029    median    33.43 (  -3.64)  spread    48.90 (x0.967)
+  antarctic_alpha                ENVELOPE median +8.28 cm = 16.4% of the control p05-p95
+  ais_runoff_Ton_to_seed2026     median    36.98 (  -0.09)  spread    50.51 (x0.999)
+  ais_runoff_Ton_to_seed2027     median    37.10 (  +0.03)  spread    50.63 (x1.001)
+  ais_runoff_Ton_to_seed2028     median    36.95 (  -0.13)  spread    50.51 (x0.999)
+  ais_runoff_Ton_to_seed2029     median    37.12 (  +0.05)  spread    50.66 (x1.002)
+  ais_runoff_Ton                 ENVELOPE median +0.18 cm = 0.3% of the control p05-p95
+
+ssp585 @2150   control: median    94.35  p05-p95    94.79 cm
+  antarctic_alpha_to_seed2026    median    97.54 (  +3.19)  spread    95.37 (x1.006)
+  antarctic_alpha_to_seed2027    median    91.55 (  -2.80)  spread    93.38 (x0.985)
+  antarctic_alpha_to_seed2028    median   105.10 ( +10.75)  spread   101.83 (x1.074)
+  antarctic_alpha_to_seed2029    median    86.49 (  -7.86)  spread    91.96 (x0.970)
+  antarctic_alpha                ENVELOPE median +18.61 cm = 19.6% of the control p05-p95
+  ais_runoff_Ton_to_seed2026     median    94.20 (  -0.15)  spread    94.63 (x0.998)
+  ais_runoff_Ton_to_seed2027     median    94.51 (  +0.16)  spread    94.89 (x1.001)
+  ais_runoff_Ton_to_seed2028     median    94.16 (  -0.19)  spread    94.62 (x0.998)
+  ais_runoff_Ton_to_seed2029     median    94.57 (  +0.22)  spread    94.85 (x1.001)
+  ais_runoff_Ton                 ENVELOPE median +0.41 cm = 0.4% of the control p05-p95
+
+ssp585 @2300   control: median   281.19  p05-p95   252.36 cm
+  antarctic_alpha_to_seed2026    median   291.18 (  +9.99)  spread   250.58 (x0.993)
+  antarctic_alpha_to_seed2027    median   272.29 (  -8.90)  spread   245.19 (x0.972)
+  antarctic_alpha_to_seed2028    median   313.59 ( +32.40)  spread   263.71 (x1.045)
+  antarctic_alpha_to_seed2029    median   256.36 ( -24.83)  spread   244.71 (x0.970)
+  antarctic_alpha                ENVELOPE median +57.22 cm = 22.7% of the control p05-p95
+  ais_runoff_Ton_to_seed2026     median   280.62 (  -0.57)  spread   252.40 (x1.000)
+  ais_runoff_Ton_to_seed2027     median   281.59 (  +0.40)  spread   252.91 (x1.002)
+  ais_runoff_Ton_to_seed2028     median   280.41 (  -0.78)  spread   252.46 (x1.000)
+  ais_runoff_Ton_to_seed2029     median   281.90 (  +0.72)  spread   253.15 (x1.003)
+  ais_runoff_Ton                 ENVELOPE median +1.50 cm = 0.6% of the control p05-p95
+
+wrote outputs/diag_ais_item4_deliverable_L14.csv
+      outputs/diag_ais_item4_fluxes_L14.csv
+      outputs/diag_ais_item4_arms_L14.csv
+      outputs/diag_ais_item4_perdraw_L14.csv
