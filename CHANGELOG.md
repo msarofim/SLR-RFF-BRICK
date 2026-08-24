@@ -3,6 +3,87 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-24n — **LWS IS EXTENDED WITH GRACE, AND IT OVERTURNS 2026-08-24m: the hold-flat fiat was NOT an artifact — it got the level right to +0.018 cm and the post-splice halving is essentially all REAL.**
+
+`python/build_lws_grace_extension.py`, `outputs/lws_grace_extension_L14.{csv,png}`,
+`outputs/log_lws_grace_extension_L14.txt`. New data on disk:
+`data/observations/raw/GRCTellus.JPL.200204_202606.GLO.RL06.3M.MSCNv04CRI.nc`
+(JPL GRACE/GRACE-FO mascon RL06.3Mv04 CRI, doi 10.5067/TEMSC-3JC634) and
+`data/observations/raw/glambie_calendar_years/`. Marcus chose **option 1** from the
+`2026-08-24f` handoff. **No chains read; no recalibration run.**
+
+### Why LWS mattered enough to fetch a new product
+
+It was the **only** component of the target set with no modern extension — Frederikse's TWS
+ensemble ends **2018** for all 5000 members, and `prep_recalib_targets_ext.py:311` holds `lws`,
+`lws_lo` and `lws_hi` at their 2018 values through 2026 **by fiat**. That is not cosmetic: LWS
+enters the likelihood **twice**, both on the total stream — `calibrate_mcmc_ext.jl:1387` adds
+**observed** LWS to the **modelled** total, and `:568` folds its band into the total's
+observation σ. So for 2019+ the fit was told, as data, that land water storage contributed
+exactly zero, **with a real-data error bar**.
+
+### THE RESULT — and it corrects `2026-08-24m`
+
+| year | GRACE | fiat | diff |
+|---|---|---|---|
+| 2019 | 0.656 | 0.532 | +0.123 |
+| 2020 | 0.428 | 0.532 | −0.105 |
+| 2021 | 0.513 | 0.532 | −0.020 |
+| 2022 | 0.506 | 0.532 | −0.026 |
+| 2023 | 0.601 | 0.532 | +0.069 |
+
+**mean +0.018 cm, sd 0.076, max 0.123.** Swapping GRACE in moves the halving only
+**0.492 → 0.498** (2.03× → 2.01×).
+
+⇒ **`2026-08-24m`'s "LWS is charged 52.3% of the drop" was arithmetically correct and causally
+MISLEADING.** LWS's own acceleration does collapse (+0.001925 → +0.000058 over 1993–2023) — but
+it does so **with the real data too**. **The halving is essentially all real.** The **1.78 σ**
+not-resolvable verdict is unchanged.
+
+⇒ **The counterfactual arms in `2026-08-24m` §[3] were WRONG.** Linear and quadratic
+continuation predicted **+0.19 to +0.35 cm** by 2024; the truth was flat. Two parametric
+extrapolations agreed with each other and both missed. Textbook `use real data when you have it`.
+
+⇒ **What extending actually buys:** the fiat leaves the likelihood for 2019–2023, the frozen
+0.2016 cm σ can be replaced by a real GRACE uncertainty, and the genuine **interannual variance**
+(sd 0.076 cm) the hold removed is restored — which is the part a last-window quadratic is most
+sensitive to.
+
+### Gates
+
+* **[GRL]** the Greenland mask reproduces **JPL's own published series from the same solution**
+  at ratio **1.0038**, rms 11.1 Gt. **[ANT]** **1.0036**, rms 7.3 Gt.
+* **[AREA]** the 0.5° grid sums to 5.1007e8 km² against 5.1010e8.
+* **[SCOPE]** region 19 contributes **zero** land cells to the domain, so exactly **17** GlaMBIE
+  regions are subtracted (region 5 sits inside the Greenland mask) — no double-count, no gap.
+* **[SEAS]** a **5943 Gt** peak-to-peak annual cycle removed on 2 harmonics.
+
+### Traps found, all now gated or documented
+
+* ⚠ **1 cm over 1 km² is 1e-5 Gt, not 1e-8.** The wrong factor made the Greenland gate read
+  **0.0010** — a clean 1/1000 tell. A −0.26 Gt/yr trend against a published −257 is a bug.
+* ⚠ **The GTN-G "Antarctic Mainland" polygon misses 398 land cells** on the Ross/Ronne margins,
+  worth **−28.9 Gt/yr = 22%** of the Antarctic trend. Swept via `lat < −60`.
+* ⚠ **GTN-G o1 files are REGION outlines, not glacier outlines** — region 16 "Low Latitudes"
+  spans a **134 Mkm² bbox for 1770 km²** of glacier (75000:1), region 10 41 Mkm² for 2270 km².
+  **Glaciers cannot be masked spatially at all**, which kills the `2026-08-24f` "mask the 10
+  resolvable regions, subtract GlaMBIE for the 9 small ones" hybrid. All 17 go by subtraction.
+* ⚠ **Deseasonalise before annual means.** 2011–2018 have as few as **5 months**; a raw annual
+  mean there averages the wrong *seasons*. Fixing it restored the overlap from 7 yrs to **16**.
+* ⚠ **The 0.022 cm overlap rms is NOT an independent validation.** Frederikse's natural-TWS term
+  comes from a **GRACE-calibrated** reconstruction, so the two share a source over 2003–2018.
+  Read it as *"the splice introduces no discontinuity"*, nothing more.
+* **All 19 RGI regions lose mass over 2019–2023**, so Marcus's "exclude any region with loss"
+  rule resolves to *mask all glaciers* — the exempt set is **empty**.
+
+### Decisions taken (Marcus, 2026-08-24)
+
+* **2024 is held flat from 2023** — GlaMBIE ends 2023. **One** fiat year, against six.
+* **No recalibration yet** — *"wait until we have something else worth recalibrating."*
+  `recalib_targets_ext.csv` is **UNCHANGED** and the calibration still sees the fiat. A pointer
+  comment now sits at the hold-flat block so the next person finds the ready replacement, and it
+  flags that **`lws_lo`/`lws_hi` must be replaced at the same time**.
+
 ## [unreleased] — 2026-08-24m — **ITEM 1b: the post-splice curvature halving is ~half LWS fiat, the "Dangendorf is 1.83× Frederikse" resolution is a one-window artifact of a noisy denominator, and NOTHING in the curvature arc is resolved at 2σ.**
 
 `python/diag_curvature_postsplice_halving.py`, `outputs/diag_curvature_postsplice_{decomp,arms,windows,recon,sweep,se}_L14.csv`, `outputs/log_curvature_postsplice_L14.txt`.
