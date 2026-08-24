@@ -3,6 +3,162 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-24e — **The λ prior's FUNCTIONAL FORM is worth ≤6% of the AIS band; the CHOICE of λ inside the paleo support is worth 2.18× it — and the MICI branch is outside what the prior can represent at all.**
+
+`julia/scope_ais_lambda_prior.jl`, `outputs/scope_ais_lambda_prior_L14.csv`,
+`outputs/log_scope_ais_lambda_prior.txt`, `data/dais_paleo/`. 2000 draws (500/chain × 4),
+L14, ssp245 + ssp585, horizons 2100/2150/2300, AIS component, **8 arms**.
+Answers handoff `2026-08-24b` §5 item 1 — all three of its sub-questions.
+
+### 1. Provenance: the label is right, the FIT is not the evidence
+
+`outputs/param_priors.csv` has no generating script in this repo (single catch-up commit
+`f2b0a8d`), so it was re-derived against the source. Its fast-dynamics rows **are** the
+DAISfastdyn paleo ensemble — MimiBRICK's bundled
+`DAISfastdyn_calibratedParameters_gamma_29Jan2017.nc`, 16 parameters × 800,000 members,
+the Ruckert et al. 2017 (PLoS ONE 12:e0170052) paleo calibration under uniform priors.
+`antarctic_lambda` reproduces that ensemble's marginal mean to **0.018 prior sd** and its
+sd to 2%. (⚠ `antarctic_kappa`, `antarctic_alpha` and `anto_alpha` do **not** — 0.33–0.64
+sd off — so the file is a *subsample*, and "these rows are the paleo marginals" is only
+verified for λ / Tcrit / γ / μ / ν. Do not extend the claim to the rest without checking.)
+
+But the file is an **independent Gaussian hard-truncated to a box**
+(`calibrate_mcmc_ext.jl:1507` + `:1313`, which returns `-Inf` outside), not the marginal:
+
+| | paleo evidence | shipped prior |
+|---|---|---|
+| λ shape | right-skewed, **+0.711** | Gaussian; p99 **1.099×** low, p99.9 **1.242×** low |
+| λ support | max 0.029524 | box top 0.020705 = pctile **99.10**, deleting 7,167 members whose mean λ is **2.18×** the prior mean |
+| Tcrit location | median −15.667 | −15.591 — the fit sits **above** the marginal at 77 of 99 percentiles, i.e. systematically *harder to tip* than the evidence |
+| joint | corr(λ, Tcrit) = **+0.445** | independent |
+
+MimiBRICK's own stock calibrator offers a truncated-**KDE** alternative for exactly these
+rows, because *"many of the marginal paleo pdfs are not normally distributed"*
+(`create_log_posterior_brick.jl:20`). Using the empirical marginal is therefore not a new
+prior — it is the same evidence without the parametric detour.
+
+⚠ **The three defects do NOT all point the same way**, and the sign trap is real: higher λ
+means faster once tipped (contrast **+0.56** at ssp245) but higher Tcrit means **harder**
+to tip (**−0.68**), so the **positive** parameter correlation is a **negative** response
+correlation. Reinstating it *narrows* the band.
+
+### 2. The propagation is legitimate — measured, not assumed
+
+Three gates at n = 2000, all pass:
+
+* **[INERT]** posterior-vs-prior KS **0.0141** (λ) and **0.0120** (Tcrit) against a 5%
+  critical value of **0.0304** — both marginals are statistically indistinguishable from
+  their priors. The handoff's "exactly likelihood-inert" is now *evidence*, so the
+  prior-propagation-with-no-refit route is established rather than inherited.
+* **[INDEP]** max |corr(λ, any other used parameter)| in the posterior = **0.047**, so the
+  draw-by-draw swap is valid. (The smoke run reported 0.618 — that was pre-burn-in, and it
+  is why the smoke mode exists.)
+* **[IDENT]** the control arm reproduces `diag_ais_block_propagation_L14.csv` at
+  **rel 0.00e+00** on all six scenario × horizon cells.
+
+The swap is a **monotone transport** — draw *i*'s λ becomes `Q_paleo(F_truncGauss(λ_i))` —
+not a resample, so it carries **zero** Monte Carlo noise and every other parameter stays
+paired with its own draw. Tcrit's joint arm uses the paleo distribution *conditional* on
+the new λ, which reinstates corr = **+0.4351** against the paleo **+0.4449**.
+
+### 3. What the functional form is worth: ≤6%, and the largest effect is not where expected
+
+ssp585 @2300 (control median 281.19 cm, p05–p95 252.36):
+
+| arm | median | spread | p99 |
+|---|---|---|---|
+| `lam_box` (shape only, inside the box) | −11.34 cm | ×1.003 | ×1.011 |
+| `lam_full` (shape + the deleted tail) | −11.37 cm | **×1.057** | **×1.075** |
+| `tcr_full` | +0.77 cm | ×1.002 | ×1.001 |
+| `joint` (both + the paleo correlation) | −11.32 cm | ×1.011 | ×1.055 |
+
+ssp245 @2300 (control median 131.35, spread 280.77): `tcr_full` **+13.58 cm (+10.3%)**,
+`lam_full` −5.94, and `joint` **×0.928 on the spread** — the correlation narrows it, as
+the sign argument above predicts. **The whole functional-form error is worth ≤6% of any
+band and ≤10.3% of any median.** The parametric approximation is *not* where the AIS
+uncertainty lives.
+
+⚠ **A reporting trap fell out of the envelope arms.** At **ssp245 @2100 the AIS median is
+completely λ-blind** — 5.58 → 5.59 cm across the *entire* paleo support — while the spread
+moves **×0.198 to ×2.623**. Fewer than half the draws have tipped, so the median is the
+untipped background and λ moves only the tail. A λ sensitivity read off a median at that
+cell reads as zero and is not.
+
+### 4. What the CHOICE of λ is worth: 2.18× the reported band, and it is one-sided
+
+Three deterministic envelope arms pin λ for every draw at the paleo minimum, the shipped
+box top, and the paleo maximum. They are not candidate priors; they bound what *any* λ
+revision can do inside the paleo support. **ssp585 @2300 median:**
+
+| λ | source | median |
+|---|---|---|
+| 0.001723 | paleo ensemble min | **104.73 cm** |
+| 0.010567 | *(posterior median — control)* | *281.19 cm* |
+| 0.020705 | shipped prior box top | **479.20 cm** |
+| 0.029524 | paleo ensemble max | **654.54 cm** |
+
+**549.81 cm of envelope = 2.18× the reported 252.36 cm p05–p95**, and it is asymmetric
+about the control — **down 176.5, up 373.4 (2.12×)** — because the posterior median λ sits
+well below the midpoint of its own support. Same shape as the Greenland `--tap-set`
+cell-choice envelope: the larger uncertainty is the one that is not sampled, and a
+symmetric ± band on it would be wrong in both directions.
+
+The response is **linear in λ to 0.6 cm over the whole support** (segment slopes 19728 and
+19882 cm per unit λ, agreeing to 0.8%):
+
+> **AIS₂₃₀₀(ssp585, median) ≈ 70.5 + 19769 · λ  cm**
+
+Validated against the ensemble itself: inverting the control median gives λ = 0.01066 vs
+the posterior median **0.01050**, agreeing to 1.5%. So the inversions below are a
+calculation, not an extrapolation.
+
+### 5. Is it still the best available constraint? The MICI branch is not representable
+
+Against Coulon et al. 2025 (*Nat. Commun.* **16**:10385, doi:10.1038/s41467-025-66178-w) —
+Kori-ULB + PISM, 2×1400 simulations, Bayesian-calibrated on IMBIE 1992–2020, **no MICI** —
+and the MICI single-model branch they quote (DeConto et al. 2021, *Nature* **593**:83,
+doi:10.1038/s41586-021-03427-0):
+
+| target, AIS @2300 SSP5-8.5 | value | λ required | verdict |
+|---|---|---|---|
+| Coulon 2025 p05 (no MICI) | 73 cm | 0.00013 | **below** paleo min |
+| our control median | 281 cm | 0.01066 | inside |
+| Coulon 2025 p95 (no MICI) | 595 cm | 0.02653 | inside, near the top |
+| MICI branch floor | 687 cm | 0.03119 | **1.06× above** paleo max |
+| DeConto 2021 RCP8.5 @2300 = 9.6 m | 960 cm | 0.04500 | **1.52× above** paleo max |
+| MICI branch top | 1355 cm | 0.06498 | **2.20× above** paleo max |
+
+⇒ **No λ revision inside the DAISfastdyn paleo support can put this model's central
+estimate into the MICI branch.** That branch is outside the *representable* set, not
+merely outside the current band — a structural property of the prior, not a tuning
+question. Our control band **[168, 421] cm** sits inside Coulon's **[73, 595]**, displaced
+high (p05 2.3× theirs, p95 0.71× theirs) and **2.4× narrower**.
+
+⚠ **NOT like-for-like** (`like_for_like_forcing`): Coulon drives ice-sheet models with
+CMIP6 GCM forcing and references a different baseline; we drive BRICK-DAIS with FaIR-mean
+ssp585 on a 1995–2014 reference. Treat the table as a placement, not a scorecard, until
+the forcing is matched.
+
+**On whether the prior is still defensible.** Two things are true at once and neither is a
+verdict. (a) The paleo constraint is *independent* of the DP16 lineage — uniform priors,
+paleo data, calibrated before DP16's parameterisation entered assessment — which is a real
+argument in its favour, and the modern MICI-sceptic literature (Edwards et al. 2019,
+*Nature* 566:58; Morlighem et al. 2024, *Sci. Adv.* 10:eado7794, which finds Thwaites would
+not retreat further this century under a physically-motivated calving law) cuts *toward*
+the low end our prior already occupies. (b) But the prior is being used to represent a
+*future* MICI-style rate, and the between-study disagreement at 2300 (73 cm to 1355 cm)
+is **5.2× our whole envelope and 11× our reported band**. **Methodological choice, awaiting
+direction** — this is an ensemble-construction question of exactly the kind
+`~/.claude/CLAUDE.md` says not to resolve silently.
+
+### Files
+
+**New:** `julia/scope_ais_lambda_prior.jl`, `outputs/scope_ais_lambda_prior_L14.csv`,
+`outputs/log_scope_ais_lambda_prior.txt`, `data/dais_paleo/{daisfastdyn_lambda_tcrit.csv,README.md}`.
+`data/dais_paleo/` holds the two paleo marginals extracted from the MimiBRICK NetCDF, with
+the source sha256 recorded, so the transport does not depend on a package-depot path.
+
+
 ## [unreleased] — 2026-08-24d — **The AIS 2300 spread is ONE parameter, it is a PRIOR SAMPLE by construction, and which parameter it is CHANGES WITH SCENARIO.**
 
 `julia/diag_ais_block_propagation.jl`, `outputs/diag_ais_block_propagation_L14.csv`.

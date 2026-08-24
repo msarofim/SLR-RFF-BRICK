@@ -1,0 +1,100 @@
+AIS fast-dynamics PRIOR propagation | tag L14 | 500 draws/chain x 4 chains
+  arms: chain, lam_box, lam_full, tcr_full, joint, lam_pmin, lam_boxmax, lam_pmax
+  paleo ensemble n=800000 | corr(lambda,Tcrit) = +0.4449 | lambda box keeps 98.201%
+  lambda envelope: paleo ensemble minimum 0.001723 | shipped prior box top (param_priors.csv hi) 0.020705 | paleo ensemble maximum 0.029524
+  reading chain seed2026 ...
+  reading chain seed2027 ...
+  reading chain seed2028 ...
+  reading chain seed2029 ...
+
+==============================================================================
+GATES
+==============================================================================
+[INERT] posterior-vs-prior KS: lambda 0.0141 | Tcrit 0.0120 | 5% crit 0.0304 (n=2000)
+        both INDISTINGUISHABLE from the prior => inert, prior-propagatable
+[INDEP] max |corr(lambda, any other used param)| = 0.0470  (ais_gmst_amp)
+[COND]  joint arm corr(lambda,Tcrit) = +0.4351  vs paleo +0.4449  (chain -0.0133)
+  ssp245 / chain     : 2000 draws in    17s | 2300 median  131.35  p05-p95  280.77 cm
+  ssp245 / lam_box   : 2000 draws in    13s | 2300 median  126.95  p05-p95  276.48 cm
+  ssp245 / lam_full  : 2000 draws in    14s | 2300 median  125.41  p05-p95  280.17 cm
+  ssp245 / tcr_full  : 2000 draws in    14s | 2300 median  144.93  p05-p95  288.18 cm
+  ssp245 / joint     : 2000 draws in    14s | 2300 median  130.63  p05-p95  260.58 cm
+  ssp245 / lam_pmin  : 2000 draws in    13s | 2300 median   42.35  p05-p95   47.05 cm
+  ssp245 / lam_boxmax : 2000 draws in    14s | 2300 median  280.75  p05-p95  440.16 cm
+  ssp245 / lam_pmax  : 2000 draws in    13s | 2300 median  391.87  p05-p95  623.82 cm
+  ssp585 / chain     : 2000 draws in    14s | 2300 median  281.19  p05-p95  252.36 cm
+  ssp585 / lam_box   : 2000 draws in    13s | 2300 median  269.85  p05-p95  253.03 cm
+  ssp585 / lam_full  : 2000 draws in    14s | 2300 median  269.82  p05-p95  266.78 cm
+  ssp585 / tcr_full  : 2000 draws in    14s | 2300 median  281.96  p05-p95  252.83 cm
+  ssp585 / joint     : 2000 draws in    15s | 2300 median  269.87  p05-p95  255.16 cm
+  ssp585 / lam_pmin  : 2000 draws in    14s | 2300 median  104.73  p05-p95   92.78 cm
+  ssp585 / lam_boxmax : 2000 draws in    14s | 2300 median  479.20  p05-p95  155.67 cm
+  ssp585 / lam_pmax  : 2000 draws in    14s | 2300 median  654.54  p05-p95  196.16 cm
+
+wrote outputs/scope_ais_lambda_prior_L14.csv
+
+[IDENT] control arm vs diag_ais_block_propagation_L14.csv
+        ssp245 @2100    35.438 vs   35.438 cm  rel 0.00e+00  IDENTICAL
+        ssp245 @2150    95.417 vs   95.417 cm  rel 0.00e+00  IDENTICAL
+        ssp245 @2300   280.768 vs  280.768 cm  rel 0.00e+00  IDENTICAL
+        ssp585 @2100    50.558 vs   50.558 cm  rel 0.00e+00  IDENTICAL
+        ssp585 @2150    94.789 vs   94.789 cm  rel 0.00e+00  IDENTICAL
+        ssp585 @2300   252.355 vs  252.355 cm  rel 0.00e+00  IDENTICAL
+
+==============================================================================
+WHAT THE PRIOR IS WORTH (AIS component, cm)
+==============================================================================
+
+ssp245 @2100   control: median 5.58  p05-p95 35.44  p95 39.20  p99 58.15
+  lam_box   median    5.58 ( +0.00)  spread   34.15 (x0.964)  p95   37.91 (x0.967)  p99   56.88 (x0.978)
+  lam_full  median    5.58 ( -0.00)  spread   34.29 (x0.968)  p95   38.05 (x0.971)  p99   58.90 (x1.013)
+  tcr_full  median    5.69 ( +0.11)  spread   38.43 (x1.084)  p95   42.22 (x1.077)  p99   62.01 (x1.067)
+  joint     median    5.73 ( +0.14)  spread   30.39 (x0.858)  p95   34.18 (x0.872)  p99   49.05 (x0.844)
+  lam_pmin  median    5.53 ( -0.05)  spread    7.00 (x0.198)  p95   10.76 (x0.275)  p99   12.89 (x0.222)
+  lam_boxmax median    5.59 ( +0.00)  spread   65.64 (x1.852)  p95   69.40 (x1.770)  p99   89.32 (x1.536)
+  lam_pmax  median    5.59 ( +0.00)  spread   92.96 (x2.623)  p95   96.72 (x2.467)  p99  124.68 (x2.144)
+
+ssp245 @2150   control: median 11.91  p05-p95 95.42  p95 101.89  p99 129.50
+  lam_box   median   11.91 ( +0.00)  spread   92.81 (x0.973)  p95   99.28 (x0.974)  p99  129.79 (x1.002)
+  lam_full  median   11.91 ( +0.00)  spread   93.79 (x0.983)  p95  100.26 (x0.984)  p99  135.09 (x1.043)
+  tcr_full  median   17.52 ( +5.61)  spread   99.55 (x1.043)  p95  106.15 (x1.042)  p99  135.65 (x1.047)
+  joint     median   17.02 ( +5.11)  spread   83.54 (x0.876)  p95   90.06 (x0.884)  p99  119.93 (x0.926)
+  lam_pmin  median   11.22 ( -0.68)  spread   16.91 (x0.177)  p95   23.36 (x0.229)  p99   26.27 (x0.203)
+  lam_boxmax median   12.11 ( +0.21)  spread  157.64 (x1.652)  p95  164.11 (x1.611)  p99  187.84 (x1.450)
+  lam_pmax  median   12.12 ( +0.21)  spread  223.91 (x2.347)  p95  230.38 (x2.261)  p99  263.03 (x2.031)
+
+ssp245 @2300   control: median 131.35  p05-p95 280.77  p95 296.12  p99 375.11
+  lam_box   median  126.95 ( -4.40)  spread  276.48 (x0.985)  p95  291.84 (x0.986)  p99  380.41 (x1.014)
+  lam_full  median  125.41 ( -5.94)  spread  280.17 (x0.998)  p95  295.52 (x0.998)  p99  399.30 (x1.064)
+  tcr_full  median  144.93 (+13.58)  spread  288.18 (x1.026)  p95  303.95 (x1.026)  p99  377.84 (x1.007)
+  joint     median  130.63 ( -0.72)  spread  260.58 (x0.928)  p95  276.42 (x0.933)  p99  357.58 (x0.953)
+  lam_pmin  median   42.35 (-89.00)  spread   47.05 (x0.168)  p95   62.39 (x0.211)  p99   68.08 (x0.181)
+  lam_boxmax median  280.75 (+149.40)  spread  440.16 (x1.568)  p95  455.52 (x1.538)  p99  497.94 (x1.327)
+  lam_pmax  median  391.87 (+260.52)  spread  623.82 (x2.222)  p95  639.18 (x2.158)  p99  701.49 (x1.870)
+
+ssp585 @2100   control: median 37.07  p05-p95 50.56  p95 67.01  p99 83.06
+  lam_box   median   35.30 ( -1.77)  spread   49.04 (x0.970)  p95   65.31 (x0.975)  p99   84.06 (x1.012)
+  lam_full  median   35.32 ( -1.75)  spread   50.51 (x0.999)  p95   66.44 (x0.991)  p99   88.08 (x1.060)
+  tcr_full  median   37.87 ( +0.80)  spread   52.39 (x1.036)  p95   68.35 (x1.020)  p99   85.03 (x1.024)
+  joint     median   35.37 ( -1.70)  spread   43.53 (x0.861)  p95   61.96 (x0.925)  p99   79.97 (x0.963)
+  lam_pmin  median   12.31 (-24.76)  spread    8.71 (x0.172)  p95   16.73 (x0.250)  p99   18.90 (x0.228)
+  lam_boxmax median   67.55 (+30.48)  spread   70.31 (x1.391)  p95  102.79 (x1.534)  p99  113.49 (x1.366)
+  lam_pmax  median   93.37 (+56.29)  spread   99.27 (x1.963)  p95  142.58 (x2.128)  p99  157.59 (x1.897)
+
+ssp585 @2150   control: median 94.35  p05-p95 94.79  p95 148.55  p99 177.15
+  lam_box   median   90.08 ( -4.27)  spread   94.27 (x0.995)  p95  147.45 (x0.993)  p99  180.00 (x1.016)
+  lam_full  median   90.04 ( -4.31)  spread   98.67 (x1.041)  p95  151.03 (x1.017)  p99  193.39 (x1.092)
+  tcr_full  median   94.90 ( +0.55)  spread   95.86 (x1.011)  p95  149.86 (x1.009)  p99  178.82 (x1.009)
+  joint     median   90.00 ( -4.35)  spread   86.84 (x0.916)  p95  143.21 (x0.964)  p99  184.39 (x1.041)
+  lam_pmin  median   30.95 (-63.39)  spread   20.63 (x0.218)  p95   42.37 (x0.285)  p99   49.90 (x0.282)
+  lam_boxmax median  169.46 (+75.11)  spread   82.56 (x0.871)  p95  212.63 (x1.431)  p99  234.02 (x1.321)
+  lam_pmax  median  233.79 (+139.44)  spread  114.44 (x1.207)  p95  293.08 (x1.973)  p99  321.32 (x1.814)
+
+ssp585 @2300   control: median 281.19  p05-p95 252.36  p95 420.70  p99 480.31
+  lam_box   median  269.85 (-11.34)  spread  253.03 (x1.003)  p95  420.07 (x0.999)  p99  485.41 (x1.011)
+  lam_full  median  269.82 (-11.37)  spread  266.78 (x1.057)  p95  429.63 (x1.021)  p99  516.55 (x1.075)
+  tcr_full  median  281.96 ( +0.77)  spread  252.83 (x1.002)  p95  420.75 (x1.000)  p99  480.81 (x1.001)
+  joint     median  269.87 (-11.32)  spread  255.16 (x1.011)  p95  421.95 (x1.003)  p99  506.88 (x1.055)
+  lam_pmin  median  104.73 (-176.46)  spread   92.78 (x0.368)  p95  161.29 (x0.383)  p99  199.54 (x0.415)
+  lam_boxmax median  479.20 (+198.01)  spread  155.67 (x0.617)  p95  569.74 (x1.354)  p99  624.05 (x1.299)
+  lam_pmax  median  654.54 (+373.35)  spread  196.16 (x0.777)  p95  766.46 (x1.822)  p99  837.42 (x1.743)
