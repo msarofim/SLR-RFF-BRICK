@@ -1,0 +1,133 @@
+build_t_glac | HadCRUT5.0.2.0 analysis ens-mean | GTN-G 2023 regions | GlaMBIE weights | commit=659e406
+  coverage: obs years 1850-2024
+  region cells>0 / min monthly coverage / pre-1900 coverage:
+    r01*:   45 cells  min 0.00  pre1900 0.55
+    r02*:   56 cells  min 0.35  pre1900 0.77
+    r03*:   34 cells  min 0.00  pre1900 0.13
+    r04*:   26 cells  min 0.01  pre1900 0.73
+    r05 (excl):   62 cells  min 0.65  pre1900 0.88
+    r06*:   12 cells  min 0.81  pre1900 0.99
+    r07*:   27 cells  min 0.64  pre1900 0.89
+    r08*:   28 cells  min 0.87  pre1900 0.92
+    r09*:   37 cells  min 0.35  pre1900 0.66
+    r10*:  196 cells  min 0.43  pre1900 0.76
+    r11*:   16 cells  min 1.00  pre1900 1.00
+    r12*:   15 cells  min 0.64  pre1900 0.98
+    r13*:   33 cells  min 0.03  pre1900 0.69
+    r14*:   10 cells  min 0.00  pre1900 0.52
+    r15*:    9 cells  min 0.00  pre1900 0.66
+    r16*:  441 cells  min 0.34  pre1900 0.72
+    r17*:   35 cells  min 0.48  pre1900 0.92
+    r18*:   16 cells  min 0.00  pre1900 0.86
+    r19*:  642 cells  min 0.02  pre1900 0.35
+  weights (area | loss-share), scope excl r5 incl r19:
+    r01:  14.6% |  25.9%
+    r02:   2.4% |   3.9%
+    r03:  17.1% |  12.8%
+    r04:   6.6% |   9.7%
+    r06:   1.8% |   3.5%
+    r07:   5.6% |   5.8%
+    r08:   0.5% |   0.7%
+    r09:   8.4% |   6.8%
+    r10:   0.4% |   0.6%
+    r11:   0.3% |   0.8%
+    r12:   0.2% |   0.3%
+    r13:   8.1% |   4.4%
+    r14:   5.5% |   2.4%
+    r15:   2.4% |   3.1%
+    r16:   0.4% |   0.4%
+    r17:   4.8% |  11.1%
+    r18:   0.2% |   0.4%
+    r19:  20.8% |   7.5%
+  pre-1900 region-year fills (region ~ amp_r*global + c_r, native frame):
+    r01:  1 yr filled (1855-1855), amp_r=1.44
+    r03: 46 yr filled (1850-1897), amp_r=2.67
+    r14: 22 yr filled (1850-1874), amp_r=0.75
+    r15: 18 yr filled (1850-1874), amp_r=0.91
+    r18:  5 yr filled (1850-1854), amp_r=0.72
+  max composite fill fraction: 39.6% of weight (only years <= 1897)
+
+  ETCW 1930-1940 mean anomaly rel 1850-1900: T_glac(area) +0.582 C vs global +0.250 C  (ratio 2.33x)
+  amp_g (through-origin fit 1901-2024): area 1.59  loss-share 1.63   (GlacierMIP3 fixed value: 1.8)
+  amp_g (through-origin fit 1970-2024): area 1.56  loss-share 1.58   (GlacierMIP3 fixed value: 1.8)
+
+Wrote data/observations/t_glac_hadcrut5.csv, data/observations/t_glac_regions_hadcrut5.csv, data/observations/t_glac_hadcrut5_provenance.md, figures/t_glac_vs_gmst.png
+loading catalog ...
+46 candidate models with ['historical', 'ssp245']; cap 45
+SKIP ACCESS-CM2 (exists)
+SKIP ACCESS-ESM1-5 (exists)
+I0823 19:34:48.628926 24720337 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I0823 19:34:48.634618 24720361 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   AWI-CM-1-1-MR (r1i1p1f1) 250 yr  30s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   BCC-CSM2-MR (r1i1p1f1) 251 yr  19s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   CAMS-CSM1-0 (r1i1p1f1) 250 yr  20s
+OK   CAS-ESM2-0 (r1i1p1f1) 251 yr  15s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   CESM2 (r10i1p1f1) 251 yr  20s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   CESM2-WACCM (r1i1p1f1) 251 yr  19s
+OK   CIESM (r1i1p1f1) 251 yr  21s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   CMCC-CM2-SR5 (r1i1p1f1) 251 yr  21s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   CMCC-ESM2 (r1i1p1f1) 251 yr  20s
+FAIL CNRM-CM6-1: ValueError: global mean differs from pai reduction by 0.620 K > 0.05
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   CNRM-CM6-1-HR (r1i1p1f2) 251 yr  82s
+FAIL CNRM-ESM2-1: ValueError: global mean differs from pai reduction by 0.494 K > 0.05
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   CanESM5 (r1i1p1f1) 251 yr  7s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   CanESM5-CanOE (r1i1p2f1) 251 yr  7s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   E3SM-1-1 (r1i1p1f1) 170 yr  19s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   EC-Earth3 (r1i1p1f1) 251 yr  41s
+OK   EC-Earth3-CC (r1i1p1f1) 251 yr  43s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   EC-Earth3-Veg (r1i1p1f1) 251 yr  42s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   EC-Earth3-Veg-LR (r1i1p1f1) 251 yr  21s
+OK   FGOALS-f3-L (r1i1p1f1) 251 yr  21s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   FGOALS-g3 (r1i1p1f1) 253 yr  9s
+OK   FIO-ESM-2-0 (r1i1p1f1) 251 yr  21s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   GFDL-CM4 (r1i1p1f1) 251 yr  22s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   GFDL-ESM4 (r1i1p1f1) 251 yr  20s
+FAIL GISS-E2-1-G: ValueError: global mean differs from pai reduction by 1.017 K > 0.05
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   GISS-E2-1-H (r1i1p1f2) 251 yr  15s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   HadGEM3-GC31-LL (r1i1p1f3) 251 yr  15s
+OK   IITM-ESM (r1i1p1f1) 250 yr  9s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   INM-CM4-8 (r1i1p1f1) 251 yr  11s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   INM-CM5-0 (r1i1p1f1) 251 yr  11s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   IPSL-CM6A-LR (r1i1p1f1) 251 yr  11s
+OK   KACE-1-0-G (r1i1p1f1) 251 yr  14s
+OK   KIOST-ESM (r1i1p1f1) 251 yr  8s
+FAIL MCM-UA-1-0: AttributeError: 'Dataset' object has no attribute 'lat'
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   MIROC-ES2L (r10i1p1f2) 251 yr  7s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   MIROC6 (r1i1p1f1) 251 yr  14s
+FAIL MPI-ESM1-2-HR: ValueError: global mean differs from pai reduction by 7.781 K > 0.05
+FAIL MPI-ESM1-2-LR: ValueError: global mean differs from pai reduction by 7.539 K > 0.05
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   MRI-ESM2-0 (r1i1p1f1) 251 yr  20s
+OK   NESM3 (r1i1p1f1) 251 yr  10s
+OK   NorESM2-LM (r1i1p1f1) 251 yr  8s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   NorESM2-MM (r1i1p1f1) 251 yr  21s
+    [gate] global vs pai reduction: 0.0000 K OK
+OK   TaiESM1 (r1i1p1f1) 251 yr  19s
+FAIL UKESM1-0-LL: ValueError: global mean differs from pai reduction by 0.590 K > 0.05
+
+39 models written to data/cmip6_glac
