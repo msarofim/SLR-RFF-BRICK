@@ -85,11 +85,11 @@ mass term comes from the **same JPL RL06 mascon solution** we used.
 
 **Measured on our own quantity**, over the 2003–2018 overlap:
 
-| series | LWS trend | |
+| series | 2003–2018 LWS trend | |
 |---|---|---|
 | ours (GRACE, ICE-6G_D) | **+0.3600 ± 0.0872** cm/decade | |
 | Frederikse (Caron 2018) | **+0.3843 ± 0.0875** cm/decade | |
-| **difference** | **−0.0242 ± 0.0111** cm/decade | **2.19 σ**, = **0.024 mm/yr** |
+| **difference** | **−0.0242 ± 0.0111** cm/decade | **2.19 σ** = **0.024 mm/yr** |
 
 ⚠ The **level** agreement is by construction — `build_lws_grace_extension.py:86` offset-matches
 over exactly this window — so only the **trend** is informative. And the difference is an
