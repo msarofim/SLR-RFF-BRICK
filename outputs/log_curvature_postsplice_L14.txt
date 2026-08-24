@@ -1,0 +1,184 @@
+POST-SPLICE CURVATURE HALVING | tag L14 | units cm/yr^2
+  estimator: 2 x OLS quadratic coefficient (diag_curvature_deficit_2x2.jl:84)
+  windows: pre-splice 1993-2018 | post-splice 1993-2023
+  LWS held flat at its 2018 value from 2019 (prep_recalib_targets_ext.py:311)
+
+==============================================================================
+GATES
+==============================================================================
+[IDENT]     sum5 1993-2018 = 0.007189 vs shipped 0.007189 | 1993-2023 = 0.003533 vs shipped 0.003533  -> PASS
+[WINDOW]    sum5 1993-2024 = nan (gsic ends 2023) -> the shipped 0.003533 is 1993-2023, NOT 1993-2024. Label corrected.
+[LINEARITY] 1993-2018: sum of component accels +0.007188563 vs accel of sum +0.007188563 | diff 3.56e-17 -> PASS
+[LINEARITY] 1993-2023: sum of component accels +0.003533238 vs accel of sum +0.003533238 | diff 6.94e-18 -> PASS
+
+==============================================================================
+[1] DECOMPOSITION OF THE DROP (cm/yr^2)
+==============================================================================
+  sum5 +0.007189 -> +0.003533 | drop -0.003655 | ratio 0.492 (= 1/2.03)
+
+  component     1993-2018    1993-2023        delta  share of drop
+  ais           +0.002076    +0.001032    -0.001043        +28.5%
+  gsic          +0.000205    +0.000436    +0.000231         -6.3%
+  gis           +0.003786    +0.001764    -0.002023        +55.3%
+  steric        -0.000804    +0.000288    +0.001092        -29.9%
+  lws           +0.001925    +0.000013    -0.001912        +52.3%
+
+==============================================================================
+[2] THE INDEPENDENT TOTAL (no LWS construction in it)
+==============================================================================
+  dang (Dangendorf 2024 + NOAA STAR)
+    +0.013350 -> +0.009735 | ratio 0.729
+  sum4 (component sum with LWS REMOVED from both windows)
+    +0.005264 -> +0.003520 | ratio 0.669
+  sum5 (as shipped)                     ratio 0.492
+
+  If sum5 decelerated at the total's own ratio it would read +0.005242; it reads +0.003533,
+  an excess drop of -0.001709 vs LWS's own delta -0.001912.
+
+==============================================================================
+[3] LWS COUNTERFACTUAL ARMS (EXTRAPOLATIONS -- not data)
+==============================================================================
+  LWS arm                               lws@2023   sum5 1993-2023  ratio to pre
+  held_flat (SHIPPED)                      0.532        +0.003533         0.492
+  linear cont. of 1993-2018                0.714        +0.004317         0.601
+  quadratic cont. of 1993-2018             0.954        +0.005445         0.757
+
+  ARM ENVELOPE 0.001912 cm/yr^2 = 52.3% of the 0.003655 drop.
+  For scale: LWS year-to-year change over 1993-2018 has sd 0.173 cm, so the flat hold also removes real INTERANNUAL variance,
+  not only a trend. Every arm here is an extrapolation; none is an observation.
+
+==============================================================================
+[4] WINDOW-LENGTH CONTROL
+==============================================================================
+  A longer window sees more of the curve, so a quadratic accel can fall
+  without the record decelerating. Matched-LENGTH windows separate the two.
+
+        window  yrs        sum5        sum4        dang  dang/sum5   dang-sum5
+     1993-2018   25   +0.007189   +0.005264   +0.013350       1.86   +0.006162
+     1998-2023   25   +0.000372   +0.001193   +0.007168      19.26   +0.006795
+     1993-2023   30   +0.003533   +0.003520   +0.009735       2.76   +0.006202
+
+  !! The dang-sum5 DIFFERENCE moves +0.006162 -> +0.006795 (1.10x) while the RATIO moves 1.86 -> 19.26x. The gap did not grow;
+     the base collapsed. Quote the difference.
+
+  per component, matched-length 1993-2018 vs 1998-2023:
+  component        early        late    ratio
+  ais          +0.002076   +0.000678     0.33
+  gsic         +0.000205   +0.000581     2.83
+  gis          +0.003786   -0.000180    -0.05
+  steric       -0.000804   +0.000114    -0.14
+  lws          +0.001925   -0.000821    -0.43   <- LWS is fiat-flat for 5 of these 25 years
+
+==============================================================================
+[5] THE RECONSTRUCTION GAP, BY WINDOW
+==============================================================================
+  Our five components are Frederikse 2020; the total target is Dangendorf 2024.
+  'Dangendorf 2024 + NOAA STAR' is 1.83x Frederikse -- but that ratio was measured in ONE window.
+
+        window        sum5  Frederikse 2020 total        dang  dang/fred  sum5/fred
+  1993-2018      +0.007189              +0.007285   +0.013350       1.83      0.987
+  1998-2023      +0.000372                   +nan   +0.007168        nan        nan
+  1993-2023      +0.003533                   +nan   +0.009735        nan        nan
+
+  Frederikse 2020 total ENDS AT 2018, so only the first row is like-for-like.
+  In that row our component sum reproduces its own reconstruction's total (0.987x)
+  while the scored target runs 1.83x above it. The other rows have NO Frederikse
+  partner at all -- which is the mixing problem, stated as a measurement.
+
+==============================================================================
+[6] GAP SWEEP -- 1.83x is a RATIO; is the gap actually additive?
+==============================================================================
+  Windows ENDING 2018, so both reconstructions have real data throughout
+  and NO LWS fiat is inside any of them. Pure reconstruction vs reconstruction.
+
+        window  Frederikse 2020 total        dang    ratio  difference
+  1950-2018                 +0.006238   +0.005580     0.89   -0.000658
+  1954-2018                 +0.006588   +0.006083     0.92   -0.000505
+  1958-2018                 +0.007460   +0.006702     0.90   -0.000758
+  1962-2018                 +0.007621   +0.007266     0.95   -0.000354
+  1966-2018                 +0.007461   +0.007567     1.01   +0.000106
+  1970-2018                 +0.008325   +0.007731     0.93   -0.000594
+  1974-2018                 +0.009557   +0.007579     0.79   -0.001978
+  1978-2018                 +0.010853   +0.008176     0.75   -0.002677
+  1982-2018                 +0.012260   +0.009557     0.78   -0.002703
+  1986-2018                 +0.010771   +0.010465     0.97   -0.000306
+  1990-2018                 +0.008101   +0.012359     1.53   +0.004259
+  1994-2018                 +0.010010   +0.013146     1.31   +0.003136
+  1998-2018                 +0.023315   +0.012276     0.53   -0.011039
+
+  ratio spans 0.53-1.53; difference spans -0.011039 to +0.004259 -- BOTH change sign.
+  Dangendorf's acceleration is LOWER than Frederikse's in 10 of 13 windows.
+  Frederikse 2020 total accel spans +0.006238 to +0.023315 (3.7x)
+  dang accel spans          +0.005580 to +0.013146 (2.4x)
+
+  => NEITHER framing survives. The gap is not a constant factor AND not a constant
+     offset. The 1993-2018 value of 1.83x sits on a spike in the
+     DENOMINATOR, and test [7] shows why that denominator is unstable.
+
+==============================================================================
+[7] ERROR BARS (nothing in this arc has carried one)
+==============================================================================
+  se is the OLS standard error of 2*b2, inflated by sqrt((1+rho)/(1-rho)) on the
+  fit residuals' lag-1 autocorrelation. It is a LOWER BOUND: it counts only the
+  scatter about the quadratic and NOT the reconstructions' own published band,
+  so every 'not significant' verdict below is conservative.
+  [SE-MC] sum5                   analytic 0.002648 vs MC 0.002400 = 1.10x -> PASS (conservative)
+  [SE-MC] Frederikse 2020 total  analytic 0.004932 vs MC 0.004794 = 1.03x -> PASS (conservative)
+  [SE-MC] dang                   analytic 0.003870 vs MC 0.003184 = 1.22x -> PASS (conservative)
+
+  series                        window       accel         se  accel/se
+  sum5                     1993-2018   +0.007189   0.002648      2.71
+  Frederikse 2020 total    1993-2018   +0.007285   0.004932      1.48
+  dang                     1993-2018   +0.013350   0.003870      3.45
+
+  sum5                     1998-2023   +0.000372   0.003005      0.12
+  Frederikse 2020 total    1998-2023   (no data in window)
+  dang                     1998-2023   +0.007168   0.004650      1.54
+
+  sum5                     1993-2023   +0.003533   0.002167      1.63
+  Frederikse 2020 total    1993-2023   (no data in window)
+  dang                     1993-2023   +0.009735   0.002927      3.33
+
+  The three claims this arc rests on, re-read with the error bar. A difference at
+  <2 sigma is UNRESOLVED -- for a claimed AGREEMENT that means the agreement is
+  uninformative, not that it is confirmed; the error bar as a fraction of the
+  quantity being compared is printed so the two readings cannot be confused.
+    sum5 closes on Frederikse 2020 total to 1.3%
+      1993-2018: -0.000096 +/- 0.005598 = 0.02 sigma | error bar = 78% of the base -> UNRESOLVED
+    dang is 1.83x Frederikse 2020 total         
+      1993-2018: +0.006066 +/- 0.006269 = 0.97 sigma | error bar = 47% of the base -> UNRESOLVED
+    sum5 falls short of dang                    
+      1993-2018: -0.006162 +/- 0.004689 = 1.31 sigma | error bar = 65% of the base -> UNRESOLVED
+
+  !! '1.3%' is precision theatre: the two differ by -0.000096 with a 0.005598
+     error bar -- 78% of the value being closed. The closure is
+     consistent with agreement AND with a 78% disagreement, equally.
+
+==============================================================================
+[8] SIGNIFICANCE OF THE HALVING
+==============================================================================
+  The two windows are NESTED, so their estimates are strongly correlated and the
+  [7] error bars cannot be differenced. NULL: ONE quadratic describes the whole
+  1993-2023 span, plus AR(1) noise at the series' own fitted rho and
+  residual sd. Under it, accel(pre) - accel(post) has mean zero by construction;
+  the question is only whether the observed drop is in its tail.
+
+  series                              observed drop    null sd   sigma        p
+  sum5 (as shipped, LWS fiat-flat)        +0.003655   0.002051    1.78   0.0731  not resolved
+  sum4 (LWS removed entirely)             +0.001744   0.001213    1.44   0.1499  not resolved
+  dang (independent, real data)           +0.003615   0.002534    1.43   0.1533  not resolved
+
+  Read with [1]: whatever share of the drop survives here is shared between the
+  fiat and the record, and only the LWS-free rows can speak to the record alone.
+
+wrote outputs/diag_curvature_postsplice_decomp_L14.csv
+
+wrote outputs/diag_curvature_postsplice_arms_L14.csv
+
+wrote outputs/diag_curvature_postsplice_windows_L14.csv
+
+wrote outputs/diag_curvature_postsplice_recon_L14.csv
+
+wrote outputs/diag_curvature_postsplice_sweep_L14.csv
+
+wrote outputs/diag_curvature_postsplice_se_L14.csv

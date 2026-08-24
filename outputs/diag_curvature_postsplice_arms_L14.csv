@@ -1,0 +1,4 @@
+lws_arm,lws_2023_cm,sum5_accel_1993-2023,ratio_to_pre,is_extrapolation
+held_flat (SHIPPED),0.532445,0.003533238,0.491508,no
+linear cont. of 1993-2018,0.713691,0.004317194,0.600564,yes
+quadratic cont. of 1993-2018,0.954308,0.005445021,0.757456,yes
