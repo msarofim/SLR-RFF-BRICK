@@ -3,6 +3,38 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-24h — **The "MICI arm" is renamed UNRESOLVED AMPLIFICATION — and the rename fixes two real mismatches, not just a label.**
+
+`python/build_ais_unresolved_amplification.py` (was `build_ais_mici_arm.py`),
+`outputs/ais_unresolved_amplification_{arm,probability}_L14.csv`. Numbers UNCHANGED —
+arm 1.351 × λ, P_UNRES = 0.245, dE/dP = 10.9 / 27.2 / 73.3 cm at 2100/2150/2300.
+
+**Why.** Marcus: the label should cover the less-understood, lower-probability, high-impact
+mechanisms as a class. The mechanism list is exactly the part that keeps moving — **MICI is
+trending DOWN** (Edwards 2019 → DeConto 2021 → Morlighem 2024) while **fracture damage is
+trending UP** (Blasco et al. 2026 PNAS 123(28):e2601529123). Naming the arm after one member
+would have made it look refuted while the family survived. So it is named for its **role**:
+amplification that **both** our emulator **and** the process ensembles omit.
+
+Deliberately **not** "deep uncertainty" — that means *unquantified* probability, and we assign
+one. Deliberately nothing near **"fast dynamics"** — that is already `antarctic_lambda`'s own
+name in DAIS and would collide with the very parameter the arm scales.
+
+**The rename fixes two mismatches.**
+1. **The construction was always broader than the old label.** The arm is scaled to the LIG
+   residual — the fraction DAIS *cannot reach* at the last interglacial. Ruckert et al.
+   attribute that shortfall to missing MICI; what it measures is everything DAIS misses in a
+   warm period, which now demonstrably includes fracture damage.
+2. **It repairs the probability's identifying assumption.** Reading a *MICI* probability off
+   the Bamber SEJ required assuming SEJ mass above the process range is MICI — and that
+   **failed its placebo test** (0.185 at 2020). The experts were asked about **AIS totals**, so
+   the same statistic is a far better estimator of "*some* omitted amplifier operates". The
+   0.075 placebo floor still has to be corrected; the interpretation no longer strains.
+
+Also renamed for accuracy: the FACTS reference module is described as **`emuAIS` — omits MICI
+AND fracture damage**, not "no-MICI", which understated what it leaves out. CSV columns
+`nomici_*` → `process_*`.
+
 ## [unreleased] — 2026-08-24g — **Option 3 built: a MICI-free headline, an arm scaled to the LIG RESIDUAL (duration cancels), and a FACTS-derived default P_MICI = 0.245 — after the obvious probability definition FAILED its own placebo test.**
 
 `python/build_ais_mici_arm.py`, `outputs/ais_mici_{arm,probability}_L14.csv`. Built at

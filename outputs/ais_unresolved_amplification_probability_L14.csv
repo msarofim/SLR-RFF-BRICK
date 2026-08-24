@@ -1,4 +1,4 @@
-scenario,year,nomici_p95_cm,nomici_max_cm,sej_median_cm,p_exceed_p95,p_exceed_max,p_deconto_exceed_p95
+scenario,year,process_p95_cm,process_max_cm,sej_median_cm,p_exceed_p95,p_exceed_max,p_deconto_exceed_p95
 ssp585,2020,1.1922069787979126,1.6595872640609741,0.4973815083503723,0.185,0.075,0.0
 ssp585,2030,1.9214003086090088,3.5947539806365967,0.9227079749107361,0.335,0.215,0.0
 ssp585,2040,2.981788396835327,4.3101115226745605,1.8465733528137207,0.4,0.32,0.0
