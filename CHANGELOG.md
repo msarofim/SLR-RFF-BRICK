@@ -3,6 +3,143 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-24p — **AIS ITEMS 1–3. (1) The binary fast-dynamics form is worth 26–750× of the scenario separation, and 84% of the ssp245@2300 median. (2) The Coulon comparison was never like-for-like — their forcing is 1.83–2.59× ours and correcting it FLIPS the sign of the reading. (3) The four adapted proposals disagree 347× while every acceptance rate sits on target.**
+
+`julia/antarctic_icesheet_magdep_component.jl`, `julia/scope_ais_fastdyn_shape.jl`,
+`python/diag_ais_coulon_like_for_like.py`, `python/diag_ais_proposal_scaling.py`,
+`outputs/scope_ais_fastdyn_{cells,envelope}_L14.csv`,
+`outputs/diag_ais_{coulon_like_for_like,proposal_scaling_L14}.csv`. One chain read.
+
+Marcus asked for the top three improvements from the AIS module assessment. All three land.
+
+---
+
+### ITEM 1 — what the binary fast-dynamics form is worth
+
+Stock DAIS disintegrates at a **constant flux** the moment `T_ant` clears `T_crit` and
+forever after, with no dependence on how far above it goes
+(`antarctic_icesheet_component.jl:180-184`). Measured on this very posterior, the median
+above-threshold excess is **0.391 °C at ssp245@2300 and 4.529 °C at ssp585@2300 — a factor
+of 11.6** — and the stock form charges both the **same** flux. That is the mechanism behind
+the scenario inversion: once every ssp585 draw tips, *whether* stops discriminating and the
+model has no channel left for *how hot*.
+
+`antarctic_icesheet_magdep_component.jl` is a verbatim fork of MimiBRICK v2.0.0's component
+with the flux generalised to `−λ·g·const`, `g = (excess/ref)^n`, n = 0 being stock.
+
+**Gates, all passing.** **[FORK]** the n = 0 arm reproduces the **shipped** projection at
+**0.0000 cm** on all six cells. **[INERT]** the 1850–2024 series is bit-identical across
+arms at **0.000e+00** — so the change is genuinely likelihood-inert and prior-propagatable,
+*measured* rather than argued from "0.00% of draws tip historically". **[AFFINE]** came back
+APPROXIMATE (2.2e-3 / 4.8e-3 of the band), so **[ANCHOR-EXACT]** re-runs the headline anchor
+instead of trusting the arithmetic — agreement **≤3.4e-4 of the band**. **[GMAX]** max g 1.58
+(n=1) / 2.50 (n=2); **[FLOOR]** never bound.
+
+Anchored so ssp585@2300 keeps its shipped median:
+
+| cell | n = 0 (shipped) | n = 1 | n = 2 | cut |
+|---|---|---|---|---|
+| **ssp245@2300** | 131.3 | **28.4** | **23.5** | **4.6–5.6×** |
+| ssp585@2100 | 37.1 | 14.5 | 9.5 | 2.6–3.9× |
+| ssp585@2150 | 94.3 | 60.5 | 44.0 | 1.6–2.1× |
+| ssp585@2300 | 281.2 | 285.0 | 282.9 | (held) |
+
+**The anchor-free number.** A λ rescale multiplies numerator and denominator alike, so the
+ssp585/ssp245 ratio of the **fast-dynamics contribution** is invariant to the anchor:
+
+| horizon | n = 0 | n = 1 | n = 2 |
+|---|---|---|---|
+| 2300 | **1.87** | **47.9** | **1400** |
+
+⇒ **the binary form compresses the scenario separation of fast dynamics by 26× (n=1) to
+750× (n=2).**
+
+**The structural result underneath.** At ssp245 the median draw contributes **zero** fast
+dynamics at 2100 and 2150 in *every* arm, yet at 2300 the shipped form gives **110 cm =
+83.8% of the AIS median** — and **97–99.9% of that disappears** under a magnitude-dependent
+form. Most of the ssp245@2300 *band* is the binary form as well: spread **280.8 → 48.8 → 20.0 cm**.
+
+⚠ **Two things the smoke test forced, both kept.** `ref_excess` is **not** free: left at
+1.0 °C the n = 2 arm applies g up to 51, exhausts the sheet, and stock DAIS's own cone
+geometry inverts — its `ais_radius^1.5` throws on a negative radius. It is now set to the
+**median above-threshold excess at a named anchor cell**, derived from the draws and the
+deterministic GMST path with no model run. And a **mass-conservation floor** was added:
+stock DAIS has none, because a binary flux never reaches the bottom.
+
+⚠ **The anchor is a methodological choice and is NOT resolved here.** The whole anchor
+envelope is reported; anchoring on ssp245@2300 needs a λ rescale of 35× (n=1) or 1240× (n=2)
+and gives absurd ssp585 values, so that anchor is untenable — which is itself informative.
+
+---
+
+### ITEM 2 — the Coulon comparison was never like-for-like, and correcting it flips the sign
+
+`2026-08-24c` block 5 placed our ssp585 AIS@2300 band **[168, 421] cm** inside Coulon et al.
+2025's **[73, 595]**, "displaced high and 2.4× narrower", and flagged in the same block that
+the forcing was not matched. Closed now, with a number — and the correction **reverses** the
+reading rather than softening it.
+
+Coulon reports Antarctic-averaged warming directly and DAIS is driven by exactly that, so no
+GSAT reconstruction of their ensemble is needed:
+
+| Antarctic warming @2300, vs 1995–2014 | |
+|---|---|
+| **Coulon ssp585** | **+12.0 to +17.0 °C** |
+| **ours** | **+5.46 to +7.72 °C** — the *whole* `ais_gmst_amp` p05–p95 |
+
+**Our entire posterior sits below their coldest GCM**; our p95 draw reaches **64%** of it.
+Their forcing is **1.83–2.59×** ours at the median.
+
+The gap decomposes, and both halves compound (**1.28 × 1.33 = 1.69×** at 2100):
+
+* **Amplification.** Measured against the repo's own CMIP6 `tas_ais` data, on the frame
+  `ais_gmst_amp` actually lives in: 34 GCMs give a median **1.143**, Coulon's four give
+  **1.205**, we sample **0.9447 [0.786, 1.110]**. **29 of 34** GCMs sit above our median and
+  **19** above our p95. **Our model warms Antarctica *less* than the global mean; 27 of 34
+  GCMs warm it more.**
+* **GMST.** Coulon's four reach 6.23 °C at 2100 against our FaIR-mean 4.69 °C.
+
+Interpolating Coulon to **our** forcing — our 6.57 °C sits 35% of the way between their two
+scenarios, overlapping neither — gives **~131 cm** against our **281 cm** = **2.14×**. Two
+anchors only, and the response is **convex** across the retreat threshold, so the straight
+line **over-states** them at an intermediate forcing: 131 cm is an upper bound and **2.14× a
+LOWER bound** on the displacement.
+
+⇒ **Corrected for forcing, Coulon's band moves DOWN past us: we are displaced high by MORE
+than the shipped comparison recorded, not less.** Exactly the failure mode
+`like_for_like_forcing` records as having inverted a reading three times already.
+
+---
+
+### ITEM 3 — the sampler: four adapted proposals, 347× apart, all "perfectly tuned"
+
+`ais_stiff_not_flat` concluded the lever is **proposal scaling**. RAM writes its adapted
+covariance at the end of every run (`calibrate_mcmc_ext.jl:2206`), so four independent
+adaptations of the same target were already on disk and had never been compared. **No chains
+read.**
+
+* **They disagree by up to 347×** in relative step scale (87×, 198×, 347×). The adaptation
+  has not converged **in shape**.
+* **The narrowest direction is reproducible** across all three comparison seeds —
+  `ais_ocean_temperature₀`, `antarctic_alpha`, `anto_beta`, all at **0.08–0.10×** of
+  seed2026. Those three enter DAIS's grounding-line speed through the **same product**
+  (`antarctic_icesheet_component.jl:153`), so it is a real degeneracy, and RAM collapses onto
+  it in **three runs of four**.
+* **Every acceptance rate is 0.235–0.237 against a 0.234 target.** RAM's *global scale*
+  converged perfectly in all four while the *shape* differs 347×.
+  ⇒ **acceptance rate certifies nothing here.**
+* `calibrate_mcmc_ext.jl:1613-1623` seeds every production proposal from a **single chain's**
+  adaptation (every candidate is `_seed2026`), and seed2026 is the **widest** of the four,
+  not a consensus. `--adcov=` already exists, so a pooled seed needs no code change.
+
+⚠ **A first pass in RAW units returned eigenvectors loading 1.000 on `ais_slope` at BOTH ends
+of the spectrum** — pure scale artefact at cond **1.9e16**, and it read like a finding.
+Everything is standardized by the reference run's own marginal sds, and the raw condition
+numbers are printed so the next reader sees why.
+
+**Item 3 is a proposal for the next production run, not a result.** It changes the sampler,
+so it needs a tune chain and a fresh certificate before anything is re-quoted.
+
 ## [unreleased] — 2026-08-24o — **ITEM 1 CLOSED: the three deficits that started the whole curvature arc are UNRESOLVED — 0.629× is 0.27 σ, 0.727× is 0.37 σ, 0.571× is 1.39 σ. They are 7–10 σ statements about the MODEL and sub-2 σ statements about the WORLD. Item 2 also closed: the GIA convention mismatch IS real (Caron-2018 vs ICE-6G_D) and is bounded at 0.024 mm/yr — it does not gate the LWS trend.**
 
 `julia/diag_curvature_deficit_2x2.jl` (extended, additively),
