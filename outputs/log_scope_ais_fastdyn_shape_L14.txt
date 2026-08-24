@@ -1,0 +1,112 @@
+AIS fast-dynamics SHAPE propagation | tag L14 | 500 draws/chain x 4 chains
+  arms: lam0, n0p0, n1p0, n2p0   gmax Inf
+  reading chain seed2026 ...
+  reading chain seed2027 ...
+  reading chain seed2028 ...
+  reading chain seed2029 ...
+  ref_excess = 4.5290 degC = median above-threshold excess at ssp585@2300 (100.0% tipped)
+  running ssp245 / n0p0 ...
+  running ssp245 / n1p0 ...
+  running ssp245 / n2p0 ...
+  running ssp245 / lam0 ...
+  running ssp585 / n0p0 ...
+  running ssp585 / n1p0 ...
+  running ssp585 / n2p0 ...
+  running ssp585 / lam0 ...
+
+============================================================================================
+GATES
+============================================================================================
+  [FORK] ssp245 @2100  n0 median    5.584 vs shipped    5.584  diff  +0.0000 cm -> PASS
+  [FORK] ssp245 @2150  n0 median   11.905 vs shipped   11.905  diff  +0.0000 cm -> PASS
+  [FORK] ssp245 @2300  n0 median  131.349 vs shipped  131.349  diff  +0.0000 cm -> PASS
+  [FORK] ssp585 @2100  n0 median   37.073 vs shipped   37.073  diff  +0.0000 cm -> PASS
+  [FORK] ssp585 @2150  n0 median   94.348 vs shipped   94.348  diff  +0.0000 cm -> PASS
+  [FORK] ssp585 @2300  n0 median  281.190 vs shipped  281.190  diff  +0.0000 cm -> PASS
+  [INERT] ssp245 1850-2024  max |arm - n0| = 0.000e+00 cm -> PASS
+  [INERT] ssp585 1850-2024  max |arm - n0| = 0.000e+00 cm -> PASS
+  [AFFINE] ssp245 @2300  max |pred - actual| = 0.6155 cm = 2.19e-03 of the 280.8 cm band -> APPROXIMATE
+  [AFFINE] ssp585 @2300  max |pred - actual| = 1.2196 cm = 4.83e-03 of the 252.4 cm band -> APPROXIMATE
+  [GMAX] ssp245 n1p0  max realised g = 0.36 (cap Inf)
+  [GMAX] ssp245 n2p0  max realised g = 0.13 (cap Inf)
+  [GMAX] ssp585 n1p0  max realised g = 1.58 (cap Inf)
+  [GMAX] ssp585 n2p0  max realised g = 2.50 (cap Inf)
+
+============================================================================================
+CELLS -- ref_excess = 4.5290 degC (anchored on ssp585@2300); levels are anchor-dependent
+============================================================================================
+  ssp     horiz  arm       median       p05       p95    spread |  fastdyn cm  % of med
+  ssp245  2100   lam0        5.14      3.64      6.55      2.92 |        0.00      0.0%
+  ssp245  2100   n0p0        5.58      3.76     39.20     35.44 |        0.00      0.0%
+  ssp245  2100   n1p0        5.30      3.70      7.64      3.94 |        0.00      0.0%
+  ssp245  2100   n2p0        5.17      3.64      6.59      2.95 |        0.00      0.0%
+  ssp245  2150   lam0        9.12      6.01     12.13      6.12 |        0.00      0.0%
+  ssp245  2150   n0p0       11.91      6.47    101.89     95.42 |        0.00      0.0%
+  ssp245  2150   n1p0        9.96      6.32     19.25     12.93 |        0.00      0.0%
+  ssp245  2150   n2p0        9.28      6.10     12.58      6.48 |        0.00      0.0%
+  ssp245  2300   lam0       21.99     13.45     30.31     16.86 |        0.00      0.0%
+  ssp245  2300   n0p0      131.35     15.36    296.12    280.77 |      110.04     83.8%
+  ssp245  2300   n1p0       27.27     14.83     63.61     48.78 |        3.09     11.3%
+  ssp245  2300   n2p0       22.91     13.89     33.92     20.03 |        0.09      0.4%
+  ssp585  2100   lam0        7.27      4.59      9.97      5.39 |        0.00      0.0%
+  ssp585  2100   n0p0       37.07     16.45     67.01     50.56 |       29.76     80.3%
+  ssp585  2100   n1p0       12.35      6.69     22.98     16.29 |        5.04     40.8%
+  ssp585  2100   n2p0        8.62      5.21     14.00      8.79 |        1.16     13.4%
+  ssp585  2150   lam0       18.43     10.06     28.39     18.33 |        0.00      0.0%
+  ssp585  2150   n0p0       94.35     53.76    148.55     94.79 |       75.69     80.2%
+  ssp585  2150   n1p0       47.93     26.27     83.50     57.23 |       29.57     61.7%
+  ssp585  2150   n2p0       33.80     17.95     62.61     44.66 |       14.80     43.8%
+  ssp585  2300   lam0       70.85     35.54    124.82     89.29 |        0.00      0.0%
+  ssp585  2300   n0p0      281.19    168.34    420.70    252.36 |      206.15     73.3%
+  ssp585  2300   n1p0      222.11    125.52    368.20    242.67 |      147.90     66.6%
+  ssp585  2300   n2p0      196.19     99.36    375.37    276.01 |      123.49     62.9%
+
+============================================================================================
+ANCHOR ENVELOPE -- each cell used in turn as the anchor
+============================================================================================
+
+  arm n1p0
+  anchored at        lam scale |     245@2100     245@2150     245@2300     585@2100     585@2150     585@2300
+  ssp245@2100              -- | (no fast-dynamics contribution at this cell -- cannot anchor here)
+  ssp245@2150              -- | (no fast-dynamics contribution at this cell -- cannot anchor here)
+  ssp245@2300         35.4343 |         5.5        11.3       132.7       185.5      1069.4      5326.4
+  ssp585@2100          5.9142 |         5.4        10.8        40.7        36.9       193.0       950.3
+  ssp585@2150          2.5674 |         5.4        10.3        30.9        20.2        94.4       455.5
+  ssp585@2300          1.4222 |         5.3        10.1        28.4        14.5        60.5       285.0
+
+  arm n2p0
+  anchored at        lam scale |     245@2100     245@2150     245@2300     585@2100     585@2150     585@2300
+  ssp245@2100              -- | (no fast-dynamics contribution at this cell -- cannot anchor here)
+  ssp245@2150              -- | (no fast-dynamics contribution at this cell -- cannot anchor here)
+  ssp245@2300        1240.2801 |         5.5        11.1       128.9      1443.0     18383.7    153210.2
+  ssp585@2100         25.7436 |         5.3        10.0        28.0        37.0       400.6      3257.6
+  ssp585@2150          5.1278 |         5.2         9.6        24.6        13.3        94.5       702.6
+  ssp585@2300          1.7034 |         5.2         9.3        23.5         9.5        44.0       282.9
+
+============================================================================================
+[ANCHOR-EXACT] arithmetic envelope vs an actual re-run at the rescaled lambda
+============================================================================================
+  ssp585 n1p0 @2100  exact    14.51  arithmetic    14.51  diff  +0.000 cm = 3.59e-07 of band
+  ssp585 n1p0 @2150  exact    60.55  arithmetic    60.55  diff  +0.002 cm = 2.59e-05 of band
+  ssp585 n1p0 @2300  exact   285.11  arithmetic   285.01  diff  +0.108 cm = 3.37e-04 of band
+     lambda rescale 1.4222, max g 1.58, floor bound in 0 draw-years
+  ssp585 n2p0 @2100  exact     9.47  arithmetic     9.47  diff  +0.000 cm = 3.96e-08 of band
+  ssp585 n2p0 @2150  exact    44.04  arithmetic    44.04  diff  +0.000 cm = 6.23e-06 of band
+  ssp585 n2p0 @2300  exact   282.98  arithmetic   282.87  diff  +0.114 cm = 2.66e-04 of band
+     lambda rescale 1.7034, max g 2.50, floor bound in 0 draw-years
+
+============================================================================================
+ANCHOR-FREE: ssp585/ssp245 ratio of the FAST-DYNAMICS contribution
+============================================================================================
+  horiz  arm      ssp245 fd cm   ssp585 fd cm      ratio
+  2100   n0p0            0.000         29.755        NaN
+  2100   n1p0            0.000          5.039        NaN
+  2100   n2p0            0.000          1.158        NaN
+  2150   n0p0            0.000         75.692        NaN
+  2150   n1p0            0.000         29.569        NaN
+  2150   n2p0            0.000         14.805        NaN
+  2300   n0p0          110.044        206.154       1.87
+  2300   n1p0            3.086        147.898      47.92
+  2300   n2p0            0.088        123.486    1400.49
+
+done.

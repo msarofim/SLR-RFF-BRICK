@@ -1,0 +1,27 @@
+block,key,value,note
+1_conditioning,cond_seed2026,1.858e+16,
+1_conditioning,cond_seed2027,1.363e+16,
+1_conditioning,cond_seed2028,1.814e+16,
+1_conditioning,cond_seed2029,1.368e+16,
+2_agreement,spread_seed2027,347.4,
+2_agreement,narrowest_seed2027,0.0775,
+2_agreement,widest_seed2027,26.9237,
+2_agreement,spread_seed2028,86.7,
+2_agreement,narrowest_seed2028,0.0893,
+2_agreement,widest_seed2028,7.7427,
+2_agreement,spread_seed2029,197.7,
+2_agreement,narrowest_seed2029,0.0973,
+2_agreement,widest_seed2029,19.2323,
+3_directions,seed2027_widest,"anto_beta -0.45, ais_precip0_LOG +0.45, ais_slope -0.44, ais_mu -0.34, ais_ocean_temperature₀ +0.29",26.924x
+3_directions,seed2027_narrowest,"antarctic_alpha +0.44, ais_ocean_temperature₀ +0.39, ais_runoff_Ton +0.31, anto_beta +0.29, antarctic_nu -0.25",0.078x
+3_directions,seed2028_widest,"ais_iceflow0 -0.75, rho_gsic -0.30, rho_gis +0.27, sd_steric -0.20, anto_beta -0.17",7.743x
+3_directions,seed2028_narrowest,"antarctic_alpha +0.44, anto_beta +0.34, gic_log10_kappa_R19 -0.29, ais_ocean_temperature₀ +0.25, ais_c +0.24",0.089x
+3_directions,seed2029_widest,"ais_precip0_LOG +0.57, ais_slope -0.41, anto_beta -0.39, ais_mu -0.32, ais_runoff_Ton +0.20",19.232x
+3_directions,seed2029_narrowest,"ais_ocean_temperature₀ +0.53, antarctic_alpha +0.44, ais_slope +0.31, anto_beta +0.28, ais_runoff_Ton +0.24",0.097x
+3_directions,common_narrow_parameters,"ais_ocean_temperature₀, antarctic_alpha, anto_beta",
+4_acceptance,acceptance_seed2026,0.237,
+4_acceptance,acceptance_seed2027,0.235,
+4_acceptance,acceptance_seed2028,0.236,
+4_acceptance,acceptance_seed2029,0.236,
+4_acceptance,max_deviation_from_target,0.003,
+4_acceptance,verdict,all chains on target; shape disagrees by 347x -> acceptance certifies nothing,
