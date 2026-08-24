@@ -3,6 +3,86 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-24b — **`data/cmip6_pai` was corrupt for SEVEN files, not two; the fix is in the reducers; the A6 decomposition survives but its motivating cells weaken.**
+
+Handoff 2026-08-24 §7 item 3 asked for PAI to be re-derived for the MPI pair "with the
+corrected globals" and for the A6 conclusions to be checked. Both are done, and both the
+scope and the recipe turned out to be wrong in the handoff.
+
+### The defect, measured rather than assumed — `python/reduce_cmip6_tas_pai_fix_mpi.py`
+
+`xarray`'s `.weighted()` **aligns on coordinate values** with an inner join. Three
+reducers (`reduce_cmip6_tas_pai.py`, `_deck.py`, `_ext.py`) build their cos-lat global
+weight *and* their AIS mask **once, from `sftlf`**, then apply them to every experiment's
+`tas`. Where `sftlf.lat` differs from `tas.lat` in the last float digit, the reduction
+silently collapses to the grid **intersection**:
+
+| model | max abs lat diff | latitudes kept | 1850–1900 global |
+|---|---|---|---|
+| MPI-ESM1-2-LR | 1.4e-14 deg | **56 / 96 (58.3%)** | 279.31 → 286.68 K |
+| MPI-ESM1-2-HR | 2.8e-14 deg | **120 / 192 (62.5%)** | 279.44 → 287.08 K |
+
+`lon` matched exactly. `reduce_cmip6_hemis.py` escaped only because it builds its weights
+from a **tas** dataset instead of from `sftlf`.
+
+**Two things the handoff had wrong.** (1) *The numerator was affected too*, so "re-derive
+with the corrected globals" would have been a half-fix: `wa` is derived from `wg` and
+inherits the same intersection, and repairing it moves `tas_ais` by **+0.574 K (LR)** and
+**−0.125 K (HR)** — opposite signs, so not a common offset either. The published
+`tas_ais` looked reassuring because it sat inside the ensemble range, which is not
+evidence: the retained subset that makes a global mean 7 K cold is one skewed toward
+exactly the cold cells Antarctica is made of. (2) *It is seven files across three
+reductions*, not two — and the DECK set caught a **third model**, `MPI-ESM-1-2-HAM`,
+invisible from the scenario reduction the handoff was written against.
+
+### The fix is at the source, not in a repair script
+
+`python/pai_series.py` (new) owns `align_sftlf_to()` — gated [SHAPE] same grid shape and
+[DRIFT] the repaired difference must be float noise, since a real offset would *move* the
+AIS mask — and `assert_global_plausible()`, the rail that should have caught this in
+2026-06. All three reducers now build weights **per experiment** through that helper and
+assert plausibility on every series they write. Pre-fix files, the full write-up and
+every pre/post diagnostic pair: `outputs/quarantine/20260824_cmip6_pai_mpi_lat_align/`.
+
+⚠ **The rail was first written as (283, 293) K and would have rejected FOUR real series**
+(CanESM5, ACCESS-CM2, GISS-E2-1-H on ssp585; CESM2 on abrupt-4xCO2). Resized against the
+realised per-experiment spread — 285.69 to 297.82 K across all 306 series on disk — to
+**(283, 302)**, which still catches the 279–282 K defect. Exactly the
+`tolerance_scaled_to_spread` failure mode: a plausibility rail held to an identity gate's
+tightness starts choosing the data.
+
+Also fixed while it blocked the work: `diag_pai_cmip6_time.py` had been **dying outright**
+on `KeyError: tas_global` since the OHC reduction landed in `data/cmip6_pai`, because each
+consumer carried its own inline list of sibling-filename prefixes to skip and the three
+copies had drifted apart. `pai_series.model_series_files()` now owns that list once, with
+a **schema gate behind it that raises rather than skipping** — silently dropping a file is
+how a model quietly leaves an ensemble whose every number is a median over it.
+
+### Does it move the A6 conclusions? The fit, no. The cells it was motivated by, yes.
+
+Re-run pre-fix and post-fix on the **same model set**, so every difference is the repair.
+
+`diag_pai_cmip6_rate.py`, the level-vs-rate decomposition the two-mode recommendation is
+*stated* as, does not move: rate coefficient **c = −0.643 [−1.062, 0.072] → −0.645
+[−1.066, 0.040]** (0.3%, CI still straddles zero), and the rate term buys **exactly the
+same RMSE gain, 0.017**. Ensemble median secant amplification moves **< 0.1 σ** of the
+across-model spread (ssp245 1.0610 → 1.0787; ssp585 1.1094 → 1.1249).
+
+But the anomaly that *motivated* the two-mode reading — SSP2-4.5 sitting **above**
+SSP5-8.5 at matched warming — is weaker than it looked:
+
+| ΔT | ssp245 − ssp585 (secant), pre | post |
+|---|---|---|
+| 1.5 K | +0.050 | +0.032 |
+| 2.0 K | +0.026 | **+0.009** — 2.9× smaller |
+| 2.5 K | +0.010 | +0.011 |
+| 3.0 K | −0.028 | −0.028 |
+
+and in the trend-ratio table the **level-2.0 cell inverts sign** (ssp245 above by 0.009 →
+below by 0.022). ⇒ **quote the fit, not the cells.** Smaller moves downstream: the DECK
+1pctCO2 secant (1.125 → 1.109 at 2.5 K; 1.112 → 1.153 at 4.5 K) and the OHC transfer RMSE
+(M2 0.614 → 0.580 K).
+
 ## [unreleased] — 2026-08-23l — **The reporting chain reaches the canonical vintage for the first time since L11 — and it can now see the tapped arm at all.**
 
 `postpred_L14_*`, `ladrillo_model_comparison_L14{,_spread}.csv`,

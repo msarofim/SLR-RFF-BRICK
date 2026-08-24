@@ -18,7 +18,11 @@ NOTE: R is a LEVEL ratio, directly comparable to BRICK `a` and to the DECK 1pctC
 secant (diag_pai_deck.py) — it is NOT Xie et al.'s trend-ratio PAI1, so the old Xie gate
 does not apply. Cross-check is against the DECK 1pct GHG-only secant instead.
 """
-import glob, os
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from pai_series import model_series_files
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -41,11 +45,10 @@ AMP_EQ     = 1.196            # DAIS equilibrium amplification (1/0.8365)
 COLORS     = {"ssp245": "#0d7c8c", "ssp585": "#b25c39"}
 
 series = {}
-for f in sorted(glob.glob(os.path.join(IN_DIR, "tas_series_*.csv"))):
-    b = os.path.basename(f)
-    if any(b.startswith(f"tas_series_{p}_") for p in ("ext", "deck", "hemis")):
-        continue
-    model = b[len("tas_series_"):-len(".csv")]
+## Which files are per-model series is resolved ONCE, in python/pai_series.py, with a
+## schema gate behind the filename filter -- the inline prefix tuple that used to live
+## here went stale when the OHC reduction landed in the same directory.
+for model, f in sorted(model_series_files(IN_DIR).items()):
     df = pd.read_csv(f)
     base = df[(df.scenario == "historical")
               & df.year.between(*BASELINE)][["tas_global", "tas_ais"]].mean()

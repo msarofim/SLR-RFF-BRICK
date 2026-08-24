@@ -7,7 +7,15 @@ tas_series_ext_<model>.csv (scenarios only — historical lives in the base file
 anomaly baselines must come from the same member, so a scenario is skipped for a model
 whose base member lacks it). Resumable: models with an existing _ext CSV are skipped.
 """
-import glob, os, time, warnings
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from pai_series import (align_sftlf_to, assert_global_plausible,
+                        model_series_files)
+import glob
+import time
+import warnings
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -42,10 +50,12 @@ tas = cat[(cat.table_id == "Amon") & (cat.variable_id == "tas")
           & (cat.experiment_id.isin(EXPS_EXT)) & (cat.grid_label.isin(GRIDS_OK))]
 lf  = cat[(cat.variable_id == "sftlf") & (cat.grid_label.isin(GRIDS_OK))]
 
-base_files = sorted(f for f in glob.glob(os.path.join(OUT_DIR, "tas_series_*.csv"))
-                    if "_ext_" not in f)
-for f in base_files:
-    model = os.path.basename(f)[len("tas_series_"):-len(".csv")]
+## Which base files are per-model series comes from the shared resolver -- the old
+## `if "_ext_" not in f` test admitted the deck, hemispheric and OHC sibling reductions
+## as if they were models, so every run buried its real PASS/FAIL lines under ~100
+## spurious ones (and would have written tas_series_ext_deck_<model>.csv had any of
+## those pseudo-models carried the extra scenarios).
+for model in sorted(model_series_files(OUT_DIR)):
     out_csv = os.path.join(OUT_DIR, f"tas_series_ext_{model}.csv")
     if os.path.exists(out_csv):
         print(f"SKIP {model} (exists)"); continue
@@ -59,9 +69,11 @@ for f in base_files:
         if lfsub.empty:
             lfsub = lf[lf.source_id == model]
         glabel = sorted(lfsub.grid_label)[0]
-        sftlf = openz(lfsub[lfsub.grid_label == glabel].zstore.iloc[0])["sftlf"]
-        wg = np.cos(np.deg2rad(sftlf.lat)) * xr.ones_like(sftlf.lon, dtype=float)
-        wa = wg.where((sftlf >= SFTLF_MIN) & (sftlf.lat <= AIS_LAT_MAX), 0.0)
+        sftlf = openz(lfsub[lfsub.grid_label == glabel].zstore.iloc[0])["sftlf"].squeeze(drop=True)
+        ## WEIGHTS ARE BUILT PER EXPERIMENT, ON THAT DATASET'S OWN COORDS -- see
+        ## python/pai_series.py. Building them once from sftlf and reusing them silently
+        ## reduced BOTH the global mean and the AIS mask to the sftlf/tas coordinate
+        ## INTERSECTION on the MPI family (7.4-7.6 K low).
         frames = []
         got = []
         for exp in EXPS_EXT:
@@ -71,7 +83,14 @@ for f in base_files:
             if row.empty: continue
             ds = openz(row.zstore.iloc[0])
             if ds.lat.ndim != 1: continue
-            df = annual_means(ds, wg, wa); df["scenario"] = exp
+            lf_here = align_sftlf_to(sftlf, ds, f"{model}/{exp}")
+            wg = np.cos(np.deg2rad(ds.lat)) * xr.ones_like(ds.lon, dtype=float)
+            wa = wg.where((lf_here >= SFTLF_MIN) & (lf_here.lat <= AIS_LAT_MAX), 0.0)
+            if float(wa.sum()) == 0.0:
+                raise ValueError(f"empty AIS mask ({exp})")
+            df = annual_means(ds, wg, wa)
+            assert_global_plausible(df.tas_global, f"{model}/{exp}")
+            df["scenario"] = exp
             frames.append(df); got.append(exp)
         if not frames:
             print(f"PASS {model}: no ext experiments on usable grids"); continue

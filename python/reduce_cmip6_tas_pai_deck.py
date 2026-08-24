@@ -11,7 +11,14 @@ PICTRL_YRS (used downstream only as the anomaly baseline mean — drift not remo
 Same AIS proxy as the scenario reduction: land (sftlf >= 50%) south of 60S, cos(lat)
 weighted. Resumable.
 """
-import glob, os, time, warnings
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from pai_series import align_sftlf_to, assert_global_plausible
+import glob
+import time
+import warnings
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -79,11 +86,12 @@ for model in models:
         sftlf = openz(lfsub[lfsub.grid_label == glabel].zstore.iloc[0])["sftlf"]
         if sftlf.lat.ndim != 1:
             print(f"PASS {model}: non-regular grid"); continue
-        wg = np.cos(np.deg2rad(sftlf.lat)) * xr.ones_like(sftlf.lon, dtype=float)
-        wa = wg.where((sftlf >= SFTLF_MIN) & (sftlf.lat <= AIS_LAT_MAX), 0.0)
-        if float(wa.sum()) == 0.0:
-            print(f"PASS {model}: empty AIS mask"); continue
+        sftlf = sftlf.squeeze(drop=True)
 
+        ## WEIGHTS ARE BUILT PER EXPERIMENT, ON THAT DATASET'S OWN COORDS -- see
+        ## python/pai_series.py. Building them once from sftlf and reusing them across
+        ## experiments silently reduced BOTH the global mean and the AIS mask to the
+        ## sftlf/tas coordinate INTERSECTION on the MPI family (7.4-7.6 K low).
         frames = []
         for exp in EXPS:
             mem = pic_member if exp == "piControl" else member
@@ -97,7 +105,15 @@ for model in models:
             cap = {"abrupt-4xCO2": ABRUPT_MAX_YRS, "piControl": PICTRL_YRS}.get(exp)
             if cap is not None:
                 ds = ds.isel(time=slice(0, 12 * cap))
+            lf_here = align_sftlf_to(sftlf, ds, f"{model}/{exp}")
+            wg = np.cos(np.deg2rad(ds.lat)) * xr.ones_like(ds.lon, dtype=float)
+            wa = wg.where((lf_here >= SFTLF_MIN) & (lf_here.lat <= AIS_LAT_MAX), 0.0)
+            if float(wa.sum()) == 0.0:
+                raise ValueError(f"empty AIS mask ({exp})")
             df = annual_means(ds, wg, wa)
+            ## piControl and abrupt-4xCO2 are not preindustrial windows, hence the
+            ## deliberately loose band in pai_series.GLOBAL_PLAUSIBLE_K.
+            assert_global_plausible(df.tas_global, f"{model}/{exp}")
             df["scenario"] = exp
             df["member"] = mem
             frames.append(df)

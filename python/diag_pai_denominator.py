@@ -10,7 +10,11 @@ Test: for each model, the Antarctic amplification ratio vs GLOBAL mean and vs SH
 30-yr running means rel. 1850-1900, ssp245. Compare (i) the multi-model spread of the
 ratio through time (noise), and (ii) the size of the two denominators mid-century.
 """
-import glob, os
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from pai_series import model_series_files
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -42,9 +46,7 @@ def load(model):
                          "R_glob": (dA/dG).where(dG>0.1),
                          "R_sh":   (dA/dS).where(dS>0.1)}).loc[1900:]
 
-models = [os.path.basename(f)[len("tas_series_"):-4]
-          for f in sorted(glob.glob(os.path.join(IN_DIR, "tas_series_*.csv")))
-          if not any(os.path.basename(f).startswith(f"tas_series_{p}_") for p in ("ext","deck","hemis"))]
+models = sorted(model_series_files(IN_DIR))   # shared resolver, python/pai_series.py
 D = {m: load(m) for m in models}; D = {m: d for m, d in D.items() if d is not None}
 print(f"{len(D)} models")
 

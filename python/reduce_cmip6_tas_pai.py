@@ -15,7 +15,13 @@ Models: every source_id in the catalog with Amon tas for ALL of EXPERIMENTS on a
 (preferring MEMBER_PREF), capped at MAX_MODELS (alphabetical — no cherry-picking).
 Resumable: models with an existing output CSV are skipped.
 """
-import os, sys, time, warnings
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from pai_series import align_sftlf_to, assert_global_plausible
+import time
+import warnings
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -92,13 +98,15 @@ for model in models:
         sftlf = openz(lfsub[lfsub.grid_label == glabel].zstore.iloc[0])["sftlf"]
         if sftlf.lat.ndim != 1:
             print(f"PASS {model}: non-regular grid"); continue
+        ## Some models ship sftlf with a singleton time/member dim; drop it so the mask
+        ## broadcasts cleanly against tas. A no-op where there is nothing to squeeze.
+        sftlf = sftlf.squeeze(drop=True)
 
-        wg = np.cos(np.deg2rad(sftlf.lat)) * xr.ones_like(sftlf.lon, dtype=float)
-        mask = (sftlf >= SFTLF_MIN) & (sftlf.lat <= AIS_LAT_MAX)
-        wa = wg.where(mask, 0.0)
-        if float(wa.sum()) == 0.0:
-            print(f"PASS {model}: empty AIS mask"); continue
-
+        ## WEIGHTS ARE BUILT PER EXPERIMENT, ON THAT DATASET'S OWN COORDS.
+        ## Building them once from sftlf and reusing them was a real bug: xarray's
+        ## .weighted() ALIGNS on coordinate VALUES, so a lat vector differing in the
+        ## last float digit silently reduces both the global mean AND the AIS mask to
+        ## a partial grid -- 7.4 K on MPI-ESM1-2-LR. See python/pai_series.py.
         frames = []
         for exp in EXPERIMENTS:
             row = sub[(sub.experiment_id == exp) & (sub.member_id == member)
@@ -108,7 +116,13 @@ for model in models:
             ds = openz(row.zstore.iloc[0])
             if ds.lat.ndim != 1:
                 raise ValueError("non-regular tas grid")
+            lf_here = align_sftlf_to(sftlf, ds, f"{model}/{exp}")
+            wg = np.cos(np.deg2rad(ds.lat)) * xr.ones_like(ds.lon, dtype=float)
+            wa = wg.where((lf_here >= SFTLF_MIN) & (lf_here.lat <= AIS_LAT_MAX), 0.0)
+            if float(wa.sum()) == 0.0:
+                raise ValueError(f"empty AIS mask ({exp})")
             df = annual_means(ds, wg, wa)
+            assert_global_plausible(df.tas_global, f"{model}/{exp}")
             df["scenario"] = exp
             frames.append(df)
         allf = pd.concat(frames).reset_index().rename(columns={"index": "year", "time": "year"})

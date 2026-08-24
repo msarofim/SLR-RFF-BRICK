@@ -14,7 +14,11 @@ Joint fit on the common-model subset (models present in ALL of FIT_SCENARIOS):
 c > 0 means faster warming suppresses amplification at matched level = a time component.
 c is bootstrapped over models. Outputs: figure, tidy CSV, summary md.
 """
-import glob, os
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from pai_series import model_series_files
 import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
@@ -53,10 +57,10 @@ def trend(y):
 
 # ---- load base + ext series ----
 series = {}
-for f in sorted(glob.glob(os.path.join(IN_DIR, "tas_series_*.csv"))):
-    b = os.path.basename(f)
-    if b.startswith("tas_series_ext_"): continue
-    model = b[len("tas_series_"):-len(".csv")]
+## Shared resolver -- see python/pai_series.py. This file's own filter skipped only
+## `ext_`, so it had been silently reading the DECK and hemispheric reductions as if
+## they were models until the schema gate went in.
+for model, f in sorted(model_series_files(IN_DIR).items()):
     df = pd.read_csv(f)
     ext = os.path.join(IN_DIR, f"tas_series_ext_{model}.csv")
     if os.path.exists(ext):
