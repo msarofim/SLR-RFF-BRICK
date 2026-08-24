@@ -1,0 +1,44 @@
+LWS GRACE EXTENSION | tag L14
+  source   JPL GRACE/GRACE-FO mascon RL06.3Mv04 CRI  doi 10.5067/TEMSC-3JC634
+  regions  GTN-G 2023 o1  doi 10.5904/gtng-glacreg-2023-07
+  glaciers GlaMBIE 2025, all regions except ['19', '5']
+  splice   2019-2023, then HELD FLAT through 2024 (GlaMBIE 2025 ends 2023)
+  ⚠ this script does NOT modify recalib_targets_ext.csv -- see the module docstring
+  file     GRCTellus.JPL.200204_202606.GLO.RL06.3M.MSCNv04CRI.nc (258 months)
+
+==============================================================================
+GATES
+==============================================================================
+[AREA]  grid sums to 5.1007e+08 km2 vs 5.1010e+08 -> PASS
+[ANT-SWEEP] the region-20 polygon misses 398 land cells worth -28.92 Gt/yr -> swept in via lat < -60.0
+[GRL]   Greenland  our trend  -258.10 vs JPL  -257.12 Gt/yr | ratio 1.0038 | rms  11.1 Gt -> PASS
+[ANT]   Antarctica our trend  -128.92 vs JPL  -128.46 Gt/yr | ratio 1.0036 | rms   7.3 Gt -> PASS
+[DOMAIN] LWS domain 58908 cells, 132.27 Mkm2 (global land minus both ice sheets)
+[SCOPE] region-19 land cells inside the domain: 0 -> PASS (nothing to subtract)
+[SEAS]  removed a 5943 Gt peak-to-peak annual cycle (2 harmonics)
+[GLAC]  subtracting 17 GlaMBIE 2025 regions (all but ['19', '5']); 2019-2023 loss -1575 Gt
+[OVERLAP] 2003-2018 (n=16), offset +0.472 cm, rms 0.022, max|res| 0.059 cm
+  ⚠ NOT AN INDEPENDENT VALIDATION -- Frederikse 2020 TWS's natural-TWS term comes from a
+    GRACE-calibrated reconstruction, so the two share a source over this window.
+    Read it as 'the splice introduces no discontinuity', nothing more.
+[HOLD]  2024-2024 held flat at the 2023 value (0.601 cm) -- GlaMBIE 2025 ends 2023. 1 fiat year, against 6 in the shipped target.
+
+==============================================================================
+[RESULT] GRACE vs the shipped hold-flat fiat
+==============================================================================
+   year    GRACE     fiat     diff
+   2019    0.656    0.532    0.123
+   2020    0.428    0.532   -0.105
+   2021    0.513    0.532   -0.020
+   2022    0.506    0.532   -0.026
+   2023    0.601    0.532    0.069
+   2024    0.601    0.532    0.069
+
+  mean +0.018 cm | sd 0.076 | max|.| 0.123
+  ⇒ the hold-flat got the LEVEL right. What it removed is the INTERANNUAL variance,
+    which is what a last-window quadratic coefficient is most sensitive to.
+
+wrote outputs/lws_grace_extension_L14.csv
+wrote outputs/lws_grace_extension_L14.png
+
+recalib_targets_ext.csv is UNCHANGED -- recalibration deferred (Marcus 2026-08-24).

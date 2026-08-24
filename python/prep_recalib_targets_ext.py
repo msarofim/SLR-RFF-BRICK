@@ -308,6 +308,15 @@ for tgt in ["ais", "gis", "gsic", "steric", "dang"]:
     print(f"{tgt:6s} {str(OVERLAP[tgt]):12s} {off:9.3f} {y0:5d} {end:6d}  {inc:+.3f}")
 
 # LWS: hold constant at 2018 value for 2019+ (FLAGGED choice)
+# ⚠ A REAL REPLACEMENT NOW EXISTS AND IS DELIBERATELY NOT WIRED IN.
+#    `python/build_lws_grace_extension.py` builds LWS 2019-2023 from the JPL mascons minus
+#    GlaMBIE glaciers -> `outputs/lws_grace_extension_L14.csv`. It is NOT read here because
+#    swapping a fitted target is a recalibration trigger and the level does not justify one on
+#    its own: GRACE differs from this hold by mean +0.018 cm (sd 0.076, max 0.123), i.e. the
+#    hold got the LEVEL right and only removed interannual variance. Marcus 2026-08-24: "wait
+#    to recalibrate until we have something else worth recalibrating." Wire it in THEN, and
+#    replace lws_lo/lws_hi at the same time -- they are frozen here too, so the fit currently
+#    carries a fiat value with a real-data error bar.
 for suf in ["", "_lo", "_hi"]:
     v18 = out.loc[2018, "lws" + suf]
     out.loc[2019:EXT_Y1, "lws" + suf] = v18
