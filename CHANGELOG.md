@@ -3,6 +3,82 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-24g — **Option 3 built: a MICI-free headline, an arm scaled to the LIG RESIDUAL (duration cancels), and a FACTS-derived default P_MICI = 0.245 — after the obvious probability definition FAILED its own placebo test.**
+
+`python/build_ais_mici_arm.py`, `outputs/ais_mici_{arm,probability}_L14.csv`. Built at
+Marcus's direction: arm scaled to the LIG residual, probability from the FACTS Bamber-2019
+structured expert judgment. Marcus's ruling on the IPCC stance, on the record: *declining to
+give a number is not neutral — it silently pushes the choice onto every downstream user,
+which is worse for an SC-GHG than a stated, sourced, revisable default.*
+
+### The double-counting check first — my stated mechanism was REFUTED, the concern survives
+
+I had argued λ was "pushed as high as the model form allows" to fit the LIG. **Wrong.** The
+edge-density test settles it: the controls that genuinely sit against uniform priors show
+hard edges (γ **0.92**, κ **0.95**, α **0.61** of peak density AT the bound), while λ and
+Tcrit decay to essentially **zero** (0.0008/0.0001 and 0.0027/0.0007). **λ is interior and
+data-limited, not prior-truncated.**
+
+That makes the concern *stronger*. Data-limited means genuinely identified — and
+[[ais_lambda_rests_on_lig]] showed the only window that can identify it is the LIG. Two
+supports: corr(λ, Tcrit) = **+0.4449** has exactly the sign a rate × duration trade-off under
+one level constraint predicts, and λ correlates with **no** smooth-channel parameter above
+0.05, so the degeneracy is rate-vs-duration, not fast-vs-smooth. (⚠ the ridge is **loose** —
+conditional sd only 10.4% smaller — so λ is not merely a nuisance coordinate.) Coherence
+check passes: λ's posterior implies **~100–1200 yr** above threshold to make the LIG's
+1.8–6.0 m, and Tcrit needs ~+2.8 °C Antarctic, reached only at the LIG peak.
+
+### The arm: scaled to the residual, and the DURATION CANCELS
+
+Ruckert et al. bound the un-absorbed part themselves — their MICI-free model undershoots the
+LIG by "roughly 26% or 1 m". With f = 0.26, a draw producing 0.92·λ·D sits at (1−f) of the
+true LIG loss, so the missing rate satisfies 0.92·Δλ·D = (f/(1−f))·0.92·λ·D ⇒
+
+> **Δλ = (f/(1−f))·λ, and D cancels ⇒ arm = λ / (1−f) = 1.351 × λ**
+
+That matters because the LIG above-threshold window is only known to ~100–1200 yr. The arm λ
+= 0.014280 sits at paleo percentile **86.3**, **inside** the support, so it reads off the
+measured ladder with no extrapolation.
+
+| horizon | no-MICI | MICI arm | Δ | E[AIS] @P=0.245 | **dE/dP** |
+|---|---|---|---|---|---|
+| 2100 | 38.2 | 49.1 | +10.9 | 40.9 | **10.9 cm** |
+| 2150 | 95.4 | 122.7 | +27.2 | 102.1 | **27.2 cm** |
+| 2300 | 279.5 | 352.7 | **+73.3** | 297.4 | **73.3 cm** |
+
+⚠ **The arm is small vs DeConto BY CONSTRUCTION** — +73 cm at 2300 against the 687–1355 cm
+MICI branch. That gap is the **price of not double-counting**: it is what *our* calibration
+says λ cannot reach, not what DP16 says MICI does. Making the arm FACTS-wf3f-comparable is a
+different decision and it re-opens the double count.
+
+### ⚠ The obvious probability definition failed its placebo test — 0.52 was NOT shipped
+
+`P(Bamber SEJ AIS > no-MICI p95)` returns **0.185 at 2020**, before MICI is possible in any
+module, and gave an implausible **0.52** at 2100 — against a literature moving the other way
+(Edwards 2019: MICI not required; Morlighem 2024: not this century for Thwaites). Diagnosis:
+**the Bamber SEJ is a much wider distribution than a process emulator everywhere**, because
+it carries experts' full structural uncertainty rather than MICI specifically. Its 2100
+ssp585 median (**18.0 cm**) sits essentially ON the process p95 (**18.3 cm**), so the
+statistic measures how pessimistic the elicitation is overall. `deconto21` shows what a real
+MICI indicator looks like: **exactly 0.000 through 2060**, then 0.02 → 0.32 → 0.56 → 0.705.
+
+**SHIPPED:** `P(SEJ > the no-MICI ensemble MAXIMUM)` — the probability experts place on AIS
+exceeding anything the MICI-free ensemble can produce. Placebo floor **0.075** (vs 0.185),
+ssp585 2070–2100 median **0.320**, floor-corrected ⇒ **P_MICI = 0.245**. The p95 route
+floor-corrects to **0.310** independently — two corrections agreeing to ~0.08 is the check.
+A `[PLACEBO]` gate prints the 2020 value for every variant; any variant with a large floor is
+reported but must not be used as a weight.
+
+⚠ Still an **upper** estimate (residual non-MICI SEJ width), the estimate is **not**
+horizon-invariant (0.075 → 0.430 over 2020–2100), `emuAIS` stops at **2100** so the reference
+cannot be evaluated at 2300, and **Bamber 2019 predates DeConto 2021's downward revision and
+Morlighem 2024** — so it is a conservative-high weight. Reasons to report dE/dP alongside,
+not to adjust it silently.
+
+### On the FrEDI linearity check
+Marcus: testable with existing FrEDI modules but may not hold for future work ⇒ run it when
+the derivative is needed, and **do not publish dSC/dP as a durable coefficient**.
+
 ## [unreleased] — 2026-08-24f — **Three tests on the AIS fast-dynamics prior: it rests on ONE data point, Antarctica has Greenland's curvature deficit, and MWP-1A corroborates the prior's WIDTH from data the calibration never used.**
 
 `julia/scope_ais_three_tests.jl` (one chain read serves all three),
