@@ -3,6 +3,80 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-24l — **ITEM 5: the scenario inversion is HORIZON-DEPENDENT (it does not exist at 2100), the λ prior's worth spans 5800× across the six cells, and the "10.3% of a median" ceiling was a 2300-only statement.**
+
+`python/diag_ais_item5_horizon_repricing.py`, `outputs/diag_ais_item5_{ranking,envelope}_L14.csv`.
+**No chains read** — both source CSVs already carried all three horizons, so item 5 was
+post-processing of `diag_ais_block_propagation_L14.csv` and `scope_ais_lambda_prior_L14.csv`.
+Item 5 of Marcus's 6 → 4 → 5 ordering, the last of the three.
+
+### [1] The scenario inversion is a 2300 phenomenon, not a scenario property
+
+| param | ssp245 @2100 | @2150 | @2300 | ssp585 @2100 | @2150 | @2300 |
+|---|---|---|---|---|---|---|
+| `antarctic_temp_threshold` | **−0.68 (r1)** | −0.69 (r1) | −0.68 (r1) | **−0.48 (r2)** | −0.24 (r3) | **−0.07 (r10)** |
+| `antarctic_lambda` | **+0.02 (r10)** | +0.05 (r7) | +0.56 (r3) | +0.71 (r1) | +0.90 (r1) | +0.92 (r1) |
+| `ais_gmst_amp` | +0.44 (r2) | +0.61 (r2) | +0.67 (r2) | +0.48 (r3) | +0.37 (r2) | +0.30 (r2) |
+| `ais_runoff_Ton` | +0.06 (r3) | +0.29 (r3) | +0.55 (r4) | +0.32 (r4) | +0.21 (r5) | +0.17 (r6) |
+| `antarctic_alpha` | +0.06 (r4) | +0.19 (r4) | +0.21 (r5) | +0.19 (r5) | +0.18 (r6) | +0.16 (r7) |
+
+Handoff `2026-08-24b` §1.1 recorded `antarctic_temp_threshold` as **rank 1 at ssp245 and rank
+10 at ssp585** and read that as a scenario property. **It is a 2300 property.** The
+ssp245/ssp585 contrast ratio is **1.42× at 2100, 2.92× at 2150, 9.71× at 2300** — at 2100 the
+threshold is near the top in BOTH scenarios (r1 and r2). The mirror image is `antarctic_lambda`,
+which is **rank 10 at ssp245 @2100 and effectively absent from that ranking at 2150 (+0.05)**
+before reaching rank 3 at 2300.
+
+⇒ **One mechanism governs both axes: the tipped fraction.** Where few draws have crossed the
+threshold, *whether* a draw tips dominates; where nearly all have, *how fast* takes over. Both
+scenario and horizon are just ways of moving that fraction, and all six cells are monotone in it.
+
+⇒ **The standing rule upgrades.** "An AIS parameter sensitivity quoted without its scenario is
+meaningless" (`ais_spread_is_lambda_prior`) becomes **without its scenario AND its horizon**.
+
+### [2] The λ prior's worth spans a factor of ~5800 across the six cells
+
+| cell | control median | band | median envelope | /band | spread envelope | /band |
+|---|---|---|---|---|---|---|
+| ssp245 @2100 | 5.58 | 35.44 | **0.06 cm** | **0.00** | 85.96 | **2.43** |
+| ssp245 @2150 | 11.91 | 95.42 | 0.89 | 0.01 | 207.00 | 2.17 |
+| ssp245 @2300 | 131.35 | 280.77 | 349.52 | 1.24 | 576.78 | 2.05 |
+| ssp585 @2100 | 37.07 | 50.56 | 81.06 | 1.60 | 90.56 | 1.79 |
+| ssp585 @2150 | 94.35 | 94.79 | 202.83 | 2.14 | 93.81 | 0.99 |
+| ssp585 @2300 | 281.19 | 252.36 | **549.81 cm** | **2.18** | 103.38 | **0.41** |
+
+The shipped **"2.18× the reported band"** is an **ssp585 @2300** number. The median envelope
+runs **0.06 → 549.81 cm**, a factor of **~5800**.
+
+**The median/spread trap, now with numbers.** Handoff `2026-08-24c` §2.2 flagged qualitatively
+that the ssp245 @2100 median is λ-blind. Quantified: the **median** envelope there is **0.06 cm
+(0.00× the band)** while the **spread** envelope is **85.96 cm (2.43× the band)**, with the
+spread itself varying **13.3×** across the λ support. **Reading λ's worth off the median at that
+cell reports zero, and it is not zero.**
+
+**And the two envelopes move in OPPOSITE directions.** At ssp585 the median envelope RISES with
+horizon (1.60 → 2.14 → 2.18) while the spread envelope FALLS (1.79 → 0.99 → 0.41); at ssp245 the
+spread envelope is nearly horizon-INVARIANT (2.43 / 2.17 / 2.05) while the median envelope goes
+0.00 → 0.01 → 1.24. **No single statistic summarises what the λ prior is worth** — the cell and
+the statistic both have to be named.
+
+### [3] A shipped ceiling was a 2300-only statement
+
+Handoff `2026-08-24c` §2.2 concluded *"Nothing exceeds 6% of a band or 10.3% of a median"*,
+computed on the 2300 rows. Measured across all six cells:
+
+* **The "≤6% of a band" half SURVIVES for what it was about** — the λ FORM arms (`lam_box`,
+  `lam_full`) stay within **±4.8% of the median** and **×0.964–1.057 on the band** at every one
+  of the six cells. The functional-form error is not where the uncertainty lives, at any horizon.
+* **The "10.3% of a median" ceiling does NOT survive.** At **ssp245 @2150 `tcr_full` moves the
+  median +47.1%** (+5.61 cm) and `joint` +42.9% — 4.6× the quoted ceiling. Tcrit, not λ, remains
+  the largest form effect, and it peaks at **2150**, a horizon nobody had looked at.
+
+⚠ **Apply `ratio_needs_its_base` to that 47.1% before quoting it.** Its base is a **11.91 cm**
+median; the same +5.61 cm is only **5.9% of the 95.42 cm band** at that cell. It is a large
+fraction of a small number. The honest statement is that the earlier ceiling was computed on one
+horizon and does not generalise — **not** that a 47% effect was discovered.
+
 ## [unreleased] — 2026-08-24k — **ITEM 4: the two badly-mixed AIS parameters do NOT corrupt the band — `ais_runoff_Ton` is retired at <=0.6%, and the degeneracy is a STIFF direction, not a flat ridge.**
 
 `julia/diag_ais_item4_sampler.jl`; `outputs/diag_ais_item4_{deliverable,fluxes,arms,perdraw}_L14.csv`,

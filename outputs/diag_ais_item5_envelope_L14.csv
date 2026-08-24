@@ -1,0 +1,7 @@
+scenario,horizon,control_median_cm,control_band_cm,median_envelope_cm,median_envelope_over_band,spread_envelope_cm,spread_envelope_over_band,spread_max_over_min,max_form_arm_pct_of_median,max_form_arm_name,max_lam_form_pct_of_median,max_lam_form_band_ratio_dev
+ssp245,2100,5.5843,35.4383,0.0574,0.0016,85.9607,2.4256,13.2759,2.5675,joint,0.0436,0.0363
+ssp245,2150,11.9054,95.4168,0.8942,0.0094,206.9965,2.1694,13.2379,47.1318,tcr_full,0.0000,0.0273
+ssp245,2300,131.3486,280.7680,349.5206,1.2449,576.7751,2.0543,13.2596,10.3375,tcr_full,4.5225,0.0153
+ssp585,2100,37.0730,50.5577,81.0575,1.6033,90.5611,1.7912,11.4033,-4.7830,lam_box,4.7830,0.0301
+ssp585,2150,94.3485,94.7891,202.8309,2.1398,93.8082,0.9897,5.5475,-4.6070,joint,4.5680,0.0410
+ssp585,2300,281.1895,252.3555,549.8121,2.1787,103.3831,0.4097,2.1143,-4.0439,lam_full,4.0439,0.0572
