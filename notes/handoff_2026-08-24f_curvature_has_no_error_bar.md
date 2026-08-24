@@ -1,7 +1,7 @@
 # Handoff — the post-splice halving is half fiat and not resolvable, and the whole curvature arc has been running without error bars
 
 **Start here.** Repo `SLR-RFF-BRICK`, branch `ladrillo-dev`, commits **`306b348`** (the
-diagnostic), **`b0fbc0b`-ish** (CHANGELOG `2026-08-24m`), and this note. Written 2026-08-24,
+diagnostic), **`28240c7`** (CHANGELOG `2026-08-24m`) and **`d219b76`** (this note). Written 2026-08-24,
 to be picked up cold. **Continues** `handoff_2026-08-24e_items4and5_closed.md`, whose §8 open
 item **1 is now half-closed and half-REFRAMED**. Everything in `-24e` §1–§7 stands unchanged.
 
