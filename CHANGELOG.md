@@ -3,6 +3,53 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-24j — **The curvature REFERENCE is unusable at every level — and Marcus's natural-variability mechanism is CONFIRMED for AIS but NOT for steric.**
+
+Follow-up to `2026-08-24i`, on Marcus's hypothesis: our FaIR-mean drivers are ensemble
+*means* and so cannot carry the ENSO/PDO/AMO curvature real forcing has — Greenland and the
+glaciers get an observed regional-T splice, AIS and steric do not.
+
+### Driver-side test — immune to the target-closure failure
+
+| driver | ours | observed | ratio |
+|---|---|---|---|
+| GMST (drives AIS) | **−3.271e-4** | +2.445e-4 (IGCC 4-dataset) | **−1.34 — WRONG SIGN** |
+| OHC (drives steric) | 1.418e-2 | 6.63e-3 (Cheng) / 2.42e-2 (IGCC) | **0.92** vs their mean |
+
+**CONFIRMED for AIS** — and it is a *sign* error, not a magnitude one: our driver decelerates
+over 1993–2024 while observations accelerate. **NOT confirmed for steric**: its driver is
+already at 0.92×, and the two observational OHC products disagree **3.7×** with each other on
+curvature, so there is no well-determined target to move toward and the product choice would
+dominate the fix.
+
+### But the reference is unusable, so none of it can be scored
+
+With `lws` included the observed budget closes to **2% in RATE (1.02×)** and fails **3.13× in
+CURVATURE** — so the non-closure is *not* a missing component. Localised in time, the residual
+(Dangendorf total minus the sum of its own five components, rebased 1993) is a structured
+mid-period **sag**: 0.00 (1993) → −0.46 (2005) → **−0.85 (2010)** → −0.49 (2015) → +0.06
+(2020), carrying **68% of the total's entire 1993–2024 curvature**. Half-window rates:
+Dangendorf **0.245 → 0.408** cm/yr (1.66×) against the component sum's 0.282 → 0.341 (1.21×).
+
+⇒ **there is no trustworthy curvature reference at any level** — not per-component (2.90–3.13×
+non-closure) and not the total, 68% of whose curvature is an unexplained residual. The 0.571×
+"surviving" deficit from `2026-08-24i` is measured against an acceleration the target's own
+parts cannot reproduce.
+
+### Arithmetic before any driver work
+
+AIS is **0.033 of the 0.325 cm/yr total rate — 10%** — so even a perfect AIS driver fix moves
+the total's curvature marginally, while the total's gap is 0.0062 cm/yr² of unexplained
+residual, **2.1× the entire component sum's curvature**. **Fix the reference before the
+driver.**
+
+**Antarctic observed driver, feasibility (for when the reference is fixed):** the gridded
+sources are global, so `python/build_t_gis.py`'s zone machinery extracts an Antarctic band
+with only a latitude change, and the anchor-preserving 11-yr splice Marcus flagged already
+exists (`obs_driver` / `gis_obs`). ⚠ But for AIS *mass loss* the physically relevant driver is
+the **ocean** forcing (ANTO / Southern Ocean subsurface), not surface air — and Antarctic
+surface-air coverage is the weakest of any region in these products.
+
 ## [unreleased] — 2026-08-24i — **The curvature 2×2 is PERFECTLY CROSSED — all three hypotheses die — and the reason is that the observational budget does not close in curvature (2.90×).**
 
 `julia/diag_curvature_deficit_2x2.jl`, `outputs/diag_curvature_deficit_2x2_L14.csv`.
