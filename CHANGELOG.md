@@ -3,6 +3,54 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-24c — **The Antarctic block has a convergence certificate at L14 for the first time: `ais_iceflow0` R̂ = 2.244, and 9 of 17 structural marginals fail — but every parameter that reaches the deliverable is converged.**
+
+Handoff 2026-08-24 §7 item 2: *"the L14 value has NOT been re-measured — do not quote one
+without measuring it."* Measured. `julia/diag_ais_block_convergence.jl` (new),
+`outputs/mcmc/ais_block_convergence_L14.csv`.
+
+**`ais_iceflow0` R̂ = 2.244** at L14, against 2.359 at L10 and 2.449 at L11 — drifting down
+across vintages but still the block's worst by a wide margin (ESS 12.0, chain medians
+spanning 3.56 within-chain sd).
+
+| block | fail / total | worst R̂ |
+|---|---|---|
+| Greenland (2026-08-23j) | 3 / 9 | 1.075 |
+| **Antarctic** | **9 / 17** | **2.244** |
+
+By sub-block: geometry 4/7 (worst `ais_iceflow0` 2.244), dynamics 2/6 (worst
+`antarctic_alpha` 1.777), **ocean 3/3 — the whole ANTO sub-block fails**, driver 0/1.
+`rho_ais` (1.257) also fails but is the AR(1) nuisance layer, excluded from the verdict.
+
+### The cross that matters
+
+The two parameters `diag_iceflow0_propagation.jl` found actually reach the AIS projection
+— `antarctic_temp_threshold` (r = −0.64) and `ais_gmst_amp` (r = +0.50) — are the two
+**best-converged structural parameters in the block**: R̂ 1.002 / ESS 6692 and R̂ 1.007 /
+ESS 2612. Meanwhile the three worst-mixing (`ais_iceflow0`, `antarctic_alpha`,
+`ais_slope`) include the one already shown to explain **R² = 0.004** of the projection.
+So the `ais_iceflow0` verdict — *reporting caveat, not a defect to engineer away* —
+looks like it generalises. `julia/diag_ais_block_propagation.jl` (new) prices all 17
+against the deliverable to confirm or break that; the ranking is what the next
+calibration should be spent against.
+
+### Why this is not just `diag_gis_block_convergence.jl --block=ais`
+
+Its `med_spread_ratio` is max/min of the chain medians, and **two AIS parameters are
+strictly negative over their whole support** — `antarctic_temp_threshold` in
+[−16.40, −14.52] and `ais_runoff_Ton` in [−18.05, −17.41] — where that ratio is < 1 and
+*shrinks as the spread grows*. Precisely the inversion memory `ratio_needs_native_scale`
+records, on two of the parameters an AIS report must carry. The headline statistic here
+is therefore the chain-median **range over the pooled within-chain sd**: always defined,
+sign-safe, and comparable across units. The ratio is retained for continuity but computed
+on |native| and **gated** on all four medians sharing one sign, with the sign written to
+its own column so the two can never be silently compared.
+
+Also carries `--maxrows=N`, which reads a truncated prefix so the whole path can be
+exercised in seconds — and writes to a `_SMOKE` filename and stamps every line, because a
+truncated run is not a certificate. (Earned: the first two full attempts each re-read
+9.3 GB before dying on a Julia soft-scope binding and a non-literal `@printf` format.)
+
 ## [unreleased] — 2026-08-24b — **`data/cmip6_pai` was corrupt for SEVEN files, not two; the fix is in the reducers; the A6 decomposition survives but its motivating cells weaken.**
 
 Handoff 2026-08-24 §7 item 3 asked for PAI to be re-derived for the MPI pair "with the
