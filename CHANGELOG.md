@@ -3,6 +3,122 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-24m — **ITEM 1b: the post-splice curvature halving is ~half LWS fiat, the "Dangendorf is 1.83× Frederikse" resolution is a one-window artifact of a noisy denominator, and NOTHING in the curvature arc is resolved at 2σ.**
+
+`python/diag_curvature_postsplice_halving.py`, `outputs/diag_curvature_postsplice_{decomp,arms,windows,recon,sweep,se}_L14.csv`, `outputs/log_curvature_postsplice_L14.txt`.
+**No chains read** — this is target-side arithmetic on `outputs/recalib_targets_ext.csv` and
+`data/observations/frederikse2020_gmsl_total.csv`. Settles the second half of open item 1
+(`2026-08-24e` §8), flagged since `2026-08-24d` §1 as *"Real post-2018 slowdown vs splice
+artifact: NOT established"*.
+
+### Gates
+
+* **[IDENT]** reproduces the shipped **0.007189** and **0.003533** cm/yr² exactly.
+* **[LINEARITY]** `accel(Σ components) == Σ accel(component)` to **3.6e-17** — the estimator is
+  OLS on a fixed design, so the decomposition below is an identity, not an approximation.
+* **[SE-MC]** the analytic error bar is checked against a matched AR(1) Monte Carlo on the same
+  design and required to be **conservative**: 1.10× / 1.03× / 1.22× for sum5 / Frederikse / dang.
+
+### [WINDOW] The shipped window label is wrong
+
+`0.003533` is **1993–2023**, not 1993–2024. `gsic` ends **2023**, so the five-component sum has
+**no 2024 value at all** and the estimator returns NaN there. The label travelled into two
+handoffs and a CHANGELOG entry.
+
+### [1] The drop decomposes exactly, and LWS is charged half of it
+
+sum5 **+0.007189 → +0.003533**, drop **−0.003655**, ratio **0.492 (= 1/2.03)**.
+
+| component | 1993–2018 | 1993–2023 | delta | share of drop |
+|---|---|---|---|---|
+| `lws` | +0.001925 | +0.000013 | −0.001912 | **+52.3%** |
+| `gis` | +0.003786 | +0.001764 | −0.002023 | **+55.3%** |
+| `ais` | +0.002076 | +0.001032 | −0.001043 | +28.5% |
+| `gsic` | +0.000205 | +0.000436 | +0.000231 | −6.3% |
+| `steric` | −0.000804 | +0.000288 | +0.001092 | −29.9% |
+
+`prep_recalib_targets_ext.py:311` holds LWS **exactly constant** at its 2018 value from 2019.
+
+### [2]–[3] The record decelerates too, and the fiat's share is bounded
+
+The **independent** total (Dangendorf 2024 + NOAA STAR — not built from our components, no LWS
+construction, real data throughout) falls at ratio **0.729**; the component sum with **LWS
+removed from both windows** falls at **0.669**, against **0.492** as shipped. Deceleration is in
+the observations. Counterfactual LWS arms (**extrapolations, not data** — no post-2018 TWS
+product is on disk; Frederikse's ends 2018, IGCC 2024 carries no land-water term) move the
+1993–2023 value **+0.003533 → +0.004317** (linear continuation) **→ +0.005445** (quadratic),
+an envelope of **0.001912 = 52.3% of the drop**.
+
+### [4] Matched-length windows invert the worry, and a ratio misleads
+
+| window | yrs | sum5 | sum4 | dang | dang/sum5 | dang−sum5 |
+|---|---|---|---|---|---|---|
+| 1993–2018 | 25 | +0.007189 | +0.005264 | +0.013350 | 1.86 | +0.006162 |
+| 1998–2023 | 25 | **+0.000372** | +0.001193 | +0.007168 | **19.26** | +0.006795 |
+| 1993–2023 | 30 | +0.003533 | +0.003520 | +0.009735 | 2.76 | +0.006202 |
+
+A longer window sees more of the curve, so the drop could have been a window-length effect. It
+is the opposite: **on matched 25-yr windows the deceleration is larger, not smaller.**
+⚠ And the `dang/sum5` ratio reaching **19.26** is a collapsed denominator, not a widening gap —
+the **difference** moves only **1.10×** across all three windows (`ratio_needs_its_base`).
+
+### [6] "Dangendorf's acceleration is 1.83× Frederikse's" does not survive its own window
+
+Sweeping start years over windows **ending 2018** (both reconstructions real throughout, no LWS
+fiat inside any of them): the ratio spans **0.53–1.53**, the difference **changes sign**, and
+**Dangendorf is LOWER than Frederikse in 10 of 13 windows**. Frederikse's own total accel swings
+**3.7×** (to +0.023315 at 1998–2018) because that series carries **2.8× the year-to-year scatter**
+of either smooth series (first-difference sd **0.674** cm vs **0.244** / **0.252**). The 1.83×
+sits on a spike in its **denominator**. Neither a constant factor nor a constant offset describes
+the gap — my own additive hypothesis was formed here and refuted by the same sweep.
+
+### [7] Error bars — the arc has never carried one, and they change the reading
+
+AR(1)-inflated OLS se of 2·b₂; a **lower bound**, since it counts only scatter about the
+quadratic and **not** the reconstructions' published bands.
+
+| series | 1993–2018 | se | σ |
+|---|---|---|---|
+| sum5 | +0.007189 | 0.002648 | 2.71 |
+| Frederikse total | +0.007285 | 0.004932 | 1.48 |
+| dang | +0.013350 | 0.003870 | 3.45 |
+
+| claim | difference | σ | verdict |
+|---|---|---|---|
+| "the sum closes on Frederikse's own total to **1.3%**" | −0.000096 ± 0.005598 | 0.02 | **UNRESOLVED** — error bar **78%** of the value being closed |
+| "dang is **1.83×** Frederikse" | +0.006066 ± 0.006269 | 0.97 | **UNRESOLVED** |
+| "the sum falls short of dang" | −0.006162 ± 0.004689 | 1.31 | **UNRESOLVED** |
+
+⚠ **"Closes to 1.3%" is precision theatre** — the data are equally consistent with agreement and
+with a 78% disagreement.
+
+### [8] The halving itself is not significant either
+
+Null: one quadratic over the whole 1993–2023 span plus AR(1) noise at the series' own fitted ρ
+and residual sd (the two windows are **nested**, so [7]'s error bars cannot be differenced).
+
+| series | observed drop | null sd | σ | p |
+|---|---|---|---|---|
+| sum5 (as shipped) | +0.003655 | 0.002051 | **1.78** | 0.073 |
+| sum4 (LWS removed) | +0.001744 | 0.001213 | 1.44 | 0.150 |
+| dang (independent) | +0.003615 | 0.002534 | 1.43 | 0.153 |
+
+⇒ **The flag closes as "not resolvable", not as "real" or "artifact".** The fiat is charged
+**52%** of the point-estimate drop and the record supplies the rest, but the whole drop sits
+inside the noise of a quadratic fitted to 26–31 years.
+
+### What this does to open item 1's first half
+
+It **reframes** it rather than answering it. The mixing decision (score components against
+Frederikse's own total, or move them onto Dangendorf) was blocking because *"until this is
+settled no curvature score means anything."* [7] says something stronger: **on these window
+lengths the estimator does not resolve the differences the arc has been reasoning about at
+all**, whichever reconstruction is chosen. The choice matters less than the estimator's power.
+
+⚠ **NOT done, and it is now the top open item:** the model's own **0.65×** (gis) / **0.727×**
+(ais) / **0.571×** (total) deficits have never been re-measured with an error bar. Their point
+values sit inside the bars above, which is exactly why it matters. That needs a chain read.
+
 ## [unreleased] — 2026-08-24l — **ITEM 5: the scenario inversion is HORIZON-DEPENDENT (it does not exist at 2100), the λ prior's worth spans 5800× across the six cells, and the "10.3% of a median" ceiling was a 2300-only statement.**
 
 `python/diag_ais_item5_horizon_repricing.py`, `outputs/diag_ais_item5_{ranking,envelope}_L14.csv`.
