@@ -1,0 +1,30 @@
+Curvature-deficit 2x2 | tag L14 | 500 draws/chain x 4
+  reading chain seed2026 ...
+  reading chain seed2027 ...
+  reading chain seed2028 ...
+  reading chain seed2029 ...
+  2000 draws run
+
+================================================================================================
+CURVATURE DEFICIT BY COMPONENT — the 2x2
+================================================================================================
+component  hindcast driver                window     our rate  obs rate   ratio |   our accel   obs accel   ratio
+ais        FaIR-mean GMST                 1993-2024    0.0320    0.0296   1.081 |    0.000601    0.000826   0.727
+gis        OBSERVED regional T (spliced)  1993-2024    0.0629    0.0593   1.061 |    0.000917    0.001458   0.629
+gsic_hind  OBSERVED block T (spliced)     1993-2023    0.0605    0.0705   0.858 |    0.001346    0.000436   3.086
+te         FaIR-mean OHC                  1993-2024    0.1437    0.1300   1.105 |    0.001488    0.000411   3.624
+total      mixed                          1993-2024    0.3104    0.3201   0.970 |    0.005190    0.009093   0.571
+
+wrote outputs/diag_curvature_deficit_2x2_L14.csv
+
+================================================================================================
+VERDICT
+================================================================================================
+  OBSERVED-driven mean accel ratio : 1.858  (gis, gsic_hind)
+  FaIR-driven     mean accel ratio : 2.176  (ais, te)
+  ICE components  mean accel ratio : 1.481
+  STERIC          accel ratio      : 3.624
+
+  (a) DRIVER  -> expects a deficit in the FaIR-driven pair ONLY
+  (b) LIKELIHOOD FORM -> expects it in ALL FOUR
+  (c) RESPONSE MEMORY -> expects it in the ICE rows but NOT steric

@@ -3,6 +3,68 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-24i — **The curvature 2×2 is PERFECTLY CROSSED — all three hypotheses die — and the reason is that the observational budget does not close in curvature (2.90×).**
+
+`julia/diag_curvature_deficit_2x2.jl`, `outputs/diag_curvature_deficit_2x2_L14.csv`.
+2000 draws (500/chain × 4), L14, ssp245 hindcast. Item 6 of Marcus's 6→4→5 ordering.
+
+### The design: the components do NOT share a hindcast driver
+
+`ladrillo_setup` splices **observed** regional T into Greenland and the glacier blocks;
+AIS and steric run on **FaIR-mean** GMST/OHC. All four are fitted likelihood streams. That
+2×2 separates driver / likelihood-form / response — deficit in the FaIR pair only ⇒ driver;
+in all four ⇒ likelihood form; in the ice rows but not steric ⇒ response memory.
+
+**Two results before the model ran.** Greenland's hindcast driver *is* the observed record
+and it still under-runs ⇒ the driver cannot be blamed for a deficit measured against the
+very observations that are the driver. And our FaIR GMST driver has **negative** 1993–2024
+curvature (−3.271e-4 °C/yr²) where observed GMST is **positive** (+2.445e-4), ratio −1.338 —
+a *sign* error, not a magnitude one.
+
+### The result
+
+| component | driver | accel ratio | |
+|---|---|---|---|
+| `gis` | OBSERVED | **0.629** | deficit |
+| `ais` | FaIR | **0.727** | deficit |
+| `gsic_hind` | OBSERVED | **3.086** | **excess** |
+| `te` (steric) | FaIR | **3.624** | **excess** |
+| `total` | mixed | **0.571** | deficit |
+
+Each driver class holds one deficit **and** one excess ⇒ the driver explains nothing. All
+four are fitted ⇒ the likelihood form explains nothing. Glaciers are ice and they *over*-run
+⇒ "ice response memory" is refuted too — that was my own third hypothesis, added when the
+first two looked weak, and it died with them.
+
+### The reason is upstream — and it invalidates the premise of the item
+
+| | OBS sum of 4 vs total | OURS sum of 4 vs total |
+|---|---|---|
+| RATE | 0.2895 vs 0.3201 = **1.11×** | 0.2991 vs 0.3104 = **1.04×** |
+| ACCEL | 0.00313 vs 0.00909 = **2.90×** | 0.00435 vs 0.00519 = **1.19×** |
+
+**The observational decomposition closes in level and rate and fails in curvature. Our model
+closes in both.** ⇒ the per-component acceleration ratios are **not jointly trustworthy —
+including the gis 0.65× and ais 0.727× that started this whole item.**
+
+**Two readings, and the closure test does not choose between them.** (i) all per-component
+ratios are artifacts, so the "two ice sheets, same signature" reading was coincidence;
+(ii) the **direct** satellite targets are right and the **derived** ones are not — `gis`/`ais`
+are IMBIE, `gsic` is a reconstruction and `steric` is derived from OHC — on which the
+ice-sheet deficits survive and the two excesses are the artifacts. **NOT RESOLVED.** Deciding
+it needs an independent per-component curvature check (GRACE-only, or a second glacier
+product), not more model runs.
+
+### What survives
+
+**The TOTAL against Dangendorf** — a directly observed GMSL product, not a decomposition:
+**we under-run its 1993–2024 acceleration 0.571×.** That does not depend on the budget
+closing, and it is the defensible form of the finding.
+
+**Discipline added:** gate a decomposed target set on **closure at the derivative order you
+are about to score**. This budget closes at 1.11× in rate and fails at 2.90× one derivative
+up. `gis_obs_accel_deficit` and `ais_curvature_deficit_shared` both now carry caveats.
+
 ## [unreleased] — 2026-08-24h — **The "MICI arm" is renamed UNRESOLVED AMPLIFICATION — and the rename fixes two real mismatches, not just a label.**
 
 `python/build_ais_unresolved_amplification.py` (was `build_ais_mici_arm.py`),
