@@ -278,10 +278,29 @@ observations, and it cannot: it is inert everywhere observations exist.**
 ## 7. Caveats — carry these into any report
 
 1. **Projections only, not parameter-level inference** (§4). Set by AIS, not Greenland.
-2. **The cell-choice envelope is UNQUANTIFIED for the cascade.** Its first-order
-   predecessor was **1.180 m at Greenland 2300 — 4.4× the sampled p05–p95** and the
-   larger of the two uncertainties. Never quote the superseded envelope against the
-   shipped cell. This is the largest single gap in the module.
+2. **The cell-choice envelope — QUANTIFIED 2026-08-24, and it must be reported
+   ONE-SIDED.** `python/diag_gis_cascade_envelope.py`. Over the 9 admissible n = 2
+   cells plus the solved boundary cell, Greenland ssp585@2300 runs **57.8–95.7 cm:
+   an envelope of 38.0 cm = 1.41× the sampled p05–p95**, with an admissible median of
+   66.8 cm.
+
+   Two things follow, and both matter more than the number.
+
+   * **The shipped 95.7 cm is the MAXIMUM of the admissible range, not its centre** —
+     100th percentile, and 1.43× the admissible median. That is by construction: the
+     cell was chosen as the largest V clearing the melt-rate band. **A symmetric ± band
+     around 95.7 cm is wrong in both directions.** The cell-choice uncertainty runs
+     *downward*, to 57.8 cm.
+   * **The cascade is a 3.1× improvement on the form it replaced.** The first-order
+     predecessor's envelope was 118.0 cm = 4.4× sampled — "the larger of the two
+     uncertainties". At 1.41× it is now comparable to the posterior spread rather than
+     dominating it. Never quote the quarantined 118.0 cm against the shipped cell.
+
+   ⚠ The grid does not contain V = 5.64 (its V axis jumps 4.5 → 6.0), so the shipped
+   cell is added explicitly as the solved boundary. Reading the envelope off the grid
+   alone gives an admissible maximum of 86.5 cm and places the shipped value outside
+   its own admissible set. ⚠ Set values are the offline emulator's, the shipped value
+   the wired deliverable's; the port was 0.4% on the cell, well below the envelope.
 3. **The shipped cell sits ON the melt-rate ceiling, not inside it** — V was solved
    *as* the clearing value, so the verdict turns on the third significant figure
    (41.4 offline vs 41.5 wired against a 41.5 top). The two artifacts on disk
@@ -289,12 +308,42 @@ observations, and it cannot: it is inert everywhere observations exist.**
    the priority ladder prints "OUT (too FAST)" — and the ladder says why immediately
    below. **Report it as ON the boundary; quote neither verdict alone.** There is no
    interior solution: untapped is 4.5× too slow, shipped is at the ceiling.
-4. **2100 runs 1.37× fast, and the defect is the DRIVER, not the ice.** Driven by each
-   GCM's own Greenland temperature the response lands on the ISMIP6 median (**0.99×**,
-   n = 5, spread 0.65–1.33); through our amplification law it overshoots **1.31×**.
-   Effective amp 1.58–1.63 against those models' own south-zone 1.08–1.39. Because the
-   law is hindcast-inert, a correction is prior-propagatable rather than a refit.
-   **This is the highest-value open item in the module.** No onset and no cell fixes it.
+4. **2100 runs ~1.37× fast. CHARACTERISED 2026-08-24, and REPORTED rather than
+   corrected — three candidate fixes were tested and all three failed.**
+
+   *What it is.* Driven by each GCM's own Greenland temperature our response lands on
+   the ISMIP6 median (**0.99×**, n = 5, spread 0.65–1.33); through our amplification
+   law it overshoots **1.31×**. So it is the **driver, not the ice response**, and
+   within the driver it is the **level**, not the shape: the law is exactly
+   `R_CMIP6(ΔT) × 1.2864`, one constant offset carried forward multiplicatively
+   forever. The law is hindcast-inert, so any correction is prior-propagatable.
+
+   *Why it is not corrected.* Each fix failed for its own reason, and each is a
+   result rather than a dead end:
+
+   | attempted fix | outcome |
+   |---|---|
+   | relax the offset with a timescale τ | the preferred τ **tracks the observational product** — ∞ for Berkeley Earth, 0 for GISTEMP, 25 yr for the mean. It calibrates the observational chain, not a decadal mode (`scope_gis_amp_relax_tau.py`) |
+   | re-anchor to Berkeley Earth, which sits on CMIP6 (1.011×) | BE is the **worst** of the three products against the observed melt record — shape error 0.233 vs HadCRUT5's 0.102, needs a 1.71 rate scale, 59.5% of years in the obs band vs 92.1% (`diag_gis_driver_product_skill.py`). It is also the calibration driver, so switching is a **recalibration**, not a prior move |
+   | find the same offset in the glacier module and fix both | the glacier blocks sit **below** CMIP6 at every frame (0.71–0.99) and barely move across frames. No common mechanism (`diag_glac_amp_cmip6_offset.py`) |
+
+   *And the premise is frame-dependent.* With both sides rebased to the same window,
+   the obs/CMIP6 offset is 1.274× on the shipped 1850-1900 frame but **below 1 on all
+   four alternatives** (0.445–0.903). CMIP6's own amplification is frame-robust
+   (CV 0.014–0.054); the observational estimate is not (CV 0.049–0.127), in every zone
+   and every glacier block. **"Observations show more Greenland amplification than the
+   models" is a statement about 1850-1900, not a robust fact**
+   (`diag_gis_amp_baseline_sens.py`).
+
+   *How to report it.* A known, quantified, one-directional bias on a component that
+   is 14.7% of the ssp585 2100 total — worth ~4 cm there, against an AIS p05–p95 at
+   the same horizon of 50.6 cm, i.e. **10.6× larger**. Say the number, say it is the
+   amplification level, and say it is hindcast-inert. Do not present the module as
+   unbiased at 2100, and do not quote a Greenland 2100 level without it.
+
+   *Still open, if anyone returns to it:* the estimator. A through-origin secant is
+   not baseline-invariant, and once the base sits mid-record the data straddle zero;
+   an intercept-bearing estimator should be tried before any frame is adopted.
 5. **The cool arms carry the residual separation error** (§5.4), and the reservoir
    cannot reach them.
 6. **`gis_beta_f` is unidentified and consequential** — the data bound it only to
@@ -359,10 +408,11 @@ that must never be ambiguous is which arm a file on disk is.
 
 ## 10. Open, in priority order
 
-1. **The amplification law** (caveat 4). Highest value, diagnosed rather than
-   suspected, and hindcast-inert so a correction is prior-propagatable.
-2. **Quantify the cascade cell-choice envelope** (caveat 2) — currently the largest
-   unreported uncertainty on tapped Greenland@2300.
+1. **The amplification law** (caveat 4) — DIAGNOSED and REPORTED, not open work.
+   Three fixes tested and refuted 2026-08-23/24. Reopening it needs a new idea, not
+   another pass: the level-vs-frame estimator question is the one thread left.
+2. ~~Quantify the cascade cell-choice envelope~~ — **DONE 2026-08-24**, caveat 2.
+   38.0 cm, 1.41× the sampled spread, one-sided downward from the shipped value.
 3. **The cool arms' separation residual** (caveat 5).
 4. **`LADRILLO.md` still defines the module as `greenland_ab` on posterior L10** and
    lists closed threads as open. It is the last stale description of this module.

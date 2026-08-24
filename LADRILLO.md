@@ -53,11 +53,20 @@ CMIP6 models over 0.75–2.75 K, held flat outside, normalised to 1 at
 regional T for every year of the observational record, so the law is exactly
 hindcast-inert and no chain re-run was needed.
 
-⚠ **The law is also the model's largest known projection-side defect.** At 2100 our
-Greenland runs ~1.31× the ISMIP6 median through the law, but lands on it (0.99×,
-n = 5) when driven by each GCM's own Greenland temperature. Because the law is
-hindcast-inert, a correction is prior-propagatable rather than a refit. Module memo
-caveat 4.
+⚠ **The law carries the model's largest known projection-side defect, and as of
+2026-08-24 it is REPORTED rather than corrected.** At 2100 our Greenland runs ~1.31×
+the ISMIP6 median through the law but lands on it (0.99×, n = 5) driven by each GCM's
+own Greenland temperature — so it is the **driver, not the ice response**, and within
+the driver the **level**, not the shape. Three candidate fixes were tested and all
+three failed: a τ relaxation whose preferred timescale **tracks the observational
+product** rather than any decadal mode; re-anchoring to Berkeley Earth, which turns
+out to be the **worst** of the three products against the observed melt record *and*
+is the calibration driver, so switching it is a recalibration; and a glacier-module
+counterpart, which does not exist — the glacier blocks sit **below** CMIP6 at every
+baseline frame. The premise is itself frame-dependent: with both sides rebased
+consistently, obs/CMIP6 is 1.274× on 1850-1900 and **below 1 on all four
+alternatives**. Report the bias, quantified and one-directional; it is worth ~4 cm at
+ssp585 2100 against an AIS spread of 50.6 cm there. Module memo caveat 4.
 
 Constants and shape table: `LADRILLO_GIS_*` in `julia/ladrillo_projection.jl`,
 `outputs/gis_amp_shape{,_meta}.csv`.
@@ -248,8 +257,11 @@ model. The leverage is AIS.**
    the Dangendorf total from the likelihood, so **the total is out-of-sample** and has
    no predictive band — mean bias +0.65 cm, entirely pre-1950.
 6. **Structural uncertainty is not in the bands** wherever they are compared to FACTS.
-   For Greenland specifically the cell-choice term is *larger* than the sampled
-   spread and is currently unreported.
+   For Greenland the cell-choice term was quantified 2026-08-24: **38.0 cm on
+   ssp585@2300, 1.41× the sampled p05–p95**, and it must be reported **one-sided** —
+   the shipped 95.7 cm is the *maximum* of the admissible range (median 66.8 cm),
+   because the cell was chosen as the largest V clearing the melt-rate band. A
+   symmetric ± band around it is wrong in both directions.
 7. **Greenland-specific caveats do not all live here.** The module memo carries ten,
    including the 2100 amplification bias, the cool-arm separation residual, the
    contradictory 2150 evidence, and the zero moderate-scenario SC-GHG term.
@@ -282,10 +294,10 @@ prints the gap against the shipped cell at import.
 
 ## 7. Open threads
 
-1. **The Greenland amplification law at 2100** — §1. Highest value in that module,
-   diagnosed rather than suspected, hindcast-inert so prior-propagatable.
-2. **The cascade cell-choice envelope** — unquantified, and larger than the sampled
-   spread.
+1. **The Greenland amplification law at 2100** — §1. Diagnosed, three fixes refuted,
+   now a reported bias rather than open work. Reopening needs a new idea; the one
+   live thread is the estimator (a through-origin secant is not baseline-invariant).
+2. ~~The cascade cell-choice envelope~~ — **quantified 2026-08-24**, §5 caveat 6.
 3. **`gis_beta_f` prior re-bounding** — does re-bounding to the data support buy
    anything, or is β_f riding a ridge with `f`?
 4. **Sampler work on AIS is NOT warranted** — there is no ridge to rotate (worst
