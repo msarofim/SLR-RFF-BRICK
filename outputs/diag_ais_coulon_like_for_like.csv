@@ -1,0 +1,50 @@
+block,key,value,note
+1_forcing,ours_tais_2300_p05_C,5.463,vs 1995-2014
+1_forcing,ours_tais_2300_med_C,6.568,vs 1995-2014
+1_forcing,ours_tais_2300_p95_C,7.718,vs 1995-2014
+1_forcing,coulon_tais_2300_ssp585_C,12.0-17.0,"paper, vs 1995-2014"
+1_forcing,coulon_tais_2300_ssp126_C,1.0-3.6,"paper, vs 1995-2014"
+1_forcing,ratio_coulon585_over_our_median,1.83-2.59,
+1_forcing,verdict,OUR ENTIRE POSTERIOR SITS BELOW COULON'S MINIMUM,
+2_amplification,amp_MIROC6,0.92,
+2_amplification,amp_EC-Earth3-Veg-LR,0.9289,
+2_amplification,amp_NorESM2-MM,0.9303,
+2_amplification,amp_EC-Earth3-Veg,0.9322,
+2_amplification,amp_EC-Earth3,0.9446,
+2_amplification,amp_MIROC-ES2L,0.9633,
+2_amplification,amp_FGOALS-g3,0.9986,
+2_amplification,amp_GFDL-CM4,1.0214,
+2_amplification,amp_UKESM1-0-LL,1.0235,COULON GCM
+2_amplification,amp_MPI-ESM1-2-LR,1.0361,
+2_amplification,amp_ACCESS-CM2,1.069,
+2_amplification,amp_IPSL-CM6A-LR,1.0753,COULON GCM
+2_amplification,amp_HadGEM3-GC31-LL,1.089,
+2_amplification,amp_CMCC-ESM2,1.1047,
+2_amplification,amp_BCC-CSM2-MR,1.108,
+2_amplification,amp_ACCESS-ESM1-5,1.1157,
+2_amplification,amp_CMCC-CM2-SR5,1.1295,
+2_amplification,amp_CanESM5-CanOE,1.1565,
+2_amplification,amp_E3SM-1-1,1.171,
+2_amplification,amp_MPI-ESM1-2-HR,1.1749,
+2_amplification,amp_CanESM5,1.18,
+2_amplification,amp_INM-CM5-0,1.2211,
+2_amplification,amp_AWI-CM-1-1-MR,1.24,
+2_amplification,amp_CNRM-ESM2-1,1.2421,
+2_amplification,amp_GFDL-ESM4,1.2911,
+2_amplification,amp_CNRM-CM6-1-HR,1.2966,
+2_amplification,amp_TaiESM1,1.3217,
+2_amplification,amp_INM-CM4-8,1.3325,
+2_amplification,amp_MRI-ESM2-0,1.3353,COULON GCM
+2_amplification,amp_CESM2,1.3355,
+2_amplification,amp_CNRM-CM6-1,1.3409,
+2_amplification,amp_CESM2-WACCM,1.3854,COULON GCM
+2_amplification,amp_GISS-E2-1-H,1.4318,
+2_amplification,amp_GISS-E2-1-G,1.5268,
+2_amplification,cmip6_all_median,1.143,n=34
+2_amplification,coulon4_median,1.2053,
+2_amplification,ours_median,0.9447,
+2_amplification,gcms_above_our_median,29/34,
+3_interp,coulon_at_our_forcing_cm,131.2,"2-anchor linear, UPPER bound"
+3_interp,ours_median_cm,281.2,
+3_interp,displacement_x,2.14,LOWER bound (convexity)
+3_interp,our_forcing_fraction_between_anchors,0.35,
