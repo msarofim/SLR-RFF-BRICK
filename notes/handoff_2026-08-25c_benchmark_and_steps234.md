@@ -489,3 +489,80 @@ looked at. Everything else is PASS or WARN.
 **Suggested next:** (1) the TOTAL ssp585@2150 spread, the one unexamined FAIL; (2) the
 glacier region-set confirmation, which is a question to FACTS/MAGICC rather than an analysis;
 (3) step 5 with `--adcov=` + the `ais_gmst_amp` refit.
+
+---
+
+# ADDENDUM 4 — 2026-08-25: the last unexamined FAIL, and it was the AIS spread in disguise
+
+Commit **`ba99de0`**, `python/diag_total_spread_ssp585_2150.py`. **Nothing recalibrated. No
+chain read. No model run.** Addendum 3 §D's item (1) — *"the TOTAL ssp585@2150 spread, the one
+unexamined FAIL"*.
+
+## A. THE SUSPICION WAS STATED BEFORE MEASURING, AND IT HELD
+
+A total cannot be **0.365×** the literature while every component of it is **0.46–0.90×**
+unless the two are scored against **different comparator sets**. The same cell's AIS scored
+0.525 PASS.
+
+Decomposed against each comparator, the share of its total-spread gap from ours that is its
+**AIS**-spread gap:
+
+| comparator | their AIS | their TOTAL | ours/theirs | AIS share of the gap |
+|---|---|---|---|---|
+| wf1f | 48.7 | 77.9 | **1.891** | 85% |
+| **wf2f** | 134.3 | 150.6 | **0.979** | — (3.2 cm) |
+| wf3f | 408.4 | 414.7 | 0.355 | 112% |
+| MAGICC | 276.2 | 403.4 | 0.365 | 66% |
+
+**Against wf2f — the process workflow with no MICI and no expert elicitation — our total
+spread is 0.979×.** The total cell carries no information the AIS cell does not.
+
+## B. THE FACTS WORKFLOWS NOW HAVE RECEIPTS
+
+They were opaque module strings with no documented composition anywhere in the repo, and **a
+benchmark cannot classify a comparator it cannot name**. Each is now identified by fitting its
+total against every (AIS × GIS) combination in the same file, on **three** statistics (sum of
+medians; quadrature sum of p05–p95; quadrature sum of **upper** half-widths), voted **per
+slot** and only by the statistics that **discriminate** that slot:
+
+`wf1f` = ar5AIS+FittedISMIP · `wf2f` = larmip+FittedISMIP · `wf3f` = **deconto21 (MICI)**
++FittedISMIP · **`wf4` = bamber19 in BOTH ice sheets** (3/3 votes for the first three,
+margins 3.1–18.2×).
+
+⚠ **THE FIRST VERSION USED TWO STATISTICS, REJECTED wf4, AND WAS RIGHT TO FIRE.** bamber19's
+AIS median (36.5 cm) and larmip's (37.4) differ by **2%** at that cell, so the median test is
+**blind** to the slot — not a dissenting vote, *no information*. The **upper half-width**
+discriminates 4.9× (517.9 vs 105.0, against wf4's own total upper of 553.6, unreachable by any
+larmip composition — wf2f, which *is* larmip, has 105.5).
+
+## C. TWO FIXES, BOTH GENERIC
+
+1. **`wf4` joins `bamber19` as `sej`.** This is the **existing** line applied consistently, not
+   a new one: component rows have excluded bamber19 since `bbee082`; total rows never did.
+   Worth **1.46×** here, **≤7%** at every other total cell, **one** verdict moves.
+   ⚠ **`wf3f` = MICI deliberately STAYS in `model`**, because deconto21 stays in `model` at
+   the AIS level. Our gap to it is the already-priced `ais_binary_form_priced` decision.
+2. **A median comparator is a summary only if the comparators agree.** Exact, threshold-free:
+   score against each comparator alone, cap at **WARN in both directions** where the median's
+   verdict is not a majority position. Caps **four** cells, all 2150, all deconto21-driven —
+   AIS and TOTAL at ssp245 *and* ssp585. ⚠ **Two are cells where we look good** (ssp245@2150,
+   1.23×, PASS → WARN); a supported FAIL survives (Greenland ssp126@2100, 2 of 3 agree).
+   `bench_ladrillo.py --selftest` mutation-tests all four directions.
+   *Abandoned: a `max/min > 4×` dispersion proxy — same four cells, but 4× was a picked number.*
+
+## D. NET, AND THE OPEN LIST
+
+**`TOTAL ssp585@2150 spread`: FAIL 0.365 → WARN 0.532 — NOT PASS.** TOTAL projection roll-up
+FAIL → WARN. ⚠ The classification audit correspondingly **stops** listing AIS and TOTAL
+ssp585@2150 as verdict-dependent on the SEJ exclusion: they are WARN either way now.
+
+The candidate FAIL list is down to **TE rate** (a FaIR/OHC-driver question, → WARN once depth
+scope is credited) and **Greenland ssp126@2100 spread** (0.489×, worth +3.9% of one band,
+parked). **Everything the benchmark flags has now been priced.**
+
+**Suggested next:** (1) the glacier region-set confirmation — a question to FACTS/MAGICC rather
+than an analysis, and the cheap decisive alternative is re-running our own projection **with r5
+and without r19**; (2) the ssp126 AIS **tipped fraction** (3.95% — right or wrong? a threshold
+question needing literature this repo lacks); (3) **step 5** with `--adcov=` + the
+`ais_gmst_amp` refit. ⚠ Step-5 cautions in §4 of the main note still stand (`sshare`; do NOT
+resurrect the joint FaIR/BRICK calibration).
