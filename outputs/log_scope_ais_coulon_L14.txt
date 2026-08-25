@@ -1,0 +1,63 @@
+AIS at COULON'S FORCING | tag L14 | 500 draws/chain x 4 chains | ssp585
+  reading chain seed2026 ...
+  reading chain seed2027 ...
+  reading chain seed2028 ...
+  reading chain seed2029 ...
+  ais_gmst_amp over 2000 draws: p05 0.7858  med 0.9447  p95 1.1101
+
+============================================================================================
+THE ARMS -- real FaIR ssp585 configs, spliced at 2014 (fair_coulon_arm_ssp585.csv)
+============================================================================================
+  arm      label                     dGMST    T_ant   target   pctile  (degC @2300 vs 1995-2014)
+  control  shipped MEAN driver        6.95     6.57       --       --
+  tant12   Coulon coldest            12.70    12.00     12.0     98.0
+  tant14   Coulon midpoint           14.88    14.06     14.5     99.4
+  tant17   Coulon hottest            17.61    16.64     17.0     99.8
+  running arm control (shipped MEAN driver) ...
+  running arm tant12 (Coulon coldest) ...
+  running arm tant14 (Coulon midpoint) ...
+  running arm tant17 (Coulon hottest) ...
+
+============================================================================================
+GATES
+============================================================================================
+  [CONTROL] @2100  control median   37.073 vs shipped   37.073  diff +0.0000 cm -> PASS
+  [CONTROL] @2150  control median   94.348 vs shipped   94.348  diff +0.0000 cm -> PASS
+  [CONTROL] @2300  control median  281.190 vs shipped  281.190  diff +0.0000 cm -> PASS
+  [CALIB-MOVE] tant12  1850-2024  max |arm - control| = 0.0444 cm = 3.2% of the 1.404 cm AIS target span = 0.31 sigma
+  [CALIB-MOVE] tant14  1850-2024  max |arm - control| = 0.0672 cm = 4.8% of the 1.404 cm AIS target span = 0.48 sigma
+  [CALIB-MOVE] tant17  1850-2024  max |arm - control| = 0.0124 cm = 0.9% of the 1.404 cm AIS target span = 0.09 sigma
+  [BASEYEAR] our AIS at 2015 = +0.337 cm rel 1995-2014 -> Coulon's baseline is 0.337 cm ABOVE ours
+
+============================================================================================
+AIS at ssp585, cm rel 1995-2014 -- AIS COMPONENT ONLY
+============================================================================================
+  horiz  arm      label                     median       p05       p95    spread  x control
+  2100   control  shipped MEAN driver        37.07     16.45     67.01     50.56      1.00x
+  2100   tant12   Coulon coldest             48.58     26.90     78.83     51.94      1.31x
+  2100   tant14   Coulon midpoint            63.31     36.40     99.78     63.38      1.71x
+  2100   tant17   Coulon hottest             64.59     37.34    100.30     62.96      1.74x
+
+  2150   control  shipped MEAN driver        94.35     53.76    148.55     94.79      1.00x
+  2150   tant12   Coulon coldest            116.29     69.25    177.00    107.75      1.23x
+  2150   tant14   Coulon midpoint           142.16     86.25    216.31    130.06      1.51x
+  2150   tant17   Coulon hottest            150.57     92.02    230.56    138.54      1.60x
+
+  2300   control  shipped MEAN driver       281.19    168.34    420.70    252.36      1.00x
+  2300   tant12   Coulon coldest            394.86    244.05    614.32    370.28      1.40x
+  2300   tant14   Coulon midpoint           491.70    295.81    823.47    527.66      1.75x
+  2300   tant17   Coulon hottest            581.45    343.17   1052.18    709.01      2.07x
+
+============================================================================================
+LIKE-FOR-LIKE AT 2300: OUR AIS AT COULON'S OWN FORCING
+============================================================================================
+  Coulon ssp585 @2300 : 73 to 595 cm (5-95%), model medians 267 / 273 cm
+  control  shipped MEAN driver    median   281.19 cm =  1.04x Coulon's 270 cm; band [ 168.34,  420.70] vs [73, 595]
+  tant12   Coulon coldest         median   394.86 cm =  1.46x Coulon's 270 cm; band [ 244.05,  614.32] vs [73, 595]
+  tant14   Coulon midpoint        median   491.70 cm =  1.82x Coulon's 270 cm; band [ 295.81,  823.47] vs [73, 595]
+  tant17   Coulon hottest         median   581.45 cm =  2.15x Coulon's 270 cm; band [ 343.17, 1052.18] vs [73, 595]
+
+  the shipped control is 1.04x Coulon's median at 0.45x their forcing;
+  at MATCHED forcing (tant14, T_ant 14.06 vs their 12-17 degC) we are 1.82x.
+
+wrote outputs/scope_ais_coulon_{cells,paths,gates}_L14.csv

@@ -1,0 +1,42 @@
+block,horizon,stat,value,note
+gmst,2100,p05,2.5387,"11yr centred at 2100, vs 1995-2014"
+gmst,2100,p25,3.1916,"11yr centred at 2100, vs 1995-2014"
+gmst,2100,p50,3.7223,"11yr centred at 2100, vs 1995-2014"
+gmst,2100,p75,4.384,"11yr centred at 2100, vs 1995-2014"
+gmst,2100,p95,5.4166,"11yr centred at 2100, vs 1995-2014"
+gmst,2100,max,9.2041,11yr centred at 2100
+gmst,2150,p05,3.4709,"11yr centred at 2150, vs 1995-2014"
+gmst,2150,p25,4.4846,"11yr centred at 2150, vs 1995-2014"
+gmst,2150,p50,5.33,"11yr centred at 2150, vs 1995-2014"
+gmst,2150,p75,6.4308,"11yr centred at 2150, vs 1995-2014"
+gmst,2150,p95,8.1283,"11yr centred at 2150, vs 1995-2014"
+gmst,2150,max,14.5326,11yr centred at 2150
+gmst,2300,p05,3.489,"11yr centred at 2296, vs 1995-2014"
+gmst,2300,p25,5.1911,"11yr centred at 2296, vs 1995-2014"
+gmst,2300,p50,6.5606,"11yr centred at 2296, vs 1995-2014"
+gmst,2300,p75,8.3831,"11yr centred at 2296, vs 1995-2014"
+gmst,2300,p95,11.2512,"11yr centred at 2296, vs 1995-2014"
+gmst,2300,max,21.3917,11yr centred at 2296
+tant_hot_tail,2300,amp_ours_p95,23.7469,amp 1.1101 x hottest config 21.3917
+tant_hot_tail,2300,amp_ours_median,20.2087,amp 0.9447 x hottest config 21.3917
+tant_hot_tail,2300,amp_CMIP6_34-GCM_median,24.4507,amp 1.143 x hottest config 21.3917
+tant_hot_tail,2300,amp_Coulon's_four,25.777,amp 1.205 x hottest config 21.3917
+verdict,2300,gmst_needed_for_coulon_min_at_our_amp_p95,10.8098,12.0 / 1.1101
+verdict,2300,ratio_needed_to_hottest_config,0.5053,> 1 means no config reaches it
+verdict,2300,hot_tail_spans_coulon,1.0,amp p95 x hottest config vs Coulon's coldest GCM
+arm_tant12p0,2300,config,674225.0,FaIR config id
+arm_tant12p0,2300,gmst_2300_spliced,12.6998,degC vs 1995-2014
+arm_tant12p0,2300,tant_2300,11.9975,at amp median 0.9447
+arm_tant12p0,2300,ensemble_pctile,97.98,of 841 configs
+arm_tant12p0,2300,n_configs_at_or_above,16.0,
+arm_tant14p5,2300,config,1370886.0,FaIR config id
+arm_tant14p5,2300,gmst_2300_spliced,14.8815,degC vs 1995-2014
+arm_tant14p5,2300,tant_2300,14.0586,at amp median 0.9447
+arm_tant14p5,2300,ensemble_pctile,99.41,of 841 configs
+arm_tant14p5,2300,n_configs_at_or_above,4.0,
+arm_tant17p0,2300,config,1204193.0,FaIR config id
+arm_tant17p0,2300,gmst_2300_spliced,17.6111,degC vs 1995-2014
+arm_tant17p0,2300,tant_2300,16.6372,at amp median 0.9447
+arm_tant17p0,2300,ensemble_pctile,99.76,of 841 configs
+arm_tant17p0,2300,n_configs_at_or_above,1.0,
+gate,2014,splice_inert_max_abs,0.0,"spliced arms vs shipped driver, pre-splice; must be exactly 0"
