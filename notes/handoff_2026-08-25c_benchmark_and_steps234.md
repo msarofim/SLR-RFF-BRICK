@@ -239,3 +239,66 @@ script's header.
 `MEMORY.md` live-state updated.
 **CHANGELOG:** `2026-08-25e`.
 **Commits:** `8acedd3`, `4b4ee93`.
+
+---
+
+# ADDENDUM — 2026-08-25, after Marcus chose "fix the ssp126 form first"
+
+Commit **`a29ea6c`**. **The choice was right and the first measurement retracted the defect it
+was made about.** Nothing was recalibrated; `python/diag_ais_ssp126_tail_anatomy.py` reads the
+draws that already existed.
+
+## A. STEP 1'S NAMED RESIDUAL DEFECT IS WITHDRAWN
+
+The claim was: *"at ssp126 the band has no tipping tail at all — the fast-dynamics term is
+EXACTLY 0.000 cm in every arm and horizon."* **That is a FIXED-DRIVER statement**, quoted about
+a model whose reported band has been the JOINT one since 2026-08-25. Under the joint band
+(`outputs/diag_ais_tipping_under_forcing_L14.csv`, per-draw config):
+
+| ssp126 | 2100 | 2150 | 2300 |
+|---|---|---|---|
+| tipped, per-draw config | **3.95%** | **3.75%** | **6.30%** |
+| tipped, shipped MEAN driver | 0.05% | 0.00% | 0.00% |
+
+**The tail exists.** And the benchmark score that seemed to corroborate the claim — ssp126 AIS
+spread 0.24–0.33× the literature — **was the same error a second time**: a p05–p95 interval is
+**arithmetically blind** to a mode carrying under 5% of the mass, because that mode sits entirely
+above the p95 cut. Our p05–p99 / p05–p95 there is **8.45**; the Gaussian value is **1.207**.
+
+## B. WIRED IN, AND IT DISCRIMINATES
+
+`bench_ladrillo.py` now marks any cell whose p05–p99 / p05–p95 exceeds **2× the Gaussian
+1.207** as `N/A(bimodal)` and does not score it on width; its median row carries the **mean**
+beside it (ssp126@2150: median 0.31× lit, **mean 0.50×**). ⚠ **The guard is not a blanket
+excuse** — Greenland's ratios are **1.35–1.45**, so its five spread FAILs are untouched and are
+now **the largest genuine width problem in the model**.
+
+## C. THE PROPOSED FIX WOULD NOT HAVE WORKED
+
+`g = (excess/ref)^n` (`julia/antarctic_icesheet_magdep_component.jl`) is **zero below threshold
+for every n**, and 96% of ssp126 draws never tip. It is the ssp245/ssp585 **separation** fix
+(`ais_binary_form_priced`), not the ssp126 one. **Binary in MAGNITUDE and binary in ONSET are
+two different features.** Had step 5 been preceded by "adopt the magnitude-dependent fork to fix
+ssp126", it would have changed nothing at ssp126 and the failure would have been read as
+evidence about n.
+
+## D. WHAT THE COOL-SCENARIO PROBLEM ACTUALLY IS NOW
+
+Not widths — **levels**, plus one real width problem in Greenland:
+
+* **AIS**: ssp126/ssp245 **medians** 0.31–0.51× lit (mean 0.50–0.68×); ssp585@2150 **spread**
+  0.397×, unimodal, so that one stands.
+* **glaciers**: **level** 0.755–0.91×, every scenario, growing with horizon.
+* **Greenland**: **spread** 0.14–0.46× at 5 of 6 cells — unimodal, real, and now top of the list.
+* **the sum**: ssp126/245 medians 0.61–0.83× while ssp585 is 1.09–1.25×.
+
+## E. THE OPEN QUESTION, RESTATED PRECISELY
+
+Not *"why is our ssp126 band narrow"* but ***"is 3.95% the right tipped fraction at
+ssp126@2100"*** — a **threshold** question, about the probability of marine ice-sheet
+instability onset under low forcing, needing literature this repo does not have. It is a
+different question with a different fix and different evidence from the one the fork answers.
+
+**Suggested next, in order:** (1) the Greenland width — real, unimodal, 5 of 6 cells, and the
+module is closed so this is a deliberate reopening decision; (2) the tipped-fraction literature
+for ssp126; (3) the glacier level deficit; (4) step 5 with `--adcov=` + the `ais_gmst_amp` refit.
