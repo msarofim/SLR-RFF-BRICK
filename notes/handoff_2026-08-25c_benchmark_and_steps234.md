@@ -396,3 +396,96 @@ horizon (0.755–0.91×), and glaciers are **40.1% of addressable at ssp126@2100
 3. **Step 5** with `--adcov=` + the `ais_gmst_amp` refit.
 4. **Greenland width** — parked at ~4%, with the measurement on record so it can be picked
    up cheaply if ssp126 becomes a headline reported scenario.
+
+---
+
+# ADDENDUM 3 — 2026-08-25: TE, glaciers, and MAGICC to 2300
+
+Commits **`6c6acd4`** (MAGICC), **`d24cc67`** (TE), **`1e69237`** (glaciers).
+**Nothing recalibrated. No MAGICC re-run was needed.**
+
+Marcus: *"Before step 5, I would like to do a quick pass on the TE question and then
+glaciers. Also, continue to use MAGICC for sanity tests (though we can't rule out that
+MAGICC has serious flaws): can we run MAGICC to 2150 and 2300 ourselves?"*
+
+## A. MAGICC — WE DO NOT NEED TO RUN IT. IT ALWAYS DID.
+
+`slr-refresh/notebooks/302_run-magicc-scenarios-SSPs.py` sets `endyear_run = 2300 + 5`, its
+own summary table filters to `year=[2100, 2300]`, and the source CSV carries annual columns
+through **2305-01-01**. Only `extract_magicc_components.py` was wrong — `YEARS_OUT =
+range(2000, 2101)` with a comment asserting the run ended at 2100. Re-extracted;
+`[YEARS-PRESENT]` now **asserts the columns exist** instead of trusting a comment.
+
+That retires every *"NO UPPER COMPARATOR AT THIS HORIZON"* warning at 2150, and step 1's
+caveat that the separation ruling *"is a 2100 statement"*.
+
+⚠ **AND MARCUS'S CAVEAT IMMEDIATELY EARNED ITS KEEP.** At 2300 MAGICC-SLR puts ssp585 AIS at
+**712 cm** and the total at **1016 cm (10.2 m)**. Scored against that alone we are 0.39× and
+look badly low. **Coulon et al. 2025** (Table 1, PMC12680641; two Bayesian-calibrated
+ice-sheet models, no MICI) publish 2300 ssp585 AIS medians of **267 and 273 cm**. **Ours is
+277.34** — 1.02× the comparator median with all three in, and MAGICC sits above Coulon's own
+5–95% upper bound of 595 cm.
+* `benchmark/literature_extra.csv` — new extension slot, every row with its citation.
+* ⚠ Coulon entered at **ssp585 only**: their two models agree there (267/273) so attribution
+  does not matter, but at ssp126 they publish **3 cm and 110 cm** — a 37× disagreement where
+  the pairing *does* matter and which this repo records as a nameless tuple. Entering those
+  would let the separation block pair models across scenarios on an unverified attribution.
+* Bug fixed in the same change: the thin-comparator cap was evaluated on the **median** count
+  for both metrics; Coulon supplies a median with no band, which silently un-capped a spread
+  comparison still resting on n=1. Now per metric.
+
+## B. TE — THE DRIVER, HALF OF IT DEPTH SCOPE, AND NOT A SEA-LEVEL DEFECT
+
+TE is linear in OHC, so the miss factors exactly:
+`rate(TE)/rate(target) = [rate(OHC_FaIR)/rate(OHC_obs)] × [α_model/α_obs]`.
+
+* **NOT the coefficient.** α_model = 0.10574 cm per 10²² J against an obs-implied
+  0.1096–0.1140 ⇒ **0.93–0.97×**. It is slightly LOW and **partially offsets** the driver;
+  tightening it would make the level fit *worse*.
+* **The driver, and 51% of that is depth scope.** FaIR's OHC is **full-depth**; both obs OHC
+  products here and the post-2019 steric target are **0–2000 m** (NOAA NCEI). IGCC publishes
+  the layer that prices it: over 1993–2024 its **>2000 m layer adds 10.2%** to the trend, and
+  FaIR is **1.222× IGCC 0–2000 m but only 1.108× IGCC's own full-depth series**.
+* ⚠ **The residual 1.11× is a FaIR question, not a BRICK one** — which is exactly why BRICK
+  2.0 misses by the same amount. Nothing in either sea-level model can fix it.
+* ⚠ **The correction is an upper bound**: the deep ocean is colder and expands less per
+  joule, so the true model/target ratio is between **1.08× and 1.19×** ⇒ **the FAIL survives
+  as a WARN at worst.**
+* ⚠ **NEW, previously asserted rather than tested.** `prep_recalib_targets_ext.py:30`
+  offset-matches Frederikse to NOAA as *"a pure level shift … both measure the same physical
+  SLE"*. On their 2005–2018 overlap their **slopes differ by 6.3%** (0.1133 vs 0.1209 cm/yr).
+  A level-matched splice does not equalise slopes, so the target changes method/scope at 2019.
+
+## C. GLACIERS — "GROWING WITH HORIZON" WITHDRAWN; MOST OF THE OFFSET IS SCOPE
+
+* **Not growing.** With MAGICC at 2300 the mean ratio runs **0.847 → 0.805 → 0.877** across
+  2100/2150/2300. The apparent growth was FACTS-at-2150 vs MAGICC-at-2300 — a comparator
+  change between horizons. It is a roughly **constant** level offset.
+* **Regional scope, measured.** Ours owns RGI **1–18 minus r5 plus r19** (Marcus 2026-08-06:
+  r5 sits in the GIS target). FACTS's AR5 module distributes into a list that **has glac5 and
+  has no glac18/glac19**. Over GlaMBIE 2000–2023, **r5 = 13.00%** and **r19 = 6.54%** of
+  global loss ⇒ our scope 0.870, AR5 scope 0.935, **scope alone predicts 0.931** against an
+  observed 0.843.
+* ⇒ **Residual model deficit ~9%, not ~16%.**
+* ⚠ **A hypothesis of mine was refuted en route.** If r5 had merely moved from our glaciers to
+  our GIS, glaciers+GIS should match the comparators. It does not — the combined ratio is
+  **0.52–0.95, worse than glaciers alone** — because GIS carries its own large deficit at
+  2150/2300. Scope is a **partial** explanation, not a complete one.
+* ⚠ Three named assumptions that would move the number: the AR5 scope comes from a
+  **spatial-fingerprint** file its own code comment calls defective (no region 4, region 7
+  twice); emuglaciers' and MAGICC `SLR_GL`'s scope are **not established at all**; and the
+  shares are observed-era while **r19 depletes last**, so the correction is an
+  **under-estimate** at 2150/2300.
+* **The cheap decisive test:** get FACTS/MAGICC's glacier region set directly, or re-run our
+  own projection **with r5 and without r19** and compare like for like.
+
+## D. WHERE THAT LEAVES THE OPEN LIST
+
+The benchmark's candidate FAIL list is now **TE rate** (→ WARN once scope is credited; a FaIR
+question), **Greenland ssp126@2100 spread** (0.489×, worth +3.9% of one band), and
+**TOTAL ssp585@2150 spread** (0.365×) — which is new, has 3+ comparators, and has NOT been
+looked at. Everything else is PASS or WARN.
+
+**Suggested next:** (1) the TOTAL ssp585@2150 spread, the one unexamined FAIL; (2) the
+glacier region-set confirmation, which is a question to FACTS/MAGICC rather than an analysis;
+(3) step 5 with `--adcov=` + the `ais_gmst_amp` refit.
