@@ -229,3 +229,120 @@ contributor; no longer effectively the only one.
 `ais_coulon_not_like_for_like` **corrected**; `INDEX_slr.md` +3 lines and 2 edits;
 `MEMORY.md` live-state extended.
 **Commits:** `57549ad`, `3c14b88`, `3945995`, the three CHANGELOG commits, and this note.
+
+---
+---
+
+# ADDENDUM — 2026-08-25, after Marcus promoted the band
+
+Commits **`2ba0893`** (three-SSP joint band + ranking), **`c67c54d`** (FaIRtoFrEDI), and the
+CHANGELOG entry `2026-08-25c`. Supersedes §7's priority list above.
+
+## A. WHAT MARCUS DECIDED, AND THE CHECK HE ASKED FOR
+
+> *"I remember that an earlier analysis suggested that the fixed driver was good enough to
+> match to the uncertain past: can you confirm that? If so, then yes, the joint band should
+> become the reported band, and the other SSPs should add FaIR re-runs. After that is done,
+> do a new priority ranking."*
+
+**CONFIRMED, from `outputs/mcmc/slr_coupling_test.csv` (2026-08-01), on this branch.** The
+mean-forcing calibration drops the te_α↔OHC coupling; that loss is **−1.38 cm = −2.3%** of
+total@2100 width and **−0.55 cm** of the median. The directly-coupled TE component tightens
+**29%**, the total moves 2.3%. The 2026-08-02 production run closed it: *"coupling immaterial
+… Independent pipeline stands everywhere."* And the 2026-08-01 Marcus directive already
+prescribes this method: propagate forcing FORWARD, never re-calibrate it against SLR.
+
+⚠ **CAVEAT: established on extA108, not L14.** extA108 total@2100 median **46.9 cm** vs L14's
+**94.7 cm** — 2.0× apart, different lineage, restructured AIS, different baseline. It
+transfers as strong evidence, **not proof**. Re-testing it on L14 needs the joint calibration
+machinery, which is banner-marked REJECTED and should stay that way.
+
+## B. THE FORCING CONVENTION IS SETTLED — SPLICED
+
+The canonical pipeline paired on each config's **full** forcing; this work spliced at 2014.
+Run head-to-head on ssp585, both at 2000 draws:
+
+| | spliced | raw |
+|---|---|---|
+| every median and spread, 12 cells | — | **agree to <1%** |
+| **[CALIB-MOVE]** ais | **0.66 σ** | **3.68 σ** |
+
+⇒ **raw buys nothing in the band and costs 5.6× on hindcast consistency. Use SPLICED.**
+Per component the splice leaves **glaciers / GIS / LWS at exactly 0.0000 cm**; all the
+movement is TE (**1.76 cm** worst draw-year, **0.42 cm typical**), because 2015–2024 is inside
+the fit window and TE integrates OHC. A 2014→2024 splice-year shift is bounded *below* the
+raw-vs-spliced perturbation (<1%) a fortiori, so it was **not** re-run.
+
+## C. ⚠ ssp245@2300's MEDIAN IS A THRESHOLD ARTIFACT
+
+`julia/diag_ais_tipping_under_forcing.jl` — closed form, no model run, same pairing seed:
+
+| tipped @2300 | mean driver | per-config | median draw |
+|---|---|---|---|
+| ssp126 | 0.0% | 6.3% | never tipped |
+| **ssp245** | **59.6%** | **48.3%** | **tipped → NOT tipped** |
+| ssp585 | 100.0% | 99.2% | tipped either way |
+
+The only cell of nine that crosses 50%, and exactly the one whose median moved: total
+**219.07 → 162.84**, AIS **131.35 → 79.23 cm**. ⚠ **48.3% is knife-edge ⇒ bimodal-fragile
+median. At ssp245@2300 quote the MEAN plus the tipped fraction, never the bare median.**
+`mean_cm` and a per-draw dump at every horizon are now written so any statistic is
+recomputable without a re-run.
+
+## D. THE NEW PRIORITY RANKING
+
+**The metric is ADDRESSABLE cm = spread(joint) × (1 − pct_forcing)** — the part of a band
+generated inside BRICK rather than inherited from FaIR. Not band growth, and not
+share-of-width (a p05–p95 spread is not additive; the share exceeded 100% under the fixed
+driver, and the covariance residual here is +18% to +34%).
+
+**⚠ THE TRAP: thermal expansion.** It takes **36–48% of everything the restored forcing adds**
+and its band grows **6.2×** — and it is **84% forcing**. Ranking on growth puts TE **first at
+five of six cells**; on addressable it is **last or near-last everywhere**.
+
+| addressable share | 1st | 2nd | 3rd | 4th |
+|---|---|---|---|---|
+| ssp585@2300 | ais **82.7%** | gis 8.8% | te 5.0% | glaciers 3.5% |
+| ssp245@2300 | ais **92.6%** | gis 2.7% | glaciers 2.6% | te 2.1% |
+| ssp126@2300 | ais 33.2% | glaciers 28.4% | gis 20.9% | te 17.6% |
+| **ssp126@2100** | **glaciers 40.1%** | te 22.6% | ais 21.9% | gis 15.4% |
+
+### THE RE-RANKED WORK QUEUE
+
+1. **AIS remains first at ssp245/ssp585 — on a corrected justification.** Not "94.7–100.9% of
+   the spread" (a fixed-driver artifact) but **77–93% of the addressable** spread, and only
+   **7–21% of its band is forcing**, so model work genuinely moves it. Within AIS the open
+   items are unchanged: **`ais_gmst_amp` ≈ 0.94** (a de-amplification where 27 of 34 GCMs
+   amplify; NOT likelihood-inert; needs a **refit**), then the **pooled-proposal tune run**
+   (`--adcov=`), naturally combined since both want a recalibration.
+2. **⚠ NEW — glaciers, at ssp126.** 40.1% of addressable at 2100 and 28.4% at 2300, and only
+   33–49% forcing. The glacier module has had **no** attention in this arc. If ssp126 is a
+   reported scenario, this is the second thing to do and it is currently unranked anywhere.
+3. **GIS is a consistent, modest #2 at ssp585** (8.8% @2300, 26.9 cm addressable) — but 56–61%
+   forcing, so the achievable gain is about half its band. Greenland is CLOSED as a module;
+   do not reopen it for this.
+4. **DE-PRIORITISE thermal expansion.** Biggest band growth, smallest addressable share.
+   Its width is inherited from FaIR's OHC spread, not generated by BRICK. `te_α` work would
+   move ~16% of a 94.8 cm band.
+5. **Extend the joint band to the remaining SSPs** (ssp119/ssp370/ssp460) if they are to be
+   reported — one `run_fair_ssp_spread.py <ssp>` each (~3 min) plus one Ladrillo run (~45 min).
+6. **Everything else** — the anchored net's sign, reconstruction mixing, LWS GRACE extension,
+   WAIS/EAIS split, the AIS observed driver, FrEDI linearity, Marcus's prose — unchanged.
+
+## E. NON-OBVIOUS STATE ADDED HERE
+
+* **Cubes are RAW now**; the splice lives in Julia behind `--forcing=`, gated by
+  `[SPLICE-MATCH]` (1.14e-06 °C against a **2e-06 tolerance derived** from the 6-decimal write
+  precision, not picked). The python-spliced ssp585 cubes were removed as derivable.
+* `julia/scope_slr_fair_uncertainty.jl` takes `--ssp=` and `--forcing=`; outputs are keyed
+  `_<ssp>_<forcing>_<tag>`. It reads **all five** components plus the total, and **[SUM]**
+  checks the decomposition closes per draw (~2e-13 cm).
+* **LWS is exactly 0.00 cm of spread everywhere** — a seeded constant with no forcing
+  dependence. Not a bug; do not go looking for its uncertainty.
+* ⚠ `run_fair_ssp_spread.py`'s ssp585-only Coulon-arm block **used to `sys.exit(0)` before the
+  cube block**, so ssp245/ssp126 cubes were silently not written. Fixed by moving the cube
+  block above the guard. Check output files exist, not just that a script exited 0.
+* ⚠ `git add -A outputs/` sweeps in **227 deliberately-untracked** mcmc artifacts. Stage the
+  intended files by name.
+* ⚠ A `pgrep -f "<script>.jl"` wait-loop **matches its own shell** and never exits. Match on
+  PID, or on a pattern the waiter itself does not contain.
