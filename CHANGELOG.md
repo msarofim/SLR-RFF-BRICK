@@ -3,6 +3,100 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-25c — **THE JOINT BAND IS THE REPORTED BAND, on all three SSPs. The re-ranking metric is ADDRESSABLE cm, not band growth — and on it the AIS focus survives at ssp245/ssp585 (77–93%) but INVERTS at ssp126, where glaciers lead.**
+
+`julia/scope_slr_fair_uncertainty.jl`, `julia/diag_ais_tipping_under_forcing.jl`,
+`python/rank_uncertainty_contributors.py`, `FaIRtoFrEDI/run_fair_ssp_spread.py`,
+`data/observations/fair_cube_{gmst,ohc}_ssp{126,245,585}_raw.csv`,
+`outputs/scope_slr_fairunc_*_ssp*_{spliced,raw}_L14.csv`,
+`outputs/rank_uncertainty_contributors_L14.csv`. **Nothing recalibrated.**
+
+**Marcus, 2026-08-25:** confirmed the fixed driver matches the uncertain past well enough,
+promoted the joint band to the reported band, asked for the other SSPs and a new ranking.
+
+---
+
+### THE CONFIRMATION HE ASKED FOR
+
+`outputs/mcmc/slr_coupling_test.csv` (2026-08-01): the mean-forcing calibration drops the
+te_α↔OHC coupling, and that loss is worth **−1.38 cm = −2.3%** of the total@2100 width and
+−0.55 cm of the median. The directly-coupled TE component tightens **29%**; the total moves
+2.3%. The 2026-08-02 production run closed it: *"coupling immaterial … Independent pipeline
+stands everywhere."*
+
+⚠ **Established on extA108, not L14** — extA108 total@2100 median 46.9 cm vs L14's 94.7 cm,
+**2.0× apart**, different lineage and baseline. Evidence, not proof.
+
+### THE FORCING CONVENTION, SETTLED BY MEASUREMENT
+
+The canonical pipeline paired on each config's **full** forcing; this work **spliced** at 2014.
+Run head-to-head on ssp585:
+
+| | spliced | raw | agreement |
+|---|---|---|---|
+| every median, every spread | — | — | **<1% on all 12 cells** |
+| **[CALIB-MOVE]** ais | **0.66 σ** | **3.68 σ** | **5.6× worse** |
+
+⇒ **raw buys nothing in the band and costs historical consistency. SPLICED.** Per component
+the splice leaves glaciers/GIS/LWS at **exactly 0.0000 cm**; the movement is all TE
+(1.76 cm worst draw-year, **0.42 cm typical**), since 2015–2024 sits inside the fit window
+and TE integrates OHC. A 2014→2024 splice-year shift is bounded *below* the raw-vs-spliced
+perturbation, which was <1%, so it is not re-run.
+
+### WHY ssp245's MEDIAN FALLS 26–40% — TESTED, NOT ASSERTED
+
+`diag_ais_tipping_under_forcing.jl`, closed form, no model run, same pairing seed:
+
+| tipped fraction @2300 | mean driver | per-config | median draw |
+|---|---|---|---|
+| ssp126 | 0.0% | 6.3% | never tipped |
+| **ssp245** | **59.6%** | **48.3%** | **tipped → NOT tipped** |
+| ssp585 | 100.0% | 99.2% | tipped either way |
+
+**ssp245@2300 is the only cell of nine that crosses 50%**, and it is exactly the cell whose
+median moved. The mean driver tips the *median* draw and charges it ~110 cm of fast dynamics;
+a proper forcing sample does not. ⇒ **the fixed-driver ssp245@2300 median (219 total / 131 AIS)
+is an artifact of evaluating a THRESHOLD process at the mean forcing**; the joint band gives
+163 / 79 cm. ⚠ 48.3% is knife-edge, so that median sits in a bimodal density gap and is
+sample-fragile — **quote the mean plus the tipped fraction there, never the bare median**.
+`mean_cm` and a per-draw dump at every horizon are now written so any statistic is
+recomputable without a re-run.
+
+### THE NEW PRIORITY RANKING
+
+**The metric is not which band grew.** A p05–p95 spread is not additive, so share-of-width is
+a ratio, not a decomposition — it exceeded 100% under the fixed driver. What ranks the work is
+**ADDRESSABLE cm** = spread(joint) × (1 − pct_forcing): the part generated *inside BRICK*
+rather than inherited from FaIR.
+
+| ssp585@2300 | spread fix | spread joint | % forcing | **ADDRESSABLE** |
+|---|---|---|---|---|
+| **ais** | 252.4 | 303.1 | **17%** | **252.4** |
+| gis | 26.9 | 60.7 | 56% | 26.9 |
+| **te** | 15.3 | **94.8** | **84%** | **15.3** |
+| glaciers | 10.6 | 12.0 | 11% | 10.6 |
+
+**Thermal expansion is the trap.** It takes **36–48% of everything the restored forcing adds**
+and its band grows **6.2×** — and it is **84% forcing**, so model work on it is near-worthless.
+Ranking on band growth would have put TE **first at five of six cells**; on addressable it is
+last or near-last everywhere.
+
+**Addressable share, and it is SCENARIO-DEPENDENT:**
+
+| cell | 1st | 2nd | 3rd | 4th |
+|---|---|---|---|---|
+| ssp585@2300 | ais **82.7%** | gis 8.8% | te 5.0% | glaciers 3.5% |
+| ssp245@2300 | ais **92.6%** | gis 2.7% | glaciers 2.6% | te 2.1% |
+| ssp126@2300 | ais 33.2% | glaciers 28.4% | gis 20.9% | te 17.6% |
+| **ssp126@2100** | **glaciers 40.1%** | te 22.6% | ais 21.9% | gis 15.4% |
+
+⇒ **The AIS focus is vindicated at ssp245/ssp585 — but on a corrected justification.** Not
+"AIS is 94.7–100.9% of the spread" (a fixed-driver artifact) but "AIS is **77–93% of the
+addressable** spread". **At ssp126 it does not hold**: the distribution is flat and glaciers
+lead at 2100. Any ranking quoted without its scenario and horizon is wrong.
+
+---
+
 ## [unreleased] — 2026-08-25b — **THE CLIMATE UNCERTAINTY IS BACK IN. The total band widens 1.52–1.63×, and AIS's share of the total spread — the framing number the whole AIS-module assessment rested on — falls from ~100% to 73–79%.**
 
 `julia/scope_slr_fair_uncertainty.jl`, `FaIRtoFrEDI/run_fair_ssp585_spread.py`,
