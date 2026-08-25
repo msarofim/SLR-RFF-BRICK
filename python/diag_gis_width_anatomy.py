@@ -69,12 +69,21 @@ LIT_HORIZONS = [2100, 2150]
 QLO, QHI = 5, 95
 Z_SPAN = 3.29                      # p95 - p05 in standard normal units, 2 x 1.645
 IQR_TO_SIGMA = 1.349               # p75 - p25 in standard normal units
-## The comparators that are the SAME KIND OF OBJECT as Ladrillo -- a calibrated emulator or
-## a fitted transient model driven by a climate ensemble -- as against a structured expert
-## judgement, whose width is dominated by deep/structural uncertainty we do not model.
-## Named here, not inferred, so the classification is auditable and arguable.
-LIKE_FOR_LIKE = {"FittedISMIP", "Nauels2025"}
-STRUCTURAL = {"bamber19", "emuGrIS"}
+## ⚠ THE CLASSIFICATION IS NOW READ FROM `benchmark/comparator_classes.csv`, NOT DECLARED
+## HERE. It used to be two hardcoded sets in this file, with emuGrIS in STRUCTURAL -- while
+## the benchmark, which OWNS the classification, deliberately keeps emuGrIS in `model` and
+## its header argues that separating it "needs a receipt". The two committed deliverables
+## therefore reported 0.563x (here, n=2) and 0.489x (the benchmark, n=3) FOR THE SAME CELL,
+## and the decision to park the Greenland width was taken on the more forgiving of the two
+## (`scope_gis_ssp126_acceptability.py` [A], 2026-08-25). One file owns the line now.
+## Anything not listed as `sej` there is LIKE-FOR-LIKE here, so the two can no longer drift.
+CLASSES_CSV = os.path.join(REPO, "benchmark", "comparator_classes.csv")
+_CLS = pd.read_csv(CLASSES_CSV, comment="#")
+STRUCTURAL = set(_CLS.loc[_CLS["class"] == "sej", "module"].astype(str))
+# Every GIS comparator this repo carries; LIKE_FOR_LIKE is the complement of STRUCTURAL so
+# that adding a comparator cannot silently leave it "unclassified" and out of the median.
+GIS_COMPARATORS = {"FittedISMIP", "Nauels2025", "emuGrIS", "bamber19"}
+LIKE_FOR_LIKE = GIS_COMPARATORS - STRUCTURAL
 rows = []
 
 
@@ -116,8 +125,8 @@ for H in LIT_HORIZONS:
         print(f"\n    --- {ssp} @{H} : ours (JOINT) {osp:.2f} cm " + "-" * 44)
         print(f"    {'comparator':22s} {'kind':16s} {'spread':>8s} {'ours/theirs':>12s}")
         for _, r in L.sort_values("spread").iterrows():
-            kind = ("LIKE-FOR-LIKE" if r.module in LIKE_FOR_LIKE else
-                    ("structural" if r.module in STRUCTURAL else "unclassified"))
+            kind = ("structural" if r.module in STRUCTURAL else
+                    ("LIKE-FOR-LIKE" if r.module in LIKE_FOR_LIKE else "unclassified"))
             print(f"    {r.source + ' ' + r.module:22s} {kind:16s} {r.spread:8.2f} "
                   f"{osp/r.spread:12.2f}")
             emit(block="A", ssp=ssp, horizon=H, key=f"vs_{r.module}", value=osp / r.spread,

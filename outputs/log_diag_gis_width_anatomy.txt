@@ -10,52 +10,52 @@ GREENLAND WIDTH ANATOMY (L14) — is the deficit real, and whose width is missin
     comparator             kind               spread  ours/theirs
     FACTS FittedISMIP      LIKE-FOR-LIKE        7.06         0.66
     MAGICC-SLR Nauels2025  LIKE-FOR-LIKE        9.57         0.49
-    FACTS emuGrIS          structural          17.14         0.27
+    FACTS emuGrIS          LIKE-FOR-LIKE       17.14         0.27
     FACTS bamber19         structural          55.71         0.08
     -> vs the MEDIAN of all 4: 0.35x   <= what the benchmark scores
-    -> vs the LIKE-FOR-LIKE comparators only (FittedISMIP, Nauels2025): 0.56x
+    -> vs the LIKE-FOR-LIKE comparators only (FittedISMIP, Nauels2025, emuGrIS): 0.49x
 
     --- ssp245 @2100 : ours (JOINT) 5.73 cm --------------------------------------------
     comparator             kind               spread  ours/theirs
     FACTS FittedISMIP      LIKE-FOR-LIKE        7.85         0.73
     MAGICC-SLR Nauels2025  LIKE-FOR-LIKE        8.35         0.69
-    FACTS emuGrIS          structural          16.85         0.34
+    FACTS emuGrIS          LIKE-FOR-LIKE       16.85         0.34
     FACTS bamber19         structural          72.68         0.08
     -> vs the MEDIAN of all 4: 0.46x   <= what the benchmark scores
-    -> vs the LIKE-FOR-LIKE comparators only (FittedISMIP, Nauels2025): 0.71x
+    -> vs the LIKE-FOR-LIKE comparators only (FittedISMIP, Nauels2025, emuGrIS): 0.69x
 
     --- ssp585 @2100 : ours (JOINT) 11.21 cm --------------------------------------------
     comparator             kind               spread  ours/theirs
     FACTS FittedISMIP      LIKE-FOR-LIKE       11.46         0.98
     MAGICC-SLR Nauels2025  LIKE-FOR-LIKE       12.15         0.92
-    FACTS emuGrIS          structural          17.10         0.66
+    FACTS emuGrIS          LIKE-FOR-LIKE       17.10         0.66
     FACTS bamber19         structural          93.18         0.12
     -> vs the MEDIAN of all 4: 0.77x   <= what the benchmark scores
-    -> vs the LIKE-FOR-LIKE comparators only (FittedISMIP, Nauels2025): 0.95x
+    -> vs the LIKE-FOR-LIKE comparators only (FittedISMIP, Nauels2025, emuGrIS): 0.92x
 
     --- ssp126 @2150 : ours (JOINT) 6.90 cm --------------------------------------------
     comparator             kind               spread  ours/theirs
     FACTS FittedISMIP      LIKE-FOR-LIKE       11.12         0.62
+    MAGICC-SLR Nauels2025  LIKE-FOR-LIKE       15.69         0.44
     FACTS bamber19         structural          86.94         0.08
-    -> vs the MEDIAN of all 2: 0.14x   <= what the benchmark scores
-    -> vs the LIKE-FOR-LIKE comparators only (FittedISMIP): 0.62x
-    ⚠ n=2, so their 'median' 49.03 cm is the MEAN of 11.12 and 86.94 — a width no module produces.
+    -> vs the MEDIAN of all 3: 0.44x   <= what the benchmark scores
+    -> vs the LIKE-FOR-LIKE comparators only (FittedISMIP, Nauels2025): 0.51x
 
     --- ssp245 @2150 : ours (JOINT) 11.08 cm --------------------------------------------
     comparator             kind               spread  ours/theirs
+    MAGICC-SLR Nauels2025  LIKE-FOR-LIKE       14.88         0.74
     FACTS FittedISMIP      LIKE-FOR-LIKE       14.93         0.74
     FACTS bamber19         structural          88.90         0.12
-    -> vs the MEDIAN of all 2: 0.21x   <= what the benchmark scores
-    -> vs the LIKE-FOR-LIKE comparators only (FittedISMIP): 0.74x
-    ⚠ n=2, so their 'median' 51.91 cm is the MEAN of 14.93 and 88.90 — a width no module produces.
+    -> vs the MEDIAN of all 3: 0.74x   <= what the benchmark scores
+    -> vs the LIKE-FOR-LIKE comparators only (FittedISMIP, Nauels2025): 0.74x
 
     --- ssp585 @2150 : ours (JOINT) 26.88 cm --------------------------------------------
     comparator             kind               spread  ours/theirs
     FACTS FittedISMIP      LIKE-FOR-LIKE       24.97         1.08
+    MAGICC-SLR Nauels2025  LIKE-FOR-LIKE       90.97         0.30
     FACTS bamber19         structural         121.86         0.22
-    -> vs the MEDIAN of all 2: 0.37x   <= what the benchmark scores
-    -> vs the LIKE-FOR-LIKE comparators only (FittedISMIP): 1.08x
-    ⚠ n=2, so their 'median' 73.41 cm is the MEAN of 24.97 and 121.86 — a width no module produces.
+    -> vs the MEDIAN of all 3: 0.30x   <= what the benchmark scores
+    -> vs the LIKE-FOR-LIKE comparators only (FittedISMIP, Nauels2025): 0.46x
 
 
 [C] OUR OWN WIDTH, SPLIT INTO PARAMETRIC AND FORCING
@@ -97,8 +97,8 @@ GREENLAND WIDTH ANATOMY (L14) — is the deficit real, and whose width is missin
     whether the result reaches the LIKE-FOR-LIKE comparator's width.
 
     ssp          H    ours  +ISM(IQR)  +ISM(rng)  LFL target                    closed?
-    ssp126    2100    4.69       4.99       6.02        8.32 NOT CLOSED — 2.30 cm still missing
-    ssp585    2100   11.21      11.85      13.70       11.81 CLOSED by the structural term
+    ssp126    2100    4.69       4.99       6.02        9.57 NOT CLOSED — 3.55 cm still missing
+    ssp585    2100   11.21      11.85      13.70       12.15 CLOSED by the structural term
 
 
 [E] IS IT OUR CLIMATE ENSEMBLE RATHER THAN OUR GREENLAND? — an internal control
@@ -107,12 +107,12 @@ GREENLAND WIDTH ANATOMY (L14) — is the deficit real, and whose width is missin
     control: it is ~84% forcing too, shares the same FaIR configs, and has its own
     literature comparators. If our climate spread were the cause, TE would be narrow
     by the same factor.
-    ssp126 @2100:  TE 0.89x lit   vs   GIS 0.56x like-for-like
-    ssp245 @2100:  TE 0.81x lit   vs   GIS 0.71x like-for-like
-    ssp585 @2100:  TE 0.78x lit   vs   GIS 0.95x like-for-like
-    ssp126 @2150:  TE 0.87x lit   vs   GIS 0.62x like-for-like
-    ssp245 @2150:  TE 0.85x lit   vs   GIS 0.74x like-for-like
-    ssp585 @2150:  TE 0.86x lit   vs   GIS 1.08x like-for-like
+    ssp126 @2100:  TE 0.89x lit   vs   GIS 0.49x like-for-like
+    ssp245 @2100:  TE 0.81x lit   vs   GIS 0.69x like-for-like
+    ssp585 @2100:  TE 0.78x lit   vs   GIS 0.92x like-for-like
+    ssp126 @2150:  TE 0.90x lit   vs   GIS 0.51x like-for-like
+    ssp245 @2150:  TE 0.82x lit   vs   GIS 0.74x like-for-like
+    ssp585 @2150:  TE 0.80x lit   vs   GIS 0.46x like-for-like
     => if TE sits near 1x while GIS does not, the FaIR ensemble is NOT the cause and
        the missing width is Greenland's own.
 
@@ -124,12 +124,12 @@ GREENLAND WIDTH ANATOMY (L14) — is the deficit real, and whose width is missin
     brackets, because the correlation of a width we have not built is unknown.
 
     ssp          H  GIS gap cm  total now  total indep  total corr  worst move
-    ssp126    2100        3.63      24.33        25.28       31.20       28.2%
-    ssp245    2100        2.37      59.55        59.83       65.28        9.6%
-    ssp585    2100        0.60      81.94        82.03       85.66        4.5%
-    ssp126    2150        4.21      36.51        37.54       45.22       23.9%
-    ssp245    2150        3.85     128.99       129.38      139.00        7.8%
-    ssp585    2150      no gap
+    ssp126    2100        4.89      24.33        25.72       32.67       34.3%
+    ssp245    2100        2.62      59.55        59.86       65.62       10.2%
+    ssp585    2100        0.95      81.94        82.08       86.65        5.7%
+    ssp126    2150        6.50      36.51        38.28       48.00       31.5%
+    ssp245    2150        3.83     128.99       129.37      138.96        7.7%
+    ssp585    2150       31.09     147.38       156.07      198.74       34.8%
     ⚠ the CORRELATED column is the upper bracket, not the estimate.
 
 wrote outputs/diag_gis_width_anatomy_L14.csv

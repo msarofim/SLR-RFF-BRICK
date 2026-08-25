@@ -1,0 +1,68 @@
+====================================================================================================
+GREENLAND ssp126@2100 SPREAD — ACCEPTABLE MISS? (tag L14, joint band, n=2000 draws)
+====================================================================================================
+
+[A] THE COMPARATORS, AND WHETHER THE TWO DELIVERABLES AGREE. ours = 4.69 cm
+
+comparator       spread  ours/theirs
+FittedISMIP        7.06        0.664
+emuGrIS           17.14        0.273
+Nauels2025         9.57        0.489
+
+    comparator median of n=3:  9.57 cm  =>  ours/median = 0.489x   (FAIL)
+
+    AGREEMENT CHECK — the same cell as reported by each committed deliverable:
+      bench_ladrillo   spread_vs_lit      0.489x
+      width_anatomy    vs_like_for_like   0.489x
+      => AGREE
+
+    ⚠ THEY DID NOT AGREE UNTIL 2026-08-25. `diag_gis_width_anatomy.py` declared its
+      own LIKE_FOR_LIKE/STRUCTURAL sets with emuGrIS as 'structural', giving 0.563x,
+      while the benchmark -- which OWNS the classification and whose header argues
+      that separating emuGrIS 'needs a receipt' -- gave 0.489x. THE PARK DECISION WAS
+      TAKEN ON THE MORE FORGIVING NUMBER. The anatomy now reads
+      `benchmark/comparator_classes.csv`; this block is the regression check.
+
+[B] WHICH SIDE IS MISSING? ours: p5 4.66 / p50 6.25 / p95 9.35 cm
+
+comparator      lower half  upper half | ours/theirs lo ours/theirs hi
+FittedISMIP           3.15        3.91 |          0.505          0.791
+emuGrIS               7.74        9.40 |          0.206          0.329
+Nauels2025            2.90        6.67 |          0.548          0.464
+
+    ours: lower half 1.59 cm, upper half 3.10 cm (ratio 1.95, a comparator median of 1.24)
+    => 51% of the missing width is on the UPPER side (criterion: acceptable below 60%)
+
+[C] THE PRICE IN THE UNITS A READER QUOTES — the TOTAL p95 at ssp126@2100
+
+    GIS full-band gap vs the benchmark's comparator median: 4.89 cm
+    GIS missing half-widths vs the benchmark's comparator median: upper 3.58 cm, lower 1.56 cm
+    total now:  p5 26.51  p50 34.33  p95 50.83 cm (upper half 16.50, lower half 7.83 -- SKEWED, so half-widths are composed, not a symmetric sigma)
+    with the GIS upper width restored: p95 51.22 cm (independent) / 54.41 cm (perfectly correlated)
+    => the reported upper bound moves +0.8% (independent) / +7.0% (correlated)
+       criterion: acceptable below 5% on the INDEPENDENT arm
+
+====================================================================================================
+DECISION
+====================================================================================================
+
+  criterion 1 -- WHICH SIDE:  51% upper vs a 60% bar   => PASS
+  criterion 2 -- THE PRICE :  +0.8% on the reported total p95 vs a 5% bar  => PASS
+                              (+7.0% on the perfectly-correlated upper bound)
+
+  ⚠ BOTH CRITERIA WERE FIXED IN THE SOURCE BEFORE THE NUMBERS WERE COMPUTED
+    (ACCEPT_UPPER_SHARE, ACCEPT_P95_MOVE_PCT at the top of this file), so the decision is
+    not fitted to the answer. Change them by editing them, in a commit that says why.
+
+  ⚠ [A] WAS A DEFECT IN ITS OWN RIGHT AND IS FIXED IN THIS CHANGE. Two committed
+    deliverables reported 0.489x and 0.563x for this cell, and the earlier PARK decision
+    was taken on the more forgiving of the two. `diag_gis_width_anatomy.py` now reads the
+    benchmark's classification file instead of declaring its own.
+
+  ⚠ AND RE-RUNNING THE ANATOMY SURFACED A SECOND STALENESS. Its 2150 row was computed
+    BEFORE MAGICC was re-extracted to 2300 (`6c6acd4`), so it had one comparator at that
+    horizon instead of two. Addendum 2's "the deficit vanishes at ssp585" holds at
+    ssp585@2100 (0.92x) but NOT at ssp585@2150, which is 0.46x with MAGICC in -- the
+    benchmark already said so; the diagnostic had not been re-run.
+
+wrote outputs/scope_gis_ssp126_acceptability_L14.csv

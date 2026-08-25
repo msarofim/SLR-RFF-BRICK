@@ -1,0 +1,10 @@
+block,quantity,value,unit,note,verdict
+A,ours/FittedISMIP,0.6635868732489796,x,theirs 7.06 cm; classified `model` in comparator_classes.csv,
+A,ours/emuGrIS,0.2734074721916609,x,theirs 17.14 cm; classified `model` in comparator_classes.csv,
+A,ours/Nauels2025,0.4894718437750888,x,theirs 9.57 cm; classified `model` in comparator_classes.csv,
+A,deliverable agreement (bench vs anatomy),0.0,x,"bench 0.489x, anatomy 0.489x; both must score the same cell against the same classification",AGREE
+B,half-widths vs FittedISMIP,0.7907478483677951,x upper,ours lo 1.59 hi 3.10; theirs lo 3.15 hi 3.91; missing width is 34% upper-side,
+B,half-widths vs emuGrIS,0.3292245094343709,x upper,ours lo 1.59 hi 3.10; theirs lo 7.74 hi 9.40; missing width is 51% upper-side,
+B,half-widths vs Nauels2025,0.4639532455432032,x upper,ours lo 1.59 hi 3.10; theirs lo 2.90 hi 6.67; missing width is 73% upper-side,
+B,upper-side share of the missing width,0.506422063189032,fraction,criterion 0.6,ACCEPTABLE
+C,total p95 move if GIS upper width restored,0.7537417342737136,%,50.83 -> 51.22 cm independent / 54.41 cm correlated (+7.0%); GIS upper gap 3.58 cm; composed on HALF-WIDTHS because the total is skewed (16.50 up vs 7.83 down),ACCEPTABLE

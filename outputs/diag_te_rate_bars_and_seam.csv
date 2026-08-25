@@ -1,0 +1,21 @@
+block,quantity,value,sd,z,verdict,note
+A,Ladrillo L14 TE / steric target,1.1919452899504084,0.054586301887678636,4.191313138510989,RESOLVED,"model 0.14708+-0.00794 vs target 0.12340+-0.00376 cm/yr, (1993, 2026)"
+A,BRICK 2.0 TE / steric target,1.1713972119457619,0.05364528253164773,3.742625758194051,RESOLVED,"model 0.14454+-0.00652 vs target 0.12340+-0.00376 cm/yr, (1993, 2026)"
+A,FaIR OHC / Zanna+Cheng (0-2000m),1.2848745924203933,0.04148280661069034,8.823610448111557,RESOLVED,"obs 1.0826+-0.0350 1e22 J/yr, (1993, 2026)"
+A,FaIR OHC / Zanna+IGCC (0-2000m),1.2355860067908346,0.09976654407448951,2.9176792289121427,RESOLVED,"obs 1.1258+-0.0909 1e22 J/yr, (1993, 2026)"
+A,FaIR / IGCC 0-2000m  (what the target implies),1.2216385887621013,0.09864036947879812,2.7449436191411976,RESOLVED,"IGCC 1.1258+-0.0909 vs FaIR 1.3753+-0.0565, (1993, 2024)"
+A,FaIR / IGCC FULL-DEPTH (like-for-like),1.1084136654754928,0.08120316340765957,1.4798338302912721,UNRESOLVED,"IGCC 1.2408+-0.0909 vs FaIR 1.3753+-0.0565, (1993, 2024)"
+A,IGCC full-depth / IGCC 0-2000m,1.1021504216460887,0.1201635876693683,0.8500946387116612,UNRESOLVED,the size of the depth-scope term itself
+B,Frederikse / NOAA on the overlap,0.9446017102482999,0.11967624906108924,-0.46290128731743463,UNRESOLVED,"the splice's 'pure level shift' assertion, (2005, 2018)"
+C,model / Frederikse steric (pre-splice),1.1640312010867382,0.056460418032638564,3.381792814681595,RESOLVED,"segment-only, (1993, 2018); target 0.11915 model 0.13869 cm/yr"
+C,model / NOAA 0-2000m (own record),1.234434159505469,0.05225773344080948,5.537812599091975,RESOLVED,"segment-only, (2005, 2025); target 0.12744 model 0.15732 cm/yr"
+C,model / NOAA 0-2000m (post-splice yrs),1.3211017467984716,0.1503873073322158,2.8207704900148043,RESOLVED,"segment-only, (2019, 2025); target 0.13348 model 0.17634 cm/yr"
+C,"segment difference, own record (overlaps 2005-2018)",-0.0704029584187309,0.07693275965926996,-0.9151232677800833,UNRESOLVED,"more power, shares years; if UNRESOLVED the seam does not matter for the rate"
+C,"segment difference, post-splice yrs (no overlap)",-0.1570705457117334,0.16063661167696058,-0.9778004159325863,UNRESOLVED,"independent, n=7 only; if UNRESOLVED the seam does not matter for the rate"
+C,ratio vs window recency,1.1349367143811029,,,NOT A FINDING,1.164 -> 1.234 -> 1.321; no pairwise diff resolved; TE accel cell z=+0.65 UNRESOLVED
+D,z at depth correction c=1.0000,1.1919452899504084,,4.191313138510989,FAIL,target x c = 0.12340 cm/yr; benchmark se 0.00565; no deep contribution at all
+D,z at depth correction c=1.0250,1.1628734536101546,,3.6454136872150174,FAIL,target x c = 0.12648 cm/yr; benchmark se 0.00565; 
+D,z at depth correction c=1.0500,1.1351859904289603,,3.099514235919038,FAIL,target x c = 0.12956 cm/yr; benchmark se 0.00565; 
+D,z at depth correction c=1.0750,1.1087863162329379,,2.5536147846230643,FAIL,target x c = 0.13265 cm/yr; benchmark se 0.00565; 
+D,z at depth correction c=1.1004,1.0831927389589315,,1.9989809421063514,WARN,target x c = 0.13578 cm/yr; benchmark se 0.00565; 
+D,z at depth correction c=1.1022,1.0814724256696366,,1.9607587734608958,WARN,target x c = 0.13600 cm/yr; benchmark se 0.00565; deep expands per joule EXACTLY as the upper ocean (= IGCC heat ratio)

@@ -1,0 +1,97 @@
+====================================================================================================
+TE RATE — EVERY LINK WITH AN ERROR BAR, AND THE SEAM TESTED
+====================================================================================================
+
+[A] THE MISS AND THE CHAIN, WITH BARS  (1993-2026)
+
+quantity                                            value     +-1sd   ratio      +-       z  verdict
+Ladrillo L14 TE / steric target                   0.14708   0.00794   1.192   0.055    4.19  RESOLVED
+BRICK 2.0 TE / steric target                      0.14454   0.00652   1.171   0.054    3.74  RESOLVED
+  (steric target itself)                          0.12340   0.00565   <= the BENCHMARK'S conservative bar, not this script's estimator scatter (0.00376)
+
+    THE DRIVER — FaIR mean OHC 1.3910 +- 0.0627 1e22 J/yr (FULL-DEPTH)
+    FaIR / Zanna+Cheng (0-2000m)                   1.0826    0.0350   1.285   0.041    8.82  RESOLVED
+    FaIR / Zanna+IGCC (0-2000m)                    1.1258    0.0909   1.236   0.100    2.92  RESOLVED
+
+    THE DEPTH SCOPE — IGCC's own layers (1993-2024)
+    FaIR / IGCC 0-2000m  (what the target implies)     1.1258    0.0909   1.222   0.099    2.74  RESOLVED
+    FaIR / IGCC FULL-DEPTH (like-for-like)         1.2408    0.0909   1.108   0.081    1.48  UNRESOLVED
+    >2000 m layer adds (IGCC full / 0-2000m)                          1.102   0.120    0.85  UNRESOLVED
+
+[B] THE SEAM — is Frederikse/NOAA on the 2005-2018 overlap DISTINGUISHABLE from 1?
+    Frederikse steric  0.11330 +- 0.00852 cm/yr  (n=14)
+    NOAA 0-2000m       0.11994 +- 0.01223 cm/yr  (n=13)
+    ratio              0.945 +- 0.120   z = -0.46   => UNRESOLVED
+
+    ⚠ THE 6.3% SLOPE DIFFERENCE IS NOT RESOLVED. The bar is 12.0% of the ratio, i.e. 216% of the difference being claimed.
+      The attribution's warning that 'the target changes scope/method at 2019' rests on a
+      14-year trend ratio that cannot tell 0.94 from 1.00. WITHDRAW IT unless [C] shows a segment split.
+
+[C] EACH SEGMENT ON ITS OWN YEARS — no splice, no offset match, no scope assumption
+
+segment                            years            target      model   ratio      +-       z  verdict
+Frederikse steric (pre-splice)     1993-2018       0.11915    0.13869   1.164   0.056    3.38  RESOLVED
+NOAA 0-2000m (own record)          2005-2025       0.12744    0.15732   1.234   0.052    5.54  RESOLVED
+NOAA 0-2000m (post-splice yrs)     2019-2025       0.13348    0.17634   1.321   0.150    2.82  RESOLVED
+    DO THE SEGMENTS AGREE? [own record (overlaps 2005-2018)]  1.164 vs 1.234, diff -0.070 +- 0.077, z = -0.92  => UNRESOLVED
+    DO THE SEGMENTS AGREE? [post-splice yrs (no overlap)   ]  1.164 vs 1.321, diff -0.157 +- 0.161, z = -0.98  => UNRESOLVED
+
+    ⚠ the ratio GROWS with the recency of the window (1.164 -> 1.234 -> 1.321), but no pairwise
+      difference is resolved and the benchmark's TE ACCELERATION cell is z = +0.65 UNRESOLVED. Not a finding.
+
+[D] THE VERDICT IS A FUNCTION OF ONE UNMEASURED NUMBER — the deep ocean's expansion
+    efficiency per joule relative to the upper ocean's. Scored on the BENCHMARK'S OWN bar
+    (0.00565 cm/yr, the conservative of its three accounts), so these z's are its z's.
+
+depth correction c      target x c  model/target        z  verdict   what c means
+                1.0000     0.12340         1.192     4.19  FAIL      no deep contribution at all
+                1.0250     0.12648         1.163     3.65  FAIL      
+                1.0500     0.12956         1.135     3.10  FAIL      
+                1.0750     0.13265         1.109     2.55  FAIL      
+                1.1004     0.13578         1.083     2.00  WARN      
+                1.1022     0.13600         1.081     1.96  WARN      deep expands per joule EXACTLY as the upper ocean (= IGCC heat ratio)
+
+    => THE FAIL BECOMES A WARN ONLY AT c >= 1.1004, and the LARGEST correction physics allows
+       is c = 1.1022. The whole verdict turns on a margin of 0.2% in a quantity this repo
+       has not measured -- so 'the FAIL survives as a WARN at worst' is true only at the very
+       EDGE of the bound, and the honest reading on the SEA-LEVEL metric is that it stays a FAIL.
+
+====================================================================================================
+VERDICT
+====================================================================================================
+
+  [B] THE SEAM WARNING IS WITHDRAWN. Frederikse/NOAA on the 2005-2018 overlap
+      is 0.945 +- 0.120, z = -0.46 -- the bar is 216% of the
+      5.5% difference the warning was about. The claim that 'the target changes
+      scope/method at 2019' was a bare 14-year trend ratio quoted without a bar,
+      in the repo whose standing lesson is exactly that (`curvature_needs_an_error_bar`).
+
+  [C] AND THE SPLICE IS MOOT FOR THE RATE, BY A SECOND AND INDEPENDENT ROUTE. Scored on
+      each segment's OWN years with no splice at all, the model runs 1.164x (Frederikse,
+      1993-2018) and 1.234x (NOAA, 2005-2025): they differ by z = -0.92,
+      UNRESOLVED. The pooled 1.19x is not a blend of two different targets --
+      both halves say the same thing.
+
+  [A] THE DEPTH-SCOPE STEP IS WHERE THE DEFECT DISSOLVES, AND ONLY IN OHC SPACE.
+      FaIR / IGCC 0-2000m    = 1.222, z = +2.74  RESOLVED
+      FaIR / IGCC FULL-DEPTH = 1.108, z = +1.48  UNRESOLVED
+      Compared LIKE FOR LIKE ON DEPTH, FaIR's ocean heat uptake is NOT resolvably
+      different from IGCC's. That is stronger than the '51% of the gap is scope' the
+      point estimates supported.
+      ⚠ AND IT CUTS BOTH WAYS: IGCC's own >2000m layer term is 1.102 +- 0.120,
+        z = +0.85, itself UNRESOLVED on this window. The bars are wide everywhere;
+        'not resolvably different' is not 'shown to agree'.
+      ⚠ Zanna+Cheng gives the harshest arm of all, and Cheng is the LOW-SIDE outlier of
+        the OHC products (`igcc_ohc_finding`). Never quote a single OHC arm as 'the'
+        comparison.
+
+  [D] ON THE SEA-LEVEL METRIC THE FAIL DOES NOT DISSOLVE. Pooled z = +4.19 uncorrected;
+      it reaches WARN only at c >= 1.1004 against a physical ceiling of c = 1.1022, a
+      margin of 0.2%. `d24cc67`'s 'the FAIL survives as a WARN at worst' is an
+      EDGE case, not the expected case, and should be quoted as such.
+
+  => UNCHANGED, AND THE POINT: BRICK 2.0 misses identically (1.171x, z = +3.74).
+    Nothing in either sea-level model can move this. It is a FaIR OHC question, and in
+    OHC space at matched depth scope it is UNRESOLVED.
+
+wrote outputs/diag_te_rate_bars_and_seam.csv

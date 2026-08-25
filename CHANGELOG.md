@@ -3,6 +3,75 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-25g — **TE: two claims WITHDRAWN once the chain got error bars, and the defect only dissolves in OHC space. GREENLAND ssp126: ACCEPTABLE — and the decision had been taken on the wrong number.**
+
+`python/diag_te_rate_bars_and_seam.py` (NEW), `python/scope_gis_ssp126_acceptability.py` (NEW),
+`python/diag_gis_width_anatomy.py`, plus their outputs and logs. **Nothing recalibrated. No
+chain read. No model run.**
+
+### TE — EVERY LINK IN THE ATTRIBUTION CHAIN NOW CARRIES A BAR
+
+`d24cc67` attributed the TE rate FAIL with **point estimates only**, in the repo whose standing
+lesson (`curvature_needs_an_error_bar`) is a whole arc built on unbarred trend ratios.
+
+* ⚠ **WITHDRAWN — "the target changes scope/method at 2019."** Frederikse/NOAA on their
+  2005–2018 overlap is **0.945 ± 0.120, z = −0.46**: the bar is **216%** of the 5.5% slope
+  difference the warning was about. A 14-year trend ratio cannot tell 0.94 from 1.00.
+* **AND THE SPLICE IS MOOT BY A SECOND, INDEPENDENT ROUTE.** Scored on each segment's OWN
+  years — no splice, no offset match, no scope assumption — the model runs **1.164×**
+  (Frederikse 1993–2018) and **1.234×** (NOAA 2005–2025), differing at **z = −0.92**. The
+  strictly non-overlapping pairing (NOAA 2019–2025, n=7) gives **z = −0.98**. Both UNRESOLVED.
+  The pooled 1.19× is not a blend of two targets.
+* **THE DEPTH-SCOPE STEP DISSOLVES THE DEFECT — IN OHC SPACE ONLY.** FaIR / IGCC 0-2000 m =
+  **1.222 ± 0.099, z = +2.74 RESOLVED**; FaIR / IGCC **FULL-DEPTH = 1.108 ± 0.081, z = +1.48
+  UNRESOLVED**. Like-for-like on depth, FaIR's ocean heat uptake is not resolvably different
+  from IGCC's — stronger than the "51% of the gap is scope" the point estimates supported.
+  ⚠ It cuts both ways: IGCC's own >2000 m term is 1.102 ± 0.120, z = +0.85, itself UNRESOLVED.
+  The bars are wide everywhere; *not resolvably different* is not *shown to agree*.
+* ⚠ **SHARPENED, NOT CONFIRMED — "the FAIL survives as a WARN at worst" is an EDGE case.**
+  On the sea-level metric, scored on the benchmark's own bar, z = +4.19 uncorrected and it
+  reaches WARN only at a depth correction **c ≥ 1.1004** against a physical ceiling of
+  **c = 1.1022** — a margin of **0.2%**. The expected reading is that it stays a FAIL.
+* ⚠ **METHOD NOTE THAT CHANGED EVERY z.** `_fit_se` on a smooth, accelerating series returns
+  a bar dominated by **curvature misfit**, not noise: the model's TE p50 scores 0.0079 cm/yr
+  against the observed target's 0.0038. Propagating it as a sampling bar halves every z and is
+  wrong. Model-vs-obs rows use the observational bar alone — the benchmark's convention — so
+  the z's printed here are literally the benchmark's.
+* *Not done, deliberately: sharpening c from a bound to a number needs a seawater EOS (no `gsw`
+  in the env) and cannot change a verdict.*
+
+### GREENLAND ssp126@2100 SPREAD — **ACCEPTABLE. LEAVE IT PARKED.**
+
+Two criteria, **fixed in the source before the numbers were computed**:
+
+| criterion | bar | result | |
+|---|---|---|---|
+| which side is missing | < 60% upper | **51% upper** | PASS |
+| price on the reported total p95 | < 5% | **+0.8%** (indep) / +7.0% (corr) | PASS |
+
+⚠ **THE FIRST VERSION OF THE PRICE WAS WRONG AND ITS OUTPUT SAID SO** — it reported the p95
+moving **DOWN 7.7%** when width was *added*. The total at this cell is strongly **skewed**
+(upper half 16.50 cm against a lower half of 7.83, the AIS tipping tail), so converting
+p05–p95 to a symmetric sigma discarded most of the upper tail before adding anything back.
+Composed on **half-widths** instead. *(`implausible result = bug`.)*
+
+⚠ **AND THE PARK DECISION HAD BEEN TAKEN ON THE WRONG NUMBER.**
+`diag_gis_width_anatomy.py` declared its **own** LIKE_FOR_LIKE/STRUCTURAL sets with emuGrIS as
+"structural" (0.563×), while `benchmark/comparator_classes.csv` — which owns the
+classification and whose header argues that separating emuGrIS **"needs a receipt"** — kept it
+in `model` (0.489×). Two committed deliverables, same cell, two numbers, and `bbee082` used
+the more forgiving one. The anatomy now **reads the classification file**; the acceptability
+script's [A] is the standing regression check. **The decision above uses the stricter 0.489×
+and passes anyway.**
+
+⚠ **RE-RUNNING THE ANATOMY SURFACED A SECOND STALENESS.** Its 2150 row predated MAGICC's
+re-extraction to 2300 (`6c6acd4`), so it had one comparator there instead of two. Addendum 2's
+**"the deficit vanishes at ssp585" holds at ssp585@2100 (0.92×) but NOT at ssp585@2150
+(0.46×)** — the benchmark already said so; the diagnostic had not been re-run. This is exactly
+the trap handoff `-25c` §5 flagged for the frozen comparators, biting a diagnostic instead.
+
+---
+
 ## [unreleased] — 2026-08-25f — **THE LAST UNEXAMINED FAIL IS NOT A TOTAL-LEVEL DEFECT: it is the AIS spread, scored against a comparator set the AIS cell itself excludes half of. And the FACTS workflows now have receipts.**
 
 `python/diag_total_spread_ssp585_2150.py` (NEW), `python/bench_ladrillo.py`,
