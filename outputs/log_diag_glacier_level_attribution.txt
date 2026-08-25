@@ -1,0 +1,51 @@
+====================================================================================================
+GLACIER LEVEL ATTRIBUTION — is the deficit scope, or skill?
+====================================================================================================
+
+[1] IS IT GROWING WITH HORIZON? — 2300 now has a comparator
+    ssp           2100      2150      2300
+    ssp126        0.836     0.776     0.855
+    ssp245        0.800     0.788     0.847
+    ssp585        0.906     0.851     0.928
+    mean          0.847      0.805      0.877
+    => NO monotone horizon trend once 2300 is in. The 'growing with horizon' reading
+       was FACTS-at-2150 against MAGICC-at-2300 -- a comparator change, not a
+       divergence. The deficit is a roughly CONSTANT level offset.
+
+[2] THE SCOPE TERM, measured from GlaMBIE's own regional files
+    GlaMBIE 2000-2023, global 18.08 cm SLE
+      region 5  (Greenland periphery)  13.00%  -- OURS EXCLUDES it (it is in our GIS target)
+      region 19 (Antarctic+subantarctic)  6.54%  -- OURS KEEPS it; the AR5 list has no glac19
+    our scope   global - r5   = 0.870 of global
+    AR5 scope   global - r19  = 0.935 of global   [r18 negligible]
+    => SCOPE ALONE predicts ours/theirs = 0.931
+    (FACTS AR5 region list, verbatim: gis, glac1, glac2, glac3, glac5, glac6, glac7, glac7, glac8, glac9, glac10, glac11, glac12, glac13, glac14, glac15, glac16, glac17)
+
+[3] THE RESIDUAL — what is left for the MODEL to explain
+    observed mean ratio across all 9 cells   0.843
+    predicted from regional scope alone            0.931
+    => residual model ratio                        0.906
+    i.e. the glacier module is ~9% low after scope, not ~16%.
+
+
+====================================================================================================
+VERDICT
+====================================================================================================
+  THE 'GROWING WITH HORIZON' READING IS WITHDRAWN. With MAGICC at 2300 the mean ratio
+  runs 0.847 -> 0.805 -> 0.877: a constant offset, not a divergence.
+  MOST OF THE OFFSET IS REGIONAL SCOPE. Our component owns global - r5 + r19; the AR5
+  comparator's region list has glac5 and no glac19. The two differ in OPPOSITE
+  directions and net to 0.931, against an observed 0.843.
+  ⇒ RESIDUAL MODEL DEFICIT ~9%, not ~16%.
+  ⚠ NAMED ASSUMPTIONS, both of which would change the number:
+    * the AR5 scope is read from a SPATIAL-FINGERPRINT file whose own code comment
+      calls it defective (no region 4, region 7 twice). It evidences the region set;
+      it does not prove the module's GLOBAL total excludes r19.
+    * emuglaciers' and MAGICC SLR_GL's regional scope are NOT established at all.
+    * the shares are GlaMBIE 2000-2023. r19 holds most of the remaining volume and
+      depletes last, so its projection-era share should GROW -- which would make this
+      correction an UNDER-estimate at 2150 and 2300.
+  ⇒ THE CHEAP DECISIVE TEST: ask FACTS/MAGICC for their glacier region set directly,
+    or re-run our own projection WITH r5 and WITHOUT r19 and compare like for like.
+
+wrote outputs/diag_glacier_level_attribution.csv
