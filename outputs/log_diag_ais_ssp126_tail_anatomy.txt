@@ -1,0 +1,71 @@
+====================================================================================================
+ssp126 AIS TAIL ANATOMY (L14) — is the spread deficit a model defect or a metric artifact?
+====================================================================================================
+
+[1] THE TIPPED FRACTION AGAINST THE QUANTILE CUT
+    A p05-p95 spread cannot see a mode carrying less than 5% of the mass. That is
+    arithmetic, not an opinion: the p95 cut sits BELOW the mode's lower edge.
+
+    ssp      horizon   tipped %  MEAN-driver %   p95 sees it?
+    ssp126       2100      3.95           0.05    NO -- BLIND
+    ssp126       2150      3.75           0.00    NO -- BLIND
+    ssp126       2300      6.30           0.00            YES
+    ssp245       2100     33.35          28.90            YES
+    ssp245       2150     44.65          48.20            YES
+    ssp245       2300     48.30          59.60            YES
+    ssp585       2100     95.65          99.65            YES
+    ssp585       2150     99.40         100.00            YES
+    ssp585       2300     99.15         100.00            YES
+
+[2] THE TWO SUBPOPULATIONS, SEPARATELY
+    A bimodal distribution has no single 'spread'. Splitting at the empirical gap
+    shows what each mode contributes -- and whether the untipped mode alone is
+    narrow, which is a different defect from the tail being invisible.
+
+    ssp          H   p05-p95   p05-p99  ratio   median     MEAN  untipped p50  tipped p50  n_tip
+    ssp126    2100      6.91     58.39   8.45     4.29     6.16          4.25       42.89     79
+    ssp126    2150     14.78    109.98   7.44     6.53    10.40          6.45       89.17     75
+    ssp126    2300     77.09    273.50   3.55    12.67    23.99         12.39      177.36    126
+    ssp245    2100     43.26     64.86   1.50     5.51    13.26          4.76       26.29    667
+    ssp245    2150    103.80    144.62   1.39    11.16    36.51          7.93       68.19    893
+    ssp245    2300    301.74    386.91   1.28    79.23   117.61         17.76      208.40    966
+    ssp585    2100     63.80     84.22   1.32    35.05    37.14          5.14       36.06   1913
+    ssp585    2150    107.81    145.04   1.35    92.13    95.40         10.72       92.55   1988
+    ssp585    2300    303.07    428.76   1.41   277.34   290.59         85.75      278.61   1983
+
+[3] WHAT THE BENCHMARK IS ACTUALLY SCORING AT ssp126
+    ⚠ CROSS-QUANTILE, NOT LIKE-FOR-LIKE. FACTS ships reduced to p05/p17/med/p83/p95,
+      so their p99 and their mean do not exist for us to match. The rows below BOUND
+      the question -- they do not answer it.
+
+    ssp126 @2100: literature p05-p95 9.86-91.07 (median 21.25), n=6
+      ours p05-p95     6.91 cm = 0.33x  <= what the benchmark scores, and it is BLIND to our tail
+      ours p05-p99    58.39 cm = 2.75x  of the literature's p05-p95 -- a BOUND, not a match
+
+    ssp126 @2150: literature p05-p95 43.17-156.27 (median 60.83), n=4
+      ours p05-p95    14.78 cm = 0.24x  <= what the benchmark scores, and it is BLIND to our tail
+      ours p05-p99   109.98 cm = 1.81x  of the literature's p05-p95 -- a BOUND, not a match
+
+
+====================================================================================================
+WHAT THIS ESTABLISHES, AND WHAT IT DOES NOT
+====================================================================================================
+  ESTABLISHED  The ssp126 tail EXISTS under the joint band (3.75-6.30% of draws) and
+               the 'exactly 0.000 cm in every arm and horizon' statement is a
+               FIXED-DRIVER statement that does not survive the band we now report.
+  ESTABLISHED  At 2100 and 2150 the tipped fraction is BELOW the p95 cut, so the
+               scored statistic is arithmetically blind to the tail. The 0.24-0.33x
+               'under-dispersion' is therefore NOT evidence of a missing tail.
+  NOT SETTLED  Whether 3.95% is the RIGHT tipped fraction at ssp126@2100. That is a
+               physical question about marine ice-sheet instability under low forcing
+               and it needs a literature comparison this repo does not have.
+  ⇒ THE QUESTION CHANGES from 'why is our band narrow' (a WIDTH problem, and the fix
+    would be to widen it) to 'is our tipped FRACTION right' (a THRESHOLD problem,
+    with a different fix and a different piece of evidence needed).
+  ⚠ AND THE MAGNITUDE-DEPENDENT FORK DOES NOT ADDRESS EITHER OF THEM AT ssp126.
+    g = (excess/ref)^n is ZERO below threshold for every n, so it changes nothing
+    for the 96% of ssp126 draws that never tip. It is the ssp245/ssp585 SEPARATION
+    fix (ais_binary_form_priced), not the ssp126 one. Two different binary features:
+    binary in MAGNITUDE (the fork fixes it) and binary in ONSET (it does not).
+
+wrote outputs/diag_ais_ssp126_tail_anatomy_L14.csv

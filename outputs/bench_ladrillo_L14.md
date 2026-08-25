@@ -1,6 +1,6 @@
 # Ladrillo benchmark — `L14`
 
-*benchmark v1.0, 2026-08-25, repo `5cbd0fd`. Champion arm: **L14** (the candidate IS the champion — no delta column).*
+*benchmark v1.0, 2026-08-25, repo `1316f72`. Champion arm: **L14** (the candidate IS the champion — no delta column).*
 
 Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (stock MimiBRICK v2.0.0, own posterior), **literature** (FACTS + MAGICC-SLR, frozen).
 
@@ -11,6 +11,7 @@ Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (s
 * SOME WIDTH IS A PRIOR, NOT AN INFERENCE -- 78% of the ssp585 2300 AIS band is antarctic_lambda's paleo prior, so narrowness is never scored as a win at ais/ssp585.
 * WHERE THE OBSERVED STATISTIC IS UNDER 2.0 SIGMA FROM ZERO the RATIO model/obs is suppressed as uninterpretable, but the DIFFERENCE is still graded on z -- being 3 sigma from a value that is itself 1 sigma from zero is still a miss.
 * THE MODERN AIS RATE CANNOT REJECT ZERO -- IMBIE whole-sheet loss is 0.95-1.44 sigma from zero, so the 1993-2026 window separates no two AIS models however different they are.
+* A p5-p95 SPREAD IS BLIND TO A MODE UNDER 5% OF THE MASS -- cells whose p05-p99/p05-p95 exceeds 2.0x the Gaussian 1.207 are marked N/A(bimodal) and NOT scored on width; quote the mean and the tipped fraction there.
 * ssp245@2300 IS A THRESHOLD ARTIFACT -- 48.3% of draws tip, so its MEDIAN is bimodal-fragile. Quote the mean and the tipped fraction there, never the bare median.
 
 ## [V] Roll-up
@@ -108,10 +109,10 @@ Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (s
 
 | module | ssp | horizon | metric | value | verdict | note |
 |---|---|---|---|---|---|---|
-| AIS | ssp126 | 2100 | median_vs_lit | 0.476 x lit median | **PASS** | ours 4.29 cm vs lit 3.66-11.90 (median 9.01), n_lit=6 |
-| AIS | ssp126 | 2100 | spread_vs_lit | 0.325 x lit spread | **FAIL** | ours 6.91 cm vs lit 9.86-91.07 (median 21.25) |
-| AIS | ssp126 | 2150 | median_vs_lit | 0.312 x lit median | **FAIL** | ours 6.53 cm vs lit 13.15-26.34 (median 20.93), n_lit=4 |
-| AIS | ssp126 | 2150 | spread_vs_lit | 0.243 x lit spread | **FAIL** | ours 14.78 cm vs lit 43.17-156.27 (median 60.83) |
+| AIS | ssp126 | 2100 | median_vs_lit | 0.476 x lit median | **PASS** | ours 4.29 cm vs lit 3.66-11.90 (median 9.01), n_lit=6; ⚠ BIMODAL cell -- our MEAN is 6.16 cm = 0.68x the literature median, and the median sits entirely inside the near mode |
+| AIS | ssp126 | 2100 | spread_vs_lit | 0.325 x lit spread | **N/A(bimodal)** | ours 6.91 cm vs lit 9.86-91.07 (median 21.25); ⚠ p05-p99/p05-p95 = 8.45 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 58.39 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model |
+| AIS | ssp126 | 2150 | median_vs_lit | 0.312 x lit median | **FAIL** | ours 6.53 cm vs lit 13.15-26.34 (median 20.93), n_lit=4; ⚠ BIMODAL cell -- our MEAN is 10.40 cm = 0.50x the literature median, and the median sits entirely inside the near mode |
+| AIS | ssp126 | 2150 | spread_vs_lit | 0.243 x lit spread | **N/A(bimodal)** | ours 14.78 cm vs lit 43.17-156.27 (median 60.83); ⚠ p05-p99/p05-p95 = 7.44 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 109.98 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model |
 | AIS | ssp245 | 2100 | median_vs_lit | 0.510 x lit median | **WARN** | ours 5.51 cm vs lit 5.54-13.71 (median 10.80), n_lit=6 |
 | AIS | ssp245 | 2100 | spread_vs_lit | 1.087 x lit spread | **PASS** | ours 43.26 cm vs lit 20.88-109.87 (median 39.78) |
 | AIS | ssp245 | 2150 | median_vs_lit | 0.422 x lit median | **PASS** | ours 11.16 cm vs lit 10.91-30.28 (median 26.44), n_lit=4 |
@@ -168,10 +169,10 @@ Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (s
 | land water | ssp585 | 2100 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs lit 3.64-4.12 (median 3.88); LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
 | land water | ssp585 | 2150 | median_vs_lit | 0.899 x lit median | **WARN** | ours 4.23 cm vs lit 4.70-4.70 (median 4.70), n_lit=1 |
 | land water | ssp585 | 2150 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs lit 5.80-5.80 (median 5.80); LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
-| TOTAL | ssp126 | 2100 | median_vs_lit | 0.814 x lit median | **WARN** | ours 34.33 cm vs lit 35.59-53.47 (median 42.18), n_lit=8 |
-| TOTAL | ssp126 | 2100 | spread_vs_lit | 0.681 x lit spread | **PASS** | ours 24.33 cm vs lit 25.25-107.65 (median 35.74) |
-| TOTAL | ssp126 | 2150 | median_vs_lit | 0.608 x lit median | **WARN** | ours 44.64 cm vs lit 60.20-83.12 (median 73.46), n_lit=4 |
-| TOTAL | ssp126 | 2150 | spread_vs_lit | 0.533 x lit spread | **PASS** | ours 36.51 cm vs lit 53.31-200.59 (median 68.46) |
+| TOTAL | ssp126 | 2100 | median_vs_lit | 0.814 x lit median | **WARN** | ours 34.33 cm vs lit 35.59-53.47 (median 42.18), n_lit=8; ⚠ BIMODAL cell -- our MEAN is 36.92 cm = 0.88x the literature median, and the median sits entirely inside the near mode |
+| TOTAL | ssp126 | 2100 | spread_vs_lit | 0.681 x lit spread | **N/A(bimodal)** | ours 24.33 cm vs lit 25.25-107.65 (median 35.74); ⚠ p05-p99/p05-p95 = 3.04 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 73.87 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model |
+| TOTAL | ssp126 | 2150 | median_vs_lit | 0.608 x lit median | **WARN** | ours 44.64 cm vs lit 60.20-83.12 (median 73.46), n_lit=4; ⚠ BIMODAL cell -- our MEAN is 49.52 cm = 0.67x the literature median, and the median sits entirely inside the near mode |
+| TOTAL | ssp126 | 2150 | spread_vs_lit | 0.533 x lit spread | **N/A(bimodal)** | ours 36.51 cm vs lit 53.31-200.59 (median 68.46); ⚠ p05-p99/p05-p95 = 3.76 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 137.35 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model |
 | TOTAL | ssp245 | 2100 | median_vs_lit | 0.827 x lit median | **WARN** | ours 44.92 cm vs lit 48.68-67.90 (median 54.29), n_lit=8 |
 | TOTAL | ssp245 | 2100 | spread_vs_lit | 1.090 x lit spread | **PASS** | ours 59.55 cm vs lit 32.00-146.33 (median 54.65) |
 | TOTAL | ssp245 | 2150 | median_vs_lit | 0.704 x lit median | **WARN** | ours 71.57 cm vs lit 80.04-111.19 (median 101.68), n_lit=4 |

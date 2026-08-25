@@ -1,0 +1,32 @@
+block,ssp,horizon,key,value,note
+tipping,ssp126,2100,tipped_frac,0.0395,MEAN driver 0.0005; p95 is BLIND to the mode
+tipping,ssp126,2150,tipped_frac,0.0375,MEAN driver 0.0000; p95 is BLIND to the mode
+tipping,ssp126,2300,tipped_frac,0.063,MEAN driver 0.0000; p95 sees the mode
+tipping,ssp245,2100,tipped_frac,0.3335,MEAN driver 0.2890; p95 sees the mode
+tipping,ssp245,2150,tipped_frac,0.4465,MEAN driver 0.4820; p95 sees the mode
+tipping,ssp245,2300,tipped_frac,0.483,MEAN driver 0.5960; p95 sees the mode
+tipping,ssp585,2100,tipped_frac,0.9565,MEAN driver 0.9965; p95 sees the mode
+tipping,ssp585,2150,tipped_frac,0.994,MEAN driver 1.0000; p95 sees the mode
+tipping,ssp585,2300,tipped_frac,0.9915,MEAN driver 1.0000; p95 sees the mode
+subpop,ssp126,2100,spread_p05_p95,6.906952206722018,p05-p99 58.39 = 8.45x; mean 6.16; median 4.29; n_tipped 79
+subpop,ssp126,2100,untipped_median,4.25193217620276,tipped median 42.89
+subpop,ssp126,2150,spread_p05_p95,14.776167835393355,p05-p99 109.98 = 7.44x; mean 10.40; median 6.53; n_tipped 75
+subpop,ssp126,2150,untipped_median,6.454623599425717,tipped median 89.17
+subpop,ssp126,2300,spread_p05_p95,77.0882067221438,p05-p99 273.50 = 3.55x; mean 23.99; median 12.67; n_tipped 126
+subpop,ssp126,2300,untipped_median,12.3924938886096,tipped median 177.36
+subpop,ssp245,2100,spread_p05_p95,43.25957939728911,p05-p99 64.86 = 1.50x; mean 13.26; median 5.51; n_tipped 667
+subpop,ssp245,2100,untipped_median,4.759075155707518,tipped median 26.29
+subpop,ssp245,2150,spread_p05_p95,103.79907142833298,p05-p99 144.62 = 1.39x; mean 36.51; median 11.16; n_tipped 893
+subpop,ssp245,2150,untipped_median,7.92802473346191,tipped median 68.19
+subpop,ssp245,2300,spread_p05_p95,301.7419800230067,p05-p99 386.91 = 1.28x; mean 117.61; median 79.23; n_tipped 966
+subpop,ssp245,2300,untipped_median,17.75669449053057,tipped median 208.40
+subpop,ssp585,2100,spread_p05_p95,63.80464573425773,p05-p99 84.22 = 1.32x; mean 37.14; median 35.05; n_tipped 1913
+subpop,ssp585,2100,untipped_median,5.14353089090938,tipped median 36.06
+subpop,ssp585,2150,spread_p05_p95,107.80577387263284,p05-p99 145.04 = 1.35x; mean 95.40; median 92.13; n_tipped 1988
+subpop,ssp585,2150,untipped_median,10.72238847903785,tipped median 92.55
+subpop,ssp585,2300,spread_p05_p95,303.06922038302605,p05-p99 428.76 = 1.41x; mean 290.59; median 277.34; n_tipped 1983
+subpop,ssp585,2300,untipped_median,85.75140668347298,tipped median 278.61
+score,ssp126,2100,spread_ratio_p95,0.32500507139747403,lit p05-p95 median 21.25
+score,ssp126,2100,spread_ratio_p99_vs_lit_p95,2.7475144294060607,"CROSS-QUANTILE bound, not like-for-like"
+score,ssp126,2150,spread_ratio_p95,0.24289952767043932,lit p05-p95 median 60.83
+score,ssp126,2150,spread_ratio_p99_vs_lit_p95,1.807930924654675,"CROSS-QUANTILE bound, not like-for-like"

@@ -233,10 +233,10 @@ STEP 4 — THE SUM MODULE ASSESSMENT (L14) vs BRICK 2.0 and the literature
     accel/1900-2026            BRICK 2.0        0.0022411 cm/yr2   z= +1.16  WARN
 
 [3] PROJECTION — level and spread vs FACTS / MAGICC-SLR / BRICK 2.0, on the JOINT band
-    ssp126 @2100  median_vs_lit   0.814 x lit median   WARN                 ours 34.33 cm vs lit 35.59-53.47 (median 42.18), n_lit=8
-    ssp126 @2100  spread_vs_lit   0.681 x lit spread   PASS                 ours 24.33 cm vs lit 25.25-107.65 (median 35.74)
-    ssp126 @2150  median_vs_lit   0.608 x lit median   WARN                 ours 44.64 cm vs lit 60.20-83.12 (median 73.46), n_lit=4
-    ssp126 @2150  spread_vs_lit   0.533 x lit spread   PASS                 ours 36.51 cm vs lit 53.31-200.59 (median 68.46)
+    ssp126 @2100  median_vs_lit   0.814 x lit median   WARN                 ours 34.33 cm vs lit 35.59-53.47 (median 42.18), n_lit=8; ⚠ BIMODAL cell -- our MEAN is 36.92 cm = 0.88x the literature median, and the median sits entirely inside the near mode
+    ssp126 @2100  spread_vs_lit   0.681 x lit spread   N/A(bimodal)         ours 24.33 cm vs lit 25.25-107.65 (median 35.74); ⚠ p05-p99/p05-p95 = 3.04 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 73.87 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model
+    ssp126 @2150  median_vs_lit   0.608 x lit median   WARN                 ours 44.64 cm vs lit 60.20-83.12 (median 73.46), n_lit=4; ⚠ BIMODAL cell -- our MEAN is 49.52 cm = 0.67x the literature median, and the median sits entirely inside the near mode
+    ssp126 @2150  spread_vs_lit   0.533 x lit spread   N/A(bimodal)         ours 36.51 cm vs lit 53.31-200.59 (median 68.46); ⚠ p05-p99/p05-p95 = 3.76 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 137.35 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model
     ssp245 @2100  median_vs_lit   0.827 x lit median   WARN                 ours 44.92 cm vs lit 48.68-67.90 (median 54.29), n_lit=8
     ssp245 @2100  spread_vs_lit   1.090 x lit spread   PASS                 ours 59.55 cm vs lit 32.00-146.33 (median 54.65)
     ssp245 @2150  median_vs_lit   0.704 x lit median   WARN                 ours 71.57 cm vs lit 80.04-111.19 (median 101.68), n_lit=4

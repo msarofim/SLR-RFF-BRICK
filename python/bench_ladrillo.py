@@ -80,6 +80,17 @@ SEP_EDGE_TOL_FRAC = 0.25
 # verdict stays on z and only the RATIO is suppressed. These are two different questions
 # and conflating them either invents a finding or erases a real one.
 TARGET_RESOLVED_SIGMA = 2.0
+# A p05-p95 spread is ARITHMETICALLY BLIND to a mode carrying under 5% of the mass, and
+# our ssp126 AIS band is exactly that: 3.75-6.30% of draws tip and the whole tipping tail
+# sits outside the statistic (`diag_ais_ssp126_tail_anatomy.py`). Scoring such a cell as
+# "0.24-0.33x the literature spread" reports a property of the QUANTILE, not of the model.
+# The tell is generic and needs no tipping calculation: compare p05-p99 with p05-p95. For a
+# GAUSSIAN that ratio is fixed at (z99+z05)/(z95+z05) = 1.207, so the reference is derived
+# rather than picked, and a cell is flagged when it exceeds the Gaussian value by more than
+# TAIL_RATIO_FLAG. Our unimodal cells sit at 1.28-1.50; the bimodal ssp126 ones at 3.55-8.45.
+QTAIL = 99
+TAIL_RATIO_GAUSSIAN = 1.207
+TAIL_RATIO_FLAG = 2.0
 QLO, QHI = 5, 95                   # the spread definition, p05-p95, everywhere
 
 # (key, label, Ladrillo postpred stem, BRICK 2.0 postpred stem, target column)
@@ -127,6 +138,9 @@ CAVEATS = [
     f"THE MODERN AIS RATE CANNOT REJECT ZERO -- IMBIE whole-sheet loss is "
     f"{IMBIE_SNR[0]}-{IMBIE_SNR[1]} sigma from zero, so the {RATE_WINDOW[0]}-{RATE_WINDOW[1]} "
     "window separates no two AIS models however different they are.",
+    f"A p{QLO}-p{QHI} SPREAD IS BLIND TO A MODE UNDER {100-QHI}% OF THE MASS -- cells whose "
+    f"p05-p{QTAIL}/p05-p{QHI} exceeds {TAIL_RATIO_FLAG}x the Gaussian {TAIL_RATIO_GAUSSIAN} are "
+    "marked N/A(bimodal) and NOT scored on width; quote the mean and the tipped fraction there.",
     "ssp245@2300 IS A THRESHOLD ARTIFACT -- 48.3% of draws tip, so its MEDIAN is "
     "bimodal-fragile. Quote the mean and the tipped fraction there, never the bare median.",
 ]
@@ -481,15 +495,16 @@ def block_rate_accel(rows, cand_tag, champ_tag, cand_p, champ_p, sigma):
 
 # ------------------------------------------------------------------ block [P]
 def joint_stats(path, component, horizon, arm="joint"):
-    """(median, mean, p05-p95 spread) of the per-draw joint band, or NaNs."""
+    """(median, mean, p05-p95 spread, p05-p99 spread) of the per-draw joint band."""
     if not os.path.exists(path):
-        return np.nan, np.nan, np.nan
+        return (np.nan,) * 4
     d = pd.read_csv(path)
     v = d[(d.horizon == horizon) & (d.component == component) & (d.arm == arm)].value_cm.values
     if len(v) == 0:
-        return np.nan, np.nan, np.nan
+        return (np.nan,) * 4
     return (float(np.median(v)), float(np.mean(v)),
-            float(np.percentile(v, QHI) - np.percentile(v, QLO)))
+            float(np.percentile(v, QHI) - np.percentile(v, QLO)),
+            float(np.percentile(v, QTAIL) - np.percentile(v, QLO)))
 
 
 def block_projection(rows, cand_tag, champ_tag, cand_p, champ_p):
@@ -500,7 +515,7 @@ def block_projection(rows, cand_tag, champ_tag, cand_p, champ_p):
     for key, label, *_ in COMPONENTS:
         for ssp in SSPS:
             for H in HORIZONS:
-                cm, cmean, csp = joint_stats(cand_p[f"draws_{ssp}"], key, H)
+                cm, cmean, csp, csp99 = joint_stats(cand_p[f"draws_{ssp}"], key, H)
                 if not np.isfinite(cm):
                     continue
                 rows.append(dict(block="P", component=key, scenario=ssp, horizon=H,
@@ -510,7 +525,7 @@ def block_projection(rows, cand_tag, champ_tag, cand_p, champ_p):
                                  metric="spread_joint", arm=cand_tag, value=csp, unit="cm",
                                  value_sigma=np.nan, note=f"p{QLO}-p{QHI}", verdict=""))
                 if champ_p and champ_tag != cand_tag:
-                    hm, _, hsp = joint_stats(champ_p[f"draws_{ssp}"], key, H)
+                    hm, _, hsp, _ = joint_stats(champ_p[f"draws_{ssp}"], key, H)
                     rows.append(dict(block="P", component=key, scenario=ssp, horizon=H,
                                      metric="median_joint", arm=f"{champ_tag}*", value=hm,
                                      unit="cm", value_sigma=np.nan, note="champion", verdict=""))
@@ -536,19 +551,33 @@ def block_projection(rows, cand_tag, champ_tag, cand_p, champ_p):
                 sps = (lit.p95.astype(float) - lit.p05.astype(float)).dropna().values
                 inside = float(np.min(meds)) <= cm <= float(np.max(meds))
                 ratio = cm / float(np.median(meds)) if np.median(meds) != 0 else np.nan
+                # On a bimodal cell the MEDIAN is a valid statistic but it sits entirely
+                # inside the near mode, so it under-represents a distribution the
+                # literature's unimodal median does not have to. The mean is reported
+                # beside it -- not substituted for it -- so the reader sees both.
+                tailr0 = csp99 / csp if csp > 0 else np.nan
+                bim0 = np.isfinite(tailr0) and tailr0 > TAIL_RATIO_FLAG * TAIL_RATIO_GAUSSIAN
                 rows.append(dict(
                     block="P", component=key, scenario=ssp, horizon=H,
                     metric="median_vs_lit", arm=cand_tag, value=ratio, unit="x lit median",
                     value_sigma=np.nan,
                     note=f"ours {cm:.2f} cm vs lit {np.min(meds):.2f}-{np.max(meds):.2f} "
-                         f"(median {np.median(meds):.2f}), n_lit={len(meds)}",
+                         f"(median {np.median(meds):.2f}), n_lit={len(meds)}" +
+                         (f"; ⚠ BIMODAL cell -- our MEAN is {cmean:.2f} cm = "
+                          f"{cmean/np.median(meds):.2f}x the literature median, and the "
+                          "median sits entirely inside the near mode" if bim0 else ""),
                     verdict="PASS" if inside else
                             ("WARN" if 1/PROJ_WARN_RATIO <= ratio <= PROJ_WARN_RATIO else "FAIL")))
                 if len(sps):
                     sr = csp / float(np.median(sps))
                     prior = (key, ssp) in PRIOR_WIDTH_CELLS
+                    tailr = csp99 / csp if csp > 0 else np.nan
+                    bimodal = (np.isfinite(tailr) and
+                               tailr > TAIL_RATIO_FLAG * TAIL_RATIO_GAUSSIAN)
                     if key in ZERO_SPREAD_BY_CONSTRUCTION:
                         v = "N/A(by construction)"
+                    elif bimodal:
+                        v = "N/A(bimodal)"
                     else:
                         v = ("PASS" if SPREAD_PASS[0] <= sr <= SPREAD_PASS[1] else
                              ("PASS(prior)" if prior and sr > SPREAD_PASS[1] else "FAIL"))
@@ -561,7 +590,12 @@ def block_projection(rows, cand_tag, champ_tag, cand_p, champ_p):
                              ("; width here is the antarctic_lambda PRIOR -- do NOT narrow"
                               if prior else "") +
                              ("; LWS is a seeded constant -- zero spread is the DESIGN,"
-                              " not a defect" if key in ZERO_SPREAD_BY_CONSTRUCTION else ""),
+                              " not a defect" if key in ZERO_SPREAD_BY_CONSTRUCTION else "") +
+                             (f"; ⚠ p05-p{QTAIL}/p05-p{QHI} = {tailr:.2f} vs Gaussian "
+                              f"{TAIL_RATIO_GAUSSIAN} => BIMODAL, and p{QHI} is blind to the "
+                              f"far mode (p05-p{QTAIL} = {csp99:.2f} cm). The p{QLO}-p{QHI} "
+                              "ratio is a property of the QUANTILE here, not of the model"
+                              if bimodal else ""),
                         verdict=v))
 
 
@@ -576,8 +610,8 @@ def block_separation(rows, cand_tag, champ_tag, cand_p, champ_p):
     cmp_, _src = literature_rows(cand_p["comparison"])
     for key, label, *_ in COMPONENTS:
         for H in HORIZONS:
-            lo, _, _ = joint_stats(cand_p[f"draws_{SEP_LO}"], key, H)
-            hi, _, _ = joint_stats(cand_p[f"draws_{SEP_HI}"], key, H)
+            lo, _, _, _ = joint_stats(cand_p[f"draws_{SEP_LO}"], key, H)
+            hi, _, _, _ = joint_stats(cand_p[f"draws_{SEP_HI}"], key, H)
             if not (np.isfinite(lo) and np.isfinite(hi)) or lo <= 0:
                 continue
             ours = hi / lo
@@ -615,8 +649,8 @@ def block_separation(rows, cand_tag, champ_tag, cand_p, champ_p):
                          ("PASS(edge)" if near else
                           ("WARN" if not bracketed else "FAIL")))))
             if champ_p and champ_tag != cand_tag:
-                clo, _, _ = joint_stats(champ_p[f"draws_{SEP_LO}"], key, H)
-                chi, _, _ = joint_stats(champ_p[f"draws_{SEP_HI}"], key, H)
+                clo, _, _, _ = joint_stats(champ_p[f"draws_{SEP_LO}"], key, H)
+                chi, _, _, _ = joint_stats(champ_p[f"draws_{SEP_HI}"], key, H)
                 if np.isfinite(clo) and clo > 0:
                     rows.append(dict(block="S", component=key,
                                      scenario=f"{SEP_HI}/{SEP_LO}", horizon=H,
@@ -630,7 +664,7 @@ def block_verdicts(rows, cand_tag, champ_tag):
     """Per-module roll-up: the worst verdict in each block, and the delta vs champion."""
     df = pd.DataFrame(rows)
     order = {"PASS": 0, "PASS(prior)": 0, "PASS(edge)": 0, "UNRESOLVED": 0,
-             "N/A(by construction)": -1,
+             "N/A(by construction)": -1, "N/A(bimodal)": -1,
              "WARN": 1, "FAIL": 2, "": -1,
              "BETTER": -1, "SAME": -1, "WORSE": -1, "n/a": -1}
     out = []

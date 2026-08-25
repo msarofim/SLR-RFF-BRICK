@@ -92,13 +92,13 @@ R,total,,,accel/1900-2026,BRICK 2.0,0.0022411471619516125,cm/yr2,1.1628942881610
 P,ais,ssp126,2100,median_joint,L14,4.289572032611721,cm,,mean 6.16 cm,
 P,ais,ssp126,2100,spread_joint,L14,6.906952206722018,cm,,p5-p95,
 P,ais,ssp126,2100,median_fixed,BRICK 2.0,4.213139291240442,cm,,spread 36.27 cm (parameter only),
-P,ais,ssp126,2100,median_vs_lit,L14,0.4761649882324834,x lit median,,"ours 4.29 cm vs lit 3.66-11.90 (median 9.01), n_lit=6",PASS
-P,ais,ssp126,2100,spread_vs_lit,L14,0.32500507139747403,x lit spread,,ours 6.91 cm vs lit 9.86-91.07 (median 21.25),FAIL
+P,ais,ssp126,2100,median_vs_lit,L14,0.4761649882324834,x lit median,,"ours 4.29 cm vs lit 3.66-11.90 (median 9.01), n_lit=6; ⚠ BIMODAL cell -- our MEAN is 6.16 cm = 0.68x the literature median, and the median sits entirely inside the near mode",PASS
+P,ais,ssp126,2100,spread_vs_lit,L14,0.32500507139747403,x lit spread,,"ours 6.91 cm vs lit 9.86-91.07 (median 21.25); ⚠ p05-p99/p05-p95 = 8.45 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 58.39 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model",N/A(bimodal)
 P,ais,ssp126,2150,median_joint,L14,6.526341170373237,cm,,mean 10.40 cm,
 P,ais,ssp126,2150,spread_joint,L14,14.776167835393355,cm,,p5-p95,
 P,ais,ssp126,2150,median_fixed,BRICK 2.0,6.3700300381374895,cm,,spread 42.20 cm (parameter only),
-P,ais,ssp126,2150,median_vs_lit,L14,0.3118380274416185,x lit median,,"ours 6.53 cm vs lit 13.15-26.34 (median 20.93), n_lit=4",FAIL
-P,ais,ssp126,2150,spread_vs_lit,L14,0.24289952767043932,x lit spread,,ours 14.78 cm vs lit 43.17-156.27 (median 60.83),FAIL
+P,ais,ssp126,2150,median_vs_lit,L14,0.3118380274416185,x lit median,,"ours 6.53 cm vs lit 13.15-26.34 (median 20.93), n_lit=4; ⚠ BIMODAL cell -- our MEAN is 10.40 cm = 0.50x the literature median, and the median sits entirely inside the near mode",FAIL
+P,ais,ssp126,2150,spread_vs_lit,L14,0.24289952767043932,x lit spread,,"ours 14.78 cm vs lit 43.17-156.27 (median 60.83); ⚠ p05-p99/p05-p95 = 7.44 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 109.98 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model",N/A(bimodal)
 P,ais,ssp126,2300,median_joint,L14,12.671970226974132,cm,,mean 23.99 cm,
 P,ais,ssp126,2300,spread_joint,L14,77.0882067221438,cm,,p5-p95,
 P,ais,ssp126,2300,median_fixed,BRICK 2.0,12.639221286117728,cm,,spread 47.46 cm (parameter only),
@@ -287,13 +287,13 @@ P,lws,ssp585,2300,median_fixed,BRICK 2.0,8.89738572754609,cm,,spread 0.00 cm (pa
 P,total,ssp126,2100,median_joint,L14,34.332427325756896,cm,,mean 36.92 cm,
 P,total,ssp126,2100,spread_joint,L14,24.325498126133272,cm,,p5-p95,
 P,total,ssp126,2100,median_fixed,BRICK 2.0,39.241787300181336,cm,,spread 38.83 cm (parameter only),
-P,total,ssp126,2100,median_vs_lit,L14,0.8140084508249735,x lit median,,"ours 34.33 cm vs lit 35.59-53.47 (median 42.18), n_lit=8",WARN
-P,total,ssp126,2100,spread_vs_lit,L14,0.6805361380619165,x lit spread,,ours 24.33 cm vs lit 25.25-107.65 (median 35.74),PASS
+P,total,ssp126,2100,median_vs_lit,L14,0.8140084508249735,x lit median,,"ours 34.33 cm vs lit 35.59-53.47 (median 42.18), n_lit=8; ⚠ BIMODAL cell -- our MEAN is 36.92 cm = 0.88x the literature median, and the median sits entirely inside the near mode",WARN
+P,total,ssp126,2100,spread_vs_lit,L14,0.6805361380619165,x lit spread,,"ours 24.33 cm vs lit 25.25-107.65 (median 35.74); ⚠ p05-p99/p05-p95 = 3.04 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 73.87 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model",N/A(bimodal)
 P,total,ssp126,2150,median_joint,L14,44.64316980215192,cm,,mean 49.52 cm,
 P,total,ssp126,2150,spread_joint,L14,36.511011066399995,cm,,p5-p95,
 P,total,ssp126,2150,median_fixed,BRICK 2.0,55.165905867771144,cm,,spread 45.79 cm (parameter only),
-P,total,ssp126,2150,median_vs_lit,L14,0.6076953325440252,x lit median,,"ours 44.64 cm vs lit 60.20-83.12 (median 73.46), n_lit=4",WARN
-P,total,ssp126,2150,spread_vs_lit,L14,0.5333555087444402,x lit spread,,ours 36.51 cm vs lit 53.31-200.59 (median 68.46),PASS
+P,total,ssp126,2150,median_vs_lit,L14,0.6076953325440252,x lit median,,"ours 44.64 cm vs lit 60.20-83.12 (median 73.46), n_lit=4; ⚠ BIMODAL cell -- our MEAN is 49.52 cm = 0.67x the literature median, and the median sits entirely inside the near mode",WARN
+P,total,ssp126,2150,spread_vs_lit,L14,0.5333555087444402,x lit spread,,"ours 36.51 cm vs lit 53.31-200.59 (median 68.46); ⚠ p05-p99/p05-p95 = 3.76 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 137.35 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model",N/A(bimodal)
 P,total,ssp126,2300,median_joint,L14,64.44075508104712,cm,,mean 77.68 cm,
 P,total,ssp126,2300,spread_joint,L14,119.60726064898418,cm,,p5-p95,
 P,total,ssp126,2300,median_fixed,BRICK 2.0,91.1767107695418,cm,,spread 53.11 cm (parameter only),
@@ -337,7 +337,7 @@ S,total,ssp585/ssp126,2100,separation,L14,2.692721568812076,x,,FACTS 1.63-2.23 (
 S,total,ssp585/ssp126,2150,separation,L14,4.381107611244078,x,,FACTS 1.94-4.15 (n=4); 0.23 outside the bracket = 11% of its own range  [NO UPPER COMPARATOR AT THIS HORIZON],PASS(edge)
 V,ais,,,hindcast,L14,,,,worst cell: hindcast/full  = 0.0308 cm,PASS
 V,ais,,,rate/accel,L14,,,,worst cell: rate/1993-2026  = 0.0317 cm/yr,UNRESOLVED
-V,ais,,,projection,L14,,,,worst cell: spread_vs_lit ssp126@2100 = 0.325 x lit spread,FAIL
+V,ais,,,projection,L14,,,,worst cell: median_vs_lit ssp126@2150 = 0.312 x lit median,FAIL
 V,ais,,,separation,L14,,,,worst cell: separation ssp585/ssp126@2150 = 14.1 x,WARN
 V,glaciers,,,hindcast,L14,,,,worst cell: hindcast/1920-1949  = 0.589 cm,WARN
 V,glaciers,,,rate/accel,L14,,,,worst cell: accel/1900-2026  = -0.0001 cm/yr2,WARN
