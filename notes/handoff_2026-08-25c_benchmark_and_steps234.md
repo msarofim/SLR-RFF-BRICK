@@ -566,3 +566,99 @@ and without r19**; (2) the ssp126 AIS **tipped fraction** (3.95% — right or wr
 question needing literature this repo lacks); (3) **step 5** with `--adcov=` + the
 `ais_gmst_amp` refit. ⚠ Step-5 cautions in §4 of the main note still stand (`sshare`; do NOT
 resurrect the joint FaIR/BRICK calibration).
+
+---
+
+# ADDENDUM 5 — 2026-08-25: the TE chain gets error bars, and the Greenland ssp126 miss is ACCEPTED
+
+Commit **`1643fbf`**, `python/diag_te_rate_bars_and_seam.py` + `python/scope_gis_ssp126_acceptability.py`.
+**Nothing recalibrated. No chain read. No model run.**
+
+## A. TE — TWO CLAIMS WITHDRAWN, ONE SHARPENED, ONE STRENGTHENED
+
+Addendum 3 §B attributed the TE rate FAIL with **point estimates only**. Every link now
+carries an AR(1) bar, and two of the four conclusions do not survive it.
+
+* ⚠ **WITHDRAWN: "the target changes scope/method at 2019."** Frederikse/NOAA on their
+  2005–2018 overlap is **0.945 ± 0.120, z = −0.46**. The bar is **216% of the 5.5%
+  difference the warning was about** — a 14-year trend ratio cannot tell 0.94 from 1.00.
+  This is `curvature_needs_an_error_bar` firing on our own diagnostic.
+* **AND THE SPLICE IS MOOT BY A SECOND, INDEPENDENT ROUTE.** On each segment's OWN years,
+  with no splice, no offset match, no scope assumption: **1.164×** (Frederikse 1993–2018)
+  vs **1.234×** (NOAA 2005–2025), z = **−0.92**; strictly non-overlapping (NOAA 2019–2025,
+  n=7) z = **−0.98**. The pooled 1.19× is not a blend of two targets.
+* **STRENGTHENED: the depth-scope step dissolves the defect — in OHC space.**
+  FaIR / IGCC 0-2000 m = **1.222 ± 0.099, z = +2.74 RESOLVED**;
+  FaIR / IGCC **FULL-DEPTH = 1.108 ± 0.081, z = +1.48 UNRESOLVED**.
+  ⚠ Cuts both ways: IGCC's own >2000 m term is 1.102 ± 0.120, **z = +0.85, also
+  UNRESOLVED**. Bars are wide everywhere; *not resolvably different* ≠ *shown to agree*.
+* ⚠ **SHARPENED: "the FAIL survives as a WARN at worst" is an EDGE case, not the expected
+  case.** On the sea-level metric, on the benchmark's own bar, z = +4.19 uncorrected; WARN
+  arrives only at depth correction **c ≥ 1.1004** against a physical ceiling of **1.1022**
+  — a **0.2%** margin. Quote it as an edge case or not at all.
+* ⚠ **METHOD NOTE THAT CHANGED EVERY z.** `_fit_se` on a smooth, accelerating series is
+  dominated by **curvature misfit**, not noise (model TE p50: 0.0079 cm/yr vs the target's
+  0.0038). Model-vs-obs rows therefore use the observational bar alone — the benchmark's
+  convention — so these z's ARE the benchmark's.
+* Recorded, not claimed: the ratio grows with window recency (1.164 → 1.234 → 1.321), no
+  pairwise difference resolved, and the TE **acceleration** cell is z = +0.65 UNRESOLVED.
+
+**⇒ TE STATUS: unchanged as a verdict, better understood as a claim.** BRICK 2.0 misses
+identically (1.171×, z = +3.74). It is a **FaIR OHC** question and nothing in either
+sea-level model can move it.
+
+**Next on TE, if anyone wants it:** the only thing left that could move the sea-level verdict
+is turning `c` from a bound into a number, which needs a seawater EOS (`gsw` is not in
+`~/climate-env`). It is worth ~0.2% of a margin, so it is **not** worth installing for.
+
+## B. GREENLAND ssp126@2100 SPREAD — **ACCEPTABLE. LEAVE IT PARKED.**
+
+Two criteria, **written into the source before the numbers were computed** (`ACCEPT_UPPER_SHARE`,
+`ACCEPT_P95_MOVE_PCT`), so the decision is not fitted to the answer:
+
+| criterion | why it is the criterion | bar | result | |
+|---|---|---|---|---|
+| which side is missing | a risk deliverable is bought to bound the UPPER tail | < 60% upper | **51%** | PASS |
+| price on the reported total p95 | the number a reader quotes, not band width | < 5% | **+0.8%** indep (+7.0% corr) | PASS |
+
+The price is small because the total at this cell is **strongly skewed** — upper half
+16.50 cm against a lower half of 7.83, the AIS tipping tail — so a 3.58 cm Greenland
+addition composes in quadrature to almost nothing.
+
+⚠ **THE FIRST PRICE COMPUTATION WAS WRONG AND ITS OWN OUTPUT SAID SO**: the p95 moved
+**DOWN 7.7%** when width was *added*. Converting p05–p95 to a symmetric sigma discarded
+most of the upper tail before adding anything back. Composed on **half-widths** instead.
+
+⚠ **AND THE ORIGINAL PARK DECISION HAD BEEN TAKEN ON THE WRONG NUMBER.**
+`diag_gis_width_anatomy.py` declared its **own** classification with emuGrIS as "structural"
+(**0.563×**), while `benchmark/comparator_classes.csv` — which owns the classification, and
+whose header argues that separating emuGrIS **"needs a receipt"** — keeps it in `model`
+(**0.489×**). Two committed deliverables, one cell, two numbers, and `bbee082` used the more
+forgiving one. **Fixed**: the anatomy now reads the classification file, and
+`scope_gis_ssp126_acceptability.py` [A] is the standing regression check. The decision above
+uses the stricter **0.489×** and passes anyway.
+
+⚠ **A SECOND STALENESS SURFACED BY THE RE-RUN.** The anatomy's 2150 row predated MAGICC's
+re-extraction to 2300 (`6c6acd4`), so it had one comparator there instead of two. **Addendum
+2's "the deficit vanishes at ssp585" holds at ssp585@2100 (0.92×) but NOT at ssp585@2150
+(0.46×).** The benchmark already said so; the diagnostic had not been re-run. This is
+handoff §5's frozen-comparator trap biting a *diagnostic* instead.
+⚠ **THE GENERAL LESSON: re-run every diagnostic that reads the comparator files whenever
+those files change**, not just the benchmark. `diag_ais_*`, `scope_module_assessment` and
+`diag_gis_width_anatomy` all read them.
+
+**What would reopen it:** ssp126@2100 becoming a headline reported cell in its own right
+(rather than one of three), a comparator entering that raises the like-for-like median
+materially, or the AIS tipping tail shrinking — which is what currently makes the Greenland
+gap cheap.
+
+## C. OPEN LIST AFTER THIS
+
+The benchmark's candidate FAIL list is unchanged in content but both entries are now priced
+and argued: **TE rate** (a FaIR OHC question; sea-level verdict stays FAIL, dissolves in OHC
+space) and **Greenland ssp126@2100 spread** (**accepted**, parked with criteria on record).
+
+**Suggested next:** (1) the glacier region-set confirmation — a question to FACTS/MAGICC
+rather than an analysis, with the cheap decisive alternative being to re-run our own
+projection **with r5 and without r19**; (2) the ssp126 AIS **tipped fraction** (3.95%);
+(3) **step 5** with `--adcov=` + the `ais_gmst_amp` refit, subject to §4's cautions.
