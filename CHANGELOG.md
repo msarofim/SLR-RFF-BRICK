@@ -3,6 +3,75 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-25b — **THE CLIMATE UNCERTAINTY IS BACK IN. The total band widens 1.52–1.63×, and AIS's share of the total spread — the framing number the whole AIS-module assessment rested on — falls from ~100% to 73–79%.**
+
+`julia/scope_slr_fair_uncertainty.jl`, `FaIRtoFrEDI/run_fair_ssp585_spread.py`,
+`data/observations/fair_cube_{gmst,ohc}_ssp585_spliced.csv`,
+`outputs/scope_slr_fairunc_{cells,paths,gates}_L14.csv`. One chain read + 841 model builds.
+**Nothing recalibrated.**
+
+**Marcus, 2026-08-25:** *"use the FaIR uncertainty if we are comparing to analyses that
+include climate uncertainty."*
+
+---
+
+### THE DEFECT
+
+`ladrillo_setup` builds **one** `gmst` vector and `ladrillo_run_draw!` varies only BRICK
+parameters on it, so **every posterior draw saw the same forcing** and the shipped projection
+band carried **no climate-forcing uncertainty at all**. The driver is a MEAN over FaIR's 841
+configs and `run_fair_ssps.py` took that mean on the way out, so the spread had never been on
+disk. Each of the 2000 draws is now paired with one config by a seeded permutation.
+
+**Gates.** **[PAIRING]** 841 of 841 configs used, 2–3 times each; the assigned dGMST@2300
+distribution reproduces the whole cube's (p05 3.42/3.45, p50 6.58/6.58, p95 11.33/11.32) ⇒
+the pairing does not bias the forcing sample. **[CONTROL]** the fixed arm reproduces the
+shipped panel at **+0.0000 cm on all six cells**. **[CALIB-MOVE]** ais 0.0926 cm = **0.66 σ**
+of the AIS target's own σ.
+
+### THE RESULT — ssp585, cm rel 1995–2014, spread = p05–p95
+
+| | fixed | joint | **widening** |
+|---|---|---|---|
+| ais @2100 | 50.56 | 63.80 | 1.26× |
+| ais @2300 | 252.36 | 303.07 | 1.20× |
+| **total @2100** | 50.13 | 81.94 | **1.63×** |
+| **total @2150** | 94.92 | 147.38 | **1.55×** |
+| **total @2300** | 253.44 | 385.07 | **1.52×** |
+
+**THE REFRAMING.** `2026-08-24p` opened with "AIS is **94.7–100.9% of the total p05–p95
+SPREAD** at every scenario × horizon cell", and that number framed the entire AIS-module
+assessment. **It was measured under a fixed driver.** With climate uncertainty in:
+
+| AIS share of total spread | 2100 | 2150 | 2300 |
+|---|---|---|---|
+| fixed driver | 100.9% | 99.9% | 99.6% |
+| **joint** | **77.9%** | **73.1%** | **78.7%** |
+
+The smooth components — thermal expansion, glaciers, Greenland — respond far more directly to
+forcing than AIS, whose spread is already dominated by the λ prior
+(`ais_spread_is_lambda_prior`). ⇒ **"AIS is not a component of the uncertainty, it is the
+uncertainty" is a statement about the fixed-driver band, not about the model.** AIS remains
+the largest single contributor; it is no longer effectively the only one.
+
+**Medians barely move** (−1.3% to −5.4%): this is a **width** result, not a level one.
+
+**Against Coulon**, whose band spans four GCMs: our AIS@2300 width goes 0.48× → **0.58×**
+theirs. Still narrower — our ssp585 forcing spread is FaIR parametric uncertainty under one
+scenario, theirs is four structurally different GCMs.
+
+⚠ **SPLICED, NOT RAW, and the reason is the posterior.** L14 was calibrated against
+observations on the shipped historical driver; feeding each config's own hindcast would make
+the posterior inconsistent with the forcing it is conditioned on. The splice injects forcing
+uncertainty into the **future** only.
+
+⚠ **THIS IS A PRIOR PROPAGATION, NOT A REFIT.** A posterior fitted under a fixed driver and
+then propagated under a spread of drivers is not the same object as one fitted jointly with
+the driver. It is the right band to **compare** against ensembles carrying climate
+uncertainty; it is **not** a recalibration, and the shipped panel is unchanged.
+
+---
+
 ## [unreleased] — 2026-08-25a — **ITEM 2 RE-SCOPED AND RUN. The handoff's rationale for a fractional exponent is RETRACTED — Coulon's "4.78 separation" was mid/mid of two models that disagree 37×, and per model it spans 2.43×–91× and rejects every arm. The structural case against the binary form is untouched.**
 
 `julia/scope_ais_fastdyn_shape.jl`, `outputs/scope_ais_fastdyn_{cells,envelope,separation}_L14.csv`.
