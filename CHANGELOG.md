@@ -3,6 +3,85 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-25e — **THE COMPARISON IS NOW A STANDING BENCHMARK, and steps 2–4 all PASS with what turns out to be ONE defect seen four times: we are under-levelled and under-dispersed at the COOL scenarios.**
+
+`python/bench_ladrillo.py` (NEW), `python/scope_module_assessment.py` (NEW),
+`julia/project_ssps_components_oldbrick.jl` (NEW), `benchmark/` (NEW: README, champions.json,
+`reference/` frozen arms), `outputs/bench_ladrillo_L14.{csv,md}`,
+`outputs/scope_module_assessment_{glaciers,gis,total}_L14.csv`,
+`outputs/ssps_components_2300_oldbrick.csv`. **Nothing recalibrated; no chain read.**
+
+**Marcus, 2026-08-25:** *"make these comparisons durable. E.g. BRICK2.0 versus the full
+observational period and against MAGICC and FACTS and other constraints for future projections.
+Then whenever we update a Ladrillo module we can quickly see how it matches that comparison. And
+keep the best performing Ladrillo module in the comparison as well."*
+
+---
+
+### THE BENCHMARK
+
+One command, four arms — candidate (live), **champion (FROZEN)**, BRICK 2.0, FACTS+MAGICC — and
+five blocks: [H] hindcast over the full observational record scaled to each component's own
+target sigma, [R] rate **and** acceleration with an observational error bar, [P] projections on
+the **JOINT** band, [S] separation against the literature bracket, [V] roll-up + delta vs
+champion. The comparators are frozen copies on purpose: a benchmark whose reference arms move
+with `outputs/` cannot compare today's score with one from six months ago. `champions.json` is
+**per module** and `--promote` **requires `--why=`**.
+
+**BRICK 2.0 had no projection arm beyond glaciers.** Every AIS/GIS/TE/total cell of
+`ladrillo_model_comparison_*.csv` was blank. `project_ssps_components_oldbrick.jl` fills it —
+all six components, six SSPs, to 2300, same forcing/window/schema as Ladrillo, with
+`[GSIC-MATCH]` reproducing the standalone glacier driver to **0.0000 cm**.
+
+### THREE METRIC RULES ADDED WHILE RUNNING IT, EACH OF WHICH CHANGED A VERDICT
+
+1. **The observational error bar takes the CONSERVATIVE of three accounts** — estimator scatter,
+   the published band under perfect correlation, and the same band under independence. The first
+   two are far too tight for a *rate*. Without the third a **7% glacier rate difference was
+   being reported at 9.5 sigma**.
+2. **Ratio-interpretability ≠ gradeability.** Where the observed statistic is under 2 se from
+   zero the ratio is suppressed but the **difference is still graded on z**. Four of five
+   acceleration targets are in that state. Conflating the two erased BRICK 2.0's real 3.07-sigma
+   glacier-acceleration miss on the first attempt.
+3. **The separation bracket's edge tolerance is 25% of the comparators' own range**, not a
+   picked number — so TE at 1.97× against a 2.05–2.51 bracket reads PASS(edge), not FAIL.
+
+### STEPS 2, 3, 4 — ALL PASS
+
+| step | module | hindcast vs BRICK 2.0 | named defect |
+|---|---|---|---|
+| 2 | glaciers | 0.34–0.37× RMSE, BETTER in 3 of 4 windows | **level** 0.80–0.91× lit @2100, **0.755–0.785× @2150** |
+| 3 | Greenland | **0.05–0.27×**, BETTER in ALL four | **spread** 0.14–0.46× lit at 5 of 6 cells |
+| 4 | the sum | 0.35–0.96×, BETTER in all four | ssp126/245 medians **0.61–0.83×**, ssp585 **1.09–1.25×** |
+
+**The four defects (with step 1's ssp126 AIS spread) are one defect: ssp585 passes level AND
+spread at both horizons; the cool scenarios do not.** Three of the four are **model-form** — the
+binary AIS threshold, the glacier level law, the Greenland width — so a recalibration on the
+same likelihood will not fix them.
+
+**Step 2's standing question is answered.** The "1.01× WORSE than BRICK 2.0 over 1950–1992" flag
+is a tie **below the observations' resolution**: both arms sit at **0.29 sigma** of the glacier
+target in that window.
+
+### ⚠ NEW AND UNEXPLAINED — the TE rate, and it is not ours
+
+Over 1993–2026 thermal expansion runs **1.19× the steric target at z = +4.19**, and **BRICK 2.0
+misses it almost identically (1.17×, z = +3.74)**. Two independent calibrations of the same
+MimiBRICK component under the same FaIR OHC ⇒ the **OHC driver or the steric target**, not the
+Ladrillo calibration. Direction NOT settled: OHC products disagree by ~2×.
+
+### TRIED AND NOT DONE
+
+* **A transient global-cm glacier literature target.** GlacierMIP3 is in the repo but as a
+  committed-loss ladder already **inside** the likelihood, so it is not an independent check;
+  the GloGEM/OGGM archives are scoped as **per-block mass-loss percentages, not global cm**.
+  Step 2 therefore rests on three comparators, and assembling that target is named as the work
+  it does not do rather than papered over.
+* **Step 5 (the recalibration) was NOT started.** Steps 1–4 pass, so it is unblocked, but three
+  of the four residual defects are model-form and would survive it. Marcus's call.
+
+---
+
 ## [unreleased] — 2026-08-25c — **THE JOINT BAND IS THE REPORTED BAND, on all three SSPs. The re-ranking metric is ADDRESSABLE cm, not band growth — and on it the AIS focus survives at ssp245/ssp585 (77–93%) but INVERTS at ssp126, where glaciers lead.**
 
 `julia/scope_slr_fair_uncertainty.jl`, `julia/diag_ais_tipping_under_forcing.jl`,
