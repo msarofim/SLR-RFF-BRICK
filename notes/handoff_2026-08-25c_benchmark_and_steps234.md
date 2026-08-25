@@ -662,3 +662,100 @@ space) and **Greenland ssp126@2100 spread** (**accepted**, parked with criteria 
 rather than an analysis, with the cheap decisive alternative being to re-run our own
 projection **with r5 and without r19**; (2) the ssp126 AIS **tipped fraction** (3.95%);
 (3) **step 5** with `--adcov=` + the `ais_gmst_amp` refit, subject to §4's cautions.
+
+---
+
+# ADDENDUM 6 — 2026-08-25: glaciers are not a scope artifact, and the STOPPING RULE is now checkable
+
+Commits **`b602fd8`** (glaciers) and **`db6a7e7`** (the head-to-head). One ~50 s Julia
+projection; nothing recalibrated, no chain read.
+
+Marcus: *"Take the next step on the glacier question, and give me recommendations on the AIS
+question. But, if everything is measurably better than BRICK 2.0, and everything passes the
+laugh test, then at some point we can stop tweaking."*
+
+## A. GLACIERS — SCOPE DOES NOT EXPLAIN THE DEFICIT
+
+* **r19 in projection space** (its own reservoir, no differencing): **7.0 → 9.9%** (ssp126),
+  **8.1 → 13.9%** (ssp245), **9.8 → 19.0%** (ssp585) of our glacier total across
+  2100/2150/2300, vs the 6.54%-of-global observed-era value. It **does** grow with horizon.
+* ⚠ **The flag was right; its consequence was backwards.** r19 enters as
+  `AR5 scope = 1 − r19`, so a larger r19 makes *their* scope smaller and pushes predicted
+  ours/theirs **up** (0.927 → 1.043). Scope then says we should be *higher*, so the residual
+  deficit gets **larger**.
+* **The scope-free test** — r5 sits inside GIS on our side and inside glaciers on theirs, so
+  glaciers + GIS holds it exactly once on both sides; remove the measured r19 and the sums
+  are matched with no share assumption. At 2100: **0.809–0.941, median ~0.87**.
+* ⇒ **~13% is not the region set.** Splitting it between glaciers and Greenland needs the r5
+  share, which is exactly what is unavailable. The one remaining assumption (FittedISMIP is
+  sheet-only) **biases the test against us** if it fails.
+* **Priced:** the raw glacier gap is **0.5–6.1%** of the reported total median — worst at
+  ssp126@2150 (6.1%) and ssp245@2100 (5.4%). Larger than Greenland's, and a LEVEL not a
+  width, but the same order.
+
+## B. THE STOPPING RULE, MEASURED
+
+BRICK 2.0's projection **medians** are now scored against the same literature.
+**30 BETTER / 11 SAME / 6 WORSE(unearned) / 7 WORSE** over 54 cells.
+
+| component | BETTER | SAME | WORSE |
+|---|---|---|---|
+| AIS | 6 | 3 | 0 |
+| glaciers | 5 | 1 | 3 *(unearned)* |
+| Greenland | 5 | 1 | 3 *(unearned)* |
+| TE | 3 | 6 | 0 |
+| LWS | 6 | 0 | 3 |
+| total | 5 | 0 | 4 *(all cancellation)* |
+
+* ⚠ **A projection win by an arm that fails the observations is not a win.** All six
+  `WORSE(unearned)` cells are BRICK 2.0 landing closer to the literature median while its
+  hindcast or rate FAILs — its glaciers miss by 3.30 sd and z = +2.39, then land near the
+  literature *by running high*.
+* ⚠ **EVERY total-level loss is CANCELLATION.** L14's summed component error is smaller at
+  **all nine** cells (0.456–1.726 vs 0.841–3.110) while BRICK 2.0's total is closer at four.
+  New `component-error sum vs total error` row makes this permanent.
+* ⚠ **Medians only** — ours is the joint band, theirs parameter-only; comparing spreads
+  across them is the `like_for_like_forcing` error.
+
+⇒ **The evidence supports stopping.** The only genuine losses are LWS@2300 (0.787 vs 0.825,
+a seeded constant) and four total-level cells that are cancellation.
+
+## C. AIS — RECOMMENDATIONS, RANKED
+
+1. **DROP `--adcov=` from the critical path.** Item 4 already established the *projection*
+   converges where it matters (11 of 12 cells; ssp585 AIS@2300 R-hat 1.026). `ais_iceflow0`
+   R-hat 2.244 is a **stiff direction** in a marginal that does not reach the deliverable.
+   Keep proposal scaling as hygiene **if** a refit happens for another reason; do not refit
+   *to* it.
+2. **Do not narrow the ssp585 2300 band. Document it.** 78% of it is `antarctic_lambda`, a
+   propagated prior resting on the **LIG alone** — the one window whose authors report a
+   ~26% MICI undershoot — and it is one-sided upward, with MICI needing λ 1.06–2.20× above
+   the paleo maximum, i.e. outside the representable set. A standing provenance line
+   wherever that number appears. Cost ~0; it is the largest number we report and its
+   uncertainty is currently mislabeled. **Pair it with the R-hat caveat**: that cell passes
+   because the band is WIDE (chain medians span 13.2% of the median), not because the chains
+   agree.
+3. **`ais_gmst_amp` is the only AIS knob worth a refit** — rank 2 at *both* scenarios (+0.67
+   ssp245, +0.30 ssp585), the only high-ranked parameter in both, ≈0.94, and unlike λ it *is*
+   data-constrained. **Price it against the deliverable first** (`npv_retires_tau`).
+4. **Decline the magnitude-dependent fast-dynamics fork as the shipped form; keep it as a
+   scoped sensitivity arm.** It is built, likelihood-inert and priced, but adopting it needs
+   `ref_excess`, a methodological choice with no data behind it — and the exponent reading
+   that would have pinned it was **retracted** (Coulon's two models disagree 37× and 91×).
+   Report the envelope, not a cell.
+5. **ssp126 tipped fraction: accept 3.95%** (Marcus 2026-08-25). The only ssp126 AIS
+   comparators at 2300 publish **3 cm and 110 cm** — a 37× span that cannot discriminate.
+   Not "the literature agrees"; "the literature we hold cannot reject it."
+
+## D. WHAT IS LEFT, AND WHAT IS NOT WORTH DOING
+
+**Worth doing (cheap, reporting-side):** AIS recommendation 2 — the λ provenance line and the
+wide-band R-hat caveat. Neither is modelling work and both prevent a number being quoted
+wrongly.
+
+**Worth doing only if a headline changes:** the glacier ~13% residual (needs the r5 split,
+which needs a per-region projection source this repo lacks); `ais_gmst_amp`.
+
+**Not worth doing:** `--adcov=`; narrowing any band; adopting the fast-dynamics fork; the
+Greenland ssp126 width (accepted, addendum 5); the TE depth-scope constant (worth 0.2% of a
+margin and needs a seawater EOS).
