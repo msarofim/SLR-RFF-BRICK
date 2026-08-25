@@ -1,0 +1,48 @@
+====================================================================================================
+SHOULD amp BE A FUNCTION OF WARMING LEVEL? — the CORRECTED 34-model secant
+====================================================================================================
+
+  R = [smooth30(T_AIS) - T_AIS,PI] / [smooth30(T_glob) - T_glob,PI], land-frame,
+  PI = 1850-1900. A LEVEL ratio -- the quantity BRICK's `a` actually is.
+  Restricted to dT >= 1.0 K (below it the denominator is noise).
+
+[A] IS THE STATE-DEPENDENCE RESOLVABLE? per-model OLS slope of R on dT
+
+scenario      n   mean slope       sd       se       z   worth over 1.0-4.0 K  verdict
+ssp245       34      -0.0065   0.0640   0.0110   -0.59          -0.019 in amp  UNRESOLVED
+                against a BETWEEN-MODEL sd of 0.194 => the slope is worth 0.10x the spread
+ssp585       34      +0.0091   0.0370   0.0063   +1.43          +0.027 in amp  UNRESOLVED
+                against a BETWEEN-MODEL sd of 0.177 => the slope is worth 0.15x the spread
+
+    ⇒ NEITHER SCENARIO RESOLVES A SLOPE, THEY DISAGREE IN SIGN, and each is worth
+      6-9x LESS than the between-model spread. A CONSTANT IS THE RIGHT FORM.
+      **`amp(dT)` MUST NOT BE BUILT** -- it would encode a trend the data do not have,
+      and addendum 7's version of it would have encoded one of the wrong SIGN.
+
+[B] WHERE SHOULD THE CONSTANT SIT?
+
+scenario    model-median R   between-model sd     p17     p83    n
+ssp245               1.084              0.194   0.938   1.358   34
+ssp585               1.097              0.177   0.940   1.329   34
+BOTH                 1.095              0.180   0.934   1.348   34
+
+    INDEPENDENT CROSS-CHECK — DECK 1pctCO2 secant (41 models, `diag_pai_deck_summary.md`):
+      r_1pct over 2.5-4.5 K = 1.087-1.153, median 1.097
+
+    ⇒ the scenario ensemble and the DECK ensemble agree on ~1.08-1.10.
+    ⚠ THE SHIPPED PRIOR IS N(0.95, 0.1) AND THE POSTERIOR MEDIAN IS 0.945 —
+      1.45 prior sd BELOW the corrected measurement. The direction addendum 7
+      got right; the MECHANISM and the FIX it proposed were both wrong.
+
+[C] WHAT RE-CENTRING IS WORTH — crossing GMST = (threshold - T_ant0)/amp
+
+arm                              amp   crossing GMST
+shipped posterior              0.945        3.015 K
+corrected secant (BOTH)        1.095        2.600 K
+ssp245 model-median            1.084        2.628 K
+ssp585 model-median            1.097        2.598 K
+
+    ⇒ a +0.150 move in amp, i.e. +1.50 prior sd. `scope_ais_amp_price.py`
+      prices the tipped fractions this implies.
+
+wrote outputs/scope_ais_amp_law_form_L14.csv

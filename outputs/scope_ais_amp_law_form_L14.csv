@@ -1,0 +1,11 @@
+block,scenario,quantity,value,unit,note,verdict
+A,ssp245,slope_R_on_dT,-0.006477400164120276,per K,"n=34 models, sd 0.0640, se 0.0110, z=-0.59; worth -0.019 over (1.0, 4.0) K vs between-model sd 0.194",UNRESOLVED
+A,ssp585,slope_R_on_dT,0.009050977405132492,per K,"n=34 models, sd 0.0370, se 0.0063, z=+1.43; worth +0.027 over (1.0, 4.0) K vs between-model sd 0.177",UNRESOLVED
+B,ssp245,model_median_secant,1.0838564192352191,amp,"between-model sd 0.194, p17 0.938, p83 1.358, n=34 models",
+B,ssp585,model_median_secant,1.0966109832740751,amp,"between-model sd 0.177, p17 0.940, p83 1.329, n=34 models",
+B,BOTH,model_median_secant,1.0953681088758305,amp,"between-model sd 0.180, p17 0.934, p83 1.348, n=34 models",
+B,DECK 1pctCO2,secant_cross_check,1.097,amp,"41 models, 2.5-4.5 K, range 1.087-1.153",
+C,,crossing_GMST/shipped posterior,3.01466920224083,degC,amp 0.945,
+C,,crossing_GMST/corrected secant (BOTH),2.6004643410764263,degC,amp 1.095,
+C,,crossing_GMST/ssp245 model-median,2.628083994274653,degC,amp 1.084,
+C,,crossing_GMST/ssp585 model-median,2.5975170328674366,degC,amp 1.097,
