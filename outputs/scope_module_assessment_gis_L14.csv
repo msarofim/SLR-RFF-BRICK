@@ -1,0 +1,38 @@
+module,block,key,value,note,verdict
+gis,formulation,verdict,,"A DIFFERENT FORMULATION, JUSTIFIED BY A HINDCAST FEATURE THE OLD ONE CANNOT FIT","A DIFFERENT FORMULATION, JUSTIFIED BY A HINDCAST FEATURE THE OLD ONE CANNOT FIT"
+gis,hindcast,hindcast/full/L14,0.0589610467498299,bias +0.0020 cm = +0.01 sd; cov90 57%; n=106,PASS
+gis,hindcast,hindcast/full/BRICK 2.0,0.7230147179026976,bias -0.5975 cm = -3.26 sd; cov90 22%; n=106,FAIL
+gis,hindcast,hindcast/1920-1949/L14,0.080492771862299,bias +0.0266 cm = +0.15 sd; cov90 60%; n=30,PASS
+gis,hindcast,hindcast/1920-1949/BRICK 2.0,0.7876326016987747,bias -0.7371 cm = -4.02 sd; cov90 27%; n=30,FAIL
+gis,hindcast,hindcast/1950-1992/L14,0.0494066908783976,bias -0.0149 cm = -0.08 sd; cov90 60%; n=43,PASS
+gis,hindcast,hindcast/1950-1992/BRICK 2.0,0.913244316212648,bias -0.8659 cm = -4.73 sd; cov90 0%; n=43,FAIL
+gis,hindcast,hindcast/1993-2026/L14,0.0457802512905622,bias +0.0017 cm = +0.01 sd; cov90 48%; n=33,PASS
+gis,hindcast,hindcast/1993-2026/BRICK 2.0,0.1685880472577014,bias -0.1209 cm = -0.66 sd; cov90 45%; n=33,PASS
+gis,hindcast_ratio,rmse_ratio/full/L14 vs BRICK 2.0,0.0815488886877194,<1 means the candidate is closer to the observations,BETTER
+gis,hindcast_ratio,rmse_ratio/1920-1949/L14 vs BRICK 2.0,0.1021958355820865,<1 means the candidate is closer to the observations,BETTER
+gis,hindcast_ratio,rmse_ratio/1950-1992/L14 vs BRICK 2.0,0.0541001898410866,<1 means the candidate is closer to the observations,BETTER
+gis,hindcast_ratio,rmse_ratio/1993-2026/L14 vs BRICK 2.0,0.2715509909227619,<1 means the candidate is closer to the observations,BETTER
+gis,hindcast,worst_sigma_ours,0.4394245659106755,max |RMSE| in target sigma across windows,
+gis,hindcast,worst_sigma_brick20,4.9855655102628536,max |RMSE| in target sigma,
+gis,rate,rate/1993-2026/obs/observations,0.0659600233130607,"se: estimator 0.01044, band-correlated 0.0006502, band-independent 0.003349; CONSERVATIVE 0.01044 cm/yr; |obs|/se = 6.32",
+gis,rate,rate/1993-2026/L14,0.0657769705267076,1.00x obs; z=-0.02 vs the obs error bar,UNRESOLVED
+gis,rate,rate/1993-2026/BRICK 2.0,0.0585290295659806,0.89x obs; z=-0.71 vs the obs error bar,UNRESOLVED
+gis,rate,accel/1900-2026/obs/observations,-0.0002782475046792,"se: estimator 0.0005241, band-correlated 6.83e-05, band-independent 2.759e-05; CONSERVATIVE 0.0005241 cm/yr2; |obs|/se = 0.53",
+gis,rate,accel/1900-2026/L14,-0.0002502700610752,ratio NOT INTERPRETABLE (obs is 0.53 se from zero); z=+0.05 vs the obs error bar,UNRESOLVED
+gis,rate,accel/1900-2026/BRICK 2.0,0.0001498691170389,ratio NOT INTERPRETABLE (obs is 0.53 se from zero); z=+0.82 vs the obs error bar,UNRESOLVED
+gis,projection,ssp126_2100_median_vs_lit,0.8882294916783574,"ours 6.25 cm vs lit 5.46-13.05 (median 7.04), n_lit=4",PASS
+gis,projection,ssp126_2100_spread_vs_lit,0.3508425427577627,ours 4.69 cm vs lit 7.06-55.71 (median 13.36),FAIL
+gis,projection,ssp126_2150_median_vs_lit,0.4286836889625902,"ours 7.58 cm vs lit 13.18-22.20 (median 17.69), n_lit=2",FAIL
+gis,projection,ssp126_2150_spread_vs_lit,0.1407905821988645,ours 6.90 cm vs lit 11.12-86.94 (median 49.03),FAIL
+gis,projection,ssp245_2100_median_vs_lit,0.8403636465559077,"ours 8.19 cm vs lit 7.97-14.39 (median 9.75), n_lit=4",PASS
+gis,projection,ssp245_2100_spread_vs_lit,0.455070414570063,ours 5.73 cm vs lit 7.85-72.68 (median 12.60),FAIL
+gis,projection,ssp245_2150_median_vs_lit,0.5458195960086493,"ours 11.96 cm vs lit 18.19-25.62 (median 21.91), n_lit=2",WARN
+gis,projection,ssp245_2150_spread_vs_lit,0.2135017868611813,ours 11.08 cm vs lit 14.93-88.90 (median 51.91),FAIL
+gis,projection,ssp585_2100_median_vs_lit,0.9705659319112075,"ours 13.35 cm vs lit 12.72-20.28 (median 13.75), n_lit=4",PASS
+gis,projection,ssp585_2100_spread_vs_lit,0.766053243536716,ours 11.21 cm vs lit 11.46-93.18 (median 14.63),PASS
+gis,projection,ssp585_2150_median_vs_lit,0.824666532787582,"ours 26.99 cm vs lit 27.33-38.13 (median 32.73), n_lit=2",WARN
+gis,projection,ssp585_2150_spread_vs_lit,0.3662137635938983,ours 26.88 cm vs lit 24.97-121.86 (median 73.41),FAIL
+gis,separation,2100,2.1356478188043364,FACTS 1.55-2.33 (n=3); MAGICC-SLR 2.11-2.11 (n=1),PASS
+gis,separation,2150,3.5589840203711005,FACTS 1.72-2.07 (n=2); 1.49 outside the bracket = 417% of its own range  [NO UPPER COMPARATOR AT THIS HORIZON],WARN
+gis,priority,addressable_ssp585_2300,0.088,share of the non-forcing spread,
+gis,priority,addressable_ssp126_2100,0.154,share of the non-forcing spread,

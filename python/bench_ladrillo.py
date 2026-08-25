@@ -72,6 +72,14 @@ SEP_LO, SEP_HI = "ssp126", "ssp585"
 # a fraction of the comparators' OWN range, and where there is only one comparator
 # there is no range and no tolerance.
 SEP_EDGE_TOL_FRAC = 0.25
+# When the OBSERVED value of a statistic is itself within this many sigma of zero, the
+# RATIO model/obs is not interpretable -- its denominator is consistent with zero, so the
+# ratio is unbounded and "0.18x observed" reads as a deficit when it is arithmetic noise
+# (`curvature_needs_an_error_bar`, `endpoint_division_is_not_a_ratio_band`). The
+# DIFFERENCE model-obs is still perfectly gradeable in units of the same se, so the
+# verdict stays on z and only the RATIO is suppressed. These are two different questions
+# and conflating them either invents a finding or erases a real one.
+TARGET_RESOLVED_SIGMA = 2.0
 QLO, QHI = 5, 95                   # the spread definition, p05-p95, everywhere
 
 # (key, label, Ladrillo postpred stem, BRICK 2.0 postpred stem, target column)
@@ -113,6 +121,9 @@ CAVEATS = [
     f"SOME WIDTH IS A PRIOR, NOT AN INFERENCE -- {LAMBDA_SHARE_2300:.0%} of the ssp585 2300 "
     "AIS band is antarctic_lambda's paleo prior, so narrowness is never scored as a win "
     "at " + ", ".join(f"{c}/{s}" for c, s in sorted(PRIOR_WIDTH_CELLS)) + ".",
+    f"WHERE THE OBSERVED STATISTIC IS UNDER {TARGET_RESOLVED_SIGMA} SIGMA FROM ZERO the "
+    "RATIO model/obs is suppressed as uninterpretable, but the DIFFERENCE is still graded "
+    "on z -- being 3 sigma from a value that is itself 1 sigma from zero is still a miss.",
     f"THE MODERN AIS RATE CANNOT REJECT ZERO -- IMBIE whole-sheet loss is "
     f"{IMBIE_SNR[0]}-{IMBIE_SNR[1]} sigma from zero, so the {RATE_WINDOW[0]}-{RATE_WINDOW[1]} "
     "window separates no two AIS models however different they are.",
@@ -407,12 +418,16 @@ def block_rate_accel(rows, cand_tag, champ_tag, cand_p, champ_p, sigma):
                 if not np.isfinite(v):
                     continue
                 z = (v - o) / ose if ose > 0 else np.nan
-                rows.append(dict(block="R", component=key, scenario="", horizon="",
-                                 metric=f"{stat}/{win[0]}-{win[1]}", arm=arm, value=v,
-                                 unit=unit, value_sigma=z,
-                                 note=f"{v/o:.2f}x obs; z={z:+.2f} vs the obs error bar",
-                                 verdict=("UNRESOLVED" if abs(z) <= 1 else
-                                          ("WARN" if abs(z) <= 2 else "FAIL"))))
+                resolved = abs(o) / cse >= TARGET_RESOLVED_SIGMA
+                rows.append(dict(
+                    block="R", component=key, scenario="", horizon="",
+                    metric=f"{stat}/{win[0]}-{win[1]}", arm=arm, value=v,
+                    unit=unit, value_sigma=z,
+                    note=(f"{v/o:.2f}x obs; " if resolved else
+                          f"ratio NOT INTERPRETABLE (obs is {abs(o)/cse:.2f} se from zero); ")
+                         + f"z={z:+.2f} vs the obs error bar",
+                    verdict=("UNRESOLVED" if abs(z) <= 1 else
+                             ("WARN" if abs(z) <= 2 else "FAIL"))))
 
 
 # ------------------------------------------------------------------ block [P]

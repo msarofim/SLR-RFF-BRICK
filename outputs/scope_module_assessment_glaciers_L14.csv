@@ -1,0 +1,38 @@
+module,block,key,value,note,verdict
+glaciers,formulation,verdict,,"A DIFFERENT AND MORE CONSTRAINED FORMULATION -- argued, not assumed",A DIFFERENT AND MORE CONSTRAINED FORMULATION
+glaciers,hindcast,hindcast/full/L14,0.3307844777177898,bias +0.1671 cm = +0.36 sd; cov90 54%; n=104,PASS
+glaciers,hindcast,hindcast/full/BRICK 2.0,0.8940588962628659,bias +0.5000 cm = +1.09 sd; cov90 47%; n=104,WARN
+glaciers,hindcast,hindcast/1920-1949/L14,0.5887925110802121,bias +0.5246 cm = +1.14 sd; cov90 23%; n=30,WARN
+glaciers,hindcast,hindcast/1920-1949/BRICK 2.0,1.6382486441740045,bias +1.5142 cm = +3.30 sd; cov90 0%; n=30,FAIL
+glaciers,hindcast,hindcast/1950-1992/L14,0.1326240912118885,bias +0.0743 cm = +0.16 sd; cov90 56%; n=43,PASS
+glaciers,hindcast,hindcast/1950-1992/BRICK 2.0,0.1311498207129588,bias +0.0341 cm = +0.07 sd; cov90 95%; n=43,PASS
+glaciers,hindcast,hindcast/1993-2026/L14,0.0847916779381263,bias -0.0502 cm = -0.11 sd; cov90 81%; n=31,PASS
+glaciers,hindcast,hindcast/1993-2026/BRICK 2.0,0.2460085095003998,bias +0.1647 cm = +0.36 sd; cov90 26%; n=31,PASS
+glaciers,hindcast_ratio,rmse_ratio/full/L14 vs BRICK 2.0,0.369980634497858,<1 means the candidate is closer to the observations,BETTER
+glaciers,hindcast_ratio,rmse_ratio/1920-1949/L14 vs BRICK 2.0,0.3594036309287337,<1 means the candidate is closer to the observations,BETTER
+glaciers,hindcast_ratio,rmse_ratio/1950-1992/L14 vs BRICK 2.0,1.0112411171507152,<1 means the candidate is closer to the observations,SAME
+glaciers,hindcast_ratio,rmse_ratio/1993-2026/L14 vs BRICK 2.0,0.3446696950049546,<1 means the candidate is closer to the observations,BETTER
+glaciers,hindcast,worst_sigma_ours,1.2819685071779263,max |RMSE| in target sigma across windows,
+glaciers,hindcast,worst_sigma_brick20,3.5669325428493757,max |RMSE| in target sigma,
+glaciers,rate,rate/1993-2026/obs/observations,0.0680128070410857,"se: estimator 0.0005236, band-correlated 0.0001274, band-independent 0.009223; CONSERVATIVE 0.009223 cm/yr; |obs|/se = 7.37",
+glaciers,rate,rate/1993-2026/L14,0.0630421005804617,0.93x obs; z=-0.54 vs the obs error bar,UNRESOLVED
+glaciers,rate,rate/1993-2026/BRICK 2.0,0.0900783283992994,1.32x obs; z=+2.39 vs the obs error bar,FAIL
+glaciers,rate,accel/1900-2026/obs/observations,-0.0005481419702105,"se: estimator 0.000447, band-correlated 3.442e-05, band-independent 7.199e-05; CONSERVATIVE 0.000447 cm/yr2; |obs|/se = 1.23",
+glaciers,rate,accel/1900-2026/L14,-9.9967332633772e-05,ratio NOT INTERPRETABLE (obs is 1.23 se from zero); z=+1.00 vs the obs error bar,WARN
+glaciers,rate,accel/1900-2026/BRICK 2.0,0.0008224198307519,ratio NOT INTERPRETABLE (obs is 1.23 se from zero); z=+3.07 vs the obs error bar,FAIL
+glaciers,projection,ssp126_2100_median_vs_lit,0.8357994471484312,"ours 7.73 cm vs lit 8.95-10.45 (median 9.25), n_lit=3",WARN
+glaciers,projection,ssp126_2100_spread_vs_lit,0.8156419991996489,ours 6.00 cm vs lit 7.12-7.85 (median 7.36),PASS
+glaciers,projection,ssp126_2150_median_vs_lit,0.7851052513354438,"ours 9.42 cm vs lit 12.00-12.00 (median 12.00), n_lit=1",WARN
+glaciers,projection,ssp126_2150_spread_vs_lit,0.6684987775893825,ours 7.95 cm vs lit 11.89-11.89 (median 11.89),PASS
+glaciers,projection,ssp245_2100_median_vs_lit,0.8002999589497708,"ours 9.77 cm vs lit 11.38-12.54 (median 12.21), n_lit=3",WARN
+glaciers,projection,ssp245_2100_spread_vs_lit,0.8718240338653139,ours 6.70 cm vs lit 7.42-9.60 (median 7.68),PASS
+glaciers,projection,ssp245_2150_median_vs_lit,0.7692715910290508,"ours 13.49 cm vs lit 17.53-17.53 (median 17.53), n_lit=1",WARN
+glaciers,projection,ssp245_2150_spread_vs_lit,0.5793465450760794,ours 9.65 cm vs lit 16.65-16.65 (median 16.65),PASS
+glaciers,projection,ssp585_2100_median_vs_lit,0.9055049676885868,"ours 14.00 cm vs lit 15.30-17.73 (median 15.46), n_lit=3",WARN
+glaciers,projection,ssp585_2100_spread_vs_lit,0.9424023803812236,ours 8.87 cm vs lit 8.51-13.85 (median 9.41),PASS
+glaciers,projection,ssp585_2150_median_vs_lit,0.755240977029439,"ours 21.45 cm vs lit 28.40-28.40 (median 28.40), n_lit=1",WARN
+glaciers,projection,ssp585_2150_spread_vs_lit,0.7398764207712886,ours 11.49 cm vs lit 15.53-15.53 (median 15.53),PASS
+glaciers,separation,2100,1.8118894356732365,FACTS 1.73-1.92 (n=2); MAGICC-SLR 1.46-1.46 (n=1),PASS
+glaciers,separation,2150,2.277128970043679,FACTS 2.37-2.37 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON],WARN
+glaciers,priority,addressable_ssp585_2300,0.035,share of the non-forcing spread,
+glaciers,priority,addressable_ssp126_2100,0.401,share of the non-forcing spread,

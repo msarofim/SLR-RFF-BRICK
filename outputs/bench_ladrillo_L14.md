@@ -1,6 +1,6 @@
 # Ladrillo benchmark — `L14`
 
-*benchmark v1.0, 2026-08-25, repo `4086176`. Champion arm: **L14** (the candidate IS the champion — no delta column).*
+*benchmark v1.0, 2026-08-25, repo `8acedd3`. Champion arm: **L14** (the candidate IS the champion — no delta column).*
 
 Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (stock MimiBRICK v2.0.0, own posterior), **literature** (FACTS + MAGICC-SLR, frozen).
 
@@ -9,6 +9,7 @@ Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (s
 * HINDCAST RANKS IN ONE DIRECTION ONLY -- in-sample for every Ladrillo arm, out-of-sample for BRICK 2.0. It can REJECT an arm; a small fitted bias is not skill.
 * BANDS ARE NOT ONE OBJECT -- Ladrillo-fixed and BRICK 2.0 are posterior-parameter spread; Ladrillo-JOINT, FACTS and MAGICC carry climate uncertainty. Only the JOINT band is scored against the literature.
 * SOME WIDTH IS A PRIOR, NOT AN INFERENCE -- 78% of the ssp585 2300 AIS band is antarctic_lambda's paleo prior, so narrowness is never scored as a win at ais/ssp585.
+* WHERE THE OBSERVED STATISTIC IS UNDER 2.0 SIGMA FROM ZERO the RATIO model/obs is suppressed as uninterpretable, but the DIFFERENCE is still graded on z -- being 3 sigma from a value that is itself 1 sigma from zero is still a miss.
 * THE MODERN AIS RATE CANNOT REJECT ZERO -- IMBIE whole-sheet loss is 0.95-1.44 sigma from zero, so the 1993-2026 window separates no two AIS models however different they are.
 * ssp245@2300 IS A THRESHOLD ARTIFACT -- 48.3% of draws tip, so its MEDIAN is bimodal-fragile. Quote the mean and the tipped fraction there, never the bare median.
 
@@ -88,20 +89,20 @@ Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (s
 | TOTAL | rate | L14 | 0.3373 | cm/yr | +0.43 | 1.04x obs; z=+0.43 vs the obs error bar |
 | TOTAL | rate | BRICK 2.0 | 0.33831 | cm/yr | +0.46 | 1.04x obs; z=+0.46 vs the obs error bar |
 | AIS | accel | observations | 0.00020499 | cm/yr2 | — | se: estimator 0.0001336, band-correlated 3.924e-05, band-independent 2.522e-05; CONSERVATIVE 0.0001336 cm/yr2; |obs|/se = 1.53 |
-| AIS | accel | L14 | 0.00020186 | cm/yr2 | -0.02 | 0.98x obs; z=-0.02 vs the obs error bar |
-| AIS | accel | BRICK 2.0 | -9.5414e-05 | cm/yr2 | -2.25 | -0.47x obs; z=-2.25 vs the obs error bar |
+| AIS | accel | L14 | 0.00020186 | cm/yr2 | -0.02 | ratio NOT INTERPRETABLE (obs is 1.53 se from zero); z=-0.02 vs the obs error bar |
+| AIS | accel | BRICK 2.0 | -9.5414e-05 | cm/yr2 | -2.25 | ratio NOT INTERPRETABLE (obs is 1.53 se from zero); z=-2.25 vs the obs error bar |
 | glaciers | accel | observations | -0.00054814 | cm/yr2 | — | se: estimator 0.000447, band-correlated 3.442e-05, band-independent 7.199e-05; CONSERVATIVE 0.000447 cm/yr2; |obs|/se = 1.23 |
-| glaciers | accel | L14 | -9.9967e-05 | cm/yr2 | +1.00 | 0.18x obs; z=+1.00 vs the obs error bar |
-| glaciers | accel | BRICK 2.0 | 0.00082242 | cm/yr2 | +3.07 | -1.50x obs; z=+3.07 vs the obs error bar |
+| glaciers | accel | L14 | -9.9967e-05 | cm/yr2 | +1.00 | ratio NOT INTERPRETABLE (obs is 1.23 se from zero); z=+1.00 vs the obs error bar |
+| glaciers | accel | BRICK 2.0 | 0.00082242 | cm/yr2 | +3.07 | ratio NOT INTERPRETABLE (obs is 1.23 se from zero); z=+3.07 vs the obs error bar |
 | Greenland | accel | observations | -0.00027825 | cm/yr2 | — | se: estimator 0.0005241, band-correlated 6.83e-05, band-independent 2.759e-05; CONSERVATIVE 0.0005241 cm/yr2; |obs|/se = 0.53 |
-| Greenland | accel | L14 | -0.00025027 | cm/yr2 | +0.05 | 0.90x obs; z=+0.05 vs the obs error bar |
-| Greenland | accel | BRICK 2.0 | 0.00014987 | cm/yr2 | +0.82 | -0.54x obs; z=+0.82 vs the obs error bar |
+| Greenland | accel | L14 | -0.00025027 | cm/yr2 | +0.05 | ratio NOT INTERPRETABLE (obs is 0.53 se from zero); z=+0.05 vs the obs error bar |
+| Greenland | accel | BRICK 2.0 | 0.00014987 | cm/yr2 | +0.82 | ratio NOT INTERPRETABLE (obs is 0.53 se from zero); z=+0.82 vs the obs error bar |
 | thermal exp. | accel | observations | 0.0008428 | cm/yr2 | — | se: estimator 0.0002431, band-correlated 2.312e-05, band-independent 4.655e-05; CONSERVATIVE 0.0002431 cm/yr2; |obs|/se = 3.47 |
 | thermal exp. | accel | L14 | 0.00099983 | cm/yr2 | +0.65 | 1.19x obs; z=+0.65 vs the obs error bar |
 | thermal exp. | accel | BRICK 2.0 | 0.0013015 | cm/yr2 | +1.89 | 1.54x obs; z=+1.89 vs the obs error bar |
 | TOTAL | accel | observations | 0.00089376 | cm/yr2 | — | se: estimator 0.001159, band-correlated 0.0001276, band-independent 0.0002363; CONSERVATIVE 0.001159 cm/yr2; |obs|/se = 0.77 |
-| TOTAL | accel | L14 | 0.0010226 | cm/yr2 | +0.11 | 1.14x obs; z=+0.11 vs the obs error bar |
-| TOTAL | accel | BRICK 2.0 | 0.0022411 | cm/yr2 | +1.16 | 2.51x obs; z=+1.16 vs the obs error bar |
+| TOTAL | accel | L14 | 0.0010226 | cm/yr2 | +0.11 | ratio NOT INTERPRETABLE (obs is 0.77 se from zero); z=+0.11 vs the obs error bar |
+| TOTAL | accel | BRICK 2.0 | 0.0022411 | cm/yr2 | +1.16 | ratio NOT INTERPRETABLE (obs is 0.77 se from zero); z=+1.16 vs the obs error bar |
 
 ## [P] Projections vs the literature — scored on the JOINT band
 

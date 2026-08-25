@@ -75,20 +75,20 @@ R,total,,,rate/1993-2026/obs,observations,0.32469016393680694,cm/yr,,"se: estima
 R,total,,,rate/1993-2026,L14,0.33729908125462116,cm/yr,0.4275794534829544,1.04x obs; z=+0.43 vs the obs error bar,UNRESOLVED
 R,total,,,rate/1993-2026,BRICK 2.0,0.33830577139123374,cm/yr,0.4617171996184892,1.04x obs; z=+0.46 vs the obs error bar,UNRESOLVED
 R,ais,,,accel/1900-2026/obs,observations,0.00020498533831302088,cm/yr2,,"se: estimator 0.0001336, band-correlated 3.924e-05, band-independent 2.522e-05; CONSERVATIVE 0.0001336 cm/yr2; |obs|/se = 1.53",
-R,ais,,,accel/1900-2026,L14,0.00020186223925190244,cm/yr2,-0.023379593798052142,0.98x obs; z=-0.02 vs the obs error bar,UNRESOLVED
-R,ais,,,accel/1900-2026,BRICK 2.0,-9.541357568254188e-05,cm/yr2,-2.2487934097348523,-0.47x obs; z=-2.25 vs the obs error bar,FAIL
+R,ais,,,accel/1900-2026,L14,0.00020186223925190244,cm/yr2,-0.023379593798052142,ratio NOT INTERPRETABLE (obs is 1.53 se from zero); z=-0.02 vs the obs error bar,UNRESOLVED
+R,ais,,,accel/1900-2026,BRICK 2.0,-9.541357568254188e-05,cm/yr2,-2.2487934097348523,ratio NOT INTERPRETABLE (obs is 1.53 se from zero); z=-2.25 vs the obs error bar,FAIL
 R,glaciers,,,accel/1900-2026/obs,observations,-0.0005481419702105564,cm/yr2,,"se: estimator 0.000447, band-correlated 3.442e-05, band-independent 7.199e-05; CONSERVATIVE 0.000447 cm/yr2; |obs|/se = 1.23",
-R,glaciers,,,accel/1900-2026,L14,-9.9967332633772e-05,cm/yr2,1.002667390169676,0.18x obs; z=+1.00 vs the obs error bar,WARN
-R,glaciers,,,accel/1900-2026,BRICK 2.0,0.0008224198307519784,cm/yr2,3.0662547784219836,-1.50x obs; z=+3.07 vs the obs error bar,FAIL
+R,glaciers,,,accel/1900-2026,L14,-9.9967332633772e-05,cm/yr2,1.002667390169676,ratio NOT INTERPRETABLE (obs is 1.23 se from zero); z=+1.00 vs the obs error bar,WARN
+R,glaciers,,,accel/1900-2026,BRICK 2.0,0.0008224198307519784,cm/yr2,3.0662547784219836,ratio NOT INTERPRETABLE (obs is 1.23 se from zero); z=+3.07 vs the obs error bar,FAIL
 R,gis,,,accel/1900-2026/obs,observations,-0.0002782475046792864,cm/yr2,,"se: estimator 0.0005241, band-correlated 6.83e-05, band-independent 2.759e-05; CONSERVATIVE 0.0005241 cm/yr2; |obs|/se = 0.53",
-R,gis,,,accel/1900-2026,L14,-0.0002502700610752935,cm/yr2,0.05337952734687898,0.90x obs; z=+0.05 vs the obs error bar,UNRESOLVED
-R,gis,,,accel/1900-2026,BRICK 2.0,0.00014986911703895823,cm/yr2,0.8168245548138999,-0.54x obs; z=+0.82 vs the obs error bar,UNRESOLVED
+R,gis,,,accel/1900-2026,L14,-0.0002502700610752935,cm/yr2,0.05337952734687898,ratio NOT INTERPRETABLE (obs is 0.53 se from zero); z=+0.05 vs the obs error bar,UNRESOLVED
+R,gis,,,accel/1900-2026,BRICK 2.0,0.00014986911703895823,cm/yr2,0.8168245548138999,ratio NOT INTERPRETABLE (obs is 0.53 se from zero); z=+0.82 vs the obs error bar,UNRESOLVED
 R,te,,,accel/1900-2026/obs,observations,0.0008428010711617734,cm/yr2,,"se: estimator 0.0002431, band-correlated 2.312e-05, band-independent 4.655e-05; CONSERVATIVE 0.0002431 cm/yr2; |obs|/se = 3.47",
 R,te,,,accel/1900-2026,L14,0.0009998258908588422,cm/yr2,0.6459126530851451,1.19x obs; z=+0.65 vs the obs error bar,UNRESOLVED
 R,te,,,accel/1900-2026,BRICK 2.0,0.0013015024981817486,cm/yr2,1.8868421964884132,1.54x obs; z=+1.89 vs the obs error bar,WARN
 R,total,,,accel/1900-2026/obs,observations,0.0008937588048438077,cm/yr2,,"se: estimator 0.001159, band-correlated 0.0001276, band-independent 0.0002363; CONSERVATIVE 0.001159 cm/yr2; |obs|/se = 0.77",
-R,total,,,accel/1900-2026,L14,0.001022619220270505,cm/yr2,0.11121592396079366,1.14x obs; z=+0.11 vs the obs error bar,UNRESOLVED
-R,total,,,accel/1900-2026,BRICK 2.0,0.0022411471619516125,cm/yr2,1.1628942881610038,2.51x obs; z=+1.16 vs the obs error bar,WARN
+R,total,,,accel/1900-2026,L14,0.001022619220270505,cm/yr2,0.11121592396079366,ratio NOT INTERPRETABLE (obs is 0.77 se from zero); z=+0.11 vs the obs error bar,UNRESOLVED
+R,total,,,accel/1900-2026,BRICK 2.0,0.0022411471619516125,cm/yr2,1.1628942881610038,ratio NOT INTERPRETABLE (obs is 0.77 se from zero); z=+1.16 vs the obs error bar,WARN
 P,ais,ssp126,2100,median_joint,L14,4.289572032611721,cm,,mean 6.16 cm,
 P,ais,ssp126,2100,spread_joint,L14,6.906952206722018,cm,,p5-p95,
 P,ais,ssp126,2100,median_fixed,BRICK 2.0,4.213139291240442,cm,,spread 36.27 cm (parameter only),
