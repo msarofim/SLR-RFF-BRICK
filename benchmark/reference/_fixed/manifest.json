@@ -1,5 +1,5 @@
 {
-  "frozen_git_head": "5cbd0fd",
+  "frozen_git_head": "12b3eeb",
   "bench_version": "1.0",
   "files": {
     "targets": {
@@ -20,12 +20,12 @@
     },
     "magicc_source": {
       "source": "data/comparison/magicc_nauels_components.csv",
-      "sha256_16": "24b3845e7c1a454f"
+      "sha256_16": "1e47612319775fc6"
     },
     "literature": {
       "source": "outputs/ladrillo_model_comparison_L14.csv",
-      "sha256_16": "c6224c65af172c74",
-      "n_rows": 114,
+      "sha256_16": "380707840f25eb76",
+      "n_rows": 150,
       "sources": [
         "FACTS",
         "MAGICC-SLR"

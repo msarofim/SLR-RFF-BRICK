@@ -22,17 +22,24 @@ gis,rate,accel/1900-2026/L14,-0.0002502700610752,ratio NOT INTERPRETABLE (obs is
 gis,rate,accel/1900-2026/BRICK 2.0,0.0001498691170389,ratio NOT INTERPRETABLE (obs is 0.53 se from zero); z=+0.82 vs the obs error bar,UNRESOLVED
 gis,projection,ssp126_2100_median_vs_lit,0.9764678799113756,"ours 6.25 cm vs lit 5.46-7.67 (median 6.40), n_lit=3 [1 SEJ comparator(s) excluded from the score; full range 5.46-13.05]",PASS
 gis,projection,ssp126_2100_spread_vs_lit,0.4894718437750888,"ours 4.69 cm vs model-based lit 7.06-17.14 (median 9.57, n=3); ALL comparators 7.06-55.71",FAIL
-gis,projection,ssp126_2150_median_vs_lit,0.5754420020212722,"ours 7.58 cm vs lit 13.18-13.18 (median 13.18), n_lit=1 [1 SEJ comparator(s) excluded from the score; full range 13.18-22.20] ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
-gis,projection,ssp126_2150_spread_vs_lit,0.6209753603598973,"ours 6.90 cm vs model-based lit 11.12-11.12 (median 11.12, n=1); ALL comparators 11.12-86.94; ⚠ n=1 < 3, so this median is not a summary",PASS
+gis,projection,ssp126_2150_median_vs_lit,0.6743699527870398,"ours 7.58 cm vs lit 9.31-13.18 (median 11.25), n_lit=2 [1 SEJ comparator(s) excluded from the score; full range 9.31-22.20] ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+gis,projection,ssp126_2150_spread_vs_lit,0.514983681405023,"ours 6.90 cm vs model-based lit 11.12-15.69 (median 13.40, n=2); ALL comparators 11.12-86.94; ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+gis,projection,ssp126_2300_median_vs_lit,0.6320350118331474,"ours 9.47 cm vs lit 14.98-14.98 (median 14.98), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+gis,projection,ssp126_2300_spread_vs_lit,0.3991862303644286,"ours 11.74 cm vs model-based lit 29.41-29.41 (median 29.41, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN",WARN
 gis,projection,ssp245_2100_median_vs_lit,0.8821373545063067,"ours 8.19 cm vs lit 7.97-10.21 (median 9.28), n_lit=3 [1 SEJ comparator(s) excluded from the score; full range 7.97-14.39]",PASS
 gis,projection,ssp245_2100_spread_vs_lit,0.6866937044461274,"ours 5.73 cm vs model-based lit 7.85-16.85 (median 8.35, n=3); ALL comparators 7.85-72.68",PASS
-gis,projection,ssp245_2150_median_vs_lit,0.6571566042526795,"ours 11.96 cm vs lit 18.19-18.19 (median 18.19), n_lit=1 [1 SEJ comparator(s) excluded from the score; full range 18.19-25.62] ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
-gis,projection,ssp245_2150_spread_vs_lit,0.7422183862556936,"ours 11.08 cm vs model-based lit 14.93-14.93 (median 14.93, n=1); ALL comparators 14.93-88.90; ⚠ n=1 < 3, so this median is not a summary",PASS
+gis,projection,ssp245_2150_median_vs_lit,0.6886913264035147,"ours 11.96 cm vs lit 16.53-18.19 (median 17.36), n_lit=2 [1 SEJ comparator(s) excluded from the score; full range 16.53-25.62] ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+gis,projection,ssp245_2150_spread_vs_lit,0.7434342524409883,"ours 11.08 cm vs model-based lit 14.88-14.93 (median 14.91, n=2); ALL comparators 14.88-88.90; ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+gis,projection,ssp245_2300_median_vs_lit,0.4782996085045305,"ours 17.12 cm vs lit 35.79-35.79 (median 35.79), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+gis,projection,ssp245_2300_spread_vs_lit,0.5121837673064854,"ours 20.95 cm vs model-based lit 40.91-40.91 (median 40.91, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary",PASS
 gis,projection,ssp585_2100_median_vs_lit,0.9893935475761956,"ours 13.35 cm vs lit 12.72-14.02 (median 13.49), n_lit=3 [1 SEJ comparator(s) excluded from the score; full range 12.72-20.28]",PASS
 gis,projection,ssp585_2100_spread_vs_lit,0.9220719169378134,"ours 11.21 cm vs model-based lit 11.46-17.10 (median 12.15, n=3); ALL comparators 11.46-93.18",PASS
-gis,projection,ssp585_2150_median_vs_lit,0.9875471628280496,"ours 26.99 cm vs lit 27.33-27.33 (median 27.33), n_lit=1 [1 SEJ comparator(s) excluded from the score; full range 27.33-38.13] ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
-gis,projection,ssp585_2150_spread_vs_lit,1.0767887903449764,"ours 26.88 cm vs model-based lit 24.97-24.97 (median 24.97, n=1); ALL comparators 24.97-121.86; ⚠ n=1 < 3, so this median is not a summary",PASS
+gis,projection,ssp585_2150_median_vs_lit,0.9037313701420788,"ours 26.99 cm vs lit 27.33-32.40 (median 29.87), n_lit=2 [1 SEJ comparator(s) excluded from the score; full range 27.33-38.13] ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+gis,projection,ssp585_2150_spread_vs_lit,0.4637573965461515,"ours 26.88 cm vs model-based lit 24.97-90.97 (median 57.97, n=2); ALL comparators 24.97-121.86; ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN",WARN
+gis,projection,ssp585_2300_median_vs_lit,0.4201861233427386,"ours 47.48 cm vs lit 113.01-113.01 (median 113.01), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+gis,projection,ssp585_2300_spread_vs_lit,0.0892815357315009,"ours 60.73 cm vs model-based lit 680.24-680.24 (median 680.24, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN",WARN
 gis,separation,2100,2.1356478188043364,FACTS 1.55-2.33 (n=3); MAGICC-SLR 2.11-2.11 (n=1),PASS
-gis,separation,2150,3.5589840203711005,FACTS 1.72-2.07 (n=2); 1.49 outside the bracket = 417% of its own range  [NO UPPER COMPARATOR AT THIS HORIZON],WARN
+gis,separation,2150,3.5589840203711005,FACTS 1.72-2.07 (n=2); MAGICC-SLR 3.48-3.48 (n=1); 0.08 outside the bracket = 5% of its own range,PASS(edge)
+gis,separation,2300,5.015867798415793,MAGICC-SLR 7.54-7.54 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON],WARN
 gis,priority,addressable_ssp585_2300,0.088,share of the non-forcing spread,
 gis,priority,addressable_ssp126_2100,0.154,share of the non-forcing spread,

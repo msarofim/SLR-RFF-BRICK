@@ -1,0 +1,28 @@
+# EXTRA literature comparators, merged into the frozen literature arm by bench_ladrillo.py.
+#
+# WHY THIS FILE EXISTS. FACTS stops at 2150 and, until 2026-08-25, our own extractor cut
+# MAGICC-SLR at 2100. Even with MAGICC now carried to 2300, that horizon has exactly ONE
+# comparator -- and it is the one saying ssp585 AIS reaches 712 cm, 2.6x what two
+# independently-calibrated ice-sheet models publish. A single comparator that extreme should
+# not be the only voice at the horizon where our own numbers are largest.
+#
+# EVERY ROW CARRIES ITS CITATION. Values are transcribed from the paper, not inferred.
+#
+# ⚠ WHY ONLY ssp585 IS ENTERED FOR COULON. Their two ice-sheet models publish 2300 medians
+# of 267 and 273 cm at ssp585 -- they agree, so which row is Kori-ULB and which is PISM does
+# not change anything. At ssp126 they publish 3 cm and 110 cm: a 37x disagreement, where the
+# pairing DOES matter and where `python/diag_ais_coulon_like_for_like.py` records the two
+# medians as a NAMELESS TUPLE. Entering them would let the separation block pair each model
+# across scenarios on an attribution this repo has not itself verified -- the
+# `nameless_matrix_order` failure mode, and the exact averaging error that already forced the
+# retraction of an exponent reading from this same paper. Left out deliberately.
+#
+# ⚠ Coulon runs NO MICI. That is a scope statement, not a defect: it is why their band is a
+# useful check on a MAGICC-SLR number that plainly includes a fast-collapse channel.
+#
+# p05/p95 may be blank -- a row with no band contributes to the MEDIAN comparison only.
+# Coulon's published 5-95% band (73-595 cm at ssp585) is POOLED across both models, so it is
+# not attached to either row.
+source,module,scenario,component,year,med,p05,p17,p83,p95,citation
+Coulon25,Coulon25-KoriULB,ssp585,ais,2300,267.0,,,,,Coulon et al. 2025 Table 1; PMC12680641; Bayesian-calibrated on IMBIE 1992-2020; NO MICI
+Coulon25,Coulon25-PISM,ssp585,ais,2300,273.0,,,,,Coulon et al. 2025 Table 1; PMC12680641; Bayesian-calibrated on IMBIE 1992-2020; NO MICI

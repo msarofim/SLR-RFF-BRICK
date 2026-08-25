@@ -22,17 +22,24 @@ glaciers,rate,accel/1900-2026/L14,-9.9967332633772e-05,ratio NOT INTERPRETABLE (
 glaciers,rate,accel/1900-2026/BRICK 2.0,0.0008224198307519,ratio NOT INTERPRETABLE (obs is 1.23 se from zero); z=+3.07 vs the obs error bar,FAIL
 glaciers,projection,ssp126_2100_median_vs_lit,0.8357994471484312,"ours 7.73 cm vs lit 8.95-10.45 (median 9.25), n_lit=3",WARN
 glaciers,projection,ssp126_2100_spread_vs_lit,0.8156419991996489,"ours 6.00 cm vs model-based lit 7.12-7.85 (median 7.36, n=3)",PASS
-glaciers,projection,ssp126_2150_median_vs_lit,0.7851052513354438,"ours 9.42 cm vs lit 12.00-12.00 (median 12.00), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
-glaciers,projection,ssp126_2150_spread_vs_lit,0.6684987775893825,"ours 7.95 cm vs model-based lit 11.89-11.89 (median 11.89, n=1); ⚠ n=1 < 3, so this median is not a summary",PASS
+glaciers,projection,ssp126_2150_median_vs_lit,0.7760875631365702,"ours 9.42 cm vs lit 12.00-12.28 (median 12.14), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+glaciers,projection,ssp126_2150_spread_vs_lit,0.7789677403883465,"ours 7.95 cm vs model-based lit 8.52-11.89 (median 10.21, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+glaciers,projection,ssp126_2300_median_vs_lit,0.8553094087262324,"ours 11.80 cm vs lit 13.80-13.80 (median 13.80), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+glaciers,projection,ssp126_2300_spread_vs_lit,0.9804574193111514,"ours 11.01 cm vs model-based lit 11.23-11.23 (median 11.23, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary",PASS
 glaciers,projection,ssp245_2100_median_vs_lit,0.8002999589497708,"ours 9.77 cm vs lit 11.38-12.54 (median 12.21), n_lit=3",WARN
 glaciers,projection,ssp245_2100_spread_vs_lit,0.8718240338653139,"ours 6.70 cm vs model-based lit 7.42-9.60 (median 7.68, n=3)",PASS
-glaciers,projection,ssp245_2150_median_vs_lit,0.7692715910290508,"ours 13.49 cm vs lit 17.53-17.53 (median 17.53), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
-glaciers,projection,ssp245_2150_spread_vs_lit,0.5793465450760794,"ours 9.65 cm vs model-based lit 16.65-16.65 (median 16.65, n=1); ⚠ n=1 < 3, so this median is not a summary",PASS
+glaciers,projection,ssp245_2150_median_vs_lit,0.7876446277306814,"ours 13.49 cm vs lit 16.71-17.53 (median 17.12), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+glaciers,projection,ssp245_2150_spread_vs_lit,0.7474874068233557,"ours 9.65 cm vs model-based lit 9.16-16.65 (median 12.91, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+glaciers,projection,ssp245_2300_median_vs_lit,0.8472216812662733,"ours 18.19 cm vs lit 21.47-21.47 (median 21.47), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+glaciers,projection,ssp245_2300_spread_vs_lit,1.1747560355749715,"ours 12.86 cm vs model-based lit 10.95-10.95 (median 10.95, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary",PASS
 glaciers,projection,ssp585_2100_median_vs_lit,0.9055049676885868,"ours 14.00 cm vs lit 15.30-17.73 (median 15.46), n_lit=3",WARN
 glaciers,projection,ssp585_2100_spread_vs_lit,0.9424023803812236,"ours 8.87 cm vs model-based lit 8.51-13.85 (median 9.41, n=3)",PASS
-glaciers,projection,ssp585_2150_median_vs_lit,0.755240977029439,"ours 21.45 cm vs lit 28.40-28.40 (median 28.40), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
-glaciers,projection,ssp585_2150_spread_vs_lit,0.7398764207712886,"ours 11.49 cm vs model-based lit 15.53-15.53 (median 15.53, n=1); ⚠ n=1 < 3, so this median is not a summary",PASS
+glaciers,projection,ssp585_2150_median_vs_lit,0.8506213514882446,"ours 21.45 cm vs lit 22.03-28.40 (median 25.22), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+glaciers,projection,ssp585_2150_spread_vs_lit,0.8968488184866333,"ours 11.49 cm vs model-based lit 10.09-15.53 (median 12.81, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+glaciers,projection,ssp585_2300_median_vs_lit,0.928167464099365,"ours 27.01 cm vs lit 29.10-29.10 (median 29.10), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+glaciers,projection,ssp585_2300_spread_vs_lit,1.215244088191909,"ours 11.95 cm vs model-based lit 9.83-9.83 (median 9.83, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary",PASS
 glaciers,separation,2100,1.8118894356732365,FACTS 1.73-1.92 (n=2); MAGICC-SLR 1.46-1.46 (n=1),PASS
-glaciers,separation,2150,2.277128970043679,FACTS 2.37-2.37 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON],WARN
+glaciers,separation,2150,2.277128970043679,FACTS 2.37-2.37 (n=1); MAGICC-SLR 1.79-1.79 (n=1),PASS
+glaciers,separation,2300,2.2883925116750214,MAGICC-SLR 2.11-2.11 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON],WARN
 glaciers,priority,addressable_ssp585_2300,0.035,share of the non-forcing spread,
 glaciers,priority,addressable_ssp126_2100,0.401,share of the non-forcing spread,

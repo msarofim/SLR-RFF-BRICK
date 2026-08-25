@@ -54,6 +54,9 @@ CHAMPIONS_JSON = os.path.join(BENCH, "champions.json")
 # Comparator classification (see the file's own header for the line drawn and why).
 # Anything not listed is class `model`.
 CLASSES_CSV = os.path.join(BENCH, "comparator_classes.csv")
+# Extra comparators the FACTS/MAGICC extraction does not carry, each with its citation.
+# This is the extension slot: adding a literature constraint means adding rows here.
+EXTRA_CSV = os.path.join(BENCH, "literature_extra.csv")
 
 # ------------------------------------------------------------------ constants
 # Every label, filename and console line below derives from these names, so a
@@ -66,7 +69,10 @@ WINDOWS = [("full", None), ("1920-1949", (1920, 1949)),
 RATE_WINDOW = (1993, 2026)         # the altimetry era: where a rate is measurable
 ACCEL_WINDOW = (1900, 2026)        # the whole record: an acceleration needs the span
 HORIZONS = [2100, 2150, 2300]
-LIT_HORIZONS = [2100, 2150]        # the horizons FACTS covers; MAGICC-SLR covers 2100 only
+## FACTS covers 2100 and 2150; MAGICC-SLR covers 2100-2300 (its run always did -- our
+## extractor was cutting it at 2100 until 2026-08-25). 2300 therefore has exactly ONE
+## comparator and its verdicts are capped at WARN by MIN_LIT_FOR_MEDIAN.
+LIT_HORIZONS = [2100, 2150, 2300]
 SSPS = ["ssp126", "ssp245", "ssp585"]
 SEP_LO, SEP_HI = "ssp126", "ssp585"
 # How close to the literature bracket's EDGE still counts as inside it. Marcus's
@@ -282,9 +288,21 @@ def literature_rows(cand_comparison):
     the newer one and that is a decision, not a default."""
     live = pd.read_csv(cand_comparison)
     live = live[~live.source.isin(["Ladrillo", "BRICK 2.0"])]
+    def add_extra(df):
+        if not os.path.exists(EXTRA_CSV):
+            return df
+        e = pd.read_csv(EXTRA_CSV, comment="#")
+        if e.empty:
+            return df
+        print(f"  + {len(e)} extra comparator row(s) from "
+              f"{os.path.relpath(EXTRA_CSV, REPO)}: "
+              f"{', '.join(sorted(e.module.unique()))}")
+        return pd.concat([df, e[[c for c in df.columns if c in e.columns]]],
+                         ignore_index=True)
+
     p = fixed("literature")
     if not os.path.exists(p):
-        return live, "live (not yet frozen -- run --freeze-fixed)"
+        return add_extra(live), "live (not yet frozen -- run --freeze-fixed)"
     frozen = pd.read_csv(p)
     k = ["source", "module", "scenario", "component", "year"]
     j = frozen.merge(live, on=k, suffixes=("_f", "_l"), how="outer", indicator=True)
@@ -294,7 +312,7 @@ def literature_rows(cand_comparison):
         print(f"! LITERATURE ARM MOVED: {len(moved)} of {len(j)} rows differ between the "
               f"frozen copy and {os.path.basename(cand_comparison)}. Scoring on the FROZEN "
               "copy. Re-freeze deliberately if the new extraction is the one you want.")
-    return frozen, "frozen"
+    return add_extra(frozen), "frozen"
 
 
 def comparator_classes():
@@ -574,7 +592,12 @@ def block_projection(rows, cand_tag, champ_tag, cand_p, champ_p):
                 meds = lit.med.astype(float).values
                 sps = (lit.p95.astype(float) - lit.p05.astype(float)).dropna().values
                 sps_all = (lit_all.p95.astype(float) - lit_all.p05.astype(float)).dropna().values
+                # ⚠ PER METRIC, not per cell. A comparator can supply a MEDIAN without a
+                # BAND (Coulon's published 5-95% is pooled across its two models, so it is
+                # attached to neither row), so the two comparisons can have different n and
+                # a single `thin` flag silently un-caps the one that is still thin.
                 thin = len(meds) < MIN_LIT_FOR_MEDIAN
+                thin_sp = len(sps) < MIN_LIT_FOR_MEDIAN
                 inside = float(np.min(meds)) <= cm <= float(np.max(meds))
                 ratio = cm / float(np.median(meds)) if np.median(meds) != 0 else np.nan
                 # On a bimodal cell the MEDIAN is a valid statistic but it sits entirely
@@ -612,7 +635,7 @@ def block_projection(rows, cand_tag, champ_tag, cand_p, champ_p):
                         v = "N/A(by construction)"
                     elif bimodal:
                         v = "N/A(bimodal)"
-                    elif thin:
+                    elif thin_sp:
                         v = ("PASS" if SPREAD_PASS[0] <= sr <= SPREAD_PASS[1] else "WARN")
                     else:
                         v = ("PASS" if SPREAD_PASS[0] <= sr <= SPREAD_PASS[1] else
@@ -637,11 +660,11 @@ def block_projection(rows, cand_tag, champ_tag, cand_p, champ_p):
                              f"{np.max(sps):.2f} (median {np.median(sps):.2f}, n={len(sps)})" +
                              (f"; ALL comparators {np.min(sps_all):.2f}-{np.max(sps_all):.2f}"
                               if n_excl else "") +
-                             (f"; ⚠ n={len(sps)} < {MIN_LIT_FOR_MEDIAN}, so this median is "
-                              "not a summary" +
+                             (f"; ⚠ n={len(sps)} < {MIN_LIT_FOR_MEDIAN} comparators WITH A "
+                              "BAND, so this median is not a summary" +
                               ("; verdict CAPPED at WARN"
                                if not SPREAD_PASS[0] <= sr <= SPREAD_PASS[1] else "")
-                              if thin else "") +
+                              if thin_sp else "") +
                              ("; width here is the antarctic_lambda PRIOR -- do NOT narrow"
                               if prior else "") +
                              ("; LWS is a seeded constant -- zero spread is the DESIGN,"

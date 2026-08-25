@@ -37,7 +37,16 @@ OUT = os.path.join(REPO, "data/comparison/magicc_nauels_components.csv")
 
 BASE_YEARS = list(range(1995, 2015))
 MM_TO_CM = 0.1
-YEARS_OUT = list(range(2000, 2101))          # this MAGICC run ends at 2100
+## ⚠ CORRECTED 2026-08-25. This used to read `range(2000, 2101)` with the comment "this
+## MAGICC run ends at 2100". THE RUN DOES NOT END AT 2100 — the source file carries annual
+## columns through 2305-01-01, because `slr-refresh/notebooks/302_run-magicc-scenarios-SSPs.py`
+## sets `endyear_run = 2300 + 5` and its own summary table filters to `year=[2100, 2300]`.
+## The 2100 cut was OURS, and it is why every comparison this repo has ever made at 2150 had
+## only FACTS to compare against ("NO UPPER COMPARATOR AT THIS HORIZON" in bench_ladrillo,
+## and step 1's caveat that the separation ruling "is a 2100 statement"). No MAGICC re-run is
+## needed to fix it; only this line was wrong.
+## [YEARS-PRESENT] below asserts the columns actually exist rather than trusting this range.
+YEARS_OUT = list(range(2000, 2301))
 SSPS = ["ssp119", "ssp126", "ssp245", "ssp370", "ssp585"]
 COMPONENT_MAP = {
     "te":       ["SLR_EXPANSION"],
@@ -62,6 +71,14 @@ def load_source():
 
 def main():
     df, years = load_source()
+    # [YEARS-PRESENT] the whole point of the 2026-08-25 correction is that the requested
+    # horizon must be CHECKED against the file, not assumed from a comment.
+    missing = [y for y in YEARS_OUT if y not in years]
+    if missing:
+        raise SystemExit(f"source lacks {len(missing)} requested years "
+                         f"({missing[0]}-{missing[-1]}); it spans {min(years)}-{max(years)}")
+    print(f"[YEARS-PRESENT] source spans {min(years)}-{max(years)}; "
+          f"extracting {YEARS_OUT[0]}-{YEARS_OUT[-1]}")
     needed = {v for vs in COMPONENT_MAP.values() for v in vs}
     units = df[df.variable.isin(needed)].unit.unique()
     assert set(units) == {"mm"}, f"expected mm-valued SLR series, got {units}"
@@ -96,7 +113,9 @@ def main():
     out.to_csv(OUT, index=False)
     print(f"wrote {os.path.relpath(OUT, REPO)}  ({len(out)} rows, "
           f"{out.scenario.nunique()} scenarios x {out.component.nunique()} components)")
-    print(out[(out.year == 2100)].to_string(index=False))
+    for y in (2100, 2150, 2300):
+        print(f"\n--- {y} ---")
+        print(out[out.year == y].to_string(index=False))
 
 
 if __name__ == "__main__":

@@ -69,21 +69,28 @@ STEP 2 — GLACIERS MODULE ASSESSMENT (L14) vs BRICK 2.0 and the literature
 [3] PROJECTION — level and spread vs FACTS / MAGICC-SLR / BRICK 2.0, on the JOINT band
     ssp126 @2100  median_vs_lit   0.836 x lit median   WARN                 ours 7.73 cm vs lit 8.95-10.45 (median 9.25), n_lit=3
     ssp126 @2100  spread_vs_lit   0.816 x lit spread   PASS                 ours 6.00 cm vs model-based lit 7.12-7.85 (median 7.36, n=3)
-    ssp126 @2150  median_vs_lit   0.785 x lit median   WARN                 ours 9.42 cm vs lit 12.00-12.00 (median 12.00), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN
-    ssp126 @2150  spread_vs_lit   0.668 x lit spread   PASS                 ours 7.95 cm vs model-based lit 11.89-11.89 (median 11.89, n=1); ⚠ n=1 < 3, so this median is not a summary
+    ssp126 @2150  median_vs_lit   0.776 x lit median   WARN                 ours 9.42 cm vs lit 12.00-12.28 (median 12.14), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN
+    ssp126 @2150  spread_vs_lit   0.779 x lit spread   PASS                 ours 7.95 cm vs model-based lit 8.52-11.89 (median 10.21, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary
+    ssp126 @2300  median_vs_lit   0.855 x lit median   WARN                 ours 11.80 cm vs lit 13.80-13.80 (median 13.80), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN
+    ssp126 @2300  spread_vs_lit   0.980 x lit spread   PASS                 ours 11.01 cm vs model-based lit 11.23-11.23 (median 11.23, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary
     ssp245 @2100  median_vs_lit   0.800 x lit median   WARN                 ours 9.77 cm vs lit 11.38-12.54 (median 12.21), n_lit=3
     ssp245 @2100  spread_vs_lit   0.872 x lit spread   PASS                 ours 6.70 cm vs model-based lit 7.42-9.60 (median 7.68, n=3)
-    ssp245 @2150  median_vs_lit   0.769 x lit median   WARN                 ours 13.49 cm vs lit 17.53-17.53 (median 17.53), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN
-    ssp245 @2150  spread_vs_lit   0.579 x lit spread   PASS                 ours 9.65 cm vs model-based lit 16.65-16.65 (median 16.65, n=1); ⚠ n=1 < 3, so this median is not a summary
+    ssp245 @2150  median_vs_lit   0.788 x lit median   WARN                 ours 13.49 cm vs lit 16.71-17.53 (median 17.12), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN
+    ssp245 @2150  spread_vs_lit   0.747 x lit spread   PASS                 ours 9.65 cm vs model-based lit 9.16-16.65 (median 12.91, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary
+    ssp245 @2300  median_vs_lit   0.847 x lit median   WARN                 ours 18.19 cm vs lit 21.47-21.47 (median 21.47), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN
+    ssp245 @2300  spread_vs_lit   1.175 x lit spread   PASS                 ours 12.86 cm vs model-based lit 10.95-10.95 (median 10.95, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary
     ssp585 @2100  median_vs_lit   0.906 x lit median   WARN                 ours 14.00 cm vs lit 15.30-17.73 (median 15.46), n_lit=3
     ssp585 @2100  spread_vs_lit   0.942 x lit spread   PASS                 ours 8.87 cm vs model-based lit 8.51-13.85 (median 9.41, n=3)
-    ssp585 @2150  median_vs_lit   0.755 x lit median   WARN                 ours 21.45 cm vs lit 28.40-28.40 (median 28.40), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN
-    ssp585 @2150  spread_vs_lit   0.740 x lit spread   PASS                 ours 11.49 cm vs model-based lit 15.53-15.53 (median 15.53, n=1); ⚠ n=1 < 3, so this median is not a summary
+    ssp585 @2150  median_vs_lit   0.851 x lit median   WARN                 ours 21.45 cm vs lit 22.03-28.40 (median 25.22), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN
+    ssp585 @2150  spread_vs_lit   0.897 x lit spread   PASS                 ours 11.49 cm vs model-based lit 10.09-15.53 (median 12.81, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary
+    ssp585 @2300  median_vs_lit   0.928 x lit median   WARN                 ours 27.01 cm vs lit 29.10-29.10 (median 29.10), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN
+    ssp585 @2300  spread_vs_lit   1.215 x lit spread   PASS                 ours 11.95 cm vs model-based lit 9.83-9.83 (median 9.83, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary
 
     SCENARIO SEPARATION (ssp585/ssp126 median). Marcus 2026-08-25: lying BETWEEN
     FACTS and MAGICC is acceptable, so the verdict is bracket membership.
     @2100    1.81x   PASS         FACTS 1.73-1.92 (n=2); MAGICC-SLR 1.46-1.46 (n=1)
-    @2150    2.28x   WARN         FACTS 2.37-2.37 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON]
+    @2150    2.28x   PASS         FACTS 2.37-2.37 (n=1); MAGICC-SLR 1.79-1.79 (n=1)
+    @2300    2.29x   WARN         MAGICC-SLR 2.11-2.11 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON]
 
 [4] HOW MUCH THIS MODULE MATTERS, and how much of its width evidence could move
     share of ADDRESSABLE uncertainty: ssp585@2300 3.5%, ssp126@2100 40.1%
@@ -158,21 +165,28 @@ STEP 3 — GREENLAND MODULE ASSESSMENT (L14) vs BRICK 2.0 and the literature
 [3] PROJECTION — level and spread vs FACTS / MAGICC-SLR / BRICK 2.0, on the JOINT band
     ssp126 @2100  median_vs_lit   0.976 x lit median   PASS                 ours 6.25 cm vs lit 5.46-7.67 (median 6.40), n_lit=3 [1 SEJ comparator(s) excluded from the score; full range 5.46-13.05]
     ssp126 @2100  spread_vs_lit   0.489 x lit spread   FAIL                 ours 4.69 cm vs model-based lit 7.06-17.14 (median 9.57, n=3); ALL comparators 7.06-55.71
-    ssp126 @2150  median_vs_lit   0.575 x lit median   WARN                 ours 7.58 cm vs lit 13.18-13.18 (median 13.18), n_lit=1 [1 SEJ comparator(s) excluded from the score; full range 13.18-22.20] ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN
-    ssp126 @2150  spread_vs_lit   0.621 x lit spread   PASS                 ours 6.90 cm vs model-based lit 11.12-11.12 (median 11.12, n=1); ALL comparators 11.12-86.94; ⚠ n=1 < 3, so this median is not a summary
+    ssp126 @2150  median_vs_lit   0.674 x lit median   WARN                 ours 7.58 cm vs lit 9.31-13.18 (median 11.25), n_lit=2 [1 SEJ comparator(s) excluded from the score; full range 9.31-22.20] ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN
+    ssp126 @2150  spread_vs_lit   0.515 x lit spread   PASS                 ours 6.90 cm vs model-based lit 11.12-15.69 (median 13.40, n=2); ALL comparators 11.12-86.94; ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary
+    ssp126 @2300  median_vs_lit   0.632 x lit median   WARN                 ours 9.47 cm vs lit 14.98-14.98 (median 14.98), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN
+    ssp126 @2300  spread_vs_lit   0.399 x lit spread   WARN                 ours 11.74 cm vs model-based lit 29.41-29.41 (median 29.41, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN
     ssp245 @2100  median_vs_lit   0.882 x lit median   PASS                 ours 8.19 cm vs lit 7.97-10.21 (median 9.28), n_lit=3 [1 SEJ comparator(s) excluded from the score; full range 7.97-14.39]
     ssp245 @2100  spread_vs_lit   0.687 x lit spread   PASS                 ours 5.73 cm vs model-based lit 7.85-16.85 (median 8.35, n=3); ALL comparators 7.85-72.68
-    ssp245 @2150  median_vs_lit   0.657 x lit median   WARN                 ours 11.96 cm vs lit 18.19-18.19 (median 18.19), n_lit=1 [1 SEJ comparator(s) excluded from the score; full range 18.19-25.62] ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN
-    ssp245 @2150  spread_vs_lit   0.742 x lit spread   PASS                 ours 11.08 cm vs model-based lit 14.93-14.93 (median 14.93, n=1); ALL comparators 14.93-88.90; ⚠ n=1 < 3, so this median is not a summary
+    ssp245 @2150  median_vs_lit   0.689 x lit median   WARN                 ours 11.96 cm vs lit 16.53-18.19 (median 17.36), n_lit=2 [1 SEJ comparator(s) excluded from the score; full range 16.53-25.62] ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN
+    ssp245 @2150  spread_vs_lit   0.743 x lit spread   PASS                 ours 11.08 cm vs model-based lit 14.88-14.93 (median 14.91, n=2); ALL comparators 14.88-88.90; ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary
+    ssp245 @2300  median_vs_lit   0.478 x lit median   WARN                 ours 17.12 cm vs lit 35.79-35.79 (median 35.79), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN
+    ssp245 @2300  spread_vs_lit   0.512 x lit spread   PASS                 ours 20.95 cm vs model-based lit 40.91-40.91 (median 40.91, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary
     ssp585 @2100  median_vs_lit   0.989 x lit median   PASS                 ours 13.35 cm vs lit 12.72-14.02 (median 13.49), n_lit=3 [1 SEJ comparator(s) excluded from the score; full range 12.72-20.28]
     ssp585 @2100  spread_vs_lit   0.922 x lit spread   PASS                 ours 11.21 cm vs model-based lit 11.46-17.10 (median 12.15, n=3); ALL comparators 11.46-93.18
-    ssp585 @2150  median_vs_lit   0.988 x lit median   WARN                 ours 26.99 cm vs lit 27.33-27.33 (median 27.33), n_lit=1 [1 SEJ comparator(s) excluded from the score; full range 27.33-38.13] ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN
-    ssp585 @2150  spread_vs_lit   1.077 x lit spread   PASS                 ours 26.88 cm vs model-based lit 24.97-24.97 (median 24.97, n=1); ALL comparators 24.97-121.86; ⚠ n=1 < 3, so this median is not a summary
+    ssp585 @2150  median_vs_lit   0.904 x lit median   WARN                 ours 26.99 cm vs lit 27.33-32.40 (median 29.87), n_lit=2 [1 SEJ comparator(s) excluded from the score; full range 27.33-38.13] ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN
+    ssp585 @2150  spread_vs_lit   0.464 x lit spread   WARN                 ours 26.88 cm vs model-based lit 24.97-90.97 (median 57.97, n=2); ALL comparators 24.97-121.86; ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN
+    ssp585 @2300  median_vs_lit   0.420 x lit median   WARN                 ours 47.48 cm vs lit 113.01-113.01 (median 113.01), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN
+    ssp585 @2300  spread_vs_lit   0.089 x lit spread   WARN                 ours 60.73 cm vs model-based lit 680.24-680.24 (median 680.24, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN
 
     SCENARIO SEPARATION (ssp585/ssp126 median). Marcus 2026-08-25: lying BETWEEN
     FACTS and MAGICC is acceptable, so the verdict is bracket membership.
     @2100    2.14x   PASS         FACTS 1.55-2.33 (n=3); MAGICC-SLR 2.11-2.11 (n=1)
-    @2150    3.56x   WARN         FACTS 1.72-2.07 (n=2); 1.49 outside the bracket = 417% of its own range  [NO UPPER COMPARATOR AT THIS HORIZON]
+    @2150    3.56x   PASS(edge)   FACTS 1.72-2.07 (n=2); MAGICC-SLR 3.48-3.48 (n=1); 0.08 outside the bracket = 5% of its own range
+    @2300    5.02x   WARN         MAGICC-SLR 7.54-7.54 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON]
 
 [4] HOW MUCH THIS MODULE MATTERS, and how much of its width evidence could move
     share of ADDRESSABLE uncertainty: ssp585@2300 8.8%, ssp126@2100 15.4%
@@ -235,21 +249,28 @@ STEP 4 — THE SUM MODULE ASSESSMENT (L14) vs BRICK 2.0 and the literature
 [3] PROJECTION — level and spread vs FACTS / MAGICC-SLR / BRICK 2.0, on the JOINT band
     ssp126 @2100  median_vs_lit   0.814 x lit median   WARN                 ours 34.33 cm vs lit 35.59-53.47 (median 42.18), n_lit=8; ⚠ BIMODAL cell -- our MEAN is 36.92 cm = 0.88x the literature median, and the median sits entirely inside the near mode
     ssp126 @2100  spread_vs_lit   0.681 x lit spread   N/A(bimodal)         ours 24.33 cm vs model-based lit 25.25-107.65 (median 35.74, n=8); ⚠ p05-p99/p05-p95 = 3.04 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 73.87 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model
-    ssp126 @2150  median_vs_lit   0.608 x lit median   WARN                 ours 44.64 cm vs lit 60.20-83.12 (median 73.46), n_lit=4; ⚠ BIMODAL cell -- our MEAN is 49.52 cm = 0.67x the literature median, and the median sits entirely inside the near mode
-    ssp126 @2150  spread_vs_lit   0.533 x lit spread   N/A(bimodal)         ours 36.51 cm vs model-based lit 53.31-200.59 (median 68.46, n=4); ⚠ p05-p99/p05-p95 = 3.76 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 137.35 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model
+    ssp126 @2150  median_vs_lit   0.620 x lit median   WARN                 ours 44.64 cm vs lit 45.94-83.12 (median 72.02), n_lit=5; ⚠ BIMODAL cell -- our MEAN is 49.52 cm = 0.69x the literature median, and the median sits entirely inside the near mode
+    ssp126 @2150  spread_vs_lit   0.619 x lit spread   N/A(bimodal)         ours 36.51 cm vs model-based lit 53.31-200.59 (median 58.97, n=5); ⚠ p05-p99/p05-p95 = 3.76 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 137.35 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model
+    ssp126 @2300  median_vs_lit   0.969 x lit median   WARN                 ours 64.44 cm vs lit 66.49-66.49 (median 66.49), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN; ⚠ BIMODAL cell -- our MEAN is 77.68 cm = 1.17x the literature median, and the median sits entirely inside the near mode
+    ssp126 @2300  spread_vs_lit   1.026 x lit spread   N/A(bimodal)         ours 119.61 cm vs model-based lit 116.60-116.60 (median 116.60, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary; ⚠ p05-p99/p05-p95 = 2.59 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 309.32 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model
     ssp245 @2100  median_vs_lit   0.827 x lit median   WARN                 ours 44.92 cm vs lit 48.68-67.90 (median 54.29), n_lit=8
     ssp245 @2100  spread_vs_lit   1.090 x lit spread   PASS                 ours 59.55 cm vs model-based lit 32.00-146.33 (median 54.65, n=8)
-    ssp245 @2150  median_vs_lit   0.704 x lit median   WARN                 ours 71.57 cm vs lit 80.04-111.19 (median 101.68), n_lit=4
-    ssp245 @2150  spread_vs_lit   0.588 x lit spread   PASS                 ours 128.99 cm vs model-based lit 59.41-382.80 (median 219.39, n=4)
+    ssp245 @2150  median_vs_lit   0.729 x lit median   WARN                 ours 71.57 cm vs lit 80.04-111.19 (median 98.15), n_lit=5
+    ssp245 @2150  spread_vs_lit   1.191 x lit spread   PASS                 ours 128.99 cm vs model-based lit 59.41-382.80 (median 108.33, n=5)
+    ssp245 @2300  median_vs_lit   0.872 x lit median   WARN                 ours 162.84 cm vs lit 186.77-186.77 (median 186.77), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN
+    ssp245 @2300  spread_vs_lit   1.022 x lit spread   PASS                 ours 347.18 cm vs model-based lit 339.75-339.75 (median 339.75, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary
     ssp585 @2100  median_vs_lit   1.086 x lit median   PASS                 ours 92.45 cm vs lit 64.93-97.85 (median 85.09), n_lit=8
     ssp585 @2100  spread_vs_lit   1.159 x lit spread   PASS                 ours 81.94 cm vs model-based lit 41.09-197.47 (median 70.69, n=8)
-    ssp585 @2150  median_vs_lit   1.246 x lit median   PASS                 ours 195.59 cm vs lit 117.08-310.66 (median 157.02), n_lit=4
-    ssp585 @2150  spread_vs_lit   0.521 x lit spread   PASS                 ours 147.38 cm vs model-based lit 77.93-631.59 (median 282.66, n=4)
+    ssp585 @2150  median_vs_lit   1.205 x lit median   PASS                 ours 195.59 cm vs lit 117.08-310.66 (median 162.34), n_lit=5
+    ssp585 @2150  spread_vs_lit   0.365 x lit spread   FAIL                 ours 147.38 cm vs model-based lit 77.93-631.59 (median 403.38, n=5)
+    ssp585 @2300  median_vs_lit   0.454 x lit median   WARN                 ours 461.72 cm vs lit 1015.98-1015.98 (median 1015.98), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN
+    ssp585 @2300  spread_vs_lit   0.279 x lit spread   WARN                 ours 385.07 cm vs model-based lit 1379.10-1379.10 (median 1379.10, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN
 
     SCENARIO SEPARATION (ssp585/ssp126 median). Marcus 2026-08-25: lying BETWEEN
     FACTS and MAGICC is acceptable, so the verdict is bracket membership.
     @2100    2.69x   PASS         FACTS 1.63-2.23 (n=7); MAGICC-SLR 2.75-2.75 (n=1)
-    @2150    4.38x   PASS(edge)   FACTS 1.94-4.15 (n=4); 0.23 outside the bracket = 11% of its own range  [NO UPPER COMPARATOR AT THIS HORIZON]
+    @2150    4.38x   PASS         FACTS 1.94-4.15 (n=4); MAGICC-SLR 5.72-5.72 (n=1)
+    @2300    7.17x   WARN         MAGICC-SLR 15.28-15.28 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON]
 
 [4] HOW MUCH THIS MODULE MATTERS, and how much of its width evidence could move
     ⚠ The covariance residual is +18% to +34%: this verdict is NOT the conjunction

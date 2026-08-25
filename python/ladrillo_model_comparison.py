@@ -63,7 +63,10 @@ BRICK20_GSIC_CSV = os.path.join(REPO, "outputs/ssps_gsic_2300.csv")
 MAGICC_CSV = os.path.join(REPO, "data/comparison/magicc_nauels_components.csv")
 FACTS_CSV = os.path.join(REPO, "outputs/facts_components_n200.csv")
 
-HORIZONS = [2100, 2150]
+## 2300 added 2026-08-25: MAGICC-SLR was always run to 2305, and only our own extractor
+## cut it at 2100 (`extract_magicc_components.py` [YEARS-PRESENT]). FACTS still stops at
+## 2150, so 2300 carries ONE comparator -- which the benchmark flags rather than hides.
+HORIZONS = [2100, 2150, 2300]
 SCENARIOS = ["ssp126", "ssp245", "ssp585"]      # the three all four sources share
 LABEL = {"ssp126": "SSP1-2.6", "ssp245": "SSP2-4.5", "ssp585": "SSP5-8.5"}
 COMPONENTS = ["glaciers", "gis", "ais", "te", "lws", "total"]
