@@ -857,3 +857,109 @@ could be nicer" — it is a **form** that the data say is wrong, whose correctio
 ssp126 tipped fraction and 1.8× the ssp245 one, at the exact cells where AIS is measurably
 weakest (ssp245 medians 0.531× / 0.406×). Everything else on the list is tidiness that should
 ride along, not lead.
+
+---
+
+# ADDENDUM 8 — 2026-08-25: ⚠ ADDENDUM 7 IS RETRACTED. amp is re-centred, not made state-dependent; L15 is running
+
+Commits **`3f2f3a3`** (retraction + measurement), **`893bfaa`** (L15 inputs), **`ba30…`** (launcher).
+
+## A. ⚠⚠ ADDENDUM 7 WAS WRONG, AND WRONG IN THE WAY `~/.claude/CLAUDE.md` NAMES
+
+It asserted, citing memory `pai_cmip6_time`, that Antarctic amplification **RISES** with
+warming level (~0.85 at 0.6–0.8 K → ~1.15–1.20 at 2–4 K, saturating at the DAIS equilibrium),
+and concluded the fix must be a state-dependent `amp(ΔT)`.
+
+**That memory describes a SUPERSEDED diagnostic.** On 2026-08-24 two commits replaced it:
+* `a79d532` — *"Switch scenario diagnostic to SECANT ratio; correct a to ~1.08"*
+* `9de38bf` — *"data/cmip6_pai was corrupt for SEVEN files, not two — and the numerator was
+  wrong too"* (an xarray `.weighted()` inner join on float-noise latitudes silently cut
+  MPI-ESM1-2-LR to 56 of 96 latitudes; the AIS numerator inherited it)
+
+`diag_pai_cmip6_time.py`'s own header states the supersession: the sliding-window **TREND**
+ratio (Xie's PAI1) is superseded because BRICK's `amp` multiplies a **LEVEL** anomaly, so the
+**SECANT** is the BRICK-relevant quantity. **The two behave oppositely with warming.**
+Gist-recall of a directional claim, off by a sign, on the number about to decide a model-form
+change and a recalibration. Exactly the failure mode the standing instruction warns about —
+and the memory was *quoted*, not paraphrased, which did not save it.
+
+**Measured on the corrected data** (`python/scope_ais_amp_law_form.py`, 34 models, land-frame,
+ΔT ≥ 1.0 K):
+
+| | slope of secant on ΔT | z | worth over 1–4 K |
+|---|---|---|---|
+| ssp245 | −0.0065 /K | −0.59 | −0.019 |
+| ssp585 | +0.0091 /K | +1.43 | +0.027 |
+
+**Neither resolves, they disagree in sign, and each is worth 6–9× less than the between-model
+sd of 0.180.** ⇒ **a constant is the right FORM and `amp(ΔT)` must not be built** — Addendum
+7's version would have encoded a trend of the *wrong sign*.
+
+## B. WHAT WAS DONE INSTEAD — L15's four changes
+
+Marcus's decisions: re-centre the constant, **keep σ = 0.10**, bundle the target-builder
+fixes and `--adcov=`.
+
+1. **A6 amp prior 0.95 → 1.09** — the only change that moves a number. Two independent
+   ensembles agree: 34-model SSP secant **1.095** (sd 0.180), 41-model **DECK 1pctCO2**
+   secant **1.097** (1.087–1.153). σ kept at 0.10 so the centre is the single moving part and
+   the delta stays attributable. Bounds → μ±3σ = **[0.79, 1.39]**; the old hard-coded
+   [0.70, 1.25] was built around μ=0.95 and would clip the new prior at +1.6σ. `θ0` now starts
+   at the prior centre instead of the old fixed map 1.196.
+   **Priced** (`scope_ais_amp_price.py`): crossing GMST 3.015 → 2.600 K; ssp126@2100 tipped
+   4.2% → ~11–12%, ssp245@2100 33.1% → ~60%. Threshold channel only — amp correlates
+   **r = 0.608** with `ais_runoff_Ton`, so the refit moves both. Lower bound.
+2. **LWS 2019–2023 = real GRACE/GRACE-FO.** `build_lws_grace_extension.py` was written
+   2026-08-24 and deliberately left unwired *until there was something else worth
+   recalibrating for*. Max change 0.123 cm. ⚠ Its **band width** is still the 2018
+   half-width — a real centre with a held bar. Smaller fiat, still flagged.
+3. **`dang_closure_sig` trend-extended**, not held flat. The hold was measurably
+   **anti-conservative**: +0.0216 cm/yr over 2009–2018, **z = +6.08** AR(1)-inflated, so
+   freezing it made the total's bar too *tight* where we know least. 0.775 → 0.926 cm by 2026.
+   ⚠ **Gated against the realised residual**, which stays at **0.69×** the held value
+   (max |resid| 0.532 cm over 2019–2023 with the GRACE LWS) — so this is **insurance, not a
+   repair**. Extending an *uncertainty* on a resolved trend is not the *level* extrapolation
+   that failed in `postsplice_halving_priced`; erring wide is the safe direction for a bar.
+4. **Pooled proposal** (`python/build_pooled_adapted_cov.py`, NEW). ⚠ **The marginal view
+   would have said pooling was unnecessary**: per-parameter sds disagree only **2.4×**. The
+   real disagreement is the generalized-eigenvalue spread between seed pairs — **44–427×
+   raw** and **532–3398× standardized**. Standardizing makes it *larger*, which **qualifies**
+   `acceptance_rate_certifies_nothing`'s "standardize first": that is advice about misreading
+   the leading eigenvector, not a claim the raw spread is inflated. Pooled on the correlation
+   with log-mean sds; gated on symmetry, finiteness, Cholesky, name/order identity and
+   conditioning — pooled cond **1.2e15** against inputs 1.4–1.9e16, **an order of magnitude
+   better than every member**.
+
+## C. STATE — THE RUN IS IN FLIGHT
+
+    bash run_mcmc_L15.sh 2000000     # 4 chains x 2M, seeds 2026-2029, BLAS PINNED
+
+Launched 2026-08-25 11:38. Expected **~2h17m** (`pin_blas_threads`: 4.8× measured on this M4,
+11h naked vs 2h17 pinned). Logs `outputs/mcmc/log_L15_seed*.txt`, chains
+`outputs/mcmc/chain_L15_seed*.csv`. Smoke- and dry-run verified:
+`A6 prior: amp ~ N(1.090, 0.100) on [0.790, 1.390]` and
+`name-mapped 58 of 58 rows of adapted_cov_L15pool_seed2026.csv`.
+
+**WHEN IT FINISHES, IN ORDER:**
+1. `julia --project=julia_v2 julia/postprocess_mcmc_ext.jl --tag=L15 --accept-slr`
+2. `julia --project=julia_v2 julia/project_ssps_components_ladrillo.jl 2000 --tag=L15`
+   and `julia/posterior_predictive_ladrillo.jl 2000 --tag=L15`
+3. `python python/bench_ladrillo.py --tag=L15` — **the champion is L14 and frozen**, so this
+   is a real head-to-head. Do **not** `--promote` without `--why=`.
+4. Re-run `scope_ais_amp_price.py` and `diag_ais_tipping_under_forcing.jl` on L15: the
+   threshold-channel prediction (ssp245@2100 tipped 33% → ~60%) is a **falsifiable
+   prediction** of this refit. If the realised tipped fraction misses it badly, the smooth
+   channel (`ais_runoff_Ton`, r = 0.608) absorbed more than expected — that is a finding.
+5. `julia/diag_ais_block_convergence.jl --tag=L15` — did the pooled proposal move
+   `ais_iceflow0` off R-hat 2.244? That is the `--adcov=` arm's only claim.
+
+⚠ **The benchmark's frozen comparators do not need re-freezing** — nothing about BRICK 2.0,
+FACTS or MAGICC changed. ⚠ **But every diagnostic reading `recalib_targets_ext.csv` is now
+stale** (the LWS and closure columns moved); re-run rather than trusting a committed output.
+
+## D. WHAT THIS DOES TO EARLIER DECISIONS
+
+* **The ~4% ssp126 tipped fraction acceptance does not survive.** It stood on the current
+  prior; the corrected amp roughly triples it. Re-decide on L15.
+* **The stopping rule is unaffected in principle** — this was the one live exception and it
+  qualified on evidence, not taste. After L15 the rule should be re-run, not re-argued.
