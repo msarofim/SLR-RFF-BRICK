@@ -65,6 +65,32 @@ the rule is not a device for improving our own score. A FAIL a majority *does* s
 untouched (Greenland ssp126@2100 stays FAIL, 2 of 3 agree). `python bench_ladrillo.py
 --selftest` mutation-tests it in every direction. (`diag_total_spread_ssp585_2150.py`.)
 
+### "Measurably better than BRICK 2.0" — now checkable in every block
+
+Marcus's standing stopping rule is *"if everything is measurably better than BRICK 2.0, and
+everything passes the laugh test, at some point we can stop tweaking."* Until 2026-08-25 the
+benchmark could only answer it for **[H]** and **[R]**: BRICK 2.0 appeared in **[P]** as an
+unscored `median_fixed` row. Its projection **medians** are now scored against the same
+literature, with a `median_vs_lit_delta` head-to-head row per cell.
+
+⚠ **MEDIANS ONLY, DELIBERATELY.** Ours is the JOINT band and BRICK 2.0's is parameter-only;
+a joint band moves a *median* by ≤5.4% but changes a *spread* by 1.5–1.6×, so scoring one
+spread against the other is the `like_for_like_forcing` error. The spread is not compared.
+
+Two rules keep the comparison honest:
+
+* **A tie is a tie.** A difference in `|ratio − 1|` below `H2H_TIE` (0.02) reports SAME.
+  Without it the table calls 1.455 vs 1.452 a loss.
+* ⚠ **A projection win by an arm that fails the observations is not a win.** BRICK 2.0's
+  glaciers sit closer to the literature median at three cells — while its glacier hindcast
+  misses by 3.30 sd and its 1993–2026 rate by z = +2.39. That is a **compensating error**.
+  Such cells report `WORSE(unearned)` and name the failing block.
+
+And a total-level loss is uninterpretable without asking whether it was earned:
+`component-error sum vs total error` reports, per cell, the sum of `|ratio − 1|` over the
+five components beside the total's own error. Where an arm has **larger** component errors
+and a **closer** total, the verdict is `CANCELLATION`, not skill.
+
 ## Reading a verdict honestly — three standing caveats the report re-prints every run
 
 * **The hindcast is IN-SAMPLE for every Ladrillo arm** and out-of-sample for BRICK 2.0.

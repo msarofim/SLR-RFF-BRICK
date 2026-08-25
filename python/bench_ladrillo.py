@@ -134,6 +134,16 @@ SPREAD_PASS = (0.5, 2.0)
 # do not. Where it fails, the verdict is capped at WARN in BOTH directions: the median can
 # no more earn a PASS than a FAIL. (`diag_total_spread_ssp585_2150.py`, 2026-08-25.)
 SPREAD_MAJORITY_REQUIRED = True
+# HEAD-TO-HEAD ON PROJECTION MEDIANS. Two rules stop the comparison over-reading itself:
+#  * a difference in |ratio - 1| below this is a TIE, not a win. Without it the report
+#    calls 1.455 vs 1.452 a loss.
+#  * ⚠ A PROJECTION WIN BY AN ARM THAT FAILS THE OBSERVATIONS IS NOT A WIN. BRICK 2.0's
+#    glaciers sit closer to the literature median at three cells -- while its glacier
+#    hindcast misses by 3.30 sd and its 1993-2026 rate by z = +2.39. That is a
+#    COMPENSATING ERROR, and reporting it as "better" would let a model be rewarded for
+#    running hot in projection because it runs hot in hindcast too. Such cells are marked
+#    WORSE(unearned) and the reason is printed.
+H2H_TIE = 0.02
 # Cells where narrowness must NOT be scored as a win: the width there is the
 # antarctic_lambda paleo prior, 78% of it (`ais_spread_is_lambda_prior`).
 PRIOR_WIDTH_CELLS = {("ais", "ssp585")}
@@ -323,6 +333,27 @@ def literature_rows(cand_comparison):
               f"frozen copy and {os.path.basename(cand_comparison)}. Scoring on the FROZEN "
               "copy. Re-freeze deliberately if the new extraction is the one you want.")
     return add_extra(frozen), "frozen"
+
+
+def _b20_obs_fail(rows, comp):
+    """Which OBSERVATIONAL block BRICK 2.0 fails for this component, as a phrase, or ""."""
+    bad = [r for r in rows if r["arm"] == "BRICK 2.0" and r["verdict"] == "FAIL" and
+           r["component"] == comp and r["block"] in ("H", "R")]
+    if not bad:
+        return ""
+    blocks = sorted({("its hindcast" if r["block"] == "H" else "its observed rate/accel")
+                     for r in bad})
+    return " and ".join(blocks) + " FAILs"
+
+
+def _h2h_verdict(ours, theirs, rows, comp):
+    """BETTER / SAME / WORSE on |ratio - 1|, with the two rules above applied."""
+    d = abs(ours - 1.0) - abs(theirs - 1.0)
+    if abs(d) < H2H_TIE:
+        return "SAME"
+    if d < 0:
+        return "BETTER"
+    return "WORSE(unearned)" if _b20_obs_fail(rows, comp) else "WORSE"
 
 
 def spread_side(ratio):
@@ -644,13 +675,15 @@ def block_projection(rows, cand_tag, champ_tag, cand_p, champ_p):
                     rows.append(dict(block="P", component=key, scenario=ssp, horizon=H,
                                      metric="spread_joint", arm=f"{champ_tag}*", value=hsp,
                                      unit="cm", value_sigma=np.nan, note="champion", verdict=""))
+                b20_med = np.nan
                 if b20 is not None:
                     hit = b20[(b20.ssp == LBL[ssp]) & (b20.component == key) & (b20.year == H)]
                     if not hit.empty:
                         r = hit.iloc[0]
+                        b20_med = float(r.med)
                         rows.append(dict(block="P", component=key, scenario=ssp, horizon=H,
                                          metric="median_fixed", arm="BRICK 2.0",
-                                         value=float(r.med), unit="cm", value_sigma=np.nan,
+                                         value=b20_med, unit="cm", value_sigma=np.nan,
                                          note=f"spread {float(r.p95)-float(r.p05):.2f} cm "
                                               "(parameter only)", verdict=""))
                 if H not in LIT_HORIZONS:
@@ -703,6 +736,42 @@ def block_projection(rows, cand_tag, champ_tag, cand_p, champ_p):
                     verdict=("PASS" if inside else
                              ("WARN" if (thin or 1/PROJ_WARN_RATIO <= ratio <= PROJ_WARN_RATIO)
                               else "FAIL"))))
+                # ⚠ SCORE BRICK 2.0's MEDIAN AGAINST THE SAME LITERATURE. Until 2026-08-25
+                # [P] and [S] carried BRICK 2.0 as an unscored `median_fixed` row, so
+                # "is Ladrillo measurably better than BRICK 2.0?" -- the standing stopping
+                # question -- could only be answered for [H] and [R]. MEDIANS are
+                # comparable across the two arms (a joint band moves a median <=5.4%,
+                # `climate_uncertainty_widens`); SPREADS ARE NOT, because ours is the JOINT
+                # band and BRICK 2.0's is parameter-only, and scoring one against the other
+                # is the `like_for_like_forcing` error. So the median is scored head to
+                # head and the spread deliberately is NOT.
+                if np.isfinite(b20_med):
+                    b_ratio = b20_med / float(np.median(meds))
+                    b_inside = float(np.min(meds)) <= b20_med <= float(np.max(meds))
+                    better = abs(ratio - 1.0) < abs(b_ratio - 1.0)
+                    rows.append(dict(
+                        block="P", component=key, scenario=ssp, horizon=H,
+                        metric="median_vs_lit", arm="BRICK 2.0", value=b_ratio,
+                        unit="x lit median", value_sigma=np.nan,
+                        note=f"BRICK 2.0 {b20_med:.2f} cm vs the same lit median "
+                             f"{np.median(meds):.2f}; ⚠ FIXED-driver median, scored on "
+                             f"medians only -- its parameter-only SPREAD is not comparable "
+                             f"with our joint band",
+                        verdict=("PASS" if b_inside else
+                                 ("WARN" if (thin or 1/PROJ_WARN_RATIO <= b_ratio <=
+                                             PROJ_WARN_RATIO) else "FAIL"))))
+                    rows.append(dict(
+                        block="P", component=key, scenario=ssp, horizon=H,
+                        metric="median_vs_lit_delta", arm=f"{cand_tag} vs BRICK 2.0",
+                        value=abs(ratio - 1.0) - abs(b_ratio - 1.0), unit="|ratio-1| diff",
+                        value_sigma=np.nan,
+                        note=f"{cand_tag} {ratio:.3f}x vs BRICK 2.0 {b_ratio:.3f}x of the "
+                             f"lit median; closer to 1 is better" +
+                             (f"; ⚠ BRICK 2.0 is closer here but {_b20_obs_fail(rows, key)} "
+                              "-- a compensating error, not skill"
+                              if _h2h_verdict(ratio, b_ratio, rows,
+                                              key).endswith("(unearned)") else ""),
+                        verdict=_h2h_verdict(ratio, b_ratio, rows, key)))
                 if len(sps):
                     sr = csp / float(np.median(sps))
                     sr_all = csp / float(np.median(sps_all)) if len(sps_all) else np.nan
@@ -868,6 +937,47 @@ def block_verdicts(rows, cand_tag, champ_tag):
                                      f"{len(d)-better-worse} SAME",
                                 verdict=("BETTER" if better > worse else
                                          ("WORSE" if worse > better else "SAME"))))
+    # ⚠ IS A BETTER TOTAL EARNED BY BETTER COMPONENTS, OR BY CANCELLATION? A total-level
+    # WORSE is uninterpretable without this. Step 4 already established that the total is
+    # NOT the conjunction of its components (covariance residual +18% to +34%), and the
+    # same arithmetic lets an arm with LARGER component errors land a CLOSER total when
+    # those errors happen to have opposite signs. Reported per cell so a total-level win
+    # can never be quoted as component skill.
+    for ssp in SSPS:
+        for H in HORIZONS:
+            def _err(arm):
+                e = []
+                for key, *_ in COMPONENTS:
+                    if key == "total":
+                        continue
+                    r = df[(df.block == "P") & (df.metric == "median_vs_lit") &
+                           (df.arm == arm) & (df.component == key) &
+                           (df.scenario == ssp) & (df.horizon == H)]
+                    if not r.empty and np.isfinite(float(r.value.iloc[0])):
+                        e.append(abs(float(r.value.iloc[0]) - 1.0))
+                return (float(np.sum(e)), len(e)) if e else (np.nan, 0)
+
+            def _tot(arm):
+                r = df[(df.block == "P") & (df.metric == "median_vs_lit") &
+                       (df.arm == arm) & (df.component == "total") &
+                       (df.scenario == ssp) & (df.horizon == H)]
+                return np.nan if r.empty else abs(float(r.value.iloc[0]) - 1.0)
+            cl, n = _err(cand_tag)
+            cb, _ = _err("BRICK 2.0")
+            tl, tb = _tot(cand_tag), _tot("BRICK 2.0")
+            if not (np.isfinite(cl) and np.isfinite(cb) and np.isfinite(tl) and np.isfinite(tb)):
+                continue
+            cancel = cl < cb and tl > tb
+            rows.append(dict(
+                block="V", component="total", scenario=ssp, horizon=H,
+                metric="component-error sum vs total error", arm=f"{cand_tag} vs BRICK 2.0",
+                value=cl - cb, unit="sum |ratio-1| diff", value_sigma=np.nan,
+                note=f"sum over {n} components of |ratio-1|: {cand_tag} {cl:.3f} vs "
+                     f"BRICK 2.0 {cb:.3f}; TOTAL error {tl:.3f} vs {tb:.3f}" +
+                     ("; ⚠ BRICK 2.0's total is closer DESPITE larger component errors "
+                      "-- CANCELLATION, not skill" if cancel else ""),
+                verdict="CANCELLATION" if cancel else ("BETTER" if cl < cb else "WORSE")))
+
     rows.extend(out)
 
 

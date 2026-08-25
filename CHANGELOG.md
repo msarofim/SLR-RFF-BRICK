@@ -3,6 +3,52 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-25h — **GLACIER SCOPE DOES NOT EXPLAIN THE DEFICIT (and one flag's sign was backwards). And "measurably better than BRICK 2.0" is now a question the benchmark can answer: 30 BETTER / 11 SAME / 7 WORSE, with every total-level loss being CANCELLATION.**
+
+`julia/diag_gsic_scope_matched.jl` (NEW), `python/scope_gsic_region_matched.py` (NEW),
+`python/bench_ladrillo.py`, `benchmark/README.md`. One ~50 s Julia projection; nothing
+recalibrated, no chain read.
+
+### THE GLACIER CHEAP TEST — SCOPE IS NOT THE ANSWER
+
+* **[1] r19 measured in projection space**, from its own reservoir: **7.0 → 9.9%** (ssp126),
+  **8.1 → 13.9%** (ssp245), **9.8 → 19.0%** (ssp585) of our glacier total across
+  2100/2150/2300, against the 6.54%-of-global observed-era value. The share **does** grow
+  with horizon — r19 depletes last, as addendum 3 flagged.
+* ⚠ **BUT THE FLAG'S CONSEQUENCE WAS BACKWARDS.** r19 enters as `AR5 scope = 1 − r19`, so a
+  **larger** r19 makes **their** scope smaller and pushes predicted ours/theirs **up**:
+  0.927 → 1.043 across the cells. Scope then predicts we should be *higher*, so the residual
+  model deficit gets **larger**, not smaller.
+* **[2] THE SCOPE-FREE TEST**, which needs no share at all: r5 sits inside GIS on our side
+  and inside glaciers on theirs, so **glaciers + GIS contains it exactly once on both
+  sides**; remove the measured r19 from ours and the sums are scope-matched outright. Read
+  at 2100 (all three GIS medians pass there): **0.809–0.941, median ~0.87**.
+* ⇒ **~13% of glaciers+Greenland at 2100 is not explained by the region set.** The split
+  between the two modules needs the r5 share and is not available. The one remaining
+  assumption — FittedISMIP is sheet-only — **biases the test AGAINST us** if it fails, so it
+  cannot have manufactured the residual.
+* **Priced:** the raw glacier level gap is worth **0.5–6.1%** of the reported total median,
+  worst at ssp126@2150 (6.1%) and ssp245@2100 (5.4%).
+
+### THE STOPPING RULE IS NOW CHECKABLE
+
+BRICK 2.0's projection **medians** are scored against the same literature, head to head.
+Result over 54 cells: **30 BETTER, 11 SAME, 6 WORSE(unearned), 7 WORSE.**
+
+* ⚠ **A projection win by an arm that fails the observations is not a win.** All six
+  `WORSE(unearned)` cells (3 glaciers, 3 Greenland) are BRICK 2.0 landing closer to the
+  literature median while its hindcast or rate FAILs — a compensating error.
+* ⚠ **AND EVERY TOTAL-LEVEL LOSS IS CANCELLATION.** L14's summed component error is smaller
+  at **all nine** cells (0.456–1.726 vs 0.841–3.110), yet BRICK 2.0's *total* is closer at
+  four of them. New `component-error sum vs total error` row reports this per cell so a
+  total-level win can never be quoted as component skill.
+* Per component: AIS 6/3/0, glaciers 5/1/3(unearned), Greenland 5/1/3(unearned), TE 3/6/0,
+  LWS 6/0/3, total 5/0/4(all cancellation).
+* ⚠ **Medians only.** Ours is the joint band, BRICK 2.0's parameter-only; comparing spreads
+  across them is the `like_for_like_forcing` error and is deliberately not done.
+
+---
+
 ## [unreleased] — 2026-08-25g — **TE: two claims WITHDRAWN once the chain got error bars, and the defect only dissolves in OHC space. GREENLAND ssp126: ACCEPTABLE — and the decision had been taken on the wrong number.**
 
 `python/diag_te_rate_bars_and_seam.py` (NEW), `python/scope_gis_ssp126_acceptability.py` (NEW),
