@@ -1,0 +1,25 @@
+DAIS AMP IDENTIFICATION | candidate L15 | control L14 | 200 draws
+  anchor -18.4340 degC | grid -0.350..0.350 step 0.010 | AIS fit 1900-2025 (126 yr) | SMB 1979-2008
+  threshold prior sd = 0.435 K — the yardstick for the §4c degeneracy
+  ⚠ CONDITIONAL profile at fixed parameters: the se is an UPPER bound on precision.
+
+........
+  L14: 200 draws x 71 grid points in 66s
+........
+  L15: 200 draws x 71 grid points in 64s
+
+============================================================================================
+WHERE THE HISTORICAL LIKELIHOOD WANTS THE AMPLIFICATION (relative to each draw's own amp)
+============================================================================================
+arm       amp med  peak p05  peak p50  peak p95    se p50  off-grid dll(peak-0)
+L14         0.957    -0.106     0.002     0.136     0.011        0%      0.35
+L15         1.085    -0.229    -0.004     0.268     0.105       10%      0.29
+
+  peak = the amp shift the AIS series + SMB anchor jointly prefer, per draw.
+  se   = conditional 1-sigma on the amp from those two terms alone.
+  CONTROL: L14 must peak near 0 — it is the arm whose hindcast already passes.
+  §4e: a peak at each draw's OWN amp is an EXACTLY-COMPENSATED direction, not an
+       identified one. The evidence is the ASYMMETRY of moving BETWEEN the arms;
+       read it off the ll columns of the CSV, not off this table.
+
+wrote outputs/scope_ais_anchor_identification_L15_amp.csv

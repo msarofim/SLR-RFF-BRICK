@@ -3,6 +3,106 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-25j — **THE DAIS-ANCHOR REPAIR IS REFUTED, at 15 minutes instead of 4 hours. The anchor is a LEVEL and the amp change is a SLOPE; a translation cannot cancel a tilt. And the "coverage recovery" it buys is pure BAND INFLATION.**
+
+`julia/scope_ais_anchor_offline.jl` (NEW), `julia/scope_ais_anchor_identification.jl` (NEW).
+No chain. Handoff `-25d` §4 named freeing `T_ant0` as the next step and §4c required the
+degeneracy question answered before coding it. **Neither is needed: the step is refuted on its
+own terms.** L14 remains champion, L15 remains an unpromoted arm, `champions.json` untouched.
+
+### THE PROPOSAL, AND ITS ARITHMETIC
+
+L15 re-centred `amp` 0.945 → 1.09 and the AIS hindcast broke (bias +0.02 → −0.34 target sd on
+1950–1992, coverage 98% → 7%). §4b proposed shifting the pinned paleo anchor by **−0.077 K**:
+calibration-era GMST is 0.41 K and projection-era GMST is 2.7–4.7 K, so the shift restores the
+historical `T_ant` while keeping ~83% of the projection effect. §4b flagged itself as
+first-order. **It is worse than first-order — it is the wrong ORDER of the expansion.**
+
+### TEST 1 — DOES THE SHIFT REPAIR THE HINDCAST? NO, IT MAKES IT MONOTONICALLY WORSE
+
+`scope_ais_anchor_offline.jl`: L15's posterior held fixed, only the anchor moved, scored with
+**bench_ladrillo.py's own block [H] metric**. 2000 draws. The reproduction check is exact —
+L14 +0.023 sd / 98% and L15 −0.340 sd / 7% on 1950–1992, matching the committed benchmark to
+three decimals.
+
+| anchor shift | bias/sd [full] | rmse [full] | **band [full]** | cov90 [full] | bias/sd [50–92] | **band [50–92]** | cov90 [50–92] |
+|---|---|---|---|---|---|---|---|
+| L14 champion | −0.015 | 0.029 | 0.105 | 86% | +0.023 | 0.081 | 98% |
+| L15 pinned | −0.139 | 0.070 | 0.139 | 49% | −0.340 | 0.082 | 7% |
+| L15 **−0.077** (§4b) | **−0.262** | 0.072 | 0.223 | 69% | **−0.418** | 0.151 | 53% |
+| L15 −0.160 | −0.402 | 0.086 | 0.364 | 90% | −0.507 | 0.251 | 100% |
+| L15 −0.300 | −0.605 | 0.119 | 0.626 | 97% | −0.658 | 0.426 | 100% |
+
+**Bias and RMSE degrade monotonically at every step.** The one metric that "recovers" is
+coverage — 7% → 100% — and the band column says why: it inflates **5.2×** (0.082 → 0.426 cm)
+over the same sweep. The median moves AWAY from the observations while the band outruns it.
+⚠ **This is `rhat_denominator_forgives` in the hindcast block**, and it is the reason the band
+width is now written beside every coverage number this script reports.
+
+Projection retention at −0.077 is close to §4b's estimate at the far horizons (0.89–0.90 at
+ssp245@2150/2300, 0.96 at ssp126) and well below it at **ssp245@2100 = 0.64** — so the trade
+§4b priced was real, but there is nothing to trade it for.
+
+### TEST 2 — WOULD A REFIT EVEN CHOOSE −0.077? NO. IT WANTS ZERO.
+
+`scope_ais_anchor_identification.jl`: the conditional log-likelihood profile in the anchor,
+per draw, reconstructed from `calibrate_mcmc_ext.jl` — the AIS AR(1) term plus the A5 SMB
+anchor, which are the only two anchor-dependent terms under D1 (asserted, not assumed: the
+script refuses a posterior carrying `sd_dang`). 200 draws × 41 grid points.
+
+| arm | amp med | peak p05 | **peak p50** | peak p95 | se p50 | Δll at −0.08 |
+|---|---|---|---|---|---|---|
+| **L14 (control)** | 0.957 | −0.061 | **+0.001** | +0.053 | 0.016 | −4.77 |
+| L15 | 1.085 | −0.157 | **−0.001** | +0.123 | 0.052 | −0.88 |
+
+**The control passes** — L14, whose hindcast already fits, peaks at +0.001 (`no_power_null`:
+without it the L15 number would mean nothing). And **L15 peaks at −0.001**, not −0.077. A freed
+anchor would sit where it already is. Decomposed, the profile is the **AIS sea-level series**
+(peak −0.003); the SMB anchor is nearly flat and only 50 of 200 draws even have an interior
+peak in it — so the earlier guess of an SMB-vs-sea-level tug-of-war is **withdrawn**, there is
+no tug-of-war.
+
+### ⇒ WHY, IN ONE LINE: A TRANSLATION CANNOT CANCEL A TILT
+
+`amp` multiplies GMST(t); `T_ant0` adds a constant. Over the calibration window GMST goes
++0.043 → +1.385 K, so Δamp = 0.145 imposes a **tilt of 0.208 K across the window** whose mean
+is +0.057 K (§4b's +0.060 — its arithmetic on the MEAN is right). The best possible constant
+anchor shift removes only that mean and leaves a **residual ramp of −0.064 → +0.144 K, rms
+0.055 K**. §4b treated a slope change as a level change. Worse: the mean was **already absorbed
+by the refit** — that is what `amp`'s r = 0.608 with `ais_runoff_Ton` is — so shifting the
+anchor now REMOVES a compensation that is already in place, which is exactly the monotone
+degradation Test 1 measures.
+
+### TEST 3 — §4e, MEASURED: the data DO prefer the lower amp, and it costs ~5 log units
+
+Same profiler, `--axis=amp` (the A6 pair moved together, anchor preserved). Conditionally,
+**every draw's own amp is locally optimal** — L14 peaks at +0.002, L15 at −0.004 — which is the
+signature of an exactly-compensated direction and the mechanism behind "the marginal is a prior
+sample" (`scope_ais_amp_price`). The information is in the ASYMMETRY of moving between them:
+
+* L14 draws → L15's amp: **−4.81** log units (median) ≈ 3.1σ on one parameter. The historical
+  record RESISTS 1.09.
+* L15 draws → L14's amp: **−0.73** log units. Having re-tuned around 1.09, it is nearly
+  indifferent to going back.
+
+⇒ §4e's reading is the surviving one: the CMIP6 secant and DAIS's paleo pair are **not the same
+object**, and the fit pays ~5 log units to be told otherwise. This is the THIRD frame problem on
+this one parameter (polar-cap-vs-land; trend-vs-secant; paleo-pair-vs-CMIP6-transient).
+
+### ⚠ AND THE BASE UNDER THE RATIOS
+
+`ratio_needs_its_base`. The AIS target's own sigma is **0.167 cm**, so L15's "sharp" hindcast
+degradation is RMSE 0.029 → 0.070 cm and a bias of 0.023 cm. The ratios (1.5–9.2×, 98% → 7%)
+are real and they sit on a base of hundredths of a centimetre. Quote them with the base.
+
+### NOT DONE, DELIBERATELY
+
+No chain was run and no benchmark arm was frozen: the sweep already scores the anchor arm in
+the benchmark's own metric at every shift, and the answer is worse at all of them. §4c's
+degeneracy design question (`T_ant0` vs `antarctic_temp_threshold`) is **moot unless the anchor
+is revived**; for the record it was also measured — conditional se 0.052 K = **0.12×** the
+threshold's prior sd, so the anchor was never the loosely-identified half of that pair.
+
 ## [unreleased] — 2026-08-25i — **`ais_gmst_amp`, priced: the problem is NOT the prior's centre, it is that amp is CONSTANT — the calibration lives at 0.4–0.65 K and the projections at 1.9–7.8 K. And the LWS extension is NOT a reason to recalibrate.**
 
 `python/scope_ais_amp_price.py` (NEW). No model run, no chain read — the threshold channel is
