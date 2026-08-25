@@ -759,3 +759,101 @@ which needs a per-region projection source this repo lacks); `ais_gmst_amp`.
 **Not worth doing:** `--adcov=`; narrowing any band; adopting the fast-dynamics fork; the
 Greenland ssp126 width (accepted, addendum 5); the TE depth-scope constant (worth 0.2% of a
 margin and needs a seawater EOS).
+
+---
+
+# ADDENDUM 7 — 2026-08-25: `ais_gmst_amp` priced, and what a recalibration would actually be for
+
+Commit **`ecd58b6`**, `python/scope_ais_amp_price.py`. No model run, no chain read.
+
+## A. amp IS NOT AN OFF-CENTRE PRIOR. IT IS A CONSTANT WHERE THE DATA SAY A FUNCTION.
+
+DAIS computes `T_ant = amp·GMST + T_ant0`, anchor −18.435 °C preserved. Stock DAIS hard-codes
+**1.196** (inverted paleo *equilibrium*); A6 replaced it with *transient* **N(0.95, 0.10)**
+from Xie 2022. Two measured problems, both from `pai_cmip6_time` (2026-07-22), both still open:
+
+* **[FRAME]** Xie's 0.95 reproduces only under a **polar-cap** mask (cap60 0.92/0.98). DAIS's
+  lineage is ice-core/**continental**; land-only PAI1 over 34 CMIP6 models is **1.13 / 1.16**.
+* **[STATE]** amp rises with warming level: ~0.85–0.90 at 0.6–0.8 K → ~1.10 at 1.5–2 K →
+  **~1.15–1.20 at 2–4 K**, saturating *at* the equilibrium value the prior replaced.
+
+**The price, threshold channel, exact** (crossing GMST = (threshold − T_ant0)/amp):
+amp 0.945 → 1.13 lowers the tipping threshold **0.494 °C of GMST**.
+
+| tipped fraction | ssp126@2100 | ssp245@2100 | ssp245@2150 |
+|---|---|---|---|
+| shipped | **4.2%** | **33.1%** | **44.5%** |
+| land60 (1.13) | **11.7%** | **59.7%** | **69.2%** |
+
+Reproduces the committed tipping diagnostic to ≤0.32 pp.
+⚠ A first version got 6.5% vs the committed 3.95% — RAW cube + running max. **Raw is not the
+reported convention and DAIS does not latch**; it re-tests every year.
+⚠ Threshold channel **only**; amp correlates **r = 0.608** with `ais_runoff_Ton`. Lower bound.
+
+## B. ⚠ THE DIAGNOSIS CHANGED MY OWN RECOMMENDATION FROM ADDENDUM 6
+
+| | ΔT |
+|---|---|
+| calibration window 1900–2024 | **0.41 K** |
+| SMB anchor 1979–2008 | **0.65 K** |
+| projections 2100 | 1.85 / 2.75 / 4.70 K |
+| projections 2300 | 1.74 / 3.15 / **7.79 K** |
+
+**A factor of 3 to 12**, across a relationship CMIP6 says rises ~0.3 over exactly that range.
+The constant is fitted where amp is low and applied where it is high.
+
+⇒ **Re-centring the prior at 1.13 is the WRONG fix** — addendum 6 recommendation 3 said "the
+only AIS knob worth a refit", and that is still true, but *not as a re-centred constant*. 1.13
+is the full-period value, not the historical one, and amp is jointly constrained with
+`ais_runoff_Ton` over exactly the historical window. It buys ssp245 by mis-fitting history.
+⇒ **The fix is `amp(ΔT)`** — a MODEL-FORM change, same category as the magnitude-dependent
+fast-dynamics fork. ⚠ **Unlike that fork it is NOT likelihood-inert**, so it cannot be
+prior-propagated onto the existing posterior. **It needs a refit. That is the honest cost.**
+
+⚠ **It unsettles the same-day acceptance of the ~4% ssp126 tipped fraction.** That was
+accepted as "not a dealbreaker unless the literature says otherwise". The literature that says
+otherwise is **ours** — the 34-model mask test — and it triples the fraction.
+
+## C. THE CALIBRATION: WHAT IT WOULD BE FOR, AND WHAT IT WOULD NOT
+
+**⚠ THE LWS EXTENSION IS NOT A REASON TO RECALIBRATE.** Real LWS ends **2018**;
+`prep_recalib_targets_ext.py:311` holds `lws`/`lws_lo`/`lws_hi` flat through 2026, and it
+enters the likelihood **twice** on the total stream (line 1387 adds observed LWS to the
+modelled total; line 568 folds its band into the total's sigma) — so for 2019–2024 the fit is
+told *as data, with a real-data error bar*, that land water contributed exactly zero. But the
+GRACE fetch showed **the hold is accurate to +0.008 cm**, the sigma freeze inflates the total
+sigma only **1.02→1.11×**, and it is **6 of 125 scored years**. **Low value for the
+calibration, high value for the curvature diagnostics.** Fix it in the target builder — that
+is a `prep_recalib_targets_ext.py` change, not a chain.
+
+⚠ **Its unpriced twin:** `dang_closure_sig` is frozen at **0.775 cm** from 2019 by the same
+flagged convention and **dominates** the total's error budget (vs `dang_sig` 0.40). If the
+target builder is touched, price that in the same pass.
+
+**So the scope of a recalibration, ranked by whether it moves a number:**
+
+1. **`amp(ΔT)`** — the only change with a measured reason and a large effect. Needs the
+   functional form chosen first (transient→equilibrium interpolation on warming level), and
+   that choice is methodological: **flag it and get direction, do not pick it silently**.
+2. **Target-builder fixes, bundled because they are free once a chain runs**: the LWS
+   extension, the closure-sigma freeze, and the Frederikse→NOAA steric splice (whose seam
+   warning addendum 5 **withdrew** — the segments agree at z = −0.92, so this is tidiness,
+   not a correction).
+3. **`--adcov=` pooled proposal** — addendum 6 said drop it from the critical path, and that
+   stands. But if a chain is running anyway it is nearly free, and `ais_iceflow0` R-hat 2.244
+   is a **stiff direction** whose lever is exactly proposal scaling.
+4. **NOT in scope:** the joint FaIR/BRICK calibration (banner-marked REJECTED,
+   `notes/negresult_2026-08-01_joint_forcing_calibration.md`); narrowing any band; adopting
+   the fast-dynamics fork.
+
+⚠ **Check `sshare` before submitting** — fairshare was 0.28 on 2026-08-01.
+
+## D. AGAINST THE STOPPING RULE
+
+Addendum 6 measured Ladrillo as 30 BETTER / 11 SAME / 7 WORSE vs BRICK 2.0, with every
+total-level loss being cancellation, and concluded the evidence supports stopping. **This
+addendum is the one live exception**, and it qualifies on a specific test: it is not "a number
+could be nicer" — it is a **form** that the data say is wrong, whose correction is worth 3× the
+ssp126 tipped fraction and 1.8× the ssp245 one, at the exact cells where AIS is measurably
+weakest (ssp245 medians 0.531× / 0.406×). Everything else on the list is tidiness that should
+ride along, not lead.
