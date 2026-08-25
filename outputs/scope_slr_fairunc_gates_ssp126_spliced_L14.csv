@@ -1,6 +1,6 @@
 gate,key,value,verdict
 PAIRING,configs_used,841.0,PASS
-PAIRING,median_dgmst_bias_degC,0.0031940000000005853,PASS
+PAIRING,median_dgmst_bias_degC,0.00627119999999981,PASS
 CONTROL,glaciers_med_2100,0.0,PASS
 CONTROL,glaciers_med_2150,0.0,PASS
 CONTROL,glaciers_med_2300,0.0,PASS
@@ -21,9 +21,9 @@ CONTROL,total_med_2150,0.0,PASS
 CONTROL,total_med_2300,0.0,PASS
 CALIB-MOVE,glaciers_max_cm,0.0,measured
 CALIB-MOVE,gis_max_cm,0.0,measured
-CALIB-MOVE,ais_max_cm,0.09260795661159005,measured
-CALIB-MOVE,te_max_cm,1.7604344704205879,measured
+CALIB-MOVE,ais_max_cm,0.06781947137832756,measured
+CALIB-MOVE,te_max_cm,1.5255594606129894,measured
 CALIB-MOVE,lws_max_cm,0.0,measured
-CALIB-MOVE,total_max_cm,1.7931898125675296,measured
-SUM,fixed_max_cm,2.2737367544323206e-13,PASS
-SUM,joint_max_cm,2.2737367544323206e-13,PASS
+CALIB-MOVE,total_max_cm,1.5424515983332903,measured
+SUM,fixed_max_cm,2.842170943040401e-14,PASS
+SUM,joint_max_cm,1.1368683772161603e-13,PASS

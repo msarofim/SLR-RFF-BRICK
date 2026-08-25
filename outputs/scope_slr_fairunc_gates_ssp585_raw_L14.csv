@@ -1,0 +1,11 @@
+gate,key,value,verdict
+PAIRING,configs_used,841.0,PASS
+PAIRING,median_dgmst_bias_degC,0.0031940000000005853,PASS
+CONTROL,ais_med_2100,0.0,PASS
+CONTROL,ais_med_2150,0.0,PASS
+CONTROL,ais_med_2300,0.0,PASS
+CONTROL,total_med_2100,0.0,PASS
+CONTROL,total_med_2150,0.0,PASS
+CONTROL,total_med_2300,0.0,PASS
+CALIB-MOVE,ais_max_cm,0.518856839901455,measured
+CALIB-MOVE,total_max_cm,5.35756296360913,measured

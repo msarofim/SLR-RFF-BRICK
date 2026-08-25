@@ -79,7 +79,14 @@ end
 const SPLICE_YEAR = 2014            # build_protect_x2300_forcing.py's convention
 const HORIZONS = [2100, 2150, 2300]
 const Y0, Y1   = 1850, 2300
-const COMPONENTS = [:ais, :total]          # AIS carries the band; total is the deliverable
+## ALL FIVE BRICK COMPONENTS PLUS THE TOTAL. Reading only :ais and :total would let
+## the band be re-ranked but not DECOMPOSED, and the whole point of restoring the
+## forcing spread is that it redistributes which component carries the uncertainty
+## (`ais_share_was_a_fixed_driver_artifact`). The five sum to :total in BRICK
+## (glaciers + GIS + AIS + TE + LWS), so [SUM] can check the decomposition closes.
+const COMPONENTS = [:glaciers, :gis, :ais, :te, :lws, :total]
+const SUM_PARTS = [:glaciers, :gis, :ais, :te, :lws]
+const SUM_TOL_CM = 1e-6                    # an identity in BRICK; float noise only
 const PAIR_SEED = 2026                     # the draw -> config permutation
 const CUBE_G = joinpath(LADRILLO_OBS, "fair_cube_gmst_$(SSP)_raw.csv")
 const CUBE_O = joinpath(LADRILLO_OBS, "fair_cube_ohc_$(SSP)_raw.csv")
@@ -261,6 +268,21 @@ let i0 = yidx(CALIB_WIN[1]), i1 = yidx(CALIB_WIN[2])
                      @printf("  (no single target scale for :total -- reported raw)\n")
         push!(rowsg, ("CALIB-MOVE", "$(c)_max_cm", w, "measured"))
     end
+end
+## [SUM] the five components must sum to the total -- otherwise the decomposition
+## that the re-ranking rests on is not a decomposition. An identity in BRICK, so
+## the tolerance is float noise, and it is checked PER DRAW, not on the medians
+## (medians of parts need not sum to the median of the whole).
+for (arm, R) in (("fixed", FIXED), ("joint", JOINT))
+    w = 0.0
+    for H in HORIZONS
+        i = yidx(H)
+        w = max(w, maximum(abs.(sum(R[c][:, i] for c in SUM_PARTS) .- R[:total][:, i])))
+    end
+    @printf("  [SUM] %-5s max |sum(parts) - total| over draws x horizons = %.3e cm -> %s\n",
+            arm, w, w < SUM_TOL_CM ? "PASS" : "FAIL")
+    push!(rowsg, ("SUM", "$(arm)_max_cm", w, w < SUM_TOL_CM ? "PASS" : "FAIL"))
+    @assert w < SUM_TOL_CM "[SUM] the components do not sum to the total for arm $arm"
 end
 CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_gates_$(SSP)_$(FORCING)_$(TAG)$(SMOKE ? "_SMOKE" : "").csv"), rowsg)
 

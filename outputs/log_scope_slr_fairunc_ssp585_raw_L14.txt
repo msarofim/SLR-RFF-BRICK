@@ -1,0 +1,57 @@
+SLR WITH FaIR CLIMATE UNCERTAINTY | tag L14 | 500 draws/chain x 4 chains | ssp585 | forcing=raw
+  reading chain seed2026 ...
+  reading chain seed2027 ...
+  reading chain seed2028 ...
+  reading chain seed2029 ...
+
+  running arm `fixed` (shipped MEAN driver, 2000 draws) ...
+  running arm `joint` (841 configs, 2000 draws) ...
+    100/841 configs
+    200/841 configs
+    300/841 configs
+    400/841 configs
+    500/841 configs
+    600/841 configs
+    700/841 configs
+    800/841 configs
+
+============================================================================================
+GATES
+============================================================================================
+  [PAIRING] 841 of 841 configs used, each 2-3 times (seed 2026)
+            assigned dGMST@2300  p05 3.42 p50 6.58 p95 11.33  |  whole cube  p05 3.45 p50 6.58 p95 11.32 degC
+  [CONTROL] ais   @2100  fixed median   37.073 vs shipped   37.073  diff +0.0000 cm -> PASS
+  [CONTROL] ais   @2150  fixed median   94.348 vs shipped   94.348  diff +0.0000 cm -> PASS
+  [CONTROL] ais   @2300  fixed median  281.190 vs shipped  281.190  diff +0.0000 cm -> PASS
+  [CONTROL] total @2100  fixed median   94.669 vs shipped   94.669  diff +0.0000 cm -> PASS
+  [CONTROL] total @2150  fixed median  198.630 vs shipped  198.630  diff +0.0000 cm -> PASS
+  [CONTROL] total @2300  fixed median  467.577 vs shipped  467.577  diff +0.0000 cm -> PASS
+  [CALIB-MOVE] ais   1850-2024  max |joint - fixed| = 0.5189 cm = 37.0% of the 1.404 cm AIS target span = 3.68 sigma
+  [CALIB-MOVE] total 1850-2024  max |joint - fixed| = 5.3576 cm  (no single target scale for :total -- reported raw)
+
+============================================================================================
+SLR WITH vs WITHOUT FaIR CLIMATE UNCERTAINTY -- ssp585, cm rel 1995-2014
+============================================================================================
+  comp   horiz  arm       median       p05       p95    spread x fixed sprd
+  ais    2100   fixed      37.07     16.45     67.01     50.56       1.00x
+  ais    2100   joint      35.36      7.50     70.77     63.28       1.25x
+  ais    2150   fixed      94.35     53.76    148.55     94.79       1.00x
+  ais    2150   joint      92.47     47.45    154.21    106.76       1.13x
+  ais    2300   fixed     281.19    168.34    420.70    252.36       1.00x
+  ais    2300   joint     277.06    159.39    460.85    301.46       1.19x
+
+  total  2100   fixed      94.67     74.34    124.47     50.13       1.00x
+  total  2100   joint      93.05     56.88    138.36     81.47       1.63x
+  total  2150   fixed     198.63    157.80    252.72     94.92       1.00x
+  total  2150   joint     195.69    132.80    279.07    146.26       1.54x
+  total  2300   fixed     467.58    355.17    608.61    253.44       1.00x
+  total  2300   joint     461.73    308.19    689.88    381.69       1.51x
+
+============================================================================================
+AGAINST COULON 2025, WHOSE BAND SPANS FOUR GCMs
+============================================================================================
+  Coulon ssp585 AIS@2300: median 270, band 73-595 = 522 cm wide
+  fixed  median  281.19 = 1.04x theirs;  band [ 168.34,  420.70] = 252.36 cm = 0.48x their width
+  joint  median  277.06 = 1.03x theirs;  band [ 159.39,  460.85] = 301.46 cm = 0.58x their width
+
+wrote outputs/scope_slr_fairunc_{cells,paths,gates}_ssp585_raw_L14.csv

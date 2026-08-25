@@ -1,8 +1,9 @@
-SLR WITH FaIR CLIMATE UNCERTAINTY | tag L14 | 500 draws/chain x 4 chains | ssp585
+SLR WITH FaIR CLIMATE UNCERTAINTY | tag L14 | 500 draws/chain x 4 chains | ssp585 | forcing=spliced
   reading chain seed2026 ...
   reading chain seed2027 ...
   reading chain seed2028 ...
   reading chain seed2029 ...
+[SPLICE-MATCH] max |julia splice - python cube| = 1.138e-06 degC (tol 2e-06)  PASS
 
   running arm `fixed` (shipped MEAN driver, 2000 draws) ...
   running arm `joint` (841 configs, 2000 draws) ...
@@ -14,31 +15,79 @@ SLR WITH FaIR CLIMATE UNCERTAINTY | tag L14 | 500 draws/chain x 4 chains | ssp58
     600/841 configs
     700/841 configs
     800/841 configs
+┌ Warning: Assignment to `w` in soft scope is ambiguous because a global variable by the same name exists: `w` will be treated as a new local. Disambiguate by using `local w` to suppress this warning or `global w` to assign to the existing global variable.
+└ @ ~/Documents/2026/CodeProjects/SLR-RFF-BRICK/julia/scope_slr_fair_uncertainty.jl:277
 
 ============================================================================================
 GATES
 ============================================================================================
   [PAIRING] 841 of 841 configs used, each 2-3 times (seed 2026)
             assigned dGMST@2300  p05 3.42 p50 6.58 p95 11.33  |  whole cube  p05 3.45 p50 6.58 p95 11.32 degC
+  [CONTROL] glaciers @2100  fixed median   14.289 vs shipped   14.289  diff +0.0000 cm -> PASS
+  [CONTROL] glaciers @2150  fixed median   21.969 vs shipped   21.969  diff +0.0000 cm -> PASS
+  [CONTROL] glaciers @2300  fixed median   27.621 vs shipped   27.621  diff +0.0000 cm -> PASS
+  [CONTROL] gis   @2100  fixed median   13.896 vs shipped   13.896  diff +0.0000 cm -> PASS
+  [CONTROL] gis   @2150  fixed median   28.177 vs shipped   28.177  diff +0.0000 cm -> PASS
+  [CONTROL] gis   @2300  fixed median   49.961 vs shipped   49.961  diff +0.0000 cm -> PASS
   [CONTROL] ais   @2100  fixed median   37.073 vs shipped   37.073  diff +0.0000 cm -> PASS
   [CONTROL] ais   @2150  fixed median   94.348 vs shipped   94.348  diff +0.0000 cm -> PASS
   [CONTROL] ais   @2300  fixed median  281.190 vs shipped  281.190  diff +0.0000 cm -> PASS
+  [CONTROL] te    @2100  fixed median   26.920 vs shipped   26.920  diff +0.0000 cm -> PASS
+  [CONTROL] te    @2150  fixed median   49.712 vs shipped   49.712  diff +0.0000 cm -> PASS
+  [CONTROL] te    @2300  fixed median   99.741 vs shipped   99.741  diff +0.0000 cm -> PASS
+  [CONTROL] lws   @2100  fixed median    2.596 vs shipped    2.596  diff +0.0000 cm -> PASS
+  [CONTROL] lws   @2150  fixed median    4.231 vs shipped    4.231  diff +0.0000 cm -> PASS
+  [CONTROL] lws   @2300  fixed median    8.484 vs shipped    8.484  diff +0.0000 cm -> PASS
   [CONTROL] total @2100  fixed median   94.669 vs shipped   94.669  diff +0.0000 cm -> PASS
   [CONTROL] total @2150  fixed median  198.630 vs shipped  198.630  diff +0.0000 cm -> PASS
   [CONTROL] total @2300  fixed median  467.577 vs shipped  467.577  diff +0.0000 cm -> PASS
+  [CALIB-MOVE] glaciers 1850-2024  max |joint - fixed| = 0.0000 cm  (no single target scale for :total -- reported raw)
+  [CALIB-MOVE] gis   1850-2024  max |joint - fixed| = 0.0000 cm  (no single target scale for :total -- reported raw)
   [CALIB-MOVE] ais   1850-2024  max |joint - fixed| = 0.0926 cm = 6.6% of the 1.404 cm AIS target span = 0.66 sigma
+  [CALIB-MOVE] te    1850-2024  max |joint - fixed| = 1.7604 cm  (no single target scale for :total -- reported raw)
+  [CALIB-MOVE] lws   1850-2024  max |joint - fixed| = 0.0000 cm  (no single target scale for :total -- reported raw)
   [CALIB-MOVE] total 1850-2024  max |joint - fixed| = 1.7932 cm  (no single target scale for :total -- reported raw)
+  [SUM] fixed max |sum(parts) - total| over draws x horizons = 2.274e-13 cm -> PASS
+  [SUM] joint max |sum(parts) - total| over draws x horizons = 2.274e-13 cm -> PASS
 
 ============================================================================================
 SLR WITH vs WITHOUT FaIR CLIMATE UNCERTAINTY -- ssp585, cm rel 1995-2014
 ============================================================================================
   comp   horiz  arm       median       p05       p95    spread x fixed sprd
+  glaciers 2100   fixed      14.29     11.38     17.31      5.93       1.00x
+  glaciers 2100   joint      14.00     10.05     18.92      8.87       1.50x
+  glaciers 2150   fixed      21.97     17.79     26.18      8.39       1.00x
+  glaciers 2150   joint      21.45     16.07     27.55     11.49       1.37x
+  glaciers 2300   fixed      27.62     22.36     32.96     10.60       1.00x
+  glaciers 2300   joint      27.01     20.88     32.83     11.95       1.13x
+
+  gis    2100   fixed      13.90     11.62     16.41      4.78       1.00x
+  gis    2100   joint      13.35      9.49     20.69     11.21       2.34x
+  gis    2150   fixed      28.18     22.81     34.35     11.54       1.00x
+  gis    2150   joint      26.99     17.38     44.26     26.88       2.33x
+  gis    2300   fixed      49.96     38.82     65.67     26.85       1.00x
+  gis    2300   joint      47.48     25.61     86.34     60.73       2.26x
+
   ais    2100   fixed      37.07     16.45     67.01     50.56       1.00x
   ais    2100   joint      35.05      7.38     71.19     63.80       1.26x
   ais    2150   fixed      94.35     53.76    148.55     94.79       1.00x
   ais    2150   joint      92.13     47.10    154.90    107.81       1.14x
   ais    2300   fixed     281.19    168.34    420.70    252.36       1.00x
   ais    2300   joint     277.34    159.43    462.50    303.07       1.20x
+
+  te     2100   fixed      26.92     24.56     28.69      4.13       1.00x
+  te     2100   joint      26.60     18.21     35.48     17.27       4.18x
+  te     2150   fixed      49.71     45.35     52.98      7.63       1.00x
+  te     2150   joint      49.06     31.44     67.61     36.16       4.74x
+  te     2300   fixed      99.74     90.99    106.29     15.30       1.00x
+  te     2300   joint      98.47     52.59    147.39     94.80       6.20x
+
+  lws    2100   fixed       2.60      2.60      2.60      0.00        NaNx
+  lws    2100   joint       2.60      2.60      2.60      0.00        NaNx
+  lws    2150   fixed       4.23      4.23      4.23      0.00        NaNx
+  lws    2150   joint       4.23      4.23      4.23      0.00        NaNx
+  lws    2300   fixed       8.48      8.48      8.48      0.00        NaNx
+  lws    2300   joint       8.48      8.48      8.48      0.00        NaNx
 
   total  2100   fixed      94.67     74.34    124.47     50.13       1.00x
   total  2100   joint      92.45     56.22    138.17     81.94       1.63x
@@ -54,4 +103,4 @@ AGAINST COULON 2025, WHOSE BAND SPANS FOUR GCMs
   fixed  median  281.19 = 1.04x theirs;  band [ 168.34,  420.70] = 252.36 cm = 0.48x their width
   joint  median  277.34 = 1.03x theirs;  band [ 159.43,  462.50] = 303.07 cm = 0.58x their width
 
-wrote outputs/scope_slr_fairunc_{cells,paths,gates}_L14.csv
+wrote outputs/scope_slr_fairunc_{cells,paths,gates}_ssp585_spliced_L14.csv
