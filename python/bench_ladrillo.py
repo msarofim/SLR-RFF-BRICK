@@ -1,0 +1,799 @@
+#!/usr/bin/env python3
+"""
+bench_ladrillo.py — THE STANDING LADRILLO BENCHMARK. One command, four arms,
+                    five blocks, a machine-readable CSV and a report.
+
+Marcus 2026-08-25: *"make these comparisons durable. E.g. BRICK2.0 versus the full
+observational period and against MAGICC and FACTS and other constraints for future
+projections. Then whenever we update a Ladrillo module we can quickly see how it
+matches that comparison. And keep the best performing Ladrillo module in the
+comparison as well, so we can quickly check if any changes improve against that
+best version."*
+
+    source ~/climate-env/bin/activate
+    python python/bench_ladrillo.py --tag=L15
+    python python/bench_ladrillo.py --tag=L15 --freeze
+    python python/bench_ladrillo.py --tag=L15 --promote --why="ssp126 tail fixed"
+
+THE ARMS. candidate (live, `outputs/`), champion (FROZEN, `benchmark/reference/<tag>/`),
+BRICK 2.0 and the literature (FROZEN, `benchmark/reference/_fixed/`). The comparators are
+frozen COPIES on purpose: a benchmark whose reference arms move with `outputs/` cannot
+compare a score from today with a score from six months ago.
+
+WHAT IT DOES **NOT** DO. It runs no model and reads no chain. Every number is
+post-processing over files a projection/hindcast run already wrote. Producing those files
+for a new tag is the expensive step and is upstream of this script — see
+benchmark/README.md for the four inputs a taggable arm must have on disk.
+
+THE THREE CAVEATS THAT TRAVEL WITH EVERY VERDICT, re-printed in the report:
+  * the hindcast is IN-SAMPLE for every Ladrillo arm and OUT-OF-SAMPLE for BRICK 2.0, so
+    it RANKS IN ONE DIRECTION ONLY -- it can reject, it cannot certify;
+  * Ladrillo-fixed and BRICK 2.0 bands are posterior-parameter spread; Ladrillo-JOINT,
+    FACTS and MAGICC carry climate uncertainty. Only the joint band is scored against
+    them (`like_for_like_forcing`);
+  * part of the width is a PRIOR, not an inference (78% of ssp585 2300 AIS is
+    `antarctic_lambda`), so narrowness is never scored as a win there.
+
+Writes outputs/bench_ladrillo_<TAG>.csv and outputs/bench_ladrillo_<TAG>.md
+"""
+import hashlib
+import json
+import os
+import shutil
+import subprocess
+import sys
+
+import numpy as np
+import pandas as pd
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BENCH = os.path.join(REPO, "benchmark")
+REF = os.path.join(BENCH, "reference")
+FIXED = os.path.join(REF, "_fixed")
+CHAMPIONS_JSON = os.path.join(BENCH, "champions.json")
+
+# ------------------------------------------------------------------ constants
+# Every label, filename and console line below derives from these names, so a
+# window or horizon cannot be changed without its label following it.
+BENCH_VERSION = "1.0"
+REF_WINDOW = (1995, 2005)          # hindcast re-reference, shared by both arms
+PROJ_REF_WINDOW = (1995, 2014)     # AR6 projection re-reference
+WINDOWS = [("full", None), ("1920-1949", (1920, 1949)),
+           ("1950-1992", (1950, 1992)), ("1993-2026", (1993, 2026))]
+RATE_WINDOW = (1993, 2026)         # the altimetry era: where a rate is measurable
+ACCEL_WINDOW = (1900, 2026)        # the whole record: an acceleration needs the span
+HORIZONS = [2100, 2150, 2300]
+LIT_HORIZONS = [2100, 2150]        # the horizons FACTS covers; MAGICC-SLR covers 2100 only
+SSPS = ["ssp126", "ssp245", "ssp585"]
+SEP_LO, SEP_HI = "ssp126", "ssp585"
+# How close to the literature bracket's EDGE still counts as inside it. Marcus's
+# standing instruction is that a plausibility tolerance is scaled to the SAMPLED
+# SPREAD, never picked as a bare number (`tolerance_scaled_to_spread`) -- so this is
+# a fraction of the comparators' OWN range, and where there is only one comparator
+# there is no range and no tolerance.
+SEP_EDGE_TOL_FRAC = 0.25
+QLO, QHI = 5, 95                   # the spread definition, p05-p95, everywhere
+
+# (key, label, Ladrillo postpred stem, BRICK 2.0 postpred stem, target column)
+COMPONENTS = [("ais", "AIS", "ais", "ais", "ais"),
+              ("glaciers", "glaciers", "glaciers", "gsic", "gsic"),
+              ("gis", "Greenland", "gis", "gis", "gis"),
+              ("te", "thermal exp.", "te", "te", "steric"),
+              ("lws", "land water", None, None, "lws"),
+              ("total", "TOTAL", "total", "total", "dang")]
+COMP_LABEL = {k: lab for k, lab, *_ in COMPONENTS}
+
+# Verdict thresholds, in the component's OWN target 1-sigma. A hindcast miss is only
+# a failure relative to what the observations can resolve.
+HIND_PASS_SIGMA, HIND_WARN_SIGMA = 1.0, 3.0
+# Projection: a median inside the literature RANGE passes; outside it, the verdict is
+# how far outside relative to the literature median.
+PROJ_WARN_RATIO = 2.0
+# Spread: scored against the literature MEDIAN spread. Both directions matter --
+# too narrow is as wrong as too wide -- except where the width is a known prior.
+SPREAD_PASS = (0.5, 2.0)
+# Cells where narrowness must NOT be scored as a win: the width there is the
+# antarctic_lambda paleo prior, 78% of it (`ais_spread_is_lambda_prior`).
+PRIOR_WIDTH_CELLS = {("ais", "ssp585")}
+LAMBDA_SHARE_2300 = 0.78
+# Components whose spread is ZERO BY CONSTRUCTION, not by failure. LWS is a seeded
+# constant with no forcing dependence (`handoff_2026-08-25` §E): scoring its width
+# against a literature width would report a design decision as a defect every run.
+ZERO_SPREAD_BY_CONSTRUCTION = {"lws"}
+# IMBIE whole-sheet |loss|/sigma across four windows (diag_ais_region_lit_check.py):
+# the reason the satellite era separates no two AIS models.
+IMBIE_SNR = (0.95, 1.44)
+
+CAVEATS = [
+    "HINDCAST RANKS IN ONE DIRECTION ONLY -- in-sample for every Ladrillo arm, "
+    "out-of-sample for BRICK 2.0. It can REJECT an arm; a small fitted bias is not skill.",
+    "BANDS ARE NOT ONE OBJECT -- Ladrillo-fixed and BRICK 2.0 are posterior-parameter "
+    "spread; Ladrillo-JOINT, FACTS and MAGICC carry climate uncertainty. Only the JOINT "
+    "band is scored against the literature.",
+    f"SOME WIDTH IS A PRIOR, NOT AN INFERENCE -- {LAMBDA_SHARE_2300:.0%} of the ssp585 2300 "
+    "AIS band is antarctic_lambda's paleo prior, so narrowness is never scored as a win "
+    "at " + ", ".join(f"{c}/{s}" for c, s in sorted(PRIOR_WIDTH_CELLS)) + ".",
+    f"THE MODERN AIS RATE CANNOT REJECT ZERO -- IMBIE whole-sheet loss is "
+    f"{IMBIE_SNR[0]}-{IMBIE_SNR[1]} sigma from zero, so the {RATE_WINDOW[0]}-{RATE_WINDOW[1]} "
+    "window separates no two AIS models however different they are.",
+    "ssp245@2300 IS A THRESHOLD ARTIFACT -- 48.3% of draws tip, so its MEDIAN is "
+    "bimodal-fragile. Quote the mean and the tipped fraction there, never the bare median.",
+]
+
+# --------------------------------------------------------- arm file resolution
+# One place that knows what a taggable arm needs on disk. Adding an input to the
+# benchmark means adding it here, and both the freezer and the reader see it.
+def live_paths(tag):
+    o = os.path.join(REPO, "outputs")
+    p = {"postpred": os.path.join(o, f"postpred_{tag}_components_timeseries.csv"),
+         "comparison": os.path.join(o, f"ladrillo_model_comparison_{tag}.csv")}
+    for s in SSPS:
+        p[f"draws_{s}"] = os.path.join(o, f"scope_slr_fairunc_draws_{s}_spliced_{tag}.csv")
+    return p
+
+
+def frozen_paths(tag):
+    d = os.path.join(REF, tag)
+    p = {"postpred": os.path.join(d, "postpred_components_timeseries.csv"),
+         "comparison": os.path.join(d, "model_comparison.csv")}
+    for s in SSPS:
+        p[f"draws_{s}"] = os.path.join(d, f"draws_{s}_spliced.csv.gz")
+    return p
+
+
+FIXED_FILES = {
+    "targets": ("outputs/recalib_targets_ext.csv", "recalib_targets_ext.csv"),
+    "brick20_hindcast": ("outputs/postpred_oldbrick_components_timeseries.csv",
+                         "postpred_oldbrick_components_timeseries.csv"),
+    "brick20_projection": ("outputs/ssps_components_2300_oldbrick.csv",
+                           "ssps_components_2300_oldbrick.csv"),
+}
+
+
+def _sha(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for b in iter(lambda: f.read(1 << 20), b""):
+            h.update(b)
+    return h.hexdigest()[:16]
+
+
+def _git_head():
+    try:
+        return subprocess.check_output(["git", "-C", REPO, "rev-parse", "--short", "HEAD"],
+                                       text=True).strip()
+    except Exception:
+        return "unknown"
+
+
+def freeze(tag):
+    """Snapshot a tag's live outputs into benchmark/reference/<tag>/ with a manifest.
+
+    The draws are gzipped (11 MB -> 3 MB). They are stored RAW rather than as
+    pre-computed percentiles on purpose: if a metric definition here ever changes,
+    the champion's score must be recomputable under the NEW definition, or the
+    comparison silently mixes two metrics."""
+    d = os.path.join(REF, tag)
+    os.makedirs(d, exist_ok=True)
+    man = {"tag": tag, "frozen_git_head": _git_head(),
+           "bench_version": BENCH_VERSION, "files": {}}
+    for key, src in live_paths(tag).items():
+        if not os.path.exists(src):
+            raise SystemExit(f"cannot freeze {tag}: missing {os.path.relpath(src, REPO)}")
+        dst = frozen_paths(tag)[key]
+        if dst.endswith(".gz"):
+            import gzip
+            with open(src, "rb") as fi, gzip.open(dst, "wb") as fo:
+                shutil.copyfileobj(fi, fo)
+        else:
+            shutil.copyfile(src, dst)
+        man["files"][key] = {"source": os.path.relpath(src, REPO), "sha256_16": _sha(src),
+                             "frozen_as": os.path.relpath(dst, REPO)}
+        print(f"  froze {key:16s} <- {os.path.relpath(src, REPO)}")
+    with open(os.path.join(d, "manifest.json"), "w") as f:
+        json.dump(man, f, indent=2)
+    print(f"  wrote {os.path.relpath(os.path.join(d, 'manifest.json'), REPO)}")
+
+
+def freeze_fixed():
+    """Snapshot the arms that never move: obs targets, BRICK 2.0, FACTS, MAGICC."""
+    os.makedirs(FIXED, exist_ok=True)
+    man = {"frozen_git_head": _git_head(), "bench_version": BENCH_VERSION, "files": {}}
+    for key, (rel, name) in FIXED_FILES.items():
+        src = os.path.join(REPO, rel)
+        if not os.path.exists(src):
+            print(f"  ! SKIP {key}: {rel} does not exist yet")
+            continue
+        shutil.copyfile(src, os.path.join(FIXED, name))
+        man["files"][key] = {"source": rel, "sha256_16": _sha(src)}
+        print(f"  froze {key:20s} <- {rel}")
+    with open(os.path.join(FIXED, "manifest.json"), "w") as f:
+        json.dump(man, f, indent=2)
+
+
+def fixed(key):
+    p = os.path.join(FIXED, FIXED_FILES[key][1])
+    return p if os.path.exists(p) else os.path.join(REPO, FIXED_FILES[key][0])
+
+
+def champions():
+    with open(CHAMPIONS_JSON) as f:
+        return json.load(f)
+
+
+# ------------------------------------------------------------------- estimators
+def _fit_se(v, yrs, w, deg):
+    """(coef, AR(1)-inflated se) of the deg-th polynomial term over window w.
+
+    deg=1 -> rate (cm/yr); deg=2 -> acceleration, returned as 2*b2 (cm/yr^2), the
+    same estimator as diag_curvature_postsplice_halving.accel_se, so numbers here
+    compose with the curvature arc's. The AR(1) inflation is what makes an
+    'acceleration deficit' state whether it is resolved at all
+    (`curvature_needs_an_error_bar`)."""
+    m = (yrs >= w[0]) & (yrs <= w[1]) & np.isfinite(v)
+    if m.sum() < deg + 3:
+        return np.nan, np.nan
+    x = (yrs[m] - w[0]).astype(float)
+    y = np.asarray(v[m], dtype=float)
+    A = np.vstack([x ** k for k in range(deg + 1)]).T
+    b = np.linalg.lstsq(A, y, rcond=None)[0]
+    r = y - A @ b
+    s2 = r @ r / (len(x) - (deg + 1))
+    se = np.sqrt(s2 * np.linalg.inv(A.T @ A)[deg, deg])
+    rho = np.corrcoef(r[:-1], r[1:])[0, 1] if len(r) > 3 else 0.0
+    infl = np.sqrt(max((1 + rho) / (1 - rho), 1.0)) if np.isfinite(rho) and rho < 1 else 1.0
+    scale = 2.0 if deg == 2 else 1.0
+    return scale * b[deg], scale * se * infl
+
+
+def _indep_se(yrs, w, sigma_y, deg):
+    """se of the deg-th term under INDEPENDENT per-year observational error sigma_y.
+
+    The third account of the observational uncertainty, and the one that usually
+    dominates. [B] estimator scatter measures wiggle about the fitted curve; [C-corr]
+    refits the published _lo/_hi envelope, which is very nearly PARALLEL to the central
+    series, so the level uncertainty cancels and the rate se it implies is far too
+    tight; [C-indep] propagates the SAME published band as independent per-year error
+    through the same design matrix. [C-corr] and [C-indep] BRACKET the truth -- the
+    year-to-year correlation of a reconstruction's band is unknown -- exactly as
+    diag_curvature_deficit_errorbar.py brackets it, and the benchmark takes the
+    CONSERVATIVE end so that a 'FAIL' means the miss survives the widest honest bar.
+    ⚠ All three omit SHARED-METHOD error across reconstructions, which is rank-one and
+    cancels in none of them (`shared_method_error`): every bar here is a lower bound."""
+    m = (yrs >= w[0]) & (yrs <= w[1])
+    if m.sum() < deg + 3 or not np.isfinite(sigma_y):
+        return np.nan
+    x = (yrs[m] - w[0]).astype(float)
+    A = np.vstack([x ** k for k in range(deg + 1)]).T
+    scale = 2.0 if deg == 2 else 1.0
+    return scale * sigma_y * np.sqrt(np.linalg.inv(A.T @ A)[deg, deg])
+
+
+def score_window(p50, lo, hi, obs, window):
+    m = obs.notna() & p50.notna()
+    if window is not None:
+        m &= (obs.index >= window[0]) & (obs.index <= window[1])
+    if m.sum() == 0:
+        return None
+    r = p50[m] - obs[m]
+    return dict(n=int(m.sum()), bias=float(r.mean()),
+                rmse=float(np.sqrt((r ** 2).mean())), max_abs=float(r.abs().max()),
+                coverage90=float(((obs[m] >= lo[m]) & (obs[m] <= hi[m])).mean()))
+
+
+def verdict_sigma(x):
+    a = abs(x)
+    return "PASS" if a <= HIND_PASS_SIGMA else ("WARN" if a <= HIND_WARN_SIGMA else "FAIL")
+
+
+def direction(cand, champ, lower_is_better=True):
+    """BETTER / SAME / WORSE against the champion, with a 2% dead band.
+
+    The dead band exists because two arms differing by 1% of a metric are not
+    distinguishable by it, and a benchmark that reports every rounding difference
+    as a movement trains you to ignore it."""
+    if not (np.isfinite(cand) and np.isfinite(champ)):
+        return "n/a"
+    if abs(champ) < 1e-12:
+        return "SAME" if abs(cand) < 1e-12 else ("WORSE" if lower_is_better else "BETTER")
+    rel = (cand - champ) / abs(champ)
+    if abs(rel) < 0.02:
+        return "SAME"
+    return ("BETTER" if rel < 0 else "WORSE") if lower_is_better else \
+           ("BETTER" if rel > 0 else "WORSE")
+
+
+# ------------------------------------------------------------------ block [H]
+def block_hindcast(rows, cand_tag, champ_tag, cand_p, champ_p, sigma):
+    """Every Ladrillo arm and BRICK 2.0 against the full observational record."""
+    a = pd.read_csv(cand_p["postpred"]).set_index("year")
+    c = pd.read_csv(champ_p["postpred"]).set_index("year") if champ_p else None
+    b = pd.read_csv(fixed("brick20_hindcast")).set_index("year")
+    tg = pd.read_csv(fixed("targets")).set_index("year")
+    base = tg.loc[REF_WINDOW[0]:REF_WINDOW[1], ["ais", "gsic", "gis", "steric"]].mean()
+    if base.abs().max() > 1e-3:
+        raise SystemExit(f"targets are not zeroed on {REF_WINDOW}: {base.to_dict()} -- "
+                         "the arms would not share a baseline")
+    yrs = a.index.intersection(b.index)
+    out = []
+    for key, label, lst, bst, tcol in COMPONENTS:
+        if lst is None:
+            continue
+        obs = (a[f"{lst}_obs"] if f"{lst}_obs" in a else tg[tcol].reindex(a.index)).reindex(yrs)
+        arms = [(cand_tag, a, lst, "p05"), ("BRICK 2.0", b, bst, "p5")]
+        if c is not None and champ_tag != cand_tag:
+            arms.insert(1, (f"{champ_tag}*", c, lst, "p05"))
+        for wname, win in WINDOWS:
+            got = {}
+            for arm, df, stem, plo in arms:
+                if f"{stem}_p50" not in df:
+                    continue
+                s = score_window(df[f"{stem}_p50"].reindex(yrs), df[f"{stem}_{plo}"].reindex(yrs),
+                                 df[f"{stem}_p95"].reindex(yrs), obs, win)
+                if s is None:
+                    continue
+                got[arm] = s
+                rows.append(dict(block="H", component=key, scenario="", horizon="",
+                                 metric=f"hindcast/{wname}", arm=arm, value=s["rmse"],
+                                 unit="cm", value_sigma=s["rmse"] / sigma[key],
+                                 note=(f"bias {s['bias']:+.4f} cm = {s['bias']/sigma[key]:+.2f} sd; "
+                                       f"cov90 {s['coverage90']:.0%}; n={s['n']}"),
+                                 verdict=verdict_sigma(s["bias"] / sigma[key])))
+            if cand_tag in got:
+                for other in [k for k in got if k != cand_tag]:
+                    out.append((key, wname, other,
+                                got[cand_tag]["rmse"] / got[other]["rmse"],
+                                direction(got[cand_tag]["rmse"], got[other]["rmse"])))
+    for key, wname, other, ratio, d in out:
+        rows.append(dict(block="H", component=key, scenario="", horizon="",
+                         metric=f"rmse_ratio/{wname}", arm=f"{cand_tag} vs {other}",
+                         value=ratio, unit="ratio", value_sigma=np.nan,
+                         note="<1 means the candidate is closer to the observations",
+                         verdict=d))
+
+
+# ------------------------------------------------------------------ block [R]
+def block_rate_accel(rows, cand_tag, champ_tag, cand_p, champ_p, sigma):
+    """The SLOPE, not just the level -- with an error bar on the observations.
+
+    A cell can sit inside the level band at the last horizon and carry the wrong
+    slope there (`score_the_rate_not_the_level`); and a curvature quoted without its
+    bar has repeatedly turned out to be unresolved (`curvature_needs_an_error_bar`),
+    so every z here is (model - obs) / se(obs) and the verdict names the resolution."""
+    a = pd.read_csv(cand_p["postpred"]).set_index("year")
+    c = pd.read_csv(champ_p["postpred"]).set_index("year") if champ_p else None
+    b = pd.read_csv(fixed("brick20_hindcast")).set_index("year")
+    tg = pd.read_csv(fixed("targets")).set_index("year")
+    for stat, deg, win, unit in (("rate", 1, RATE_WINDOW, "cm/yr"),
+                                 ("accel", 2, ACCEL_WINDOW, "cm/yr2")):
+        for key, label, lst, bst, tcol in COMPONENTS:
+            if lst is None:
+                continue
+            obs_s = (a[f"{lst}_obs"] if f"{lst}_obs" in a else tg[tcol].reindex(a.index)).dropna()
+            o, ose = _fit_se(obs_s.values, obs_s.index.values.astype(float), win, deg)
+            if not np.isfinite(o):
+                continue
+            # TWO ACCOUNTS OF THE SAME OBSERVATIONAL UNCERTAINTY, and the larger
+            # carries the verdict. [B] estimator scatter about the fit is a LOWER
+            # bound because it omits the reconstruction's own published band; [C]
+            # refits the statistic on the target's _lo/_hi series, which is the
+            # perfectly-correlated arm the curvature work used as a bracket
+            # (`curvature_needs_an_error_bar`, `diag_curvature_deficit_errorbar.py`).
+            # They are NOT independent, so they are never added in quadrature.
+            bse = np.nan
+            if f"{tcol}_lo" in tg and f"{tcol}_hi" in tg:
+                bl = tg[f"{tcol}_lo"].dropna(); bh = tg[f"{tcol}_hi"].dropna()
+                rl, _ = _fit_se(bl.values, bl.index.values.astype(float), win, deg)
+                rh, _ = _fit_se(bh.values, bh.index.values.astype(float), win, deg)
+                if np.isfinite(rl) and np.isfinite(rh):
+                    bse = abs(rh - rl) / (2 * 1.645)
+            ise = _indep_se(obs_s.index.values.astype(float), win, sigma.get(key, np.nan), deg)
+            cse = np.nanmax([ose, bse, ise])
+            rows.append(dict(block="R", component=key, scenario="", horizon="",
+                             metric=f"{stat}/{win[0]}-{win[1]}/obs", arm="observations",
+                             value=o, unit=unit, value_sigma=np.nan,
+                             note=f"se: estimator {ose:.4g}, band-correlated {bse:.4g}, "
+                                  f"band-independent {ise:.4g}; CONSERVATIVE {cse:.4g} "
+                                  f"{unit}; |obs|/se = {abs(o)/cse:.2f}", verdict=""))
+            ose = cse
+            arms = [(cand_tag, a, lst), ("BRICK 2.0", b, bst)]
+            if c is not None and champ_tag != cand_tag:
+                arms.insert(1, (f"{champ_tag}*", c, lst))
+            for arm, df, stem in arms:
+                if f"{stem}_p50" not in df:
+                    continue
+                s = df[f"{stem}_p50"].dropna()
+                v, _ = _fit_se(s.values, s.index.values.astype(float), win, deg)
+                if not np.isfinite(v):
+                    continue
+                z = (v - o) / ose if ose > 0 else np.nan
+                rows.append(dict(block="R", component=key, scenario="", horizon="",
+                                 metric=f"{stat}/{win[0]}-{win[1]}", arm=arm, value=v,
+                                 unit=unit, value_sigma=z,
+                                 note=f"{v/o:.2f}x obs; z={z:+.2f} vs the obs error bar",
+                                 verdict=("UNRESOLVED" if abs(z) <= 1 else
+                                          ("WARN" if abs(z) <= 2 else "FAIL"))))
+
+
+# ------------------------------------------------------------------ block [P]
+def joint_stats(path, component, horizon, arm="joint"):
+    """(median, mean, p05-p95 spread) of the per-draw joint band, or NaNs."""
+    if not os.path.exists(path):
+        return np.nan, np.nan, np.nan
+    d = pd.read_csv(path)
+    v = d[(d.horizon == horizon) & (d.component == component) & (d.arm == arm)].value_cm.values
+    if len(v) == 0:
+        return np.nan, np.nan, np.nan
+    return (float(np.median(v)), float(np.mean(v)),
+            float(np.percentile(v, QHI) - np.percentile(v, QLO)))
+
+
+def block_projection(rows, cand_tag, champ_tag, cand_p, champ_p):
+    """Level and spread against FACTS, MAGICC-SLR and BRICK 2.0, on the JOINT band."""
+    cmp_ = pd.read_csv(cand_p["comparison"])
+    b20 = pd.read_csv(fixed("brick20_projection")) if os.path.exists(fixed("brick20_projection")) else None
+    LBL = {"ssp126": "SSP1-2.6", "ssp245": "SSP2-4.5", "ssp585": "SSP5-8.5"}
+    for key, label, *_ in COMPONENTS:
+        for ssp in SSPS:
+            for H in HORIZONS:
+                cm, cmean, csp = joint_stats(cand_p[f"draws_{ssp}"], key, H)
+                if not np.isfinite(cm):
+                    continue
+                rows.append(dict(block="P", component=key, scenario=ssp, horizon=H,
+                                 metric="median_joint", arm=cand_tag, value=cm, unit="cm",
+                                 value_sigma=np.nan, note=f"mean {cmean:.2f} cm", verdict=""))
+                rows.append(dict(block="P", component=key, scenario=ssp, horizon=H,
+                                 metric="spread_joint", arm=cand_tag, value=csp, unit="cm",
+                                 value_sigma=np.nan, note=f"p{QLO}-p{QHI}", verdict=""))
+                if champ_p and champ_tag != cand_tag:
+                    hm, _, hsp = joint_stats(champ_p[f"draws_{ssp}"], key, H)
+                    rows.append(dict(block="P", component=key, scenario=ssp, horizon=H,
+                                     metric="median_joint", arm=f"{champ_tag}*", value=hm,
+                                     unit="cm", value_sigma=np.nan, note="champion", verdict=""))
+                    rows.append(dict(block="P", component=key, scenario=ssp, horizon=H,
+                                     metric="spread_joint", arm=f"{champ_tag}*", value=hsp,
+                                     unit="cm", value_sigma=np.nan, note="champion", verdict=""))
+                if b20 is not None:
+                    hit = b20[(b20.ssp == LBL[ssp]) & (b20.component == key) & (b20.year == H)]
+                    if not hit.empty:
+                        r = hit.iloc[0]
+                        rows.append(dict(block="P", component=key, scenario=ssp, horizon=H,
+                                         metric="median_fixed", arm="BRICK 2.0",
+                                         value=float(r.med), unit="cm", value_sigma=np.nan,
+                                         note=f"spread {float(r.p95)-float(r.p05):.2f} cm "
+                                              "(parameter only)", verdict=""))
+                if H not in LIT_HORIZONS:
+                    continue
+                lit = cmp_[(cmp_.component == key) & (cmp_.scenario == ssp) &
+                           (cmp_.year == H) & (~cmp_.source.isin(["Ladrillo", "BRICK 2.0"]))]
+                if lit.empty:
+                    continue
+                meds = lit.med.astype(float).values
+                sps = (lit.p95.astype(float) - lit.p05.astype(float)).dropna().values
+                inside = float(np.min(meds)) <= cm <= float(np.max(meds))
+                ratio = cm / float(np.median(meds)) if np.median(meds) != 0 else np.nan
+                rows.append(dict(
+                    block="P", component=key, scenario=ssp, horizon=H,
+                    metric="median_vs_lit", arm=cand_tag, value=ratio, unit="x lit median",
+                    value_sigma=np.nan,
+                    note=f"ours {cm:.2f} cm vs lit {np.min(meds):.2f}-{np.max(meds):.2f} "
+                         f"(median {np.median(meds):.2f}), n_lit={len(meds)}",
+                    verdict="PASS" if inside else
+                            ("WARN" if 1/PROJ_WARN_RATIO <= ratio <= PROJ_WARN_RATIO else "FAIL")))
+                if len(sps):
+                    sr = csp / float(np.median(sps))
+                    prior = (key, ssp) in PRIOR_WIDTH_CELLS
+                    if key in ZERO_SPREAD_BY_CONSTRUCTION:
+                        v = "N/A(by construction)"
+                    else:
+                        v = ("PASS" if SPREAD_PASS[0] <= sr <= SPREAD_PASS[1] else
+                             ("PASS(prior)" if prior and sr > SPREAD_PASS[1] else "FAIL"))
+                    rows.append(dict(
+                        block="P", component=key, scenario=ssp, horizon=H,
+                        metric="spread_vs_lit", arm=cand_tag, value=sr, unit="x lit spread",
+                        value_sigma=np.nan,
+                        note=f"ours {csp:.2f} cm vs lit {np.min(sps):.2f}-{np.max(sps):.2f} "
+                             f"(median {np.median(sps):.2f})" +
+                             ("; width here is the antarctic_lambda PRIOR -- do NOT narrow"
+                              if prior else "") +
+                             ("; LWS is a seeded constant -- zero spread is the DESIGN,"
+                              " not a defect" if key in ZERO_SPREAD_BY_CONSTRUCTION else ""),
+                        verdict=v))
+
+
+# ------------------------------------------------------------------ block [S]
+def block_separation(rows, cand_tag, champ_tag, cand_p, champ_p):
+    """ssp585/ssp126 median ratio against the FULL literature range.
+
+    Marcus 2026-08-25: ours lying BETWEEN FACTS and MAGICC is acceptable -- so the
+    verdict is BRACKET MEMBERSHIP, not distance from a literature median. Where the
+    bracket does not exist (MAGICC-SLR carries only 2100), the report says so rather
+    than silently scoring against the FACTS side alone."""
+    cmp_ = pd.read_csv(cand_p["comparison"])
+    for key, label, *_ in COMPONENTS:
+        for H in HORIZONS:
+            lo, _, _ = joint_stats(cand_p[f"draws_{SEP_LO}"], key, H)
+            hi, _, _ = joint_stats(cand_p[f"draws_{SEP_HI}"], key, H)
+            if not (np.isfinite(lo) and np.isfinite(hi)) or lo <= 0:
+                continue
+            ours = hi / lo
+            lit = {}
+            for src in ("FACTS", "MAGICC-SLR"):
+                rs = []
+                s = cmp_[(cmp_.component == key) & (cmp_.year == H) & (cmp_.source == src)]
+                for mod in sorted(set(s[s.scenario == SEP_LO].module) &
+                                  set(s[s.scenario == SEP_HI].module)):
+                    a = float(s[(s.module == mod) & (s.scenario == SEP_HI)].med.iloc[0])
+                    b_ = float(s[(s.module == mod) & (s.scenario == SEP_LO)].med.iloc[0])
+                    if b_ > 0:
+                        rs.append(a / b_)
+                if rs:
+                    lit[src] = (min(rs), max(rs), len(rs))
+            if not lit:
+                continue
+            allr = [x for v in lit.values() for x in v[:2]]
+            inside = min(allr) <= ours <= max(allr)
+            bracketed = len(lit) > 1
+            tol = SEP_EDGE_TOL_FRAC * (max(allr) - min(allr)) if len(allr) > 1 else 0.0
+            near = (not inside) and (min(allr) - tol <= ours <= max(allr) + tol)
+            margin = (0.0 if inside else
+                      min(abs(ours - min(allr)), abs(ours - max(allr))))
+            rows.append(dict(
+                block="S", component=key, scenario=f"{SEP_HI}/{SEP_LO}", horizon=H,
+                metric="separation", arm=cand_tag, value=ours, unit="x",
+                value_sigma=np.nan,
+                note="; ".join(f"{k} {v[0]:.2f}-{v[1]:.2f} (n={v[2]})" for k, v in lit.items())
+                     + (f"; {margin:.2f} outside the bracket = "
+                        f"{margin/(max(allr)-min(allr)):.0%} of its own range"
+                        if margin > 0 and max(allr) > min(allr) else "")
+                     + ("" if bracketed else "  [NO UPPER COMPARATOR AT THIS HORIZON]"),
+                verdict=("PASS" if inside else
+                         ("PASS(edge)" if near else
+                          ("WARN" if not bracketed else "FAIL")))))
+            if champ_p and champ_tag != cand_tag:
+                clo, _, _ = joint_stats(champ_p[f"draws_{SEP_LO}"], key, H)
+                chi, _, _ = joint_stats(champ_p[f"draws_{SEP_HI}"], key, H)
+                if np.isfinite(clo) and clo > 0:
+                    rows.append(dict(block="S", component=key,
+                                     scenario=f"{SEP_HI}/{SEP_LO}", horizon=H,
+                                     metric="separation", arm=f"{champ_tag}*",
+                                     value=chi / clo, unit="x", value_sigma=np.nan,
+                                     note="champion", verdict=""))
+
+
+# ------------------------------------------------------------------ block [V]
+def block_verdicts(rows, cand_tag, champ_tag):
+    """Per-module roll-up: the worst verdict in each block, and the delta vs champion."""
+    df = pd.DataFrame(rows)
+    order = {"PASS": 0, "PASS(prior)": 0, "PASS(edge)": 0, "UNRESOLVED": 0,
+             "N/A(by construction)": -1,
+             "WARN": 1, "FAIL": 2, "": -1,
+             "BETTER": -1, "SAME": -1, "WORSE": -1, "n/a": -1}
+    out = []
+    for key, label, *_ in COMPONENTS:
+        for blk, name in (("H", "hindcast"), ("R", "rate/accel"),
+                          ("P", "projection"), ("S", "separation")):
+            s = df[(df.block == blk) & (df.component == key) &
+                   (df.arm.isin([cand_tag, "observations"])) & (df.verdict != "")]
+            s = s[s.verdict.map(lambda v: order.get(v, -1)) >= 0]
+            if s.empty:
+                continue
+            worst = s.loc[s.verdict.map(lambda v: order.get(v, -1)).idxmax()]
+            out.append(dict(block="V", component=key, scenario="", horizon="",
+                            metric=name, arm=cand_tag, value=np.nan, unit="",
+                            value_sigma=np.nan,
+                            note=f"worst cell: {worst.metric} "
+                                 f"{worst.scenario}{'@' if worst.horizon else ''}"
+                                 f"{worst.horizon} = {worst.value:.3g} {worst.unit}",
+                            verdict=worst.verdict))
+        if champ_tag != cand_tag:
+            d = df[(df.block == "H") & (df.component == key) &
+                   (df.metric.str.startswith("rmse_ratio")) &
+                   (df.arm == f"{cand_tag} vs {champ_tag}*")]
+            if not d.empty:
+                better = (d.verdict == "BETTER").sum()
+                worse = (d.verdict == "WORSE").sum()
+                out.append(dict(block="V", component=key, scenario="", horizon="",
+                                metric="vs champion (hindcast)", arm=cand_tag,
+                                value=float(d.value.mean()), unit="mean RMSE ratio",
+                                value_sigma=np.nan,
+                                note=f"{better} windows BETTER, {worse} WORSE, "
+                                     f"{len(d)-better-worse} SAME",
+                                verdict=("BETTER" if better > worse else
+                                         ("WORSE" if worse > better else "SAME"))))
+    rows.extend(out)
+
+
+# ------------------------------------------------------------------- reporting
+def write_report(path, df, cand_tag, champ_tag, sigma, meta):
+    L = []
+    w = L.append
+    w(f"# Ladrillo benchmark — `{cand_tag}`\n")
+    w(f"*benchmark v{BENCH_VERSION}, {meta['date']}, repo `{meta['git']}`. "
+      f"Champion arm: **{champ_tag}**" +
+      (" (the candidate IS the champion — no delta column)" if champ_tag == cand_tag else "") +
+      ".*\n")
+    w("Arms: **candidate** (live `outputs/`), **champion\\*** (frozen), "
+      "**BRICK 2.0** (stock MimiBRICK v2.0.0, own posterior), **literature** "
+      "(FACTS + MAGICC-SLR, frozen).\n")
+    w("## Caveats that travel with every verdict\n")
+    for c in CAVEATS:
+        w(f"* {c}")
+    w("")
+    w("## [V] Roll-up\n")
+    v = df[df.block == "V"]
+    w("| module | hindcast | rate/accel | projection | separation | vs champion |")
+    w("|---|---|---|---|---|---|")
+    for key, label, *_ in COMPONENTS:
+        s = v[v.component == key]
+        if s.empty:
+            continue
+        g = lambda m: (s[s.metric == m].verdict.iloc[0] if not s[s.metric == m].empty else "—")
+        w(f"| **{label}** | {g('hindcast')} | {g('rate/accel')} | {g('projection')} | "
+          f"{g('separation')} | {g('vs champion (hindcast)')} |")
+    w("")
+    w(f"## [H] Hindcast — the full observational period, scaled to each component's own "
+      f"target 1-sigma\n")
+    w("| module | target 1σ (cm) | window | arm | RMSE (cm) | RMSE (σ) | note |")
+    w("|---|---|---|---|---|---|---|")
+    h = df[(df.block == "H") & (df.metric.str.startswith("hindcast"))]
+    for key, label, *_ in COMPONENTS:
+        for _, r in h[h.component == key].iterrows():
+            w(f"| {label} | {sigma.get(key, float('nan')):.4f} | "
+              f"{r.metric.split('/')[1]} | {r.arm} | {r.value:.4f} | "
+              f"{r.value_sigma:.2f} | {r.note} |")
+    w("")
+    w(f"## [R] Rate ({RATE_WINDOW[0]}-{RATE_WINDOW[1]}) and acceleration "
+      f"({ACCEL_WINDOW[0]}-{ACCEL_WINDOW[1]}), with an error bar on the observations\n")
+    w("| module | statistic | arm | value | unit | z vs obs bar | note |")
+    w("|---|---|---|---|---|---|---|")
+    for _, r in df[df.block == "R"].iterrows():
+        z = "—" if not np.isfinite(r.value_sigma) else f"{r.value_sigma:+.2f}"
+        w(f"| {COMP_LABEL.get(r.component, r.component)} | {r.metric.split('/')[0]} | "
+          f"{r.arm} | {r.value:.5g} | {r.unit} | {z} | {r.note} |")
+    w("")
+    w("## [P] Projections vs the literature — scored on the JOINT band\n")
+    w("| module | ssp | horizon | metric | value | verdict | note |")
+    w("|---|---|---|---|---|---|---|")
+    p = df[(df.block == "P") & (df.metric.str.endswith("_vs_lit"))]
+    for _, r in p.iterrows():
+        w(f"| {COMP_LABEL.get(r.component, r.component)} | {r.scenario} | {r.horizon} | "
+          f"{r.metric} | {r.value:.3f} {r.unit} | **{r.verdict}** | {r.note} |")
+    w("")
+    w("## [P] Levels — every arm side by side (cm)\n")
+    w("| module | ssp | horizon | candidate (joint) | champion (joint) | BRICK 2.0 (fixed) |")
+    w("|---|---|---|---|---|---|")
+    lv = df[(df.block == "P") & (df.metric.isin(["median_joint", "median_fixed"]))]
+    for key, label, *_ in COMPONENTS:
+        for ssp in SSPS:
+            for H in HORIZONS:
+                s = lv[(lv.component == key) & (lv.scenario == ssp) & (lv.horizon == H)]
+                if s.empty:
+                    continue
+                g = lambda a: (f"{s[s.arm == a].value.iloc[0]:.2f}"
+                               if not s[s.arm == a].empty else "—")
+                w(f"| {label} | {ssp} | {H} | {g(cand_tag)} | "
+                  f"{g(champ_tag + '*') if champ_tag != cand_tag else '(is champion)'} | "
+                  f"{g('BRICK 2.0')} |")
+    w("")
+    w(f"## [S] Scenario separation — {SEP_HI}/{SEP_LO} median ratio\n")
+    w("| module | horizon | ours | verdict | literature |")
+    w("|---|---|---|---|---|")
+    for _, r in df[(df.block == "S") & (df.arm == cand_tag)].iterrows():
+        w(f"| {COMP_LABEL.get(r.component, r.component)} | {r.horizon} | {r.value:.2f}x | "
+          f"**{r.verdict}** | {r.note} |")
+    w("")
+    w("---\n")
+    w(f"*Machine-readable: `outputs/bench_ladrillo_{cand_tag}.csv`. "
+      f"Regenerate: `python python/bench_ladrillo.py --tag={cand_tag}`.*")
+    with open(path, "w") as f:
+        f.write("\n".join(L) + "\n")
+
+
+def main():
+    args = sys.argv[1:]
+    tag = next((a[len("--tag="):] for a in args if a.startswith("--tag=")), None)
+    if tag is None:
+        raise SystemExit(__doc__)
+    if "--freeze-fixed" in args:
+        print("freezing the fixed comparator arms:")
+        freeze_fixed()
+    if "--freeze" in args:
+        print(f"freezing {tag} as a comparable arm:")
+        freeze(tag)
+    ch = champions()
+    if "--promote" in args:
+        why = next((a[len("--why="):] for a in args if a.startswith("--why=")), None)
+        if not why:
+            raise SystemExit("--promote requires --why='one line'. Promotion is a "
+                             "judgement, not a threshold: a tag that improves one metric "
+                             "and loses another is not automatically better.")
+        mods = next((a[len("--modules="):].split(",") for a in args
+                     if a.startswith("--modules=")), [k for k, *_ in COMPONENTS])
+        if not os.path.exists(os.path.join(REF, tag, "manifest.json")):
+            raise SystemExit(f"cannot promote {tag}: no frozen snapshot. Run --freeze first.")
+        import datetime
+        for m in mods:
+            ch["champions"][m] = {"tag": tag,
+                                  "since": datetime.date.today().isoformat(), "why": why}
+            print(f"  promoted {m} -> {tag}")
+        with open(CHAMPIONS_JSON, "w") as f:
+            json.dump(ch, f, indent=2)
+
+    champ_tags = {v["tag"] for v in ch["champions"].values()}
+    champ_tag = sorted(champ_tags)[0] if len(champ_tags) == 1 else \
+        next((a[len("--champion="):] for a in args if a.startswith("--champion=")),
+             sorted(champ_tags)[0])
+    if len(champ_tags) > 1:
+        print(f"! champions.json names {sorted(champ_tags)}; scoring against {champ_tag}. "
+              "Pass --champion= to pick another.")
+
+    cand_p = live_paths(tag)
+    missing = [k for k, v in cand_p.items() if not os.path.exists(v)]
+    if missing:
+        raise SystemExit(f"{tag} is missing benchmark inputs: {missing}\n" +
+                         "\n".join(f"  {k}: {os.path.relpath(cand_p[k], REPO)}"
+                                   for k in missing))
+    champ_p = frozen_paths(champ_tag) if champ_tag != tag and \
+        os.path.exists(os.path.join(REF, champ_tag, "manifest.json")) else None
+    if champ_tag != tag and champ_p is None:
+        print(f"! champion {champ_tag} has no frozen snapshot; scoring without a delta column")
+
+    tg = pd.read_csv(fixed("targets"))
+    sigma = {}
+    for key, label, lst, bst, tcol in COMPONENTS:
+        lo, hi = f"{tcol}_lo", f"{tcol}_hi"
+        sigma[key] = float(((tg[hi] - tg[lo]) / (2 * 1.645)).mean()) if lo in tg else np.nan
+
+    rows = []
+    block_hindcast(rows, tag, champ_tag, cand_p, champ_p, sigma)
+    block_rate_accel(rows, tag, champ_tag, cand_p, champ_p, sigma)
+    block_projection(rows, tag, champ_tag, cand_p, champ_p)
+    block_separation(rows, tag, champ_tag, cand_p, champ_p)
+    block_verdicts(rows, tag, champ_tag)
+
+    df = pd.DataFrame(rows)
+    import datetime
+    meta = {"date": datetime.date.today().isoformat(), "git": _git_head()}
+    out_csv = os.path.join(REPO, "outputs", f"bench_ladrillo_{tag}.csv")
+    out_md = os.path.join(REPO, "outputs", f"bench_ladrillo_{tag}.md")
+    df.to_csv(out_csv, index=False)
+    write_report(out_md, df, tag, champ_tag, sigma, meta)
+
+    print("=" * 96)
+    print(f"LADRILLO BENCHMARK v{BENCH_VERSION} — candidate {tag}, champion {champ_tag}")
+    print("=" * 96)
+    v = df[df.block == "V"]
+    print(f"  {'module':13s} {'hindcast':12s} {'rate/accel':12s} {'projection':12s} "
+          f"{'separation':12s} {'vs champion':12s}")
+    for key, label, *_ in COMPONENTS:
+        s = v[v.component == key]
+        if s.empty:
+            continue
+        g = lambda m: (s[s.metric == m].verdict.iloc[0] if not s[s.metric == m].empty else "-")
+        print(f"  {label:13s} {g('hindcast'):12s} {g('rate/accel'):12s} "
+              f"{g('projection'):12s} {g('separation'):12s} "
+              f"{g('vs champion (hindcast)'):12s}")
+    # THE CANDIDATE'S failures and the COMPARATORS' are printed apart on purpose: a
+    # BRICK 2.0 FAIL is the benchmark working (it is the arm being ranked against),
+    # and mixing the two lists reads as 37 problems with the candidate.
+    bad = df[df.verdict.isin(["FAIL", "WORSE"])]
+    mine = bad[bad.arm.astype(str).str.startswith(tag)]
+    theirs = bad[~bad.arm.astype(str).str.startswith(tag)]
+    print(f"\n  {len(mine)} FAIL/WORSE cells for the CANDIDATE:")
+    for _, r in mine.iterrows():
+        print(f"    [{r.block}] {COMP_LABEL.get(r.component, r.component):12s} "
+              f"{str(r.scenario):8s} {str(r.horizon):5s} {r.metric:26s} "
+              f"{r.arm:16s} {r.value:9.3f} {r.unit}")
+    print(f"\n  {len(theirs)} FAIL cells for the COMPARATOR arms "
+          f"(this is the benchmark working, not a defect of {tag}):")
+    for _, r in theirs.iterrows():
+        print(f"    [{r.block}] {COMP_LABEL.get(r.component, r.component):12s} "
+              f"{str(r.scenario):8s} {str(r.horizon):5s} {r.metric:26s} "
+              f"{r.arm:16s} {r.value:9.3f} {r.unit}")
+    print(f"\nwrote outputs/bench_ladrillo_{tag}.csv")
+    print(f"wrote outputs/bench_ladrillo_{tag}.md")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,17 @@
+{
+  "_comment": [
+    "Per-MODULE champion registry for the Ladrillo benchmark. Promotion is manual and",
+    "reasoned: python/bench_ladrillo.py --tag=<T> --promote --why='<one line>'.",
+    "'tag' must have a frozen snapshot under benchmark/reference/<tag>/.",
+    "Champions are per module because a change that improves one module and leaves the",
+    "others untouched should not silently take credit for them."
+  ],
+  "champions": {
+    "ais":      {"tag": "L14", "since": "2026-08-25", "why": "step 1 PASS: BRICK 2.0's component by identity, four substantive calibration updates, century-scale obs rank it above BRICK 2.0 by 4.9-11.7 sigma"},
+    "glaciers": {"tag": "L14", "since": "2026-08-25", "why": "first frozen arm; glaciers_nu3 replaces WR-GSIC"},
+    "gis":      {"tag": "L14", "since": "2026-08-25", "why": "first frozen arm; two-stage cascade, module CLOSED 2026-08-24"},
+    "te":       {"tag": "L14", "since": "2026-08-25", "why": "first frozen arm"},
+    "lws":      {"tag": "L14", "since": "2026-08-25", "why": "first frozen arm; seeded constant, zero spread"},
+    "total":    {"tag": "L14", "since": "2026-08-25", "why": "first frozen arm"}
+  }
+}

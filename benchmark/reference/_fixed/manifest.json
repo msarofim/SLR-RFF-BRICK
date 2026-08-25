@@ -1,0 +1,18 @@
+{
+  "frozen_git_head": "4086176",
+  "bench_version": "1.0",
+  "files": {
+    "targets": {
+      "source": "outputs/recalib_targets_ext.csv",
+      "sha256_16": "c704803a39aa9bfc"
+    },
+    "brick20_hindcast": {
+      "source": "outputs/postpred_oldbrick_components_timeseries.csv",
+      "sha256_16": "edd49fb19a0c2600"
+    },
+    "brick20_projection": {
+      "source": "outputs/ssps_components_2300_oldbrick.csv",
+      "sha256_16": "2eaf36a8e3239d8a"
+    }
+  }
+}

@@ -1,0 +1,359 @@
+block,component,scenario,horizon,metric,arm,value,unit,value_sigma,note,verdict
+H,ais,,,hindcast/full,L14,0.030787014921306227,cm,0.18386431160053854,bias -0.0012 cm = -0.01 sd; cov90 83%; n=106,PASS
+H,ais,,,hindcast/full,BRICK 2.0,1.1757511688158073,cm,7.021748611238046,bias -0.8211 cm = -4.90 sd; cov90 31%; n=106,FAIL
+H,ais,,,hindcast/1920-1949,L14,0.00581652865516331,cm,0.0347371136766589,bias -0.0045 cm = -0.03 sd; cov90 100%; n=30,PASS
+H,ais,,,hindcast/1920-1949,BRICK 2.0,1.9842706854871703,cm,11.850339000022418,bias -1.9579 cm = -11.69 sd; cov90 0%; n=30,FAIL
+H,ais,,,hindcast/1950-1992,L14,0.006651151612525651,cm,0.03972159742390365,bias +0.0039 cm = +0.02 sd; cov90 98%; n=43,PASS
+H,ais,,,hindcast/1950-1992,BRICK 2.0,0.8082294255445154,cm,4.826857924449145,bias -0.7053 cm = -4.21 sd; cov90 2%; n=43,FAIL
+H,ais,,,hindcast/1993-2026,L14,0.054370748644931625,cm,0.32470963152351384,bias -0.0047 cm = -0.03 sd; cov90 48%; n=33,PASS
+H,ais,,,hindcast/1993-2026,BRICK 2.0,0.0991516712222806,cm,0.5921474952971527,bias +0.0615 cm = +0.37 sd; cov90 97%; n=33,PASS
+H,glaciers,,,hindcast/full,L14,0.3307844777177898,cm,0.720211747122129,bias +0.1671 cm = +0.36 sd; cov90 54%; n=104,PASS
+H,glaciers,,,hindcast/full,BRICK 2.0,0.8940588962628659,cm,1.9466201199952224,bias +0.5000 cm = +1.09 sd; cov90 47%; n=104,WARN
+H,glaciers,,,hindcast/1920-1949,L14,0.5887925110802121,cm,1.2819685071779265,bias +0.5246 cm = +1.14 sd; cov90 23%; n=30,WARN
+H,glaciers,,,hindcast/1920-1949,BRICK 2.0,1.6382486441740043,cm,3.5669325428493757,bias +1.5142 cm = +3.30 sd; cov90 0%; n=30,FAIL
+H,glaciers,,,hindcast/1950-1992,L14,0.1326240912118885,cm,0.2887603103422825,bias +0.0743 cm = +0.16 sd; cov90 56%; n=43,PASS
+H,glaciers,,,hindcast/1950-1992,BRICK 2.0,0.13114982071295883,cm,0.28555040478960836,bias +0.0341 cm = +0.07 sd; cov90 95%; n=43,PASS
+H,glaciers,,,hindcast/1993-2026,L14,0.08479167793812631,cm,0.18461556276934862,bias -0.0502 cm = -0.11 sd; cov90 81%; n=31,PASS
+H,glaciers,,,hindcast/1993-2026,BRICK 2.0,0.24600850950039985,cm,0.5356303888762102,bias +0.1647 cm = +0.36 sd; cov90 26%; n=31,PASS
+H,gis,,,hindcast/full,L14,0.058961046749829986,cm,0.3218789932840942,bias +0.0020 cm = +0.01 sd; cov90 57%; n=106,PASS
+H,gis,,,hindcast/full,BRICK 2.0,0.7230147179026976,cm,3.9470678075906904,bias -0.5975 cm = -3.26 sd; cov90 22%; n=106,FAIL
+H,gis,,,hindcast/1920-1949,L14,0.08049277186229907,cm,0.4394245659106755,bias +0.0266 cm = +0.15 sd; cov90 60%; n=30,PASS
+H,gis,,,hindcast/1920-1949,BRICK 2.0,0.7876326016987747,cm,4.299828495043884,bias -0.7371 cm = -4.02 sd; cov90 27%; n=30,FAIL
+H,gis,,,hindcast/1950-1992,L14,0.0494066908783976,cm,0.2697200405703943,bias -0.0149 cm = -0.08 sd; cov90 60%; n=43,PASS
+H,gis,,,hindcast/1950-1992,BRICK 2.0,0.9132443162126479,cm,4.9855655102628536,bias -0.8659 cm = -4.73 sd; cov90 0%; n=43,FAIL
+H,gis,,,hindcast/1993-2026,L14,0.04578025129056223,cm,0.2499226524966929,bias +0.0017 cm = +0.01 sd; cov90 48%; n=33,PASS
+H,gis,,,hindcast/1993-2026,BRICK 2.0,0.1685880472577014,cm,0.9203525704230598,bias -0.1209 cm = -0.66 sd; cov90 45%; n=33,PASS
+H,te,,,hindcast/full,L14,0.32021504084815494,cm,1.0359998588391848,bias +0.1808 cm = +0.59 sd; cov90 28%; n=106,PASS
+H,te,,,hindcast/full,BRICK 2.0,0.3242598975630279,cm,1.0490862865551778,bias +0.1908 cm = +0.62 sd; cov90 96%; n=106,PASS
+H,te,,,hindcast/1920-1949,L14,0.4475277629872866,cm,1.447897943998518,bias +0.3576 cm = +1.16 sd; cov90 30%; n=30,WARN
+H,te,,,hindcast/1920-1949,BRICK 2.0,0.4741184495400583,cm,1.5339274679151402,bias +0.3885 cm = +1.26 sd; cov90 100%; n=30,WARN
+H,te,,,hindcast/1950-1992,L14,0.1846558564940881,cm,0.5974217849199019,bias +0.0333 cm = +0.11 sd; cov90 37%; n=43,PASS
+H,te,,,hindcast/1950-1992,BRICK 2.0,0.18965745910212953,cm,0.6136035969365266,bias +0.0499 cm = +0.16 sd; cov90 100%; n=43,PASS
+H,te,,,hindcast/1993-2026,L14,0.3207167892536875,cm,1.0376231782058445,bias +0.2123 cm = +0.69 sd; cov90 15%; n=33,PASS
+H,te,,,hindcast/1993-2026,BRICK 2.0,0.2941324145652627,cm,0.9516140752243384,bias +0.1946 cm = +0.63 sd; cov90 88%; n=33,PASS
+H,total,,,hindcast/full,L14,0.6923310847732395,cm,0.4501480659142509,bias +0.5606 cm = +0.36 sd; cov90 26%; n=105,PASS
+H,total,,,hindcast/full,BRICK 2.0,1.819830591542203,cm,1.1832391165025065,bias -1.3318 cm = -0.87 sd; cov90 25%; n=105,PASS
+H,total,,,hindcast/1920-1949,L14,0.9776578226347974,cm,0.6356652007458766,bias +0.9346 cm = +0.61 sd; cov90 40%; n=30,PASS
+H,total,,,hindcast/1920-1949,BRICK 2.0,2.5470114233655377,cm,1.6560462057904362,bias -2.4846 cm = -1.62 sd; cov90 0%; n=30,WARN
+H,total,,,hindcast/1950-1992,L14,0.658958633633778,cm,0.42844956838085363,bias +0.6151 cm = +0.40 sd; cov90 5%; n=43,PASS
+H,total,,,hindcast/1950-1992,BRICK 2.0,1.8671936241473779,cm,1.2140341768312453,bias -1.5605 cm = -1.01 sd; cov90 12%; n=43,WARN
+H,total,,,hindcast/1993-2026,L14,0.3053001355292538,cm,0.19850367628208557,bias +0.1368 cm = +0.09 sd; cov90 41%; n=32,PASS
+H,total,,,hindcast/1993-2026,BRICK 2.0,0.31640174648784053,cm,0.2057218538440205,bias +0.0564 cm = +0.04 sd; cov90 66%; n=32,PASS
+H,ais,,,rmse_ratio/full,L14 vs BRICK 2.0,0.026184974965676015,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,ais,,,rmse_ratio/1920-1949,L14 vs BRICK 2.0,0.00293131814006276,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,ais,,,rmse_ratio/1950-1992,L14 vs BRICK 2.0,0.008229286638561418,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,ais,,,rmse_ratio/1993-2026,L14 vs BRICK 2.0,0.5483593768484444,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,glaciers,,,rmse_ratio/full,L14 vs BRICK 2.0,0.36998063449785806,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,glaciers,,,rmse_ratio/1920-1949,L14 vs BRICK 2.0,0.3594036309287337,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,glaciers,,,rmse_ratio/1950-1992,L14 vs BRICK 2.0,1.0112411171507152,ratio,,<1 means the candidate is closer to the observations,SAME
+H,glaciers,,,rmse_ratio/1993-2026,L14 vs BRICK 2.0,0.34466969500495465,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,gis,,,rmse_ratio/full,L14 vs BRICK 2.0,0.08154888868771948,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,gis,,,rmse_ratio/1920-1949,L14 vs BRICK 2.0,0.10219583558208659,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,gis,,,rmse_ratio/1950-1992,L14 vs BRICK 2.0,0.05410018984108663,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,gis,,,rmse_ratio/1993-2026,L14 vs BRICK 2.0,0.2715509909227619,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,te,,,rmse_ratio/full,L14 vs BRICK 2.0,0.9875258804888546,ratio,,<1 means the candidate is closer to the observations,SAME
+H,te,,,rmse_ratio/1920-1949,L14 vs BRICK 2.0,0.9439155203123454,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,te,,,rmse_ratio/1950-1992,L14 vs BRICK 2.0,0.9736282314878631,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,te,,,rmse_ratio/1993-2026,L14 vs BRICK 2.0,1.090382335886772,ratio,,<1 means the candidate is closer to the observations,WORSE
+H,total,,,rmse_ratio/full,L14 vs BRICK 2.0,0.3804371066136042,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,total,,,rmse_ratio/1920-1949,L14 vs BRICK 2.0,0.383845087488046,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,total,,,rmse_ratio/1950-1992,L14 vs BRICK 2.0,0.3529139266071992,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,total,,,rmse_ratio/1993-2026,L14 vs BRICK 2.0,0.9649129276882377,ratio,,<1 means the candidate is closer to the observations,BETTER
+R,ais,,,rate/1993-2026/obs,observations,0.03260828549822247,cm/yr,,"se: estimator 0.003405, band-correlated 0.0005689, band-independent 0.003061; CONSERVATIVE 0.003405 cm/yr; |obs|/se = 9.58",
+R,ais,,,rate/1993-2026,L14,0.03170678548084171,cm/yr,-0.2647283762827434,0.97x obs; z=-0.26 vs the obs error bar,UNRESOLVED
+R,ais,,,rate/1993-2026,BRICK 2.0,0.039300587306418076,cm/yr,1.9652159258133535,1.21x obs; z=+1.97 vs the obs error bar,WARN
+R,glaciers,,,rate/1993-2026/obs,observations,0.0680128070410857,cm/yr,,"se: estimator 0.0005236, band-correlated 0.0001274, band-independent 0.009223; CONSERVATIVE 0.009223 cm/yr; |obs|/se = 7.37",
+R,glaciers,,,rate/1993-2026,L14,0.06304210058046178,cm/yr,-0.5389631051426212,0.93x obs; z=-0.54 vs the obs error bar,UNRESOLVED
+R,glaciers,,,rate/1993-2026,BRICK 2.0,0.09007832839929941,cm/yr,2.3925174423437903,1.32x obs; z=+2.39 vs the obs error bar,FAIL
+R,gis,,,rate/1993-2026/obs,observations,0.06596002331306076,cm/yr,,"se: estimator 0.01044, band-correlated 0.0006502, band-independent 0.003349; CONSERVATIVE 0.01044 cm/yr; |obs|/se = 6.32",
+R,gis,,,rate/1993-2026,L14,0.06577697052670764,cm/yr,-0.01752945200581754,1.00x obs; z=-0.02 vs the obs error bar,UNRESOLVED
+R,gis,,,rate/1993-2026,BRICK 2.0,0.058529029565980606,cm/yr,-0.711604837271839,0.89x obs; z=-0.71 vs the obs error bar,UNRESOLVED
+R,te,,,rate/1993-2026/obs,observations,0.12339511197094218,cm/yr,,"se: estimator 0.003756, band-correlated 0.002392, band-independent 0.005651; CONSERVATIVE 0.005651 cm/yr; |obs|/se = 21.84",
+R,te,,,rate/1993-2026,L14,0.14708022251666777,cm/yr,4.191545448584221,1.19x obs; z=+4.19 vs the obs error bar,FAIL
+R,te,,,rate/1993-2026,BRICK 2.0,0.14454469013049676,cm/yr,3.7428331990688393,1.17x obs; z=+3.74 vs the obs error bar,FAIL
+R,total,,,rate/1993-2026/obs,observations,0.32469016393680694,cm/yr,,"se: estimator 0.02949, band-correlated 0.02545, band-independent 0.02945; CONSERVATIVE 0.02949 cm/yr; |obs|/se = 11.01",
+R,total,,,rate/1993-2026,L14,0.33729908125462116,cm/yr,0.4275794534829544,1.04x obs; z=+0.43 vs the obs error bar,UNRESOLVED
+R,total,,,rate/1993-2026,BRICK 2.0,0.33830577139123374,cm/yr,0.4617171996184892,1.04x obs; z=+0.46 vs the obs error bar,UNRESOLVED
+R,ais,,,accel/1900-2026/obs,observations,0.00020498533831302088,cm/yr2,,"se: estimator 0.0001336, band-correlated 3.924e-05, band-independent 2.522e-05; CONSERVATIVE 0.0001336 cm/yr2; |obs|/se = 1.53",
+R,ais,,,accel/1900-2026,L14,0.00020186223925190244,cm/yr2,-0.023379593798052142,0.98x obs; z=-0.02 vs the obs error bar,UNRESOLVED
+R,ais,,,accel/1900-2026,BRICK 2.0,-9.541357568254188e-05,cm/yr2,-2.2487934097348523,-0.47x obs; z=-2.25 vs the obs error bar,FAIL
+R,glaciers,,,accel/1900-2026/obs,observations,-0.0005481419702105564,cm/yr2,,"se: estimator 0.000447, band-correlated 3.442e-05, band-independent 7.199e-05; CONSERVATIVE 0.000447 cm/yr2; |obs|/se = 1.23",
+R,glaciers,,,accel/1900-2026,L14,-9.9967332633772e-05,cm/yr2,1.002667390169676,0.18x obs; z=+1.00 vs the obs error bar,WARN
+R,glaciers,,,accel/1900-2026,BRICK 2.0,0.0008224198307519784,cm/yr2,3.0662547784219836,-1.50x obs; z=+3.07 vs the obs error bar,FAIL
+R,gis,,,accel/1900-2026/obs,observations,-0.0002782475046792864,cm/yr2,,"se: estimator 0.0005241, band-correlated 6.83e-05, band-independent 2.759e-05; CONSERVATIVE 0.0005241 cm/yr2; |obs|/se = 0.53",
+R,gis,,,accel/1900-2026,L14,-0.0002502700610752935,cm/yr2,0.05337952734687898,0.90x obs; z=+0.05 vs the obs error bar,UNRESOLVED
+R,gis,,,accel/1900-2026,BRICK 2.0,0.00014986911703895823,cm/yr2,0.8168245548138999,-0.54x obs; z=+0.82 vs the obs error bar,UNRESOLVED
+R,te,,,accel/1900-2026/obs,observations,0.0008428010711617734,cm/yr2,,"se: estimator 0.0002431, band-correlated 2.312e-05, band-independent 4.655e-05; CONSERVATIVE 0.0002431 cm/yr2; |obs|/se = 3.47",
+R,te,,,accel/1900-2026,L14,0.0009998258908588422,cm/yr2,0.6459126530851451,1.19x obs; z=+0.65 vs the obs error bar,UNRESOLVED
+R,te,,,accel/1900-2026,BRICK 2.0,0.0013015024981817486,cm/yr2,1.8868421964884132,1.54x obs; z=+1.89 vs the obs error bar,WARN
+R,total,,,accel/1900-2026/obs,observations,0.0008937588048438077,cm/yr2,,"se: estimator 0.001159, band-correlated 0.0001276, band-independent 0.0002363; CONSERVATIVE 0.001159 cm/yr2; |obs|/se = 0.77",
+R,total,,,accel/1900-2026,L14,0.001022619220270505,cm/yr2,0.11121592396079366,1.14x obs; z=+0.11 vs the obs error bar,UNRESOLVED
+R,total,,,accel/1900-2026,BRICK 2.0,0.0022411471619516125,cm/yr2,1.1628942881610038,2.51x obs; z=+1.16 vs the obs error bar,WARN
+P,ais,ssp126,2100,median_joint,L14,4.289572032611721,cm,,mean 6.16 cm,
+P,ais,ssp126,2100,spread_joint,L14,6.906952206722018,cm,,p5-p95,
+P,ais,ssp126,2100,median_fixed,BRICK 2.0,4.213139291240442,cm,,spread 36.27 cm (parameter only),
+P,ais,ssp126,2100,median_vs_lit,L14,0.4761649882324834,x lit median,,"ours 4.29 cm vs lit 3.66-11.90 (median 9.01), n_lit=6",PASS
+P,ais,ssp126,2100,spread_vs_lit,L14,0.32500507139747403,x lit spread,,ours 6.91 cm vs lit 9.86-91.07 (median 21.25),FAIL
+P,ais,ssp126,2150,median_joint,L14,6.526341170373237,cm,,mean 10.40 cm,
+P,ais,ssp126,2150,spread_joint,L14,14.776167835393355,cm,,p5-p95,
+P,ais,ssp126,2150,median_fixed,BRICK 2.0,6.3700300381374895,cm,,spread 42.20 cm (parameter only),
+P,ais,ssp126,2150,median_vs_lit,L14,0.3118380274416185,x lit median,,"ours 6.53 cm vs lit 13.15-26.34 (median 20.93), n_lit=4",FAIL
+P,ais,ssp126,2150,spread_vs_lit,L14,0.24289952767043932,x lit spread,,ours 14.78 cm vs lit 43.17-156.27 (median 60.83),FAIL
+P,ais,ssp126,2300,median_joint,L14,12.671970226974132,cm,,mean 23.99 cm,
+P,ais,ssp126,2300,spread_joint,L14,77.0882067221438,cm,,p5-p95,
+P,ais,ssp126,2300,median_fixed,BRICK 2.0,12.639221286117728,cm,,spread 47.46 cm (parameter only),
+P,ais,ssp245,2100,median_joint,L14,5.5127858378434205,cm,,mean 13.26 cm,
+P,ais,ssp245,2100,spread_joint,L14,43.25957939728911,cm,,p5-p95,
+P,ais,ssp245,2100,median_fixed,BRICK 2.0,29.212981462723413,cm,,spread 65.10 cm (parameter only),
+P,ais,ssp245,2100,median_vs_lit,L14,0.5104279066749451,x lit median,,"ours 5.51 cm vs lit 5.54-13.71 (median 10.80), n_lit=6",WARN
+P,ais,ssp245,2100,spread_vs_lit,L14,1.0873523141099464,x lit spread,,ours 43.26 cm vs lit 20.88-109.87 (median 39.78),PASS
+P,ais,ssp245,2150,median_joint,L14,11.157235596705274,cm,,mean 36.51 cm,
+P,ais,ssp245,2150,spread_joint,L14,103.79907142833298,cm,,p5-p95,
+P,ais,ssp245,2150,median_fixed,BRICK 2.0,74.5275224566288,cm,,spread 130.17 cm (parameter only),
+P,ais,ssp245,2150,median_vs_lit,L14,0.42193067262020645,x lit median,,"ours 11.16 cm vs lit 10.91-30.28 (median 26.44), n_lit=4",PASS
+P,ais,ssp245,2150,spread_vs_lit,L14,0.6559297886714613,x lit spread,,ours 103.80 cm vs lit 44.92-369.45 (median 158.25),PASS
+P,ais,ssp245,2300,median_joint,L14,79.2307619864618,cm,,mean 117.61 cm,
+P,ais,ssp245,2300,spread_joint,L14,301.7419800230067,cm,,p5-p95,
+P,ais,ssp245,2300,median_fixed,BRICK 2.0,207.88440028299073,cm,,spread 263.62 cm (parameter only),
+P,ais,ssp585,2100,median_joint,L14,35.054454662368364,cm,,mean 37.14 cm,
+P,ais,ssp585,2100,spread_joint,L14,63.80464573425773,cm,,p5-p95,
+P,ais,ssp585,2100,median_fixed,BRICK 2.0,48.97931101659971,cm,,spread 62.04 cm (parameter only),
+P,ais,ssp585,2100,median_vs_lit,L14,2.162546159155704,x lit median,,"ours 35.05 cm vs lit 3.98-39.10 (median 16.21), n_lit=6",PASS
+P,ais,ssp585,2100,spread_vs_lit,L14,1.1174155062293354,x lit spread,,ours 63.80 cm vs lit 20.51-151.54 (median 57.10); width here is the antarctic_lambda PRIOR -- do NOT narrow,PASS
+P,ais,ssp585,2150,median_joint,L14,92.13018608829182,cm,,mean 95.40 cm,
+P,ais,ssp585,2150,spread_joint,L14,107.80577387263284,cm,,p5-p95,
+P,ais,ssp585,2150,median_fixed,BRICK 2.0,104.0733277832742,cm,,spread 123.45 cm (parameter only),
+P,ais,ssp585,2150,median_vs_lit,L14,2.493259086475358,x lit median,,"ours 92.13 cm vs lit 6.26-198.76 (median 36.95), n_lit=4",PASS
+P,ais,ssp585,2150,spread_vs_lit,L14,0.3973436973888166,x lit spread,,ours 107.81 cm vs lit 48.68-570.98 (median 271.32); width here is the antarctic_lambda PRIOR -- do NOT narrow,FAIL
+P,ais,ssp585,2300,median_joint,L14,277.3387939513043,cm,,mean 290.59 cm,
+P,ais,ssp585,2300,spread_joint,L14,303.06922038302605,cm,,p5-p95,
+P,ais,ssp585,2300,median_fixed,BRICK 2.0,290.16519217040354,cm,,spread 351.67 cm (parameter only),
+P,glaciers,ssp126,2100,median_joint,L14,7.72770691865526,cm,,mean 7.98 cm,
+P,glaciers,ssp126,2100,spread_joint,L14,6.0021328177135995,cm,,p5-p95,
+P,glaciers,ssp126,2100,median_fixed,BRICK 2.0,11.9951809774217,cm,,spread 3.54 cm (parameter only),
+P,glaciers,ssp126,2100,median_vs_lit,L14,0.8357994471484312,x lit median,,"ours 7.73 cm vs lit 8.95-10.45 (median 9.25), n_lit=3",WARN
+P,glaciers,ssp126,2100,spread_vs_lit,L14,0.8156419991996489,x lit spread,,ours 6.00 cm vs lit 7.12-7.85 (median 7.36),PASS
+P,glaciers,ssp126,2150,median_joint,L14,9.420633180384016,cm,,mean 9.81 cm,
+P,glaciers,ssp126,2150,spread_joint,L14,7.95152884344977,cm,,p5-p95,
+P,glaciers,ssp126,2150,median_fixed,BRICK 2.0,17.178196399287906,cm,,spread 5.57 cm (parameter only),
+P,glaciers,ssp126,2150,median_vs_lit,L14,0.7851052513354438,x lit median,,"ours 9.42 cm vs lit 12.00-12.00 (median 12.00), n_lit=1",WARN
+P,glaciers,ssp126,2150,spread_vs_lit,L14,0.6684987775893825,x lit spread,,ours 7.95 cm vs lit 11.89-11.89 (median 11.89),PASS
+P,glaciers,ssp126,2300,median_joint,L14,11.803035557374768,cm,,mean 12.38 cm,
+P,glaciers,ssp126,2300,spread_joint,L14,11.009164777966596,cm,,p5-p95,
+P,glaciers,ssp126,2300,median_fixed,BRICK 2.0,27.257046471053435,cm,,spread 12.13 cm (parameter only),
+P,glaciers,ssp245,2100,median_joint,L14,9.772305317835528,cm,,mean 10.00 cm,
+P,glaciers,ssp245,2100,spread_joint,L14,6.695557563161022,cm,,p5-p95,
+P,glaciers,ssp245,2100,median_fixed,BRICK 2.0,13.479270827662358,cm,,spread 4.09 cm (parameter only),
+P,glaciers,ssp245,2100,median_vs_lit,L14,0.8002999589497708,x lit median,,"ours 9.77 cm vs lit 11.38-12.54 (median 12.21), n_lit=3",WARN
+P,glaciers,ssp245,2100,spread_vs_lit,L14,0.8718240338653139,x lit spread,,ours 6.70 cm vs lit 7.42-9.60 (median 7.68),PASS
+P,glaciers,ssp245,2150,median_joint,L14,13.48728034579789,cm,,mean 13.87 cm,
+P,glaciers,ssp245,2150,spread_joint,L14,9.648365168802115,cm,,p5-p95,
+P,glaciers,ssp245,2150,median_fixed,BRICK 2.0,20.818500770805663,cm,,spread 7.36 cm (parameter only),
+P,glaciers,ssp245,2150,median_vs_lit,L14,0.7692715910290508,x lit median,,"ours 13.49 cm vs lit 17.53-17.53 (median 17.53), n_lit=1",WARN
+P,glaciers,ssp245,2150,spread_vs_lit,L14,0.5793465450760794,x lit spread,,ours 9.65 cm vs lit 16.65-16.65 (median 16.65),PASS
+P,glaciers,ssp245,2300,median_joint,L14,18.188665622282656,cm,,mean 18.63 cm,
+P,glaciers,ssp245,2300,spread_joint,L14,12.86435688895808,cm,,p5-p95,
+P,glaciers,ssp245,2300,median_fixed,BRICK 2.0,32.413616351880634,cm,,spread 17.82 cm (parameter only),
+P,glaciers,ssp585,2100,median_joint,L14,14.001750527890444,cm,,mean 14.20 cm,
+P,glaciers,ssp585,2100,spread_joint,L14,8.867627704216913,cm,,p5-p95,
+P,glaciers,ssp585,2100,median_fixed,BRICK 2.0,16.46875440423225,cm,,spread 5.21 cm (parameter only),
+P,glaciers,ssp585,2100,median_vs_lit,L14,0.9055049676885868,x lit median,,"ours 14.00 cm vs lit 15.30-17.73 (median 15.46), n_lit=3",WARN
+P,glaciers,ssp585,2100,spread_vs_lit,L14,0.9424023803812236,x lit spread,,ours 8.87 cm vs lit 8.51-13.85 (median 9.41),PASS
+P,glaciers,ssp585,2150,median_joint,L14,21.451996731207164,cm,,mean 21.55 cm,
+P,glaciers,ssp585,2150,spread_joint,L14,11.487632495932107,cm,,p5-p95,
+P,glaciers,ssp585,2150,median_fixed,BRICK 2.0,27.13559731782666,cm,,spread 11.99 cm (parameter only),
+P,glaciers,ssp585,2150,median_vs_lit,L14,0.755240977029439,x lit median,,"ours 21.45 cm vs lit 28.40-28.40 (median 28.40), n_lit=1",WARN
+P,glaciers,ssp585,2150,spread_vs_lit,L14,0.7398764207712886,x lit spread,,ours 11.49 cm vs lit 15.53-15.53 (median 15.53),PASS
+P,glaciers,ssp585,2300,median_joint,L14,27.009978184530432,cm,,mean 26.98 cm,
+P,glaciers,ssp585,2300,spread_joint,L14,11.951713210291505,cm,,p5-p95,
+P,glaciers,ssp585,2300,median_fixed,BRICK 2.0,35.202892443396344,cm,,spread 23.71 cm (parameter only),
+P,gis,ssp126,2100,median_joint,L14,6.250639805242374,cm,,mean 6.54 cm,
+P,gis,ssp126,2100,spread_joint,L14,4.685984012598481,cm,,p5-p95,
+P,gis,ssp126,2100,median_fixed,BRICK 2.0,6.596309598677667,cm,,spread 4.71 cm (parameter only),
+P,gis,ssp126,2100,median_vs_lit,L14,0.8882294916783574,x lit median,,"ours 6.25 cm vs lit 5.46-13.05 (median 7.04), n_lit=4",PASS
+P,gis,ssp126,2100,spread_vs_lit,L14,0.3508425427577627,x lit spread,,ours 4.69 cm vs lit 7.06-55.71 (median 13.36),FAIL
+P,gis,ssp126,2150,median_joint,L14,7.583611903688641,cm,,mean 8.02 cm,
+P,gis,ssp126,2150,spread_joint,L14,6.902860710803457,cm,,p5-p95,
+P,gis,ssp126,2150,median_fixed,BRICK 2.0,9.918085208266994,cm,,spread 7.16 cm (parameter only),
+P,gis,ssp126,2150,median_vs_lit,L14,0.42868368896259024,x lit median,,"ours 7.58 cm vs lit 13.18-22.20 (median 17.69), n_lit=2",FAIL
+P,gis,ssp126,2150,spread_vs_lit,L14,0.14079058219886453,x lit spread,,ours 6.90 cm vs lit 11.12-86.94 (median 49.03),FAIL
+P,gis,ssp126,2300,median_joint,L14,9.466809078703855,cm,,mean 10.26 cm,
+P,gis,ssp126,2300,spread_joint,L14,11.741794836156991,cm,,p5-p95,
+P,gis,ssp126,2300,median_fixed,BRICK 2.0,18.794108904898017,cm,,spread 13.46 cm (parameter only),
+P,gis,ssp245,2100,median_joint,L14,8.189425717012728,cm,,mean 8.58 cm,
+P,gis,ssp245,2100,spread_joint,L14,5.734412164140114,cm,,p5-p95,
+P,gis,ssp245,2100,median_fixed,BRICK 2.0,7.087336431196056,cm,,spread 6.03 cm (parameter only),
+P,gis,ssp245,2100,median_vs_lit,L14,0.8403636465559077,x lit median,,"ours 8.19 cm vs lit 7.97-14.39 (median 9.75), n_lit=4",PASS
+P,gis,ssp245,2100,spread_vs_lit,L14,0.455070414570063,x lit spread,,ours 5.73 cm vs lit 7.85-72.68 (median 12.60),FAIL
+P,gis,ssp245,2150,median_joint,L14,11.956536544621898,cm,,mean 12.78 cm,
+P,gis,ssp245,2150,spread_joint,L14,11.083822249137251,cm,,p5-p95,
+P,gis,ssp245,2150,median_fixed,BRICK 2.0,11.429699606127285,cm,,spread 11.03 cm (parameter only),
+P,gis,ssp245,2150,median_vs_lit,L14,0.5458195960086493,x lit median,,"ours 11.96 cm vs lit 18.19-25.62 (median 21.91), n_lit=2",WARN
+P,gis,ssp245,2150,spread_vs_lit,L14,0.21350178686118135,x lit spread,,ours 11.08 cm vs lit 14.93-88.90 (median 51.91),FAIL
+P,gis,ssp245,2300,median_joint,L14,17.11827106898665,cm,,mean 18.94 cm,
+P,gis,ssp245,2300,spread_joint,L14,20.953407932213203,cm,,p5-p95,
+P,gis,ssp245,2300,median_fixed,BRICK 2.0,23.760750533017152,cm,,spread 25.28 cm (parameter only),
+P,gis,ssp585,2100,median_joint,L14,13.349165266197438,cm,,mean 14.04 cm,
+P,gis,ssp585,2100,spread_joint,L14,11.206586243363958,cm,,p5-p95,
+P,gis,ssp585,2100,median_fixed,BRICK 2.0,8.242742172112273,cm,,spread 8.94 cm (parameter only),
+P,gis,ssp585,2100,median_vs_lit,L14,0.9705659319112075,x lit median,,"ours 13.35 cm vs lit 12.72-20.28 (median 13.75), n_lit=4",PASS
+P,gis,ssp585,2100,spread_vs_lit,L14,0.766053243536716,x lit spread,,ours 11.21 cm vs lit 11.46-93.18 (median 14.63),PASS
+P,gis,ssp585,2150,median_joint,L14,26.989953581923935,cm,,mean 28.55 cm,
+P,gis,ssp585,2150,spread_joint,L14,26.88418109514399,cm,,p5-p95,
+P,gis,ssp585,2150,median_fixed,BRICK 2.0,15.566742378447952,cm,,spread 21.57 cm (parameter only),
+P,gis,ssp585,2150,median_vs_lit,L14,0.824666532787582,x lit median,,"ours 26.99 cm vs lit 27.33-38.13 (median 32.73), n_lit=2",WARN
+P,gis,ssp585,2150,spread_vs_lit,L14,0.36621376359389834,x lit spread,,ours 26.88 cm vs lit 24.97-121.86 (median 73.41),FAIL
+P,gis,ssp585,2300,median_joint,L14,47.48426281162095,cm,,mean 51.00 cm,
+P,gis,ssp585,2300,spread_joint,L14,60.73296581054022,cm,,p5-p95,
+P,gis,ssp585,2300,median_fixed,BRICK 2.0,40.35110364410764,cm,,spread 67.47 cm (parameter only),
+P,te,ssp126,2100,median_joint,L14,13.51450832913147,cm,,mean 13.63 cm,
+P,te,ssp126,2100,spread_joint,L14,10.285727545380434,cm,,p5-p95,
+P,te,ssp126,2100,median_fixed,BRICK 2.0,13.76219248405721,cm,,spread 7.67 cm (parameter only),
+P,te,ssp126,2100,median_vs_lit,L14,1.0750702348865213,x lit median,,"ours 13.51 cm vs lit 11.09-14.05 (median 12.57), n_lit=2",PASS
+P,te,ssp126,2100,spread_vs_lit,L14,0.8858078272190673,x lit spread,,ours 10.29 cm vs lit 11.26-11.97 (median 11.61),PASS
+P,te,ssp126,2150,median_joint,L14,16.880223069782836,cm,,mean 17.06 cm,
+P,te,ssp126,2150,spread_joint,L14,14.82632051111637,cm,,p5-p95,
+P,te,ssp126,2150,median_fixed,BRICK 2.0,17.222758112360715,cm,,spread 9.60 cm (parameter only),
+P,te,ssp126,2150,median_vs_lit,L14,0.9458029911504927,x lit median,,"ours 16.88 cm vs lit 17.85-17.85 (median 17.85), n_lit=1",WARN
+P,te,ssp126,2150,spread_vs_lit,L14,0.8742252927944443,x lit spread,,ours 14.83 cm vs lit 16.96-16.96 (median 16.96),PASS
+P,te,ssp126,2300,median_joint,L14,22.07990929928971,cm,,mean 22.57 cm,
+P,te,ssp126,2300,spread_joint,L14,27.16167467440529,cm,,p5-p95,
+P,te,ssp126,2300,median_fixed,BRICK 2.0,22.797721301216107,cm,,spread 12.70 cm (parameter only),
+P,te,ssp245,2100,median_joint,L14,17.72838882290853,cm,,mean 17.87 cm,
+P,te,ssp245,2100,spread_joint,L14,11.804798494949132,cm,,p5-p95,
+P,te,ssp245,2100,median_fixed,BRICK 2.0,18.030659798767616,cm,,spread 10.05 cm (parameter only),
+P,te,ssp245,2100,median_vs_lit,L14,0.9998895757222314,x lit median,,"ours 17.73 cm vs lit 16.62-18.84 (median 17.73), n_lit=2",PASS
+P,te,ssp245,2100,spread_vs_lit,L14,0.814485409592981,x lit spread,,ours 11.80 cm vs lit 13.73-15.26 (median 14.49),PASS
+P,te,ssp245,2150,median_joint,L14,26.256028416787785,cm,,mean 26.43 cm,
+P,te,ssp245,2150,spread_joint,L14,20.31778181614503,cm,,p5-p95,
+P,te,ssp245,2150,median_fixed,BRICK 2.0,26.6793166931538,cm,,spread 14.87 cm (parameter only),
+P,te,ssp245,2150,median_vs_lit,L14,0.9166343509708768,x lit median,,"ours 26.26 cm vs lit 28.64-28.64 (median 28.64), n_lit=1",WARN
+P,te,ssp245,2150,spread_vs_lit,L14,0.8493241332273126,x lit spread,,ours 20.32 cm vs lit 23.92-23.92 (median 23.92),PASS
+P,te,ssp245,2300,median_joint,L14,40.67017969909063,cm,,mean 41.63 cm,
+P,te,ssp245,2300,spread_joint,L14,43.009050709028074,cm,,p5-p95,
+P,te,ssp245,2300,median_fixed,BRICK 2.0,42.049789540396446,cm,,spread 23.43 cm (parameter only),
+P,te,ssp585,2100,median_joint,L14,26.603672464467902,cm,,mean 26.80 cm,
+P,te,ssp585,2100,spread_joint,L14,17.26627801176654,cm,,p5-p95,
+P,te,ssp585,2100,median_fixed,BRICK 2.0,27.04786616011718,cm,,spread 15.07 cm (parameter only),
+P,te,ssp585,2100,median_vs_lit,L14,0.9383968552304693,x lit median,,"ours 26.60 cm vs lit 27.88-28.82 (median 28.35), n_lit=2",WARN
+P,te,ssp585,2100,spread_vs_lit,L14,0.7847435680711468,x lit spread,,ours 17.27 cm vs lit 21.13-22.88 (median 22.00),PASS
+P,te,ssp585,2150,median_joint,L14,49.05641411315385,cm,,mean 49.49 cm,
+P,te,ssp585,2150,spread_joint,L14,36.16486324919043,cm,,p5-p95,
+P,te,ssp585,2150,median_fixed,BRICK 2.0,49.948657220235546,cm,,spread 27.83 cm (parameter only),
+P,te,ssp585,2150,median_vs_lit,L14,0.9195647049353364,x lit median,,"ours 49.06 cm vs lit 53.35-53.35 (median 53.35), n_lit=1",WARN
+P,te,ssp585,2150,spread_vs_lit,L14,0.8636962452594174,x lit spread,,ours 36.16 cm vs lit 41.87-41.87 (median 41.87),PASS
+P,te,ssp585,2300,median_joint,L14,98.47316636883616,cm,,mean 99.28 cm,
+P,te,ssp585,2300,spread_joint,L14,94.7982416337756,cm,,p5-p95,
+P,te,ssp585,2300,median_fixed,BRICK 2.0,100.21663245397988,cm,,spread 55.84 cm (parameter only),
+P,lws,ssp126,2100,median_joint,L14,2.596380650083528,cm,,mean 2.60 cm,
+P,lws,ssp126,2100,spread_joint,L14,0.0,cm,,p5-p95,
+P,lws,ssp126,2100,median_fixed,BRICK 2.0,2.342515618878139,cm,,spread 0.00 cm (parameter only),
+P,lws,ssp126,2100,median_vs_lit,L14,0.8652510274558489,x lit median,,"ours 2.60 cm vs lit 2.99-3.01 (median 3.00), n_lit=2",WARN
+P,lws,ssp126,2100,spread_vs_lit,L14,0.0,x lit spread,,"ours 0.00 cm vs lit 3.64-4.06 (median 3.85); LWS is a seeded constant -- zero spread is the DESIGN, not a defect",N/A(by construction)
+P,lws,ssp126,2150,median_joint,L14,4.2307986469202445,cm,,mean 4.23 cm,
+P,lws,ssp126,2150,spread_joint,L14,0.0,cm,,p5-p95,
+P,lws,ssp126,2150,median_fixed,BRICK 2.0,4.0429579468315175,cm,,spread 0.00 cm (parameter only),
+P,lws,ssp126,2150,median_vs_lit,L14,0.9239563046231333,x lit median,,"ours 4.23 cm vs lit 4.58-4.58 (median 4.58), n_lit=1",WARN
+P,lws,ssp126,2150,spread_vs_lit,L14,0.0,x lit spread,,"ours 0.00 cm vs lit 5.64-5.64 (median 5.64); LWS is a seeded constant -- zero spread is the DESIGN, not a defect",N/A(by construction)
+P,lws,ssp126,2300,median_joint,L14,8.483616077316128,cm,,mean 8.48 cm,
+P,lws,ssp126,2300,spread_joint,L14,0.0,cm,,p5-p95,
+P,lws,ssp126,2300,median_fixed,BRICK 2.0,8.89738572754609,cm,,spread 0.00 cm (parameter only),
+P,lws,ssp245,2100,median_joint,L14,2.596380650083528,cm,,mean 2.60 cm,
+P,lws,ssp245,2100,spread_joint,L14,0.0,cm,,p5-p95,
+P,lws,ssp245,2100,median_fixed,BRICK 2.0,2.342515618878139,cm,,spread 0.00 cm (parameter only),
+P,lws,ssp245,2100,median_vs_lit,L14,0.84822790876856,x lit median,,"ours 2.60 cm vs lit 3.01-3.11 (median 3.06), n_lit=2",WARN
+P,lws,ssp245,2100,spread_vs_lit,L14,0.0,x lit spread,,"ours 0.00 cm vs lit 3.64-4.48 (median 4.06); LWS is a seeded constant -- zero spread is the DESIGN, not a defect",N/A(by construction)
+P,lws,ssp245,2150,median_joint,L14,4.2307986469202445,cm,,mean 4.23 cm,
+P,lws,ssp245,2150,spread_joint,L14,0.0,cm,,p5-p95,
+P,lws,ssp245,2150,median_fixed,BRICK 2.0,4.0429579468315175,cm,,spread 0.00 cm (parameter only),
+P,lws,ssp245,2150,median_vs_lit,L14,0.8141226263780046,x lit median,,"ours 4.23 cm vs lit 5.20-5.20 (median 5.20), n_lit=1",WARN
+P,lws,ssp245,2150,spread_vs_lit,L14,0.0,x lit spread,,"ours 0.00 cm vs lit 6.87-6.87 (median 6.87); LWS is a seeded constant -- zero spread is the DESIGN, not a defect",N/A(by construction)
+P,lws,ssp245,2300,median_joint,L14,8.483616077316128,cm,,mean 8.48 cm,
+P,lws,ssp245,2300,spread_joint,L14,0.0,cm,,p5-p95,
+P,lws,ssp245,2300,median_fixed,BRICK 2.0,8.89738572754609,cm,,spread 0.00 cm (parameter only),
+P,lws,ssp585,2100,median_joint,L14,2.596380650083528,cm,,mean 2.60 cm,
+P,lws,ssp585,2100,spread_joint,L14,0.0,cm,,p5-p95,
+P,lws,ssp585,2100,median_fixed,BRICK 2.0,2.342515618878139,cm,,spread 0.00 cm (parameter only),
+P,lws,ssp585,2100,median_vs_lit,L14,0.8708276798965197,x lit median,,"ours 2.60 cm vs lit 2.96-3.01 (median 2.98), n_lit=2",WARN
+P,lws,ssp585,2100,spread_vs_lit,L14,0.0,x lit spread,,"ours 0.00 cm vs lit 3.64-4.12 (median 3.88); LWS is a seeded constant -- zero spread is the DESIGN, not a defect",N/A(by construction)
+P,lws,ssp585,2150,median_joint,L14,4.2307986469202445,cm,,mean 4.23 cm,
+P,lws,ssp585,2150,spread_joint,L14,0.0,cm,,p5-p95,
+P,lws,ssp585,2150,median_fixed,BRICK 2.0,4.0429579468315175,cm,,spread 0.00 cm (parameter only),
+P,lws,ssp585,2150,median_vs_lit,L14,0.8993290827012106,x lit median,,"ours 4.23 cm vs lit 4.70-4.70 (median 4.70), n_lit=1",WARN
+P,lws,ssp585,2150,spread_vs_lit,L14,0.0,x lit spread,,"ours 0.00 cm vs lit 5.80-5.80 (median 5.80); LWS is a seeded constant -- zero spread is the DESIGN, not a defect",N/A(by construction)
+P,lws,ssp585,2300,median_joint,L14,8.483616077316128,cm,,mean 8.48 cm,
+P,lws,ssp585,2300,spread_joint,L14,0.0,cm,,p5-p95,
+P,lws,ssp585,2300,median_fixed,BRICK 2.0,8.89738572754609,cm,,spread 0.00 cm (parameter only),
+P,total,ssp126,2100,median_joint,L14,34.332427325756896,cm,,mean 36.92 cm,
+P,total,ssp126,2100,spread_joint,L14,24.325498126133272,cm,,p5-p95,
+P,total,ssp126,2100,median_fixed,BRICK 2.0,39.241787300181336,cm,,spread 38.83 cm (parameter only),
+P,total,ssp126,2100,median_vs_lit,L14,0.8140084508249735,x lit median,,"ours 34.33 cm vs lit 35.59-53.47 (median 42.18), n_lit=8",WARN
+P,total,ssp126,2100,spread_vs_lit,L14,0.6805361380619165,x lit spread,,ours 24.33 cm vs lit 25.25-107.65 (median 35.74),PASS
+P,total,ssp126,2150,median_joint,L14,44.64316980215192,cm,,mean 49.52 cm,
+P,total,ssp126,2150,spread_joint,L14,36.511011066399995,cm,,p5-p95,
+P,total,ssp126,2150,median_fixed,BRICK 2.0,55.165905867771144,cm,,spread 45.79 cm (parameter only),
+P,total,ssp126,2150,median_vs_lit,L14,0.6076953325440252,x lit median,,"ours 44.64 cm vs lit 60.20-83.12 (median 73.46), n_lit=4",WARN
+P,total,ssp126,2150,spread_vs_lit,L14,0.5333555087444402,x lit spread,,ours 36.51 cm vs lit 53.31-200.59 (median 68.46),PASS
+P,total,ssp126,2300,median_joint,L14,64.44075508104712,cm,,mean 77.68 cm,
+P,total,ssp126,2300,spread_joint,L14,119.60726064898418,cm,,p5-p95,
+P,total,ssp126,2300,median_fixed,BRICK 2.0,91.1767107695418,cm,,spread 53.11 cm (parameter only),
+P,total,ssp245,2100,median_joint,L14,44.921828861351216,cm,,mean 52.31 cm,
+P,total,ssp245,2100,spread_joint,L14,59.55308820837019,cm,,p5-p95,
+P,total,ssp245,2100,median_fixed,BRICK 2.0,70.8716898905364,cm,,spread 68.03 cm (parameter only),
+P,total,ssp245,2100,median_vs_lit,L14,0.827370180175924,x lit median,,"ours 44.92 cm vs lit 48.68-67.90 (median 54.29), n_lit=8",WARN
+P,total,ssp245,2100,spread_vs_lit,L14,1.0896676649654236,x lit spread,,ours 59.55 cm vs lit 32.00-146.33 (median 54.65),PASS
+P,total,ssp245,2150,median_joint,L14,71.5722717771752,cm,,mean 93.81 cm,
+P,total,ssp245,2150,spread_joint,L14,128.9875901091685,cm,,p5-p95,
+P,total,ssp245,2150,median_fixed,BRICK 2.0,137.9806104775834,cm,,spread 131.24 cm (parameter only),
+P,total,ssp245,2150,median_vs_lit,L14,0.7038689338325885,x lit median,,"ours 71.57 cm vs lit 80.04-111.19 (median 101.68), n_lit=4",WARN
+P,total,ssp245,2150,spread_vs_lit,L14,0.5879445138910471,x lit spread,,ours 128.99 cm vs lit 59.41-382.80 (median 219.39),PASS
+P,total,ssp245,2300,median_joint,L14,162.83917699435082,cm,,mean 205.29 cm,
+P,total,ssp245,2300,spread_joint,L14,347.184056939312,cm,,p5-p95,
+P,total,ssp245,2300,median_fixed,BRICK 2.0,317.51471413910497,cm,,spread 271.11 cm (parameter only),
+P,total,ssp585,2100,median_joint,L14,92.44766756973868,cm,,mean 94.77 cm,
+P,total,ssp585,2100,spread_joint,L14,81.94271635092461,cm,,p5-p95,
+P,total,ssp585,2100,median_fixed,BRICK 2.0,104.67871908213344,cm,,spread 65.18 cm (parameter only),
+P,total,ssp585,2100,median_vs_lit,L14,1.0864633242234898,x lit median,,"ours 92.45 cm vs lit 64.93-97.85 (median 85.09), n_lit=8",PASS
+P,total,ssp585,2100,spread_vs_lit,L14,1.1592179541485144,x lit spread,,ours 81.94 cm vs lit 41.09-197.47 (median 70.69),PASS
+P,total,ssp585,2150,median_joint,L14,195.58653101026954,cm,,mean 199.21 cm,
+P,total,ssp585,2150,spread_joint,L14,147.3778548272103,cm,,p5-p95,
+P,total,ssp585,2150,median_fixed,BRICK 2.0,202.83449397288445,cm,,spread 126.92 cm (parameter only),
+P,total,ssp585,2150,median_vs_lit,L14,1.2456155171081849,x lit median,,"ours 195.59 cm vs lit 117.08-310.66 (median 157.02), n_lit=4",PASS
+P,total,ssp585,2150,spread_vs_lit,L14,0.5213957220828742,x lit spread,,ours 147.38 cm vs lit 77.93-631.59 (median 282.66),PASS
+P,total,ssp585,2300,median_joint,L14,461.72141722947015,cm,,mean 476.33 cm,
+P,total,ssp585,2300,spread_joint,L14,385.073948612277,cm,,p5-p95,
+P,total,ssp585,2300,median_fixed,BRICK 2.0,482.39538942463446,cm,,spread 363.51 cm (parameter only),
+S,ais,ssp585/ssp126,2100,separation,L14,8.17201678765733,x,,FACTS 0.63-3.20 (n=5); MAGICC-SLR 10.69-10.69 (n=1),PASS
+S,ais,ssp585/ssp126,2150,separation,L14,14.116667162072828,x,,FACTS 0.48-7.55 (n=4); 6.57 outside the bracket = 93% of its own range  [NO UPPER COMPARATOR AT THIS HORIZON],WARN
+S,glaciers,ssp585/ssp126,2100,separation,L14,1.8118894356732365,x,,FACTS 1.73-1.92 (n=2); MAGICC-SLR 1.46-1.46 (n=1),PASS
+S,glaciers,ssp585/ssp126,2150,separation,L14,2.277128970043679,x,,FACTS 2.37-2.37 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON],WARN
+S,gis,ssp585/ssp126,2100,separation,L14,2.1356478188043364,x,,FACTS 1.55-2.33 (n=3); MAGICC-SLR 2.11-2.11 (n=1),PASS
+S,gis,ssp585/ssp126,2150,separation,L14,3.5589840203711005,x,,FACTS 1.72-2.07 (n=2); 1.49 outside the bracket = 417% of its own range  [NO UPPER COMPARATOR AT THIS HORIZON],WARN
+S,te,ssp585/ssp126,2100,separation,L14,1.968526846598024,x,,FACTS 2.05-2.05 (n=1); MAGICC-SLR 2.51-2.51 (n=1); 0.08 outside the bracket = 18% of its own range,PASS(edge)
+S,te,ssp585/ssp126,2150,separation,L14,2.90614726537408,x,,FACTS 2.99-2.99 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON],WARN
+S,lws,ssp585/ssp126,2100,separation,L14,1.0,x,,FACTS 0.99-0.99 (n=1); MAGICC-SLR 1.00-1.00 (n=1),PASS
+S,lws,ssp585/ssp126,2150,separation,L14,1.0,x,,FACTS 1.03-1.03 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON],WARN
+S,total,ssp585/ssp126,2100,separation,L14,2.692721568812076,x,,FACTS 1.63-2.23 (n=7); MAGICC-SLR 2.75-2.75 (n=1),PASS
+S,total,ssp585/ssp126,2150,separation,L14,4.381107611244078,x,,FACTS 1.94-4.15 (n=4); 0.23 outside the bracket = 11% of its own range  [NO UPPER COMPARATOR AT THIS HORIZON],PASS(edge)
+V,ais,,,hindcast,L14,,,,worst cell: hindcast/full  = 0.0308 cm,PASS
+V,ais,,,rate/accel,L14,,,,worst cell: rate/1993-2026  = 0.0317 cm/yr,UNRESOLVED
+V,ais,,,projection,L14,,,,worst cell: spread_vs_lit ssp126@2100 = 0.325 x lit spread,FAIL
+V,ais,,,separation,L14,,,,worst cell: separation ssp585/ssp126@2150 = 14.1 x,WARN
+V,glaciers,,,hindcast,L14,,,,worst cell: hindcast/1920-1949  = 0.589 cm,WARN
+V,glaciers,,,rate/accel,L14,,,,worst cell: accel/1900-2026  = -0.0001 cm/yr2,WARN
+V,glaciers,,,projection,L14,,,,worst cell: median_vs_lit ssp126@2100 = 0.836 x lit median,WARN
+V,glaciers,,,separation,L14,,,,worst cell: separation ssp585/ssp126@2150 = 2.28 x,WARN
+V,gis,,,hindcast,L14,,,,worst cell: hindcast/full  = 0.059 cm,PASS
+V,gis,,,rate/accel,L14,,,,worst cell: rate/1993-2026  = 0.0658 cm/yr,UNRESOLVED
+V,gis,,,projection,L14,,,,worst cell: spread_vs_lit ssp126@2100 = 0.351 x lit spread,FAIL
+V,gis,,,separation,L14,,,,worst cell: separation ssp585/ssp126@2150 = 3.56 x,WARN
+V,te,,,hindcast,L14,,,,worst cell: hindcast/1920-1949  = 0.448 cm,WARN
+V,te,,,rate/accel,L14,,,,worst cell: rate/1993-2026  = 0.147 cm/yr,FAIL
+V,te,,,projection,L14,,,,worst cell: median_vs_lit ssp126@2150 = 0.946 x lit median,WARN
+V,te,,,separation,L14,,,,worst cell: separation ssp585/ssp126@2150 = 2.91 x,WARN
+V,lws,,,projection,L14,,,,worst cell: median_vs_lit ssp126@2100 = 0.865 x lit median,WARN
+V,lws,,,separation,L14,,,,worst cell: separation ssp585/ssp126@2150 = 1 x,WARN
+V,total,,,hindcast,L14,,,,worst cell: hindcast/full  = 0.692 cm,PASS
+V,total,,,rate/accel,L14,,,,worst cell: rate/1993-2026  = 0.337 cm/yr,UNRESOLVED
+V,total,,,projection,L14,,,,worst cell: median_vs_lit ssp126@2100 = 0.814 x lit median,WARN
+V,total,,,separation,L14,,,,worst cell: separation ssp585/ssp126@2100 = 2.69 x,PASS
