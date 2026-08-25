@@ -1,0 +1,82 @@
+our components from ssps_components_2300_L14_tap4p69K_V5p64m_tau800_n2_ws.csv
+
+====================================================================================================
+[1] THE r19 SHARE IN PROJECTION SPACE — measured from the model's own reservoir
+====================================================================================================
+
+    the observed-era share used by addendum 3 was 6.54% (GlaMBIE 2000-2023)
+
+ssp       horizon  glaciers     r19   ex-r19  r19 share  vs observed-era
+ssp126       2100      7.92    0.56     7.36       7.0%  1.07x
+ssp126       2150      9.74    0.79     8.95       8.1%  1.24x
+ssp126       2300     12.39    1.23    11.16       9.9%  1.52x
+ssp245       2100      9.99    0.81     9.18       8.1%  1.24x
+ssp245       2150     13.95    1.42    12.53      10.2%  1.56x
+ssp245       2300     19.08    2.66    16.43      13.9%  2.13x
+ssp585       2100     14.29    1.40    12.89       9.8%  1.49x
+ssp585       2150     21.97    3.09    18.88      14.1%  2.15x
+ssp585       2300     27.62    5.25    22.37      19.0%  2.91x
+
+    ⇒ the share GROWS with horizon at every scenario, confirming addendum 3's flag that
+      the observed-era correction is an UNDER-ESTIMATE at 2150/2300 -- r19 does deplete last.
+
+====================================================================================================
+[2] THE SCOPE-FREE TEST — glaciers + Greenland, r19 removed from ours, no r5 assumption
+====================================================================================================
+
+--- 2100  <= READ THIS ONE (all 3 GIS medians PASS here)
+ssp      comparator  | ours glac  ex-r19 ours GIS     SUM | their glac their GIS     SUM |  ratio  glac alone
+ssp126   FACTS/AR5   |      7.92    7.36     6.48   13.84 |       8.95      7.67   16.62 |  0.833       0.885
+ssp126   FACTS/emu   |      7.92    7.36     6.48   13.84 |       9.25      5.46   14.70 |  0.941       0.856
+ssp126   MAGICC      |      7.92    7.36     6.48   13.84 |      10.45      6.40   16.85 |  0.821       0.758
+ssp245   FACTS/AR5   |      9.99    9.18     8.46   17.64 |      11.38     10.21   21.58 |  0.818       0.878
+ssp245   FACTS/emu   |      9.99    9.18     8.46   17.64 |      12.21      7.97   20.18 |  0.874       0.818
+ssp245   MAGICC      |      9.99    9.18     8.46   17.64 |      12.54      9.28   21.82 |  0.809       0.797
+ssp585   FACTS/AR5   |     14.29   12.89    13.90   26.79 |      15.46     14.02   29.48 |  0.909       0.924
+ssp585   FACTS/emu   |     14.29   12.89    13.90   26.79 |      17.73     12.72   30.44 |  0.880       0.806
+ssp585   MAGICC      |     14.29   12.89    13.90   26.79 |      15.30     13.49   28.79 |  0.930       0.934
+
+--- 2150  ⚠ CONFOUNDED: GIS carries its own level deficit at this horizon
+ssp      comparator  | ours glac  ex-r19 ours GIS     SUM | their glac their GIS     SUM |  ratio  glac alone
+ssp126   FACTS/AR5   |      9.74    8.95     7.92   16.88 |      12.00     13.18   25.18 |  0.670       0.812
+ssp126   MAGICC      |      9.74    8.95     7.92   16.88 |      12.28      9.31   21.59 |  0.782       0.793
+ssp245   FACTS/AR5   |     13.95   12.53    12.43   24.96 |      17.53     18.19   35.73 |  0.699       0.796
+ssp245   MAGICC      |     13.95   12.53    12.43   24.96 |      16.71     16.53   33.24 |  0.751       0.835
+ssp585   FACTS/AR5   |     21.97   18.88    30.60   49.48 |      28.40     27.33   55.73 |  0.888       0.773
+ssp585   MAGICC      |     21.97   18.88    30.60   49.48 |      22.03     32.40   54.43 |  0.909       0.997
+
+--- 2300  ⚠ CONFOUNDED: GIS carries its own level deficit at this horizon
+ssp      comparator  | ours glac  ex-r19 ours GIS     SUM | their glac their GIS     SUM |  ratio  glac alone
+ssp126   MAGICC      |     12.39   11.16    10.08   21.25 |      13.80     14.98   28.78 |  0.738       0.898
+ssp245   MAGICC      |     19.08   16.43    18.32   34.75 |      21.47     35.79   57.26 |  0.607       0.889
+ssp585   MAGICC      |     27.62   22.37    95.74  118.11 |      29.10    113.01  142.11 |  0.831       0.949
+
+====================================================================================================
+[3] ADDENDUM 3'S SHARE-BASED ARITHMETIC, REDONE WITH THE MEASURED r19
+====================================================================================================
+
+    Addendum 3: ours = global - r5 = 0.870; AR5 = global - r19 = 0.935;
+    predicted ours/theirs = 0.931 against an observed 0.843, leaving ~9% residual.
+
+    ⚠ THE FLAG WAS RIGHT AND ITS CONSEQUENCE WAS BACKWARDS. The r19 share IS an
+    under-estimate -- measured, 6.54% of global becomes the values below. But r19 enters
+    the prediction as `AR5 scope = 1 - r19`: a LARGER r19 makes THEIR scope SMALLER, so the
+    predicted ours/theirs goes UP, toward and past 1 -- meaning scope predicts we should be
+    HIGHER than them and the residual model deficit gets LARGER, not smaller.
+
+ssp       horizon  r19/ours  r19/global  predicted ours/theirs
+ssp126       2100      7.0%        6.1%                  0.927
+ssp126       2150      8.1%        7.0%                  0.936
+ssp126       2300      9.9%        8.6%                  0.952
+ssp245       2100      8.1%        7.0%                  0.936
+ssp245       2150     10.2%        8.8%                  0.954
+ssp245       2300     13.9%       12.1%                  0.990
+ssp585       2100      9.8%        8.5%                  0.951
+ssp585       2150     14.1%       12.2%                  0.991
+ssp585       2300     19.0%       16.6%                  1.043
+
+    ⇒ CONSISTENT WITH [2], BY A ROUTE THAT NEEDS THE r5 SHARE. Test [2] needs neither share
+      and lands at the same place: scope does NOT explain the glacier level deficit.
+
+====================================================================================================
+wrote outputs/scope_gsic_region_matched_L14.csv

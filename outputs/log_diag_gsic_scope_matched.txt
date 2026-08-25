@@ -1,0 +1,18 @@
+GSIC scope-matched | posterior parameters_subsample_brick_mengel_L14.csv (2000 draws) | horizons 2100, 2150, 2300
+........
+SSP1-2.6  2000 draws in 19s
+  @2100  glaciers   7.92  r19  0.56  ex-r19   7.36 cm | r19 share   7.0%
+  @2150  glaciers   9.74  r19  0.79  ex-r19   8.95 cm | r19 share   8.1%
+  @2300  glaciers  12.39  r19  1.23  ex-r19  11.16 cm | r19 share   9.9%
+........
+SSP2-4.5  2000 draws in 16s
+  @2100  glaciers   9.99  r19  0.81  ex-r19   9.18 cm | r19 share   8.1%
+  @2150  glaciers  13.95  r19  1.42  ex-r19  12.53 cm | r19 share  10.2%
+  @2300  glaciers  19.08  r19  2.66  ex-r19  16.43 cm | r19 share  13.9%
+........
+SSP5-8.5  2000 draws in 17s
+  @2100  glaciers  14.29  r19  1.40  ex-r19  12.89 cm | r19 share   9.8%
+  @2150  glaciers  21.97  r19  3.09  ex-r19  18.88 cm | r19 share  14.1%
+  @2300  glaciers  27.62  r19  5.25  ex-r19  22.37 cm | r19 share  19.0%
+
+wrote outputs/diag_gsic_scope_matched_L14.csv

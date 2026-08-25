@@ -1,0 +1,37 @@
+block,ssp,horizon,quantity,value,unit,note
+1,ssp126,2100,r19_share_of_our_glaciers,0.07014736193764311,fraction,"glaciers 7.92 cm, r19 0.56 cm; observed-era share 0.0654 => 1.07x"
+1,ssp126,2150,r19_share_of_our_glaciers,0.08095669326767992,fraction,"glaciers 9.74 cm, r19 0.79 cm; observed-era share 0.0654 => 1.24x"
+1,ssp126,2300,r19_share_of_our_glaciers,0.09911501983975411,fraction,"glaciers 12.39 cm, r19 1.23 cm; observed-era share 0.0654 => 1.52x"
+1,ssp245,2100,r19_share_of_our_glaciers,0.08084202380216485,fraction,"glaciers 9.99 cm, r19 0.81 cm; observed-era share 0.0654 => 1.24x"
+1,ssp245,2150,r19_share_of_our_glaciers,0.10171900196883281,fraction,"glaciers 13.95 cm, r19 1.42 cm; observed-era share 0.0654 => 1.56x"
+1,ssp245,2300,r19_share_of_our_glaciers,0.13922754699099477,fraction,"glaciers 19.08 cm, r19 2.66 cm; observed-era share 0.0654 => 2.13x"
+1,ssp585,2100,r19_share_of_our_glaciers,0.09775319990487734,fraction,"glaciers 14.29 cm, r19 1.40 cm; observed-era share 0.0654 => 1.49x"
+1,ssp585,2150,r19_share_of_our_glaciers,0.1406674838745574,fraction,"glaciers 21.97 cm, r19 3.09 cm; observed-era share 0.0654 => 2.15x"
+1,ssp585,2300,r19_share_of_our_glaciers,0.19023594065700386,fraction,"glaciers 27.62 cm, r19 5.25 cm; observed-era share 0.0654 => 2.91x"
+2,ssp126,2100,scope_free_sum_vs_FACTS/AR5,0.8327221042019359,x,ours (glac-r19 7.36 + gis 6.48) = 13.84 cm vs FACTS/AR5 (8.95 + 7.67) = 16.62; glaciers alone 0.885x
+2,ssp126,2100,scope_free_sum_vs_FACTS/emu,0.94144526625799,x,ours (glac-r19 7.36 + gis 6.48) = 13.84 cm vs FACTS/emu (9.25 + 5.46) = 14.70; glaciers alone 0.856x
+2,ssp126,2100,scope_free_sum_vs_MAGICC,0.8214242401838545,x,ours (glac-r19 7.36 + gis 6.48) = 13.84 cm vs MAGICC (10.45 + 6.40) = 16.85; glaciers alone 0.758x
+2,ssp245,2100,scope_free_sum_vs_FACTS/AR5,0.8175147755444658,x,ours (glac-r19 9.18 + gis 8.46) = 17.64 cm vs FACTS/AR5 (11.38 + 10.21) = 21.58; glaciers alone 0.878x
+2,ssp245,2100,scope_free_sum_vs_FACTS/emu,0.8743183099418649,x,ours (glac-r19 9.18 + gis 8.46) = 17.64 cm vs FACTS/emu (12.21 + 7.97) = 20.18; glaciers alone 0.818x
+2,ssp245,2100,scope_free_sum_vs_MAGICC,0.8086516249029266,x,ours (glac-r19 9.18 + gis 8.46) = 17.64 cm vs MAGICC (12.54 + 9.28) = 21.82; glaciers alone 0.797x
+2,ssp585,2100,scope_free_sum_vs_FACTS/AR5,0.9087090773315533,x,ours (glac-r19 12.89 + gis 13.90) = 26.79 cm vs FACTS/AR5 (15.46 + 14.02) = 29.48; glaciers alone 0.924x
+2,ssp585,2100,scope_free_sum_vs_FACTS/emu,0.879887048812583,x,ours (glac-r19 12.89 + gis 13.90) = 26.79 cm vs FACTS/emu (17.73 + 12.72) = 30.44; glaciers alone 0.806x
+2,ssp585,2100,scope_free_sum_vs_MAGICC,0.9304897322393896,x,ours (glac-r19 12.89 + gis 13.90) = 26.79 cm vs MAGICC (15.30 + 13.49) = 28.79; glaciers alone 0.934x
+2,ssp126,2150,scope_free_sum_vs_FACTS/AR5,0.6702681606035532,x,ours (glac-r19 8.95 + gis 7.92) = 16.88 cm vs FACTS/AR5 (12.00 + 13.18) = 25.18; glaciers alone 0.812x; CONFOUNDED by the GIS deficit
+2,ssp126,2150,scope_free_sum_vs_MAGICC,0.7816487193325575,x,ours (glac-r19 8.95 + gis 7.92) = 16.88 cm vs MAGICC (12.28 + 9.31) = 21.59; glaciers alone 0.793x; CONFOUNDED by the GIS deficit
+2,ssp245,2150,scope_free_sum_vs_FACTS/AR5,0.698651586499114,x,ours (glac-r19 12.53 + gis 12.43) = 24.96 cm vs FACTS/AR5 (17.53 + 18.19) = 35.73; glaciers alone 0.796x; CONFOUNDED by the GIS deficit
+2,ssp245,2150,scope_free_sum_vs_MAGICC,0.75086041630756,x,ours (glac-r19 12.53 + gis 12.43) = 24.96 cm vs MAGICC (16.71 + 16.53) = 33.24; glaciers alone 0.835x; CONFOUNDED by the GIS deficit
+2,ssp585,2150,scope_free_sum_vs_FACTS/AR5,0.8877048797234227,x,ours (glac-r19 18.88 + gis 30.60) = 49.48 cm vs FACTS/AR5 (28.40 + 27.33) = 55.73; glaciers alone 0.773x; CONFOUNDED by the GIS deficit
+2,ssp585,2150,scope_free_sum_vs_MAGICC,0.9089130715499752,x,ours (glac-r19 18.88 + gis 30.60) = 49.48 cm vs MAGICC (22.03 + 32.40) = 54.43; glaciers alone 0.997x; CONFOUNDED by the GIS deficit
+2,ssp126,2300,scope_free_sum_vs_MAGICC,0.7382820589740539,x,ours (glac-r19 11.16 + gis 10.08) = 21.25 cm vs MAGICC (13.80 + 14.98) = 28.78; glaciers alone 0.898x; CONFOUNDED by the GIS deficit
+2,ssp245,2300,scope_free_sum_vs_MAGICC,0.6068470694459304,x,ours (glac-r19 16.43 + gis 18.32) = 34.75 cm vs MAGICC (21.47 + 35.79) = 57.26; glaciers alone 0.889x; CONFOUNDED by the GIS deficit
+2,ssp585,2300,scope_free_sum_vs_MAGICC,0.8311060698259133,x,ours (glac-r19 22.37 + gis 95.74) = 118.11 cm vs MAGICC (29.10 + 113.01) = 142.11; glaciers alone 0.949x; CONFOUNDED by the GIS deficit
+3,ssp126,2100,predicted_scope_ratio_measured_r19,0.9265454026701002,x,r19 = 7.0% of ours = 6.1% of global; addendum 3's observed-era prediction was 0.931
+3,ssp126,2150,predicted_scope_ratio_measured_r19,0.9359189456129567,x,r19 = 8.1% of ours = 7.0% of global; addendum 3's observed-era prediction was 0.931
+3,ssp126,2300,predicted_scope_ratio_measured_r19,0.9520996137307834,x,r19 = 9.9% of ours = 8.6% of global; addendum 3's observed-era prediction was 0.931
+3,ssp245,2100,predicted_scope_ratio_measured_r19,0.9358185123300117,x,r19 = 8.1% of ours = 7.0% of global; addendum 3's observed-era prediction was 0.931
+3,ssp245,2150,predicted_scope_ratio_measured_r19,0.9544659738584607,x,r19 = 10.2% of ours = 8.8% of global; addendum 3's observed-era prediction was 0.931
+3,ssp245,2300,predicted_scope_ratio_measured_r19,0.989905203745913,x,r19 = 13.9% of ours = 12.1% of global; addendum 3's observed-era prediction was 0.931
+3,ssp585,2100,predicted_scope_ratio_measured_r19,0.9508667311151489,x,r19 = 9.8% of ours = 8.5% of global; addendum 3's observed-era prediction was 0.931
+3,ssp585,2150,predicted_scope_ratio_measured_r19,0.9913182297559072,x,r19 = 14.1% of ours = 12.2% of global; addendum 3's observed-era prediction was 0.931
+3,ssp585,2300,predicted_scope_ratio_measured_r19,1.0425470251948858,x,r19 = 19.0% of ours = 16.6% of global; addendum 3's observed-era prediction was 0.931
