@@ -1,0 +1,19 @@
+ssp,horizon,driver,tipped_frac,median_is_tipped,med_excess_degC
+ssp126,2100,shipped MEAN,0.0005,false,-1.1139720274808624
+ssp126,2100,per-draw config,0.0395,false,-1.1524855591115237
+ssp126,2150,shipped MEAN,0.0,false,-1.2307013953238437
+ssp126,2150,per-draw config,0.0375,false,-1.2918712526771943
+ssp126,2300,shipped MEAN,0.0,false,-1.1996183609623605
+ssp126,2300,per-draw config,0.063,false,-1.2986135740468363
+ssp245,2100,shipped MEAN,0.289,false,-0.26094725856812406
+ssp245,2100,per-draw config,0.3335,false,-0.3260925481261845
+ssp245,2150,shipped MEAN,0.482,false,-0.027544904642584633
+ssp245,2150,per-draw config,0.4465,false,-0.12253221254032631
+ssp245,2300,shipped MEAN,0.596,true,0.1222377022727219
+ssp245,2300,per-draw config,0.483,false,-0.04856064983926345
+ssp585,2100,shipped MEAN,0.9965,true,1.5766838005830452
+ssp585,2100,per-draw config,0.9565,true,1.4765143329516608
+ssp585,2150,shipped MEAN,1.0,true,3.1897271964413516
+ssp585,2150,per-draw config,0.994,true,2.9942632955415975
+ssp585,2300,shipped MEAN,1.0,true,4.528999860474279
+ssp585,2300,per-draw config,0.9915,true,4.234631237424683

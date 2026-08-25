@@ -60,13 +60,39 @@ const SMOKE = MAXROWS !== nothing
 const N_TARGET = let p = findfirst(a -> !startswith(a, "--"), ARGS)
     p === nothing ? 500 : parse(Int, ARGS[p])
 end
-const SSP      = "ssp585"
+const SSP      = let i = findfirst(a -> startswith(a, "--ssp="), ARGS)
+    i === nothing ? "ssp585" : ARGS[i][7:end]
+end
+## THE FORCING CONVENTION IS A REAL CHOICE AND IS SWITCHABLE, NOT BAKED IN.
+##  `spliced` our own path through SPLICE_YEAR, then the config's anomaly re-referenced
+##           to its own LADRILLO_REF mean. Uncertainty enters the FUTURE only, so the
+##           hindcast the posterior was calibrated against is untouched. DEFAULT.
+##  `raw`    the config's own path throughout -- the convention the CANONICAL
+##           forward-propagation pipeline used (`weight_brick_conditional_fair.jl`,
+##           memory `fair_brick_coupling`), which carries each config's history too.
+## Compared head-to-head because the band is being promoted to the reported one, so
+## the convention must be settled by measurement rather than inherited by default.
+const FORCING = let i = findfirst(a -> startswith(a, "--forcing="), ARGS)
+    i === nothing ? "spliced" : ARGS[i][11:end]
+end
+@assert FORCING in ("spliced", "raw") "--forcing must be spliced or raw"
+const SPLICE_YEAR = 2014            # build_protect_x2300_forcing.py's convention
 const HORIZONS = [2100, 2150, 2300]
 const Y0, Y1   = 1850, 2300
 const COMPONENTS = [:ais, :total]          # AIS carries the band; total is the deliverable
 const PAIR_SEED = 2026                     # the draw -> config permutation
-const CUBE_G = joinpath(LADRILLO_OBS, "fair_cube_gmst_$(SSP)_spliced.csv")
-const CUBE_O = joinpath(LADRILLO_OBS, "fair_cube_ohc_$(SSP)_spliced.csv")
+const CUBE_G = joinpath(LADRILLO_OBS, "fair_cube_gmst_$(SSP)_raw.csv")
+const CUBE_O = joinpath(LADRILLO_OBS, "fair_cube_ohc_$(SSP)_raw.csv")
+## [SPLICE-MATCH] reference: the cube this file's predecessor spliced in python.
+## Only ssp585 has one; where it exists the Julia splice must reproduce it.
+const SPLICED_REF_G = joinpath(LADRILLO_OBS, "fair_cube_gmst_$(SSP)_spliced.csv")
+## Tolerance DERIVED from the thing it tests (`derive_gate_from_the_thing`), not picked.
+## Both cubes are written at 6 decimals => half-ulp 5e-7. The Julia splice accumulates
+## three such roundings: the raw value (5e-7), the config's LADRILLO_REF mean (a mean of
+## rounded values, bounded by 5e-7), and the reference cube's own rounding (5e-7).
+## Worst case 1.5e-6; the gate sits just above at 2e-6. A REAL convention change would
+## show up at 1e-2 or larger, so this still discriminates by ~4 orders of magnitude.
+const SPLICE_MATCH_TOL = 2e-6
 ## [CALIB-MOVE] scale -- the AIS target's own span and sigma over 1900-2025.
 const AIS_TARGET_SPAN_CM, AIS_TARGET_SIGMA_CM = 1.404, 0.141
 const CALIB_WIN = (1850, 2024)
@@ -94,8 +120,8 @@ function read_draws(sd)
     d = ladrillo_native_greenland!(df[idx[1:N_TARGET], :]); df = nothing; GC.gc(); d
 end
 
-@printf("SLR WITH FaIR CLIMATE UNCERTAINTY | tag %s%s | %d draws/chain x %d chains | %s\n",
-        TAG, SMOKE ? "  ** SMOKE (--maxrows=$(MAXROWS)) **" : "", N_TARGET, length(SEEDS), SSP)
+@printf("SLR WITH FaIR CLIMATE UNCERTAINTY | tag %s%s | %d draws/chain x %d chains | %s | forcing=%s\n",
+        TAG, SMOKE ? "  ** SMOKE (--maxrows=$(MAXROWS)) **" : "", N_TARGET, length(SEEDS), SSP, FORCING)
 flush(stdout)
 const DRAWS = [(@printf("  reading chain seed%d ...\n", sd); flush(stdout); read_draws(sd))
                for sd in SEEDS]
@@ -113,10 +139,34 @@ const CYEARS = Int.(CG.year)
 const YEARS = collect(Y0:Y1)
 @assert CYEARS == YEARS "the cube's year axis is not $(Y0):$(Y1)"
 @assert String.(propertynames(CO))[2:end] == CFG "gmst and ohc cubes disagree on configs"
-gmst_of(c) = Float64.(CG[!, c])
-ohc_of(c)  = Float64.(CO[!, c])
 const IREF = findall(y -> LADRILLO_REF[1] <= y <= LADRILLO_REF[2], YEARS)
+## the shipped MEAN driver -- the control arm, and the pre-splice half of every arm
+const MEAN_G = [_yearmap(joinpath(LADRILLO_OBS, "fair_mean_gmst_$(SSP).csv"), "gmst_C")[y] for y in YEARS]
+const MEAN_O = [_yearmap(joinpath(LADRILLO_OBS, "fair_mean_ohc_$(SSP).csv"), "ohc_1e22J")[y] for y in YEARS]
+"""Apply the forcing convention to a RAW per-config path. `spliced` pivots on the
+LADRILLO_REF mean, so the level is continuous and the pre-SPLICE_YEAR half is the
+shipped driver EXACTLY."""
+function convention(raw::Vector{Float64}, mean_path::Vector{Float64})
+    FORCING == "raw" && return raw
+    mref, cref = mean(mean_path[IREF]), mean(raw[IREF])
+    [y <= SPLICE_YEAR ? mean_path[i] : mref + (raw[i] - cref) for (i, y) in enumerate(YEARS)]
+end
+gmst_of(c) = convention(Float64.(CG[!, c]), MEAN_G)
+ohc_of(c)  = convention(Float64.(CO[!, c]), MEAN_O)
 const I2300 = findfirst(==(2300), YEARS)
+
+## [SPLICE-MATCH] the Julia splice must reproduce the python-spliced cube the
+## 2026-08-25 result was computed from -- otherwise "raw cube + convention in Julia"
+## is a silent change of the input, not a refactor. Only ssp585 has the reference.
+if FORCING == "spliced" && isfile(SPLICED_REF_G)
+    R = CSV.read(SPLICED_REF_G, DataFrame)
+    w = maximum(maximum(abs.(gmst_of(c) .- Float64.(R[!, c]))) for c in CFG)
+    @printf("[SPLICE-MATCH] max |julia splice - python cube| = %.3e degC (tol %.0e)  %s\n",
+            w, SPLICE_MATCH_TOL, w <= SPLICE_MATCH_TOL ? "PASS" : "FAIL")
+    @assert w <= SPLICE_MATCH_TOL "the Julia splice does not reproduce the committed cube"
+elseif FORCING == "spliced"
+    @printf("[SPLICE-MATCH] no python reference for %s -- gate not applicable\n", SSP)
+end
 
 ## ---- the pairing ---------------------------------------------------------
 ## A seeded permutation, cycled if there are more draws than configs. Reported,
@@ -147,10 +197,7 @@ alloc() = Dict(c => Matrix{Float64}(undef, NDRAW, length(YEARS)) for c in COMPON
 ## arm `fixed`: the shipped MEAN driver, every draw. The control.
 @printf("\n  running arm `fixed` (shipped MEAN driver, %d draws) ...\n", NDRAW); flush(stdout)
 const FIXED = alloc()
-let g = [_yearmap(joinpath(LADRILLO_OBS, "fair_mean_gmst_$(SSP).csv"), "gmst_C")[y] for y in YEARS],
-    o = [_yearmap(joinpath(LADRILLO_OBS, "fair_mean_ohc_$(SSP).csv"), "ohc_1e22J")[y] for y in YEARS]
-    run_into!(FIXED, 1:NDRAW, g, o)
-end
+run_into!(FIXED, 1:NDRAW, MEAN_G, MEAN_O)
 
 ## arm `joint`: one FaIR config per draw. Grouped by config so `ladrillo_setup`
 ## (0.54 s warm) is paid once per config, not once per draw.
@@ -215,13 +262,20 @@ let i0 = yidx(CALIB_WIN[1]), i1 = yidx(CALIB_WIN[2])
         push!(rowsg, ("CALIB-MOVE", "$(c)_max_cm", w, "measured"))
     end
 end
-CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_gates_$(TAG)$(SMOKE ? "_SMOKE" : "").csv"), rowsg)
+CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_gates_$(SSP)_$(FORCING)_$(TAG)$(SMOKE ? "_SMOKE" : "").csv"), rowsg)
 
 ## ==========================================================================
 ## THE CELLS
 ## ==========================================================================
+## MEAN AND TIPPED FRACTION ARE CARRIED, NOT JUST THE MEDIAN. At ssp245@2300 the
+## AIS tipped fraction sits at 48.3% (`diag_ais_tipping_under_forcing`), so the 50th
+## percentile lands in the gap of a BIMODAL density and is sample-fragile -- the same
+## failure the pulse work hit (`fair_brick_coupling`: "quote the MEAN or a
+## mode-decomposition, never the bare pooled median"). The per-draw values are also
+## dumped so any statistic can be recomputed later WITHOUT a re-run.
 cells = DataFrame(ssp = String[], component = String[], horizon = Int[], arm = String[],
-                  n_draws = Int[], med_cm = Float64[], p05_cm = Float64[], p95_cm = Float64[],
+                  n_draws = Int[], med_cm = Float64[], mean_cm = Float64[],
+                  p05_cm = Float64[], p95_cm = Float64[],
                   spread_cm = Float64[], spread_ratio = Float64[], med_ratio = Float64[])
 @printf("\n%s\nSLR WITH vs WITHOUT FaIR CLIMATE UNCERTAINTY -- %s, cm rel %d-%d\n%s\n",
         repeat("=", 92), SSP, LADRILLO_REF[1], LADRILLO_REF[2], repeat("=", 92))
@@ -232,7 +286,7 @@ for c in COMPONENTS
         f = FIXED[c][:, yidx(H)]; sf = quantile(f, 0.95) - quantile(f, 0.05)
         for (arm, A) in (("fixed", FIXED[c]), ("joint", JOINT[c]))
             v = A[:, yidx(H)]; sp = quantile(v, 0.95) - quantile(v, 0.05)
-            push!(cells, (SSP, String(c), H, arm, length(v), median(v),
+            push!(cells, (SSP, String(c), H, arm, length(v), median(v), mean(v),
                           quantile(v, 0.05), quantile(v, 0.95), sp, sp / sf,
                           median(v) / median(f)))
             @printf("  %-6s %-6d %-6s %9.2f %9.2f %9.2f %9.2f %10.2fx\n",
@@ -241,7 +295,7 @@ for c in COMPONENTS
     end
     println()
 end
-CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_cells_$(TAG)$(SMOKE ? "_SMOKE" : "").csv"), cells)
+CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_cells_$(SSP)_$(FORCING)_$(TAG)$(SMOKE ? "_SMOKE" : "").csv"), cells)
 
 ## ==========================================================================
 ## THE COMPARISON that motivated it
@@ -258,6 +312,16 @@ let iH = yidx(2300), cw = COULON_BAND[2] - COULON_BAND[1]
     end
 end
 
+## per-draw values at the horizons -- so mean / mode-decomposition / any other
+## statistic can be recomputed without paying the run again.
+let dr = DataFrame(draw = Int[], config = String[], component = String[],
+                   horizon = Int[], arm = String[], value_cm = Float64[])
+    for c in COMPONENTS, H in HORIZONS, (arm, A) in (("fixed", FIXED[c]), ("joint", JOINT[c])), k in 1:NDRAW
+        push!(dr, (k, CFG_OF_DRAW[k], String(c), H, arm, A[k, yidx(H)]))
+    end
+    CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_draws_$(SSP)_$(FORCING)_$(TAG)$(SMOKE ? "_SMOKE" : "").csv"), dr)
+end
+
 paths = DataFrame(year = Int[], component = String[], arm = String[],
                   med_cm = Float64[], p05_cm = Float64[], p95_cm = Float64[])
 for c in COMPONENTS, (arm, A) in (("fixed", FIXED[c]), ("joint", JOINT[c])), (i, y) in enumerate(YEARS)
@@ -265,5 +329,5 @@ for c in COMPONENTS, (arm, A) in (("fixed", FIXED[c]), ("joint", JOINT[c])), (i,
     v = A[:, i]
     push!(paths, (y, String(c), arm, median(v), quantile(v, 0.05), quantile(v, 0.95)))
 end
-CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_paths_$(TAG)$(SMOKE ? "_SMOKE" : "").csv"), paths)
-@printf("\nwrote outputs/scope_slr_fairunc_{cells,paths,gates}_%s%s.csv\n", TAG, SMOKE ? "_SMOKE" : "")
+CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_paths_$(SSP)_$(FORCING)_$(TAG)$(SMOKE ? "_SMOKE" : "").csv"), paths)
+@printf("\nwrote outputs/scope_slr_fairunc_{cells,paths,gates}_%s_%s_%s%s.csv\n", SSP, FORCING, TAG, SMOKE ? "_SMOKE" : "")
