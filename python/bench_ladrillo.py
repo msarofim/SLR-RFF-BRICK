@@ -158,6 +158,14 @@ FIXED_FILES = {
                          "postpred_oldbrick_components_timeseries.csv"),
     "brick20_projection": ("outputs/ssps_components_2300_oldbrick.csv",
                            "ssps_components_2300_oldbrick.csv"),
+    # The literature arm's SOURCES, frozen for provenance and hashed. The rows the
+    # benchmark actually reads come from `literature` below, which is extracted once
+    # from a comparison file; these two are kept so that a changed FACTS or MAGICC
+    # release is VISIBLE as a hash change rather than silently re-scoring every arm.
+    "facts_source": ("outputs/facts_components_n200.csv", "facts_components_n200.csv"),
+    "magicc_source": ("data/comparison/magicc_nauels_components.csv",
+                      "magicc_nauels_components.csv"),
+    "literature": (None, "literature_rows.csv"),
 }
 
 
@@ -206,11 +214,13 @@ def freeze(tag):
     print(f"  wrote {os.path.relpath(os.path.join(d, 'manifest.json'), REPO)}")
 
 
-def freeze_fixed():
+def freeze_fixed(lit_from=None):
     """Snapshot the arms that never move: obs targets, BRICK 2.0, FACTS, MAGICC."""
     os.makedirs(FIXED, exist_ok=True)
     man = {"frozen_git_head": _git_head(), "bench_version": BENCH_VERSION, "files": {}}
     for key, (rel, name) in FIXED_FILES.items():
+        if rel is None:
+            continue
         src = os.path.join(REPO, rel)
         if not os.path.exists(src):
             print(f"  ! SKIP {key}: {rel} does not exist yet")
@@ -218,6 +228,18 @@ def freeze_fixed():
         shutil.copyfile(src, os.path.join(FIXED, name))
         man["files"][key] = {"source": rel, "sha256_16": _sha(src)}
         print(f"  froze {key:20s} <- {rel}")
+    # The literature rows themselves, extracted once from a comparison file so that the
+    # arm no longer rides inside a per-tag output.
+    if lit_from and os.path.exists(lit_from):
+        d = pd.read_csv(lit_from)
+        d = d[~d.source.isin(["Ladrillo", "BRICK 2.0"])]
+        d.to_csv(os.path.join(FIXED, FIXED_FILES["literature"][1]), index=False)
+        man["files"]["literature"] = {"source": os.path.relpath(lit_from, REPO),
+                                      "sha256_16": _sha(lit_from),
+                                      "n_rows": int(len(d)),
+                                      "sources": sorted(d.source.unique().tolist())}
+        print(f"  froze {'literature':20s} <- {os.path.relpath(lit_from, REPO)} "
+              f"({len(d)} rows)")
     with open(os.path.join(FIXED, "manifest.json"), "w") as f:
         json.dump(man, f, indent=2)
 
@@ -225,6 +247,33 @@ def freeze_fixed():
 def fixed(key):
     p = os.path.join(FIXED, FIXED_FILES[key][1])
     return p if os.path.exists(p) else os.path.join(REPO, FIXED_FILES[key][0])
+
+
+def literature_rows(cand_comparison):
+    """The FACTS + MAGICC-SLR rows, from the FROZEN copy when one exists.
+
+    These rows do not depend on the Ladrillo tag -- they are the same literature in
+    every comparison file -- but until they were frozen they travelled INSIDE each
+    candidate's own `ladrillo_model_comparison_<TAG>.csv`, so a regenerated FACTS or
+    MAGICC extraction would have moved the comparator under every past score without
+    leaving a trace. Frozen once, checked against the candidate's copy on every run:
+    a disagreement is REPORTED, never silently resolved, because either file could be
+    the newer one and that is a decision, not a default."""
+    live = pd.read_csv(cand_comparison)
+    live = live[~live.source.isin(["Ladrillo", "BRICK 2.0"])]
+    p = fixed("literature")
+    if not os.path.exists(p):
+        return live, "live (not yet frozen -- run --freeze-fixed)"
+    frozen = pd.read_csv(p)
+    k = ["source", "module", "scenario", "component", "year"]
+    j = frozen.merge(live, on=k, suffixes=("_f", "_l"), how="outer", indicator=True)
+    moved = j[(j._merge != "both") |
+              ((j.med_f - j.med_l).abs() > 1e-6)]
+    if len(moved):
+        print(f"! LITERATURE ARM MOVED: {len(moved)} of {len(j)} rows differ between the "
+              f"frozen copy and {os.path.basename(cand_comparison)}. Scoring on the FROZEN "
+              "copy. Re-freeze deliberately if the new extraction is the one you want.")
+    return frozen, "frozen"
 
 
 def champions():
@@ -445,7 +494,7 @@ def joint_stats(path, component, horizon, arm="joint"):
 
 def block_projection(rows, cand_tag, champ_tag, cand_p, champ_p):
     """Level and spread against FACTS, MAGICC-SLR and BRICK 2.0, on the JOINT band."""
-    cmp_ = pd.read_csv(cand_p["comparison"])
+    cmp_, _src = literature_rows(cand_p["comparison"])
     b20 = pd.read_csv(fixed("brick20_projection")) if os.path.exists(fixed("brick20_projection")) else None
     LBL = {"ssp126": "SSP1-2.6", "ssp245": "SSP2-4.5", "ssp585": "SSP5-8.5"}
     for key, label, *_ in COMPONENTS:
@@ -480,7 +529,7 @@ def block_projection(rows, cand_tag, champ_tag, cand_p, champ_p):
                 if H not in LIT_HORIZONS:
                     continue
                 lit = cmp_[(cmp_.component == key) & (cmp_.scenario == ssp) &
-                           (cmp_.year == H) & (~cmp_.source.isin(["Ladrillo", "BRICK 2.0"]))]
+                           (cmp_.year == H)]
                 if lit.empty:
                     continue
                 meds = lit.med.astype(float).values
@@ -524,7 +573,7 @@ def block_separation(rows, cand_tag, champ_tag, cand_p, champ_p):
     verdict is BRACKET MEMBERSHIP, not distance from a literature median. Where the
     bracket does not exist (MAGICC-SLR carries only 2100), the report says so rather
     than silently scoring against the FACTS side alone."""
-    cmp_ = pd.read_csv(cand_p["comparison"])
+    cmp_, _src = literature_rows(cand_p["comparison"])
     for key, label, *_ in COMPONENTS:
         for H in HORIZONS:
             lo, _, _ = joint_stats(cand_p[f"draws_{SEP_LO}"], key, H)
@@ -712,7 +761,7 @@ def main():
         raise SystemExit(__doc__)
     if "--freeze-fixed" in args:
         print("freezing the fixed comparator arms:")
-        freeze_fixed()
+        freeze_fixed(lit_from=live_paths(tag)["comparison"])
     if "--freeze" in args:
         print(f"freezing {tag} as a comparable arm:")
         freeze(tag)

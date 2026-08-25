@@ -1,5 +1,5 @@
 {
-  "frozen_git_head": "4086176",
+  "frozen_git_head": "5cbd0fd",
   "bench_version": "1.0",
   "files": {
     "targets": {
@@ -13,6 +13,23 @@
     "brick20_projection": {
       "source": "outputs/ssps_components_2300_oldbrick.csv",
       "sha256_16": "2eaf36a8e3239d8a"
+    },
+    "facts_source": {
+      "source": "outputs/facts_components_n200.csv",
+      "sha256_16": "a792d6756b9db0e3"
+    },
+    "magicc_source": {
+      "source": "data/comparison/magicc_nauels_components.csv",
+      "sha256_16": "24b3845e7c1a454f"
+    },
+    "literature": {
+      "source": "outputs/ladrillo_model_comparison_L14.csv",
+      "sha256_16": "c6224c65af172c74",
+      "n_rows": 114,
+      "sources": [
+        "FACTS",
+        "MAGICC-SLR"
+      ]
     }
   }
 }
