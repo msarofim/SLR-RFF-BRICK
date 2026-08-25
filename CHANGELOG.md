@@ -3,6 +3,88 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-25f — **THE LAST UNEXAMINED FAIL IS NOT A TOTAL-LEVEL DEFECT: it is the AIS spread, scored against a comparator set the AIS cell itself excludes half of. And the FACTS workflows now have receipts.**
+
+`python/diag_total_spread_ssp585_2150.py` (NEW), `python/bench_ladrillo.py`,
+`benchmark/comparator_classes.csv`, `benchmark/README.md`, `outputs/bench_ladrillo_L14.{csv,md}`,
+`outputs/diag_total_spread_ssp585_2150_L14.csv`. **Nothing recalibrated. No chain read. No model
+run.** Everything is post-processing over comparator files that already existed.
+
+Handoff `-25c` addendum 3 left three candidate FAILs, two of them priced. This is the third:
+`TOTAL ssp585@2150 spread = 0.365x lit`, which had never been looked at.
+
+### THE SUSPICION WAS STATED BEFORE MEASURING, AND IT HELD
+
+A total cannot be 0.365x the literature while **every component of it** is 0.46–0.90x unless
+the two are scored against **different comparator sets**. The same cell's AIS scored 0.525 PASS.
+
+**[B] THE GAP IS THE AIS GAP.** Decomposed against each comparator, the share of its
+total-spread difference from ours that is its **AIS**-spread difference: **85% (wf1f), 112%
+(wf3f), 96% (wf4), 66% (MAGICC)**. Against **wf2f — the process workflow with no MICI and no
+expert elicitation — our total spread is 0.979x**. The total cell carries no information the
+AIS cell does not.
+
+### THE FACTS WORKFLOWS ARE NOW IDENTIFIED FROM THE DATA, NOT FROM THE AR6 TAXONOMY
+
+This repo stored `wf1f/wf2f/wf3f/wf4` as opaque module strings with no documented composition
+— and a benchmark cannot classify a comparator it cannot name. Each workflow total is now
+fitted against every (AIS module x GIS module) combination in the same file, on **three**
+statistics (sum of medians; quadrature sum of p05–p95 spreads; quadrature sum of **upper**
+half-widths), voting **per slot**, and only by the statistics that **discriminate** that slot:
+
+| workflow | AIS | GIS | |
+|---|---|---|---|
+| wf1f | ar5AIS | FittedISMIP | 3/3, margins 5.5–18.2x |
+| wf2f | larmip | FittedISMIP | 3/3, margins 3.2–12.1x |
+| wf3f | deconto21 (MICI) | FittedISMIP | 3/3, margins 3.1–11.1x |
+| **wf4** | **bamber19** | **bamber19** | the SEJ envelope, in both ice sheets |
+
+⚠ **THE FIRST VERSION OF THE TEST USED TWO STATISTICS, REJECTED wf4, AND WAS RIGHT TO FIRE.**
+bamber19's AIS median (36.5 cm) and larmip's (37.4) differ by **2%** at ssp585@2150, so the
+median test is **blind** to that slot: it picked larmip while the spread test picked bamber19,
+at a margin of 1.9x against the 4.2–5.5x the other three showed. The **upper half-width** is
+what discriminates — bamber19's AIS upper is 517.9 cm against larmip's 105.0, and wf4's own
+total upper is **553.6**, a value no larmip composition can reach (wf2f, which *is* larmip, has
+105.5). *Tried and abandoned: a per-combination majority vote — it throws away that a statistic
+can be blind to one slot while resolving the other.*
+
+### FIX 1 — THE EXISTING SEJ LINE, APPLIED CONSISTENTLY
+
+`comparator_classes.csv` has classified `bamber19` as structured expert judgement since
+`bbee082`, and the AIS and GIS rows of every cell exclude it. **The total rows carry the string
+`wf4`, so that exclusion had never fired on them.** Adding `wf4` is the existing line applied
+consistently, not a new one. Worth **1.46x** at total ssp585@2150 and **<=7%** at every other
+total cell; **exactly one verdict moves.**
+⚠ **wf3f = deconto21 = MICI deliberately STAYS in `model`**, because deconto21 stays in `model`
+at the AIS level. Drawing that line too would improve our score and has no basis in what the
+module IS. The gap to wf3f is the already-priced, already-declined `ais_binary_form_priced`
+decision — the price of not double-counting — not a new defect.
+
+### FIX 2 — A MEDIAN COMPARATOR IS ONLY A SUMMARY IF THE COMPARATORS AGREE
+
+At ssp585@2150 the four model-based AIS comparators span **8.4x** and split into a no-MICI pair
+and a MICI/MAGICC pair; the median lands in the **gap between the groups** and describes
+neither. The test wired in is **exact and threshold-free**: score against each comparator on its
+own, and cap the verdict at **WARN in both directions** where the median's verdict is not a
+**majority** position. *Tried and abandoned: a `max/min > 4x` dispersion proxy — it flagged the
+same four cells, but 4x was a picked number dressed up as the width of the PASS band.*
+
+It caps **four** cells, all at 2150, all deconto21-driven — AIS and TOTAL at ssp245 **and**
+ssp585. ⚠ **Two of the four are cells where we look good** (ssp245@2150, 1.23x, PASS -> WARN):
+the rule is not a device for improving our own score. A FAIL a majority does support is
+untouched (Greenland ssp126@2100 stays FAIL, 2 of 3 agree). `bench_ladrillo.py --selftest`
+mutation-tests it in every direction, including the one the data never exercises.
+
+### NET
+
+**`TOTAL ssp585@2150 spread`: FAIL 0.365 -> WARN 0.532 — not PASS.** The TOTAL projection
+roll-up goes FAIL -> WARN. The candidate FAIL list is now **TE rate** (a FaIR/OHC-driver
+question, WARN once depth scope is credited) and **Greenland ssp126@2100 spread** (0.489x,
+worth +3.9% of one band). ⚠ The classification audit correspondingly **stops** listing AIS and
+TOTAL ssp585@2150 as verdict-dependent on the SEJ exclusion — they are WARN either way now.
+
+---
+
 ## [unreleased] — 2026-08-25e — **THE COMPARISON IS NOW A STANDING BENCHMARK, and steps 2–4 all PASS with what turns out to be ONE defect seen four times: we are under-levelled and under-dispersed at the COOL scenarios.**
 
 `python/bench_ladrillo.py` (NEW), `python/scope_module_assessment.py` (NEW),

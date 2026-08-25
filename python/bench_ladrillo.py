@@ -36,6 +36,7 @@ THE THREE CAVEATS THAT TRAVEL WITH EVERY VERDICT, re-printed in the report:
 
 Writes outputs/bench_ladrillo_<TAG>.csv and outputs/bench_ladrillo_<TAG>.md
 """
+import collections
 import hashlib
 import json
 import os
@@ -124,6 +125,15 @@ PROJ_WARN_RATIO = 2.0
 # Spread: scored against the literature MEDIAN spread. Both directions matter --
 # too narrow is as wrong as too wide -- except where the width is a known prior.
 SPREAD_PASS = (0.5, 2.0)
+# ⚠ A MEDIAN SPREAD IS ONLY A SUMMARY IF THE COMPARATORS AGREE. At ssp585@2150 the four
+# model-based AIS comparators span 8.4x (ar5AIS 48.7 cm to deconto21 408.4) and split into
+# a no-MICI pair and a MICI/MAGICC pair; the median lands in the gap BETWEEN the two groups,
+# so it belongs to neither. The exact test is to score against each comparator on its own
+# and ask whether the median's verdict is one a MAJORITY of them share -- no threshold to
+# pick, and it demotes cells where we look good (ssp245@2150) as readily as ones where we
+# do not. Where it fails, the verdict is capped at WARN in BOTH directions: the median can
+# no more earn a PASS than a FAIL. (`diag_total_spread_ssp585_2150.py`, 2026-08-25.)
+SPREAD_MAJORITY_REQUIRED = True
 # Cells where narrowness must NOT be scored as a win: the width there is the
 # antarctic_lambda paleo prior, 78% of it (`ais_spread_is_lambda_prior`).
 PRIOR_WIDTH_CELLS = {("ais", "ssp585")}
@@ -313,6 +323,75 @@ def literature_rows(cand_comparison):
               f"frozen copy and {os.path.basename(cand_comparison)}. Scoring on the FROZEN "
               "copy. Re-freeze deliberately if the new extraction is the one you want.")
     return add_extra(frozen), "frozen"
+
+
+def spread_side(ratio):
+    """Which side of the SPREAD_PASS band a model/comparator width ratio falls on."""
+    return ("in" if SPREAD_PASS[0] <= ratio <= SPREAD_PASS[1]
+            else ("low" if ratio < SPREAD_PASS[0] else "high"))
+
+
+def spread_majority(ours_cm, comparator_spreads, median_ratio):
+    """Does the MEDIAN comparator's verdict have a majority among the comparators scored
+    ONE AT A TIME? Returns (has_majority, per-comparator sides). A median spread is a
+    summary only if the set it summarises agrees; where it does not, the median lands
+    between groups and belongs to neither, and the verdict is capped at WARN in BOTH
+    directions -- see SPREAD_MAJORITY_REQUIRED."""
+    per = [spread_side(ours_cm / x) for x in comparator_spreads]
+    return per.count(spread_side(median_ratio)) * 2 > len(per), per
+
+
+def _selftest():
+    """⚠ MUTATION TEST. A gate that has only ever fired in one direction has not been
+    shown to work -- as of L14 every cell the majority rule touches is a DEMOTION
+    (PASS -> WARN), so the other directions are exercised here instead of by the data."""
+    ok, why = True, []
+
+    def chk(label, got, want):
+        nonlocal ok
+        ok &= got == want
+        why.append(f"    {'ok  ' if got == want else 'FAIL'} {label}: {got} (want {want})")
+
+    # [1] DEMOTE. The real total ssp585@2150 set: the median says `in`, but scored one at
+    # a time 2 of 4 say `low`, so `in` is not a majority and the PASS is not earned.
+    chk("demote PASS->WARN (real total ssp585@2150)",
+        spread_majority(147.38, [77.93, 150.61, 414.71, 403.38], 0.532),
+        (False, ["in", "in", "low", "low"]))
+    # [2] RESCUE a FAIL. Median comparator is huge, but half the set puts us inside the
+    # band -- the FAIL is as unearned as the PASS in [1], and is capped the same way.
+    chk("rescue FAIL->WARN (median low, no majority)",
+        spread_majority(10.0, [11.0, 12.0, 100.0, 105.0], 10.0 / 56.0),
+        (False, ["in", "in", "low", "low"]))
+    # [3] A SUPPORTED FAIL MUST SURVIVE. This is Greenland ssp126@2100: 2 of 3 comparators
+    # agree we are too narrow, so the rule must NOT touch it.
+    chk("supported FAIL survives (real gis ssp126@2100)",
+        spread_majority(4.69, [7.06, 9.57, 17.14], 4.69 / 9.57)[0], True)
+    # [4] AN AGREEING SET IS NEVER CAPPED.
+    chk("agreeing set untouched", spread_majority(10.0, [11.0, 12.0, 13.0], 10.0 / 12.0)[0], True)
+    # [5] ⚠ THE RULE CANNOT INVENT A PASS. A strict `in` majority forces both middle
+    # comparators inside the band, hence the median inside it too, so "no majority" is the
+    # only way the rule ever fires -- it can cap a verdict, never upgrade one. Asserted so
+    # that a future edit which does upgrade one is caught here.
+    # ⚠ THE FIRST VERSION OF THIS CHECK WAS WRONG AND ITS FAILURE WAS INFORMATIVE: it
+    # flagged [11, 100, 105], where a majority DOES agree with the median -- that is a
+    # SUPPORTED FAIL (case [3]), not an upgrade. The property actually being asserted is
+    # that a strict `in` majority cannot coexist with a median outside the band, because
+    # it forces both middle comparators inside it. That is why the rule can only ever cap.
+    def _in_majority_but_median_outside(c):
+        r = 10.0 / float(np.median(c))
+        _, per = spread_majority(10.0, c, r)
+        return per.count("in") * 2 > len(per) and spread_side(r) != "in"
+    chk("never upgrades: no (`in` majority, median outside band) set exists",
+        any(_in_majority_but_median_outside(c)
+            for c in ([11, 12, 100, 105], [11, 12, 13, 100, 105, 110],
+                      [11, 12, 13, 100, 105], [11, 100, 105],
+                      [11, 12, 13, 14, 100, 105], [11, 12, 13, 14, 15, 100, 105])), False)
+
+    print("SELFTEST " + ("PASS" if ok else "FAIL") +
+          " -- spread majority rule: caps in both directions, leaves agreeing sets and "
+          "supported FAILs alone, never upgrades")
+    print("\n".join(why))
+    return 0 if ok else 1
 
 
 def comparator_classes():
@@ -631,6 +710,9 @@ def block_projection(rows, cand_tag, champ_tag, cand_p, champ_p):
                     tailr = csp99 / csp if csp > 0 else np.nan
                     bimodal = (np.isfinite(tailr) and
                                tailr > TAIL_RATIO_FLAG * TAIL_RATIO_GAUSSIAN)
+                    # EXACT COMPARATOR-AGREEMENT TEST: score against each comparator on
+                    # its own, and record whether the median's verdict has a majority.
+                    majority, per_v = spread_majority(csp, sps, sr)
                     if key in ZERO_SPREAD_BY_CONSTRUCTION:
                         v = "N/A(by construction)"
                     elif bimodal:
@@ -640,6 +722,8 @@ def block_projection(rows, cand_tag, champ_tag, cand_p, champ_p):
                     else:
                         v = ("PASS" if SPREAD_PASS[0] <= sr <= SPREAD_PASS[1] else
                              ("PASS(prior)" if prior and sr > SPREAD_PASS[1] else "FAIL"))
+                        if SPREAD_MAJORITY_REQUIRED and not majority:
+                            v = "WARN"
                     # SELF-AUDIT: what the classification is worth, per cell. Excluding an
                     # SEJ envelope always makes us look better on width, so the size of that
                     # effect is recorded on every row rather than left implicit.
@@ -660,6 +744,13 @@ def block_projection(rows, cand_tag, champ_tag, cand_p, champ_p):
                              f"{np.max(sps):.2f} (median {np.median(sps):.2f}, n={len(sps)})" +
                              (f"; ALL comparators {np.min(sps_all):.2f}-{np.max(sps_all):.2f}"
                               if n_excl else "") +
+                             ((f"; ⚠ THE COMPARATORS DO NOT AGREE -- scored one at a time "
+                               f"they give {'/'.join(f'{n}x{w}' for w, n in sorted(collections.Counter(per_v).items()))} "
+                               f"and the median's '{spread_side(sr)}' is not a majority, so the "
+                               "median is not a summary here; verdict CAPPED at WARN")
+                              if (SPREAD_MAJORITY_REQUIRED and not majority
+                                  and not thin_sp and not bimodal
+                                  and key not in ZERO_SPREAD_BY_CONSTRUCTION) else "") +
                              (f"; ⚠ n={len(sps)} < {MIN_LIT_FOR_MEDIAN} comparators WITH A "
                               "BAND, so this median is not a summary" +
                               ("; verdict CAPPED at WARN"
@@ -868,6 +959,8 @@ def write_report(path, df, cand_tag, champ_tag, sigma, meta):
 
 def main():
     args = sys.argv[1:]
+    if "--selftest" in args:
+        sys.exit(_selftest())
     tag = next((a[len("--tag="):] for a in args if a.startswith("--tag=")), None)
     if tag is None:
         raise SystemExit(__doc__)

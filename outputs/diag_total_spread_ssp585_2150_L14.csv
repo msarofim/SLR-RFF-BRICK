@@ -1,0 +1,23 @@
+block,cell,quantity,value,unit,note,verdict
+A,fit over 6 FACTS cells,composition/wf1f/ais,,,median: ar5AIS margin 18.2x; spread: ar5AIS margin 5.5x; upper: ar5AIS margin 7.3x; 3 of 3 statistics discriminated this slot (margin >= 2.0x),ar5AIS (OK)
+A,fit over 6 FACTS cells,composition/wf1f/gis,,,median: FittedISMIP margin 12.3x; spread: FittedISMIP margin 10.3x; upper: FittedISMIP margin 11.4x; 3 of 3 statistics discriminated this slot (margin >= 2.0x),FittedISMIP (OK)
+A,fit over 6 FACTS cells,composition/wf2f/ais,,,median: larmip margin 3.2x; spread: larmip margin 4.4x; upper: larmip margin 12.1x; 3 of 3 statistics discriminated this slot (margin >= 2.0x),larmip (OK)
+A,fit over 6 FACTS cells,composition/wf2f/gis,,,median: FittedISMIP margin 5.5x; spread: FittedISMIP margin 4.4x; upper: FittedISMIP margin 12.1x; 3 of 3 statistics discriminated this slot (margin >= 2.0x),FittedISMIP (OK)
+A,fit over 6 FACTS cells,composition/wf3f/ais,,,median: deconto21 margin 6.6x; spread: deconto21 margin 4.2x; upper: deconto21 margin 7.2x; 3 of 3 statistics discriminated this slot (margin >= 2.0x),deconto21 (OK)
+A,fit over 6 FACTS cells,composition/wf3f/gis,,,median: FittedISMIP margin 3.1x; spread: FittedISMIP margin 5.0x; upper: FittedISMIP margin 11.1x; 3 of 3 statistics discriminated this slot (margin >= 2.0x),FittedISMIP (OK)
+A,fit over 6 FACTS cells,composition/wf4/ais,,,median: larmip margin 1.2x; spread: bamber19 margin 3.6x; upper: bamber19 margin 4.0x; 2 of 3 statistics discriminated this slot (margin >= 2.0x),bamber19 (OK)
+A,fit over 6 FACTS cells,composition/wf4/gis,,,median: bamber19 margin 2.3x; spread: bamber19 margin 1.9x; upper: bamber19 margin 1.6x; 1 of 3 statistics discriminated this slot (margin >= 2.0x),bamber19 (OK)
+B,ssp585@2150,gap_decomposition/wf1f,1.8911973948301029,x their total spread,"their total 77.9 cm (AIS 48.7 via ar5AIS, GIS 25.0 via FittedISMIP); total gap -69.4 cm of which AIS is -59.1 = 85%",
+B,ssp585@2150,gap_decomposition/wf2f,0.9785112371287654,x their total spread,"their total 150.6 cm (AIS 134.3 via larmip, GIS 25.0 via FittedISMIP); total gap +3.2 cm of which AIS is +26.5 = 817%",
+B,ssp585@2150,gap_decomposition/wf3f,0.35537898153272224,x their total spread,"their total 414.7 cm (AIS 408.4 via deconto21, GIS 25.0 via FittedISMIP); total gap +267.3 cm of which AIS is +300.6 = 112%",
+B,ssp585@2150,gap_decomposition/wf4,0.2333440972100786,x their total spread,"their total 631.6 cm (AIS 571.0 via bamber19, GIS 121.9 via bamber19); total gap +484.2 cm of which AIS is +463.2 = 96%",
+B,ssp585@2150,gap_decomposition/Nauels2025,0.3653546938197778,x their total spread,"their total 403.4 cm (AIS 276.2 via Nauels2025, GIS 91.0 via Nauels2025); total gap +256.0 cm of which AIS is +168.4 = 66%",
+C,ssp126@2100,total_spread_vs_lit,0.7251066991781746,x lit spread,with wf4: 0.681 (n=8); without: 0.725 (n=7); median ratio 0.814 -> 0.832,
+C,ssp126@2150,total_spread_vs_lit,0.6264035312235972,x lit spread,with wf4: 0.619 (n=5); without: 0.626 (n=4); median ratio 0.620 -> 0.675,
+C,ssp126@2300,total_spread_vs_lit,1.025794713105794,x lit spread,with wf4: 1.026 (n=1); without: 1.026 (n=1); median ratio 0.969 -> 0.969,
+C,ssp245@2100,total_spread_vs_lit,1.1311737384878884,x lit spread,with wf4: 1.090 (n=8); without: 1.131 (n=7); median ratio 0.827 -> 0.840,
+C,ssp245@2150,total_spread_vs_lit,1.2322166874944327,x lit spread,with wf4: 1.191 (n=5); without: 1.232 (n=4); median ratio 0.729 -> 0.769,
+C,ssp245@2300,total_spread_vs_lit,1.0218922758467615,x lit spread,with wf4: 1.022 (n=1); without: 1.022 (n=1); median ratio 0.872 -> 0.872,
+C,ssp585@2100,total_spread_vs_lit,1.165167746702845,x lit spread,with wf4: 1.159 (n=8); without: 1.165 (n=7); median ratio 1.086 -> 1.164,
+C,ssp585@2150,total_spread_vs_lit,0.5320525882936175,x lit spread,with wf4: 0.365 (n=5); without: 0.532 (n=4); median ratio 1.205 -> 0.943,FLIPS
+C,ssp585@2300,total_spread_vs_lit,0.27922147492931365,x lit spread,with wf4: 0.279 (n=1); without: 0.279 (n=1); median ratio 0.454 -> 0.454,

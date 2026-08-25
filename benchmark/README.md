@@ -47,6 +47,24 @@ change, and a score from today is comparable to a score from six months ago.
 5. **[V] VERDICTS AND DELTAS.** Per module: PASS / WARN / FAIL, and **BETTER / SAME /
    WORSE vs the champion** on every metric that has a direction.
 
+### A median comparator is only a summary if the comparators agree
+
+The spread test scores our width against the **median** comparator width. That is a summary
+only when the set being summarised agrees. At ssp585@2150 the four model-based AIS
+comparators span **8.4×** (ar5AIS 48.7 cm to deconto21 408.4) and split cleanly into a
+no-MICI pair and a MICI/MAGICC pair, so the median lands in the **gap between the two
+groups** and describes neither.
+
+The test is exact and needs no threshold: score against **each comparator on its own** and
+ask whether the median's verdict is one a **majority** of them share. Where it is not, the
+verdict is **capped at WARN in both directions** — the median can no more earn a PASS than a
+FAIL — and the note prints the per-comparator tally. As of L14 this caps four cells, all at
+2150, all driven by deconto21: AIS and TOTAL at ssp245 *and* ssp585. **Two of the four are
+cells where we look good** (ssp245@2150, 1.23× — capped from PASS), which is the check that
+the rule is not a device for improving our own score. A FAIL a majority *does* support is
+untouched (Greenland ssp126@2100 stays FAIL, 2 of 3 agree). `python bench_ladrillo.py
+--selftest` mutation-tests it in every direction. (`diag_total_spread_ssp585_2150.py`.)
+
 ## Reading a verdict honestly — three standing caveats the report re-prints every run
 
 * **The hindcast is IN-SAMPLE for every Ladrillo arm** and out-of-sample for BRICK 2.0.
