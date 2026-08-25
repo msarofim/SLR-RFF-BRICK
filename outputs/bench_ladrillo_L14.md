@@ -1,6 +1,6 @@
 # Ladrillo benchmark — `L14`
 
-*benchmark v1.0, 2026-08-25, repo `1316f72`. Champion arm: **L14** (the candidate IS the champion — no delta column).*
+*benchmark v1.0, 2026-08-25, repo `38ac0e5`. Champion arm: **L14** (the candidate IS the champion — no delta column).*
 
 Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (stock MimiBRICK v2.0.0, own posterior), **literature** (FACTS + MAGICC-SLR, frozen).
 
@@ -109,78 +109,78 @@ Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (s
 
 | module | ssp | horizon | metric | value | verdict | note |
 |---|---|---|---|---|---|---|
-| AIS | ssp126 | 2100 | median_vs_lit | 0.476 x lit median | **PASS** | ours 4.29 cm vs lit 3.66-11.90 (median 9.01), n_lit=6; ⚠ BIMODAL cell -- our MEAN is 6.16 cm = 0.68x the literature median, and the median sits entirely inside the near mode |
-| AIS | ssp126 | 2100 | spread_vs_lit | 0.325 x lit spread | **N/A(bimodal)** | ours 6.91 cm vs lit 9.86-91.07 (median 21.25); ⚠ p05-p99/p05-p95 = 8.45 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 58.39 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model |
-| AIS | ssp126 | 2150 | median_vs_lit | 0.312 x lit median | **FAIL** | ours 6.53 cm vs lit 13.15-26.34 (median 20.93), n_lit=4; ⚠ BIMODAL cell -- our MEAN is 10.40 cm = 0.50x the literature median, and the median sits entirely inside the near mode |
-| AIS | ssp126 | 2150 | spread_vs_lit | 0.243 x lit spread | **N/A(bimodal)** | ours 14.78 cm vs lit 43.17-156.27 (median 60.83); ⚠ p05-p99/p05-p95 = 7.44 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 109.98 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model |
-| AIS | ssp245 | 2100 | median_vs_lit | 0.510 x lit median | **WARN** | ours 5.51 cm vs lit 5.54-13.71 (median 10.80), n_lit=6 |
-| AIS | ssp245 | 2100 | spread_vs_lit | 1.087 x lit spread | **PASS** | ours 43.26 cm vs lit 20.88-109.87 (median 39.78) |
-| AIS | ssp245 | 2150 | median_vs_lit | 0.422 x lit median | **PASS** | ours 11.16 cm vs lit 10.91-30.28 (median 26.44), n_lit=4 |
-| AIS | ssp245 | 2150 | spread_vs_lit | 0.656 x lit spread | **PASS** | ours 103.80 cm vs lit 44.92-369.45 (median 158.25) |
-| AIS | ssp585 | 2100 | median_vs_lit | 2.163 x lit median | **PASS** | ours 35.05 cm vs lit 3.98-39.10 (median 16.21), n_lit=6 |
-| AIS | ssp585 | 2100 | spread_vs_lit | 1.117 x lit spread | **PASS** | ours 63.80 cm vs lit 20.51-151.54 (median 57.10); width here is the antarctic_lambda PRIOR -- do NOT narrow |
-| AIS | ssp585 | 2150 | median_vs_lit | 2.493 x lit median | **PASS** | ours 92.13 cm vs lit 6.26-198.76 (median 36.95), n_lit=4 |
-| AIS | ssp585 | 2150 | spread_vs_lit | 0.397 x lit spread | **FAIL** | ours 107.81 cm vs lit 48.68-570.98 (median 271.32); width here is the antarctic_lambda PRIOR -- do NOT narrow |
+| AIS | ssp126 | 2100 | median_vs_lit | 0.480 x lit median | **PASS** | ours 4.29 cm vs lit 3.66-11.90 (median 8.94), n_lit=5 [1 SEJ comparator(s) excluded from the score; full range 3.66-11.90]; ⚠ BIMODAL cell -- our MEAN is 6.16 cm = 0.69x the literature median, and the median sits entirely inside the near mode |
+| AIS | ssp126 | 2100 | spread_vs_lit | 0.327 x lit spread | **N/A(bimodal)** | ours 6.91 cm vs model-based lit 9.86-39.27 (median 21.11, n=5); ALL comparators 9.86-91.07; ⚠ p05-p99/p05-p95 = 8.45 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 58.39 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model |
+| AIS | ssp126 | 2150 | median_vs_lit | 0.288 x lit median | **FAIL** | ours 6.53 cm vs lit 13.15-26.34 (median 22.69), n_lit=3 [1 SEJ comparator(s) excluded from the score; full range 13.15-26.34]; ⚠ BIMODAL cell -- our MEAN is 10.40 cm = 0.46x the literature median, and the median sits entirely inside the near mode |
+| AIS | ssp126 | 2150 | spread_vs_lit | 0.301 x lit spread | **N/A(bimodal)** | ours 14.78 cm vs model-based lit 43.17-72.55 (median 49.12, n=3); ALL comparators 43.17-156.27; ⚠ p05-p99/p05-p95 = 7.44 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 109.98 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model |
+| AIS | ssp245 | 2100 | median_vs_lit | 0.531 x lit median | **WARN** | ours 5.51 cm vs lit 5.54-12.73 (median 10.38), n_lit=5 [1 SEJ comparator(s) excluded from the score; full range 5.54-13.71] |
+| AIS | ssp245 | 2100 | spread_vs_lit | 1.208 x lit spread | **PASS** | ours 43.26 cm vs model-based lit 20.88-44.94 (median 35.81, n=5); ALL comparators 20.88-109.87 |
+| AIS | ssp245 | 2150 | median_vs_lit | 0.403 x lit median | **PASS** | ours 11.16 cm vs lit 10.91-30.28 (median 27.69), n_lit=3 [1 SEJ comparator(s) excluded from the score; full range 10.91-30.28] |
+| AIS | ssp245 | 2150 | spread_vs_lit | 1.178 x lit spread | **PASS** | ours 103.80 cm vs model-based lit 44.92-369.45 (median 88.10, n=3); ALL comparators 44.92-369.45 |
+| AIS | ssp585 | 2100 | median_vs_lit | 2.430 x lit median | **PASS** | ours 35.05 cm vs lit 3.98-39.10 (median 14.43), n_lit=5 [1 SEJ comparator(s) excluded from the score; full range 3.98-39.10] |
+| AIS | ssp585 | 2100 | spread_vs_lit | 1.130 x lit spread | **PASS** | ours 63.80 cm vs model-based lit 20.51-79.00 (median 56.48, n=5); ALL comparators 20.51-151.54; width here is the antarctic_lambda PRIOR -- do NOT narrow |
+| AIS | ssp585 | 2150 | median_vs_lit | 2.461 x lit median | **PASS** | ours 92.13 cm vs lit 6.26-198.76 (median 37.44), n_lit=3 [1 SEJ comparator(s) excluded from the score; full range 6.26-198.76] |
+| AIS | ssp585 | 2150 | spread_vs_lit | 0.803 x lit spread | **PASS** | ours 107.81 cm vs model-based lit 48.68-408.37 (median 134.26, n=3); ALL comparators 48.68-570.98; width here is the antarctic_lambda PRIOR -- do NOT narrow |
 | glaciers | ssp126 | 2100 | median_vs_lit | 0.836 x lit median | **WARN** | ours 7.73 cm vs lit 8.95-10.45 (median 9.25), n_lit=3 |
-| glaciers | ssp126 | 2100 | spread_vs_lit | 0.816 x lit spread | **PASS** | ours 6.00 cm vs lit 7.12-7.85 (median 7.36) |
-| glaciers | ssp126 | 2150 | median_vs_lit | 0.785 x lit median | **WARN** | ours 9.42 cm vs lit 12.00-12.00 (median 12.00), n_lit=1 |
-| glaciers | ssp126 | 2150 | spread_vs_lit | 0.668 x lit spread | **PASS** | ours 7.95 cm vs lit 11.89-11.89 (median 11.89) |
+| glaciers | ssp126 | 2100 | spread_vs_lit | 0.816 x lit spread | **PASS** | ours 6.00 cm vs model-based lit 7.12-7.85 (median 7.36, n=3) |
+| glaciers | ssp126 | 2150 | median_vs_lit | 0.785 x lit median | **WARN** | ours 9.42 cm vs lit 12.00-12.00 (median 12.00), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| glaciers | ssp126 | 2150 | spread_vs_lit | 0.668 x lit spread | **PASS** | ours 7.95 cm vs model-based lit 11.89-11.89 (median 11.89, n=1); ⚠ n=1 < 3, so this median is not a summary |
 | glaciers | ssp245 | 2100 | median_vs_lit | 0.800 x lit median | **WARN** | ours 9.77 cm vs lit 11.38-12.54 (median 12.21), n_lit=3 |
-| glaciers | ssp245 | 2100 | spread_vs_lit | 0.872 x lit spread | **PASS** | ours 6.70 cm vs lit 7.42-9.60 (median 7.68) |
-| glaciers | ssp245 | 2150 | median_vs_lit | 0.769 x lit median | **WARN** | ours 13.49 cm vs lit 17.53-17.53 (median 17.53), n_lit=1 |
-| glaciers | ssp245 | 2150 | spread_vs_lit | 0.579 x lit spread | **PASS** | ours 9.65 cm vs lit 16.65-16.65 (median 16.65) |
+| glaciers | ssp245 | 2100 | spread_vs_lit | 0.872 x lit spread | **PASS** | ours 6.70 cm vs model-based lit 7.42-9.60 (median 7.68, n=3) |
+| glaciers | ssp245 | 2150 | median_vs_lit | 0.769 x lit median | **WARN** | ours 13.49 cm vs lit 17.53-17.53 (median 17.53), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| glaciers | ssp245 | 2150 | spread_vs_lit | 0.579 x lit spread | **PASS** | ours 9.65 cm vs model-based lit 16.65-16.65 (median 16.65, n=1); ⚠ n=1 < 3, so this median is not a summary |
 | glaciers | ssp585 | 2100 | median_vs_lit | 0.906 x lit median | **WARN** | ours 14.00 cm vs lit 15.30-17.73 (median 15.46), n_lit=3 |
-| glaciers | ssp585 | 2100 | spread_vs_lit | 0.942 x lit spread | **PASS** | ours 8.87 cm vs lit 8.51-13.85 (median 9.41) |
-| glaciers | ssp585 | 2150 | median_vs_lit | 0.755 x lit median | **WARN** | ours 21.45 cm vs lit 28.40-28.40 (median 28.40), n_lit=1 |
-| glaciers | ssp585 | 2150 | spread_vs_lit | 0.740 x lit spread | **PASS** | ours 11.49 cm vs lit 15.53-15.53 (median 15.53) |
-| Greenland | ssp126 | 2100 | median_vs_lit | 0.888 x lit median | **PASS** | ours 6.25 cm vs lit 5.46-13.05 (median 7.04), n_lit=4 |
-| Greenland | ssp126 | 2100 | spread_vs_lit | 0.351 x lit spread | **FAIL** | ours 4.69 cm vs lit 7.06-55.71 (median 13.36) |
-| Greenland | ssp126 | 2150 | median_vs_lit | 0.429 x lit median | **FAIL** | ours 7.58 cm vs lit 13.18-22.20 (median 17.69), n_lit=2 |
-| Greenland | ssp126 | 2150 | spread_vs_lit | 0.141 x lit spread | **FAIL** | ours 6.90 cm vs lit 11.12-86.94 (median 49.03) |
-| Greenland | ssp245 | 2100 | median_vs_lit | 0.840 x lit median | **PASS** | ours 8.19 cm vs lit 7.97-14.39 (median 9.75), n_lit=4 |
-| Greenland | ssp245 | 2100 | spread_vs_lit | 0.455 x lit spread | **FAIL** | ours 5.73 cm vs lit 7.85-72.68 (median 12.60) |
-| Greenland | ssp245 | 2150 | median_vs_lit | 0.546 x lit median | **WARN** | ours 11.96 cm vs lit 18.19-25.62 (median 21.91), n_lit=2 |
-| Greenland | ssp245 | 2150 | spread_vs_lit | 0.214 x lit spread | **FAIL** | ours 11.08 cm vs lit 14.93-88.90 (median 51.91) |
-| Greenland | ssp585 | 2100 | median_vs_lit | 0.971 x lit median | **PASS** | ours 13.35 cm vs lit 12.72-20.28 (median 13.75), n_lit=4 |
-| Greenland | ssp585 | 2100 | spread_vs_lit | 0.766 x lit spread | **PASS** | ours 11.21 cm vs lit 11.46-93.18 (median 14.63) |
-| Greenland | ssp585 | 2150 | median_vs_lit | 0.825 x lit median | **WARN** | ours 26.99 cm vs lit 27.33-38.13 (median 32.73), n_lit=2 |
-| Greenland | ssp585 | 2150 | spread_vs_lit | 0.366 x lit spread | **FAIL** | ours 26.88 cm vs lit 24.97-121.86 (median 73.41) |
-| thermal exp. | ssp126 | 2100 | median_vs_lit | 1.075 x lit median | **PASS** | ours 13.51 cm vs lit 11.09-14.05 (median 12.57), n_lit=2 |
-| thermal exp. | ssp126 | 2100 | spread_vs_lit | 0.886 x lit spread | **PASS** | ours 10.29 cm vs lit 11.26-11.97 (median 11.61) |
-| thermal exp. | ssp126 | 2150 | median_vs_lit | 0.946 x lit median | **WARN** | ours 16.88 cm vs lit 17.85-17.85 (median 17.85), n_lit=1 |
-| thermal exp. | ssp126 | 2150 | spread_vs_lit | 0.874 x lit spread | **PASS** | ours 14.83 cm vs lit 16.96-16.96 (median 16.96) |
-| thermal exp. | ssp245 | 2100 | median_vs_lit | 1.000 x lit median | **PASS** | ours 17.73 cm vs lit 16.62-18.84 (median 17.73), n_lit=2 |
-| thermal exp. | ssp245 | 2100 | spread_vs_lit | 0.814 x lit spread | **PASS** | ours 11.80 cm vs lit 13.73-15.26 (median 14.49) |
-| thermal exp. | ssp245 | 2150 | median_vs_lit | 0.917 x lit median | **WARN** | ours 26.26 cm vs lit 28.64-28.64 (median 28.64), n_lit=1 |
-| thermal exp. | ssp245 | 2150 | spread_vs_lit | 0.849 x lit spread | **PASS** | ours 20.32 cm vs lit 23.92-23.92 (median 23.92) |
-| thermal exp. | ssp585 | 2100 | median_vs_lit | 0.938 x lit median | **WARN** | ours 26.60 cm vs lit 27.88-28.82 (median 28.35), n_lit=2 |
-| thermal exp. | ssp585 | 2100 | spread_vs_lit | 0.785 x lit spread | **PASS** | ours 17.27 cm vs lit 21.13-22.88 (median 22.00) |
-| thermal exp. | ssp585 | 2150 | median_vs_lit | 0.920 x lit median | **WARN** | ours 49.06 cm vs lit 53.35-53.35 (median 53.35), n_lit=1 |
-| thermal exp. | ssp585 | 2150 | spread_vs_lit | 0.864 x lit spread | **PASS** | ours 36.16 cm vs lit 41.87-41.87 (median 41.87) |
-| land water | ssp126 | 2100 | median_vs_lit | 0.865 x lit median | **WARN** | ours 2.60 cm vs lit 2.99-3.01 (median 3.00), n_lit=2 |
-| land water | ssp126 | 2100 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs lit 3.64-4.06 (median 3.85); LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
-| land water | ssp126 | 2150 | median_vs_lit | 0.924 x lit median | **WARN** | ours 4.23 cm vs lit 4.58-4.58 (median 4.58), n_lit=1 |
-| land water | ssp126 | 2150 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs lit 5.64-5.64 (median 5.64); LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
-| land water | ssp245 | 2100 | median_vs_lit | 0.848 x lit median | **WARN** | ours 2.60 cm vs lit 3.01-3.11 (median 3.06), n_lit=2 |
-| land water | ssp245 | 2100 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs lit 3.64-4.48 (median 4.06); LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
-| land water | ssp245 | 2150 | median_vs_lit | 0.814 x lit median | **WARN** | ours 4.23 cm vs lit 5.20-5.20 (median 5.20), n_lit=1 |
-| land water | ssp245 | 2150 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs lit 6.87-6.87 (median 6.87); LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
-| land water | ssp585 | 2100 | median_vs_lit | 0.871 x lit median | **WARN** | ours 2.60 cm vs lit 2.96-3.01 (median 2.98), n_lit=2 |
-| land water | ssp585 | 2100 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs lit 3.64-4.12 (median 3.88); LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
-| land water | ssp585 | 2150 | median_vs_lit | 0.899 x lit median | **WARN** | ours 4.23 cm vs lit 4.70-4.70 (median 4.70), n_lit=1 |
-| land water | ssp585 | 2150 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs lit 5.80-5.80 (median 5.80); LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
+| glaciers | ssp585 | 2100 | spread_vs_lit | 0.942 x lit spread | **PASS** | ours 8.87 cm vs model-based lit 8.51-13.85 (median 9.41, n=3) |
+| glaciers | ssp585 | 2150 | median_vs_lit | 0.755 x lit median | **WARN** | ours 21.45 cm vs lit 28.40-28.40 (median 28.40), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| glaciers | ssp585 | 2150 | spread_vs_lit | 0.740 x lit spread | **PASS** | ours 11.49 cm vs model-based lit 15.53-15.53 (median 15.53, n=1); ⚠ n=1 < 3, so this median is not a summary |
+| Greenland | ssp126 | 2100 | median_vs_lit | 0.976 x lit median | **PASS** | ours 6.25 cm vs lit 5.46-7.67 (median 6.40), n_lit=3 [1 SEJ comparator(s) excluded from the score; full range 5.46-13.05] |
+| Greenland | ssp126 | 2100 | spread_vs_lit | 0.489 x lit spread | **FAIL** | ours 4.69 cm vs model-based lit 7.06-17.14 (median 9.57, n=3); ALL comparators 7.06-55.71 |
+| Greenland | ssp126 | 2150 | median_vs_lit | 0.575 x lit median | **WARN** | ours 7.58 cm vs lit 13.18-13.18 (median 13.18), n_lit=1 [1 SEJ comparator(s) excluded from the score; full range 13.18-22.20] ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| Greenland | ssp126 | 2150 | spread_vs_lit | 0.621 x lit spread | **PASS** | ours 6.90 cm vs model-based lit 11.12-11.12 (median 11.12, n=1); ALL comparators 11.12-86.94; ⚠ n=1 < 3, so this median is not a summary |
+| Greenland | ssp245 | 2100 | median_vs_lit | 0.882 x lit median | **PASS** | ours 8.19 cm vs lit 7.97-10.21 (median 9.28), n_lit=3 [1 SEJ comparator(s) excluded from the score; full range 7.97-14.39] |
+| Greenland | ssp245 | 2100 | spread_vs_lit | 0.687 x lit spread | **PASS** | ours 5.73 cm vs model-based lit 7.85-16.85 (median 8.35, n=3); ALL comparators 7.85-72.68 |
+| Greenland | ssp245 | 2150 | median_vs_lit | 0.657 x lit median | **WARN** | ours 11.96 cm vs lit 18.19-18.19 (median 18.19), n_lit=1 [1 SEJ comparator(s) excluded from the score; full range 18.19-25.62] ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| Greenland | ssp245 | 2150 | spread_vs_lit | 0.742 x lit spread | **PASS** | ours 11.08 cm vs model-based lit 14.93-14.93 (median 14.93, n=1); ALL comparators 14.93-88.90; ⚠ n=1 < 3, so this median is not a summary |
+| Greenland | ssp585 | 2100 | median_vs_lit | 0.989 x lit median | **PASS** | ours 13.35 cm vs lit 12.72-14.02 (median 13.49), n_lit=3 [1 SEJ comparator(s) excluded from the score; full range 12.72-20.28] |
+| Greenland | ssp585 | 2100 | spread_vs_lit | 0.922 x lit spread | **PASS** | ours 11.21 cm vs model-based lit 11.46-17.10 (median 12.15, n=3); ALL comparators 11.46-93.18 |
+| Greenland | ssp585 | 2150 | median_vs_lit | 0.988 x lit median | **WARN** | ours 26.99 cm vs lit 27.33-27.33 (median 27.33), n_lit=1 [1 SEJ comparator(s) excluded from the score; full range 27.33-38.13] ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| Greenland | ssp585 | 2150 | spread_vs_lit | 1.077 x lit spread | **PASS** | ours 26.88 cm vs model-based lit 24.97-24.97 (median 24.97, n=1); ALL comparators 24.97-121.86; ⚠ n=1 < 3, so this median is not a summary |
+| thermal exp. | ssp126 | 2100 | median_vs_lit | 1.075 x lit median | **PASS** | ours 13.51 cm vs lit 11.09-14.05 (median 12.57), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary |
+| thermal exp. | ssp126 | 2100 | spread_vs_lit | 0.886 x lit spread | **PASS** | ours 10.29 cm vs model-based lit 11.26-11.97 (median 11.61, n=2); ⚠ n=2 < 3, so this median is not a summary |
+| thermal exp. | ssp126 | 2150 | median_vs_lit | 0.946 x lit median | **WARN** | ours 16.88 cm vs lit 17.85-17.85 (median 17.85), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| thermal exp. | ssp126 | 2150 | spread_vs_lit | 0.874 x lit spread | **PASS** | ours 14.83 cm vs model-based lit 16.96-16.96 (median 16.96, n=1); ⚠ n=1 < 3, so this median is not a summary |
+| thermal exp. | ssp245 | 2100 | median_vs_lit | 1.000 x lit median | **PASS** | ours 17.73 cm vs lit 16.62-18.84 (median 17.73), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary |
+| thermal exp. | ssp245 | 2100 | spread_vs_lit | 0.814 x lit spread | **PASS** | ours 11.80 cm vs model-based lit 13.73-15.26 (median 14.49, n=2); ⚠ n=2 < 3, so this median is not a summary |
+| thermal exp. | ssp245 | 2150 | median_vs_lit | 0.917 x lit median | **WARN** | ours 26.26 cm vs lit 28.64-28.64 (median 28.64), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| thermal exp. | ssp245 | 2150 | spread_vs_lit | 0.849 x lit spread | **PASS** | ours 20.32 cm vs model-based lit 23.92-23.92 (median 23.92, n=1); ⚠ n=1 < 3, so this median is not a summary |
+| thermal exp. | ssp585 | 2100 | median_vs_lit | 0.938 x lit median | **WARN** | ours 26.60 cm vs lit 27.88-28.82 (median 28.35), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| thermal exp. | ssp585 | 2100 | spread_vs_lit | 0.785 x lit spread | **PASS** | ours 17.27 cm vs model-based lit 21.13-22.88 (median 22.00, n=2); ⚠ n=2 < 3, so this median is not a summary |
+| thermal exp. | ssp585 | 2150 | median_vs_lit | 0.920 x lit median | **WARN** | ours 49.06 cm vs lit 53.35-53.35 (median 53.35), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| thermal exp. | ssp585 | 2150 | spread_vs_lit | 0.864 x lit spread | **PASS** | ours 36.16 cm vs model-based lit 41.87-41.87 (median 41.87, n=1); ⚠ n=1 < 3, so this median is not a summary |
+| land water | ssp126 | 2100 | median_vs_lit | 0.865 x lit median | **WARN** | ours 2.60 cm vs lit 2.99-3.01 (median 3.00), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| land water | ssp126 | 2100 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs model-based lit 3.64-4.06 (median 3.85, n=2); ⚠ n=2 < 3, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
+| land water | ssp126 | 2150 | median_vs_lit | 0.924 x lit median | **WARN** | ours 4.23 cm vs lit 4.58-4.58 (median 4.58), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| land water | ssp126 | 2150 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs model-based lit 5.64-5.64 (median 5.64, n=1); ⚠ n=1 < 3, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
+| land water | ssp245 | 2100 | median_vs_lit | 0.848 x lit median | **WARN** | ours 2.60 cm vs lit 3.01-3.11 (median 3.06), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| land water | ssp245 | 2100 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs model-based lit 3.64-4.48 (median 4.06, n=2); ⚠ n=2 < 3, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
+| land water | ssp245 | 2150 | median_vs_lit | 0.814 x lit median | **WARN** | ours 4.23 cm vs lit 5.20-5.20 (median 5.20), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| land water | ssp245 | 2150 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs model-based lit 6.87-6.87 (median 6.87, n=1); ⚠ n=1 < 3, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
+| land water | ssp585 | 2100 | median_vs_lit | 0.871 x lit median | **WARN** | ours 2.60 cm vs lit 2.96-3.01 (median 2.98), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| land water | ssp585 | 2100 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs model-based lit 3.64-4.12 (median 3.88, n=2); ⚠ n=2 < 3, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
+| land water | ssp585 | 2150 | median_vs_lit | 0.899 x lit median | **WARN** | ours 4.23 cm vs lit 4.70-4.70 (median 4.70), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| land water | ssp585 | 2150 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs model-based lit 5.80-5.80 (median 5.80, n=1); ⚠ n=1 < 3, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
 | TOTAL | ssp126 | 2100 | median_vs_lit | 0.814 x lit median | **WARN** | ours 34.33 cm vs lit 35.59-53.47 (median 42.18), n_lit=8; ⚠ BIMODAL cell -- our MEAN is 36.92 cm = 0.88x the literature median, and the median sits entirely inside the near mode |
-| TOTAL | ssp126 | 2100 | spread_vs_lit | 0.681 x lit spread | **N/A(bimodal)** | ours 24.33 cm vs lit 25.25-107.65 (median 35.74); ⚠ p05-p99/p05-p95 = 3.04 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 73.87 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model |
+| TOTAL | ssp126 | 2100 | spread_vs_lit | 0.681 x lit spread | **N/A(bimodal)** | ours 24.33 cm vs model-based lit 25.25-107.65 (median 35.74, n=8); ⚠ p05-p99/p05-p95 = 3.04 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 73.87 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model |
 | TOTAL | ssp126 | 2150 | median_vs_lit | 0.608 x lit median | **WARN** | ours 44.64 cm vs lit 60.20-83.12 (median 73.46), n_lit=4; ⚠ BIMODAL cell -- our MEAN is 49.52 cm = 0.67x the literature median, and the median sits entirely inside the near mode |
-| TOTAL | ssp126 | 2150 | spread_vs_lit | 0.533 x lit spread | **N/A(bimodal)** | ours 36.51 cm vs lit 53.31-200.59 (median 68.46); ⚠ p05-p99/p05-p95 = 3.76 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 137.35 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model |
+| TOTAL | ssp126 | 2150 | spread_vs_lit | 0.533 x lit spread | **N/A(bimodal)** | ours 36.51 cm vs model-based lit 53.31-200.59 (median 68.46, n=4); ⚠ p05-p99/p05-p95 = 3.76 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 137.35 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model |
 | TOTAL | ssp245 | 2100 | median_vs_lit | 0.827 x lit median | **WARN** | ours 44.92 cm vs lit 48.68-67.90 (median 54.29), n_lit=8 |
-| TOTAL | ssp245 | 2100 | spread_vs_lit | 1.090 x lit spread | **PASS** | ours 59.55 cm vs lit 32.00-146.33 (median 54.65) |
+| TOTAL | ssp245 | 2100 | spread_vs_lit | 1.090 x lit spread | **PASS** | ours 59.55 cm vs model-based lit 32.00-146.33 (median 54.65, n=8) |
 | TOTAL | ssp245 | 2150 | median_vs_lit | 0.704 x lit median | **WARN** | ours 71.57 cm vs lit 80.04-111.19 (median 101.68), n_lit=4 |
-| TOTAL | ssp245 | 2150 | spread_vs_lit | 0.588 x lit spread | **PASS** | ours 128.99 cm vs lit 59.41-382.80 (median 219.39) |
+| TOTAL | ssp245 | 2150 | spread_vs_lit | 0.588 x lit spread | **PASS** | ours 128.99 cm vs model-based lit 59.41-382.80 (median 219.39, n=4) |
 | TOTAL | ssp585 | 2100 | median_vs_lit | 1.086 x lit median | **PASS** | ours 92.45 cm vs lit 64.93-97.85 (median 85.09), n_lit=8 |
-| TOTAL | ssp585 | 2100 | spread_vs_lit | 1.159 x lit spread | **PASS** | ours 81.94 cm vs lit 41.09-197.47 (median 70.69) |
+| TOTAL | ssp585 | 2100 | spread_vs_lit | 1.159 x lit spread | **PASS** | ours 81.94 cm vs model-based lit 41.09-197.47 (median 70.69, n=8) |
 | TOTAL | ssp585 | 2150 | median_vs_lit | 1.246 x lit median | **PASS** | ours 195.59 cm vs lit 117.08-310.66 (median 157.02), n_lit=4 |
-| TOTAL | ssp585 | 2150 | spread_vs_lit | 0.521 x lit spread | **PASS** | ours 147.38 cm vs lit 77.93-631.59 (median 282.66) |
+| TOTAL | ssp585 | 2150 | spread_vs_lit | 0.521 x lit spread | **PASS** | ours 147.38 cm vs model-based lit 77.93-631.59 (median 282.66, n=4) |
 
 ## [P] Levels — every arm side by side (cm)
 

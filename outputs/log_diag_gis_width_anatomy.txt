@@ -1,0 +1,135 @@
+========================================================================================================
+GREENLAND WIDTH ANATOMY (L14) — is the deficit real, and whose width is missing?
+========================================================================================================
+
+[A] AGAINST EVERY COMPARATOR SEPARATELY, not against their median
+    ⚠ the benchmark's `spread_vs_lit` uses the literature MEDIAN spread. Here is what
+      that median is made of.
+
+    --- ssp126 @2100 : ours (JOINT) 4.69 cm --------------------------------------------
+    comparator             kind               spread  ours/theirs
+    FACTS FittedISMIP      LIKE-FOR-LIKE        7.06         0.66
+    MAGICC-SLR Nauels2025  LIKE-FOR-LIKE        9.57         0.49
+    FACTS emuGrIS          structural          17.14         0.27
+    FACTS bamber19         structural          55.71         0.08
+    -> vs the MEDIAN of all 4: 0.35x   <= what the benchmark scores
+    -> vs the LIKE-FOR-LIKE comparators only (FittedISMIP, Nauels2025): 0.56x
+
+    --- ssp245 @2100 : ours (JOINT) 5.73 cm --------------------------------------------
+    comparator             kind               spread  ours/theirs
+    FACTS FittedISMIP      LIKE-FOR-LIKE        7.85         0.73
+    MAGICC-SLR Nauels2025  LIKE-FOR-LIKE        8.35         0.69
+    FACTS emuGrIS          structural          16.85         0.34
+    FACTS bamber19         structural          72.68         0.08
+    -> vs the MEDIAN of all 4: 0.46x   <= what the benchmark scores
+    -> vs the LIKE-FOR-LIKE comparators only (FittedISMIP, Nauels2025): 0.71x
+
+    --- ssp585 @2100 : ours (JOINT) 11.21 cm --------------------------------------------
+    comparator             kind               spread  ours/theirs
+    FACTS FittedISMIP      LIKE-FOR-LIKE       11.46         0.98
+    MAGICC-SLR Nauels2025  LIKE-FOR-LIKE       12.15         0.92
+    FACTS emuGrIS          structural          17.10         0.66
+    FACTS bamber19         structural          93.18         0.12
+    -> vs the MEDIAN of all 4: 0.77x   <= what the benchmark scores
+    -> vs the LIKE-FOR-LIKE comparators only (FittedISMIP, Nauels2025): 0.95x
+
+    --- ssp126 @2150 : ours (JOINT) 6.90 cm --------------------------------------------
+    comparator             kind               spread  ours/theirs
+    FACTS FittedISMIP      LIKE-FOR-LIKE       11.12         0.62
+    FACTS bamber19         structural          86.94         0.08
+    -> vs the MEDIAN of all 2: 0.14x   <= what the benchmark scores
+    -> vs the LIKE-FOR-LIKE comparators only (FittedISMIP): 0.62x
+    ⚠ n=2, so their 'median' 49.03 cm is the MEAN of 11.12 and 86.94 — a width no module produces.
+
+    --- ssp245 @2150 : ours (JOINT) 11.08 cm --------------------------------------------
+    comparator             kind               spread  ours/theirs
+    FACTS FittedISMIP      LIKE-FOR-LIKE       14.93         0.74
+    FACTS bamber19         structural          88.90         0.12
+    -> vs the MEDIAN of all 2: 0.21x   <= what the benchmark scores
+    -> vs the LIKE-FOR-LIKE comparators only (FittedISMIP): 0.74x
+    ⚠ n=2, so their 'median' 51.91 cm is the MEAN of 14.93 and 88.90 — a width no module produces.
+
+    --- ssp585 @2150 : ours (JOINT) 26.88 cm --------------------------------------------
+    comparator             kind               spread  ours/theirs
+    FACTS FittedISMIP      LIKE-FOR-LIKE       24.97         1.08
+    FACTS bamber19         structural         121.86         0.22
+    -> vs the MEDIAN of all 2: 0.37x   <= what the benchmark scores
+    -> vs the LIKE-FOR-LIKE comparators only (FittedISMIP): 1.08x
+    ⚠ n=2, so their 'median' 73.41 cm is the MEAN of 24.97 and 121.86 — a width no module produces.
+
+
+[C] OUR OWN WIDTH, SPLIT INTO PARAMETRIC AND FORCING
+    Exact, no model run: the `fixed` arm holds the forcing at the ensemble mean and
+    the `joint` arm pairs each draw with its own FaIR config. Variances, not ranges.
+
+    ssp          H    fixed    joint  sig_par  sig_frc  forcing % of variance
+    ssp126    2100     1.43     4.69    0.435    1.356                  90.7%
+    ssp126    2150     2.21     6.90    0.670    1.988                  89.8%
+    ssp126    2300     4.13    11.74    1.257    3.340                  87.6%
+    ssp245    2100     2.14     5.73    0.650    1.617                  86.1%
+    ssp245    2150     3.93    11.08    1.193    3.151                  87.5%
+    ssp245    2300     8.18    20.95    2.486    5.864                  84.8%
+    ssp585    2100     4.78    11.21    1.454    3.080                  81.8%
+    ssp585    2150    11.54    26.88    3.508    7.380                  81.6%
+    ssp585    2300    26.85    60.73    8.161   16.558                  80.5%
+
+
+[B] THE BETWEEN-MODEL TERM, MEASURED — and it is SMALL
+    ISMIP6 at FIXED forcing: one GCM through 9-14 ice-sheet models, so the spread is
+    purely structural. This is the width Marcus's standing constraint puts OUT OF
+    SCOPE (no precipitation level in our Greenland), so it is the part of a
+    comparator's band we are entitled NOT to reproduce.
+
+    gcm            ssp      n_ism     IQR  sig_IQR   range  sig_rng
+    CNRM-CM6-1     ssp126      14    0.70    0.522    3.92    1.149
+    CESM2          ssp585       9    1.09    0.805    5.14    1.670
+    CNRM-CM6-1     ssp585      14    1.53    1.132    7.46    2.188
+    CNRM-ESM2-1    ssp585      12    1.62    1.200    8.48    2.600
+    UKESM1-0-LL    ssp585      13    4.60    3.412   11.28    3.376
+
+    ⚠ IQR-based and range-based disagree up to 2.2x because the ISM MIN is an
+      outlier. The verdict below is required to hold at the LARGER (range-based)
+      value, which is the one that favours 'it is structural'.
+
+
+[D] THE ARITHMETIC — can the out-of-scope structural term close the gap?
+    Compose our JOINT band with the ISM structural term in variance and ask
+    whether the result reaches the LIKE-FOR-LIKE comparator's width.
+
+    ssp          H    ours  +ISM(IQR)  +ISM(rng)  LFL target                    closed?
+    ssp126    2100    4.69       4.99       6.02        8.32 NOT CLOSED — 2.30 cm still missing
+    ssp585    2100   11.21      11.85      13.70       11.81 CLOSED by the structural term
+
+
+[E] IS IT OUR CLIMATE ENSEMBLE RATHER THAN OUR GREENLAND? — an internal control
+    Greenland is 80-91% forcing, so a narrow FaIR ensemble would produce a narrow
+    Greenland band with nothing wrong in the ice sheet. THERMAL EXPANSION is the
+    control: it is ~84% forcing too, shares the same FaIR configs, and has its own
+    literature comparators. If our climate spread were the cause, TE would be narrow
+    by the same factor.
+    ssp126 @2100:  TE 0.89x lit   vs   GIS 0.56x like-for-like
+    ssp245 @2100:  TE 0.81x lit   vs   GIS 0.71x like-for-like
+    ssp585 @2100:  TE 0.78x lit   vs   GIS 0.95x like-for-like
+    ssp126 @2150:  TE 0.87x lit   vs   GIS 0.62x like-for-like
+    ssp245 @2150:  TE 0.85x lit   vs   GIS 0.74x like-for-like
+    ssp585 @2150:  TE 0.86x lit   vs   GIS 1.08x like-for-like
+    => if TE sits near 1x while GIS does not, the FaIR ensemble is NOT the cause and
+       the missing width is Greenland's own.
+
+
+[F] WHAT FIXING IT IS WORTH ON THE DELIVERABLE
+    `npv_retires_tau`: price the knob against the discounted deliverable BEFORE
+    identifying it. The deficit is expressed as the extra sigma that would have to be
+    added to Greenland, then propagated to the TOTAL band under BOTH correlation
+    brackets, because the correlation of a width we have not built is unknown.
+
+    ssp          H  GIS gap cm  total now  total indep  total corr  worst move
+    ssp126    2100        3.63      24.33        25.28       31.20       28.2%
+    ssp245    2100        2.37      59.55        59.83       65.28        9.6%
+    ssp585    2100        0.60      81.94        82.03       85.66        4.5%
+    ssp126    2150        4.21      36.51        37.54       45.22       23.9%
+    ssp245    2150        3.85     128.99       129.38      139.00        7.8%
+    ssp585    2150      no gap
+    ⚠ the CORRELATED column is the upper bracket, not the estimate.
+
+wrote outputs/diag_gis_width_anatomy_L14.csv

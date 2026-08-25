@@ -1,0 +1,29 @@
+# Which literature comparators are the SAME KIND OF OBJECT as Ladrillo, and which are not.
+#
+# WHY THIS FILE EXISTS. The benchmark scores our spread against the literature MEDIAN
+# spread. At Greenland the comparators span 8x -- FittedISMIP 7.06 cm to bamber19 55.71 cm
+# at ssp126@2100 -- so that median is not a summary of anything, and scoring against it
+# reported our Greenland width at 0.14-0.46x when against model-based comparators alone it
+# is 0.49-1.08x (`diag_gis_width_anatomy.py`, 2026-08-25).
+#
+# THE LINE DRAWN, AND WHY IT IS THIS ONE. Only STRUCTURED EXPERT JUDGEMENT is separated
+# out. bamber19 = Bamber, Oppenheimer, Kopp, Aspinall & Cooke (2019) PNAS 116:11195, a
+# structured expert elicitation whose width is deliberately a DEEP-uncertainty width: it
+# is an envelope over what experts think could happen, not a parametric or climate
+# uncertainty a calibrated model could reproduce. That is a line that can be defended from
+# what the module IS.
+#
+# ⚠ FINER LINES WERE CONSIDERED AND NOT DRAWN. It is tempting to also separate emuGrIS
+# (an emulator OVER the ISMIP6 ensemble, so its width is largely between-ice-sheet-model
+# structural spread that Marcus's standing constraint puts out of scope) from FittedISMIP.
+# Their spreads differ 2.4x, which suggests they treat that spread differently -- but that
+# is an inference from the numbers, not a fact about the modules, and classifying a
+# comparator to make our own score better needs a receipt. Both stay in `model`.
+#
+# HOW IT IS USED. The verdict is scored on the `model` class when it has members;
+# the FULL range including `sej` is always reported in the note, never hidden. Edit this
+# file to re-classify -- the benchmark reads it, nothing is hardcoded.
+#
+# class: model | sej
+module,class,note
+bamber19,sej,Bamber et al. 2019 PNAS structured expert judgement -- a deep-uncertainty envelope

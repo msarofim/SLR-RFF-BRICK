@@ -51,6 +51,9 @@ BENCH = os.path.join(REPO, "benchmark")
 REF = os.path.join(BENCH, "reference")
 FIXED = os.path.join(REF, "_fixed")
 CHAMPIONS_JSON = os.path.join(BENCH, "champions.json")
+# Comparator classification (see the file's own header for the line drawn and why).
+# Anything not listed is class `model`.
+CLASSES_CSV = os.path.join(BENCH, "comparator_classes.csv")
 
 # ------------------------------------------------------------------ constants
 # Every label, filename and console line below derives from these names, so a
@@ -91,6 +94,10 @@ TARGET_RESOLVED_SIGMA = 2.0
 QTAIL = 99
 TAIL_RATIO_GAUSSIAN = 1.207
 TAIL_RATIO_FLAG = 2.0
+# Below this many comparators, a "median spread" is not a summary of anything -- at n=2 it
+# is the MEAN of the two, a width neither module produces. Such cells are still scored (the
+# comparison is not worthless) but the verdict is capped at WARN and the note says n.
+MIN_LIT_FOR_MEDIAN = 3
 QLO, QHI = 5, 95                   # the spread definition, p05-p95, everywhere
 
 # (key, label, Ladrillo postpred stem, BRICK 2.0 postpred stem, target column)
@@ -288,6 +295,14 @@ def literature_rows(cand_comparison):
               f"frozen copy and {os.path.basename(cand_comparison)}. Scoring on the FROZEN "
               "copy. Re-freeze deliberately if the new extraction is the one you want.")
     return frozen, "frozen"
+
+
+def comparator_classes():
+    """{module: class} from benchmark/comparator_classes.csv; anything absent is `model`."""
+    if not os.path.exists(CLASSES_CSV):
+        return {}
+    d = pd.read_csv(CLASSES_CSV, comment="#")
+    return dict(zip(d.module.astype(str), d["class"].astype(str)))
 
 
 def champions():
@@ -547,8 +562,19 @@ def block_projection(rows, cand_tag, champ_tag, cand_p, champ_p):
                            (cmp_.year == H)]
                 if lit.empty:
                     continue
+                # SCORE ON THE MODEL-BASED COMPARATORS; REPORT THE FULL RANGE ALWAYS.
+                # A structured-expert-judgement envelope is a deep-uncertainty width, not
+                # one a calibrated model could reproduce, so including it in the median
+                # scores us against an object we are not.
+                cls = comparator_classes()
+                lit_all = lit
+                lit_m = lit[~lit.module.astype(str).map(lambda m: cls.get(m, "model")).eq("sej")]
+                lit = lit_m if len(lit_m) else lit_all
+                n_excl = len(lit_all) - len(lit)
                 meds = lit.med.astype(float).values
                 sps = (lit.p95.astype(float) - lit.p05.astype(float)).dropna().values
+                sps_all = (lit_all.p95.astype(float) - lit_all.p05.astype(float)).dropna().values
+                thin = len(meds) < MIN_LIT_FOR_MEDIAN
                 inside = float(np.min(meds)) <= cm <= float(np.max(meds))
                 ratio = cm / float(np.median(meds)) if np.median(meds) != 0 else np.nan
                 # On a bimodal cell the MEDIAN is a valid statistic but it sits entirely
@@ -563,13 +589,21 @@ def block_projection(rows, cand_tag, champ_tag, cand_p, champ_p):
                     value_sigma=np.nan,
                     note=f"ours {cm:.2f} cm vs lit {np.min(meds):.2f}-{np.max(meds):.2f} "
                          f"(median {np.median(meds):.2f}), n_lit={len(meds)}" +
+                         (f" [{n_excl} SEJ comparator(s) excluded from the score; full "
+                          f"range {lit_all.med.min():.2f}-{lit_all.med.max():.2f}]"
+                          if n_excl else "") +
+                         (f" ⚠ n_lit={len(meds)} < {MIN_LIT_FOR_MEDIAN}: a median of so few "
+                          "is not a summary" +
+                          ("; verdict CAPPED at WARN" if not inside else "") if thin else "") +
                          (f"; ⚠ BIMODAL cell -- our MEAN is {cmean:.2f} cm = "
                           f"{cmean/np.median(meds):.2f}x the literature median, and the "
                           "median sits entirely inside the near mode" if bim0 else ""),
-                    verdict="PASS" if inside else
-                            ("WARN" if 1/PROJ_WARN_RATIO <= ratio <= PROJ_WARN_RATIO else "FAIL")))
+                    verdict=("PASS" if inside else
+                             ("WARN" if (thin or 1/PROJ_WARN_RATIO <= ratio <= PROJ_WARN_RATIO)
+                              else "FAIL"))))
                 if len(sps):
                     sr = csp / float(np.median(sps))
+                    sr_all = csp / float(np.median(sps_all)) if len(sps_all) else np.nan
                     prior = (key, ssp) in PRIOR_WIDTH_CELLS
                     tailr = csp99 / csp if csp > 0 else np.nan
                     bimodal = (np.isfinite(tailr) and
@@ -578,15 +612,36 @@ def block_projection(rows, cand_tag, champ_tag, cand_p, champ_p):
                         v = "N/A(by construction)"
                     elif bimodal:
                         v = "N/A(bimodal)"
+                    elif thin:
+                        v = ("PASS" if SPREAD_PASS[0] <= sr <= SPREAD_PASS[1] else "WARN")
                     else:
                         v = ("PASS" if SPREAD_PASS[0] <= sr <= SPREAD_PASS[1] else
                              ("PASS(prior)" if prior and sr > SPREAD_PASS[1] else "FAIL"))
+                    # SELF-AUDIT: what the classification is worth, per cell. Excluding an
+                    # SEJ envelope always makes us look better on width, so the size of that
+                    # effect is recorded on every row rather than left implicit.
+                    if n_excl:
+                        rows.append(dict(
+                            block="P", component=key, scenario=ssp, horizon=H,
+                            metric="spread_vs_lit_ALL", arm=cand_tag, value=sr_all,
+                            unit="x lit spread", value_sigma=np.nan,
+                            note=f"the same cell scored against ALL {len(sps_all)} comparators "
+                                 f"including the SEJ envelope; the score reported above is "
+                                 f"{sr:.3f} => the classification is worth {sr/sr_all:.2f}x here",
+                            verdict=""))
                     rows.append(dict(
                         block="P", component=key, scenario=ssp, horizon=H,
                         metric="spread_vs_lit", arm=cand_tag, value=sr, unit="x lit spread",
                         value_sigma=np.nan,
-                        note=f"ours {csp:.2f} cm vs lit {np.min(sps):.2f}-{np.max(sps):.2f} "
-                             f"(median {np.median(sps):.2f})" +
+                        note=f"ours {csp:.2f} cm vs model-based lit {np.min(sps):.2f}-"
+                             f"{np.max(sps):.2f} (median {np.median(sps):.2f}, n={len(sps)})" +
+                             (f"; ALL comparators {np.min(sps_all):.2f}-{np.max(sps_all):.2f}"
+                              if n_excl else "") +
+                             (f"; ⚠ n={len(sps)} < {MIN_LIT_FOR_MEDIAN}, so this median is "
+                              "not a summary" +
+                              ("; verdict CAPPED at WARN"
+                               if not SPREAD_PASS[0] <= sr <= SPREAD_PASS[1] else "")
+                              if thin else "") +
                              ("; width here is the antarctic_lambda PRIOR -- do NOT narrow"
                               if prior else "") +
                              ("; LWS is a seeded constant -- zero spread is the DESIGN,"
@@ -889,6 +944,23 @@ def main():
         print(f"    [{r.block}] {COMP_LABEL.get(r.component, r.component):12s} "
               f"{str(r.scenario):8s} {str(r.horizon):5s} {r.metric:26s} "
               f"{r.arm:16s} {r.value:9.3f} {r.unit}")
+    a = df[(df.metric == "spread_vs_lit")].set_index(["component", "scenario", "horizon"])
+    b = df[(df.metric == "spread_vs_lit_ALL")].set_index(["component", "scenario", "horizon"])
+    if len(b):
+        j = a.join(b, rsuffix="_all", how="inner").dropna(subset=["value_all"])
+        worst = (j.value / j.value_all).max()
+        print(f"\n  ⚠ COMPARATOR CLASSIFICATION AUDIT: {len(j)} spread cells are scored with "
+              f"the SEJ\n    envelope excluded (benchmark/comparator_classes.csv). It improves "
+              f"the score by up\n    to {worst:.2f}x. Cells whose VERDICT depends on it:")
+        chg = 0
+        for idx, r in j.iterrows():
+            v_all = ("PASS" if SPREAD_PASS[0] <= r.value_all <= SPREAD_PASS[1] else "FAIL")
+            if str(r.verdict).startswith("PASS") and v_all == "FAIL":
+                chg += 1
+                print(f"      {COMP_LABEL.get(idx[0], idx[0]):12s} {idx[1]:8s} {idx[2]:5.0f}  "
+                      f"{r.value:.3f} ({r.verdict}) vs {r.value_all:.3f} (FAIL) with SEJ in")
+        if chg == 0:
+            print("      none -- every verdict is the same either way")
     print(f"\nwrote outputs/bench_ladrillo_{tag}.csv")
     print(f"wrote outputs/bench_ladrillo_{tag}.md")
 

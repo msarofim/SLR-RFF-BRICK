@@ -1,0 +1,52 @@
+block,ssp,horizon,key,value,note
+A,ssp126,2100,vs_FittedISMIP,0.6635868732489796,"LIKE-FOR-LIKE; theirs 7.06 cm, ours 4.69 cm"
+A,ssp126,2100,vs_Nauels2025,0.4894718437750888,"LIKE-FOR-LIKE; theirs 9.57 cm, ours 4.69 cm"
+A,ssp126,2100,vs_emuGrIS,0.2734074721916609,"structural; theirs 17.14 cm, ours 4.69 cm"
+A,ssp126,2100,vs_bamber19,0.08411085715324937,"structural; theirs 55.71 cm, ours 4.69 cm"
+A,ssp126,2100,vs_like_for_like,0.5633834349605708,n=2; vs all-comparator median 0.35x
+A,ssp245,2100,vs_FittedISMIP,0.7301463684033963,"LIKE-FOR-LIKE; theirs 7.85 cm, ours 5.73 cm"
+A,ssp245,2100,vs_Nauels2025,0.6866937044461274,"LIKE-FOR-LIKE; theirs 8.35 cm, ours 5.73 cm"
+A,ssp245,2100,vs_emuGrIS,0.34028988976252444,"structural; theirs 16.85 cm, ours 5.73 cm"
+A,ssp245,2100,vs_bamber19,0.07889999539701213,"structural; theirs 72.68 cm, ours 5.73 cm"
+A,ssp245,2100,vs_like_for_like,0.707753717748023,n=2; vs all-comparator median 0.46x
+A,ssp585,2100,vs_FittedISMIP,0.9776004101109421,"LIKE-FOR-LIKE; theirs 11.46 cm, ours 11.21 cm"
+A,ssp585,2100,vs_Nauels2025,0.9220719169378134,"LIKE-FOR-LIKE; theirs 12.15 cm, ours 11.21 cm"
+A,ssp585,2100,vs_emuGrIS,0.6551918633500712,"structural; theirs 17.10 cm, ours 11.21 cm"
+A,ssp585,2100,vs_bamber19,0.12026234321784521,"structural; theirs 93.18 cm, ours 11.21 cm"
+A,ssp585,2100,vs_like_for_like,0.9490245989429038,n=2; vs all-comparator median 0.77x
+A,ssp126,2150,vs_FittedISMIP,0.6209753603598973,"LIKE-FOR-LIKE; theirs 11.12 cm, ours 6.90 cm"
+A,ssp126,2150,vs_bamber19,0.07939579308932447,"structural; theirs 86.94 cm, ours 6.90 cm"
+A,ssp126,2150,vs_like_for_like,0.6209753603598973,n=1; vs all-comparator median 0.14x
+A,ssp245,2150,vs_FittedISMIP,0.7422183862556936,"LIKE-FOR-LIKE; theirs 14.93 cm, ours 11.08 cm"
+A,ssp245,2150,vs_bamber19,0.12468375919775547,"structural; theirs 88.90 cm, ours 11.08 cm"
+A,ssp245,2150,vs_like_for_like,0.7422183862556936,n=1; vs all-comparator median 0.21x
+A,ssp585,2150,vs_FittedISMIP,1.0767887903449764,"LIKE-FOR-LIKE; theirs 24.97 cm, ours 26.88 cm"
+A,ssp585,2150,vs_bamber19,0.22062373185367168,"structural; theirs 121.86 cm, ours 26.88 cm"
+A,ssp585,2150,vs_like_for_like,1.0767887903449764,n=1; vs all-comparator median 0.37x
+C,ssp126,2100,sigma_parametric,0.43456150624811507,"sigma_forcing 1.356; forcing is 90.7% of the joint variance; fixed spread 1.43, joint 4.69 cm"
+C,ssp126,2150,sigma_parametric,0.6702338236852804,"sigma_forcing 1.988; forcing is 89.8% of the joint variance; fixed spread 2.21, joint 6.90 cm"
+C,ssp126,2300,sigma_parametric,1.2565125940987516,"sigma_forcing 3.340; forcing is 87.6% of the joint variance; fixed spread 4.13, joint 11.74 cm"
+C,ssp245,2100,sigma_parametric,0.6499898611369296,"sigma_forcing 1.617; forcing is 86.1% of the joint variance; fixed spread 2.14, joint 5.73 cm"
+C,ssp245,2150,sigma_parametric,1.1930890451623035,"sigma_forcing 3.151; forcing is 87.5% of the joint variance; fixed spread 3.93, joint 11.08 cm"
+C,ssp245,2300,sigma_parametric,2.485847559765496,"sigma_forcing 5.864; forcing is 84.8% of the joint variance; fixed spread 8.18, joint 20.95 cm"
+C,ssp585,2100,sigma_parametric,1.4542284054824723,"sigma_forcing 3.080; forcing is 81.8% of the joint variance; fixed spread 4.78, joint 11.21 cm"
+C,ssp585,2150,sigma_parametric,3.5077788693944725,"sigma_forcing 7.380; forcing is 81.6% of the joint variance; fixed spread 11.54, joint 26.88 cm"
+C,ssp585,2300,sigma_parametric,8.161239844165467,"sigma_forcing 16.558; forcing is 80.5% of the joint variance; fixed spread 26.85, joint 60.73 cm"
+B,ssp126,2100,ism_sigma_CNRM-CM6-1,0.5221160044486298,range-based 1.149; n_ism 14
+B,ssp585,2100,ism_sigma_CESM2,0.8047842113418523,range-based 1.670; n_ism 9
+B,ssp585,2100,ism_sigma_CNRM-CM6-1,1.1319844114329747,range-based 2.188; n_ism 14
+B,ssp585,2100,ism_sigma_CNRM-ESM2-1,1.2004546395843343,range-based 2.600; n_ism 12
+B,ssp585,2100,ism_sigma_UKESM1-0-LL,3.4117274499982266,range-based 3.376; n_ism 13
+D,ssp126,2100,gap_after_structural,2.296747562144481,ours 4.69 + ISM(range) 1.149 sigma -> 6.02 cm vs like-for-like 8.32 cm; IQR arm gives 4.99
+D,ssp585,2100,gap_after_structural,-1.8895902108011509,ours 11.21 + ISM(range) 2.394 sigma -> 13.70 cm vs like-for-like 11.81 cm; IQR arm gives 11.85
+E,ssp126,2100,te_control,0.8858078272190673,GIS is 0.56x its like-for-like comparators at the same cell
+E,ssp245,2100,te_control,0.814485409592981,GIS is 0.71x its like-for-like comparators at the same cell
+E,ssp585,2100,te_control,0.7847435680711468,GIS is 0.95x its like-for-like comparators at the same cell
+E,ssp126,2150,te_control,0.8742252927944443,GIS is 0.62x its like-for-like comparators at the same cell
+E,ssp245,2150,te_control,0.8493241332273126,GIS is 0.74x its like-for-like comparators at the same cell
+E,ssp585,2150,te_control,0.8636962452594174,GIS is 1.08x its like-for-like comparators at the same cell
+F,ssp126,2100,total_band_move_pct,28.249960453761698,GIS gap 3.63 cm vs like-for-like; total 24.33 -> 25.28 (independent) / 31.20 cm (perfectly correlated)
+F,ssp245,2100,total_band_move_pct,9.611464705046801,GIS gap 2.37 cm vs like-for-like; total 59.55 -> 59.83 (independent) / 65.28 cm (perfectly correlated)
+F,ssp585,2100,total_band_move_pct,4.542286229589532,GIS gap 0.60 cm vs like-for-like; total 81.94 -> 82.03 (independent) / 85.66 cm (perfectly correlated)
+F,ssp126,2150,total_band_move_pct,23.864525886583348,GIS gap 4.21 cm vs like-for-like; total 36.51 -> 37.54 (independent) / 45.22 cm (perfectly correlated)
+F,ssp245,2150,total_band_move_pct,7.758668214463819,GIS gap 3.85 cm vs like-for-like; total 128.99 -> 129.38 (independent) / 139.00 cm (perfectly correlated)

@@ -21,16 +21,16 @@ total,rate,accel/1900-2026/obs/observations,0.0008937588048438,"se: estimator 0.
 total,rate,accel/1900-2026/L14,0.0010226192202705,ratio NOT INTERPRETABLE (obs is 0.77 se from zero); z=+0.11 vs the obs error bar,UNRESOLVED
 total,rate,accel/1900-2026/BRICK 2.0,0.0022411471619516,ratio NOT INTERPRETABLE (obs is 0.77 se from zero); z=+1.16 vs the obs error bar,WARN
 total,projection,ssp126_2100_median_vs_lit,0.8140084508249735,"ours 34.33 cm vs lit 35.59-53.47 (median 42.18), n_lit=8; ⚠ BIMODAL cell -- our MEAN is 36.92 cm = 0.88x the literature median, and the median sits entirely inside the near mode",WARN
-total,projection,ssp126_2100_spread_vs_lit,0.6805361380619165,"ours 24.33 cm vs lit 25.25-107.65 (median 35.74); ⚠ p05-p99/p05-p95 = 3.04 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 73.87 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model",N/A(bimodal)
+total,projection,ssp126_2100_spread_vs_lit,0.6805361380619165,"ours 24.33 cm vs model-based lit 25.25-107.65 (median 35.74, n=8); ⚠ p05-p99/p05-p95 = 3.04 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 73.87 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model",N/A(bimodal)
 total,projection,ssp126_2150_median_vs_lit,0.6076953325440252,"ours 44.64 cm vs lit 60.20-83.12 (median 73.46), n_lit=4; ⚠ BIMODAL cell -- our MEAN is 49.52 cm = 0.67x the literature median, and the median sits entirely inside the near mode",WARN
-total,projection,ssp126_2150_spread_vs_lit,0.5333555087444402,"ours 36.51 cm vs lit 53.31-200.59 (median 68.46); ⚠ p05-p99/p05-p95 = 3.76 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 137.35 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model",N/A(bimodal)
+total,projection,ssp126_2150_spread_vs_lit,0.5333555087444402,"ours 36.51 cm vs model-based lit 53.31-200.59 (median 68.46, n=4); ⚠ p05-p99/p05-p95 = 3.76 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 137.35 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model",N/A(bimodal)
 total,projection,ssp245_2100_median_vs_lit,0.827370180175924,"ours 44.92 cm vs lit 48.68-67.90 (median 54.29), n_lit=8",WARN
-total,projection,ssp245_2100_spread_vs_lit,1.0896676649654236,ours 59.55 cm vs lit 32.00-146.33 (median 54.65),PASS
+total,projection,ssp245_2100_spread_vs_lit,1.0896676649654236,"ours 59.55 cm vs model-based lit 32.00-146.33 (median 54.65, n=8)",PASS
 total,projection,ssp245_2150_median_vs_lit,0.7038689338325885,"ours 71.57 cm vs lit 80.04-111.19 (median 101.68), n_lit=4",WARN
-total,projection,ssp245_2150_spread_vs_lit,0.5879445138910471,ours 128.99 cm vs lit 59.41-382.80 (median 219.39),PASS
+total,projection,ssp245_2150_spread_vs_lit,0.5879445138910471,"ours 128.99 cm vs model-based lit 59.41-382.80 (median 219.39, n=4)",PASS
 total,projection,ssp585_2100_median_vs_lit,1.0864633242234898,"ours 92.45 cm vs lit 64.93-97.85 (median 85.09), n_lit=8",PASS
-total,projection,ssp585_2100_spread_vs_lit,1.1592179541485144,ours 81.94 cm vs lit 41.09-197.47 (median 70.69),PASS
+total,projection,ssp585_2100_spread_vs_lit,1.1592179541485144,"ours 81.94 cm vs model-based lit 41.09-197.47 (median 70.69, n=8)",PASS
 total,projection,ssp585_2150_median_vs_lit,1.2456155171081849,"ours 195.59 cm vs lit 117.08-310.66 (median 157.02), n_lit=4",PASS
-total,projection,ssp585_2150_spread_vs_lit,0.5213957220828742,ours 147.38 cm vs lit 77.93-631.59 (median 282.66),PASS
+total,projection,ssp585_2150_spread_vs_lit,0.5213957220828742,"ours 147.38 cm vs model-based lit 77.93-631.59 (median 282.66, n=4)",PASS
 total,separation,2100,2.692721568812076,FACTS 1.63-2.23 (n=7); MAGICC-SLR 2.75-2.75 (n=1),PASS
 total,separation,2150,4.381107611244078,FACTS 1.94-4.15 (n=4); 0.23 outside the bracket = 11% of its own range  [NO UPPER COMPARATOR AT THIS HORIZON],PASS(edge)
