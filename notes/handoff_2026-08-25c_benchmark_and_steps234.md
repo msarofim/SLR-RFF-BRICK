@@ -302,3 +302,97 @@ different question with a different fix and different evidence from the one the 
 **Suggested next, in order:** (1) the Greenland width — real, unimodal, 5 of 6 cells, and the
 module is closed so this is a deliberate reopening decision; (2) the tipped-fraction literature
 for ssp126; (3) the glacier level deficit; (4) step 5 with `--adcov=` + the `ais_gmst_amp` refit.
+
+---
+
+# ADDENDUM 2 — 2026-08-25, the Greenland width, priced
+
+Commit **`bbee082`**, `python/diag_gis_width_anatomy.py`. **Nothing recalibrated.** Marcus:
+*"Do the Greenland width next."* Priced before proposing a fix — and it shrank by 4×.
+
+## A. WHAT THE DEFICIT ACTUALLY IS
+
+Against **model-based** comparators (structured expert judgement excluded, §D):
+
+| ours / theirs | ssp126 | ssp245 | ssp585 |
+|---|---|---|---|
+| @2100 | **0.49×** | 0.69× | **0.92×** |
+| @2150 | 0.62× | 0.74× | **1.08×** |
+
+**Scenario-graded, and it vanishes at ssp585.** The benchmark's flat "0.14–0.46× at 5 of 6
+cells" was **two-thirds comparator selection**. At ssp126@2100 the four comparators are
+FittedISMIP 7.06, Nauels2025 9.57, emuGrIS 17.14, **bamber19 55.71** — an 8× span. And at
+2150 only two exist, so their "median" (49.03 cm) is the **mean of a process band and an
+expert-elicitation envelope — a width no module produces**.
+
+## B. IT IS NOT OUR CLIMATE ENSEMBLE — the TE control
+
+Greenland is **80–91% forcing**, so a narrow FaIR ensemble would produce a narrow Greenland
+band with nothing wrong in the ice sheet. **Thermal expansion is the control**: 94–96%
+forcing at *every* scenario, same FaIR configs, its own comparators.
+
+| | ssp126 | ssp245 | ssp585 |
+|---|---|---|---|
+| TE vs lit @2100 | 0.89× | 0.81× | 0.78× |
+| GIS vs like-for-like @2100 | 0.49× | 0.69× | 0.92× |
+
+TE is **flat**; GIS grades **1.9×**. A narrow ensemble would make both flat. **The missing
+width is Greenland's own.** (Our GIS parametric σ is 0.435 cm at ssp126@2100 = 9% of the
+joint variance.)
+
+## C. THE OUT-OF-SCOPE TERM CLOSES ssp585 AND NOT ssp126
+
+Marcus's standing constraint (2026-08-23): *"we aren't trying to match between-model spread
+(we don't have the precipitation level), just between-scenario spreads."* ISMIP6 measures
+that term **at fixed forcing** — one GCM through 9–14 ice-sheet models — so it can be
+subtracted rather than assumed. Composed **in variance** (never by adding p05–p95 ranges),
+and required to hold at the **larger, range-based** σ, the one that favours "it is structural":
+
+| | ours | +ISM(IQR) | +ISM(range) | like-for-like target | |
+|---|---|---|---|---|---|
+| ssp585@2100 | 11.21 | 11.85 | **13.70** | 11.81 | **CLOSED** |
+| ssp126@2100 | 4.69 | 4.99 | **6.02** | 8.32 | **2.30 cm missing** |
+
+⚠ IQR- and range-based σ disagree up to 2.2× because the ISM **min** is an outlier (at
+CNRM-CM6-1 ssp126 the min sits 2.4 cm below p25 while the IQR spans 0.70 cm). Both reported.
+
+## D. PRICED ON THE DELIVERABLE — and it does not justify reopening the module
+
+| | GIS gap | total now | total, independent | total, correlated |
+|---|---|---|---|---|
+| ssp126@2100 | 3.63 cm | 24.33 | **25.28 (+3.9%)** | 31.20 (+28.2%) |
+| ssp126@2150 | 4.21 cm | 36.51 | **37.54 (+2.8%)** | 45.22 (+23.9%) |
+| ssp585@2100 | 0.60 cm | 81.94 | 82.03 (+0.1%) | 85.66 (+4.5%) |
+
+The **independent** column is the estimate — the missing width would come from Greenland's
+**own** parameters, which the sampler makes independent of the other components. Correlated
+is an upper bound that would apply only if the widening rode a shared forcing channel.
+
+⇒ **One surviving FAIL cell in the whole module (ssp126@2100, 0.489×), worth ~4% of one
+scenario's band.** Greenland is a CLOSED module; +4% of the ssp126 total does not justify
+reopening it. **The glacier level deficit now outranks it** — every scenario, growing with
+horizon (0.755–0.91×), and glaciers are **40.1% of addressable at ssp126@2100**.
+
+## E. WHAT WAS MADE DURABLE, AND THE SELF-AUDIT IT NEEDED
+
+* `benchmark/comparator_classes.csv` — one line, editable, argued in its own header.
+  Only **bamber19** is separated (Bamber et al. 2019 PNAS 116:11195, structured expert
+  judgement). ⚠ **Finer lines were considered and NOT drawn**: emuGrIS is an emulator *over*
+  ISMIP6, so its width is largely between-model — but that is an inference from the numbers,
+  not a fact about the module, and **classifying a comparator to make your own score better
+  needs a receipt**.
+* Cells with **fewer than 3 comparators** have their verdict **capped at WARN**: a median of
+  one or two is not a summary.
+* ⚠⚠ **A CLASSIFICATION AUDIT now prints every run.** The exclusion improves scores by up to
+  **4.41×** and **five verdicts depend on it** — AIS ssp585@2150 (0.803 PASS vs 0.397 FAIL)
+  and four Greenland cells. A classification that flips verdicts must never be silent.
+
+## F. NEXT
+
+1. **Glaciers — the level deficit.** Now the top genuine defect: 0.755–0.91× at every
+   scenario and horizon, growing with horizon, in the component that is 40.1% of addressable
+   uncertainty at ssp126@2100. Needs the global-cm GloGEM/OGGM target (§ main note).
+2. **The ssp126 AIS tipped fraction** (3.95% — right or wrong? a threshold question).
+3. **Step 5** with `--adcov=` + the `ais_gmst_amp` refit.
+4. **Greenland width** — parked at ~4%, with the measurement on record so it can be picked
+   up cheaply if ssp126 becomes a headline reported scenario.
