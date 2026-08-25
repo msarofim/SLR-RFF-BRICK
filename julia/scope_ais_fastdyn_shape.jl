@@ -56,7 +56,11 @@ const SMOKE = MAXROWS !== nothing
 const N_TARGET = let p = findfirst(a -> !startswith(a, "--"), ARGS)
     p === nothing ? 500 : parse(Int, ARGS[p])
 end
-const SSPS     = ["ssp245", "ssp585"]
+## ssp126 was ADDED 2026-08-24 so the scenario-separation comparison below runs on
+## COULON'S OWN PAIR. Comparing our ssp245-vs-ssp585 separation to their
+## ssp126-vs-ssp585 one is the `like_for_like_forcing` error in miniature, and this
+## arc exists because that error inverted a reading.
+const SSPS     = ["ssp126", "ssp245", "ssp585"]
 const HORIZONS = [2100, 2150, 2300]
 const Y0, Y1   = 1850, 2300
 const AIS_SLOT = :antarctic_icesheet          # name kept by Mimi replace!
@@ -91,8 +95,33 @@ const SCALE_VERIFIED_MAX = 3.0                # [ANCHOR-EXACT] ran at 1.42 and 1
 ## sets it: T_ant = amp * GMST + TANT0.
 const TANT0 = LADRILLO_AIS_TANT0
 ## The arms. `n0` must reproduce the shipped panel; `lam0` isolates the base.
-const EXPONENTS = [0.0, 1.0, 2.0]
+## FRACTIONAL n ADDED 2026-08-24 (handoff -24i item 2). n = 2 is retained but
+## DEMOTED to a stated boundary case, printed with a marker, the way the MICI
+## branch is handled -- it is run so the shape sweep has an upper end, not because
+## anything supports it.
+const EXPONENTS = [0.0, 0.25, 0.5, 1.0, 2.0]
+const BOUNDARY_EXPONENTS = [2.0]
+is_boundary(n) = n in BOUNDARY_EXPONENTS
 const ARM_NAME(n) = "n$(replace(string(n), "." => "p"))"
+
+## ---------------------------------------------------------------------------
+## COULON'S OWN SCENARIO SEPARATION -- and why it is NOT a constraint on n.
+## Coulon et al. 2025 Nat. Commun. 16:10385 Table 1, AIS @2300 vs 2015, m SLE,
+## median [5-95%], verified against the paper 2026-08-24 (PMC12680641):
+##     Kori-ULB  ssp585 2.67 [0.73, 5.95]   ssp126 1.10 [ 0.07, 1.74]
+##     PISM      ssp585 2.73 [1.00, 5.95]   ssp126 0.03 [-0.09, 0.30]
+## handoff -24i section 0.5A2 formed ONE separation ratio from these, mid/mid =
+## 270.0/56.5 = 4.78, placed it between our n = 0 (2.14) and n = 1 (10.04), and
+## read off "n ~ 0.3-0.5". THAT IS THE `endpoint_division_is_not_a_ratio_band`
+## FAILURE MODE: the two ice-sheet models disagree 37x at ssp126, so averaging them
+## BEFORE dividing manufactures a precision neither model has. Taken per model --
+## the only like-for-like form -- the separations are 2.43x and 91.0x, which
+## BRACKET every arm in EXPONENTS and reject none of them. The comparison is still
+## printed, because it is the only external separation we have, but it is printed
+## PER MODEL and it is not evidence for any exponent.
+const COULON_SEP = [("Kori-ULB", 110.0, 267.0), ("PISM", 3.0, 273.0)]   # cm: ssp126, ssp585
+## The scenario pairs whose separation is reported. The FIRST is Coulon's own.
+const SEP_PAIRS = [("ssp126", "ssp585"), ("ssp245", "ssp585")]
 
 chain_path(sd) = joinpath(REPO, "outputs/mcmc", "chain_$(TAG)_seed$(sd)_n$(NITER).csv")
 hdr(sd) = String.(propertynames(CSV.read(chain_path(sd), DataFrame; limit = 0)))
@@ -227,7 +256,7 @@ const res, maxg = RES, MAXG
 ## [FORK] the n = 0 arm must reproduce the SHIPPED projection, not merely itself.
 const SHIPPED = CSV.read(joinpath(REPO, "outputs", "ssps_components_2300_$(TAG).csv"),
                          DataFrame)
-const SSP_LABEL = Dict("ssp245" => "SSP2-4.5", "ssp585" => "SSP5-8.5")
+const SSP_LABEL = Dict("ssp126" => "SSP1-2.6", "ssp245" => "SSP2-4.5", "ssp585" => "SSP5-8.5")
 for ssp in SSPS, H in HORIZONS
     A = res[(ssp, ARM_NAME(0.0))]
     med = median(A[:, yidx(YRS, H)])
@@ -331,7 +360,7 @@ for n in EXPONENTS
     n == 0.0 && continue
     arm = ARM_NAME(n)
     @printf("\n  arm %s\n  %-18s %8s | %s\n", arm, "anchored at", "lam scale",
-            join([@sprintf("%7s@%d", s == "ssp245" ? "245" : "585", H)
+            join([@sprintf("%7s@%d", s[end-2:end], H)
                   for s in SSPS for H in HORIZONS], " "))
     for as in SSPS, aH in HORIZONS
         iA = yidx(YRS, aH)
@@ -410,17 +439,59 @@ end
 anchor_exact()
 
 ## ==========================================================================
-## THE ANCHOR-FREE NUMBER -- the ssp585/ssp245 separation of the fast-dynamics
-## part. A lambda rescale multiplies numerator and denominator alike.
+## THE ANCHOR-FREE NUMBER -- the high/low separation of the fast-dynamics part.
+## A lambda rescale multiplies numerator and denominator alike, so this survives
+## the anchor the LEVELS do not.
 ## ==========================================================================
-@printf("\n%s\nANCHOR-FREE: ssp585/ssp245 ratio of the FAST-DYNAMICS contribution\n%s\n",
+sep = DataFrame(pair = String[], horizon = Int[], arm = String[], boundary = Bool[],
+                low_fd_cm = Float64[], high_fd_cm = Float64[], fd_ratio = Float64[],
+                low_tot_cm = Float64[], high_tot_cm = Float64[], tot_ratio = Float64[])
+for (lo, hi) in SEP_PAIRS
+    @printf("\n%s\nANCHOR-FREE: %s/%s separation of the FAST-DYNAMICS contribution\n%s\n",
+            repeat("=", 92), hi, lo, repeat("=", 92))
+    @printf("  %-6s %-8s %13s %13s %10s | %12s %10s\n",
+            "horiz", "arm", "$(lo) fd cm", "$(hi) fd cm", "fd ratio", "total ratio", "")
+    for H in HORIZONS, n in EXPONENTS
+        arm = ARM_NAME(n); iH = yidx(YRS, H)
+        flo = median(res[(lo, arm)][:, iH] .- res[(lo, "lam0")][:, iH])
+        fhi = median(res[(hi, arm)][:, iH] .- res[(hi, "lam0")][:, iH])
+        tlo = median(res[(lo, arm)][:, iH]); thi = median(res[(hi, arm)][:, iH])
+        fr = abs(flo) < 1e-9 ? NaN : fhi / flo
+        tr = abs(tlo) < 1e-9 ? NaN : thi / tlo
+        push!(sep, ("$(hi)/$(lo)", H, arm, is_boundary(n), flo, fhi, fr, tlo, thi, tr))
+        @printf("  %-6d %-8s %13.3f %13.3f %10.2f | %12.2f %10s\n",
+                H, arm, flo, fhi, fr, tr, is_boundary(n) ? "BOUNDARY" : "")
+    end
+end
+CSV.write(joinpath(REPO, "outputs", "scope_ais_fastdyn_separation_$(TAG)$(SMOKE ? "_SMOKE" : "").csv"), sep)
+
+## ==========================================================================
+## THE EXTERNAL SEPARATION -- Coulon's own, PER MODEL. See the COULON_SEP header:
+## this is reported because it is the only external separation available, NOT as
+## evidence for an exponent. Its two models disagree by a factor that swamps the
+## whole EXPONENTS sweep.
+## ==========================================================================
+@printf("\n%s\nEXTERNAL CHECK: Coulon 2025's OWN scenario separation, per ice-sheet model\n%s\n",
         repeat("=", 92), repeat("=", 92))
-@printf("  %-6s %-6s %14s %14s %10s\n", "horiz", "arm", "ssp245 fd cm", "ssp585 fd cm", "ratio")
-for H in HORIZONS, arm in ARM_NAME.(EXPONENTS)
-    iH = yidx(YRS, H)
-    f245 = median(res[("ssp245", arm)][:, iH] .- res[("ssp245", "lam0")][:, iH])
-    f585 = median(res[("ssp585", arm)][:, iH] .- res[("ssp585", "lam0")][:, iH])
-    @printf("  %-6d %-6s %14.3f %14.3f %10.2f\n", H, arm, f245, f585,
-            f245 == 0 ? NaN : f585 / f245)
+for (mdl, lo_cm, hi_cm) in COULON_SEP
+    @printf("  %-10s ssp585 %6.1f / ssp126 %6.1f cm = %7.2fx\n", mdl, hi_cm, lo_cm, hi_cm / lo_cm)
+end
+let rs = [hi / lo for (_, lo, hi) in COULON_SEP]
+    @printf("  -> Coulon's separation spans %.2fx to %.2fx (the two models disagree %.0fx at ssp126).\n",
+            minimum(rs), maximum(rs), maximum(x -> x, [c[2] for c in COULON_SEP]) / minimum(c[2] for c in COULON_SEP))
+    iH = yidx(YRS, 2300)
+    @printf("     OURS, total AIS, %s/%s @2300 (Coulon's own pair):\n", "ssp585", "ssp126")
+    inside = String[]
+    for n in EXPONENTS
+        arm = ARM_NAME(n)
+        tr = median(res[("ssp585", arm)][:, iH]) / median(res[("ssp126", arm)][:, iH])
+        ok = minimum(rs) <= tr <= maximum(rs)
+        ok && push!(inside, arm)
+        @printf("       %-8s %8.2fx  %s%s\n", arm, tr,
+                ok ? "INSIDE Coulon's span" : "outside", is_boundary(n) ? "   [BOUNDARY ARM]" : "")
+    end
+    @printf("  => %d of %d arms sit inside. The external separation does NOT select an exponent;\n",
+            length(inside), length(EXPONENTS))
+    @printf("     `n ~ 0.3-0.5` from the mid/mid ratio 4.78 does NOT survive the per-model form.\n")
 end
 @printf("\ndone.\n")
