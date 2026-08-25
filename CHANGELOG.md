@@ -3,6 +3,79 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-25i — **`ais_gmst_amp`, priced: the problem is NOT the prior's centre, it is that amp is CONSTANT — the calibration lives at 0.4–0.65 K and the projections at 1.9–7.8 K. And the LWS extension is NOT a reason to recalibrate.**
+
+`python/scope_ais_amp_price.py` (NEW). No model run, no chain read — the threshold channel is
+a closed form in two sampled columns.
+
+### WHAT amp IS, AND THE TWO OPEN PROBLEMS WITH ITS PRIOR
+
+DAIS computes `T_ant = amp·GMST + T_ant0` with the paleo anchor −18.435 °C preserved. Stock
+DAIS hard-codes **1.196** (the inverted paleo *equilibrium* regression); the A6 prior replaced
+it with a *transient* **N(0.95, 0.10)** from Xie et al. 2022. Both problems were measured
+2026-07-22 (`pai_cmip6_time`) and neither was resolved:
+* **[FRAME]** Xie's 0.95 reproduces only under a **polar-cap** mask (cap60 0.92/0.98). DAIS's
+  temperature lineage is ice-core/**continental**; land-only PAI1 over 34 CMIP6 models is
+  **1.13 / 1.16**.
+* **[STATE]** amp is **warming-level controlled**: ~0.85–0.90 at 0.6–0.8 K → ~1.10 at 1.5–2 K
+  → **~1.15–1.20 at 2–4 K**, saturating *at* the equilibrium value the prior replaced.
+
+### THE PRICE — threshold channel, exact
+
+Crossing GMST = (threshold − T_ant0)/amp. Moving amp from the shipped 0.945 to the
+continent-referenced 1.13 **lowers the tipping threshold by 0.494 °C of GMST**:
+
+| tipped fraction | ssp126@2100 | ssp245@2100 | ssp245@2150 | ssp585@2100 |
+|---|---|---|---|---|
+| shipped (amp 0.945) | **4.2%** | **33.1%** | **44.5%** | 95.6% |
+| land60 (amp 1.13) | **11.7%** | **59.7%** | **69.2%** | 99.8% |
+
+Reproduces the committed `diag_ais_tipping_under_forcing_L14.csv` to **≤0.32 pp**.
+⚠ **A first version got 6.5% where the committed file says 3.95%** — it used the RAW cube and
+a running max ("ever tipped"). Both wrong: raw is not the reported convention, and DAIS
+re-tests every year and does **not latch**.
+⚠ Threshold channel **only**. amp correlates **r = 0.608** with `ais_runoff_Ton`, so a refit
+moves both; these are a **lower bound**.
+
+### ⚠ THE DIAGNOSIS CHANGED THE RECOMMENDATION
+
+The calibration window sits at **0.41 K** (1900–2024) / **0.65 K** (the 1979–2008 SMB anchor).
+The projections sit at **1.85–7.79 K** — a factor of **3 to 12**, across a relationship CMIP6
+says rises by ~0.3 over exactly that range. **A constant amp is fitted where amp is low and
+applied where it is high.**
+
+⇒ **Re-centring the constant prior at 1.13 is the WRONG fix**, even though it would improve
+ssp245. 1.13 is the full-period value, not the historical one, and amp is jointly constrained
+with `ais_runoff_Ton` over exactly the historical window. It buys the projection by mis-fitting
+the history the same parameter is pinned by. **A constant cannot be right at both ends.**
+⇒ The fix is **amp(ΔT)** — a MODEL-FORM change, same category as the fast-dynamics fork.
+⚠ And unlike that fork it is **NOT likelihood-inert**: amp is active historically through the
+smooth channel, so it cannot be prior-propagated. **It needs a refit.**
+
+⚠ **It also unsettles a decision taken the same day.** The ssp126 tipped fraction was accepted
+at ~4% as *"not a dealbreaker unless the literature says otherwise."* The literature that says
+otherwise is **our own** 34-model CMIP6 mask test, which triples it. The acceptance stands on
+the current prior; it does not survive the frame correction.
+
+### THE LWS EXTENSION IS NOT A REASON TO RECALIBRATE
+
+Established 2026-08-24 (`postsplice_halving_priced`) and restated here for the scoping. Real
+LWS ends **2018**; `prep_recalib_targets_ext.py:311` holds `lws`/`lws_lo`/`lws_hi` flat at the
+2018 values through 2026. It enters the likelihood **twice** on the total stream (line 1387
+adds observed LWS to the modelled total; line 568 folds its band into the total's sigma), so
+for 2019–2024 the fit is told *as data, with a real-data error bar*, that land water
+contributed exactly zero.
+
+**But fetching the real GRACE data showed the hold is accurate to +0.008 cm in the mean**, the
+sigma freeze inflates the total sigma only 1.02→1.11×, and it is **6 of 125 scored years**.
+⇒ **Low value for the calibration, high value for the curvature diagnostics.** Fix it in the
+target builder; it does not by itself justify a chain.
+⚠ **Its unpriced twin:** `dang_closure_sig` is frozen at **0.775 cm** from 2019 by the same
+flagged convention — and it **dominates** the total's error budget (vs `dang_sig` 0.40). If
+the target builder is touched, price that too.
+
+---
+
 ## [unreleased] — 2026-08-25h — **GLACIER SCOPE DOES NOT EXPLAIN THE DEFICIT (and one flag's sign was backwards). And "measurably better than BRICK 2.0" is now a question the benchmark can answer: 30 BETTER / 11 SAME / 7 WORSE, with every total-level loss being CANCELLATION.**
 
 `julia/diag_gsic_scope_matched.jl` (NEW), `python/scope_gsic_region_matched.py` (NEW),

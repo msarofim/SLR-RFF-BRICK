@@ -1,0 +1,118 @@
+====================================================================================================
+PRICING ais_gmst_amp — THRESHOLD CHANNEL, EXACT (tag L14, 10000 draws)
+====================================================================================================
+
+  posterior amp: median 0.9449  sd 0.0963  [p05 0.7860, p95 1.1074]
+  required Antarctic warming to tip: median 2.848 degC [p05 2.225, p95 3.536]
+
+[A] THE GMST REQUIRED TO TIP = (threshold - T_ant0) / amp
+
+arm                          amp         crossing GMST (degC)   provenance
+posterior (shipped)        0.945     3.022 [2.261, 3.989]  +0.000   the L14 posterior column as sampled; prior N
+Xie cap60 = the prior      0.950     2.998 [2.342, 3.723]  -0.023   Xie et al. 2022 as published -- reproduced o
+land60 ssp245              1.130     2.521 [1.969, 3.130]  -0.501   34-model CMIP6 land-only PAI1, the mask matc
+land60 ssp585              1.160     2.456 [1.918, 3.049]  -0.566   same metric at ssp585
+DAIS equilibrium           1.196     2.382 [1.860, 2.957]  -0.640   the hard-coded stock map, = where the CMIP6 
+
+    ⇒ moving amp from the shipped 0.945 to the continent-referenced 1.13 lowers the
+      tipping threshold by 0.494 degC of GMST. That is the whole price, and it is a
+      THRESHOLD move -- it changes WHICH draws tip, not how fast a tipped draw goes.
+
+[B] TIPPED FRACTION under each arm — SPLICED driver, instantaneous at the horizon,
+    marginalised over the full draws x configs product
+
+  --- ssp126  (841 configs)
+arm                            2100        2150        2300
+posterior (shipped)            4.2%        3.8%        6.6%
+Xie cap60 = the prior          3.6%        3.4%        6.3%
+land60 ssp245                 11.7%        9.9%       14.1%
+land60 ssp585                 13.6%       11.4%       15.7%
+DAIS equilibrium              16.0%       13.2%       17.6%
+
+  --- ssp245  (841 configs)
+arm                            2100        2150        2300
+posterior (shipped)           33.1%       44.5%       48.5%
+Xie cap60 = the prior         33.3%       45.4%       49.4%
+land60 ssp245                 59.7%       69.2%       68.8%
+land60 ssp585                 63.7%       72.6%       71.5%
+DAIS equilibrium              68.3%       76.3%       74.6%
+
+  --- ssp585  (841 configs)
+arm                            2100        2150        2300
+posterior (shipped)           95.6%       99.5%       99.4%
+Xie cap60 = the prior         97.4%       99.8%       99.7%
+land60 ssp245                 99.8%      100.0%      100.0%
+land60 ssp585                 99.9%      100.0%      100.0%
+DAIS equilibrium              99.9%      100.0%      100.0%
+
+  ⚠ THRESHOLD CHANNEL ONLY. The smooth channel (runoff line, ocean forcing) is NOT priced
+    here and cannot be: amp correlates r = 0.608 with `ais_runoff_Ton`, so a refit would move
+    both. These numbers are a LOWER BOUND on what a refit would do.
+
+[REPRO] the shipped arm against the committed `diag_ais_tipping_under_forcing_L14.csv` (per-draw config)
+
+cell                 here  committed     diff
+ssp126@2100          4.2%       4.0%   +0.23pp
+ssp126@2150          3.8%       3.8%   +0.07pp
+ssp126@2300          6.6%       6.3%   +0.32pp
+ssp245@2100         33.1%      33.4%   -0.28pp
+ssp245@2150         44.5%      44.6%   -0.19pp
+ssp245@2300         48.5%      48.3%   +0.23pp
+ssp585@2100         95.6%      95.7%   -0.05pp
+ssp585@2150         99.5%      99.4%   +0.15pp
+ssp585@2300         99.4%      99.2%   +0.29pp
+
+    max |diff| 0.32pp. ⚠ NOT expected to be zero: the committed file assigns each
+    draw ONE config under seed 2026 and reads the chains; this is the EXACT marginal over the
+    full product on the 10k subsample. Same expectation, no pairing noise.
+
+[C] WHAT A REFIT WOULD TARGET, and why this is not a marginal knob
+
+    The AIS median deficit is concentrated at ssp245 -- 0.531x the literature at 2100 and
+    0.406x at 2150, the two largest AIS median WARNs in the benchmark -- and
+    `antarctic_temp_threshold` is RANK 1 there (`ais_spread_is_lambda_prior`), i.e. the
+    binding question at ssp245 is WHICH DRAWS TIP. That is exactly the quantity amp moves:
+    the continent-referenced frame takes the ssp245 tipped fraction from 33.1% to 59.7% at
+    2100 and 44.5% to 69.2% at 2150, and ssp126 from 4.2% to 11.7%.
+
+    ⚠ DO NOT READ A CORRECTED MEDIAN OFF THIS. The map from tipped fraction to median cm is
+      not linear and the smooth channel moves too. What this establishes is the RANKING
+      (`npv_retires_tau`): amp is the largest available lever on the one place the AIS is
+      measurably weakest, and it is a lever with a MEASURED reason to move -- not a fit.
+
+    ⚠ AND IT CUTS AGAINST A DECISION ALREADY TAKEN. The ssp126 tipped fraction was accepted
+      at ~4% on 2026-08-25 as "not a dealbreaker unless the literature says otherwise". The
+      literature that says otherwise is OUR OWN: 34 CMIP6 models under the mask matching
+      DAIS's continental lineage put amp at 1.13-1.16, which triples that fraction. The
+      acceptance stands on the CURRENT prior; it does not survive the frame correction.
+
+[D] ⚠ THE PROBLEM IS NOT THE PRIOR'S CENTRE. IT IS THAT amp IS CONSTANT.
+
+    CMIP6 land-only amp is WARMING-LEVEL controlled (`pai_cmip6_time`, 34 models):
+      ~0.85-0.90 at dT 0.6-0.8 K  ->  ~1.10 at 1.5-2 K  ->  ~1.15-1.20 at 2-4 K
+      (i.e. it saturates AT the DAIS equilibrium 1.196 the A6 prior replaced)
+
+            calib 1900-2024  SMB anchor 1979-2008     2100     2300
+ssp126                0.41K                 0.65K    1.85K    1.74K
+ssp245                0.41K                 0.65K    2.75K    3.15K
+ssp585                0.41K                 0.65K    4.70K    7.79K
+
+    ⇒ THE CALIBRATION LIVES AT 0.41-0.65 K AND THE PROJECTIONS AT 1.85-7.79 K -- a factor of
+      3 to 12 in warming level, across a relationship the CMIP6 ensemble says RISES by ~0.3
+      over exactly that range. A CONSTANT amp is being fitted where amp is low and applied
+      where it is high.
+
+    ⇒ SO RE-CENTRING THE CONSTANT PRIOR IS THE WRONG FIX, even though it would improve the
+      projections. 1.13 is the FULL-PERIOD land-only value; it is NOT the historical value,
+      and amp is jointly constrained with `ais_runoff_Ton` (r = 0.608) over exactly the
+      historical window. Re-centring buys the ssp245 projection by mis-fitting the history
+      that the same parameter is pinned by. A constant cannot be right at both ends.
+
+    ⇒ THE FIX IS amp(dT) -- state-dependent, interpolating transient to equilibrium. That is
+      a MODEL-FORM change, not a prior change, which puts it in the same category as the
+      magnitude-dependent fast-dynamics fork: price it, build it as an arm, do not adopt it
+      silently. ⚠ AND UNLIKE THAT FORK IT IS **NOT** LIKELIHOOD-INERT -- amp is active in the
+      historical window through the smooth channel, so it CANNOT be prior-propagated onto
+      the existing posterior. It needs a refit, and that is the honest cost.
+
+wrote outputs/scope_ais_amp_price_L14.csv
