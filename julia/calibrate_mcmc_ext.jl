@@ -1097,24 +1097,48 @@ push!(FREE, P("antarctic_lambda",:antarctic_icesheet,:λ))
 push!(FREE, P("antarctic_gamma",:antarctic_icesheet,:ais_γ))
 push!(FREE, P("antarctic_kappa",:antarctic_icesheet,:ais_κ))
 
-# ---- phase-2 A6: GMST->Antarctic temperature map as a sampled TRANSIENT amplification ----
+# ---- phase-2 A6: GMST->Antarctic temperature map as a sampled amplification ----
 # The component computes T_ant = (GMST - intercept)/coef, i.e. amp = 1/coef with anchor
 # T_ant(GMST=0) = -intercept/coef = -18.435 on the DAIS paleo scale. The hard-coded map
-# (coef 0.8365, intercept 15.42 -> amp 1.196) is the inverted paleo/equilibrium regression;
-# CMIP6 TRANSIENT AIS amplification is ~0.95 under SSP2-4.5 (Xie et al. 2022, Sci Rep
-# 12:16548, PAI1 over the AIS: 0.88/0.95/0.97/1.03 for SSP1-2.6/2-4.5/3-7.0/5-8.5).
+# (coef 0.8365, intercept 15.42 -> amp 1.196) is the inverted paleo/equilibrium regression.
 # `amp` is sampled with the ANCHOR PRESERVED (coef = 1/amp, intercept = -T_ant0/amp), so only
 # the anomaly scaling changes; threshold-crossing GMST = (threshold - T_ant0)/amp.
-# σ SIGN-OFF ITEM (Marcus): Xie publishes NO inter-model sd. 0.06 ~= the scenario spread;
-# the default 0.10 spans the scenario range + structural uncertainty without re-admitting
-# the equilibrium 1.196 (+2.5σ). Bounds cover SSP1-2.6 .. just above equilibrium.
-# Production: N(0.95, 0.10) transient prior. --amp-equilibrium: pin at 1.19546 (old map).
-const AMP_MU    = AMP_MU_OVR    !== nothing ? parse(Float64, AMP_MU_OVR)    : (AMP_EQ ? 1.0/0.8365 : 0.95)
+#
+# ⚠⚠ RE-CENTRED 0.95 -> 1.09 ON 2026-08-25 (Marcus). THE OLD CENTRE CAME FROM THE WRONG
+# STATISTIC. It was Xie et al. 2022's PAI1, a sliding-window TREND ratio. BRICK's `amp`
+# multiplies a LEVEL anomaly, so the BRICK-relevant quantity is the SECANT ratio
+# [T_AIS(t) - T_AIS,PI] / [T_glob(t) - T_glob,PI]. `diag_pai_cmip6_time.py` was switched to
+# the secant on 2026-08-24 (`a79d532`) in the same pass that repaired seven corrupt reduction
+# files (`9de38bf`: an xarray `.weighted()` inner join on float-noise latitudes had silently
+# cut MPI-ESM1-2-LR to 56 of 96 latitudes, and the AIS numerator inherited it). The two
+# statistics behave OPPOSITELY with warming, so this is a sign-level correction, not a tweak.
+#
+# THE CORRECTED MEASUREMENT (`python/scope_ais_amp_law_form.py`, dT >= 1.0 K, land-frame):
+#   34-model SSP secant, model-median  1.095  (between-model sd 0.180)
+#   41-model DECK 1pctCO2 secant       1.097  (range 1.087-1.153)  <- INDEPENDENT ensemble
+# Two ensembles, different experiments, agreeing on ~1.09. Adopted: 1.09.
+#
+# ⚠ AND amp IS A CONSTANT, NOT amp(dT) -- MEASURED, after a proposal to make it
+# state-dependent. Per-model slopes of the secant on dT: ssp245 -0.0065/K (z=-0.59),
+# ssp585 +0.0091/K (z=+1.43). NEITHER RESOLVES, THEY DISAGREE IN SIGN, and each is worth
+# 0.02-0.03 in amp over the 1-4 K projection range against a between-model sd of 0.180 --
+# 6-9x smaller than the spread. A state-dependent law would encode a trend the data do not
+# have. Do not rebuild it without re-running that test.
+#
+# σ SIGN-OFF ITEM (Marcus), RE-AFFIRMED 2026-08-25 AT 0.10. The corrected data now DOES give
+# an inter-model sd (0.180), and it was deliberately NOT adopted: the centre is the one
+# moving part of this recalibration, so the delta stays attributable, and between-model
+# spread is the term the standing constraint puts out of scope. 0.10 still spans 0.79-1.39
+# at +-2σ, covering both ensembles' p17-p83 (0.934-1.348).
+# Production: N(1.09, 0.10). --amp-equilibrium: pin at 1.19546 (the old hard-coded map).
+const AMP_MU    = AMP_MU_OVR    !== nothing ? parse(Float64, AMP_MU_OVR)    : (AMP_EQ ? 1.0/0.8365 : 1.09)
 const AMP_SIGMA = AMP_SIGMA_OVR !== nothing ? parse(Float64, AMP_SIGMA_OVR) : (AMP_EQ ? 0.002 : 0.10)
-# Bounds: phase-2 defaults (0.70, 1.25). An explicit prior override widens them to μ±3σ so
-# the new prior is NOT truncated — N(1.08, 0.15) would otherwise be clipped at +1.1σ.
-const AMP_LO = AMP_MU_OVR === nothing ? 0.70 : AMP_MU - 3*AMP_SIGMA
-const AMP_HI = AMP_MU_OVR === nothing ? 1.25 : AMP_MU + 3*AMP_SIGMA
+# Bounds are μ±3σ so the prior is NEVER truncated. ⚠ THIS REPLACES THE HARD-CODED (0.70,
+# 1.25), which was built around μ = 0.95 and would clip the new prior at +1.6σ -- a
+# mechanical consequence of moving the centre, not a separate choice. The override branch
+# already used μ±3σ for exactly this reason; the default now shares it.
+const AMP_LO = AMP_MU - 3*AMP_SIGMA
+const AMP_HI = AMP_MU + 3*AMP_SIGMA
 const AIS_TANT0 = -15.42 / 0.8365              # = -18.435, the preserved anchor
 push!(FREE, (name="ais_gmst_amp",comp=:antarctic_icesheet,sym=:ais_temperature_coefficient,
              μ=AMP_MU,σ=AMP_SIGMA,lo=AMP_LO,hi=AMP_HI,islog=false))
@@ -1550,7 +1574,10 @@ for k in 1:NP
                                          # outside the new bounds); start at the prior center,
                                          # which D0 puts near the self-consistent solution
     elseif nm == "ais_gmst_amp"
-        push!(θ0, 1.0 / 0.8365)                          # the fixed map the MAP ran under
+        # ⚠ START AT THE PRIOR CENTRE, not at 1/0.8365. The old start was "the fixed map the
+        # MAP ran under" (1.196), which is now +1.06σ off-centre and outside nothing but is a
+        # needlessly displaced start for four chains that must mix across the prior.
+        push!(θ0, AMP_MU)
     else
         j = findfirst(==(nm), mapp.param)
         push!(θ0, isnothing(j) ? FREE[k].μ : mapp.MAP[j])

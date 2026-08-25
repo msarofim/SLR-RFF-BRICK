@@ -34,8 +34,11 @@ Method (each component, matching prep_recalib_targets.py conventions):
 
 Decisions baked in (Marcus 2026-06-13, see handoff_2026-06-13_..._ais_extension):
   - Total extended with NOAA STAR altimetry (budget stays closed).
-  - LWS held constant at its 2018 value for 2019+ (Frederikse TWS ends 2018; the
-    post-2018 LWS change is <=0.1cm, within the altimetry annual sigma). FLAGGED.
+  - LWS 2019-2023 is REAL GRACE/GRACE-FO data (build_lws_grace_extension.py), wired in
+    2026-08-25 alongside the A6 amp re-centring; held flat only past the last real year.
+    ⚠ its BAND WIDTH is still the 2018 half-width -- a real centre with a held bar. FLAGGED.
+  - the budget-closure sigma is TREND-EXTENDED past the ensemble (2026-08-25), not held
+    flat: the hold was measurably anti-conservative (+0.0216 cm/yr, z=+6.08).
   - Heterogeneous end years per component (AIS/GIS 2026, GSIC 2023, TE 2025, TOT 2024);
     the per-series AR(1) likelihood in calibrate_mcmc_ext.jl handles different lengths.
 
@@ -83,7 +86,15 @@ CLOSURE_TOTAL_VAR = "GMSL"
 CLOSURE_SIG_COL = "dang_closure_sig"
 # The ensemble ends in 2018 and the total target runs to 2024. Hold flat past the ensemble,
 # the same FLAGGED convention already used for LWS.
-CLOSURE_HOLD_FLAT_PAST_ENSEMBLE = True
+# ⚠ FLIPPED FALSE 2026-08-25: the hold is measurably anti-conservative (see the block where
+# it is used). True reproduces every pre-L15 target file exactly.
+CLOSURE_HOLD_FLAT_PAST_ENSEMBLE = False
+# The window the closure-sigma trend is fitted over -- the last decade of the ensemble.
+CLOSURE_TREND_WIN = (2009, 2018)
+# The tag of the GRACE LWS extension to wire in. Its builder is
+# python/build_lws_grace_extension.py; it does NOT depend on a posterior, the tag is only
+# the filename convention it was written under.
+LWS_GRACE_TAG = "L14"
 
 # ---- constants ----
 BASE_Y0, BASE_Y1 = 1995, 2005          # common re-reference window (11 yr)
@@ -232,6 +243,32 @@ _ens_last = int(closure_sig.index.max())
 closure_col = closure_sig.reindex(years)
 if CLOSURE_HOLD_FLAT_PAST_ENSEMBLE:
     closure_col.loc[_ens_last + 1:] = closure_sig.loc[_ens_last]
+else:
+    # ⚠ MEASURED 2026-08-25: HOLDING THIS FLAT IS ANTI-CONSERVATIVE. Over the last decade of
+    # the ensemble the closure spread GROWS at +0.0216 cm/yr, and that slope is RESOLVED --
+    # z = +6.08 against an AR(1)-inflated bar. Freezing it at the 2018 value therefore makes
+    # the TOTAL target's error bar too TIGHT in exactly the years where we have least
+    # information about budget closure, over-weighting the recent total in the fit.
+    #
+    # Extending an UNCERTAINTY on a resolved trend is not the same move as extrapolating a
+    # LEVEL, which `postsplice_halving_priced` records failing here (two parametric arms
+    # agreed with each other and both missed the sign). Erring WIDE past the end of the data
+    # is the safe direction for an error bar; erring wide on a level is not.
+    #
+    # ⚠ AND THE HOLD IS NOT FAILING IN PRACTICE, which is why this is a WARN-level fix and
+    # not a correction: the realised budget residual over 2019-2023, computed from the modern
+    # extension products with the GRACE LWS, has max |residual| 0.532 cm = 0.69x the held
+    # 0.775. Its MEAN shifts (-0.375 cm against +0.119 pre-2019) while its sd SHRINKS
+    # (0.123 against 0.218) -- a systematic splice offset, not extra scatter. So the widened
+    # bar is insurance, not a repair.
+    _fit = closure_sig.loc[CLOSURE_TREND_WIN[0]:CLOSURE_TREND_WIN[1]]
+    _b, _a = np.polyfit(_fit.index.values.astype(float), _fit.values, 1)
+    _fut = np.arange(_ens_last + 1, years[-1] + 1, dtype=float)
+    closure_col.loc[_ens_last + 1:] = np.maximum(_a + _b * _fut, closure_sig.loc[_ens_last])
+    print(f"\nclosure sigma EXTENDED on the {CLOSURE_TREND_WIN[0]}-{CLOSURE_TREND_WIN[1]} "
+          f"trend {_b:+.5f} cm/yr (z=+6.08): {closure_sig.loc[_ens_last]:.4f} cm at "
+          f"{_ens_last} -> {closure_col.loc[years[-1]]:.4f} cm at {years[-1]} "
+          f"(floored at the last ensemble value)")
 out[CLOSURE_SIG_COL] = closure_col.values
 
 # ============================================================ modern products -> cm SLE
@@ -307,19 +344,54 @@ for tgt in ["ais", "gis", "gsic", "steric", "dang"]:
     inc = spl[end] - fred[tgt].get(y0 - 1, np.nan)
     print(f"{tgt:6s} {str(OVERLAP[tgt]):12s} {off:9.3f} {y0:5d} {end:6d}  {inc:+.3f}")
 
-# LWS: hold constant at 2018 value for 2019+ (FLAGGED choice)
-# ⚠ A REAL REPLACEMENT NOW EXISTS AND IS DELIBERATELY NOT WIRED IN.
-#    `python/build_lws_grace_extension.py` builds LWS 2019-2023 from the JPL mascons minus
-#    GlaMBIE glaciers -> `outputs/lws_grace_extension_L14.csv`. It is NOT read here because
-#    swapping a fitted target is a recalibration trigger and the level does not justify one on
-#    its own: GRACE differs from this hold by mean +0.018 cm (sd 0.076, max 0.123), i.e. the
-#    hold got the LEVEL right and only removed interannual variance. Marcus 2026-08-24: "wait
-#    to recalibrate until we have something else worth recalibrating." Wire it in THEN, and
-#    replace lws_lo/lws_hi at the same time -- they are frozen here too, so the fit currently
-#    carries a fiat value with a real-data error bar.
+# LWS 2019+: REAL DATA (GRACE/GRACE-FO), replacing the hold-flat fiat -- WIRED IN 2026-08-25.
+#
+# `python/build_lws_grace_extension.py` builds LWS from the JPL mascons minus GlaMBIE
+# glaciers. It was written 2026-08-24 and deliberately NOT wired in, because swapping a
+# fitted target is a recalibration trigger and the level alone did not justify one (GRACE
+# differs from the hold by mean +0.018 cm, sd 0.076, max 0.123 -- the hold got the LEVEL
+# right and removed only the interannual variance). Marcus: "wait to recalibrate until we
+# have something else worth recalibrating." The A6 amp re-centring is that something, so
+# this rides along with it.
+#
+# ⚠ WHY IT MATTERS EVEN THOUGH THE LEVEL BARELY MOVES. LWS enters the likelihood TWICE on
+# the total stream -- `calibrate_mcmc_ext.jl:1387` adds observed LWS to the MODELLED total,
+# and `:568` folds its band into the total's observation sigma -- so for 2019+ the fit was
+# being told, AS DATA WITH A REAL-DATA ERROR BAR, that land water contributed exactly its
+# 2018 value every year.
+#
+# ⚠ THE CENTRE IS NOW REAL; THE BAND WIDTH IS STILL HELD, and that is a deliberate,
+# smaller fiat. GRACE mascons carry their own uncertainty but the extension builder does not
+# emit one, and the GRACE/Frederikse overlap is 2 years -- too few to fit a width from. The
+# 2018 half-width is carried forward (TWS uncertainty does not shrink), so the fit now sees
+# a REAL value with a HELD error bar instead of a held value with a real error bar. Flagged.
+LWS_GRACE_CSV = os.path.join(REPO, "outputs", f"lws_grace_extension_{LWS_GRACE_TAG}.csv")
+_lws_half = (out.loc[2018, "lws_hi"] - out.loc[2018, "lws_lo"]) / 2.0
+_n_real = 0
+if os.path.exists(LWS_GRACE_CSV):
+    _g = pd.read_csv(LWS_GRACE_CSV).set_index("year")
+    # Only years the builder marks as REAL (is_held_flat False) are used; its own tail hold
+    # is not imported, or we would be re-importing a fiat under a different name.
+    _real = _g.loc[~_g.is_held_flat.astype(bool), "lws_grace_cm"].dropna()
+    for y, v in _real.items():
+        if 2019 <= y <= EXT_Y1:
+            out.loc[y, "lws"] = v
+            out.loc[y, "lws_lo"] = v - _lws_half
+            out.loc[y, "lws_hi"] = v + _lws_half
+            _n_real += 1
+    _last_real = int(_real.index.max()) if len(_real) else 2018
+else:
+    _last_real = 2018
+    print(f"⚠ {os.path.basename(LWS_GRACE_CSV)} NOT FOUND -- LWS falls back to hold-flat")
+# Past the last REAL GRACE year the hold-flat convention still applies, now anchored on the
+# last real value rather than on 2018.
+_vlast = out.loc[_last_real, "lws"]
 for suf in ["", "_lo", "_hi"]:
-    v18 = out.loc[2018, "lws" + suf]
-    out.loc[2019:EXT_Y1, "lws" + suf] = v18
+    ref = out.loc[_last_real, "lws" + suf]
+    out.loc[_last_real + 1:EXT_Y1, "lws" + suf] = ref
+print(f"\nLWS: {_n_real} year(s) of REAL GRACE data wired in (2019-{_last_real}); "
+      f"held flat {_last_real + 1}-{EXT_Y1} at {_vlast:.4f} cm; band half-width "
+      f"{_lws_half:.4f} cm carried from 2018 (FLAGGED)")
 
 # budget-closure inflation, reported against the FINAL sigma columns (post-splice, post
 # LWS hold-flat) so the printed numbers are the ones calibrate_mcmc_ext.jl will build.
@@ -327,7 +399,8 @@ _eps_lws = ((out["lws_hi"] - out["lws_lo"]) / (2 * 1.645)).clip(lower=0.05)
 _cur = np.sqrt(out["dang_sig"] ** 2 + _eps_lws ** 2)
 _new = np.sqrt(_cur ** 2 + out[CLOSURE_SIG_COL] ** 2)
 print(f"\nTotal-target sigma inflated by Frederikse's own budget-closure spread "
-      f"(ensemble {closure_sig.index.min()}-{_ens_last}, held flat after):")
+      f"(ensemble {closure_sig.index.min()}-{_ens_last}, "
+      f"{'held flat' if CLOSURE_HOLD_FLAT_PAST_ENSEMBLE else 'trend-extended'} after):")
 for y in [1900, 1950, 1980, 2000, 2018, 2024]:
     if y in out.index and np.isfinite(_cur.loc[y]) and np.isfinite(out.loc[y, "dang"]):
         print(f"  {y}  closure sd {out.loc[y, CLOSURE_SIG_COL]:5.3f} cm   "
