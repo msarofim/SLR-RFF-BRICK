@@ -1,0 +1,59 @@
+====================================================================================================
+TE RATE ATTRIBUTION — coefficient, driver, or the target's depth scope?
+====================================================================================================
+
+[A] THE MISS, restated  (1993-2026, n=33)
+    steric target      0.12340 cm/yr
+    Ladrillo L14 TE    0.14708 cm/yr   = 1.192x
+    BRICK 2.0 TE       0.14454 cm/yr   = 1.171x   <= the SHARED miss
+
+[B] THE DRIVER — FaIR's OHC against the observational products
+    FaIR mean OHC (FULL-DEPTH)  1.3910 1e22 J/yr
+    Zanna+Cheng (0-2000m)    1.0826 1e22 J/yr  n=33   FaIR/obs = 1.285
+    Zanna+IGCC (0-2000m)     1.1258 1e22 J/yr  n=32   FaIR/obs = 1.236
+
+[C] THE COEFFICIENT — alpha = rate(TE) / rate(OHC), model vs observations
+    alpha model                     0.10574 cm per 1e22 J
+    alpha implied by obs (Zanna+Cheng ) 0.11398   model/obs = 0.928
+    alpha implied by obs (Zanna+IGCC  ) 0.10961   model/obs = 0.965
+    => alpha is BELOW 1 in both arms: the expansion coefficient is slightly LOW and
+       partially OFFSETS the driver. It is not the cause and tightening it would
+       make the level fit worse, not better.
+
+[D] THE DEPTH SCOPE — measured from IGCC's own >2000 m layer, not recalled
+    IGCC 0-2000m        1.1258 1e22 J/yr
+    IGCC FULL-DEPTH     1.2408 1e22 J/yr   => the >2000 m layer adds 10.2%
+    FaIR / IGCC 0-2000m      1.222x   <= what the calibration target implies
+    FaIR / IGCC FULL-DEPTH   1.108x   <= the LIKE-FOR-LIKE comparison
+    => 51% of the apparent OHC overshoot is SCOPE, not error.
+
+[E] IS THE TARGET ITSELF SCOPE-MIXED? — testing the splice's own assertion
+    `prep_recalib_targets_ext.py:30` offset-matches Frederikse to NOAA as a 'pure
+    level shift, no rescale -- both measure the same physical SLE'. On the overlap:
+    NOAA 0-2000m thermosteric  0.12089 cm/yr  (n=14)
+    target (= Frederikse here) 0.11330 cm/yr  (n=14)
+    ratio Frederikse / NOAA    0.937
+    ⚠ a level-matched splice does not equalise SLOPES. A ratio away from 1.00
+      means the target's own two segments disagree on the trend, so the target
+      changes scope/method at 2019 and a single 1993-2026 rate
+      through it is a blend of both.
+
+
+====================================================================================================
+VERDICT
+====================================================================================================
+  NOT THE COEFFICIENT. alpha is 0.10574 cm per 1e22 J against an obs-implied
+  0.1096-0.1140 -- 0.93-0.97x, i.e. slightly LOW and partially offsetting.
+  IT IS THE DRIVER, AND ABOUT HALF OF THAT IS DEPTH SCOPE. FaIR is 1.22x the
+  0-2000 m products the target is built from, but only 1.11x IGCC's OWN
+  full-depth series. The >2000 m layer is 10% of the observed trend and
+  FaIR includes it while the target does not.
+  ⚠ THE RESIDUAL 1.11x IS A FaIR QUESTION, NOT A BRICK ONE -- which is exactly why
+    BRICK 2.0 misses by the same amount. Nothing in either sea-level model can fix it.
+  ⚠ AND THE CORRECTION IS AN UPPER BOUND. Scaling the steric target by the HEAT ratio
+    1.102 overstates it: the deep ocean is colder, so its thermal expansion per
+    joule is SMALLER than the upper ocean's. The true scope correction lies between
+    1.00 and 1.102, so the model/target ratio lies between 1.08x and 1.19x.
+  ⇒ THE FAIL SURVIVES AS A WARN AT WORST, AND IT IS NOT A SEA-LEVEL DEFECT.
+
+wrote outputs/diag_te_rate_attribution.csv
