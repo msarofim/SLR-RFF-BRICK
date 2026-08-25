@@ -1,0 +1,194 @@
+========================================================================================================
+STEP 1 — AIS MODULE ASSESSMENT (L14) vs BRICK 2.0 and the literature
+========================================================================================================
+
+[1] FORMULATION — is it at least as credible as BRICK 2.0's?
+    Ladrillo's AIS component IS BRICK 2.0's: the AIS slot is never `replace!`d,
+    so the shipped model runs stock MimiBRICK v2.0.0 DAIS from the depot.
+    What differs is the POSTERIOR plus two per-draw reparameterisations
+    (runoff line sampled along T_on; anchor-preserving T_ant map).
+    => criterion (1) holds BY IDENTITY. The open question is the CALIBRATION,
+       and the calibration changes are SUBSTANTIVE (calibrate_mcmc_ext.jl:33-44,
+       phase-2 2026-07-20). Marcus 2026-08-25: these are important updates.
+       A2  lambda / ais_gamma / ais_kappa FREED under their paleo marginals --
+           they were FIXED at the medoid, so BRICK 2.0 reports ZERO uncertainty
+           on the parameter that dominates the 100/150-yr pulse.
+       A4  runoff line reparameterised to its identified direction (T_on, c):
+           the (h0, c) posterior correlation was 0.9997 and BRICK 2.0's fitted
+           onset (+0.62 C GMST) is unphysical.
+       A5  an SMB EQUILIBRIUM term -- model beta_total (1979-2008 Gt/yr) vs
+           area-scaled Rignot 2019 -- breaking the SMB-vs-discharge input-output
+           degeneracy the posterior had pinned 34:1 tighter than either flux.
+       A6  the GMST->Antarctic map sampled as a transient amplification `amp`,
+           prior centred on CMIP6 PAI1 (Xie 2022), anchor preserved.
+       plus ais_ocean_temperature0 freed; 25 -> 29 physical parameters.
+       ⚠ A5 is what this script reads as 'the equilibrium'. If a different one
+         was meant, the enumeration above is the full list to choose from.
+
+[2] HINDCAST — how the observations rank us against BRICK 2.0
+    full         Ladrillo   bias  -0.001  RMSE  0.031 cm
+    full         BRICK 2.0  bias  -0.821  RMSE  1.176 cm
+    1920-1949    Ladrillo   bias  -0.005  RMSE  0.006 cm
+    1920-1949    BRICK 2.0  bias  -1.958  RMSE  1.984 cm
+    1950-1992    Ladrillo   bias  +0.004  RMSE  0.007 cm
+    1950-1992    BRICK 2.0  bias  -0.705  RMSE  0.808 cm
+    1993-2026    Ladrillo   bias  -0.005  RMSE  0.054 cm
+    1993-2026    BRICK 2.0  bias  +0.062  RMSE  0.099 cm
+    -- scaled to the target's own 1-sigma (0.1674 cm) --
+    full         Ladrillo   bias   -0.01 sigma   RMSE   0.18 sigma = 0.02x the WHOLE signal range
+    full         BRICK 2.0  bias   -4.90 sigma   RMSE   7.02 sigma = 0.84x the WHOLE signal range
+    1920-1949    Ladrillo   bias   -0.03 sigma   RMSE   0.03 sigma = 0.00x the WHOLE signal range
+    1920-1949    BRICK 2.0  bias  -11.69 sigma   RMSE  11.85 sigma = 1.41x the WHOLE signal range
+    1950-1992    Ladrillo   bias   +0.02 sigma   RMSE   0.04 sigma = 0.00x the WHOLE signal range
+    1950-1992    BRICK 2.0  bias   -4.21 sigma   RMSE   4.83 sigma = 0.58x the WHOLE signal range
+    1993-2026    Ladrillo   bias   -0.03 sigma   RMSE   0.32 sigma = 0.04x the WHOLE signal range
+    1993-2026    BRICK 2.0  bias   +0.37 sigma   RMSE   0.59 sigma = 0.07x the WHOLE signal range
+    ⚠ IN-SAMPLE for Ladrillo, OUT-OF-SAMPLE for BRICK 2.0 -- so this RANKS IN ONE
+      DIRECTION ONLY: it REJECTS BRICK 2.0 (a 4.9-11.7 sigma miss is a failure no
+      vintage caveat rescues), but it does NOT CERTIFY Ladrillo, whose ~0.02 sigma
+      bias is fitted and is therefore not evidence.
+    ⚠ SCOPE OF THE IMBIE ARGUMENT: whole-sheet loss is 0.95-1.44 sigma from zero,
+      which is why 1993-2026 separates NOTHING (both arms <= 0.6 sigma). It says
+      nothing about the century-scale record, where the ranking actually happens.
+    => criterion (2): LADRILLO RANKS ABOVE BRICK 2.0 on the century-scale
+       observations; the two are INDISTINGUISHABLE over the satellite era.
+
+[3] PROJECTION — level and spread, against MAGICC-SLR and every FACTS module
+    ⚠ scored on our JOINT band (climate uncertainty IN), because theirs carry it.
+
+    --- ssp126 @2100 ------------------------------------------------------------------
+    source       module            median       p05       p95    spread
+    Ladrillo     L14 fixed           4.40      3.33      5.36      2.03
+    Ladrillo     L14 JOINT           4.29                          6.91   <= scored
+    FACTS        ar5AIS              6.31     -4.38     15.96     20.35
+    FACTS        bamber19            9.07     -5.58     85.49     91.07
+    FACTS        deconto21           8.94      6.45     16.31      9.86
+    FACTS        emuAIS              9.45     -1.97     19.14     21.11
+    FACTS        larmip             11.90      2.66     41.92     39.27
+    MAGICC-SLR   Nauels2025          3.66     -1.21     20.19     21.40
+    -> our JOINT median is 0.48x the literature median (3.7-11.9); our spread is 0.33x theirs (9.9-91.1)
+
+    --- ssp245 @2100 ------------------------------------------------------------------
+    source       module            median       p05       p95    spread
+    Ladrillo     L14 fixed           5.58      3.76     39.20     35.44
+    Ladrillo     L14 JOINT           5.51                         43.26   <= scored
+    FACTS        ar5AIS              5.54     -5.58     15.42     21.00
+    FACTS        bamber19           13.71     -9.41    100.46    109.87
+    FACTS        deconto21          10.38      6.80     50.56     43.76
+    FACTS        emuAIS              9.07     -1.90     18.98     20.88
+    FACTS        larmip             12.73      2.60     47.54     44.94
+    MAGICC-SLR   Nauels2025         11.22      0.41     36.22     35.81
+    -> our JOINT median is 0.51x the literature median (5.5-13.7); our spread is 1.09x theirs (20.9-109.9)
+
+    --- ssp585 @2100 ------------------------------------------------------------------
+    source       module            median       p05       p95    spread
+    Ladrillo     L14 fixed          37.07     16.45     67.01     50.56
+    Ladrillo     L14 JOINT          35.05                         63.80   <= scored
+    FACTS        ar5AIS              3.98     -7.91     14.23     22.15
+    FACTS        bamber19           17.99    -10.33    141.21    151.54
+    FACTS        deconto21          28.61      7.21     63.69     56.48
+    FACTS        emuAIS              9.24     -2.25     18.26     20.51
+    FACTS        larmip             14.43      1.93     59.65     57.72
+    MAGICC-SLR   Nauels2025         39.10     13.47     92.47     79.00
+    -> our JOINT median is 2.16x the literature median (4.0-39.1); our spread is 1.12x theirs (20.5-151.5)
+
+    --- ssp126 @2150 ------------------------------------------------------------------
+    source       module            median       p05       p95    spread
+    Ladrillo     L14 fixed           6.77      5.05      8.30      3.25
+    Ladrillo     L14 JOINT           6.53                         14.78   <= scored
+    FACTS        ar5AIS             13.15     -9.50     33.67     43.17
+    FACTS        bamber19           19.17    -12.62    143.65    156.27
+    FACTS        deconto21          26.34     12.28     61.40     49.12
+    FACTS        larmip             22.69      6.65     79.19     72.55
+    -> our JOINT median is 0.31x the literature median (13.2-26.3); our spread is 0.24x theirs (43.2-156.3)
+
+    --- ssp245 @2150 ------------------------------------------------------------------
+    source       module            median       p05       p95    spread
+    Ladrillo     L14 fixed          11.91      6.47    101.89     95.42
+    Ladrillo     L14 JOINT          11.16                        103.80   <= scored
+    FACTS        ar5AIS             10.91    -12.70     32.22     44.92
+    FACTS        bamber19           25.20    -12.66    215.73    228.39
+    FACTS        deconto21          30.28     14.36    383.80    369.45
+    FACTS        larmip             27.69      7.64     95.74     88.10
+    -> our JOINT median is 0.42x the literature median (10.9-30.3); our spread is 0.66x theirs (44.9-369.4)
+
+    --- ssp585 @2150 ------------------------------------------------------------------
+    source       module            median       p05       p95    spread
+    Ladrillo     L14 fixed          94.37     53.78    148.57     94.79
+    Ladrillo     L14 JOINT          92.13                        107.81   <= scored
+    FACTS        ar5AIS              6.26    -19.91     28.77     48.68
+    FACTS        bamber19           36.46    -16.63    554.35    570.98
+    FACTS        deconto21         198.76     17.59    425.96    408.37
+    FACTS        larmip             37.44      8.13    142.39    134.26
+    -> our JOINT median is 2.49x the literature median (6.3-198.8); our spread is 0.40x theirs (48.7-571.0)
+
+
+[4] IRREDUCIBLE UNCERTAINTY — how much of our band could evidence ever move?
+    * observations: IMBIE whole-sheet 0.95-1.44 sigma from zero;
+      EAIS indistinguishable from zero (0.02-0.25 sigma); WAIS carries 89-100%.
+    * our own band at ssp585@2300 is 78% ONE parameter,
+      `antarctic_lambda`, whose posterior sits 0.027 prior sd from its PALEO PRIOR
+      and which three of Ruckert's four constraints leave EXACTLY inert (LIG only).
+    => most of the AIS band is a PRIOR, not an inference. No recalibration on
+       these data narrows it, and a narrower band would be a worse model.
+
+
+[5] SCENARIO SEPARATION — the pattern the per-scenario ratios are pointing at
+
+    --- ssp585 / ssp126, AIS median @2100 ----------------------------------------------
+    Ladrillo L14 JOINT          35.05 /   4.29 =    8.17x   <= ours
+    Ladrillo L14                37.07 /   4.40 =    8.42x
+    MAGICC-SLR Nauels2025       39.10 /   3.66 =   10.69x
+    FACTS ar5AIS                 3.98 /   6.31 =    0.63x
+    FACTS bamber19              17.99 /   9.07 =    1.98x
+    FACTS deconto21             28.61 /   8.94 =    3.20x
+    FACTS emuAIS                 9.24 /   9.45 =    0.98x
+    FACTS larmip                14.43 /  11.90 =    1.21x
+    -> literature 0.63x to 10.69x (median 1.98x); ours is 4.12x the literature median
+
+    --- ssp585 / ssp126, AIS median @2150 ----------------------------------------------
+    Ladrillo L14 JOINT          92.13 /   6.53 =   14.12x   <= ours
+    Ladrillo L14                94.37 /   6.77 =   13.94x
+    FACTS ar5AIS                 6.26 /  13.15 =    0.48x
+    FACTS bamber19              36.46 /  19.17 =    1.90x
+    FACTS deconto21            198.76 /  26.34 =    7.55x
+    FACTS larmip                37.44 /  22.69 =    1.65x
+    -> literature 0.48x to 13.94x (median 1.90x); ours is 7.42x the literature median
+
+
+========================================================================================================
+VERDICT — STEP 1
+========================================================================================================
+  (1) FORMULATION      PASS BY IDENTITY. It is BRICK 2.0's component, unmodified.
+  (2) HINDCAST         LADRILLO RANKS ABOVE BRICK 2.0 on the century-scale record:
+                       BRICK 2.0 misses by -4.90 sigma (full) and -11.69 sigma
+                       (1920-1949 = 1.41x the WHOLE signal range) against a target
+                       1-sigma of 0.167 cm. ⚠ RANKS IN ONE DIRECTION ONLY -- it
+                       REJECTS BRICK 2.0 but does not CERTIFY us (our ~0.02 sigma
+                       is fitted). Over 1993-2026 the two are INDISTINGUISHABLE
+                       (both <= 0.6 sigma) -- that is where the IMBIE
+                       0.95-1.44-sigma-from-zero limit actually bites.
+  (3) PROJECTION       PASS ON SEPARATION (Marcus 2026-08-25: ours lying BETWEEN
+                       FACTS and MAGICC is acceptable). At 2100 ours is 8.17x,
+                       strictly inside FACTS max 3.20x .. MAGICC 10.69x.
+                       ⚠ AT 2150 THAT BRACKET DOES NOT EXIST -- MAGICC-SLR carries
+                       ONLY 2100, so our 14.12x sits above FACTS max 7.55x with no
+                       upper comparator. The ruling is a 2100 statement.
+                       REMAINING DEFECT: the ssp126 SPREAD, 0.24-0.33x the
+                       literature -- nothing tips there, so the band has no tipping
+                       tail at all while every literature module retains one.
+  (4) IRREDUCIBLE      Most of the ssp585 band is the antarctic_lambda PRIOR (78%),
+                       and the modern RATE cannot reject zero AIS loss. The WIDTH
+                       at ssp585 should NOT be narrowed; the ssp126 width is the
+                       defect, and it is a MODEL-FORM problem, not a data problem.
+
+  => STEP 1 PASSES, with ONE named residual defect.
+     The module is BRICK 2.0's by construction; the calibration adds four
+     substantive updates including the SMB equilibrium term; the century-scale
+     observations RANK US ABOVE BRICK 2.0 (4.9-11.7 sigma); and the scenario
+     separation sits inside the FACTS-to-MAGICC bracket at 2100.
+     RESIDUAL DEFECT: the ssp126 spread is 0.24-0.33x the literature because the
+     binary fast-dynamics term is EXACTLY zero there (ais_binary_form_priced).
+     That is MODEL-FORM, not data, and it is the one thing to carry into step 5.
+
+wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/scope_ais_module_assessment_L14.csv

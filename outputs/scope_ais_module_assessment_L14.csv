@@ -1,4 +1,5 @@
 block,key,value,note
+calibration,phase2_changes,4.0,A2 lambda/gamma/kappa freed; A4 runoff reparam; A5 SMB equilibrium term; A6 amp map
 formulation,component_identical_to_brick20,1.0,AIS slot never replace!d; stock MimiBRICK v2.0.0 antarctic_icesheet_component.jl
 hindcast,full_Ladrillo,0.0307870149213062,bias -0.0012 cm
 hindcast,full_BRICK 2.0,1.175751168815807,bias -0.8211 cm
@@ -8,6 +9,14 @@ hindcast,1950-1992_Ladrillo,0.0066511516125256,bias +0.0039 cm
 hindcast,1950-1992_BRICK 2.0,0.8082294255445154,bias -0.7053 cm
 hindcast,1993-2026_Ladrillo,0.0543707486449316,bias -0.0047 cm
 hindcast,1993-2026_BRICK 2.0,0.0991516712222806,bias +0.0615 cm
+hindcast_sigma,full_Ladrillo,-0.007,RMSE 0.18 sigma
+hindcast_sigma,full_BRICK 2.0,-4.904,RMSE 7.02 sigma
+hindcast_sigma,1920-1949_Ladrillo,-0.027,RMSE 0.03 sigma
+hindcast_sigma,1920-1949_BRICK 2.0,-11.693,RMSE 11.85 sigma
+hindcast_sigma,1950-1992_Ladrillo,0.023,RMSE 0.04 sigma
+hindcast_sigma,1950-1992_BRICK 2.0,-4.212,RMSE 4.83 sigma
+hindcast_sigma,1993-2026_Ladrillo,-0.028,RMSE 0.32 sigma
+hindcast_sigma,1993-2026_BRICK 2.0,0.367,RMSE 0.59 sigma
 hindcast,imbie_wholesheet_snr_lo,0.95,"|loss|/sigma, 1992-2020"
 hindcast,imbie_wholesheet_snr_hi,1.44,"|loss|/sigma, 2012-2018"
 hindcast,decidable,0.0,observations cannot reject zero AIS loss
