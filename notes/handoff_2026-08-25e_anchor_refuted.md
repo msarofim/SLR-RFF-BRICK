@@ -106,9 +106,46 @@ ratios (1.5–9.2×; 98% → 7%) are real and they sit on a base of hundredths o
 
 ---
 
-## 5. THE DECISION THAT IS NOW MARCUS'S, AND THE OPTIONS
+## 5. THE DECISION — MADE, AND L16 IS IN FLIGHT
 
-The anchor is closed. What replaces it is a **methodological choice and is NOT resolved here**:
+**Marcus chose option 2 (2026-08-25): widen amp σ 0.10 → 0.180, centre held at 1.09.**
+`run_mcmc_L16.sh` (commit `d9aaff6`) was written and **LAUNCHED** — 4 chains × 2M, seeds
+2026–2029, BLAS pinned, ~4-7h. Acceptance at launch 0.225–0.237 on all four, against the RAM
+target 0.234.
+
+**It needs no source change.** `--amp-sigma=` already exists and its bounds branch is μ±3σ, so
+[0.79, 1.39] → **[0.55, 1.63]** follows the file's own rule. Verified by smoke run:
+`A6 prior: amp ~ N(1.090, 0.180) on [0.550, 1.630]`. ⚠ Also verified that the widened bounds
+touch **only** the `ais_gmst_amp` row — the κ bounds a few lines away read `AMP_PRIOR[b]`, the
+GLACIER amp, not `AMP_LO`/`AMP_HI`.
+
+**Everything else is L15's, deliberately** — same targets, and the **SAME** pooled proposal
+(`adapted_cov_L15pool_seed2026.csv`), NOT one re-pooled from the L15 chains, which would be a
+second change. `-25d` §3e's lesson stands.
+
+⚠ **FLAGGED, NOT FIXED:** the prior widens 1.8× while its proposal block does not. The RAM
+sampler adapts, so this is a burn-in cost rather than a bias — but **check the amp acceptance
+and its adapted scale before reading the result**, and re-pool if either looks pathological.
+
+⚠ The chain logs' setup prints (`A6 prior: …`) appear LATE in the file, not at the head — Julia
+block-buffers a redirected stdout while ProgressMeter writes to stderr. L15's log does the same.
+Not a fault; `tr '\r' '\n' < log | grep "A6 prior"` once it has flushed.
+
+**WHAT TO DO WHEN IT LANDS**
+1. `julia --project=julia_v2 julia/postprocess_mcmc_ext.jl --tag=L16 --accept-slr`
+2. `posterior_predictive_ladrillo.jl --tag=L16`, then `project_ssps_components_ladrillo.jl
+   --tag=L16` **TWICE** — default AND `--no-tap` (`-25d` §5: the `--no-tap` file is a REQUIRED
+   INPUT to `scope_slr_fair_uncertainty.jl`'s `[CONTROL]` gate), then the 3 SSP fairunc runs,
+   then `bench_ladrillo.py --tag=L16`. ~15 min total.
+3. **THE FALSIFIABLE PREDICTION, pre-registered here.** If the ~4.8-log-unit preference is
+   real and σ was the only thing suppressing it, the amp posterior median must land
+   **BELOW 1.09** and its sd must exceed the 0.10 the old prior imposed. If it instead sits at
+   1.09 ± 0.18 — a prior sample again — then the historical record does NOT identify amp at
+   all, the −4.81 is an artifact of holding L14's other parameters fixed, and §4e's frame
+   reading is the only one left. **Either outcome is informative; write down which one.**
+4. Re-run `scope_ais_anchor_offline.jl --tag=L16` for the hindcast row on the same metric.
+
+### The options as they stood, kept for the record
 
 1. **REVERT amp to L14's prior and treat the CMIP6 secant as out-of-frame.** Cleanest reading
    of §4. Cost: the CMIP6 measurement, which is real and reproducible on two ensembles, is set
@@ -128,7 +165,8 @@ The anchor is closed. What replaces it is a **methodological choice and is NOT r
 
 ## 6. FILES
 
-**New:** `julia/scope_ais_anchor_offline.jl`, `julia/scope_ais_anchor_identification.jl`.
+**New:** `julia/scope_ais_anchor_offline.jl`, `julia/scope_ais_anchor_identification.jl`,
+`run_mcmc_L16.sh`.
 **Modified:** `CHANGELOG.md` (entry `2026-08-25j`).
 **Outputs:** `outputs/scope_ais_anchor_offline_L15.csv`,
 `outputs/scope_ais_anchor_identification_L15{,_peaks,_amp,_amp_peaks}.csv`,
