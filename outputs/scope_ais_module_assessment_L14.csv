@@ -1,0 +1,72 @@
+block,key,value,note
+formulation,component_identical_to_brick20,1.0,AIS slot never replace!d; stock MimiBRICK v2.0.0 antarctic_icesheet_component.jl
+hindcast,full_Ladrillo,0.0307870149213062,bias -0.0012 cm
+hindcast,full_BRICK 2.0,1.175751168815807,bias -0.8211 cm
+hindcast,1920-1949_Ladrillo,0.0058165286551633,bias -0.0045 cm
+hindcast,1920-1949_BRICK 2.0,1.9842706854871703,bias -1.9579 cm
+hindcast,1950-1992_Ladrillo,0.0066511516125256,bias +0.0039 cm
+hindcast,1950-1992_BRICK 2.0,0.8082294255445154,bias -0.7053 cm
+hindcast,1993-2026_Ladrillo,0.0543707486449316,bias -0.0047 cm
+hindcast,1993-2026_BRICK 2.0,0.0991516712222806,bias +0.0615 cm
+hindcast,imbie_wholesheet_snr_lo,0.95,"|loss|/sigma, 1992-2020"
+hindcast,imbie_wholesheet_snr_hi,1.44,"|loss|/sigma, 2012-2018"
+hindcast,decidable,0.0,observations cannot reject zero AIS loss
+projection,ssp126_2100_ar5AIS_med,6.308,FACTS spread 20.35
+projection,ssp126_2100_bamber19_med,9.073,FACTS spread 91.07
+projection,ssp126_2100_deconto21_med,8.945,FACTS spread 9.86
+projection,ssp126_2100_emuAIS_med,9.452,FACTS spread 21.11
+projection,ssp126_2100_larmip_med,11.899,FACTS spread 39.27
+projection,ssp126_2100_Nauels2025_med,3.659,MAGICC-SLR spread 21.40
+projection,ssp126_2100_ours_joint_med,4.29,x lit median 0.476
+projection,ssp126_2100_ours_joint_spread,6.907,x lit median spread 0.325; fixed was 2.03
+projection,ssp245_2100_ar5AIS_med,5.541,FACTS spread 21.00
+projection,ssp245_2100_bamber19_med,13.709,FACTS spread 109.87
+projection,ssp245_2100_deconto21_med,10.38,FACTS spread 43.76
+projection,ssp245_2100_emuAIS_med,9.068,FACTS spread 20.88
+projection,ssp245_2100_larmip_med,12.734,FACTS spread 44.94
+projection,ssp245_2100_Nauels2025_med,11.221,MAGICC-SLR spread 35.81
+projection,ssp245_2100_ours_joint_med,5.513,x lit median 0.510
+projection,ssp245_2100_ours_joint_spread,43.26,x lit median spread 1.087; fixed was 35.44
+projection,ssp585_2100_ar5AIS_med,3.984,FACTS spread 22.15
+projection,ssp585_2100_bamber19_med,17.994,FACTS spread 151.54
+projection,ssp585_2100_deconto21_med,28.606,FACTS spread 56.48
+projection,ssp585_2100_emuAIS_med,9.236,FACTS spread 20.51
+projection,ssp585_2100_larmip_med,14.425,FACTS spread 57.72
+projection,ssp585_2100_Nauels2025_med,39.105,MAGICC-SLR spread 79.00
+projection,ssp585_2100_ours_joint_med,35.054,x lit median 2.163
+projection,ssp585_2100_ours_joint_spread,63.805,x lit median spread 1.117; fixed was 50.56
+projection,ssp126_2150_ar5AIS_med,13.154,FACTS spread 43.17
+projection,ssp126_2150_bamber19_med,19.167,FACTS spread 156.27
+projection,ssp126_2150_deconto21_med,26.337,FACTS spread 49.12
+projection,ssp126_2150_larmip_med,22.69,FACTS spread 72.55
+projection,ssp126_2150_ours_joint_med,6.526,x lit median 0.312
+projection,ssp126_2150_ours_joint_spread,14.776,x lit median spread 0.243; fixed was 3.25
+projection,ssp245_2150_ar5AIS_med,10.906,FACTS spread 44.92
+projection,ssp245_2150_bamber19_med,25.197,FACTS spread 228.39
+projection,ssp245_2150_deconto21_med,30.279,FACTS spread 369.45
+projection,ssp245_2150_larmip_med,27.689,FACTS spread 88.10
+projection,ssp245_2150_ours_joint_med,11.157,x lit median 0.422
+projection,ssp245_2150_ours_joint_spread,103.799,x lit median spread 0.656; fixed was 95.42
+projection,ssp585_2150_ar5AIS_med,6.258,FACTS spread 48.68
+projection,ssp585_2150_bamber19_med,36.463,FACTS spread 570.98
+projection,ssp585_2150_deconto21_med,198.758,FACTS spread 408.37
+projection,ssp585_2150_larmip_med,37.44,FACTS spread 134.26
+projection,ssp585_2150_ours_joint_med,92.13,x lit median 2.493
+projection,ssp585_2150_ours_joint_spread,107.806,x lit median spread 0.397; fixed was 94.79
+irreducible,lambda_share_of_2300_band,0.78,ais_spread_is_lambda_prior; posterior 0.027 prior sd from the paleo prior
+separation,ours_joint_585_over_126_2100,8.172,AIS median
+separation,L14_585_over_126_2100,8.42,Ladrillo
+separation,Nauels2025_585_over_126_2100,10.689,MAGICC-SLR
+separation,ar5AIS_585_over_126_2100,0.632,FACTS
+separation,bamber19_585_over_126_2100,1.983,FACTS
+separation,deconto21_585_over_126_2100,3.198,FACTS
+separation,emuAIS_585_over_126_2100,0.977,FACTS
+separation,larmip_585_over_126_2100,1.212,FACTS
+separation,ours_vs_lit_median_2100,4.12,lit range 0.63-10.69
+separation,ours_joint_585_over_126_2150,14.117,AIS median
+separation,L14_585_over_126_2150,13.938,Ladrillo
+separation,ar5AIS_585_over_126_2150,0.476,FACTS
+separation,bamber19_585_over_126_2150,1.902,FACTS
+separation,deconto21_585_over_126_2150,7.547,FACTS
+separation,larmip_585_over_126_2150,1.65,FACTS
+separation,ours_vs_lit_median_2150,7.42,lit range 0.48-13.94
