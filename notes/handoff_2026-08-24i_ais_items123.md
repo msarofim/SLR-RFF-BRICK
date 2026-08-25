@@ -8,6 +8,10 @@ this note is a new arc opened by Marcus asking for an AIS-module evaluation.
 
 **One chain read** (2000 draws x 4 seeds, ~40 min). Items 2 and 3 read no chains at all.
 
+⚠ **Read §0.5 first.** Marcus challenged two things after the run and both stuck: one of them
+is a defect in this session's own envelope script (now fixed), and the other reframes what the
+next run should be. §3 and §4 are correct as written but §0.5 supersedes their *framing*.
+
 ---
 
 ## 0. THE ONE-PARAGRAPH VERSION
@@ -21,6 +25,122 @@ scenario separation and **84%** of the ssp245@2300 median. **(2)** The Coulon 20
 comparison was never like-for-like — their forcing is **1.83–2.59x** ours — and correcting it
 **flips the sign** of the shipped reading. **(3)** Four RAM proposals disagree **347x** in
 shape while every acceptance rate sits on 0.234.
+
+---
+
+## 0.5. START HERE — MARCUS'S TWO CHALLENGES, AND WHAT THEY CHANGE
+
+Marcus, 2026-08-24, on reading §3 and §4:
+
+> *"Absurd SSP5-85 values is a reason to reject, unless there's a second correction that would
+> fix that. For Coulon, if our posterior is too low, can't we just run a new scenario through
+> FaIR to create a higher projection?"*
+
+**Both land. The first exposes a defect in my own script, not a property of the anchor. The
+second has an inverted premise, but the instrument it points at is the right one.**
+
+### (A) He is right, and the mechanism is worse than §3 said
+
+§3 called the ssp245@2300 anchor "untenable, which is itself informative". That was a
+rationalisation of a **bug**. The anchor envelope rebuilds a rescaled arm as
+`base + s*(arm - base)`. That identity is licensed by `[AFFINE]` and checked by
+`[ANCHOR-EXACT]` — **but only at the scales those gates actually ran at, s = 1.42 and 1.70.**
+The envelope then applied it at **s = 35.4 and s = 1240**, and printed the results as numbers.
+
+Checked against the component's own ceiling (it reports `57.0*(1 - V/V0)`, so 57 m = 5700 cm
+is total deglaciation):
+
+| | |
+|---|---|
+| envelope cells **above total deglaciation** | **2 of 48** — worst **153210 cm = 26.9x THE WHOLE ICE SHEET** |
+| cells at an **unverified** lambda rescale (> 3.0) | **28 of 48** |
+| cells actually inside the verified domain | **18 of 48** |
+
+⇒ **"Report the whole anchor envelope" was resting on cells that were mostly not licensed.**
+The two impossible cells are not physics and never were — they are a locally-verified
+linearity extrapolated ~700x, with no knowledge of the mass floor or the cone geometry.
+
+**FIXED THIS SESSION.** `scope_ais_fastdyn_shape.jl` now carries `DEGLACIATION_CM = 5700.0`
+and `SCALE_VERIFIED_MAX = 3.0`, tags every envelope cell `ok` / `UNVERIFIED` / `IMPOSSIBLE`,
+prints `>57m` instead of a number, and reports the counts. The **shipped**
+`outputs/scope_ais_fastdyn_envelope_L14.csv` has been given the same `domain` column in place,
+so the 153210 cm cell cannot be retrieved unmarked.
+
+**Is there a second correction that rescues the ssp245@2300 anchor? No.** The obvious
+candidate is a saturating cap (`gmax`), and it fails on arithmetic: to bound ssp585 you need
+`gmax` below roughly 1/12, which makes ssp585's flux **lower than stock** — the opposite of
+the physics the whole arm exists to represent. The blow-up is structural: anchoring on the
+**coldest** cell forces lambda to compensate for a tiny `g` there, and any monotone
+`g(excess)` then amplifies that compensation at ssp585. **Reject the anchor.**
+
+⚠ **What does NOT change:** the anchor-free ratio (§3) and the ssp585@2300-anchored table are
+untouched — they run at s = 1.42 / 1.70, inside the verified domain, and `[ANCHOR-EXACT]`
+re-ran both. Item 1's finding stands; the untenable-anchor rows go.
+
+### (A2) The same instinct kills the n = 2 arm — and points at a FRACTIONAL n
+
+Pushing on "absurd" one step further pays off. Coulon's own scenario separation is a external
+check on how much separation is *credible*, and it was sitting in the item-2 numbers unused:
+
+| TOTAL AIS @2300, high/low scenario ratio | |
+|---|---|
+| ours, **n = 0** (shipped binary form) | **2.14** |
+| **Coulon 2025** (ssp585 270.0 / ssp126 56.5 cm) | **4.78** |
+| ours, **n = 1** | **10.04** |
+| ours, **n = 2** | **12.06** |
+
+**Coulon sits between our n = 0 and our n = 1** — and their pair is ssp126-vs-ssp585, *wider*
+than our ssp245-vs-ssp585, so on our own pair their ratio would be **smaller** still, pushing
+the implied exponent further down. Indicative reading: **n ~ 0.3-0.5.**
+
+⇒ **The binary form is wrong AND n = 1 overshoots; n = 2 is outside anything the literature
+separation supports.** Next session should re-run the arm set as **n ∈ {0, 0.25, 0.5, 1}** and
+**drop n = 2** to a stated boundary case, the way the MICI branch is handled. ⚠ This is a
+two-anchor, cross-scenario, cross-forcing bracket — an orienting number, **not** a calibration
+of n. Do not quote 0.3-0.5 as fitted.
+
+### (B) "Run a new scenario through FaIR" — the premise is inverted, the instrument is right
+
+**The premise first.** "If our posterior is too low" — our Antarctic **warming** is too low
+(§4). Our **sea level** is too **HIGH** for that warming: ≥2.14x a forcing-matched Coulon.
+Those are consistent, and §3 is why — the binary form over-credits cold worlds. **So running a
+hotter scenario would push an already-high-for-its-forcing answer higher.** The two findings
+are not independent problems to be fixed separately; they are the same finding twice.
+
+**Mechanically**, a hotter FaIR run addresses only the GMST third of the gap (1.33x), not the
+amplification third (1.28x). At `ais_gmst_amp` = 0.9447 you would need **GMST 12.7-18.0 °C**
+to reach Coulon's 12-17 °C Antarctic — far outside any ssp585 — i.e. using the scenario to
+compensate for a wrong amplification, which simultaneously breaks precipitation, the runoff
+line and ANTO, all of which read the same `T_ant`. That is `hist_compensating` exactly.
+
+**The right instrument is `ais_gmst_amp`** — it is the parameter that is wrong, it is sampled,
+and its target is already measured (34-GCM median **1.143**; Coulon's four **1.205**; we
+sample **0.9447**). **But it is NOT likelihood-inert, and that was MEASURED this session, not
+assumed:**
+
+| moving the median to CMIP6's 1.143 (x1.2099), 12 draws, ssp245 | |
+|---|---|
+| max abs delta over **1850-2024** | **0.110 cm** — against lambda's `[INERT]` **0.000e+00** |
+| as a share of the **entire** 1.404 cm AIS calibration signal | **~8%** |
+| delta at 2024 | **-0.056 cm** = **0.4 sigma** of the target's own band |
+| delta at 2300 | **+34.4 cm** |
+
+⇒ **Unlike lambda, this needs a REFIT.** And note the sign: raising amp *lowers* the hindcast,
+so the likelihood will actively push back and partly undo the prior change. Budget for a full
+recalibration, not a prior propagation.
+
+**What IS worth running, and it is the good version of Marcus's suggestion:** a **diagnostic
+arm at Coulon's forcing** — scale the GMST driver so our Antarctic warming reaches 12 / 14.5 /
+17 °C and read the AIS band. One arm, no refit, and it completes the like-for-like in the
+direction we actually control ("at *their* forcing, what does *our* model give?"). It also
+tests whether our band is narrow because the model is over-confident or merely because our
+forcing range is narrow. **This is the first thing to run next session.**
+⚠ Scaling GMST moves ANTO and every other component too, so read the AIS component only and
+say so.
+
+Also cheap and worth checking first: our driver is `fair_mean_gmst_ssp585.csv`, a **mean over
+configs**. The FaIR ensemble's hot tail may already span CMIP6-like forcing with no new
+scenario at all — check before building one.
 
 ---
 
@@ -143,10 +263,14 @@ so it needs a tune chain and a fresh certificate before anything is re-quoted.
   above-threshold excess at a named anchor cell, computed from the draws + the deterministic
   GMST path with **no model run**.
 * ⚠ **Stock DAIS has NO mass floor on disintegration.** The fork adds one and counts bindings.
-* ⚠ **The anchor for item 1 is UNRESOLVED and is Marcus's.** Anchoring on ssp245@2300 needs a
-  lambda rescale of 35x (n=1) / 1240x (n=2) and gives absurd ssp585 values ⇒ untenable, which
-  is itself informative. The whole envelope is in
-  `outputs/scope_ais_fastdyn_envelope_L14.csv`.
+* ⚠⚠ **THE ANCHOR ENVELOPE HAS A DOMAIN AND ONLY 18 OF 48 CELLS ARE IN IT** (§0.5A). The
+  arithmetic rebuild is verified at lambda rescales 1.42 and 1.70 only; the envelope applied
+  it at 35.4 and 1240 and printed **153210 cm = 26.9x the whole ice sheet** as a number.
+  `scope_ais_fastdyn_shape.jl` now tags every cell `ok` / `UNVERIFIED` / `IMPOSSIBLE` and the
+  shipped CSV carries the same `domain` column. **Filter on `domain == "ok"` before reading
+  `outputs/scope_ais_fastdyn_envelope_L14.csv`.** The ssp245@2300 anchor is REJECTED, and no
+  saturating cap rescues it — bounding ssp585 needs gmax < ~1/12, which puts ssp585's flux
+  BELOW stock.
 * ⚠ **Standardize before ANY eigendecomposition of these covariances.** Raw cond **1.9e16**;
   a first pass in raw units returned eigenvectors loading **1.000 on `ais_slope` at BOTH ends**
   of the spectrum and read like a finding.
@@ -161,21 +285,35 @@ so it needs a tune chain and a fresh certificate before anything is re-quoted.
 
 ## 7. OPEN, IN PRIORITY ORDER
 
-1. **Marcus's call on the item-1 anchor**, and on whether the magnitude-dependent arm ships as
-   a flagged arm beside `UNRESOLVED_AMPLIFICATION` or stays a diagnostic. Everything needed to
-   decide is in `outputs/scope_ais_fastdyn_{cells,envelope}_L14.csv`.
-2. **`ais_gmst_amp` ~ 0.94 is a live defect** — a *de-amplification* where 27 of 34 CMIP6 GCMs
-   amplify. It is a **sampled** parameter, so unlike the GMST half it is directly fixable, and
-   the CMIP6 target (34-GCM median **1.143**) is already measured and on disk.
-3. **The pooled-proposal tune run** (item 3's lever). Needs a tune chain + fresh certificate.
-4. **The reconstruction mixing** (`-24h` item 1) — unchanged, Marcus's, and still demoted.
-5. **The anchored net's counterintuitive sign** at ssp585@2300 (`-24e` §8 item 2).
-6. **Wire the LWS GRACE extension** (`-24h` item 3) — still deferred by Marcus.
-7. **WAIS/EAIS split** — ranked LOW deliberately. `diag_ais_region_lit_check.py` says closure
+**Re-ranked by §0.5.** Items 1 and 2 below are new and come straight out of Marcus's two
+challenges; the old item 1 (the anchor) is resolved — **reject the ssp245@2300 anchor**.
+
+1. **RUN: the diagnostic arm at Coulon's forcing** (§0.5B). Scale the GMST driver so our
+   Antarctic warming reaches 12 / 14.5 / 17 °C, read the **AIS component only**, and answer
+   "at their forcing, what does our model give?". One arm, no refit. Check the FaIR
+   ensemble's own hot tail first — it may already span CMIP6 with no new scenario.
+2. **RUN: re-do the arm set as n ∈ {0, 0.25, 0.5, 1}, dropping n = 2** to a stated boundary
+   case (§0.5A2). Coulon's own scenario separation (4.78) sits between our n = 0 (2.14) and
+   n = 1 (10.04), so the credible exponent is **fractional**. The current n = 1 / n = 2 arms
+   bracket it but neither is the candidate.
+3. **Marcus's call** on whether the magnitude-dependent arm ships as a flagged arm beside
+   `UNRESOLVED_AMPLIFICATION` or stays a diagnostic. Only the **18 of 48** `domain == ok`
+   envelope cells are admissible input to that decision.
+4. **`ais_gmst_amp` ~ 0.94 is a live defect** — a *de-amplification* where 27 of 34 CMIP6 GCMs
+   amplify, target median **1.143**. ⚠ **NOT likelihood-inert** (measured §0.5B: 0.110 cm over
+   1850-2024 = ~8% of the entire calibration signal, 0.4 sigma at 2024), and raising it
+   *lowers* the hindcast so the likelihood pushes back. **Budget a full refit, not a prior
+   propagation.**
+5. **The pooled-proposal tune run** (item 3's lever). Needs a tune chain + fresh certificate.
+   Naturally combined with item 4 — both want a recalibration.
+6. **The reconstruction mixing** (`-24h` item 1) — unchanged, Marcus's, and still demoted.
+7. **The anchored net's counterintuitive sign** at ssp585@2300 (`-24e` §8 item 2).
+8. **Wire the LWS GRACE extension** (`-24h` item 3) — still deferred by Marcus.
+9. **WAIS/EAIS split** — ranked LOW deliberately. `diag_ais_region_lit_check.py` says closure
    is exact (4.5e-7) and WAIS carries the loss, but a **static shares term is not defensible**
    (EAIS drift **4.33 sigma**) and the whole-sheet rate is ~1 sigma from zero. High cost, and
    the data will not constrain the new degrees of freedom the way Greenland's did.
-8. **The AIS observed driver**, **FrEDI linearity**, **Marcus's prose** — unchanged.
+10. **The AIS observed driver**, **FrEDI linearity**, **Marcus's prose** — unchanged.
 
 ---
 
@@ -186,7 +324,8 @@ so it needs a tune chain and a fresh certificate before anything is re-quoted.
 `outputs/scope_ais_fastdyn_{cells,envelope}_L14.csv`,
 `outputs/diag_ais_{coulon_like_for_like,proposal_scaling_L14}.csv`,
 `outputs/log_scope_ais_fastdyn_shape_L14.txt`.
-**Modified:** `CHANGELOG.md` (`2026-08-24p`).
+**Modified:** `CHANGELOG.md` (`2026-08-24p`); `julia/scope_ais_fastdyn_shape.jl` (the §0.5A
+domain guard); `outputs/scope_ais_fastdyn_envelope_L14.csv` (`domain` column added in place).
 **Memories:** `ais_binary_form_priced`, `ais_coulon_not_like_for_like`,
 `acceptance_rate_certifies_nothing` (all new); `INDEX_slr.md` Antarctica section +3 lines;
 `MEMORY.md` SLR live-state and working-conventions extended.

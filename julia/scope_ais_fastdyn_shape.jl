@@ -75,6 +75,18 @@ const AFFINE_TOL_FRAC = 1e-6
 ## and the (deterministic) GMST path -- no model run needed to compute it.
 const ANCHOR_SSP, ANCHOR_H = "ssp585", 2300
 const GMAX = Inf                              # uncapped; the realised max g is REPORTED
+## DOMAIN GUARD ON THE ARITHMETIC ENVELOPE (added 2026-08-24, after Marcus).
+## The envelope rebuilds a rescaled arm as `base + s*(arm - base)`. That identity is
+## licensed by [AFFINE] and checked by [ANCHOR-EXACT] -- but only AT THE SCALES THOSE
+## GATES RAN AT (s = 1.42 and 1.70). Applied at s = 35 or s = 1240 it is an
+## extrapolation of a locally-verified linearity by ~700x, and it knows nothing about
+## the component's mass floor or its cone geometry. Unguarded it printed 153210 cm =
+## 26.9x THE WHOLE ICE SHEET as if it were a model result. Two guards, both REPORTED:
+## the component reports 57.0*(1 - V/V0), so 57 m is total deglaciation and nothing
+## above it is a number at all; and any |log(s)| beyond the verified band is marked
+## UNVERIFIED rather than silently trusted.
+const DEGLACIATION_CM = 5700.0                # 57 m SLE = the component's own ceiling
+const SCALE_VERIFIED_MAX = 3.0                # [ANCHOR-EXACT] ran at 1.42 and 1.70
 ## Preserved T_ant(GMST = 0) anchor of the DAIS temperature map, as ladrillo_projection
 ## sets it: T_ant = amp * GMST + TANT0.
 const TANT0 = LADRILLO_AIS_TANT0
@@ -311,7 +323,8 @@ CSV.write(joinpath(REPO, "outputs", "scope_ais_fastdyn_cells_$(TAG)$(SMOKE ? "_S
 ## ==========================================================================
 env = DataFrame(arm = String[], anchor_ssp = String[], anchor_horizon = Int[],
                 lambda_rescale = Float64[], ssp = String[], horizon = Int[],
-                med_cm = Float64[], spread_cm = Float64[], vs_n0_med = Float64[])
+                med_cm = Float64[], spread_cm = Float64[], vs_n0_med = Float64[],
+                domain = String[])
 @printf("\n%s\nANCHOR ENVELOPE -- each cell used in turn as the anchor\n%s\n",
         repeat("=", 92), repeat("=", 92))
 for n in EXPONENTS
@@ -340,14 +353,26 @@ for n in EXPONENTS
             b = res[(ssp, "lam0")][:, iH]
             v = b .+ s .* (res[(ssp, arm)][:, iH] .- b)
             m0 = median(res[(ssp, ARM_NAME(0.0))][:, iH])
-            push!(env, (arm, as, aH, s, ssp, H, median(v),
-                        quantile(v, 0.95) - quantile(v, 0.05), median(v) - m0))
-            push!(line, @sprintf("%11.1f", median(v)))
+            md = median(v)
+            dom = md > DEGLACIATION_CM ? "IMPOSSIBLE" :
+                  (s > SCALE_VERIFIED_MAX ? "UNVERIFIED" : "ok")
+            push!(env, (arm, as, aH, s, ssp, H, md,
+                        quantile(v, 0.95) - quantile(v, 0.05), md - m0, dom))
+            push!(line, dom == "IMPOSSIBLE" ? @sprintf("%11s", ">57m") :
+                        dom == "UNVERIFIED" ? @sprintf("%10.1f?", md) :
+                        @sprintf("%11.1f", md))
         end
         @printf("  %-18s %8.4f | %s\n", "$(as)@$(aH)", s, join(line, " "))
     end
 end
 CSV.write(joinpath(REPO, "outputs", "scope_ais_fastdyn_envelope_$(TAG)$(SMOKE ? "_SMOKE" : "").csv"), env)
+@printf("\n  KEY: `>57m` = above TOTAL DEGLACIATION (%.0f cm) -- the arithmetic left the model's\n",
+        DEGLACIATION_CM)
+@printf("       domain entirely and the cell is not a number. `?` = lambda rescale above %.1f,\n",
+        SCALE_VERIFIED_MAX)
+@printf("       outside the range [ANCHOR-EXACT] verified; re-run before quoting.\n")
+@printf("  %d of %d envelope cells are IMPOSSIBLE, %d UNVERIFIED.\n",
+        count(==("IMPOSSIBLE"), env.domain), nrow(env), count(==("UNVERIFIED"), env.domain))
 
 ## ==========================================================================
 ## [ANCHOR-EXACT] the arithmetic envelope above rides on [AFFINE], which came back
