@@ -50,18 +50,39 @@ depot, unmodified. Ladrillo changes the **posterior** plus two per-draw reparame
     ais_temperature_coefficient = 1/amp,  intercept = -TANT0/amp (anchor-preserving)
 
 ⇒ **the question is never "is our module better", only "is our CALIBRATION better".**
+**And the calibration changes ARE substantive** (Marcus 2026-08-25: *"the calibration changes
+(particularly the equilibrium) are important updates"*), from `calibrate_mcmc_ext.jl:33-44`:
+**A2** λ / `ais_γ` / `ais_κ` **freed** under their paleo marginals — BRICK 2.0 fixes them at
+the medoid and so reports **zero uncertainty** on the parameter dominating the 100/150-yr
+pulse; **A4** runoff line reparameterised to its identified direction after an **r = 0.9997**
+posterior correlation and an unphysical +0.62 °C onset; **A5** an **SMB equilibrium term**
+(β_total vs area-scaled Rignot 2019) breaking an input–output degeneracy pinned **34:1**
+tighter than either flux; **A6** the GMST→Antarctic map as a sampled transient amplification.
+Plus `ais_ocean_temperature₀` freed; **25 → 29 physical params**. ⚠ **A5 is read as "the
+equilibrium"** — if another was meant, that is the list.
 ⚠ Check this for steps 2–3 before writing a word: glaciers and Greenland **are** replaced, so
 they are genuinely different formulations and criterion (1) is a real question there.
 
-### (2) HINDCAST — **NOT DECIDABLE**
+### (2) HINDCAST — **LADRILLO RANKS ABOVE BRICK 2.0** (revised after Marcus, 2026-08-25)
 
-RMSE ratio Ladrillo/BRICK 2.0: **0.03× full**, 0.01× 1950–1992, 0.55× 1993–2026. Ignore it:
+⚠ **This section originally said "not decidable". That was WRONG.** Marcus: *"comparing to
+observations is also an important target for ranking against BRICK2.0."* The error was one of
+**scope** — the IMBIE signal-to-noise limit is about the **modern rate**, not the
+century-scale cumulative record. Scaled to the AIS target's own 1-sigma (**0.1674 cm**):
 
-* **in-sample for Ladrillo, out-of-sample for BRICK 2.0** — BRICK runs its published posterior
-  and was never recalibrated on `recalib_targets_ext.csv`. The script's own header says so.
-* **the data have no power.** IMBIE whole-sheet loss is **0.95–1.44 σ from zero** across four
-  windows, EAIS is 0.02–0.25 σ, on a target spanning **1.404 cm**.
-  **A hindcast that cannot reject zero cannot rank two models.**
+| window | Ladrillo bias | BRICK 2.0 bias | BRICK 2.0 RMSE / whole signal range |
+|---|---|---|---|
+| full | −0.01 sd | **−4.90 sd** | 0.84× |
+| 1920–1949 | −0.03 sd | **−11.69 sd** | **1.41×** |
+| 1950–1992 | +0.02 sd | −4.21 sd | 0.58× |
+| 1993–2026 | −0.03 sd | +0.37 sd | 0.07× |
+
+**A hindcast that cannot resolve 0.2 sd can still reject 11.7 sd.**
+
+⚠ **RANKS IN ONE DIRECTION ONLY.** It **rejects** BRICK 2.0 — a 4.9–11.7 sd miss is a failure
+no in-sample/out-of-sample caveat rescues — but it does **not certify** Ladrillo, whose
+~0.02 sd bias is *fitted*. Over **1993–2026** the two are **indistinguishable** (both ≤0.6 sd),
+and that is exactly where the IMBIE 0.95–1.44-sigma-from-zero limit bites.
 
 ### (3) PROJECTION — **over-separated, and under-dispersed at ssp126**
 
@@ -77,7 +98,11 @@ not until 2026-08-25. Using the fixed band here would be `like_for_like_forcing`
 | ssp126 spread | **0.33×** | **0.24×** |
 | ssp245 / ssp585 spread | 1.09× / 1.12× | 0.66× / 0.40× |
 
-**Six ratios, one defect: the scenario separation is 4.1×–7.4× too wide.** And at ssp126 the
+**MARCUS RULED THE SEPARATION ACCEPTABLE** (2026-08-25): *"I'm okay with our separation lying
+between FACTS and MAGICC."* Ours (**8.17×** @2100) sits strictly inside FACTS max **3.20×** ..
+MAGICC **10.69×**. ⚠ **At 2150 that bracket does not exist** — MAGICC-SLR carries only 2100 —
+so our 14.12× sits above the FACTS max 7.55× with **no upper comparator**. The ruling is a
+**2100 statement**. At ssp126 the
 band has **no tipping tail at all** — the fast-dynamics term is *exactly* 0.000 cm in every
 arm and horizon — while every literature module keeps one.
 
@@ -103,8 +128,9 @@ would be a worse model.** **The ssp126 width is the real defect, and it is MODEL
 
 As credible as BRICK 2.0 **by construction**; better calibrated on a hindcast that **cannot
 arbitrate**; and against the literature **over-separated across scenarios and under-dispersed
-at ssp126**, both tracing to the binary fast-dynamics threshold. **It does not cleanly "pass"
-criterion (3)** — which matters, because step 5 is conditional on steps 1–4 passing.
+at ssp126**, both tracing to the binary fast-dynamics threshold. **STEP 1 PASSES**, with one named residual defect: the **ssp126 spread** (0.24–0.33× the
+literature), because the binary fast-dynamics term is *exactly* zero there. Model-form, not
+data. **Carry it into step 5.**
 
 ---
 
@@ -168,7 +194,9 @@ criterion (3)** — which matters, because step 5 is conditional on steps 1–4 
 ## 3. NON-OBVIOUS STATE / TRAPS
 
 * ⚠ **The hindcast comparison is in-sample for Ladrillo everywhere, not just AIS.** Every
-  RMSE ratio in the scorecard carries it. Say so in every module's write-up.
+  RMSE ratio carries it — but it still RANKS IN ONE DIRECTION (it can reject the other arm),
+  so **do not dismiss it**. Scale every miss to that component's own target sigma before
+  judging, as step 1 does; a raw RMSE ratio hides whether a miss is 0.2 sd or 11.7 sd.
 * ⚠ **Score projections on the JOINT band, never the fixed one** — FACTS/MAGICC carry climate
   uncertainty. The fixed band understates our ssp126 AIS spread by **3.4×**.
 * ⚠ **`ladrillo_model_comparison_L14.csv` has no BRICK 2.0 rows for AIS/GIS/TE** — only
