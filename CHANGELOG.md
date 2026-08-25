@@ -3,6 +3,83 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-24q — **THE COULON PRE-CHECK CAME BACK YES. Our own FaIR ensemble's hot tail already spans Coulon's forcing — no new scenario was needed — and at MATCHED forcing the "2.4× narrower band" is a forcing-range artifact: our spread is 1.01× theirs.**
+
+`FaIRtoFrEDI/run_fair_ssp585_spread.py`, `julia/scope_ais_coulon_forcing.jl`,
+`data/observations/fair_{pctile_gmst,coulon_arm}_ssp585.csv`,
+`outputs/diag_fair_ssp585_hot_tail.csv`, `outputs/scope_ais_coulon_{cells,paths,gates}_L14.csv`.
+One FaIR run (841 configs) + one 4-arm Ladrillo propagation (2000 draws). **Nothing recalibrated.**
+
+Closes `handoff_2026-08-24i_ais_items123.md` §0.5B item 1.
+
+---
+
+### THE PRE-CHECK — and it changes the instrument
+
+The handoff asked, **before** any hotter scenario was built, whether the FaIR ensemble's own
+hot tail already spans CMIP6-like forcing. **It does.** `run_fair_ssps.py` collapses the 841
+configs to a mean on the way out, so the spread had never been written to disk. Written now:
+
+| ssp585 GMST @2300, °C vs 1995–2014, 11-yr centred | p05 | p50 | **p95** | max |
+|---|---|---|---|---|
+| 841-config spread | 3.49 | 6.56 | **11.25** | **21.39** |
+| **the shipped driver** (`fair_mean_gmst_ssp585.csv`) | — | — | — | **6.95** |
+
+**16 of 841 configs** clear T_ant = 12 °C at the posterior-median `ais_gmst_amp`. So the
+"our entire posterior sits below Coulon's coldest GCM" gap in `2026-08-24p` §ITEM 2 is
+substantially **a property of driving Ladrillo with an ensemble MEAN**, not of the model's
+reachable forcing. Every draw sees the *same* GMST path, so the projection band carries
+**no climate-forcing uncertainty at all**.
+
+⇒ The arms are therefore **real, self-consistent FaIR trajectories** out of that tail
+(ensemble percentiles **98.0 / 99.4 / 99.8**), not an arbitrary rescaling of the mean.
+A pctile-99.8 config is a rare draw and is labelled as one in every cell.
+
+**Splice convention** is `build_protect_x2300_forcing.py`'s, unchanged: our own path through
+2014, then the config's anomaly re-referenced to its own 1995–2014 mean.
+
+**Gates.** **[MEAN-MATCH]** the per-config cube reproduces the shipped driver at **8.9e-16 °C**.
+**[SPLICE-INERT]** the arms are **exactly 0** from the shipped driver pre-2014.
+**[CONTROL]** the control arm reproduces the shipped panel at **+0.0000 cm** on all three
+horizons. **[CALIB-MOVE]** — the splice is at 2014 but the AIS calibration window runs to
+2025, so 2015–2024 *does* move; measured against the target's own scale it is
+**0.09–0.48 σ** (0.012–0.067 cm against a 1.404 cm target span). **[BASEYEAR]** Coulon quotes
+sea level from 2015 and we rebase to 1995–2014; the offset is **0.337 cm**, negligible
+against a 270 cm comparison, and priced rather than assumed.
+
+### THE RESULT — AIS component ONLY
+
+A hotter GMST moves ANTO, the runoff line, precipitation, glaciers, Greenland and thermal
+expansion too. **Only the AIS number below is licensed.** (OHC was not even touched: in
+Ladrillo it reaches `thermal_expansion` alone, while AIS and ANTO read
+`model_global_surface_temperature`.)
+
+| arm | T_ant @2300 | AIS@2300 med | × Coulon's 270 | spread | **× Coulon's width** |
+|---|---|---|---|---|---|
+| control (shipped mean) | 6.57 | 281.2 | 1.04× | 252.4 | 0.48× |
+| **tant12** (their coldest) | 12.00 | 394.9 | 1.46× | 370.3 | 0.71× |
+| **tant14** (their midpoint) | 14.06 | 491.7 | **1.82×** | 527.7 | **1.01×** |
+| **tant17** (their hottest) | 16.64 | 581.4 | 2.15× | 709.0 | 1.36× |
+
+**(1) The "2.4× narrower band" was a forcing-range artifact.** `2026-08-24c` read our band as
+2.4× narrower than Coulon's and that was carried as possible over-confidence. Their width
+spans a 12–17 °C forcing range and ours a 5.5–7.7 °C one. **At matched forcing our spread is
+1.01× theirs** — and that is our *parametric* spread alone, against their parametric **plus**
+GCM spread.
+
+**(2) ⚠ THE DISPLACEMENT IS FORCING-DEPENDENT, and the two numbers are DIFFERENT QUANTITIES.**
+`2026-08-24p` §ITEM 2 moved **Coulon down to our** forcing and got **≥2.14×**. This moves
+**us up to theirs** and gets **1.82×** at their midpoint. Both are like-for-like; they
+measure the gap at two different points on the forcing axis, and the gap **shrinks as
+forcing rises**. That is exactly what ITEM 1 predicts — the binary fast-dynamics form
+over-credits **cold** worlds, so the gap is widest where the above-threshold excess is
+smallest. **Never quote one as the other; always state the forcing.**
+
+**What does NOT change:** the sign of the shipped reading. We are displaced high at every
+forcing tested. `2026-08-24p` §ITEM 2's correction stands.
+
+---
+
 ## [unreleased] — 2026-08-24p — **AIS ITEMS 1–3. (1) The binary fast-dynamics form is worth 26–750× of the scenario separation, and 84% of the ssp245@2300 median. (2) The Coulon comparison was never like-for-like — their forcing is 1.83–2.59× ours and correcting it FLIPS the sign of the reading. (3) The four adapted proposals disagree 347× while every acceptance rate sits on target.**
 
 `julia/antarctic_icesheet_magdep_component.jl`, `julia/scope_ais_fastdyn_shape.jl`,
