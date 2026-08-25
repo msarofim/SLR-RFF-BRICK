@@ -3,6 +3,68 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-25a — **ITEM 2 RE-SCOPED AND RUN. The handoff's rationale for a fractional exponent is RETRACTED — Coulon's "4.78 separation" was mid/mid of two models that disagree 37×, and per model it spans 2.43×–91× and rejects every arm. The structural case against the binary form is untouched.**
+
+`julia/scope_ais_fastdyn_shape.jl`, `outputs/scope_ais_fastdyn_{cells,envelope,separation}_L14.csv`.
+One chain read. **Nothing recalibrated.**
+
+Closes `handoff_2026-08-24i_ais_items123.md` §0.5A2 / open item 2.
+
+---
+
+### THE RETRACTION
+
+`2026-08-24p` §0.5A2 formed **one** high/low separation ratio from Coulon's Table 1 —
+mid(267, 273) / mid(3, 110) = **270.0/56.5 = 4.78** — placed it between our n = 0 (2.14) and
+n = 1 (10.04), and read off an indicative **n ≈ 0.3–0.5**. That is the
+`endpoint_division_is_not_a_ratio_band` failure mode. Verified against the paper
+(Table 1, PMC12680641):
+
+| ice-sheet model | ssp585 @2300 | ssp126 @2300 | **separation** |
+|---|---|---|---|
+| Kori-ULB | 2.67 m | 1.10 m | **2.43×** |
+| PISM | 2.73 m | 0.03 m | **91.0×** |
+
+The two models **disagree 37× at ssp126**, so averaging them *before* dividing manufactured a
+precision neither has. Per model the external separation spans **2.43×–91×** — which contains
+**all five** of our arms and selects none.
+
+**And the comparison was not like-for-like in the first place.** Their pair is ssp126-vs-ssp585;
+the 2.14 it was compared against is our **ssp245**-vs-ssp585. Run on Coulon's own pair, our
+n = 0 total ratio is **20.88×** — *above* the 4.78 it was placed *below*. The direction of the
+inference reverses. `like_for_like_forcing`, in miniature, inside the fix for a
+like-for-like error.
+
+### THE RE-SCOPED SWEEP — n ∈ {0, 0.25, 0.5, 1, 2}, ssp126 added, n = 2 flagged BOUNDARY
+
+**Gates.** **[FORK]** reproduces the shipped panel at **+0.0000 cm** on all **nine** cells
+(ssp126 included). **[INERT]** **0.000e+00** across all three scenarios — the shape change
+stays likelihood-inert with ssp126 in. **[AFFINE]** APPROXIMATE (2.2e-3 – 4.8e-3 of band);
+**[ANCHOR-EXACT]** re-runs the headline anchor. **[GMAX]** max realised g 1.12–2.50 at ssp585,
+and **≤0.77 at ssp245, ≤0.41 at ssp126**.
+
+Anchor-free **ssp585/ssp245** ratio of the fast-dynamics contribution:
+
+| horizon | n = 0 | n = 0.25 | n = 0.5 | n = 1 | n = 2 *(boundary)* |
+|---|---|---|---|---|---|
+| 2300 | **1.87** | 3.89 | 9.07 | 47.92 | 1400 |
+
+ssp245@2300 fast-dynamics: **110.0 → 47.6 → 18.8 → 3.09 → 0.088 cm.** The fractional arms fill
+the gap smoothly; nothing pathological appears between n = 0 and n = 1.
+
+**The matched-pair reading, which is new.** At **ssp126 the fast-dynamics term is EXACTLY
+0.000 cm at every horizon in every arm** — no draw tips at all. So our ssp126 AIS@2300 is
+**13.5 cm** against Kori-ULB's **110 cm**: we are ~8× *low* at the low scenario while sitting
+at 1.04× at ssp585 on the mean driver. **That asymmetry is the scenario-separation problem
+seen directly in levels, without forming any ratio** — and it is a far better statement of it
+than a ratio whose external comparator spans 2.43×–91×.
+
+⇒ **The structural case against the binary form stands** (an 11.6× range of above-threshold
+excess charged one flux). **Only the evidence for a *particular* n is gone.** No exponent is
+selected by anything currently on the table.
+
+---
+
 ## [unreleased] — 2026-08-24q — **THE COULON PRE-CHECK CAME BACK YES. Our own FaIR ensemble's hot tail already spans Coulon's forcing — no new scenario was needed — and at MATCHED forcing the "2.4× narrower band" is a forcing-range artifact: our spread is 1.01× theirs.**
 
 `FaIRtoFrEDI/run_fair_ssp585_spread.py`, `julia/scope_ais_coulon_forcing.jl`,
