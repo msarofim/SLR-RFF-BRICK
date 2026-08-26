@@ -3,6 +3,107 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-26 — **L17 REJECTED. The mode-local proposal did not confine the chains — it made `T_on` mixing WORSE (R-hat 1.184 -> 2.264). The registered prediction resolves on its SECOND branch: the wander is NOT proposal-driven, and the mode structure is a deeper problem than a seed.**
+
+`run_mcmc_L17.sh` (chain), `scripts/ton_band_by_chain.sh` (NEW),
+`outputs/ton_band_by_chain_L16_L17.txt` (NEW). **L14 remains champion; `champions.json`
+untouched. L15, L16, L17 are all unpromoted arms.** Downstream projection/benchmark chain
+(handoff step 5) deliberately NOT run — see "why" below.
+
+### THE ARM, VERIFIED BEFORE IT WAS SCORED
+
+4 x 2M, seeds 2026-2029, ~3h55m (14,022 s/chain), acceptance 0.234-0.239. Exactly one change
+vs L16: `--adcov=adapted_cov_L16MID.csv`, the empirical covariance of L16's own post-burn draws
+restricted to the MID band. Amp prior UNCHANGED at N(1.090, 0.180) — confirmed from the chain
+logs (`A6 prior: amp ~ N(1.090, 0.180) on [0.550, 1.630]`).
+
+The `nameless_matrix_order` gate passes **on the production run, not just the smoke run**: the
+calibrator's by-name proposal diagonal read back `ais_runoff_Ton 0.1422`, the MID-local value
+(L16-pooled was 0.526). The matrix is not permuted on read.
+
+### THE REGISTERED PREDICTION — RESOLVED, SECOND BRANCH
+
+Registered before the run: *"the AIS hindcast lands on L16's MID band (1950-92 bias ~ -0.00 sd,
+RMSE ~ 0.008 cm). If it instead reproduces L16's POOLED numbers (bias -0.022, RMSE 0.0091), the
+wander is NOT proposal-driven."*
+
+**L17 POOLED: bias -0.094 sd, RMSE 0.0189 cm.** Not MID, and not L16-POOLED either — WORSE than
+both. The prediction fails in the "not proposal-driven" direction and by a wider margin than the
+fork anticipated. Reproduction check passes (L16 POOLED -0.022 / cov90 98% reproduces the
+committed benchmark), so the scoring is sound.
+
+### THE PROPOSAL MADE MIXING WORSE, NOT BETTER
+
+`ais_runoff_Ton` R-hat: L16 **1.184** -> L17 **2.264** (ESS 12.2). 20 marginals fail (L14 20,
+L15 18, L16 18). Out-of-MID occupancy in the scored subsample **13.5% -> 36.9%**, and the
+excursions run FURTHER: LOW median T_on -18.94 -> -22.37, HIGH median -16.41 -> -10.79.
+
+### ⚠ AND IT IS NOT DIFFUSE WANDER — IT IS TWO ABSORBED CHAINS, IN OPPOSITE DIRECTIONS
+
+A pooled "24% LOW" is ambiguous between all four chains wandering and one chain absorbed.
+`scripts/ton_band_by_chain.sh` (raw CSV + awk, INDEPENDENT of the Julia path) splits it:
+
+| arm | seed2026 | seed2027 | seed2028 | seed2029 |
+|---|---|---|---|---|
+| L16 | 80.2 MID / 19.8 HIGH | 99.2 MID | **29.9 LOW** / 69.3 MID | 98.9 MID |
+| L17 | **97.8 LOW** (mean -21.95, min -26.07) | 98.0 MID | **48.6 HIGH** (mean -14.54, max -7.79) | 99.0 MID |
+
+Pooled reconstruction agrees with `scope_ais_ton_band_hindcast.jl` to rounding on all three
+bands (LOW 24.5 vs 24.2, MID 62.7 vs 63.1, HIGH 12.9 vs 12.8) — two independent code paths.
+
+**L17 is two chains pinned in MID, one absorbed in LOW, one half-absorbed in HIGH.** That is a
+sampler that cannot cross between separated modes, which is what R-hat 2.264 is reporting.
+**L16's chains were HEALTHIER: none was absorbed** — its worst (seed2028, 29.9% LOW) crossed and
+came BACK, and every L16 chain held >=69% MID.
+
+### THE BAND-VS-ARM FINDING IS REPRODUCED AND EXTENDED TO THREE ARMS
+
+Hindcast quality still tracks the BAND, not the ARM. 1950-92 bias in target sd / RMSE cm:
+
+| band | L14 | L16 | L17 |
+|---|---|---|---|
+| LOW | (0 draws) | -0.328 / 0.0591 | -0.334 / 0.0600 |
+| MID | +0.023 / 0.0067 | -0.003 / 0.0080 | -0.004 / 0.0085 |
+| HIGH | (0 draws) | -0.339 / 0.0610 | -0.361 / 0.0646 |
+
+L14 is 100% MID at 2000 draws (0 LOW, 0 HIGH), confirming the earlier table.
+
+### ⚠ CONVERGENCE "PASSED" ON A FORGIVING DENOMINATOR — QUOTE THE RATIO
+
+Deliverable gate: R-hat 1.005 @2100 / 1.006 @2150, ESS 1333/1317 -> ACCEPTED ON DELIVERABLE.
+But the scale-free ratio sd(medians)/mean(within-chain sd) @2100 is **0.142, the WORST of the
+four arms** (L14 0.051, L15 0.086, L16 0.105). 2.9 cm of between-chain disagreement vanishes
+into a ~20 cm within-chain sd. `rhat_denominator_forgives`. Never quote L17 as "converged".
+
+### WHY DOWNSTREAM WAS NOT RUN
+
+Handoff step 5 (posterior-predictive, SSP projections, FaIR-uncertainty, benchmark, ~15 min) was
+deliberately skipped. Running the projection chain on a posterior that is 37% out-of-mode and
+carries two absorbed chains would produce numbers that could only ever be quoted with a caveat
+that negates them. The arm is rejected on the calibration diagnostics; the projections would not
+change that.
+
+### OPEN — MECHANISM IS A HYPOTHESIS, NOT A FINDING
+
+The tight proposal (T_on sd 0.526 -> 0.142) appears to have stopped RETURNS rather than exits,
+turning reversible excursions into one-way trips. **This is not established.** The handoff's own
+"WHAT L17 CANNOT DO" note predicted a mode-local proposal would make staying EASIER by
+construction; we got the reverse, so the mechanism needs a test, not a story. Two that separate it:
+1. **Return-rate test — free, on existing chains.** Count MID->LOW/HIGH exits and returns per
+   chain in L16 vs L17. Trapping predicts a comparable EXIT rate with a near-zero RETURN rate;
+   "more wander" predicts a higher exit rate.
+2. **`--overdisperse` arm.** Still the honest test of whether MID is the only mode that matters,
+   and it breaks the common-theta0 confound the calibrator itself flags as making R-hat
+   ANTI-CONSERVATIVE. Not yet run for any arm.
+
+### STANDING RECOMMENDATION (unchanged, now better supported)
+
+Keep L14 as champion. Do NOT promote L16 or L17. The amp-prior decision remains one of
+PROVENANCE (L14's N(0.95,0.10) on Xie's sliding-window trend ratio vs L16/L17's N(1.09,0.180)
+on two corrected CMIP6 secant ensembles) and is **Marcus's call, not yet made** — the benchmark
+scores fit, not provenance, and structurally cannot see it. **Mode discipline via the proposal
+has now been tried and failed; the next lever is the START, not the step.**
+
 ## [unreleased] — 2026-08-25j — **THE DAIS-ANCHOR REPAIR IS REFUTED, at 15 minutes instead of 4 hours. The anchor is a LEVEL and the amp change is a SLOPE; a translation cannot cancel a tilt. And the "coverage recovery" it buys is pure BAND INFLATION.**
 
 `julia/scope_ais_anchor_offline.jl` (NEW), `julia/scope_ais_anchor_identification.jl` (NEW).

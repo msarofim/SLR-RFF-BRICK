@@ -1,0 +1,9 @@
+ais_runoff_Ton band occupancy per chain | bands LOW<=-18.5 MID(-18.5,-17.4] HIGH>-17.4 | every 500th post-burn draw
+  chain_L16_seed2026_n2000000.csv            n= 2000  LOW   0.0%  MID  80.2%  HIGH  19.8%   mean  -17.45  min  -18.05  max  -15.21  (col 49)
+  chain_L16_seed2027_n2000000.csv            n= 2000  LOW   0.0%  MID  99.2%  HIGH   0.8%   mean  -17.75  min  -18.09  max  -17.26  (col 49)
+  chain_L16_seed2028_n2000000.csv            n= 2000  LOW  29.9%  MID  69.3%  HIGH   0.8%   mean  -18.14  min  -20.44  max  -17.16  (col 49)
+  chain_L16_seed2029_n2000000.csv            n= 2000  LOW   0.0%  MID  98.9%  HIGH   1.1%   mean  -17.75  min  -18.05  max  -17.23  (col 49)
+  chain_L17_seed2026_n2000000.csv            n= 2000  LOW  97.8%  MID   2.2%  HIGH   0.0%   mean  -21.95  min  -26.07  max  -18.27  (col 49)
+  chain_L17_seed2027_n2000000.csv            n= 2000  LOW   0.0%  MID  98.0%  HIGH   2.0%   mean  -17.74  min  -18.08  max  -17.22  (col 49)
+  chain_L17_seed2028_n2000000.csv            n= 2000  LOW   0.0%  MID  51.4%  HIGH  48.6%   mean  -14.54  min  -18.12  max   -7.79  (col 49)
+  chain_L17_seed2029_n2000000.csv            n= 2000  LOW   0.0%  MID  99.0%  HIGH   0.9%   mean  -17.74  min  -18.11  max  -17.09  (col 49)
