@@ -1,0 +1,37 @@
+Ladrillo 1.0 SLR convergence-by-chain diagnostic
+  tag L16 | window 1850-2150 | ssp245 | rebaseline 1995-2014 | Greenland :basins2
+  burn = first 1000000 of 2000000, thinned to 400 draws per chain
+  amp law ON (S anchored at dT_eff = 0.940 K) — certifies the SHIPPED model
+
+  seed2026: 400 draws (thin 2500, rows 1000001..1997501)  49s
+  seed2027: 400 draws (thin 2500, rows 1000001..1997501)  48s
+  seed2028: 400 draws (thin 2500, rows 1000001..1997501)  48s
+  seed2029: 400 draws (thin 2500, rows 1000001..1997501)  48s
+  total 193s
+
+SLR @2100 (cm, rel. 1995-2014)
+  chain           q05      q50      q95     mean       sd
+  seed2026      42.75    53.12    97.83    60.74    18.84
+  seed2027      41.85    51.70   101.45    61.05    20.79
+  seed2028      42.88    52.11    99.44    60.90    20.03
+  seed2029      42.33    48.44    94.01    58.01    17.65
+  POOLED        42.33    51.30    98.59    60.18    19.39
+
+SLR @2150 (cm, rel. 1995-2014)
+  chain           q05      q50      q95     mean       sd
+  seed2026      65.15   114.45   181.80   114.01    40.35
+  seed2027      63.10   114.47   183.05   113.84    42.53
+  seed2028      65.90   114.17   185.06   114.25    41.26
+  seed2029      64.18   104.53   177.30   107.95    39.43
+  POOLED        64.28   111.27   182.15   112.51    40.96
+
+==============================================================================
+CROSS-CHAIN CONVERGENCE OF PROJECTED SLR  (4 chains x 400 thinned draws)
+==============================================================================
+  quantity          R-hat        ESS  sd(medians)  mean(sd_wc)      ratio
+  SLR@2100          1.002      936.6        2.024       19.326      0.105
+  SLR@2150          1.003      960.6        4.919       40.893      0.120
+
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/mcmc/slr_convergence_L16.csv
+
+VERDICT: projected SLR IS converged across chains (R-hat < 1.05 at all horizons)

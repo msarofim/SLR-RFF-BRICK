@@ -1,0 +1,61 @@
+  + 2 extra comparator row(s) from benchmark/literature_extra.csv: Coulon25-KoriULB, Coulon25-PISM
+  + 2 extra comparator row(s) from benchmark/literature_extra.csv: Coulon25-KoriULB, Coulon25-PISM
+================================================================================================
+LADRILLO BENCHMARK v1.0 — candidate L16, champion L14
+================================================================================================
+  module        hindcast     rate/accel   projection   separation   vs champion 
+  AIS           PASS         UNRESOLVED   FAIL         WARN         WORSE       
+  glaciers      WARN         UNRESOLVED   WARN         WARN         WORSE       
+  Greenland     PASS         UNRESOLVED   FAIL         WARN         SAME        
+  thermal exp.  WARN         FAIL         WARN         WARN         SAME        
+  land water    -            -            WARN         PASS         -           
+  TOTAL         PASS         UNRESOLVED   WARN         WARN         BETTER      
+
+  21 FAIL/WORSE cells for the CANDIDATE:
+    [H] AIS                         rmse_ratio/full            L16 vs L14*          1.041 ratio
+    [H] AIS                         rmse_ratio/1920-1949       L16 vs L14*          1.660 ratio
+    [H] AIS                         rmse_ratio/1950-1992       L16 vs L14*          1.361 ratio
+    [H] AIS                         rmse_ratio/1993-2026       L16 vs L14*          1.026 ratio
+    [H] glaciers                    rmse_ratio/1950-1992       L16 vs BRICK 2.0     1.026 ratio
+    [H] glaciers                    rmse_ratio/1993-2026       L16 vs L14*          1.060 ratio
+    [H] thermal exp.                rmse_ratio/1993-2026       L16 vs BRICK 2.0     1.097 ratio
+    [R] thermal exp.                rate/1993-2026             L16                  0.147 cm/yr
+    [P] AIS          ssp126   2100  spread_vs_lit              L16                  2.392 x lit spread
+    [P] AIS          ssp585   2100  median_vs_lit              L16                  3.009 x lit median
+    [P] Greenland    ssp126   2100  spread_vs_lit              L16                  0.494 x lit spread
+    [P] land water   ssp126   2300  median_vs_lit_delta        L16 vs BRICK 2.0     0.038 |ratio-1| diff
+    [P] land water   ssp245   2300  median_vs_lit_delta        L16 vs BRICK 2.0     0.038 |ratio-1| diff
+    [P] land water   ssp585   2300  median_vs_lit_delta        L16 vs BRICK 2.0     0.038 |ratio-1| diff
+    [P] TOTAL        ssp126   2100  median_vs_lit_delta        L16 vs BRICK 2.0     0.101 |ratio-1| diff
+    [P] TOTAL        ssp126   2150  median_vs_lit_delta        L16 vs BRICK 2.0     0.144 |ratio-1| diff
+    [V] AIS                         projection                 L16                    nan 
+    [V] AIS                         vs champion (hindcast)     L16                  1.272 mean RMSE ratio
+    [V] glaciers                    vs champion (hindcast)     L16                  1.015 mean RMSE ratio
+    [V] Greenland                   projection                 L16                    nan 
+    [V] thermal exp.                rate/accel                 L16                    nan 
+
+  15 FAIL cells for the COMPARATOR arms (this is the benchmark working, not a defect of L16):
+    [H] AIS                         hindcast/full              BRICK 2.0            1.176 cm
+    [H] AIS                         hindcast/1920-1949         BRICK 2.0            1.984 cm
+    [H] AIS                         hindcast/1950-1992         BRICK 2.0            0.808 cm
+    [H] glaciers                    hindcast/1920-1949         BRICK 2.0            1.638 cm
+    [H] Greenland                   hindcast/full              BRICK 2.0            0.723 cm
+    [H] Greenland                   hindcast/1920-1949         BRICK 2.0            0.788 cm
+    [H] Greenland                   hindcast/1950-1992         BRICK 2.0            0.913 cm
+    [R] glaciers                    rate/1993-2026             BRICK 2.0            0.090 cm/yr
+    [R] thermal exp.                rate/1993-2026             L14*                 0.147 cm/yr
+    [R] thermal exp.                rate/1993-2026             BRICK 2.0            0.145 cm/yr
+    [R] AIS                         accel/1900-2026            BRICK 2.0           -0.000 cm/yr2
+    [R] glaciers                    accel/1900-2026            BRICK 2.0            0.001 cm/yr2
+    [P] AIS          ssp245   2100  median_vs_lit              BRICK 2.0            2.814 x lit median
+    [P] AIS          ssp245   2150  median_vs_lit              BRICK 2.0            2.715 x lit median
+    [P] AIS          ssp585   2100  median_vs_lit              BRICK 2.0            3.395 x lit median
+
+  ⚠ COMPARATOR CLASSIFICATION AUDIT: 18 spread cells are scored with the SEJ
+    envelope excluded (benchmark/comparator_classes.csv). It improves the score by up
+    to 1.57x. Cells whose VERDICT depends on it:
+      Greenland    ssp126    2150  0.511 (PASS) vs 0.437 (FAIL) with SEJ in
+      Greenland    ssp245    2100  0.694 (PASS) vs 0.460 (FAIL) with SEJ in
+
+wrote outputs/bench_ladrillo_L16.csv
+wrote outputs/bench_ladrillo_L16.md

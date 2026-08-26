@@ -1,0 +1,43 @@
+Combining 4 chains:
+  chain_L16_seed2026_n2000000.csv  (1000000 post-burn)
+  chain_L16_seed2027_n2000000.csv  (1000000 post-burn)
+  chain_L16_seed2028_n2000000.csv  (1000000 post-burn)
+  chain_L16_seed2029_n2000000.csv  (1000000 post-burn)
+
+4 chains × 1000000 draws. Convergence (target R̂<1.05, ESS>400):
+  ais_ocean_temperature₀   R̂=1.080 ESS=65.9 τ=60722  <-- check
+  antarctic_alpha          R̂=1.123 ESS=27.4 τ=146242  <-- check
+  antarctic_nu             R̂=1.061 ESS=85.1 τ=46986  <-- check
+  anto_alpha               R̂=1.085 ESS=55.0 τ=72792  <-- check
+  anto_beta                R̂=1.160 ESS=30.0 τ=133155  <-- check
+  gis_c1                   R̂=1.026 ESS=245.8 τ=16275  <-- check
+  gis_c0                   R̂=1.025 ESS=201.1 τ=19895  <-- check
+  gis_f                    R̂=1.026 ESS=162.3 τ=24646  <-- check
+  gis_slow_ell             R̂=1.039 ESS=152.7 τ=26188  <-- check
+  ais_mu                   R̂=1.057 ESS=102.6 τ=38999  <-- check
+  ais_slope                R̂=1.340 ESS=19.9 τ=200996  <-- check
+  ais_iceflow0             R̂=1.735 ESS=13.7 τ=292877  <-- check
+  ais_runoff_Ton           R̂=1.184 ESS=26.2 τ=152535  <-- check
+  sd_ais                   R̂=1.032 ESS=144.5 τ=27680  <-- check
+  rho_ais                  R̂=1.127 ESS=36.6 τ=109366  <-- check
+  rho_gsic                 R̂=1.053 ESS=67.2 τ=59511  <-- check
+  rho_gis                  R̂=1.046 ESS=77.9 τ=51322  <-- check
+  log_post                 R̂=1.065 ESS=78.7 τ=50800  <-- check
+  18 params NOT converged.
+
+--accept-slr: deliverable-level convergence from slr_convergence_L16.csv:
+  SLR@2100  R̂=1.002  ESS=936.6
+  SLR@2150  R̂=1.003  ESS=960.6
+ACCEPTED ON DELIVERABLE: parameter marginals not converged (compensating
+AIS-geometry ridge), but projected SLR R̂<1.05 at all horizons -> writing
+canonical outputs (accepted-on-deliverable criterion, Marcus 2026-07-19).
+
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/data/MimiBRICK/parameters_subsample_brick_mengel_L16.csv  (10000-member subsample of 4000000 pooled draws)
+Wrote adapted_cov_L16.csv (empirical posterior cov) -> seeds the next ext run.
+
+Key-param medians  (ext vs 2018-baseline):
+  ais_ocean_temperature₀   ext 0.849   base 0.981   Δ -0.133
+  anto_alpha               ext 0.341   base 0.405   Δ -0.0641
+  thermal_alpha            ext 0.16   base 0.164   Δ -0.00426
+
+** 18 marginals not converged; ACCEPTED ON DELIVERABLE (--accept-slr). **

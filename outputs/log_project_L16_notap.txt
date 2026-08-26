@@ -1,0 +1,18 @@
+Ladrillo SSP components | posterior parameters_subsample_brick_mengel_L16.csv (2000 draws) | Greenland :basins2 | base 1995-2014 | horizon 2300
+........
+SSP1-2.6  2000 draws in 16s
+  @2100 GMST +1.84 | glac   7.8  gis   6.5  ais    4.9  te  13.7  lws  2.6 | TOTAL   35.6 [ 34.2,   37.2] cm  (finite 2000/2000)
+  @2150 GMST +1.71 | glac   9.7  gis   7.9  ais    7.6  te  17.2  lws  4.2 | TOTAL   46.6 [ 44.7,   48.8] cm  (finite 2000/2000)
+  @2300 GMST +1.74 | glac  12.3  gis   9.8  ais   15.2  te  22.7  lws  8.5 | TOTAL   68.6 [ 65.8,   72.0] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 13s
+  @2100 GMST +2.74 | glac   9.9  gis   8.5  ais   11.0  te  18.0  lws  2.6 | TOTAL   50.1 [ 43.9,   79.5] cm  (finite 2000/2000)
+  @2150 GMST +3.00 | glac  13.8  gis  12.4  ais   53.9  te  26.6  lws  4.2 | TOTAL  111.3 [ 67.7,  153.7] cm  (finite 2000/2000)
+  @2300 GMST +3.15 | glac  18.9  gis  18.0  ais  188.1  te  41.9  lws  8.5 | TOTAL  275.3 [115.5,  362.8] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 13s
+  @2100 GMST +4.69 | glac  14.2  gis  13.9  ais   44.7  te  27.0  lws  2.6 | TOTAL  102.7 [ 86.0,  121.4] cm  (finite 2000/2000)
+  @2150 GMST +6.40 | glac  21.8  gis  28.3  ais  106.6  te  49.8  lws  4.2 | TOTAL  210.4 [180.5,  243.4] cm  (finite 2000/2000)
+  @2300 GMST +7.81 | glac  27.6  gis  49.3  ais  312.3  te  99.9  lws  8.5 | TOTAL  498.1 [422.0,  583.1] cm  (finite 2000/2000)
+
+wrote outputs/ssps_components_2300_L16.csv
