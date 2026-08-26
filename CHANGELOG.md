@@ -92,9 +92,25 @@ construction; we got the reverse, so the mechanism needs a test, not a story. Tw
 1. **Return-rate test — free, on existing chains.** Count MID->LOW/HIGH exits and returns per
    chain in L16 vs L17. Trapping predicts a comparable EXIT rate with a near-zero RETURN rate;
    "more wander" predicts a higher exit rate.
-2. **`--overdisperse` arm.** Still the honest test of whether MID is the only mode that matters,
-   and it breaks the common-theta0 confound the calibrator itself flags as making R-hat
-   ANTI-CONSERVATIVE. Not yet run for any arm.
+2. **A `T_on`-DISPERSED arm.** ⚠ **CORRECTED 2026-08-26, same day:** an earlier draft of this
+   entry said `--overdisperse` was "not yet run for any arm", repeating the handoff's claim that
+   the common-theta0 start is "true of L14/L15/L16/L17 alike". **That is FALSE for L14.**
+   Verified across all 16 chain logs: L14 started its four chains from four DISTINCT real
+   posterior draws (`logpost(theta0)` 223.78 / 228.36 / 225.60 / 223.78, i.e. AT the typical set),
+   while L15/L16/L17 each started all four chains from ONE common medoid/MAP point at
+   `logpost = -644`, ~866 log units BELOW it. So (a) the champion and every challenger differ in
+   their START as well as their prior — never a like-for-like comparison — and (b) L14's
+   `--overdisperse` run is already done.
+   **But the caveat SURVIVES in sharper form.** `build_overdispersed_starts.jl` disperses along
+   `ais_iceflow0` quantiles (0.02/0.35/0.65/0.98) — the badly-mixing axis as understood on
+   2026-07-20, before `T_on` multimodality was known. **All four of L14's starts sit in MID**
+   (-17.837 / -17.673 / -17.952 / -17.810; the pre-L14 backup is likewise all-MID, so this is
+   robust to which file was used). L14 is dispersed WITHIN the good mode, so its 100% MID
+   occupancy does NOT establish that chains find MID from elsewhere.
+   **The test that would:** disperse along `ais_runoff_Ton` across LOW/MID/HIGH and re-run L14's
+   exact configuration. Starts must be REAL draws (the script records that 200/200 random-jitter
+   starts gave non-finite logposterior), and L17 — useless as a posterior — is exactly the right
+   SOURCE of feasible off-mode starts: seed2026 is 97.8% LOW, seed2028 48.6% HIGH.
 
 ### STANDING RECOMMENDATION (unchanged, now better supported)
 
