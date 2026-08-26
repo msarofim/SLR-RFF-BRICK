@@ -240,12 +240,22 @@ A ready-made runner for step 5 is at
 * ⚠ **`postprocess_mcmc_ext.jl` REFUSES to write** when marginals fail unless
   `outputs/mcmc/slr_convergence_<TAG>.csv` already exists AND `--accept-slr` is passed. That is
   the documented gate, not a failure. Run the convergence diagnostic first.
-* ⚠ **θ0 is the MEDOID/MAP start and is COMMON ACROSS SEEDS** — the calibrator itself prints
-  "R̂ is ANTI-CONSERVATIVE". True of L14/L15/L16/L17 alike. **Consequence: L14's `T_on`
-  sd of 0.09 at R̂ 1.092 is UNVERIFIED COVERAGE, not established identification** — four
-  chains from one start agreeing is weak evidence they covered the posterior
-  (`no_power_null`). `--overdisperse` + `build_overdispersed_starts.jl` would test it; that
-  is a SEPARATE arm and has not been run.
+* ⚠⚠ **CORRECTED 2026-08-26 (commit `fa1a467`) — THIS BULLET WAS WRONG ABOUT L14.** It said
+  θ0 is a common MEDOID/MAP start "True of L14/L15/L16/L17 alike". **False for L14.** Verified
+  across all 16 chain logs (`logpost(θ0)`): **L14 used `--overdisperse`** — four DISTINCT real
+  posterior draws at 223.78 / 228.36 / 225.60 / 223.78, i.e. AT the typical set — while
+  **L15/L16/L17 each started all four chains from ONE medoid/MAP point at ≈ −644**, ~866 log
+  units BELOW it. Two consequences: (1) **champion and challengers were never like-for-like** —
+  they differ in START as well as prior, so the amp-prior question has never been tested on
+  equal footing; (2) L14's `--overdisperse` arm is **already run**.
+  **The "unverified coverage" conclusion SURVIVES, for a sharper reason.**
+  `build_overdispersed_starts.jl` disperses along **`ais_iceflow0`** quantiles — the badly-mixing
+  axis as understood 2026-07-20, before `T_on` multimodality was found — and **all four of L14's
+  starts sit in MID** (−17.837 / −17.673 / −17.952 / −17.810; the pre-L14 backup is likewise
+  all-MID). L14 is dispersed WITHIN the good mode, so 100% MID does not show chains FIND MID from
+  elsewhere. `no_power_null`: **an overdispersed arm has power only along the axis it was
+  dispersed on.** The test that would settle it disperses along **`ais_runoff_Ton`** across
+  LOW/MID/HIGH — a SEPARATE arm, still not run.
 * ⚠ **`git add -A outputs/` sweeps in ~227 deliberately-untracked mcmc artifacts.** Stage by
   name. Chain CSVs are 2.3 GB each and gitignored.
 * ⚠ The AIS target column of `recalib_targets_ext.csv` is **bit-identical** pre/post the L15

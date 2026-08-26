@@ -36,12 +36,26 @@
 ## run prints "start = MAP".
 ##
 ## ⚠ AND THE CALIBRATOR ITSELF WARNS: "start = MAP; common across seeds -> R-hat is
-## ANTI-CONSERVATIVE". All four chains leave from ONE point. That is true of L14/L15/L16
-## too, and it is load-bearing for the mode argument: four chains that start together and
-## agree are weaker evidence of having covered the posterior than four dispersed ones.
-## L14's T_on sd of 0.09 at R-hat 1.092 should be read with that in mind -- it is
-## unverified coverage, not established identification. --overdisperse exists if this
-## needs testing, but it is a SEPARATE arm.
+## ANTI-CONSERVATIVE". All four chains leave from ONE point. True of L15/L16/L17.
+##
+## ⚠⚠ CORRECTED 2026-08-26 (commit fa1a467) -- THIS COMMENT ORIGINALLY SAID "that is true
+## of L14 too". IT IS NOT. Verified across all 16 chain logs via the `logpost(theta0)` line:
+##   L14  FOUR DISTINCT real posterior draws, logpost 223.78 / 228.36 / 225.60 / 223.78
+##   L15  one common medoid/MAP point, -643.92, all four seeds
+##   L16  one common medoid/MAP point, -644.51, all four seeds
+##   L17  one common medoid/MAP point, -644.51, all four seeds  (THIS ARM)
+## L14 ran --overdisperse; L15/L16/L17 did not. So the champion started AT the typical set
+## and every challenger started ~866 log units BELOW it -- the arms were never like-for-like
+## in their START, only in their prior.
+##
+## The "unverified coverage" reading of L14's T_on sd 0.09 SURVIVES, but for a different and
+## sharper reason: build_overdispersed_starts.jl disperses along `ais_iceflow0` quantiles --
+## the badly-mixing axis as understood 2026-07-20, before T_on multimodality was known
+## (2026-08-26) -- and ALL FOUR of L14's starts sit in MID (-17.837 / -17.673 / -17.952 /
+## -17.810). L14 is dispersed WITHIN the good mode, so its 100% MID occupancy does NOT show
+## that chains FIND MID from elsewhere. `no_power_null`: an overdispersed arm has power only
+## along the AXIS IT WAS DISPERSED ON. The test that would settle it disperses along
+## `ais_runoff_Ton` across LOW/MID/HIGH -- a SEPARATE arm, still not run.
 ##
 ## ⚠ WHAT THIS ARM CANNOT DO. A mode-local proposal makes it EASIER to stay in the mode.
 ## If L17 comes back tight in T_on, that is partly by construction, so it is NOT evidence
