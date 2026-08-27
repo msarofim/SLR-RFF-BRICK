@@ -3,6 +3,103 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-26c — **PRIORITY 3's TEST HAS NO POWER: L16/L17's out-of-MID time is ONE ABSORBING EVENT per chain, not many blocked returns. L18 (the start-matched amp arm) is BUILT AND SMOKE-VERIFIED but COULD NOT RUN — the Mac is swap-bound at load 218 and quoted a 12.66-DAY ETA.**
+
+`run_mcmc_L18.sh` (NEW), `scripts/ton_transition_rates.sh` (NEW), `scripts/ton_escape_scale.sh`
+(NEW). **L14 remains champion; `champions.json` untouched.** No new chain completed.
+
+### 1. L18 IS BUILT AND VERIFIED — BUT DID NOT RUN
+
+`run_mcmc_L18.sh` is L16's exact command plus `--overdisperse`: **one change, the START.** Prior
+stays N(1.090, 0.180), proposal stays `adapted_cov_L15pool_seed2026.csv`, everything else L16's.
+It is the arm that splits amp from burn-in (the confound `fa1a467` exposed).
+
+**Smoke-verified** (`TAG=L18smoke`, 4x4000) before the production launch:
+
+| line | value |
+|---|---|
+| `A6 prior` | `amp ~ N(1.090, 0.180) on [0.550, 1.630]` — L16's prior |
+| `logpost(θ0)` | 224.59 / 228.81 / 224.70 / 222.75 — **four DISTINCT real draws** |
+| `[MAP start = ...]` | **-644.51 — BIT-IDENTICAL to L16's and L17's** |
+
+That last row is an unplanned bonus check worth keeping: L18 prints the same MAP logposterior
+as L16/L17, which proves it scores against **the same objective**. So L18-vs-L16 is genuinely
+single-change and is NOT confounded by the `893bfaa` target move that makes the Aug-20 L14 run
+unusable as a control for a new arm.
+
+**Starts reused unrebuilt, by decision** (handoff -26b §4 recommendation), so the amp comparison
+is exactly controlled. Verified safe: the four amp starts 1.0813 / 1.0945 / 0.8275 / 0.8829 sit
+inside **both** priors' bounds, so the prior change drags no start to a bound.
+
+**⚠ WHY IT DID NOT RUN.** Launched 21:12, killed 21:39. The progress meter quoted **ETA 12.66
+days**. Measured throughput: **0.056 effective cores per chain** (3.56 s of CPU in 64 s of wall).
+Machine state: **load average 218.86**, 629 processes, 113 runnable, **0.1 GB free RAM**, 7.3 GB
+in the memory compressor, swap 20.0 of 21.5 GB. This is handoff -26b §5's swap-bound condition,
+far worse. **No `chain_L18_seed*.csv` was written — it died in startup, so there is nothing
+partial to quarantine.** Its startup logs are renamed `log_L18_ABORTED_swapbound_seed*.txt` so
+they cannot be mistaken for a run.
+
+**⚠ THE DECISIVE REASON TO STOP RATHER THAN PUSH THROUGH: the machine is running Marcus's own
+CCX job** — `calibration/run_modefind_pump_arms.R`, PID 7879, alive since Tue 8 PM with **23.5 h
+of CPU invested**. Four julia chains contending for a thrashing machine degrade that job for days.
+**L18 is ready to relaunch unchanged the moment the machine is free.**
+
+### 2. PRIORITY 3 IS ANSWERED — AND IT REFUTES ITS OWN FRAMING
+
+`scripts/ton_transition_rates.sh`, mutation-tested on three synthetic chains (a crosser, an
+absorbed chain, a never-leaves control) against hand-counted answers before use.
+
+**⚠ THE FRAMING IS VACUOUS AS POSED.** A chain alternates in/out, so `|exits - returns| <= 1`
+ALWAYS. Comparing the two COUNTS cannot discriminate anything. Only the excursion COUNT and
+LENGTH can.
+
+**⚠ AND THE HAZARD VERSION HAS NO POWER EITHER.** Out-of-MID time is **one absorbing event** per
+affected chain. Share of each chain's out-of-MID draws in its SINGLE LONGEST excursion:
+
+| chain | absorbed share | longest run | typical excursion EXCLUDING it |
+|---|---|---|---|
+| L17/2028 | **98.2%** | 475,232 | 25.1 |
+| L16/2026 | **93.2%** | 184,781 | 38.7 |
+| L17/2026 | **73.9%** | 724,358 | 442.0 |
+| L15/2029 | 63.4% | 630,001 | 1937.9 |
+| L16/2028 | 27.7% | 83,438 | 205.3 |
+| L16/2027 · L16/2029 · L17/2027 · L17/2029 | 6-10% | 619-1,049 | 28.8-37.9 |
+
+**Excluding each chain's single longest run, L16 and L17 are indistinguishable** — the same
+~25-45-draw boundary jitter. So "exit hazard" and "return hazard" are both **N=1 estimates driven
+by one event**, and the L16-vs-L17 hazard comparison cannot settle the trapping hypothesis.
+`no_power_null` + `two_statistics_can_be_blind`.
+
+**The DIRECTION is weakly consistent with return-blocking** — L17's absorbing excursions run
+475k-724k draws against L16's 83k-185k — **but that is two events per arm and must not be quoted
+as established.**
+
+**L14 is the control and behaves as one:** 100% MID on all four chains, 0-131 out-of-MID draws,
+so it correctly reports *no power* rather than a clean pass (`audit_every_target`).
+
+### 3. THE REPLACEMENT TEST THAT DOES HAVE POWER (written, run only on the L14 control)
+
+`scripts/ton_escape_scale.sh` uses every post-burn draw instead of 2 events: it compares each
+chain's observed longest excursion against a **driftless-diffusion return time** `D^2/(p*s^2)`.
+`observed >> diffusive` means a real restoring force; `observed ~ diffusive` means the "modes"
+are just a slow proposal.
+
+**Mutation-tested twice, and the first version was WRONG:** it counted the edge-*crossing* jump
+as a step of the return journey, inflating the step RMS **17x** (0.166 measured on a synthetic
+walk whose steps are exactly 0.01). Fixed by requiring both ends of a step to be out of MID.
+**The calibrated null: a pure driftless random walk scores obs/diff = 2.0x** — that is the scale
+to judge the real chains against, and having it is the point of the exercise.
+
+**It got through the L14 control only** before being killed to protect the CCX job. Partial output
+preserved at `outputs/ton_escape_scale_L14_L17.PARTIAL.txt`. **Re-run it on L15/L16/L17 when the
+machine is free** — it is the test that would establish whether the `T_on` barrier is real.
+
+### VERDICT
+
+Keep L14. `champions.json` untouched. Nothing about the amp prior changed, because **the run that
+would inform it did not execute** — it is queued, not abandoned. The amp prior remains a
+PROVENANCE call and remains Marcus's.
+
 ## [unreleased] — 2026-08-26b — **MODE CONTAMINATION IS NOT THE STORY. Purging L16's bad `T_on` modes closes only 6.9% of its projection gap to L14 — so the amp prior (or the start confound still tangled with it) drives ~93% of it, and the amp choice is NOT downstream-inert.**
 
 `julia/scope_slr_fair_uncertainty.jl` (+`--ton-band=`, `--chain-tag=`), `L16MID` outputs.

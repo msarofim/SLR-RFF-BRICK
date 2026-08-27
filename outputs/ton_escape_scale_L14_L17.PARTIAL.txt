@@ -1,0 +1,14 @@
+ais_runoff_Ton ESCAPE SCALE | LOW<=-18.5 MID(-18.5,-17.4] HIGH>-17.4 | every post-burn draw, OUT-OF-MID steps only
+  T_diff = D^2/(p*s^2) is a LOWER BOUND on return time (no drift, no restoring force).
+  observed_longest >> T_diff  =>  REAL BARRIER.   observed ~ T_diff  =>  just slow diffusion.
+
+  chain_L14_seed2026_n2000000.csv            col 49  out-draws 5 — NO within-excursion moves; escape scale UNDEFINED
+  chain_L14_seed2027_n2000000.csv            col 49  out-draws 10
+      move rate p 0.2222   step RMS s 6.715e-04   mean|d| 6.020e-04   (RMS/mean 1.12)
+      distance out of MID:  mean D 0.0066   max 0.0068
+      T_diffusive          430 draws   observed longest 10   ratio obs/diff      0.0x
+  chain_L14_seed2028_n2000000.csv            col 49  out-draws 131
+      move rate p 0.0880   step RMS s 8.093e-03   mean|d| 6.602e-03   (RMS/mean 1.23)
+      distance out of MID:  mean D 0.0111   max 0.0269
+      T_diffusive           21 draws   observed longest 52   ratio obs/diff      2.4x
+  chain_L14_seed2029_n2000000.csv            col 49  NEVER OUT OF MID — no escape scale to measure
