@@ -3,6 +3,81 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-27c — **OPTION B IS DEAD, AND MY REGISTERED PREDICTION FAILED. Halving the amp sigma did NOT bring the ssp126 band back (45.07 vs L18's 47.81 cm), and it made the fit WORSE — because pinning an unidentified parameter tighter around a centre the data disagree with removes the likelihood's ability to pull it down.**
+
+`run_mcmc_L20.sh`, `run_l20_postprocess.sh`. **L14 remains champion; `champions.json` UNTOUCHED.**
+L20 chains 11:19-14:11 (2h52m); full pipeline complete 15:04, every step OK.
+
+### ARM VERIFIED
+`amp ~ N(1.090, 0.100) on [0.790, 1.390]`, four DISTINCT over-dispersed starts on L14/L18's
+canonical unrebuilt file, and **`[MAP start = -643.92]` — which EQUALS L15's**, confirming L20
+shares L15's objective and is exactly the clean re-run of option B that L15 never got (L15 ran
+the common MAP start and fell 73.7% into the LOW band).
+
+### 1. THE REGISTERED PREDICTION FAILED. SIGMA IS NOT THE LEVER FOR THE BAND.
+
+Predicted: AIS ssp126@2100 p05-p95 returns near L14's 6.91 cm. Measured:
+
+| AIS p05-p95, joint | L14 (σ .10, μ .95) | L18 (σ .18, μ 1.09) | **L20 (σ .10, μ 1.09)** | L20/L18 |
+|---|---|---|---|---|
+| ssp126 @2100 | 6.91 | 47.81 | **45.07** | 0.94x |
+| ssp126 @2150 | 14.78 | 84.54 | **85.98** | 1.02x |
+| ssp245 @2100 | 43.26 | 59.92 | **59.63** | 1.00x |
+| ssp585 @2300 | 303.07 | 337.51 | **338.70** | 1.00x |
+
+**L20 reproduces L18's band at every cell (0.91-1.06x).** Halving sigma moved ssp126@2100 by 6%
+and it is still 6.5x L14's. The band is driven by the CENTRE, not the spread.
+
+### 2. AND IT MADE THE FIT WORSE — THE MECHANISM IS INSTRUCTIVE
+
+| | L14 | L18 (σ 0.180) | **L20 (σ 0.10)** |
+|---|---|---|---|
+| amp posterior | 0.9450 ± 0.0963 | 1.0598 ± 0.1750 | **1.0802 ± 0.0983** |
+| AIS hindcast vs champion | 1.000 | 1.0718 WORSE | **1.1003 WORSE** |
+| Σ\|median − L14\| (9 AIS cells) | — | 3.457 | **4.254** |
+| sd(medians)/mean(sd_wc) @2100 | **0.051** | 0.134 | 0.107 |
+| R-hat @2100 / ESS | 1.0171 / 953 | 1.0056 / 1191 | **1.0007 / 1555** |
+
+**The narrower prior PINNED amp HIGHER** — 1.0802 against L18's 1.0598, both from a 1.09 centre.
+"Unidentified" means no shrinkage in WIDTH (sd ratio 1.012 / 1.002); it does NOT mean the
+likelihood has no opinion about LOCATION. The record pulls amp DOWN by ~0.15σ in both arms, and
+a wider prior lets that pull travel further in absolute terms (−0.030 vs −0.010). So **at a given
+centre the WIDER prior fits better**, and σ=0.180 beats σ=0.10 on AIS hindcast and on median
+distance to L14. My three-part argument for 0.10 was sound on provenance grounds and WRONG on
+consequences.
+
+L20 does win the pure sampling diagnostics — best R-hat (1.0007) and best ESS (1555) of any arm,
+and a better between-chain ratio than L18 — which is what a tighter prior on a badly-mixing
+parameter should do. It does not buy fit.
+
+### 3. WHAT THE ssp126 BAND ACTUALLY IS — NOT TIPPING, AND STILL OPEN
+
+The obvious mechanism was the tipping threshold (crossing GMST = (threshold − T_ant0)/amp).
+**Measured, it is NOT the explanation at ssp126:**
+
+| arm | crossing GMST | tipped% ssp126 (~1.8K) | ssp245 (~2.8K) | ssp585 (~4.9K) |
+|---|---|---|---|---|
+| L14 | 3.055 ± 0.527 | **0.0** | 33.7 | 99.9 |
+| L18 | 2.768 ± 0.634 | **2.6** | 58.1 | 99.3 |
+| L20 | 2.664 ± 0.441 | **1.0** | 63.8 | 100.0 |
+
+Under 3% of draws tip at ssp126 in every arm, so the 6.5x band is NOT bimodal tipping. The
+tipping channel DOES explain ssp245, where the median moves most (0.531 → 0.846 → 1.094 as
+tipped% goes 33.7 → 58.1 → 63.8). **The ssp126 band must come from the smooth runoff channel and
+is NOT yet explained** — flagged, not resolved.
+
+### 4. THE INVARIANT HOLDS AGAIN
+GMST runoff onset: L14 0.637 ± 0.077, L18 0.645 ± 0.074, **L20 0.644 ± 0.075**. Three arms,
+three different amp priors, identical to 0.008 degC. The identified physics does not move.
+
+### VERDICT
+
+**Option B is dead.** At centre 1.09 it is worse than option C on hindcast and on medians, and it
+does not recover the band. The sigma question is answered, in the opposite direction to my
+recommendation: **at a fixed centre, prefer the WIDER prior.** So the live choice is back to
+**A: N(0.95, 0.10) [L14, champion] vs C: N(1.09, 0.180) [L18]** — a provenance call between a
+better-fitting arm and a better-sourced centre, and it remains Marcus's.
+
 ## [unreleased] — 2026-08-27b — **L19 SETTLES PRIORITY 2. Branch (B): chains NEVER cross — L14's 100% MID is START-DETERMINED. But MID also WINS the per-band log-density by 5.7-6.9 nats, so the champion's mode is VINDICATED on evidence it never itself supplied.**
 
 `run_mcmc_L19.sh`, `run_l19_postprocess.sh`, `scripts/ton_band_logpost.sh`, and
