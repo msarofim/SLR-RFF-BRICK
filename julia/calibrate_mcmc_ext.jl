@@ -2035,8 +2035,15 @@ if OVERDISPERSE
     # feasible region even when every marginal is inside its bounds. Real draws are feasible
     # by construction AND dispersed along the direction that actually fails to mix.
     # Built by picking pooled run-3 draws at ais_iceflow0 quantiles 0.02/0.35/0.65/0.98.
-    SF = joinpath(REPO, "outputs/mcmc/overdispersed_starts.csv")
+    # --starts=PATH (2026-08-27, default-off): use a DIFFERENT starts file without touching
+    # the canonical one. outputs/mcmc/overdispersed_starts.csv is L14's and is load-bearing —
+    # L14 AND L18 both ran on it, and reusing it unrebuilt is what makes their comparison
+    # exactly controlled. Swapping that file in place is how a later run silently inherits
+    # another arm's starts (the repo already carries 4 .pre_*_bak files from doing exactly
+    # that). Omitting the flag reproduces the previous behaviour byte for byte.
+    SF = something(_argval("--starts="), joinpath(REPO, "outputs/mcmc/overdispersed_starts.csv"))
     isfile(SF) || error("--overdisperse needs $SF (4 rows x NK params). See notes/handoff_2026-07-18_brick_mengel_vnext.md")
+    println("over-dispersed starts file: $SF")
     st = CSV.read(SF, DataFrame)
     si = findfirst(==(SEED), [2026,2027,2028,2029])
     isnothing(si) && error("--overdisperse: no start row defined for seed $SEED")
