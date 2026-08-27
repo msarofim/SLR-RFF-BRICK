@@ -3,6 +3,58 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [DECIDED] — 2026-08-27d — **AMP PRIOR SETTLED: KEEP L14's N(0.95, 0.10), ON FIT. The Ladrillo calibration arc L15→L20 is CLOSED.**
+
+**Decision by Marcus, 2026-08-27**, after L15/L16/L17/L18/L19/L20. `champions.json` unchanged —
+L14 was already champion, so no promotion was required and none was made.
+
+> *"I lean towards the better fit: we don't know which aspects of Antarctic temperatures are most
+> important (and it is a region with high observational uncertainty) so there is some room for
+> hand waving provenance."*
+
+### THE FRAME AMBIGUITY IS MEASURED, SO THIS IS BETTER GROUNDED THAN "HAND WAVING"
+
+| frame / metric | amp |
+|---|---|
+| polar-cap cap60 **incl. Southern Ocean**, ssp245 / ssp585 | 0.92 / 0.98 |
+| **L14's adopted 0.95** | **= the cap60 midpoint** |
+| CMIP6 **secant**, land frame — 34-model pooled / DECK 41-model | 1.095 / 1.097 |
+| land-only **PAI1 trend**, 34-model ssp245 / ssp585 | 1.13 / 1.16 |
+
+**Frame span = 0.240, which is 1.3x the between-model sd of any ONE frame (0.180).** Which
+*aspect* of Antarctic temperature you mean matters more than which model you ask. **L14's 0.95 is
+therefore a FRAME CHOICE, not an error** — it is the central value of the
+cap-including-Southern-Ocean frame, and DAIS's `T_ant` drives domain-integrated surface runoff.
+
+**Do not reopen on provenance alone.** Grounds that WOULD justify reopening: an independent
+constraint on the runoff-onset temperature, or a defensible argument that DAIS's
+domain-integrated `T_ant` should be land-only rather than cap-like.
+
+### WHAT THE DECISION SETTLES — do not re-test
+
+* **σ: at a fixed centre, prefer the WIDER prior.** L20 (σ 0.10 @ 1.09) pinned amp HIGHER than
+  L18 (σ 0.180 @ 1.09) — 1.0802 vs 1.0598 — and fit WORSE (AIS hindcast 1.100 vs 1.072).
+  *Unidentified* = no shrinkage in WIDTH, NOT "no opinion about LOCATION".
+* **σ is not the lever for the projection band; the CENTRE is.** L20 reproduced L18's band at
+  every cell (0.91–1.06x), including ssp126@2100 at 45.07 vs 47.81 cm.
+* **`amp(dT)` must NOT be built.** State-dependence is UNRESOLVED on both scenarios with OPPOSITE
+  signs (ssp245 −0.0065/K z=−0.59; ssp585 +0.0091/K z=+1.43), each worth 0.02–0.03 over 1–4 K
+  against a between-model sd ~0.18.
+* **The mode question is answered:** L14's MID is start-determined (L19: no crossings in 4M
+  draws) but MID independently wins the equilibrated log-density by ~40–140x after volume
+  correction.
+
+### WHAT REMAINS OPEN — none of it affected by this decision
+
+1. **Runoff onset ~0.64 °C GMST against a paleo/Shaffer prior of +2.3–2.5 °C — a 3.6x
+   discrepancy**, identical across all three amp priors (L14 0.637 ± 0.077, L18 0.645 ± 0.074,
+   L20 0.644 ± 0.075). **This, not the amp prior, is the caveat worth writing.**
+2. **The ssp126 AIS band** is 6.5x wider under a 1.09 centre and is **NOT** bimodal tipping
+   (<3% of draws tip at ssp126 in every arm). Mechanism unexplained; flagged, not solved. Under
+   the adopted 0.95 centre the band is L14's narrow 6.91 cm, so this is not a live defect of the
+   shipped model — it is an open question about the model's low-forcing behaviour.
+3. The `T_on` barrier is real (all 16 chains 3.5–28.5x the driftless null).
+
 ## [unreleased] — 2026-08-27c — **OPTION B IS DEAD, AND MY REGISTERED PREDICTION FAILED. Halving the amp sigma did NOT bring the ssp126 band back (45.07 vs L18's 47.81 cm), and it made the fit WORSE — because pinning an unidentified parameter tighter around a centre the data disagree with removes the likelihood's ability to pull it down.**
 
 `run_mcmc_L20.sh`, `run_l20_postprocess.sh`. **L14 remains champion; `champions.json` UNTOUCHED.**
