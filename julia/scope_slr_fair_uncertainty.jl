@@ -40,6 +40,18 @@
 ## against ensembles that carry climate uncertainty; it is not a recalibration.
 ##
 ##   julia --project=julia_v2 julia/scope_slr_fair_uncertainty.jl [n_per_chain] [--tag=L14] [--maxrows=N]
+##        [--chain-tag=L16] [--ton-band=LOW|MID|HIGH]
+##
+## --chain-tag  READ the chains from a different tag than the one outputs are named for.
+##              Everything else (output names, the [CONTROL] comparison against
+##              ssps_components_2300_<TAG>.csv) still keys off --tag, so a derived arm
+##              cannot overwrite the arm it was derived from.
+## --ton-band   Keep only post-burn draws whose `ais_runoff_Ton` falls in one band of the
+##              multimodal A4 runoff-line coordinate (memory `ais_ton_multimodal`). Used to
+##              ask what an arm projects CONDITIONAL on sitting in the good mode, without
+##              re-running a chain. DEFAULT OFF; when off this file behaves exactly as before.
+##              ⚠ Conditioning is NOT resampling: the result answers 'what do this arm's
+##              in-band draws project', not 'what would a chain confined to the band find'.
 ## Writes outputs/scope_slr_fairunc_{cells,paths,gates}_<tag>.csv
 ## ============================================================================
 using CSV, DataFrames, Statistics, Printf, Mimi, Random
@@ -108,7 +120,19 @@ const CONTROL_TOL_CM = 0.5
 ## Their band spans FOUR GCMs, which is exactly why ours has to carry climate too.
 const COULON_BAND, COULON_MED = (73.0, 595.0), 270.0
 
-chain_path(sd) = joinpath(REPO, "outputs/mcmc", "chain_$(TAG)_seed$(sd)_n$(NITER).csv")
+## Band edges: the KDE valley floors defined by scope_ais_ton_band_hindcast.jl, which is the
+## SOURCE OF TRUTH. Keep in sync -- a silent divergence would make two 'MID's mean two things.
+const TON_EDGE_LOW, TON_EDGE_HIGH = -18.5, -17.4
+ton_band(v) = v <= TON_EDGE_LOW ? "LOW" : (v <= TON_EDGE_HIGH ? "MID" : "HIGH")
+const TON_BAND = let i = findfirst(a -> startswith(a, "--ton-band="), ARGS)
+    i === nothing ? "" : ARGS[i][12:end]
+end
+@assert TON_BAND in ("", "LOW", "MID", "HIGH") "--ton-band must be LOW, MID or HIGH"
+const CHAIN_TAG = let i = findfirst(a -> startswith(a, "--chain-tag="), ARGS)
+    i === nothing ? TAG : ARGS[i][13:end]
+end
+
+chain_path(sd) = joinpath(REPO, "outputs/mcmc", "chain_$(CHAIN_TAG)_seed$(sd)_n$(NITER).csv")
 hdr(sd) = String.(propertynames(CSV.read(chain_path(sd), DataFrame; limit = 0)))
 for sd in SEEDS; isfile(chain_path(sd)) || error("missing chain $(chain_path(sd))"); end
 const VARIANT = ladrillo_gis_variant(hdr(SEEDS[1]))
@@ -122,13 +146,28 @@ function read_draws(sd)
     df = SMOKE ? CSV.read(chain_path(sd), DataFrame; select = rd, limit = MAXROWS) :
                  CSV.read(chain_path(sd), DataFrame; select = rd)
     nb = SMOKE ? 0 : NBURN
-    step = max(1, (nrow(df) - nb) ÷ N_TARGET)
-    idx = collect((nb + 1):step:nrow(df))
+    ## Drop burn-in FIRST so the band filter and the stride both act on post-burn rows only.
+    ## With TON_BAND == "" this is arithmetically identical to the previous
+    ## `idx = (nb+1):step:nrow(df)` -- same stride, same rows.
+    df = df[(nb + 1):end, :]
+    if TON_BAND != ""
+        keep = [ton_band(v) == TON_BAND for v in df.ais_runoff_Ton]
+        nk = count(keep)
+        @printf("    seed%d: %d of %d post-burn draws in T_on band %s (%.1f%%)\n",
+                sd, nk, nrow(df), TON_BAND, 100nk / nrow(df)); flush(stdout)
+        nk >= N_TARGET || error("--ton-band=$(TON_BAND): seed$(sd) has only $(nk) post-burn " *
+              "draws in band, need $(N_TARGET). Lower n_per_chain or pick another band.")
+        df = df[keep, :]
+    end
+    step = max(1, nrow(df) ÷ N_TARGET)
+    idx = collect(1:step:nrow(df))
     d = ladrillo_native_greenland!(df[idx[1:N_TARGET], :]); df = nothing; GC.gc(); d
 end
 
-@printf("SLR WITH FaIR CLIMATE UNCERTAINTY | tag %s%s | %d draws/chain x %d chains | %s | forcing=%s\n",
-        TAG, SMOKE ? "  ** SMOKE (--maxrows=$(MAXROWS)) **" : "", N_TARGET, length(SEEDS), SSP, FORCING)
+@printf("SLR WITH FaIR CLIMATE UNCERTAINTY | tag %s%s%s%s | %d draws/chain x %d chains | %s | forcing=%s\n",
+        TAG, CHAIN_TAG == TAG ? "" : "  (chains from $(CHAIN_TAG))",
+        TON_BAND == "" ? "" : "  [T_on band $(TON_BAND) only]",
+        SMOKE ? "  ** SMOKE (--maxrows=$(MAXROWS)) **" : "", N_TARGET, length(SEEDS), SSP, FORCING)
 flush(stdout)
 const DRAWS = [(@printf("  reading chain seed%d ...\n", sd); flush(stdout); read_draws(sd))
                for sd in SEEDS]

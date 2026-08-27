@@ -3,6 +3,80 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-26b — **MODE CONTAMINATION IS NOT THE STORY. Purging L16's bad `T_on` modes closes only 6.9% of its projection gap to L14 — so the amp prior (or the start confound still tangled with it) drives ~93% of it, and the amp choice is NOT downstream-inert.**
+
+`julia/scope_slr_fair_uncertainty.jl` (+`--ton-band=`, `--chain-tag=`), `L16MID` outputs.
+**L14 remains champion; `champions.json` untouched.** No new chain was run.
+
+### THE QUESTION
+
+L14 beats L16 on 8 of 9 AIS projection cells, but that comparison is confounded twice: L16's
+posterior is 13.5% out-of-mode (`ais_ton_multimodal`) AND L16 started ~866 log units below the
+typical set (`fa1a467`). Neither has anything to do with the amp prior. **Does the mode
+contamination explain the gap?** If it did, the amp choice would be downstream-inert and could be
+settled on provenance alone. **It does not.**
+
+### METHOD — CONDITION, DON'T RE-RUN
+
+Two additive, default-off flags on `scope_slr_fair_uncertainty.jl`:
+* `--ton-band=LOW|MID|HIGH` keeps only post-burn draws in one KDE-valley band. Edges are
+  constants naming `scope_ais_ton_band_hindcast.jl` as the source of truth.
+* `--chain-tag=` reads chains from one tag while naming outputs for another, so a derived arm
+  cannot overwrite its parent and the `[CONTROL]` gate compares against the derived arm's own
+  `ssps_components_2300_<TAG>.csv`.
+
+Run as `--tag=L16MID --chain-tag=L16 --ton-band=MID`. Per-chain MID share over the FULL 1M
+post-burn draws: **80.2 / 99.3 / 69.9 / 99.1%** — matching the independent awk sweep in
+`scripts/ton_band_by_chain.sh` (80.2 / 99.2 / 69.3 / 98.9) to rounding, a THIRD code path agreeing.
+
+⚠ **A default-off flag must be PROVEN inert, not asserted** (`mutation_test_gates`). Re-running
+`--tag=L16 --ssp=ssp126` with no band produced a **bit-identical** tracked
+`scope_slr_fairunc_cells_ssp126_spliced_L16.csv` (`git diff` empty). The off-path arithmetic is
+the same stride over the same rows as before.
+
+⚠ **Conditioning is NOT resampling.** This answers "what do L16's in-band draws project", not
+"what would a chain confined to MID find". Documented in the script header.
+
+### RESULT — AIS `median_vs_lit`, JOINT band (1.000 = on the literature median)
+
+| cell | L14 | L16 | L16MID | gap | closed | % |
+|---|---|---|---|---|---|---|
+| ssp126 @2100 | 0.480 | 0.535 | 0.530 | 0.055 | 0.005 | 9% |
+| ssp126 @2150 | 0.364 | 0.409 | 0.402 | 0.045 | 0.006 | 14% |
+| ssp126 @2300 | 1.455 | 1.637 | 1.625 | 0.182 | 0.012 | 6% |
+| ssp245 @2100 | 0.531 | 0.865 | 0.815 | 0.334 | 0.049 | 15% |
+| ssp245 @2150 | 0.406 | 1.710 | 1.601 | 1.303 | 0.108 | 8% |
+| ssp245 @2300 | 0.949 | 1.974 | 1.908 | 1.024 | 0.065 | 6% |
+| ssp585 @2100 | 2.430 | 3.009 | 3.002 | 0.579 | 0.007 | 1% |
+| ssp585 @2150 | 0.964 | 1.084 | 1.084 | 0.120 | 0.000 | 0% |
+| ssp585 @2300 | 1.016 | 1.126 | 1.122 | 0.111 | 0.005 | 4% |
+
+**Aggregate: 6.9% of the total |L16 − L14| gap closed. NO verdict changes** (9 of 9 identical).
+L16's unconditioned column reproduces the committed `-25e` §2d table exactly.
+
+The direction is right — every cell moves toward L14 — but the magnitude is small, and it is
+smaller on the JOINT band (6.9%) than the fixed-driver component projection suggested (13-20%),
+so the earlier fixed-driver read was if anything OPTIMISTIC about how much the modes explain.
+
+### CONSEQUENCE
+
+**The cheap hope is dead.** The amp prior is consequential: it moves ssp245@2150 from 0.406x the
+literature median to 1.710x, and purging the bad modes barely dents that. So the provenance
+decision (Xie sliding-window trend ratio vs two corrected CMIP6 secant ensembles) now has real
+downstream stakes and cannot be made on provenance alone as "probably inert".
+
+**And the amp prior is still CONFOUNDED with the start.** L16 both re-centred amp AND began 866
+log units below the typical set; this experiment removed the mode contamination but NOT the
+burn-in confound. **A start-matched amp arm is now the load-bearing next run** — it is the only
+way to separate the two.
+
+### STANDING RECOMMENDATION
+
+Keep L14. The two queued arms, in priority order: (1) a **start-matched amp arm** (L16's prior,
+L14's start protocol), now justified by this result; (2) the **`T_on`-dispersed L14 arm** that
+tests whether L14's tight `T_on` survives starts placed in LOW/HIGH — still open, since L14's
+existing `--overdisperse` run is dispersed along `ais_iceflow0` and sits entirely in MID.
+
 ## [unreleased] — 2026-08-26 — **L17 REJECTED. The mode-local proposal did not confine the chains — it made `T_on` mixing WORSE (R-hat 1.184 -> 2.264). The registered prediction resolves on its SECOND branch: the wander is NOT proposal-driven, and the mode structure is a deeper problem than a seed.**
 
 `run_mcmc_L17.sh` (chain), `scripts/ton_band_by_chain.sh` (NEW),
