@@ -8,6 +8,7 @@ re-calibration (Marcus, 2026-06-13). Consumed by `python/prep_recalib_targets_ex
 |------|-----------|--------|----------|--------------|
 | `grace_antarctica_mass.txt` | AIS | NASA JPL GRACE/GRACE-FO mascon RL06.3Mv4, Antarctic mass anomaly (Gt rel Apr 2002) | 2002.3–2026.3 | 10.5067/TEMSC-3JC634 (PO.DAAC, Earthdata login) |
 | `grace_greenland_mass.txt` | GIS | same mascon solution, Greenland mass anomaly | 2002.3–2026.3 | 10.5067/TEMSC-3JC634 |
+| `GRCTellus.JPL.200204_202606.GLO.RL06.3M.MSCNv04CRI.nc` (44 MB, UNTRACKED — re-fetch from DOI) | AIS / GIS / LWS | NASA JPL GRACE/GRACE-FO mascon RL06.3Mv04 CRI, global 0.5 deg grid — the RAW grid behind the two `grace_*_mass.txt` series above, and the LWS/TWS basin integration | 2002.3–2026.3 | 10.5067/TEMSC-3JC634 (PO.DAAC, Earthdata login) |
 | `glambie_global_glacier_mass.csv` | GSIC | GlaMBIE 2025 (GlaMBIE Team, *Nature*) global glacier mass change, `calendar_years/0_global.csv` (annual Gt) | 2000–2023 | 10.5904/wgms-glambie-2024-07 (WGMS, open) |
 | `glambie_data.zip` | — | full GlaMBIE 1.0.0 release (inputs + results) | — | as above |
 | `noaa_thermosteric_w0-2000m_yearly.dat` | TE/steric | NOAA NCEI World-Ocean 0–2000 m thermosteric sea level anomaly (mm, yearly) | 2005–2025 | ncei.noaa.gov/access/global-ocean-heat-content (open) |

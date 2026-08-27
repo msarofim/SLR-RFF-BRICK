@@ -232,6 +232,14 @@ data/observations/raw/Land_and_Ocean_LatLong1.nc
 data/observations/raw/gistemp1200_GHCNv4_ERSSTv5.nc
 data/observations/raw/gistemp1200_GHCNv4_ERSSTv5.nc.gz
 
+# JPL GRACE/GRACE-FO mascon (44 MB) — the ONLY raw netCDF of its class that was ever
+# tracked, and the largest tracked file in the repo. Same rule as its neighbours above:
+# only the DERIVED products are committed (grace_{antarctica,greenland}_mass.txt and the
+# LWS rows of recalib_targets_ext.csv), so nothing in the pipeline needs the raw grid.
+# Consumed ONLY by python/build_lws_grace_extension.py via MASCON_GLOB, to REBUILD those
+# derivatives. Re-fetch recipe in data/observations/raw/README_modern_extensions.md.
+data/observations/raw/GRCTellus.JPL.*.GLO.RL06.3M.MSCNv04CRI.nc
+
 # PROTECT-Greenland (Goelzer 2025) physics ensemble — 74 MB of tarballs + 3136
 # unpacked NetCDFs. Fetch with scripts/fetch_protect_greenland.sh; provenance and
 # md5s in data/comparison/protect_greenland/README.md. The DERIVED summary
