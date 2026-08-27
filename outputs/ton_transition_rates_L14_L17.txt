@@ -1,0 +1,115 @@
+ais_runoff_Ton MID-excursion structure | LOW<=-18.5 MID(-18.5,-17.4] HIGH>-17.4 | EVERY post-burn draw (no stride)
+  exits=MID->out  returns=out->MID  (|exits-returns|<=1 BY CONSTRUCTION — read the SOJOURNS)
+
+  chain_L14_seed2026_n2000000.csv            col 49  n=1000000
+      occupancy   MID 100.0% (999995)   LOW   0.0% (0)   HIGH   0.0% (5)
+      transitions exits 1   returns 1   excursions 1 (0 still open at chain end)
+      exit hazard       1.00 per 1e6 MID-draws   (1 exits / 999995 MID-draws)
+      return hazard 200000.00 per 1e6 out-draws   (1 returns / 5 out-draws)
+      mean excursion          5 draws   longest 5
+      mean MID sojourn   999995 draws   longest 947845
+  chain_L14_seed2027_n2000000.csv            col 49  n=1000000
+      occupancy   MID 100.0% (999990)   LOW   0.0% (0)   HIGH   0.0% (10)
+      transitions exits 1   returns 1   excursions 1 (0 still open at chain end)
+      exit hazard       1.00 per 1e6 MID-draws   (1 exits / 999990 MID-draws)
+      return hazard 100000.00 per 1e6 out-draws   (1 returns / 10 out-draws)
+      mean excursion         10 draws   longest 10
+      mean MID sojourn   999990 draws   longest 636898
+  chain_L14_seed2028_n2000000.csv            col 49  n=1000000
+      occupancy   MID 100.0% (999869)   LOW   0.0% (0)   HIGH   0.0% (131)
+      transitions exits 6   returns 6   excursions 6 (0 still open at chain end)
+      exit hazard       6.00 per 1e6 MID-draws   (6 exits / 999869 MID-draws)
+      return hazard 45801.53 per 1e6 out-draws   (6 returns / 131 out-draws)
+      mean excursion         22 draws   longest 52
+      mean MID sojourn   166645 draws   longest 741095
+  chain_L14_seed2029_n2000000.csv            col 49  n=1000000
+      occupancy   MID 100.0% (1000000)   LOW   0.0% (0)   HIGH   0.0% (0)
+      transitions exits 0   returns 0   excursions 0 (0 still open at chain end)
+      exit hazard       0.00 per 1e6 MID-draws   (0 exits / 1000000 MID-draws)
+      return hazard UNDEFINED — 0 out-of-MID draws
+      mean excursion  n/a — chain never left MID (exit hazard has NO POWER here)
+      mean MID sojourn n/a — chain never left MID
+  chain_L15_seed2026_n2000000.csv            col 49  n=1000000
+      occupancy   MID   1.7% (16849)   LOW  98.3% (983151)   HIGH   0.0% (0)
+      transitions exits 558   returns 558   excursions 559 (1 still open at chain end)
+      exit hazard   33117.69 per 1e6 MID-draws   (558 exits / 16849 MID-draws)
+      return hazard   567.56 per 1e6 out-draws   (558 returns / 983151 out-draws)
+      mean excursion       1759 draws   longest 195151
+      mean MID sojourn       30 draws   longest 519
+  chain_L15_seed2027_n2000000.csv            col 49  n=1000000
+      occupancy   MID   0.0% (0)   LOW   0.0% (0)   HIGH 100.0% (1000000)
+      transitions exits 0   returns 0   excursions 1 (1 still open at chain end)
+      exit hazard   UNDEFINED — 0 MID-draws
+      return hazard     0.00 per 1e6 out-draws   (0 returns / 1000000 out-draws)
+      mean excursion    1000000 draws   longest 1000000
+      mean MID sojourn n/a — chain never left MID
+  chain_L15_seed2028_n2000000.csv            col 49  n=1000000
+      occupancy   MID   2.9% (28614)   LOW  97.1% (971386)   HIGH   0.0% (0)
+      transitions exits 829   returns 829   excursions 830 (1 still open at chain end)
+      exit hazard   28971.83 per 1e6 MID-draws   (829 exits / 28614 MID-draws)
+      return hazard   853.42 per 1e6 out-draws   (829 returns / 971386 out-draws)
+      mean excursion       1170 draws   longest 408485
+      mean MID sojourn       35 draws   longest 711
+  chain_L15_seed2029_n2000000.csv            col 49  n=1000000
+      occupancy   MID   0.6% (5678)   LOW  99.4% (994322)   HIGH   0.0% (0)
+      transitions exits 188   returns 188   excursions 189 (1 still open at chain end)
+      exit hazard   33110.25 per 1e6 MID-draws   (188 exits / 5678 MID-draws)
+      return hazard   189.07 per 1e6 out-draws   (188 returns / 994322 out-draws)
+      mean excursion       5261 draws   longest 630001
+      mean MID sojourn       30 draws   longest 452
+  chain_L16_seed2026_n2000000.csv            col 49  n=1000000
+      occupancy   MID  80.2% (801833)   LOW   0.0% (0)   HIGH  19.8% (198167)
+      transitions exits 346   returns 347   excursions 347 (0 still open at chain end)
+      exit hazard     431.51 per 1e6 MID-draws   (346 exits / 801833 MID-draws)
+      return hazard  1751.05 per 1e6 out-draws   (347 returns / 198167 out-draws)
+      mean excursion        571 draws   longest 184781
+      mean MID sojourn     2317 draws   longest 74174
+  chain_L16_seed2027_n2000000.csv            col 49  n=1000000
+      occupancy   MID  99.3% (992506)   LOW   0.0% (0)   HIGH   0.7% (7494)
+      transitions exits 178   returns 178   excursions 178 (0 still open at chain end)
+      exit hazard     179.34 per 1e6 MID-draws   (178 exits / 992506 MID-draws)
+      return hazard 23752.34 per 1e6 out-draws   (178 returns / 7494 out-draws)
+      mean excursion         42 draws   longest 778
+      mean MID sojourn     5576 draws   longest 303323
+  chain_L16_seed2028_n2000000.csv            col 49  n=1000000
+      occupancy   MID  69.9% (698956)   LOW  29.4% (293892)   HIGH   0.7% (7152)
+      transitions exits 1060   returns 1061   excursions 1061 (0 still open at chain end)
+      exit hazard    1516.55 per 1e6 MID-draws   (1060 exits / 698956 MID-draws)
+      return hazard  3524.40 per 1e6 out-draws   (1061 returns / 301044 out-draws)
+      mean excursion        284 draws   longest 83438
+      mean MID sojourn      659 draws   longest 96910
+  chain_L16_seed2029_n2000000.csv            col 49  n=1000000
+      occupancy   MID  99.1% (990735)   LOW   0.0% (0)   HIGH   0.9% (9265)
+      transitions exits 274   returns 274   excursions 274 (0 still open at chain end)
+      exit hazard     276.56 per 1e6 MID-draws   (274 exits / 990735 MID-draws)
+      return hazard 29573.66 per 1e6 out-draws   (274 returns / 9265 out-draws)
+      mean excursion         34 draws   longest 619
+      mean MID sojourn     3616 draws   longest 181701
+  chain_L17_seed2026_n2000000.csv            col 49  n=1000000
+      occupancy   MID   2.0% (20169)   LOW  98.0% (979831)   HIGH   0.0% (0)
+      transitions exits 578   returns 578   excursions 579 (1 still open at chain end)
+      exit hazard   28657.84 per 1e6 MID-draws   (578 exits / 20169 MID-draws)
+      return hazard   589.90 per 1e6 out-draws   (578 returns / 979831 out-draws)
+      mean excursion       1692 draws   longest 724358
+      mean MID sojourn       35 draws   longest 779
+  chain_L17_seed2027_n2000000.csv            col 49  n=1000000
+      occupancy   MID  98.3% (983134)   LOW   0.0% (0)   HIGH   1.7% (16866)
+      transitions exits 431   returns 431   excursions 431 (0 still open at chain end)
+      exit hazard     438.39 per 1e6 MID-draws   (431 exits / 983134 MID-draws)
+      return hazard 25554.37 per 1e6 out-draws   (431 returns / 16866 out-draws)
+      mean excursion         39 draws   longest 1049
+      mean MID sojourn     2281 draws   longest 118225
+  chain_L17_seed2028_n2000000.csv            col 49  n=1000000
+      occupancy   MID  51.6% (516241)   LOW   0.0% (0)   HIGH  48.4% (483759)
+      transitions exits 340   returns 341   excursions 341 (0 still open at chain end)
+      exit hazard     658.61 per 1e6 MID-draws   (340 exits / 516241 MID-draws)
+      return hazard   704.90 per 1e6 out-draws   (341 returns / 483759 out-draws)
+      mean excursion       1419 draws   longest 475232
+      mean MID sojourn     1518 draws   longest 32491
+  chain_L17_seed2029_n2000000.csv            col 49  n=1000000
+      occupancy   MID  99.1% (991104)   LOW   0.0% (0)   HIGH   0.9% (8896)
+      transitions exits 288   returns 288   excursions 288 (0 still open at chain end)
+      exit hazard     290.59 per 1e6 MID-draws   (288 exits / 991104 MID-draws)
+      return hazard 32374.10 per 1e6 out-draws   (288 returns / 8896 out-draws)
+      mean excursion         31 draws   longest 621
+      mean MID sojourn     3441 draws   longest 85477
