@@ -1,0 +1,16 @@
+per-chain EQUILIBRATED log-posterior by T_on band | LOW<=-18.5 MID(-18.5,-17.4] HIGH>-17.4
+⚠ mean log-density, NOT posterior mass. GMST onset = (T_on - -18.435)/amp.
+
+  chain                                band     %occ    mean lp      sd lp drift(2nd-1st) GMSTonset
+  chain_L19_seed2026_n2000000.csv       LOW   100.0%     217.03       4.69       0.29     -1.75
+  chain_L19_seed2027_n2000000.csv       LOW   100.0%     217.08       4.76       0.07     -2.43
+                                        MID     0.0%     217.14       0.82       0.00     -0.05
+  chain_L19_seed2028_n2000000.csv      HIGH   100.0%     215.89       4.71      -0.07      8.91
+  chain_L19_seed2029_n2000000.csv      HIGH     0.0%     216.25       0.00       0.25      0.84
+                                        MID   100.0%     222.78       4.65       0.00      0.66
+
+READ IT LIKE THIS:
+  chains STAY in their start bands  -> the barrier is real; L14's 100% MID is START-DETERMINED
+  chains all MIGRATE to MID          -> MID genuinely favoured; champion CONFIRMED
+  the MID CONTROL (seed 2029) LEAVES -> MID not favoured under the CURRENT targets
+  |drift| more than a few log units  -> that chain has NOT equilibrated; its mean is not usable

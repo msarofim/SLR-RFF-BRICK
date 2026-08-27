@@ -3,6 +3,96 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-27b — **L19 SETTLES PRIORITY 2. Branch (B): chains NEVER cross — L14's 100% MID is START-DETERMINED. But MID also WINS the per-band log-density by 5.7-6.9 nats, so the champion's mode is VINDICATED on evidence it never itself supplied.**
+
+`run_mcmc_L19.sh`, `run_l19_postprocess.sh`, `scripts/ton_band_logpost.sh`, and
+`build_overdispersed_starts.jl` / `calibrate_mcmc_ext.jl` gaining default-off flags.
+**L14 remains champion; `champions.json` UNTOUCHED.** L19 chains 07:18-10:00 (2h42m); analysis
+complete 10:08, every step OK. **L19 is a DIAGNOSTIC arm and was deliberately NOT put through
+the deliverable pipeline** — no postprocess, no subsample, no projections, no benchmark.
+
+### ARM VERIFIED
+`amp ~ N(0.950, 0.100) on [0.650, 1.250]` (L14's), starts file `..._ton.csv`, four DISTINCT
+finite starts (221.53 / 216.81 / 202.09 / 220.50). `[MAP start = -649.48]` does NOT match L14's
+-642.84, exactly as predicted — `893bfaa` moved `lws` and `dang_closure_sig` after L14 ran, and
+that is precisely why seed 2029 is an IN-ARM MID control rather than a cross-run comparison.
+
+### 1. BRANCH (B) FIRES, AND (C) IS RULED OUT
+
+Starts spanned GMST runoff onset -3.35 to +6.02 degC. After 1M post-burn draws each:
+
+| seed | start band | T_on start | **end occupancy** | mean T_on |
+|---|---|---|---|---|
+| 2026 | LOW | -22.0 | **LOW 100.0%** | -20.10 |
+| 2027 | LOW | -19.5 | **LOW 100.0%** | -20.72 |
+| 2028 | HIGH | -12.0 | **HIGH 100.0%** | -10.16 |
+| 2029 | **MID control** | -17.8 | **MID 100.0%** | -17.81 |
+
+**Not one crossing in 4M draws.** So:
+* **(B) CONFIRMED — L14's 100% MID occupancy is START-DETERMINED.** Its `T_on` sd of 0.09 is the
+  width of the mode it was PLACED in, not a posterior width. Same for L18. This is what
+  `no_power_null` predicted and it is now measured, not inferred.
+* **(C) RULED OUT — the MID control HELD.** MID is still a valid, self-consistent mode under the
+  CURRENT targets, so the champion is not sitting in a mode the retuned likelihood abandoned.
+
+### 2. THE MEASUREMENT ONLY THIS ARM COULD MAKE — AND MID WINS
+
+Every earlier band comparison used draws from a single contaminated chain passing through on an
+excursion. L19 equilibrates one chain IN each band, so this is the first like-for-like comparison:
+
+| chain | band | mean log-posterior | drift (2nd-1st half) | T_on range |
+|---|---|---|---|---|
+| seed2026 | LOW | 217.03 | +0.29 | 3.63 |
+| seed2027 | LOW | 217.08 | +0.07 | 4.58 |
+| seed2028 | HIGH | 215.89 | -0.07 | 4.48 |
+| **seed2029** | **MID** | **222.78** | +0.25 | 0.63 |
+
+**MID leads by 5.70-5.75 nats over LOW and 6.89 over HIGH.** All |drift| <= 0.29 nats, so all
+four chains ARE equilibrated and their means are usable.
+
+**⚠ DENSITY IS NOT MASS, so the volume correction was checked rather than waved away.** MID's
+`T_on` range is 5.8-7.3x NARROWER, which is worth ~1.75-1.98 nats back to the other bands:
+
+| comparison | density | volume | net |
+|---|---|---|---|
+| MID vs LOW (2026) | +5.75 (x314) | -1.75 (x5.8) | **~55x MID** |
+| MID vs LOW (2027) | +5.70 (x299) | -1.98 (x7.3) | **~41x MID** |
+| MID vs HIGH | +6.89 (x982) | -1.96 (x7.1) | **~138x MID** |
+
+The density gap SURVIVES the obvious volume correction. **This is NOT a marginal likelihood** —
+it is a 1-D `T_on` range proxy in a 58-D space, and range is sample-size dependent. It shows the
+conclusion is not overturned by the first-order correction; it does not establish a mass ratio.
+That needs thermodynamic integration / stepping-stone.
+
+### 3. ⚠ A BUG I INTRODUCED, CAUGHT BY DISAGREEMENT BETWEEN TWO SCRIPTS
+
+The first `ton_band_logpost.sh` run reported **HIGH 100% for all four chains** — contradicting
+`ton_band_by_chain.sh`, which correctly said LOW/LOW/HIGH/MID. Cause: `cut -d, -f$it,$ia,$il`
+emits fields in **ASCENDING FILE ORDER**, never the order listed. With T_on=49, amp=43,
+log_post=59 the columns came back as amp,T_on,log_post, so `$1` was amp — and amp ~0.95 is above
+the -17.4 HIGH edge, so every draw classified as HIGH and GMST onset came out ~ -1.
+
+The column lookup was correctly BY NAME; the ORDERING assumption after it was not
+(`nameless_matrix_order`). **The original mutation test missed it because the synthetic happened
+to have its columns already in ascending order** — the test agreed with the bug. Fixed by
+indexing the full row with `-v it=/-v ia=/-v il=`, and the mutation test now uses a synthetic
+with columns DELIBERATELY out of order. The `mean lp` column was correct throughout (log_post is
+the highest index, so it landed third either way) — only the band attribution and GMST onset
+were wrong, and both are corrected above.
+
+### VERDICT
+
+**Keep L14, and the caveat is now SHARPER AND SMALLER than it looked.** The champion's mode was
+never verified by its own run — that criticism stands and is now measured. But the mode it landed
+in is the right one: MID beats both alternatives by ~40-140x after a volume correction, on
+equilibrated chains, under the current targets. So L14's AIS projections do not rest on an
+arbitrary July-2026 starts file; they rest on a mode that independently wins.
+
+**What the arc leaves open is unchanged:** amp is unidentified and is a PROVENANCE call that is
+Marcus's, and the calibration puts Antarctic surface-runoff onset at ~0.64 degC GMST against a
+paleo/Shaffer prior of +2.3 to +2.5 degC — a 3.6x discrepancy robust to the amp choice, and the
+caveat actually worth writing.
+
 ## [unreleased] — 2026-08-27 — **L18 RESOLVES THE ARC: THE AMP PRIOR IS THE LEVER. The start protocol closes only 7.9% of L16's gap to L14 — and because L18 lands at 99.4% MID, that 7.9% mostly IS the 6.9% mode effect, leaving ~1 pp for the start itself. And the `T_on` barrier is REAL: every chain of every arm sits 3.5-28.5x above the driftless-diffusion null of 2.0x.**
 
 `run_mcmc_L18.sh`, `run_l18_postprocess.sh`. **L14 remains champion; `champions.json` UNTOUCHED.**

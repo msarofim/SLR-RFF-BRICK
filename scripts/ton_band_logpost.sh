@@ -51,11 +51,17 @@ for tag in "${TAGS[@]}"; do
     if [ -z "$it" ] || [ -z "$ia" ] || [ -z "$il" ]; then
       echo "  $base: missing one of ais_runoff_Ton/ais_gmst_amp/log_post — skipped"; continue; fi
     ndraw=$(printf '%s' "$base" | sed -E 's/.*_n([0-9]+)\.csv/\1/')
-    cut -d, -f"${it},${ia},${il}" "$f" | awk -F, -v lo_e="$EDGE_LOW" -v hi_e="$EDGE_HIGH" \
+    # ⚠ DO NOT `cut -f$it,$ia,$il` HERE. cut emits fields in ASCENDING FILE ORDER, never in
+    # the order you list them, so with T_on=49, amp=43, log_post=59 the columns come back as
+    # amp,T_on,log_post and $1 is amp. That silently classified every chain as HIGH (amp~0.95
+    # is > the -17.4 edge) and made GMST onset ~ -1. Caught 2026-08-27 against
+    # ton_band_by_chain.sh, which disagreed. The by-NAME lookup above was correct; the
+    # ORDERING assumption after it was not — `nameless_matrix_order`. Index the full row.
+    awk -F, -v lo_e="$EDGE_LOW" -v hi_e="$EDGE_HIGH" -v it="$it" -v ia="$ia" -v il="$il" \
         -v burn="$((ndraw/2))" -v nm="$base" -v tant0="$TANT0" '
       NR==1{next} {i++} i<=burn{next}
       {
-        t=$1+0; a=$2+0; lp=$3+0
+        t=$it+0; a=$ia+0; lp=$il+0
         b = (t<=lo_e) ? "LOW" : (t<=hi_e ? "MID" : "HIGH")
         n[b]++; s[b]+=lp; ss[b]+=lp*lp; g[b]+=(t-tant0)/a
         tot++
@@ -72,7 +78,7 @@ for tag in "${TAGS[@]}"; do
                  (first?nm:""), b, 100*n[b]/tot, m, sd, (first?drift:0), g[b]/n[b]
           first=0
         }
-      }' ndraw="$ndraw"
+      }' ndraw="$ndraw" "$f"
   done
 done
 echo

@@ -1,0 +1,131 @@
+[07:25:22] waiting for the L19 chains...
+[10:00:26] chains done.
+[10:00:26] === ARM VERIFICATION (stdout only flushes at exit) ===
+[10:00:26]   seed2026: A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]   TAG=L19 over-dispersed starts file: outputs/mcmc/overdispersed_starts_ton.csv over-dispersed start (seed 2026, row 1): logpost(θ0) = 221.53  [MAP start = -649.48] 
+[10:00:27]   seed2027: A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]   TAG=L19 over-dispersed starts file: outputs/mcmc/overdispersed_starts_ton.csv over-dispersed start (seed 2027, row 2): logpost(θ0) = 216.81  [MAP start = -649.48] 
+[10:00:27]   seed2028: A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]   TAG=L19 over-dispersed starts file: outputs/mcmc/overdispersed_starts_ton.csv over-dispersed start (seed 2028, row 3): logpost(θ0) = 202.09  [MAP start = -649.48] 
+[10:00:27]   seed2029: A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]   TAG=L19 over-dispersed starts file: outputs/mcmc/overdispersed_starts_ton.csv over-dispersed start (seed 2029, row 4): logpost(θ0) = 220.50  [MAP start = -649.48] 
+[10:00:27]   EXPECT amp ~ N(0.950, 0.100); starts file ..._ton.csv; FOUR DIFFERENT logpost values.
+[10:00:27]   ⚠ [MAP start] will NOT match L14's -642.84 — commit 893bfaa moved lws and
+[10:00:27]   dang_closure_sig AFTER L14 ran. That is WHY seed 2029 is an in-arm MID control.
+[10:00:27] START  band occupancy per chain — DID CHAINS MOVE?
+ais_runoff_Ton band occupancy per chain | bands LOW<=-18.5 MID(-18.5,-17.4] HIGH>-17.4 | every 500th post-burn draw
+  chain_L19_seed2026_n2000000.csv            n= 2000  LOW 100.0%  MID   0.0%  HIGH   0.0%   mean  -20.10  min  -22.22  max  -18.59  (col 49)
+  chain_L19_seed2027_n2000000.csv            n= 2000  LOW 100.0%  MID   0.0%  HIGH   0.0%   mean  -20.72  min  -23.21  max  -18.63  (col 49)
+  chain_L19_seed2028_n2000000.csv            n= 2000  LOW   0.0%  MID   0.0%  HIGH 100.0%   mean  -10.16  min  -12.07  max   -7.59  (col 49)
+  chain_L19_seed2029_n2000000.csv            n= 2000  LOW   0.0%  MID 100.0%  HIGH   0.0%   mean  -17.81  min  -18.08  max  -17.45  (col 49)
+[10:02:46] OK     band occupancy per chain — DID CHAINS MOVE?
+[10:02:46] START  per-band EQUILIBRATED log-posterior (the key measurement)
+per-chain EQUILIBRATED log-posterior by T_on band | LOW<=-18.5 MID(-18.5,-17.4] HIGH>-17.4
+⚠ mean log-density, NOT posterior mass. GMST onset = (T_on - -18.435)/amp.
+
+  chain                                band     %occ    mean lp      sd lp drift(2nd-1st) GMSTonset
+  chain_L19_seed2026_n2000000.csv      HIGH   100.0%     217.03       4.69       0.29     -0.97
+  chain_L19_seed2027_n2000000.csv      HIGH   100.0%     217.08       4.76       0.07     -0.94
+  chain_L19_seed2028_n2000000.csv      HIGH   100.0%     215.89       4.71      -0.07     -1.92
+  chain_L19_seed2029_n2000000.csv      HIGH   100.0%     222.78       4.65       0.25     -1.09
+
+READ IT LIKE THIS:
+  chains STAY in their start bands  -> the barrier is real; L14's 100% MID is START-DETERMINED
+  chains all MIGRATE to MID          -> MID genuinely favoured; champion CONFIRMED
+  the MID CONTROL (seed 2029) LEAVES -> MID not favoured under the CURRENT targets
+  |drift| more than a few log units  -> that chain has NOT equilibrated; its mean is not usable
+[10:03:35] OK     per-band EQUILIBRATED log-posterior (the key measurement)
+[10:03:35] START  excursion structure
+ais_runoff_Ton MID-excursion structure | LOW<=-18.5 MID(-18.5,-17.4] HIGH>-17.4 | EVERY post-burn draw (no stride)
+  exits=MID->out  returns=out->MID  (|exits-returns|<=1 BY CONSTRUCTION — read the SOJOURNS)
+
+  chain_L19_seed2026_n2000000.csv            col 49  n=1000000
+      occupancy   MID   0.0% (0)   LOW 100.0% (1000000)   HIGH   0.0% (0)
+      transitions exits 0   returns 0   excursions 1 (1 still open at chain end)
+      exit hazard   UNDEFINED — 0 MID-draws
+      return hazard     0.00 per 1e6 out-draws   (0 returns / 1000000 out-draws)
+      mean excursion    1000000 draws   longest 1000000
+      mean MID sojourn n/a — chain never left MID
+  chain_L19_seed2027_n2000000.csv            col 49  n=1000000
+      occupancy   MID   0.0% (16)   LOW 100.0% (999984)   HIGH   0.0% (0)
+      transitions exits 5   returns 5   excursions 6 (1 still open at chain end)
+      exit hazard   312500.00 per 1e6 MID-draws   (5 exits / 16 MID-draws)
+      return hazard     5.00 per 1e6 out-draws   (5 returns / 999984 out-draws)
+      mean excursion     166664 draws   longest 999847
+      mean MID sojourn        3 draws   longest 10
+  chain_L19_seed2028_n2000000.csv            col 49  n=1000000
+      occupancy   MID   0.0% (0)   LOW   0.0% (0)   HIGH 100.0% (1000000)
+      transitions exits 0   returns 0   excursions 1 (1 still open at chain end)
+      exit hazard   UNDEFINED — 0 MID-draws
+      return hazard     0.00 per 1e6 out-draws   (0 returns / 1000000 out-draws)
+      mean excursion    1000000 draws   longest 1000000
+      mean MID sojourn n/a — chain never left MID
+  chain_L19_seed2029_n2000000.csv            col 49  n=1000000
+      occupancy   MID 100.0% (999996)   LOW   0.0% (0)   HIGH   0.0% (4)
+      transitions exits 1   returns 1   excursions 1 (0 still open at chain end)
+      exit hazard       1.00 per 1e6 MID-draws   (1 exits / 999996 MID-draws)
+      return hazard 250000.00 per 1e6 out-draws   (1 returns / 4 out-draws)
+      mean excursion          4 draws   longest 4
+      mean MID sojourn   999996 draws   longest 562468
+[10:04:17] OK     excursion structure
+[10:04:17] START  escape scale vs the driftless null (2.0x)
+ais_runoff_Ton ESCAPE SCALE | LOW<=-18.5 MID(-18.5,-17.4] HIGH>-17.4 | every post-burn draw, OUT-OF-MID steps only
+  T_diff = D^2/(p*s^2) is a LOWER BOUND on return time (no drift, no restoring force).
+  observed_longest >> T_diff  =>  REAL BARRIER.   observed ~ T_diff  =>  just slow diffusion.
+
+  chain_L19_seed2026_n2000000.csv            col 49  out-draws 1000000
+      move rate p 0.2358   step RMS s 1.585e-02   mean|d| 1.264e-02   (RMS/mean 1.25)
+      distance out of MID:  mean D 1.5986   max 3.7752
+      T_diffusive        43111 draws   observed longest 1000000   ratio obs/diff     23.2x
+  chain_L19_seed2027_n2000000.csv            col 49  out-draws 999984
+      move rate p 0.2311   step RMS s 1.932e-02   mean|d| 1.542e-02   (RMS/mean 1.25)
+      distance out of MID:  mean D 2.2241   max 4.7727
+      T_diffusive        57352 draws   observed longest 999847   ratio obs/diff     17.4x
+  chain_L19_seed2028_n2000000.csv            col 49  out-draws 1000000
+      move rate p 0.2375   step RMS s 1.843e-02   mean|d| 1.471e-02   (RMS/mean 1.25)
+      distance out of MID:  mean D 7.2391   max 9.8464
+      T_diffusive       649399 draws   observed longest 1000000   ratio obs/diff      1.5x
+  chain_L19_seed2029_n2000000.csv            col 49  out-draws 4 — NO within-excursion moves; escape scale UNDEFINED
+[10:05:00] OK     escape scale vs the driftless null (2.0x)
+[10:05:00] START  SLR convergence across chains (R-hat expected BAD if they did not mix)
+Ladrillo 1.0 SLR convergence-by-chain diagnostic
+  tag L19 | window 1850-2150 | ssp245 | rebaseline 1995-2014 | Greenland :basins2
+  burn = first 1000000 of 2000000, thinned to 400 draws per chain
+  amp law ON (S anchored at dT_eff = 0.940 K) — certifies the SHIPPED model
+
+  seed2026: 400 draws (thin 2500, rows 1000001..1997501)  46s
+  seed2027: 400 draws (thin 2500, rows 1000001..1997501)  44s
+  seed2028: 400 draws (thin 2500, rows 1000001..1997501)  44s
+  seed2029: 400 draws (thin 2500, rows 1000001..1997501)  44s
+  total 178s
+
+SLR @2100 (cm, rel. 1995-2014)
+  chain           q05      q50      q95     mean       sd
+  seed2026      42.84    46.85    81.26    52.97    13.81
+  seed2027      43.19    47.03    80.71    52.91    13.21
+  seed2028      42.45    46.11    76.53    50.70    11.81
+  seed2029      41.49    44.88    79.04    50.05    12.39
+  POOLED        42.18    46.32    80.02    51.66    12.88
+
+SLR @2150 (cm, rel. 1995-2014)
+  chain           q05      q50      q95     mean       sd
+  seed2026      66.01    78.17   168.04    98.06    35.86
+  seed2027      66.25    76.18   166.47    98.88    35.81
+  seed2028      64.43    72.79   152.93    92.61    32.49
+  seed2029      62.30    71.60   152.65    90.56    32.86
+  POOLED        64.23    74.41   161.67    95.03    34.44
+
+==============================================================================
+CROSS-CHAIN CONVERGENCE OF PROJECTED SLR  (4 chains x 400 thinned draws)
+==============================================================================
+  quantity          R-hat        ESS  sd(medians)  mean(sd_wc)      ratio
+  SLR@2100          1.027      156.0        0.978       12.806      0.076
+  SLR@2150          1.025      178.0        3.024       34.254      0.088
+
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/mcmc/slr_convergence_L19.csv
+
+VERDICT: projected SLR IS converged across chains (R-hat < 1.05 at all horizons)
+[10:08:13] OK     SLR convergence across chains (R-hat expected BAD if they did not mix)
+[10:08:13] === RESOLVE THE REGISTERED PREDICTION (run_mcmc_L19.sh header) ===
+[10:08:13]   (A) all four migrate to MID          -> champion CONFIRMED, caveat can be dropped
+[10:08:13]   (B) chains STAY in their start bands -> L14's 100% MID is START-DETERMINED (expected)
+[10:08:13]   (C) MID control (seed 2029) LEAVES   -> MID not favoured under the CURRENT targets
+[10:08:13]   ⚠ the log-posterior table is mean log-DENSITY, not posterior MASS. A narrow tall mode
+[10:08:13]   can beat a broad one on density and lose on mass. Do not call a band 'more probable'.
+[10:08:13]   ⚠ check the drift column first — a chain that has not equilibrated has no usable mean.
