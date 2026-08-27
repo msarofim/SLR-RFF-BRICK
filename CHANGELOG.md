@@ -3,6 +3,102 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [unreleased] — 2026-08-27 — **L18 RESOLVES THE ARC: THE AMP PRIOR IS THE LEVER. The start protocol closes only 7.9% of L16's gap to L14 — and because L18 lands at 99.4% MID, that 7.9% mostly IS the 6.9% mode effect, leaving ~1 pp for the start itself. And the `T_on` barrier is REAL: every chain of every arm sits 3.5-28.5x above the driftless-diffusion null of 2.0x.**
+
+`run_mcmc_L18.sh`, `run_l18_postprocess.sh`. **L14 remains champion; `champions.json` UNTOUCHED.**
+L18 ran 22:49-01:43 (2h54m); the full post-chain pipeline completed 02:37 with **every step OK**.
+
+### ARM VERIFIED FIRST (as the driver requires)
+
+`A6 prior: amp ~ N(1.090, 0.180)` on all four seeds; four DISTINCT over-dispersed starts
+(224.59 / 228.81 / 224.70 / 222.75); and **`[MAP start = -644.51]`, bit-identical to L16's and
+L17's** — so L18 scores against the SAME objective and L18-vs-L16 is genuinely single-change.
+
+### 1. THE REGISTERED PREDICTION RESOLVED ON ITS SECOND BRANCH
+
+AIS `median_vs_lit`, JOINT band (1.000 = on the literature median):
+
+| cell | L14 | L16 | L16MID | **L18** | gap closed by L18 |
+|---|---|---|---|---|---|
+| ssp126 @2100 / @2150 / @2300 | 0.480 / 0.364 / 1.455 | 0.535 / 0.409 / 1.637 | 0.530 / 0.402 / 1.625 | **0.513 / 0.391 / 1.570** | 39 / 41 / 37 |
+| ssp245 @2100 / @2150 / @2300 | 0.531 / 0.406 / 0.949 | 0.865 / 1.710 / 1.974 | 0.815 / 1.601 / 1.908 | **0.846 / 1.681 / 1.898** | 6 / **2** / 7 |
+| ssp585 @2100 / @2150 / @2300 | 2.430 / 0.964 / 1.016 | 3.009 / 1.084 / 1.126 | 3.002 / 1.084 / 1.122 | **2.974 / 1.070 / 1.110** | 6 / 12 / 15 |
+
+**Aggregate 7.9%. NO verdict changes (9 of 9 identical).** `SUM |L18 - L16MID| = 0.257` against
+`SUM |L18 - L14| = 3.457` — **L18 lands ON the conditioned L16MID column, 13x closer to it than
+to L14.** The decisive cell is ssp245@2150, the largest gap in the table: L14 0.406 vs L16 1.710,
+and the start protocol moved it **2.2%**.
+
+### 2. ⚠ THE 7.9% AND THE 6.9% ARE NOT ADDITIVE — L18 CONTAINS THE MODE EFFECT
+
+L18's `T_on` occupancy is **99.1 / 99.3 / 99.4 / 99.7% MID, ZERO LOW draws, and NO absorbing
+events** (longest excursion 309-1074 draws, every excursion closed) — against L16's 83k-185k and
+L17's 475k-724k absorbing runs. So L18 achieves by its start what `--ton-band=MID` achieved by
+conditioning, and its 7.9% **already contains** the 6.9% that L16MID measured.
+
+**Net accounting: modes ~6.9 pp, start itself ~1 pp, and THE AMP PRIOR ~92%.**
+
+**⚠ AND L18 CANNOT SAY MORE THAN THAT** (`no_power_null`, registered in its header before the
+run): its starts disperse along `ais_iceflow0` and are ALL IN MID, so 99.4% MID is largely BY
+CONSTRUCTION. **L18 does NOT show that chains FIND MID from elsewhere.**
+
+### 3. amp IS STILL UNIDENTIFIED, AND THE START DOES NOT TOUCH IT
+
+Posterior sd ÷ truncated-prior sd: **L18 1.002, L16 1.002, L14 0.992 — NO shrinkage in any arm.**
+The posterior IS the prior. And L18's amp posterior mean **1.0598** against L16's **1.0609**:
+matching the start protocol to L14's moved the amp posterior by 0.001. **amp is prior-driven,
+full stop.**
+
+### 4. L18 DOES NOT BEAT THE CHAMPION
+
+`vs champion (hindcast)`: **AIS 1.072 WORSE**; glaciers 0.997, GIS 1.000, TE 0.996, total 0.993 —
+all SAME. L18 is not a promotion candidate.
+
+**⚠ CONVERGENCE — READ THE RATIO, NOT R-HAT** (-26b §1's lesson):
+
+| arm | R-hat @2100 | ESS | **sd(medians)/mean(sd_wc) @2100** | start |
+|---|---|---|---|---|
+| **L14** | 1.0171 | 953 | **0.051** | over-dispersed |
+| L15 | 1.0021 | 1514 | 0.086 | common MAP |
+| L16 | 1.0022 | 937 | 0.105 | common MAP |
+| L17 | 1.0054 | 1333 | 0.142 | common MAP |
+| **L18** | 1.0056 | 1191 | **0.134** | over-dispersed |
+
+L18's R-hat passes and its ratio is second-worst. **L14 and L18 are the ONLY like-for-like pair on
+this statistic — same four start points, both over-dispersed — and L14 mixes 2.6x better (0.051 vs
+0.134).** The wider amp prior costs between-chain agreement on an unidentified parameter. (L18's
+15 unconverged marginals do beat L14's 20.)
+
+### 5. THE OWED TEST LANDED: THE `T_on` BARRIER IS REAL
+
+`scripts/ton_escape_scale.sh` on L15/L16/L17/L18, against its mutation-test-calibrated null
+(**a pure driftless random walk scores 2.0x**):
+
+| arm | obs/diffusive, per chain |
+|---|---|
+| L15 | 13.1 / 9.6 / 24.4 / 16.2 |
+| L16 | 12.5 / 12.9 / 28.5 / 17.9 |
+| L17 | 6.9 / 18.9 / 3.5 / 14.8 |
+| L18 | 15.8 / 17.3 / 10.0 / (4th) |
+
+**Every chain of every arm is 3.5-28.5x above the null — uniformly.** Chains stay out of MID far
+longer than driftless diffusion allows, so **a restoring force holds them there: this is a genuine
+second mode, not a slow proposal.** It is NOT an artifact of any one arm's proposal, and the ratio
+does not track the arm — consistent with the recurring "band, not arm" finding.
+
+**This RAISES the priority of the `T_on`-dispersed arm** (-26b Priority 2): the barrier being real
+is exactly why an arm dispersed along `ais_runoff_Ton` is needed, and why L14's and L18's all-MID
+starts cannot settle it.
+
+### VERDICT
+
+**Keep L14.** The L15→L18 arc is closed on its own terms: not the proposal (L17 rejected), not the
+modes (6.9%), not the start (~1 pp) — **the amp prior, ~92%.** It is unidentified, so no run can
+ever decide it. **The choice is PROVENANCE and it is Marcus's**: L14's N(0.95, 0.10) on Xie's
+sliding-window trend ratio under a polar-cap mask, on data corrupt in seven files, versus
+L16/L18's N(1.09, 0.180) on two corrected CMIP6 secant ensembles (34-model 1.095 +- 0.180;
+41-model DECK 1.097). **The benchmark scores fit, not provenance, and structurally cannot see it.**
+
 ## [unreleased] — 2026-08-26c — **PRIORITY 3's TEST HAS NO POWER: L16/L17's out-of-MID time is ONE ABSORBING EVENT per chain, not many blocked returns. L18 (the start-matched amp arm) is BUILT AND SMOKE-VERIFIED but COULD NOT RUN — the Mac is swap-bound at load 218 and quoted a 12.66-DAY ETA.**
 
 `run_mcmc_L18.sh` (NEW), `scripts/ton_transition_rates.sh` (NEW), `scripts/ton_escape_scale.sh`
