@@ -57,8 +57,30 @@ plainly because it is the main place the model imports outside information:
 > ratio *does* vary with warming level, and its prior file holds "early"/"modern" window arms, so
 > the temporal-stability question has at least been posed there. **For Antarctica the constant is
 > evidence-based**: a warming-dependent law was tested against corrected CMIP6 data and is not
-> supported (unresolved on both scenarios, with opposite signs). **For glaciers there is no
-> equivalent test**, and that is a genuine gap rather than a settled choice.
+> supported (unresolved on both scenarios, with opposite signs). **For glaciers the test has now been run
+> (2026-08-27) and the assumption survives.**
+>
+> **The glacier early/modern test.** Split on Greenland's own window convention (early
+> 1901–1960, modern 1961–2024), the fit *appears* strongly non-stationary: R19 moves +0.42
+> (z = +3.5) and SLOWP −1.24 (z = −4.4), both ~2.8 prior σ — **and in opposite directions,
+> which is the tell.** Both are an artefact. The fit is through-origin, forcing both series
+> through zero at 1850–1900, so a small constant offset in the early window — where global
+> anomalies are weak (rms 0.24 K against 0.77 K) — is divided by a small denominator and
+> appears as a slope change. Refitting with a **free intercept** collapses every block's
+> window difference to **≤0.12, under 1 prior σ**. And the fit the model actually uses is
+> already modern-weighted: leverage goes as GMST², so the 1901–2024 fit sits within
+> **0.23σ** of a modern-only fit. ⇒ **No material non-stationarity, and the shipped factor
+> is effectively the modern-era one — the right basis for a projection.** What no historical
+> test can bound is a *future* change in the ratio.
+>
+> **Could CMIP6 inform the glacier factors instead?** It could, and it would move them.
+> Against 43 CMIP6 models the observed amplification sits **below** CMIP6's for every block
+> at **every one of five baseline frames** (obs ÷ CMIP6 = 0.71–0.99, range ≤0.28, never
+> reversing) — unlike Greenland's offset, which *reverses sign* across frames and is
+> therefore a frame artefact. Adopting CMIP6 would raise R19 by **+0.15** and SLOWP by
+> **+0.36**, and widen the priors **1.2–1.6×**. That is the same fit-versus-provenance
+> tension settled for the Antarctic amplification in favour of fit; for glaciers it is
+> **not** settled, and it is a live choice rather than a defect.
 
 ### 1.1 Glaciers — from one saturating reservoir to three regional ones
 
@@ -256,7 +278,8 @@ BRICK 2.0 glacier column, are in `outputs/doc_tables_L14.md`.
 | **C5** | Bands are **posterior-parameter spread on mean forcing**, so they are not comparable to MAGICC/FACTS widths and are **not** full predictive uncertainty. | By construction | Moderate; a presentation risk more than a model defect. |
 | **C6** | At a **1.09 amp centre** the ssp126 AIS band widens **6.5×** and is **not** bimodal tipping (<3% of draws tip at ssp126 in any arm) — mechanism unexplained. | OPEN | Low *for the shipped model*: at the adopted 0.95 centre the band is the narrow 6.91 cm. Flagged because it is unexplained, not because it is active. |
 | **C8** | **Scenario response is 1.8–2.4× steeper than AR6's** (Ladrillo ÷ AR6 median: 0.80/0.80/1.23 at 2100, 0.67/0.77/1.52 at 2150). Below the IPCC assessment at low forcing, above it at high forcing, growing with horizon. MAGICC agrees with Ladrillo at ssp126 and ssp585@2100, so Ladrillo is not alone — but the pattern is systematic and unexplained. | **OPEN** | **High** — it is the most visible difference from the assessed literature and any user will meet it first. |
-| **C9** | **Amplification factors are assumed stationary** for glaciers and Antarctica — a single historical (or CMIP6) regional-to-global ratio extended forward, whose σ is *dataset disagreement about the historical slope*, not a bound on future change. Greenland's `amp(GMST)` law is the exception; Antarctica's constant is evidence-based; **glaciers have no equivalent temporal-stability test.** | **OPEN** | Moderate — it does not bias the median in a known direction, but it means the projection bands are narrower than the underlying assumption warrants. |
+| **C9** | **Amplification factors are assumed stationary** for glaciers and Antarctica. **Tested for glaciers (2026-08-27); the assumption holds** — on an early/modern split, window differences fall to ≤0.12 (<1 prior σ) once a free intercept is allowed, and the shipped 1901–2024 fit is within 0.23σ of a modern-only fit. Not covered: a *future* change in the ratio. | **TESTED — holds** | Low–moderate (downgraded). |
+| **C10** | **CMIP6 puts glacier amplification above the observations at every baseline frame** (obs ÷ CMIP6 = 0.71–0.99 across five frames, never reversing — so unlike Greenland's, it is not a frame artefact). Adopting it would raise R19 +0.15, SLOWP +0.36, and widen the priors 1.2–1.6×. Same fit-vs-provenance tension settled for the Antarctic amp; unsettled here. | **OPEN — a choice, not a defect** | Moderate. |
 | **C7** | Thermal expansion was **not rebuilt** (hindcast ratio 0.988 vs BRICK 2.0) and glaciers are **level with BRICK 2.0 in 1950–1992** (1.011). | Known scope limit | Low–moderate. |
 
 ### 4.2 The comparison models — and what we can honestly say
