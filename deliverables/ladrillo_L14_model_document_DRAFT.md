@@ -81,6 +81,28 @@ plainly because it is the main place the model imports outside information:
 > **+0.36**, and widen the priors **1.2–1.6×**. That is the same fit-versus-provenance
 > tension settled for the Antarctic amplification in favour of fit; for glaciers it is
 > **not** settled, and it is a live choice rather than a defect.
+>
+> **Could observations anchor the level and CMIP6 supply the future *shape*?** Greenland already
+> works this way — a projection-side amplification law anchored to an observed level — so the
+> pattern exists. For glaciers it was tested (2026-08-28, `scope_glac_amp_law_form.py`, same
+> method that settled the identical question for Antarctica: per-model secant regressed on ΔT,
+> restricted to ΔT ≥ 1 K, 43 models):
+>
+> | block | CMIP6 slope /K | z | worth over 1–4 K | ÷ between-model sd | reading |
+> |---|---|---|---|---|---|
+> | **SLOWP** | −0.0003 | −0.01 | −0.001 | 0.00 | **flat — no shape to borrow** |
+> | R19 | −0.0249 | −2.54 | −0.075 | 0.33 | resolved but small vs the spread |
+> | **FAST** | +0.0288 | +3.02 | **+0.087** | 0.66 | **a real shape** |
+>
+> **Only FAST has a shape worth the name, and even there it is 0.58 prior σ across the entire
+> 1–4 K range — inside the uncertainty already carried.** SLOWP, which dominates the glacier
+> contribution, is dead flat (z = −0.01). And the term the hybrid would *not* fix is the larger
+> one: the level offset between CMIP6 and observations is **3.4× the shape for R19 and 383× it
+> for SLOWP.** So the hybrid buys a second-order refinement while leaving the first-order
+> disagreement (C10) untouched. **Recommended: not worth building for glaciers** — the same
+> conclusion, by the same test, that stopped `amp(ΔT)` being built for Antarctica.
+> ⚠ FAST is the one place a future case could be made, and it is the block where a law would
+> matter least: it is the smallest-amplification, fastest-equilibrating block.
 
 ### 1.1 Glaciers — from one saturating reservoir to three regional ones
 
