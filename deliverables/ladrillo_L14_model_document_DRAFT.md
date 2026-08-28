@@ -158,7 +158,14 @@ agree where the data are strongest; the gain is in the pre-satellite record.
 
 ![Projections](../figures/doc_projection_L14_vs_lit.png)
 
-**FIG 2.** Total GMSL. Full component tables in `outputs/doc_tables_L14.md`.
+**FIG 2.** Total GMSL, all sources on one basis. **Error bars are drawn for Ladrillo and
+BRICK 2.0 only.** Both run on mean forcing, so both widths are posterior-parameter spread and
+are comparable *to each other*; every other source's width is a different object (MAGICC and
+FACTS carry climate uncertainty as well, AR6's is an assessed *likely* range), so those are
+shown as **medians only** rather than inviting a comparison the caveat below forbids. Their
+intervals are in `outputs/doc_tables_L14.md`, where each column's bracket is labelled with
+what it actually is. Ladrillo, BRICK 2.0 and MAGICC-SLR are ordered first because they are
+the only three with a 2300 row. Full component tables in the same file.
 
 > ⚠ **Band caveat, and it is the important one.** Ladrillo and BRICK 2.0 run on **mean climate
 > forcing**, so their bands are **posterior-parameter spread only**. MAGICC and FACTS bands

@@ -179,35 +179,57 @@ def cell(ssp, comp, year, src):
     if r.empty: return None
     r = r.iloc[0]; return (float(r["med"]), float(r["p17"]), float(r["p83"]))
 
-PANEL_SRCS = ["Ladrillo", "AR6 T9.9", "FACTS wf1f", "FACTS wf2f", "FACTS wf3f",
-              "FACTS wf4", "MAGICC-SLR", "BRICK 2.0"]
+# ⚠ ORDER MATTERS: Ladrillo / BRICK 2.0 / MAGICC-SLR FIRST, because those are the only three
+# with a 2300 row — putting them first keeps them ADJACENT in the 2300 cluster instead of
+# separated by gaps where AR6 and FACTS have no data.
+PANEL_SRCS = ["Ladrillo", "BRICK 2.0", "MAGICC-SLR", "AR6 T9.9",
+              "FACTS wf1f", "FACTS wf2f", "FACTS wf3f", "FACTS wf4"]
+
+# ⚠ ERROR BARS ARE DRAWN FOR LADRILLO AND BRICK 2.0 ONLY, AND THAT IS THE POINT.
+# Both run on MEAN forcing, so both bands are posterior-parameter spread and they ARE
+# comparable TO EACH OTHER. Every other source's width is a different object — MAGICC and
+# FACTS carry climate uncertainty on top of parameter uncertainty, and AR6's is an assessed
+# *likely* range. Drawing all of them invites exactly the comparison the band caveat forbids,
+# so the others are shown as MEDIANS ONLY. Their intervals are in outputs/doc_tables_L14.md,
+# where each column's bracket is labelled with what it actually is.
+WIDTH_SRCS = {"Ladrillo", "BRICK 2.0"}
+
 C_SRC.update({"AR6 T9.9":"k", "FACTS wf1f":"tab:blue", "FACTS wf2f":"tab:cyan",
               "FACTS wf3f":"tab:olive", "FACTS wf4":"tab:purple", "FACTS range":"tab:blue"})
+MARK = {"AR6 T9.9":"s", "Ladrillo":"o", "BRICK 2.0":"o", "MAGICC-SLR":"o"}
 
 fig, axes = plt.subplots(1, 3, figsize=(16.5, 5.0), constrained_layout=True)
 for ax, ssp in zip(axes, SSPS):
-    for si, src in enumerate(PANEL_SRCS):
-        xs, ys, lo, hi = [], [], [], []
-        for yi, y in enumerate(YEARS):
-            c = cell(ssp, "total", y, src)
-            if c is None: continue
+    for yi, y in enumerate(YEARS):
+        # centre the cluster on the tick using ONLY the sources that have data at this horizon
+        avail = [(src, cell(ssp, "total", y, src)) for src in PANEL_SRCS]
+        avail = [(src, c) for src, c in avail if c is not None]
+        n = len(avail)
+        for k, (src, c) in enumerate(avail):
             med, a, b = c
-            xs.append(yi + (si-3.5)*0.105); ys.append(med)
-            lo.append(max(med-a,0)); hi.append(max(b-med,0))
-        if not xs: continue
-        mk = "s" if src=="AR6 T9.9" else "o"
-        ax.errorbar(xs, ys, yerr=[lo,hi], fmt=mk, ms=5, capsize=2.5, lw=1.3,
-                    color=C_SRC[src], label=src if ax is axes[0] else None)
+            x = yi + (k - (n-1)/2) * 0.115
+            if src in WIDTH_SRCS:
+                ax.errorbar([x], [med], yerr=[[max(med-a,0)],[max(b-med,0)]],
+                            fmt=MARK.get(src,"o"), ms=5, capsize=3, lw=1.5, color=C_SRC[src])
+            else:
+                ax.plot([x], [med], MARK.get(src,"o"), ms=5, color=C_SRC[src])
     ax.set_xticks(range(len(YEARS))); ax.set_xticklabels(YEARS, fontsize=9)
     ax.set_title(ssp, fontsize=10); ax.axhline(0, color="0.8", lw=.6)
     ax.tick_params(labelsize=8); ax.set_yscale("symlog", linthresh=100)
+
+from matplotlib.lines import Line2D
+handles = [Line2D([],[], color=C_SRC[s], marker=MARK.get(s,"o"), ls="none", ms=6,
+                  label=s + (" (17–83%)" if s in WIDTH_SRCS else ""))
+           for s in PANEL_SRCS]
 axes[0].set_ylabel(f"total GMSL ({BASIS})  [symlog, linear below 100]", fontsize=8.5)
-axes[0].legend(fontsize=7, loc="upper left", ncol=2)
-fig.suptitle("FIG 2 — Total GMSL, medians with 17-83%. AR6 Table 9.9 (black squares) is the "
-             "IPCC ASSESSED number, not a workflow proxy; it has NO 2300 row and only totals "
-             "at 2150.\nFACTS workflows shown individually: wf1f=ar5AIS, wf2f=larmip (no MICI, "
-             "no SEJ), wf3f=deconto21/MICI, wf4=bamber19 both = SEJ. FACTS has no 2300.\n"
-             f"⚠ {BAND_CAVEAT}   [commit {COMMIT}]", fontsize=8.5)
+axes[0].legend(handles=handles, fontsize=7, loc="upper left", ncol=2)
+fig.suptitle("FIG 2 — Total GMSL. ERROR BARS SHOWN ONLY FOR LADRILLO AND BRICK 2.0: both run on "
+             "MEAN forcing, so their widths are parameter spread and are comparable TO EACH OTHER.\n"
+             "All other sources are MEDIANS ONLY — MAGICC/FACTS widths also carry climate "
+             "uncertainty and AR6's is an assessed likely range, so they are not the same object. "
+             "Intervals are in the tables.\nOnly Ladrillo, BRICK 2.0 and MAGICC-SLR have a 2300 "
+             f"row; AR6 has no 2300 and only totals at 2150; FACTS stops at 2150.   [commit {COMMIT}]",
+             fontsize=8.5)
 fig.savefig(OUT_F2, dpi=150)
 plt.close(fig)
 print("wrote", os.path.relpath(OUT_F2, REPO))
