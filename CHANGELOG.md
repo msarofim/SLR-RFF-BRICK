@@ -3,6 +3,62 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [DECIDED] — 2026-08-28 — **MIGRATE TO fair-calibrate 1.6.0 + CMIP7 EMISSIONS, accepting a WORSE observational fit. L14 must be RECALIBRATED — the driver defines the objective.**
+
+**Decision by Marcus, 2026-08-28**, for a Ladrillo model-description paper targeted at **fall
+2026**: meeting reviewer expectations with the current fair-calibrate release outweighs a worse
+GMST–observation fit. *"I think this is a necessary step."* The FaIR-side work is owned by the
+**van Vuuren comparison.8.27.26** session; a coordination message with the numbers below and the
+SLR-side requirements has been sent to it.
+
+### THE FIT GETS WORSE, AND THAT WAS ACCEPTED WITH EYES OPEN
+
+GMST − IGCC observations, °C (negative = model too cool), from the existing Phase-1 tests in
+FaIRtoFrEDI (`fair_v141_vs_v145_vs_v160_gmst.csv`, `fair_v160_cmip7_gmst.csv`):
+
+| window | **v145 (current)** | v160, our emissions | v160 + CMIP7 |
+|---|---|---|---|
+| 1995–2014 | **−0.121** | −0.222 | −0.196 |
+| 2010–2019 | **−0.122** | −0.234 | −0.189 |
+| 2015–2024 | **−0.167** | −0.279 | −0.240 |
+
+Calib 1.6.0 roughly **doubles** the cold bias on identical emissions; CMIP7 historical emissions
+recover only part of it; **neither closes the IGCC gap.** That answers the question
+`fair_v160_ssp245_compare.py` posed in its own header. Mean-vs-median is immaterial (0.003 °C).
+⚠ These are **test** outputs (May 22), not production, and the scripts' internals are unaudited —
+if the van Vuuren session has production numbers, those supersede these.
+
+### ⚠ A WORSE FaIR–OBS FIT DOES NOT MEAN A WORSE LADRILLO HINDCAST
+
+Ladrillo is calibrated against **SLR observations** with FaIR GMST as the **driver**. A cooler
+driver is compensated by higher posterior sensitivities: the hindcast is **refit**, not degraded.
+What moves is the parameters and hence the **projections**, in a direction that cannot be
+predicted without running it — cooler driver and higher sensitivity oppose each other.
+
+### ⚠⚠ THE TRAP THAT WOULD SILENTLY NO-OP THE MIGRATION
+
+The calibration reads `FORCING_TAG = "ssp245harm"` — the SSP2-4.5 **HARMONIZED** splice — **NOT**
+the RCMIP-native `fair_mean_*_ssp245.csv`. `calibrate_mcmc_ext.jl:140–149` is explicit that these
+are different objects. **If only the RCMIP-native files are regenerated, the Ladrillo calibration
+keeps running on 1.4.5 forcing and nothing errors.** This is the single most likely way for the
+migration to look done and not be.
+
+### SLR-SIDE SCOPE
+
+* `data/observations/fair_mean_gmst_ssp245harm.csv` (col `gmst_C`) and
+  `fair_mean_ohc_ssp245harm.csv` (col `ohc_1e22J`) — what the **calibration** reads.
+* `fair_cube_{gmst,ohc}_{ssp126,ssp245,ssp585}_{raw,spliced}.csv` — the per-config cubes for the
+  FaIR-uncertainty joint band.
+* ~30 `fair_*` files in `data/observations/`; **105 repo files name 1.4.5/v145.**
+
+**COST — NOT A DATA SWAP.** New drivers = a new objective ⇒ **L14 re-run** (4×2M, ~3 h wall),
+benchmark **re-frozen**, and every figure and table in
+`deliverables/ladrillo_L14_model_document_DRAFT.md` regenerated. **Do it ONCE and EARLY**: after
+the paper draft hardens it costs the same compute plus redoing the writing.
+
+**Until the migration lands, every shipped number still rests on FaIR 2.2.4 (calib 1.4.5)**, and
+the standing convention line stays as it is.
+
 ## [DECIDED] — 2026-08-27d — **AMP PRIOR SETTLED: KEEP L14's N(0.95, 0.10), ON FIT. The Ladrillo calibration arc L15→L20 is CLOSED.**
 
 **Decision by Marcus, 2026-08-27**, after L15/L16/L17/L18/L19/L20. `champions.json` unchanged —
