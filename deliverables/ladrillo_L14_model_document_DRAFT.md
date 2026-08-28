@@ -27,23 +27,33 @@ temperature, built in two pieces:
 * **Over the observed record**, the regional driver is an **observed** temperature series —
   for the glacier blocks, area-weighted HadCRUT5 over the glaciers actually in each block.
 * **Beyond the observations**, the regional driver is extended as
-  **amplification factor × global mean temperature**, and that amplification factor is
-  **sampled with a prior, not fixed** — so its uncertainty propagates into the projection.
+  **amplification factor × global mean temperature**, anchored so the extension meets the
+  observed level at the splice.
 
-Where the amplification prior comes from differs by component, and this is worth stating
-plainly because it is the main place the model imports outside information:
+**The glacier amplification factor is a CONSTANT.** One number per block, not a function of
+time and not a function of warming level: it is the slope of a straight-line fit of regional on
+global temperature, so the projected regional temperature is **linear in global mean
+temperature**. It is *not* re-estimated as the projection runs, and it does not drift.
+
+The one thing it is not is a *fixed* number. **It is sampled** — each posterior draw carries its
+own value from the prior below — so it is **constant within a draw and uncertain across draws**,
+and that uncertainty propagates into the projection band. Antarctica's factor works the same way.
+**Greenland is the exception**: it carries an `amp(GMST)` law, so its ratio does vary with
+warming level.
+
+Where the prior comes from differs by component, and this is worth stating plainly because it is
+the main place the model imports outside information:
 
 | component | amplification prior | source |
 |---|---|---|
-| **Glaciers** (3 blocks) | R19 0.72 ± 0.15, SLOWP 2.50 ± 0.45, FAST 1.45 ± 0.15 | **Observed temperature products.** Centred near HadCRUT5, σ from the spread *across* Berkeley Earth / HadCRUT5 / GISTEMP, hard bounds = the cross-dataset range (e.g. SLOWP: BE 1.82, HadCRUT 2.48, GISTEMP 3.46). |
-| **Greenland** | `gis_amp`, sampled, with an `amp(GMST)` law | Zone-and-window keyed prior file; the law lets the ratio vary with warming rather than holding one number. |
-| **Antarctica** | `ais_gmst_amp` ~ N(0.95, 0.10) | **CMIP6** (Xie et al. 2022, Sci Rep 12:16548), a polar-cap temperature ratio. |
+| **Glaciers** (3 blocks) | **One constant per block**, sampled: R19 0.72 ± 0.15, SLOWP 2.50 ± 0.45, FAST 1.45 ± 0.15 | **Observed temperature products.** Centred near HadCRUT5, σ from the spread *across* Berkeley Earth / HadCRUT5 / GISTEMP, hard bounds = the cross-dataset range (e.g. SLOWP: BE 1.82, HadCRUT 2.48, GISTEMP 3.46). |
+| **Greenland** | **Not constant** — `gis_amp` sampled, with an `amp(GMST)` law | Zone-and-window keyed prior file; the law lets the ratio vary with warming rather than holding one number. |
+| **Antarctica** | **One constant**, sampled: `ais_gmst_amp` ~ N(0.95, 0.10) | **CMIP6** (Xie et al. 2022, Sci Rep 12:16548), a polar-cap temperature ratio. |
 
-> ⚠ **What extending the amplification factor forward does and does not assume.** For glaciers
-> and Antarctica the amplification factor is a **single constant**, not a time-varying quantity:
-> the glacier factors are a through-origin fit of regional on global temperature over
-> **1901–2024**, and Antarctica's is one CMIP6-derived number. Extending them forward assumes
-> **the historical regional-to-global ratio continues to hold**.
+> ⚠ **What holding the factor constant does and does not assume.** The glacier factors are a
+> through-origin fit of regional on global temperature over **1901–2024**, and Antarctica's is one
+> CMIP6-derived number. Carrying that constant forward assumes **the historical regional-to-global
+> ratio continues to hold** — it is the assumption, not an incidental implementation detail.
 >
 > And the uncertainty attached to that assumption is **narrower than it may appear**: the σ on
 > each glacier factor is the **disagreement between observational products about the historical
