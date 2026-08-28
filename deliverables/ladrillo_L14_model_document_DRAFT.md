@@ -15,51 +15,115 @@ hashed in `benchmark/reference/_fixed/manifest.json`.
 
 ## 1. What changed since BRICK 2.0, and why
 
-Grouped by module. Every row is a change to the model or its calibration, not to tooling.
+Changes to the model and its calibration. Approaches that were tested and discarded are
+recorded in `CHANGELOG.md`, not here.
 
-### 1.1 Glaciers — the largest structural replacement
+### 1.0 How every reservoir is driven: regional, not global, temperature
+
+Sea-level components do not respond to global mean temperature — they respond to the
+temperature over the ice. Every reservoir in Ladrillo is therefore driven by a *regional*
+temperature, built in two pieces:
+
+* **Over the observed record**, the regional driver is an **observed** temperature series —
+  for the glacier blocks, area-weighted HadCRUT5 over the glaciers actually in each block.
+* **Beyond the observations**, the regional driver is extended as
+  **amplification factor × global mean temperature**, and that amplification factor is
+  **sampled with a prior, not fixed** — so its uncertainty propagates into the projection.
+
+Where the amplification prior comes from differs by component, and this is worth stating
+plainly because it is the main place the model imports outside information:
+
+| component | amplification prior | source |
+|---|---|---|
+| **Glaciers** (3 blocks) | R19 0.72 ± 0.15, SLOWP 2.50 ± 0.45, FAST 1.45 ± 0.15 | **Observed temperature products.** Centred near HadCRUT5, σ from the spread *across* Berkeley Earth / HadCRUT5 / GISTEMP, hard bounds = the cross-dataset range (e.g. SLOWP: BE 1.82, HadCRUT 2.48, GISTEMP 3.46). |
+| **Greenland** | `gis_amp`, sampled, with an `amp(GMST)` law | Zone-and-window keyed prior file; the law lets the ratio vary with warming rather than holding one number. |
+| **Antarctica** | `ais_gmst_amp` ~ N(0.95, 0.10) | **CMIP6** (Xie et al. 2022, Sci Rep 12:16548), a polar-cap temperature ratio. |
+
+> ⚠ **One correction to a natural way of describing this.** It is tempting to say "observed
+> ratios drive the historical period, CMIP6 ratios drive the projection." **That is not what the
+> model does, in either direction.** For **glaciers**, both the historical driver *and* the
+> forward amplification are **observation**-derived — CMIP6 is not used. For **Antarctica**, a
+> **single CMIP6-derived constant** covers the whole record — there is no separate historical
+> value, and a warming-dependent `amp(ΔT)` was tested and is **not** supported by the corrected
+> data (the state-dependence is unresolved, with opposite signs by scenario). The honest summary
+> is: *glaciers are anchored on observations; Antarctica is anchored on CMIP6; neither switches
+> source at the end of the observations.*
+
+### 1.1 Glaciers — from one saturating reservoir to three regional ones
+
+BRICK 2.0's glacier model was a **single reservoir that was either not melting or committed to
+full melt**: the Wigley–Raper formulation saturates, so it cannot reproduce the observed
+20th-century trajectory and the scenario spread at the same time.
 
 | change | justification |
 |---|---|
-| Wigley–Raper glacier module → **Mengel-style S_eq + Nauels-ν transient on T_glac** (`extB3`, 2026-08-07) | W-R saturates: it cannot reproduce the observed 20th-century glacier trajectory and the scenario spread simultaneously. The `d0_glacier_shootout` comparison drove the replacement. |
-| **Three-reservoir** glacier block (`extC`, 2026-08-09) | A single reservoir cannot hold both the fast-responding and the long-τ inventory; the 3-reservoir split (R19 / SLOWP / FAST) is what lets the inventory constraint and the transient coexist. |
-| **Sampled `gic_amp`** with dataset-informed priors (2026-08-09) | The glacier-area-weighted temperature amplification was pinned; it is a first-order control and was carrying a fixed value with no uncertainty. |
-| **Glacier inventory likelihood** + 19th-century flow constraint `S(1900)−S(1850) ~ N(0.020, 0.009) m SLE` (2026-08-06) | Anchors the absolute inventory and the pre-observational flow, which the transient alone does not identify. |
-| **GlaMBIE R19 rate** partition (2026-08-13/14) | A claimed 2.59σ covariance tension was **retracted** on checking and re-expressed as a partition — recorded because the retraction is part of the provenance. |
+| Wigley–Raper → **Mengel-style equilibrium volume `S_eq` + Nauels-ν transient** on regional temperature (`extB3`) | Separates *how much* ice is committed at a given warming from *how fast* it gets there — the two things the single saturating reservoir conflated. |
+| **Three reservoirs: SLOWP / FAST / R19** (`extC`) | See below — the third is not a third timescale. |
+| **Sampled `gic_amp`** per block (§1.0) | The regional amplification was pinned at one number with no uncertainty, and it is a first-order control on the projection. |
+| **Glacier inventory likelihood** + 19th-century flow constraint `S(1900) − S(1850) ~ N(0.020, 0.009)` m SLE | Anchors the absolute inventory and the pre-observational flow, neither of which the 20th-century transient identifies on its own. |
 
-### 1.2 Greenland — from one channel to a constrained multi-basin sheet
+**Why three reservoirs and not two.** Two of the blocks are the expected pair of response
+timescales, split by region:
+
+* **SLOWP** = RGI regions 03, 09, 07, 06 (Arctic Canada North, Russian Arctic, Svalbard,
+  Iceland) — large, high-latitude, long-τ, and strongly amplified (prior 2.50).
+* **FAST** = the remaining 13 regions — smaller, faster-responding, weakly amplified (1.45).
+
+**The third block, R19 (Antarctic and Subantarctic periphery), exists for an *observational
+scope* reason, not a dynamical one.** The historical glacier target (Frederikse) **assumes zero
+Antarctic-periphery melt**, while the GlaMBIE splice used from 2019 onward **includes it**. If
+R19 were folded into either other block, the model's hindcast scope would no longer match the
+scope of the series it is scored against. Keeping it separate lets the hindcast be evaluated on
+`SLOWP + FAST` — exactly the target's scope — while R19 still contributes to projected totals.
+Its amplification prior (0.72) is also far below the other two, so it is not physically
+interchangeable with them either.
+
+### 1.2 Greenland — one channel to a constrained multi-basin sheet
 
 | change | justification |
 |---|---|
-| **Greenland A+B two-channel module** wired into the joint calibrator (2026-08-12) | A single channel cannot represent fast (outlet/dynamic) and slow (SMB) response with different time constants. |
-| **`gis_amp` sampled** rather than pinned (2026-08-12) | Identified as *the dominant control on the 2100 projection* — it was previously fixed. |
-| **`amp(GMST)` law** for Greenland (2026-08-13) | Reduced the G4 spread 9.80 → 7.37 cm on the L10 posterior. |
-| Slow channel **reparameterised as (log r_s, w)** (2026-08-14) | The native (α_s, β_s) coordinates are strongly correlated; the reparameterisation is what makes the block samplable. |
-| **Channel-ordering wedge** `--gis-ordered` (2026-08-17) | The prior centre was itself *inverted* (slow faster than fast). Starting there gives `logposterior = −Inf`, every MH ratio `NaN`, and acceptance exactly 0.0. The wedge removes a defect, not a degree of freedom. |
-| **Multi-basin** (`--gis-basins2`) + sector shares + pinned reference basin (2026-08-18/19) | The common mode of the basin shares is *exactly degenerate*; pinning the reference basin removes an unidentified direction rather than adding information. |
-| **High-basin volume TAP** (2026-08-20/23): V = 5.64 m, τ = 800 yr, onset 4.69 K, 2 stages, whole-sheet | Post-2100 commitment behaviour. Off-by-default and port-tested; fires only above the onset, so cool scenarios are unaffected (visible in the run logs as "the tap will not fire on this scenario"). |
+| **Two-channel (fast/slow) module** wired into the joint calibrator | A single channel cannot carry outlet/dynamic response and surface-mass-balance response with different time constants. |
+| **Channel ordering enforced** (`--gis-ordered`) | The fast channel must be faster than the slow one. Without the constraint the two are exchangeable and the posterior can invert them, which is not a physical solution. |
+| **`gis_amp` sampled, with an `amp(GMST)` law** | It was pinned, and it is the dominant control on the 2100 Greenland projection. The law reduced the G4 spread 9.80 → 7.37 cm. |
+| **Multi-basin sheet** with sector shares and a pinned reference basin | Greenland does not respond as one body. The reference basin is pinned because the common mode of the basin shares is *exactly* degenerate — pinning removes an unidentified direction rather than adding information. |
+| **High-basin volume tap**: V = 5.64 m, τ = 800 yr, onset 4.69 K, whole-sheet, 2 stages | Represents post-2100 commitment above a threshold. Off by default and port-tested; it does not fire on scenarios that stay below the onset. |
 
-### 1.3 Antarctica — geometry freed, runoff line reparameterised
+### 1.3 Antarctica — freed geometry, and an identified runoff line
 
 | change | justification |
 |---|---|
-| **7 DAIS geometry parameters freed** under a joint paleo prior (2026-07-18) | They were fixed at the prior medoid, which discards both their spread and the paleo correlation structure. The prior is built in standardised form (correlation, cond 2.75) because the raw covariance is ill-conditioned (cond 5.2e13). |
-| **Runoff line sampled in its identified direction**: `T_on = −h0/c` instead of (h0, c) | h0 and c enter only as `hR = h0 + c·T_ant`, so they ride an r = 0.9997 ridge. Sampling `T_on` (runoff onset, °C on the DAIS Antarctic-surface scale) replaces that ridge with an identified coordinate; the paleo prior was rebuilt in (T_on, c) coordinates from the same ensemble. |
-| **A6: `amp` (GMST → Antarctic) freed** with prior N(0.95, 0.10) | Stock DAIS hard-codes 1.196, the inverted paleo *equilibrium* regression, applied to a *transient* problem. **DECIDED 2026-08-27: keep N(0.95, 0.10)** — see §4.1. |
-| **SMB likelihood term** on β_total vs Rignot 2019, area-corrected ×0.888 | The posterior pinned SMB − discharge to −145 ± 15 Gt/yr while each flux was individually ±505/±509 — the textbook input–output degeneracy. One Gaussian term anchors the absolute flux scale. |
+| **7 DAIS geometry parameters freed** under a joint paleo prior (standardised correlation form, cond 2.75 vs 5.2e13 raw) | **This is the change that fixed the pre-1990 Antarctic melt.** See below. |
+| **Runoff line sampled in its identified direction**: `T_on = −h0/c` instead of (h0, c) | h0 and c enter the model only as `hR = h0 + c·T_ant`, so individually they ride an r = 0.9997 ridge that no sampler can traverse. `T_on` — the runoff onset temperature — is the combination the data actually constrain. |
+| **`amp` freed** with prior N(0.95, 0.10) (§1.0) | Stock DAIS hard-codes 1.196, the inverted paleo *equilibrium* regression, applied to a *transient* problem. |
+| **SMB likelihood term** on β_total vs Rignot 2019, area-corrected ×0.888 | The posterior pinned SMB − discharge to −145 ± 15 Gt/yr while each flux individually sat at ±505/±509 — the classic input–output degeneracy. One term anchors the absolute flux scale. |
+
+**Freeing the DAIS geometry is what removed the excess pre-1990 Antarctic melt.** With the
+geometry fixed at the prior medoid, BRICK 2.0 draws far more early-20th-century Antarctic mass
+loss than the record supports; Ladrillo tracks the observations to within a hundredth of a
+centimetre over the same period:
+
+| year | observed | Ladrillo error | BRICK 2.0 error |
+|---|---|---|---|
+| 1925 | −0.498 cm | **−0.009** | **−2.314** |
+| 1950 | −0.363 | +0.002 | −1.395 |
+| 1975 | −0.227 | +0.001 | −0.556 |
+| 1990 | −0.146 | +0.010 | −0.135 |
+| 2005 | +0.100 | +0.042 | +0.063 |
+
+The two models converge by the satellite era — the disagreement is entirely pre-1990, and it is
+a ~2.3 cm overstatement of cumulative Antarctic contribution at 1925. This is the same thing the
+hindcast RMSE ratios in §2 report as 0.003 (1920–1949) and 0.008 (1950–1992) against 0.548 in
+1993–2026.
 
 ### 1.4 Calibration targets and forcing
 
 | change | justification |
 |---|---|
-| **Dangendorf 2024** GMSL + budget-closure σ inflation (2026-08-12) | The total target's σ is inflated by Frederikse's own budget-closure spread rather than assumed. |
-| **LWS extended with JPL GRACE/GRACE-FO mascons** (2026-08-24) | The LWS target was held flat 2019–2026; the GRACE extension replaces held-flat values with data. |
-| **Closure σ trend-extended** (2026-08-25) | Same window, same reason. |
-| **D1 "drop the total"** / **D2 mean-zero discrepancy basis** on gsic and steric, orthogonal to S(t) (2026-08-14/15) | Prevents the total from double-counting its own components; the D2 basis is orthogonal to the signal, not merely to the constant. |
-| **FaIR-consistent conditional weighting**; **mean-forcing** canonical, **joint free-forcing REJECTED** (2026-08-01) | Recorded as a rejected arm, not an untried one. |
-| **Over-dispersed chain starts** (`--overdisperse`, 2026-07-19) | Every prior run started all 4 chains at the same θ0, making R̂ anti-conservative: between-chain variance cannot reflect mass no chain reached. |
-
----
+| **Dangendorf 2024** GMSL, with the total's σ inflated by Frederikse's own budget-closure spread | The closure error is measured, so it is used rather than assumed. |
+| **LWS extended with JPL GRACE/GRACE-FO mascons**; closure σ trend-extended | Both were held flat over 2019–2026; the extension replaces held-flat values with data. |
+| **Component-level fitting** with a mean-zero discrepancy basis on glaciers and steric, orthogonal to the signal | Prevents the total from double-counting its own components; the basis is orthogonal to S(t), not merely to a constant. |
+| **Mean FaIR 2.2.4 (calib 1.4.5) forcing** per SSP, FaIR-consistent conditional weighting | Fixes the climate driver so the posterior spread is parameter uncertainty — which is *why* the bands in §3 are not comparable to MAGICC's or FACTS'. |
+| **Over-dispersed chain starts** | Every earlier run started all four chains at the same point, which makes R̂ anti-conservative: between-chain variance cannot reflect posterior mass no chain ever reached. |
 
 ## 2. Hindcast: Ladrillo L14 vs BRICK 2.0 vs observations
 
