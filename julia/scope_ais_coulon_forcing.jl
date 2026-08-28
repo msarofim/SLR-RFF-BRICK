@@ -66,14 +66,46 @@ const SSP      = "ssp585"                 # Coulon's high scenario; the comparis
 const HORIZONS = [2100, 2150, 2300]
 const Y0, Y1   = 1850, 2300
 ## The arm drivers, built by FaIRtoFrEDI/run_fair_ssp585_spread.py.
-const ARM_CSV  = joinpath(LADRILLO_OBS, "fair_coulon_arm_$(SSP).csv")
+## --pathtest=v145|v160 (2026-08-28, DEFAULT-OFF): swap the arm file and the ARMS list for the
+## PATH-vs-ENDPOINT test. Two configs matched at T_ant@2300 but ~11-14% apart in the 2015-2300
+## temperature INTEGRAL. The arms are selected on the ENDPOINT, but AIS integrates temperature, so
+## the endpoint is not a sufficient statistic for the path: among configs matched at 2300, the
+## integral's residual sd is 48% (v145) / 78% (v160) of its unconditioned spread. If the two bands
+## agree, the endpoint IS sufficient and an n=1 arm is tolerable; if not, the arm has to be
+## specified on the integral. Omitting the flag reproduces the previous behaviour exactly.
+## ⚠ VINTAGE-LOCKED: v145 pairs with an L14-line posterior, v160 with L21. The control column is
+## that vintage's own mean driver, so a mismatch shows up as a [CONTROL] failure, not a silent mix.
+const PATHTEST = let i = findfirst(a -> startswith(a, "--pathtest="), ARGS)
+    i === nothing ? nothing : ARGS[i][12:end]
+end
+@assert PATHTEST === nothing || PATHTEST in ("v145", "v160", "integral") "--pathtest must be v145, v160 or integral"
+const ARM_CSV  = PATHTEST === nothing ? joinpath(LADRILLO_OBS, "fair_coulon_arm_$(SSP).csv") :
+                 joinpath(LADRILLO_OBS, PATHTEST == "v145" ? "fair_coulon_pathtest_$(SSP).csv" :
+                          PATHTEST == "v160" ? "fair_coulon_pathtest_$(SSP)_v160.csv" :
+                          "fair_coulon_arm_integral_$(SSP)_v160.csv")
 ## arm key => (driver column, label, Coulon T_ant target degC, ensemble pctile)
 ## Targets and percentiles are Coulon 2025's and the FaIR ensemble's respectively;
 ## both are carried here so every printed label derives from a named constant.
-const ARMS = [("control", "gmst_control_spliced", "shipped MEAN driver", NaN,   NaN),
-              ("tant12",  "gmst_tant12p0_spliced", "Coulon coldest",     12.0,  98.0),
-              ("tant14",  "gmst_tant14p5_spliced", "Coulon midpoint",    14.5,  99.4),
-              ("tant17",  "gmst_tant17p0_spliced", "Coulon hottest",     17.0,  99.8)]
+const ARMS = PATHTEST === nothing ?
+    [("control", "gmst_control_spliced", "shipped MEAN driver", NaN,   NaN),
+     ("tant12",  "gmst_tant12p0_spliced", "Coulon coldest",     12.0,  98.0),
+     ("tant14",  "gmst_tant14p5_spliced", "Coulon midpoint",    14.5,  99.4),
+     ("tant17",  "gmst_tant17p0_spliced", "Coulon hottest",     17.0,  99.8)] :
+    ## PATH TEST: both arms sit at the SAME T_ant@2300 (13.59/13.75 v145; 13.40/13.25 v160)
+    ## and differ only in the PATH taken to get there (integral 22.41 vs 24.96 = 10.8% v145;
+    ## 25.72 vs 22.42 = 13.7% v160). Targets/percentiles are NaN: these are not Coulon arms.
+    PATHTEST == "integral" ?
+    ## INTEGRAL-CENTRED ARMS (Marcus 2026-08-28). Selected as the MEDIAN INTEGRAL of the configs
+    ## within +-1.25 degC (half the target spacing) of Coulon's endpoint target, instead of the
+    ## endpoint argmin. ⚠ tant17 IS ABSENT BY CONSTRUCTION: 0 of 841 configs fall within the band
+    ## of 17.0 degC. It is omitted rather than filled with a nearest-config substitute, because
+    ## that substitution is exactly the silent duplicate that made the old tant17 dangerous.
+    [("control", "gmst_control_spliced",  "shipped MEAN driver",             NaN,  NaN),
+     ("tant12",  "gmst_tant12p0_spliced", "Coulon coldest, integral-centred", 12.0, NaN),
+     ("tant14",  "gmst_tant14p5_spliced", "Coulon midpoint, integral-centred",14.5, NaN)] :
+    [("control", "gmst_control_spliced", "shipped MEAN driver",      NaN, NaN),
+     ("pathA",   "gmst_pathA_spliced",   "same endpoint, LOW integral",  NaN, NaN),
+     ("pathB",   "gmst_pathB_spliced",   "same endpoint, HIGH integral", NaN, NaN)]
 const CONTROL = "control"
 ## Coulon et al. 2025, Nat. Commun. 16:10385 -- ssp585 AIS at 2300, cm SLE.
 const COULON_BAND = (73.0, 595.0)
@@ -275,20 +307,25 @@ let iH = yidx(2300), cmed = COULON_MED[1] / 2 + COULON_MED[2] / 2
     m0 = median(RES[CONTROL][:, iH])
     @printf("\n  the shipped control is %.2fx Coulon's median at %.2fx their forcing;\n", m0 / cmed,
             (GMST[CONTROL][I2300] - mean(GMST[CONTROL][IREF])) * median(AMP) / 14.5)
-    @printf("  at MATCHED forcing (tant14, T_ant %.2f vs their 12-17 degC) we are %.2fx.\n",
-            (GMST["tant14"][I2300] - mean(GMST["tant14"][IREF])) * median(AMP),
-            median(RES["tant14"][:, iH]) / cmed)
-    ## ⚠ THE TWO DISPLACEMENTS ARE DIFFERENT QUANTITIES AND NEED NOT AGREE.
-    ## diag_ais_coulon_like_for_like.py moves COULON DOWN to our forcing and gets
-    ## ">= 2.14x". This moves US UP to theirs. Both are like-for-like; they measure
-    ## the gap at two different points on the forcing axis, and the gap is not
-    ## constant along it. Quote each with its forcing, never one as the other.
-    @printf("\n  NOTE: %.2fx here is the gap AT THEIR FORCING. The >=2.14x in\n",
-            median(RES["tant14"][:, iH]) / cmed)
-    @printf("        diag_ais_coulon_like_for_like.py is the gap AT OURS. Different cells.\n")
-end
+    ## ⚠ the Coulon summary is hardcoded to the tant14 arm and is MEANINGLESS under
+    ## --pathtest, whose arms are not Coulon arms (targets are NaN). Guard it rather than
+    ## letting it KeyError after the table has already printed.
+    if PATHTEST === nothing
+        @printf("  at MATCHED forcing (tant14, T_ant %.2f vs their 12-17 degC) we are %.2fx.\n",
+                (GMST["tant14"][I2300] - mean(GMST["tant14"][IREF])) * median(AMP),
+                median(RES["tant14"][:, iH]) / cmed)
+        ## ⚠ THE TWO DISPLACEMENTS ARE DIFFERENT QUANTITIES AND NEED NOT AGREE.
+        ## diag_ais_coulon_like_for_like.py moves COULON DOWN to our forcing and gets
+        ## ">= 2.14x". This moves US UP to theirs. Both are like-for-like; they measure
+        ## the gap at two different points on the forcing axis, and the gap is not
+        ## constant along it. Quote each with its forcing, never one as the other.
+        @printf("\n  NOTE: %.2fx here is the gap AT THEIR FORCING. The >=2.14x in\n",
+                median(RES["tant14"][:, iH]) / cmed)
+        @printf("        diag_ais_coulon_like_for_like.py is the gap AT OURS. Different cells.\n")
+    end
 
-## the median path of every arm, for the figure and for re-reading without a re-run
+    ## the median path of every arm, for the figure and for re-reading without a re-run
+    end
 paths = DataFrame(year = Int[], arm = String[], med_cm = Float64[],
                   p05_cm = Float64[], p95_cm = Float64[])
 for (k, _, _, _, _) in ARMS, (i, y) in enumerate(YRS)

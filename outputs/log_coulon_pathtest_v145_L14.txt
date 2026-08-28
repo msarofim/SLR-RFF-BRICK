@@ -1,0 +1,71 @@
+AIS at COULON'S FORCING | tag L14 | 500 draws/chain x 4 chains | ssp585
+  reading chain seed2026 ...
+  reading chain seed2027 ...
+  reading chain seed2028 ...
+  reading chain seed2029 ...
+  ais_gmst_amp over 2000 draws: p05 0.7858  med 0.9447  p95 1.1101
+
+============================================================================================
+THE ARMS -- real FaIR ssp585 configs, spliced at 2014 (fair_coulon_pathtest_ssp585.csv)
+============================================================================================
+  arm      label                     dGMST    T_ant   target   pctile  (degC @2300 vs 1995-2014)
+  control  shipped MEAN driver        6.95     6.57       --       --
+  pathA    same endpoint, LOW integral    14.39    13.60       --       --
+  pathB    same endpoint, HIGH integral    14.56    13.76       --       --
+  running arm control (shipped MEAN driver) ...
+  running arm pathA (same endpoint, LOW integral) ...
+  running arm pathB (same endpoint, HIGH integral) ...
+ERROR: LoadError: KeyError: key "tant14" not found
+Stacktrace:
+ [1] getindex(h::Dict{String, Vector{Float64}}, key::String)
+   @ Base ./dict.jl:477
+ [2] top-level scope
+   @ ~/Documents/2026/CodeProjects/SLR-RFF-BRICK/julia/scope_ais_coulon_forcing.jl:300
+ [3] include(mod::Module, _path::String)
+   @ Base ./Base.jl:306
+ [4] exec_options(opts::Base.JLOptions)
+   @ Base ./client.jl:317
+ [5] _start()
+   @ Base ./client.jl:550
+in expression starting at /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/julia/scope_ais_coulon_forcing.jl:278
+
+============================================================================================
+GATES
+============================================================================================
+  [CONTROL] @2100  control median   37.069 vs shipped   37.073  diff -0.0039 cm -> PASS
+  [CONTROL] @2150  control median   94.344 vs shipped   94.348  diff -0.0049 cm -> PASS
+  [CONTROL] @2300  control median  281.197 vs shipped  281.190  diff +0.0073 cm -> PASS
+  [CALIB-MOVE] pathA   1850-2024  max |arm - control| = 0.0251 cm = 1.8% of the 1.404 cm AIS target span = 0.18 sigma
+  [CALIB-MOVE] pathB   1850-2024  max |arm - control| = 0.0857 cm = 6.1% of the 1.404 cm AIS target span = 0.61 sigma
+  [BASEYEAR] our AIS at 2015 = +0.337 cm rel 1995-2014 -> Coulon's baseline is 0.337 cm ABOVE ours
+
+============================================================================================
+AIS at ssp585, cm rel 1995-2014 -- AIS COMPONENT ONLY
+============================================================================================
+  horiz  arm      label                     median       p05       p95    spread  x control
+  2100   control  shipped MEAN driver        37.07     16.45     67.00     50.56      1.00x
+  2100   pathA    same endpoint, LOW integral     45.68     24.75     75.48     50.73      1.23x
+  2100   pathB    same endpoint, HIGH integral     60.38     34.49     95.39     60.90      1.63x
+
+  2150   control  shipped MEAN driver        94.34     53.76    148.55     94.79      1.00x
+  2150   pathA    same endpoint, LOW integral    115.06     68.22    175.43    107.21      1.22x
+  2150   pathB    same endpoint, HIGH integral    138.80     84.06    211.23    127.17      1.47x
+
+  2300   control  shipped MEAN driver       281.20    168.35    420.70    252.36      1.00x
+  2300   pathA    same endpoint, LOW integral    431.73    264.08    694.37    430.29      1.54x
+  2300   pathB    same endpoint, HIGH integral    479.75    289.72    793.99    504.27      1.71x
+
+============================================================================================
+LIKE-FOR-LIKE AT 2300: OUR AIS AT COULON'S OWN FORCING
+============================================================================================
+  Coulon ssp585 @2300 : 73 to 595 cm (5-95%), model medians 267 / 273 cm
+  control  shipped MEAN driver    median   281.20 cm =  1.04x Coulon's 270 cm; band [ 168.35,  420.70] vs [73, 595]
+  pathA    same endpoint, LOW integral median   431.73 cm =  1.60x Coulon's 270 cm; band [ 264.08,  694.37] vs [73, 595]
+  pathB    same endpoint, HIGH integral median   479.75 cm =  1.78x Coulon's 270 cm; band [ 289.72,  793.99] vs [73, 595]
+
+  [WIDTH] Coulon's band is 522 cm wide. Ours, per arm:
+     control    252.4 cm = 0.48x theirs
+     pathA      430.3 cm = 0.82x theirs
+     pathB      504.3 cm = 0.97x theirs
+
+  the shipped control is 1.04x Coulon's median at 0.45x their forcing;

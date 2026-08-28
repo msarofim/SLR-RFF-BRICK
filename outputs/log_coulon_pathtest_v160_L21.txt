@@ -1,0 +1,60 @@
+AIS at COULON'S FORCING | tag L21 | 500 draws/chain x 4 chains | ssp585
+  reading chain seed2026 ...
+  reading chain seed2027 ...
+  reading chain seed2028 ...
+  reading chain seed2029 ...
+  ais_gmst_amp over 2000 draws: p05 0.7774  med 0.9442  p95 1.1061
+
+============================================================================================
+THE ARMS -- real FaIR ssp585 configs, spliced at 2014 (fair_coulon_pathtest_ssp585_v160.csv)
+============================================================================================
+  arm      label                     dGMST    T_ant   target   pctile  (degC @2300 vs 1995-2014)
+  control  shipped MEAN driver        6.70     6.32       --       --
+  pathA    same endpoint, LOW integral    14.19    13.40       --       --
+  pathB    same endpoint, HIGH integral    14.04    13.25       --       --
+  running arm control (shipped MEAN driver) ...
+  running arm pathA (same endpoint, LOW integral) ...
+  running arm pathB (same endpoint, HIGH integral) ...
+
+============================================================================================
+GATES
+============================================================================================
+  [CONTROL] @2100  control median   30.385 vs shipped   30.385  diff +0.0000 cm -> PASS
+  [CONTROL] @2150  control median   87.255 vs shipped   87.255  diff +0.0000 cm -> PASS
+  [CONTROL] @2300  control median  268.386 vs shipped  268.386  diff +0.0000 cm -> PASS
+  [CALIB-MOVE] pathA   1850-2024  max |arm - control| = 0.1101 cm = 7.8% of the 1.404 cm AIS target span = 0.78 sigma
+  [CALIB-MOVE] pathB   1850-2024  max |arm - control| = 0.0403 cm = 2.9% of the 1.404 cm AIS target span = 0.29 sigma
+  [BASEYEAR] our AIS at 2015 = +0.332 cm rel 1995-2014 -> Coulon's baseline is 0.332 cm ABOVE ours
+
+============================================================================================
+AIS at ssp585, cm rel 1995-2014 -- AIS COMPONENT ONLY
+============================================================================================
+  horiz  arm      label                     median       p05       p95    spread  x control
+  2100   control  shipped MEAN driver        30.38     10.82     56.83     46.01      1.00x
+  2100   pathA    same endpoint, LOW integral     67.19     38.91    102.58     63.67      2.21x
+  2100   pathB    same endpoint, HIGH integral     50.29     28.56     80.34     51.77      1.66x
+
+  2150   control  shipped MEAN driver        87.25     50.17    134.47     84.30      1.00x
+  2150   pathA    same endpoint, LOW integral    148.84     91.62    218.95    127.33      1.71x
+  2150   pathB    same endpoint, HIGH integral    118.69     72.32    175.71    103.39      1.36x
+
+  2300   control  shipped MEAN driver       268.39    164.89    395.29    230.40      1.00x
+  2300   pathA    same endpoint, LOW integral    481.26    300.61    791.58    490.97      1.79x
+  2300   pathB    same endpoint, HIGH integral    421.62    268.45    675.32    406.87      1.57x
+
+============================================================================================
+LIKE-FOR-LIKE AT 2300: OUR AIS AT COULON'S OWN FORCING
+============================================================================================
+  Coulon ssp585 @2300 : 73 to 595 cm (5-95%), model medians 267 / 273 cm
+  control  shipped MEAN driver    median   268.39 cm =  0.99x Coulon's 270 cm; band [ 164.89,  395.29] vs [73, 595]
+  pathA    same endpoint, LOW integral median   481.26 cm =  1.78x Coulon's 270 cm; band [ 300.61,  791.58] vs [73, 595]
+  pathB    same endpoint, HIGH integral median   421.62 cm =  1.56x Coulon's 270 cm; band [ 268.45,  675.32] vs [73, 595]
+
+  [WIDTH] Coulon's band is 522 cm wide. Ours, per arm:
+     control    230.4 cm = 0.44x theirs
+     pathA      491.0 cm = 0.94x theirs
+     pathB      406.9 cm = 0.78x theirs
+
+  the shipped control is 0.99x Coulon's median at 0.44x their forcing;
+
+wrote outputs/scope_ais_coulon_{cells,paths,gates}_L21.csv

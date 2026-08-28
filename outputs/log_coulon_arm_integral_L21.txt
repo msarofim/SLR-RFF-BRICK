@@ -1,0 +1,60 @@
+AIS at COULON'S FORCING | tag L21 | 500 draws/chain x 4 chains | ssp585
+  reading chain seed2026 ...
+  reading chain seed2027 ...
+  reading chain seed2028 ...
+  reading chain seed2029 ...
+  ais_gmst_amp over 2000 draws: p05 0.7774  med 0.9442  p95 1.1061
+
+============================================================================================
+THE ARMS -- real FaIR ssp585 configs, spliced at 2014 (fair_coulon_arm_integral_ssp585_v160.csv)
+============================================================================================
+  arm      label                     dGMST    T_ant   target   pctile  (degC @2300 vs 1995-2014)
+  control  shipped MEAN driver        6.70     6.32       --       --
+  tant12   Coulon coldest, integral-centred    12.07    11.39     12.0       --
+  tant14   Coulon midpoint, integral-centred    15.15    14.30     14.5       --
+  running arm control (shipped MEAN driver) ...
+  running arm tant12 (Coulon coldest, integral-centred) ...
+  running arm tant14 (Coulon midpoint, integral-centred) ...
+
+============================================================================================
+GATES
+============================================================================================
+  [CONTROL] @2100  control median   30.385 vs shipped   30.385  diff +0.0000 cm -> PASS
+  [CONTROL] @2150  control median   87.255 vs shipped   87.255  diff +0.0000 cm -> PASS
+  [CONTROL] @2300  control median  268.386 vs shipped  268.386  diff +0.0000 cm -> PASS
+  [CALIB-MOVE] tant12  1850-2024  max |arm - control| = 0.0602 cm = 4.3% of the 1.404 cm AIS target span = 0.43 sigma
+  [CALIB-MOVE] tant14  1850-2024  max |arm - control| = 0.0337 cm = 2.4% of the 1.404 cm AIS target span = 0.24 sigma
+  [BASEYEAR] our AIS at 2015 = +0.332 cm rel 1995-2014 -> Coulon's baseline is 0.332 cm ABOVE ours
+
+============================================================================================
+AIS at ssp585, cm rel 1995-2014 -- AIS COMPONENT ONLY
+============================================================================================
+  horiz  arm      label                     median       p05       p95    spread  x control
+  2100   control  shipped MEAN driver        30.38     10.82     56.83     46.01      1.00x
+  2100   tant12   Coulon coldest, integral-centred     46.93     26.88     74.84     47.96      1.54x
+  2100   tant14   Coulon midpoint, integral-centred     56.41     32.56     86.46     53.89      1.86x
+
+  2150   control  shipped MEAN driver        87.25     50.17    134.47     84.30      1.00x
+  2150   tant12   Coulon coldest, integral-centred    113.93     69.54    169.16     99.62      1.31x
+  2150   tant14   Coulon midpoint, integral-centred    134.11     82.85    197.16    114.31      1.54x
+
+  2300   control  shipped MEAN driver       268.39    164.89    395.29    230.40      1.00x
+  2300   tant12   Coulon coldest, integral-centred    380.35    240.38    578.12    337.74      1.42x
+  2300   tant14   Coulon midpoint, integral-centred    478.99    296.84    799.83    503.00      1.78x
+
+============================================================================================
+LIKE-FOR-LIKE AT 2300: OUR AIS AT COULON'S OWN FORCING
+============================================================================================
+  Coulon ssp585 @2300 : 73 to 595 cm (5-95%), model medians 267 / 273 cm
+  control  shipped MEAN driver    median   268.39 cm =  0.99x Coulon's 270 cm; band [ 164.89,  395.29] vs [73, 595]
+  tant12   Coulon coldest, integral-centred median   380.35 cm =  1.41x Coulon's 270 cm; band [ 240.38,  578.12] vs [73, 595]
+  tant14   Coulon midpoint, integral-centred median   478.99 cm =  1.77x Coulon's 270 cm; band [ 296.84,  799.83] vs [73, 595]
+
+  [WIDTH] Coulon's band is 522 cm wide. Ours, per arm:
+     control    230.4 cm = 0.44x theirs
+     tant12     337.7 cm = 0.65x theirs
+     tant14     503.0 cm = 0.96x theirs
+
+  the shipped control is 0.99x Coulon's median at 0.44x their forcing;
+
+wrote outputs/scope_ais_coulon_{cells,paths,gates}_L21.csv
