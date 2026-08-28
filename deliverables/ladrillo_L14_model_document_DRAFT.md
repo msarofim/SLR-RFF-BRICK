@@ -103,6 +103,23 @@ plainly because it is the main place the model imports outside information:
 > conclusion, by the same test, that stopped `amp(ΔT)` being built for Antarctica.
 > ⚠ FAST is the one place a future case could be made, and it is the block where a law would
 > matter least: it is the smallest-amplification, fastest-equilibrating block.
+>
+> **What the forward splice actually is, since "linear" and "constant amplification" are the
+> same choice.** Beyond the observations the driver is
+> `T_reg(t) = amp_b × GMST(t) + offset`, with the offset fixed so the line meets the **observed
+> 11-year mean at the splice point** (`extend_obs`, anchor-preserving). So the *level* is the
+> observed one — observations are not overwritten by a model — and only the forward *increment*
+> is modelled. That extrapolation is **linear in GMST, not in time**, and the amplification is
+> **already held constant**: a constant amplification is exactly what makes the relation linear.
+> The alternative is not "constant instead of linear" but `amp(ΔT)`, which would make the
+> relation **curved**.
+>
+> **And CMIP6 supports the constant.** SLOWP — the dominant block — is flat (z = −0.01); R19's
+> slope is resolved but a third of the between-model spread; only FAST argues for curvature. If
+> CMIP6's slopes were exactly right, holding amplification constant to 4 K would bias regional
+> temperature by **+0.30 K (R19), +0.00 K (SLOWP), −0.35 K (FAST)** — and **R19 and FAST point
+> opposite ways, so they partly cancel in the glacier total.** That is the case for leaving the
+> extrapolation as it is.
 
 ### 1.1 Glaciers — from one saturating reservoir to three regional ones
 
