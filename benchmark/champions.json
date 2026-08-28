@@ -7,11 +7,35 @@
     "others untouched should not silently take credit for them."
   ],
   "champions": {
-    "ais":      {"tag": "L14", "since": "2026-08-25", "why": "step 1 PASS: BRICK 2.0's component by identity, four substantive calibration updates, century-scale obs rank it above BRICK 2.0 by 4.9-11.7 sigma"},
-    "glaciers": {"tag": "L14", "since": "2026-08-25", "why": "first frozen arm; glaciers_nu3 replaces WR-GSIC"},
-    "gis":      {"tag": "L14", "since": "2026-08-25", "why": "first frozen arm; two-stage cascade, module CLOSED 2026-08-24"},
-    "te":       {"tag": "L14", "since": "2026-08-25", "why": "first frozen arm"},
-    "lws":      {"tag": "L14", "since": "2026-08-25", "why": "first frozen arm; seeded constant, zero spread"},
-    "total":    {"tag": "L14", "since": "2026-08-25", "why": "first frozen arm"}
+    "ais": {
+      "tag": "L21",
+      "since": "2026-08-28",
+      "why": "calib 1.6.0 + CMIP7 driver migration (Marcus 2026-08-28). NOT a fit improvement: R-hat 1.017->1.006, ESS 953->1201, ssp585@2100 AIS 2.430->2.045x lit; but TE hindcast 1.245x WORSE and AIS 1.142x WORSE. Promoted for COHERENCE \u2014 L14 is fit to drivers that no longer exist in the tree."
+    },
+    "glaciers": {
+      "tag": "L21",
+      "since": "2026-08-28",
+      "why": "calib 1.6.0 + CMIP7 driver migration (Marcus 2026-08-28). NOT a fit improvement: R-hat 1.017->1.006, ESS 953->1201, ssp585@2100 AIS 2.430->2.045x lit; but TE hindcast 1.245x WORSE and AIS 1.142x WORSE. Promoted for COHERENCE \u2014 L14 is fit to drivers that no longer exist in the tree."
+    },
+    "gis": {
+      "tag": "L21",
+      "since": "2026-08-28",
+      "why": "calib 1.6.0 + CMIP7 driver migration (Marcus 2026-08-28). NOT a fit improvement: R-hat 1.017->1.006, ESS 953->1201, ssp585@2100 AIS 2.430->2.045x lit; but TE hindcast 1.245x WORSE and AIS 1.142x WORSE. Promoted for COHERENCE \u2014 L14 is fit to drivers that no longer exist in the tree."
+    },
+    "te": {
+      "tag": "L21",
+      "since": "2026-08-28",
+      "why": "calib 1.6.0 + CMIP7 driver migration (Marcus 2026-08-28). NOT a fit improvement: R-hat 1.017->1.006, ESS 953->1201, ssp585@2100 AIS 2.430->2.045x lit; but TE hindcast 1.245x WORSE and AIS 1.142x WORSE. Promoted for COHERENCE \u2014 L14 is fit to drivers that no longer exist in the tree."
+    },
+    "lws": {
+      "tag": "L21",
+      "since": "2026-08-28",
+      "why": "calib 1.6.0 + CMIP7 driver migration (Marcus 2026-08-28). NOT a fit improvement: R-hat 1.017->1.006, ESS 953->1201, ssp585@2100 AIS 2.430->2.045x lit; but TE hindcast 1.245x WORSE and AIS 1.142x WORSE. Promoted for COHERENCE \u2014 L14 is fit to drivers that no longer exist in the tree."
+    },
+    "total": {
+      "tag": "L21",
+      "since": "2026-08-28",
+      "why": "calib 1.6.0 + CMIP7 driver migration (Marcus 2026-08-28). NOT a fit improvement: R-hat 1.017->1.006, ESS 953->1201, ssp585@2100 AIS 2.430->2.045x lit; but TE hindcast 1.245x WORSE and AIS 1.142x WORSE. Promoted for COHERENCE \u2014 L14 is fit to drivers that no longer exist in the tree."
+    }
   }
 }

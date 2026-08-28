@@ -1,0 +1,536 @@
+block,component,scenario,horizon,metric,arm,value,unit,value_sigma,note,verdict
+H,ais,,,hindcast/full,L21,0.03110942904880134,cm,0.18578981336658185,bias -0.0024 cm = -0.01 sd; cov90 83%; n=106,PASS
+H,ais,,,hindcast/full,BRICK 2.0,1.1757511688158073,cm,7.021748611238046,bias -0.8211 cm = -4.90 sd; cov90 31%; n=106,FAIL
+H,ais,,,hindcast/1920-1949,L21,0.007925545655414555,cm,0.047332454923486596,bias -0.0075 cm = -0.04 sd; cov90 100%; n=30,PASS
+H,ais,,,hindcast/1920-1949,BRICK 2.0,1.9842706854871703,cm,11.850339000022418,bias -1.9579 cm = -11.69 sd; cov90 0%; n=30,FAIL
+H,ais,,,hindcast/1950-1992,L21,0.007924194895912602,cm,0.04732438800090254,bias +0.0030 cm = +0.02 sd; cov90 98%; n=43,PASS
+H,ais,,,hindcast/1950-1992,BRICK 2.0,0.8082294255445154,cm,4.826857924449145,bias -0.7053 cm = -4.21 sd; cov90 2%; n=43,FAIL
+H,ais,,,hindcast/1993-2026,L21,0.054495458700544716,cm,0.32545441722565405,bias -0.0048 cm = -0.03 sd; cov90 48%; n=33,PASS
+H,ais,,,hindcast/1993-2026,BRICK 2.0,0.0991516712222806,cm,0.5921474952971527,bias +0.0615 cm = +0.37 sd; cov90 97%; n=33,PASS
+H,glaciers,,,hindcast/full,L21,0.33659331227114947,cm,0.7328592295895131,bias +0.1721 cm = +0.37 sd; cov90 52%; n=104,PASS
+H,glaciers,,,hindcast/full,BRICK 2.0,0.8940588962628659,cm,1.9466201199952224,bias +0.5000 cm = +1.09 sd; cov90 47%; n=104,WARN
+H,glaciers,,,hindcast/1920-1949,L21,0.598971237658756,cm,1.3041304855851052,bias +0.5356 cm = +1.17 sd; cov90 20%; n=30,WARN
+H,glaciers,,,hindcast/1920-1949,BRICK 2.0,1.6382486441740043,cm,3.5669325428493757,bias +1.5142 cm = +3.30 sd; cov90 0%; n=30,FAIL
+H,glaciers,,,hindcast/1950-1992,L21,0.13507317970404184,cm,0.2940926715037252,bias +0.0799 cm = +0.17 sd; cov90 56%; n=43,PASS
+H,glaciers,,,hindcast/1950-1992,BRICK 2.0,0.13114982071295883,cm,0.28555040478960836,bias +0.0341 cm = +0.07 sd; cov90 95%; n=43,PASS
+H,glaciers,,,hindcast/1993-2026,L21,0.08709743618956405,cm,0.18963585329255153,bias -0.0518 cm = -0.11 sd; cov90 77%; n=31,PASS
+H,glaciers,,,hindcast/1993-2026,BRICK 2.0,0.24600850950039985,cm,0.5356303888762102,bias +0.1647 cm = +0.36 sd; cov90 26%; n=31,PASS
+H,gis,,,hindcast/full,L21,0.05865943530916371,cm,0.3202324420059844,bias +0.0013 cm = +0.01 sd; cov90 56%; n=106,PASS
+H,gis,,,hindcast/full,BRICK 2.0,0.7230147179026976,cm,3.9470678075906904,bias -0.5975 cm = -3.26 sd; cov90 22%; n=106,FAIL
+H,gis,,,hindcast/1920-1949,L21,0.07983763127888584,cm,0.43584803525063914,bias +0.0247 cm = +0.13 sd; cov90 57%; n=30,PASS
+H,gis,,,hindcast/1920-1949,BRICK 2.0,0.7876326016987747,cm,4.299828495043884,bias -0.7371 cm = -4.02 sd; cov90 27%; n=30,FAIL
+H,gis,,,hindcast/1950-1992,L21,0.049343970293026604,cm,0.26937763757739686,bias -0.0152 cm = -0.08 sd; cov90 63%; n=43,PASS
+H,gis,,,hindcast/1950-1992,BRICK 2.0,0.9132443162126479,cm,4.9855655102628536,bias -0.8659 cm = -4.73 sd; cov90 0%; n=43,FAIL
+H,gis,,,hindcast/1993-2026,L21,0.045666615268618045,cm,0.24930229294813538,bias +0.0015 cm = +0.01 sd; cov90 45%; n=33,PASS
+H,gis,,,hindcast/1993-2026,BRICK 2.0,0.1685880472577014,cm,0.9203525704230598,bias -0.1209 cm = -0.66 sd; cov90 45%; n=33,PASS
+H,te,,,hindcast/full,L21,0.400632326077331,cm,1.2961759452746853,bias +0.1604 cm = +0.52 sd; cov90 39%; n=106,PASS
+H,te,,,hindcast/full,BRICK 2.0,0.3242598975630279,cm,1.0490862865551778,bias +0.1908 cm = +0.62 sd; cov90 96%; n=106,PASS
+H,te,,,hindcast/1920-1949,L21,0.544983831770639,cm,1.7632000398499497,bias +0.4076 cm = +1.32 sd; cov90 33%; n=30,WARN
+H,te,,,hindcast/1920-1949,BRICK 2.0,0.4741184495400583,cm,1.5339274679151402,bias +0.3885 cm = +1.26 sd; cov90 100%; n=30,WARN
+H,te,,,hindcast/1950-1992,L21,0.2157142952116511,cm,0.6979059409480967,bias -0.1064 cm = -0.34 sd; cov90 60%; n=43,PASS
+H,te,,,hindcast/1950-1992,BRICK 2.0,0.18965745910212953,cm,0.6136035969365266,bias +0.0499 cm = +0.16 sd; cov90 100%; n=43,PASS
+H,te,,,hindcast/1993-2026,L21,0.4300295292692821,cm,1.3912854637921808,bias +0.2832 cm = +0.92 sd; cov90 15%; n=33,PASS
+H,te,,,hindcast/1993-2026,BRICK 2.0,0.2941324145652627,cm,0.9516140752243384,bias +0.1946 cm = +0.63 sd; cov90 88%; n=33,PASS
+H,total,,,hindcast/full,L21,0.6812958046901578,cm,0.44297301615052653,bias +0.5414 cm = +0.35 sd; cov90 33%; n=105,PASS
+H,total,,,hindcast/full,BRICK 2.0,1.819830591542203,cm,1.1832391165025065,bias -1.3318 cm = -0.87 sd; cov90 25%; n=105,PASS
+H,total,,,hindcast/1920-1949,L21,1.0493423604645042,cm,0.6822739068544121,bias +0.9907 cm = +0.64 sd; cov90 23%; n=30,PASS
+H,total,,,hindcast/1920-1949,BRICK 2.0,2.5470114233655377,cm,1.6560462057904362,bias -2.4846 cm = -1.62 sd; cov90 0%; n=30,WARN
+H,total,,,hindcast/1950-1992,L21,0.5185960660613276,cm,0.33718696337996495,bias +0.4823 cm = +0.31 sd; cov90 35%; n=43,PASS
+H,total,,,hindcast/1950-1992,BRICK 2.0,1.8671936241473779,cm,1.2140341768312453,bias -1.5605 cm = -1.01 sd; cov90 12%; n=43,WARN
+H,total,,,hindcast/1993-2026,L21,0.3596497733799618,cm,0.23384137077495867,bias +0.1996 cm = +0.13 sd; cov90 41%; n=32,PASS
+H,total,,,hindcast/1993-2026,BRICK 2.0,0.31640174648784053,cm,0.2057218538440205,bias +0.0564 cm = +0.04 sd; cov90 66%; n=32,PASS
+H,ais,,,rmse_ratio/full,L21 vs BRICK 2.0,0.026459194661174884,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,ais,,,rmse_ratio/1920-1949,L21 vs BRICK 2.0,0.003994185729488165,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,ais,,,rmse_ratio/1950-1992,L21 vs BRICK 2.0,0.009804388018382234,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,ais,,,rmse_ratio/1993-2026,L21 vs BRICK 2.0,0.5496171474344138,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,glaciers,,,rmse_ratio/full,L21 vs BRICK 2.0,0.376477784269132,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,glaciers,,,rmse_ratio/1920-1949,L21 vs BRICK 2.0,0.3656168065750202,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,glaciers,,,rmse_ratio/1950-1992,L21 vs BRICK 2.0,1.0299150922948639,ratio,,<1 means the candidate is closer to the observations,WORSE
+H,glaciers,,,rmse_ratio/1993-2026,L21 vs BRICK 2.0,0.3540423718124372,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,gis,,,rmse_ratio/full,L21 vs BRICK 2.0,0.08113173059508594,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,gis,,,rmse_ratio/1920-1949,L21 vs BRICK 2.0,0.1013640510901798,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,gis,,,rmse_ratio/1950-1992,L21 vs BRICK 2.0,0.054031510973605576,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,gis,,,rmse_ratio/1993-2026,L21 vs BRICK 2.0,0.2708769453792455,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,te,,,rmse_ratio/full,L21 vs BRICK 2.0,1.2355284421178176,ratio,,<1 means the candidate is closer to the observations,WORSE
+H,te,,,rmse_ratio/1920-1949,L21 vs BRICK 2.0,1.149467674795881,ratio,,<1 means the candidate is closer to the observations,WORSE
+H,te,,,rmse_ratio/1950-1992,L21 vs BRICK 2.0,1.1373889338857488,ratio,,<1 means the candidate is closer to the observations,WORSE
+H,te,,,rmse_ratio/1993-2026,L21 vs BRICK 2.0,1.462026991839304,ratio,,<1 means the candidate is closer to the observations,WORSE
+H,total,,,rmse_ratio/full,L21 vs BRICK 2.0,0.37437320147080194,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,total,,,rmse_ratio/1920-1949,L21 vs BRICK 2.0,0.4119896561272338,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,total,,,rmse_ratio/1950-1992,L21 vs BRICK 2.0,0.27774091521876076,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,total,,,rmse_ratio/1993-2026,L21 vs BRICK 2.0,1.1366870675405178,ratio,,<1 means the candidate is closer to the observations,WORSE
+R,ais,,,rate/1993-2026/obs,observations,0.03260828549822247,cm/yr,,"se: estimator 0.003405, band-correlated 0.0005689, band-independent 0.003061; CONSERVATIVE 0.003405 cm/yr; |obs|/se = 9.58",
+R,ais,,,rate/1993-2026,L21,0.031609189000398025,cm/yr,-0.2933878963056413,0.97x obs; z=-0.29 vs the obs error bar,UNRESOLVED
+R,ais,,,rate/1993-2026,BRICK 2.0,0.039300587306418076,cm/yr,1.9652159258133535,1.21x obs; z=+1.97 vs the obs error bar,WARN
+R,glaciers,,,rate/1993-2026/obs,observations,0.0680128070410857,cm/yr,,"se: estimator 0.0005236, band-correlated 0.0001274, band-independent 0.009223; CONSERVATIVE 0.009223 cm/yr; |obs|/se = 7.37",
+R,glaciers,,,rate/1993-2026,L21,0.06286260922240372,cm/yr,-0.5584249704632894,0.92x obs; z=-0.56 vs the obs error bar,UNRESOLVED
+R,glaciers,,,rate/1993-2026,BRICK 2.0,0.09007832839929941,cm/yr,2.3925174423437903,1.32x obs; z=+2.39 vs the obs error bar,FAIL
+R,gis,,,rate/1993-2026/obs,observations,0.06596002331306076,cm/yr,,"se: estimator 0.01044, band-correlated 0.0006502, band-independent 0.003349; CONSERVATIVE 0.01044 cm/yr; |obs|/se = 6.32",
+R,gis,,,rate/1993-2026,L21,0.06574415958253423,cm/yr,-0.020671484873014078,1.00x obs; z=-0.02 vs the obs error bar,UNRESOLVED
+R,gis,,,rate/1993-2026,BRICK 2.0,0.058529029565980606,cm/yr,-0.711604837271839,0.89x obs; z=-0.71 vs the obs error bar,UNRESOLVED
+R,te,,,rate/1993-2026/obs,observations,0.12339511197094218,cm/yr,,"se: estimator 0.003756, band-correlated 0.002392, band-independent 0.005651; CONSERVATIVE 0.005651 cm/yr; |obs|/se = 21.84",
+R,te,,,rate/1993-2026,L21,0.15655787772199012,cm/yr,5.868802663087224,1.27x obs; z=+5.87 vs the obs error bar,FAIL
+R,te,,,rate/1993-2026,BRICK 2.0,0.14454469013049676,cm/yr,3.7428331990688393,1.17x obs; z=+3.74 vs the obs error bar,FAIL
+R,total,,,rate/1993-2026/obs,observations,0.32469016393680694,cm/yr,,"se: estimator 0.02949, band-correlated 0.02545, band-independent 0.02945; CONSERVATIVE 0.02949 cm/yr; |obs|/se = 11.01",
+R,total,,,rate/1993-2026,L21,0.3470906920824308,cm/yr,0.7596215710529985,1.07x obs; z=+0.76 vs the obs error bar,UNRESOLVED
+R,total,,,rate/1993-2026,BRICK 2.0,0.33830577139123374,cm/yr,0.4617171996184892,1.04x obs; z=+0.46 vs the obs error bar,UNRESOLVED
+R,ais,,,accel/1900-2026/obs,observations,0.00020498533831302088,cm/yr2,,"se: estimator 0.0001336, band-correlated 3.924e-05, band-independent 2.522e-05; CONSERVATIVE 0.0001336 cm/yr2; |obs|/se = 1.53",
+R,ais,,,accel/1900-2026,L21,0.00020363609060792236,cm/yr2,-0.010100500387861798,ratio NOT INTERPRETABLE (obs is 1.53 se from zero); z=-0.01 vs the obs error bar,UNRESOLVED
+R,ais,,,accel/1900-2026,BRICK 2.0,-9.541357568254188e-05,cm/yr2,-2.2487934097348523,ratio NOT INTERPRETABLE (obs is 1.53 se from zero); z=-2.25 vs the obs error bar,FAIL
+R,glaciers,,,accel/1900-2026/obs,observations,-0.0005481419702105564,cm/yr2,,"se: estimator 0.000447, band-correlated 3.442e-05, band-independent 7.199e-05; CONSERVATIVE 0.000447 cm/yr2; |obs|/se = 1.23",
+R,glaciers,,,accel/1900-2026,L21,-0.00010531292062641218,cm/yr2,0.9907081084252141,ratio NOT INTERPRETABLE (obs is 1.23 se from zero); z=+0.99 vs the obs error bar,UNRESOLVED
+R,glaciers,,,accel/1900-2026,BRICK 2.0,0.0008224198307519784,cm/yr2,3.0662547784219836,ratio NOT INTERPRETABLE (obs is 1.23 se from zero); z=+3.07 vs the obs error bar,FAIL
+R,gis,,,accel/1900-2026/obs,observations,-0.0002782475046792864,cm/yr2,,"se: estimator 0.0005241, band-correlated 6.83e-05, band-independent 2.759e-05; CONSERVATIVE 0.0005241 cm/yr2; |obs|/se = 0.53",
+R,gis,,,accel/1900-2026,L21,-0.00025053620068159833,cm/yr2,0.05287174662917221,ratio NOT INTERPRETABLE (obs is 0.53 se from zero); z=+0.05 vs the obs error bar,UNRESOLVED
+R,gis,,,accel/1900-2026,BRICK 2.0,0.00014986911703895823,cm/yr2,0.8168245548138999,ratio NOT INTERPRETABLE (obs is 0.53 se from zero); z=+0.82 vs the obs error bar,UNRESOLVED
+R,te,,,accel/1900-2026/obs,observations,0.0008428010711617734,cm/yr2,,"se: estimator 0.0002431, band-correlated 2.312e-05, band-independent 4.655e-05; CONSERVATIVE 0.0002431 cm/yr2; |obs|/se = 3.47",
+R,te,,,accel/1900-2026,L21,0.0012740469655693656,cm/yr2,1.7739054267106027,1.51x obs; z=+1.77 vs the obs error bar,WARN
+R,te,,,accel/1900-2026,BRICK 2.0,0.0013015024981817486,cm/yr2,1.8868421964884132,1.54x obs; z=+1.89 vs the obs error bar,WARN
+R,total,,,accel/1900-2026/obs,observations,0.0008937588048438077,cm/yr2,,"se: estimator 0.001159, band-correlated 0.0001276, band-independent 0.0002363; CONSERVATIVE 0.001159 cm/yr2; |obs|/se = 0.77",
+R,total,,,accel/1900-2026,L21,0.0013021028061456206,cm/yr2,0.35243061453936403,ratio NOT INTERPRETABLE (obs is 0.77 se from zero); z=+0.35 vs the obs error bar,UNRESOLVED
+R,total,,,accel/1900-2026,BRICK 2.0,0.0022411471619516125,cm/yr2,1.1628942881610038,ratio NOT INTERPRETABLE (obs is 0.77 se from zero); z=+1.16 vs the obs error bar,WARN
+P,ais,ssp126,2100,median_joint,L21,4.455038686410623,cm,,mean 6.64 cm,
+P,ais,ssp126,2100,spread_joint,L21,16.04769615213224,cm,,p5-p95,
+P,ais,ssp126,2100,median_fixed,BRICK 2.0,4.213139291240442,cm,,spread 36.27 cm (parameter only),
+P,ais,ssp126,2100,median_vs_lit,L21,0.49807574616913963,x lit median,,"ours 4.46 cm vs lit 3.66-11.90 (median 8.94), n_lit=5 [1 SEJ comparator(s) excluded from the score; full range 3.66-11.90]; ⚠ BIMODAL cell -- our MEAN is 6.64 cm = 0.74x the literature median, and the median sits entirely inside the near mode",PASS
+P,ais,ssp126,2100,median_vs_lit,BRICK 2.0,0.4710312623322722,x lit median,,"BRICK 2.0 4.21 cm vs the same lit median 8.94; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",PASS
+P,ais,ssp126,2100,median_vs_lit_delta,L21 vs BRICK 2.0,-0.027044483836867417,|ratio-1| diff,,L21 0.498x vs BRICK 2.0 0.471x of the lit median; closer to 1 is better,BETTER
+P,ais,ssp126,2100,spread_vs_lit_ALL,L21,0.7551207070193382,x lit spread,,the same cell scored against ALL 6 comparators including the SEJ envelope; the score reported above is 0.760 => the classification is worth 1.01x here,
+P,ais,ssp126,2100,spread_vs_lit,L21,0.760341482710127,x lit spread,,"ours 16.05 cm vs model-based lit 9.86-39.27 (median 21.11, n=5); ALL comparators 9.86-91.07; ⚠ p05-p99/p05-p95 = 3.21 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 51.46 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model",N/A(bimodal)
+P,ais,ssp126,2150,median_joint,L21,6.8326584357230535,cm,,mean 11.59 cm,
+P,ais,ssp126,2150,spread_joint,L21,40.028074653534645,cm,,p5-p95,
+P,ais,ssp126,2150,median_fixed,BRICK 2.0,6.3700300381374895,cm,,spread 42.20 cm (parameter only),
+P,ais,ssp126,2150,median_vs_lit,L21,0.3812368796149772,x lit median,,"ours 6.83 cm vs lit 5.34-26.34 (median 17.92), n_lit=4 [1 SEJ comparator(s) excluded from the score; full range 5.34-26.34]; ⚠ BIMODAL cell -- our MEAN is 11.59 cm = 0.65x the literature median, and the median sits entirely inside the near mode",PASS
+P,ais,ssp126,2150,median_vs_lit,BRICK 2.0,0.3554239389600367,x lit median,,"BRICK 2.0 6.37 cm vs the same lit median 17.92; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",PASS
+P,ais,ssp126,2150,median_vs_lit_delta,L21 vs BRICK 2.0,-0.025812940654940553,|ratio-1| diff,,L21 0.381x vs BRICK 2.0 0.355x of the lit median; closer to 1 is better,BETTER
+P,ais,ssp126,2150,spread_vs_lit_ALL,L21,0.8149444259302341,x lit spread,,the same cell scored against ALL 5 comparators including the SEJ envelope; the score reported above is 0.867 => the classification is worth 1.06x here,
+P,ais,ssp126,2150,spread_vs_lit,L21,0.8674472730969865,x lit spread,,"ours 40.03 cm vs model-based lit 33.17-72.55 (median 46.14, n=4); ALL comparators 33.17-156.27; ⚠ p05-p99/p05-p95 = 2.59 vs Gaussian 1.207 => BIMODAL, and p95 is blind to the far mode (p05-p99 = 103.51 cm). The p5-p95 ratio is a property of the QUANTILE here, not of the model",N/A(bimodal)
+P,ais,ssp126,2300,median_joint,L21,13.479652807456809,cm,,mean 27.68 cm,
+P,ais,ssp126,2300,spread_joint,L21,140.98400404468543,cm,,p5-p95,
+P,ais,ssp126,2300,median_fixed,BRICK 2.0,12.639221286117728,cm,,spread 47.46 cm (parameter only),
+P,ais,ssp126,2300,median_vs_lit,L21,1.5480277018328519,x lit median,,"ours 13.48 cm vs lit 8.71-8.71 (median 8.71), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,ais,ssp126,2300,median_vs_lit,BRICK 2.0,1.4515110262841524,x lit median,,"BRICK 2.0 12.64 cm vs the same lit median 8.71; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,ais,ssp126,2300,median_vs_lit_delta,L21 vs BRICK 2.0,0.09651667554869947,|ratio-1| diff,,"L21 1.548x vs BRICK 2.0 1.452x of the lit median; closer to 1 is better; ⚠ BRICK 2.0 is closer here but its hindcast and its observed rate/accel FAILs -- a compensating error, not skill",WORSE(unearned)
+P,ais,ssp126,2300,spread_vs_lit,L21,2.0257384276200328,x lit spread,,"ours 140.98 cm vs model-based lit 69.60-69.60 (median 69.60, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN",WARN
+P,ais,ssp245,2100,median_joint,L21,5.446726708904097,cm,,mean 13.15 cm,
+P,ais,ssp245,2100,spread_joint,L21,43.422457043494006,cm,,p5-p95,
+P,ais,ssp245,2100,median_fixed,BRICK 2.0,29.212981462723413,cm,,spread 65.10 cm (parameter only),
+P,ais,ssp245,2100,median_vs_lit,L21,0.5247328081665079,x lit median,,"ours 5.45 cm vs lit 5.54-12.73 (median 10.38), n_lit=5 [1 SEJ comparator(s) excluded from the score; full range 5.54-13.71]",WARN
+P,ais,ssp245,2100,median_vs_lit,BRICK 2.0,2.814352659330553,x lit median,,"BRICK 2.0 29.21 cm vs the same lit median 10.38; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",FAIL
+P,ais,ssp245,2100,median_vs_lit_delta,L21 vs BRICK 2.0,-1.3390854674970607,|ratio-1| diff,,L21 0.525x vs BRICK 2.0 2.814x of the lit median; closer to 1 is better,BETTER
+P,ais,ssp245,2100,spread_vs_lit_ALL,L21,1.0914463295392498,x lit spread,,the same cell scored against ALL 6 comparators including the SEJ envelope; the score reported above is 1.212 => the classification is worth 1.11x here,
+P,ais,ssp245,2100,spread_vs_lit,L21,1.212469045273011,x lit spread,,"ours 43.42 cm vs model-based lit 20.88-44.94 (median 35.81, n=5); ALL comparators 20.88-109.87",PASS
+P,ais,ssp245,2150,median_joint,L21,10.890292151710792,cm,,mean 35.11 cm,
+P,ais,ssp245,2150,spread_joint,L21,102.22360213395889,cm,,p5-p95,
+P,ais,ssp245,2150,median_fixed,BRICK 2.0,74.5275224566288,cm,,spread 130.17 cm (parameter only),
+P,ais,ssp245,2150,median_vs_lit,L21,0.3967036930475671,x lit median,,"ours 10.89 cm vs lit 10.91-30.28 (median 27.45), n_lit=4 [1 SEJ comparator(s) excluded from the score; full range 10.91-30.28]",FAIL
+P,ais,ssp245,2150,median_vs_lit,BRICK 2.0,2.714834733573756,x lit median,,"BRICK 2.0 74.53 cm vs the same lit median 27.45; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",FAIL
+P,ais,ssp245,2150,median_vs_lit_delta,L21 vs BRICK 2.0,-1.1115384266213233,|ratio-1| diff,,L21 0.397x vs BRICK 2.0 2.715x of the lit median; closer to 1 is better,BETTER
+P,ais,ssp245,2150,spread_vs_lit_ALL,L21,1.160307476140442,x lit spread,,the same cell scored against ALL 5 comparators including the SEJ envelope; the score reported above is 1.216 => the classification is worth 1.05x here,
+P,ais,ssp245,2150,spread_vs_lit,L21,1.215520329944019,x lit spread,,"ours 102.22 cm vs model-based lit 44.92-369.45 (median 84.10, n=4); ALL comparators 44.92-369.45; ⚠ THE COMPARATORS DO NOT AGREE -- scored one at a time they give 1xhigh/2xin/1xlow and the median's 'in' is not a majority, so the median is not a summary here; verdict CAPPED at WARN",WARN
+P,ais,ssp245,2300,median_joint,L21,65.92244125565105,cm,,mean 114.11 cm,
+P,ais,ssp245,2300,spread_joint,L21,291.70878617705904,cm,,p5-p95,
+P,ais,ssp245,2300,median_fixed,BRICK 2.0,207.88440028299073,cm,,spread 263.62 cm (parameter only),
+P,ais,ssp245,2300,median_vs_lit,L21,0.789891359320837,x lit median,,"ours 65.92 cm vs lit 83.46-83.46 (median 83.46), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,ais,ssp245,2300,median_vs_lit,BRICK 2.0,2.490898219080325,x lit median,,"BRICK 2.0 207.88 cm vs the same lit median 83.46; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,ais,ssp245,2300,median_vs_lit_delta,L21 vs BRICK 2.0,-1.280789578401162,|ratio-1| diff,,L21 0.790x vs BRICK 2.0 2.491x of the lit median; closer to 1 is better,BETTER
+P,ais,ssp245,2300,spread_vs_lit,L21,1.0741804446896335,x lit spread,,"ours 291.71 cm vs model-based lit 271.56-271.56 (median 271.56, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+P,ais,ssp585,2100,median_joint,L21,29.493101606537834,cm,,mean 30.74 cm,
+P,ais,ssp585,2100,spread_joint,L21,57.25072620803955,cm,,p5-p95,
+P,ais,ssp585,2100,median_fixed,BRICK 2.0,48.97931101659971,cm,,spread 62.04 cm (parameter only),
+P,ais,ssp585,2100,median_vs_lit,L21,2.0445191748768274,x lit median,,"ours 29.49 cm vs lit 3.98-39.10 (median 14.43), n_lit=5 [1 SEJ comparator(s) excluded from the score; full range 3.98-39.10]",PASS
+P,ais,ssp585,2100,median_vs_lit,BRICK 2.0,3.395341116767989,x lit median,,"BRICK 2.0 48.98 cm vs the same lit median 14.43; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",FAIL
+P,ais,ssp585,2100,median_vs_lit_delta,L21 vs BRICK 2.0,-1.3508219418911618,|ratio-1| diff,,L21 2.045x vs BRICK 2.0 3.395x of the lit median; closer to 1 is better,BETTER
+P,ais,ssp585,2100,spread_vs_lit_ALL,L21,1.0026362261173962,x lit spread,,the same cell scored against ALL 6 comparators including the SEJ envelope; the score reported above is 1.014 => the classification is worth 1.01x here,
+P,ais,ssp585,2100,spread_vs_lit,L21,1.0136442373110879,x lit spread,,"ours 57.25 cm vs model-based lit 20.51-79.00 (median 56.48, n=5); ALL comparators 20.51-151.54; width here is the antarctic_lambda PRIOR -- do NOT narrow",PASS
+P,ais,ssp585,2150,median_joint,L21,84.25273035836659,cm,,mean 86.61 cm,
+P,ais,ssp585,2150,spread_joint,L21,103.39982464119171,cm,,p5-p95,
+P,ais,ssp585,2150,median_fixed,BRICK 2.0,104.0733277832742,cm,,spread 123.45 cm (parameter only),
+P,ais,ssp585,2150,median_vs_lit,L21,0.8819572791939932,x lit median,,"ours 84.25 cm vs lit 6.26-198.76 (median 95.53), n_lit=4 [1 SEJ comparator(s) excluded from the score; full range 6.26-198.76]",PASS
+P,ais,ssp585,2150,median_vs_lit,BRICK 2.0,1.089439221945479,x lit median,,"BRICK 2.0 104.07 cm vs the same lit median 95.53; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",PASS
+P,ais,ssp585,2150,median_vs_lit_delta,L21 vs BRICK 2.0,0.02860349886052782,|ratio-1| diff,,"L21 0.882x vs BRICK 2.0 1.089x of the lit median; closer to 1 is better; ⚠ BRICK 2.0 is closer here but its hindcast and its observed rate/accel FAILs -- a compensating error, not skill",WORSE(unearned)
+P,ais,ssp585,2150,spread_vs_lit_ALL,L21,0.3743250172638678,x lit spread,,the same cell scored against ALL 5 comparators including the SEJ envelope; the score reported above is 0.504 => the classification is worth 1.35x here,
+P,ais,ssp585,2150,spread_vs_lit,L21,0.503785482095293,x lit spread,,"ours 103.40 cm vs model-based lit 48.68-408.37 (median 205.25, n=4); ALL comparators 48.68-570.98; ⚠ THE COMPARATORS DO NOT AGREE -- scored one at a time they give 1xhigh/1xin/2xlow and the median's 'in' is not a majority, so the median is not a summary here; verdict CAPPED at WARN; width here is the antarctic_lambda PRIOR -- do NOT narrow",WARN
+P,ais,ssp585,2300,median_joint,L21,267.2849258290551,cm,,mean 275.56 cm,
+P,ais,ssp585,2300,spread_joint,L21,280.7590377878397,cm,,p5-p95,
+P,ais,ssp585,2300,median_fixed,BRICK 2.0,290.16519217040354,cm,,spread 351.67 cm (parameter only),
+P,ais,ssp585,2300,median_vs_lit,L21,0.9790656623774913,x lit median,,"ours 267.28 cm vs lit 267.00-712.02 (median 273.00), n_lit=3",PASS
+P,ais,ssp585,2300,median_vs_lit,BRICK 2.0,1.06287616179635,x lit median,,"BRICK 2.0 290.17 cm vs the same lit median 273.00; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",PASS
+P,ais,ssp585,2300,median_vs_lit_delta,L21 vs BRICK 2.0,-0.04194182417384129,|ratio-1| diff,,L21 0.979x vs BRICK 2.0 1.063x of the lit median; closer to 1 is better,BETTER
+P,ais,ssp585,2300,spread_vs_lit,L21,0.29711884132068384,x lit spread,,"ours 280.76 cm vs model-based lit 944.94-944.94 (median 944.94, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN; width here is the antarctic_lambda PRIOR -- do NOT narrow",WARN
+P,glaciers,ssp126,2100,median_joint,L21,7.985807138827731,cm,,mean 8.21 cm,
+P,glaciers,ssp126,2100,spread_joint,L21,5.995240068549954,cm,,p5-p95,
+P,glaciers,ssp126,2100,median_fixed,BRICK 2.0,11.9951809774217,cm,,spread 3.54 cm (parameter only),
+P,glaciers,ssp126,2100,median_vs_lit,L21,0.8637145872540006,x lit median,,"ours 7.99 cm vs lit 8.95-10.45 (median 9.25), n_lit=3",WARN
+P,glaciers,ssp126,2100,median_vs_lit,BRICK 2.0,1.2973532426769414,x lit median,,"BRICK 2.0 12.00 cm vs the same lit median 9.25; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,glaciers,ssp126,2100,median_vs_lit_delta,L21 vs BRICK 2.0,-0.16106782993094204,|ratio-1| diff,,L21 0.864x vs BRICK 2.0 1.297x of the lit median; closer to 1 is better,BETTER
+P,glaciers,ssp126,2100,spread_vs_lit,L21,0.8147053295392865,x lit spread,,"ours 6.00 cm vs model-based lit 7.12-7.85 (median 7.36, n=3)",PASS
+P,glaciers,ssp126,2150,median_joint,L21,9.859072003587826,cm,,mean 10.17 cm,
+P,glaciers,ssp126,2150,spread_joint,L21,8.03859700086901,cm,,p5-p95,
+P,glaciers,ssp126,2150,median_fixed,BRICK 2.0,17.178196399287906,cm,,spread 5.57 cm (parameter only),
+P,glaciers,ssp126,2150,median_vs_lit,L21,0.8122068888092041,x lit median,,"ours 9.86 cm vs lit 12.00-12.28 (median 12.14), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,glaciers,ssp126,2150,median_vs_lit,BRICK 2.0,1.4151686332893931,x lit median,,"BRICK 2.0 17.18 cm vs the same lit median 12.14; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,glaciers,ssp126,2150,median_vs_lit_delta,L21 vs BRICK 2.0,-0.22737552209859724,|ratio-1| diff,,L21 0.812x vs BRICK 2.0 1.415x of the lit median; closer to 1 is better,BETTER
+P,glaciers,ssp126,2150,spread_vs_lit,L21,0.7874973310092136,x lit spread,,"ours 8.04 cm vs model-based lit 8.52-11.89 (median 10.21, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+P,glaciers,ssp126,2300,median_joint,L21,12.39987256629173,cm,,mean 12.89 cm,
+P,glaciers,ssp126,2300,spread_joint,L21,10.996692454078147,cm,,p5-p95,
+P,glaciers,ssp126,2300,median_fixed,BRICK 2.0,27.257046471053435,cm,,spread 12.13 cm (parameter only),
+P,glaciers,ssp126,2300,median_vs_lit,L21,0.8985593258108032,x lit median,,"ours 12.40 cm vs lit 13.80-13.80 (median 13.80), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,glaciers,ssp126,2300,median_vs_lit,BRICK 2.0,1.9751875004912278,x lit median,,"BRICK 2.0 27.26 cm vs the same lit median 13.80; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,glaciers,ssp126,2300,median_vs_lit_delta,L21 vs BRICK 2.0,-0.873746826302031,|ratio-1| diff,,L21 0.899x vs BRICK 2.0 1.975x of the lit median; closer to 1 is better,BETTER
+P,glaciers,ssp126,2300,spread_vs_lit,L21,0.9793466554394946,x lit spread,,"ours 11.00 cm vs model-based lit 11.23-11.23 (median 11.23, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+P,glaciers,ssp245,2100,median_joint,L21,9.638724488981271,cm,,mean 9.91 cm,
+P,glaciers,ssp245,2100,spread_joint,L21,6.966606669901476,cm,,p5-p95,
+P,glaciers,ssp245,2100,median_fixed,BRICK 2.0,13.479270827662358,cm,,spread 4.09 cm (parameter only),
+P,glaciers,ssp245,2100,median_vs_lit,L21,0.7893603977744332,x lit median,,"ours 9.64 cm vs lit 11.38-12.54 (median 12.21), n_lit=3",WARN
+P,glaciers,ssp245,2100,median_vs_lit,BRICK 2.0,1.1038807670450832,x lit median,,"BRICK 2.0 13.48 cm vs the same lit median 12.21; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,glaciers,ssp245,2100,median_vs_lit_delta,L21 vs BRICK 2.0,0.10675883518048357,|ratio-1| diff,,"L21 0.789x vs BRICK 2.0 1.104x of the lit median; closer to 1 is better; ⚠ BRICK 2.0 is closer here but its hindcast and its observed rate/accel FAILs -- a compensating error, not skill",WORSE(unearned)
+P,glaciers,ssp245,2100,spread_vs_lit,L21,0.9071171552200186,x lit spread,,"ours 6.97 cm vs model-based lit 7.42-9.60 (median 7.68, n=3)",PASS
+P,glaciers,ssp245,2150,median_joint,L21,13.349413440320964,cm,,mean 13.76 cm,
+P,glaciers,ssp245,2150,spread_joint,L21,10.141145514170663,cm,,p5-p95,
+P,glaciers,ssp245,2150,median_fixed,BRICK 2.0,20.818500770805663,cm,,spread 7.36 cm (parameter only),
+P,glaciers,ssp245,2150,median_vs_lit,L21,0.77959332868027,x lit median,,"ours 13.35 cm vs lit 16.71-17.53 (median 17.12), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,glaciers,ssp245,2150,median_vs_lit,BRICK 2.0,1.2157810818132047,x lit median,,"BRICK 2.0 20.82 cm vs the same lit median 17.12; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,glaciers,ssp245,2150,median_vs_lit_delta,L21 vs BRICK 2.0,0.004625589506525363,|ratio-1| diff,,L21 0.780x vs BRICK 2.0 1.216x of the lit median; closer to 1 is better,SAME
+P,glaciers,ssp245,2150,spread_vs_lit,L21,0.7856645587085372,x lit spread,,"ours 10.14 cm vs model-based lit 9.16-16.65 (median 12.91, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+P,glaciers,ssp245,2300,median_joint,L21,18.333780647979424,cm,,mean 18.62 cm,
+P,glaciers,ssp245,2300,spread_joint,L21,13.142076091692717,cm,,p5-p95,
+P,glaciers,ssp245,2300,median_fixed,BRICK 2.0,32.413616351880634,cm,,spread 17.82 cm (parameter only),
+P,glaciers,ssp245,2300,median_vs_lit,L21,0.8539810883938197,x lit median,,"ours 18.33 cm vs lit 21.47-21.47 (median 21.47), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,glaciers,ssp245,2300,median_vs_lit,BRICK 2.0,1.5098149095620073,x lit median,,"BRICK 2.0 32.41 cm vs the same lit median 21.47; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,glaciers,ssp245,2300,median_vs_lit_delta,L21 vs BRICK 2.0,-0.36379599795582696,|ratio-1| diff,,L21 0.854x vs BRICK 2.0 1.510x of the lit median; closer to 1 is better,BETTER
+P,glaciers,ssp245,2300,spread_vs_lit,L21,1.200116985401202,x lit spread,,"ours 13.14 cm vs model-based lit 10.95-10.95 (median 10.95, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+P,glaciers,ssp585,2100,median_joint,L21,12.880025795103915,cm,,mean 13.20 cm,
+P,glaciers,ssp585,2100,spread_joint,L21,8.599118076337842,cm,,p5-p95,
+P,glaciers,ssp585,2100,median_fixed,BRICK 2.0,16.46875440423225,cm,,spread 5.21 cm (parameter only),
+P,glaciers,ssp585,2100,median_vs_lit,L21,0.8329620870041966,x lit median,,"ours 12.88 cm vs lit 15.30-17.73 (median 15.46), n_lit=3",WARN
+P,glaciers,ssp585,2100,median_vs_lit,BRICK 2.0,1.065048180580773,x lit median,,"BRICK 2.0 16.47 cm vs the same lit median 15.46; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",PASS
+P,glaciers,ssp585,2100,median_vs_lit_delta,L21 vs BRICK 2.0,0.1019897324150304,|ratio-1| diff,,"L21 0.833x vs BRICK 2.0 1.065x of the lit median; closer to 1 is better; ⚠ BRICK 2.0 is closer here but its hindcast and its observed rate/accel FAILs -- a compensating error, not skill",WORSE(unearned)
+P,glaciers,ssp585,2100,spread_vs_lit,L21,0.9138666636248491,x lit spread,,"ours 8.60 cm vs model-based lit 8.51-13.85 (median 9.41, n=3)",PASS
+P,glaciers,ssp585,2150,median_joint,L21,20.402357542235897,cm,,mean 20.58 cm,
+P,glaciers,ssp585,2150,spread_joint,L21,11.683689538826842,cm,,p5-p95,
+P,glaciers,ssp585,2150,median_fixed,BRICK 2.0,27.13559731782666,cm,,spread 11.99 cm (parameter only),
+P,glaciers,ssp585,2150,median_vs_lit,L21,0.8090007267657495,x lit median,,"ours 20.40 cm vs lit 22.03-28.40 (median 25.22), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,glaciers,ssp585,2150,median_vs_lit,BRICK 2.0,1.0759892775086959,x lit median,,"BRICK 2.0 27.14 cm vs the same lit median 25.22; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",PASS
+P,glaciers,ssp585,2150,median_vs_lit_delta,L21 vs BRICK 2.0,0.11500999572555459,|ratio-1| diff,,"L21 0.809x vs BRICK 2.0 1.076x of the lit median; closer to 1 is better; ⚠ BRICK 2.0 is closer here but its hindcast and its observed rate/accel FAILs -- a compensating error, not skill",WORSE(unearned)
+P,glaciers,ssp585,2150,spread_vs_lit,L21,0.9121551513919026,x lit spread,,"ours 11.68 cm vs model-based lit 10.09-15.53 (median 12.81, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+P,glaciers,ssp585,2300,median_joint,L21,26.65096505770033,cm,,mean 26.64 cm,
+P,glaciers,ssp585,2300,spread_joint,L21,12.163433195646043,cm,,p5-p95,
+P,glaciers,ssp585,2300,median_fixed,BRICK 2.0,35.202892443396344,cm,,spread 23.71 cm (parameter only),
+P,glaciers,ssp585,2300,median_vs_lit,L21,0.9158303825500311,x lit median,,"ours 26.65 cm vs lit 29.10-29.10 (median 29.10), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,glaciers,ssp585,2300,median_vs_lit,BRICK 2.0,1.2097077304143673,x lit median,,"BRICK 2.0 35.20 cm vs the same lit median 29.10; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,glaciers,ssp585,2300,median_vs_lit_delta,L21 vs BRICK 2.0,-0.12553811296439843,|ratio-1| diff,,L21 0.916x vs BRICK 2.0 1.210x of the lit median; closer to 1 is better,BETTER
+P,glaciers,ssp585,2300,spread_vs_lit,L21,1.2367716680482121,x lit spread,,"ours 12.16 cm vs model-based lit 9.83-9.83 (median 9.83, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+P,gis,ssp126,2100,median_joint,L21,6.520773407203188,cm,,mean 6.82 cm,
+P,gis,ssp126,2100,spread_joint,L21,4.429230854864968,cm,,p5-p95,
+P,gis,ssp126,2100,median_fixed,BRICK 2.0,6.596309598677667,cm,,spread 4.71 cm (parameter only),
+P,gis,ssp126,2100,median_vs_lit,L21,1.0186678456458067,x lit median,,"ours 6.52 cm vs lit 5.46-7.67 (median 6.40), n_lit=3 [1 SEJ comparator(s) excluded from the score; full range 5.46-13.05]",PASS
+P,gis,ssp126,2100,median_vs_lit,BRICK 2.0,1.0304680240345538,x lit median,,"BRICK 2.0 6.60 cm vs the same lit median 6.40; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",PASS
+P,gis,ssp126,2100,median_vs_lit_delta,L21 vs BRICK 2.0,-0.01180017838874714,|ratio-1| diff,,L21 1.019x vs BRICK 2.0 1.030x of the lit median; closer to 1 is better,SAME
+P,gis,ssp126,2100,spread_vs_lit_ALL,L21,0.3316192738609575,x lit spread,,the same cell scored against ALL 4 comparators including the SEJ envelope; the score reported above is 0.463 => the classification is worth 1.40x here,
+P,gis,ssp126,2100,spread_vs_lit,L21,0.4626528360334874,x lit spread,,"ours 4.43 cm vs model-based lit 7.06-17.14 (median 9.57, n=3); ALL comparators 7.06-55.71",FAIL
+P,gis,ssp126,2150,median_joint,L21,7.971881915313212,cm,,mean 8.44 cm,
+P,gis,ssp126,2150,spread_joint,L21,6.554286345178588,cm,,p5-p95,
+P,gis,ssp126,2150,median_fixed,BRICK 2.0,9.918085208266994,cm,,spread 7.16 cm (parameter only),
+P,gis,ssp126,2150,median_vs_lit,L21,0.7088967235043715,x lit median,,"ours 7.97 cm vs lit 9.31-13.18 (median 11.25), n_lit=2 [1 SEJ comparator(s) excluded from the score; full range 9.31-22.20] ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,gis,ssp126,2150,median_vs_lit,BRICK 2.0,0.8819621492475912,x lit median,,"BRICK 2.0 9.92 cm vs the same lit median 11.25; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",PASS
+P,gis,ssp126,2150,median_vs_lit_delta,L21 vs BRICK 2.0,0.1730654257432197,|ratio-1| diff,,"L21 0.709x vs BRICK 2.0 0.882x of the lit median; closer to 1 is better; ⚠ BRICK 2.0 is closer here but its hindcast FAILs -- a compensating error, not skill",WORSE(unearned)
+P,gis,ssp126,2150,spread_vs_lit_ALL,L21,0.41768551663028075,x lit spread,,the same cell scored against ALL 3 comparators including the SEJ envelope; the score reported above is 0.489 => the classification is worth 1.17x here,
+P,gis,ssp126,2150,spread_vs_lit,L21,0.48897850506241336,x lit spread,,"ours 6.55 cm vs model-based lit 11.12-15.69 (median 13.40, n=2); ALL comparators 11.12-86.94; ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN",WARN
+P,gis,ssp126,2300,median_joint,L21,10.04341826995201,cm,,mean 10.82 cm,
+P,gis,ssp126,2300,spread_joint,L21,11.661165510393104,cm,,p5-p95,
+P,gis,ssp126,2300,median_fixed,BRICK 2.0,18.794108904898017,cm,,spread 13.46 cm (parameter only),
+P,gis,ssp126,2300,median_vs_lit,L21,0.6705313197214571,x lit median,,"ours 10.04 cm vs lit 14.98-14.98 (median 14.98), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,gis,ssp126,2300,median_vs_lit,BRICK 2.0,1.2547559315231298,x lit median,,"BRICK 2.0 18.79 cm vs the same lit median 14.98; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,gis,ssp126,2300,median_vs_lit_delta,L21 vs BRICK 2.0,0.07471274875541312,|ratio-1| diff,,"L21 0.671x vs BRICK 2.0 1.255x of the lit median; closer to 1 is better; ⚠ BRICK 2.0 is closer here but its hindcast FAILs -- a compensating error, not skill",WORSE(unearned)
+P,gis,ssp126,2300,spread_vs_lit,L21,0.3964450722146201,x lit spread,,"ours 11.66 cm vs model-based lit 29.41-29.41 (median 29.41, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN",WARN
+P,gis,ssp245,2100,median_joint,L21,8.160080115546501,cm,,mean 8.56 cm,
+P,gis,ssp245,2100,spread_joint,L21,5.758445960804274,cm,,p5-p95,
+P,gis,ssp245,2100,median_fixed,BRICK 2.0,7.087336431196056,cm,,spread 6.03 cm (parameter only),
+P,gis,ssp245,2100,median_vs_lit,L21,0.8789763451586016,x lit median,,"ours 8.16 cm vs lit 7.97-10.21 (median 9.28), n_lit=3 [1 SEJ comparator(s) excluded from the score; full range 7.97-14.39]",PASS
+P,gis,ssp245,2100,median_vs_lit,BRICK 2.0,0.7634240087096136,x lit median,,"BRICK 2.0 7.09 cm vs the same lit median 9.28; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,gis,ssp245,2100,median_vs_lit_delta,L21 vs BRICK 2.0,-0.11555233644898799,|ratio-1| diff,,L21 0.879x vs BRICK 2.0 0.763x of the lit median; closer to 1 is better,BETTER
+P,gis,ssp245,2100,spread_vs_lit_ALL,L21,0.45697768413817086,x lit spread,,the same cell scored against ALL 4 comparators including the SEJ envelope; the score reported above is 0.690 => the classification is worth 1.51x here,
+P,gis,ssp245,2100,spread_vs_lit,L21,0.6895717425764215,x lit spread,,"ours 5.76 cm vs model-based lit 7.85-16.85 (median 8.35, n=3); ALL comparators 7.85-72.68",PASS
+P,gis,ssp245,2150,median_joint,L21,11.868600538568323,cm,,mean 12.76 cm,
+P,gis,ssp245,2150,spread_joint,L21,11.254080344156117,cm,,p5-p95,
+P,gis,ssp245,2150,median_fixed,BRICK 2.0,11.429699606127285,cm,,spread 11.03 cm (parameter only),
+P,gis,ssp245,2150,median_vs_lit,L21,0.6836262505413159,x lit median,,"ours 11.87 cm vs lit 16.53-18.19 (median 17.36), n_lit=2 [1 SEJ comparator(s) excluded from the score; full range 16.53-25.62] ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,gis,ssp245,2150,median_vs_lit,BRICK 2.0,0.6583457469277071,x lit median,,"BRICK 2.0 11.43 cm vs the same lit median 17.36; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,gis,ssp245,2150,median_vs_lit_delta,L21 vs BRICK 2.0,-0.025280503613608785,|ratio-1| diff,,L21 0.684x vs BRICK 2.0 0.658x of the lit median; closer to 1 is better,BETTER
+P,gis,ssp245,2150,spread_vs_lit_ALL,L21,0.7536195695019972,x lit spread,,the same cell scored against ALL 3 comparators including the SEJ envelope; the score reported above is 0.755 => the classification is worth 1.00x here,
+P,gis,ssp245,2150,spread_vs_lit,L21,0.7548541125530746,x lit spread,,"ours 11.25 cm vs model-based lit 14.88-14.93 (median 14.91, n=2); ALL comparators 14.88-88.90; ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+P,gis,ssp245,2300,median_joint,L21,17.161995063603804,cm,,mean 19.13 cm,
+P,gis,ssp245,2300,spread_joint,L21,21.91019319736214,cm,,p5-p95,
+P,gis,ssp245,2300,median_fixed,BRICK 2.0,23.760750533017152,cm,,spread 25.28 cm (parameter only),
+P,gis,ssp245,2300,median_vs_lit,L21,0.47952129552089795,x lit median,,"ours 17.16 cm vs lit 35.79-35.79 (median 35.79), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,gis,ssp245,2300,median_vs_lit,BRICK 2.0,0.6638963498075205,x lit median,,"BRICK 2.0 23.76 cm vs the same lit median 35.79; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,gis,ssp245,2300,median_vs_lit_delta,L21 vs BRICK 2.0,0.1843750542866226,|ratio-1| diff,,"L21 0.480x vs BRICK 2.0 0.664x of the lit median; closer to 1 is better; ⚠ BRICK 2.0 is closer here but its hindcast FAILs -- a compensating error, not skill",WORSE(unearned)
+P,gis,ssp245,2300,spread_vs_lit,L21,0.5355713653140595,x lit spread,,"ours 21.91 cm vs model-based lit 40.91-40.91 (median 40.91, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+P,gis,ssp585,2100,median_joint,L21,12.04420906420729,cm,,mean 12.68 cm,
+P,gis,ssp585,2100,spread_joint,L21,9.817639045160893,cm,,p5-p95,
+P,gis,ssp585,2100,median_fixed,BRICK 2.0,8.242742172112273,cm,,spread 8.94 cm (parameter only),
+P,gis,ssp585,2100,median_vs_lit,L21,0.8926747475334741,x lit median,,"ours 12.04 cm vs lit 12.72-14.02 (median 13.49), n_lit=3 [1 SEJ comparator(s) excluded from the score; full range 12.72-20.28]",WARN
+P,gis,ssp585,2100,median_vs_lit,BRICK 2.0,0.610923286722118,x lit median,,"BRICK 2.0 8.24 cm vs the same lit median 13.49; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,gis,ssp585,2100,median_vs_lit_delta,L21 vs BRICK 2.0,-0.28175146081135605,|ratio-1| diff,,L21 0.893x vs BRICK 2.0 0.611x of the lit median; closer to 1 is better,BETTER
+P,gis,ssp585,2100,spread_vs_lit_ALL,L21,0.6711084063509272,x lit spread,,the same cell scored against ALL 4 comparators including the SEJ envelope; the score reported above is 0.808 => the classification is worth 1.20x here,
+P,gis,ssp585,2100,spread_vs_lit,L21,0.8077900850078729,x lit spread,,"ours 9.82 cm vs model-based lit 11.46-17.10 (median 12.15, n=3); ALL comparators 11.46-93.18",PASS
+P,gis,ssp585,2150,median_joint,L21,24.54492964852589,cm,,mean 26.15 cm,
+P,gis,ssp585,2150,spread_joint,L21,25.043817488034968,cm,,p5-p95,
+P,gis,ssp585,2150,median_fixed,BRICK 2.0,15.566742378447952,cm,,spread 21.57 cm (parameter only),
+P,gis,ssp585,2150,median_vs_lit,L21,0.8218622100987707,x lit median,,"ours 24.54 cm vs lit 27.33-32.40 (median 29.87), n_lit=2 [1 SEJ comparator(s) excluded from the score; full range 27.33-38.13] ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,gis,ssp585,2150,median_vs_lit,BRICK 2.0,0.5212366659179969,x lit median,,"BRICK 2.0 15.57 cm vs the same lit median 29.87; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,gis,ssp585,2150,median_vs_lit_delta,L21 vs BRICK 2.0,-0.3006255441807738,|ratio-1| diff,,L21 0.822x vs BRICK 2.0 0.521x of the lit median; closer to 1 is better,BETTER
+P,gis,ssp585,2150,spread_vs_lit_ALL,L21,0.2752863006867288,x lit spread,,the same cell scored against ALL 3 comparators including the SEJ envelope; the score reported above is 0.432 => the classification is worth 1.57x here,
+P,gis,ssp585,2150,spread_vs_lit,L21,0.4320107633825575,x lit spread,,"ours 25.04 cm vs model-based lit 24.97-90.97 (median 57.97, n=2); ALL comparators 24.97-121.86; ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN",WARN
+P,gis,ssp585,2300,median_joint,L21,44.33789656573311,cm,,mean 48.55 cm,
+P,gis,ssp585,2300,spread_joint,L21,57.18389137894893,cm,,p5-p95,
+P,gis,ssp585,2300,median_fixed,BRICK 2.0,40.35110364410764,cm,,spread 67.47 cm (parameter only),
+P,gis,ssp585,2300,median_vs_lit,L21,0.39234406879256234,x lit median,,"ours 44.34 cm vs lit 113.01-113.01 (median 113.01), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,gis,ssp585,2300,median_vs_lit,BRICK 2.0,0.35706511608029445,x lit median,,"BRICK 2.0 40.35 cm vs the same lit median 113.01; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,gis,ssp585,2300,median_vs_lit_delta,L21 vs BRICK 2.0,-0.035278952712267886,|ratio-1| diff,,L21 0.392x vs BRICK 2.0 0.357x of the lit median; closer to 1 is better,BETTER
+P,gis,ssp585,2300,spread_vs_lit,L21,0.08406415812694988,x lit spread,,"ours 57.18 cm vs model-based lit 680.24-680.24 (median 680.24, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN",WARN
+P,te,ssp126,2100,median_joint,L21,16.05431936112408,cm,,mean 16.32 cm,
+P,te,ssp126,2100,spread_joint,L21,11.983542826881742,cm,,p5-p95,
+P,te,ssp126,2100,median_fixed,BRICK 2.0,13.76219248405721,cm,,spread 7.67 cm (parameter only),
+P,te,ssp126,2100,median_vs_lit,L21,1.2771105293784744,x lit median,,"ours 16.05 cm vs lit 11.09-14.05 (median 12.57), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,te,ssp126,2100,median_vs_lit,BRICK 2.0,1.094773346248679,x lit median,,"BRICK 2.0 13.76 cm vs the same lit median 12.57; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",PASS
+P,te,ssp126,2100,median_vs_lit_delta,L21 vs BRICK 2.0,0.1823371831297953,|ratio-1| diff,,"L21 1.277x vs BRICK 2.0 1.095x of the lit median; closer to 1 is better; ⚠ BRICK 2.0 is closer here but its observed rate/accel FAILs -- a compensating error, not skill",WORSE(unearned)
+P,te,ssp126,2100,spread_vs_lit,L21,1.0320238395420318,x lit spread,,"ours 11.98 cm vs model-based lit 11.26-11.97 (median 11.61, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+P,te,ssp126,2150,median_joint,L21,20.045672562718508,cm,,mean 20.40 cm,
+P,te,ssp126,2150,spread_joint,L21,17.406953470975957,cm,,p5-p95,
+P,te,ssp126,2150,median_fixed,BRICK 2.0,17.222758112360715,cm,,spread 9.60 cm (parameter only),
+P,te,ssp126,2150,median_vs_lit,L21,1.3133239815460214,x lit median,,"ours 20.05 cm vs lit 12.68-17.85 (median 15.26), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,te,ssp126,2150,median_vs_lit,BRICK 2.0,1.1283762710659637,x lit median,,"BRICK 2.0 17.22 cm vs the same lit median 15.26; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",PASS
+P,te,ssp126,2150,median_vs_lit_delta,L21 vs BRICK 2.0,0.18494771048005765,|ratio-1| diff,,"L21 1.313x vs BRICK 2.0 1.128x of the lit median; closer to 1 is better; ⚠ BRICK 2.0 is closer here but its observed rate/accel FAILs -- a compensating error, not skill",WORSE(unearned)
+P,te,ssp126,2150,spread_vs_lit,L21,1.0542310009939577,x lit spread,,"ours 17.41 cm vs model-based lit 16.06-16.96 (median 16.51, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+P,te,ssp126,2300,median_joint,L21,25.715029940081912,cm,,mean 26.66 cm,
+P,te,ssp126,2300,spread_joint,L21,29.36073028402999,cm,,p5-p95,
+P,te,ssp126,2300,median_fixed,BRICK 2.0,22.797721301216107,cm,,spread 12.70 cm (parameter only),
+P,te,ssp126,2300,median_vs_lit,L21,1.5365537357780916,x lit median,,"ours 25.72 cm vs lit 16.74-16.74 (median 16.74), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,te,ssp126,2300,median_vs_lit,BRICK 2.0,1.3622353897403163,x lit median,,"BRICK 2.0 22.80 cm vs the same lit median 16.74; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,te,ssp126,2300,median_vs_lit_delta,L21 vs BRICK 2.0,0.1743183460377753,|ratio-1| diff,,"L21 1.537x vs BRICK 2.0 1.362x of the lit median; closer to 1 is better; ⚠ BRICK 2.0 is closer here but its observed rate/accel FAILs -- a compensating error, not skill",WORSE(unearned)
+P,te,ssp126,2300,spread_vs_lit,L21,1.1526025419898236,x lit spread,,"ours 29.36 cm vs model-based lit 25.47-25.47 (median 25.47, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+P,te,ssp245,2100,median_joint,L21,20.307174904924615,cm,,mean 20.60 cm,
+P,te,ssp245,2100,spread_joint,L21,14.089371437977627,cm,,p5-p95,
+P,te,ssp245,2100,median_fixed,BRICK 2.0,18.030659798767616,cm,,spread 10.05 cm (parameter only),
+P,te,ssp245,2100,median_vs_lit,L21,1.1453343393261033,x lit median,,"ours 20.31 cm vs lit 16.62-18.84 (median 17.73), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,te,ssp245,2100,median_vs_lit,BRICK 2.0,1.0169378027677898,x lit median,,"BRICK 2.0 18.03 cm vs the same lit median 17.73; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",PASS
+P,te,ssp245,2100,median_vs_lit_delta,L21 vs BRICK 2.0,0.1283965365583135,|ratio-1| diff,,"L21 1.145x vs BRICK 2.0 1.017x of the lit median; closer to 1 is better; ⚠ BRICK 2.0 is closer here but its observed rate/accel FAILs -- a compensating error, not skill",WORSE(unearned)
+P,te,ssp245,2100,spread_vs_lit,L21,0.972112100979857,x lit spread,,"ours 14.09 cm vs model-based lit 13.73-15.26 (median 14.49, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+P,te,ssp245,2150,median_joint,L21,29.741112125368915,cm,,mean 30.35 cm,
+P,te,ssp245,2150,spread_joint,L21,23.789728101336063,cm,,p5-p95,
+P,te,ssp245,2150,median_fixed,BRICK 2.0,26.6793166931538,cm,,spread 14.87 cm (parameter only),
+P,te,ssp245,2150,median_vs_lit,L21,1.1466795015035658,x lit median,,"ours 29.74 cm vs lit 23.23-28.64 (median 25.94), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,te,ssp245,2150,median_vs_lit,BRICK 2.0,1.0286308540582823,x lit median,,"BRICK 2.0 26.68 cm vs the same lit median 25.94; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",PASS
+P,te,ssp245,2150,median_vs_lit_delta,L21 vs BRICK 2.0,0.11804864744528354,|ratio-1| diff,,"L21 1.147x vs BRICK 2.0 1.029x of the lit median; closer to 1 is better; ⚠ BRICK 2.0 is closer here but its observed rate/accel FAILs -- a compensating error, not skill",WORSE(unearned)
+P,te,ssp245,2150,spread_vs_lit,L21,0.9555816609311485,x lit spread,,"ours 23.79 cm vs model-based lit 23.92-25.87 (median 24.90, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+P,te,ssp245,2300,median_joint,L21,45.97875386480514,cm,,mean 47.49 cm,
+P,te,ssp245,2300,spread_joint,L21,48.24780462614144,cm,,p5-p95,
+P,te,ssp245,2300,median_fixed,BRICK 2.0,42.049789540396446,cm,,spread 23.43 cm (parameter only),
+P,te,ssp245,2300,median_vs_lit,L21,1.266763924608962,x lit median,,"ours 45.98 cm vs lit 36.30-36.30 (median 36.30), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,te,ssp245,2300,median_vs_lit,BRICK 2.0,1.1585167484921186,x lit median,,"BRICK 2.0 42.05 cm vs the same lit median 36.30; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,te,ssp245,2300,median_vs_lit_delta,L21 vs BRICK 2.0,0.10824717611684331,|ratio-1| diff,,"L21 1.267x vs BRICK 2.0 1.159x of the lit median; closer to 1 is better; ⚠ BRICK 2.0 is closer here but its observed rate/accel FAILs -- a compensating error, not skill",WORSE(unearned)
+P,te,ssp245,2300,spread_vs_lit,L21,0.8894216948185286,x lit spread,,"ours 48.25 cm vs model-based lit 54.25-54.25 (median 54.25, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+P,te,ssp585,2100,median_joint,L21,28.30133125017955,cm,,mean 28.79 cm,
+P,te,ssp585,2100,spread_joint,L21,18.67587432779095,cm,,p5-p95,
+P,te,ssp585,2100,median_fixed,BRICK 2.0,27.04786616011718,cm,,spread 15.07 cm (parameter only),
+P,te,ssp585,2100,median_vs_lit,L21,0.9982787255960708,x lit median,,"ours 28.30 cm vs lit 27.88-28.82 (median 28.35), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary",PASS
+P,te,ssp585,2100,median_vs_lit,BRICK 2.0,0.9540649915626694,x lit median,,"BRICK 2.0 27.05 cm vs the same lit median 28.35; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,te,ssp585,2100,median_vs_lit_delta,L21 vs BRICK 2.0,-0.04421373403340134,|ratio-1| diff,,L21 0.998x vs BRICK 2.0 0.954x of the lit median; closer to 1 is better,BETTER
+P,te,ssp585,2100,spread_vs_lit,L21,0.8488090048620469,x lit spread,,"ours 18.68 cm vs model-based lit 21.13-22.88 (median 22.00, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+P,te,ssp585,2150,median_joint,L21,52.61570832455117,cm,,mean 53.55 cm,
+P,te,ssp585,2150,spread_joint,L21,38.788350467594604,cm,,p5-p95,
+P,te,ssp585,2150,median_fixed,BRICK 2.0,49.948657220235546,cm,,spread 27.83 cm (parameter only),
+P,te,ssp585,2150,median_vs_lit,L21,1.0188525103852568,x lit median,,"ours 52.62 cm vs lit 49.94-53.35 (median 51.64), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary",PASS
+P,te,ssp585,2150,median_vs_lit,BRICK 2.0,0.9672076347485677,x lit median,,"BRICK 2.0 49.95 cm vs the same lit median 51.64; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",PASS
+P,te,ssp585,2150,median_vs_lit_delta,L21 vs BRICK 2.0,-0.013939854866175438,|ratio-1| diff,,L21 1.019x vs BRICK 2.0 0.967x of the lit median; closer to 1 is better,SAME
+P,te,ssp585,2150,spread_vs_lit,L21,0.8624171839598911,x lit spread,,"ours 38.79 cm vs model-based lit 41.87-48.08 (median 44.98, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+P,te,ssp585,2300,median_joint,L21,105.22396767775967,cm,,mean 108.39 cm,
+P,te,ssp585,2300,spread_joint,L21,99.44259420382062,cm,,p5-p95,
+P,te,ssp585,2300,median_fixed,BRICK 2.0,100.21663245397988,cm,,spread 55.84 cm (parameter only),
+P,te,ssp585,2300,median_vs_lit,L21,1.0167327415783427,x lit median,,"ours 105.22 cm vs lit 103.49-103.49 (median 103.49), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,te,ssp585,2300,median_vs_lit,BRICK 2.0,0.9683490721308399,x lit median,,"BRICK 2.0 100.22 cm vs the same lit median 103.49; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,te,ssp585,2300,median_vs_lit_delta,L21 vs BRICK 2.0,-0.014918186290817426,|ratio-1| diff,,L21 1.017x vs BRICK 2.0 0.968x of the lit median; closer to 1 is better,SAME
+P,te,ssp585,2300,spread_vs_lit,L21,0.8191124123870862,x lit spread,,"ours 99.44 cm vs model-based lit 121.40-121.40 (median 121.40, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+P,lws,ssp126,2100,median_joint,L21,2.596380650083528,cm,,mean 2.60 cm,
+P,lws,ssp126,2100,spread_joint,L21,0.0,cm,,p5-p95,
+P,lws,ssp126,2100,median_fixed,BRICK 2.0,2.342515618878139,cm,,spread 0.00 cm (parameter only),
+P,lws,ssp126,2100,median_vs_lit,L21,0.8652510274558489,x lit median,,"ours 2.60 cm vs lit 2.99-3.01 (median 3.00), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,lws,ssp126,2100,median_vs_lit,BRICK 2.0,0.7806498041804762,x lit median,,"BRICK 2.0 2.34 cm vs the same lit median 3.00; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,lws,ssp126,2100,median_vs_lit_delta,L21 vs BRICK 2.0,-0.08460122327537267,|ratio-1| diff,,L21 0.865x vs BRICK 2.0 0.781x of the lit median; closer to 1 is better,BETTER
+P,lws,ssp126,2100,spread_vs_lit,L21,0.0,x lit spread,,"ours 0.00 cm vs model-based lit 3.64-4.06 (median 3.85, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect",N/A(by construction)
+P,lws,ssp126,2150,median_joint,L21,4.2307986469202445,cm,,mean 4.23 cm,
+P,lws,ssp126,2150,spread_joint,L21,0.0,cm,,p5-p95,
+P,lws,ssp126,2150,median_fixed,BRICK 2.0,4.0429579468315175,cm,,spread 0.00 cm (parameter only),
+P,lws,ssp126,2150,median_vs_lit,L21,0.8867737825927602,x lit median,,"ours 4.23 cm vs lit 4.58-4.96 (median 4.77), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,lws,ssp126,2150,median_vs_lit,BRICK 2.0,0.847402443504381,x lit median,,"BRICK 2.0 4.04 cm vs the same lit median 4.77; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,lws,ssp126,2150,median_vs_lit_delta,L21 vs BRICK 2.0,-0.0393713390883792,|ratio-1| diff,,L21 0.887x vs BRICK 2.0 0.847x of the lit median; closer to 1 is better,BETTER
+P,lws,ssp126,2150,spread_vs_lit,L21,0.0,x lit spread,,"ours 0.00 cm vs model-based lit 5.64-5.78 (median 5.71, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect",N/A(by construction)
+P,lws,ssp126,2300,median_joint,L21,8.483616077316128,cm,,mean 8.48 cm,
+P,lws,ssp126,2300,spread_joint,L21,0.0,cm,,p5-p95,
+P,lws,ssp126,2300,median_fixed,BRICK 2.0,8.89738572754609,cm,,spread 0.00 cm (parameter only),
+P,lws,ssp126,2300,median_vs_lit,L21,0.786901351458158,x lit median,,"ours 8.48 cm vs lit 10.78-10.78 (median 10.78), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,lws,ssp126,2300,median_vs_lit,BRICK 2.0,0.825280728128552,x lit median,,"BRICK 2.0 8.90 cm vs the same lit median 10.78; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,lws,ssp126,2300,median_vs_lit_delta,L21 vs BRICK 2.0,0.03837937667039404,|ratio-1| diff,,L21 0.787x vs BRICK 2.0 0.825x of the lit median; closer to 1 is better,WORSE
+P,lws,ssp126,2300,spread_vs_lit,L21,0.0,x lit spread,,"ours 0.00 cm vs model-based lit 12.12-12.12 (median 12.12, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect",N/A(by construction)
+P,lws,ssp245,2100,median_joint,L21,2.596380650083528,cm,,mean 2.60 cm,
+P,lws,ssp245,2100,spread_joint,L21,0.0,cm,,p5-p95,
+P,lws,ssp245,2100,median_fixed,BRICK 2.0,2.342515618878139,cm,,spread 0.00 cm (parameter only),
+P,lws,ssp245,2100,median_vs_lit,L21,0.84822790876856,x lit median,,"ours 2.60 cm vs lit 3.01-3.11 (median 3.06), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,lws,ssp245,2100,median_vs_lit,BRICK 2.0,0.7652911465792852,x lit median,,"BRICK 2.0 2.34 cm vs the same lit median 3.06; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,lws,ssp245,2100,median_vs_lit_delta,L21 vs BRICK 2.0,-0.08293676218927482,|ratio-1| diff,,L21 0.848x vs BRICK 2.0 0.765x of the lit median; closer to 1 is better,BETTER
+P,lws,ssp245,2100,spread_vs_lit,L21,0.0,x lit spread,,"ours 0.00 cm vs model-based lit 3.64-4.48 (median 4.06, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect",N/A(by construction)
+P,lws,ssp245,2150,median_joint,L21,4.2307986469202445,cm,,mean 4.23 cm,
+P,lws,ssp245,2150,spread_joint,L21,0.0,cm,,p5-p95,
+P,lws,ssp245,2150,median_fixed,BRICK 2.0,4.0429579468315175,cm,,spread 0.00 cm (parameter only),
+P,lws,ssp245,2150,median_vs_lit,L21,0.8328542492584137,x lit median,,"ours 4.23 cm vs lit 4.96-5.20 (median 5.08), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,lws,ssp245,2150,median_vs_lit,BRICK 2.0,0.7958768512991765,x lit median,,"BRICK 2.0 4.04 cm vs the same lit median 5.08; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,lws,ssp245,2150,median_vs_lit_delta,L21 vs BRICK 2.0,-0.03697739795923716,|ratio-1| diff,,L21 0.833x vs BRICK 2.0 0.796x of the lit median; closer to 1 is better,BETTER
+P,lws,ssp245,2150,spread_vs_lit,L21,0.0,x lit spread,,"ours 0.00 cm vs model-based lit 5.78-6.87 (median 6.33, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect",N/A(by construction)
+P,lws,ssp245,2300,median_joint,L21,8.483616077316128,cm,,mean 8.48 cm,
+P,lws,ssp245,2300,spread_joint,L21,0.0,cm,,p5-p95,
+P,lws,ssp245,2300,median_fixed,BRICK 2.0,8.89738572754609,cm,,spread 0.00 cm (parameter only),
+P,lws,ssp245,2300,median_vs_lit,L21,0.786901351458158,x lit median,,"ours 8.48 cm vs lit 10.78-10.78 (median 10.78), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,lws,ssp245,2300,median_vs_lit,BRICK 2.0,0.825280728128552,x lit median,,"BRICK 2.0 8.90 cm vs the same lit median 10.78; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,lws,ssp245,2300,median_vs_lit_delta,L21 vs BRICK 2.0,0.03837937667039404,|ratio-1| diff,,L21 0.787x vs BRICK 2.0 0.825x of the lit median; closer to 1 is better,WORSE
+P,lws,ssp245,2300,spread_vs_lit,L21,0.0,x lit spread,,"ours 0.00 cm vs model-based lit 12.12-12.12 (median 12.12, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect",N/A(by construction)
+P,lws,ssp585,2100,median_joint,L21,2.596380650083528,cm,,mean 2.60 cm,
+P,lws,ssp585,2100,spread_joint,L21,0.0,cm,,p5-p95,
+P,lws,ssp585,2100,median_fixed,BRICK 2.0,2.342515618878139,cm,,spread 0.00 cm (parameter only),
+P,lws,ssp585,2100,median_vs_lit,L21,0.8708276798965197,x lit median,,"ours 2.60 cm vs lit 2.96-3.01 (median 2.98), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,lws,ssp585,2100,median_vs_lit,BRICK 2.0,0.7856811910238907,x lit median,,"BRICK 2.0 2.34 cm vs the same lit median 2.98; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,lws,ssp585,2100,median_vs_lit_delta,L21 vs BRICK 2.0,-0.08514648887262899,|ratio-1| diff,,L21 0.871x vs BRICK 2.0 0.786x of the lit median; closer to 1 is better,BETTER
+P,lws,ssp585,2100,spread_vs_lit,L21,0.0,x lit spread,,"ours 0.00 cm vs model-based lit 3.64-4.12 (median 3.88, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect",N/A(by construction)
+P,lws,ssp585,2150,median_joint,L21,4.2307986469202445,cm,,mean 4.23 cm,
+P,lws,ssp585,2150,spread_joint,L21,0.0,cm,,p5-p95,
+P,lws,ssp585,2150,median_fixed,BRICK 2.0,4.0429579468315175,cm,,spread 0.00 cm (parameter only),
+P,lws,ssp585,2150,median_vs_lit,L21,0.8752718409834949,x lit median,,"ours 4.23 cm vs lit 4.70-4.96 (median 4.83), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,lws,ssp585,2150,median_vs_lit,BRICK 2.0,0.8364111697251333,x lit median,,"BRICK 2.0 4.04 cm vs the same lit median 4.83; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,lws,ssp585,2150,median_vs_lit_delta,L21 vs BRICK 2.0,-0.03886067125836157,|ratio-1| diff,,L21 0.875x vs BRICK 2.0 0.836x of the lit median; closer to 1 is better,BETTER
+P,lws,ssp585,2150,spread_vs_lit,L21,0.0,x lit spread,,"ours 0.00 cm vs model-based lit 5.78-5.80 (median 5.79, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect",N/A(by construction)
+P,lws,ssp585,2300,median_joint,L21,8.483616077316128,cm,,mean 8.48 cm,
+P,lws,ssp585,2300,spread_joint,L21,0.0,cm,,p5-p95,
+P,lws,ssp585,2300,median_fixed,BRICK 2.0,8.89738572754609,cm,,spread 0.00 cm (parameter only),
+P,lws,ssp585,2300,median_vs_lit,L21,0.786901351458158,x lit median,,"ours 8.48 cm vs lit 10.78-10.78 (median 10.78), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,lws,ssp585,2300,median_vs_lit,BRICK 2.0,0.825280728128552,x lit median,,"BRICK 2.0 8.90 cm vs the same lit median 10.78; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,lws,ssp585,2300,median_vs_lit_delta,L21 vs BRICK 2.0,0.03837937667039404,|ratio-1| diff,,L21 0.787x vs BRICK 2.0 0.825x of the lit median; closer to 1 is better,WORSE
+P,lws,ssp585,2300,spread_vs_lit,L21,0.0,x lit spread,,"ours 0.00 cm vs model-based lit 12.12-12.12 (median 12.12, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect",N/A(by construction)
+P,total,ssp126,2100,median_joint,L21,37.79508596843627,cm,,mean 40.58 cm,
+P,total,ssp126,2100,spread_joint,L21,32.13672686229165,cm,,p5-p95,
+P,total,ssp126,2100,median_fixed,BRICK 2.0,39.241787300181336,cm,,spread 38.83 cm (parameter only),
+P,total,ssp126,2100,median_vs_lit,L21,0.9163072482018974,x lit median,,"ours 37.80 cm vs lit 35.59-46.11 (median 41.25), n_lit=7 [1 SEJ comparator(s) excluded from the score; full range 35.59-53.47]",PASS
+P,total,ssp126,2100,median_vs_lit,BRICK 2.0,0.9513811971636329,x lit median,,"BRICK 2.0 39.24 cm vs the same lit median 41.25; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",PASS
+P,total,ssp126,2100,median_vs_lit_delta,L21 vs BRICK 2.0,0.035073948961735546,|ratio-1| diff,,L21 0.916x vs BRICK 2.0 0.951x of the lit median; closer to 1 is better,WORSE
+P,total,ssp126,2100,spread_vs_lit_ALL,L21,0.8990650006594973,x lit spread,,the same cell scored against ALL 8 comparators including the SEJ envelope; the score reported above is 0.958 => the classification is worth 1.07x here,
+P,total,ssp126,2100,spread_vs_lit,L21,0.9579477393095013,x lit spread,,"ours 32.14 cm vs model-based lit 25.25-49.52 (median 33.55, n=7); ALL comparators 25.25-107.65",PASS
+P,total,ssp126,2150,median_joint,L21,49.24946589548961,cm,,mean 54.84 cm,
+P,total,ssp126,2150,spread_joint,L21,62.48132196915454,cm,,p5-p95,
+P,total,ssp126,2150,median_fixed,BRICK 2.0,55.165905867771144,cm,,spread 45.79 cm (parameter only),
+P,total,ssp126,2150,median_vs_lit,L21,0.7449259674355403,x lit median,,"ours 49.25 cm vs lit 45.94-74.90 (median 66.11), n_lit=4 [1 SEJ comparator(s) excluded from the score; full range 45.94-83.12]",PASS
+P,total,ssp126,2150,median_vs_lit,BRICK 2.0,0.8344154611790605,x lit median,,"BRICK 2.0 55.17 cm vs the same lit median 66.11; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",PASS
+P,total,ssp126,2150,median_vs_lit_delta,L21 vs BRICK 2.0,0.08948949374352022,|ratio-1| diff,,L21 0.745x vs BRICK 2.0 0.834x of the lit median; closer to 1 is better,WORSE
+P,total,ssp126,2150,spread_vs_lit_ALL,L21,1.0595797009368535,x lit spread,,the same cell scored against ALL 5 comparators including the SEJ envelope; the score reported above is 1.072 => the classification is worth 1.01x here,
+P,total,ssp126,2150,spread_vs_lit,L21,1.0719648559120551,x lit spread,,"ours 62.48 cm vs model-based lit 53.31-79.31 (median 58.29, n=4); ALL comparators 53.31-200.59",PASS
+P,total,ssp126,2300,median_joint,L21,70.85233690171269,cm,,mean 86.53 cm,
+P,total,ssp126,2300,spread_joint,L21,181.37190698879155,cm,,p5-p95,
+P,total,ssp126,2300,median_fixed,BRICK 2.0,91.1767107695418,cm,,spread 53.11 cm (parameter only),
+P,total,ssp126,2300,median_vs_lit,L21,1.0655417139630219,x lit median,,"ours 70.85 cm vs lit 66.49-66.49 (median 66.49), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,total,ssp126,2300,median_vs_lit,BRICK 2.0,1.371198084851593,x lit median,,"BRICK 2.0 91.18 cm vs the same lit median 66.49; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,total,ssp126,2300,median_vs_lit_delta,L21 vs BRICK 2.0,-0.3056563708885711,|ratio-1| diff,,L21 1.066x vs BRICK 2.0 1.371x of the lit median; closer to 1 is better,BETTER
+P,total,ssp126,2300,spread_vs_lit,L21,1.5555104454822937,x lit spread,,"ours 181.37 cm vs model-based lit 116.60-116.60 (median 116.60, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+P,total,ssp245,2100,median_joint,L21,47.341884915156975,cm,,mean 54.81 cm,
+P,total,ssp245,2100,spread_joint,L21,59.48391123212392,cm,,p5-p95,
+P,total,ssp245,2100,median_fixed,BRICK 2.0,70.8716898905364,cm,,spread 68.03 cm (parameter only),
+P,total,ssp245,2100,median_vs_lit,L21,0.8847686199212894,x lit median,,"ours 47.34 cm vs lit 48.68-57.10 (median 53.51), n_lit=7 [1 SEJ comparator(s) excluded from the score; full range 48.68-67.90]",WARN
+P,total,ssp245,2100,median_vs_lit,BRICK 2.0,1.3245152230063373,x lit median,,"BRICK 2.0 70.87 cm vs the same lit median 53.51; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,total,ssp245,2100,median_vs_lit_delta,L21 vs BRICK 2.0,-0.2092838429276267,|ratio-1| diff,,L21 0.885x vs BRICK 2.0 1.325x of the lit median; closer to 1 is better,BETTER
+P,total,ssp245,2100,spread_vs_lit_ALL,L21,1.0884019050116844,x lit spread,,the same cell scored against ALL 8 comparators including the SEJ envelope; the score reported above is 1.130 => the classification is worth 1.04x here,
+P,total,ssp245,2100,spread_vs_lit,L21,1.1298597650031887,x lit spread,,"ours 59.48 cm vs model-based lit 32.00-60.35 (median 52.65, n=7); ALL comparators 32.00-146.33",PASS
+P,total,ssp245,2150,median_joint,L21,74.78941641081002,cm,,mean 96.21 cm,
+P,total,ssp245,2150,spread_joint,L21,129.08799247976344,cm,,p5-p95,
+P,total,ssp245,2150,median_fixed,BRICK 2.0,137.9806104775834,cm,,spread 131.24 cm (parameter only),
+P,total,ssp245,2150,median_vs_lit,L21,0.8030664101615859,x lit median,,"ours 74.79 cm vs lit 80.04-105.22 (median 93.13), n_lit=4 [1 SEJ comparator(s) excluded from the score; full range 80.04-111.19]",WARN
+P,total,ssp245,2150,median_vs_lit,BRICK 2.0,1.481594573749354,x lit median,,"BRICK 2.0 137.98 cm vs the same lit median 93.13; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,total,ssp245,2150,median_vs_lit_delta,L21 vs BRICK 2.0,-0.28466098391093997,|ratio-1| diff,,L21 0.803x vs BRICK 2.0 1.482x of the lit median; closer to 1 is better,BETTER
+P,total,ssp245,2150,spread_vs_lit_ALL,L21,1.1916061848607284,x lit spread,,the same cell scored against ALL 5 comparators including the SEJ envelope; the score reported above is 1.233 => the classification is worth 1.03x here,
+P,total,ssp245,2150,spread_vs_lit,L21,1.2331758299701263,x lit spread,,"ours 129.09 cm vs model-based lit 59.41-382.80 (median 104.68, n=4); ALL comparators 59.41-382.80; ⚠ THE COMPARATORS DO NOT AGREE -- scored one at a time they give 1xhigh/2xin/1xlow and the median's 'in' is not a majority, so the median is not a summary here; verdict CAPPED at WARN",WARN
+P,total,ssp245,2300,median_joint,L21,158.92730892566004,cm,,mean 207.82 cm,
+P,total,ssp245,2300,spread_joint,L21,341.0382970143658,cm,,p5-p95,
+P,total,ssp245,2300,median_fixed,BRICK 2.0,317.51471413910497,cm,,spread 271.11 cm (parameter only),
+P,total,ssp245,2300,median_vs_lit,L21,0.8509202577894672,x lit median,,"ours 158.93 cm vs lit 186.77-186.77 (median 186.77), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,total,ssp245,2300,median_vs_lit,BRICK 2.0,1.7000206209593323,x lit median,,"BRICK 2.0 317.51 cm vs the same lit median 186.77; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,total,ssp245,2300,median_vs_lit_delta,L21 vs BRICK 2.0,-0.5509408787487995,|ratio-1| diff,,L21 0.851x vs BRICK 2.0 1.700x of the lit median; closer to 1 is better,BETTER
+P,total,ssp245,2300,spread_vs_lit,L21,1.0038030103088313,x lit spread,,"ours 341.04 cm vs model-based lit 339.75-339.75 (median 339.75, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary",PASS
+P,total,ssp585,2100,median_joint,L21,86.29141538270794,cm,,mean 88.01 cm,
+P,total,ssp585,2100,spread_joint,L21,77.826301894417,cm,,p5-p95,
+P,total,ssp585,2100,median_fixed,BRICK 2.0,104.67871908213344,cm,,spread 65.18 cm (parameter only),
+P,total,ssp585,2100,median_vs_lit,L21,1.086642203457388,x lit median,,"ours 86.29 cm vs lit 64.93-97.85 (median 79.41), n_lit=7 [1 SEJ comparator(s) excluded from the score; full range 64.93-97.85]",PASS
+P,total,ssp585,2100,median_vs_lit,BRICK 2.0,1.3181880660321235,x lit median,,"BRICK 2.0 104.68 cm vs the same lit median 79.41; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,total,ssp585,2100,median_vs_lit_delta,L21 vs BRICK 2.0,-0.23154586257473553,|ratio-1| diff,,L21 1.087x vs BRICK 2.0 1.318x of the lit median; closer to 1 is better,BETTER
+P,total,ssp585,2100,spread_vs_lit_ALL,L21,1.1009843275713271,x lit spread,,the same cell scored against ALL 8 comparators including the SEJ envelope; the score reported above is 1.107 => the classification is worth 1.01x here,
+P,total,ssp585,2100,spread_vs_lit,L21,1.1066352306919833,x lit spread,,"ours 77.83 cm vs model-based lit 41.09-106.79 (median 70.33, n=7); ALL comparators 41.09-197.47",PASS
+P,total,ssp585,2150,median_joint,L21,189.00506246879178,cm,,mean 191.13 cm,
+P,total,ssp585,2150,spread_joint,L21,140.96473352821272,cm,,p5-p95,
+P,total,ssp585,2150,median_fixed,BRICK 2.0,202.83449397288445,cm,,spread 126.92 cm (parameter only),
+P,total,ssp585,2150,median_vs_lit,L21,0.9116826770852894,x lit median,,"ours 189.01 cm vs lit 117.08-310.66 (median 207.31), n_lit=4 [1 SEJ comparator(s) excluded from the score; full range 117.08-310.66]",PASS
+P,total,ssp585,2150,median_vs_lit,BRICK 2.0,0.9783901661415715,x lit median,,"BRICK 2.0 202.83 cm vs the same lit median 207.31; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",PASS
+P,total,ssp585,2150,median_vs_lit_delta,L21 vs BRICK 2.0,0.0667074890562821,|ratio-1| diff,,L21 0.912x vs BRICK 2.0 0.978x of the lit median; closer to 1 is better,WORSE
+P,total,ssp585,2150,spread_vs_lit_ALL,L21,0.3494563489064838,x lit spread,,the same cell scored against ALL 5 comparators including the SEJ envelope; the score reported above is 0.509 => the classification is worth 1.46x here,
+P,total,ssp585,2150,spread_vs_lit,L21,0.5089004139715454,x lit spread,,"ours 140.96 cm vs model-based lit 77.93-414.71 (median 277.00, n=4); ALL comparators 77.93-631.59; ⚠ THE COMPARATORS DO NOT AGREE -- scored one at a time they give 2xin/2xlow and the median's 'in' is not a majority, so the median is not a summary here; verdict CAPPED at WARN",WARN
+P,total,ssp585,2300,median_joint,L21,457.20271768583154,cm,,mean 467.62 cm,
+P,total,ssp585,2300,spread_joint,L21,358.70818472120874,cm,,p5-p95,
+P,total,ssp585,2300,median_fixed,BRICK 2.0,482.39538942463446,cm,,spread 363.51 cm (parameter only),
+P,total,ssp585,2300,median_vs_lit,L21,0.45001068727903554,x lit median,,"ours 457.20 cm vs lit 1015.98-1015.98 (median 1015.98), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN",WARN
+P,total,ssp585,2300,median_vs_lit,BRICK 2.0,0.4748070655266471,x lit median,,"BRICK 2.0 482.40 cm vs the same lit median 1015.98; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band",WARN
+P,total,ssp585,2300,median_vs_lit_delta,L21 vs BRICK 2.0,0.024796378247611606,|ratio-1| diff,,L21 0.450x vs BRICK 2.0 0.475x of the lit median; closer to 1 is better,WORSE
+P,total,ssp585,2300,spread_vs_lit,L21,0.2601033613622111,x lit spread,,"ours 358.71 cm vs model-based lit 1379.10-1379.10 (median 1379.10, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN",WARN
+S,ais,ssp585/ssp126,2100,separation,L21,6.620167339175255,x,,FACTS 0.63-3.20 (n=5); MAGICC-SLR 10.69-10.69 (n=1),PASS
+S,ais,ssp585/ssp126,2150,separation,L21,12.330885723464487,x,,FACTS 0.48-7.55 (n=4); MAGICC-SLR 28.79-28.79 (n=1),PASS
+S,ais,ssp585/ssp126,2300,separation,L21,19.828769304888606,x,,MAGICC-SLR 81.77-81.77 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON],WARN
+S,glaciers,ssp585/ssp126,2100,separation,L21,1.6128646198428762,x,,FACTS 1.73-1.92 (n=2); MAGICC-SLR 1.46-1.46 (n=1),PASS
+S,glaciers,ssp585/ssp126,2150,separation,L21,2.0693993851359695,x,,FACTS 2.37-2.37 (n=1); MAGICC-SLR 1.79-1.79 (n=1),PASS
+S,glaciers,ssp585/ssp126,2300,separation,L21,2.1492934637206913,x,,MAGICC-SLR 2.11-2.11 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON],WARN
+S,gis,ssp585/ssp126,2100,separation,L21,1.84705223016991,x,,FACTS 1.55-2.33 (n=3); MAGICC-SLR 2.11-2.11 (n=1),PASS
+S,gis,ssp585/ssp126,2150,separation,L21,3.07893793576865,x,,FACTS 1.72-2.07 (n=2); MAGICC-SLR 3.48-3.48 (n=1),PASS
+S,gis,ssp585/ssp126,2300,separation,L21,4.414622131031188,x,,MAGICC-SLR 7.54-7.54 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON],WARN
+S,te,ssp585/ssp126,2100,separation,L21,1.7628484031974538,x,,FACTS 2.05-2.05 (n=1); MAGICC-SLR 2.51-2.51 (n=1); 0.29 outside the bracket = 62% of its own range,FAIL
+S,te,ssp585/ssp126,2150,separation,L21,2.624791368806817,x,,FACTS 2.99-2.99 (n=1); MAGICC-SLR 3.94-3.94 (n=1); 0.36 outside the bracket = 38% of its own range,FAIL
+S,te,ssp585/ssp126,2300,separation,L21,4.091924758514378,x,,MAGICC-SLR 6.18-6.18 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON],WARN
+S,lws,ssp585/ssp126,2100,separation,L21,1.0,x,,FACTS 0.99-0.99 (n=1); MAGICC-SLR 1.00-1.00 (n=1),PASS
+S,lws,ssp585/ssp126,2150,separation,L21,1.0,x,,FACTS 1.03-1.03 (n=1); MAGICC-SLR 1.00-1.00 (n=1),PASS
+S,lws,ssp585/ssp126,2300,separation,L21,1.0,x,,MAGICC-SLR 1.00-1.00 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON],PASS
+S,total,ssp585/ssp126,2100,separation,L21,2.283138486700951,x,,FACTS 1.63-2.23 (n=7); MAGICC-SLR 2.75-2.75 (n=1),PASS
+S,total,ssp585/ssp126,2150,separation,L21,3.8377078620481315,x,,FACTS 1.94-4.15 (n=4); MAGICC-SLR 5.72-5.72 (n=1),PASS
+S,total,ssp585/ssp126,2300,separation,L21,6.452895383254179,x,,MAGICC-SLR 15.28-15.28 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON],WARN
+V,total,ssp126,2100,component-error sum vs total error,L21 vs BRICK 2.0,-0.10217653230213397,sum |ratio-1| diff,,"sum over 5 components of |ratio-1|: L21 1.069 vs BRICK 2.0 1.171; TOTAL error 0.084 vs 0.049; ⚠ BRICK 2.0's total is closer DESPITE larger component errors -- CANCELLATION, not skill",CANCELLATION
+V,total,ssp126,2150,component-error sum vs total error,L21 vs BRICK 2.0,0.06545333438136058,sum |ratio-1| diff,,sum over 5 components of |ratio-1|: L21 1.524 vs BRICK 2.0 1.459; TOTAL error 0.255 vs 0.166,WORSE
+V,total,ssp126,2300,component-error sum vs total error,L21 vs BRICK 2.0,-0.4898196792897491,sum |ratio-1| diff,,sum over 5 components of |ratio-1|: L21 1.729 vs BRICK 2.0 2.218; TOTAL error 0.066 vs 0.371,BETTER
+V,total,ssp245,2100,component-error sum vs total error,L21 vs BRICK 2.0,-1.3024191943965269,sum |ratio-1| diff,,sum over 5 components of |ratio-1|: L21 1.104 vs BRICK 2.0 2.406; TOTAL error 0.115 vs 0.325,BETTER
+V,total,ssp245,2150,component-error sum vs total error,L21 vs BRICK 2.0,-1.0511220912423598,sum |ratio-1| diff,,sum over 5 components of |ratio-1|: L21 1.454 vs BRICK 2.0 2.505; TOTAL error 0.197 vs 0.482,BETTER
+V,total,ssp245,2300,component-error sum vs total error,L21 vs BRICK 2.0,-1.3135839692831293,sum |ratio-1| diff,,sum over 5 components of |ratio-1|: L21 1.356 vs BRICK 2.0 2.670; TOTAL error 0.149 vs 0.700,BETTER
+V,total,ssp585,2100,component-error sum vs total error,L21 vs BRICK 2.0,-1.6599438931935175,sum |ratio-1| diff,,sum over 5 components of |ratio-1|: L21 1.450 vs BRICK 2.0 3.110; TOTAL error 0.087 vs 0.318,BETTER
+V,total,ssp585,2150,component-error sum vs total error,L21 vs BRICK 2.0,-0.2098125757192284,sum |ratio-1| diff,,"sum over 5 components of |ratio-1|: L21 0.631 vs BRICK 2.0 0.841; TOTAL error 0.088 vs 0.022; ⚠ BRICK 2.0's total is closer DESPITE larger component errors -- CANCELLATION, not skill",CANCELLATION
+V,total,ssp585,2300,component-error sum vs total error,L21 vs BRICK 2.0,-0.17929769947093088,sum |ratio-1| diff,,"sum over 5 components of |ratio-1|: L21 0.943 vs BRICK 2.0 1.122; TOTAL error 0.550 vs 0.525; ⚠ BRICK 2.0's total is closer DESPITE larger component errors -- CANCELLATION, not skill",CANCELLATION
+V,ais,,,hindcast,L21,,,,worst cell: hindcast/full  = 0.0311 cm,PASS
+V,ais,,,rate/accel,L21,,,,worst cell: rate/1993-2026  = 0.0316 cm/yr,UNRESOLVED
+V,ais,,,projection,L21,,,,worst cell: median_vs_lit ssp245@2150 = 0.397 x lit median,FAIL
+V,ais,,,separation,L21,,,,worst cell: separation ssp585/ssp126@2300 = 19.8 x,WARN
+V,glaciers,,,hindcast,L21,,,,worst cell: hindcast/1920-1949  = 0.599 cm,WARN
+V,glaciers,,,rate/accel,L21,,,,worst cell: rate/1993-2026  = 0.0629 cm/yr,UNRESOLVED
+V,glaciers,,,projection,L21,,,,worst cell: median_vs_lit ssp126@2100 = 0.864 x lit median,WARN
+V,glaciers,,,separation,L21,,,,worst cell: separation ssp585/ssp126@2300 = 2.15 x,WARN
+V,gis,,,hindcast,L21,,,,worst cell: hindcast/full  = 0.0587 cm,PASS
+V,gis,,,rate/accel,L21,,,,worst cell: rate/1993-2026  = 0.0657 cm/yr,UNRESOLVED
+V,gis,,,projection,L21,,,,worst cell: spread_vs_lit ssp126@2100 = 0.463 x lit spread,FAIL
+V,gis,,,separation,L21,,,,worst cell: separation ssp585/ssp126@2300 = 4.41 x,WARN
+V,te,,,hindcast,L21,,,,worst cell: hindcast/1920-1949  = 0.545 cm,WARN
+V,te,,,rate/accel,L21,,,,worst cell: rate/1993-2026  = 0.157 cm/yr,FAIL
+V,te,,,projection,L21,,,,worst cell: median_vs_lit ssp126@2100 = 1.28 x lit median,WARN
+V,te,,,separation,L21,,,,worst cell: separation ssp585/ssp126@2100 = 1.76 x,FAIL
+V,lws,,,projection,L21,,,,worst cell: median_vs_lit ssp126@2100 = 0.865 x lit median,WARN
+V,lws,,,separation,L21,,,,worst cell: separation ssp585/ssp126@2100 = 1 x,PASS
+V,total,,,hindcast,L21,,,,worst cell: hindcast/full  = 0.681 cm,PASS
+V,total,,,rate/accel,L21,,,,worst cell: rate/1993-2026  = 0.347 cm/yr,UNRESOLVED
+V,total,,,projection,L21,,,,worst cell: median_vs_lit ssp126@2300 = 1.07 x lit median,WARN
+V,total,,,separation,L21,,,,worst cell: separation ssp585/ssp126@2300 = 6.45 x,WARN

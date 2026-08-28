@@ -1,0 +1,32 @@
+{
+  "tag": "L21",
+  "frozen_git_head": "aa64e52",
+  "bench_version": "1.0",
+  "files": {
+    "postpred": {
+      "source": "outputs/postpred_L21_components_timeseries.csv",
+      "sha256_16": "823174acda4bbd6d",
+      "frozen_as": "benchmark/reference/L21/postpred_components_timeseries.csv"
+    },
+    "comparison": {
+      "source": "outputs/ladrillo_model_comparison_L21.csv",
+      "sha256_16": "7081c70980e365c9",
+      "frozen_as": "benchmark/reference/L21/model_comparison.csv"
+    },
+    "draws_ssp126": {
+      "source": "outputs/scope_slr_fairunc_draws_ssp126_spliced_L21.csv",
+      "sha256_16": "1f169d5ef119aa9d",
+      "frozen_as": "benchmark/reference/L21/draws_ssp126_spliced.csv.gz"
+    },
+    "draws_ssp245": {
+      "source": "outputs/scope_slr_fairunc_draws_ssp245_spliced_L21.csv",
+      "sha256_16": "c619c495d0a70aec",
+      "frozen_as": "benchmark/reference/L21/draws_ssp245_spliced.csv.gz"
+    },
+    "draws_ssp585": {
+      "source": "outputs/scope_slr_fairunc_draws_ssp585_spliced_L21.csv",
+      "sha256_16": "7f6868746ad9a9ae",
+      "frozen_as": "benchmark/reference/L21/draws_ssp585_spliced.csv.gz"
+    }
+  }
+}
