@@ -11,7 +11,24 @@ GMST–observation fit. *"I think this is a necessary step."* The FaIR-side work
 **van Vuuren comparison.8.27.26** session; a coordination message with the numbers below and the
 SLR-side requirements has been sent to it.
 
-### THE FIT GETS WORSE, AND THAT WAS ACCEPTED WITH EYES OPEN
+### ⚠⚠ RETRACTED 2026-08-28 — THE TABLE BELOW MEASURED A BROKEN STACK
+
+**The numbers in this section are WRONG and are kept only so the error is not re-derived.** An
+ablation ladder by the migration owner (`scripts/diag_calib160_igcc_ladder.py`, commit `8a6594f`)
+showed the whole −0.12 K appears the moment 1.6.0 *parameters* are swapped in **without the inputs
+they were jointly conditioned on**, and is recovered as CMIP7 volcanic/solar, emissions and land use
+are restored. **It is an input mismatch, not a property of the posterior.**
+
+**Corrected cost of the migration: historical GMST RMSE 0.109 → 0.124** against a per-config p5–p95
+RMSE spread of ~0.05 K — about a third of the ensemble's own spread, a modest degradation rather
+than a doubled bias. Both endpoints sit inside fair-calibrate's own RMSE < 0.19 K constraint.
+
+**Cause of the error:** `fair_v160_ssp245_compare.py` drove FaIR with **RCMIP-native** SSP2-4.5
+rather than the harmonized emissions — the same harmonized-vs-RCMIP-native trap this session warned
+the other sessions about — plus a v1.4.1-legacy Solar Cycle 25 override that must not be applied in
+a 1.4.5+ workflow, and default species configs instead of 1.6.0's.
+
+### [RETRACTED] THE FIT GETS WORSE
 
 GMST − IGCC observations, °C (negative = model too cool), from the existing Phase-1 tests in
 FaIRtoFrEDI (`fair_v141_vs_v145_vs_v160_gmst.csv`, `fair_v160_cmip7_gmst.csv`):
