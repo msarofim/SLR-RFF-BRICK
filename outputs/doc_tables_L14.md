@@ -1,6 +1,6 @@
 # Comparison tables — Ladrillo L14
 
-Basis: **cm, re-referenced to 1995-2014**. Commit `b5f4a84`.
+Basis: **cm, re-referenced to 1995-2014**. Commit `a2d9b41`.
 
 > ⚠ **Ladrillo and BRICK 2.0 run on MEAN forcing -> bands are posterior-parameter spread only; MAGICC/FACTS bands also carry climate uncertainty. MEDIANS comparable, WIDTHS not.**
 

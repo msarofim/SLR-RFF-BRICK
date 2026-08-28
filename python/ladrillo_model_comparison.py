@@ -12,9 +12,11 @@ Sources
               L10 = Ladrillo 1.0; L11 = the D1+D2 change set accepted 2026-08-15.
               2000 draws, FaIR-mean forcing per SSP, Greenland A+B with the
               amp(GMST) law.
-  BRICK 2.0   outputs/ssps_gsic_2300.csv
-              pre-Mengel MimiBRICK v2.0.0 with the Wigley-Raper glacier module
-              on the post-PR#93 posterior. GLACIERS ONLY - the one legacy arm.
+  BRICK 2.0   outputs/ssps_components_2300_oldbrick.csv  (REPOINTED 2026-08-27)
+              Stock MimiBRICK v2.0.0 on its own post-PR#93 posterior, ALL SIX
+              COMPONENTS to 2300 with p17/p83. Was ssps_gsic_2300.csv = glaciers
+              only at 5-95%; see load_brick20 for why that was wrong and why
+              repointing does not affect benchmark scoring.
   MAGICC-SLR  data/comparison/magicc_nauels_components.csv
               MAGICC v7.5.3 + Nauels 2025 SLR, 600-member AR6 drawnset,
               extracted by python/extract_magicc_components.py. Ends at 2100.
@@ -59,7 +61,8 @@ TAPPED = "--no-tap" not in sys.argv[1:]
 LADRILLO_CSV = gis_targets.ssps_csv(LADRILLO_TAG, tapped=TAPPED)
 ARM_TAG = "" if TAPPED else "_notap"
 OUT = os.path.join(REPO, f"outputs/ladrillo_model_comparison_{LADRILLO_TAG}{ARM_TAG}.csv")
-BRICK20_GSIC_CSV = os.path.join(REPO, "outputs/ssps_gsic_2300.csv")
+BRICK20_GSIC_CSV = os.path.join(REPO, "outputs/ssps_gsic_2300.csv")   # superseded, see load_brick20
+BRICK20_COMPONENTS_CSV = os.path.join(REPO, "outputs/ssps_components_2300_oldbrick.csv")
 MAGICC_CSV = os.path.join(REPO, "data/comparison/magicc_nauels_components.csv")
 FACTS_CSV = os.path.join(REPO, "outputs/facts_components_n200.csv")
 
@@ -91,13 +94,29 @@ def load_ladrillo():
 
 
 def load_brick20():
-    """Pre-Mengel BRICK 2.0, glaciers only (Wigley-Raper), lo/hi are 5-95%."""
-    df = pd.read_csv(BRICK20_GSIC_CSV)
+    """Stock BRICK 2.0, ALL SIX COMPONENTS to 2300, with p17/p83.
+
+    REPOINTED 2026-08-27 (Marcus). This used to read outputs/ssps_gsic_2300.csv — GLACIERS
+    ONLY, and lo/hi = 5-95% because that file carries no p17/p83. Every AIS / Greenland / TE /
+    LWS / total cell of the comparison was therefore BLANK for the reference model, and its one
+    populated column reported a 90% interval alongside everyone else's 66%.
+
+    julia/project_ssps_components_oldbrick.jl was written specifically to fix this ("every AIS /
+    Greenland / TE / total cell of the comparison therefore had a BLANK where the reference model
+    should be") and emits all six components to 2300 WITH p17/p83, on the same posterior, the
+    same FaIR mean forcing, and the same 1995-2014 re-reference as Ladrillo. bench_ladrillo.py
+    has read it since it was written; this script was never repointed. No re-run was needed.
+
+    ⚠ BENCHMARK IMPACT: NONE. The frozen benchmark/reference/_fixed/literature_rows.csv carries
+    only FACTS and MAGICC-SLR rows — no BRICK 2.0 — and bench_ladrillo.py takes BRICK 2.0 from
+    `brick20_projection`, which is ALREADY this file. Scoring is untouched.
+    ⚠ The manifest records a sha256 for this script's OUTPUT under `literature`; that hash will
+    now differ. That is the manifest doing its job — making a changed input VISIBLE rather than
+    silently re-scoring — not a failure. Re-freeze when convenient."""
+    df = pd.read_csv(BRICK20_COMPONENTS_CSV)
     df["scenario"] = df.ssp.map({v: k for k, v in LABEL.items()})
-    df = df.dropna(subset=["scenario"]).rename(
-        columns={"gsic_med": "med", "gsic_lo": "p05", "gsic_hi": "p95"})
-    df["component"] = "glaciers"
-    return _rows(df, "BRICK 2.0", module="WR-GSIC")
+    df = df.dropna(subset=["scenario"])
+    return _rows(df, "BRICK 2.0", module="BRICK2.0")
 
 
 def load_magicc():

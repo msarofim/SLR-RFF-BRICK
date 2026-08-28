@@ -39,15 +39,26 @@ plainly because it is the main place the model imports outside information:
 | **Greenland** | `gis_amp`, sampled, with an `amp(GMST)` law | Zone-and-window keyed prior file; the law lets the ratio vary with warming rather than holding one number. |
 | **Antarctica** | `ais_gmst_amp` ~ N(0.95, 0.10) | **CMIP6** (Xie et al. 2022, Sci Rep 12:16548), a polar-cap temperature ratio. |
 
-> ⚠ **One correction to a natural way of describing this.** It is tempting to say "observed
-> ratios drive the historical period, CMIP6 ratios drive the projection." **That is not what the
-> model does, in either direction.** For **glaciers**, both the historical driver *and* the
-> forward amplification are **observation**-derived — CMIP6 is not used. For **Antarctica**, a
-> **single CMIP6-derived constant** covers the whole record — there is no separate historical
-> value, and a warming-dependent `amp(ΔT)` was tested and is **not** supported by the corrected
-> data (the state-dependence is unresolved, with opposite signs by scenario). The honest summary
-> is: *glaciers are anchored on observations; Antarctica is anchored on CMIP6; neither switches
-> source at the end of the observations.*
+> ⚠ **What extending the amplification factor forward does and does not assume.** For glaciers
+> and Antarctica the amplification factor is a **single constant**, not a time-varying quantity:
+> the glacier factors are a through-origin fit of regional on global temperature over
+> **1901–2024**, and Antarctica's is one CMIP6-derived number. Extending them forward assumes
+> **the historical regional-to-global ratio continues to hold**.
+>
+> And the uncertainty attached to that assumption is **narrower than it may appear**: the σ on
+> each glacier factor is the **disagreement between observational products about the historical
+> slope** (SLOWP: Berkeley Earth 1.82, HadCRUT5 2.48, GISTEMP 3.46), *not* a measure of how much
+> the ratio varied over history, and *not* an estimate of how much it might change in future.
+> **So nothing in the glacier or Antarctic priors covers the possibility that the amplification
+> itself shifts under strong warming** — sea-ice loss, circulation change, or a saturating
+> polar response would all violate it, and the band would not widen.
+>
+> Two things bound this. **Greenland is the exception**: it carries an `amp(GMST)` law, so its
+> ratio *does* vary with warming level, and its prior file holds "early"/"modern" window arms, so
+> the temporal-stability question has at least been posed there. **For Antarctica the constant is
+> evidence-based**: a warming-dependent law was tested against corrected CMIP6 data and is not
+> supported (unresolved on both scenarios, with opposite signs). **For glaciers there is no
+> equivalent test**, and that is a genuine gap rather than a settled choice.
 
 ### 1.1 Glaciers — from one saturating reservoir to three regional ones
 
@@ -184,13 +195,6 @@ the only three with a 2300 row. Full component tables in the same file.
 > elicitation** — the pure process workflow); `wf3f` = deconto21/**MICI** + FittedISMIP; `wf4` =
 > **bamber19 in both ice sheets = the structured-expert-judgement envelope**.
 
-> ✅ **BRICK 2.0 now carries proper 17–83% bands for every component — no re-run was needed.**
-> The earlier glacier-only, 5–95% column was an artefact of `ladrillo_model_comparison.py:62`
-> reading the superseded `ssps_gsic_2300.csv`. `project_ssps_components_oldbrick.jl` already
-> produces all six components to 2300 with p17/p83, for exactly this reason. **That comparison
-> script should be repointed** — flagged, not silently changed, because its output is hashed in
-> the benchmark manifest.
-
 ### Total GMSL — median [17–83%]
 
 | scenario | horizon | Ladrillo L14 | AR6 T9.9 | FACTS wf1f | FACTS wf2f | FACTS wf3f (MICI) | FACTS wf4 (SEJ) | MAGICC-SLR | BRICK 2.0 |
@@ -252,6 +256,7 @@ BRICK 2.0 glacier column, are in `outputs/doc_tables_L14.md`.
 | **C5** | Bands are **posterior-parameter spread on mean forcing**, so they are not comparable to MAGICC/FACTS widths and are **not** full predictive uncertainty. | By construction | Moderate; a presentation risk more than a model defect. |
 | **C6** | At a **1.09 amp centre** the ssp126 AIS band widens **6.5×** and is **not** bimodal tipping (<3% of draws tip at ssp126 in any arm) — mechanism unexplained. | OPEN | Low *for the shipped model*: at the adopted 0.95 centre the band is the narrow 6.91 cm. Flagged because it is unexplained, not because it is active. |
 | **C8** | **Scenario response is 1.8–2.4× steeper than AR6's** (Ladrillo ÷ AR6 median: 0.80/0.80/1.23 at 2100, 0.67/0.77/1.52 at 2150). Below the IPCC assessment at low forcing, above it at high forcing, growing with horizon. MAGICC agrees with Ladrillo at ssp126 and ssp585@2100, so Ladrillo is not alone — but the pattern is systematic and unexplained. | **OPEN** | **High** — it is the most visible difference from the assessed literature and any user will meet it first. |
+| **C9** | **Amplification factors are assumed stationary** for glaciers and Antarctica — a single historical (or CMIP6) regional-to-global ratio extended forward, whose σ is *dataset disagreement about the historical slope*, not a bound on future change. Greenland's `amp(GMST)` law is the exception; Antarctica's constant is evidence-based; **glaciers have no equivalent temporal-stability test.** | **OPEN** | Moderate — it does not bias the median in a known direction, but it means the projection bands are narrower than the underlying assumption warrants. |
 | **C7** | Thermal expansion was **not rebuilt** (hindcast ratio 0.988 vs BRICK 2.0) and glaciers are **level with BRICK 2.0 in 1950–1992** (1.011). | Known scope limit | Low–moderate. |
 
 ### 4.2 The comparison models — and what we can honestly say
