@@ -1,6 +1,19 @@
 """
 diag_fair_layers_vs_igcc_depth.py
 
+⚠⚠ THE TREND STATISTIC THIS SCRIPT ORIGINALLY COMPUTED IS WITHDRAWN (2026-08-29).
+It fitted an OLS trend to a cumulative share formed after rebasing both series to
+1971 -- a denominator that is ZERO at the base year by construction, so the early
+years of the window are a ratio of two near-zero numbers and their swing entered
+the fit as signal. It reported a 6.3 sigma sign disagreement between FaIR and
+IGCC. Rebasing the same IGCC data to 2005 instead flips the fitted trend from
+-1.81 to +9.41 %-points/decade, which is how it was caught. See
+outputs/quarantine/20260829_trend_of_rebased_share/README.md.
+
+The LEVEL comparison below was never in doubt and stands. For the trend question
+use python/diag_ohc_partition_robustness.py, whose baseline-free estimator finds
+FaIR and IGCC in AGREEMENT (1971-1992 0.728 vs 0.734; 2005-2024 0.709 vs 0.703).
+
 TASK 3 sub-test (2) of notes/handoff_2026-08-29_te_residual_and_the_ohc_depth_question.md:
 COMPARE FaIR's LAYER SPLIT TO AN OBSERVED DEPTH-RESOLVED OHC PRODUCT.
 
@@ -163,44 +176,18 @@ def main():
               f"{q.obs_above700_offull:9.3f} {q.fair_total_ZJ:8.0f} "
               f"{q.obs_0_2000_ZJ:7.0f}")
 
-    # ---- the SHAPE test: how fast does each share decline? ------------------
-    tw = r.loc[r.index >= TREND_Y0]
-
-    def slope_se(v):
-        """OLS slope in %-points per decade, with its standard error. A SIGN
-        DISAGREEMENT IS A CLAIM AND NEEDS THE BAR (curvature_needs_an_error_bar):
-        the observed share is a noisy ratio and 30-odd years is not many."""
-        x = tw.index.values.astype(float)
-        y = v.values.astype(float)
-        n = len(x)
-        b, a = np.polyfit(x, y, 1)
-        resid = y - (a + b * x)
-        s2 = float(resid @ resid) / (n - 2)
-        se = np.sqrt(s2 / float(((x - x.mean()) ** 2).sum()))
-        return b * 1000.0, se * 1000.0
-
-    bf, sf = slope_se(tw.fair_above700)
-    bo, so = slope_se(tw.obs_above700_of2000)
-    bofull, sofull = slope_se(tw.obs_above700_offull)
-    b5, _ = slope_se(tw.fair_above700_p5)
-    b95, _ = slope_se(tw.fair_above700_p95)
-    print(f"\n  DECLINE IN THE ABOVE-{SPLIT_DEPTH_M:.0f} m SHARE, {TREND_Y0}-{tw.index.max()}"
-          f" (OLS, %-points per decade, +/- 1 se):")
-    print(f"     FaIR  {bf:+6.2f} +/- {sf:.2f}   "
-          f"[f-sensitivity across p5-p95: {b5:+.2f} to {b95:+.2f}]")
-    print(f"     obs   {bo:+6.2f} +/- {so:.2f}   [0-2000 m band, the measured one]")
-    print(f"     obs   {bofull:+6.2f} +/- {sofull:.2f}   [vs full depth -- steeper only "
-          f"because the >2000 m column is a PRESCRIBED 1.15 ZJ/yr]")
-    zdiff = (bf - bo) / np.sqrt(sf ** 2 + so ** 2)
-    print(f"     difference {bf - bo:+.2f} +/- {np.sqrt(sf**2 + so**2):.2f}"
-          f"  ->  {abs(zdiff):.1f} sigma"
-          f"   [{'SIGN DISAGREEMENT SURVIVES ITS BAR' if abs(zdiff) > 2 and bf * bo < 0 else 'NOT RESOLVED AT 2 SIGMA' if abs(zdiff) <= 2 else 'DIFFERENT BUT SAME SIGN'}]")
-    print(f"     ⚠ the FaIR series is an ENSEMBLE MEAN, so its se is a fit residual,")
-    print(f"       NOT a sampling uncertainty on the model. The obs bar is the real one.")
-    print(f"\n  The LEVEL comparison inherits the structural caveat above; the DECLINE")
-    print(f"  RATE is the quantity a one-coefficient TE form has to get right, since")
-    print(f"  that form credits deep heat at an efficiency calibrated when heat was")
-    print(f"  shallower.")
+    # ---- the SHAPE test USED TO LIVE HERE and has been REMOVED ---------------
+    # It fitted a trend to the rebased cumulative share above. That estimator is
+    # invalid here (see the banner at the top of this file and the quarantine
+    # README): the share's denominator is zero at the base year, so the front of
+    # the window is a ratio of near-zero numbers. It is not patched in place,
+    # because a "fixed" version of a wrong estimator invites the old number to be
+    # quoted again. The trend question now belongs entirely to
+    # python/diag_ohc_partition_robustness.py, which is baseline-free.
+    print(f"\n  TREND: not computed here. The rebased-share trend this script used to")
+    print(f"  report is WITHDRAWN (quarantine/20260829_trend_of_rebased_share). Run")
+    print(f"  python/diag_ohc_partition_robustness.py -- on its baseline-free estimator")
+    print(f"  FaIR and IGCC AGREE, and neither change is resolved at 2 sigma.\n")
 
     r.to_csv(OUT_CSV)
     print(f"\n  wrote {OUT_CSV}\n")

@@ -3,6 +3,85 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## 2026-08-29 — ⚠ RETRACTED, SAME DAY: the "6.3σ FaIR-vs-obs vertical mismatch" was an ESTIMATOR ARTIFACT. FaIR and IGCC AGREE.
+
+**Withdraws the trend result in the TASK 3 entry below.** Its sub-tests (1) and (3) — the
+effective depths and the α ratio — are unaffected and stand. The *level* comparison in
+sub-test (2) also stands. What is withdrawn is the trend, and with it the claim that FaIR's
+vertical partition disagrees with observations.
+
+### What was claimed, and what was wrong with it
+
+Claimed: FaIR's above-700 m share trending **+1.07 ± 0.34** %-pts/decade against IGCC's
+**−1.75 ± 0.28** over 1993–2024, a **6.3σ sign disagreement** that no placement of FaIR's box
+boundaries could close.
+
+The estimator rebased both series to 1971, formed the share **each year**, and fitted an OLS
+trend to it. That denominator is **zero at the base year by construction**, so the front of the
+window is a ratio of two near-zero numbers and its swing enters the fit as signal. This is
+exactly the small-denominator trap the 2026-08-29 handoff lists as having bitten three separate
+analyses in two days — quoted in the same session that then walked into it.
+
+**The diagnostic that caught it:** rebasing the *same IGCC data* to 2005 instead flips the
+fitted trend from **−1.81 to +9.41** %-pts/decade. Same data, opposite sign, from the baseline
+choice alone.
+
+A second contributor, independent of the first: FaIR's partition history is **non-monotone** —
+window-integrated above-700 share 0.728 (1971–92), **0.799** (1993–2004), 0.709 (2005–24), the
+middle excursion consistent with post-Pinatubo surface heat re-entry. A straight line through
+the cumulative share over 1993–2024 is dominated by that middle sub-window and comes out
+positive while the long-run change is negative.
+
+### The replacement, and what it says
+
+`python/diag_ohc_partition_robustness.py`, **baseline-free**:
+
+    partition(window) = [Q₀₋₇₀₀(t1) − Q₀₋₇₀₀(t0)] / [Q₀₋₂₀₀₀(t1) − Q₀₋₂₀₀₀(t0)]
+
+the fraction of heat gained *across* a window that went above 700 m. Adding a constant to
+either series leaves it unchanged, so it is indifferent to which climatology a product
+references — which is what makes NCEI and IGCC comparable at all. Its se comes from the annual
+increments by the delta method, since the cumulative levels carry no independent information.
+
+| window | IGCC | NCEI | FaIR (f = 0.441) |
+|---|---|---|---|
+| 1971–1992 | 0.734 ± 0.125 | — | 0.728 ± 0.031 |
+| 1993–2004 | 0.705 ± 0.095 | — | 0.799 ± 0.020 |
+| 2005–2024 | 0.703 ± 0.037 | 0.648 ± 0.074 | 0.709 ± 0.004 |
+
+**Change 1971–92 → 2005–24: IGCC −0.031 ± 0.130, FaIR −0.020** (and −0.035 to 0.000 across the
+*entire* f envelope, so it is boundary-robust in the honest direction too). Same sign, same
+order of magnitude, **neither resolved at 2σ**. NCEI − IGCC over the Argo window is
+−0.055 ± 0.083, i.e. agreement — a weak check, since NCEI is one of IGCC's inputs, and
+disagreement would have been the informative outcome.
+
+**There is no established observational mismatch in FaIR's vertical heat partition.**
+
+### Consequences
+
+* **The empirical case for an "OHC aging module" replacing FaIR's box→depth mapping is gone.**
+  It rested entirely on the retracted mismatch. Do not build it on this evidence.
+* The physical case for the **two-coefficient depth split (option 1) is untouched** — it never
+  depended on a model–obs mismatch, only on deep heat expanding less (α ratio 1.70, confirmed
+  against EOS-80). But it also cannot be *supported* by the observed partition.
+* **Magnitude, for scale:** the whole two-coefficient effect is
+  (1 − α_deep/α_shallow) × the drift in the top share. Observed drifts of ~0.03 over 50 years
+  buy ~1.4% of TE — **sub-cm at 2300**. Option 1's −2.18 cm requires a drift to a top share of
+  ~0.58 sustained for 275 years, which lives entirely in the projection where no observation
+  reaches.
+
+### New observational data
+
+`data/observations/raw/ncei_ohc/` — NOAA/NCEI world-ocean OHC, `h22-w0-700m.dat` (1955–2025)
+and `h22-w0-2000m.dat` (**2005–2025**), with `PROVENANCE.md`. ⚠ The span difference is itself a
+result: NCEI publishes no annual 700–2000 m layer before Argo, while IGCC's reaches to 1971 as
+a reconstruction — so any partition trend fitted across 1993–2024 spans a change of observing
+system.
+
+Pre-fix output quarantined at `outputs/quarantine/20260829_trend_of_rebased_share/` with its
+own README; the trend block is **removed** from `diag_fair_layers_vs_igcc_depth.py` rather than
+patched, so a "fixed" version of a wrong estimator cannot re-supply the old number.
+
 ## 2026-08-29 — TASK 3 answered: the FaIR→BRICK depth mapping is defensible in GEOMETRY and THERMODYNAMICS, and fails on its TIME DERIVATIVE
 
 Three sub-tests from the handoff, all offline. **Two pass, one fails, and the one
