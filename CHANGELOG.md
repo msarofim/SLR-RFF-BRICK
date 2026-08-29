@@ -3,6 +3,60 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## 2026-08-29 — COULON (c) DELIVERED ON THE INTEGRAL: the bound is built, and the domain still binds
+
+Closes the item left open by the [DECIDED] ruling. The earlier pass priced the 2300 **endpoint**
+because that was all the domain-sensitivity table held; the arms were respecified on the
+**2015–2299 integral** (2026-08-28), so this is the quantity that actually matters.
+
+### The all-cells companion series, and why it was not one line
+
+`data/cmip6_coulon_allcells/` — same schema as `data/cmip6_coulon/`, which is **untouched**, since
+the ruling is to report both and not to replace one.
+
+⚠ **"A one-line constant change in the reducer" holds only for the post-2100 leg.**
+`reduce_cmip6_tas_coulon.py` takes its ≤2100 leg from `data/cmip6_pai/`, **already reduced under the
+land mask**, and only UKESM is rebuilt end to end. Flipping `SFTLF_MIN` there would splice an
+all-cells tail onto a **land-masked 1995–2014 baseline** for IPSL / CESM2-WACCM / MRI. So the ≤2100
+leg is re-reduced here from the Pangeo zarr under the all-cells mask; only >2100 comes from the
+local ESGF files. (The published endpoint table does **not** suffer that trap — verified separately,
+and reproduced exactly below.)
+
+### ⚠ ACCEPTANCE GATE: the rebuild reproduces the published table to ±0.00 K
+
+All four models, both domains — 19.47 / 17.12, 17.09 / 14.67, 12.78 / 12.47, 15.49 / 13.90. An
+**independent build path** landing on the same numbers, so the table the ruling rests on now has
+two-way confirmation. JOIN gates at the 2100/2101 source change: 0.009–0.156 K.
+
+### The bound, on the integral
+
+| model | land proxy | all cells | difference |
+|---|---|---|---|
+| CESM2-WACCM | 32.89 | 29.51 | −3.38 |
+| IPSL-CM6A-LR | 29.58 | 25.59 | −3.98 |
+| MRI-ESM2-0 | 23.59 | 23.10 | −0.49 |
+| UKESM1-0-LL | 28.33 | 25.91 | −2.42 |
+
+**Land proxy 23.59–32.89 | all cells 23.10–29.51 °C-century.** Our ensemble: 841 configs, integral
+max **27.25**, median 12.39; at the L21 median amp reachable only to **25.72**.
+
+**Reachable at the median amp: 1 of 4 under the land proxy, 2 of 4 under all cells** — the SAME
+split as the endpoint, so the domain-sensitivity conclusion is robust to which statistic is used.
+
+⚠ **But the identity of the reachable models CHANGES between the two statistics**, and the gist
+"1 vs 2 either way" deletes that. On the endpoint it is UKESM that flips; on the integral UKESM does
+NOT flip (needs amp 0.951, 47.4% of the posterior, but 0 configs at the median amp — it just misses)
+and **IPSL** flips instead (25.59, amp 0.939, 52.0%). MRI is reachable under both statistics and both
+domains; CESM2-WACCM under none.
+
+### Two portability traps fixed in the build, both of which crash rather than mislead
+
+A `"YYYY-12-31"` slice bound is an **invalid date on UKESM's 360-day calendar**; and Pangeo returns
+`numpy.datetime64` for MRI-ESM2-0 but cftime objects for the 360-day models, so years must come from
+xarray's `.dt.year` accessor, never a comprehension over `.values`. Also: UKESM holds a **local
+historical** NetCDF, which filtered to ">2100" is an EMPTY frame and reaches the plausibility check
+as a nan mean — reported as a "coordinate mismatch", which sends you hunting the wrong bug.
+
 ## 2026-08-29 — S(t) TEST: the D2-blindness hypothesis is **REFUTED**. The METRIC was doing the work.
 
 Runs the test registered by the L22 result the same day, and kills the hypothesis it was written to
