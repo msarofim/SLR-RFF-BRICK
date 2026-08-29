@@ -3,6 +3,79 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## 2026-08-29 — L22 RESULT: **the noise model was NOT the cause. Prediction (ii) holds, and prediction (iii) FAILED in an informative way.**
+
+Resolves the pre-registration entered before the run. **L21 remains champion; `champions.json`
+untouched — L22 is a diagnostic arm and was never a candidate.**
+
+### The arm did what it was built to do
+
+Verified on all four chains: cap line `CAPPED at 0.1036 cm`, **both** start-repair lines,
+`[MAP start] = -675.78` against L21's −650.59 (so the cap took — equal would have meant inert),
+four distinct over-dispersed starts at +185.2 to +190.5. Acceptance **0.236**, identical to L21's.
+Convergence equal to L21: @2100 R̂ 1.015, ESS 1271, sd(medians)/mean(sd_wc) **0.044** (L21 0.040,
+L14 0.051) — the verdict rests on a properly mixed chain, not on R̂ alone.
+
+The noise really was bound: `steric_marginal` **0.277 → 0.100**, a **64% cut**, with the posterior
+median sitting at **96.5% of the cap** and its max at the cap to 5 decimals. The likelihood wanted
+the noise it was denied.
+
+### The result: the residual did not move
+
+| year | ε | L21 bias | L21 σ | L22 bias | L22 σ |
+|---|---|---|---|---|---|
+| 1900 | 0.613 | −0.116 | −0.19 | −0.155 | −0.25 |
+| 2000 | 0.110 | +0.232 | +2.11 | +0.232 | +2.11 |
+| 2018 | 0.154 | +0.683 | +4.45 | +0.712 | +4.63 |
+| **2025** | **0.050** | **+0.847** | **+16.94** | **+0.889** | **+17.79** |
+
+**Prediction (i) is FALSIFIED and prediction (ii) HOLDS.** Removing 64% of the model's own noise
+moved the 2025 TE bias by **+0.043 cm — the wrong way**. The AR(1) term was not what let the modern
+misfit persist.
+
+### Where it went — prediction (iv), partly
+
+Shifts priced in units of L21's **own** posterior sd: `d2_steric_1` **+0.70 sd** (0.260 → 0.326),
+`d2_steric_2` −0.47, `thermal_alpha` **+0.20 sd only** (0.1715 → 0.1733). So D2 absorbed some but
+under one sd, and the physical parameter barely moved.
+
+### ⚠ Prediction (iii) FAILED, and that is the most informative part
+
+"Expect some other axis to look worse." **Nothing else moved.** Every AIS, GIS and glacier bias
+changed by <0.011 cm; the total moved by ≤0.05 cm. Capping the noise by 64% cost the fit essentially
+nothing anywhere else — which means **the noise term was not buying anything**. It was sitting at
+5.4× the observational σ without doing work the rest of the fit needed.
+
+Taken together: the misfit cannot be hidden by the noise, cannot be fixed by `thermal_alpha`, and is
+only partly reachable by D2. **It is structural in the JOINT fit** — while the handoff's offline WLS
+shows the one-coefficient form reaching 2.15σ over 1993–2025 *in isolation*. Something in the joint
+likelihood holds TE up that does not bind the isolated fit.
+
+### Leading hypothesis, NOT established — and the test that would settle it
+
+`D2_BASIS["steric"]` is constructed **orthogonal to the TE shape S(t)** (`calibrate_mcmc_ext.jl`,
+the `abs(rs)/… < 1e-8` assertion). A residual shaped **like S(t) itself is therefore invisible to
+D2 by construction** and can only be removed by `thermal_alpha` — which is pinned by the early
+record, where ε is 0.5 cm and the driver changed shape at the migration. That would explain all
+four observations at once: noise can't hide it, D2 can't reach it, `thermal_alpha` can't move, so
+it stays.
+
+**Test:** project the 1993–2025 TE residual onto S(t). If it is largely parallel to S(t), D2 is
+structurally blind to it and the orthogonality constraint — not the noise model and not the
+functional form — is what pins the modern misfit. Cheap; not yet run.
+
+⚠ **This does NOT reinstate the depth split as the answer.** The registered prediction says "the
+depth split is the live candidate", but the observational support for it was retracted earlier the
+same day (see the retraction entry): FaIR and IGCC **agree** on the vertical partition on a
+baseline-free estimator. "Something structural holds TE up" and "that something is the depth split"
+are different claims, and only the first is now supported.
+
+### Also fixed
+
+`posterior_predictive_ladrillo.jl` writes the `ais`/2025 row **twice, byte-identical**, in both
+arms — an upstream quirk, not an L22 artefact. `diag_l21_vs_l22_steric_cap.py` now drops it and
+**says so**, and warns if the duplicates ever stop being identical.
+
 ## [DECIDED] — 2026-08-29 — **COULON DOMAIN: REPORT BOTH MASKS AS A BOUND. Do not rebuild on all-cells.**
 
 **Decision by Marcus, 2026-08-29**, option (c) of the domain handoff from the `Ladrillo.8.26.26b`

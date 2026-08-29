@@ -69,6 +69,17 @@ def main():
           f"(marginal bounded at {CAP_CM:.4f} cm)\n{'='*78}\n")
 
     b = {t: pd.read_csv(bias_path(t)) for t in (CTRL, ARM)}
+    # ⚠ UPSTREAM QUIRK, NOT AN L22 ARTEFACT: posterior_predictive_ladrillo.jl writes the
+    # ais/2025 row TWICE, byte-identical, in BOTH arms. Dropped here rather than left to
+    # turn a .loc into a Series and crash the formatter -- but named, because a silent
+    # dedup would hide it if it ever stopped being an exact duplicate.
+    for t in (CTRL, ARM):
+        dup = b[t].duplicated(["component", "year"], keep=False)
+        if dup.any():
+            exact = b[t][dup].duplicated(keep=False).all()
+            print(f"   [note] {t}: {dup.sum()} duplicate (component,year) rows upstream, "
+                  f"{'byte-identical -> dropped' if exact else '⚠ NOT identical -> CHECK'}")
+            b[t] = b[t].drop_duplicates(["component", "year"])
 
     # ---- 1. the TE residual ------------------------------------------------
     print(f"1. THERMAL-EXPANSION RESIDUAL, in units of the steric target's own sigma\n")
