@@ -21,6 +21,15 @@
 #
 # ~400 MB, gitignored per the repo's large-external-data convention. The DERIVED
 # annual GSAT table (outputs/cmip6_ssp585ext_gsat.csv) is tracked.
+# ⚠ BROKEN NODE AS OF 2026-08-28: the ORNL and UCAR hosts below no longer serve
+# these paths. esgf-node.ornl.gov now returns a React SPA with HTTP 200 for any
+# /esg-search or /thredds request, so a status-code check reads as "up" and the
+# fetch silently writes HTML into a .nc file -- a check that cannot fail, the same
+# shape as a gate reading its own output. esgf-data.ucar.edu returns 404.
+# Working mirrors: esgf.ceda.ac.uk and esgf-data.dkrz.de. See
+# scripts/fetch_cmip6_coulon_ext.sh for the CEDA URL pattern. The checksum block
+# below WOULD catch the HTML, but only after a full download.
+
 set -euo pipefail
 cd "$(dirname "$0")/.."
 DEST=data/cmip6_gsat_ext

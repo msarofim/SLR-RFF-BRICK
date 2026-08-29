@@ -268,3 +268,7 @@ data/gis_post2100/**/*.pdf
 # The experiment->GCM mapping they document is transcribed into EXPS in
 # python/diag_gis_greve_year3000.py, which is where it needs to be readable.
 data/gis_post2100/greve_chambers_2022/run_specs_headers/
+
+# 1.8 GB of raw CMIP6 tas NetCDF for the Coulon ssp585 extension; the derived
+# annual tables in data/cmip6_coulon/ are what is tracked (fetch_cmip6_coulon_ext.sh).
+data/cmip6_coulon_ext/
