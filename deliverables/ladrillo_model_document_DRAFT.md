@@ -1,7 +1,11 @@
-# Ladrillo (L14) — model description, evaluation, and open concerns
+# Ladrillo (L21) — model description, evaluation, and open concerns
 ### DRAFT for Marcus. Technical content complete; argument and voice are yours.
 
-**Status.** Ladrillo posterior **L14** is the canonical arm (promoted 2026-08-20).
+**Status.** Ladrillo posterior **L21** is the canonical arm (promoted 2026-08-28). L21 is L14's
+*exact* configuration re-run on the **fair-calibrate 1.6.0 + CMIP7** drivers — no model or prior
+changed. It replaced L14 for **coherence, not fit**: L14 is calibrated against driver files that no
+longer exist in the tree, so re-running any L14 step now silently yields different numbers under
+the L14 name.
 Prior lineage: MimiBRICK v2.0.0 → Ladrillo. Basis for every projection number below:
 **cm, re-referenced to 1995–2014**. Commit `bfc65ae`. Frozen comparison inputs are
 hashed in `benchmark/reference/_fixed/manifest.json`.
@@ -204,33 +208,44 @@ hindcast RMSE ratios in §2 report as 0.003 (1920–1949) and 0.008 (1950–1992
 | **Dangendorf 2024** GMSL, with the total's σ inflated by Frederikse's own budget-closure spread | The closure error is measured, so it is used rather than assumed. |
 | **LWS extended with JPL GRACE/GRACE-FO mascons**; closure σ trend-extended | Both were held flat over 2019–2026; the extension replaces held-flat values with data. |
 | **Component-level fitting** with a mean-zero discrepancy basis on glaciers and steric, orthogonal to the signal | Prevents the total from double-counting its own components; the basis is orthogonal to S(t), not merely to a constant. |
-| **Mean FaIR 2.2.4 (calib 1.4.5) forcing** per SSP, FaIR-consistent conditional weighting | Fixes the climate driver so the posterior spread is parameter uncertainty — which is *why* the bands in §3 are not comparable to MAGICC's or FACTS'. |
+| **Mean FaIR 2.2.4 (calib 1.6.0, CMIP7 history to 2023) forcing** per SSP, FaIR-consistent conditional weighting | Fixes the climate driver so the posterior spread is parameter uncertainty — which is *why* the bands in §3 are not comparable to MAGICC's or FACTS'. |
 | **Over-dispersed chain starts** | Every earlier run started all four chains at the same point, which makes R̂ anti-conservative: between-chain variance cannot reflect posterior mass no chain ever reached. |
 
-## 2. Hindcast: Ladrillo L14 vs BRICK 2.0 vs observations
+## 2. Hindcast: Ladrillo L21 vs BRICK 2.0 vs observations
 
-![Hindcast](../figures/doc_hindcast_L14_vs_brick20.png)
+![Hindcast](../figures/doc_hindcast_L21_vs_brick20.png)
 
 **FIG 1.** Posterior median and 5–95% band, 1900–2026, against the calibration targets.
 *Glaciers are shown against the **delta-corrected** target — the series the model is actually
 scored on (`posterior_predictive_ladrillo.jl:206`); the raw `gsic` column is a different object
 and plotting it would show a ~1.8 cm bias at 1900 that does not exist.*
 
-**RMSE ratio, L14 ÷ BRICK 2.0 (< 1 = Ladrillo better):**
+**RMSE ratio, L21 ÷ BRICK 2.0 (< 1 = Ladrillo better):**
 
 | component | 1920–1949 | 1950–1992 | 1993–2026 | full |
 |---|---|---|---|---|
-| Antarctica | **0.003** | **0.008** | 0.548 | **0.026** |
-| Greenland | **0.102** | **0.054** | 0.272 | **0.082** |
-| Glaciers | 0.359 | 1.011 | 0.345 | 0.370 |
-| Thermal expansion | 0.944 | 0.974 | 1.090 | 0.988 |
-| **Total** | **0.384** | **0.353** | 0.965 | **0.380** |
+| Antarctica | **0.004** | **0.010** | 0.550 | **0.026** |
+| Greenland | **0.101** | **0.054** | 0.271 | **0.081** |
+| Glaciers | 0.366 | 1.030 | 0.354 | 0.376 |
+| Thermal expansion | 1.149 | 1.137 | 1.462 | **1.236** |
+| **Total** | **0.412** | **0.278** | 1.137 | **0.374** |
 
 Reading: the ice-sheet components are where the rebuild bought almost everything (Antarctica ~38×,
-Greenland ~12× on full-window RMSE). **Thermal expansion is unchanged (0.988)** — it was not
-rebuilt and does not pretend to be better. Glaciers gain ~2.7× overall but are **level with
-BRICK 2.0 in 1950–1992 (1.011)**. In the satellite era the total is 0.965, i.e. the two models
-agree where the data are strongest; the gain is in the pre-satellite record.
+Greenland ~12× on full-window RMSE), and both are essentially unchanged by the calib-1.6.0
+migration. Glaciers gain ~2.7× overall but are **level with BRICK 2.0 in 1950–1992 (1.030)**.
+
+> ⚠ **Thermal expansion is now WORSE than BRICK 2.0 (1.236), and this reversed at the migration.**
+> Under the previous calib-1.4.5 posterior TE was 0.988 — indistinguishable from BRICK 2.0. The
+> 1.6.0 drivers improved the OHC input sharply (RMSE vs Zanna/IGCC 6.80 → 3.83, a 44% gain) but
+> the gain is **early-record**, and TE is driven by OHC alone. So TE is now **better early and
+> worse modern**: bias at 1900 −0.468 → **−0.116 cm**, at 2025 +0.592 → **+0.847 cm**. Full-window
+> RMSE goes 0.320 → 0.401 cm — read the ratio against that small base, but do not present TE as
+> merely "not rebuilt" any more. It is the one component the migration made worse, and it is worse
+> than the model being replaced.
+
+In the satellite era the total is now **1.137** (was 0.965), i.e. slightly worse than BRICK 2.0
+where the data are strongest, while 1950–1992 improved to **0.278**. The full-window total is
+essentially unchanged at 0.374.
 
 > **[MARCUS — one paragraph on what the hindcast gain does and does not license.]**
 
@@ -238,14 +253,14 @@ agree where the data are strongest; the gain is in the pre-satellite record.
 
 ## 3. Projections, like-for-like
 
-![Projections](../figures/doc_projection_L14_vs_lit.png)
+![Projections](../figures/doc_projection_L21_vs_lit.png)
 
 **FIG 2.** Total GMSL, all sources on one basis. **Error bars are drawn for Ladrillo and
 BRICK 2.0 only.** Both run on mean forcing, so both widths are posterior-parameter spread and
 are comparable *to each other*; every other source's width is a different object (MAGICC and
 FACTS carry climate uncertainty as well, AR6's is an assessed *likely* range), so those are
 shown as **medians only** rather than inviting a comparison the caveat below forbids. Their
-intervals are in `outputs/doc_tables_L14.md`, where each column's bracket is labelled with
+intervals are in `outputs/doc_tables_L21.md`, where each column's bracket is labelled with
 what it actually is. Ladrillo, BRICK 2.0 and MAGICC-SLR are ordered first because they are
 the only three with a 2300 row. Full component tables in the same file.
 
@@ -268,7 +283,7 @@ the only three with a 2300 row. Full component tables in the same file.
 
 ### Total GMSL — median [17–83%]
 
-| scenario | horizon | Ladrillo L14 | AR6 T9.9 | FACTS wf1f | FACTS wf2f | FACTS wf3f (MICI) | FACTS wf4 (SEJ) | MAGICC-SLR | BRICK 2.0 |
+| scenario | horizon | Ladrillo L21 | AR6 T9.9 | FACTS wf1f | FACTS wf2f | FACTS wf3f (MICI) | FACTS wf4 (SEJ) | MAGICC-SLR | BRICK 2.0 |
 |---|---|---|---|---|---|---|---|---|---|
 | ssp126 | 2100 | 35.1 [33.7, 36.5] | 44.0 [32, 62] | 39.8 [31.1, 48.5] | 46.1 [37.0, 61.3] | 43.1 [37.0, 50.0] | 53.5 [35.5, 83.9] | 35.6 [27.4, 48.9] | 39.2 [35.7, 44.2] |
 | ssp126 | 2150 | 45.8 [44.0, 47.6] | 68.0 [46, 99] | 60.2 [43.5, 77.6] | 72.0 [55.1, 97.5] | 74.9 [60.4, 96.6] | 83.1 [52.5, 144.2] | 45.9 [34.0, 66.9] | 55.2 [50.3, 62.1] |
@@ -282,33 +297,35 @@ the only three with a 2300 row. Full component tables in the same file.
 
 ### The single clearest characterisation: Ladrillo's scenario response is steeper than AR6's
 
-**Ladrillo ÷ AR6 Table 9.9 median:**
+**Ladrillo ÷ AR6 Table 9.9 median** (L14 → L21, i.e. before → after the migration):
 
 | horizon | ssp126 | ssp245 | ssp585 | ssp585 ÷ ssp126 |
 |---|---|---|---|---|
-| 2100 | **0.80** | 0.80 | **1.23** | **1.54×** |
-| 2150 | **0.67** | 0.77 | **1.52** | **2.26×** |
+| 2100 | 0.80 → **0.87** | 0.80 → **0.85** | 1.23 → **1.14** | 1.54 → **1.31×** |
+| 2150 | 0.67 → **0.74** | 0.77 → **0.80** | 1.52 → **1.46** | 2.26 → **1.98×** |
 
-The same thing in absolute terms — the ssp585 − ssp126 median spread:
+The ssp585 − ssp126 median spread:
 
-| horizon | Ladrillo | AR6 | ratio |
+| horizon | AR6 | Ladrillo L14 | Ladrillo L21 |
 |---|---|---|---|
-| 2100 | 59.6 cm | 33.0 cm | **1.81×** |
-| 2150 | 155.3 cm | 64.0 cm | **2.43×** |
+| 2100 | 33.0 cm | 59.6 (1.81×) | **49.3 (1.49×)** |
+| 2150 | 64.0 cm | 155.3 (2.43×) | **142.6 (2.23×)** |
 
-**Ladrillo is systematically *below* the IPCC assessment at low forcing and *above* it at high
-forcing**, and the effect grows with horizon. It is not biased high or low; it is **more
-scenario-sensitive**. MAGICC agrees with Ladrillo at both ssp126 (35.6 vs 35.1 at 2100) and
-ssp585@2100 (97.8 vs 94.7), so this is not Ladrillo alone against the field — but at 2150
-MAGICC's ssp585 (262.9) exceeds even Ladrillo's.
+**Ladrillo is still below the IPCC assessment at low forcing and above it at high forcing, and the
+effect still grows with horizon — but the migration moderated it**, from 1.81× to 1.49× at 2100.
+That is the harmonization, not the calibration: anchoring SSP5-8.5 to observed 2023 emissions
+scaled its future by ×0.899 (it overshoots observed fossil CO2 by ~11%), while SSP1-2.6 undershoots
+and was scaled ×1.075. So the two ends moved toward each other.
 
-**At 2300, where AR6 and FACTS are both silent**, the only three sources are Ladrillo (513.7),
-**BRICK 2.0 (482.4 — within 6% of Ladrillo)**, and **MAGICC-SLR (1016.0 — 2.0× Ladrillo)**. The
-two BRICK-lineage models agree closely and MAGICC is the outlier; that agreement is *not*
-independent evidence, since they share the DAIS/Greenland/glacier structural lineage.
+**At 2300, where AR6 and FACTS are both silent**, the only three sources are Ladrillo (502.0),
+**BRICK 2.0 (482.4 — within 4%)** and **MAGICC-SLR (1016.0 — 2.0× Ladrillo)**. The two
+BRICK-lineage models agree closely and MAGICC is the outlier; that agreement is *not* independent
+evidence, since they share the DAIS/Greenland/glacier structural lineage.
 
-Per-component tables (Antarctica, Greenland, glaciers, thermal expansion), including the
-BRICK 2.0 glacier column, are in `outputs/doc_tables_L14.md`.
+A corroboration worth keeping: under the migrated drivers the 2010–2019 GMST bias against IGCC is
+**identical across all three SSPs at −0.026 K**, where the previous drivers gave three different
+values because each scenario carried its own RCMIP historical. One observed history, one historical
+fit.
 
 > **[MARCUS — interpretation of the ssp585@2300 factor-of-2 against MAGICC.]**
 
@@ -316,7 +333,7 @@ BRICK 2.0 glacier column, are in `outputs/doc_tables_L14.md`.
 
 ## 4. Largest remaining concerns
 
-### 4.1 Ladrillo / L14
+### 4.1 Ladrillo / L21
 
 | # | concern | status | severity |
 |---|---|---|---|
@@ -326,14 +343,15 @@ BRICK 2.0 glacier column, are in `outputs/doc_tables_L14.md`.
 | **C4** | **20 parameter marginals are not converged**, accepted under the documented `--accept-slr` deliverable gate. Projected SLR *is* converged across chains (R̂ < 1.05 at all horizons). | Disclosed gate | Moderate — must be stated in any write-up. |
 | **C5** | Bands are **posterior-parameter spread on mean forcing**, so they are not comparable to MAGICC/FACTS widths and are **not** full predictive uncertainty. | By construction | Moderate; a presentation risk more than a model defect. |
 | **C6** | At a **1.09 amp centre** the ssp126 AIS band widens **6.5×** and is **not** bimodal tipping (<3% of draws tip at ssp126 in any arm) — mechanism unexplained. | OPEN | Low *for the shipped model*: at the adopted 0.95 centre the band is the narrow 6.91 cm. Flagged because it is unexplained, not because it is active. |
-| **C8** | **Scenario response is 1.8–2.4× steeper than AR6's** (Ladrillo ÷ AR6 median: 0.80/0.80/1.23 at 2100, 0.67/0.77/1.52 at 2150). Below the IPCC assessment at low forcing, above it at high forcing, growing with horizon. MAGICC agrees with Ladrillo at ssp126 and ssp585@2100, so Ladrillo is not alone — but the pattern is systematic and unexplained. | **OPEN** | **High** — it is the most visible difference from the assessed literature and any user will meet it first. |
+| **C8** | **Scenario response is steeper than AR6's** — Ladrillo ÷ AR6 median 0.87/0.85/1.14 at 2100 and 0.74/0.80/1.46 at 2150, i.e. below the assessment at low forcing and above it at high, growing with horizon. The ssp585−ssp126 spread is **1.49× AR6's at 2100** and 2.23× at 2150. **The migration moderated this** (was 1.81× / 2.43×) via the CMIP7 harmonization, but did not remove it. | **OPEN, reduced** | High — the most visible difference from the assessed literature. |
+| **C11** | **The Coulon comparison arms were re-specified on the temperature INTEGRAL** (2026-08-28) after the endpoint was shown insufficient: AIS@2300 is linear in the integral at **18.8 / 18.1 cm per °C-century** on two vintages with disjoint config sets, and endpoint selection was silently admitting **~105 cm (tant12) / ~62 cm (tant14)** of AIS ambiguity. The `+17.0 °C` arm now has **zero** supporting configs and is omitted, not substituted. Width vs Coulon: tant12 0.71→**0.65×**, tant14 1.01→**0.96×**. ⚠ Those moves confound **two** changes (L14→L21 *and* the selector) and are not attributable without an integral-centred L14 run. ⚠ And this is integral-*centred on our own ensemble*, **not** matched to Coulon's own integral — that needs their four GCMs' post-2100 series, in progress. | **PARTIALLY RESOLVED** | Moderate. |
 | **C9** | **Amplification factors are assumed stationary** for glaciers and Antarctica. **Tested for glaciers (2026-08-27); the assumption holds** — on an early/modern split, window differences fall to ≤0.12 (<1 prior σ) once a free intercept is allowed, and the shipped 1901–2024 fit is within 0.23σ of a modern-only fit. Not covered: a *future* change in the ratio. | **TESTED — holds** | Low–moderate (downgraded). |
 | **C10** | **CMIP6 puts glacier amplification above the observations at every baseline frame** (obs ÷ CMIP6 = 0.71–0.99 across five frames, never reversing — so unlike Greenland's, it is not a frame artefact). Adopting it would raise R19 +0.15, SLOWP +0.36, and widen the priors 1.2–1.6×. Same fit-vs-provenance tension settled for the Antarctic amp; unsettled here. | **OPEN — a choice, not a defect** | Moderate. |
-| **C7** | Thermal expansion was **not rebuilt** (hindcast ratio 0.988 vs BRICK 2.0) and glaciers are **level with BRICK 2.0 in 1950–1992** (1.011). | Known scope limit | Low–moderate. |
+| **C7** | **Thermal expansion is now WORSE than BRICK 2.0** (1.236 vs 0.988 before the migration) — better early (1900 bias −0.468 → −0.116 cm), worse modern (2025 +0.592 → **+0.847 cm**). TE is driven by OHC alone and the 44% OHC input gain is early-record. Glaciers remain level with BRICK 2.0 in 1950–1992 (1.030). | **OPEN — reversed at the migration** | **Moderate–high**, upgraded from Low. It is the one component the migration made worse, and worse than the model being replaced. |
 
 ### 4.2 The comparison models — and what we can honestly say
 
-> ⚠ **Asymmetry of evidence, stated up front.** L14's concerns above are itemised because *we
+> ⚠ **Asymmetry of evidence, stated up front.** L21's concerns above are itemised because *we
 > built it and instrumented it*. FACTS and MAGICC have not been audited to remotely the same
 > depth here; what follows is what is visible **from their published structure and from their
 > outputs in this comparison**, and it should not be read as a like-for-like concern audit.
@@ -351,11 +369,15 @@ BRICK 2.0 glacier column, are in `outputs/doc_tables_L14.md`.
 
 ## 5. Provenance
 
-- Posterior: **L14**, 4 chains × 2M, over-dispersed starts, `--gis-ordered --gis-basins2`,
-  amp ~ N(0.95, 0.10). Champion since 2026-08-20; `benchmark/champions.json` unchanged through
-  the L15–L20 arc.
-- Arms tested and **not** promoted: L15 (amp re-centre), L16 (σ 0.180), L17 (mode-local proposal,
-  **rejected**), L18 (start-matched), L19 (`T_on`-dispersed, **diagnostic only**), L20 (σ 0.10,
-  **rejected**).
-- Figures/tables regenerated by `python/doc_l14_vs_brick20.py --tag=L14`.
+- Posterior: **L21**, 4 chains × 2M, over-dispersed starts, `--gis-ordered --gis-basins2`,
+  amp ~ N(0.95, 0.10), on **FaIR 2.2.4 (calib 1.6.0) + CMIP7 historical 1750–2023** spliced to
+  chrisroadmap SSP2-4.5 harmonized at 2023.5, CMIP7 volcanic + solar, prescribed CMIP7 land use.
+  Champion since 2026-08-28, all six modules. Convergence: R-hat 1.0063, ESS 1201,
+  sd(medians)/mean(within-chain sd) 0.040 — better than L14 on all three.
+- **L14** (calib 1.4.5) remains frozen at `benchmark/reference/L14/` and reproducible against its
+  own drivers; 12 pre-migration outputs are in
+  `outputs/quarantine/20260828_calib160_migration/L14_pre_migration/` with a README.
+- Arms tested and **not** promoted: L15–L20 (the amp-prior series; the amp question is **closed** —
+  keep N(0.95, 0.10), decided 2026-08-27 on fit, since the frame ambiguity 0.92–1.16 is 1.3× one
+  frame's between-model sd).
 - Comparison inputs frozen and hashed: `benchmark/reference/_fixed/manifest.json`.
