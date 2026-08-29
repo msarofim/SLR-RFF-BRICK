@@ -97,6 +97,16 @@ _argval(pfx) = (i = findfirst(a -> startswith(a, pfx), ARGS);
 const AMP_MU_OVR    = _argval("--amp-mu=")
 const AMP_SIGMA_OVR = _argval("--amp-sigma=")
 const TAG_OVR       = _argval("--tag=")
+# --steric-marg-cap=modern|<cm> (L22, 2026-08-29): a HARD BOUND on the steric AR(1)
+# MARGINAL sd, σ/sqrt(1-ρ²) -- NOT on σ. THE DISTINCTION IS THE WHOLE POINT. L21 fits
+# σ = 0.0716 with ρ = 0.9634, and σ alone *looks* comparable to the modern observational
+# ε ≈ 0.10 cm; the marginal it implies is 0.267 cm, because ρ inflates it by
+# 1/sqrt(1-ρ²) = 3.72x. So a cap written on σ would not bind at all, the modern residual
+# would stay absorbed, and the arm would report a null it never tested (no_power_null).
+# The bound is applied in logposterior and the START POINT IS REPAIRED to match -- every
+# row of overdispersed_starts.csv sits at marginal 0.187-0.234 and the default θ0 at
+# 1.155, so without the repair logposterior(θ0) = -Inf and the structural guard errors.
+const STERIC_CAP_ARG = _argval("--steric-marg-cap=")
 # --drop-total: SPEC D1 (Marcus 2026-08-14, spec_2026-08-14_next_calibration.md §2).
 # Removes the independent-total ("dang") likelihood term AND its sd_dang/rho_dang
 # noise pair, 55 -> 53 sampled parameters. OPT-IN, so the shipped L10
@@ -581,6 +591,34 @@ S = (ais    = make_series(:ais,:ais_lo,:ais_hi),
 lws_dang = Float64.(tg.lws[[rowof(y) for y in S.dang.years]])
 println("Extended fit windows: ais 1900-$(S.ais.years[end]), gis 1900-$(S.gis.years[end]), ",
         "gsic 1900-$(S.gsic.years[end]), steric 1900-$(S.steric.years[end]), total 1900-$(S.dang.years[end])")
+
+# ---- L22: the steric AR(1) marginal cap, DERIVED FROM THE TARGET'S OWN ε ------------
+# THE THRESHOLD COMES FROM AN OBSERVATION, not from the code's own agreement
+# (threshold_from_obs_or_law): =modern sets the bound to the MEAN per-year observational
+# σ over the altimetry-era window, i.e. the model's own free noise term may not exceed
+# the uncertainty of the data in the best-observed era. It uses S.steric.ϵ -- the ε the
+# LIKELIHOOD ACTUALLY SEES, with the 0.05 cm ϵband floor already applied -- so the bound
+# and the thing it is bounding are on identical footing (0.1036; the unfloored band mean
+# is 0.0998). A cap taken from the FULL record would be 0.310 and would not bind at all.
+const STERIC_CAP_Y0 = 1993         # start of the altimetry-era steric window
+const STERIC_START_FRAC = 0.5      # start strictly INTERIOR, not on the boundary
+const STERIC_MARG_CAP =
+    STERIC_CAP_ARG === nothing ? Inf :
+    STERIC_CAP_ARG == "modern" ?
+        mean(S.steric.ϵ[S.steric.years .>= STERIC_CAP_Y0]) :
+        parse(Float64, STERIC_CAP_ARG)
+isfinite(STERIC_MARG_CAP) && STERIC_MARG_CAP <= 0 &&
+    error("--steric-marg-cap= must be positive, got $STERIC_MARG_CAP")
+if isfinite(STERIC_MARG_CAP)
+    # NB @printf needs a LITERAL format string (Julia 1.12 rejects a concatenated one),
+    # so this is built with interpolation rather than a multi-line format.
+    println("steric AR(1) noise: MARGINAL σ/sqrt(1-ρ²) CAPPED at " *
+            "$(round(STERIC_MARG_CAP, digits=4)) cm " *
+            "($(STERIC_CAP_ARG == "modern" ? "" : "explicit, cf. ")" *
+            "$STERIC_CAP_Y0-$(S.steric.years[end]) mean ε) | L21 fits 0.2671 uncapped")
+else
+    println("steric AR(1) noise: UNCAPPED (L14/L21 behaviour; --steric-marg-cap= to bound it)")
+end
 let ri = [rowof(y) for y in S.dang.years], cs = closure_sigma(ri)
     base = sqrt.(S.dang.ϵ.^2 .- cs.^2)
     @printf("total-target σ: budget-closure inflation %s | 1900 %.3f→%.3f (%.2fx), 1950 %.3f→%.3f (%.2fx), 2000 %.3f→%.3f (%.2fx), %d %.3f→%.3f (%.2fx)\n",
@@ -1265,6 +1303,12 @@ const NP = length(FREE)
 const ALL_SERIES = [:ais,:gsic,:gis,:steric,:dang]
 const SERIES = DROP_TOTAL ? [:ais,:gsic,:gis,:steric] : ALL_SERIES
 const NN = 2*length(SERIES); const NK = NP + NN
+# position of the steric noise pair within θ: σ at NP+2i-1, ρ at NP+2i (matching the
+# σn = θ[NP+1:2:NK] / ρn = θ[NP+2:2:NK] strides). Derived from SERIES, never hardcoded:
+# --drop-total shortens SERIES and a literal index would then point at the wrong stream.
+const STERIC_NI = findfirst(==(:steric), SERIES)
+isnothing(STERIC_NI) && isfinite(STERIC_MARG_CAP) &&
+    error("--steric-marg-cap= given but :steric is not in SERIES")
 # parameter names in θ order (physical, then AR(1) noise). Defined here because
 # --overdisperse needs it before sampling; the post-run summary reuses it.
 const pn0 = vcat([k.name for k in FREE], vcat([["sd_$s","rho_$s"] for s in SERIES]...))
@@ -1337,6 +1381,10 @@ function logposterior(θ)
     @inbounds for k in 1:NP; (θ[k]<FREE[k].lo || θ[k]>FREE[k].hi) && return -Inf; end
     σn = θ[NP+1:2:NK]; ρn = θ[NP+2:2:NK]
     (any(σn .<= 0) || any(ρn .< 0) || any(ρn .>= 0.99)) && return -Inf
+    # L22: the MARGINAL, not σ. Evaluated here with the other hard rejections and BEFORE
+    # run(m), so a proposal outside the bound costs no model evaluation.
+    (isfinite(STERIC_MARG_CAP) &&
+     σn[STERIC_NI]/sqrt(1 - ρn[STERIC_NI]^2) > STERIC_MARG_CAP) && return -Inf
     # the channel-ordering wedge (see GIS_ORDERED above). Evaluated HERE, with
     # the other hard rejections and BEFORE run(m), so a rejected proposal costs
     # no model evaluation.
@@ -1613,6 +1661,31 @@ if GIS_ORDERED
     θ0[GIS_ALPHA_F_IDX] = max(θ0[GIS_ALPHA_F_IDX], 0.00415)
     θ0[GIS_BETA_F_IDX]  = max(θ0[GIS_BETA_F_IDX],  0.00754)
 end
+
+## L22: --steric-marg-cap REJECTS EVERY START POINT IN THE REPO, so it must repair them.
+## The default θ0 noise init is (σ=1.0, ρ=0.5) -> marginal 1.155 cm, and all four rows of
+## overdispersed_starts.csv sit at 0.187-0.234 -- every one above a modern-ε cap of 0.104.
+## Unrepaired, logposterior(θ0) = -Inf: the --overdisperse assertion or the structural
+## guard below would error out, which is the SAFE failure, but the arm would simply not
+## run. ρ is left alone and σ is scaled to put the marginal at STERIC_START_FRAC x the
+## cap -- strictly interior, for the same reason the GIS wedge start is (a start ON a
+## boundary rejects half its local proposals). Only the START moves; the bound is the
+## same prior TRUNCATED, not a different prior.
+function repair_steric_start!(θ)
+    isfinite(STERIC_MARG_CAP) || return nothing
+    si, ri = NP + 2*STERIC_NI - 1, NP + 2*STERIC_NI
+    m = θ[si] / sqrt(1 - θ[ri]^2)
+    m <= STERIC_MARG_CAP && return nothing
+    σnew = STERIC_START_FRAC * STERIC_MARG_CAP * sqrt(1 - θ[ri]^2)
+    println("steric start repaired for the marginal cap: σ " *
+            "$(round(θ[si], digits=5)) -> $(round(σnew, digits=5)) " *
+            "(ρ $(round(θ[ri], digits=4)) held); marginal " *
+            "$(round(m, digits=4)) -> $(round(σnew/sqrt(1 - θ[ri]^2), digits=4)) " *
+            "vs cap $(round(STERIC_MARG_CAP, digits=4))")
+    θ[si] = σnew
+    return nothing
+end
+repair_steric_start!(θ0)
 # extC: cap the proposal scale at (hi-lo)/4 — the flat-prior params (σ=10 / 1e3) would
 # otherwise get absurd initial proposal widths; RAM adapts from a sane start instead
 prop = vcat([0.1*Float64(min(k.σ, (k.hi - k.lo)/4)) for k in FREE],
@@ -2065,6 +2138,8 @@ if OVERDISPERSE
     # A6 sensitivity: the starts file holds phase-2 amp draws (~0.94); pin the start at the
     # equilibrium value so the chain begins on the pinned prior, not +100σ off it.
     AMP_EQ && (θ0[AMP_IDX] = AMP_MU)
+    # the starts file is a pre-cap posterior draw, so it needs the same repair θ0 got
+    repair_steric_start!(θ0)
     lp0 = logposterior(θ0)
     isfinite(lp0) || error("--overdisperse: start row $si for seed $SEED has non-finite logposterior")
     @printf("over-dispersed start (seed %d, row %d): logpost(θ0) = %.2f  [MAP start = %.2f]\n",

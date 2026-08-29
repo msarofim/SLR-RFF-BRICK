@@ -3,6 +3,86 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## 2026-08-29 — L22 PRE-REGISTRATION: cap the steric AR(1) noise and see where the 17σ TE residual goes
+
+**Written before the production run finishes.** L22 = L21's exact configuration with ONE
+change: a hard bound on the steric AR(1) **marginal** sd, σ/√(1−ρ²) ≤ **0.1036 cm**. Diagnostic
+arm; `champions.json` untouched, L21 remains champion.
+
+### What it is testing
+
+L21's thermal expansion is **+0.847 cm at 2025 = +16.94σ** against the steric target's own
+per-year σ, while sitting at **−0.19σ in 1900** — near-perfect where the data are weakest, 17σ
+off where they are strongest. Reproduced here from `outputs/postpred_L21_bias.csv` against the
+ε the likelihood actually uses (the `ϵband` **0.05 cm floor** applies at 2024–25, so the
+handoff's unfloored 0.049 → 17.29σ is 0.050 → 16.94σ here; and its 2018 entry used ε = 0.095
+where the file gives 0.1536, i.e. **+4.45σ, not +7.23σ**):
+
+| year | bias (cm) | ε (cm) | σ |
+|---|---|---|---|
+| 1900 | −0.116 | 0.613 | −0.19 |
+| 1950 | +0.113 | 0.457 | +0.25 |
+| 2000 | +0.232 | 0.110 | +2.11 |
+| 2018 | +0.683 | 0.154 | +4.45 |
+| **2025** | **+0.847** | **0.050** | **+16.94** |
+
+`hetero_logl_ar1` puts a **free** AR(1) process on top of the observational variance,
+Σ = σ²/(1−ρ²)·ρ^|i−j| + diag(ε²), with both σ and ρ free. L21 fits σ_steric = **0.0716**,
+ρ_steric = **0.9634** — verified independently from `chain_L21_seed2026`, post-burn 1M draws,
+against the handoff's 0.0718/0.9630 — for a **marginal sd of 0.267 cm** against a modern
+observational ε of ~0.10. A persistent modern offset therefore costs the likelihood almost
+nothing. And the offline WLS result says the one-coefficient TE **form** reaches 2.15σ over
+1993–2025, so the functional form was never the binding constraint.
+
+### ⚠ The cap is on the MARGINAL, and that is the whole point
+
+σ = 0.0716 *looks* comparable to ε ≈ 0.10, so a cap written on **σ** would not bind at all —
+ρ inflates it by 1/√(1−ρ²) = **3.72×**. A σ-cap arm would have come back looking like a null
+having tested nothing (`no_power_null`).
+
+### The threshold comes from an observation
+
+`--steric-marg-cap=modern` = the **mean per-year σ of the steric target over 1993–2025**, the
+altimetry era, computed in-script from `S.steric.ϵ` — the ε the likelihood itself sees, floor
+included, so bound and bounded are on identical footing. **0.10362 cm**, binding **2.6×**
+tighter than L21. Marcus's call 2026-08-29 over the two alternatives: the 0.050 cm
+single-tightest-year floor (5.3×, which forces the legitimately larger early-record
+discrepancy — ε is 0.51 cm over 1900–1950 — into the D2 basis and the physical parameters),
+and a full-record mean of 0.310 cm, **which does not bind at all** since L21 already sits below
+it.
+
+### Registered predictions
+
+1. If the modern TE residual **collapses toward ~2σ**, the 17σ was the **noise model**, not the
+   functional form, and the fix is a likelihood constraint — the depth split then becomes a
+   question about the **projection**, not the fit.
+2. If it **stays large**, something else holds TE up and the depth split is the live candidate.
+3. ⚠ Expect some other axis to look **worse**. That is the cap working, not a regression.
+4. ⚠ The residual may move into **`d2_steric`** rather than into `thermal_alpha`. The D2 basis
+   is 1/ε²-weighted — i.e. modern-era-weighted — with prior sd 0.5 cm, **five times the cap**.
+   If the misfit is bought off there instead, "the residual collapsed" is true and "the noise
+   model was the cause" is only half true. `d2_steric_1` already more than doubled at the
+   migration (0.1168 → 0.2549).
+
+### Implementation, and the trap it had to clear
+
+`--steric-marg-cap=` bounds the marginal in `logposterior`, with the other hard rejections and
+**before** `run(m)`, so an out-of-bounds proposal costs no model evaluation. **Every start point
+in the repo violates it**: the default θ0 noise init (σ=1.0, ρ=0.5) is at marginal 1.155 and all
+four rows of `overdispersed_starts.csv` at 0.187–0.234. Unrepaired, `logposterior(θ0) = −Inf`
+and the structural guard errors out — safe, but the arm would not run. `repair_steric_start!`
+scales σ (holding ρ) to half the cap, is called on both the default and the `--overdisperse`
+path, and **prints what it did**. The starts file itself is NOT touched — it is load-bearing for
+the L14/L18/L21 comparison.
+
+### Smoke (4000 iters, seed 2026) — the gate is live, not inert
+
+Header reports the cap at 0.1036; both start repairs fired; `logpost(θ0) = 190.54` (L21: 219.37,
+so the cap costs ~29 log-units at the start); **acceptance 0.243** (L21 production: 0.236).
+Mutation test on the smoke chain: **0 draws above the cap, and max/cap = 0.99998** — the
+posterior presses right up against the wall, with 82.5% of draws within 10% of it. The
+likelihood does want the noise it is being denied.
+
 ## [DECIDED] — 2026-08-28 — **MIGRATE TO fair-calibrate 1.6.0 + CMIP7 EMISSIONS, accepting a WORSE observational fit. L14 must be RECALIBRATED — the driver defines the objective.**
 
 **Decision by Marcus, 2026-08-28**, for a Ladrillo model-description paper targeted at **fall
