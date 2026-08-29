@@ -39,8 +39,9 @@
 ##   (iii) ⚠ EXPECT SOME OTHER AXIS TO LOOK WORSE. That is the cap working, not a regression.
 ##         Report what moved.
 ##   (iv)  ⚠ THE RESIDUAL MAY MOVE INTO d2_steric RATHER THAN INTO thermal_alpha. The D2
-##         discrepancy basis is weighted by 1/ε², i.e. it is a modern-era-weighted term with
-##         prior sd 0.5 cm — five times the cap. If the misfit is bought off there instead,
+##         discrepancy basis has prior sd 0.5 cm — five times the cap. ⚠ CORRECTED 2026-08-29:
+##         this said "weighted by 1/ε², i.e. modern-era-weighted". It is NOT — d2_basis ACCEPTS
+##         a weight vector and IGNORES it, orthogonalising in the PLAIN inner product. If the misfit is bought off there instead,
 ##         "the residual collapsed" is TRUE and "the noise model was the cause" is only HALF
 ##         true. Check d2_steric_1/_2 against L21 explicitly; d2_steric_1 already more than
 ##         doubled at the migration (0.1168 -> 0.2549).

@@ -3,6 +3,56 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## 2026-08-29 — S(t) TEST: the D2-blindness hypothesis is **REFUTED**. The METRIC was doing the work.
+
+Runs the test registered by the L22 result the same day, and kills the hypothesis it was written to
+check. `python/diag_te_residual_onto_shape.py`.
+
+### The hypothesis, and why it fails
+
+Proposed: `D2_BASIS["steric"]` is Gram-Schmidt'd against S(t), so a residual parallel to S(t) is
+invisible to D2 **by construction**, leaving only `thermal_alpha` — which is pinned by the early
+record. That would have explained every L22 observation at once.
+
+The orthogonality itself is real — measured **|cos(D2 col, S(t))| = 5e-17** over the fit window. But
+**global orthogonality is not sub-window orthogonality.** Restricted to 1993–2025, D2 can represent
+**95.2% (plain) / 98.2% (ε-weighted)** of the residual. **D2 is not blind to the modern misfit.**
+
+### What is actually going on: the metric decides, by a factor of five
+
+| metric | D2-removable share of the residual, L21 |
+|---|---|
+| ε-weighted diagonal, 1993–2025 | **98.2%** |
+| **AR(1) precision — what `hetero_logl_ar1` actually uses** | **19.4%** |
+
+A ρ of 0.968 makes a smooth persistent offset **cheap to carry**, so there is almost no gradient to
+remove it. The fit is *not* leaving free lunch on the table; the ε-weighted diagonal simply is not
+the geometry the likelihood scores in.
+
+And the arms behave exactly as the cap predicts: the AR(1)-metric removable share goes
+**19.4% (L21) → 48.2% (L22)**, which is why `d2_steric_1` moved +0.70 sd once the noise was bounded.
+The cap did what it was designed to do.
+
+⚠ **Never read this decomposition in the ε-weighted diagonal.** It says 98% where the real metric
+says 19% — a factor of five, and the difference between "the fit is ignoring an easy gain" and "there
+is no gain to take".
+
+### ⚠ CORRECTION carried into three files
+
+The L22 pre-registration described the D2 basis as **1/ε²-weighted, i.e. modern-era-weighted**. It is
+**not**. `d2_basis` ACCEPTS a weight vector and **IGNORES** it — deliberately, and its source says so:
+weighting was measured and made `corr(d2_gsic_1, gic_delta)` worse (0.161 → 0.787), so the basis is
+orthogonalised on physical grounds in the PLAIN inner product. Corrected in `run_mcmc_L22.sh`, this
+CHANGELOG's pre-registration entry, `diag_l21_vs_l22_steric_cap.py`, and the memory. The "prior sd
+0.5 cm, five times the cap" half of that note was correct and stands.
+
+### STILL OPEN
+
+Under L22 the AR(1)-metric removable share is 48.2% and the fit still declines it. That is the next
+question, and it is NOT answered here. Candidates not yet separated: the D2 prior (sd 0.5 cm, though
+`d2_steric_1` sits at 0.33 and is not obviously binding); coupling to the gsic stream, which shares
+the D2 machinery; or the remaining likelihood terms pulling against it.
+
 ## 2026-08-29 — L22 RESULT: **the noise model was NOT the cause. Prediction (ii) holds, and prediction (iii) FAILED in an informative way.**
 
 Resolves the pre-registration entered before the run. **L21 remains champion; `champions.json`
@@ -346,7 +396,9 @@ it.
 2. If it **stays large**, something else holds TE up and the depth split is the live candidate.
 3. ⚠ Expect some other axis to look **worse**. That is the cap working, not a regression.
 4. ⚠ The residual may move into **`d2_steric`** rather than into `thermal_alpha`. The D2 basis
-   is 1/ε²-weighted — i.e. modern-era-weighted — with prior sd 0.5 cm, **five times the cap**.
+   has prior sd 0.5 cm, **five times the cap**. ⚠ CORRECTED 2026-08-29: this said the basis is
+   1/ε²-weighted and therefore modern-era-weighted. It is NOT — `d2_basis` ACCEPTS a weight
+   vector and IGNORES it, orthogonalising in the PLAIN inner product, and says so in its source.
    If the misfit is bought off there instead, "the residual collapsed" is true and "the noise
    model was the cause" is only half true. `d2_steric_1` already more than doubled at the
    migration (0.1168 → 0.2549).

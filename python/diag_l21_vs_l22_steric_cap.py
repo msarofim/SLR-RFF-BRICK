@@ -17,7 +17,8 @@ WHAT THIS PRINTS, IN THE ORDER IT MATTERS:
      STAYS LARGE               => the depth split becomes the live candidate.
 
   2. WHERE THE RESIDUAL WENT (prediction iv). The D2 discrepancy basis is
-     1/eps^2-weighted -- i.e. modern-era-weighted -- with a prior sd of 0.5 cm,
+     PLAIN-orthogonalised (d2_basis ACCEPTS 1/eps^2 weights and IGNORES them;
+     corrected 2026-08-29) with a prior sd of 0.5 cm,
      FIVE TIMES the cap. If d2_steric absorbs what the AR(1) term no longer can,
      then "the residual collapsed" is true and "the noise model was the cause"
      is only half true. Reported in units of L21's OWN posterior sd, so a shift
