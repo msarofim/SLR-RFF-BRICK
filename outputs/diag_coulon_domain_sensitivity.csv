@@ -1,0 +1,11 @@
+model,mask,tant_2300_degC,note
+UKESM1-0-LL,sftlf>=50,15.49,land only; the cmip6_pai proxy
+IPSL-CM6A-LR,sftlf>=50,17.09,land only; the cmip6_pai proxy
+CESM2-WACCM,sftlf>=50,19.47,land only; the cmip6_pai proxy
+MRI-ESM2-0,sftlf>=50,12.78,land only; the cmip6_pai proxy
+UKESM1-0-LL,all_cells,13.90,all surface types south of 60S
+IPSL-CM6A-LR,all_cells,14.67,all surface types south of 60S
+CESM2-WACCM,all_cells,17.12,all surface types south of 60S
+MRI-ESM2-0,all_cells,12.47,all surface types south of 60S
+CESM2-WACCM,sftgif>=50,19.35,land ice; sftgif on Pangeo for 2 of 4 models only
+MRI-ESM2-0,sftgif>=50,12.78,land ice; sftgif on Pangeo for 2 of 4 models only
