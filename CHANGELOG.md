@@ -3,6 +3,65 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## [DECIDED] — 2026-08-29 — **COULON DOMAIN: REPORT BOTH MASKS AS A BOUND. Do not rebuild on all-cells.**
+
+**Decision by Marcus, 2026-08-29**, option (c) of the domain handoff from the `Ladrillo.8.26.26b`
+session. Carry both averaging domains explicitly as the honest span on Coulon's warming and state
+the reachability as domain-dependent. **`data/cmip6_coulon/*.csv` keep the land-mask `tas_ais`
+exactly as delivered; nothing is rebuilt.**
+
+### Why not (a')
+
+Coulon et al. (Nat. Commun. 16:10385) **never state their spatial averaging domain** — now
+**verified against the PMC full text** (PMC12680641) rather than a summarisation pass. The paper
+gives the anomaly construction ("monthly-mean air temperature … with respect to the 1995–2014 mean
+seasonal variations") and the reference period, and says nothing about grounded ice vs shelves vs a
+latitude band. So rebuilding on the mask that reproduces their published range would be **selecting
+the analysis to fit the answer**, and "every cell south of 60°S" contains a great deal of Southern
+Ocean, which is not what an ice-sheet paper means by "Antarctic-averaged" either.
+
+⚠ **The `ais_gmst_amp` frame precedent does not transfer.** There, frame ambiguity was a reason to
+prefer **fit** — but "fit" meant fit to *our own observational targets*. Here it would mean
+agreement with *the very number being compared against*: tuning to the comparator, not fitting to
+data.
+
+### The measurement that made the choice bind — option (c), run
+
+`python/diag_coulon_domain_reachability.py` inverts each reconstructed model through the arm
+selector (spliced ssp585 GMST at 2300 vs 1995–2014, 841 configs, **max 15.40 °C**) and prices it
+against the L21 `ais_gmst_amp` posterior (median 0.9441). The inversion is **posterior-free**; the
+posterior only says how far into its tail each target sits.
+
+| mask | MRI | UKESM | IPSL | CESM | reachable @ median amp |
+|---|---|---|---|---|---|
+| `sftlf>=50` | 12.78 (9 cfg) | 15.49 (0) | 17.09 (0) | 19.47 (0) | **1 of 4** |
+| all cells | 12.47 (12) | 13.90 (4) | 14.67 (0) | 17.12 (0) | **2 of 4** |
+
+Two models flip with the mask (UKESM outright; IPSL 4.7% → 46.7% of the amp posterior) and two do
+not (MRI reachable either way, CESM2-WACCM unreachable either way, 0.0% vs 4.4%). Per
+`coulon_arm_is_one_draw` the **n-configs** column is the one to read — the MAX is a single draw and
+moved 21.46 → 15.40 across the 1.4.5 → 1.6.0 migration while the selector was unchanged through p99.
+
+So the handoff's own branch resolves to the second: **the comparison is domain-sensitive, and that
+is itself the finding.** It cannot be reported as a single number.
+
+### Already ruled out upstream — do not re-derive
+
+`sftgif` is not the fix (over Antarctica it *is* `sftlf`; moves CESM 0.12 °C, MRI not at all, and
+Pangeo carries it for only 2 of 4). The latitude cutoff is not the cause (60/65/70/75°S all move
+warming **up** — inland amplification, the wrong direction). Post-processing is not the cause (a
+time-invariant climatology cancels exactly in a 2300-minus-1995–2014 difference). UKESM `r4i1p1f2`
+is **settled**.
+
+### ⚠ OPEN, and deferred deliberately
+
+What is priced above is the **2300 endpoint**. The arms are **integral-centred** (CHANGELOG
+2026-08-28), so bounding the *integral* under both domains needs an all-cells reduction that has
+never been built — `python/reduce_cmip6_tas_coulon.py`, Pangeo zarr plus 1.8 GB of local NetCDFs in
+`data/cmip6_coulon_ext/`. **Not run now:** the L22 chains are on the machine, and the repo's own
+rule is that heavy sweeps wait until the samplers are done rather than starving them
+(`eta_in_days_is_not_a_slow_run`). Queue it behind L22.
+
 ## 2026-08-29 — ⚠ RETRACTED, SAME DAY: the "6.3σ FaIR-vs-obs vertical mismatch" was an ESTIMATOR ARTIFACT. FaIR and IGCC AGREE.
 
 **Withdraws the trend result in the TASK 3 entry below.** Its sub-tests (1) and (3) — the
