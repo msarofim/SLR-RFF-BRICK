@@ -32,6 +32,10 @@ set -uo pipefail
 cd "$(dirname "$0")"
 export OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
 T=L22
+CTRL=L21                       # the control arm: L22 changes ONE thing about it
+MAP_EXPECT=-675.78              # [MAP start] under the cap (smoke, seed 2026)
+MAP_CTRL=-650.59                # the control's, which it must NOT equal
+CAP_EXPECT="0.1036"             # the marginal bound, cm
 LOG=outputs/log_l22_postprocess_driver.txt
 J="julia --project=julia_v2"
 say(){ echo "[$(date '+%H:%M:%S')] $*" | tee -a "$LOG"; }
@@ -42,7 +46,7 @@ step(){ # step <name> <cmd...>
 }
 
 : > "$LOG"
-say "waiting for the L21 chains to finish..."
+say "waiting for the $T chains to finish..."
 while pgrep -f "tag=$T" > /dev/null; do sleep 60; done
 say "chains done."
 
@@ -50,11 +54,13 @@ say "chains done."
 # ---- these two lines are readable now and were NOT while the chains ran.
 say "=== ARM VERIFICATION ==="
 for s in 2026 2027 2028 2029; do
-  say "  seed$s: $(tr '\r' '\n' < outputs/mcmc/log_${T}_seed${s}.txt | grep -E 'A6 prior|logpost' | tr '\n' ' ')"
+  say "  seed$s: $(tr '\r' '\n' < outputs/mcmc/log_${T}_seed${s}.txt | grep -E 'A6 prior|logpost|CAPPED|start repaired' | tr '\n' ' ')"
 done
-say "  EXPECT amp ~ N(0.950, 0.100) on [0.650, 1.390-ish]; four DISTINCT starts ~ +217..+224;"
-say "  EXPECT [MAP start = -650.59] — DIFFERENT from L14's -642.84, which is how we know the"
-say "  calib-1.6.0 driver actually took. If it equals -642.84 the migration is a NO-OP: STOP."
+say "  EXPECT amp ~ N(0.950, 0.100); four DISTINCT over-dispersed starts ~ +190"
+say "  EXPECT the cap line: MARGINAL ... CAPPED at $CAP_EXPECT cm, and TWO 'start repaired'"
+say "         lines per chain (the default theta0 and the --overdisperse row)."
+say "  EXPECT [MAP start = $MAP_EXPECT] — DIFFERENT from $CTRL's $MAP_CTRL, which is how we"
+say "         know the cap took. If it EQUALS $MAP_CTRL the flag was inert: STOP."
 ls -la outputs/mcmc/chain_${T}_seed*.csv >> "$LOG" 2>&1
 
 step "slr convergence diag (REQUIRED before postprocess)" \
@@ -65,8 +71,8 @@ step "T_on band occupancy per chain" \
      bash scripts/ton_band_by_chain.sh $T
 step "T_on excursion structure" \
      bash scripts/ton_transition_rates.sh $T
-step "T_on band hindcast vs L14" \
-     $J julia/scope_ais_ton_band_hindcast.jl 2000 --tags=L21,$T
+step "T_on band hindcast vs $CTRL" \
+     $J julia/scope_ais_ton_band_hindcast.jl 2000 --tags=$CTRL,$T
 step "posterior predictive" \
      $J julia/posterior_predictive_ladrillo.jl --tag=$T
 step "ssp components (tap)" \
@@ -85,14 +91,14 @@ step "benchmark"        python python/bench_ladrillo.py --tag=$T
 
 # ---- the sweep still OWED from -26c §3, now safe to run: no sampler to starve.
 step "escape scale vs the control arm" \
-     bash scripts/ton_escape_scale.sh L21 $T
+     bash scripts/ton_escape_scale.sh $CTRL $T
 
-step "L21-vs-L22: where did the TE residual go" \
+step "$CTRL-vs-$T: where did the TE residual go" \
      python python/diag_l21_vs_l22_steric_cap.py
 
 say "=== DONE. READ IN THIS ORDER ==="
 say "  1. the ARM VERIFICATION block above — the cap line and BOTH start-repair lines must be"
-say "     present and [MAP start] must be -675.78, not L21's -650.59. If not, the arm is inert."
+say "     present and [MAP start] must be $MAP_EXPECT, not $CTRL's $MAP_CTRL. If not, inert."
 say "  2. python/diag_l21_vs_l22_steric_cap.py output — it resolves the four predictions"
 say "     registered in run_mcmc_L22.sh. The one that decides the next step:"
 say "       COLLAPSE toward ~2 sigma => the 17 sigma was the NOISE MODEL, and the depth split"
