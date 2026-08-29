@@ -3,6 +3,82 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## 2026-08-29 — TASK 3 answered: the FaIR→BRICK depth mapping is defensible in GEOMETRY and THERMODYNAMICS, and fails on its TIME DERIVATIVE
+
+Three sub-tests from the handoff, all offline. **Two pass, one fails, and the one
+that fails is the one the option-1 argument actually rests on.**
+
+### (3) Effective depths — PASSES
+
+`C = ρ·c_p·h` on all 841 calib 1.6.0 configs, C taken per unit **Earth** area and divided by
+the ocean fraction: box 0 = **45 m** [25, 62], box 1 spans 45–250 m, box 2 spans 250–1217 m;
+total column 1217 m [638, 2296]. Box 0 is plausibly a mixed layer, not "really a few hundred
+m", so calling it *mixed* is well posed. The column is an **effective heat-uptake** depth, not
+the 3688 m ocean.
+
+### (1) Does the implied α ratio match seawater physics? — PASSES
+
+`te_sea_level += ΔQ·te_α/(te_A·te_C·te_ρ²)`: the geometry constants are shared between the two
+coefficients, so **the WLS fit's 1.70× IS a ratio of seawater −∂ρ/∂T** and is directly
+checkable. EOS-80, gated against the five UNESCO (1983) published check values first (worst
+|diff| 4.7e-06 kg m⁻³). Anchoring the mixed layer at the global mean SST, **1.70× requires
+interior water at 6.8 °C** at in-situ pressure; the forward table spans **1.3–2.9×** across
+plausible water-mass pairs, so the fit sits inside the envelope rather than at an edge — the
+handoff's own criterion ("~2–3× → roughly right; 1.0× or 6× → not") is met.
+
+Bonus: L21's single fitted `thermal_alpha` = 0.1708 corresponds to seawater at **9.95 °C**
+(L14's 0.1595 → 8.86 °C), a sensible depth-average for a 1217 m column. The one-coefficient
+value is not a fudge factor.
+
+### (2) Against an observed depth-resolved product — LEVELS PASS, TRENDS FAIL AT 6.3σ
+
+The handoff's phrasing ("does FaIR's layer-0 share track the observed 0–700 m share") **cannot
+be taken literally** — box 0 is 45 m, so that would compare two different reservoirs and
+guarantee disagreement. Re-posed as: *what fraction of the uptake sits above 700 m, in each,
+over the same years, on the same baseline?* FaIR's box 2 is split at 700 m by depth fraction
+(the EBM's boxes are well-mixed, so heat density is uniform within one), carried at p5/p50/p95
+of the implied depths. FaIR is **rebased to 1971** to match IGCC's reference before any share
+is formed.
+
+**⚠ IGCC's `ocean_2000-6000m` rises by EXACTLY 1.15 ZJ/yr — 32 increments, sd 0.000000, one
+unique value.** That column is a prescribed constant rate, not a measurement, and reading it as
+data lets an assumption drive the answer. The 0–700 and 700–2000 columns are genuine (31 and 32
+distinct increments). So the **primary comparison uses the 0–2000 m band only** — also the more
+like-for-like one, since FaIR's whole column ends inside it.
+
+| | 1995 | 2000 | 2010 | 2020 | 2023 |
+|---|---|---|---|---|---|
+| FaIR above 700 m | 0.675 | 0.732 | 0.733 | 0.728 | 0.725 |
+| obs, 0–2000 m band | 0.726 | 0.716 | 0.696 | 0.673 | 0.692 |
+
+**Levels agree to ~3 points.** The trends do not, 1993–2024, %-points per decade:
+
+| | slope |
+|---|---|
+| FaIR | **+1.07 ± 0.34** (f-sensitivity across p5–p95: +1.58 to −0.00) |
+| obs, 0–2000 m | **−1.75 ± 0.28** |
+| obs, vs full depth | −2.62 ± 0.28 — steeper *only* because of the prescribed deep column |
+
+Difference **+2.82 ± 0.45 = 6.3σ, opposite signs**, and no value of f in p5–p95 turns FaIR's
+slope negative.
+
+### What that means for option 1
+
+FaIR **does** redistribute heat downward — its 0–250 m share falls from 0.612 (2000) to 0.523
+(2025) to 0.381 (2100). But that redistribution happens **at FaIR's own 250 m box boundary**,
+and once the boxes are re-partitioned at 700 m — the depth the observations actually resolve —
+the modelled deepening disappears while the observed one is real. So option 1's projected
+−2.18 cm at 2300 rests on FaIR's box-boundary redistribution, **not** on a deepening that the
+observations corroborate. The mapping is defensible as geometry and as thermodynamics; its
+*time derivative* is not empirically supported at the one depth we can check.
+
+⚠ Both this and sub-test (1) lean on the implied-depth reading of `ocean_heat_capacity` and on
+uniform heat density within a box. Those are assumptions about an abstraction — which is
+precisely what TASK 3 set out to test, so they are the object of the test, not a hidden step.
+
+New: `python/diag_fair_layers_vs_igcc_depth.py`, `outputs/diag_fair_layers_vs_igcc_depth.csv`,
+and (FaIRtoFrEDI) `diag_seawater_alpha_layer_mapping.py`.
+
 ## 2026-08-29 — L22 PRE-REGISTRATION: cap the steric AR(1) noise and see where the 17σ TE residual goes
 
 **Written before the production run finishes.** L22 = L21's exact configuration with ONE
