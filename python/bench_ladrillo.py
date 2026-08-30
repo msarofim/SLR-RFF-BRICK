@@ -159,9 +159,13 @@ IMBIE_SNR = (0.95, 1.44)
 CAVEATS = [
     "HINDCAST RANKS IN ONE DIRECTION ONLY -- in-sample for every Ladrillo arm, "
     "out-of-sample for BRICK 2.0. It can REJECT an arm; a small fitted bias is not skill.",
-    "BANDS ARE NOT ONE OBJECT -- Ladrillo-fixed and BRICK 2.0 are posterior-parameter "
-    "spread; Ladrillo-JOINT, FACTS and MAGICC carry climate uncertainty. Only the JOINT "
-    "band is scored against the literature.",
+    "BANDS ARE NOT ONE OBJECT -- Ladrillo-fixed is posterior-parameter spread; "
+    "Ladrillo-JOINT, FACTS and MAGICC carry climate uncertainty. Only the JOINT band is "
+    "scored against the literature. NOTE 2026-08-30: BRICK 2.0 NOW HAS A JOINT ARM TOO "
+    "(scope_slr_fairunc_oldbrick.jl), but THIS BENCHMARK still takes BRICK 2.0 from the "
+    "shipped FIXED panel (brick20_projection), so BRICK widths here remain fixed-driver. "
+    "ladrillo_model_comparison.py DOES use the joint arm. Do not read a width comparison "
+    "against BRICK 2.0 out of this table -- read it out of the comparison.",
     f"SOME WIDTH IS A PRIOR, NOT AN INFERENCE -- {LAMBDA_SHARE_2300:.0%} of the ssp585 2300 "
     "AIS band is antarctic_lambda's paleo prior, so narrowness is never scored as a win "
     "at " + ", ".join(f"{c}/{s}" for c, s in sorted(PRIOR_WIDTH_CELLS)) + ".",
