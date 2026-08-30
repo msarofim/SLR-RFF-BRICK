@@ -3,6 +3,37 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## 2026-08-30 — C5 CLOSED: the joint band re-run on the TAPPED arm, 54 of 54 cells
+
+The 6 cells held on the fixed band are closed. `scope_slr_fair_uncertainty.jl` had **no
+Greenland-tap support**, so its joint draws were the *untapped* arm while the comparison reports
+the tapped deliverable — the cells existed, they were the wrong arm, and substituting them would
+have silently dropped **41.3 cm of GIS at ssp585/2300**.
+
+**`--tap` added.** Opt-in, so every `scope_slr_fairunc_*` file already on disk keeps meaning what it
+said, and **the output tag carries the arm** (`_tap4p69K_V5p64m_tau800`) so a tapped run cannot
+overwrite an untapped one — the rule `scope_ais_ton_band_hindcast.jl` violated the day before.
+`[CONTROL]` follows the arm too, or it would charge the tap as a control failure.
+
+**The coupling is the substance, not plumbing.** `ladrillo_set_tap!` passes `bf.gmst`, which in this
+driver is *the config's own spliced path* — so each config fires its own tap at its own date and a
+config that never reaches the 4.69 K onset never fires it. That threshold crossing is real physics
+the mean driver could not carry, and it shows: **`gis` at ssp585/2300 widens 15.1 → 64.1 cm**.
+
+**Validation.** The fixed arm reproduces the tapped shipped panel at **+0.0000 cm on all 54 control
+cells** (`gis` ssp585/2300: 88.722 vs 88.722). ⚠ That gate compares each arm against its *own*
+panel, so passing at zero is expected and is not by itself proof the tap fired — what proves it is
+**which** panel was matched. An unfired tap would have given ~47.4 cm and a −41 cm CHECK.
+
+**Headline movements** (joint vs the previously-held fixed): ssp585/2300 total **502.0 [439.0,
+575.1] → 495.3 [389.0, 613.5]**, width 136 → 225 cm. MAGICC's ssp585/2300 disagreement is now
+like-for-like for the first time: 1016 [691, 1585] against 495 [389, 614].
+
+**C5 CLOSED.** One structural residue, not a defect: **BRICK 2.0 can never be made joint** — it has
+no per-config forcing arm — so its widths stay incomparable and only its medians are usable.
+
+Runtime ~3.5 min/SSP, ~11 min total, BLAS pinned. New: `run_fairunc_tap_L21.sh`.
+
 ## 2026-08-29 (evening) — C1 dissolved, the band choice priced, and the L14→L21 sweep
 
 Seven items from Marcus. All closed.

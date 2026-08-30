@@ -106,6 +106,11 @@ BASIS_TAPPED = "FIXED (tapped arm; no joint band exists)"
 BASIS_FIXED  = "fixed (posterior params, mean forcing)"
 BASIS_CLIM   = "climate + parameter"
 JOINT_GLOB   = "outputs/scope_slr_fairunc_draws_{ssp}_spliced_{tag}.csv"
+## The TAPPED joint arm, produced by scope_slr_fair_uncertainty.jl --tap (added
+## 2026-08-30). When present it is PREFERRED, because it is the same Greenland arm this
+## comparison reports -- and then the tap gate has nothing left to hold.
+JOINT_TAP_GLOB = ("outputs/scope_slr_fairunc_draws_{ssp}_spliced_{tag}"
+                  "_tap4p69K_V5p64m_tau800.csv")
 
 
 def _rows(df, source, module_col=None, module=None, basis=""):
@@ -134,12 +139,22 @@ def _tap_effect():
 
 
 def _joint_bands():
-    """Per-cell joint-arm quantiles from the paired (posterior x FaIR config) draws."""
-    out = {}
+    """Per-cell joint-arm quantiles from the paired (posterior x FaIR config) draws.
+
+    Returns (bands, tapped) where `tapped` is True only if EVERY scenario supplied a
+    tapped file. A partial set would mix arms across scenarios, which is worse than
+    using none of it, so it is treated as untapped."""
+    out, tap_seen, n_ssp = {}, 0, 0
     for ssp in SCENARIOS:
-        f = os.path.join(REPO, JOINT_GLOB.format(ssp=ssp, tag=LADRILLO_TAG))
-        if not os.path.exists(f):
+        ft = os.path.join(REPO, JOINT_TAP_GLOB.format(ssp=ssp, tag=LADRILLO_TAG))
+        fu = os.path.join(REPO, JOINT_GLOB.format(ssp=ssp, tag=LADRILLO_TAG))
+        if os.path.exists(ft):
+            f, tap_seen = ft, tap_seen + 1
+        elif os.path.exists(fu):
+            f = fu
+        else:
             continue
+        n_ssp += 1
         d = pd.read_csv(f)
         d = d[d.arm == "joint"]
         for (comp, hz), g in d.groupby(["component", "horizon"]):
@@ -147,7 +162,11 @@ def _joint_bands():
             q = np.percentile(v, [5, 17, 50, 83, 95])
             out[(ssp, comp, int(hz))] = dict(p05=q[0], p17=q[1], med=q[2],
                                              p83=q[3], p95=q[4], n=len(v))
-    return out
+    tapped = (tap_seen == len(SCENARIOS))
+    if 0 < tap_seen < len(SCENARIOS):
+        print(f"[BAND] ⚠ tapped joint files found for only {tap_seen}/{len(SCENARIOS)} "
+              f"scenarios -- treating the whole set as UNTAPPED rather than mixing arms.")
+    return out, tapped
 
 
 def load_ladrillo():
@@ -156,7 +175,10 @@ def load_ladrillo():
     df = pd.read_csv(LADRILLO_CSV)
     df["scenario"] = df.ssp.map({v: k for k, v in LABEL.items()})
     df = _rows(df, "Ladrillo", module=LADRILLO_TAG, basis=BASIS_TAPPED)
-    tap, jb = _tap_effect(), _joint_bands()
+    tap, (jb, jb_tapped) = _tap_effect(), _joint_bands()
+    if jb_tapped:
+        # the joint arm IS the tapped arm now, so the tap can no longer disqualify a cell
+        tap = {k: 0.0 for k in tap}
     n_j = n_t = n_missing = 0
     for i, r in df.iterrows():
         key = (r.scenario, r.component, int(r.year))
@@ -174,6 +196,7 @@ def load_ladrillo():
                   and k[1] in COMPONENTS and k[2] in HORIZONS)
     rep = df[df.scenario.isin(SCENARIOS) & df.component.isin(COMPONENTS)
              & df.year.isin(HORIZONS)]
+    print(f"[BAND] joint arm is {'TAPPED (matches this comparison)' if jb_tapped else 'UNTAPPED'}")
     print(f"[BAND] Ladrillo REPORTED cells: {(rep.band_basis == BASIS_JOINT).sum()} on the "
           f"JOINT arm, {(rep.band_basis != BASIS_JOINT).sum()} held on FIXED, of {len(rep)}. "
           f"(Non-horizon years are never reported and are left on FIXED.)")
