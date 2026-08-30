@@ -3,6 +3,52 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## 2026-08-29 (evening) — C1 dissolved, the band choice priced, and the L14→L21 sweep
+
+Seven items from Marcus. All closed.
+
+### C1 — the highest-severity concern, largely dissolved
+The "3.6× runoff-onset discrepancy" is a **ratio of two GMST anomalies**. The sampler works in
+`T_on = −h0/c`, and the paleo prior is rebuilt in those coordinates (−15.636 ± 5.539); L21 sits
+**0.402 prior sd** from the paleo mean — consistent. ⚠ **amp cancels** in the ratio; the **origin**
+is the lever: a sub-degree shift in the GMST zero runs it **2.41× → 31.5×** while the z-score and
+the difference stay fixed. (My first version of this diagnostic claimed amp was the lever; its own
+printed table refuted that.) What survives: onset is **+2.36 °C earlier** than the paleo central,
+and — the real problem — the posterior sd is **0.0156** of the prior's, a width that is
+**within-mode** because the chains never cross `T_on` modes. **Highest → Low–moderate.**
+
+### Band provenance — measured, not asserted
+The comparison builds Ladrillo *and* BRICK 2.0 on FaIR-**mean** forcing. Ladrillo's JOINT band is
+**1.2–5.3× wider at p17–p83** (up to 15.9× at p05–p95), and scenario-dependent: **4.0–5.3× at
+ssp126** vs 1.5–1.8× at ssp585 — it understates Ladrillo most where Ladrillo gets called narrow.
+Medians survive except **ssp245@2300** (221 → 159 cm, a threshold artefact). New §4.3 states, per
+source, what each band contains and whether we can produce it. **BRICK 2.0 can never enter a width
+comparison**; FACTS has no 2300. **C5 upgraded to High** — a live defect, not "by construction".
+
+### C8 accepted, C11's confound closed
+C8: on total median ssp585−ssp126 Ladrillo is **mid-pack** — 2100: FACTS 29.8 < Ladrillo 49.3 <
+MAGICC 62.3 < BRICK 2.0 65.4 cm; 2150: FACTS 56.9 < Ladrillo 142.6 < BRICK 2.0 147.7 < MAGICC 217.0.
+Below MAGICC at both horizons. **High → Low–moderate.** C11's L14→L21-vs-selector confound will not
+be chased — only L21-vs-BRICK 2.0 needs defensible reasons.
+
+### The `scope_ais` bug, fixed
+`scope_ais_ton_band_hindcast.jl` wrote one fixed path while its callers tag everything else, so the
+L22 postprocess overwrote a decision input. Now `..._<TAGS>.csv`. ⚠ **Worse than recorded**: the
+committed file holds **L14/L20**, so the L14/L21 pair was already gone before L22 touched anything.
+Both surviving arms recovered under honest names.
+
+### The L14→L21 sweep — 14 stale places
+Worst was **LADRILLO.md**, the cold-pickup document, still reading "Posterior L14, canonical since
+2026-08-20". Also a genuine labels-from-constants bug in `diag_gis_2150_band_veto.py`, which
+hardcoded a vintage in front of a tag *argument* and stamped "L14 canonical … L21" when run on L21.
+§4 headline numbers were **not** relabelled — they are L14 numbers and now say so.
+
+### TE ÷ BRICK 2.0 confirmed — and a promotion note withdrawn
+**1.2355** (full window, common years **1920–2025** where BRICK 2.0 is valid, both arms
+re-referenced to **1995–2005**); L14 was 0.9875. C7's "1.236 vs 0.988" was right. ⚠ `champions.json`
+claimed "TE 1.245× and AIS 1.142× WORSE" — **neither reproduces**: the bench run written the same
+minute has **no L14 arm**, and AIS vs BRICK 2.0 is **0.0265, far BETTER**. Withdrawn and named.
+
 ## 2026-08-29 (later) — OPEN 1 DISSOLVED: the fit declines nothing, and the 17.8σ was pre-discrepancy
 
 Answers the live question left by `handoff_2026-08-29_l22_and_coulon_integral.md` **without the
