@@ -137,6 +137,40 @@ hdr(sd) = String.(propertynames(CSV.read(chain_path(sd), DataFrame; limit = 0)))
 for sd in SEEDS; isfile(chain_path(sd)) || error("missing chain $(chain_path(sd))"); end
 const VARIANT = ladrillo_gis_variant(hdr(SEEDS[1]))
 
+## ---------------------------------------------------------------------------
+## --tap  (2026-08-30). RUN THE TAPPED GREENLAND ARM.
+##
+## WHY THIS EXISTS. This driver had NO tap support, so it projected the UNTAPPED
+## Greenland while ladrillo_model_comparison.py reports the TAPPED deliverable. The
+## joint band was therefore the WRONG ARM wherever the tap fires, and 6 of 54 reported
+## cells had to be held on the fixed band rather than silently lose 41.3 cm of GIS at
+## ssp585/2300.
+##
+## THE COUPLING IS THE POINT, NOT AN INCIDENTAL. `ladrillo_set_tap!` passes `bf.gmst`
+## to `update_gis3_tap!`, and in this driver `bf.gmst` is THE CONFIG'S OWN spliced path.
+## So each config fires its own tap at its own date, and a config that never reaches the
+## 4.69 K onset never fires it at all. That threshold crossing is exactly the kind of
+## nonlinearity a mean driver cannot represent, which is the whole reason this arm exists.
+## ⚠ The onset is quoted in GLOBAL temperature; update_gis3_tap! asserts this, because
+## passing the amplified regional series would fire the tap ~gis_amp (1.92x) too early.
+##
+## OPT-IN, NOT DEFAULT. The projection driver has the tap ON by default; this one keeps
+## it OFF so every previously written scope_slr_fairunc_* file keeps meaning what it said.
+## ⚠ THE TAG CARRIES THE ARM, so a tapped run cannot overwrite an untapped one -- the
+## same rule that scope_ais_ton_band_hindcast.jl violated and that cost a measurement.
+const TAP_ON  = "--tap" in ARGS
+const TAP_TAG = TAP_ON ? "_tap$(replace(string(GIS_TAP_CELL.onset_K), "." => "p"))K" *
+                         "_V$(replace(string(GIS_TAP_CELL.V_m), "." => "p"))m" *
+                         "_tau$(Int(GIS_TAP_CELL.tau_yr))" : ""
+## The [CONTROL] arm must compare against the SHIPPED file of the SAME arm, or it would
+## charge the tap as a control failure. project_ssps_components_ladrillo.jl builds the
+## tapped name from the same cell fields; this mirrors it.
+const SHIPPED_TAG = TAP_ON ?
+    "$(TAG)_tap$(replace(string(GIS_TAP_CELL.onset_K), "." => "p"))K" *
+    "_V$(replace(string(GIS_TAP_CELL.V_m), "." => "p"))m" *
+    "_tau$(Int(GIS_TAP_CELL.tau_yr))_n$(Int(GIS_TAP_CELL.stages))" *
+    "$(GIS_TAP_CELL.wholesheet ? "_ws" : "")" : TAG
+
 function read_draws(sd)
     need = ladrillo_used_cols(VARIANT)
     h = hdr(sd)
@@ -229,6 +263,9 @@ const CFG_OF_DRAW = [CFG[i] for i in ASSIGN]
 """Run `idx` (draw indices) on a Ladrillo built at `g`/`o`; write into `out`."""
 function run_into!(out, idx, g, o)
     bf = ladrillo_setup(ssp = SSP, y0 = Y0, y1 = Y1, gis_variant = VARIANT, gmst = g, ohc = o)
+    # BOTH arms get the same treatment: `fixed` taps on the MEAN path (so it still
+    # reproduces the shipped tapped panel) and `joint` taps on each config's OWN path.
+    TAP_ON && ladrillo_set_tap!(bf)
     for k in idx
         ladrillo_run_draw!(bf, ROWS[k])
         for c in COMPONENTS
@@ -282,7 +319,7 @@ let used = length(unique(CFG_OF_DRAW)),
 end
 
 ## [CONTROL] the fixed arm must reproduce the SHIPPED panel.
-const SHIPPED = CSV.read(joinpath(REPO, "outputs", "ssps_components_2300_$(TAG).csv"), DataFrame)
+const SHIPPED = CSV.read(joinpath(REPO, "outputs", "ssps_components_2300_$(SHIPPED_TAG).csv"), DataFrame)
 const SSP_LABEL = Dict("ssp126" => "SSP1-2.6", "ssp245" => "SSP2-4.5", "ssp585" => "SSP5-8.5")
 for c in COMPONENTS, H in HORIZONS
     med = median(FIXED[c][:, yidx(H)])
@@ -323,7 +360,7 @@ for (arm, R) in (("fixed", FIXED), ("joint", JOINT))
     push!(rowsg, ("SUM", "$(arm)_max_cm", w, w < SUM_TOL_CM ? "PASS" : "FAIL"))
     @assert w < SUM_TOL_CM "[SUM] the components do not sum to the total for arm $arm"
 end
-CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_gates_$(SSP)_$(FORCING)_$(TAG)$(SMOKE ? "_SMOKE" : "").csv"), rowsg)
+CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_gates_$(SSP)_$(FORCING)_$(TAG)$(TAP_TAG)$(SMOKE ? "_SMOKE" : "").csv"), rowsg)
 
 ## ==========================================================================
 ## THE CELLS
@@ -356,7 +393,7 @@ for c in COMPONENTS
     end
     println()
 end
-CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_cells_$(SSP)_$(FORCING)_$(TAG)$(SMOKE ? "_SMOKE" : "").csv"), cells)
+CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_cells_$(SSP)_$(FORCING)_$(TAG)$(TAP_TAG)$(SMOKE ? "_SMOKE" : "").csv"), cells)
 
 ## ==========================================================================
 ## THE COMPARISON that motivated it
@@ -380,7 +417,7 @@ let dr = DataFrame(draw = Int[], config = String[], component = String[],
     for c in COMPONENTS, H in HORIZONS, (arm, A) in (("fixed", FIXED[c]), ("joint", JOINT[c])), k in 1:NDRAW
         push!(dr, (k, CFG_OF_DRAW[k], String(c), H, arm, A[k, yidx(H)]))
     end
-    CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_draws_$(SSP)_$(FORCING)_$(TAG)$(SMOKE ? "_SMOKE" : "").csv"), dr)
+    CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_draws_$(SSP)_$(FORCING)_$(TAG)$(TAP_TAG)$(SMOKE ? "_SMOKE" : "").csv"), dr)
 end
 
 paths = DataFrame(year = Int[], component = String[], arm = String[],
@@ -390,5 +427,5 @@ for c in COMPONENTS, (arm, A) in (("fixed", FIXED[c]), ("joint", JOINT[c])), (i,
     v = A[:, i]
     push!(paths, (y, String(c), arm, median(v), quantile(v, 0.05), quantile(v, 0.95)))
 end
-CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_paths_$(SSP)_$(FORCING)_$(TAG)$(SMOKE ? "_SMOKE" : "").csv"), paths)
-@printf("\nwrote outputs/scope_slr_fairunc_{cells,paths,gates}_%s_%s_%s%s.csv\n", SSP, FORCING, TAG, SMOKE ? "_SMOKE" : "")
+CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_paths_$(SSP)_$(FORCING)_$(TAG)$(TAP_TAG)$(SMOKE ? "_SMOKE" : "").csv"), paths)
+@printf("\nwrote outputs/scope_slr_fairunc_{cells,paths,gates}_%s_%s_%s%s%s.csv\n", SSP, FORCING, TAG, TAP_TAG, SMOKE ? "_SMOKE" : "")
