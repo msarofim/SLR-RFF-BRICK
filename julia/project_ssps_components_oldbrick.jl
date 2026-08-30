@@ -17,7 +17,8 @@
 ## `project_ssps_gsic_2300.jl` (the glacier arm) — same posterior file, same
 ## `update_brick_params!(...; precip_log=true)` shim, same seed before `get_model`.
 ##
-## LIKE-FOR-LIKE WITH LADRILLO. Same FaIR 2.2.4 (calib 1.4.5) ENSEMBLE-MEAN GMST + OHC
+## LIKE-FOR-LIKE WITH LADRILLO. Same FaIR 2.2.4 (calib 1.6.0 + CMIP7 since 2026-08-30;
+## was 1.4.5 and this line said so) ENSEMBLE-MEAN GMST + OHC
 ## per SSP (`data/observations/fair_mean_{gmst,ohc}_<ssp>.csv`), same 1995-2014 AR6
 ## re-reference window, same horizons, same output schema as
 ## `outputs/ssps_components_2300_<TAG>.csv`. Both arms are therefore MEAN-FORCING:
@@ -109,16 +110,30 @@ println("Wrote ", OUT)
 ## [GSIC-MATCH] — the glacier column must reproduce the standalone glacier driver.
 ## A mismatch above the get_model non-determinism means the forcing or the posterior
 ## thinning differs between the two arms, and the whole file is then not like-for-like.
+## ⚠ THIS GATE WAS VACUOUS UNTIL 2026-08-30 AND HAD NEVER ONCE FIRED. Two independent
+## defects, either of which alone forced "0.0000 cm":
+##   1. LABEL MISMATCH. It mapped r.ssp ("SSP5-8.5") to a SHORT form ("ssp585") and then
+##      matched that against ssps_gsic_2300.csv -- which uses the LONG labels. `nrow(h) == 1`
+##      was therefore false on every row and every row hit `continue`. ZERO rows were ever
+##      compared, for either calibration vintage.
+##   2. SOFT-SCOPE ASSIGNMENT. `worst = max(worst, ...)` inside a top-level `for` binds a NEW
+##      LOCAL each iteration, so the outer `worst` stayed 0.0 even if a row had matched.
+##      Julia WARNED about this on every run ("Assignment to `worst` in soft scope is
+##      ambiguous") and the warning was never acted on.
+## `n_matched` is now printed BESIDE the number: a gate that compares nothing must not be
+## able to report a pass (`no_power_null`, `mutation_test_gates`).
 if isfile(GSIC_REF)
     ref = CSV.read(GSIC_REF, DataFrame)
-    worst = 0.0
+    global worst = 0.0
+    global n_matched = 0
     for r in eachrow(filter(x -> x.component == "glaciers", out))
-        ssp_short = Dict("SSP1-1.9"=>"ssp119","SSP1-2.6"=>"ssp126","SSP2-4.5"=>"ssp245",
-                         "SSP4-6.0"=>"ssp460","SSP3-7.0"=>"ssp370","SSP5-8.5"=>"ssp585")[r.ssp]
-        h = filter(x -> x.ssp == ssp_short && x.year == r.year, ref)
+        h = filter(x -> x.ssp == r.ssp && x.year == r.year, ref)   # BOTH use long labels
         nrow(h) == 1 || continue
-        worst = max(worst, abs(r.med - h[1, :gsic_med]))
+        global n_matched += 1
+        global worst = max(worst, abs(r.med - h[1, :gsic_med]))
     end
-    @printf("[GSIC-MATCH] worst |median difference| vs ssps_gsic_2300.csv: %.4f cm\n", worst)
+    @printf("[GSIC-MATCH] worst |median difference| vs ssps_gsic_2300.csv: %.4f cm  (%d rows compared)\n",
+            worst, n_matched)
+    n_matched == 0 && error("[GSIC-MATCH] compared ZERO rows -- the gate is vacuous, not passing.")
     worst > 0.05 && @warn "GSIC arms disagree by more than the get_model non-determinism"
 end

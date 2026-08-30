@@ -3,6 +3,35 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## 2026-08-30 (later) — BRICK 2.0 regenerated on calib 1.6.0, and its cross-check gate was VACUOUS
+
+**The defect.** `outputs/ssps_components_2300_oldbrick.csv` was dated **Aug 25**; the mean forcing
+it reads was regenerated on calib 1.6.0 on **Aug 28** (`839a176`). The output predated its own input
+by three days, so the BRICK 2.0 column of the comparison was on **1.4.5** while every Ladrillo
+number was on **1.6.0** — a like-for-like violation in the forcing trajectory worth up to
+**0.547 K** (−0.380 K at 2100). Regenerated; 1.4.5 output quarantined under
+`outputs/quarantine/20260830_oldbrick_calib145_forcing/` with a README.
+
+Effect on BRICK 2.0 (ssp585): total **104.68 → 98.00** cm at 2100, **482.40 → 467.87** at 2300;
+ais@2300 −13.33 cm. Scenario spread 65.4 → **56.8** cm at 2100, 147.7 → **137.3** at 2150 — which
+reorders the comparators at 2150 (Ladrillo is now just above BRICK 2.0, not below).
+
+**⚠ The `[GSIC-MATCH]` gate had never once fired.** It printed `0.0000 cm`, contradicting the
+prediction that it would fail. All-exactly-zero is a bug signal, so it was checked: **two
+independent defects, either fatal alone.** (1) It mapped `r.ssp` (`"SSP5-8.5"`) to a SHORT form and
+matched it against a reference using **LONG** labels, so `nrow(h)==1` was false on every row and
+**zero rows were ever compared**. (2) `worst = max(worst, ...)` inside a top-level `for` binds a new
+local in Julia's soft scope, so the accumulator was discarded — and **Julia warned about this on
+every run**, naming the variable and the line. Fixed both, plus: `n_matched` is now printed beside
+the number and zero matches is an `error()`. The gate then compared **192 rows**, reported
+**0.9869 cm** (20x its 0.05 tolerance) and fired its warning.
+
+**⚠ Still stale, not fixed here:** `outputs/ssps_gsic_2300.csv` (Aug 5) is the next arm in the same
+chain, and `benchmark/reference/L21/model_comparison.csv` holds frozen BRICK 2.0 rows on 1.4.5.
+
+**Withdrawn:** the claim that BRICK 2.0 "can never be made joint". `set_forcing!` takes an arbitrary
+(gmst, ohc) pair, so the Ladrillo joint recipe transfers — it simply has not been run that way.
+
 ## 2026-08-30 — C5 CLOSED: the joint band re-run on the TAPPED arm, 54 of 54 cells
 
 The 6 cells held on the fixed band are closed. `scope_slr_fair_uncertainty.jl` had **no
