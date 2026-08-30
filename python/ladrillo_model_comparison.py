@@ -19,7 +19,9 @@ Sources
               repointing does not affect benchmark scoring.
   MAGICC-SLR  data/comparison/magicc_nauels_components.csv
               MAGICC v7.5.3 + Nauels 2025 SLR, 600-member AR6 drawnset,
-              extracted by python/extract_magicc_components.py. Ends at 2100.
+              extracted by python/extract_magicc_components.py. ⚠ RUNS TO 2305 --
+              this line said 'Ends at 2100' until 2026-08-29; 2300 was added on
+              2026-08-25 (see MAGICC_CSV note below) and the docstring was not updated.
   FACTS       outputs/facts_components_n200.csv
               global.coupling.{ssp126,ssp245,ssp585}.n200, per module,
               rel. baseyear 2005 (~ the 1995-2014 mean; the standing
