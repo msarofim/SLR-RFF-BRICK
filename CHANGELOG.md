@@ -3,6 +3,91 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## 2026-08-31 (later) — VAN VUUREN CUBES, and the "drive all 4 models" premise
+
+Marcus asked for van Vuuren GMST/OHC cubes, a stochastic decision made on the merits rather than
+copied for comparability, and **all 4 SLR models driven off the new cube** — after which "the SSPs
+might become superfluous".
+
+### ⚠ ONLY TWO OF THE FOUR CAN BE DRIVEN, AND THE SSPs DO NOT BECOME SUPERFLUOUS
+
+Ladrillo and BRICK 2.0 are ours. **MAGICC-SLR is a one-time extract** — `extract_magicc_components.py`
+says the run "lives in the members-only MAGICC working copy"; a local tree exists, but a van Vuuren
+MAGICC run would go through MAGICC's OWN climate from van Vuuren emissions, and feeding it our cube
+would destroy the independence that makes it a comparator. **FACTS is an ingested n=200 quantile
+table**, ssp126/245/585 only, no installation and no builder in the repo. `ladrillo_model_comparison.py:76`
+already states the situation in code: `SCENARIOS = [...] # the three all four sources share`. **The
+SSP set is an INTERSECTION with the published literature**, and dropping it removes 6 of 8 columns
+from the model document's validation table with nothing to replace them. Keep SSPs as the
+comparison basis; van Vuuren is a SECOND AXIS, for questions with no external comparator.
+
+### The cubes — and the one thing van Vuuren gets for free
+
+`FaIRtoFrEDI/scripts/build_fair_cube_vv_v160.py`, 7 markers, 12 s each, schema byte-compatible with
+the SSP cubes. `calibration_v160_prod/README.md` on the SSPs: *"no CMIP7 marker **is** a CMIP6 SSP
+... It does affect projections to 2300 and is an **open question** for ssp126/ssp585."* The SSPs
+borrow marker land-use/irrigation through a mapping worth 0.022–0.094 K; **each van Vuuren marker
+uses its own `volcanic_solar_<MARKER>.csv`, so that ambiguity is identically zero.** All seven
+return mean GMST 2024 = **+1.2725 K identically** — the shared-history identity, a free check.
+
+### Stochastic OFF — and the measurement refuted three of its own four arguments
+
+| claim | measured |
+|---|---|
+| inflates the joint band | p17–p83 ratios **0.989–1.028** (0–3%). FALSE |
+| TE integrates it, so it accumulates | OHC band ratio @2300 = **0.999**. FALSE |
+| manufactures spurious scenario differences | **0** where forcing is identical; 0.028 K later = **0.54%** of the 5.18 K H−VL signal. FALSE |
+| not forced-response uncertainty | survives — about MEANING, not magnitude |
+
+**Power checked first**, or every null is vacuous: noise sd **0.1103 K**, lag-1 0.339; the gate
+errors below 0.02 K. Sole residual: an arbitrary seed-dependent ensemble-mean offset of **±0.005 K**
+against its own prediction `sd/√841 = 0.0038 K`. ⚠ **Corollary: the existing SSP joint bands are NOT
+materially contaminated by internal variability** — a concern nobody had measured, now retired.
+
+### Two driver fixes
+
+**`scope_slr_fair_uncertainty.jl` could not run ANY non-SSP scenario.** It passed the projection key
+into `MimiBRICK.get_model`, which loads a bundled `sneasy_temperature_<ssp>` file; `vvH` died after
+3 min. But `set_forcing!` overwrites both bundled inputs on the next line, and
+`scope_slr_fairunc_oldbrick.jl:113` **already** hardcodes `ssprcp_scenario="ssp245"` for exactly
+this reason — which is why BRICK 2.0 ran on van Vuuren unmodified and this one did not. Now
+`BUILD_SSP = "ssp245"`, overridable by `--build-ssp=` **so the no-leak claim stays testable**:
+`--build-ssp=ssp585` and `--build-ssp=ssp245` give **bit-identical** CONTROL rows (`ais @2300
+−0.5180`, `total −0.2279`). Verified, not asserted.
+
+Both `[CONTROL]` gates threw a KeyError on a `vv` key; they now print an explicit `SKIPPED` naming
+what the panel covers. While there, closed a **latent vacuous pass** in the Ladrillo one — its
+`if nrow(r) == 1` would have compared ZERO cells silently had a label existed; it now counts and
+errors on zero, as oldbrick already did. ⚠ **The first version of that fix reintroduced
+`gsic_match_gate_was_vacuous` verbatim** — `ncontrol += 1` in a top-level `for` binds a new Julia
+local. It errored rather than counting zero, which is the only reason it was cheap. Fixed with a
+`let`. The lesson must be re-applied to each NEW gate, not remembered about the old one.
+
+### ⚠ PRE-EXISTING, NOT INTRODUCED HERE
+
+`[CONTROL] ais @2300` = **−0.5180 cm against `CONTROL_TOL_CM = 0.5`** → CHECK. Identical under both
+build scenarios, and the two runs agree bit-for-bit, so the driver is deterministic: the gap is
+between `scope_slr_fair_uncertainty.jl`'s fixed arm and the panel shipped by
+`project_ssps_components_ladrillo.jl` on 08-30. 0.19% of 268 cm, with `ais @2150` at −0.4666 just
+inside the same tolerance. **AIS@2300 is a headline number in the model document.** Untouched.
+
+### BRICK 2.0 on all 7 markers — and the result that justifies the exercise
+
+Total GMSL @2300 spans **65.2 cm (Low-to-Negative) to 414.0 (High)**, vs the SSPs' 94.8–463.6.
+
+⚠ **High-to-Low at 2100 (84.5 cm) EXCEEDS High (81.9).** I first called that an inversion; it is
+not. **HL is warmer than H from ~2040–2090, peaking +0.18 K at 2073**, then crosses below (2100:
+−0.46 K). The deterministic fixed arm shows the same +3.02 cm, so it is not sampling noise.
+Componentwise **AIS +3.63 cm** (responds to the EARLY warming) against **TE −0.70 cm** (tracks the
+cooler endpoint). **A path-dependence signal whose components split in opposite directions — the
+SSPs differ in LEVEL, HL-vs-H differs in TIMING, and the SSP set structurally cannot produce it.**
+Four genuine peak-and-decline pathways (VL, LN, ML, HL) against the SSPs' one (ssp119).
+
+**Tried and rejected:** driving MAGICC-SLR or FACTS on the new cube — see above; neither is a model
+this repo can run, and for MAGICC it would be the wrong operation even if it were.
+
+Handoff: `notes/handoff_2026-08-31_vanvuuren_cubes.md`.
+
 ## 2026-08-31 — the Mengel glacier arms regenerated, and a SECOND vintage the first gate could not see
 
 **The stated next step, done.** `julia/project_ssps_gsic_2300_mengel.jl` re-run on the current mean

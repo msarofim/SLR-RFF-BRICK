@@ -260,9 +260,29 @@ end
 const CFG_OF_DRAW = [CFG[i] for i in ASSIGN]
 
 ## ---- run -----------------------------------------------------------------
+## THE BUILD SCENARIO IS NOT THE PROJECTION SCENARIO. `ladrillo_setup(ssp=...)`
+## reaches `MimiBRICK.get_model(ssprcp_scenario=...)`, whose ONLY effect is to
+## load a bundled `sneasy_temperature_<ssp>_*.csv` / ocean-heat pair as default
+## forcing -- and `set_forcing!` overwrites BOTH of those on the next line, from
+## our own cube. Passing `SSP` therefore bought nothing and made the driver
+## unable to run any scenario MimiBRICK does not ship a file for: `--ssp=vvH`
+## died with "No file exists ... sneasy_temperature_vvH_1850_2300_07-06-2026.csv"
+## after 3 minutes of setup. `scope_slr_fairunc_oldbrick.jl:113` already hardcodes
+## `ssprcp_scenario="ssp245"` for exactly this reason, which is why the BRICK 2.0
+## joint arm ran on van Vuuren unmodified and this one did not.
+## ⚠ Verified, not assumed: with this constant in place, `--ssp=ssp585` must still
+## reproduce the shipped panel through [CONTROL]. If the build scenario leaked
+## into anything `set_forcing!` does not replace, that gate is what would catch it.
+## Overridable so the claim "the build scenario cannot leak" is TESTABLE rather
+## than asserted: --build-ssp=ssp585 restores the pre-2026-08-31 behaviour on a
+## scenario MimiBRICK ships a file for, so the two can be differenced directly.
+const BUILD_SSP = let i = findfirst(a -> startswith(a, "--build-ssp="), ARGS)
+    i === nothing ? "ssp245" : ARGS[i][13:end]
+end
+
 """Run `idx` (draw indices) on a Ladrillo built at `g`/`o`; write into `out`."""
 function run_into!(out, idx, g, o)
-    bf = ladrillo_setup(ssp = SSP, y0 = Y0, y1 = Y1, gis_variant = VARIANT, gmst = g, ohc = o)
+    bf = ladrillo_setup(ssp = BUILD_SSP, y0 = Y0, y1 = Y1, gis_variant = VARIANT, gmst = g, ohc = o)
     # BOTH arms get the same treatment: `fixed` taps on the MEAN path (so it still
     # reproduces the shipped tapped panel) and `joint` taps on each config's OWN path.
     TAP_ON && ladrillo_set_tap!(bf)
@@ -319,18 +339,50 @@ let used = length(unique(CFG_OF_DRAW)),
 end
 
 ## [CONTROL] the fixed arm must reproduce the SHIPPED panel.
+## ⚠ The shipped panel exists only for the CMIP6 SSPs. A van Vuuren marker
+## (--ssp=vvH etc.) has no counterpart row, so this control CANNOT run for it --
+## and that has to be said out loud. Two failure modes are being closed here:
+## (1) `SSP_LABEL[SSP]` threw a KeyError on any non-SSP key, which is a crash
+##     rather than an answer;
+## (2) had a label existed, `if nrow(r) == 1` would have skipped every row and
+##     the block would have printed NOTHING while reporting no failure -- a pass
+##     on an empty set, the same defect found in [GSIC-MATCH] on 2026-08-30.
+## So: count the cells, require a positive count where a panel is expected, and
+## record an explicit SKIPPED row where one is not. The fixed-arm code path is
+## scenario-independent; it is verified by the SSP runs, and a van Vuuren run
+## inherits that verification rather than re-establishing it.
 const SHIPPED = CSV.read(joinpath(REPO, "outputs", "ssps_components_2300_$(SHIPPED_TAG).csv"), DataFrame)
 const SSP_LABEL = Dict("ssp126" => "SSP1-2.6", "ssp245" => "SSP2-4.5", "ssp585" => "SSP5-8.5")
-for c in COMPONENTS, H in HORIZONS
-    med = median(FIXED[c][:, yidx(H)])
-    r = SHIPPED[(SHIPPED.year .== H) .& (SHIPPED.ssp .== SSP_LABEL[SSP]) .&
-                (SHIPPED.component .== String(c)), :]
-    if nrow(r) == 1
-        d = med - r.med[1]; v = abs(d) < CONTROL_TOL_CM ? "PASS" : "CHECK"
-        @printf("  [CONTROL] %-5s @%d  fixed median %8.3f vs shipped %8.3f  diff %+7.4f cm -> %s\n",
-                c, H, med, r.med[1], d, v)
-        push!(rowsg, ("CONTROL", "$(c)_med_$(H)", d, v))
+const HAS_SHIPPED_PANEL = haskey(SSP_LABEL, SSP)
+if !HAS_SHIPPED_PANEL
+    @printf("  [CONTROL] SKIPPED -- %s has no shipped panel row (the panel covers %s).\n",
+            SSP, join(sort(collect(keys(SSP_LABEL))), ", "))
+    @printf("            The fixed-arm code path is verified by those runs, NOT by this one.\n")
+    push!(rowsg, ("CONTROL", "skipped_no_shipped_panel", NaN, "SKIPPED"))
+else
+## `let`, not a bare top-level block: `ncontrol += 1` inside a top-level `for`
+## binds a NEW LOCAL each iteration (Julia soft scope) and the counter stays 0.
+## That is the exact defect that made [GSIC-MATCH] vacuous for its whole life
+## (memory `gsic_match_gate_was_vacuous`), and I reintroduced it here on the
+## first try -- it errored on `ncontrol` being undefined rather than silently
+## counting zero, which is the only reason it was cheap. Inside a `let` the
+## variable is a local of the enclosing scope and the `for` body assigns to it.
+let ncontrol = 0
+    for c in COMPONENTS, H in HORIZONS
+        med = median(FIXED[c][:, yidx(H)])
+        r = SHIPPED[(SHIPPED.year .== H) .& (SHIPPED.ssp .== SSP_LABEL[SSP]) .&
+                    (SHIPPED.component .== String(c)), :]
+        if nrow(r) == 1
+            ncontrol += 1
+            d = med - r.med[1]; v = abs(d) < CONTROL_TOL_CM ? "PASS" : "CHECK"
+            @printf("  [CONTROL] %-5s @%d  fixed median %8.3f vs shipped %8.3f  diff %+7.4f cm -> %s\n",
+                    c, H, med, r.med[1], d, v)
+            push!(rowsg, ("CONTROL", "$(c)_med_$(H)", d, v))
+        end
     end
+    ncontrol == 0 && error("[CONTROL] $(SSP) has a shipped panel but ZERO cells matched -- vacuous, not passing.")
+    @printf("  [CONTROL] %d cells compared\n", ncontrol)
+end
 end
 
 ## [CALIB-MOVE] what the splice still moves inside the calibration window.

@@ -141,6 +141,18 @@ const JOINT = alloc()
 end
 
 ## ---- [CONTROL] the fixed arm must reproduce the shipped panel ------------
+## ⚠ The shipped panel covers the CMIP6 SSPs only. A van Vuuren marker
+## (--ssp=vvH etc.) has no row in it, and `SSP_LABEL[SSP]` used to throw a
+## KeyError on any such key. The control is a check on the fixed-arm CODE PATH,
+## which is scenario-independent, so a van Vuuren run inherits the SSP runs'
+## verification -- but it must SAY so rather than quietly compare nothing. The
+## `nchk == 0` error below stays exactly as it was for scenarios that DO have a
+## panel: skipping is allowed only where a panel provably cannot exist.
+if !haskey(SSP_LABEL, SSP)
+    @printf("  [CONTROL] SKIPPED -- %s has no shipped panel row (the panel covers %s).\n",
+            SSP, join(sort(collect(keys(SSP_LABEL))), ", "))
+    @printf("            The fixed-arm code path is verified by those runs, NOT by this one.\n")
+else
 let shipped = CSV.read(joinpath(REPO, "outputs/ssps_components_2300_oldbrick.csv"), DataFrame),
     nbad = 0, nchk = 0
     for (j, H) in enumerate(HORIZONS), c in COMPS
@@ -156,6 +168,7 @@ let shipped = CSV.read(joinpath(REPO, "outputs/ssps_components_2300_oldbrick.csv
     end
     nchk == 0 && error("[CONTROL] compared ZERO cells -- vacuous, not passing.")
     @printf("  [CONTROL] %d cells compared, %d over tolerance\n", nchk, nbad)
+end
 end
 
 ## ---- output, in the Ladrillo joint schema so the comparison can read it --
