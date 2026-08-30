@@ -287,15 +287,26 @@ the only three with a 2300 row. Full component tables in the same file.
 
 | scenario | horizon | Ladrillo L21 | AR6 T9.9 | FACTS wf1f | FACTS wf2f | FACTS wf3f (MICI) | FACTS wf4 (SEJ) | MAGICC-SLR | BRICK 2.0 |
 |---|---|---|---|---|---|---|---|---|---|
-| ssp126 | 2100 | 35.1 [33.7, 36.5] | 44.0 [32, 62] | 39.8 [31.1, 48.5] | 46.1 [37.0, 61.3] | 43.1 [37.0, 50.0] | 53.5 [35.5, 83.9] | 35.6 [27.4, 48.9] | 39.2 [35.7, 44.2] |
-| ssp126 | 2150 | 45.8 [44.0, 47.6] | 68.0 [46, 99] | 60.2 [43.5, 77.6] | 72.0 [55.1, 97.5] | 74.9 [60.4, 96.6] | 83.1 [52.5, 144.2] | 45.9 [34.0, 66.9] | 55.2 [50.3, 62.1] |
-| ssp126 | 2300 | 67.1 [64.3, 70.0] | — | — | — | — | — | 66.5 [47.0, 106.5] | 91.2 [82.3, 102.0] |
-| ssp245 | 2100 | 44.9 [42.7, 59.0] | 56.0 [44, 76] | 48.7 [39.0, 58.1] | 56.9 [46.0, 75.2] | 55.1 [46.8, 81.2] | 67.9 [45.2, 120.2] | 53.2 [40.6, 70.4] | 70.9 [49.7, 92.9] |
-| ssp245 | 2150 | 70.7 [64.7, 127.7] | 92.0 [66, 133] | 80.0 [61.9, 99.3] | 98.1 [79.9, 134.6] | 105.2 [83.1, 300.4] | 111.2 [71.9, 207.7] | 88.1 [64.6, 125.3] | 138.0 [107.6, 173.7] |
-| ssp245 | 2300 | 219.1 [107.8, 323.0] | — | — | — | — | — | 186.8 [118.0, 305.9] | 317.5 [253.9, 405.5] |
-| ssp585 | 2100 | 94.7 [81.5, 110.7] | 77.0 [63, 101] | 64.9 [54.4, 77.2] | 76.6 [63.6, 101.8] | 91.9 [70.6, 114.9] | 90.8 [60.7, 160.2] | 97.8 [74.8, 132.3] | 104.7 [88.1, 124.9] |
-| ssp585 | 2150 | 201.1 [175.2, 231.1] | 132.0 [98, 188] | 117.1 [96.7, 141.5] | 151.7 [123.6, 208.4] | 310.7 [193.8, 476.6] | 162.3 [113.3, 306.4] | 262.9 [189.7, 387.8] | 202.8 [169.1, 243.0] |
-| ssp585 | 2300 | 513.7 [443.3, 592.8] | — | — | — | — | — | 1016.0 [691.1, 1585.3] | 482.4 [386.8, 592.5] |
+| ssp126 | 2100 | 37.8 [32.7, 45.3] | 44.0 [32, 62] | 39.8 [31.1, 48.5] | 46.1 [37.0, 61.3] | 43.1 [37.0, 50.0] | 53.5 [35.5, 83.9] | 35.6 [27.4, 48.9] | 39.2 [35.7, 44.2] |
+| ssp126 | 2150 | 49.2 [41.8, 60.6] | 68.0 [46, 99] | 60.2 [43.5, 77.6] | 72.0 [55.1, 97.5] | 74.9 [60.4, 96.6] | 83.1 [52.5, 144.2] | 45.9 [34.0, 66.9] | 55.2 [50.3, 62.1] |
+| ssp126 | 2300 | 70.9 [58.0, 92.3] | — | — | — | — | — | 66.5 [47.0, 106.5] | 91.2 [82.3, 102.0] |
+| ssp245 | 2100 | 47.3 [40.2, 73.4] | 56.0 [44, 76] | 48.7 [39.0, 58.1] | 56.9 [46.0, 75.2] | 55.1 [46.8, 81.2] | 67.9 [45.2, 120.2] | 53.2 [40.6, 70.4] | 70.9 [49.7, 92.9] |
+| ssp245 | 2150 | 74.8 [58.5, 147.6] | 92.0 [66, 133] | 80.0 [61.9, 99.3] | 98.1 [79.9, 134.6] | 105.2 [83.1, 300.4] | 111.2 [71.9, 207.7] | 88.1 [64.6, 125.3] | 138.0 [107.6, 173.7] |
+| ssp245 | 2300 | 158.9 [91.9, 344.4] | — | — | — | — | — | 186.8 [118.0, 305.9] | 317.5 [253.9, 405.5] |
+| ssp585 | 2100 | 86.3 [62.9, 110.6] | 77.0 [63, 101] | 64.9 [54.4, 77.2] | 76.6 [63.6, 101.8] | 91.9 [70.6, 114.9] | 90.8 [60.7, 160.2] | 97.8 [74.8, 132.3] | 104.7 [88.1, 124.9] |
+| ssp585 | 2150 | 192.8 [169.5, 219.5]† | 132.0 [98, 188] | 117.1 [96.7, 141.5] | 151.7 [123.6, 208.4] | 310.7 [193.8, 476.6] | 162.3 [113.3, 306.4] | 262.9 [189.7, 387.8] | 202.8 [169.1, 243.0] |
+| ssp585 | 2300 | 502.0 [439.0, 575.1]† | — | — | — | — | — | 1016.0 [691.1, 1585.3] | 482.4 [386.8, 592.5] |
+
+> **BAND BASIS (new 2026-08-29).** Ladrillo is now reported on the **JOINT** arm — posterior
+> parameters × 841 FaIR configs — which is the only Ladrillo band that is like-for-like against
+> MAGICC and FACTS, both of which carry climate uncertainty. **† = held on the FIXED arm**: the
+> joint driver (`scope_slr_fair_uncertainty.jl`) has no Greenland-tap support, so no joint band
+> exists for the tapped arm, and substituting there would silently drop **41.3 cm of GIS at
+> ssp585/2300**. Exactly 6 of 54 reported cells are affected, all ssp585 (`gis`, `total`, and
+> `ais` via the sea-level feedback, at 2150 and 2300); every row's basis is in the
+> `band_basis` column of `outputs/ladrillo_model_comparison_L21.csv`.
+> ⚠ **BRICK 2.0's widths remain incomparable to every other column** — it is structurally
+> fixed-driver and cannot be made joint. Compare its **medians** only.
 
 ### The single clearest characterisation: Ladrillo's scenario response is steeper than AR6's
 
@@ -310,11 +321,13 @@ The ssp585 − ssp126 median spread:
 
 | horizon | AR6 | Ladrillo L14 | Ladrillo L21 |
 |---|---|---|---|
-| 2100 | 33.0 cm | 59.6 (1.81×) | **49.3 (1.49×)** |
+| 2100 | 33.0 cm | 59.6 (1.81×) | **48.5 (1.47×)** |
 | 2150 | 64.0 cm | 155.3 (2.43×) | **142.6 (2.23×)** |
 
 **Ladrillo is still below the IPCC assessment at low forcing and above it at high forcing, and the
-effect still grows with horizon — but the migration moderated it**, from 1.81× to 1.49× at 2100.
+effect still grows with horizon — but the migration moderated it**, from 1.81× to 1.47× at 2100.
+(Recomputed 2026-08-29 on the JOINT arm; was 1.49× on the fixed arm. The ratio is a MEDIAN ratio,
+so it barely moves with the band basis — see §4.3.)
 That is the harmonization, not the calibration: anchoring SSP5-8.5 to observed 2023 emissions
 scaled its future by ×0.899 (it overshoots observed fossil CO2 by ~11%), while SSP1-2.6 undershoots
 and was scaled ×1.075. So the two ends moved toward each other.
@@ -343,9 +356,9 @@ fit.
 | **C2** | `ais_gmst_amp` is **unidentified** — posterior sd ÷ truncated-prior sd = 0.992; the posterior *is* the prior. It is degenerate with `T_on` at r = 0.79, so choosing the amp prior *is* choosing the runoff-onset decomposition. | **DECIDED, not resolved** | High, but bounded: the decision was made on fit, and the frame ambiguity (0.92–1.16 across masks/metrics, a span 1.3× one frame's between-model sd) means 0.95 is a *frame choice*, not an error. |
 | **C3** | The **`T_on` posterior mode is start-determined.** Chains never cross bands: 4 chains started in LOW/LOW/HIGH/MID stayed 100% in their start band over 4M draws. The barrier is real — all 16 chains sit 3.5–28.5× above a driftless-diffusion null of 2.0×. | **Mitigated, not eliminated** | Moderate. MID independently wins the equilibrated log-density by 5.7–6.9 nats (~40–140× after a volume correction), so the champion's mode is the right one — but it was verified *by a separate arm*, not by L14's own run. |
 | **C4** | **20 parameter marginals are not converged**, accepted under the documented `--accept-slr` deliverable gate. Projected SLR *is* converged across chains (R̂ < 1.05 at all horizons). | Disclosed gate | Moderate — must be stated in any write-up. |
-| **C5** | **The four sources' bands are not one object, and the document currently reports Ladrillo's NARROWEST one.** `ladrillo_model_comparison.py` builds Ladrillo and BRICK 2.0 from **FaIR-mean (fixed) forcing** — posterior-parameter spread only — while MAGICC and FACTS carry climate uncertainty. ⚠ **Measured 2026-08-29: this is not a caveat, it is a factor.** Ladrillo's JOINT band (the same posterior paired with 841 FaIR configs, already built for L21) is **1.2–5.3× wider at p17–p83** and up to **15.9× at p05–p95**, and the gap is scenario-dependent — **4.0–5.3× at ssp126** vs 1.5–1.8× at ssp585 — so the fixed band understates Ladrillo *most* exactly where it is being called narrow. **Medians are robust** (ssp126@2100 38.40 → 37.80 cm) **with one exception: ssp245@2300, where the fixed-driver median is a threshold artifact** (221.11 → **158.93 cm**; tipped fraction 59.6% → 48.3%). See §4.3. | **OPEN — a live defect in the comparison, not 'by construction'** | **High**, upgraded. Every width statement in §3–§4 inherits it, and it is the `like_for_like_forcing` trap. |
+| **C5** | **FIXED 2026-08-29 — the comparison now reports Ladrillo on the JOINT arm.** It previously built Ladrillo *and* BRICK 2.0 on FaIR-**mean** forcing while MAGICC and FACTS carried climate uncertainty. Measured cost of that choice: the joint band is **1.2–5.3× wider at p17–p83** (up to 15.9× at p05–p95) and **scenario-dependent** — 4.0–5.3× at ssp126 vs 1.5–1.8× at ssp585 — so the fixed band understated Ladrillo most exactly where it was being called narrow. `ladrillo_model_comparison.py` now substitutes the joint arm per cell, gated on the **exact** Greenland-tap effect. **48 of 54 reported cells are joint**; **6 are held on FIXED** — all ssp585, `gis`/`total`/`ais` at 2150 and 2300 — because `scope_slr_fair_uncertainty.jl` has no tap support and substituting there would drop **41.3 cm of GIS at ssp585/2300**. Every row now carries a `band_basis` column. ⚠ **BRICK 2.0 can never be made joint** and its widths stay incomparable. | **RESOLVED, with 6 cells disclosed** | **Low**, downgraded from High. What remains is that the single most-quoted cell — ssp585/2300 total, where MAGICC disagrees 2× — is one of the held six, so *there* the widths are still not like-for-like. Fixing that needs tap support in the joint driver plus a re-run, which is a separate job. |
 | **C6** | At a **1.09 amp centre** the ssp126 AIS band widens **6.5×** and is **not** bimodal tipping (<3% of draws tip at ssp126 in any arm) — mechanism unexplained. | OPEN | Low *for the shipped model*: at the adopted 0.95 centre the band is the narrow 6.91 cm. Flagged because it is unexplained, not because it is active. |
-| **C8** | **Scenario response is steeper than AR6's** — Ladrillo ÷ AR6 median 0.87/0.85/1.14 at 2100 and 0.74/0.80/1.46 at 2150. The ssp585−ssp126 spread is **1.49× AR6's at 2100** (2.23× at 2150); the migration moderated this from 1.81×/2.43× via the CMIP7 harmonization. ⚠ **But against the process models actually in this comparison, Ladrillo is MID-PACK, not steep** (measured 2026-08-29, total median ssp585−ssp126): 2100 — FACTS **29.8** < **Ladrillo 49.3** < MAGICC **62.3** < BRICK 2.0 **65.4** cm; 2150 — FACTS 56.9 < **Ladrillo 142.6** < BRICK 2.0 147.7 < MAGICC **217.0** cm. Ladrillo is *below* MAGICC and BRICK 2.0 at both horizons. The steepness is relative to **AR6 and FACTS**, not to process models generally. | **ACCEPTED 2026-08-29 (Marcus) — disclose, do not chase** | **Low–moderate**, downgraded from High. MAGICC's spread is larger than ours at both horizons, so this is a position within a spread of comparators, not an outlier. State the AR6 ratio and the comparator ordering together; quoting the AR6 ratio alone overstates it. |
+| **C8** | **Scenario response is steeper than AR6's** — Ladrillo ÷ AR6 median 0.87/0.85/1.14 at 2100 and 0.74/0.80/1.46 at 2150. The ssp585−ssp126 spread is **1.47× AR6's at 2100** (2.24× at 2150); the migration moderated this from 1.81×/2.43× via the CMIP7 harmonization. ⚠ **But against the process models actually in this comparison, Ladrillo is MID-PACK, not steep** (measured 2026-08-29, total median ssp585−ssp126): 2100 — FACTS **25.2** < **Ladrillo 48.5** < MAGICC **62.3** < BRICK 2.0 **65.4** cm; 2150 — FACTS 56.9 < **Ladrillo 143.5** < BRICK 2.0 147.7 < MAGICC **217.0** cm. Ladrillo is *below* MAGICC and BRICK 2.0 at both horizons. The steepness is relative to **AR6 and FACTS**, not to process models generally. | **ACCEPTED 2026-08-29 (Marcus) — disclose, do not chase** | **Low–moderate**, downgraded from High. MAGICC's spread is larger than ours at both horizons, so this is a position within a spread of comparators, not an outlier. State the AR6 ratio and the comparator ordering together; quoting the AR6 ratio alone overstates it. |
 | **C11** | **The Coulon comparison arms were re-specified on the temperature INTEGRAL** (2026-08-28) after the endpoint was shown insufficient: AIS@2300 is linear in the integral at **18.8 / 18.1 cm per °C-century** on two vintages with disjoint config sets, and endpoint selection was silently admitting **~105 cm (tant12) / ~62 cm (tant14)** of AIS ambiguity. The `+17.0 °C` arm now has **zero** supporting configs and is omitted, not substituted. Width vs Coulon: tant12 0.71→**0.65×**, tant14 1.01→**0.96×**. ⚠ Those moves confound **two** changes (L14→L21 *and* the selector) and are not attributable without an integral-centred L14 run. **The match to Coulon's own integral is now DELIVERED** (2026-08-29): their four GCMs' post-2100 series were built on both averaging domains, and the build reproduces the published endpoint table to **±0.00 K** on all four models and both domains from an independent path. ⚠ **The paper never states its averaging domain** (verified against the PMC full text), so the comparison is reported as a **BOUND, never a single number** — 2015–2299 integral, °C-century: **land proxy 23.59–32.89, all cells 23.10–29.51**, against our ensemble max 27.25 and 25.72 reachable at the median amp. Reachable **1 of 4 (land) / 2 of 4 (all cells)** — the *same* split as the endpoint, so the domain-sensitivity finding is robust to the statistic. ⚠ But **which** model flips differs: UKESM flips on the endpoint and not the integral (amp 0.951, 47.4th percentile, 0 configs — it just misses); IPSL flips on the integral. MRI is reachable throughout, CESM2-WACCM never. See `deliverables/coulon_comparison_bound.md`. | **RESOLVED as a bound** | Moderate. ⚠ The width moves (0.71→0.65×, 1.01→0.96×) confound L14→L21 with the selector re-spec and are **not** separately attributable. **Marcus 2026-08-29: that is accepted and will not be chased** — intermediate vintages need no forensic accounting, only L21's differences from **BRICK 2.0** need defensible reasons. Quote the bound and the reachability split, never the width-move deltas as if they were attributable. |
 | **C9** | **Amplification factors are assumed stationary** for glaciers and Antarctica. **Tested for glaciers (2026-08-27); the assumption holds** — on an early/modern split, window differences fall to ≤0.12 (<1 prior σ) once a free intercept is allowed, and the shipped 1901–2024 fit is within 0.23σ of a modern-only fit. Not covered: a *future* change in the ratio. | **TESTED — holds** | Low–moderate (downgraded). |
 | **C10** | **CMIP6 puts glacier amplification above the observations at every baseline frame** (obs ÷ CMIP6 = 0.71–0.99 across five frames, never reversing — so unlike Greenland's, it is not a frame artefact). Adopting it would raise R19 +0.15, SLOWP +0.36, and widen the priors 1.2–1.6×. Same fit-vs-provenance tension settled for the Antarctic amp; unsettled here. | **OPEN — a choice, not a defect** | Moderate. |
@@ -383,10 +396,20 @@ Every width statement in this document depends on this table. Measured 2026-08-2
 | ssp245 | 2.26× | 1.45× | 1.23× | 1.26× |
 | ssp585 | 1.76× | 1.64× | 1.47× | 1.57× |
 
-> **[MARCUS — decision]** The cheapest fix is to repoint the Ladrillo rows of
-> `ladrillo_model_comparison.py` at the JOINT arm for **width**, keep FIXED for the BRICK 2.0
-> hindcast comparison, and replace the blanket "widths are not comparable" disclaimer with a
-> per-row band-provenance column. That makes §4.2 a like-for-like comparison for the first time.
+> **DONE 2026-08-29.** The Ladrillo rows are repointed at the JOINT arm, BRICK 2.0 stays FIXED,
+> and the blanket disclaimer is replaced by a per-row `band_basis` column. §4.2 is a like-for-like
+> width comparison for the first time — **at 48 of 54 cells.**
+>
+> ⚠ **The gate reads the CAUSE, not a proxy, and that mattered.** A first version accepted a cell
+> when the joint driver's own fixed arm matched this table to within the median's sampling error.
+> That gate had **no power** on `total`/ssp585/2150, where a real 1.31 cm tap offset is smaller
+> than the total's own Monte-Carlo noise (`no_power_null`). The shipped gate instead differences
+> the two shipped files directly — an exact quantity with no noise floor, needing no tolerance —
+> and it was **mutation-tested**: disabling it lets all 54 cells through.
+>
+> **Still open:** the 6 held cells need tap support in `scope_slr_fair_uncertainty.jl` plus a
+> re-run of the joint band. Until then `ssp585/2300` — the largest disagreement in the whole
+> comparison — is compared on mismatched bands.
 
 ### 4.2 The comparison models — and what we can honestly say
 
@@ -399,7 +422,7 @@ Every width statement in this document depends on this table. Measured 2026-08-2
 |---|---|
 | **BRICK 2.0** | Hindcast is **substantially worse on both ice sheets** (AIS 38×, GIS 12× on full-window RMSE) and the Antarctic trajectory is qualitatively wrong pre-2000 (FIG 1). Its glacier module (Wigley–Raper) saturates. In this comparison it survives only as the **glacier-only** legacy arm. |
 | **FACTS** | **Not one number** — seven AR6 workflows. At ssp126/2100 the three process workflows alone span 39.8 (wf1f) – 46.1 (wf2f) cm, and `wf3f` carries **MICI** (deconto21), which at ssp585/2150 gives 310.7 cm against wf1f's 117.1 — a **2.7× spread inside FACTS itself**. **`wf4` is a structured-expert-judgement envelope** (bamber19 in both ice sheets), a deep-uncertainty width no calibrated model reproduces; including it in a median scores a model against an object it is not. **Stops at 2150**, so it cannot speak to the 2300 horizon at all. Operationally it is a heavyweight framework — the *simplicity* advantage you name is real and is about use, not correctness. |
-| **MAGICC-SLR** | SLR is **embedded in MAGICC**, so it cannot be exercised or recalibrated independently of the full climate emulator — the *standalone* advantage you name. Its **ssp585/2300 median of 1016 cm is ~2× Ladrillo's 514 cm**, with a 17–83% band of 691–1585 cm; that divergence is the single largest disagreement anywhere in the comparison and neither side is independently validated at 2300. Its bands carry climate uncertainty, so they are wider by construction and not comparable to ours. |
+| **MAGICC-SLR** | SLR is **embedded in MAGICC**, so it cannot be exercised or recalibrated independently of the full climate emulator — the *standalone* advantage you name. Its **ssp585/2300 median of 1016 cm is ~2× Ladrillo's 502 cm**, with a 17–83% band of 691–1585 cm; that divergence is the single largest disagreement anywhere in the comparison and neither side is independently validated at 2300. ⚠ **Its band is NO LONGER 'not comparable to ours'** — as of 2026-08-29 Ladrillo is reported on the JOINT arm, which carries climate uncertainty too, so the widths ARE now like-for-like at every cell except the 6 tap-held ones (§4.3). ssp585/2300 is one of the held cells, so **at the single largest disagreement in the comparison the widths are still not comparable** — Ladrillo's 439–575 there is a FIXED band. |
 
 > **[MARCUS — your judgement on how to weigh C1 against the comparison models' own
 > uncertainties, and the closing positioning paragraph.]**

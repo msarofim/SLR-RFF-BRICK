@@ -41,6 +41,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import gis_targets  # noqa: E402
 
+import numpy as np
 import pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -76,23 +77,112 @@ SCENARIOS = ["ssp126", "ssp245", "ssp585"]      # the three all four sources sha
 LABEL = {"ssp126": "SSP1-2.6", "ssp245": "SSP2-4.5", "ssp585": "SSP5-8.5"}
 COMPONENTS = ["glaciers", "gis", "ais", "te", "lws", "total"]
 SPREAD_LO, SPREAD_HI = "ssp126", "ssp585"
-COLS = ["source", "module", "scenario", "component", "year", "med", "p05", "p17", "p83", "p95"]
+COLS = ["source", "module", "scenario", "component", "year", "med", "p05", "p17", "p83", "p95",
+        "band_basis"]
+
+## ---------------------------------------------------------------------------
+## BAND PROVENANCE (2026-08-29). Every width statement downstream depends on WHICH
+## band each row carries, so it is now a COLUMN, not a footnote.
+##
+## Ladrillo is reported on the JOINT arm (posterior parameters x 841 FaIR configs)
+## wherever that arm is VALID, because MAGICC and FACTS carry climate uncertainty and
+## only the joint band is like-for-like against them (`like_for_like_forcing`).
+##
+## ⚠ WHERE IT IS NOT VALID, AND WHY THE GATE IS NOT STATISTICAL.
+## scope_slr_fair_uncertainty.jl has NO tap support (grepped: no "tap" in the file) --
+## it projects the UNTAPPED Greenland, while this comparison reports the TAPPED
+## deliverable. So the joint draws are the wrong ARM wherever the tap fires, and
+## substituting them there would silently drop 41 cm of GIS at ssp585/2300.
+##
+## The gate therefore reads the CAUSE, not a proxy: the exact per-cell tap effect,
+## differenced from the two SHIPPED files we already have. A first version compared the
+## joint driver's own FIXED arm against this table and accepted a cell when the gap sat
+## inside the median's sampling error -- that gate had NO POWER on total/ssp585/2150,
+## where a real 1.31 cm tap offset is smaller than the total's own Monte-Carlo noise
+## (`no_power_null`). An exact difference has no noise floor and needs no tolerance.
+TAP_EPS      = 0.0        # cm; a cell is joint-eligible only if the tap effect is EXACTLY zero
+BASIS_JOINT  = "joint (posterior params x FaIR forcing)"
+BASIS_TAPPED = "FIXED (tapped arm; no joint band exists)"
+BASIS_FIXED  = "fixed (posterior params, mean forcing)"
+BASIS_CLIM   = "climate + parameter"
+JOINT_GLOB   = "outputs/scope_slr_fairunc_draws_{ssp}_spliced_{tag}.csv"
 
 
-def _rows(df, source, module_col=None, module=None):
+def _rows(df, source, module_col=None, module=None, basis=""):
     out = df.copy()
     out["source"] = source
     out["module"] = out[module_col] if module_col else module
     for q in ("p05", "p17", "p83", "p95"):
         if q not in out:
             out[q] = float("nan")
+    if "band_basis" not in out:
+        out["band_basis"] = basis
     return out[COLS]
 
 
+def _tap_effect():
+    """EXACT per-cell |tapped - untapped| median, from the two shipped files. No noise,
+    so no tolerance is needed and none is invented. Returns {(scenario, component, year): cm}."""
+    import gis_targets as _gt
+    k = ["year", "ssp", "component"]
+    unt = pd.read_csv(_gt.ssps_csv(LADRILLO_TAG, False)).set_index(k)
+    tap = pd.read_csv(_gt.ssps_csv(LADRILLO_TAG, True)).set_index(k)
+    j = tap[["med"]].join(unt[["med"]], rsuffix="_u").reset_index()
+    j["scenario"] = j.ssp.map({v: k2 for k2, v in LABEL.items()})
+    return {(r.scenario, r.component, int(r.year)): abs(r.med - r.med_u)
+            for r in j.itertuples()}
+
+
+def _joint_bands():
+    """Per-cell joint-arm quantiles from the paired (posterior x FaIR config) draws."""
+    out = {}
+    for ssp in SCENARIOS:
+        f = os.path.join(REPO, JOINT_GLOB.format(ssp=ssp, tag=LADRILLO_TAG))
+        if not os.path.exists(f):
+            continue
+        d = pd.read_csv(f)
+        d = d[d.arm == "joint"]
+        for (comp, hz), g in d.groupby(["component", "horizon"]):
+            v = g.value_cm.values
+            q = np.percentile(v, [5, 17, 50, 83, 95])
+            out[(ssp, comp, int(hz))] = dict(p05=q[0], p17=q[1], med=q[2],
+                                             p83=q[3], p95=q[4], n=len(v))
+    return out
+
+
 def load_ladrillo():
+    """Ladrillo on the JOINT arm wherever that arm is valid, FIXED (tapped) where it is
+    not. The gate is the exact tap effect -- see the BAND PROVENANCE note above."""
     df = pd.read_csv(LADRILLO_CSV)
     df["scenario"] = df.ssp.map({v: k for k, v in LABEL.items()})
-    return _rows(df, "Ladrillo", module=LADRILLO_TAG)
+    df = _rows(df, "Ladrillo", module=LADRILLO_TAG, basis=BASIS_TAPPED)
+    tap, jb = _tap_effect(), _joint_bands()
+    n_j = n_t = n_missing = 0
+    for i, r in df.iterrows():
+        key = (r.scenario, r.component, int(r.year))
+        te = tap.get(key)
+        if te is None or te > TAP_EPS:            # tap fires (or unknown) -> keep FIXED
+            n_t += 1; continue
+        b = jb.get(key)
+        if b is None:
+            n_missing += 1; continue              # no joint draw for this cell -> keep FIXED
+        for q in ("med", "p05", "p17", "p83", "p95"):
+            df.at[i, q] = b[q]
+        df.at[i, "band_basis"] = BASIS_JOINT
+        n_j += 1
+    held = sorted(k for k, v in tap.items() if v > TAP_EPS and k[0] in SCENARIOS
+                  and k[1] in COMPONENTS and k[2] in HORIZONS)
+    rep = df[df.scenario.isin(SCENARIOS) & df.component.isin(COMPONENTS)
+             & df.year.isin(HORIZONS)]
+    print(f"[BAND] Ladrillo REPORTED cells: {(rep.band_basis == BASIS_JOINT).sum()} on the "
+          f"JOINT arm, {(rep.band_basis != BASIS_JOINT).sum()} held on FIXED, of {len(rep)}. "
+          f"(Non-horizon years are never reported and are left on FIXED.)")
+    if held:
+        print("[BAND] HELD ON FIXED because the joint driver has no tap support "
+              "(scope_slr_fair_uncertainty.jl); substituting there would drop the tap:")
+        for k in held:
+            print(f"          {k[1]:>8s} {k[0]} {k[2]}   tap effect {tap[k]:7.3f} cm")
+    return df
 
 
 def load_brick20():
@@ -118,15 +208,17 @@ def load_brick20():
     df = pd.read_csv(BRICK20_COMPONENTS_CSV)
     df["scenario"] = df.ssp.map({v: k for k, v in LABEL.items()})
     df = df.dropna(subset=["scenario"])
-    return _rows(df, "BRICK 2.0", module="BRICK2.0")
+    return _rows(df, "BRICK 2.0", basis=BASIS_FIXED, module="BRICK2.0")
 
 
 def load_magicc():
-    return _rows(pd.read_csv(MAGICC_CSV), "MAGICC-SLR", module="Nauels2025")
+    return _rows(pd.read_csv(MAGICC_CSV), "MAGICC-SLR", module="Nauels2025",
+                 basis=BASIS_CLIM)
 
 
 def load_facts():
-    return _rows(pd.read_csv(FACTS_CSV), "FACTS", module_col="module")
+    return _rows(pd.read_csv(FACTS_CSV), "FACTS", module_col="module",
+                 basis=BASIS_CLIM)
 
 
 def band(r):
@@ -145,8 +237,13 @@ def main():
     print("Ladrillo vs FACTS / MAGICC-SLR / BRICK 2.0 — cm, rel. 1995-2014 "
           "(FACTS rel. baseyear 2005)")
     print("median [17-83%]; * = 5-95% (that source reports no 17-83 band)")
-    print("BAND CAVEAT: BRICK bands are posterior-parameter spread on MEAN forcing; "
-          "MAGICC/FACTS bands also carry climate uncertainty. Compare MEDIANS.")
+    print("BAND BASIS is now a COLUMN, per row. Ladrillo is on the JOINT arm (posterior "
+          "params x FaIR\n  forcing) wherever the Greenland tap does not fire, which makes it "
+          "LIKE-FOR-LIKE against MAGICC\n  and FACTS. BRICK 2.0 is posterior-parameter spread "
+          "on MEAN forcing and can never be joint, so\n  its WIDTHS are not comparable to any "
+          "other source here -- compare its MEDIANS only.\n  ⚠ ssp585 gis/total/ais at "
+          "2150 and 2300 are HELD ON FIXED: the joint driver has no tap\n  support, so no "
+          "joint band exists for the tapped arm. Those rows say so in band_basis.")
 
     for y in HORIZONS:
         print(f"\n{'='*96}\n@{y}\n{'='*96}")
