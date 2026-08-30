@@ -64,12 +64,27 @@ OUT  = os.path.join(REPO, f"outputs/postpred_{TAG}_components.png")
 ## under an L21 figure until 2026-08-30. Verified for L21: chains are
 ## chain_L21_seed{2026..2029}_n2000000 (4 x 2M) and the subsample is 10,000 draws.
 PROV = {
+    ## ⚠ GLACIER AND GIS STRUCTURE ARE PER-ARM AND WERE MISLABELLED UNTIL 2026-08-30.
+    ## The panel title and caption said "Mengel 2-τ" under an L21 figure. The 2-τ form is
+    ## ONE reservoir with two relaxation timescales (params a, b, T_off, f, tau_f, tau_s --
+    ## see d0_glacier_shootout.py); extC REPLACED it (build_overdispersed_starts_extc.py
+    ## calls the 2-τ layout "the stale 2-tau 39-col file"). L21's posterior carries
+    ## gic_{a,b,T_off,log10_kappa}_{R19,SLOWP,FAST} -- THREE blocks with ONE relaxation
+    ## kappa each -- and no tau_f/tau_s. Verified from the subsample's own columns.
     "L21": dict(model="Ladrillo L21", calib="calib 1.6.0 + CMIP7",
                 chains="4x2M, 10k draws",
                 conv="convergence disclosed under the --accept-slr gate (20 marginals "
-                     "unconverged; projected SLR R-hat<1.05 at all horizons)"),
+                     "unconverged; projected SLR R-hat<1.05 at all horizons)",
+                glacier="THREE-reservoir Mengel-form glacier (blocks R19 / SLOWP / FAST, "
+                        "one relaxation κ each)",
+                gis="TWO-basin Greenland (active = SW+CW+CE+SE+NW, high = NO+NE), each "
+                    "basin carrying the A+B fast/slow channels",
+                gpanel="Glaciers (3-block: R19/SLOWP/FAST)", gispanel="Greenland (2-basin)"),
     "ext": dict(model="BRICK-Mengel (2026-06 'ext' fit)", calib="calib 1.4.5 (Smith)",
-                chains="4x500k, 10k draws", conv="27/28 R-hat<1.05"),
+                chains="4x500k, 10k draws", conv="27/28 R-hat<1.05",
+                glacier="Mengel 2-τ glacier (single reservoir, fast+slow relaxation), as "
+                        "labelled at that vintage",
+                gis="Greenland A+B", gpanel="Glaciers (Mengel 2-τ)", gispanel="Greenland"),
 }
 P = PROV.get(TAG)
 if P is None:
@@ -84,8 +99,8 @@ FRED_C, MODERN_C, MENGEL_C, OLD_C = "0.25", "#c0392b", "#1763b8", "#0f9b6c"
 OBSCOL = {"ais": "ais", "gsic": "gsic", "gis": "gis", "te": "steric", "total": "dang"}
 SRCLAB = {"ais": "GRACE-FO", "gsic": "GlaMBIE", "gis": "GRACE-FO", "te": "NOAA NCEI", "total": "NOAA STAR"}
 panels = [("ais",   "Antarctic Ice Sheet — GRACE-FO ext (post-2020 pause)"),
-          ("gsic",  "Glaciers (Mengel 2-τ) — GlaMBIE ext (acceleration)"),
-          ("gis",   "Greenland — GRACE-FO ext"),
+          ("gsic",  f"{P['gpanel']} — GlaMBIE ext (acceleration)"),
+          ("gis",   f"{P['gispanel']} — GRACE-FO ext"),
           ("te",    "Steric / Thermal expansion — NOAA NCEI ext"),
           ("total", "TOTAL GMSL — Dangendorf + NOAA STAR ext")]
 
@@ -172,9 +187,10 @@ fig.suptitle(f"Historical sea-level reconstruction: Ladrillo {TAG} vs stock BRIC
 # Audience = Tony Wong (BRICK author): present the four changes since stock BRICK
 # v2.0.0 (green dash-dot) EVENLY, not headlining the obs extension. FaIR is the
 # v2.2.4 MODEL with the v1.4.5 Smith calibration dataset (NOT "FaIR v1.4.5").
-fig.text(0.5, 0.012,
+fig.text(0.5, 0.008,
          f"{P['model']} = stock BRICK v2.0.0 (green dash-dot, plotted alongside) with four coupled upgrades, "
-         "weighted equally: (1) Mengel 2-τ temperature-dependent glacier replacing the single-reservoir glacier; "
+         f"weighted equally: (1) a {P['glacier']} replacing stock BRICK's single-reservoir glacier, with a "
+         f"{P['gis']}; "
          f"(2) FaIR 2.2.4 ({P['calib']}) obs-driven forcing — external GMST + ocean heat — replacing "
          f"SNEASY's internal climate; (3) Bayesian MCMC recalibration ({P['chains']}; {P['conv']}) to Frederikse "
          "2020 components + Dangendorf 2024 total, AIS equilibrium ocean temperature freed; (4) historical data drawn "
@@ -186,6 +202,8 @@ fig.text(0.5, 0.012,
          f"PRE-discrepancy residuals. For steric/TE the fit itself carries a −0.66 cm delta at 2025, and the residual "
          f"the likelihood actually scores there is ~4.5σ, not the ~17.8σ a bare-module reading gives.",
          ha="center", va="bottom", fontsize=7.6, color="0.3", wrap=True)
-fig.tight_layout(rect=[0, 0.055, 1, 0.915])
+## bottom margin sized for the CAPTION, which grew when the per-arm structure text was
+## added -- at 0.055 it overlapped the x-axis labels.
+fig.tight_layout(rect=[0, 0.105, 1, 0.915])
 fig.savefig(OUT, dpi=140)
 print(f"[wrote {OUT}]")
