@@ -8,6 +8,7 @@ dashed b=0.52 counterfactual (Mengel-published b, a rescaled to keep each draw's
 the physically-expected spread. Reads outputs/ssps_gsic_2300{,_mengel,_mengel_b052}.csv.
 """
 import os
+import subprocess
 import numpy as np, pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
@@ -64,8 +65,68 @@ if max(_w) - min(_w) > 1e-6:
         + "\n".join(_lines) + "\n"
         + "  Regenerate the lagging arm(s) (julia/project_ssps_gsic_2300_mengel.jl) or point "
           "this figure at a matched set. Do NOT relax this gate.")
-print("[VINTAGE] all %d inputs share a forcing vintage (delta vs current fair_mean = %.4f K)"
+print("[VINTAGE] all %d ARMS share a forcing vintage (delta vs current fair_mean = %.4f K)"
       % (len(_SRC), _w[0]))
+
+## CROSS-SSP PROVENANCE GATE, added 2026-08-30. THE GATE ABOVE CANNOT SEE THIS.
+## It compares each ARM against the CURRENT fair_mean file, so it proves the three arms
+## agree with each other -- not that the six SSPs agree with each other. They do not.
+## Only ssp126/245/585 have a calib 1.6.0 + CMIP7 cube (839a176, 2026-08-28); ssp119/370/460
+## have no 1.6.0 emissions file and remain calib 1.4.5, RCMIP-native. So panel (c)'s headline
+## "spread @2300" -- SSP5-8.5 minus SSP1-1.9 -- STRADDLES TWO CALIBRATIONS, and the caption
+## used to assert a "single vintage" it had never checked. Measured cost of the split on that
+## statistic: 0.11 cm of the posterior arm's 3.72 cm and 0.07 cm of the b=0.52 arm's 12.87 cm
+## (1.4.5 -> 1.6.0 on ssp585 alone), i.e. ~3% and ~0.5%. Disclosed, not fatal.
+## Declared as a NAMED CONSTANT so a future regeneration cannot change the mix silently:
+## if someone builds ssp119 on 1.6.0 and does not update this table, the gate fires.
+_DRIVER_PROVENANCE = {                       # ssp -> (commit that wrote fair_mean_gmst_<ssp>.csv, calib)
+    "ssp119": ("f2b0a8d", "calib 1.4.5 / RCMIP-native"),
+    "ssp126": ("839a176", "calib 1.6.0 / CMIP7-harmonized"),
+    "ssp245": ("839a176", "calib 1.6.0 / CMIP7-harmonized"),
+    "ssp370": ("f2b0a8d", "calib 1.4.5 / RCMIP-native"),
+    "ssp460": ("f2b0a8d", "calib 1.4.5 / RCMIP-native"),
+    "ssp585": ("839a176", "calib 1.6.0 / CMIP7-harmonized"),
+}
+
+
+def _driver_commit(ssp):
+    """Short hash of the commit that last wrote this SSP's mean-GMST driver."""
+    out = subprocess.run(["git", "log", "-1", "--format=%h", "--",
+                          "data/observations/fair_mean_gmst_%s.csv" % ssp],
+                         capture_output=True, text=True)
+    return out.stdout.strip()
+
+
+_actual = {s: _driver_commit(s) for s in _DRIVER_PROVENANCE}
+_drift = {s: (_actual[s], c) for s, (c, _) in _DRIVER_PROVENANCE.items()
+          if _actual[s] and not (_actual[s].startswith(c) or c.startswith(_actual[s]))}
+if any(not v for v in _actual.values()):
+    ## FATAL, not a warning. An "unverified" that still draws is the vacuous pass this gate
+    ## exists to prevent -- caught by mutation-testing it against an untracked path.
+    raise SystemExit(
+        "[PROVENANCE] git returned nothing for %d of %d driver(s), so the calibration mix is "
+        "UNVERIFIED and this figure must not be drawn: %s\n"
+        "  Run from inside the SLR-RFF-BRICK checkout, with the drivers committed."
+        % (sum(1 for v in _actual.values() if not v), len(_actual),
+           sorted(s for s, v in _actual.items() if not v)))
+elif _drift:
+    raise SystemExit(
+        "[PROVENANCE] a driver moved off its declared commit, so the calibration mix in this "
+        "figure is not what _DRIVER_PROVENANCE says:\n"
+        + "\n".join("    %-8s now %s, declared %s" % (s, a, d) for s, (a, d) in sorted(_drift.items()))
+        + "\n  Update _DRIVER_PROVENANCE *and* the caption together. Do NOT drop this gate.")
+else:
+    _by_calib = {}
+    for s, (_, cal) in _DRIVER_PROVENANCE.items():
+        _by_calib.setdefault(cal, []).append(s)
+    print("[PROVENANCE] %d drivers verified against declared commits; %d calibration(s) in this figure:"
+          % (len(_actual), len(_by_calib)))
+    for cal, ss in sorted(_by_calib.items()):
+        print("    %-32s %s" % (cal, " ".join(sorted(ss))))
+_MIXED = len({cal for _, cal in _DRIVER_PROVENANCE.values()}) > 1
+_CALIB_NOTE = ("ssp126/245/585 calib 1.6.0 + CMIP7, ssp119/370/460 calib 1.4.5 (no 1.6.0 cube exists), "
+               "so the 2300 spreads marked † straddle two calibrations"
+               if _MIXED else "one calibration throughout")
 
 WR, MEN, MENCF = (_loaded["WR (ssps_gsic_2300)"],
                   _loaded["Mengel (ssps_gsic_2300_mengel)"],
@@ -74,6 +135,8 @@ SSPS = ["SSP1-1.9","SSP1-2.6","SSP2-4.5","SSP4-6.0","SSP3-7.0","SSP5-8.5"]
 COL = {"SSP1-1.9":"#00a9cf","SSP1-2.6":"#003466","SSP2-4.5":"#f69320",
        "SSP4-6.0":"#c8a000","SSP3-7.0":"#df0000","SSP5-8.5":"#7a0002"}
 X0, X1 = 2000, 2300
+# the spread is SSP5-8.5 minus SSP1-1.9 = a 1.6.0 endpoint minus a 1.4.5 one -- flag it on the label
+_SPREAD_FLAG = " †" if _MIXED else ""
 
 def series(df, ssp):
     d = df[df.ssp == ssp].sort_values("year"); m = (d.year >= X0)
@@ -114,8 +177,8 @@ ax[2].text(0.012, 0.93, "(c)  Mengel — posterior spread is too small; b=0.52 r
            transform=ax[2].transAxes, fontsize=9.5, fontweight="bold", va="top")
 sp_post = MEN[(MEN.year==2300)&(MEN.ssp=="SSP5-8.5")].gsic_med.values[0] - MEN[(MEN.year==2300)&(MEN.ssp=="SSP1-1.9")].gsic_med.values[0]
 sp_cf   = MENCF[(MENCF.year==2300)&(MENCF.ssp=="SSP5-8.5")].gsic_med.values[0] - MENCF[(MENCF.year==2300)&(MENCF.ssp=="SSP1-1.9")].gsic_med.values[0]
-ax[2].legend(handles=[Line2D([],[],color="0.3",ls="-", label=f"extA108 (b→0.89): {sp_post:.1f} cm spread @2300"),
-                      Line2D([],[],color="0.3",ls="--",label=f"b=0.52 (Mengel-pub): {sp_cf:.1f} cm spread @2300")],
+ax[2].legend(handles=[Line2D([],[],color="0.3",ls="-", label=f"extA108 (b→0.89): {sp_post:.1f} cm spread @2300{_SPREAD_FLAG}"),
+                      Line2D([],[],color="0.3",ls="--",label=f"b=0.52 (Mengel-pub): {sp_cf:.1f} cm spread @2300{_SPREAD_FLAG}")],
              fontsize=8, frameon=False, loc="lower right")
 
 for a in (ax[1], ax[2]):
@@ -137,7 +200,8 @@ ax[3].legend(handles=[Line2D([],[],color=COL["SSP1-1.9"],label="SSP1-1.9"),
 
 fig.text(0.5, 0.004,
          "BRICK 2.0 WR posterior (parameters_subsample_brick.csv) vs Mengel gic_* (BRICK-AM extA108); 1000 draws each, "
-         "FaIR 2.2.4 SSP GMST (single vintage, gate-enforced).\nHistory constrains a·b, not b alone → the extA108 b saturates S_eq and "
+         "FaIR 2.2.4 SSP GMST — all three ARMS on one vintage (gate-enforced), but the SSPs are NOT: "
+         + _CALIB_NOTE + ".\nHistory constrains a·b, not b alone → the extA108 b saturates S_eq and "
          "compresses the scenario spread. Absolute magnitudes differ by calibration — the SHAPE is the point.",
          fontsize=6.6, ha="center", color="0.35")
 fig.savefig("figures/ssps_gsic_wr_vs_mengel_2300.png", dpi=150, bbox_inches="tight")

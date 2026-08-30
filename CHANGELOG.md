@@ -3,6 +3,69 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## 2026-08-31 — the Mengel glacier arms regenerated, and a SECOND vintage the first gate could not see
+
+**The stated next step, done.** `julia/project_ssps_gsic_2300_mengel.jl` re-run on the current mean
+forcing, so `plot_ssps_gsic_wr_vs_mengel.py` draws again. The 1.4.5 predecessors are quarantined at
+`outputs/quarantine/20260830b_mengel_arm_calib145_forcing/` with a README. The fix was to regenerate
+the lagging arm, as the gate's own message instructed — **the gate was not relaxed**.
+
+**A free correctness check fell out of it.** ssp119/370/460 have no 1.6.0 cube, so their driver did
+not move; their GSIC@2300 came back **bit-identical (+0.00 cm)** across the re-run, while
+ssp126/245/585 moved. Same seed, same posterior, unchanged driver ⇒ unchanged output is what a
+correct re-run looks like, and it isolates the change to the three SSPs that actually moved:
+
+| arm | ssp126 | ssp245 | ssp585 | 119/370/460 |
+|---|---|---|---|---|
+| posterior (b→0.89) | +0.27 | +0.16 | +0.11 | +0.00 |
+| b=0.52 counterfactual | +0.60 | +0.25 | +0.07 | +0.00 |
+
+⚠ **ssp585 melts MORE on a driver that is cooler everywhere** (2050/2100/2300: 2.300→2.122,
+4.693→4.312, 7.815→7.498 K). Not a bug and worth stating, because it looks like one: the series is
+re-referenced to 1995–2014, the 1.6.0 CMIP7 history is ~0.03 K cooler over that window than the
+1.4.5 RCMIP one, so **less melt accumulates by 2014 and a smaller baseline is subtracted**. At
+b→0.89 S_eq saturates by ~1.3 °C, so the cooler projection barely offsets it. The ordering of the
+shifts (126 > 245 > 585) is what a common baseline shift plus a scenario-dependent projection term
+predicts.
+
+### The second vintage: A GATE THAT COMPARES ARMS CANNOT SEE A SPLIT ACROSS SSPs
+
+The `[VINTAGE]` gate added in `062956a` checks each of the three ARMS against the CURRENT
+`fair_mean_gmst_<ssp>.csv`. It passes at 0.0000 K. It is also **blind by construction** to the
+question of whether the six SSPs are on one calibration — and they are not, and have not been since
+`839a176` (2026-08-28): **ssp126/245/585 are calib 1.6.0 + CMIP7, ssp119/370/460 are calib 1.4.5
+and RCMIP-native**, because no 1.6.0 emissions file exists for the latter three. Building them is a
+real analysis decision (a CMIP7-harmonized emissions file and an L/M/H marker mapping per SSP), not
+a mechanical port — **left for Marcus, not resolved here**.
+
+This mattered to a printed number: panel (c)'s headline **"spread @2300" is SSP5-8.5 minus
+SSP1-1.9 — a 1.6.0 endpoint minus a 1.4.5 one.** The caption meanwhile asserted "single vintage,
+**gate-enforced**", a claim no gate had ever tested. Measured exposure: **0.11 cm of the posterior
+arm's 3.72 cm (~3%) and 0.07 cm of the b=0.52 arm's 12.87 cm (~0.5%)**; the same statistic on the
+Wigley–Raper arm moves 10.94 → 11.10 cm. Small — which is *why* it needed measuring rather than
+assuming, in either direction.
+
+**Fix: a `[PROVENANCE]` gate reading git, not content.** The calibration of a driver is not
+recoverable from the file (`year,gmst_C` and nothing else), so the gate asks
+`git log -1 --format=%h` per driver and compares against `_DRIVER_PROVENANCE`, a **named constant**
+declaring the commit and calibration for all six. Precedent: `run_mcmc_L21.sh:68` already gates a
+driver on commit `632f330` this way. Today declared == actual, so it passes and prints the split;
+if anyone later builds ssp119 on 1.6.0 without updating the table, **it fires**. The caption and the
+panel-(c) legend now carry the split and a † on the two straddling numbers, derived from the same
+constant so they cannot drift apart from it.
+
+**Mutation-tested both ways** (a gate that passes is not a gate that works):
+1. declare ssp119 at `839a176` → fires, naming the drifted SSP and both hashes. ✔
+2. point the git query at an untracked path → **first version printed "UNVERIFIED" and drew the
+   figure anyway.** That is the vacuous pass this gate exists to prevent, reintroduced by its own
+   author. Made fatal; re-tested. ✔ The lesson from `062956a` — print N and make N == 0 an error —
+   has to be applied to the *new* gate too, not just remembered about the old one.
+
+**Tried and rejected:** freezing the run script into the scratchpad (per the never-edit-a-running-
+script rule) — the script resolves `brick_mengel.jl` and `REPO` off `@__DIR__`, so a copy outside
+`julia/` cannot find its include. Frozen to `julia/.frozen_run_mengel_20260830.jl` instead (deleted
+after the run). ~7 min, single-threaded, BLAS pinned.
+
 ## 2026-08-30 (later still) — the BRICK 2.0 JOINT BAND, and what it changed
 
 `scope_slr_fairunc_oldbrick.jl` propagates BRICK 2.0's published posterior across the same 841
