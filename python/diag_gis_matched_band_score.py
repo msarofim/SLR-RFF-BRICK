@@ -58,7 +58,7 @@ DERIV = os.path.join(REPO, "outputs/gis_matched_targets_2300.csv")
 OUT = os.path.join(REPO, "outputs/diag_gis_matched_band_score.csv")
 
 # --- named constants; every label below derives from these --------------------
-LINEAGE = "L14 canonical (two-basin), extended axis 1850-3001, thinned posterior"
+LINEAGE = "L14 vintage (two-basin), extended axis 1850-3001, thinned posterior"
 YEARS_EXT = np.arange(1850, 3002)
 DRIVER_BASE = (1850, 1900)          # the GMST rebase window (the frame contract)
 HORIZON = 2300

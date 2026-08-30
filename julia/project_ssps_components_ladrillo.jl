@@ -70,7 +70,7 @@ end
 ##   python/scope_gis_reservoir_offline.py   (DELIVERABLE; the offline emulator the
 ##                                            whole cell selection is built on)
 ##   python/scope_gis_ridge_vs_ssp_bands.py  ("the untapped shipped arm")
-##   python/diag_gis_npv_tau_sensitivity.py  ("L14 canonical, UNTAPPED base")
+##   python/diag_gis_npv_tau_sensitivity.py  ("L14 vintage, UNTAPPED base")
 ##   julia/test_gis_tap_wiring.jl            (SPREAD_SRC, the 2150 tolerance)
 ## -- and the last of those would become SELF-REFERENTIAL: it scales "how far may
 ## the tap move 2150" by a sampled spread that would then already contain the tap.

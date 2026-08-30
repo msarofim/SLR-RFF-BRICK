@@ -54,7 +54,7 @@ OUT_OURS = os.path.join(REPO, "outputs/diag_gis_obs_scorecard_ours.csv")
 OBS_CSV = os.path.join(REPO, "outputs/recalib_targets_ext.csv")
 
 # --- named constants ----------------------------------------------------------
-LINEAGE = "L14 canonical (two-basin), extended axis, thinned posterior"
+LINEAGE = "L14 vintage (two-basin), extended axis, thinned posterior"
 MM_PER_CM = 10.0
 ## The same window and the same observational series the Greve gate used, so the
 ## PASS/FAIL verdicts here are directly comparable to the ones already on record.

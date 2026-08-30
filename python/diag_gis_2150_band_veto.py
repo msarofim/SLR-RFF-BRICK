@@ -71,7 +71,10 @@ WIDE = os.path.join(REPO, "outputs/scope_gis_reservoir_offline_wideV.csv")
 OUT = os.path.join(REPO, "outputs/diag_gis_2150_band_veto.csv")
 
 # --- named constants ---------------------------------------------------------
-LINEAGE = f"L14 canonical (two-basin), {A.TAG}"
+# ⚠ label DERIVES from the tag: this read "L14 vintage (two-basin), {A.TAG}" until
+# 2026-08-29, which printed "L14 vintage ... L21" when run on L21. L21 has been
+# champion since 2026-08-28; "canonical" must never be hardcoded to a vintage.
+LINEAGE = f"two-basin GIS, posterior tag={A.TAG}"
 YEAR = 2150                       # the horizon under test
 ARMS = [("ssp585", "SSP5-8.5", "r2300"), ("ssp585", "SSP5-8.5", "x2300")]
 VETO_ARM = ("ssp585", "SSP5-8.5", "x2300")     # the one that fires

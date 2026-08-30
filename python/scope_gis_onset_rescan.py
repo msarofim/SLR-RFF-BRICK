@@ -96,7 +96,7 @@ ISM_REF = os.path.join(REPO, "outputs/diag_gis_ismip6_2100_ism_spread_arms.csv")
 
 # --- named constants ----------------------------------------------------------
 TAG = A.TAG
-LINEAGE = "L14 canonical (two-basin), extended axis 1850-3001, thinned posterior"
+LINEAGE = "L14 vintage (two-basin), extended axis 1850-3001, thinned posterior"
 ONSET_SHIPPED_K = 4.69
 ## The ladder range, from the three equilibrium sources: Yelmo-REMBO 1.68-1.76 K,
 ## PISM-dEBM 2.18-2.60 K, CLIMBER-X 1.44-2.24 K.

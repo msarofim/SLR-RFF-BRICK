@@ -56,7 +56,7 @@ ISM_REF = os.path.join(REPO, "outputs/diag_gis_ismip6_2100_ism_spread_arms.csv")
 OUT = os.path.join(REPO, "outputs/diag_gis_2150_structural_spread.csv")
 
 # --- named constants ---------------------------------------------------------
-LINEAGE = "L14 canonical (two-basin), extended axis 1850-3001"
+LINEAGE = "L14 vintage (two-basin), extended axis 1850-3001"
 YEAR = 2150
 BASE_YEAR = 2100                 # where ISM structural spread is observable
 VETO_ARM = ("ssp585", "SSP5-8.5", "x2300")

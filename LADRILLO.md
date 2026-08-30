@@ -6,9 +6,17 @@ If you are picking this up cold, read this file plus
 `notes/handoff_2026-08-23f_v564_and_amp_law.md` (the current pickup document);
 everything else is detail.
 
-**Status 2026-08-23.** Branch `ladrillo-dev`. Posterior **L14**, canonical since
-2026-08-20. Both replaced components are shipped, gated in `run_ladrillo_tests.sh`,
-and certified at this vintage. **Greenland has its own module memo** —
+**Status 2026-08-29.** Branch `ladrillo-dev`. Posterior **L21 — champion on all six
+modules since 2026-08-28** (`benchmark/champions.json`): L14's exact configuration re-run on
+**FaIR 2.2.4 (calib 1.6.0) + CMIP7** drivers. Promoted for **coherence, not fit** — L14 is
+fit to drivers that no longer exist in the tree — and TE got **1.2355× worse than BRICK 2.0**
+in the process (L14 was 0.9875×).
+⚠ **This header said 'Posterior L14, canonical since 2026-08-20' until 2026-08-29.** L14's
+*configuration* survives in L21; L14 as a *posterior* does not.
+⚠ **Numbers below have NOT all been regenerated on L21 — see §4.**
+
+Both replaced components are shipped and gated in `run_ladrillo_tests.sh`; the convergence
+certificates were cut at the **L14** vintage and have not been re-cut on L21. **Greenland has its own module memo** —
 `notes/memo_2026-08-23_greenland_module.md` — which is the authority on that
 component; this file gives the model-level view and does not duplicate it.
 
@@ -190,8 +198,14 @@ The base arm is needed as well as the tapped one: `test_gis_tap_wiring.jl` measu
 
 ## 4. Headline numbers
 
-Total sea level, cm rel. 1995–2014, FaIR-mean forcing, **L14 tapped** (the shipped
-arm), 2000 draws:
+⚠ **THESE ARE L14 NUMBERS AND KEEP THAT LABEL UNTIL RE-RUN.** L21 has been champion since
+2026-08-28 and this table has not been regenerated on it. Do **not** relabel these as L21.
+⚠ **FaIR-MEAN forcing = a FIXED driver**, so this band is posterior-parameter spread only and
+carries no forcing uncertainty. It is **not** the JOINT band, and it is not comparable in
+width to MAGICC or FACTS. See the band-provenance table in the model document.
+
+Total sea level, cm rel. 1995–2014, FaIR-mean forcing, **L14 tapped** (the arm shipped at
+that vintage), 2000 draws:
 
 | ssp | glaciers | gis | ais | te | **total (p17–p83)** |
 |---|---|---|---|---|---|

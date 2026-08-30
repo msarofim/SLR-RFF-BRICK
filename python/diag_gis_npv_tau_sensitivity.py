@@ -45,7 +45,7 @@ THE MARGINAL (§4) IS COMPUTED, NOT ASSUMED
   verdict carries over to the per-tonne SC-GHG quantity.
 
 INPUTS (all already on disk; nothing is refit, no model is run)
-  outputs/ssps_components_2300_L14.csv     L14 canonical, UNTAPPED base, med
+  outputs/ssps_components_2300_L14.csv     L14 vintage, UNTAPPED base, med
   data/observations/fair_mean_gmst_<ssp>.csv
 
 WRITES outputs/diag_gis_npv_tau_sensitivity.csv  (+ _cells.csv)
@@ -73,7 +73,7 @@ OUT = os.path.join(REPO, "outputs/diag_gis_npv_tau_sensitivity.csv")
 OUT_CELLS = os.path.join(REPO, "outputs/diag_gis_npv_tau_sensitivity_cells.csv")
 OUT_MARG = os.path.join(REPO, "outputs/diag_gis_npv_tau_sensitivity_marginal.csv")
 
-LINEAGE = "L14 canonical (two-basin), untapped base, median trajectory"
+LINEAGE = "L14 vintage (two-basin), untapped base, median trajectory"
 NPV_BASE_YEAR = 2030          # SC-GHG pulse year; discounting is dated from here
 NPV_END_YEAR = 2300           # the deliverable's horizon
 SLR_BASE_WIN = (2015, 2025)   # 11-yr present-day datum (never a single year)
