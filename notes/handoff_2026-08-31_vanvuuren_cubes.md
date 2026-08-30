@@ -167,7 +167,24 @@ LEVEL, HL-vs-H differs in TIMING. For a commitment-focused SLR paper this is the
 
 Four genuine peak-and-decline pathways (VL, LN, ML, HL) vs the SSPs' one (ssp119).
 
-**Ladrillo joint arm: RUNNING at handoff time** (7 markers x ~8 min). Logs at
+**Ladrillo joint arm: ALL 7 DONE** (commit `f37a6d4`), each with `[CONTROL] SKIPPED`, no errors.
+Both models on the SAME cube, so widths are like-for-like. Ladrillo/BRICK 2.0 p05-p95 width ratio,
+total @2300: Very Low 0.28 | Low 0.26 | Low-to-Negative 0.30 | Medium-to-Low 0.67 | High-to-Low 0.77
+| Medium 1.17 | High 0.95.
+
+⚠ **THIS REPLICATES THE COOL-SCENARIO UNDER-DISPERSION on a different scenario family** (the 08-30
+SSP result: 2.8x at ssp126/2100, 4.4x at ssp126/2300, ~13% at ssp585). Seven points trace a monotone
+gradient where three could not.
+
+⚠ **AND IT SEPARATES PEAK FROM ENDPOINT WARMING.** VL, L, LN and HL all END between 0.29 and 1.38 K
+while their PEAKS span 1.76-2.96 K; the ratio tracks the PEAK (0.26-0.30 cool-peaking, 0.77 for HL),
+Spearman **+0.93 peak vs +0.64 endpoint**. **n = 7 -- a direction to check, NOT a test**; the CI on
+rho at n=7 is very wide. Recorded as a hypothesis for C7-adjacent work. The SSP set cannot pose the
+question at all, since its peak and endpoint are near-monotonically related.
+
+Medians: Ladrillo below BRICK 2.0 everywhere except High @2300 (413.8 vs 414.0 cm).
+
+(superseded note) Ladrillo was still running at first writing: (7 markers x ~8 min). Logs at
 `<scratch>/lad_vv<MARKER>.log`; outputs `outputs/scope_slr_fairunc_{cells,paths,gates}_vv<M>_spliced_L21_tap4p69K_V5p64m_tau800.csv`.
 **Check each for `ladrillo vv<M> OK` and a `[CONTROL] SKIPPED` line before using them.**
 
@@ -184,5 +201,5 @@ Four genuine peak-and-decline pathways (VL, LN, ML, HL) vs the SSPs' one (ssp119
   Wigley-Raper-commitment vs Mengel-stabilization far better than ssp119 alone. It would ALSO
   dissolve that figure's mixed-vintage caveat (see the 08-30 CHANGELOG entry), since all 7 markers
   come from one build on one calibration.
-* **Nothing is committed yet** as of writing this note.
+* **Committed:** `SLR-RFF-BRICK` 0c11029 (Mengel arms), 6cc34b6 (cubes + driver fixes + BRICK 2.0), f37a6d4 (Ladrillo x7); `FaIRtoFrEDI` worktree `claude/calib160-migration` 7fde943 (builder + stochastic A/B).
 * The five `[MARCUS —]` placeholders remain the model document's only blocker.
