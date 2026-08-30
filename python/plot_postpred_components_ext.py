@@ -18,9 +18,11 @@ Inputs:  outputs/postpred_ext_components_timeseries.csv (new BRICK-Mengel, exten
          outputs/postpred_oldbrick_components_timeseries.csv (old stock BRICK)
          outputs/recalib_targets_ext_sources.csv (Frederikse vs modern, separated)
          outputs/recalib_targets_ext.csv (obs uncertainty bands)
-Output:  outputs/postpred_ext_components.png
+Output:  outputs/postpred_<TAG>_components.png  (--tag=, default L21 = the champion;
+         --tag=ext reproduces the legacy 2026-06-13 outputs/postpred_ext_components.png)
 """
 import os
+import sys
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -30,11 +32,49 @@ import matplotlib.lines as ml
 import matplotlib.patches as mp
 
 REPO = os.path.expanduser("~/Documents/2026/CodeProjects/SLR-RFF-BRICK")
-d    = pd.read_csv(os.path.join(REPO, "outputs/postpred_ext_components_timeseries.csv"))
+
+## --tag= SELECTS THE MODEL ARM, and 2026-08-30 it defaults to the CHAMPION.
+## This script was hardcoded to outputs/postpred_ext_components_timeseries.csv, a
+## 2026-06-13 vintage that predates L14, L21 and the calib 1.6.0 migration, so the figure
+## on disk was 2.5 months behind the model it claimed to show. `--tag=ext` still reads
+## that legacy file for provenance.
+## ⚠ THE OUTPUT NAME CARRIES THE TAG, so regenerating on L21 cannot overwrite the legacy
+## figure -- the rule scope_ais_ton_band_hindcast.jl broke at the cost of a measurement.
+TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L21")
+_src = ("outputs/postpred_ext_components_timeseries.csv" if TAG == "ext"
+        else f"outputs/postpred_{TAG}_components_timeseries.csv")
+d    = pd.read_csv(os.path.join(REPO, _src))
+## SCHEMA SHIM. The legacy `ext` file uses `<c>_p5` and calls the glacier component
+## `gsic`; the tagged postpred writer uses `<c>_p05` and `glaciers`. Normalise onto the
+## legacy names the plotting code below already speaks, rather than touching that code.
+d = d.rename(columns={c: c.replace("glaciers_", "gsic_") for c in d.columns})
+d = d.rename(columns={c: c.replace("_p05", "_p5") for c in d.columns})
+_need = [f"{c}_{q}" for c in ("ais", "gsic", "gis", "te", "total") for q in ("p5", "p50", "p95", "obs")]
+_missing = [c for c in _need if c not in d.columns]
+if _missing:
+    raise SystemExit(f"{_src} is missing {_missing} -- schema shim needs updating.")
 old  = pd.read_csv(os.path.join(REPO, "outputs/postpred_oldbrick_components_timeseries.csv")).set_index("year")
 tg   = pd.read_csv(os.path.join(REPO, "outputs/recalib_targets_ext.csv")).set_index("year")
 prov = pd.read_csv(os.path.join(REPO, "outputs/recalib_targets_ext_sources.csv")).set_index("year")
-OUT  = os.path.join(REPO, "outputs/postpred_ext_components.png")
+OUT  = os.path.join(REPO, f"outputs/postpred_{TAG}_components.png")
+
+## PROVENANCE PER ARM, as named constants, because the caption must not be able to drift
+## from the arm it describes (`figure_captions`). ⚠ The hardcoded caption said
+## "v1.4.5 Smith calibration ... 4x500k, 27/28 R-hat<1.05" — L11-era facts still printed
+## under an L21 figure until 2026-08-30. Verified for L21: chains are
+## chain_L21_seed{2026..2029}_n2000000 (4 x 2M) and the subsample is 10,000 draws.
+PROV = {
+    "L21": dict(model="Ladrillo L21", calib="calib 1.6.0 + CMIP7",
+                chains="4x2M, 10k draws",
+                conv="convergence disclosed under the --accept-slr gate (20 marginals "
+                     "unconverged; projected SLR R-hat<1.05 at all horizons)"),
+    "ext": dict(model="BRICK-Mengel (2026-06 'ext' fit)", calib="calib 1.4.5 (Smith)",
+                chains="4x500k, 10k draws", conv="27/28 R-hat<1.05"),
+}
+P = PROV.get(TAG)
+if P is None:
+    raise SystemExit(f"--tag={TAG}: no provenance entry. Add one to PROV rather than "
+                     f"letting the caption describe an arm it was not written for.")
 
 X0, SPLICE = 1920, 2018                 # plot start; Frederikse->modern handoff year
 REF0, REF1 = 1970, 2020                 # DISPLAY re-reference window (calibration used 1995-2005)
@@ -101,7 +141,7 @@ fig.legend(handles=[
     mp.Patch(color="0.80", alpha=0.55, label="obs uncertainty"),
     ml.Line2D([], [], color=FRED_C, lw=1.7, label="Frederikse 2020 / Dangendorf (≤2018)"),
     ml.Line2D([], [], color=MODERN_C, lw=1.3, ls="--", marker="o", ms=3, label="modern extension (GRACE-FO/GlaMBIE/NOAA, ≥2003)"),
-    ml.Line2D([], [], color=MENGEL_C, lw=2.1, label="BRICK-Mengel (new fit): median + 90% param"),
+    ml.Line2D([], [], color=MENGEL_C, lw=2.1, label=f"{P['model']}: median + 90% param"),
     ml.Line2D([], [], color=OLD_C, lw=1.5, ls="-.", label="old BRICK (single-reservoir, old posterior)"),
 ], fontsize=8.2, loc="upper center", bbox_to_anchor=(0.5, 0.945), ncol=5, framealpha=0.9)
 
@@ -126,21 +166,25 @@ axr.legend(fontsize=7.5, loc="upper right", title="end-yr Δ (cm)", title_fontsi
 for ax in axes[1, :]:
     ax.set_xlabel("year")
 
-fig.suptitle("Historical sea-level reconstruction: BRICK-Mengel vs stock BRICK v2.0.0", fontsize=13, y=0.985)
+fig.suptitle(f"Historical sea-level reconstruction: Ladrillo {TAG} vs stock BRICK v2.0.0 "
+             f"vs observations", fontsize=13, y=0.985)
 
 # Audience = Tony Wong (BRICK author): present the four changes since stock BRICK
 # v2.0.0 (green dash-dot) EVENLY, not headlining the obs extension. FaIR is the
 # v2.2.4 MODEL with the v1.4.5 Smith calibration dataset (NOT "FaIR v1.4.5").
 fig.text(0.5, 0.012,
-         "Current BRICK-Mengel = stock BRICK v2.0.0 (green dash-dot, plotted alongside) with four coupled upgrades, "
+         f"{P['model']} = stock BRICK v2.0.0 (green dash-dot, plotted alongside) with four coupled upgrades, "
          "weighted equally: (1) Mengel 2-τ temperature-dependent glacier replacing the single-reservoir glacier; "
-         "(2) FaIR v2.2.4 (v1.4.5 Smith calibration) obs-driven forcing — external GMST + ocean heat — replacing "
-         "SNEASY's internal climate; (3) Bayesian MCMC recalibration (4×500k, 27/28 R̂<1.05; 10k draws) to Frederikse "
+         f"(2) FaIR 2.2.4 ({P['calib']}) obs-driven forcing — external GMST + ocean heat — replacing "
+         f"SNEASY's internal climate; (3) Bayesian MCMC recalibration ({P['chains']}; {P['conv']}) to Frederikse "
          "2020 components + Dangendorf 2024 total, AIS equilibrium ocean temperature freed; (4) historical data drawn "
          "from Frederikse 2020 (grey), extended with GRACE-FO (AIS/GIS), GlaMBIE (glaciers), NOAA NCEI (steric), "
          "NOAA STAR (total) — spliced at 2018 (dotted) by overlap offset-matching (no rescale; modern curve drawn over "
          f"its full range incl. the 2003–2018 overlap). Model bands carry PARAMETER uncertainty only (AR(1) obs-noise "
-         f"excluded → narrow). Calibrated rel {CAL_BASE}; all curves re-referenced to {REF0}–{REF1} for display.",
+         f"excluded → narrow). Calibrated rel {CAL_BASE}; all curves re-referenced to {REF0}–{REF1} for display. "
+         f"⚠ The residual panel is the BARE MODULE: the postpred writer applies no d2 discrepancy term, so these are "
+         f"PRE-discrepancy residuals. For steric/TE the fit itself carries a −0.66 cm delta at 2025, and the residual "
+         f"the likelihood actually scores there is ~4.5σ, not the ~17.8σ a bare-module reading gives.",
          ha="center", va="bottom", fontsize=7.6, color="0.3", wrap=True)
 fig.tight_layout(rect=[0, 0.055, 1, 0.915])
 fig.savefig(OUT, dpi=140)
