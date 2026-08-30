@@ -3,6 +3,54 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## 2026-08-29 (later) — OPEN 1 DISSOLVED: the fit declines nothing, and the 17.8σ was pre-discrepancy
+
+Answers the live question left by `handoff_2026-08-29_l22_and_coulon_integral.md` **without the
+refit it proposed**, and corrects the metric that made the question look open.
+
+### What was tried, and what replaced it
+
+The handoff proposed a ~2h40m 4-chain refit with the steric D2 coefficients freed from their prior,
+to see whether the prior was what stopped the fit removing the 48% of the TE residual D2 could
+reach. **Not run — it is answerable in closed form, and it would have been a null.** Reading
+`calibrate_mcmc_ext.jl` eliminates two of the handoff's three candidates outright:
+
+* `d2_steric_1/_2` are `comp=:likelihood_only, sym=:none` — no Mimi parameter;
+* the `d2` closure is applied ONLY inside the steric term (line 1447), and `tot_full` (line 1439)
+  sums the **RAW** `te` — so the total/dang term never sees the steric delta, and neither do
+  GlaMBIE, rung, SMB, the inventory or the ledger;
+* gsic has its own coefficients and its own basis matrix — shared **function**, not shared parameter.
+
+`d2_steric` therefore enters the posterior in exactly two places, so its conditional posterior is
+exactly Gaussian and the prior can be priced by arithmetic.
+
+### Results
+
+* **The prior is not binding**: it carries **0.45%** (L22) / 2.29% (L21) of the posterior precision.
+  Freeing it moves the 2025 residual by **0.055σ**.
+* **The fit declines nothing.** The fitted coefficients sit at the unconstrained optimum
+  (c₁ 0.3262 vs LS 0.3286; χ² 95.82 vs 95.81) — it has taken **100%** of the removable χ².
+* **The premise was false because the reported residual is the wrong one.**
+  `posterior_predictive_ladrillo.jl` builds `te` from `ladrillo_series(bf, :te)` with **no `d2`**,
+  so the 17.79σ headline — and the "48.2% removable" it was compared against — are computed on the
+  residual *before* the discrepancy term the likelihood applies. Effective 2025 residual:
+  **+0.227 cm = 4.52σ**. L21→L22 **improved** it (5.41 → 4.52) where the raw number worsened
+  (16.94 → 17.79).
+
+⚠ The raw numbers are **not** wrong for the BRICK 2.0 benchmark ratio (1.236): BRICK 2.0 has no
+discrepancy term, so raw-vs-raw is the like-for-like comparison there. The error is carrying them
+across into a claim about how badly the *fit* misses.
+
+Port receipt: the closed-form LS optimum reproduces the MCMC posterior median to **0.7%**, which
+independently validates the Python `d2_basis` port and pins its sign convention.
+
+New: `python/diag_d2_steric_prior_binding.py`, `outputs/diag_d2_steric_prior_binding.csv`.
+Rewritten: model-document **C7** (two candidate causes eliminated, the open question restated as the
+TE functional form) and **C11** (the Coulon integral is delivered, so its "in progress" clause is
+closed and the bound is quoted).
+New deliverable: `deliverables/coulon_comparison_bound.md` — the Coulon write-up (OPEN 3), tables
+and provenance, interpretation left to Marcus.
+
 ## 2026-08-29 — COULON (c) DELIVERED ON THE INTEGRAL: the bound is built, and the domain still binds
 
 Closes the item left open by the [DECIDED] ruling. The earlier pass priced the 2300 **endpoint**
