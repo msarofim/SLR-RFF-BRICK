@@ -83,6 +83,35 @@ cooler endpoint). **A path-dependence signal whose components split in opposite 
 SSPs differ in LEVEL, HL-vs-H differs in TIMING, and the SSP set structurally cannot produce it.**
 Four genuine peak-and-decline pathways (VL, LN, ML, HL) against the SSPs' one (ssp119).
 
+### Ladrillo on all 7 — and an INDEPENDENT replication of the cool-scenario under-dispersion
+
+All 7 completed, each printing `[CONTROL] SKIPPED`, no errors. Both models now run the **same van
+Vuuren cube**, so the widths are like-for-like. Ladrillo/BRICK 2.0 p05–p95 width ratio, total @2300:
+
+| marker | peak K | end K | ratio | | marker | peak K | end K | ratio |
+|---|---|---|---|---|---|---|---|---|
+| Very Low | 1.76 | 1.20 | **0.28** | | High-to-Low | 2.96 | 1.38 | 0.77 |
+| Low | 1.88 | 1.24 | **0.26** | | Medium | 4.29 | 4.29 | 1.17 |
+| Low-to-Negative | 1.90 | 0.29 | **0.30** | | High | 6.66 | 6.66 | 0.95 |
+| Medium-to-Low | 2.37 | 0.55 | 0.67 | | | | | |
+
+**This replicates the standing cool-scenario under-dispersion finding on a completely different
+scenario family, with exact marker forcing** — BRICK 2.0 is 3.3–3.8× wider at the cool end,
+converging to within 5% at High. The 08-30 entry found the same against the SSPs (2.8× at
+ssp126/2100, 4.4× at ssp126/2300, ~13% at ssp585). Seven points now trace a monotone gradient where
+three did not.
+
+⚠ **AND IT SEPARATES PEAK FROM ENDPOINT, WHICH THE SSPs CANNOT.** Very Low, Low, Low-to-Negative and
+High-to-Low all END between 0.29 and 1.38 K, but their PEAKS span 1.76–2.96 K — and the width ratio
+tracks the peak (0.26–0.30 for the three cool-peaking, 0.77 for High-to-Low) rather than the
+endpoint. Spearman ρ = **+0.93 on peak vs +0.64 on endpoint**. ⚠ **n = 7: a rank correlation on
+seven points is a DIRECTION TO CHECK, not a test** — the CI on ρ at n=7 is very wide, and this is
+recorded as a hypothesis for C7-adjacent work, not a result. The SSP set cannot even pose the
+question, because its peak and endpoint are near-monotonically related.
+
+Medians: Ladrillo sits below BRICK 2.0 everywhere except High @2300, where they land at 413.8 vs
+414.0 cm.
+
 **Tried and rejected:** driving MAGICC-SLR or FACTS on the new cube — see above; neither is a model
 this repo can run, and for MAGICC it would be the wrong operation even if it were.
 
