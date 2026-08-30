@@ -9,6 +9,11 @@ Three panels:
 
 Inputs: outputs/proj_ssps_2100_{summary,timeseries}.csv  (cm, rel AR6 1995-2014).
 """
+## ⚠ VINTAGE 2026-08-30: this figure reads a FROZEN 2026-06 input set, so its labels
+## (BRICK-Mengel, Mengel 2-tau, calib 1.4.5) correctly describe THAT arm and NOT the
+## champion. L21 is the champion (calib 1.6.0 + CMIP7, 3-block glacier R19/SLOWP/FAST,
+## 2-basin Greenland). Do not repoint this at a current arm without rewriting the labels.
+
 import os
 import numpy as np
 import pandas as pd
@@ -70,7 +75,7 @@ axc.set_ylabel("contribution @2100 (cm)")
 axc.set_title("(c) Component breakdown (new calib.)\nnote Antarctic jump above ~3 °C")
 axc.legend(fontsize=8, loc="upper left"); axc.grid(axis="y", alpha=0.25)
 
-fig.suptitle("BRICK GMSL projections to 2100 — v2.0.0 vs preliminary recalibration, FaIR v1.4.5-forced (central/medoid draw)\n"
+fig.suptitle("BRICK GMSL projections to 2100 — v2.0.0 vs preliminary recalibration, FaIR 2.2.4 (calib 1.4.5)-forced (central/medoid draw)\n"
              "CAVEAT: central draw only; the Antarctic MICI threshold (~3 °C) makes the high-end AIS draw-specific — ensemble needed for robust high-end SLR",
              fontsize=10.5)
 fig.tight_layout(rect=[0, 0, 1, 0.93])

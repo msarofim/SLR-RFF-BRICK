@@ -18,6 +18,11 @@ GMSL (ESS ~ 600 / 10k). AR6 reports no SSP4-6.0, so that marker is blank.
 
 Inputs: outputs/proj_ssps_ensemble_{summary,timeseries}.csv (cm, rel 1995-2014).
 """
+## ⚠ VINTAGE 2026-08-30: this figure reads a FROZEN 2026-06 input set, so its labels
+## (BRICK-Mengel, Mengel 2-tau, calib 1.4.5) correctly describe THAT arm and NOT the
+## champion. L21 is the champion (calib 1.6.0 + CMIP7, 3-block glacier R19/SLOWP/FAST,
+## 2-basin Greenland). Do not repoint this at a current arm without rewriting the labels.
+
 import os
 import numpy as np
 import pandas as pd
@@ -94,7 +99,7 @@ axc.set_ylabel("Δ GMSL @2100 (cm)")
 axc.set_title("(c) Magnitude of the two adjustments\n(both small vs the MICI-driven spread)")
 axc.legend(fontsize=7.6, loc="lower left"); axc.grid(axis="y", alpha=0.25)
 
-fig.suptitle(f"BRICK GMSL projections to 2100 — {NDRAWS:,}-draw posterior ensemble, FaIR v1.4.5-forced  ·  "
+fig.suptitle(f"BRICK GMSL projections to 2100 — {NDRAWS:,}-draw posterior ensemble, FaIR 2.2.4 (calib 1.4.5)-forced  ·  "
              "unweighted vs Dangendorf-weighted, + preliminary recalibration (median only)\n"
              "v2.0.0 median runs high vs AR6 for SSP2-4.5+ (median draw crosses DAIS-MICI ~2.7 °C); "
              "weighting trims the upper tail only; recalibration shifts the median by ≤2.3 cm",

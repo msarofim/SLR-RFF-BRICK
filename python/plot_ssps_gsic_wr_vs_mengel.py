@@ -1,19 +1,75 @@
 #!/usr/bin/env python3
 """Glacier (GSIC) melt to 2300 under all SSPs: Wigley-Raper (BRICK 2.0) vs Mengel — commitment + spread.
 
-Same FaIR 2.2.4 (calib1.4.5) SSP GMST drives all. (b) WR keeps melting even where T plateaus/declines
+Same FaIR 2.2.4 SSP GMST drives all -- ENFORCED by the vintage gate below, which refuses to draw if the inputs disagree on the calibration. (b) WR keeps melting even where T plateaus/declines
 (no finite equilibrium). (c) Mengel posterior stabilizes but its SCENARIO SPREAD is anomalously
 compressed — the calibrated gic_b→0.89 (railed at its 1.0 bound) saturates S_eq by ~1.3 deg C; the
 dashed b=0.52 counterfactual (Mengel-published b, a rescaled to keep each draw's historical a*b) restores
 the physically-expected spread. Reads outputs/ssps_gsic_2300{,_mengel,_mengel_b052}.csv.
 """
+import os
 import numpy as np, pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
-WR    = pd.read_csv("outputs/ssps_gsic_2300.csv")
-MEN   = pd.read_csv("outputs/ssps_gsic_2300_mengel.csv")
-MENCF = pd.read_csv("outputs/ssps_gsic_2300_mengel_b052.csv")
+_SRC = {"WR (ssps_gsic_2300)":           "outputs/ssps_gsic_2300.csv",
+        "Mengel (ssps_gsic_2300_mengel)": "outputs/ssps_gsic_2300_mengel.csv",
+        "Mengel b052":                    "outputs/ssps_gsic_2300_mengel_b052.csv"}
+
+## VINTAGE GATE, added 2026-08-30. THIS FIGURE'S WHOLE CLAIM IS "same GMST drives all",
+## and on 2026-08-30 that stopped being true WITHOUT ANY EDIT TO THIS FILE:
+## ssps_gsic_2300.csv was regenerated on calib 1.6.0 while the two Mengel arms stayed on
+## 1.4.5 -- a 0.4266 K difference in the driver. A re-run would have silently produced a
+## MIXED-VINTAGE comparison under a caption asserting a common driver.
+## The gate reads the CAUSE: every input carries its own `gmst` column, so the forcing it
+## was actually built on is checkable against the current fair_mean files -- no invented
+## tolerance, no mtime guessing. It prints the row count it compared, so a gate that
+## matches nothing cannot report a pass.
+_LAB = {"SSP1-1.9": "ssp119", "SSP1-2.6": "ssp126", "SSP2-4.5": "ssp245",
+        "SSP4-6.0": "ssp460", "SSP3-7.0": "ssp370", "SSP5-8.5": "ssp585"}
+
+
+def _forcing_delta(df):
+    """max |file's own gmst - the CURRENT fair_mean gmst|, and how many rows matched."""
+    d = df.drop_duplicates(["ssp", "year"])
+    worst, n = 0.0, 0
+    for ssp, g in d.groupby("ssp"):
+        key = _LAB.get(ssp)
+        if key is None:
+            continue
+        f = "data/observations/fair_mean_gmst_%s.csv" % key
+        if not os.path.exists(f):
+            continue
+        m = pd.read_csv(f).set_index("year")["gmst_C"].reindex(g.year.values).values
+        ok = ~np.isnan(m)
+        if not ok.any():
+            continue
+        worst = max(worst, float(np.nanmax(np.abs(g.gmst.values[ok] - m[ok]))))
+        n += int(ok.sum())
+    return worst, n
+
+
+_loaded = {k: pd.read_csv(v) for k, v in _SRC.items()}
+_delta = {k: _forcing_delta(v) for k, v in _loaded.items()}
+if any(n == 0 for _, n in _delta.values()):
+    raise SystemExit("[VINTAGE] compared ZERO rows for an input -- vacuous, not passing: "
+                     + str({k: n for k, (_, n) in _delta.items()}))
+_w = [w for w, _ in _delta.values()]
+if max(_w) - min(_w) > 1e-6:
+    _lines = ["    %-34s delta vs current fair_mean = %.4f K  (%d rows)"
+              % (k, w, n) for k, (w, n) in _delta.items()]
+    raise SystemExit(
+        "[VINTAGE] THE INPUTS ARE ON DIFFERENT FORCING VINTAGES, so 'same GMST drives all' "
+        "is FALSE and this figure must not be drawn:" + "\n"
+        + "\n".join(_lines) + "\n"
+        + "  Regenerate the lagging arm(s) (julia/project_ssps_gsic_2300_mengel.jl) or point "
+          "this figure at a matched set. Do NOT relax this gate.")
+print("[VINTAGE] all %d inputs share a forcing vintage (delta vs current fair_mean = %.4f K)"
+      % (len(_SRC), _w[0]))
+
+WR, MEN, MENCF = (_loaded["WR (ssps_gsic_2300)"],
+                  _loaded["Mengel (ssps_gsic_2300_mengel)"],
+                  _loaded["Mengel b052"])
 SSPS = ["SSP1-1.9","SSP1-2.6","SSP2-4.5","SSP4-6.0","SSP3-7.0","SSP5-8.5"]
 COL = {"SSP1-1.9":"#00a9cf","SSP1-2.6":"#003466","SSP2-4.5":"#f69320",
        "SSP4-6.0":"#c8a000","SSP3-7.0":"#df0000","SSP5-8.5":"#7a0002"}
@@ -81,7 +137,7 @@ ax[3].legend(handles=[Line2D([],[],color=COL["SSP1-1.9"],label="SSP1-1.9"),
 
 fig.text(0.5, 0.004,
          "BRICK 2.0 WR posterior (parameters_subsample_brick.csv) vs Mengel gic_* (BRICK-AM extA108); 1000 draws each, "
-         "FaIR 2.2.4 (calib1.4.5) SSP GMST.\nHistory constrains a·b, not b alone → the extA108 b saturates S_eq and "
+         "FaIR 2.2.4 SSP GMST (single vintage, gate-enforced).\nHistory constrains a·b, not b alone → the extA108 b saturates S_eq and "
          "compresses the scenario spread. Absolute magnitudes differ by calibration — the SHAPE is the point.",
          fontsize=6.6, ha="center", color="0.35")
 fig.savefig("figures/ssps_gsic_wr_vs_mengel_2300.png", dpi=150, bbox_inches="tight")

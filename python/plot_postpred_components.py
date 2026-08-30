@@ -18,6 +18,11 @@ All cm, rel 1995-2005 (the common window used throughout the recalibration).
 Input:  outputs/postpred_components_timeseries.csv (from julia/posterior_predictive.jl)
 Output: outputs/postpred_components.png
 """
+## ⚠ VINTAGE 2026-08-30: this figure reads a FROZEN 2026-06 input set, so its labels
+## (BRICK-Mengel, Mengel 2-tau, calib 1.4.5) correctly describe THAT arm and NOT the
+## champion. L21 is the champion (calib 1.6.0 + CMIP7, 3-block glacier R19/SLOWP/FAST,
+## 2-basin Greenland). Do not repoint this at a current arm without rewriting the labels.
+
 import os
 import numpy as np
 import pandas as pd

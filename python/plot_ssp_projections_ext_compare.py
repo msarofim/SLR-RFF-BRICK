@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 A/B comparison of SSP-2100 GMSL projections: 2018-baseline vs post-2018-extended
-BRICK-Mengel posteriors (both UNWEIGHTED, FaIR v1.4.5-forced, rel 1995-2014).
+BRICK-Mengel posteriors (both UNWEIGHTED, FaIR 2.2.4 (calib 1.4.5)-forced, rel 1995-2014).
 
 Shows that extending the calibration to capture the post-2020 Antarctic pause +
 glacier acceleration + steric rise LOWERS GMSL@2100 by ~1-3cm (mostly via AIS),
