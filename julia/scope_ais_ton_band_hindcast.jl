@@ -42,7 +42,11 @@
 ## checked against the committed benchmark rather than trusted.
 ##
 ##   julia --project=julia_v2 julia/scope_ais_ton_band_hindcast.jl [n_draws] [--tags=L15,L16]
-## Writes outputs/scope_ais_ton_band_hindcast.csv
+## Writes outputs/scope_ais_ton_band_hindcast_<TAGS>.csv, e.g. ..._L14-L21.csv.
+## ⚠ TAG-SUFFIXED SINCE 2026-08-29, and that is load-bearing. It used to write ONE
+## untagged path while every other output in these drivers was tag-suffixed, so the
+## L22 postprocess silently OVERWROTE the L21/L14 measurement a decision rested on.
+## Same bug class the repo already fixed for --gis-check. Do not revert to a fixed name.
 ## ============================================================================
 using CSV, DataFrames, Mimi, Printf, Statistics
 
@@ -52,7 +56,8 @@ const REPO = LADRILLO_REPO
 _argval(p) = (i = findfirst(a -> startswith(a, p), ARGS); i === nothing ? nothing : ARGS[i][length(p)+1:end])
 const NTHIN = let p = filter(a -> !startswith(a, "--"), ARGS); isempty(p) ? 10000 : parse(Int, p[1]) end
 const TAGS  = split(something(_argval("--tags="), "L15,L16"), ",")
-const OUT   = joinpath(REPO, "outputs", "scope_ais_ton_band_hindcast.csv")
+const OUT   = joinpath(REPO, "outputs",
+                       "scope_ais_ton_band_hindcast_$(join(TAGS, "-")).csv")
 
 ## Band edges: the KDE valley floors between the arms' modes (see header). Named so
 ## the table's labels cannot drift from the cut that produced them.
