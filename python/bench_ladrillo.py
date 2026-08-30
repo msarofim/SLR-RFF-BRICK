@@ -186,7 +186,16 @@ def live_paths(tag):
     p = {"postpred": os.path.join(o, f"postpred_{tag}_components_timeseries.csv"),
          "comparison": os.path.join(o, f"ladrillo_model_comparison_{tag}.csv")}
     for s in SSPS:
-        p[f"draws_{s}"] = os.path.join(o, f"scope_slr_fairunc_draws_{s}_spliced_{tag}.csv")
+        # ⚠ PREFER THE TAPPED JOINT DRAWS (2026-08-30). The benchmark scores the JOINT arm
+        # (joint_stats), and ladrillo_model_comparison.py reports the TAPPED joint arm, so
+        # taking the untapped draws here would freeze a snapshot whose `comparison` and
+        # `draws` disagree about what Ladrillo's band IS -- the same arm mismatch that made
+        # the joint band unusable for 6 cells. The Greenland tap is part of the shipped
+        # module, so the tapped arm is the one the benchmark is meant to score.
+        tapped = os.path.join(
+            o, f"scope_slr_fairunc_draws_{s}_spliced_{tag}_tap4p69K_V5p64m_tau800.csv")
+        untapped = os.path.join(o, f"scope_slr_fairunc_draws_{s}_spliced_{tag}.csv")
+        p[f"draws_{s}"] = tapped if os.path.exists(tapped) else untapped
     return p
 
 

@@ -1,10 +1,10 @@
 {
-  "frozen_git_head": "12b3eeb",
+  "frozen_git_head": "e6f0e9f",
   "bench_version": "1.0",
   "files": {
     "targets": {
       "source": "outputs/recalib_targets_ext.csv",
-      "sha256_16": "c704803a39aa9bfc"
+      "sha256_16": "8c13d1b7ced89c03"
     },
     "brick20_hindcast": {
       "source": "outputs/postpred_oldbrick_components_timeseries.csv",
@@ -12,7 +12,7 @@
     },
     "brick20_projection": {
       "source": "outputs/ssps_components_2300_oldbrick.csv",
-      "sha256_16": "2eaf36a8e3239d8a"
+      "sha256_16": "afe29f5ca7780202"
     },
     "facts_source": {
       "source": "outputs/facts_components_n200.csv",
@@ -23,8 +23,8 @@
       "sha256_16": "1e47612319775fc6"
     },
     "literature": {
-      "source": "outputs/ladrillo_model_comparison_L14.csv",
-      "sha256_16": "380707840f25eb76",
+      "source": "outputs/ladrillo_model_comparison_L21.csv",
+      "sha256_16": "5f0a73311cb3e4f6",
       "n_rows": 150,
       "sources": [
         "FACTS",

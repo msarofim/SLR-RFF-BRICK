@@ -1,6 +1,6 @@
 {
   "tag": "L21",
-  "frozen_git_head": "aa64e52",
+  "frozen_git_head": "e6f0e9f",
   "bench_version": "1.0",
   "files": {
     "postpred": {
@@ -10,22 +10,22 @@
     },
     "comparison": {
       "source": "outputs/ladrillo_model_comparison_L21.csv",
-      "sha256_16": "7081c70980e365c9",
+      "sha256_16": "5f0a73311cb3e4f6",
       "frozen_as": "benchmark/reference/L21/model_comparison.csv"
     },
     "draws_ssp126": {
-      "source": "outputs/scope_slr_fairunc_draws_ssp126_spliced_L21.csv",
-      "sha256_16": "1f169d5ef119aa9d",
+      "source": "outputs/scope_slr_fairunc_draws_ssp126_spliced_L21_tap4p69K_V5p64m_tau800.csv",
+      "sha256_16": "5d784d9f803caf5e",
       "frozen_as": "benchmark/reference/L21/draws_ssp126_spliced.csv.gz"
     },
     "draws_ssp245": {
-      "source": "outputs/scope_slr_fairunc_draws_ssp245_spliced_L21.csv",
-      "sha256_16": "c619c495d0a70aec",
+      "source": "outputs/scope_slr_fairunc_draws_ssp245_spliced_L21_tap4p69K_V5p64m_tau800.csv",
+      "sha256_16": "8670aee282a5bd74",
       "frozen_as": "benchmark/reference/L21/draws_ssp245_spliced.csv.gz"
     },
     "draws_ssp585": {
-      "source": "outputs/scope_slr_fairunc_draws_ssp585_spliced_L21.csv",
-      "sha256_16": "7f6868746ad9a9ae",
+      "source": "outputs/scope_slr_fairunc_draws_ssp585_spliced_L21_tap4p69K_V5p64m_tau800.csv",
+      "sha256_16": "c0573c1469088746",
       "frozen_as": "benchmark/reference/L21/draws_ssp585_spliced.csv.gz"
     }
   }
