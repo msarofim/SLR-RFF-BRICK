@@ -164,6 +164,14 @@ and post-processing are all **ruled out** upstream.
   for MRI-ESM2-0 but cftime for the 360-day models (use `.dt.year`, never a comprehension); and
   UKESM's **local historical** NetCDF filtered to ">2100" is an EMPTY frame that reaches the
   plausibility check as a nan and reports a bogus "coordinate mismatch".
+* ⚠ **`outputs/scope_ais_ton_band_hindcast.csv` IS WRITTEN UNTAGGED** by both postprocess drivers,
+  while every other output they write is tag-suffixed. It had **uncommitted** modifications from a
+  prior session at the start of 2026-08-29 and the L22 driver **overwrote them** (it now holds
+  L21/L22 rows; HEAD is intact and the file is regenerable by re-running
+  `scope_ais_ton_band_hindcast.jl --tags=`). This is the same bug class the repo fixed for
+  `--gis-check` — tag-suffix the output so a re-run cannot overwrite the measurement a decision
+  rested on. **Not yet fixed. Check `git status` for uncommitted diagnostics BEFORE launching a
+  postprocess driver.**
 * **Disk:** L21 + L22 chains are ~18.6 GB total in `outputs/mcmc/` (gitignored).
 * **`outputs/quarantine/` is gitignored** in this repo — quarantines live on disk, not in git.
 
