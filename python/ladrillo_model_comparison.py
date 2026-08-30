@@ -111,6 +111,14 @@ JOINT_GLOB   = "outputs/scope_slr_fairunc_draws_{ssp}_spliced_{tag}.csv"
 ## comparison reports -- and then the tap gate has nothing left to hold.
 JOINT_TAP_GLOB = ("outputs/scope_slr_fairunc_draws_{ssp}_spliced_{tag}"
                   "_tap4p69K_V5p64m_tau800.csv")
+## BRICK 2.0's OWN joint band (scope_slr_fairunc_oldbrick.jl, 2026-08-30). Built on the
+## SAME cubes, the same 2014 splice pivot, the same 1995-2014 re-reference and the same
+## PAIR_SEED as the Ladrillo joint arm -- otherwise the two would not be comparable and
+## the point of building it would be lost. ⚠ An earlier draft of the model document said
+## BRICK 2.0 "can never be made joint"; `set_forcing!` takes an arbitrary (gmst, ohc)
+## pair, so that was simply wrong.
+BRICK_JOINT_GLOB = "outputs/scope_slr_fairunc_draws_{ssp}_spliced_oldbrick.csv"
+BASIS_JOINT_B20  = "joint (BRICK 2.0 posterior x FaIR forcing)"
 
 
 def _rows(df, source, module_col=None, module=None, basis=""):
@@ -231,7 +239,35 @@ def load_brick20():
     df = pd.read_csv(BRICK20_COMPONENTS_CSV)
     df["scenario"] = df.ssp.map({v: k for k, v in LABEL.items()})
     df = df.dropna(subset=["scenario"])
-    return _rows(df, "BRICK 2.0", basis=BASIS_FIXED, module="BRICK2.0")
+    df = _rows(df, "BRICK 2.0", basis=BASIS_FIXED, module="BRICK2.0")
+    # substitute the joint arm wherever it exists. BRICK 2.0 has NO Greenland tap, so
+    # unlike Ladrillo there is no arm to gate on -- the joint driver's own [CONTROL]
+    # (its fixed arm vs the shipped panel, on the SAME thinning) is the check.
+    jb = {}
+    for ssp in SCENARIOS:
+        f = os.path.join(REPO, BRICK_JOINT_GLOB.format(ssp=ssp))
+        if not os.path.exists(f):
+            continue
+        d = pd.read_csv(f)
+        d = d[d.arm == "joint"]
+        for (comp, hz), g in d.groupby(["component", "horizon"]):
+            q = np.percentile(g.value_cm.values, [5, 17, 50, 83, 95])
+            jb[(ssp, comp, int(hz))] = dict(p05=q[0], p17=q[1], med=q[2], p83=q[3], p95=q[4])
+    n_j = 0
+    for i, r in df.iterrows():
+        b = jb.get((r.scenario, r.component, int(r.year)))
+        if b is None:
+            continue
+        for q in ("med", "p05", "p17", "p83", "p95"):
+            df.at[i, q] = b[q]
+        df.at[i, "band_basis"] = BASIS_JOINT_B20
+        n_j += 1
+    rep = df[df.scenario.isin(SCENARIOS) & df.component.isin(COMPONENTS)
+             & df.year.isin(HORIZONS)]
+    print(f"[BAND] BRICK 2.0 REPORTED cells: {(rep.band_basis == BASIS_JOINT_B20).sum()} on "
+          f"its OWN JOINT arm, {(rep.band_basis != BASIS_JOINT_B20).sum()} on FIXED, "
+          f"of {len(rep)}.")
+    return df
 
 
 def load_magicc():

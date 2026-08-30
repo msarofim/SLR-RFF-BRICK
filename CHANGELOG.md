@@ -3,6 +3,40 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## 2026-08-30 (later still) — the BRICK 2.0 JOINT BAND, and what it changed
+
+`scope_slr_fairunc_oldbrick.jl` propagates BRICK 2.0's published posterior across the same 841
+FaIR configs as the Ladrillo joint arm. Every column of the comparison now carries climate
+uncertainty, so **the widths are like-for-like for the first time**.
+
+**Deliberately identical conventions** to the Ladrillo arm — same raw cubes, 2014 splice pivot,
+1995–2014 re-reference, `PAIR_SEED=2026`, same output schema. Divergent conventions would have made
+the two bands incomparable and defeated the exercise.
+
+**Two design choices that would have quietly invalidated it.** (1) The model is built **once per
+SSP, not once per config**: `get_model` is non-deterministic (~1e-5 m) and LWS is seeded before it,
+so rebuilding per config would re-roll LWS and inject noise **into the joint arm only**, to be
+misread as forcing spread. `set_forcing!` mutates the built model instead. (2) `--ndraw=1000` is
+pinned to the **shipped panel's own thinning**, without which `[CONTROL]` compares different draw
+subsets — at the 100-draw smoke setting it showed −1.2 cm on `ais`, which was the subset, not a bug.
+
+**Gates:** `[CONTROL]` 18/18 cells per SSP, 0 over tolerance. `[SPLICE-MATCH]` reproduces the
+committed python cube to **4.985e-07 °C**. ⚠ That check can only run on ssp585 — the one SSP with a
+committed spliced cube; ssp126/245 share the code path but are not independently checked.
+
+**BRICK 2.0's joint band is 1.27–6.23× wider** than its fixed band, same scenario signature as
+Ladrillo: widest at ssp126 (3.35–6.23×), narrowest at ssp585 (1.27–1.33×). Medians barely move.
+
+**⚠ IT CHANGED A READING, NOT JUST A CAVEAT.** With widths finally comparable, **Ladrillo is
+narrower than BRICK 2.0 at 8 of 9 cells**, and worst exactly where the benchmark already flags it:
+**ssp126, 2.8× narrower at 2100 and 4.4× at 2300** (34.3 vs 150.4 cm). That is independent
+confirmation of the standing cool-scenario under-dispersion finding, now against a like-for-like
+comparator instead of a fixed-driver one. At ssp585 the two agree within ~13%; MAGICC is the
+outlier at high forcing (894 cm at ssp585/2300, ~4× ours).
+
+⚠ Both joint arms are **PRIOR PROPAGATIONS, NOT REFITS**. And part of Ladrillo's ssp585/2300 width
+is a prior (78% of the AIS band is `antarctic_lambda`), so narrowness is never a win there.
+
 ## 2026-08-30 (later) — BRICK 2.0 regenerated on calib 1.6.0, and its cross-check gate was VACUOUS
 
 **The defect.** `outputs/ssps_components_2300_oldbrick.csv` was dated **Aug 25**; the mean forcing
