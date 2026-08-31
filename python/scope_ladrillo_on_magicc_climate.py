@@ -59,7 +59,13 @@ HORIZONS = [2100, 2150, 2300]
 ## THE ARM. Both files must be this arm or the comparison is not like-for-like: the tap
 ## fires per config on that config's OWN gmst, so a tapped and an untapped file differ by
 ## a Greenland mechanism as well as by the climate.
-ARM_TAG = "L21_tap4p69K_V5p64m_tau800"
+## ⚠ THE CALIBRATION VINTAGE IS AN ARGUMENT, NOT A CONSTANT. It was hardcoded to L21 for
+## one commit, which would have made every L23 run silently report L21 numbers -- the
+## hardcoded-vintage-in-front-of-a-tag-argument failure the L14->L21 sweep already found in
+## 14 places. The tap suffix stays fixed because the tap cell is fixed; only the tag moves.
+_TAG = next((a[len("--tag="):] for a in __import__("sys").argv[1:]
+             if a.startswith("--tag=")), "L23")
+ARM_TAG = "%s_tap4p69K_V5p64m_tau800" % _TAG
 ## ⚠ THE DRAW COUNT IS NOT A CONSTANT ACROSS SCENARIOS, and hardcoding one is how this
 ## check would have passed on a mismatch. The shipped FaIR-climate arm runs 8000 draws for
 ## the seven markers and ssp585 but 2000 for ssp126 and ssp245. [ARM-MATCH] therefore takes
@@ -124,6 +130,8 @@ def cells(scen, forcing, climate):
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--tag", default="L23",
+                    help="calibration vintage; sets ARM_TAG (parsed at import too)")
     ap.add_argument("--forcing", default="spliced", choices=["spliced", "raw"],
                     help="which injection convention to DECOMPOSE (default spliced, the "
                          "primary arm). The other is reported as a convention check "
