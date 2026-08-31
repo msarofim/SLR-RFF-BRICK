@@ -1,5 +1,5 @@
 {
-  "frozen_git_head": "97d7cd1",
+  "frozen_git_head": "e6f0e9f",
   "bench_version": "1.0",
   "files": {
     "targets": {
@@ -15,8 +15,8 @@
       "sha256_16": "afe29f5ca7780202"
     },
     "facts_source": {
-      "source": "outputs/facts_components_shared_n200.csv",
-      "sha256_16": "2f1f066888881410"
+      "source": "outputs/facts_components_n200.csv",
+      "sha256_16": "a792d6756b9db0e3"
     },
     "magicc_source": {
       "source": "data/comparison/magicc_nauels_components.csv",
@@ -24,7 +24,7 @@
     },
     "literature": {
       "source": "outputs/ladrillo_model_comparison_L21.csv",
-      "sha256_16": "4f4be5ccb4377dc7",
+      "sha256_16": "5f0a73311cb3e4f6",
       "n_rows": 150,
       "sources": [
         "FACTS",

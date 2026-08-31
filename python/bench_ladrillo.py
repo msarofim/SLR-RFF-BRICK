@@ -222,7 +222,13 @@ FIXED_FILES = {
     # benchmark actually reads come from `literature` below, which is extracted once
     # from a comparison file; these two are kept so that a changed FACTS or MAGICC
     # release is VISIBLE as a hash change rather than silently re-scoring every arm.
-    "facts_source": ("outputs/facts_components_n200.csv", "facts_components_n200.csv"),
+    ## ⚠ REPOINTED 2026-08-31 to the SHARED-machinery extract. It was
+    ## outputs/facts_components_n200.csv (FACTS on its OWN internal FaIR 1.6.4); the FACTS
+    ## column now runs on the injected FaIR 2.2.4 calib 1.6.0 driver on BOTH scenario sets.
+    ## The superseded arm is preserved verbatim, with the size of the move, under
+    ## benchmark/reference/_fixed_archive_20260831_facts_internal_fair164/.
+    "facts_source": ("outputs/facts_components_shared_n200.csv",
+                     "facts_components_shared_n200.csv"),
     "magicc_source": ("data/comparison/magicc_nauels_components.csv",
                       "magicc_nauels_components.csv"),
     "literature": (None, "literature_rows.csv"),

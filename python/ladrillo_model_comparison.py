@@ -22,15 +22,25 @@ Sources
               extracted by python/extract_magicc_components.py. ⚠ RUNS TO 2305 --
               this line said 'Ends at 2100' until 2026-08-29; 2300 was added on
               2026-08-25 (see MAGICC_CSV note below) and the docstring was not updated.
-  FACTS       outputs/facts_components_n200.csv
-              global.coupling.{ssp126,ssp245,ssp585}.n200, per module,
+  FACTS       outputs/facts_components_shared_n200.csv
+              global.shared.{ssp126,ssp245,ssp585}.n200, per module, on the SHARED
+              injected climate (FaIR 2.2.4 calib 1.6.0 + CMIP7, the same 841-config
+              cubes / 2014 splice / 1995-2014 reference as Ladrillo and BRICK 2.0),
               rel. baseyear 2005 (~ the 1995-2014 mean; the standing
               MAGICC-comparison convention treats the two as comparable).
+              ⚠ SAME MACHINERY AS THE VAN VUUREN ARM since 2026-08-31 -- one builder,
+              one config generator, one extractor, one climate convention across both
+              scenario sets. It previously read FACTS-INTERNAL FaIR 1.6.4, which made
+              the FACTS column straddle two conventions between the two sets.
 
-BAND CAVEAT, stated in every table: Ladrillo and BRICK 2.0 run on MEAN climate
-forcing, so their bands are POSTERIOR-PARAMETER spread only. MAGICC and FACTS
-bands carry climate uncertainty as well. MEDIANS are comparable; band WIDTHS
-are not.
+BAND CAVEAT ⚠ CORRECTED 2026-08-31. This docstring said "Ladrillo and BRICK 2.0 run
+on MEAN climate forcing, so their bands are POSTERIOR-PARAMETER spread only ...
+MEDIANS are comparable; band WIDTHS are not." That has been FALSE since 2026-08-30:
+both joint arms propagate their posteriors across the SAME 841 FaIR configs, so all
+four bands carry climate uncertainty and the widths ARE comparable. Whether a given
+ROW's band qualifies is decided per row by its own `band_basis` via
+ladrillo_figs.band_is_comparable -- never by a source-name list, which is exactly the
+constant that went stale here and suppressed three of four bands on the figure.
 
   python3 python/ladrillo_model_comparison.py [--tag=L11]
 Writes outputs/ladrillo_model_comparison_<TAG>{,_spread}.csv
@@ -67,7 +77,27 @@ OUT = os.path.join(REPO, f"outputs/ladrillo_model_comparison_{LADRILLO_TAG}{ARM_
 BRICK20_GSIC_CSV = os.path.join(REPO, "outputs/ssps_gsic_2300.csv")   # superseded, see load_brick20
 BRICK20_COMPONENTS_CSV = os.path.join(REPO, "outputs/ssps_components_2300_oldbrick.csv")
 MAGICC_CSV = os.path.join(REPO, "data/comparison/magicc_nauels_components.csv")
-FACTS_CSV = os.path.join(REPO, "outputs/facts_components_n200.csv")
+## ⚠ THE FACTS ARM MOVED ONTO THE SHARED MACHINERY, 2026-08-31 (Marcus: "everything using the
+## same machinery where possible"). It used to read outputs/facts_components_n200.csv, from
+## experiments/global.coupling.<ssp>.n200 -- FACTS driven by its OWN INTERNAL FaIR 1.6.4. The
+## van Vuuren arm was necessarily built the other way (injected external climate), so the FACTS
+## COLUMN straddled two climate-driver conventions across the two scenario sets.
+##
+## It now reads the same file the van Vuuren figure does, produced by the same builder, the same
+## config generator and the same extractor:
+##   facts/build_shared_climate_nc.py -> build_shared_configs.py -> extract_facts_shared_components.py
+## so the FACTS column is on ONE convention everywhere: FaIR 2.2.4 calib 1.6.0 + CMIP7, the same
+## 841-config cubes, the same 2014 splice and 1995-2014 reference as Ladrillo and BRICK 2.0.
+##
+## ⚠ THIS MOVES THE COMPARATOR, and the frozen arm under benchmark/reference/_fixed/ exists
+## precisely to make that visible rather than silent. Expect the [LIT] gate to report the FACTS
+## rows as moved until the arm is deliberately RE-FROZEN with a note saying why. Do not re-freeze
+## to silence it; re-freeze because the driver changed on purpose.
+##
+## The three SSPs keep emuAIS / emuGrIS / emuglaciers and wf1e/wf2e/wf3e: emulandice is
+## per-SSP-TRAINED, so it is valid here and only excluded on the van Vuuren markers. Dropping
+## those comparators would have been a real loss disguised as a plumbing change.
+FACTS_CSV = os.path.join(REPO, "outputs/facts_components_shared_n200.csv")
 
 ## 2300 added 2026-08-25: MAGICC-SLR was always run to 2305, and only our own extractor
 ## cut it at 2100 (`extract_magicc_components.py` [YEARS-PRESENT]). FACTS still stops at
