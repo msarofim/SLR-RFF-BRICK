@@ -171,17 +171,29 @@ def integrate_M(Tarr, a, b, T_off, f, tau_f, tau_s, n=None):
         out[k + 1] = sf + ss
     return out
 
+## Regrowth runs at 1/R of the melt rate. Must equal GIC_REGROW_R in
+## glaciers_nu3_component.jl -- validate_glaciers_nu3.jl compares the two at 1e-9.
+GIC_REGROW_R = 1.0
+
+
 def integrate_N(Tarr, a, b, T_off, kappa, nu, n=None):
     n = len(Tarr) + 1 if n is None else n
     out = np.empty(n)
     S = 0.0
     out[0] = 0.0
     for k in range(n - 1):
-        seq = a * (1 - np.exp(-b * (Tarr[k] - T_off)))
+        # FLOOR + BOUNDED REGROWTH (2026-08-31). Mirrors glaciers_nu3_component.jl
+        # `_nu_step` exactly -- this function is the PORT GROUND TRUTH that
+        # validate_glaciers_nu3.jl checks the Julia module against at 1e-9, so the two must
+        # change together or the gate stops testing port fidelity and starts hiding a
+        # divergence. Rationale and price live in the Julia file.
+        seq = max(a * (1 - np.exp(-b * (Tarr[k] - T_off))), 0.0)
         frac_left = max(1.0 - S / a, 1e-12)
         T_eq = T_off - np.log(frac_left) / b
-        exc = max(Tarr[k] - T_eq, 0.0)
-        mult = min(kappa * exc ** nu, 1.0)       # no equilibrium overshoot in one step
+        d = Tarr[k] - T_eq
+        mult = min(kappa * abs(d) ** nu, 1.0)    # no equilibrium overshoot in one step
+        if d < 0.0:
+            mult /= GIC_REGROW_R
         S += mult * (seq - S)
         out[k + 1] = S
     return out

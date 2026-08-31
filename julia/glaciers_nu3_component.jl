@@ -76,10 +76,27 @@ end
 
 # one reservoir, one step — bit-matches integrate_N (d0_glacier_shootout.py)
 function _nu_step(S, T, a, b, T_off, kappa, nu)
-    S_eq = a * (1 - exp(-b * (T - T_off)))
+    ## FLOOR (2026-08-31, Marcus). S_eq = a(1 − exp(−b(T − T_off))) goes NEGATIVE below
+    ## T_off, i.e. equilibrium BELOW the 1850 state, on 12.9 % of block × draw cells at
+    ## vvLN/2300 on our own climate and 47.6 % on MAGICC's. Under the old melt-only ratchet
+    ## that was unreachable and therefore harmless; once regrowth is allowed it would let
+    ## glaciers regrow PAST their pre-industrial extent, which nothing we calibrate against
+    ## speaks to and which is LESS defensible than the ratchet it replaces. The floor is not
+    ## our invention: MAGICC's own tabulated equilibrium is defined on 0.0-10.3 K with NO
+    ## negative branch and a POSITIVE 27.6-135.9 mm committed loss at zero warming
+    ## (`magicc_glacier_drawnset`), so the one comparator that does regrow regrows toward a
+    ## positive floor too. Price on our forcing: it removes 0.33 cm of the 2.16 cm headroom
+    ## at vvLN (15 %) and 0.20 of 2.40 at vvML (8 %).
+    S_eq = max(a * (1 - exp(-b * (T - T_off))), 0.0)
     frac_left = max(1 - S / a, 1e-12)
     T_eq = T_off - log(frac_left) / b
-    exc = max(T - T_eq, 0.0)
-    mult = min(kappa * exc^nu, 1.0)
+    ## BOUNDED REGROWTH replaces the positive-part ratchet. `exc` is a DISTANCE from
+    ## equilibrium and the old clamp discarded its sign; keeping the sign is the natural
+    ## continuation of the same law, not a reparameterisation. Because `mult` is capped at 1
+    ## the step is a convex combination of S and S_eq, so with S_eq >= 0 the stock can never
+    ## be driven below the floor -- the boundedness is structural, not a second clamp.
+    d = T - T_eq
+    mult = min(kappa * abs(d)^nu, 1.0)
+    d < 0.0 && (mult /= GIC_REGROW_R)
     return S + mult * (S_eq - S)
 end

@@ -181,7 +181,11 @@ def integrate(T, a, b_, toff, kappa, nu, regrow_R=None):
     for t in range(1, nt):
         Sp = S[t - 1]
         Tp = T[t - 1]
-        S_eq = a * (1.0 - np.exp(-b_ * (Tp - toff)))
+        ## FLOORED, to match the shipped module since 2026-08-31. Without the floor a
+        ## regrowth branch relaxes toward an equilibrium BELOW the 1850 state wherever
+        ## T < T_off, which is what the `S_eq<0` column of scope_glacier_equilibrium.py
+        ## counts. The floor is what makes the regrowth BOUNDED.
+        S_eq = np.maximum(a * (1.0 - np.exp(-b_ * (Tp - toff))), 0.0)
         frac_left = np.maximum(1.0 - Sp / a, 1e-12)
         T_eq = toff - np.log(frac_left) / b_
         d = Tp - T_eq
