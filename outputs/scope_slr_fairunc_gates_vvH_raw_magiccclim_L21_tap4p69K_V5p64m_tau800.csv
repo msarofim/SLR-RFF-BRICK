@@ -1,0 +1,13 @@
+gate,key,value,verdict
+PAIRING,configs_used,600.0,PASS
+PAIRING,median_dgmst_bias_degC,0.0018289630811390012,PASS
+CONTROL,skipped_no_shipped_panel,NaN,SKIPPED
+OHC-OFFSET,max_cm,1.1368683772161603e-13,CANCELS
+CALIB-MOVE,glaciers_max_cm,0.0,measured
+CALIB-MOVE,gis_max_cm,0.0,measured
+CALIB-MOVE,ais_max_cm,0.6644440649165264,measured
+CALIB-MOVE,te_max_cm,5.466324757606781,measured
+CALIB-MOVE,lws_max_cm,0.0,measured
+CALIB-MOVE,total_max_cm,5.675977321065075,measured
+SUM,fixed_max_cm,2.2737367544323206e-13,PASS
+SUM,joint_max_cm,2.2737367544323206e-13,PASS
