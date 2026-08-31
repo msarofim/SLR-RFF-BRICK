@@ -124,9 +124,12 @@ def cells(scen, forcing, climate):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--forcing", default="both", choices=["spliced", "raw", "both"])
+    ap.add_argument("--forcing", default="spliced", choices=["spliced", "raw"],
+                    help="which injection convention to DECOMPOSE (default spliced, the "
+                         "primary arm). The other is reported as a convention check "
+                         "regardless -- see the block above the check below.")
     a = ap.parse_args()
-    forcings = ["spliced", "raw"] if a.forcing == "both" else [a.forcing]
+    forcings = [a.forcing]
 
     mag = pd.read_csv(MAGICC_MED)
     rows, lines = [], []
@@ -136,7 +139,9 @@ def main():
         lines.append(s)
 
     say("LADRILLO L21 ON MAGICC'S CLIMATE -- separating the module axis from the climate axis")
-    say("arm %s, %d draws, joint band, cm rel 1995-2014" % (ARM_TAG, ARM_N_DRAWS))
+    say("arm %s, joint band, cm rel 1995-2014; draw count is per scenario and is checked"
+        % ARM_TAG)
+    say("against each scenario's own FaIR comparator by [ARM-MATCH], not against a constant.")
     say()
 
     for forcing in forcings:
@@ -188,6 +193,45 @@ def main():
                                          % (forcing, scen, H, clim))
             say()
 
+    ## ==================================================================================
+    ## THE INJECTION-CONVENTION CHECK -- and why it is NOT a second decomposition.
+    ##
+    ## Marcus 2026-08-31 chose SPLICED as primary and RAW as a check. The check has no FaIR
+    ## comparator: the shipped FaIR-climate arm at L21+tap exists only as `spliced`, so
+    ## there is nothing to difference a raw FaIR run against, and manufacturing one would
+    ## mean re-running the canonical arm under a convention it was never reported on. What
+    ## the raw arm actually answers is narrower -- how much the injection convention itself
+    ## is worth -- and that is answered by differencing the two MAGICC arms against each
+    ## other.
+    ##
+    ## The two differ ONLY in the history, so this number IS the history disagreement
+    ## measured by scope_magicc_climate_history_gap.py (0.105 K rms in GMST, 6.9e22 J rms
+    ## in OHC after the TE reference offset is removed) propagated into centimetres of sea
+    ## level. Nobody had that number before, and section 6.3 of the handoff asked for it.
+    say("=" * 104)
+    say("INJECTION-CONVENTION CHECK -- spliced minus raw, both on MAGICC's climate, cm")
+    say("The two arms differ ONLY in the history, so this is the history disagreement in cm.")
+    say("=" * 104)
+    say("%-7s %-9s %s" % ("scen", "component", "  ".join("%12d" % H for H in HORIZONS)))
+    for scen in SCENARIOS:
+        sp, nsp = cells(scen, "spliced", "magicc")
+        rw, nrw = cells(scen, "raw", "magicc")
+        if sp is None or rw is None:
+            say("%-7s  -- convention check not available (%s%s)"
+                % (scen, "" if sp is not None else "spliced ",
+                   "" if rw is not None else "raw"))
+            continue
+        if nsp != nrw:
+            raise SystemExit("[ARM-MATCH] %s: spliced has %d draws, raw has %d"
+                             % (scen, nsp, nrw))
+        for comp in PAIRED:
+            d = [sp.loc[(comp, H), "med_cm"] - rw.loc[(comp, H), "med_cm"] for H in HORIZONS]
+            say("%-7s %-9s %s" % (scen, comp, "  ".join("%12.2f" % v for v in d)))
+            rows += [("convention_spliced_minus_raw", scen, comp, H, np.nan, np.nan,
+                      np.nan, np.nan, v, np.nan, np.nan, np.nan, "CONVENTION")
+                     for H, v in zip(HORIZONS, d)]
+        say()
+
     df = pd.DataFrame(rows, columns=[
         "forcing", "scenario", "component", "horizon", "ladrillo_our_climate_cm",
         "ladrillo_magicc_climate_cm", "magicc_slr_cm", "module_plus_climate_cm",
@@ -198,7 +242,8 @@ def main():
     say("ROLL-UP -- how each component's Ladrillo-vs-MAGICC gap is carried, by verdict")
     say("=" * 104)
     for forcing in forcings:
-        sub_ = df[(df.forcing == forcing) & (df.component != "lws")]
+        sub_ = df[(df.forcing == forcing) & (df.component != "lws")
+                  & (df.verdict != "CONVENTION")]
         if sub_.empty:
             continue
         say("  %s" % forcing.upper())
