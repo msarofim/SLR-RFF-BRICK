@@ -489,7 +489,7 @@ S,ais,ssp585/ssp126,2100,separation,L21,6.517774902300675,x,,FACTS 0.73-2.10 (n=
 S,ais,ssp585/ssp126,2150,separation,L21,12.345789347041505,x,,FACTS 0.55-4.64 (n=4); MAGICC-SLR 28.79-28.79 (n=1),PASS
 S,ais,ssp585/ssp126,2300,separation,L21,19.759101791591196,x,,MAGICC-SLR 81.77-81.77 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON],WARN
 S,glaciers,ssp585/ssp126,2100,separation,L21,1.622044291639002,x,,FACTS 1.43-1.65 (n=2); MAGICC-SLR 1.46-1.46 (n=1),PASS
-S,glaciers,ssp585/ssp126,2150,separation,L21,2.0676137104207006,x,,FACTS 1.93-1.93 (n=1); MAGICC-SLR 1.79-1.79 (n=1); 0.14 outside the bracket = 105% of its own range,FAIL
+S,glaciers,ssp585/ssp126,2150,separation,L21,2.0676137104207006,x,,FACTS 1.93-1.93 (n=1); MAGICC-SLR 1.79-1.79 (n=1); 0.14 outside the bracket = 105% of its own range,CHECK(wide)
 S,glaciers,ssp585/ssp126,2300,separation,L21,2.1474498992509985,x,,MAGICC-SLR 2.11-2.11 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON],WARN
 S,gis,ssp585/ssp126,2100,separation,L21,1.8474316614512676,x,,FACTS 1.24-1.84 (n=3); MAGICC-SLR 2.11-2.11 (n=1),PASS
 S,gis,ssp585/ssp126,2150,separation,L21,3.2169381897753455,x,,FACTS 1.33-1.68 (n=2); MAGICC-SLR 3.48-3.48 (n=1),PASS
@@ -519,7 +519,7 @@ V,ais,,,separation,L21,,,,worst cell: separation ssp585/ssp126@2300 = 19.8 x,WAR
 V,glaciers,,,hindcast,L21,,,,worst cell: hindcast/1920-1949  = 0.599 cm,WARN
 V,glaciers,,,rate/accel,L21,,,,worst cell: rate/1993-2026  = 0.0629 cm/yr,UNRESOLVED
 V,glaciers,,,projection,L21,,,,worst cell: median_vs_lit ssp126@2100 = 0.771 x lit median,WARN
-V,glaciers,,,separation,L21,,,,worst cell: separation ssp585/ssp126@2150 = 2.07 x,FAIL
+V,glaciers,,,separation,L21,,,,worst cell: separation ssp585/ssp126@2300 = 2.15 x,WARN
 V,gis,,,hindcast,L21,,,,worst cell: hindcast/full  = 0.0587 cm,PASS
 V,gis,,,rate/accel,L21,,,,worst cell: rate/1993-2026  = 0.0657 cm/yr,UNRESOLVED
 V,gis,,,projection,L21,,,,worst cell: spread_vs_lit ssp126@2100 = 0.463 x lit spread,FAIL

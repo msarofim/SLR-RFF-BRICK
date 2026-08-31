@@ -1,6 +1,6 @@
 # Ladrillo benchmark — `L21`
 
-*benchmark v1.0, 2026-08-31, repo `97d7cd1`. Champion arm: **L21** (the candidate IS the champion — no delta column).*
+*benchmark v1.0, 2026-08-31, repo `f24821c`. Champion arm: **L21** (the candidate IS the champion — no delta column).*
 
 Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (stock MimiBRICK v2.0.0, own posterior), **literature** (FACTS + MAGICC-SLR, frozen).
 
@@ -19,7 +19,7 @@ Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (s
 | module | hindcast | rate/accel | projection | separation | vs champion |
 |---|---|---|---|---|---|
 | **AIS** | PASS | UNRESOLVED | WARN | WARN | — |
-| **glaciers** | WARN | UNRESOLVED | WARN | FAIL | — |
+| **glaciers** | WARN | UNRESOLVED | WARN | WARN | — |
 | **Greenland** | PASS | UNRESOLVED | FAIL | WARN | — |
 | **thermal exp.** | WARN | FAIL | WARN | WARN | — |
 | **land water** | — | — | WARN | PASS | — |
@@ -339,7 +339,7 @@ Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (s
 | AIS | 2150 | 12.35x | **PASS** | FACTS 0.55-4.64 (n=4); MAGICC-SLR 28.79-28.79 (n=1) |
 | AIS | 2300 | 19.76x | **WARN** | MAGICC-SLR 81.77-81.77 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON] |
 | glaciers | 2100 | 1.62x | **PASS** | FACTS 1.43-1.65 (n=2); MAGICC-SLR 1.46-1.46 (n=1) |
-| glaciers | 2150 | 2.07x | **FAIL** | FACTS 1.93-1.93 (n=1); MAGICC-SLR 1.79-1.79 (n=1); 0.14 outside the bracket = 105% of its own range |
+| glaciers | 2150 | 2.07x | **CHECK(wide)** | FACTS 1.93-1.93 (n=1); MAGICC-SLR 1.79-1.79 (n=1); 0.14 outside the bracket = 105% of its own range |
 | glaciers | 2300 | 2.15x | **WARN** | MAGICC-SLR 2.11-2.11 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON] |
 | Greenland | 2100 | 1.85x | **PASS** | FACTS 1.24-1.84 (n=3); MAGICC-SLR 2.11-2.11 (n=1) |
 | Greenland | 2150 | 3.22x | **PASS** | FACTS 1.33-1.68 (n=2); MAGICC-SLR 3.48-3.48 (n=1) |

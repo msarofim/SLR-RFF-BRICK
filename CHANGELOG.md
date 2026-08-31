@@ -79,6 +79,25 @@ almost entirely outside the span the curve was fitted on.
 * **Coverage counting excludes markers with no drawdown.** Counting them turned 2-of-5 into
   4-of-7 — a pass manufactured out of cells the question does not apply to.
 
+### Marcus's ruling on the [S] glaciers/2150 cell — the verdict is now DIRECTIONAL
+
+*"I'm okay with L21 having a wider future range than FACTS: that's not a failure the way that
+not matching observations or having a non-physical trend would be."* Implemented in
+`bench_ladrillo.block_separation` rather than annotated around: separating the scenarios **MORE**
+than every comparator now reports **`CHECK(wide)`** and ranks with the passes in the [V] roll-up;
+separating them **LESS** keeps its FAIL, because under-responding to a forcing change is the
+direction the comparators actually contradict. The exceedance is printed with **the bracket's own
+width** alongside, since it can be thinner than the miss — this cell is 0.14 outside a two-point
+bracket spanning 0.14.
+
+CHECK cells get their own list in the summary. A three-valued verdict that only prints on FAIL is
+a verdict that hides its middle value (`gate_bound_matches_its_claim`).
+
+**Mutation-tested on the real function**, not on a retyped copy of its verdict expression:
+`joint_stats` stubbed per frame, `block_separation` called for real — 2.068 → `CHECK(wide)`
+(rank 0), 1.86 → `PASS`, **1.20 → `FAIL` (rank 2)**. The V block for glaciers returns to
+non-failing; the 14 improvements from the machinery unification stand.
+
 ### Abandoned / not done
 
 * Did **not** add glacier regrowth. Both scopes now agree it is not indicated on our forcing.

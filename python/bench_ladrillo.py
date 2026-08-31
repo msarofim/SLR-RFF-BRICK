@@ -863,7 +863,22 @@ def block_separation(rows, cand_tag, champ_tag, cand_p, champ_p):
     Marcus 2026-08-25: ours lying BETWEEN FACTS and MAGICC is acceptable -- so the
     verdict is BRACKET MEMBERSHIP, not distance from a literature median. Where the
     bracket does not exist (MAGICC-SLR carries only 2100), the report says so rather
-    than silently scoring against the FACTS side alone."""
+    than silently scoring against the FACTS side alone.
+
+    ⚠ THE VERDICT IS DIRECTIONAL (Marcus 2026-08-31, ruling on the glaciers/2150 cell that
+    the shared-machinery move flipped): *"I'm okay with L21 having a wider future range
+    than FACTS: that's not a failure the way that not matching observations or having a
+    non-physical trend would be."* Separating the scenarios MORE than every comparator is
+    a difference between models on an unobservable future, not a defect -- it is reported
+    as `CHECK(wide)` and does NOT fail the [V] roll-up. Separating them LESS is the
+    under-response direction and keeps its FAIL: a model that answers a forcing change by
+    less than every comparator is making a claim the comparators contradict in the
+    direction that matters.
+
+    ⚠ AND THE BRACKET'S OWN WIDTH IS REPORTED WITH THE EXCEEDANCE, because it can be
+    thinner than the miss: the cell that prompted this ruling was 0.14 outside a
+    two-point bracket spanning 0.14, i.e. 105% of its own range.
+    """
     cmp_, _src = literature_rows(cand_p["comparison"])
     for key, label, *_ in COMPONENTS:
         for H in HORIZONS:
@@ -904,7 +919,8 @@ def block_separation(rows, cand_tag, champ_tag, cand_p, champ_p):
                      + ("" if bracketed else "  [NO UPPER COMPARATOR AT THIS HORIZON]"),
                 verdict=("PASS" if inside else
                          ("PASS(edge)" if near else
-                          ("WARN" if not bracketed else "FAIL")))))
+                          ("WARN" if not bracketed else
+                           ("CHECK(wide)" if ours > max(allr) else "FAIL"))))))
             if champ_p and champ_tag != cand_tag:
                 clo, _, _, _ = joint_stats(champ_p[f"draws_{SEP_LO}"], key, H)
                 chi, _, _, _ = joint_stats(champ_p[f"draws_{SEP_HI}"], key, H)
@@ -920,7 +936,11 @@ def block_separation(rows, cand_tag, champ_tag, cand_p, champ_p):
 def block_verdicts(rows, cand_tag, champ_tag):
     """Per-module roll-up: the worst verdict in each block, and the delta vs champion."""
     df = pd.DataFrame(rows)
+    ## CHECK(wide) ranks WITH the passes, not above them: a wider-than-every-comparator
+    ## scenario separation is surfaced, never suppressed, but it does not fail a block
+    ## (Marcus 2026-08-31; see block_separation's docstring for the reasoning).
     order = {"PASS": 0, "PASS(prior)": 0, "PASS(edge)": 0, "UNRESOLVED": 0,
+             "CHECK(wide)": 0,
              "N/A(by construction)": -1, "N/A(bimodal)": -1,
              "WARN": 1, "FAIL": 2, "": -1,
              "BETTER": -1, "SAME": -1, "WORSE": -1, "n/a": -1}
@@ -1189,6 +1209,20 @@ def main():
         print(f"    [{r.block}] {COMP_LABEL.get(r.component, r.component):12s} "
               f"{str(r.scenario):8s} {str(r.horizon):5s} {r.metric:26s} "
               f"{r.arm:16s} {r.value:9.3f} {r.unit}")
+    ## CHECK cells are NOT failures and must NOT be silent either -- a three-valued verdict
+    ## that only prints on FAIL is a verdict that hides its middle value
+    ## (`gate_bound_matches_its_claim`). They are listed separately, with the ruling named.
+    chk = df[df.verdict.astype(str).str.startswith("CHECK")]
+    chk = chk[chk.arm.astype(str).str.startswith(tag)]
+    if len(chk):
+        print(f"\n  {len(chk)} CHECK cells for the CANDIDATE (surfaced, not failing -- "
+              f"Marcus 2026-08-31: separating the scenarios MORE than every comparator is a "
+              f"model difference on an unobservable future, not a defect):")
+        for _, r in chk.iterrows():
+            print(f"    [{r.block}] {COMP_LABEL.get(r.component, r.component):12s} "
+                  f"{str(r.scenario):8s} {str(r.horizon):5s} {r.metric:26s} "
+                  f"{r.arm:16s} {r.value:9.3f} {r.unit}  {r.verdict}")
+            print(f"        {r.note}")
     a = df[(df.metric == "spread_vs_lit")].set_index(["component", "scenario", "horizon"])
     b = df[(df.metric == "spread_vs_lit_ALL")].set_index(["component", "scenario", "horizon"])
     if len(b):
@@ -1208,6 +1242,7 @@ def main():
             print("      none -- every verdict is the same either way")
     print(f"\nwrote outputs/bench_ladrillo_{tag}.csv")
     print(f"wrote outputs/bench_ladrillo_{tag}.md")
+
 
 
 if __name__ == "__main__":
