@@ -3,7 +3,55 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## 2026-08-31 (latest) — the Ladrillo figure suite: historical + two future sets, total and components
+## 2026-08-31 (latest) — the four-source component figure: Ladrillo vs BRICK 2.0 vs FACTS vs MAGICC
+
+`python/plot_model_comparison_components.py` — the first FIGURE carrying all four projection
+sources, and the first to carry 2300. One file per horizon:
+
+| figure | horizon | comparators present |
+|---|---|---|
+| `figures/model_comparison_components_L21_2100.png` | 2100 | all four |
+| `figures/model_comparison_components_L21_2150.png` | 2150 | all four |
+| `figures/model_comparison_components_L21_2300.png` | 2300 | **FACTS does not reach 2300** — MAGICC-SLR is the only external comparator |
+
+The four-source comparison had existed only as `outputs/ladrillo_model_comparison_<TAG>.csv`
+since 2026-08-16. The two neighbouring figures cover neither job: `plot_b2_component_comparison.py`
+draws BRICK-AM/extA108 (Ladrillo's *predecessor*, see handoff 2026-08-31c §1) and stops at
+2150; `plot_future_components.py` draws Ladrillo vs BRICK 2.0 over time with no external
+comparator. **No new model runs were needed** — the table already existed on the joint arm.
+
+**The year is the figure, the scenario is the x axis, the component is the panel.** Putting
+the three horizons inside a panel lets 2300 squash 2100 flat; this way every panel of one
+figure shares a horizon and a plausible y-scale. Same 2x3 component grid, order, palette and
+caption discipline as the rest of the suite, via `python/ladrillo_figs.py`.
+
+### Two things the figure refuses to do
+
+* **Widths are drawn only where they are the same object** (`ladrillo_figs.WIDTH_SRCS`).
+  Ladrillo and BRICK 2.0 are both on the joint arm here, so their 17-83 / 5-95 bars are
+  comparable *to each other*; MAGICC and FACTS bands also carry each model's climate
+  ensemble, so they are medians-only. **The comparability sentence in the caption is DERIVED
+  from the `band_basis` column, never typed** — mutation-tested: flipping one Ladrillo cell to
+  the FIXED basis drops the claim and stamps the actual mix instead.
+* **FACTS is not one number and is not drawn as one.** Its modules disagree by up to 8x, so a
+  median across them summarises nothing (`median_needs_agreement`); every module gets its own
+  marker, fanned inside the FACTS slot. The structured-expert-judgement modules (bamber19,
+  wf4) take an open marker, classified from `benchmark/comparator_classes.csv` — the same file
+  the benchmark scores from, never a hand-typed list in the plotting script.
+
+### Gates, all five mutation-tested
+
+`TAG` (Ladrillo's own `module` string must be the tag being captioned) and `DATA` (all four
+sources present) refuse to draw. `BASIS` rewrites the caption. `LIT` re-checks the FACTS and
+MAGICC rows against the FROZEN comparator arm at `benchmark/reference/_fixed/literature_rows.csv`
+— a file this script never writes — and reports a disagreement rather than resolving it,
+because either copy could be the newer one. All 150 rows match today. A source absent from the
+whole figure is stamped on the caption AND dropped from the legend: a legend entry with no
+marker behind it reads as a series the reader failed to find.
+
+The component sum is **printed, not gated** — medians do not add.
+
+## 2026-08-31 — the Ladrillo figure suite: historical + two future sets, total and components
 
 Marcus asked for a full set of Ladrillo comparison figures — historical (vs observations &
 BRICK) and future (SSPs and van Vuuren as two sets), with both total SLR and components.
