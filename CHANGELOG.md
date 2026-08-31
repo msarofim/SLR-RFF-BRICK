@@ -11846,3 +11846,41 @@ directory. The new generator rejects any workflow outside wf1f/wf2f/wf3f/wf4 at 
 **Not attempted: horizon 2300.** Kept at pyear_end 2150, the convention every prior FACTS run
 used and the horizon the shipped comparison table reports FACTS at. MAGICC-SLR still stands
 alone at 2300.
+
+## 2026-08-31 (e) — the four-source van Vuuren figure
+
+`figures/model_comparison_components_vv_L21_{2100,2150,2300}.png`. `vv_model_comparison.py`
+gains the FACTS and MAGICC-SLR arms; `plot_model_comparison_components.py` gains the `--set=`
+treatment `plot_future_components.py` already had, so one figure script serves both scenario
+sets off `lf.scen_set()`.
+
+**The result: the peak-and-decline crossover holds in 7/7 model-module totals.** High-to-Low
+sits *above* Medium at 2100 and *below* it at 2150 in Ladrillo L21, BRICK 2.0, MAGICC-SLR and
+all four FACTS workflows. Three share the FaIR driver; MAGICC computes its own climate from
+emissions, so the agreement is not circular. No SSP in the set can pose this contrast.
+
+**Two header rationales retired** — both overtaken, not wrong when written: (1) the two-source
+split was justified by "merging would emit empty FACTS/MAGICC columns that read as no data when
+the truth is not run on this set" — dissolved, both are run; the scripts stay separate for a
+better reason (the width-ratio, GMST-gradient and paired path-dependence analyses need Ladrillo
+and BRICK 2.0 to share a draw→config permutation, which FACTS and MAGICC structurally cannot).
+(2) "RUNNABLE, not run" — true that morning, false by the afternoon.
+
+**Four latent defects the port surfaced**, each fixed at its cause: `_sum_check()` hardcoded
+`lf.scen_set("ssp")`; the clipped-whisker label did `r.scenario.replace("ssp","SSP")`, which
+yields `vvHL` unchanged on the vv set; the suptitle hardcoded all four source names and
+advertised FACTS on the 2300 figure that has no FACTS marker (the legend already derived itself
+from `drawn`, the title did not); and the frozen-comparator gate covers the SSPs only, so on the
+vv set it would fire on every row — a gate that cannot pass is noise, so the absence is stamped
+on the caption instead.
+
+**Tried and rejected: keeping the elicited off-panel values in-panel.** The annotation is one
+line per scenario and by design carries each value; at seven markers it blanketed the data it
+annotates. Past `CLIP_INPANEL_MAX` the values move to the caption behind a one-line pointer —
+relocated, never dropped. Also rejected: the typed `rect=[0, 0.115, ...]` caption margin, which
+was tuned to a three-scenario caption and silently truncated the longer one off the canvas; the
+band is now computed from the wrapped line count.
+
+**Not changed: the SSP set's FACTS arm.** The shared-climate run also covers ssp126/245/585, and
+those differ from the frozen FACTS-internal-FaIR-1.6.4 rows the SSP table uses. Swapping them is
+a convention decision for Marcus, not a side effect of this figure.
