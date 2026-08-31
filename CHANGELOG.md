@@ -11810,3 +11810,39 @@ Verified after the repoint: canonical and `DEFAULT_TAG` both resolve to L12,
 variant reads `:ab`, the drift guard fires for none of L12/L11/L10, the L10
 anchor still reproduces **0.1490 [0.0544, 0.2300], 3.03×**, and the Bochow
 comparison re-runs against L12.
+
+## 2026-08-31 (d) — the FACTS arm lands on the van Vuuren markers
+
+**Ran FACTS on the shared climate for all 10 scenarios** (7 van Vuuren markers + 3 SSP
+controls), workflows wf1f/wf2f/wf3f/wf4, n=200, ~56 s each under Colima. Configs and extractor
+live in `facts@slr-comparison-arm` (`696e09d6`, `86f1106a`); results here as
+`outputs/facts_components_shared_n200.csv`.
+
+- **Closes the climate-driver convention straddle** that `vv_model_comparison.py`'s header
+  raises: re-running the 3 SSPs *injected* puts the whole FACTS column on one convention
+  instead of mixing injected van Vuuren against FACTS-internal FaIR-1.6.4 SSPs.
+- **Control passes.** ssp245 reproduces the prior calib-1.4.5 run to within 0.5–2.5% on all 8
+  workflow × horizon cells (wf1f@2100 49.8 vs 50.0) — the expected size for a calibration
+  vintage change, against 30–50% for swapping the ice-sheet workflow.
+- **The vvHL-vs-vvM crossover reproduces**, independently of MAGICC and on a different climate
+  basis: vvHL above vvM at 2100 in 99–100% of configs, below it at 2150 in 84–99%, sign-test
+  z = 9.6–13.9, all four workflows.
+
+**Tried and rejected: summarising the paired difference with a MEAN.** The pairing was right
+(same 200 configs, fixed module seed) but the mean is the wrong summary — the DeConto21 MICI and
+Bamber19 SEJ upper tails drag it across zero, giving wf3f +27.79 cm and wf4 +2.63 against
+medians of −6.30 and −7.25 with 84%/90% of configs negative. Reported as means the result would
+have read "the crossover holds in 2 of 4 workflows", a false split that would have looked like a
+MICI physics story. wf3f's t was 4.4 — a t-statistic on a tailed difference certifies the mean,
+not the claim. Now reported as paired median + sign test.
+
+**Rejected in the configs: the phantom `wf*e` totals.** The predecessor config
+`global.coupling.ssp245.fairv145.noemu` dropped the emulandice *modules* but left
+`wf1e/wf2e/wf3e` in the surviving modules' `include_in_workflow`, so FACTS emitted
+`total.workflow.wf1e/wf2e/wf3e.global.nc` — workflow totals with **no ice sheets in them**,
+indistinguishable by filename from real ones. Those files still exist in that experiment
+directory. The new generator rejects any workflow outside wf1f/wf2f/wf3f/wf4 at generation time.
+
+**Not attempted: horizon 2300.** Kept at pyear_end 2150, the convention every prior FACTS run
+used and the horizon the shipped comparison table reports FACTS at. MAGICC-SLR still stands
+alone at 2300.
