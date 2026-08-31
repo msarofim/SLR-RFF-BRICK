@@ -99,9 +99,18 @@ TAG_DESC = {"L10": "Ladrillo 1.0 (L10)",
             "L14": "Ladrillo L14 (two-basin Greenland)",
             # champion since 2026-08-28 (memory INDEX_slr); melt-only glacier ratchet.
             "L21": "Ladrillo L21 (calib 1.6.0 + CMIP7, melt-only glacier ratchet)",
-            # 2026-08-31 refit: L21's parameter structure exactly -- verified identical
-            # chain headers -- with the glacier ratchet replaced by a FLOORED equilibrium
-            # and bounded regrowth at R = 1. The only axis that moved is the glacier law.
+            # 2026-08-31 refit: L21's calibration -- `--gis-ordered --gis-basins2
+            # --overdisperse`, 4 x 2M -- with the glacier ratchet replaced by a FLOORED
+            # equilibrium and bounded regrowth at R = 1.
+            # ⚠ AN EARLIER VERSION OF THIS COMMENT CLAIMED "verified identical chain
+            # headers" ON THE STRENGTH OF A GREP THAT COULD NOT HAVE SHOWN IT. The grep
+            # was for `gis_k_mid|basin`, which misses `gis_s_high` -- the one column
+            # `--gis-basins2` adds and the ONLY column by which the two runs differed. The
+            # first L23 attempt was consequently an `:ab` Greenland, i.e. a second moved
+            # axis, and is quarantined at
+            # outputs/quarantine/20260831_l23_missing_gis_flags/. The flag set is now
+            # verified by a smoke run whose column set is byte-identical to L21's, and the
+            # pipeline gates on that identity before it will run.
             "L23": "Ladrillo L23 (L21 + floored glacier equilibrium, bounded regrowth)"}
 if LADRILLO_TAG not in TAG_DESC:
     raise SystemExit(f"undeclared --tag={LADRILLO_TAG}: add it to TAG_DESC so the figure "
