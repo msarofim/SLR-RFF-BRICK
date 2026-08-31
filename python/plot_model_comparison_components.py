@@ -306,6 +306,11 @@ for YEAR in YEARS:
                     "elicited 5–95% off panel (cm):\n  " + "\n  ".join(clipped),
                     transform=ax.transAxes, ha="left", va="top", fontsize=6.3,
                     linespacing=1.35, color=lf.SRC_COLOR["FACTS"])
+        ## The one panel where two of the four arms are not independent gets told so.
+        if comp == "glaciers":
+            ax.text(0.985, 0.03, "Ladrillo transient = Nauels 2017 Eq. 3 = MAGICC's law",
+                    transform=ax.transAxes, ha="right", va="bottom", fontsize=6.6,
+                    style="italic", color="0.35")
         ax.axhline(0, color="0.85", lw=0.8, zorder=1)
         ax.set_xticks(range(len(SCENS)))
         ax.set_xticklabels([l for _k, l, _c2, _d in SCENS], fontsize=9)
@@ -347,7 +352,8 @@ for YEAR in YEARS:
         "comparable to the 1995–2014 mean (the standing MAGICC-comparison convention); "
         "MAGICC-SLR is v7.5.3 + Nauels 2025 on a 600-member AR6 drawnset.  %s%s%s  %s"
         % (DESC["model"], DESC["calib"], DESC["glacier"], DESC["gis"],
-           lf.PROJ_BASELINE.capitalize(), WIDTH_NOTE, lf.BAND_CAVEAT,
+           lf.PROJ_BASELINE.capitalize(), WIDTH_NOTE,
+           lf.BAND_CAVEAT + "  " + lf.GLACIER_LINEAGE_NOTE,
            ("⚠ NOT DRAWN AT %d: %s. " % (YEAR, ", ".join(absent))) if absent else "",
            ("⚠ PARTIAL AT %d (some components only): %s. " % (YEAR, ", ".join(partial)))
            if partial else "",

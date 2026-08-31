@@ -30,6 +30,32 @@ CAL_BASELINE = "cm, rel. 1995-2005"          # postpred_*, recalib_targets_ext
 PROJ_BASELINE = "cm, rel. 1995-2014"         # every projection product
 DISPLAY_BASELINE = "1970-2020"               # display-only re-reference
 
+## ⚠ SHARED FORMULATION LINEAGE — WHICH PANELS COMPARE INDEPENDENT METHODS AND WHICH DO NOT.
+## Established 2026-08-31 from the component sources, not from the model names.
+##
+## GLACIERS: Ladrillo's transient IS MAGICC's. `glaciers_nu_component.jl` (~:14) states it
+##   outright -- "dS/dt = kappa (S_eq - S) max(T - T_eq, 0)^nu   (Nauels 2017 Eq. 3)", and
+##   its header calls the law "Nauels-2017 (MAGICC Eq. 3)". MAGICC-SLR here IS Nauels
+##   (v7.5.3 + Nauels 2025). So at the glaciers panel, Ladrillo-vs-MAGICC compares
+##   RESERVOIR COUNT (3 vs 1), DRIVER (glacier-frame T, amp_g=1.8, vs GMST) and POSTERIOR
+##   within ONE formulation family -- it is NOT two independent methods, and agreement
+##   there is weaker evidence than agreement anywhere else on the figure.
+##   The equilibrium curve is Mengel 2016 PNAS, a third lineage again.
+##   ⇒ BRICK 2.0 (Wigley-Raper) and FACTS (ar5glaciers / emuglaciers, the Marzeion-AR5 and
+##     emulandice-over-GlacierMIP lines) ARE independent of Ladrillo at this component.
+## GREENLAND: no comparator shares Ladrillo's formulation. Ours is the two-basin A+B
+##   commitment cell with the shipped tap (`greenland_ab_component.jl`,
+##   `greenland_3basin_component.jl`), fitted offline in this repo. MAGICC/Nauels carries an
+##   SMB+SID split, FACTS carries FittedISMIP / emuGrIS / bamber19, BRICK 2.0 carries SIMPLE.
+##   Four formulations, four lineages.
+GLACIER_LINEAGE_NOTE = (
+    "⚠ Ladrillo's glacier TRANSIENT is Nauels 2017 Eq. 3 — the MAGICC sea-level law "
+    "(glaciers_nu_component.jl:14) — on a Mengel-2016 equilibrium curve. MAGICC-SLR here IS "
+    "Nauels, so the glaciers panel compares reservoir count, driver and posterior WITHIN one "
+    "formulation family, not two independent methods. BRICK 2.0 (Wigley-Raper) and FACTS "
+    "(ar5glaciers/emuglaciers) are independent of us there. At Greenland all four "
+    "formulations differ.")
+
 # --- components ------------------------------------------------------------
 ## Canonical order and titles. `total` is LAST so it reads as the sum of what precedes it.
 COMPONENTS = ["glaciers", "gis", "ais", "te", "lws", "total"]
