@@ -12,8 +12,10 @@
 # Reference (python ground truth): outputs/extc_port_reference{,_theta}.csv,
 # emitted by python/emit_extc_port_reference.py at the anchored theta.
 #
-# Run BOTH bases:
-#   julia --project=julia_v2 julia/validate_glaciers_nu3.jl 2000 2026
+# Run BOTH bases (⚠ the two POSITIONAL args are required first -- calibrate_mcmc_ext.jl
+# parses ARGS[1] as an Int, so a leading --flag dies in tryparse. The first line below used
+# to omit --amp-basis entirely, which defaults to `sampled` and is refused three lines down):
+#   julia --project=julia_v2 julia/validate_glaciers_nu3.jl 2000 2026 --amp-basis=regchar
 #   julia --project=julia_v2 julia/validate_glaciers_nu3.jl 2000 2026 --amp-basis=obsfit
 
 include(joinpath(@__DIR__, "calibrate_mcmc_ext.jl"))

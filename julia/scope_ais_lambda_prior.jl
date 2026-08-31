@@ -250,7 +250,17 @@ crit = 1.36 / sqrt(length(ALL_LAM))   # KS 5% critical value, n draws
 
 ## [INDEP] The transport replaces lambda draw-by-draw. That is only valid if lambda
 ## carries no posterior dependence on the parameters left alone.
+## ⚠ `intersect` OMITS rather than raises, so a chain missing a used column silently
+## SHRINKS this scan and the max below is then a max over fewer parameters -- a
+## looked-at-less null reported as a looked-and-found-nothing (`no_power_null`,
+## `intersect_is_a_silent_default`). The coverage is therefore printed, and a missing
+## column is named rather than dropped.
 const OTHERS = intersect(names(DRAWS[1]), ladrillo_used_cols(VARIANT))
+let miss = setdiff(ladrillo_used_cols(VARIANT), names(DRAWS[1]))
+    @printf("[INDEP] scanning %d of %d used parameters%s\n", length(OTHERS),
+            length(ladrillo_used_cols(VARIANT)),
+            isempty(miss) ? "" : "  ⚠ ABSENT FROM THE CHAIN: " * join(miss, ", "))
+end
 let maxr = 0.0, maxn = ""
     for c in OTHERS
         c in (LAM, TCR) && continue

@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 """
 scope_glacier_regrowth.py — PRICE the melt-only clamp in Ladrillo's glacier module.
+
+⚠ STATUS CHANGED 2026-08-31. The clamp this script priced has been REMOVED: the shipped law
+is now a FLOORED equilibrium with bounded regrowth at 1/R (R = 1). The script keeps its job
+-- it is what measures the before/after -- but "shipped" now means the regrowth law, and
+`regrow_R=None` is the RETIRED ratchet. ⚠ Until the projection outputs are regenerated after
+the refit, the [PORT] gate below will FAIL, correctly: it compares this reconstruction
+against shipped output files that still carry the old law. That failure is the staleness
+signal, not a bug in the gate -- do not loosen it to make it pass.
 SCOPING ONLY: this changes no model file and wires nothing in.
 
   python3 python/scope_glacier_regrowth.py [--tag=L21] [--draws=400]
@@ -84,6 +92,13 @@ HORIZONS = [2100, 2150, 2300]
 ## removing the clamp gives, and what MAGICC's unclamped Eq. 3 does); larger R is slower
 ## regrowth. Reported as a ladder because no value is defensible without an external target.
 R_LADDER = [1, 3, 10, 30, 100]
+## ⚠ THE SHIPPED LAW IS NO LONGER MELT-ONLY (2026-08-31). The clamp was replaced by a
+## FLOORED equilibrium plus bounded regrowth at 1/R, so `integrate(..., regrow_R=None)` is
+## now the RETIRED law, kept because the counterfactual is exactly what this script prices.
+## This constant must equal GIC_REGROW_R in julia/glaciers_nu_component.jl; if the two drift,
+## the [PORT] gate below is the thing that notices, because the reconstruction stops
+## tracking the shipped median.
+SHIPPED_REGROW_R = 1.0
 OUT = os.path.join(REPO, "outputs/scope_glacier_regrowth_%s.csv" % TAG)
 OUT_H = OUT.replace(".csv", "_headroom.csv")
 
@@ -222,7 +237,10 @@ def main():
                        kappa=10.0 ** post["gic_log10_kappa_%s" % b].values,
                        nu=nu[b]) for b in BLOCKS}
 
-        S_ship = {b: integrate(T[b], **par[b]) for b in BLOCKS}          # melt-only = shipped
+        ## the SHIPPED law: floored equilibrium + bounded regrowth at SHIPPED_REGROW_R.
+        S_ship = {b: integrate(T[b], **par[b], regrow_R=SHIPPED_REGROW_R) for b in BLOCKS}
+        ## the RETIRED melt-only law, for the before/after this script exists to price.
+        S_ratchet = {b: integrate(T[b], **par[b]) for b in BLOCKS}
         tot_ship = sum(S_ship[b] for b in BLOCKS) * 100.0                # m -> cm
         ## Re-reference to 1995-2014, the standing projection baseline every Ladrillo product
         ## uses (`ladrillo_figs.PROJ_BASELINE`). The raw integral is cumulative melt from the

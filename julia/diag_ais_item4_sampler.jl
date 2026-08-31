@@ -183,7 +183,17 @@ pooled(c) = Float64.(vcat([d[!, c] for d in DRAWS]...))
 ## [RIDGE-CORR] How much posterior correlation does each transported parameter
 ## carry? A single-column transport breaks exactly this, so the number below is
 ## how far the test-[3] arms are from a posterior revision.
+## ⚠ `intersect` OMITS rather than raises, so a chain missing a used column silently
+## SHRINKS this scan and the max below is then a max over fewer parameters -- a
+## looked-at-less null reported as a looked-and-found-nothing (`no_power_null`,
+## `intersect_is_a_silent_default`). The coverage is therefore printed, and a missing
+## column is named rather than dropped.
 const USED = intersect(names(DRAWS[1]), ladrillo_used_cols(VARIANT))
+let miss = setdiff(ladrillo_used_cols(VARIANT), names(DRAWS[1]))
+    @printf("[RIDGE-CORR] scanning %d of %d used parameters%s\n", length(USED),
+            length(ladrillo_used_cols(VARIANT)),
+            isempty(miss) ? "" : "  ⚠ ABSENT FROM THE CHAIN: " * join(miss, ", "))
+end
 for p in ITEM4_PARAMS
     local x = pooled(p)
     local best = 0.0; local bestn = "-"
