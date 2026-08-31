@@ -88,6 +88,37 @@ const FORCING = let i = findfirst(a -> startswith(a, "--forcing="), ARGS)
     i === nothing ? "spliced" : ARGS[i][11:end]
 end
 @assert FORCING in ("spliced", "raw") "--forcing must be spliced or raw"
+## WHOSE CLIMATE. The second axis, added 2026-08-31 (handoff 31f section 6).
+##  `fair`   the 841-config FaIR 2.2.4 calib 1.6.0 cube. DEFAULT; every previously
+##           written scope_slr_fairunc_* file is this arm and its name is unchanged.
+##  `magicc` MAGICC-SLR's own 600-member climate, per member, from the same run that
+##           produced the MAGICC SLR arm we compare against.
+## WHY. MAGICC-SLR computes its own climate from emissions -- the property that makes
+## its agreement with the three FaIR-driven arms non-circular -- so every
+## Ladrillo-vs-MAGICC module claim at 2150/2300 is a TWO-variable comparison
+## (`magicc_colder_than_fair_2300`: 0.38-0.93 K colder at 2300 on the four declining
+## markers, 5-95 % disjoint at vvLN). Running Ladrillo's UNCHANGED modules on MAGICC's
+## climate holds the module axis and moves only the climate one.
+## ⚠ THE REVERSE ARM IS IMPOSSIBLE, not merely unbuilt (`runnable_is_not_undrivable`):
+## MAGICC-SLR is inside MAGICC and consumes MAGICC's own climate module, so there is no
+## supported way to inject FaIR's GMST into it. The comparison exists in one direction.
+const CLIMATE = let i = findfirst(a -> startswith(a, "--climate="), ARGS)
+    i === nothing ? "fair" : ARGS[i][11:end]
+end
+@assert CLIMATE in ("fair", "magicc") "--climate must be fair or magicc"
+## THE FILENAME CARRIES THE CLIMATE, for the same reason it carries the tap: a
+## MAGICC-climate run must not overwrite the FaIR-climate arm it is compared against,
+## and twelve consumers read these files by explicit path. Empty on the default arm, so
+## every existing name and every existing schema is untouched.
+const CLIM_TAG = CLIMATE == "fair" ? "" : "_magiccclim"
+## ⚠ MAGICC reports `Heat Content|Ocean` in ZJ = 1e21 J; BRICK/Ladrillo want 1e22 J.
+## 0.1 because ZJ is a DEFINITION. Never from a ratio: the MAGICC/FaIR OHC ratio drifts
+## 11.3x -> 7.7x between 2020 and 2300 (`magicc_ohc_zj_not_1e22j`), so any factor chosen
+## to close the gap would be closing a real model difference as well as the unit.
+const ZJ_TO_1E22J = 0.1
+const MAGICC_WIDE = joinpath(homedir(), "Documents/2026/CodeProjects/FaIRtoFrEDI",
+                             "magicc_comparison/processed/vv_wide_20260831")
+const MAGICC_N = 600                       # the AR6 drawnset this run used
 const SPLICE_YEAR = 2014            # build_protect_x2300_forcing.py's convention
 const HORIZONS = [2100, 2150, 2300]
 const Y0, Y1   = 1850, 2300
@@ -198,10 +229,16 @@ function read_draws(sd)
     d = ladrillo_native_greenland!(df[idx[1:N_TARGET], :]); df = nothing; GC.gc(); d
 end
 
-@printf("SLR WITH FaIR CLIMATE UNCERTAINTY | tag %s%s%s%s | %d draws/chain x %d chains | %s | forcing=%s\n",
-        TAG, CHAIN_TAG == TAG ? "" : "  (chains from $(CHAIN_TAG))",
+## The banner names the arm it is actually running. Deriving it from CLIMATE rather
+## than hardcoding "FaIR" is the labels-from-named-constants rule: a MAGICC run that
+## announced itself as FaIR would mislabel every line of the log it writes.
+const CLIMATE_LABEL = Dict("fair" => "FaIR 2.2.4 calib 1.6.0, 841 configs",
+                           "magicc" => "MAGICC-SLR, 600-member AR6 drawnset")
+@printf("SLR WITH CLIMATE UNCERTAINTY FROM %s | tag %s%s%s%s | %d draws/chain x %d chains | %s | forcing=%s\n",
+        uppercase(CLIMATE), TAG, CHAIN_TAG == TAG ? "" : "  (chains from $(CHAIN_TAG))",
         TON_BAND == "" ? "" : "  [T_on band $(TON_BAND) only]",
         SMOKE ? "  ** SMOKE (--maxrows=$(MAXROWS)) **" : "", N_TARGET, length(SEEDS), SSP, FORCING)
+@printf("  climate source: %s\n", CLIMATE_LABEL[CLIMATE])
 flush(stdout)
 const DRAWS = [(@printf("  reading chain seed%d ...\n", sd); flush(stdout); read_draws(sd))
                for sd in SEEDS]
@@ -210,15 +247,59 @@ const NDRAW = sum(nrow.(DRAWS))
 const ROWS = [r for d in DRAWS for r in eachrow(d)]
 @assert length(ROWS) == NDRAW
 
-## ---- the FaIR cube -------------------------------------------------------
-const CG = CSV.read(CUBE_G, DataFrame)
-const CO = CSV.read(CUBE_O, DataFrame)
-const CFG = [c for c in String.(propertynames(CG)) if startswith(c, "cfg_")]
+## ---- the climate cube ----------------------------------------------------
+## Both sources land in the SAME shape -- a (year x member) frame whose member columns
+## share one order -- so everything downstream (the splice, the pairing, the arms, the
+## gates) is written once and does not branch on the climate.
+const YEARS = collect(Y0:Y1)
+"""Read a MAGICC per-member wide CSV and cut it to Y0:Y1. The files run 1750-2305;
+`end_year_2300` is the horizon for all our work, and the extra years are dropped
+DELIBERATELY rather than silently carried."""
+function read_magicc_wide(path, scale)
+    isfile(path) || error("missing $(path)\n  build it with " *
+        "FaIRtoFrEDI/magicc_comparison/build_magicc_wide_vv.py")
+    d = CSV.read(path, DataFrame)
+    yr = Int.(d.year)
+    idx = [findfirst(==(y), yr) for y in YEARS]
+    any(isnothing, idx) && error("$(basename(path)) does not cover $(Y0):$(Y1)")
+    cols = [c for c in String.(propertynames(d)) if startswith(c, "m")]
+    out = DataFrame(year = YEARS)
+    for c in cols; out[!, c] = Float64.(d[idx, c]) .* scale; end
+    out
+end
+const CG, CO = CLIMATE == "fair" ?
+    (CSV.read(CUBE_G, DataFrame), CSV.read(CUBE_O, DataFrame)) :
+    (read_magicc_wide(joinpath(MAGICC_WIDE, "magicc_gmst_$(SSP)_wide.csv"), 1.0),
+     read_magicc_wide(joinpath(MAGICC_WIDE, "magicc_ohc_$(SSP)_wide_rel1850.csv"), ZJ_TO_1E22J))
+const MEMBER_PREFIX = CLIMATE == "fair" ? "cfg_" : "m"
+const CFG = [c for c in String.(propertynames(CG)) if startswith(c, MEMBER_PREFIX)]
 const NCFG = length(CFG)
 const CYEARS = Int.(CG.year)
-const YEARS = collect(Y0:Y1)
 @assert CYEARS == YEARS "the cube's year axis is not $(Y0):$(Y1)"
 @assert String.(propertynames(CO))[2:end] == CFG "gmst and ohc cubes disagree on configs"
+## [CLIMATE-SOURCE] the properties the MAGICC arm rests on, asserted rather than assumed.
+## The member COUNT catches a truncated build; the ORDER equality above is what lets
+## member j's temperature be paired with member j's ocean heat; and the 1850-1900 mean
+## being ~0 is the frame check -- these files are written K rel 1850-1900, and a file
+## still on MAGICC's native 1750 zero would sail through every other gate here while
+## putting the whole hindcast on the wrong frame.
+if CLIMATE == "magicc"
+    NCFG == MAGICC_N || error("[CLIMATE-SOURCE] $(NCFG) members, expected $(MAGICC_N)")
+    ## `let`, not a bare block: a top-level `w` here becomes a GLOBAL, and the [SUM]
+    ## gate below assigns `w` inside a `for` -- which Julia then treats as ambiguous
+    ## soft scope. That is the same shadowing family as `gsic_match_gate_was_vacuous`,
+    ## and it showed up as a warning on this gate's first run.
+    let ib = findall(y -> 1850 <= y <= 1900, YEARS),
+        w = maximum(abs(mean(Float64.(CG[i, c] for i in ib))) for c in CFG)
+    ## Bound from the file's own written precision, not picked: the wide CSVs carry full
+    ## float repr, so the only error is the mean of 51 rebaselined values -- machine eps
+    ## scaled by the values' magnitude, well under 1e-9 K. A file on the 1750 frame would
+    ## miss by ~0.1-0.3 K, so this discriminates by eight orders of magnitude.
+        @printf("[CLIMATE-SOURCE] %d members, max |mean GMST %d-%d| = %.3e degC (tol 1e-09)  %s\n",
+                NCFG, 1850, 1900, w, w <= 1e-9 ? "PASS" : "FAIL")
+        w <= 1e-9 || error("[CLIMATE-SOURCE] the GMST files are not on the 1850-1900 frame")
+    end
+end
 const IREF = findall(y -> LADRILLO_REF[1] <= y <= LADRILLO_REF[2], YEARS)
 ## the shipped MEAN driver -- the control arm, and the pre-splice half of every arm
 const MEAN_G = [_yearmap(joinpath(LADRILLO_OBS, "fair_mean_gmst_$(SSP).csv"), "gmst_C")[y] for y in YEARS]
@@ -238,7 +319,11 @@ const I2300 = findfirst(==(2300), YEARS)
 ## [SPLICE-MATCH] the Julia splice must reproduce the python-spliced cube the
 ## 2026-08-25 result was computed from -- otherwise "raw cube + convention in Julia"
 ## is a silent change of the input, not a refactor. Only ssp585 has the reference.
-if FORCING == "spliced" && isfile(SPLICED_REF_G)
+if CLIMATE != "fair"
+    @printf("[SPLICE-MATCH] NOT APPLICABLE -- the python reference cube is a FaIR product;\n")
+    @printf("               there is no MAGICC counterpart, so the splice is verified here\n")
+    @printf("               only by [SPLICE-IDENTITY] below, which is a weaker claim.\n")
+elseif FORCING == "spliced" && isfile(SPLICED_REF_G)
     R = CSV.read(SPLICED_REF_G, DataFrame)
     w = maximum(maximum(abs.(gmst_of(c) .- Float64.(R[!, c]))) for c in CFG)
     @printf("[SPLICE-MATCH] max |julia splice - python cube| = %.3e degC (tol %.0e)  %s\n",
@@ -385,6 +470,66 @@ let ncontrol = 0
 end
 end
 
+## [SPLICE-IDENTITY] the spliced arm must be BIT-IDENTICAL to the fixed arm for as long
+## as the two forcings are identical. This is the gate that actually tests the splice on
+## a climate with no python reference cube to match against (see [SPLICE-MATCH] above),
+## and it is an identity because the model is a recurrence: state at year t depends only
+## on forcing up to t.
+##
+## ⚠ THE HORIZON OF THE IDENTITY IS NOT SPLICE_YEAR, and the bound is DERIVED rather
+## than set to the splice year -- an identity bound on the wrong year is a gate that fires
+## forever (`gate_bound_matches_its_claim`). Two mechanisms let post-splice forcing reach
+## back: the Greenland shape law evaluates S on a CENTRED running mean of width
+## LADRILLO_GIS_SHAPE_WIN, and `ladrillo_series` re-references every component to
+## LADRILLO_REF, so a change anywhere in 1995-2014 shifts the WHOLE series including 1850.
+## The bound takes the shape window because it is the one that bites first.
+##
+## ⚠ THE SECOND MECHANISM IS WHY THIS GATE HAS TEETH, and it was found by mutation-testing
+## rather than reasoned out: splicing at 1980 while leaving the gate on 2014 moved the arms
+## apart at 1850, not at 1981, because the mutant changed forcing inside the reference
+## window. Measured on the real arm the first divergence is 2015 -- one year past the
+## splice -- so the derived horizon is CONSERVATIVE, and it is printed beside the measured
+## year so that conservatism stays visible instead of being mistaken for the true reach.
+if FORCING == "spliced"
+    let ylast = SPLICE_YEAR - (LADRILLO_GIS_SHAPE_WIN ÷ 2) - 1, i1 = yidx(ylast)
+        w = maximum(maximum(abs.(JOINT[c][:, 1:i1] .- FIXED[c][:, 1:i1])) for c in COMPONENTS)
+        ## First divergence, reported so the derived horizon is visible rather than
+        ## trusted: if the running mean were wider than believed this number would sit
+        ## before ylast and the gate would say so instead of passing on a wrong window.
+        fy = something(findfirst(i -> any(maximum(abs.(JOINT[c][:, i] .- FIXED[c][:, i]))
+                                          > 1e-9 for c in COMPONENTS), eachindex(YEARS)),
+                       length(YEARS))
+        @printf("  [SPLICE-IDENTITY] max |joint - fixed| through %d = %.3e cm -> %s   (first divergence > 1e-9 at %d; splice %d, shape window %d)\n",
+                ylast, w, w < SUM_TOL_CM ? "PASS" : "FAIL", YEARS[fy], SPLICE_YEAR,
+                LADRILLO_GIS_SHAPE_WIN)
+        push!(rowsg, ("SPLICE-IDENTITY", "max_cm_through_$(ylast)", w,
+                      w < SUM_TOL_CM ? "PASS" : "FAIL"))
+        push!(rowsg, ("SPLICE-IDENTITY", "first_divergence_year", Float64(YEARS[fy]), "measured"))
+        @assert w < SUM_TOL_CM "[SPLICE-IDENTITY] the arms differ before the splice can reach"
+    end
+end
+
+## [OHC-OFFSET] does a CONSTANT shift in ocean heat move Ladrillo's sea level?
+## Track C verified it does not -- the TE module re-references SLR to 1995-2014, so an
+## offset cancels -- but it verified that on BRICK-Mengel, and handoff 31f section 6.4 is
+## explicit that this must be RE-verified on Ladrillo L21 rather than inherited. It
+## matters because MAGICC's OHC history sits ~11e22 J above ours; if the offset cancels,
+## that difference cannot reach sea level and only the SHAPE can.
+## The shift is the measured MAGICC-minus-ours offset itself, so the test is run at the
+## magnitude the question is actually about, not at a token value
+## (`default_off_hides_the_bug`: an off-by-default mechanism tested at zero is untested).
+let shift = 11.15, k = min(20, NDRAW), c1 = CFG_OF_DRAW[1],
+    g = CLIMATE == "fair" ? MEAN_G : gmst_of(c1)
+    a, b = alloc(), alloc()
+    run_into!(a, 1:k, g, CLIMATE == "fair" ? MEAN_O : ohc_of(c1))
+    run_into!(b, 1:k, g, (CLIMATE == "fair" ? MEAN_O : ohc_of(c1)) .+ shift)
+    w = maximum(maximum(abs.(a[c][1:k, :] .- b[c][1:k, :])) for c in COMPONENTS)
+    wt = maximum(abs.(a[:te][1:k, :] .- b[:te][1:k, :]))
+    @printf("  [OHC-OFFSET] +%.2f e22 J on %d draws moves total by %.3e cm, TE by %.3e cm -> %s\n",
+            shift, k, w, wt, w < SUM_TOL_CM ? "CANCELS" : "DOES NOT CANCEL")
+    push!(rowsg, ("OHC-OFFSET", "max_cm", w, w < SUM_TOL_CM ? "CANCELS" : "DOES-NOT-CANCEL"))
+end
+
 ## [CALIB-MOVE] what the splice still moves inside the calibration window.
 let i0 = yidx(CALIB_WIN[1]), i1 = yidx(CALIB_WIN[2])
     for c in COMPONENTS
@@ -412,7 +557,7 @@ for (arm, R) in (("fixed", FIXED), ("joint", JOINT))
     push!(rowsg, ("SUM", "$(arm)_max_cm", w, w < SUM_TOL_CM ? "PASS" : "FAIL"))
     @assert w < SUM_TOL_CM "[SUM] the components do not sum to the total for arm $arm"
 end
-CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_gates_$(SSP)_$(FORCING)_$(TAG)$(TAP_TAG)$(SMOKE ? "_SMOKE" : "").csv"), rowsg)
+CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_gates_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SMOKE ? "_SMOKE" : "").csv"), rowsg)
 
 ## ==========================================================================
 ## THE CELLS
@@ -445,7 +590,7 @@ for c in COMPONENTS
     end
     println()
 end
-CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_cells_$(SSP)_$(FORCING)_$(TAG)$(TAP_TAG)$(SMOKE ? "_SMOKE" : "").csv"), cells)
+CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_cells_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SMOKE ? "_SMOKE" : "").csv"), cells)
 
 ## ==========================================================================
 ## THE COMPARISON that motivated it
@@ -469,7 +614,7 @@ let dr = DataFrame(draw = Int[], config = String[], component = String[],
     for c in COMPONENTS, H in HORIZONS, (arm, A) in (("fixed", FIXED[c]), ("joint", JOINT[c])), k in 1:NDRAW
         push!(dr, (k, CFG_OF_DRAW[k], String(c), H, arm, A[k, yidx(H)]))
     end
-    CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_draws_$(SSP)_$(FORCING)_$(TAG)$(TAP_TAG)$(SMOKE ? "_SMOKE" : "").csv"), dr)
+    CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_draws_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SMOKE ? "_SMOKE" : "").csv"), dr)
 end
 
 paths = DataFrame(year = Int[], component = String[], arm = String[],
@@ -479,5 +624,6 @@ for c in COMPONENTS, (arm, A) in (("fixed", FIXED[c]), ("joint", JOINT[c])), (i,
     v = A[:, i]
     push!(paths, (y, String(c), arm, median(v), quantile(v, 0.05), quantile(v, 0.95)))
 end
-CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_paths_$(SSP)_$(FORCING)_$(TAG)$(TAP_TAG)$(SMOKE ? "_SMOKE" : "").csv"), paths)
-@printf("\nwrote outputs/scope_slr_fairunc_{cells,paths,gates}_%s_%s_%s%s%s.csv\n", SSP, FORCING, TAG, TAP_TAG, SMOKE ? "_SMOKE" : "")
+CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_paths_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SMOKE ? "_SMOKE" : "").csv"), paths)
+@printf("\nwrote outputs/scope_slr_fairunc_{cells,draws,paths,gates}_%s_%s%s_%s%s%s.csv\n",
+        SSP, FORCING, CLIM_TAG, TAG, TAP_TAG, SMOKE ? "_SMOKE" : "")
