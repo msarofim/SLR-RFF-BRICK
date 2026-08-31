@@ -75,7 +75,41 @@ YEARS = HORIZONS if _y == "all" else [int(_y)]
 if any(y not in HORIZONS for y in YEARS):
     raise SystemExit("--year must be one of %s or 'all', not %r" % (HORIZONS, _y))
 
-CMP_CSV = os.path.join(lf.REPO, "outputs", "ladrillo_model_comparison_%s.csv" % TAG)
+## --set= picks the SCENARIO SET, the same treatment plot_future_components.py carries.
+## Everything downstream keys off SET_* here and off `lf.scen_set(SET)`, so the two sets
+## cannot drift into two hand-maintained copies of this figure.
+SET = _arg("--set=", "ssp")
+SET_TABLE = {"ssp": "outputs/ladrillo_model_comparison_%s.csv",
+             "vv":  "outputs/vv_model_comparison_%s.csv"}
+SET_PRODUCER = {"ssp": "python3 python/ladrillo_model_comparison.py --tag=%s",
+                "vv":  "python3 python/vv_model_comparison.py --tag=%s"}
+## ⚠ THE SSP FILENAME IS UNCHANGED ON PURPOSE. Its three figures are cited by name in the
+## 2026-08-31 handoffs and the CHANGELOG; renaming them to gain a symmetric infix would
+## orphan those references to buy nothing. The infix is a NAMED CONSTANT rather than an
+## inline conditional so the filename and the caption cannot disagree about which set
+## is being drawn.
+SET_INFIX = {"ssp": "", "vv": "_vv"}
+SET_DESC = {"ssp": "three CMIP6 SSPs",
+            "vv":  "seven van Vuuren CMIP7 markers"}
+## Seven groups need more width than three; the panel geometry is otherwise identical.
+SET_FIGSIZE = {"ssp": (14.5, 8.4), "vv": (18.0, 8.8)}
+SET_XTICK_FS = {"ssp": 9, "vv": 7.6}
+## The caption is wrapped to a CHARACTER count, so a wider figure needs a wider wrap or the
+## same text spills off the bottom of the canvas. Derived from the figure width rather than
+## typed twice, so the two cannot disagree.
+SET_WRAP = {k: int(178 * w / 14.5) for k, (w, _h) in SET_FIGSIZE.items()}
+## ⚠ AN IN-PANEL ANNOTATION THAT COVERS ITS OWN DATA IS WORSE THAN A CAPTION. The elicited
+## off-panel whiskers are listed with their VALUES by design -- but the list is one line per
+## scenario, and at seven markers it blankets the panel it is annotating. Past this many
+## lines the values move to the caption and the panel keeps a one-line pointer. The values
+## are never dropped; only relocated.
+CLIP_INPANEL_MAX = 3
+## Caption typography, named because the band height below is COMPUTED from it.
+CAP_FONTSIZE, CAP_LINESPACING, CAP_PAD = 7.2, 1.45, 0.030
+if SET not in SET_TABLE:
+    raise SystemExit("--set must be one of %s, not %r" % (sorted(SET_TABLE), SET))
+
+CMP_CSV = os.path.join(lf.REPO, SET_TABLE[SET] % TAG)
 FROZEN_LIT = os.path.join(lf.REPO, "benchmark/reference/_fixed/literature_rows.csv")
 CLASSES_CSV = os.path.join(lf.REPO, "benchmark/comparator_classes.csv")
 
@@ -94,9 +128,8 @@ SEJ_MARK = "^"           # open triangle: structured expert judgement, not a mod
 # --- data ------------------------------------------------------------------
 if not os.path.exists(CMP_CSV):
     raise SystemExit(
-        "no four-source comparison table for %s at %s\n  Produce it with:\n"
-        "    python3 python/ladrillo_model_comparison.py --tag=%s"
-        % (TAG, os.path.relpath(CMP_CSV, lf.REPO), TAG))
+        "no four-source comparison table for %s (set %r) at %s\n  Produce it with:\n    %s"
+        % (TAG, SET, os.path.relpath(CMP_CSV, lf.REPO), SET_PRODUCER[SET] % TAG))
 D = pd.read_csv(CMP_CSV)
 
 missing_src = [s for s in SOURCES if s not in set(D.source)]
@@ -156,8 +189,19 @@ print("[BASIS] every row carries climate uncertainty: %s"
 ## benchmark/reference/_fixed/ precisely so a re-extraction cannot move a comparator
 ## silently under every past score. This reads the FROZEN copy, which this script never
 ## writes -- a gate that read its own output would compare a convention against itself.
+## ⚠ THE FROZEN ARM COVERS THE SSP SET ONLY. Its rows are ssp126/245/585 by construction,
+## so on --set=vv every row would "differ" and the gate would fire on all of them -- a
+## gate that cannot pass is not a gate, it is noise that trains the reader to ignore it
+## (`gate_bound_matches_its_claim`). The absence is STAMPED on the caption instead of
+## being silently skipped: an unfrozen comparator is a real caveat, just not a failure.
 LIT_NOTE = ""
-if not os.path.exists(FROZEN_LIT):
+if SET != "ssp":
+    LIT_NOTE = ("  ⚠ the FACTS/MAGICC comparators are frozen for the SSP set only, so "
+                "nothing checks that a re-extraction has not moved the %s ones."
+                % SET_DESC[SET])
+    print("[LIT] frozen arm covers the SSP set only; %s comparators are UNFROZEN "
+          "(stamped on the caption, not skipped silently)" % SET)
+elif not os.path.exists(FROZEN_LIT):
     LIT_NOTE = ("  ⚠ the FACTS/MAGICC comparators are NOT frozen (no %s), so nothing "
                 "checks that a re-extraction has not moved them."
                 % os.path.relpath(FROZEN_LIT, lf.REPO))
@@ -212,7 +256,7 @@ def _sum_check(y):
     parts = [c for c in lf.COMPONENTS if c != "total"]
     rows = []
     for src in SOURCES:
-        for k, lab, _c2, _d in lf.scen_set("ssp"):
+        for k, lab, _c2, _d in lf.scen_set(SET):
             s = D[(D.source == src) & (D.scenario == k) & (D.year == y)]
             if src == "FACTS":
                 continue          # FACTS has no single module per component to sum
@@ -225,16 +269,18 @@ def _sum_check(y):
 
 
 # --- figure -----------------------------------------------------------------
-SCENS = lf.scen_set("ssp")
+SCENS = lf.scen_set(SET)
 for YEAR in YEARS:
     OUT = os.path.join(lf.REPO, "figures",
-                       "model_comparison_components_%s_%d.png" % (TAG, YEAR))
+                       "model_comparison_components%s_%s_%d.png"
+                       % (SET_INFIX[SET], TAG, YEAR))
     absent = sorted({s for s in SOURCES
                      if D[(D.source == s) & (D.year == YEAR)].empty})
     partial = sorted({s for s in SOURCES if s not in absent and
                       set(D[(D.source == s) & (D.year == YEAR)].component)
                       != set(lf.COMPONENTS)})
-    fig, axes = plt.subplots(2, 3, figsize=(14.5, 8.4))
+    CLIP_CAPTION = []          # per-figure; filled by the panels, spent in the caption
+    fig, axes = plt.subplots(2, 3, figsize=SET_FIGSIZE[SET])
     for ax, comp in zip(axes.ravel(), lf.COMPONENTS):
         for i, (k, lab, _col, _d) in enumerate(SCENS):
             cell = D[(D.scenario == k) & (D.component == comp) & (D.year == YEAR)]
@@ -298,14 +344,24 @@ for YEAR in YEARS:
         hi = pd.concat([pan[~pan_sej].p95, pan.med]).max()
         pad = 0.08 * max(hi - lo, 1e-6)
         ax.set_ylim(min(lo - pad, 0 if lo >= 0 else lo - pad), hi + pad)
-        clipped = ["%s %s %.0f–%.0f" % (r.scenario.replace("ssp", "SSP"), r.module,
+        ## The scenario's DISPLAY label comes from the set table, not from string surgery
+        ## on the key -- `.replace("ssp","SSP")` silently produces "vvHL" on the vv set.
+        _lab = {k: l for k, l, _c2, _d in SCENS}
+        clipped = ["%s %s %.0f–%.0f" % (_lab.get(r.scenario, r.scenario), r.module,
                                         r.p05, r.p95)
                    for r in pan[pan_sej].itertuples() if r.band_ok and r.p95 > hi + pad]
-        if clipped:
+        if clipped and len(clipped) <= CLIP_INPANEL_MAX:
             ax.text(0.015, 0.975,
                     "elicited 5–95% off panel (cm):\n  " + "\n  ".join(clipped),
                     transform=ax.transAxes, ha="left", va="top", fontsize=6.3,
                     linespacing=1.35, color=lf.SRC_COLOR["FACTS"])
+        elif clipped:
+            ax.text(0.015, 0.975,
+                    "↕ %d elicited 5–95%% ranges off panel — values in caption"
+                    % len(clipped),
+                    transform=ax.transAxes, ha="left", va="top", fontsize=6.6,
+                    color=lf.SRC_COLOR["FACTS"])
+            CLIP_CAPTION.append("%s: %s" % (lf.COMP_TITLE[comp], "; ".join(clipped)))
         ## The one panel where two of the four arms are not independent gets told so.
         if comp == "glaciers":
             ax.text(0.985, 0.03, "Ladrillo transient = Nauels 2017 Eq. 3 = MAGICC's law",
@@ -313,7 +369,7 @@ for YEAR in YEARS:
                     style="italic", color="0.35")
         ax.axhline(0, color="0.85", lw=0.8, zorder=1)
         ax.set_xticks(range(len(SCENS)))
-        ax.set_xticklabels([l for _k, l, _c2, _d in SCENS], fontsize=9)
+        ax.set_xticklabels([l for _k, l, _c2, _d in SCENS], fontsize=SET_XTICK_FS[SET])
         ax.set_xlim(-0.6, len(SCENS) - 0.4)
         ax.set_title(lf.COMP_TITLE[comp], fontsize=10, fontweight="bold", loc="left")
         ax.set_ylabel("cm SLE (rel. 1995–2014)", fontsize=8)
@@ -340,11 +396,14 @@ for YEAR in YEARS:
                              "17–83% / 5–95% — absent where the arm is parameter-only")]
     fig.legend(handles=handles, ncol=3, fontsize=8.5, frameon=False,
                loc="upper center", bbox_to_anchor=(0.5, 0.972))
-    fig.suptitle("Sea-level rise by component at %d — %s vs BRICK 2.0 vs FACTS vs "
-                 "MAGICC-SLR   [%s]" % (YEAR, DESC["model"], lf.commit_stamp()),
+    ## ⚠ THE TITLE NAMES WHAT WAS DRAWN, for the same reason the legend does. A hardcoded
+    ## "vs BRICK 2.0 vs FACTS vs MAGICC-SLR" advertised FACTS on the 2300 figure, which has
+    ## no FACTS marker anywhere on it -- the legend already derived itself from `drawn` and
+    ## the title did not, so the two disagreed about the same figure.
+    _title_srcs = " vs ".join([DESC["model"] if s0 == "Ladrillo" else s0 for s0 in drawn])
+    fig.suptitle("Sea-level rise by component at %d, %s — %s   [%s]"
+                 % (YEAR, SET_DESC[SET], _title_srcs, lf.commit_stamp()),
                  fontsize=12.5, fontweight="bold", y=0.999)
-    fig.tight_layout(rect=[0, 0.115, 1, 0.925])
-
     ## ⚠ WRAP THE CAPTION BEFORE SAVING. An unwrapped fig.text is one long line and
     ## bbox_inches="tight" then stretches the canvas to fit it, squashing the panels.
     cap = (
@@ -358,8 +417,20 @@ for YEAR in YEARS:
            ("⚠ PARTIAL AT %d (some components only): %s. " % (YEAR, ", ".join(partial)))
            if partial else "",
            DESC["note"], LIT_NOTE.strip()))
-    fig.text(0.5, 0.105, "\n".join(textwrap.wrap(cap, 178)),
-             fontsize=7.2, ha="center", va="top", color="0.3")
+    if CLIP_CAPTION:
+        cap += ("  Elicited 5–95%% ranges off panel (cm), listed here rather than over the "
+                "data they annotate — %s." % "  ".join(CLIP_CAPTION))
+    ## ⚠ THE CAPTION BAND IS SIZED FROM THE CAPTION, NOT FROM A TYPED MARGIN. The fixed
+    ## rect=[0, 0.115, ...] above was tuned to a three-scenario caption; the seven-marker
+    ## one is longer (it now also carries the relocated off-panel values) and ran straight
+    ## off the bottom of the canvas, silently truncating the provenance line. Measuring the
+    ## wrapped line count and reserving space for it keeps any caption on the page.
+    _lines = textwrap.wrap(cap, SET_WRAP[SET])
+    _line_frac = CAP_FONTSIZE * CAP_LINESPACING / (SET_FIGSIZE[SET][1] * 72.0)
+    _band = len(_lines) * _line_frac + CAP_PAD
+    fig.tight_layout(rect=[0, _band, 1, 0.925])
+    fig.text(0.5, _band - CAP_PAD / 2, "\n".join(_lines), fontsize=CAP_FONTSIZE,
+             ha="center", va="top", color="0.3", linespacing=CAP_LINESPACING)
     fig.savefig(OUT, dpi=150)
     plt.close(fig)
     print("\nwrote %s" % os.path.relpath(OUT, lf.REPO))

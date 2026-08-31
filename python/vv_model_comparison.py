@@ -2,54 +2,59 @@
 """
 vv_model_comparison.py — Ladrillo against BRICK 2.0 on the seven van Vuuren CMIP7 markers.
 
-SIBLING of ladrillo_model_comparison.py, NOT a flag on it. That script compares FOUR
-sources on THREE SSPs; this one compares TWO sources on SEVEN markers. They are different
-objects and merging them would let a van Vuuren run emit empty FACTS / MAGICC-SLR columns
-that read as "no data" when the truth is "not run on this scenario set" -- see below.
+SIBLING of ladrillo_model_comparison.py, NOT a flag on it. Both now compare FOUR sources;
+they differ in the SCENARIO SET (three SSPs there, seven markers here) and in what each set
+can be asked. Kept separate because the two-model analyses below -- the width ratio, the
+GMST gradient, and the paired path-dependence test -- need Ladrillo and BRICK 2.0 to share
+a draw->config permutation, which FACTS and MAGICC-SLR structurally cannot.
+
+⚠ CORRECTED 2026-08-31. This header used to justify the split by saying merging "would let
+a van Vuuren run emit empty FACTS / MAGICC-SLR columns that read as no data when the truth
+is not run on this scenario set". That reason has DISSOLVED: both are now run on all seven
+markers. The split survives on the paired-statistic argument above, which is a different
+and better reason. A rationale that has been overtaken should be replaced, not quietly
+inherited -- it is the same failure mode as the stale WIDTH_SRCS constant.
 
   python3 python/vv_model_comparison.py [--tag=L21] [--no-tap]
 Writes outputs/vv_model_comparison_<TAG>{,_width,_gmst}.csv
 
-WHY ONLY TWO SOURCES TODAY (stated in the console banner too, so it cannot be lost):
+ALL FOUR SOURCES ARE NOW RUN ON THE MARKERS (stated in the console banner too, so it
+cannot be lost):
   Ladrillo    ✅ ours -- scope_slr_fair_uncertainty.jl on the van Vuuren cubes
   BRICK 2.0   ✅ ours -- scope_slr_fairunc_oldbrick.jl on the SAME cubes
-  MAGICC-SLR  ⬜ NOT RUN -- but RUNNABLE, see below
-  FACTS       ⬜ NOT RUN -- but RUNNABLE, see below
+  MAGICC-SLR  ✅ 2026-08-31 -- its OWN climate, from van Vuuren EMISSIONS (600 members)
+  FACTS       ✅ 2026-08-31 -- the SHARED FaIR driver, wf1f/wf2f/wf3f/wf4, n=200
   ⇒ The SSP set is an INTERSECTION WITH THE PUBLISHED LITERATURE and does not become
     superfluous. van Vuuren is a SECOND AXIS (process / commitment), not a replacement.
 
-⚠ CORRECTED 2026-08-31 -- THIS HEADER USED TO SAY "NOT DRIVABLE", AND THAT WAS WRONG.
-It read the two comparators as fixed data files because that is all THIS repo holds. Both
-models are in fact installed and driven on this machine, and both CAN be run on the van
-Vuuren markers. What follows is the real state, so that nobody re-derives "impossible" from
-a file listing again. NEITHER IS A SMALL JOB, and neither has been done -- "runnable" is not
-"run", and this script still compares two sources until one of them is.
+⚠ TWO CORRECTIONS LIVE HERE, IN ORDER. (1) This header once said the two comparators were
+"NOT DRIVABLE" on van Vuuren -- false; it read them as fixed data files because that is all
+THIS repo holds, while both are installed and driven on this machine. (2) It was then
+corrected to "RUNNABLE, not run" -- true on 2026-08-31 morning and false by that afternoon.
+Both are now RUN. Say RUN / RUNNABLE / IMPOSSIBLE and keep the middle
+(`runnable_is_not_undrivable`).
 
-  MAGICC-SLR -- the pipeline is LIVE: the custom Nauels-2025 SLR build
-    ~/Documents/2026/CodeProjects/MAGICC/magiccv.7.5.3/bin/magicc (commit b1fa246, the exact
-    hash notebook 302 asserts), the conda env ~/miniforge3/envs/slr-refresh-2025, the
-    600-member with_slr drawnset, and notebooks 200 -> 302 -> 400. It runs from EMISSIONS,
-    which is what preserves its independence -- and THE VAN VUUREN MARKER EMISSIONS EXIST:
-    FaIRtoFrEDI/data/vanvuuren/spliced_ext_harmonized/*.csv, 51 species x 1750-2300, in the
-    same scenario/region/variable/unit + year-columns wide layout notebook 200 already reads
-    from RCMIP. The work is the VARIABLE-NAME MAP into openscm-runner's namespace plus a
-    coverage gate -- MAGICC silently zeroes a species it is not handed, so an unmapped name
-    is a quiet emissions cut, not an error.
+  MAGICC-SLR -- RUN 2026-08-31, 600 members x 10 scenarios, ~15 min. Custom Nauels-2025
+    build (commit b1fa246) driven from EMISSIONS, which is what preserves its independence:
+    it is the one arm NOT on our FaIR driver, so its agreement with the other three is not
+    circular. Builder MAGICC/slr-refresh/build_vv_scenarios.py; extract
+    python/extract_magicc_vv_components.py -> data/comparison/magicc_nauels_components_vv.csv.
+    ⚠ ULP-SENSITIVE AT ssp585 (`magicc_ulp_sensitive_ssp585`): a 1e-16 emissions change
+    moves ssp585 SLR ~1e-5 relative. Immaterial here, but it means an identity bound on a
+    re-run control can never pass there. Does not affect the seven markers.
 
-  FACTS -- installed and engine-validated on this Mac via Colima
-    (~/Documents/2026/CodeProjects/facts), and the external-climate injection seam is a
-    COMPLETED PoC: facts/build_fair_climate_nc.py writes the three NetCDFs FACTS consumes
-    from our FaIR GMST+OHC, and we already have the van Vuuren cubes it needs
-    (data/observations/fair_mean_{gmst,ohc}_vv*.csv, all seven markers).
-    ⚠ TWO THINGS THAT MUST BE STATED IF IT IS RUN:
-      (1) HORIZON. FACTS reaches 2150 at best and 2100 for the emulandice workflows. It
-          CANNOT produce a 2300 column for van Vuuren any more than it can for the SSPs.
-      (2) CONVENTION. An injected-climate FACTS run is not the same object as the ingested
-          ssp126/245/585 table, which uses FACTS-INTERNAL FaIR-1.6.4. Mixing them straddles
-          two climate-driver conventions. The measured size of that gap is ~2-5% on GMSL
-          (against 30-50% for swapping the ice-sheet workflow), so it is small -- but it is
-          a convention, and the fix is to re-run the three SSPs injected as well so both
-          sets share one. Precedent exists: global.coupling.ssp245.fairv145.
+  FACTS -- RUN 2026-08-31 on the SHARED driver, workflows wf1f/wf2f/wf3f/wf4, n=200,
+    facts@slr-comparison-arm. Both caveats this header raised are now settled, not pending:
+      (1) HORIZON. Confirmed: FACTS stops at 2150 (pyear_end). It contributes NOTHING at
+          2300, where MAGICC-SLR is the only comparator -- exactly as on the SSP set. The
+          figure drops it from that horizon's legend rather than advertising an empty series.
+      (2) CONVENTION. RESOLVED by doing what this header prescribed: the three SSPs were
+          re-run INJECTED alongside the markers, so the whole FACTS column sits on ONE
+          climate-driver convention instead of straddling injected-vv against
+          FACTS-internal-FaIR-1.6.4 SSPs. The ssp245 control reproduces the prior
+          calib-1.4.5 run to within 0.5-2.5% on all eight workflow x horizon cells.
+      ⚠ emulandice ("e") workflows are NOT run and cannot be: they select per-SSP-TRAINED
+        GP emulators from the scenario label, so there is no van Vuuren emulator to pick.
 
 BANDS. Both models are on their OWN JOINT arm -- posterior parameters x 841 FaIR configs,
 same cubes, same 2014 splice pivot, same 1995-2014 re-reference, same PAIR_SEED, same
@@ -130,7 +135,28 @@ GMST_MEAN = "data/observations/fair_mean_gmst_{m}.csv"
 BASIS_LAD = "joint (Ladrillo posterior x FaIR forcing, tapped)" if TAPPED else \
             "joint (Ladrillo posterior x FaIR forcing, UNTAPPED)"
 BASIS_BRK = "joint (BRICK 2.0 posterior x FaIR forcing)"
+## Both comparators carry climate uncertainty natively, so they take the same basis string
+## the SSP four-source table uses -- `ladrillo_figs.band_is_comparable` reads this string,
+## and it must MATCH the SSP set or the same arm would be drawn with a bar on one figure
+## and without on the other.
+BASIS_CMP = "climate + parameter"
 SRC_LAD, SRC_BRK = "Ladrillo", "BRICK 2.0"
+SRC_MAG, SRC_FCT = "MAGICC-SLR", "FACTS"
+
+## ⚠ THE TWO COMPARATORS ARE ON DIFFERENT CLIMATE BASES, AND THAT IS DELIBERATE.
+##   FACTS      -- the SHARED driver: FaIR 2.2.4 calib 1.6.0 + CMIP7, the same 841-config
+##                 cubes, the same 2014 splice and 1995-2014 reference as Ladrillo/BRICK.
+##   MAGICC-SLR -- its OWN climate, computed from the van Vuuren emissions. Not a gap in
+##                 the convention; the point of keeping one INDEPENDENT arm, so that an
+##                 agreement between it and the other three is not circular.
+MAGICC_CSV = "data/comparison/magicc_nauels_components_vv.csv"
+FACTS_CSV = "outputs/facts_components_shared_n200.csv"
+MAGICC_MODULE = "Nauels2025"
+MAGICC_N = 600          # AR6 with_slr drawnset members
+## FACTS is a STACK OF MODULES per component, never one number: they disagree by up to 8x,
+## so a median across them summarises nothing (`median_needs_agreement`). Every module is
+## carried as its own row and the figure fans them out.
+FACTS_HORIZONS = [2100, 2150]     # pyear_end 2150; FACTS does not reach 2300
 
 
 def joint_stem(tag):
@@ -200,6 +226,62 @@ def load_joint(path, marker, source):
     seq = (d[(d.component == COMPONENTS[0]) & (d.horizon == HORIZONS[0])]
            .sort_values("draw").config.tolist())
     return bands, seq
+
+
+def load_comparator(rel, source, module_col, horizons, n_default=None):
+    """FACTS / MAGICC-SLR bands -> {(module, component, horizon): band}.
+
+    Both arrive as already-quantiled tidy CSVs (their per-member draws are not paired with
+    ours and never could be), so this reads quantiles rather than recomputing them.
+
+    ⚠ A MARKER MISSING FROM A COMPARATOR IS A FAILURE, NOT A SKIP. The whole claim of this
+    table is that all four sources cover the same seven markers; silently dropping one
+    would leave a gap on the figure that reads as "this model has nothing to say here"
+    when the truth would be "the extract is incomplete". Absence ASSERTS
+    (`intersect_is_a_silent_default`)."""
+    f = _path(rel)
+    if not os.path.exists(f):
+        raise SystemExit(
+            f"missing {source} arm at {os.path.relpath(f, REPO)}.\n"
+            f"  FACTS:  python3 extract_facts_shared_components.py   (in the facts repo)\n"
+            f"  MAGICC: python3 python/extract_magicc_vv_components.py")
+    d = pd.read_csv(f)
+    have = set(d.scenario.astype(str))
+    gap = [m for m in MKEY if m not in have]
+    if gap:
+        raise SystemExit(f"[GATE] {source}: no rows for marker(s) {gap} in "
+                         f"{os.path.relpath(f, REPO)} -- refusing to build a four-source "
+                         f"table with a hole in it.")
+    out = {}
+    for m in MKEY:
+        for comp in COMPONENTS:
+            for y in horizons:
+                sub = d[(d.scenario == m) & (d.component == comp) & (d.year == y)]
+                if sub.empty:
+                    continue
+                for r in sub.itertuples():
+                    mod = str(getattr(r, module_col)) if module_col else MAGICC_MODULE
+                    out[(mod, comp, y, m)] = dict(
+                        med=float(r.med), p05=float(r.p05), p17=float(r.p17),
+                        p83=float(r.p83), p95=float(r.p95),
+                        n=int(getattr(r, "n", n_default) or n_default or 0))
+    return out
+
+
+def gate_comparator_coverage(bank, source, horizons):
+    """Report which (component, horizon) cells the comparator actually fills, and refuse a
+    horizon it covers only PARTIALLY. A source that is wholly absent at a horizon is
+    honest (FACTS stops at 2150 and the figure says so); a source present for three
+    components and missing two is a broken extract wearing the same appearance."""
+    lines = []
+    for y in horizons:
+        got = sorted({c for (_mod, c, yy, _m) in bank if yy == y})
+        miss = [c for c in COMPONENTS if c not in got]
+        if got and miss:
+            raise SystemExit(f"[GATE] {source} @{y}: has {got} but is MISSING {miss}. A "
+                             f"partial horizon is an incomplete extract, not a limitation.")
+        lines.append((y, len(got), miss))
+    return lines
 
 
 def gate_pairing(seq_lad, seq_brk, marker):
@@ -292,9 +374,9 @@ def band(b):
 
 
 def main():
-    print(__doc__.split("WHY ONLY TWO SOURCES")[1].split("BANDS.")[0]
-          .replace("TODAY (stated in the console banner too, so it cannot be lost):",
-                   "TODAY -- and the other two are RUNNABLE, not impossible:").strip())
+    print(__doc__.split("ALL FOUR SOURCES ARE NOW RUN")[1].split("BANDS.")[0]
+          .replace("ON THE MARKERS (stated in the console banner too, so it\ncannot be "
+                   "lost):", "ON THE SEVEN MARKERS:").strip())
     print()
 
     gates, LAD, BRK, SEQ = {}, {}, {}, {}
@@ -310,8 +392,17 @@ def main():
               f"[Ladrillo n={LAD[m][(COMPONENTS[0], HORIZONS[0])]['n']}, "
               f"BRICK 2.0 n={BRK[m][(COMPONENTS[0], HORIZONS[0])]['n']}]")
 
+    MAG = load_comparator(MAGICC_CSV, SRC_MAG, None, HORIZONS, n_default=MAGICC_N)
+    FCT = load_comparator(FACTS_CSV, SRC_FCT, "module", FACTS_HORIZONS)
+    for src, bank, hz in ((SRC_MAG, MAG, HORIZONS), (SRC_FCT, FCT, FACTS_HORIZONS)):
+        for y, ngot, _miss in gate_comparator_coverage(bank, src, hz):
+            print(f"[GATE] {src:11s} @{y}: {ngot}/{len(COMPONENTS)} components present")
+    print(f"[GATE] {SRC_FCT} stops at {max(FACTS_HORIZONS)} by construction (pyear_end); "
+          f"at 2300 {SRC_MAG} is the ONLY comparator, as on the SSP set.")
+
     rows = []
     for m in MKEY:
+        # our two joint arms
         for src, bands, basis in ((SRC_LAD, LAD[m], BASIS_LAD),
                                   (SRC_BRK, BRK[m], BASIS_BRK)):
             for comp in COMPONENTS:
@@ -325,8 +416,34 @@ def main():
                                      component=comp, year=y, n_draws=b["n"],
                                      med=b["med"], p05=b["p05"], p17=b["p17"],
                                      p83=b["p83"], p95=b["p95"], band_basis=basis))
+        # the two comparators; FACTS contributes one row PER MODULE
+        for src, bank in ((SRC_MAG, MAG), (SRC_FCT, FCT)):
+            for (mod, comp, y, mk), b in bank.items():
+                if mk != m:
+                    continue
+                rows.append(dict(source=src, module=mod,
+                                 marker=m, marker_label=MLABEL[m], family=MFAMILY[m],
+                                 component=comp, year=y, n_draws=b["n"],
+                                 med=b["med"], p05=b["p05"], p17=b["p17"],
+                                 p83=b["p83"], p95=b["p95"], band_basis=BASIS_CMP))
     df = pd.DataFrame(rows)
+    ## `scenario` is an ALIAS of `marker`, written so the shared figure code can key both
+    ## sets on one column name. It is a duplicate on purpose: renaming `marker` would
+    ## break plot_future_components.py, and teaching every consumer two key names would
+    ## put the choice in six places instead of one.
+    df["scenario"] = df["marker"]
     df.to_csv(OUT, index=False)
+
+    ## The four-source coverage grid: what each figure horizon can and cannot show.
+    print(f"\n{'=' * 96}\nFOUR-SOURCE COVERAGE (sources present per component and horizon)"
+          f"\n{'=' * 96}")
+    for y in HORIZONS:
+        for comp in COMPONENTS:
+            have = sorted(set(df[(df.year == y) & (df.component == comp)].source))
+            gap = [x for x in (SRC_LAD, SRC_BRK, SRC_MAG, SRC_FCT) if x not in have]
+            print("  @%d  %-9s %-46s %s"
+                  % (y, comp, ", ".join(have),
+                     ("MISSING: " + ", ".join(gap)) if gap else ""))
 
     W = 96
     print(f"\n{'=' * W}")
