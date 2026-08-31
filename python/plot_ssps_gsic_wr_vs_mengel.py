@@ -65,6 +65,23 @@ if max(_w) - min(_w) > 1e-6:
         + "\n".join(_lines) + "\n"
         + "  Regenerate the lagging arm(s) (julia/project_ssps_gsic_2300_mengel.jl) or point "
           "this figure at a matched set. Do NOT relax this gate.")
+## ⚠ THE SPREAD TEST ALONE IS BLIND TO ARMS THAT ARE ALL STALE TOGETHER (found 2026-08-31
+## by mutation-testing: pointing one marker at an SSP driver produced a 1.4074 K delta on
+## EVERY arm and this gate still printed "all arms share a forcing vintage"). It compares
+## the arms against EACH OTHER; if the driver is regenerated after all three were built,
+## they go stale in lockstep and the spread stays zero. That is the same failure in its
+## all-together form, so the ABSOLUTE delta is now checked as well
+## (`two_statistics_can_be_blind`). Both figures measure 0.0000 K today, so this is inert
+## now and can only fire on a real regeneration.
+_ABS_TOL_K = 1e-6
+if max(_w) > _ABS_TOL_K:
+    raise SystemExit(
+        "[VINTAGE] every arm AGREES WITH THE OTHERS but ALL are stale against the current "
+        "fair_mean drivers by up to %.4f K, so 'same GMST drives all' is true of the arms "
+        "and FALSE of the figure:\n" % max(_w)
+        + "\n".join("    %-34s delta = %.4f K  (%d rows)" % (k, w, n)
+                     for k, (w, n) in _delta.items())
+        + "\n  Regenerate the arms against the current drivers. Do NOT relax this gate.")
 print("[VINTAGE] all %d ARMS share a forcing vintage (delta vs current fair_mean = %.4f K)"
       % (len(_SRC), _w[0]))
 

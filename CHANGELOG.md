@@ -3,7 +3,60 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## 2026-08-31 (latest) — the 2-model van Vuuren comparison, and the statistic that changes its headline
+## 2026-08-31 (latest) — the glacier commitment figure moved to van Vuuren
+
+The second item the 08-31 handoff called for. `plot_vv_gsic_wr_vs_mengel.py` + a `--set=ssp|vv`
+flag on both glacier drivers (`project_ssps_gsic_2300{,_mengel}.jl`), so the scenario list, the
+output stem and the spread pair all come from ONE `SCEN_SETS` entry. The van Vuuren stem is
+`vv_gsic_2300`, NOT `ssps_gsic_2300_vv` — no marker IS an SSP and a filename must not say otherwise.
+
+**THE REFACTOR IS PROVABLY INERT.** Re-running both drivers with the default `--set=ssp` reproduces
+all three committed SSP outputs **bit-identically**. That was the point of testing it rather than
+eyeballing the diff.
+
+### Why this set is the better commitment test
+
+FOUR peak-and-decline pathways against the SSP set's one (ssp119), at four different PEAK levels —
+**1.76 / 1.90 / 2.37 / 2.96 K**. A gradient where ssp119 was an anecdote.
+
+| marker | peak K @yr | GMST@2300 | WR@2300 | Mengel@2300 | WR rate@2300 |
+|---|---|---|---|---|---|
+| Very Low | 1.76 @2072 | 1.20 | 25.25 | 9.68 | **4.75** |
+| Low-to-Neg | 1.90 @2072 | **0.29** | 21.56 | 6.12 | 1.69 |
+| Low | 1.88 @2073 | 1.24 | 25.88 | 9.78 | 4.03 |
+| Medium-to-Low | 2.37 @2095 | 0.55 | 26.17 | 8.47 | 1.90 |
+| Medium | 4.29 @2300 | 4.29 | 34.15 | 12.89 | 2.30 |
+| High-to-Low | 2.96 @2084 | 1.38 | 29.28 | 10.52 | 2.95 |
+| High | 6.66 @2300 | 6.66 | 35.25 | 13.13 | **0.23** |
+
+* **Low-to-Neg returns to +0.29 K and Wigley-Raper still adds +9.74 cm between 2100 and 2300.**
+  That is the no-finite-equilibrium behaviour under a near-return-to-preindustrial pathway — a far
+  sharper commitment test than ssp119 could pose.
+* ⚠ **The WR melt rate at 2300 is NOT monotone in endpoint warming, and that is the mechanism, not
+  a defect.** Very Low (1.20 K) melts FASTEST at 2300 (4.75 cm/century) while High (6.66 K) melts
+  SLOWEST (0.23) — High has exhausted its reservoir, and Low-to-Neg (0.29 K, rate 1.69) has dropped
+  toward `teq` so `dV/dt ∝ (T − teq)` shuts down. The commitment signal is strongest in the MIDDLE.
+* **The mixed-vintage caveat DISSOLVES.** All seven markers come from one build on one calibration
+  (driver commit `6cc34b6`), so panel (c)'s spread carries **no dagger** — unlike the SSP figure,
+  where ssp119/370/460 are still 1.4.5. The gate ASSERTS this rather than declaring it: the SSP
+  figure needs a hand-typed `_DRIVER_PROVENANCE` table because that set genuinely straddles two
+  calibrations; here "all seven share ONE commit" is checkable and cannot rot.
+
+### ⚠ A gate defect found by mutation-testing, and fixed in BOTH figures
+
+Mutation-testing the provenance gate (point one marker at an SSP driver) produced a **1.4074 K**
+delta on EVERY arm — and the vintage gate still printed *"all 3 ARMS share a forcing vintage"*.
+**It compares the arms against EACH OTHER, so it is blind to all of them being stale together**
+(`two_statistics_can_be_blind`); only the provenance gate caught that mutation. An ABSOLUTE check
+is now applied alongside the spread test, in the van Vuuren figure **and in the SSP figure**, which
+had the identical blind spot. Both measure 0.0000 K today, so the addition is inert now and can
+only fire on a real regeneration. Mutation-tested in turn: perturbing all three arms equally by
+0.4266 K is caught.
+
+Also corrected: `project_ssps_gsic_2300.jl` described its driver as "calib1.4.5" in the header, four
+days after ssp126/245/585 moved to 1.6.0.
+
+## 2026-08-31 (later) — the 2-model van Vuuren comparison, and the statistic that changes its headline
 
 `python/vv_model_comparison.py` — the SIBLING script the previous entry called for, NOT a flag on
 `ladrillo_model_comparison.py`. That one compares four sources on three SSPs; this one compares two

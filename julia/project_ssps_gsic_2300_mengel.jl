@@ -9,7 +9,7 @@
 ## Glacier posterior = the Mengel gic_* params from the BRICK-AM extA108 subsample (calibrated ON the
 ## same FaIR GMST → baseline-consistent). GSIC depends only on GMST; set only the 7 glacier params.
 ##
-##   julia --project=julia_v2 julia/project_ssps_gsic_2300_mengel.jl
+##   julia --project=julia_v2 julia/project_ssps_gsic_2300_mengel.jl [--set=ssp|vv]
 ## ============================================================================
 using CSV, DataFrames, Mimi, MimiBRICK, Printf, Statistics, Random
 include(joinpath(@__DIR__, "brick_mengel.jl"))     # build_brick_mengel, _MENGEL_GLAC_SLOT (Mengel glacier)
@@ -31,8 +31,39 @@ years = collect(Y0:Y1)
 const IB = [findfirst(==(y), years) for y in BASE0:BASE1]
 reref(v) = 100 .* (v .- sum(v[IB])/length(IB))
 yi(y) = findfirst(==(y), years)
-SSPS = [("ssp119","SSP1-1.9"), ("ssp126","SSP1-2.6"), ("ssp245","SSP2-4.5"),
-        ("ssp460","SSP4-6.0"), ("ssp370","SSP3-7.0"), ("ssp585","SSP5-8.5")]
+## ---------------------------------------------------------------------------
+## SCENARIO SET (van Vuuren markers added 2026-08-31). The markers use the SAME
+## fair_mean_gmst_<key>.csv convention as the SSPs, so the only things that differ are the
+## (key, label) list, the output STEM, and the spread pair -- and all three come from the
+## SAME entry here. That is deliberate: a figure captioned for one set can never be drawn
+## from the other's file, because the set chooses the filename.
+## ⚠ The SSP stem is UNCHANGED so that every existing consumer keeps resolving; the van
+## Vuuren stem is `vv_gsic_2300`, NOT `ssps_gsic_2300_vv`, because no van Vuuren marker IS
+## an SSP and a filename that says "ssps" would assert otherwise.
+const SCEN_SETS = Dict(
+    "ssp" => (stem = "ssps_gsic_2300",
+              # ordered by radiative forcing (low -> high); low SSPs are the commitment test
+              scens = [("ssp119","SSP1-1.9"), ("ssp126","SSP1-2.6"), ("ssp245","SSP2-4.5"),
+                       ("ssp460","SSP4-6.0"), ("ssp370","SSP3-7.0"), ("ssp585","SSP5-8.5")],
+              spread = ("SSP1-1.9", "SSP5-8.5")),
+    "vv"  => (stem = "vv_gsic_2300",
+              # ordered coolest-ENDPOINT first. FOUR of these peak and decline (Very Low,
+              # Low-to-Neg, Medium-to-Low, High-to-Low) against the SSP set's one, which is
+              # what makes this set the better commitment test.
+              scens = [("vvVL","Very Low"), ("vvLN","Low-to-Neg"), ("vvL","Low"),
+                       ("vvML","Medium-to-Low"), ("vvM","Medium"),
+                       ("vvHL","High-to-Low"), ("vvH","High")],
+              spread = ("Very Low", "High")),
+)
+const SET = let a = findfirst(s -> startswith(s, "--set="), ARGS)
+    s = a === nothing ? "ssp" : ARGS[a][7:end]
+    haskey(SCEN_SETS, s) || error("--set=$s is not one of $(sort(collect(keys(SCEN_SETS))))")
+    s
+end
+const SCEN = SCEN_SETS[SET]
+const SSPS = SCEN.scens
+const STEM = SCEN.stem
+@printf("scenario set `%s`: %d scenarios -> outputs/%s*.csv\n", SET, length(SSPS), STEM)
 load_traj(path, vcol) = (df=CSV.read(path,DataFrame); by=Dict(Int(df[i,"year"])=>Float64(df[i,vcol]) for i in 1:nrow(df)); [by[y] for y in years])
 
 post = CSV.read(POST, DataFrame)
@@ -74,9 +105,9 @@ for (ssp, label) in SSPS
     @printf("%-9s  GMST@2300 %+.2f °C   GSIC@2300 post %.2f / cf(b=.52) %.2f cm\n",
             label, gmst[yi(2300)], medG(2300), medC(2300))
 end
-CSV.write(joinpath(REPO, "outputs/ssps_gsic_2300_mengel.csv"), out)
-CSV.write(joinpath(REPO, "outputs/ssps_gsic_2300_mengel_b052.csv"), out_cf)
-lo, hi = "SSP1-1.9", "SSP5-8.5"
+CSV.write(joinpath(REPO, "outputs/$(STEM)_mengel.csv"), out)
+CSV.write(joinpath(REPO, "outputs/$(STEM)_mengel_b052.csv"), out_cf)
+lo, hi = SCEN.spread
 sp(df) = (d=df[(df.year.==2300),:]; d[d.ssp.==hi,:gsic_med][1] - d[d.ssp.==lo,:gsic_med][1])
-@printf("\nSSP1-1.9→5-8.5 spread @2300:  posterior %.1f cm   counterfactual(b=0.52) %.1f cm\n", sp(out), sp(out_cf))
-println("wrote outputs/ssps_gsic_2300_mengel{,_b052}.csv")
+@printf("\n%s→%s spread @2300:  posterior %.1f cm   counterfactual(b=0.52) %.1f cm\n", lo, hi, sp(out), sp(out_cf))
+@printf("wrote outputs/%s_mengel{,_b052}.csv\n", STEM)
