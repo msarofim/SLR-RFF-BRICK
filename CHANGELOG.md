@@ -11884,3 +11884,52 @@ band is now computed from the wrapped line count.
 **Not changed: the SSP set's FACTS arm.** The shared-climate run also covers ssp126/245/585, and
 those differ from the frozen FACTS-internal-FaIR-1.6.4 rows the SSP table uses. Swapping them is
 a convention decision for Marcus, not a side effect of this figure.
+
+## 2026-08-31 (f) — one machinery for both scenario sets
+
+The FACTS column now runs on a single climate-driver convention everywhere: injected FaIR 2.2.4
+calib 1.6.0 + CMIP7, same cubes / splice / reference as Ladrillo and BRICK 2.0, from the same
+builder → config generator → extractor as the van Vuuren arm. It previously read FACTS-internal
+FaIR 1.6.4 on the SSPs, so the column straddled two conventions between the two sets.
+`facts@slr-comparison-arm 0442964f`.
+
+- **emulandice added back for the CONTROLS only** — per-SSP-trained, so valid on ssp126/245/585
+  and meaningless on a marker. Skipping this would have silently dropped `emuAIS`/`emuGrIS`/
+  `emuglaciers` and `wf1e/wf2e/wf3e`: a loss of comparators disguised as plumbing.
+- **Comparator move**: FACTS rows only (MAGICC byte-identical), 90/150 literature rows changed,
+  median |move| 5.8%, positive at ssp126/245 and negative at ssp585; emulandice and process
+  workflows move comparably (5.1% vs 4.5%), which is the check that it is a driver effect.
+  Superseded arm preserved verbatim with that accounting under
+  `benchmark/reference/_fixed_archive_20260831_facts_internal_fair164/`.
+
+**Tried and rejected: `include_in_workflow: <all workflows for this key>` for every shared
+module.** It reads as the safe default and is wrong — `ar5glaciers` must not be in the
+emulandice workflows, since `emuglaciers` supplies glaciers there. Granting both made
+`wf1e/wf2e/wf3e` sum two glacier modules, +11 cm (+27% at ssp245@2100). Every per-module number
+stayed correct; it surfaced only because nine `e` cells moved the same way by nearly the same
+amount, and was confirmed by the total sitting +10.72 cm above its own component sum. Now
+blocked by two mutation-tested gates: `[REFERENCE]` (generated config vs the untouched
+`global.coupling.ssp245.n200/config.yml`) and `[COMPOSITION]` (per-sample `total == Σ modules`,
+a true identity, unlike the median-sum which must never be gated). The van Vuuren results were
+never affected — markers carry no `e` workflows.
+
+**⚠ One benchmark verdict regressed and was NOT adjusted.** `S/glaciers/ssp585-over-ssp126/2150
+separation` goes PASS → FAIL, taking the V block WARN → FAIL. L21's own value barely moved
+(2.0694 → 2.0676); the *comparator bracket* narrowed, because the shared driver compresses
+FACTS' glacier scenario separation (ar5glaciers ssp585/ssp126 2.37 → 1.93 @2150), so
+[1.79, 2.37] became [1.79, 1.93] and L21 sits 0.14 outside = 105% of the bracket's own width.
+This is like-for-like working: the old PASS compared L21-on-calib-1.6.0 against
+FACTS-on-FaIR-1.6.4 and masked the finding that on a common climate L21 separates the scenarios
+more strongly than either comparator. Net: 25 verdict changes, 14 improvements (WARN→PASS 11,
+FAIL→PASS 3), this one regression. The new bracket is two points spanning 0.14 — thin evidence
+either way, and the call is Marcus's.
+
+**Glacier regrowth (asked and answered, no code change).** Only MAGICC can express glacier
+regrowth on these pathways and it does (5/7 markers; vvLN gives back 78% of its peak). Ladrillo
+is a hard melt-only ratchet — 0 of 8000 draws decrease. BRICK's `gsic_teq = −0.15 °C` is fixed
+below the entire scenario range (and above it the only stationary point is total loss), FACTS
+stops at 2150 before the cooling. So a 3-1 vote against regrowth is really one model voting and
+three unable to. The clamp's stated justification ("only binds under strong-cooling scenarios")
+is stale now that four of seven markers decline. Not changed here: removing the clamp gives
+symmetric relaxation, which is wrong the other way; the defensible fix is an asymmetric rate
+with a GlacierMIP3 target.
