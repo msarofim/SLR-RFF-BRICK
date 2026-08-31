@@ -19,12 +19,24 @@ the three horizons inside a panel lets 2300 squash 2100 flat, which is the reada
 failure this layout avoids. It also matches `plot_b2_component_comparison.py`, so the two
 per-component comparison figures read as the same object.
 
-⚠ WIDTHS ARE DRAWN ONLY WHERE THEY ARE THE SAME OBJECT (`ladrillo_figs.WIDTH_SRCS`).
-Ladrillo and BRICK 2.0 are both on the JOINT arm here -- the same 841-config FaIR cubes,
-the same 2014 splice pivot, the same 1995-2014 re-reference -- so their bars are
-comparable to each other. MAGICC-SLR and FACTS bands additionally carry each model's own
-climate ensemble, so they are plotted as MEDIANS ONLY: a bar the reader cannot compare is
-worse than no bar. The exact bands are printed to the console for anyone who wants them.
+⚠ ALL FOUR BANDS ARE DRAWN, AND THAT IS THE POINT OF THE FIGURE. The first version of
+this script drew bars for Ladrillo and BRICK 2.0 only, inheriting `ladrillo_figs.WIDTH_SRCS`
+-- a set written when both our arms ran on MEAN forcing and were therefore
+posterior-parameter spread only. That has not been true since 2026-08-30: the Ladrillo and
+BRICK 2.0 joint arms propagate their posteriors across the SAME 841 FaIR configs, which is
+precisely why they were built (`brick20_joint_band` -- "every column of the comparison now
+carries climate uncertainty, so the WIDTHS are like-for-like for the first time"). Drawing
+only two of the four suppressed the comparison the joint arms exist to make. Whether a band
+may be drawn is now read from each row's OWN `band_basis` via
+`ladrillo_figs.band_is_comparable`, so a cell that falls back to the fixed (mean-forcing)
+arm loses its bar automatically and no source-name list can go stale again.
+
+⚠ SAME KIND OF OBJECT IS NOT THE SAME ENSEMBLE. Ours is 841 FaIR configs, MAGICC-SLR's is a
+600-member AR6 drawnset, FACTS uses its own internal ensembles -- and both joint arms are
+PRIOR PROPAGATIONS (the posteriors were calibrated under fixed forcing), not refits. The
+widths are comparable; they are not identical constructions, and the caption says so.
+⚠ Narrowness is never a win at ais/ssp585, where 78% of our width is the antarctic_lambda
+paleo prior rather than an inference.
 
 ⚠ FACTS IS NOT ONE NUMBER AND IS NOT DRAWN AS ONE. It is a stack of modules per component
 (ar5AIS / larmip / deconto21 / bamber19 at Antarctica, FittedISMIP / emuGrIS / bamber19 at
@@ -110,24 +122,34 @@ if _lad_mod != [TAG]:
 ## either width source is not wholly on a joint basis then "the bars are comparable" is
 ## FALSE, so the claim is dropped and the actual mix is stamped instead of asserted away.
 BASES = {s: sorted(set(D[D.source == s].band_basis.astype(str))) for s in SOURCES}
-_joint = {s: all(b.lower().startswith("joint") for b in BASES[s]) for s in lf.WIDTH_SRCS}
-WIDTHS_COMPARABLE = all(_joint.values())
+## ⚠ THE CAPTION'S COMPARABILITY CLAIM IS DERIVED FROM THE DATA, NEVER TYPED. Every row is
+## asked whether ITS OWN basis carries climate uncertainty; the predicate raises on a basis
+## string it does not recognise rather than guessing. Ladrillo's loader falls back to the
+## FIXED (mean-forcing) arm for any cell where the joint arm is the wrong Greenland arm, and
+## a fixed band is a narrower object for reasons that have nothing to do with the model -- so
+## such a cell must lose its bar, and the claim must weaken, without anyone remembering to.
+D["band_ok"] = D.band_basis.map(lf.band_is_comparable)
+PARAM_ONLY = sorted({(r.source, b) for r, b in
+                     zip(D[~D.band_ok].itertuples(), D[~D.band_ok].band_basis)})
+WIDTHS_COMPARABLE = bool(D.band_ok.all())
 if WIDTHS_COMPARABLE:
-    WIDTH_NOTE = ("Bars: 17-83%% (thick) and 5-95%% (thin), drawn ONLY for %s, which are "
-                  "both on the joint arm here (posterior parameters x the same 841 FaIR "
-                  "configs) -- so those two widths ARE the same object and are comparable "
-                  "to each other." % " and ".join(sorted(lf.WIDTH_SRCS)))
+    WIDTH_NOTE = ("Bars are 17-83% (thick) and 5-95% (thin) and are drawn for ALL FOUR "
+                  "sources, because all four now carry climate uncertainty -- which is "
+                  "what the joint arms were built for and what makes these widths "
+                  "comparable at all.")
 else:
-    WIDTH_NOTE = ("⚠ BAR WIDTHS ARE NOT COMPARABLE IN THIS FIGURE: " +
-                  "; ".join("%s = %s" % (s, " + ".join(BASES[s]))
-                            for s in sorted(lf.WIDTH_SRCS) if not _joint[s]) +
-                  " -- a fixed (mean-forcing) band is parameter spread only and is "
-                  "narrower than a joint one for reasons that have nothing to do with "
-                  "the model.")
+    WIDTH_NOTE = ("Bars are 17-83%% (thick) and 5-95%% (thin). ⚠ %d cell(s) are on a "
+                  "PARAMETER-ONLY basis and are drawn as medians with NO bar, because a "
+                  "fixed (mean-forcing) band is narrower than a joint one for reasons "
+                  "that have nothing to do with the model: %s."
+                  % ((~D.band_ok).sum(),
+                     "; ".join("%s = %s" % (a, b) for a, b in PARAM_ONLY)))
 for s in SOURCES:
     print("[BASIS] %-11s %s" % (s, " + ".join(BASES[s])))
-print("[BASIS] width sources on a joint basis: %s"
-      % ("YES -- bars comparable" if WIDTHS_COMPARABLE else "NO -- comparability claim dropped"))
+print("[BASIS] every row carries climate uncertainty: %s"
+      % ("YES -- all four bands drawn and comparable" if WIDTHS_COMPARABLE else
+         "NO -- %d parameter-only cell(s) drawn WITHOUT a bar: %s"
+         % ((~D.band_ok).sum(), PARAM_ONLY)))
 
 # --- gate: the frozen literature arm has not moved under us -----------------
 ## The FACTS and MAGICC rows are tag-INDEPENDENT comparators, frozen under
@@ -221,28 +243,33 @@ for YEAR in YEARS:
                 if s.empty:
                     continue
                 col = lf.SRC_COLOR[src]
-                if src in lf.WIDTH_SRCS:
-                    r = s.iloc[0]
-                    x = i + SLOT[src]
-                    ax.plot([x, x], [r.p05, r.p95], color=col, lw=1.0, alpha=0.75,
-                            solid_capstyle="butt", zorder=2)
-                    ax.errorbar(x, r.med,
-                                yerr=[[r.med - r.p17], [r.p83 - r.med]],
-                                fmt=MARK[src], color=col, ms=6.5, capsize=3.5, lw=2.2,
-                                zorder=3)
-                elif src == "MAGICC-SLR":
-                    r = s.iloc[0]
-                    ax.plot(i + SLOT[src], r.med, MARK[src], color=col, ms=7, zorder=3)
+                if src == "FACTS":
+                    ## FACTS: one series per MODULE, fanned inside its slot, so the
+                    ## DISAGREEMENT between modules is the thing the reader sees. A median
+                    ## across them would summarise nothing (`median_needs_agreement`).
+                    rows = [s[s.module == m].iloc[0] for m in sorted(s.module.astype(str))]
+                    x0 = i + SLOT[src] - FACTS_FAN * (len(rows) - 1) / 2
+                    xs = [x0 + j * FACTS_FAN for j in range(len(rows))]
                 else:
-                    ## FACTS: one marker per module, fanned around the slot centre so the
-                    ## DISAGREEMENT between modules is the thing the reader sees.
-                    mods = sorted(s.module.astype(str))
-                    x0 = i + SLOT[src] - FACTS_FAN * (len(mods) - 1) / 2
-                    for j, m in enumerate(mods):
-                        v = float(s[s.module == m].med.iloc[0])
-                        is_sej = CLASS.get(m, "model") == "sej"
-                        ax.plot(x0 + j * FACTS_FAN, v, SEJ_MARK if is_sej else MARK[src],
-                                ms=6 if is_sej else 5,
+                    rows, xs = [s.iloc[0]], [i + SLOT[src]]
+                for r, x in zip(rows, xs):
+                    is_sej = CLASS.get(str(r.module), "model") == "sej"
+                    mk = SEJ_MARK if is_sej else MARK[src]
+                    ms = (5.0 if src == "FACTS" else 6.5)
+                    if r.band_ok:
+                        ax.plot([x, x], [r.p05, r.p95], color=col,
+                                lw=0.8 if src == "FACTS" else 1.0, alpha=0.7,
+                                solid_capstyle="butt", zorder=2)
+                        ax.errorbar(x, r.med, yerr=[[r.med - r.p17], [r.p83 - r.med]],
+                                    fmt=mk, color=col, ms=ms,
+                                    capsize=2.0 if src == "FACTS" else 3.5,
+                                    lw=1.4 if src == "FACTS" else 2.2,
+                                    mfc="none" if is_sej else col, mec=col,
+                                    mew=1.4 if is_sej else 0.8, zorder=3)
+                    else:
+                        ## No bar: a parameter-only width next to three climate-inclusive
+                        ## ones would read as a narrow model rather than a narrow arm.
+                        ax.plot(x, r.med, mk, ms=ms, color=col,
                                 mfc="none" if is_sej else col, mec=col,
                                 mew=1.4 if is_sej else 0.8, zorder=3)
         ## Sources absent from THIS panel are named in the panel, not left as a silent
@@ -256,6 +283,29 @@ for YEAR in YEARS:
             ax.text(0.985, 0.03, "no " + ", ".join(gone) + " at %d" % YEAR,
                     transform=ax.transAxes, ha="right", va="bottom",
                     fontsize=7.2, color="0.35", style="italic")
+        ## ⚠ THE Y-AXIS IS SET BY THE SAMPLED SERIES, AND THE ELICITED ONE IS CLIPPED
+        ## AND NAMED. bamber19's 5-95% at gis/ssp585/2100 spans 93.2 cm against 17.1 cm
+        ## for the next-widest module: letting it drive the axis costs ~5x of the
+        ## resolution every other comparison in the panel needs. It is NOT dropped and
+        ## NOT quietly cut off -- the limits come from the sampling quantiles, and any
+        ## elicited whisker that runs past them is annotated WITH ITS VALUE, so the
+        ## reader is told exactly what is off the panel. (A structured expert judgement
+        ## is a deep-uncertainty envelope, not a sampled quantile: the two are already
+        ## different objects, which is why comparator_classes.csv exists at all.)
+        pan = D[(D.component == comp) & (D.year == YEAR)]
+        pan_sej = pan.module.astype(str).map(lambda m: CLASS.get(m, "model") == "sej")
+        lo = pd.concat([pan[~pan_sej].p05, pan.med]).min()
+        hi = pd.concat([pan[~pan_sej].p95, pan.med]).max()
+        pad = 0.08 * max(hi - lo, 1e-6)
+        ax.set_ylim(min(lo - pad, 0 if lo >= 0 else lo - pad), hi + pad)
+        clipped = ["%s %s %.0f–%.0f" % (r.scenario.replace("ssp", "SSP"), r.module,
+                                        r.p05, r.p95)
+                   for r in pan[pan_sej].itertuples() if r.band_ok and r.p95 > hi + pad]
+        if clipped:
+            ax.text(0.015, 0.975,
+                    "elicited 5–95% off panel (cm):\n  " + "\n  ".join(clipped),
+                    transform=ax.transAxes, ha="left", va="top", fontsize=6.3,
+                    linespacing=1.35, color=lf.SRC_COLOR["FACTS"])
         ax.axhline(0, color="0.85", lw=0.8, zorder=1)
         ax.set_xticks(range(len(SCENS)))
         ax.set_xticklabels([l for _k, l, _c2, _d in SCENS], fontsize=9)
@@ -280,8 +330,9 @@ for YEAR in YEARS:
                            label="FACTS, structured expert judgement (%s)"
                                  % ", ".join(sej_drawn))]
     handles += [Line2D([], [], color="0.3", lw=2.2,
-                       label="17–83%% / 5–95%% (%s only)"
-                             % " + ".join(sorted(lf.WIDTH_SRCS)))]
+                       label="17–83% (thick) / 5–95% (thin), all sources"
+                             if WIDTHS_COMPARABLE else
+                             "17–83% / 5–95% — absent where the arm is parameter-only")]
     fig.legend(handles=handles, ncol=3, fontsize=8.5, frameon=False,
                loc="upper center", bbox_to_anchor=(0.5, 0.972))
     fig.suptitle("Sea-level rise by component at %d — %s vs BRICK 2.0 vs FACTS vs "

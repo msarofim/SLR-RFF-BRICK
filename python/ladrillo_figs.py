@@ -40,12 +40,54 @@ COMP_TITLE = {"glaciers": "Glaciers", "gis": "Greenland ice sheet",
 # --- sources ---------------------------------------------------------------
 SRC_COLOR = {"Ladrillo": "#2166ac", "BRICK 2.0": "#7f7f7f",
              "MAGICC-SLR": "#d62728", "FACTS": "#ff9900"}
-## THE BAND CAVEAT, reproduced verbatim wherever a width is drawn. Error bars/bands are
-## drawn ONLY for sources whose widths are the same object; everything else is medians-only.
-WIDTH_SRCS = {"Ladrillo", "BRICK 2.0"}
-BAND_CAVEAT = ("Ladrillo and BRICK 2.0 run on the same forcing arm, so their widths are "
-               "the same object; MAGICC/FACTS bands also carry climate uncertainty, so "
-               "their MEDIANS are comparable and their WIDTHS are not.")
+
+## WHETHER A WIDTH MAY BE DRAWN IS A PROPERTY OF THE ARM, NOT OF THE SOURCE NAME.
+##
+## ⚠ CORRECTED 2026-08-31. This module shipped a `WIDTH_SRCS = {"Ladrillo", "BRICK 2.0"}`
+## set with the caveat "MAGICC/FACTS bands ALSO carry climate uncertainty, so their MEDIANS
+## are comparable and their WIDTHS are not". That sentence encodes the state of the world
+## BEFORE 2026-08-30, when both our arms ran on MEAN forcing and were therefore
+## posterior-parameter spread only. It is now FALSE for any product built on the joint arm:
+## `scope_slr_fair_uncertainty.jl` and `scope_slr_fairunc_oldbrick.jl` propagate the
+## Ladrillo and BRICK 2.0 posteriors across the SAME 841 FaIR configs, so those bands carry
+## climate uncertainty too -- which is the entire reason the joint arms were built
+## (`brick20_joint_band`: "every column of the comparison now carries climate uncertainty,
+## so the WIDTHS are like-for-like for the first time"). Keeping the old set suppressed
+## three of the four bands on the one figure where they were finally comparable.
+##
+## The predicate reads the row's OWN `band_basis` string instead, so a cell that falls back
+## to the fixed arm loses its band automatically and no source-name list can go stale again.
+BASIS_CARRIES_CLIMATE = ("joint", "climate + parameter")
+BASIS_PARAM_ONLY = ("fixed",)
+
+
+def band_is_comparable(basis):
+    """True when this row's band carries CLIMATE uncertainty as well as parameter spread.
+
+    Joint arms (ours) and the MAGICC/FACTS native ensembles all do; a `fixed
+    (posterior params, mean forcing)` band does not, and is a narrower object for reasons
+    that have nothing to do with the model. Unrecognised bases raise rather than default:
+    guessing which kind of band an unknown string describes is how the stale set survived."""
+    b = str(basis).strip().lower()
+    if b.startswith(BASIS_PARAM_ONLY):
+        return False
+    if b.startswith(BASIS_CARRIES_CLIMATE):
+        return True
+    raise SystemExit(
+        "unrecognised band_basis %r -- refusing to guess whether it carries climate "
+        "uncertainty. Add it to ladrillo_figs.BASIS_CARRIES_CLIMATE or BASIS_PARAM_ONLY."
+        % basis)
+
+
+## The caveat that survives the correction. Climate uncertainty is now present on every
+## arm, but the ENSEMBLES generating it are not the same ensemble, and two of the four
+## bands are prior propagations rather than refits.
+BAND_CAVEAT = ("All four bands now carry climate uncertainty -- ours from 841 FaIR "
+               "configs, MAGICC-SLR from its 600-member AR6 drawnset, FACTS from its own "
+               "internal ensembles -- so the widths are the same KIND of object and are "
+               "comparable; they are not the same ensemble, and the two joint arms are "
+               "PRIOR PROPAGATIONS (both posteriors were calibrated under fixed forcing), "
+               "not refits.")
 
 # --- scenario sets ---------------------------------------------------------
 ## One table per set: (key, label, colour). The van Vuuren table additionally carries the

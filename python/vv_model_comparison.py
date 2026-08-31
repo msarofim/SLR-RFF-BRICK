@@ -5,23 +5,51 @@ vv_model_comparison.py — Ladrillo against BRICK 2.0 on the seven van Vuuren CM
 SIBLING of ladrillo_model_comparison.py, NOT a flag on it. That script compares FOUR
 sources on THREE SSPs; this one compares TWO sources on SEVEN markers. They are different
 objects and merging them would let a van Vuuren run emit empty FACTS / MAGICC-SLR columns
-that read as "no data" when the truth is "not drivable" -- see WHY ONLY TWO below.
+that read as "no data" when the truth is "not run on this scenario set" -- see below.
 
   python3 python/vv_model_comparison.py [--tag=L21] [--no-tap]
 Writes outputs/vv_model_comparison_<TAG>{,_width,_gmst}.csv
 
-WHY ONLY TWO SOURCES (stated in the console banner too, so it cannot be lost):
+WHY ONLY TWO SOURCES TODAY (stated in the console banner too, so it cannot be lost):
   Ladrillo    ✅ ours -- scope_slr_fair_uncertainty.jl on the van Vuuren cubes
   BRICK 2.0   ✅ ours -- scope_slr_fairunc_oldbrick.jl on the SAME cubes
-  MAGICC-SLR  ❌ data/comparison/magicc_nauels_components.csv is a ONE-TIME extract from a
-                 members-only working copy. A van Vuuren MAGICC run would have to go
-                 through MAGICC's OWN climate from van Vuuren EMISSIONS; feeding it our
-                 GMST would destroy the independence that makes it a comparator.
-  FACTS       ❌ outputs/facts_components_n200.csv is an ingested n=200 quantile table,
-                 ssp126/245/585 only. No FACTS install and no builder script in this repo.
-  ⇒ The SSP set is an INTERSECTION WITH THE PUBLISHED LITERATURE, not a preference, and it
-    does not become superfluous. van Vuuren is a SECOND AXIS (process / commitment), not a
-    replacement for the comparison axis.
+  MAGICC-SLR  ⬜ NOT RUN -- but RUNNABLE, see below
+  FACTS       ⬜ NOT RUN -- but RUNNABLE, see below
+  ⇒ The SSP set is an INTERSECTION WITH THE PUBLISHED LITERATURE and does not become
+    superfluous. van Vuuren is a SECOND AXIS (process / commitment), not a replacement.
+
+⚠ CORRECTED 2026-08-31 -- THIS HEADER USED TO SAY "NOT DRIVABLE", AND THAT WAS WRONG.
+It read the two comparators as fixed data files because that is all THIS repo holds. Both
+models are in fact installed and driven on this machine, and both CAN be run on the van
+Vuuren markers. What follows is the real state, so that nobody re-derives "impossible" from
+a file listing again. NEITHER IS A SMALL JOB, and neither has been done -- "runnable" is not
+"run", and this script still compares two sources until one of them is.
+
+  MAGICC-SLR -- the pipeline is LIVE: the custom Nauels-2025 SLR build
+    ~/Documents/2026/CodeProjects/MAGICC/magiccv.7.5.3/bin/magicc (commit b1fa246, the exact
+    hash notebook 302 asserts), the conda env ~/miniforge3/envs/slr-refresh-2025, the
+    600-member with_slr drawnset, and notebooks 200 -> 302 -> 400. It runs from EMISSIONS,
+    which is what preserves its independence -- and THE VAN VUUREN MARKER EMISSIONS EXIST:
+    FaIRtoFrEDI/data/vanvuuren/spliced_ext_harmonized/*.csv, 51 species x 1750-2300, in the
+    same scenario/region/variable/unit + year-columns wide layout notebook 200 already reads
+    from RCMIP. The work is the VARIABLE-NAME MAP into openscm-runner's namespace plus a
+    coverage gate -- MAGICC silently zeroes a species it is not handed, so an unmapped name
+    is a quiet emissions cut, not an error.
+
+  FACTS -- installed and engine-validated on this Mac via Colima
+    (~/Documents/2026/CodeProjects/facts), and the external-climate injection seam is a
+    COMPLETED PoC: facts/build_fair_climate_nc.py writes the three NetCDFs FACTS consumes
+    from our FaIR GMST+OHC, and we already have the van Vuuren cubes it needs
+    (data/observations/fair_mean_{gmst,ohc}_vv*.csv, all seven markers).
+    ⚠ TWO THINGS THAT MUST BE STATED IF IT IS RUN:
+      (1) HORIZON. FACTS reaches 2150 at best and 2100 for the emulandice workflows. It
+          CANNOT produce a 2300 column for van Vuuren any more than it can for the SSPs.
+      (2) CONVENTION. An injected-climate FACTS run is not the same object as the ingested
+          ssp126/245/585 table, which uses FACTS-INTERNAL FaIR-1.6.4. Mixing them straddles
+          two climate-driver conventions. The measured size of that gap is ~2-5% on GMSL
+          (against 30-50% for swapping the ice-sheet workflow), so it is small -- but it is
+          a convention, and the fix is to re-run the three SSPs injected as well so both
+          sets share one. Precedent exists: global.coupling.ssp245.fairv145.
 
 BANDS. Both models are on their OWN JOINT arm -- posterior parameters x 841 FaIR configs,
 same cubes, same 2014 splice pivot, same 1995-2014 re-reference, same PAIR_SEED, same
@@ -265,7 +293,8 @@ def band(b):
 
 def main():
     print(__doc__.split("WHY ONLY TWO SOURCES")[1].split("BANDS.")[0]
-          .replace("(stated in the console banner too, so it cannot be lost):", "").strip())
+          .replace("TODAY (stated in the console banner too, so it cannot be lost):",
+                   "TODAY -- and the other two are RUNNABLE, not impossible:").strip())
     print()
 
     gates, LAD, BRK, SEQ = {}, {}, {}, {}

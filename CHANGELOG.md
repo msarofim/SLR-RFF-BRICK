@@ -3,7 +3,60 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## 2026-08-31 (latest) — the four-source component figure: Ladrillo vs BRICK 2.0 vs FACTS vs MAGICC
+## 2026-08-31 (latest) — all four bands drawn, and the "not drivable" claim withdrawn
+
+**Marcus asked whether we had not already built the arms that make our bands comparable to
+MAGICC and FACTS. We had, on 2026-08-30, and the figure below was suppressing three of the
+four.** `ladrillo_figs.WIDTH_SRCS` restricted error bars to Ladrillo and BRICK 2.0 with the
+caveat "MAGICC/FACTS bands ALSO carry climate uncertainty, so their MEDIANS are comparable
+and their WIDTHS are not" — a sentence that was true only while both our arms ran on MEAN
+forcing. The joint arms propagate both posteriors across the same 841 FaIR configs precisely
+so that stops being true (`brick20_joint_band`: *"every column of the comparison now carries
+climate uncertainty, so the WIDTHS are like-for-like for the first time"*).
+
+The source-name set is **replaced by a predicate on the row's own `band_basis`**
+(`ladrillo_figs.band_is_comparable`), which raises on a basis string it does not recognise
+rather than guessing. A cell that falls back to the fixed arm now loses its bar and weakens
+the caption automatically. All four sources are drawn at 17–83% and 5–95%.
+
+Verified against `brick20_joint_band`'s own table — total p17–p83 at ssp126/2100: Ladrillo
+12.6, BRICK 2.0 35.8, MAGICC 21.5, FACTS wf1f 17.4 cm. Reproduced exactly.
+
+**A mutation test caught a real bug**: the parameter-only branch of the caption had never
+executed and its literal `%` broke the format string. It would have fired the first time a
+cell fell back to the fixed arm.
+
+**Elicited whiskers are clipped and quantified, not dropped and not silently cut.** bamber19's
+5–95% at gis/ssp585/2100 spans 93.2 cm against 17.1 for the next-widest module; letting it set
+the axis costs ~5× of the resolution every other comparison needs. Limits come from the
+sampling quantiles; any elicited whisker past them is annotated with its value.
+
+### The van Vuuren question: both comparators ARE runnable, and the header saying otherwise is fixed
+
+`vv_model_comparison.py` claimed MAGICC-SLR and FACTS were "not drivable" on the van Vuuren
+markers. **That was wrong** — it read the two comparators as fixed data files because that is
+all *this repo* holds. Corrected in place:
+
+* **MAGICC-SLR.** The pipeline is live: the custom Nauels-2025 build `magiccv.7.5.3/bin/magicc`
+  (commit `b1fa246`, the hash notebook 302 asserts), the `slr-refresh-2025` conda env, the
+  600-member with_slr drawnset, notebooks 200→302→400. It runs from EMISSIONS, which is what
+  preserves its independence — and **the van Vuuren marker emissions exist**:
+  `FaIRtoFrEDI/data/vanvuuren/spliced_ext_harmonized/*.csv`, 51 species × 1750–2300, in the
+  same wide layout notebook 200 already reads from RCMIP. The work is the variable-name map
+  into openscm-runner's namespace plus a coverage gate — MAGICC silently zeroes a species it
+  is not handed, so an unmapped name is a quiet emissions cut, not an error.
+* **FACTS.** Installed and engine-validated on this Mac via Colima, and the external-climate
+  injection seam is a completed PoC (`facts/build_fair_climate_nc.py`). The van Vuuren cubes
+  it needs already exist. ⚠ **FACTS reaches 2150 at best, 2100 for emulandice** — it cannot
+  produce a 2300 column for van Vuuren any more than for the SSPs. ⚠ An injected-climate run
+  is a different convention from the ingested SSP table (FACTS-internal FaIR-1.6.4); the gap
+  is ~2–5% on GMSL against 30–50% for swapping the ice-sheet workflow, but it is a convention
+  and the fix is to re-run the three SSPs injected too.
+
+**Neither has been run.** "Runnable" is not "run", and `vv_model_comparison.py` still compares
+two sources until one of them is.
+
+## 2026-08-31 — the four-source component figure: Ladrillo vs BRICK 2.0 vs FACTS vs MAGICC
 
 `python/plot_model_comparison_components.py` — the first FIGURE carrying all four projection
 sources, and the first to carry 2300. One file per horizon:
