@@ -3,7 +3,80 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## 2026-08-31 (latest) — the van Vuuren glacier figure was comparing the WRONG SECOND MODEL
+## 2026-08-31 (latest) — the Ladrillo figure suite: historical + two future sets, total and components
+
+Marcus asked for a full set of Ladrillo comparison figures — historical (vs observations &
+BRICK) and future (SSPs and van Vuuren as two sets), with both total SLR and components.
+
+**Three figures, one grid, one palette**, so they read as a set:
+
+| figure | script |
+|---|---|
+| `figures/hindcast_components_L21.png` | `python/plot_hindcast_components.py` |
+| `figures/future_components_ssp_L21_joint.png` | `python/plot_future_components.py --set=ssp` |
+| `figures/future_components_vv_L21_joint.png` | `python/plot_future_components.py --set=vv` |
+
+`python/ladrillo_figs.py` is the shared home for what three existing scripts each declared
+separately — **and disagreed about**: `plot_ladrillo_memo_figures.py` had Ladrillo `#2166ac`
+while `doc_l14_vs_brick20.py` had `tab:red`, so the same model wore two colours across two
+figures of one study. The memo convention is adopted and declared once. It also holds the
+**three different baseline windows** as named constants (1995-2005 calibration, 1995-2014
+projection, 1970-2020 display-only) and a `TAG_DESC` table that REFUSES an undeclared tag.
+
+### The blocker that had to be removed first
+
+**BRICK 2.0 had no joint-arm trajectory output at all** — `scope_slr_fairunc_oldbrick.jl`
+stored only three horizon slices, so a two-model component comparison over time was not
+buildable, and van Vuuren had no BRICK trajectory whatsoever. It now stores the full year
+axis (~43 MB at NDRAW=1000) and emits `paths` in the same schema as the Ladrillo driver.
+**Verified bit-identical on cells and draws** before the other nine scenarios were run.
+
+### What was genuinely missing, and now is not
+
+* **No per-component projection figure existed on either scenario set.** The component view
+  was tables only (`doc_tables_L21.md`, `*_model_comparison_*.csv`); every projection FIGURE
+  was total-only.
+* **No van Vuuren projection figure of any kind** beyond glaciers.
+* **No LWS panel anywhere.** Neither model emits an LWS hindcast but the observation exists,
+  so the panel is drawn obs-only with that stated on it — omitting it hid a real gap.
+* **The predictive band was unreachable on L21.** postpred carries `_p05/_p95`
+  (parameters) and `_pred_p05/_pred_p95` (+ calibrated AR(1) + obs error); coverage should be
+  judged against the predictive one, and only `plot_ladrillo_memo_figures.py` drew it — a
+  script that `SystemExit`s on `--tag=L21`.
+* **IGCC 2024 GMSL had never been overlaid on a Ladrillo figure.** It is the standing
+  first-choice product for this variable and, unlike the Dangendorf calibration target, is
+  NOT in the fit — so agreement with it is evidence rather than circularity.
+
+### ⚠ Three gate lessons, all found by the gates firing on real data
+
+1. **A `CHECK` is not a `FAIL`, and not a `PASS` either.** The gate first REFUSED to draw
+   ssp585 over the known `ais@2300` CONTROL exceedance (−0.518 cm vs a 0.5 cm tolerance —
+   0.19% of 268 cm, a cross-driver gap that predates the figure). Refusing is
+   disproportionate; allowing silently is worse, because the figure would then assert a
+   control it never passed. CHECK rows are now returned and **stamped on the caption**;
+   unrecognised verdicts stay fatal.
+2. **An identity bound applied to a non-identity is a broken gate.** The baseline check
+   demanded `|offset| < 1e-6 cm` and fired on residuals of 2.5e-3 cm — but the postpred files
+   are re-referenced PER DRAW, so the ensemble MEDIAN over the window need not be exactly
+   zero. The tolerance is now **derived from what the gate is for**: the smallest
+   wrong-window displacement present in these data (1995-2005 vs 1995-2014) is 0.0974 cm, and
+   the bound is a tenth of it — 4× above the real residuals, 10× below the smallest real
+   error. Measured in-script, so it tracks the data. Mutation-tested by re-baselining TE to
+   the wrong window: caught.
+3. **A console summary that contradicts its own figure is worse than none.** The 5-year-window
+   table read the RAW glacier target while the panel plots the r19-seam-corrected series, and
+   so reported a +1.68 cm residual at 1900 against a panel showing agreement. Both now read
+   the corrected series. (Also fixed: the gate's own summary line took `.iloc[0]` and printed
+   "CONTROL PASS" for ssp585 while one of its CONTROL rows was CHECK.)
+
+### Reported, never asserted
+
+The five components are summed against `total` and the gap is **printed, not gated** — the sum
+of per-component medians is not the median of the sum unless the components are comonotonic,
+so a gate there would assert something false. It is informative: **BRICK 2.0 runs ~8 cm apart
+at ssp245/2300 against Ladrillo's 3 cm**, which is its AIS tipping decorrelating from the rest.
+
+## 2026-08-31 (later) — the van Vuuren glacier figure was comparing the WRONG SECOND MODEL
 
 Marcus asked whether `vv_gsic_wr_vs_mengel` is "really BRICK2.0 (Wigley-Raper) vs Ladrillo
 (3 glaciers, Mengel)", and how to name the Ladrillo version. **The premise was half right and the
