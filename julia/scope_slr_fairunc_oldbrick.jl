@@ -107,22 +107,31 @@ end
 const CFG_OF_DRAW = [CFG[i] for i in ASSIGN]
 
 const OI = [idx(y) for y in HORIZONS]
-alloc() = Dict(c => Matrix{Float64}(undef, length(ROWS), length(HORIZONS)) for c in COMPS)
+## ⚠ THE FULL YEAR AXIS IS STORED, NOT JUST THE THREE HORIZON SLICES (2026-08-31).
+## This driver used to allocate `length(ROWS) x length(HORIZONS)` and emit only cells and
+## draws, which meant BRICK 2.0 had NO joint-arm TIME SERIES for any scenario or marker --
+## so every trajectory figure had to fall back on the DECADAL fixed-arm
+## ssps_components_2300_oldbrick.csv for the SSPs, and had nothing at all for van Vuuren.
+## Storing the whole axis costs ~43 MB at NDRAW=1000 and lets this driver emit `paths` in
+## the SAME schema as scope_slr_fair_uncertainty.jl, so a figure can read either model
+## through one code path. The horizon columns are now INDEXED OUT of the full matrix
+## (`[:, OI[j]]`), so cells and draws are unchanged -- verified bit-identical.
+alloc() = Dict(c => Matrix{Float64}(undef, length(ROWS), length(YEARS)) for c in COMPS)
 
 Random.seed!(SEED)
 const M = MimiBRICK.get_model(ssprcp_scenario="ssp245", start_year=Y0, end_year=Y1)
 
-"""Run draw indices `ks` on forcing (g,o); write horizon slices into `store`."""
+"""Run draw indices `ks` on forcing (g,o); write the FULL year axis into `store`."""
 function run_into!(store, ks, g, o)
     set_forcing!(M, g, o)
     for k in ks
         update_brick_params!(M, post[ROWS[k], :]; precip_log=true)
         run(M)
-        ais  = reref(M[:antarctic_icesheet,     :ais_sea_level])[OI]
-        gsic = reref(M[:glaciers_small_icecaps, :gsic_sea_level])[OI]
-        gis  = reref(M[:greenland_icesheet,     :greenland_sea_level])[OI]
-        te   = reref(M[:thermal_expansion,      :te_sea_level])[OI]
-        lws  = reref(M[:landwater_storage,      :lws_sea_level])[OI]
+        ais  = reref(M[:antarctic_icesheet,     :ais_sea_level])
+        gsic = reref(M[:glaciers_small_icecaps, :gsic_sea_level])
+        gis  = reref(M[:greenland_icesheet,     :greenland_sea_level])
+        te   = reref(M[:thermal_expansion,      :te_sea_level])
+        lws  = reref(M[:landwater_storage,      :lws_sea_level])
         store["ais"][k,:]=ais; store["glaciers"][k,:]=gsic; store["gis"][k,:]=gis
         store["te"][k,:]=te;   store["lws"][k,:]=lws
         store["total"][k,:] = ais .+ gsic .+ gis .+ te .+ lws
@@ -182,13 +191,13 @@ cells = DataFrame(ssp=String[], component=String[], horizon=Int[], arm=String[],
         repeat("=",84), SSP, BASE0, BASE1, repeat("=",84))
 @printf("  %-9s %-6s %-6s %9s %9s %9s %9s %11s\n","comp","horiz","arm","median","p05","p95","spread","x fixed")
 for c in COMPS, (j,H) in enumerate(HORIZONS)
-    f = FIXED[c][:, j]; sf = quantile(f,0.95) - quantile(f,0.05)
+    f = FIXED[c][:, OI[j]]; sf = quantile(f,0.95) - quantile(f,0.05)
     for (arm, A) in (("fixed",FIXED[c]), ("joint",JOINT[c]))
-        v = A[:, j]; sp = quantile(v,0.95) - quantile(v,0.05)
+        v = A[:, OI[j]]; sp = quantile(v,0.95) - quantile(v,0.05)
         push!(cells, (SSP, c, H, arm, length(v), median(v), mean(v),
                       quantile(v,0.05), quantile(v,0.95), sp, sp/sf, median(v)/median(f)))
         for k in 1:length(ROWS)
-            push!(draws, (k, arm == "joint" ? CFG_OF_DRAW[k] : "MEAN", c, H, arm, A[k,j]))
+            push!(draws, (k, arm == "joint" ? CFG_OF_DRAW[k] : "MEAN", c, H, arm, A[k,OI[j]]))
         end
         @printf("  %-9s %-6d %-6s %9.2f %9.2f %9.2f %9.2f %10.2fx\n",
                 c, H, arm, median(v), quantile(v,0.05), quantile(v,0.95), sp, sp/sf)
@@ -196,4 +205,15 @@ for c in COMPS, (j,H) in enumerate(HORIZONS)
 end
 CSV.write(joinpath(REPO,"outputs","scope_slr_fairunc_draws_$(SSP)_spliced_oldbrick.csv"), draws)
 CSV.write(joinpath(REPO,"outputs","scope_slr_fairunc_cells_$(SSP)_spliced_oldbrick.csv"), cells)
-@printf("\nwrote outputs/scope_slr_fairunc_{draws,cells}_%s_spliced_oldbrick.csv\n", SSP)
+
+## ---- paths: the SAME schema scope_slr_fair_uncertainty.jl writes, so a figure reads
+## both models through one code path. Starts at 1990 for the same reason it does there.
+paths = DataFrame(year=Int[], component=String[], arm=String[],
+                  med_cm=Float64[], p05_cm=Float64[], p95_cm=Float64[])
+for c in COMPS, (arm, A) in (("fixed",FIXED[c]), ("joint",JOINT[c])), (i,y) in enumerate(YEARS)
+    y < 1990 && continue
+    v = A[:, i]
+    push!(paths, (y, String(c), arm, median(v), quantile(v,0.05), quantile(v,0.95)))
+end
+CSV.write(joinpath(REPO,"outputs","scope_slr_fairunc_paths_$(SSP)_spliced_oldbrick.csv"), paths)
+@printf("\nwrote outputs/scope_slr_fairunc_{draws,cells,paths}_%s_spliced_oldbrick.csv\n", SSP)
