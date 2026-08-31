@@ -10148,7 +10148,7 @@ entry covers everything built on top of it.
   binding spec (abstract / obs comparison / SSP vs FACTS+MAGICC / methodology
   for reimplementation), declarative, with six stated limitations.
 
-## [unreleased] — 2026-08-09 (latest) — extC green-lit: D1f obs-amp arm + full 3-reservoir calibrator surgery (validated 5e-13, smoke-passed); launch gated on amp-basis call
+## [unreleased] — 2026-08-09 — extC green-lit: D1f obs-amp arm + full 3-reservoir calibrator surgery (validated 5e-13, smoke-passed); launch gated on amp-basis call
 
 - **Marcus green-lit extC + the obs-amp sensitivity arm**, and set the sharing-memo
   spec (abstract w/ data+structure choices; obs comparison; SSP vs FACTS+MAGICC;
