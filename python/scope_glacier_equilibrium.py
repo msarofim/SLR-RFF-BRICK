@@ -347,19 +347,31 @@ def main():
         raise SystemExit("[DRAWDOWN] recomputed max MAGICC drawdown %.2f cm vs the recorded "
                          "%.2f cm, bound %.2f -- the constant is stale."
                          % (dd_max, MAGICC_DRAWDOWN_MAX_CM, DRAWDOWN_TOL_CM))
-    print("   %-8s %9s %9s %9s %9s %9s %9s %9s"
-          % ("marker", "H(FaIR)", "H(MAG)", "Hfl(MAG)", "S_eq<0", "R=1 FaIR", "R=1 MAG",
-             "MAG draw"))
+    ## ⚠ THE FaIR COLUMNS WERE COMPUTED AND NEVER PRINTED. `frac_blocks_Seq_negative` and
+    ## `headroom_floored_cm` have been written to the CSV for BOTH climates since this scope
+    ## was first run, but the table showed only MAGICC's -- so the question "how much of the
+    ## negative-equilibrium problem is in OUR OWN forcing?" read as unmeasured when it was
+    ## merely undisplayed. That is `recorded_but_never_restored`: a field a producer writes
+    ## and no reader consumes is invisible until someone needs the value. Both climates now
+    ## print, and the FLOORED headroom prints beside the raw one for FaIR as well, because
+    ## the difference between them IS the amount of regrowth that would go past 1850.
+    print("   %-8s %8s %8s %7s | %8s %8s %7s | %8s %8s %8s"
+          % ("marker", "H(FaIR)", "Hfl(FaIR)", "S_eq<0", "H(MAG)", "Hfl(MAG)", "S_eq<0",
+             "R=1 FaIR", "R=1 MAG", "MAG draw"))
     for mk in MARKERS:
         s2 = df[(df.marker == mk) & (df.year == 2300)]
         f = s2[s2.climate == "fair"].iloc[0]
         m = s2[s2.climate == "magicc"].iloc[0]
-        print("   %-8s %9.2f %9.2f %9.2f %8.0f%% %9.2f %9.2f %9.2f%s"
-              % (mk, f.headroom_cm, m.headroom_cm, m.headroom_floored_cm,
+        print("   %-8s %8.2f %8.2f %6.1f%% | %8.2f %8.2f %6.1f%% | %8.2f %8.2f %8.2f%s"
+              % (mk, f.headroom_cm, f.headroom_floored_cm,
+                 100 * f.frac_blocks_Seq_negative,
+                 m.headroom_cm, m.headroom_floored_cm,
                  100 * m.frac_blocks_Seq_negative, f.regrowth_R1_cm, m.regrowth_R1_cm,
                  dd[mk], "  *" if DECLINE[mk] else ""))
     print("   S_eq<0 = share of block x draw cells at 2300 whose equilibrium is below the")
-    print("   pre-industrial state on MAGICC's climate. MAG draw = MAGICC's own peak->2300")
+    print("   pre-industrial state, ON EACH CLIMATE. H - Hfl is the part of the headroom that")
+    print("   would regrow PAST 1850, i.e. what flooring S_eq costs a regrowth scheme.")
+    print("   MAG draw = MAGICC's own peak->2300")
     print("   drawdown over the reported horizons (max %.2f cm; recorded path peak %.2f)."
           % (dd_max, MAGICC_DRAWDOWN_MAX_CM))
     print("   splice check: worst |arm difference| at last_obs = %.1e cm (identity bound "
