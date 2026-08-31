@@ -73,7 +73,12 @@ Spearman vs PEAK **+0.93**, vs ENDPOINT **+0.64** — ⚠ **n = 7, a direction, 
 
 `--set=ssp|vv` on both `project_ssps_gsic_2300{,_mengel}.jl`; scenario list, output stem and spread
 pair all from one `SCEN_SETS` entry. Stem is `vv_gsic_2300`, NOT `ssps_gsic_2300_vv`. Drawn by
-`python/plot_vv_gsic_wr_vs_mengel.py` -> `figures/vv_gsic_wr_vs_mengel_2300.png`.
+`python/plot_vv_gsic_wr_vs_ladrillo.py` -> `figures/vv_gsic_wr_vs_ladrillo_2300.png`
+⚠ **SUPERSEDED WITHIN THE DAY (commit `da04f36`).** As first written this figure's second arm was
+`glaciers_mengel`/extA108 = **BRICK-AM, Ladrillo's predecessor, NOT Ladrillo** — see the newest
+CHANGELOG entry. The arm is now **Ladrillo L21** (3-reservoir `glaciers_nu3`) and both extA108
+arms are dropped. The commitment result below is the extA108 version and is kept only as the
+record of what was measured; the CORRECTED numbers are in the CHANGELOG..
 
 **THE REFACTOR IS PROVABLY INERT** — `--set=ssp` on both drivers reproduces all three committed SSP
 outputs **bit-identically**.
