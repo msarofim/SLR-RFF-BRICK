@@ -16,9 +16,17 @@ scope_glacier_equilibrium_L21{,_ladder}.csv`, `outputs/log_scope_glacier_equilib
 Every earlier statement compared Ladrillo evaluated at **FaIR's** temperature against MAGICC
 evaluated at **MAGICC's** — and MAGICC-SLR computes its own climate from the van Vuuren
 emissions, which is exactly the property that makes its agreement with the FaIR-driven arms
-non-circular. Extracting MAGICC's own GMST shows it is **colder at 2300 on all seven markers,
-by 0.12–0.96 K** (vvLN: MAGICC −0.67 K vs FaIR +0.29 K). The two models agree to ~2050 and
-diverge only on the decline. `like_for_like_forcing`, and it had inverted the reading.
+non-circular. Extracting MAGICC's own GMST shows it is **colder at 2300 on all four DECLINING
+markers, by 0.38–0.96 K** — and at vvLN (MAGICC −0.67 K vs FaIR +0.25 K) the two ensembles'
+5–95% ranges **do not overlap**. The models agree closely to ~2050 and diverge only on the
+decline. `like_for_like_forcing`, and it had inverted the reading.
+
+**⚠ Two FaIR statistics, and they are not interchangeable.** `fair_mean_gmst_*.csv` is the
+MEAN-CONFIG trajectory — what actually drives the module — while the 841-config cube median is
+the only column like-for-like with MAGICC's 600-member median. They differ by up to 0.4 K, and
+on the **rising** markers the sign of the MAGICC−FaIR difference flips between them (vvH: −0.12
+on mean-config, **+0.27** on ensemble medians). §1 prints both; no direction is claimed on the
+rising markers.
 
 `scope_glacier_regrowth.build_drivers` gained a `gmst_override` hook so Ladrillo's **unchanged**
 glacier module can be driven by another model's climate — one axis, everything else held.

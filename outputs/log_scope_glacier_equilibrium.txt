@@ -5,20 +5,30 @@ L21, 400 draws, arm=joint
 [PORT]  reconstruction vs shipped L21 glaciers median, vvVL: worst |diff| 0.454 cm @2096, bound 2.953 cm -> PASS
 
 ================================================================================================
-1. THE CLIMATE FORK — FaIR (drives Ladrillo/BRICK/FACTS) vs MAGICC's own
-   GMST, K rel 1850-1900, medians. Read this BEFORE any module attribution.
+1. THE CLIMATE FORK — FaIR (drives Ladrillo/BRICK/FACTS) vs MAGICC's own GMST,
+   K rel 1850-1900. Read this BEFORE any module attribution.
+   ⚠ TWO FaIR COLUMNS, DELIBERATELY. `cfg` is the MEAN-CONFIG trajectory -- the
+   one that actually drives the glacier reconstruction below, so it is the right
+   number for §2. `med` is the 841-config ENSEMBLE MEDIAN -- the only column that
+   is like-for-like with MAGICC's 600-member median. They differ by up to 0.4 K
+   and the SIGN of the MAGICC-FaIR difference depends on which one is used at the
+   rising markers, so quoting one statistic against the other is not safe.
 ================================================================================================
-                                  FaIR                     MAGICC
-   marker       2100     2150     2300     2100     2150     2300    d(2300)
-   vvVL         1.64     1.49     1.20     1.38     1.13     0.68      -0.52  *
-   vvLN         1.72     1.28     0.29     1.47     0.86    -0.67      -0.96  *
-   vvL          1.82     1.63     1.24     1.62     1.31     0.85      -0.39
-   vvML         2.35     1.95     0.55     2.22     1.65    -0.03      -0.58  *
-   vvM          2.88     3.61     4.29     2.82     3.52     3.88      -0.41
-   vvHL         2.86     2.32     1.38     2.68     2.04     0.89      -0.48  *
-   vvH          3.32     4.61     6.66     3.41     4.73     6.54      -0.12
-   * = peak-and-decline marker.  d(2300) = MAGICC - FaIR.
-   ⚠ MAGICC is colder at 2300 on EVERY marker, by 0.12-0.96 K.
+                            FaIR 2300               MAGICC 2300    MAGICC - FaIR
+   marker        cfg      med     [p05     p95]      med     [p05     p95]   on med
+   vvVL         1.20     1.09     0.65     2.14     0.68     0.40     1.34    -0.41  *
+   vvLN         0.29     0.25     0.03     0.65    -0.67    -1.25    -0.30    -0.93  *
+   vvL          1.24     1.16     0.72     2.06     0.85     0.53     1.54    -0.31
+   vvML         0.55     0.49     0.18     1.14    -0.03    -0.28     0.54    -0.52  *
+   vvM          4.29     4.00     2.66     6.90     3.88     2.72     6.12    -0.13
+   vvHL         1.38     1.28     0.76     2.38     0.89     0.55     1.76    -0.38  *
+   vvH          6.66     6.27     4.15    10.66     6.54     4.57     9.81     0.27
+   * = peak-and-decline marker. Bands are 5-95% of each model's own ensemble.
+   ⚠ THE DIVERGENCE IS SPECIFIC TO THE DECLINE. On the 4 declining markers MAGICC
+     is colder by 0.38-0.93 K on the ensemble-median basis (0.48-0.96 on mean-config).
+     On the 3 rising markers the difference is -0.31 to +0.27 K and its SIGN FLIPS
+     between the two FaIR statistics -- do not claim a direction there.
+   ⚠ At vvLN the two ensembles' 5-95% ranges DO NOT OVERLAP at 2300.
 
 ================================================================================================
 2. HEADROOM UNDER EACH CLIMATE — the controlled swap. Same posterior, same law,
@@ -93,9 +103,11 @@ L21, 400 draws, arm=joint
 ================================================================================================
 6. VERDICT
 ================================================================================================
-   1. THE MAGICC GLACIER GAP IS FIRST OF ALL A CLIMATE GAP. MAGICC's own 2300
-      GMST is 0.12-0.96 K COLDER than FaIR's on the SAME emissions, and colder on
-      every one of the seven markers. Driving Ladrillo's UNCHANGED glacier module
+   1. THE MAGICC GLACIER GAP IS FIRST OF ALL A CLIMATE GAP. On the four DECLINING
+      markers -- the only ones where a drawdown is even possible -- MAGICC's own
+      2300 GMST is 0.38-0.93 K COLDER than FaIR's on the SAME emissions (ensemble
+      medians; the two ensembles' 5-95% ranges do not even overlap at vvLN).
+      Driving Ladrillo's UNCHANGED glacier module
       with MAGICC's own climate raises its worst equilibrium headroom at 2300 from
       2.40 cm to 16.28 cm (6.8x), or 9.97 cm with S_eq floored at pre-industrial.
       The earlier '4x too small' compared a bound computed at FaIR's temperature
@@ -128,7 +140,7 @@ L21, 400 draws, arm=joint
       regrowth may exceed melt. That is the next thing to scope, and it is the
       kappa/nu pair, not (a, b, T_off).
    ⚠ NOT SCOPED HERE: whether MAGICC's colder 2300 is right. It is a CLIMATE
-      question (0.96 K at vvLN) and it now carries the glacier comparison, so it
+      question (0.93 K at vvLN) and it now carries the glacier comparison, so it
       deserves its own check against the FaIR calib 1.6.0 forcing before any of
       this is used to argue Ladrillo's glacier module is missing a mechanism.
 

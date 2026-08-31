@@ -92,6 +92,9 @@ BLOCK_CONSTANTS = "outputs/extc_block_constants.csv"
 BLOCK_DRIVERS = "data/observations/t_glac_blocks.csv"
 CMP_CSV = "outputs/vv_model_comparison_%s.csv" % TAG
 MAGICC_GMST = "data/comparison/magicc_gmst_vv.csv"
+## the 841-config marker cube -- the only FaIR column that is like-for-like with MAGICC's
+## 600-member median. The mean-config file is what DRIVES the module, so both are shown.
+FAIR_CUBE = "data/observations/fair_cube_gmst_%s_raw.csv"
 OUT = os.path.join(REPO, "outputs/scope_glacier_equilibrium_%s.csv" % TAG)
 OUT_L = OUT.replace(".csv", "_ladder.csv")
 W = 96
@@ -281,28 +284,49 @@ def main():
 
     # =====================================================================================
     print("\n" + "=" * W)
-    print("1. THE CLIMATE FORK — FaIR (drives Ladrillo/BRICK/FACTS) vs MAGICC's own")
-    print("   GMST, K rel 1850-1900, medians. Read this BEFORE any module attribution.")
+    print("1. THE CLIMATE FORK — FaIR (drives Ladrillo/BRICK/FACTS) vs MAGICC's own GMST,")
+    print("   K rel 1850-1900. Read this BEFORE any module attribution.")
+    print("   ⚠ TWO FaIR COLUMNS, DELIBERATELY. `cfg` is the MEAN-CONFIG trajectory -- the")
+    print("   one that actually drives the glacier reconstruction below, so it is the right")
+    print("   number for §2. `med` is the 841-config ENSEMBLE MEDIAN -- the only column that")
+    print("   is like-for-like with MAGICC's 600-member median. They differ by up to 0.4 K")
+    print("   and the SIGN of the MAGICC-FaIR difference depends on which one is used at the")
+    print("   rising markers, so quoting one statistic against the other is not safe.")
     print("=" * W)
-    print("   %-8s %26s %26s" % ("", "FaIR", "MAGICC"))
-    print("   %-8s %8s %8s %8s %8s %8s %8s %10s" % ("marker", "2100", "2150", "2300",
-                                                    "2100", "2150", "2300", "d(2300)"))
-    dT = {}
+    print("   %-8s %25s %25s %16s" % ("", "FaIR 2300", "MAGICC 2300", "MAGICC - FaIR"))
+    print("   %-8s %8s %8s %8s %8s %8s %8s %8s %8s"
+          % ("marker", "cfg", "med", "[p05", "p95]", "med", "[p05", "p95]", "on med"))
+    dT, dT_cfg, disjoint = {}, {}, []
     for mk in MARKERS:
-        pm = per_marker[mk]
-        yrs = pm["years"]
-        gf = pd.read_csv(_p(sg.GMST_MEAN % mk))
-        gv = gf.set_index("year").gmst_C
-        gv = gv - gv.loc[sg.DRIVER_BASE[0]:sg.DRIVER_BASE[1]].mean()
-        f = [float(gv.loc[y]) for y in HORIZONS]
-        m = [float(mg[mk].loc[y]) for y in HORIZONS]
-        dT[mk] = m[-1] - f[-1]
-        print("   %-8s %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f %10.2f%s"
-              % (mk, f[0], f[1], f[2], m[0], m[1], m[2], dT[mk],
-                 "  *" if DECLINE[mk] else ""))
-    print("   * = peak-and-decline marker.  d(2300) = MAGICC - FaIR.")
-    print("   ⚠ MAGICC is colder at 2300 on EVERY marker, by %.2f-%.2f K."
-          % (-max(dT.values()), -min(dT.values())))
+        gf = pd.read_csv(_p(sg.GMST_MEAN % mk)).set_index("year").gmst_C
+        gf = gf - gf.loc[sg.DRIVER_BASE[0]:sg.DRIVER_BASE[1]].mean()
+        cube = pd.read_csv(_p(FAIR_CUBE % mk)).set_index("year")
+        cube = cube - cube.loc[sg.DRIVER_BASE[0]:sg.DRIVER_BASE[1]].mean()
+        v = cube.loc[2300].values
+        fmed, flo, fhi = np.median(v), np.percentile(v, 5), np.percentile(v, 95)
+        g = mg[mk]
+        mrow = pd.read_csv(_p(MAGICC_GMST))
+        mrow = mrow[(mrow.scenario == mk) & (mrow.year == 2300)].iloc[0]
+        dT[mk] = float(mrow["med"]) - float(fmed)
+        dT_cfg[mk] = float(mrow["med"]) - float(gf.loc[2300])
+        if float(mrow.p95) < flo or float(mrow.p05) > fhi:
+            disjoint.append(mk)
+        print("   %-8s %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f%s"
+              % (mk, gf.loc[2300], fmed, flo, fhi, mrow["med"], mrow.p05, mrow.p95,
+                 dT[mk], "  *" if DECLINE[mk] else ""))
+    print("   * = peak-and-decline marker. Bands are 5-95% of each model's own ensemble.")
+    dec = [m for m in MARKERS if DECLINE[m]]
+    rise = [m for m in MARKERS if not DECLINE[m]]
+    print("   ⚠ THE DIVERGENCE IS SPECIFIC TO THE DECLINE. On the %d declining markers MAGICC"
+          % len(dec))
+    print("     is colder by %.2f-%.2f K on the ensemble-median basis (%.2f-%.2f on mean-config)."
+          % (-max(dT[m] for m in dec), -min(dT[m] for m in dec),
+             -max(dT_cfg[m] for m in dec), -min(dT_cfg[m] for m in dec)))
+    print("     On the %d rising markers the difference is %+.2f to %+.2f K and its SIGN FLIPS"
+          % (len(rise), min(dT[m] for m in rise), max(dT[m] for m in rise)))
+    print("     between the two FaIR statistics -- do not claim a direction there.")
+    print("   ⚠ At %s the two ensembles' 5-95%% ranges DO NOT OVERLAP at 2300."
+          % (", ".join(disjoint) if disjoint else "no marker"))
 
     # =====================================================================================
     print("\n" + "=" * W)
@@ -437,10 +461,14 @@ def main():
     ratio_h = Hm / Hf if Hf > 1e-9 else float("nan")
     phi100 = df[(df.year == 2100) & (df.climate == "fair")].saturation_S_over_Seq
     phi300 = df[(df.year == 2300) & (df.climate == "fair")].saturation_S_over_Seq
-    print("   1. THE MAGICC GLACIER GAP IS FIRST OF ALL A CLIMATE GAP. MAGICC's own 2300")
-    print("      GMST is %.2f-%.2f K COLDER than FaIR's on the SAME emissions, and colder on"
-          % (-max(dT.values()), -min(dT.values())))
-    print("      every one of the seven markers. Driving Ladrillo's UNCHANGED glacier module")
+    dec = [m for m in MARKERS if DECLINE[m]]
+    print("   1. THE MAGICC GLACIER GAP IS FIRST OF ALL A CLIMATE GAP. On the four DECLINING")
+    print("      markers -- the only ones where a drawdown is even possible -- MAGICC's own")
+    print("      2300 GMST is %.2f-%.2f K COLDER than FaIR's on the SAME emissions (ensemble"
+          % (-max(dT[m] for m in dec), -min(dT[m] for m in dec)))
+    print("      medians; the two ensembles' 5-95%% ranges do not even overlap at %s)."
+          % (", ".join(disjoint) if disjoint else "no marker"))
+    print("      Driving Ladrillo's UNCHANGED glacier module")
     print("      with MAGICC's own climate raises its worst equilibrium headroom at 2300 from")
     print("      %.2f cm to %.2f cm (%.1fx), or %.2f cm with S_eq floored at pre-industrial."
           % (Hf, Hm, ratio_h, Hmfl))
