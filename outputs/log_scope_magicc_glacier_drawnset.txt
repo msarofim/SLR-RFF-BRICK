@@ -1,0 +1,37 @@
+[SOURCE] magicc-ar6-0fd0f62-f023edb-drawnset_with_slr.json
+         600 members, all carrying the glacier keys
+[SHARED-AXIS] one grid, 104 points, 0.0 to 10.3 K, step 0.10 K, min entry 0.0 -- NEGATIVE DOMAIN: NO
+
+THE 15 EQUILIBRIUM CURVES, mm of glacier SLR at equilibrium (sorted by S_eq(0 K))
+GCM tune                        S_eq(0K)  S_eq(1K)  S_eq(2K)  S_eq(3K) S_eq(10.3K)  monotone
+SLR_GL_PARAMS_MPIESMLR.IN           27.6     161.0     227.4     277.8       355.9  True
+SLR_GL_PARAMS_BCCCSM11.IN           30.6     163.2     259.9     317.2       425.6  True
+SLR_GL_PARAMS_CCSM4.IN              38.2     173.9     242.5     290.5       384.6  True
+SLR_GL_PARAMS_MIROCESM.IN           56.1     175.4     262.2     315.9       401.2  True
+(no xtraparams key)                 56.5     156.1     190.2     240.1       366.5  False
+SLR_GL_PARAMS_GISSE2R.IN            69.9     184.6     259.4     304.3       362.2  True
+SLR_GL_PARAMS_MRICGCM3.IN           71.9     191.4     256.7     306.3       370.1  True
+SLR_GL_PARAMS_IPSLCM5ALR.IN         84.3     206.7     297.2     355.0       431.0  True
+SLR_GL_PARAMS_NORESM1M.IN           90.9     233.5     310.8     362.2       428.7  True
+SLR_GL_PARAMS_MIROC5.IN            103.4     238.7     317.4     366.4       428.2  True
+SLR_GL_PARAMS_CNRMCM5.IN           103.9     235.2     309.5     355.6       444.5  True
+SLR_GL_PARAMS_CANESM2.IN           112.3     231.5     307.4     344.6       439.6  True
+SLR_GL_PARAMS_GFDLCM3.IN           116.9     251.8     324.2     360.7       425.6  True
+SLR_GL_PARAMS_CSIROMK360.IN        119.5     200.4     249.6     302.8       450.6  True
+SLR_GL_PARAMS_HADGEM2ES.IN         135.9     261.3     319.0     361.3       438.3  True
+
+S_eq(0 K) spans 27.6-135.9 mm -- a POSITIVE committed loss at ZERO warming, so
+MAGICC's glacier drawdown is bounded below by that floor and cannot pass it.
+⚠ 1 curve(s) NON-MONOTONE in T: (no xtraparams key). These are also the members with no file_slr_gl_xtraparams key (39 of 600). Reported, not repaired -- it is the shipped drawnset.
+
+THE OTHER GLACIER PARAMETERS -- how much spread MAGICC's glacier band carries
+  slr_gl_sens_mmpyrdeg      15 distinct value(s) across 600 members
+  slr_gl_temp_exponent      15 distinct value(s) across 600 members
+  slr_gl_equitemp            1 distinct value(s) across 600 members
+  slr_ais_sid_basalmelt    600 distinct  (for contrast: a continuously sampled term)
+  slr_expansion_scaling    600 distinct  (for contrast: a continuously sampled term)
+
+READING. MAGICC's glacier band carries 15 DISCRETE CMIP5 GCM tunes, not a continuous
+posterior -- the same KIND of object as an inter-model spread -- while the AIS
+basal-melt and thermal-expansion terms in the SAME drawnset take 600 distinct
+values each. A width comparison against our glacier band should say so.
