@@ -3,6 +3,73 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
+## 2026-08-31 (latest) — the 2-model van Vuuren comparison, and the statistic that changes its headline
+
+`python/vv_model_comparison.py` — the SIBLING script the previous entry called for, NOT a flag on
+`ladrillo_model_comparison.py`. That one compares four sources on three SSPs; this one compares two
+sources on seven markers, and merging them would let a van Vuuren run emit empty FACTS / MAGICC
+columns that read as "no data" when the truth is "not drivable". The reason each of the two
+un-drivable sources is absent is printed in the banner, not buried in a docstring.
+
+Both models are on their OWN joint arm over the SAME cubes, so unlike the SSP table every width
+here is like-for-like. That is **proved, not asserted**: the gate compares the two drivers'
+`draw -> config` permutations element-wise and refuses to report a marker whose arms saw different
+forcing subsets. Four mutations were run against the gates (gates file deleted / a verdict flipped
+to CHECK / the CONTROL row removed / one config id altered) and all four were caught.
+
+### ⚠ THE PATH-DEPENDENCE HEADLINE DOES NOT SURVIVE AS A DIFFERENCE OF MEDIANS
+
+The previous entry reported High-to-Low EXCEEDING High at 2100 by **+3.02 cm**, from BRICK 2.0. The
+Ladrillo runs finished after that was written, and on medians Ladrillo says the OPPOSITE: **-4.90 cm**.
+
+The disagreement is **the statistic, not the models**. Both markers run over the same
+`PAIR_SEED = 2026` permutation, so draw k is the same posterior draw under the same FaIR config in
+both files and the difference is PAIRED. Clustering to the 841 configs:
+
+| component @2100 | Ladrillo paired | BRICK 2.0 paired | Lad median | B20 median |
+|---|---|---|---|---|
+| ais   | **+0.537 ± 0.110** | **+1.237 ± 0.173** | −6.47 | +3.01 |
+| te    | **−0.745 ± 0.028** | **−0.699 ± 0.028** | −0.94 | −0.98 |
+| total | −0.254 ± 0.158 | +0.642 ± 0.195 | −4.90 | +2.62 |
+
+* **AIS is POSITIVE in both models, at 4.9σ and 7.1σ** — High-to-Low's EARLIER warming leaves more
+  ice-sheet response at 2100 even though it ends 5.3 K cooler. The path-dependence signal is real
+  and **replicates across two independent ice-sheet modules**, which is more than the median
+  version ever claimed.
+* **TE is negative in both and nearly identical between them** (they share the OHC forcing).
+* **TOTAL is the small residual of two larger opposing terms, so its sign is model-dependent** and
+  must not be quoted as a headline. The robust claim is the COMPONENT SPLIT, not the net.
+* The median fails here because Ladrillo's AIS is a tipping distribution and q50 lands in the
+  sparse valley between its modes: **q25 = −0.32, q50 = −6.47, q60 = −0.25 cm**. A 6 cm excursion
+  bracketed by 0.3 cm either side is the median falling into a hole in the density
+  (`median_needs_agreement`, `spread_blind_to_its_own_tail`). Tipping fractions say the same thing
+  directly: Ladrillo AIS@2100 > 30 cm in **30.1%** of High-to-Low draws vs **24.2%** of High.
+* At 2150 and 2300 every component is strongly negative in both models. **2100 is the only horizon
+  where the timing contrast can be read at all**; past that the endpoint gap dominates.
+
+### The cool-scenario under-dispersion, replicated on seven points
+
+Ladrillo/BRICK 2.0 p05-p95 width ratio, total: **0.26-0.34 at the three cool-peaking markers,
+0.67-0.83 at the mid ones, 0.95-1.17 at Medium and High**. A monotone gradient where the SSP set
+gave three points. Componentwise it is **almost entirely AIS** (0.06-0.12 cool vs 0.63-1.06 warm);
+TE is flat at 0.79-1.02 across all seven and glaciers at 0.96-1.09 by 2100.
+
+Spearman of the ratio against PEAK warming **+0.93**, against ENDPOINT **+0.64**. ⚠ **n = 7 — a
+direction to check, NOT a test.** Recorded because the SSP set cannot pose the question: there peak
+and endpoint are near-monotonically related, while van Vuuren's four decline pathways separate them
+by up to ~2 K.
+
+### Pre-existing, found here, not fixed here
+
+`fair_mean_*.csv` carries a **2301** row that the per-config cube does not — the builder's
+`END_YEAR = 2301` / `CUBE_LAST_YEAR = 2300` doing exactly what it documents (FaIR timebounds run one
+past the last timepoint). Identical on the SSP means, so not a van Vuuren defect. But 2300 is the
+ratified end year, and Medium and High are still rising at the end, so an unclamped peak search
+reports "peak @2301". This script clamps to 2300; the asymmetry itself is untouched.
+
+Still open from the previous entry: the `ais @2300` CONTROL exceedance (−0.518 cm vs a 0.5 cm
+tolerance), and the five `[MARCUS —]` placeholders in the model document.
+
 ## 2026-08-31 (later) — VAN VUUREN CUBES, and the "drive all 4 models" premise
 
 Marcus asked for van Vuuren GMST/OHC cubes, a stochastic decision made on the merits rather than
