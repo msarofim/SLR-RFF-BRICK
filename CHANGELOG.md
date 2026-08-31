@@ -3,7 +3,82 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## 2026-08-31b (latest) — the glacier gap is a CLIMATE gap: MAGICC is up to 0.96 K colder at 2300
+## 2026-08-31c (latest) — Ladrillo on MAGICC's climate: TE is the climate, AIS is the module, Greenland is OPPOSED
+
+**The arm the previous handoff scoped as ⭐ is run.** 24 runs of Ladrillo L21 with its posterior,
+tap, draws and modules held FIXED and only the driving climate swapped to MAGICC's 600-member
+ensemble. `julia/scope_slr_fair_uncertainty.jl --climate=magicc` →
+`python/scope_ladrillo_on_magicc_climate.py` → `outputs/scope_ladrillo_on_magicc_climate.csv`.
+
+### The design decision was made, not assumed
+
+Marcus 2026-08-31: **SPLICED primary, RAW as check; Ladrillo only**, not the four-model version.
+Before asking, the quantity the choice turns on was measured — the previous handoff said nobody
+had. GMST over 1850-2014: MAGICC's ensemble median is **+0.105 K rms above** our driver, **+0.143 K
+at 2014**, eleven times the 0.01 K we quote to. **The difference is not a scalar shift**: MAGICC is
+*warmer over the history* and *0.38–0.93 K colder at 2300* on the declining markers. On OHC,
+removing the 1995-2014 mean difference the TE module re-references on still leaves a **6.9e22 J rms**
+residual — Track C's constant-offset cancellation does not make the two histories equal.
+
+### The gap is MODULE or CLIMATE depending on the component
+
+| component | CLIMATE | BOTH | MODULE | OPPOSED | OVERSHOOT | AGREE |
+|---|---|---|---|---|---|---|
+| **te** | **24** | 0 | 0 | 0 | 4 | 2 |
+| **ais** | 2 | 7 | **17** | 2 | 0 | 2 |
+| **gis** | 1 | 3 | 10 | **10** | 2 | 4 |
+| glaciers | 2 | 3 | **13** | 10 | 1 | 1 |
+| total | 1 | 1 | 3 | 4 | **13** | 8 |
+
+Thermal expansion is the climate, essentially entirely (28 of 30 cells; module residual < 5 cm).
+Antarctica is not — at ssp585/2300 the gap is **445.7 cm** and the climate accounts for **7 %** of
+it. Greenland is **OPPOSED**: swapping to MAGICC's climate moves it the *wrong way*, so the module
+gap is *larger* than the raw gap and the climate difference had been partly masking it.
+
+**⚠ The total agrees by CANCELLATION.** vvHL/2300: total gap **6.8 cm** against a climate term of
+**−18.5** and a module term of **+25.2**. A Ladrillo-vs-MAGICC comparison quoted on totals alone
+reports agreement where none exists — quote the component split.
+
+### The injection convention is worth ~nothing except through AIS
+
+Spliced minus raw is **exactly 0.00 cm** for TE, glaciers and LWS, **≤0.16 cm** for Greenland
+outside one cell, and **all of it lands in Antarctica**: −10.4 cm at vvM/2300 and **−42.7 cm at
+ssp245/2300**, a threshold crossing shifting year rather than smooth propagation. So the choice is
+immaterial for three of five components and decisive for one.
+
+### Three new gates, all mutation-tested on the real driver
+
+`[CLIMATE-SOURCE]` (frame shift caught at 3.0e-01 K vs a 1e-9 bound; dropped member caught),
+`[SPLICE-IDENTITY]` (splicing at 1980 while the gate stayed on 2014 caught at 8.6e-01 cm), and
+`[OHC-OFFSET]` — the previous handoff's "re-verify on L21, don't inherit". It cancels, and its
+**power was measured**: scaling OHC by 1.01 instead of adding a constant moves sea level 0.305 cm,
+so the null is a looked-and-found-nothing rather than a structural zero.
+
+⚠ `[SPLICE-IDENTITY]`'s reach came from a mechanism written down wrong and corrected by the
+mutation: `ladrillo_series` re-references to 1995-2014, so a mutant changing forcing inside that
+window moved the arms apart at **1850**, not 1981.
+
+### Tried and corrected along the way
+
+- **Read the wrong drawnset first.** `MAGICC/drawnset/…-drawnset.json` carries only
+  `SLR_EXPANSION` and would have supported "MAGICC samples no glacier uncertainty at all". The run
+  loads a `_with_slr` variant with 41 SLR keys. The gate now discriminates on the glacier keys, not
+  the filename. What the right file shows: a tabulated `S_eq(T)` on a **0.0–10.3 K** grid with **no
+  negative domain**, 15 CMIP5 GCM tunes ⇒ the **Nauels 2017** parameter family, so the 2025 run is
+  not a new-generation glacier module (partially closes an inherited open item).
+- **`[ARM-MATCH]` hardcoded to 8000 draws, abandoned.** ssp126 and ssp245 comparators carry 2000.
+  The gate now derives the expectation per scenario from the comparator's own file, and those two
+  scenarios were re-run at 500/chain.
+- **First queue script used `wait -n`**, which macOS bash 3.2 lacks; it launched all 20 runs at
+  once and was killed. The replacement polls `pgrep -f … | wc -l`. A second script used `pgrep -fc`,
+  also not a valid macOS flag, and ran 4 concurrently instead of 2 — harmless at that draw count.
+
+**Not done, deliberately:** whether MAGICC's colder decline is *right* is untouched, and it now
+carries an AIS and a Greenland conclusion as well as a glacier one. The reverse arm (FaIR's climate
+into MAGICC-SLR) is **IMPOSSIBLE**, not merely unbuilt.
+
+
+## 2026-08-31b — the glacier gap is a CLIMATE gap: MAGICC is up to 0.96 K colder at 2300
 
 **The previous scope closed the melt-only clamp question (worth ≤ 0.24 cm) and handed forward
 a guess: that MAGICC-SLR's 8.5 cm glacier drawdown and Ladrillo's low 2100 glacier level were
