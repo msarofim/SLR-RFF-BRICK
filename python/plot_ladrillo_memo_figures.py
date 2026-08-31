@@ -87,13 +87,27 @@ FIGSTEM      = f"ladrillo_{LADRILLO_TAG}{ARM_TAG}"
 ## cannot say which model it is is worse than no figure. The ARM is appended from the
 ## same GIS_TAP_CELL the filename is built from, so a title cannot disagree with the
 ## file it came from.
+## ⚠ THE REGISTRY IS THE POINT, NOT AN OBSTACLE. The guard below refuses an unknown tag
+## rather than stamping a figure with a vintage nobody declared -- that is the
+## labels-from-named-constants rule doing its job, and it is why --tag=L21 raised for as
+## long as it did (an inherited open item across several handoffs). The fix is to DECLARE
+## the tag, never to relax the guard. Descriptions are sourced, not invented: L15-L20 are
+## superseded and deliberately absent, so asking for one still raises.
 TAG_DESC = {"L10": "Ladrillo 1.0 (L10)",
             "L11": "Ladrillo L11 (D1: no total; D2: gsic+steric discrepancy)",
             "L12": "Ladrillo L12 (ordered Greenland channels, whole sheet)",
-            "L14": "Ladrillo L14 (two-basin Greenland)"}
+            "L14": "Ladrillo L14 (two-basin Greenland)",
+            # champion since 2026-08-28 (memory INDEX_slr); melt-only glacier ratchet.
+            "L21": "Ladrillo L21 (calib 1.6.0 + CMIP7, melt-only glacier ratchet)",
+            # 2026-08-31 refit: L21's parameter structure exactly -- verified identical
+            # chain headers -- with the glacier ratchet replaced by a FLOORED equilibrium
+            # and bounded regrowth at R = 1. The only axis that moved is the glacier law.
+            "L23": "Ladrillo L23 (L21 + floored glacier equilibrium, bounded regrowth)"}
 if LADRILLO_TAG not in TAG_DESC:
-    raise SystemExit(f"undeclared --tag={LADRILLO_TAG}: add it to TAG_DESC so the "
-                     "figure titles say what the vintage is")
+    raise SystemExit(f"undeclared --tag={LADRILLO_TAG}: add it to TAG_DESC so the figure "
+                     f"titles say what the vintage is. Declared: "
+                     f"{', '.join(sorted(TAG_DESC))}. Do NOT relax this guard -- an "
+                     f"undeclared tag would be stamped with someone else's vintage.")
 VINTAGE = TAG_DESC[LADRILLO_TAG] + (
     f", tap {gis_targets.tap_cell_label()}" if TAPPED else ", NO TAP (base Greenland)")
 SOURCE_COLOR = {"Ladrillo": "#2166ac", "BRICK 2.0": "#7f7f7f",
