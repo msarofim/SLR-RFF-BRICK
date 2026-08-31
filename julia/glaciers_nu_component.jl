@@ -16,7 +16,19 @@
 ## Conventions (documented decisions, 2026-08-07):
 ##   * POSITIVE-PART CLAMP: melt-only ratchet — no regrowth on these timescales
 ##     (accumulation-limited asymmetry). Nauels 2017 states no convention; a
-##     non-integer ν forces a choice. Only binds under strong-cooling scenarios.
+##     non-integer ν forces a choice.
+##     ⚠ IT IS NOT A DORMANT CONVENTION — corrected 2026-08-31, the original
+##     "only binds under strong-cooling scenarios" was written when the SSPs
+##     were the only scenario family. On the van Vuuren markers it binds on 4
+##     of 7, and it binds inside the HINDCAST for SLOWP and FAST. It is
+##     nonetheless still worth keeping, on PRICE rather than on dormancy:
+##     removing it entirely (symmetric relaxation) moves 2300 by ≤ 0.24 cm and
+##     2100/2150 by exactly zero on every marker, while shifting the in-scope
+##     hindcast by 0.014 cm = 3% of the gsic target's median 1σ — active but
+##     invisible, so a regrowth rate could not be fitted here in any case.
+##     Under MAGICC's own (colder) climate the same bound rises to ~10 cm, so
+##     the price is a statement about OUR forcing, not about the law.
+##     python/scope_glacier_regrowth.py, python/scope_glacier_equilibrium.py.
 ##   * ν = 0 recovers single-τ Mengel EXACTLY with κ = 1/τ (0^0 = 1 in Julia, so
 ##     the ν=0 limit relaxes BOTH ways — the nested-model reference arm).
 ##   * step multiplier capped at 1: a step never overshoots equilibrium.

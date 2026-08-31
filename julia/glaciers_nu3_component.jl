@@ -4,7 +4,10 @@
 # + build_extc_inputs.py (constants). Marcus green-light 2026-08-09.
 #
 # Per-reservoir law (identical to glaciers_nu, replicated per block; the python
-# reference is integrate_N in d0_glacier_shootout.py):
+# reference is integrate_N in d0_glacier_shootout.py). The CONVENTIONS block in
+# glaciers_nu_component.jl governs this module too — including the corrected
+# note on the positive-part clamp (it binds on 4 of 7 van Vuuren markers and in
+# the hindcast; it is kept on price, ≤ 0.24 cm at 2300, not on dormancy):
 #   S_eq,b = a_b (1 − exp(−b_b (T_b − T_off_b)))
 #   dS_b   = min(κ_b exc^ν_b, 1) (S_eq,b − S_b),  exc = T_b − T_eq(S_b)
 # with LAGGED per-block drivers T_b[t−1] (frame: glacier-area K rel 1850–1900,

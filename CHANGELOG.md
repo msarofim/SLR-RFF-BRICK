@@ -3,7 +3,84 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## 2026-08-31 (latest) — all four bands drawn, and the "not drivable" claim withdrawn
+## 2026-08-31b (latest) — the glacier gap is a CLIMATE gap: MAGICC is up to 0.96 K colder at 2300
+
+**The previous scope closed the melt-only clamp question (worth ≤ 0.24 cm) and handed forward
+a guess: that MAGICC-SLR's 8.5 cm glacier drawdown and Ladrillo's low 2100 glacier level were
+one finding in the Mengel-2016 equilibrium curve. Neither half survives.** `python/
+scope_glacier_equilibrium.py` (+ `python/extract_magicc_vv_gmst.py`) → `outputs/
+scope_glacier_equilibrium_L21{,_ladder}.csv`, `outputs/log_scope_glacier_equilibrium.txt`.
+
+### ⚠ The comparison was never like-for-like
+
+Every earlier statement compared Ladrillo evaluated at **FaIR's** temperature against MAGICC
+evaluated at **MAGICC's** — and MAGICC-SLR computes its own climate from the van Vuuren
+emissions, which is exactly the property that makes its agreement with the FaIR-driven arms
+non-circular. Extracting MAGICC's own GMST shows it is **colder at 2300 on all seven markers,
+by 0.12–0.96 K** (vvLN: MAGICC −0.67 K vs FaIR +0.29 K). The two models agree to ~2050 and
+diverge only on the decline. `like_for_like_forcing`, and it had inverted the reading.
+
+`scope_glacier_regrowth.build_drivers` gained a `gmst_override` hook so Ladrillo's **unchanged**
+glacier module can be driven by another model's climate — one axis, everything else held.
+
+* Worst equilibrium headroom at 2300: **2.40 cm on FaIR's climate → 16.28 cm on MAGICC's**
+  (6.8×), or **9.97 cm** with `S_eq` floored at the pre-industrial state.
+* Floored, the bound now **covers MAGICC's own drawdown on the two largest** (vvLN 9.97 vs
+  8.54; vvML 6.57 vs 6.25) and still falls short on vvVL, vvL, vvHL.
+* What remains is a **rate** gap: symmetric relaxation, the fastest this law allows, delivers
+  2.94 cm against 8.54. Matching MAGICC needs regrowth FASTER than melt, which a shared-κ
+  form cannot express at any asymmetry — structural, not miscalibrated.
+
+**⚠ `S_eq` goes NEGATIVE below `T_off`** — 48% of block × draw cells at vvLN/2300 on MAGICC's
+climate — i.e. regrowth *past* the 1850 state. The exponential permits it; nothing we
+calibrated against speaks to it (the rungs start at +1.2 K). Both bounds are therefore
+reported, raw and floored, and only the floored one is used to argue.
+
+### The curve is HIGH against its own external anchor, not low
+
+First check of the committed ladder on the **posterior** (the four-rung fit only set priors,
+and the MCMC moved `b` and `T_off` a long way). **0 of 4 GlacierMIP3 rungs outside the likely
+range**, and the posterior sits *above* the central at every rung: **49/57/67/80 %** vs
+37/46/63/76. Adding the shipped driver offset (`as_run` frame) changes nothing. Lowering
+`S_eq` is not indicated.
+
+### The 2100 level is rate-limited
+
+Saturation `S/S_eq` at 2100 is **0.53–0.57**; the instant-equilibrium ceiling sits **11.0–13.6 cm**
+above the shipped median against a largest comparator gap of **4.31 cm**. The curve cannot be
+what holds 2100 down — there is 3× more room in the approach than the whole gap needs.
+Independent cross-check: the single-reservoir Mengel arm reported 62% realised-of-committed at
+2100 on a different structure.
+
+⇒ **Both gaps live in the RATE law (κ, ν), not in (a, b, T_off)**, and they are still two
+findings, not one. Next: whether MAGICC's colder 2300 is *right* — that is now a climate
+question carrying a glacier comparison, and it deserves its own check against calib 1.6.0.
+
+**Extrapolation, reported for both ends:** the rungs span 1.2–3.0 K, and 51% of vvLN's FaIR
+projection years (64% of its MAGICC ones) sit *below* 1.2 K. The drawdown question lives
+almost entirely outside the span the curve was fitted on.
+
+### Two gates, and one that fired usefully
+
+* `[SPLICE]` — an **identity** bound (1e-9 cm), because the re-anchored override leaves the two
+  arms bit-identical through `last_obs`. Its first version substituted the GMST *level* and
+  fired at **0.137 cm**: a pre-1850 frame offset leaking through the projection formula into a
+  comparison meant to be about the future. Fixed by transplanting the **anomaly**, not the level.
+* `[DRAWDOWN]` — the MAGICC drawdown is recomputed from the comparison table and asserted
+  against the recorded 8.58 cm, so a stale constant cannot pass as agreement.
+* **Coverage counting excludes markers with no drawdown.** Counting them turned 2-of-5 into
+  4-of-7 — a pass manufactured out of cells the question does not apply to.
+
+### Abandoned / not done
+
+* Did **not** add glacier regrowth. Both scopes now agree it is not indicated on our forcing.
+* Did **not** re-fit the equilibrium curve: §3 says the anchor does not ask for it.
+* **Fixed the stale comment instead** (open item 5 of the 08-31e handoff):
+  `glaciers_nu_component.jl`'s "only binds under strong-cooling scenarios" is corrected — it
+  binds on 4 of 7 markers and in the hindcast, and the clamp is kept on **price**, not on
+  dormancy. `glaciers_nu3_component.jl` now points at that block explicitly.
+
+## 2026-08-31 — all four bands drawn, and the "not drivable" claim withdrawn
 
 **Marcus asked whether we had not already built the arms that make our bands comparable to
 MAGICC and FACTS. We had, on 2026-08-30, and the figure below was suppressing three of the

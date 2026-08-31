@@ -1,0 +1,136 @@
+scope_glacier_equilibrium — is the S_eq CURVE the seat of the glacier gaps?
+SCOPING ONLY: no model file is changed and nothing is wired in.
+L21, 400 draws, arm=joint
+
+[PORT]  reconstruction vs shipped L21 glaciers median, vvVL: worst |diff| 0.454 cm @2096, bound 2.953 cm -> PASS
+
+================================================================================================
+1. THE CLIMATE FORK — FaIR (drives Ladrillo/BRICK/FACTS) vs MAGICC's own
+   GMST, K rel 1850-1900, medians. Read this BEFORE any module attribution.
+================================================================================================
+                                  FaIR                     MAGICC
+   marker       2100     2150     2300     2100     2150     2300    d(2300)
+   vvVL         1.64     1.49     1.20     1.38     1.13     0.68      -0.52  *
+   vvLN         1.72     1.28     0.29     1.47     0.86    -0.67      -0.96  *
+   vvL          1.82     1.63     1.24     1.62     1.31     0.85      -0.39
+   vvML         2.35     1.95     0.55     2.22     1.65    -0.03      -0.58  *
+   vvM          2.88     3.61     4.29     2.82     3.52     3.88      -0.41
+   vvHL         2.86     2.32     1.38     2.68     2.04     0.89      -0.48  *
+   vvH          3.32     4.61     6.66     3.41     4.73     6.54      -0.12
+   * = peak-and-decline marker.  d(2300) = MAGICC - FaIR.
+   ⚠ MAGICC is colder at 2300 on EVERY marker, by 0.12-0.96 K.
+
+================================================================================================
+2. HEADROOM UNDER EACH CLIMATE — the controlled swap. Same posterior, same law,
+   same clamp, same draws; only the driving temperature changes. cm at 2300.
+   H = S - S_eq bounds any regrowth scheme; H(floor) re-derives it with S_eq
+   floored at the pre-industrial state, since a negative S_eq means regrowth
+   PAST 1850 and nothing we calibrated against speaks to that.
+================================================================================================
+   marker     H(FaIR)    H(MAG)  Hfl(MAG)    S_eq<0  R=1 FaIR   R=1 MAG  MAG draw
+   vvVL          0.00      0.00      0.00        9%     -0.03     -0.04      0.65  *
+   vvLN          2.16     16.28      9.97       48%     -0.24     -2.94      8.54  *
+   vvL           0.00      0.00      0.00        7%     -0.03     -0.04      0.74
+   vvML          2.40      8.35      6.57       20%     -0.19     -0.77      6.25  *
+   vvM           0.00      0.00      0.00        0%     -0.00     -0.01      0.00
+   vvHL          0.31      1.45      1.42        6%     -0.04     -0.17      2.60  *
+   vvH           0.00      0.00      0.00        0%     -0.00     -0.00      0.00
+   S_eq<0 = share of block x draw cells at 2300 whose equilibrium is below the
+   pre-industrial state on MAGICC's climate. MAG draw = MAGICC's own peak->2300
+   drawdown over the reported horizons (max 8.54 cm; recorded path peak 8.58).
+   splice check: worst |arm difference| at last_obs = 0.0e+00 cm (identity bound 1e-09).
+   of the 5 markers where MAGICC actually draws down (> 0.1 cm), the floored
+   bound on MAGICC's climate covers it on 2: vvLN, vvML. Uncovered: vvVL, vvL, vvHL.
+
+================================================================================================
+3. THE COMMITTED LADDER vs GlacierMIP3 — does the CURVE disagree with the
+   external anchor it was fitted to? % of 2020-remaining volume, posterior.
+================================================================================================
+   frame = as_fitted   (T_b = amp_b * L, the d1d fit convention)
+      level     posterior         [p05, p95]      GMIP3     likely range
+      +1.2 K        49.3% [  38.4,   61.9]%      37.4%  [11.8, 54.0]%  inside
+      +1.5 K        57.0% [  45.5,   68.3]%      46.3%  [17.2, 63.2]%  inside
+      +2.0 K        66.9% [  54.8,   76.8]%      63.0%  [41.5, 75.5]%  inside
+      +3.0 K        80.0% [  68.5,   87.5]%      75.5%  [58.5, 83.9]%  inside
+   frame = as_run   (+ the shipped driver offset)
+      level     posterior         [p05, p95]      GMIP3     likely range
+      +1.2 K        49.6% [  36.8,   62.8]%      37.4%  [11.8, 54.0]%  inside
+      +1.5 K        57.2% [  44.9,   69.6]%      46.3%  [17.2, 63.2]%  inside
+      +2.0 K        67.3% [  55.0,   77.7]%      63.0%  [41.5, 75.5]%  inside
+      +3.0 K        80.3% [  68.5,   88.0]%      75.5%  [58.5, 83.9]%  inside
+   as_fitted: 0 of 4 rungs outside the GlacierMIP3 likely range.
+
+================================================================================================
+4. RATE vs EQUILIBRIUM AT 2100 — is the low 2100 level the CURVE or the APPROACH?
+   'ceiling' = where Ladrillo would sit at 2100 if the rate were infinite.
+   cm rel 1995-2014; FaIR climate, the one all four arms are compared on.
+================================================================================================
+   marker    Ladrillo   ceiling    S/Seq  BRICK2.0     FACTS    MAGICC  headroom*
+   vvVL          6.95     17.93     0.53     11.23      9.31      9.50      10.98  *
+   vvLN          7.39     18.36     0.54     11.70      9.71     10.28      10.97  *
+   vvL           7.37     18.87     0.53     11.64      9.72     10.33      11.51
+   vvML          8.66     21.26     0.54     12.71     11.01     11.68      12.60  *
+   vvM           9.50     23.09     0.54     13.25     11.74     12.36      13.59
+   vvHL         10.49     23.01     0.57     14.07     12.49     12.89      12.52  *
+   vvH          10.50     24.12     0.55     13.99     12.45     13.28      13.63
+   *headroom here = ceiling - Ladrillo = the most an infinitely fast approach
+    could add at 2100. Compare it with the largest comparator gap below.
+   largest comparator gap at 2100: 4.31 cm (vvLN). Rate headroom there: 10.97 cm.
+
+================================================================================================
+5. EXTRAPOLATION RANGE — the rungs span 1.2-3.0 K. Where do the markers sit?
+================================================================================================
+   marker      FaIR: below / above  MAGICC: below / above
+   vvVL                5%        0%           60%        0%  *
+   vvLN               51%        0%           64%        0%  *
+   vvL                 0%        0%           47%        0%
+   vvML               30%        0%           43%        0%  *
+   vvM                 0%       71%            0%       69%
+   vvHL                0%        0%           29%        0%  *
+   vvH                 0%       77%            0%       78%
+   % of projection years 2025-2300 with GMST outside the fitted rung span.
+
+================================================================================================
+6. VERDICT
+================================================================================================
+   1. THE MAGICC GLACIER GAP IS FIRST OF ALL A CLIMATE GAP. MAGICC's own 2300
+      GMST is 0.12-0.96 K COLDER than FaIR's on the SAME emissions, and colder on
+      every one of the seven markers. Driving Ladrillo's UNCHANGED glacier module
+      with MAGICC's own climate raises its worst equilibrium headroom at 2300 from
+      2.40 cm to 16.28 cm (6.8x), or 9.97 cm with S_eq floored at pre-industrial.
+      The earlier '4x too small' compared a bound computed at FaIR's temperature
+      against a drawdown computed at MAGICC's -- not like-for-like.
+   2. ON ITS OWN CLIMATE THE BOUND NO LONGER RULES THE LARGEST DRAWDOWNS OUT.
+      The floored bound covers MAGICC's own drawdown on 2 of the 5 markers that
+      have one (vvLN, vvML) -- the two LARGEST -- and falls short on vvVL, vvL, vvHL.
+      What is left is a RATE gap, not an equilibrium one: symmetric relaxation
+      (R=1, the fastest this law allows) delivers 2.94 cm against 8.54 cm, i.e.
+      34%. Matching MAGICC would need regrowth FASTER than melt, which the
+      shared-kappa form cannot express at any R -- a structural difference, not a
+      miscalibrated curve.
+   3. THE CURVE IS NOT OUT OF LINE WITH ITS EXTERNAL ANCHOR. 0 of 4 GlacierMIP3
+      rungs fall outside the likely range on the posterior, and the posterior sits
+      ABOVE the GlacierMIP3 central at every rung (49/57/67/80 vs 37/46/63/76 %), so if anything the
+      curve commits MORE loss than the anchor, not less. Lowering S_eq is not
+      indicated by the anchor, and the driver-offset frame changes nothing (§3).
+   4. THE 2100 LEVEL IS RATE-LIMITED, NOT EQUILIBRIUM-LIMITED. Saturation S/S_eq
+      at 2100 is 0.53-0.57 (0.76-1.12 by 2300), and the instant-equilibrium ceiling
+      sits 11.0-13.6 cm above the shipped median -- against a largest comparator
+      gap of 4.31 cm. The curve cannot be what holds 2100 down; there is 3x more
+      room in the approach than the whole gap needs.
+      CROSS-CHECK: the independent single-reservoir Mengel arm reported 62%
+      realised-of-committed at 2100 (outputs/mengel_hightemp_melt_summary.md),
+      the same order as the 53-57% here on a different structure.
+   5. SO THE TWO GAPS ARE NOT ONE FINDING. The handoff's guess that the 2100
+      lowness and the 2300 drawdown share a cause in the equilibrium curve is not
+      supported: the curve is high, not low, and both gaps sit in the RATE law --
+      the 2100 one in how fast melt approaches S_eq, the 2300 one in whether
+      regrowth may exceed melt. That is the next thing to scope, and it is the
+      kappa/nu pair, not (a, b, T_off).
+   ⚠ NOT SCOPED HERE: whether MAGICC's colder 2300 is right. It is a CLIMATE
+      question (0.96 K at vvLN) and it now carries the glacier comparison, so it
+      deserves its own check against the FaIR calib 1.6.0 forcing before any of
+      this is used to argue Ladrillo's glacier module is missing a mechanism.
+
+wrote outputs/scope_glacier_equilibrium_L21.csv
+      outputs/scope_glacier_equilibrium_L21_ladder.csv

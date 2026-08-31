@@ -112,10 +112,26 @@ def load_nu():
     return {b: float(bc.loc[bc.block == b, "nu_anch_%s" % NU_BASIS].iloc[0]) for b in BLOCKS}
 
 
-def build_drivers(marker, amps):
+def build_drivers(marker, amps, gmst_override=None):
     """Per-block glacier-frame T, reproducing ladrillo_driver() (:740):
        observations where they exist; amp*GMST_rb + (obs_anchor - amp*gmst_anchor) after.
-    Returns (years, {block: T[year, draw]}) with the observed segment draw-invariant."""
+    Returns (years, {block: T[year, draw]}) with the observed segment draw-invariant.
+
+    `gmst_override` is a pandas Series indexed by year, ALREADY rel 1850-1900, that
+    supplies the PROJECTION climate from `last_obs+1` onward -- the hook that lets a
+    caller drive Ladrillo's glacier module with ANOTHER model's climate. It exists
+    because comparing our glacier response against MAGICC's at MAGICC's much colder
+    2300 is not like-for-like otherwise (`like_for_like_forcing`).
+
+    ⚠ WHAT IS TRANSPLANTED IS THE ANOMALY, NOT THE LEVEL. The override is re-anchored
+    onto the FaIR series' own anchor mean, so only its CHANGE after `last_obs` is
+    adopted. A first version substituted the level and took the anchor from the
+    override too; that left the two arms differing by 0.137 cm at `last_obs`, before
+    the swapped climate was used at all -- a pre-1850 frame offset leaking through the
+    projection formula into a comparison that is supposed to be about the future. With
+    the re-anchoring the arms are IDENTICAL through `last_obs` by construction, which
+    is what makes the swap a controlled single-axis change.
+    """
     g = pd.read_csv(_p(GMST_MEAN % marker))
     tgb = pd.read_csv(_p(BLOCK_DRIVERS))
     last_obs = int(tgb.year.max())
@@ -123,6 +139,20 @@ def build_drivers(marker, amps):
     years = g.year.values.astype(int)
     base = (years >= DRIVER_BASE[0]) & (years <= DRIVER_BASE[1])
     gmst_rb = g.gmst_C.values - g.gmst_C.values[base].mean()
+    if gmst_override is not None:
+        ov = gmst_override.reindex(years)
+        miss = years[(years > last_obs) & ov.isna().values]
+        if len(miss):
+            ## [OVERRIDE-COVERAGE] a short override would silently fall back to FaIR for
+            ## the tail -- the years the comparison is ABOUT. Assert, never fill.
+            raise SystemExit("[OVERRIDE-COVERAGE] gmst_override misses %d projection "
+                             "year(s), first %d, last %d"
+                             % (len(miss), miss[0], miss[-1]))
+        anchor_fair = gmst_rb[np.isin(years, list(anchor))].mean()
+        ov_anchor = float(ov.reindex(list(anchor)).mean())
+        gmst_rb = np.where(years > last_obs,
+                           ov.values - ov_anchor + anchor_fair, gmst_rb)
+    ## unchanged by any override, by design: the override is re-anchored onto THIS mean.
     gmst_anchor = gmst_rb[np.isin(years, list(anchor))].mean()
     obs_mask = np.isin(years, tgb.year.values)
     out = {}
