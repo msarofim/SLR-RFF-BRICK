@@ -3,7 +3,76 @@
 All notable changes to this project. Older history reconstructed from the
 commit log; recent entries are explicit.
 
-## 2026-08-31 (latest) — the glacier commitment figure moved to van Vuuren
+## 2026-08-31 (latest) — the van Vuuren glacier figure was comparing the WRONG SECOND MODEL
+
+Marcus asked whether `vv_gsic_wr_vs_mengel` is "really BRICK2.0 (Wigley-Raper) vs Ladrillo
+(3 glaciers, Mengel)", and how to name the Ladrillo version. **The premise was half right and the
+half that was wrong mattered: the second arm was NOT Ladrillo.**
+
+### What the arm actually was
+
+It drew `glaciers_mengel` on the `parameters_subsample_brick_mengel_extA108.csv` posterior — the
+single-reservoir Mengel-2016 emulator inside BRICK (BRICK-AM), **Ladrillo's predecessor on the
+glacier axis**. It differs from Ladrillo's module on FOUR axes, not a label:
+
+| | extA108 plain Mengel | Ladrillo L21 |
+|---|---|---|
+| structure | ONE global reservoir pair (fast/slow) | **THREE** reservoirs R19 / SLOWP / FAST |
+| equilibrium | `S_eq = a(1−exp(−b(T−T_lia)))` | `S_eq,b = a_b(1−exp(−b_b(T_b−T_off_b)))` per block |
+| rate law | fixed `τ_fast`/`τ_slow`, split by `f` | `min(κ_b·exc^ν_b, 1)(S_eq,b − S_b)` |
+| driver | global GMST | per-block glacier-frame temperature |
+| posterior | `..._extA108.csv` | the **L21 chains** (`outputs/mcmc/chain_L21_seed*_n2000000.csv`) |
+
+Ladrillo's glacier module is the **3-reservoir Nauels-ν component** (`glaciers_nu3`), built through
+`build_brick_nu3*` (`ladrillo_projection.jl:696`) and read out as `gsic_r19/slowp/fast` (`:832`).
+Mengel-2016 is the ancestor of the **equilibrium form only**, so "Mengel" would have misnamed the
+model in a figure whose entire purpose is which model is which.
+
+### Naming
+
+The arm is **Ladrillo L21** — L14's config on the calib 1.6.0 + CMIP7 drivers, champion since
+2026-08-28, carrying its **own chain set**, NOT the `parameters_subsample_brick_mengel_L14.csv`
+thinning. ⚠ **SLR@2100 = 45.01 cm remains an L14 number** and keeps that label.
+
+### Rebuilt (`plot_vv_gsic_wr_vs_ladrillo.py`, replacing `..._wr_vs_mengel.py`)
+
+Two arms on Marcus's call: BRICK 2.0 WR vs Ladrillo L21. **Both extA108 arms dropped** — b→0.89 is
+a failed intermediate and b=0.52 is only its counterfactual, both properties of a calibration
+neither shipped model uses. Their outputs (`vv_gsic_2300_mengel{,_b052}.csv`) stay on disk as
+provenance, just unplotted. **No new runs were needed**: the Ladrillo glacier trajectories already
+existed in `scope_slr_fairunc_paths_vv<M>_spliced_L21_tap4p69K_V5p64m_tau800.csv` (1990-2300,
+rel 1995-2014 cm) from this session's runs.
+
+* **Both arms are the `fixed` arm** — posterior-parameter spread on MEAN forcing — so the widths
+  are like-for-like. Ladrillo's `joint` arm is deliberately unused: it carries FaIR climate
+  uncertainty the WR arm has no counterpart for.
+* ⚠ **The driver is the same GMST with a STATED mapping.** WR takes marker GMST directly; Ladrillo
+  maps it to each block's glacier frame as `amp_b·GMST` with an anchor-preserving splice
+  (`ladrillo_projection.jl:740`). Same forcing, NOT the same per-component temperature — the
+  caption says so instead of implying a raw common driver.
+
+### ⚠ THE RESULT IS SHARPER, AND IT RETIRES THE b=0.52 ARM ON ITS OWN MERITS
+
+Melt rate at 2300 (cm/century), the four decline pathways vs the two rising ones:
+
+| | Very Low | Low-to-Neg | Medium-to-Low | High-to-Low | Medium | High |
+|---|---|---|---|---|---|---|
+| WR | 4.75 | 1.69 | 1.90 | 2.95 | 2.30 | **0.23** |
+| Ladrillo L21 | 0.55 | **0.00** | **0.01** | 0.25 | 1.96 | 1.96 |
+
+**Ladrillo stops when temperature stops; Wigley-Raper does not** — and Ladrillo is still melting at
+1.96 on both rising markers, so this is temperature-tracking, not a uniformly slower model.
+
+⚠ **Ladrillo's scenario spread @2300 is the WIDER one: 15.1 cm vs WR's 10.0.** WR saturates toward
+a common ceiling, which COMPRESSES its spread. **This is the independent argument for dropping
+b=0.52**: that arm existed only to restore a spread plain Mengel's b→0.89 had collapsed to 3.5 cm,
+and the shipped model never collapses it.
+
+⚠ The earlier "WR rate@2300 is non-monotone in endpoint warming" finding still stands and is a
+**WR property**: High is slowest (0.23) because its reservoir is exhausted. Ladrillo shows no such
+inversion.
+
+## 2026-08-31 (later) — the glacier commitment figure moved to van Vuuren
 
 The second item the 08-31 handoff called for. `plot_vv_gsic_wr_vs_mengel.py` + a `--set=ssp|vv`
 flag on both glacier drivers (`project_ssps_gsic_2300{,_mengel}.jl`), so the scenario list, the
