@@ -1,0 +1,38 @@
+MAGICC vs the Ladrillo driver over the HISTORY 1850-2014, both K rel 1850-1900.
+MAGICC = ensemble median of 600 members; Ladrillo driver = FaIR mean-config.
+
+[SHARED-HISTORY] ok   the 7 markers share one history exactly (0.000e+00 K)
+[VINTAGE]        the SSP control history differs from the markers' by up to 0.0737 K (RCMIP vs CMIP7 inputs; by design)
+
+GMST gap, MAGICC minus driver (K)
+scen        1900    1950    1980    2000    2014 |      rms   max|d|  in5-95
+vvVL       0.022   0.083   0.134   0.143   0.143 |    0.105    0.256   41/165
+vvLN       0.022   0.083   0.134   0.143   0.143 |    0.105    0.256   41/165
+vvL        0.022   0.083   0.134   0.143   0.143 |    0.105    0.256   41/165
+vvML       0.022   0.083   0.134   0.143   0.143 |    0.105    0.256   41/165
+vvM        0.022   0.083   0.134   0.143   0.143 |    0.105    0.256   41/165
+vvHL       0.022   0.083   0.134   0.143   0.143 |    0.105    0.256   41/165
+vvH        0.022   0.083   0.134   0.143   0.143 |    0.105    0.256   41/165
+ssp126     0.028   0.063   0.083   0.085   0.101 |    0.085    0.254   64/165
+ssp245     0.028   0.063   0.083   0.085   0.101 |    0.085    0.254   64/165
+ssp585     0.028   0.063   0.083   0.085   0.101 |    0.085    0.254   64/165
+
+OHC gap, MAGICC minus driver (1e22 J), and the part a constant offset canNOT remove.
+The TE module re-references SLR to 1995-2014, so only the RESIDUAL after removing
+that window's mean difference can move thermal expansion.
+scen      d@1900   d@2000   d@2014 |   offset resid rms
+vvVL        3.17    11.99     9.35 |    11.15     6.94
+vvLN        3.17    11.99     9.35 |    11.15     6.94
+vvL         3.17    11.99     9.35 |    11.15     6.94
+vvML        3.17    11.99     9.35 |    11.15     6.94
+vvM         3.17    11.99     9.35 |    11.15     6.94
+vvHL        3.17    11.99     9.35 |    11.15     6.94
+vvH         3.17    11.99     9.35 |    11.15     6.94
+ssp126      4.17    12.58     9.55 |    11.64     7.06
+ssp245      4.17    12.58     9.55 |    11.64     7.06
+ssp585      4.17    12.58     9.55 |    11.64     7.06
+
+READING. The (a)-vs-(b) difference in section 6.3 is exactly these numbers. A GMST
+history gap of 0.105 K rms is 11x the 0.01 K we quote to, so (a) and (b) are NOT
+interchangeable, and the OHC residual shows the constant-offset cancellation Track C
+verified does not make the two histories equivalent.
