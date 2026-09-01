@@ -272,3 +272,11 @@ data/gis_post2100/greve_chambers_2022/run_specs_headers/
 # 1.8 GB of raw CMIP6 tas NetCDF for the Coulon ssp585 extension; the derived
 # annual tables in data/cmip6_coulon/ are what is tracked (fetch_cmip6_coulon_ext.sh).
 data/cmip6_coulon_ext/
+
+# Pulse-pair ensembles and run logs: REGENERABLE-in-principle bulk, but far over GitHub's
+# 100 MB per-file cap (12 files were ~1.2 GB each), so they can never be pushed. The pairs
+# are kept as Parquet+zstd float32 instead -- 4.8x smaller, max relative error 6.0e-08,
+# verified per file at conversion. The existing chain_* rule below did not cover either class.
+outputs/mcmc/wong_cond_pulse_pairs_*.csv
+outputs/mcmc/wong_cond_weights_full*.csv
+outputs/mcmc/log_*.txt
