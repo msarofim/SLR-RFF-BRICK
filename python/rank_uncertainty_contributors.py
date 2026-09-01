@@ -41,8 +41,12 @@ WRITES outputs/rank_uncertainty_contributors_L14.csv
     python python/rank_uncertainty_contributors.py
 """
 import os
+import sys
 import numpy as np
 import pandas as pd
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from draws_io import draws_exists, read_draws  # noqa: E402
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAG, FORCING = "L14", "spliced"
@@ -53,9 +57,9 @@ OUT = os.path.join(REPO, "outputs", f"rank_uncertainty_contributors_{TAG}.csv")
 
 def load(ssp):
     p = os.path.join(REPO, "outputs", f"scope_slr_fairunc_draws_{ssp}_{FORCING}_{TAG}.csv")
-    if not os.path.exists(p):
+    if not draws_exists(p):
         print(f"  MISSING {os.path.basename(p)} — skipped"); return None
-    return pd.read_csv(p)
+    return read_draws(p)
 
 def spread(v):
     return float(np.percentile(v, 95) - np.percentile(v, 5))

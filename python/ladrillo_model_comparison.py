@@ -50,6 +50,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import gis_targets  # noqa: E402
+from draws_io import draws_exists, read_draws  # noqa: E402
 
 import numpy as np
 import pandas as pd
@@ -186,14 +187,14 @@ def _joint_bands():
     for ssp in SCENARIOS:
         ft = os.path.join(REPO, JOINT_TAP_GLOB.format(ssp=ssp, tag=LADRILLO_TAG))
         fu = os.path.join(REPO, JOINT_GLOB.format(ssp=ssp, tag=LADRILLO_TAG))
-        if os.path.exists(ft):
+        if draws_exists(ft):
             f, tap_seen = ft, tap_seen + 1
-        elif os.path.exists(fu):
+        elif draws_exists(fu):
             f = fu
         else:
             continue
         n_ssp += 1
-        d = pd.read_csv(f)
+        d = read_draws(f)
         d = d[d.arm == "joint"]
         for (comp, hz), g in d.groupby(["component", "horizon"]):
             v = g.value_cm.values
@@ -276,9 +277,9 @@ def load_brick20():
     jb = {}
     for ssp in SCENARIOS:
         f = os.path.join(REPO, BRICK_JOINT_GLOB.format(ssp=ssp))
-        if not os.path.exists(f):
+        if not draws_exists(f):
             continue
-        d = pd.read_csv(f)
+        d = read_draws(f)
         d = d[d.arm == "joint"]
         for (comp, hz), g in d.groupby(["component", "horizon"]):
             q = np.percentile(g.value_cm.values, [5, 17, 50, 83, 95])

@@ -53,6 +53,9 @@ import sys
 import numpy as np
 import pandas as pd
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from draws_io import read_draws  # noqa: E402
+
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L14")
 OUT = os.path.join(REPO, "outputs", f"scope_gis_ssp126_acceptability_{TAG}.csv")
@@ -90,7 +93,7 @@ def main():
     lit["year"] = lit.year.astype(int)
     cell = lit[(lit.component == COMPONENT) & (lit.scenario == CELL_SSP) &
                (lit.year == CELL_YEAR)].set_index("module")
-    d = pd.read_csv(DRAWS.format(ssp=CELL_SSP))
+    d = read_draws(DRAWS.format(ssp=CELL_SSP))
     d = d[(d.horizon == CELL_YEAR) & (d.arm == ARM)]
     gis = d[d.component == COMPONENT].value_cm.values
     tot = d[d.component == "total"].value_cm.values

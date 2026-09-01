@@ -47,6 +47,9 @@ import sys
 import numpy as np
 import pandas as pd
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from draws_io import draws_exists, draws_path, read_draws  # noqa: E402
+
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BENCH = os.path.join(REPO, "benchmark")
 REF = os.path.join(BENCH, "reference")
@@ -199,7 +202,10 @@ def live_paths(tag):
         tapped = os.path.join(
             o, f"scope_slr_fairunc_draws_{s}_spliced_{tag}_tap4p69K_V5p64m_tau800.csv")
         untapped = os.path.join(o, f"scope_slr_fairunc_draws_{s}_spliced_{tag}.csv")
-        p[f"draws_{s}"] = tapped if os.path.exists(tapped) else untapped
+        # `draws_path` resolves each name to its Parquet twin when one exists (the
+        # 2026-09-01 migration); the tap preference is decided on the LOGICAL name, so
+        # a tapped Parquet still beats an untapped CSV.
+        p[f"draws_{s}"] = draws_path(tapped if draws_exists(tapped) else untapped)
     return p
 
 
@@ -208,7 +214,12 @@ def frozen_paths(tag):
     p = {"postpred": os.path.join(d, "postpred_components_timeseries.csv"),
          "comparison": os.path.join(d, "model_comparison.csv")}
     for s in SSPS:
-        p[f"draws_{s}"] = os.path.join(d, f"draws_{s}_spliced.csv.gz")
+        # L14/L21/L23 were frozen as gzipped CSV; a tag frozen after the 2026-09-01
+        # Parquet migration lands as .parquet. Read back whichever IS there, so an old
+        # champion keeps scoring bit-for-bit as it was frozen.
+        pq = os.path.join(d, f"draws_{s}_spliced.parquet")
+        gz = os.path.join(d, f"draws_{s}_spliced.csv.gz")
+        p[f"draws_{s}"] = pq if os.path.exists(pq) else gz
     return p
 
 
@@ -254,10 +265,11 @@ def _git_head():
 def freeze(tag):
     """Snapshot a tag's live outputs into benchmark/reference/<tag>/ with a manifest.
 
-    The draws are gzipped (11 MB -> 3 MB). They are stored RAW rather than as
-    pre-computed percentiles on purpose: if a metric definition here ever changes,
-    the champion's score must be recomputable under the NEW definition, or the
-    comparison silently mixes two metrics."""
+    The draws are stored compressed -- gzip for a CSV source (11 MB -> 3 MB), and a
+    straight copy for a Parquet one, which is already columnar-compressed. They are
+    stored RAW rather than as pre-computed percentiles on purpose: if a metric
+    definition here ever changes, the champion's score must be recomputable under the
+    NEW definition, or the comparison silently mixes two metrics."""
     d = os.path.join(REF, tag)
     os.makedirs(d, exist_ok=True)
     man = {"tag": tag, "frozen_git_head": _git_head(),
@@ -266,7 +278,15 @@ def freeze(tag):
         if not os.path.exists(src):
             raise SystemExit(f"cannot freeze {tag}: missing {os.path.relpath(src, REPO)}")
         dst = frozen_paths(tag)[key]
-        if dst.endswith(".gz"):
+        # ⚠ The frozen name follows the SOURCE format. Gzipping a Parquet body into a
+        # .csv.gz name would leave every later reader parsing binary as text -- and
+        # `frozen_paths` would keep handing it out under that name, so the mis-parse
+        # would surface as a scoring failure in some future session, not here.
+        if src.endswith(".parquet"):
+            if dst.endswith(".csv.gz"):
+                dst = dst[: -len(".csv.gz")] + ".parquet"
+            shutil.copyfile(src, dst)
+        elif dst.endswith(".gz"):
             import gzip
             with open(src, "rb") as fi, gzip.open(dst, "wb") as fo:
                 shutil.copyfileobj(fi, fo)
@@ -658,9 +678,9 @@ def block_rate_accel(rows, cand_tag, champ_tag, cand_p, champ_p, sigma):
 # ------------------------------------------------------------------ block [P]
 def joint_stats(path, component, horizon, arm="joint"):
     """(median, mean, p05-p95 spread, p05-p99 spread) of the per-draw joint band."""
-    if not os.path.exists(path):
+    if not draws_exists(path):
         return (np.nan,) * 4
-    d = pd.read_csv(path)
+    d = read_draws(path)
     v = d[(d.horizon == horizon) & (d.component == component) & (d.arm == arm)].value_cm.values
     if len(v) == 0:
         return (np.nan,) * 4

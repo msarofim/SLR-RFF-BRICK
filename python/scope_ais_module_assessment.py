@@ -49,8 +49,12 @@ prior, and which is identified by the LIG alone).
 Writes outputs/scope_ais_module_assessment_L14.csv
 """
 import os
+import sys
 import numpy as np
 import pandas as pd
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from draws_io import draws_exists, read_draws  # noqa: E402
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAG = "L14"
@@ -151,9 +155,9 @@ emit("hindcast", key="decidable", value=0, note="observations cannot reject zero
 # ---------------------------------------------------------------- criterion 3
 def joint_spread(ssp, H):
     p = DRAWS.format(ssp=ssp)
-    if not os.path.exists(p):
+    if not draws_exists(p):
         return np.nan, np.nan, np.nan
-    d = pd.read_csv(p)
+    d = read_draws(p)
     out = {}
     for arm in ("fixed", "joint"):
         v = d[(d.horizon == H) & (d.component == COMPONENT) & (d.arm == arm)].value_cm.values

@@ -75,6 +75,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import gis_targets  # noqa: E402
+from draws_io import draws_exists, read_draws  # noqa: E402
 
 import numpy as np
 import pandas as pd
@@ -217,10 +218,10 @@ def gate_ladrillo(marker):
 
 def load_joint(path, marker, source):
     """Joint-arm draws -> {(component, horizon): {q, n}} plus the config sequence."""
-    if not os.path.exists(path):
+    if not draws_exists(path):
         raise SystemExit(f"missing {source} joint draws for {marker}: "
                          f"{os.path.relpath(path, REPO)}")
-    d = pd.read_csv(path)
+    d = read_draws(path)
     d = d[d.arm == "joint"]
     if d.empty:
         raise SystemExit(f"{source} {marker}: joint arm is EMPTY in "

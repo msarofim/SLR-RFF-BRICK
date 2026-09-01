@@ -55,6 +55,9 @@ import sys
 import numpy as np
 import pandas as pd
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from draws_io import read_draws  # noqa: E402
+
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L14")
 OUT = os.path.join(REPO, "outputs", f"diag_gis_width_anatomy_{TAG}.csv")
@@ -109,7 +112,7 @@ print("    ⚠ the benchmark's `spread_vs_lit` uses the literature MEDIAN spread
 print("      that median is made of.")
 ours = {}
 for ssp in SSPS:
-    d = pd.read_csv(DRAWS.format(ssp=ssp))
+    d = read_draws(DRAWS.format(ssp=ssp))
     for H in HORIZONS:
         for arm in ("fixed", "joint"):
             v = d[(d.horizon == H) & (d.component == COMPONENT) & (d.arm == arm)].value_cm.values
@@ -231,7 +234,7 @@ for H in LIT_HORIZONS:
     for ssp in SSPS:
         te = pd.read_csv(LIT)
         te = te[(te.component == "te") & (te.scenario == ssp) & (te.year == H)]
-        d = pd.read_csv(DRAWS.format(ssp=ssp))
+        d = read_draws(DRAWS.format(ssp=ssp))
         v = d[(d.horizon == H) & (d.component == "te") & (d.arm == "joint")].value_cm.values
         if te.empty or len(v) == 0:
             continue
@@ -265,7 +268,7 @@ for H in LIT_HORIZONS:
             print(f"    {ssp:8s} {H:5d} {'no gap':>11s}")
             continue
         s_extra = np.sqrt(max(sig(tgt) ** 2 - sig(g) ** 2, 0.0))
-        d = pd.read_csv(DRAWS.format(ssp=ssp))
+        d = read_draws(DRAWS.format(ssp=ssp))
         tv = d[(d.horizon == H) & (d.component == "total") & (d.arm == "joint")].value_cm.values
         tsp = float(np.percentile(tv, QHI) - np.percentile(tv, QLO))
         ind = Z_SPAN * np.sqrt(sig(tsp) ** 2 + s_extra ** 2)

@@ -48,6 +48,9 @@ import sys
 import numpy as np
 import pandas as pd
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from draws_io import read_draws  # noqa: E402
+
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L14")
 OUT = os.path.join(REPO, "outputs", f"diag_ais_ssp126_tail_anatomy_{TAG}.csv")
@@ -102,7 +105,7 @@ print("    narrow, which is a different defect from the tail being invisible.")
 print(f"\n    {'ssp':8s} {'H':>5s} {'p05-p95':>9s} {f'p05-p{QHI_TAIL}':>9s} {'ratio':>6s} "
       f"{'median':>8s} {'MEAN':>8s} {'untipped p50':>13s} {'tipped p50':>11s} {'n_tip':>6s}")
 for ssp in SSPS:
-    d = pd.read_csv(DRAWS.format(ssp=ssp))
+    d = read_draws(DRAWS.format(ssp=ssp))
     for H in HORIZONS:
         v = d[(d.horizon == H) & (d.component == COMPONENT) & (d.arm == ARM)].value_cm.values
         if len(v) == 0:
@@ -138,7 +141,7 @@ if lit is not None:
         if L.empty:
             continue
         lsp = (L.p95.astype(float) - L.p05.astype(float)).dropna().values
-        d = pd.read_csv(DRAWS.format(ssp="ssp126"))
+        d = read_draws(DRAWS.format(ssp="ssp126"))
         v = d[(d.horizon == H) & (d.component == COMPONENT) & (d.arm == ARM)].value_cm.values
         sp95 = np.percentile(v, QHI) - np.percentile(v, QLO)
         sp99 = np.percentile(v, QHI_TAIL) - np.percentile(v, QLO)

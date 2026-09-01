@@ -43,10 +43,14 @@ Writes outputs/diag_glacier_level_attribution.csv
 """
 import io
 import os
+import sys
 import zipfile
 
 import numpy as np
 import pandas as pd
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from draws_io import read_draws  # noqa: E402
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(REPO, "outputs", "diag_glacier_level_attribution.csv")
@@ -79,7 +83,7 @@ print("\n[1] IS IT GROWING WITH HORIZON? — 2300 now has a comparator")
 print(f"    {'ssp':8s} " + " ".join(f"{h:>9d}" for h in HORIZONS))
 ratios = {}
 for ssp in SSPS:
-    d = pd.read_csv(DRAWS.format(ssp=ssp))
+    d = read_draws(DRAWS.format(ssp=ssp))
     line = f"    {ssp:8s} "
     for H in HORIZONS:
         v = d[(d.horizon == H) & (d.component == "glaciers") & (d.arm == "joint")].value_cm.values
