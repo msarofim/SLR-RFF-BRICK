@@ -1,3 +1,39 @@
+## 2026-09-01d — the amp 2x2 gets its error bar, and one cell loses its sign
+
+**`python/diag_amp_by_vintage.py`.** L25 was launched to read `ais_gmst_amp` against two cells of
+the published 2x2 (`notes/scoping_2026-09-01_ais_identifiability.md`: L21 0.9455, L22 0.9434,
+L23 1.0865, L23b 1.0850). Reading it on a different estimator than produced those would answer a
+different question, so one is now fixed — pooled median over every post-burn draw, burning the
+first half exactly as `postprocess_mcmc_ext.jl:47` does — and the four anchors recomputed on it.
+
+| tag | pooled 4M | batch se | R-hat | 10k subsample | published | gap in se |
+|---|---|---|---|---|---|---|
+| L21 | 0.9438 | 0.0018 | 1.000 | 0.9441 | 0.9455 | −0.9 |
+| L22 | 0.9465 | 0.0021 | 1.001 | 0.9473 | 0.9434 | +1.5 |
+| L23 | 1.0824 | 0.0037 | 1.002 | 1.0833 | 1.0865 | −1.1 |
+| L23b | 1.0896 | 0.0029 | 1.001 | — | 1.0850 | +1.6 |
+
+**They agree.** Every published cell is within 1.6 se, so the published table is the same estimate
+read off a noisier (~10k thinned) pool. What does not survive is the precision it was quoted to,
+and one cell's SIGN with it: **L21→L22, published −0.0021 and read as "the steric cap is not the
+cause", recomputes to +0.0026 ± 0.0027** — one se from zero. Both readings are consistent with NO
+DIFFERENCE and neither determines a sign. ⚠ **The conclusion is STRENGTHENED, not damaged** — the
+glacier-law cell is 0.1386 ± 0.0041, about 34 se — but a four-decimal delta whose bar exceeds
+itself should not have been printed as a measurement.
+
+⚠ **The i.i.d. formula would have hidden this.** A bootstrap at n = 10,000 gives se(median) =
+0.0012, matching `1.253·sd/√n` = 0.00125 — and that is **1.5–3× too small**. These are
+autocorrelated draws in a sampler where 18 of L21's marginals fail R-hat. The se above is BATCH
+MEANS over 5 blocks per chain, each block far longer than amp's autocorrelation time (amp is one
+of the CONVERGED marginals, so τ ≤ 1e6/400 = 2500, against blocks of 200,000).
+
+**How L25 gets read.** The reference is L21/L23 recomputed IN THE SAME RUN, never the published
+constants, which are demoted to a printed cross-check. Also reported: R-hat per tag (1.000–1.002 —
+amp itself mixes fine, whatever the AIS geometry block is doing) and where a new tag sits on the
+L21→L23 span. L23b lands at 1.05 of it. The amp column is cached per chain as
+`outputs/mcmc/ampcol_<TAG>_seed<SEED>.npy` (gitignored, 122 MB, ~45 s/chain to rebuild), so the
+table now takes **0.9 s** instead of 12 min and L25 will cost only its own four chains.
+
 ## 2026-09-01c — two silent defaults in the calibrator, and three gates that were not gating
 
 **`--adcov` now says whether the covariance was CHOSEN or INHERITED.** The flag falls through to
