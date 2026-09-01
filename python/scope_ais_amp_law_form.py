@@ -61,8 +61,29 @@ DT_FLOOR = 1.0
 # The projection-relevant warming range, from the shipped drivers (1.85 K ssp126@2100 to
 # 7.79 K ssp585@2300); 1->4 K covers every cell the literature comparators exist at.
 DT_RANGE = (1.0, 4.0)
-# The current prior, for the comparison. `calibrate_mcmc_ext.jl:1111-1112`.
-CUR_MU, CUR_SIGMA = 0.95, 0.10
+# The shipped prior, PARSED from the calibration driver rather than copied. It was
+# hand-copied as (0.95, 0.10) and went stale the day `165a860` moved it to (1.09, 0.180),
+# so this script printed a superseded number under the label "THE SHIPPED PRIOR" for a
+# week. Read the DEFAULT branch of the AMP_EQ ternary -- the equilibrium arm and the
+# --amp-mu/--amp-sigma overrides are per-run, not what ships.
+MCMC_SRC = os.path.join(REPO, "julia", "calibrate_mcmc_ext.jl")
+
+
+def _shipped_prior():
+    src = open(MCMC_SRC).read()
+    out = []
+    for name in ("AMP_MU", "AMP_SIGMA"):
+        m = re.search(rf"^const {name}\s*=.*?AMP_EQ \?[^:]+:\s*([0-9.]+)\)", src, re.M)
+        if m is None:
+            raise SystemExit(
+                f"cannot read {name} from {os.path.relpath(MCMC_SRC, REPO)} -- the prior's "
+                "definition moved. FIX THE PARSE, do not re-hardcode the number: the "
+                "hardcoded copy is what went stale last time.")
+        out.append(float(m.group(1)))
+    return out
+
+
+CUR_MU, CUR_SIGMA = _shipped_prior()
 TANT0 = -15.42 / 0.8365
 rows = []
 
@@ -141,20 +162,25 @@ def main():
                          note=f"41 models, 2.5-4.5 K, range {min(r1):.3f}-{max(r1):.3f}",
                          verdict=""))
     both = d.groupby("model").R.median()
-    print(f"\n    ⇒ the scenario ensemble and the DECK ensemble agree on ~1.08-1.10.")
-    print(f"    ⚠ THE SHIPPED PRIOR IS N({CUR_MU}, {CUR_SIGMA}) AND THE POSTERIOR MEDIAN IS "
-          f"0.945 —\n      {(float(both.median())-CUR_MU)/CUR_SIGMA:.2f} prior sd BELOW the "
-          f"corrected measurement. The direction addendum 7\n      got right; the MECHANISM "
-          f"and the FIX it proposed were both wrong.")
+    post = pd.read_csv(POST)
+    amp0 = post["ais_gmst_amp"].to_numpy(float)
+    post_med = float(np.median(amp0))
+    print(f"\n    ⇒ the scenario ensemble and the DECK ensemble agree on "
+          f"~{float(both.median()):.2f}.")
+    print(f"    ⚠ THE SHIPPED PRIOR IS N({CUR_MU:.3f}, {CUR_SIGMA:.3f}) "
+          f"({os.path.relpath(MCMC_SRC, REPO)}) AND THE {TAG}\n      POSTERIOR MEDIAN IS "
+          f"{post_med:.3f} — {(post_med - float(both.median()))/CUR_SIGMA:+.2f} prior sd from "
+          f"the corrected\n      measurement, whose own centre sits "
+          f"{(float(both.median())-CUR_MU)/CUR_SIGMA:+.2f} prior sd from the prior mean. The "
+          f"direction\n      addendum 7 got right; the MECHANISM and the FIX it proposed were "
+          f"both wrong.")
 
     # ------------------------------------------------- [C] what re-centring is worth
-    p = pd.read_csv(POST)
-    thr = p["antarctic_temp_threshold"].to_numpy(float)
-    amp0 = p["ais_gmst_amp"].to_numpy(float)
+    thr = post["antarctic_temp_threshold"].to_numpy(float)
     need = thr - TANT0
     print(f"\n[C] WHAT RE-CENTRING IS WORTH — crossing GMST = (threshold - T_ant0)/amp")
     print(f"\n{'arm':28s} {'amp':>7s} {'crossing GMST':>15s}")
-    for lab, a in (("shipped posterior", float(np.median(amp0))),
+    for lab, a in ((f"{TAG} posterior", post_med),
                    ("corrected secant (BOTH)", float(both.median())),
                    ("ssp245 model-median", float(d[d.scenario == 'ssp245']
                                                  .groupby('model').R.median().median())),
@@ -164,8 +190,8 @@ def main():
         print(f"{lab:28s} {a:7.3f} {gx:12.3f} K")
         rows.append(dict(block="C", scenario="", quantity=f"crossing_GMST/{lab}", value=gx,
                          unit="degC", note=f"amp {a:.3f}", verdict=""))
-    print(f"\n    ⇒ a {float(both.median())-float(np.median(amp0)):+.3f} move in amp, i.e. "
-          f"{(float(both.median())-float(np.median(amp0)))/CUR_SIGMA:+.2f} prior sd. "
+    print(f"\n    ⇒ a {float(both.median())-post_med:+.3f} move in amp, i.e. "
+          f"{(float(both.median())-post_med)/CUR_SIGMA:+.2f} prior sd. "
           f"`scope_ais_amp_price.py`\n      prices the tipped fractions this implies.")
     pd.DataFrame(rows).to_csv(OUT, index=False)
     print(f"\nwrote {os.path.relpath(OUT, REPO)}")
