@@ -179,6 +179,13 @@ def _path(rel):
     return os.path.join(REPO, rel)
 
 
+
+def _lf_gate_verdicts_ok():
+    """The accepted gate verdicts, from ladrillo_figs so the set has ONE definition."""
+    import os as _os, sys as _sys
+    _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+    import ladrillo_figs as _lf
+    return _lf.GATE_VERDICTS_OK
 def gate_ladrillo(marker):
     """Read the driver's OWN gates file and refuse to report a marker whose run did not
     pass. A missing file is a FAILURE, not a skip -- the whole point of the 08-31 handoff's
@@ -197,7 +204,7 @@ def gate_ladrillo(marker):
             f"--ssp={marker} --build-ssp=ssp245 --forcing={FORCING} --tag={LADRILLO_TAG}"
             f"{' --tap' if TAPPED else ''}")
     g = pd.read_csv(f)
-    bad = g[~g.verdict.isin(["PASS", "SKIPPED", "measured"])]
+    bad = g[~g.verdict.isin(_lf_gate_verdicts_ok())]
     if len(bad):
         raise SystemExit(f"[GATE] {marker}: {len(bad)} non-passing gate row(s):\n{bad}")
     if "CONTROL" not in set(g.gate):

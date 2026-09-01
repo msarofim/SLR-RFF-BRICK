@@ -88,6 +88,13 @@ WR_NAME = "BRICK 2.0 (Wigley–Raper)"
 LAD_NAME = "Ladrillo %s (3-reservoir ν)" % LADRILLO_TAG
 
 
+
+def _lf_gate_verdicts_ok():
+    """The accepted gate verdicts, from ladrillo_figs so the set has ONE definition."""
+    import os as _os, sys as _sys
+    _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+    import ladrillo_figs as _lf
+    return _lf.GATE_VERDICTS_OK
 def joint_stem(tag):
     """Mirrors `const TAP_TAG` in scope_slr_fair_uncertainty.jl (~:162) off the same
     GIS_TAP_CELL, so the two cannot drift. Shorter than gis_targets.tap_tag(): the joint
@@ -150,7 +157,7 @@ for lab in LABELS:
                 "  julia --project=julia_v2 julia/scope_slr_fair_uncertainty.jl --ssp=%s "
                 "--build-ssp=ssp245 --forcing=%s --tag=%s --tap" % (f, m, FORCING, LADRILLO_TAG))
     g = pd.read_csv(gf)
-    bad = g[~g.verdict.isin(["PASS", "SKIPPED", "measured"])]
+    bad = g[~g.verdict.isin(_lf_gate_verdicts_ok())]
     if len(bad):
         raise SystemExit("[GATE] %s: %d non-passing gate row(s):\n%s" % (m, len(bad), bad))
     if "CONTROL" not in set(g.gate):

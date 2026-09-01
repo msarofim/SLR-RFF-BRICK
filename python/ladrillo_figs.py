@@ -86,6 +86,19 @@ SRC_COLOR = {"Ladrillo": "#2166ac", "BRICK 2.0": "#7f7f7f",
 BASIS_CARRIES_CLIMATE = ("joint", "climate + parameter")
 BASIS_PARAM_ONLY = ("fixed",)
 
+## WHICH GATE VERDICTS ARE ACCEPTABLE -- ONE definition, because it was TWO.
+## vv_model_comparison.py and plot_vv_gsic_wr_vs_ladrillo.py each carried their own
+## hardcoded `isin(["PASS", "SKIPPED", "measured"])`, so a gate added on the Julia side
+## had to be taught to both or it would read as a failure in one and not the other. It
+## duly did: [OHC-OFFSET] reports CANCELS / DOES-NOT-CANCEL, because "the constant offset
+## cancelled" is the informative statement and "PASS" is not, and both readers rejected
+## the run on a gate that had passed.
+##
+## ⚠ CANCELS is here because it is that gate's PASS state. DOES-NOT-CANCEL is deliberately
+## ABSENT and must stay absent -- adding it would be loosening a gate to make a run go
+## through, which is the one thing this set must never be used for.
+GATE_VERDICTS_OK = ["PASS", "SKIPPED", "measured", "CANCELS"]
+
 
 def band_is_comparable(basis):
     """True when this row's band carries CLIMATE uncertainty as well as parameter spread.
@@ -142,6 +155,17 @@ TAG_DESC = {
                 gis="two-basin Greenland with the shipped tap",
                 note="champion since 2026-08-28; L14's config on the 1.6.0 drivers. "
                      "SLR@2100 = 45.01 cm is an L14 number and keeps that label."),
+    "L23": dict(model="Ladrillo L23",
+                calib="FaIR 2.2.4 calib 1.6.0 + CMIP7",
+                chains="4 chains, chain_L23_seed*_n2000000",
+                glacier="3-reservoir Nauels-nu (glaciers_nu3), FLOORED equilibrium "
+                        "+ bounded regrowth at R = 1",
+                gis="two-basin Greenland with the shipped tap",
+                note="refit 2026-08-31 on L21's calibration exactly "
+                     "(--gis-ordered --gis-basins2 --overdisperse, 4 x 2M), with the "
+                     "melt-only glacier ratchet replaced. Chain column set verified "
+                     "byte-identical to L21's, so the glacier law is the only axis that "
+                     "moved. Accepted on the deliverable criterion (--accept-slr)."),
     "L14": dict(model="Ladrillo L14",
                 calib="FaIR 2.2.4 calib 1.4.5",
                 chains="chain_L14_*",
@@ -233,9 +257,12 @@ def gate_ladrillo(scen, tag="L21", forcing="spliced"):
     ## then the figure asserts a control it never passed.
     ## So CHECK rows are RETURNED and the caller MUST stamp them on the figure. Any verdict
     ## that is neither a known pass nor CHECK stays fatal.
-    KNOWN_OK = ["PASS", "SKIPPED", "measured"]
+    ## ⚠ USE THE MODULE CONSTANT. This was a THIRD hardcoded copy of the accepted set --
+    ## in the very module the other two now import it from -- so teaching the other two
+    ## about a new gate verdict still left this one fatal. That is how the [OHC-OFFSET]
+    ## gate, which had PASSED, killed three different consumers one after another.
     check = g[g.verdict == "CHECK"]
-    bad = g[~g.verdict.isin(KNOWN_OK + ["CHECK"])]
+    bad = g[~g.verdict.isin(GATE_VERDICTS_OK + ["CHECK"])]
     if len(bad):
         raise SystemExit("[GATE] %s: %d gate row(s) with an unrecognised verdict:\n%s"
                          % (scen, len(bad), bad))

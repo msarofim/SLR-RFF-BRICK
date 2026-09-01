@@ -80,6 +80,21 @@ PROV = {
                 gis="TWO-basin Greenland (active = SW+CW+CE+SE+NW, high = NO+NE), each "
                     "basin carrying the A+B fast/slow channels",
                 gpanel="Glaciers (3-block: R19/SLOWP/FAST)", gispanel="Greenland (2-basin)"),
+    ## L23 = L21's calibration with ONLY the glacier law changed (floored equilibrium +
+    ## bounded regrowth at R = 1). Chain column set verified byte-identical to L21's.
+    ## Numbers below are read from p_postprocess.log and outputs/mcmc/slr_convergence_L23.csv,
+    ## not carried over from L21's entry.
+    "L23": dict(model="Ladrillo L23", calib="calib 1.6.0 + CMIP7",
+                chains="4x2M, 10k draws",
+                conv="convergence disclosed under the --accept-slr gate (19 marginals "
+                     "unconverged; projected SLR R-hat 1.001 at 2100 and 2150)",
+                glacier="THREE-reservoir Mengel-form glacier (blocks R19 / SLOWP / FAST, "
+                        "one relaxation κ each), FLOORED equilibrium with bounded "
+                        "regrowth at R = 1",
+                gis="TWO-basin Greenland (active = SW+CW+CE+SE+NW, high = NO+NE), each "
+                    "basin carrying the A+B fast/slow channels",
+                gpanel="Glaciers (3-block, floored + regrowth)",
+                gispanel="Greenland (2-basin)"),
     "ext": dict(model="BRICK-Mengel (2026-06 'ext' fit)", calib="calib 1.4.5 (Smith)",
                 chains="4x500k, 10k draws", conv="27/28 R-hat<1.05",
                 glacier="Mengel 2-τ glacier (single reservoir, fast+slow relaxation), as "
