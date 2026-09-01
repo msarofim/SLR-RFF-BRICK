@@ -35,7 +35,11 @@ using CSV, DataFrames, Statistics, Printf
 include(joinpath(@__DIR__, "ladrillo_projection.jl"))
 
 const REPO   = LADRILLO_REPO
-const SEEDS  = [2026, 2027, 2028, 2029]
+## --seeds=a,b,c,d for a replicate bank (L23b runs 3026-3029 against the SAME start rows).
+const SEEDS = let i = findfirst(a -> startswith(a, "--seeds="), ARGS)
+    i === nothing ? [2026, 2027, 2028, 2029] :
+        parse.(Int, split(ARGS[i][9:end], ","))
+end
 const NITER  = 2000000
 const NBURN  = 1000000
 const TAG = let i = findfirst(a -> startswith(a, "--tag="), ARGS)

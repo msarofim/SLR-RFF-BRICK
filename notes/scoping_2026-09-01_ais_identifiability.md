@@ -58,7 +58,55 @@ prior centre.
 
 ---
 
-## 2. THE ONE THING NOT RESOLVED
+## 2. RESOLVED 2026-09-01 — IT IS THE GLACIER LAW, NOT SAMPLER WANDER
+
+**⚠ THIS SECTION REPLACES THE ORIGINAL §2, WHICH POSED THIS AS AN OPEN QUESTION AND LEANED
+TOWARD THE WRONG ANSWER.** The original text guessed that L21 had simply not equilibrated and
+that L23 was the better-sampled run. That guess was the flattering one, it was mine, and the
+measurement refutes it.
+
+A replicate refit (**L23b**: identical law, identical flags, identical START ROWS, seeds
+3026-3029 so only the RNG stream differs) plus the already-on-disk **L22** completes a 2x2 that
+separates the two changes which landed between L21's chains and L23's — the glacier law
+(`a0155bf`) and the L22 steric AR(1) marginal cap (`abd308d`). ⚠ **I had missed the second one
+entirely** when I first called this wander; L21 and L23 differed by TWO things, not one.
+
+`ais_gmst_amp` pooled posterior median, prior N(1.09, 0.10):
+
+| | old glacier law | new glacier law |
+|---|---|---|
+| **pre** steric-cap | **L21 0.9455** (z −1.45) | — |
+| **post** steric-cap | **L22 0.9434** (z −1.47) | **L23 1.0865** (z −0.04) · **L23b 1.0850** (z −0.05) |
+
+* steric cap changed, law held → **Δ 0.0021**. Not the cause.
+* law changed, cap held → **Δ 0.1431 = 1.43 prior sd**. The cause.
+* nothing changed but the RNG → **Δ 0.0014**. Sampler noise is negligible.
+
+At the SLR level the same separation: AIS@2300 pooled, L23 **201.85** vs L23b **196.92** —
+**between-refit reproducibility 4.93 cm** — against the L21→L23 gap of **66.04 cm**, thirteen
+times larger.
+
+**⇒ THE GLACIER LAW IS NOT INERT ON ANTARCTICA.** It is worth ≤0.15 cm in the glacier component
+and ~+66 cm in AIS at 2300, entirely through the CALIBRATION. Every earlier statement in this
+session that the change is "provably inert on warming paths" was about the glacier OUTPUT at
+FIXED parameters, and does not survive refitting.
+
+**What it means, and what is still open.** Under the old law the likelihood pulled amplification
+**1.45 sigma below its prior**; under the new law it does not, and the posterior sits on the
+prior. So a glacier modelling convention was setting the Antarctic amplification. Which state is
+right is NOT established here: either the ratchet was manufacturing a spurious constraint on AIS
+(in which case removing it is correct and L21/L22's lower amplification was an artifact), or the
+floor/regrowth introduces slack that lets an unconstrained parameter drift to its prior. **That
+question is now the important one**, and it is a question about whether AIS amplification was
+ever identified at all rather than about glaciers.
+
+⚠ **A METHOD NOTE WORTH KEEPING.** Between-chain spread WITHIN one refit is a BAD proxy for
+between-refit spread of the POOLED estimate: the within-L23 chain-median range at AIS@2300 is
+34.35 cm, while two independent refits' pooled medians differ by 4.93 cm. Averaging over four
+chains removes most of it. Do not size a reproducibility claim off the within-run range in
+either direction.
+
+## 2b. THE ORIGINAL OPEN QUESTION (superseded, kept for the record)
 
 Why L21's amplification sat 1.44 sigma below the prior centre while L23's sits on it. Two
 candidates, not separated:
@@ -126,14 +174,25 @@ that looks like diligence and buys the least.
 
 ---
 
-## 4. RECOMMENDATION
+## 4. RECOMMENDATION — REVISED 2026-09-01
 
-**Do §2's second refit first** — it is the only thing here that changes what the other options
-mean. If amplification lands at the prior centre again, then L23 is the better-sampled vintage,
-the glacier law is exonerated, and **A + C** is the sensible pair: constrain the parameter from an
-observation, and disclose the residual wander. If it lands low again, the glacier law is
-implicated and the diagnosis in §1 has to be redone against that.
+The second refit is DONE and it changed the question. This is no longer "is the AIS posterior
+reproducible" (it is, to 4.93 cm) but "was Antarctic amplification ever identified, or was it
+being set by a glacier convention".
 
-⚠ **And do not promote L23 until this is settled.** Promotion would move headline ssp245 SLR@2300
-by +69 cm on a difference that is currently attributable to a prior-bound parameter rather than to
-any modelling decision.
+**Option E (longer chains) is now firmly out** — the parameter is prior-dominated under the new
+law and sampling it harder cannot help. **Option D (reparameterise)** is likewise beside the
+point: the direction is not badly mixed, it is unconstrained.
+
+**A and B are the live ones, and B is now the more important.** Under the new law the data say
+nothing about amplification, so its prior IS the answer, and the prior's width was set from an
+inter-model spread that was deliberately not adopted. Either give the parameter an observational
+constraint (**A**) or give the likelihood a term that can see it (**B**). **C** — disclosing the
+between-refit term — is cheap and should be done regardless, but the term is 4.93 cm, an order
+smaller than the 66 cm the law change moves, so it is no longer the headline.
+
+⚠ **AND THE PROMOTION QUESTION HAS CHANGED SHAPE.** L23 is not "an unreproducible draw"; it is a
+reproducible fit under a law we believe is more physical, whose Antarctic answer differs from the
+champion by 66 cm for a reason we can now name but cannot yet adjudicate. Promoting it means
+adopting the position that the ratchet was manufacturing the old AIS constraint. That is a
+defensible position and it is Marcus's to take, not mine to assume.
