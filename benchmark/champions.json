@@ -8,34 +8,34 @@
   ],
   "champions": {
     "ais": {
-      "tag": "L21",
-      "since": "2026-08-28",
-      "why": "calib 1.6.0 + CMIP7 driver migration (Marcus 2026-08-28). NOT a fit improvement: R-hat 1.017->1.006, ESS 953->1201, ssp585@2100 AIS 2.430->2.045x lit; but TE hindcast 1.2355x WORSE than BRICK 2.0 (full window, common years 1920-2025, re-referenced 1995-2005; L14 was 0.9875x). Promoted for COHERENCE — L14 is fit to drivers that no longer exist in the tree. ⚠ CORRECTED 2026-08-29: this note previously read 'TE hindcast 1.245x WORSE and AIS 1.142x WORSE'. Neither is reproducible. The bench run that accompanied this promotion (outputs/bench_ladrillo_L21.csv, same minute) has NO L14 arm, and its AIS rmse_ratio/full vs BRICK 2.0 is 0.0265 — far BETTER, not 1.142x worse. The TE ratio is 1.2355, not 1.245. Do not re-quote the withdrawn pair."
+      "tag": "L23",
+      "since": "2026-09-01",
+      "why": "Floored glacier equilibrium + bounded regrowth replaces an unphysical melt-only ratchet (Marcus 2026-08-31). Adopts the position that the ratchet was manufacturing the old AIS amplification constraint: a 2x2 (L21/L22/L23/L23b) shows the law moves ais_gmst_amp 1.43 prior sd and AIS@2300 by 66 cm, against 4.93 cm between-refit reproducibility. Promoted 2026-09-01 with that attribution explicit and the identifiability question open."
     },
     "glaciers": {
-      "tag": "L21",
-      "since": "2026-08-28",
-      "why": "calib 1.6.0 + CMIP7 driver migration (Marcus 2026-08-28). NOT a fit improvement: R-hat 1.017->1.006, ESS 953->1201, ssp585@2100 AIS 2.430->2.045x lit; but TE hindcast 1.2355x WORSE than BRICK 2.0 (full window, common years 1920-2025, re-referenced 1995-2005; L14 was 0.9875x). Promoted for COHERENCE — L14 is fit to drivers that no longer exist in the tree. ⚠ CORRECTED 2026-08-29: this note previously read 'TE hindcast 1.245x WORSE and AIS 1.142x WORSE'. Neither is reproducible. The bench run that accompanied this promotion (outputs/bench_ladrillo_L21.csv, same minute) has NO L14 arm, and its AIS rmse_ratio/full vs BRICK 2.0 is 0.0265 — far BETTER, not 1.142x worse. The TE ratio is 1.2355, not 1.245. Do not re-quote the withdrawn pair."
+      "tag": "L23",
+      "since": "2026-09-01",
+      "why": "Floored glacier equilibrium + bounded regrowth replaces an unphysical melt-only ratchet (Marcus 2026-08-31). Adopts the position that the ratchet was manufacturing the old AIS amplification constraint: a 2x2 (L21/L22/L23/L23b) shows the law moves ais_gmst_amp 1.43 prior sd and AIS@2300 by 66 cm, against 4.93 cm between-refit reproducibility. Promoted 2026-09-01 with that attribution explicit and the identifiability question open."
     },
     "gis": {
-      "tag": "L21",
-      "since": "2026-08-28",
-      "why": "calib 1.6.0 + CMIP7 driver migration (Marcus 2026-08-28). NOT a fit improvement: R-hat 1.017->1.006, ESS 953->1201, ssp585@2100 AIS 2.430->2.045x lit; but TE hindcast 1.2355x WORSE than BRICK 2.0 (full window, common years 1920-2025, re-referenced 1995-2005; L14 was 0.9875x). Promoted for COHERENCE — L14 is fit to drivers that no longer exist in the tree. ⚠ CORRECTED 2026-08-29: this note previously read 'TE hindcast 1.245x WORSE and AIS 1.142x WORSE'. Neither is reproducible. The bench run that accompanied this promotion (outputs/bench_ladrillo_L21.csv, same minute) has NO L14 arm, and its AIS rmse_ratio/full vs BRICK 2.0 is 0.0265 — far BETTER, not 1.142x worse. The TE ratio is 1.2355, not 1.245. Do not re-quote the withdrawn pair."
+      "tag": "L23",
+      "since": "2026-09-01",
+      "why": "Floored glacier equilibrium + bounded regrowth replaces an unphysical melt-only ratchet (Marcus 2026-08-31). Adopts the position that the ratchet was manufacturing the old AIS amplification constraint: a 2x2 (L21/L22/L23/L23b) shows the law moves ais_gmst_amp 1.43 prior sd and AIS@2300 by 66 cm, against 4.93 cm between-refit reproducibility. Promoted 2026-09-01 with that attribution explicit and the identifiability question open."
     },
     "te": {
-      "tag": "L21",
-      "since": "2026-08-28",
-      "why": "calib 1.6.0 + CMIP7 driver migration (Marcus 2026-08-28). NOT a fit improvement: R-hat 1.017->1.006, ESS 953->1201, ssp585@2100 AIS 2.430->2.045x lit; but TE hindcast 1.2355x WORSE than BRICK 2.0 (full window, common years 1920-2025, re-referenced 1995-2005; L14 was 0.9875x). Promoted for COHERENCE — L14 is fit to drivers that no longer exist in the tree. ⚠ CORRECTED 2026-08-29: this note previously read 'TE hindcast 1.245x WORSE and AIS 1.142x WORSE'. Neither is reproducible. The bench run that accompanied this promotion (outputs/bench_ladrillo_L21.csv, same minute) has NO L14 arm, and its AIS rmse_ratio/full vs BRICK 2.0 is 0.0265 — far BETTER, not 1.142x worse. The TE ratio is 1.2355, not 1.245. Do not re-quote the withdrawn pair."
+      "tag": "L23",
+      "since": "2026-09-01",
+      "why": "Floored glacier equilibrium + bounded regrowth replaces an unphysical melt-only ratchet (Marcus 2026-08-31). Adopts the position that the ratchet was manufacturing the old AIS amplification constraint: a 2x2 (L21/L22/L23/L23b) shows the law moves ais_gmst_amp 1.43 prior sd and AIS@2300 by 66 cm, against 4.93 cm between-refit reproducibility. Promoted 2026-09-01 with that attribution explicit and the identifiability question open."
     },
     "lws": {
-      "tag": "L21",
-      "since": "2026-08-28",
-      "why": "calib 1.6.0 + CMIP7 driver migration (Marcus 2026-08-28). NOT a fit improvement: R-hat 1.017->1.006, ESS 953->1201, ssp585@2100 AIS 2.430->2.045x lit; but TE hindcast 1.2355x WORSE than BRICK 2.0 (full window, common years 1920-2025, re-referenced 1995-2005; L14 was 0.9875x). Promoted for COHERENCE — L14 is fit to drivers that no longer exist in the tree. ⚠ CORRECTED 2026-08-29: this note previously read 'TE hindcast 1.245x WORSE and AIS 1.142x WORSE'. Neither is reproducible. The bench run that accompanied this promotion (outputs/bench_ladrillo_L21.csv, same minute) has NO L14 arm, and its AIS rmse_ratio/full vs BRICK 2.0 is 0.0265 — far BETTER, not 1.142x worse. The TE ratio is 1.2355, not 1.245. Do not re-quote the withdrawn pair."
+      "tag": "L23",
+      "since": "2026-09-01",
+      "why": "Floored glacier equilibrium + bounded regrowth replaces an unphysical melt-only ratchet (Marcus 2026-08-31). Adopts the position that the ratchet was manufacturing the old AIS amplification constraint: a 2x2 (L21/L22/L23/L23b) shows the law moves ais_gmst_amp 1.43 prior sd and AIS@2300 by 66 cm, against 4.93 cm between-refit reproducibility. Promoted 2026-09-01 with that attribution explicit and the identifiability question open."
     },
     "total": {
-      "tag": "L21",
-      "since": "2026-08-28",
-      "why": "calib 1.6.0 + CMIP7 driver migration (Marcus 2026-08-28). NOT a fit improvement: R-hat 1.017->1.006, ESS 953->1201, ssp585@2100 AIS 2.430->2.045x lit; but TE hindcast 1.2355x WORSE than BRICK 2.0 (full window, common years 1920-2025, re-referenced 1995-2005; L14 was 0.9875x). Promoted for COHERENCE — L14 is fit to drivers that no longer exist in the tree. ⚠ CORRECTED 2026-08-29: this note previously read 'TE hindcast 1.245x WORSE and AIS 1.142x WORSE'. Neither is reproducible. The bench run that accompanied this promotion (outputs/bench_ladrillo_L21.csv, same minute) has NO L14 arm, and its AIS rmse_ratio/full vs BRICK 2.0 is 0.0265 — far BETTER, not 1.142x worse. The TE ratio is 1.2355, not 1.245. Do not re-quote the withdrawn pair."
+      "tag": "L23",
+      "since": "2026-09-01",
+      "why": "Floored glacier equilibrium + bounded regrowth replaces an unphysical melt-only ratchet (Marcus 2026-08-31). Adopts the position that the ratchet was manufacturing the old AIS amplification constraint: a 2x2 (L21/L22/L23/L23b) shows the law moves ais_gmst_amp 1.43 prior sd and AIS@2300 by 66 cm, against 4.93 cm between-refit reproducibility. Promoted 2026-09-01 with that attribution explicit and the identifiability question open."
     }
   }
 }

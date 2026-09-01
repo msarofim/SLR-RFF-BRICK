@@ -196,3 +196,85 @@ reproducible fit under a law we believe is more physical, whose Antarctic answer
 champion by 66 cm for a reason we can now name but cannot yet adjudicate. Promoting it means
 adopting the position that the ratchet was manufacturing the old AIS constraint. That is a
 defensible position and it is Marcus's to take, not mine to assume.
+
+---
+
+# ADDENDUM 2026-09-01 — OPTION B WAS ATTEMPTED AND IS REFUTED BY ITS OWN POWER
+
+Marcus asked for **B**: give the likelihood a term that can see `ais_gmst_amp`. Measuring the
+power of that term BEFORE building it (`no_power_null`) says it cannot work. Reporting the
+negative rather than shipping a term that would look like a constraint and act as none.
+
+## What A actually is
+
+`antarctic_icesheet_magdep_component.jl:165` with the calibrator's `1/θ` mapping gives
+
+    T_antarctic = A * GMST + TANT0 ,   TANT0 = -18.435 C, FIXED
+
+so **A is the regression slope of Antarctic mean surface temperature on GMST** — a directly
+observable quantity, which is why B looked promising. The problem is the lever arm.
+
+## Why no instrumental record can see it
+
+**A only ever multiplies the ANOMALY.** Its footprint is proportional to GMST, which is ~0.5 C
+where the observations are and 3-8 C where the answer is. For the L22->L23 shift dA = 0.1431:
+
+| epoch | GMST | dT_antarctic | d precipitation |
+|---|---|---|---|
+| 1979-2008 (the existing SMB term's window) | 0.58 | **0.083 C** | 0.52 % |
+| 1992-2017 (IMBIE) | 0.79 | 0.113 C | 0.70 % |
+| 2100 / 2300 | 2.70 / 3.18 | 0.387 / 0.455 C | 2.4 / 2.9 % |
+
+A shift that moves AIS@2300 by **66 cm** perturbs Antarctic temperature by **0.083 C** over the
+window where we have mass-balance data, and precipitation by half a percent — far under Rignot's
+uncertainty. **The identifiability problem is structural, not a missing dataset.**
+
+## And a temperature target is worse, not better
+
+Slope standard error `sigma_A = sigma_eff / sqrt(Sxx)` on the model's own GMST regressor, with an
+AR(1) inflation at rho = 0.3, against the **prior sd of 0.10**:
+
+| window | sigma_obs 0.4 | 0.6 | 0.8 |
+|---|---|---|---|
+| 1979-2024 satellite | 0.271 | **0.407** | 0.542 |
+| 1957-2024 (longest real record) | 0.200 | 0.300 | 0.400 |
+| 1850-2024 (longer than any record exists) | **0.119** | 0.179 | 0.239 |
+
+Antarctic annual continental-mean temperature has an interannual sd of ~0.4-0.8 C. **Every cell
+is worse than the prior**, including one that assumes 175 years of data that do not exist.
+
+## The other candidates, and why they are already closed
+
+* **IMBIE dAIS(92-17)** was in this likelihood and was **deliberately REMOVED** (calibrator
+  header item 4, Marcus 2026-06-13) because the extended AIS time series constrains the modern
+  rate directly and keeping both double-weights it. Re-adding it would reverse a decision, and
+  the table above shows it would buy 0.113 C of signal.
+* **An SMB term already exists** (A5: model beta_total 1979-2008 vs area-scaled Rignot 2019). It
+  is in the likelihood NOW, and A is still prior-dominated. The observable is present and does
+  not identify the parameter.
+* **Paleo (LGM ice cores)** would constrain **EQUILIBRIUM** amplification (~1.5 from a -6 C
+  global, -9 C Antarctic contrast). The model needs the **TRANSIENT** coefficient, which A6
+  deliberately took from CMIP6 PAI1 (Xie et al. 2022). Wrong quantity — do not substitute it.
+
+## ⇒ WHAT I RECOMMEND INSTEAD
+
+**F. Widen the prior to the inter-model spread that was actually measured — 0.180, not 0.10.**
+The calibrator records (`:1166-1171`) that the corrected data DID give an inter-model sd of
+0.180 and that 0.10 was kept deliberately, because between-model spread was out of scope for
+that recalibration. That reasoning predates knowing that **A is prior-dominated and carries
+386 cm/unit at 2300**. When a parameter's posterior IS its prior, the prior's width IS the
+projection uncertainty, and 0.10 understates the AIS band by ~1.8x on the dominant term.
+⚠ This REVERSES a standing constraint and is Marcus's call. It WIDENS the band; it does not
+improve the fit.
+
+**G. Report A as an explicit structural axis, not a fitted parameter.** Project AIS at A = the
+prior's p05 / p50 / p95 and quote the spread as declared structural uncertainty. A
+prior-dominated, high-leverage parameter laundered through a posterior looks like a result; run
+as an axis it looks like what it is.
+
+**C. still stands** — disclose that the glacier law moves AIS@2300 by 66 cm, against 4.93 cm of
+between-refit reproducibility.
+
+**Not recommended: building B anyway.** A term with sigma_A of 0.27-0.54 against a 0.10 prior
+would leave the posterior unchanged and add the *appearance* of an observational constraint.
+That is the failure `no_power_null` exists to prevent.
