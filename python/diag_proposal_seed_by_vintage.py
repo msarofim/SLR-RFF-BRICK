@@ -26,7 +26,11 @@ import os, re, glob
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MC = os.path.join(REPO, "outputs", "mcmc")
-VINTAGES = [("L21", 2026), ("L22", 2026), ("L23", 2026), ("L23b", 3026), ("L24", 2026)]
+# L25 = L23's configuration with L21/L22's covariance, the run that resolves the 2x2.
+# It is listed here so the FIRST thing done with it is confirming it actually got the
+# covariance it was launched with -- the failure this diagnostic exists to catch.
+VINTAGES = [("L21", 2026), ("L22", 2026), ("L23", 2026), ("L23b", 3026),
+            ("L24", 2026), ("L25", 2026)]
 
 print("=" * 100)
 print("PROPOSAL COVARIANCE AND AIS-BLOCK SCALES, BY VINTAGE")

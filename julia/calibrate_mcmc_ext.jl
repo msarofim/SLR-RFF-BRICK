@@ -1732,6 +1732,9 @@ for k in GEO_IDX; prop[k] = GEO_PROP_SCALE * Float64(FREE[k].σ); end
 # valid; l11a is not (see the name-mapping guard below). Even a stale-basis L11
 # covariance beats the 55-param L10 one, which knows nothing about the four
 # d2_* columns either.
+# Whether the proposal covariance was CHOSEN or INHERITED. Read once, so the banner
+# at `println(adcov_msg)` can say which.
+const ADCOV_OVERRIDE = _argval("--adcov=")
 const ADCOV = let l11c = joinpath(REPO,"outputs/mcmc/adapted_cov_L11tune3_seed2026.csv"),
                   l11b = joinpath(REPO,"outputs/mcmc/adapted_cov_L11tune2_seed2026.csv"),
                   l11a = joinpath(REPO,"outputs/mcmc/adapted_cov_L11tune_seed2026.csv"),
@@ -1761,7 +1764,7 @@ const ADCOV = let l11c = joinpath(REPO,"outputs/mcmc/adapted_cov_L11tune3_seed20
     # L13-layout run the L11tune3 covariance, when the covariance actually wanted is
     # the CANONICAL L12 production one. An explicit flag also puts the choice in the
     # run script, where it is reviewable, instead of in a preference ordering.
-    ov = _argval("--adcov=")
+    ov = ADCOV_OVERRIDE
     if !isnothing(ov)
         # Accept an absolute path, a path relative to the repo root (what the
         # run_*.sh scripts define, e.g. outputs/mcmc/adapted_cov_L13tune_seed2026.csv),
@@ -2049,6 +2052,21 @@ if isfile(ADCOV)
     end
 end
 println(adcov_msg)
+# SAY WHICH, LOUDLY. L23/L23b/L24 were launched without --adcov and fell through to the
+# list head (adapted_cov_L11tune3) where L21/L22 passed adapted_cov_L14tune. The AIS-block
+# proposal is 2.7-5.3x tighter under L11tune3 and gis_s_high lands on its floor, so a 2x2
+# meant to isolate ONE change carried a second moved axis for a week. The line above named
+# the file the whole time; what it did not say is that NOBODY CHOSE it. A default that
+# reads like a decision is the defect.
+if isnothing(ADCOV_OVERRIDE)
+    println("!! NO --adcov PASSED: the proposal covariance above came from the built-in " *
+            "PREFERENCE ORDER, not from this run's command line. That order is tuned for " *
+            "the L11/L12 line and does not track the current vintage. If this run is meant " *
+            "to be comparable with another, pass --adcov=<file> explicitly -- a covariance " *
+            "is a second axis, and it does NOT show up in the chain's column set.")
+else
+    println("--adcov: proposal covariance CHOSEN explicitly ($(basename(ADCOV))).")
+end
 isposdef(cov0) || error("seed proposal covariance is not positive definite")
 
 # ---- GEOMETRY SEED GATE (Marcus 2026-08-19; handoff_2026-08-19c §1.1) -------------
@@ -2286,8 +2304,30 @@ if "--gis-check" in ARGS
     nref, nlate = MOUG_REF_WIN[2]-MOUG_REF_WIN[1], MOUG_LATE_WIN[2]-MOUG_LATE_WIN[1]
     share = (rt(fst, MOUG_I.l0, MOUG_I.l1, nlate) - rt(fst, MOUG_I.r0, MOUG_I.r1, nref)) /
             (rt(tot, MOUG_I.l0, MOUG_I.l1, nlate) - rt(tot, MOUG_I.r0, MOUG_I.r1, nref))
-    # offline A+B at g=0 (outputs/gis_offline_cell_fits.csv + gis_g_betaf_variants.csv)
-    REF = (rmse=0.0617, bias=0.0146, rate=0.7749, share=0.7351)
+    # The offline A+B cell at g = 0, READ from the file that produced it rather than
+    # transcribed. ⚠ These four were hardcoded as (0.0617, 0.0146, 0.7749, 0.7351). They
+    # were right, but a refit of the offline cell moves them and a transcribed reference
+    # cannot notice: the gate would then compare the calibrator against a SUPERSEDED cell
+    # and report PASS or FAIL for the wrong reason. Same class as the `--gis-check` name
+    # this gate carries -- a wiring check whose own reference can drift is not a check.
+    _ref_csv = joinpath(REPO, "outputs", "gis_g_betaf_variants.csv")
+    isfile(_ref_csv) || error("--gis-check needs $(_ref_csv): it holds the offline A+B " *
+        "cell this gate scores the calibrator wiring against. Regenerate it with " *
+        "python/gis_offline_cell.py. Do NOT re-hardcode the numbers -- a transcribed " *
+        "reference is what this read replaced.")
+    _refdf = CSV.read(_ref_csv, DataFrame)
+    _refrow = _refdf[_refdf.variant .== "g=0", :]
+    nrow(_refrow) == 1 || error("--gis-check: expected exactly ONE `g=0` row in " *
+        "$(basename(_ref_csv)), found $(nrow(_refrow)). The variant set changed; pick the " *
+        "row this gate should score against and say so here.")
+    REF = (rmse  = Float64(_refrow.rmse_cm[1]),
+           bias  = Float64(_refrow.midcen_bias_cm[1]),
+           rate  = Float64(_refrow.rate_mmyr[1]),
+           share = Float64(_refrow.surface_share[1]))
+    # ⚠ @printf needs a LITERAL format string -- a `*`-concatenated one is an
+    # ArgumentError at load time, which in this branch means the gate cannot RUN.
+    @printf("--gis-check | offline reference read from %s [variant g=0]: rmse %.4f  bias %.4f  rate %.4f  share %.4f\n",
+            basename(_ref_csv), REF.rmse, REF.bias, REF.rate, REF.share)
     TOL = (rmse=0.005,  bias=0.010,  rate=0.020,  share=0.010)
     # Per-basin modern shares at this same theta. Printed BEFORE any verdict on the
     # shares term, because a diagnostic that can already measure the thing is how
@@ -2329,7 +2369,9 @@ if "--gis-check" in ARGS
               ("Mouginot surface share", share, REF.share, TOL.share)]
     passes = [abs(g - w) <= t for (_, g, w, t) in checks]
     for ((k, g, w, t), p) in zip(checks, passes)
-        @printf("  %-24s got %8.4f   offline %8.4f   |diff| %7.4f  tol %.2f  %s\n",
+        # %.3f, not %.2f: TOL.rmse is 0.005 and printed as "0.01" for months, i.e. the
+        # gate DISPLAYED a tolerance twice the one it applied.
+        @printf("  %-24s got %8.4f   offline %8.4f   |diff| %7.4f  tol %.3f  %s\n",
                 k, g, w, abs(g - w), t, p ? "PASS" : "FAIL")
     end
     println(all(passes) ? "GIS WIRING OK" : "GIS WIRING FAILED")
