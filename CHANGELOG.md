@@ -1,3 +1,42 @@
+## 2026-09-01c — two silent defaults in the calibrator, and three gates that were not gating
+
+**`--adcov` now says whether the covariance was CHOSEN or INHERITED.** The flag falls through to
+the head of a built-in preference list when absent; that is how L23/L23b/L24 came to sample under
+`adapted_cov_L11tune3` where L21/L22 passed `adapted_cov_L14tune`. `calibrate_mcmc_ext.jl` prints,
+immediately after the covariance line, either `!! NO --adcov PASSED: ... came from the built-in
+PREFERENCE ORDER, not from this run's command line` or `--adcov: proposal covariance CHOSEN
+explicitly (<file>)`. The old banner NAMED the file the whole time — what it never said is that
+**nobody chose it**. Mutation-tested both ways against a live `--gis-check` run.
+
+**`--gis-check` stopped transcribing its own reference.** It scored the calibrator's Greenland
+wiring against the hardcoded `REF = (0.0617, 0.0146, 0.7749, 0.7351)`. Those numbers are right, and
+that is the hazard: a refit of the offline A+B cell moves them and a transcription cannot notice, so
+the gate would compare against a superseded cell and report PASS for the wrong reason. It now reads
+row `g=0` of `outputs/gis_g_betaf_variants.csv` — a file this driver does NOT write
+(`python/gis_offline_cell.py` does), so it stays a cross-implementation check. Guard mutation-tested
+four ways: absent file, missing `g=0` row and duplicated `g=0` row all hard-error; a MOVED reference
+is used, where the hardcode would have been.
+
+**Running it found two more.** (1) The first version of the read used `@printf` with a
+`*`-concatenated format string. Julia requires a LITERAL one, so it was an `ArgumentError` at LOAD
+time — the gate could not RUN — and the backgrounding wrapper still reported exit 0. A gate that
+cannot run is silent in exactly the way a gate that passes is. (2) The tolerance column printed with
+`%.2f`, so `TOL.rmse = 0.005` had been DISPLAYED as `0.01`: **the gate showed twice the tolerance it
+applied.** Both fixed; all four checks pass at `|diff| 0.0000`.
+
+**L25 is a clean one-variable test, verified.** `diag_proposal_seed_by_vintage.py` now lists it, and
+its startup diagnostic reads `adapted_cov_L14tune_seed2026.csv`, name-mapped 58 of 58 by the file's
+own header — L21/L22's covariance exactly, as intended.
+
+**A slip worth recording.** `4104418`'s message described the `scope_ais_amp_law_form.py` prior fix,
+but the commit staged an explicit file list that did not include it; landed separately as `77fe124`.
+
+**Tried and reverted.** The format-equivalence harness re-ran eight drivers, which rewrote nine
+TRACKED files under `outputs/` with last-digit float32 drift (e.g. `te` spread 43.0091 -> 43.009).
+Those were `git checkout`-ed back: the committed results were produced on the CSV basis and say so;
+re-baselining them on float32 because a verification run happened to touch them is exactly the
+silent re-baseline the equivalence measurement exists to avoid.
+
 ## 2026-09-01b — the draws readers speak both formats; a stale "shipped prior" label
 
 **The eight readers are migrated.** The `scope_slr_fairunc_draws_*` CSVs were kept at the
