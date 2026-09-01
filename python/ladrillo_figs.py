@@ -150,7 +150,11 @@ VV_SET = [("vvVL", "Very Low",      "#00a9cf", True),
 TAG_DESC = {
     "L21": dict(model="Ladrillo L21",
                 calib="FaIR 2.2.4 calib 1.6.0 + CMIP7",
-                chains="8 chains, chain_L21_seed*_n2000000",
+                ## 4, not 8. `outputs/log_l21_postprocess_driver.txt:61` reads
+                ## "4 chains x 1000000 draws" (post-burn) and only seeds 2026-2029
+                ## exist on disk. The "8 chains" figure came from the Torch design
+                ## note, which PROPOSED an 8-seed array that was never run here.
+                chains="4 chains, chain_L21_seed{2026..2029}_n2000000",
                 glacier="3-reservoir Nauels-nu (glaciers_nu3): R19 / SLOWP / FAST",
                 gis="two-basin Greenland with the shipped tap",
                 note="champion since 2026-08-28; L14's config on the 1.6.0 drivers. "
@@ -161,11 +165,18 @@ TAG_DESC = {
                 glacier="3-reservoir Nauels-nu (glaciers_nu3), FLOORED equilibrium "
                         "+ bounded regrowth at R = 1",
                 gis="two-basin Greenland with the shipped tap",
-                note="refit 2026-08-31 on L21's calibration exactly "
+                ## ⚠ THIS NOTE SAID "the glacier law is the only axis that moved".
+                ## REFUTED 2026-09-01: L23 carries NO --adcov and fell through to the
+                ## default list head, so it sampled under adapted_cov_L11tune3 where
+                ## L21/L22 passed adapted_cov_L14tune (diag_proposal_seed_by_vintage.py,
+                ## read from the runs' own seed_diag_*.txt). The AIS-block proposal is
+                ## 2.7-5.3x TIGHTER in L23. The column-set identity check is BLIND to
+                ## this -- a proposal covariance is not a chain column.
+                note="refit 2026-08-31 on L21's calibration "
                      "(--gis-ordered --gis-basins2 --overdisperse, 4 x 2M), with the "
-                     "melt-only glacier ratchet replaced. Chain column set verified "
-                     "byte-identical to L21's, so the glacier law is the only axis that "
-                     "moved. Accepted on the deliverable criterion (--accept-slr)."),
+                     "melt-only glacier ratchet replaced. TWO axes moved, not one: the "
+                     "glacier law AND the proposal covariance (L11tune3, not L14tune). "
+                     "Accepted on the deliverable criterion (--accept-slr)."),
     "L14": dict(model="Ladrillo L14",
                 calib="FaIR 2.2.4 calib 1.4.5",
                 chains="chain_L14_*",

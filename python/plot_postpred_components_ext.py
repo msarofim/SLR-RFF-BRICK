@@ -73,7 +73,9 @@ PROV = {
     ## kappa each -- and no tau_f/tau_s. Verified from the subsample's own columns.
     "L21": dict(model="Ladrillo L21", calib="calib 1.6.0 + CMIP7",
                 chains="4x2M, 10k draws",
-                conv="convergence disclosed under the --accept-slr gate (20 marginals "
+                ## 18, not 20. `outputs/log_l21_postprocess_driver.txt:97` reads
+                ## "** 18 marginals not converged; ACCEPTED ON DELIVERABLE **".
+                conv="convergence disclosed under the --accept-slr gate (18 marginals "
                      "unconverged; projected SLR R-hat<1.05 at all horizons)",
                 glacier="THREE-reservoir Mengel-form glacier (blocks R19 / SLOWP / FAST, "
                         "one relaxation κ each)",
@@ -82,8 +84,12 @@ PROV = {
                 gpanel="Glaciers (3-block: R19/SLOWP/FAST)", gispanel="Greenland (2-basin)"),
     ## L23 = L21's calibration with ONLY the glacier law changed (floored equilibrium +
     ## bounded regrowth at R = 1). Chain column set verified byte-identical to L21's.
-    ## Numbers below are read from p_postprocess.log and outputs/mcmc/slr_convergence_L23.csv,
-    ## not carried over from L21's entry.
+    ## ⚠ TWO axes moved from L21, not one: the glacier law AND the proposal covariance
+    ## (L23 carries no --adcov and fell through to adapted_cov_L11tune3 where L21/L22
+    ## passed adapted_cov_L14tune). The column-set identity check above cannot see it.
+    ## The 19-marginal figure was read from a `p_postprocess.log` that is NO LONGER ON
+    ## DISK -- unverifiable here, unlike L21's, which has
+    ## outputs/log_l21_postprocess_driver.txt. Re-run postprocess to restore the receipt.
     "L23": dict(model="Ladrillo L23", calib="calib 1.6.0 + CMIP7",
                 chains="4x2M, 10k draws",
                 conv="convergence disclosed under the --accept-slr gate (19 marginals "
