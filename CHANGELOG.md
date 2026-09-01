@@ -1,3 +1,36 @@
+## 2026-09-01 — ensembles moved to Parquet; the outputs commit rewritten to results only
+
+**Policy (Marcus 2026-09-01): commit the code, the key results and the figures, not the
+intermediates.** Applied to the pending outputs commit and to three ensemble classes.
+
+**Parquet migration.** float64 -> float32, zstd. Each file verified individually against its
+source CSV — row count, column order, max relative error, all under a 1e-6 bound.
+
+| class | files | CSV | Parquet | ratio | CSVs deleted? |
+|---|---|---|---|---|---|
+| `wong_cond_pulse_pairs_*` | 18 | 13.21 GB | 2.73 GB | 4.8x | YES — consumers migrated first |
+| `wong_cond_weights_full*` | 18 | 1.32 GB | 0.16 GB | 8.1x | YES — sole consumer is RETIRED |
+| `scope_slr_fairunc_draws_*` | 96 | 0.80 GB | 0.10 GB | 8.2x | NO — 12 live readers |
+
+float32 is safe and that was MEASURED: max relative error 6.0e-08 per column, and the pulse
+deltas are STORED rather than differenced at read time, so no cancellation remains to lose.
+Before the pulse-pair CSVs were deleted, the PRODUCTION statistic (equal-weight mean marginal
+`d_total` at the last horizon) was compared CSV-vs-Parquet across all 18 arms — worst relative
+difference **1.12e-07** — and `metric_horizon_table.py` was run end to end on the Parquet.
+
+⚠ **`scope_slr_fairunc_draws_*` CSVs are KEPT.** Twelve scripts still read them (ten Python, two
+Julia). Migrating those readers, then deleting the CSVs, is the remaining step — it was not done
+while a calibration was mid-flight.
+
+**The outputs commit, rewritten before it was ever pushed.** `d3fca9a` carried 741 files and
+15.82 GB; 17 of them exceeded GitHub's 100 MB per-file cap, so it could never have pushed. Rewritten
+by plumbing (`read-tree` / `rm --cached` / `commit-tree`) so the WORKING TREE was never touched —
+a plain rebase would have deleted the still-needed draw CSVs and run logs off disk. 199 paths
+dropped, exactly those the current `.gitignore` matches; **542 files / 34.9 MB kept, every one
+byte-identical to the original**, largest member 0.71 MB. The eight later commits were replayed
+with messages and authorship preserved verbatim. Pre-rewrite tip kept at
+`backup/pre-d3fca9a-rewrite-20260901`.
+
 ## 2026-09-01 — the L21->L23 AIS move has a CONFIGURATION cause: L23 lost the --adcov flag
 
 `python/diag_proposal_seed_by_vintage.py`. Follows directly from the item-4 null above: with the
