@@ -9,12 +9,15 @@ each run wrote at startup, so it is evidence from the runs themselves, not a rec
 WHAT IT FOUND. L21/L22 were launched with --adcov=adapted_cov_L14tune_seed2026.csv, a NAMED
 58-column file mapped by name, 58 of 58. L23/L23b/L24 carry no --adcov and fall through to the
 head of the default preference list, adapted_cov_L11tune3_seed2026.csv -- whose columns are
-x1..x57, i.e. NAMELESS, mapped POSITIONALLY "as L11 layout" onto a 58-parameter model.
+x1..x57 -- NAMELESS, so its rows are read through the hardcoded L11_NAMES literal
+instead of its own header.
 
-That is the exact hazard calibrate_mcmc_ext.jl documents against itself at the adapted_cov
-write: "A nameless covariance can only be re-read through a hardcoded vintage table, and
-getting one of those orderings wrong is silent (it is a valid permutation of a valid matrix)
--- that is how L13's ais_c was seeded with ais_slope's variance."
+⚠ THAT IS NOT A PERMUTATION. The L11_NAMES ordering bug was fixed in 57959ee (2026-08-19):
+d2_* sits at rows 35-38 immediately after gic_s_r5, matching FREE, and the literal is
+set-checked against the live layout. L23's mapping is ORDERING-CORRECT. Two real differences
+remain: L11tune3 is an OLDER (L11-era) tuning vintage than the L14tune file L21/L22 used,
+which is the whole of the 2.7-5.3x proposal-scale effect; and gis_s_high, the one live
+parameter absent from the 57-name list, falls back to its 0.05 floor.
 
     python python/diag_proposal_seed_by_vintage.py
 Reads outputs/mcmc/seed_diag_<TAG>_seed<SEED>.txt
@@ -56,7 +59,8 @@ if ref and "L23" in scales:
         if w is None:
             continue
         print(f"{k:22s} {v:12.4g} {w:12.4g} {v/w if w else float('nan'):10.2f}x")
-    print("\n⚠ A 3-5x TIGHTER proposal on the AIS block, in a sampler where 17-19 marginals fail")
+    print("\n⚠ Ordering is CORRECT (57959ee): an OLDER tuning vintage, NOT a permutation.")
+    print("  A 3-5x TIGHTER proposal on the AIS block, in a sampler where 17-19 marginals fail")
     print("  R-hat on every vintage, is a mechanism for moving a POOLED MEDIAN without changing")
     print("  a width the prior sets. L23b shares this covariance, so the RNG-only replicate")
     print("  could not have detected it (two_statistics_can_be_blind).")

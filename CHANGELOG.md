@@ -8,22 +8,27 @@ glacier law measured inert in the likelihood (<=7.3e-5), the amp shift needed an
 | vintage | proposal covariance | mapping |
 |---|---|---|
 | L21, L22 | `adapted_cov_L14tune_seed2026.csv` | NAMED, by name, **58 of 58** |
-| L23, L23b, L24 | `adapted_cov_L11tune3_seed2026.csv` | columns `x1..x57` — **NAMELESS**, POSITIONAL, "as L11 layout" onto a **58**-parameter model |
+| L23, L23b, L24 | `adapted_cov_L11tune3_seed2026.csv` | columns `x1..x57` — NAMELESS, rows read through the hardcoded `L11_NAMES` literal, **57 of 57** |
+
+⚠ **CORRECTION, same day, before this was acted on.** A first version of this entry called the L23 mapping "positional" and implied the L13 `ais_c` permutation had recurred. **It has not.** The `L11_NAMES` ordering bug was FIXED in `57959ee` (2026-08-19): `d2_*` now sits at rows 35-38 immediately after `gic_s_r5`, matching `FREE`, and the literal is set-checked against the live layout. L23's mapping is ORDERING-CORRECT. What is actually wrong is narrower, and still real.
 
 `run_mcmc_L21.sh` and `run_mcmc_L22.sh` both pass `--adcov=adapted_cov_L14tune_seed2026.csv`.
 There is no `run_mcmc_L23.sh` in the repo; L23/L23b/L24 carry no `--adcov` and fall through to the
 head of the default preference list. This is the SECOND dropped-flag incident on this refit —
 §5.1 of handoff_2026-09-01 records the first (missing `--gis-ordered --gis-basins2`, quarantined).
 
-It is also the precise hazard `calibrate_mcmc_ext.jl` documents against itself where it writes the
-covariance: "A nameless covariance can only be re-read through a hardcoded vintage table, and
-getting one of those orderings wrong is silent (it is a valid permutation of a valid matrix) --
-that is how L13's `ais_c` was seeded with `ais_slope`'s variance."
+**What is actually wrong**, in order of confidence: (1) `adapted_cov_L11tune3_seed2026.csv` is an
+OLDER, L11-era tuning vintage rather than the L14 one L21/L22 passed — this is the whole of the
+2.7-5.3x effect below; (2) exactly one live parameter, `gis_s_high`, has no entry in the 57-name
+`L11_NAMES` list and falls back to its 0.05 floor, against L21's tuned 0.02699; (3) reading a
+nameless covariance through a hardcoded vintage table stays a documented hazard CLASS here —
+three quarantines carry it (`20260816_adcov_size_collision`, `20260819_adcov_l11names_misorder`,
+`20260821_nameless_adcov`) — but this is NOT an instance of it.
 
 **Consequence, measured.** The AIS-block proposal is **2.7-5.3x TIGHTER** in L23/L24:
 `ais_c` 3.216 -> 0.6065 (5.30x), `ais_mu` 0.1946 -> 0.05204 (3.74x), `ais_bedheight0` 2.90x,
-`ais_precip0_LOG` 2.69x; `gis_s_high` lands on 0.05, a round number that looks like a fallback
-rather than a tuned value. With 17-19 marginals failing R-hat on every vintage, a 3-5x tighter
+`ais_precip0_LOG` 2.69x; `gis_s_high` lands on its 0.05 floor, the one live parameter
+with no entry in `L11_NAMES`. With 17-19 marginals failing R-hat on every vintage, a 3-5x tighter
 AIS proposal is a mechanism for relocating a POOLED MEDIAN while leaving a width the PRIOR sets
 untouched — which is exactly the shift-without-sharpening signature §7.4 asked about.
 
