@@ -2118,8 +2118,21 @@ if OVERDISPERSE
     isfile(SF) || error("--overdisperse needs $SF (4 rows x NK params). See notes/handoff_2026-07-18_brick_mengel_vnext.md")
     println("over-dispersed starts file: $SF")
     st = CSV.read(SF, DataFrame)
-    si = findfirst(==(SEED), [2026,2027,2028,2029])
-    isnothing(si) && error("--overdisperse: no start row defined for seed $SEED")
+    ## THE CANONICAL SEED BANK, and a REPLICATE bank that maps onto the SAME start rows.
+    ## Row i of the starts file is a specific over-dispersed posterior draw (ais_iceflow0
+    ## quantiles 0.02/0.35/0.65/0.98), so seed 3026 starting from row 1 runs the SAME start
+    ## as seed 2026 with a DIFFERENT RNG stream. That is exactly what a reproducibility
+    ## refit needs: it isolates sampler variability from start variability, where a fresh
+    ## set of starts would confound the two. Existing seeds are untouched -- the replicate
+    ## lookup is only consulted when the canonical one misses.
+    ## Added 2026-09-01 for the L23b run that measures the between-refit Antarctic wander
+    ## (notes/scoping_2026-09-01_ais_identifiability.md).
+    const SEEDS_CANON = [2026, 2027, 2028, 2029]
+    const SEEDS_REPLICATE = [3026, 3027, 3028, 3029]
+    si = something(findfirst(==(SEED), SEEDS_CANON),
+                   findfirst(==(SEED), SEEDS_REPLICATE), 0)
+    si == 0 && error("--overdisperse: no start row defined for seed $SEED " *
+                     "(canonical $(SEEDS_CANON), replicate $(SEEDS_REPLICATE))")
     nrow(st) >= si || error("--overdisperse: $SF has $(nrow(st)) rows, need >= $si")
     # The starts file must cover the CURRENT parameter set. The v-next (35-param)
     # starts predate phase-2's λ/γ/κ/amp and the T_on reparam, so this is a two-stage
