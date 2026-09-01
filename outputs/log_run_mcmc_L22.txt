@@ -1,0 +1,5 @@
+L22: 4 chains x 2000000 (seeds 2026-2029) — L21 config + steric AR(1) MARGINAL cap (modern)
+     amp ~ N(0.95, 0.10) [L21's], adcov=adapted_cov_L14tune_seed2026.csv [L21's], overdispersed starts, BLAS pinned
+L22 chains done. VERIFY FIRST: the header must say 'MARGINAL σ/sqrt(1-ρ²) CAPPED at
+0.1036 cm', the steric start-repair line must have PRINTED, and no post-burn draw may
+exceed the cap (python/check_steric_cap.py). Then: TAG=L22 bash run_l21_postprocess.sh

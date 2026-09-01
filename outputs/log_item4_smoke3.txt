@@ -1,0 +1,158 @@
+AIS ITEM 4 -- the two badly-mixed parameters that reach the deliverable
+  tag L14  *** SMOKE (--maxrows=4000), PRE-BURN-IN, NOT A RESULT *** | 8 draws/chain x 4 chains | Greenland :basins2
+  subjects: antarctic_alpha (R-hat 1.777) and ais_runoff_Ton (R-hat 1.092)
+  flux windows: anchored 1979-2008 (Rignot A5) | unobserved 2281-2300
+  reading chain seed2026 ...
+  reading chain seed2027 ...
+  reading chain seed2028 ...
+  reading chain seed2029 ...
+
+==============================================================================
+GATES
+==============================================================================
+[RIDGE-CORR] antarctic_alpha    max |corr| with any used param = 0.7975  (ais_iceflow0)
+[RIDGE-CORR] ais_runoff_Ton     max |corr| with any used param = 0.6080  (ais_gmst_amp)
+[RIDGE-CORR] pairwise |corr| inside the discharge group ais_iceflow0, antarctic_alpha, ais_ocean_temperature₀, anto_alpha, anto_beta, antarctic_gamma:
+             ais_iceflow0           antarctic_alpha        +0.798
+             ais_iceflow0           ais_ocean_temperature₀ +0.848
+             ais_iceflow0           anto_alpha             -0.543
+             ais_iceflow0           anto_beta              -0.449
+             antarctic_alpha        ais_ocean_temperature₀ +0.779
+             antarctic_alpha        anto_alpha             -0.559
+             ais_ocean_temperature₀ anto_alpha             -0.344
+             anto_beta              antarctic_gamma        -0.367
+  ssp245 / chain                        :    32 draws in     4s | AIS@2300 median   144.78  p05-p95   282.72 cm
+  ssp585 / chain                        :    32 draws in     0s | AIS@2300 median   292.13  p05-p95   211.73 cm
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 4. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+
+[SAME-Q] ssp245 per-draw corr(AIS@2100, anchored net)   = -0.1628
+[SAME-Q] ssp245 per-draw corr(AIS@2100, anchored SMB)   = -0.2496
+[SAME-Q] ssp245 per-draw corr(AIS@2100, anchored disch) = +0.2367
+[SAME-Q] ssp245 per-draw corr(AIS@2100, anchored rate)  = +0.2746
+[SAME-Q] ssp245 per-draw corr(AIS@2300, anchored net)   = -0.1026
+
+==============================================================================
+[1] DOES THE BLOCK'S FAILURE REACH THE DELIVERABLE?  (R-hat OK < 1.05)
+==============================================================================
+scen     cmp         yr    R-hat       ESS   med range     /sd_wc    p05-p95
+ssp245   ais       2100    1.191       NaN      13.43       1.436      31.01  NOT CONVERGED
+ssp245   ais       2150    1.281       NaN      64.31       2.332      91.67  NOT CONVERGED
+ssp245   ais       2300    1.159       NaN     133.74       1.445     282.72  NOT CONVERGED
+ssp245   total     2100    1.363       NaN      11.32       1.252      31.78  NOT CONVERGED
+ssp245   total     2150    1.288       NaN      59.22       2.161      93.19  NOT CONVERGED
+ssp245   total     2300    1.173       NaN     128.20       1.384     278.29  NOT CONVERGED
+ssp585   ais       2100    1.212       NaN      22.87       1.606      46.13  NOT CONVERGED
+ssp585   ais       2150    1.322       NaN      42.57       1.779      80.75  NOT CONVERGED
+ssp585   ais       2300    1.358       NaN     114.96       1.841     211.73  NOT CONVERGED
+ssp585   total     2100    1.240       NaN      22.44       1.551      46.91  NOT CONVERGED
+ssp585   total     2150    1.383       NaN      41.84       1.660      84.98  NOT CONVERGED
+ssp585   total     2300    1.372       NaN     129.30       1.992     228.22  NOT CONVERGED
+
+VERDICT: the projection is NOT converged in 12 of 12 cells
+
+==============================================================================
+[2] IS THE DISCHARGE DEGENERACY PINNED WHERE THE DATA ARE?  (Gt/yr)
+==============================================================================
+scen     quantity   window        units    R-hat       ESS      median     /sd_wc    p05-p95
+ssp245   smb        anchored      Gt/yr    1.322       NaN     1798.94      2.711     306.33  NOT CONVERGED
+ssp245   smb        unobserved    Gt/yr    1.321       NaN     1805.82      2.430     358.08  NOT CONVERGED
+ssp245   discharge  anchored      Gt/yr    1.357       NaN    -1861.76      2.572     314.78  NOT CONVERGED
+ssp245   discharge  unobserved    Gt/yr    1.191       NaN    -1962.70      1.474     535.64  NOT CONVERGED
+ssp245   net        anchored      Gt/yr    1.325       NaN      -65.10      1.051      23.67  NOT CONVERGED
+ssp245   net        unobserved    Gt/yr    1.183       NaN     -157.07      0.850     478.24  NOT CONVERGED
+ssp245   ais_rate   anchored      mm/yr    1.412       NaN        0.17      1.362       0.06  NOT CONVERGED
+ssp245   ais_rate   unobserved    mm/yr    1.112       NaN        8.90      1.186      12.73  NOT CONVERGED
+ssp585   smb        anchored      Gt/yr    1.322       NaN     1798.94      2.711     306.33  NOT CONVERGED
+ssp585   smb        unobserved    Gt/yr    1.131       NaN     1510.23      1.643    1622.00  NOT CONVERGED
+ssp585   discharge  anchored      Gt/yr    1.357       NaN    -1861.76      2.572     314.78  NOT CONVERGED
+ssp585   discharge  unobserved    Gt/yr    1.347       NaN    -2258.65      1.043     902.62  NOT CONVERGED
+ssp585   net        anchored      Gt/yr    1.325       NaN      -65.10      1.051      23.67  NOT CONVERGED
+ssp585   net        unobserved    Gt/yr    1.080       NaN     -841.39      1.661    1355.53  NOT CONVERGED
+ssp585   ais_rate   anchored      mm/yr    1.412       NaN        0.17      1.362       0.06  NOT CONVERGED
+ssp585   ais_rate   unobserved    mm/yr    1.318       NaN       12.64      1.776       9.23  NOT CONVERGED
+[SMB]   ssp245 anchored SMB median 1798.9 Gt/yr vs Rignot A5 target 1863.4 +/- 118.1 => -0.55 sigma  OK
+[SMB]   ssp585 anchored SMB median 1798.9 Gt/yr vs Rignot A5 target 1863.4 +/- 118.1 => -0.55 sigma  OK
+[NET]   ssp245 anchored NET (beta_total + ice_flux, no ISO/fast-dyn) median -65.1 Gt/yr;
+        the calibrator quotes the SMB-discharge pin as -145 +/- 15 Gt/yr
+[NET]   ssp585 anchored NET (beta_total + ice_flux, no ISO/fast-dyn) median -65.1 Gt/yr;
+        the calibrator quotes the SMB-discharge pin as -145 +/- 15 Gt/yr
+[HIST-IDENT] max cross-scenario rel. difference in the ANCHORED window = 0.00e+00 (all)  IDENTICAL, as the shared forcing requires
+
+==============================================================================
+[3] WHAT THE BETWEEN-CHAIN DISAGREEMENT IS WORTH (AIS component, cm)
+==============================================================================
+    as-if-independent: a one-column transport breaks the ridge correlations
+    reported by [RIDGE-CORR]; read test [1] for the correlation-respecting number.
+
+
+ssp245 @2100   control: median     5.14  p05-p95    31.01 cm
+
+ssp245 @2150   control: median    14.73  p05-p95    91.67 cm
+
+ssp245 @2300   control: median   144.78  p05-p95   282.72 cm
+
+ssp585 @2100   control: median    39.07  p05-p95    46.13 cm
+
+ssp585 @2150   control: median    95.07  p05-p95    80.75 cm
+
+ssp585 @2300   control: median   292.13  p05-p95   211.73 cm
+
+wrote outputs/diag_ais_item4_deliverable_L14_SMOKE.csv
+      outputs/diag_ais_item4_fluxes_L14_SMOKE.csv
+      outputs/diag_ais_item4_arms_L14_SMOKE.csv
+      outputs/diag_ais_item4_perdraw_L14_SMOKE.csv  *** SMOKE OUTPUT, PRE-BURN-IN -- NOT A RESULT ***

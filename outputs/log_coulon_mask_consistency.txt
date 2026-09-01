@@ -1,0 +1,140 @@
+
+── MRI-ESM2-0 (r1i1p1f1)
+I0829 18:37:37.738747 7454033 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I0829 18:37:37.743886 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.743971 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.743987 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.743992 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.743997 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744000 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744004 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744007 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744011 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744013 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744016 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744019 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744023 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744026 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744030 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744032 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744034 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744037 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744039 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744041 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744043 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744046 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744048 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744050 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744052 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744054 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744057 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744059 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744061 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744063 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744065 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744068 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744070 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744072 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+I0829 18:37:37.744074 7454093 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+   baseline 1995-2014:  land  239.429 K | all-cells  254.103 K | diff +14.674
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/diag_coulon_mask_consistency.py:90: FutureWarning: Usage of 'use_cftime' as a kwarg is deprecated. Please pass a 'CFDatetimeCoder' instance initialized with 'use_cftime' to the 'decode_times' kwarg instead.
+Example usage:
+    time_coder = xr.coders.CFDatetimeCoder(use_cftime=True)
+    ds = xr.open_dataset(decode_times=time_coder)
+
+  parts = [xr.open_dataset(p, use_cftime=True)[["tas"]] for p in pats]
+   2300:              land  252.206 K | all-cells  266.571 K
+   ANOMALY  consistent all-cells  12.47 K | MIXED (all-cells - land base)  27.14 K | land-land  12.78 K
+
+── CESM2-WACCM (r1i1p1f1)
+   baseline 1995-2014:  land  239.012 K | all-cells  254.746 K | diff +15.734
+/Users/MarcusMarcus/climate-env/lib/python3.14/site-packages/xarray/conventions.py:204: SerializationWarning: variable 'tas' has multiple fill values {np.float32(1e+20), np.float64(1e+20)} defined, decoding all values to NaN.
+  var = coder.decode(var, name=name)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/diag_coulon_mask_consistency.py:90: FutureWarning: Usage of 'use_cftime' as a kwarg is deprecated. Please pass a 'CFDatetimeCoder' instance initialized with 'use_cftime' to the 'decode_times' kwarg instead.
+Example usage:
+    time_coder = xr.coders.CFDatetimeCoder(use_cftime=True)
+    ds = xr.open_dataset(decode_times=time_coder)
+
+  parts = [xr.open_dataset(p, use_cftime=True)[["tas"]] for p in pats]
+/Users/MarcusMarcus/climate-env/lib/python3.14/site-packages/xarray/conventions.py:204: SerializationWarning: variable 'tas' has multiple fill values {np.float32(1e+20), np.float64(1e+20)} defined, decoding all values to NaN.
+  var = coder.decode(var, name=name)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/diag_coulon_mask_consistency.py:90: FutureWarning: Usage of 'use_cftime' as a kwarg is deprecated. Please pass a 'CFDatetimeCoder' instance initialized with 'use_cftime' to the 'decode_times' kwarg instead.
+Example usage:
+    time_coder = xr.coders.CFDatetimeCoder(use_cftime=True)
+    ds = xr.open_dataset(decode_times=time_coder)
+
+  parts = [xr.open_dataset(p, use_cftime=True)[["tas"]] for p in pats]
+/Users/MarcusMarcus/climate-env/lib/python3.14/site-packages/xarray/conventions.py:204: SerializationWarning: variable 'tas' has multiple fill values {np.float32(1e+20), np.float64(1e+20)} defined, decoding all values to NaN.
+  var = coder.decode(var, name=name)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/diag_coulon_mask_consistency.py:90: FutureWarning: Usage of 'use_cftime' as a kwarg is deprecated. Please pass a 'CFDatetimeCoder' instance initialized with 'use_cftime' to the 'decode_times' kwarg instead.
+Example usage:
+    time_coder = xr.coders.CFDatetimeCoder(use_cftime=True)
+    ds = xr.open_dataset(decode_times=time_coder)
+
+  parts = [xr.open_dataset(p, use_cftime=True)[["tas"]] for p in pats]
+/Users/MarcusMarcus/climate-env/lib/python3.14/site-packages/xarray/conventions.py:204: SerializationWarning: variable 'tas' has multiple fill values {np.float32(1e+20), np.float64(1e+20)} defined, decoding all values to NaN.
+  var = coder.decode(var, name=name)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/diag_coulon_mask_consistency.py:90: FutureWarning: Usage of 'use_cftime' as a kwarg is deprecated. Please pass a 'CFDatetimeCoder' instance initialized with 'use_cftime' to the 'decode_times' kwarg instead.
+Example usage:
+    time_coder = xr.coders.CFDatetimeCoder(use_cftime=True)
+    ds = xr.open_dataset(decode_times=time_coder)
+
+  parts = [xr.open_dataset(p, use_cftime=True)[["tas"]] for p in pats]
+   2299:              land  258.485 K | all-cells  271.870 K
+   ANOMALY  consistent all-cells  17.12 K | MIXED (all-cells - land base)  32.86 K | land-land  19.47 K
+
+── IPSL-CM6A-LR (r1i1p1f1)
+   baseline 1995-2014:  land  236.558 K | all-cells  254.163 K | diff +17.605
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/diag_coulon_mask_consistency.py:90: FutureWarning: Usage of 'use_cftime' as a kwarg is deprecated. Please pass a 'CFDatetimeCoder' instance initialized with 'use_cftime' to the 'decode_times' kwarg instead.
+Example usage:
+    time_coder = xr.coders.CFDatetimeCoder(use_cftime=True)
+    ds = xr.open_dataset(decode_times=time_coder)
+
+  parts = [xr.open_dataset(p, use_cftime=True)[["tas"]] for p in pats]
+   2300:              land  253.647 K | all-cells  268.837 K
+   ANOMALY  consistent all-cells  14.67 K | MIXED (all-cells - land base)  32.28 K | land-land  17.09 K
+
+── UKESM1-0-LL (r4i1p1f2)
+   baseline 1995-2014:  land  238.343 K | all-cells  255.185 K | diff +16.843
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/diag_coulon_mask_consistency.py:90: FutureWarning: Usage of 'use_cftime' as a kwarg is deprecated. Please pass a 'CFDatetimeCoder' instance initialized with 'use_cftime' to the 'decode_times' kwarg instead.
+Example usage:
+    time_coder = xr.coders.CFDatetimeCoder(use_cftime=True)
+    ds = xr.open_dataset(decode_times=time_coder)
+
+  parts = [xr.open_dataset(p, use_cftime=True)[["tas"]] for p in pats]
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/diag_coulon_mask_consistency.py:90: FutureWarning: Usage of 'use_cftime' as a kwarg is deprecated. Please pass a 'CFDatetimeCoder' instance initialized with 'use_cftime' to the 'decode_times' kwarg instead.
+Example usage:
+    time_coder = xr.coders.CFDatetimeCoder(use_cftime=True)
+    ds = xr.open_dataset(decode_times=time_coder)
+
+  parts = [xr.open_dataset(p, use_cftime=True)[["tas"]] for p in pats]
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/diag_coulon_mask_consistency.py:90: FutureWarning: Usage of 'use_cftime' as a kwarg is deprecated. Please pass a 'CFDatetimeCoder' instance initialized with 'use_cftime' to the 'decode_times' kwarg instead.
+Example usage:
+    time_coder = xr.coders.CFDatetimeCoder(use_cftime=True)
+    ds = xr.open_dataset(decode_times=time_coder)
+
+  parts = [xr.open_dataset(p, use_cftime=True)[["tas"]] for p in pats]
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/diag_coulon_mask_consistency.py:90: FutureWarning: Usage of 'use_cftime' as a kwarg is deprecated. Please pass a 'CFDatetimeCoder' instance initialized with 'use_cftime' to the 'decode_times' kwarg instead.
+Example usage:
+    time_coder = xr.coders.CFDatetimeCoder(use_cftime=True)
+    ds = xr.open_dataset(decode_times=time_coder)
+
+  parts = [xr.open_dataset(p, use_cftime=True)[["tas"]] for p in pats]
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/diag_coulon_mask_consistency.py:90: FutureWarning: Usage of 'use_cftime' as a kwarg is deprecated. Please pass a 'CFDatetimeCoder' instance initialized with 'use_cftime' to the 'decode_times' kwarg instead.
+Example usage:
+    time_coder = xr.coders.CFDatetimeCoder(use_cftime=True)
+    ds = xr.open_dataset(decode_times=time_coder)
+
+  parts = [xr.open_dataset(p, use_cftime=True)[["tas"]] for p in pats]
+   2300:              land  253.830 K | all-cells  269.086 K
+   ANOMALY  consistent all-cells  13.90 K | MIXED (all-cells - land base)  30.74 K | land-land  15.49 K
+
+  VERSUS THE PUBLISHED TABLE
+           model  published all  consistent    MIXED   -> matches
+      MRI-ESM2-0          12.47       12.47    27.14   consistent
+     CESM2-WACCM          17.12       17.12    32.86   consistent
+    IPSL-CM6A-LR          14.67       14.67    32.28   consistent
+     UKESM1-0-LL          13.90       13.90    30.74   consistent
+
+  wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/diag_coulon_mask_consistency.csv
+

@@ -1,0 +1,75 @@
+THREE BASINS ON ONE GREENLAND DRIVER — can they hold the partition AND the total?
+  driver zone 'all', single amp 2.3470 (full); sectors = the likelihood's geometry
+  calibration total 1900-2025 = 5.781 cm; Mouginot window 1972-2018 = 1.689 cm
+  Mouginot's own sector sum over that window = 1.377 cm ⇒ target/Mouginot = 1.226
+    ⇒ SHARES from Mouginot, TOTAL from the target. The gap is flagged, not explained
+      (peripheral glaciers are the obvious candidate; not verified here).
+  ⚠ 64% of the calibration signal predates 1972 — the partition is pinned
+    over barely a third of the window, so the total below is genuinely out-of-sample.
+
+  basin  sectors              V0 m   %vol  %loss  loss/vol
+  south  SW+CW+CE+SE          3.35  45.6%  48.1%      1.06
+  mid    NW                   1.27  17.3%  31.7%      1.83
+  high   NO+NE                2.73  37.1%  20.2%      0.54
+
+=== P2 reference — the SHIPPED single basin, refitted on the 'all' driver ===
+
+  rate scale s = 0.8228  (the south-driver value recorded in the ridge k=1 row: 1.0098)
+  NOTE these are not expected to match — the driver changed from 'south' to 'all'.
+  That difference is itself part of what the restructure costs.
+
+=== the fit — each basin to its OWN sector loss, 1972-2018 ===
+
+  basin  k=vol share    rate s  want cm   got cm
+  south       0.4558    0.5620    0.813    0.813
+  mid         0.1728    2.5128    0.535    0.535
+  high        0.3714    0.2165    0.341    0.341
+
+  max |fit - want| = 2.22e-16 cm  (exactly identified, as designed)
+
+=== P1 — the 1900-2025 TOTAL, predicted not fitted ===
+
+  south  contributes   2.101 cm
+  mid    contributes   1.511 cm
+  high   contributes   0.831 cm
+  SUM                  4.443 cm   target   5.781 cm
+  miss = -1.337 cm (-23.1%)
+
+  CONTROL — the SINGLE basin, no partition, same two-window test:
+    fitted 1972-2018, predicts 4.330 cm for 1900-2025 (-25.1%)
+    fitted 1900-2025, predicts 2.159 cm for 1972-2018 (target 1.689, +27.8%)
+
+  VERDICT P1: the two-window tension is PRE-EXISTING — the single basin misses by
+    -25.1% with NO partition at all, against the 3-basin -23.1%. The partition is NOT
+    the cause; it slightly REDUCES the tension. This is a finding about the
+    model / driver / target across these two windows, not about the basin split.
+
+    ⇒ CONSEQUENCE FOR THE RESTRUCTURE: a per-sector likelihood term can only constrain
+      1972-2018, while the total term constrains 1900-2025. They PULL AGAINST
+      each other by ~25%. The calibrator must weight them deliberately; left
+      implicit this shows up as a biased compromise or as poor mixing.
+
+=== P2 — what the south basin's calibration does when it stops absorbing the others ===
+
+  Comparing LIKE WITH LIKE: the 3-basin SUM is the whole ice sheet, so it is the
+  single basin's counterpart. (A first draft compared the SOUTH BASIN ALONE against
+  the single basin and made the restructure look like a halving — it is 45.6% of the
+  volume, so of course it is smaller. Rate scales are likewise NOT comparable across
+  different k: the ridge showed k and s trade off exactly.)
+
+  SSP2-4.5 @2300: single basin   24.09 cm   3-basin SUM   21.66 cm   (0.899x)
+                     of which south   10.81 cm (50% of the sum, vs 46% of the volume)
+  SSP5-8.5 @2300: single basin   62.71 cm   3-basin SUM   58.56 cm   (0.934x)
+                     of which south   28.29 cm (48% of the sum, vs 46% of the volume)
+
+=== P3 — the 3-basin base, before any tap (m SLE rel 1995-2014) ===
+
+  SSP1-2.6  2300  0.119   band 0.058-0.163   IN
+  SSP2-4.5  2300  0.217   band 0.098-0.218   IN
+  SSP5-8.5  2300  0.586   band 1.732-3.127   out
+
+  high-basin inventory headroom 2.47 m; tap grid 64 cells
+  cells clearing all three 2300 bands + G4 within 15%: 10/64
+  VERDICT P3: PASS
+
+wrote outputs/scope_gis_3basin_partition.csv

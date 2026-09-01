@@ -1,0 +1,9 @@
+gate,key,value,verdict
+CONTROL,ais_med_2100,0.0,PASS
+CONTROL,ais_med_2150,0.0,PASS
+CONTROL,ais_med_2300,0.0,PASS
+CALIB-MOVE,tant12_max_cm,0.060170907137487406,measured
+CALIB-MOVE,tant12_sigma,0.4267440222516838,measured
+CALIB-MOVE,tant14_max_cm,0.03367918121580282,measured
+CALIB-MOVE,tant14_sigma,0.23885944124682856,measured
+BASEYEAR,ais_2015_cm,0.3320836409099366,measured

@@ -1,0 +1,49 @@
+[11:11:42] waiting for the L21 chains to finish...
+[13:54:47] chains done.
+[13:54:47] === ARM VERIFICATION ===
+[13:54:47]   seed2026: A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]   TAG=L21 over-dispersed start (seed 2026, row 1): logpost(θ0) = 219.37  [MAP start = -650.59] 
+[13:54:48]   seed2027: A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]   TAG=L21 over-dispersed start (seed 2027, row 2): logpost(θ0) = 223.45  [MAP start = -650.59] 
+[13:54:48]   seed2028: A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]   TAG=L21 over-dispersed start (seed 2028, row 3): logpost(θ0) = 219.88  [MAP start = -650.59] 
+[13:54:49]   seed2029: A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]   TAG=L21 over-dispersed start (seed 2029, row 4): logpost(θ0) = 217.68  [MAP start = -650.59] 
+[13:54:49]   EXPECT amp ~ N(0.950, 0.100) on [0.650, 1.390-ish]; four DISTINCT starts ~ +217..+224;
+[13:54:49]   EXPECT [MAP start = -650.59] — DIFFERENT from L14's -642.84, which is how we know the
+[13:54:49]   calib-1.6.0 driver actually took. If it equals -642.84 the migration is a NO-OP: STOP.
+[13:54:49] START  slr convergence diag (REQUIRED before postprocess)
+[13:58:06] OK     slr convergence diag (REQUIRED before postprocess)
+[13:58:06] START  postprocess (2-3 h — DO NOT KILL)
+[14:45:52] OK     postprocess (2-3 h — DO NOT KILL)
+[14:45:52] START  T_on band occupancy per chain
+[14:48:16] OK     T_on band occupancy per chain
+[14:48:16] START  T_on excursion structure
+[14:48:57] OK     T_on excursion structure
+[14:48:57] START  T_on band hindcast vs L14
+[14:49:37] OK     T_on band hindcast vs L14
+[14:49:37] START  posterior predictive
+[14:50:05] OK     posterior predictive
+[14:50:05] START  ssp components (tap)
+[14:51:02] OK     ssp components (tap)
+[14:51:02] START  ssp components (no-tap)
+[14:51:57] OK     ssp components (no-tap)
+[14:51:57] START  fair-uncertainty joint band ssp126
+[14:54:59] FAILED fair-uncertainty joint band ssp126 (rc=1) — continuing to the next independent step
+[14:54:59] START  fair-uncertainty joint band ssp245
+[14:58:00] FAILED fair-uncertainty joint band ssp245 (rc=1) — continuing to the next independent step
+[14:58:00] START  fair-uncertainty joint band ssp585
+[15:01:02] FAILED fair-uncertainty joint band ssp585 (rc=1) — continuing to the next independent step
+[15:01:02] === python steps (venv) ===
+[15:01:02] START  model comparison
+[15:01:02] OK     model comparison
+[15:01:02] START  benchmark
+[15:01:03] FAILED benchmark (rc=1) — continuing to the next independent step
+[15:01:03] START  escape scale L15/L16/L17/L18 (the owed test; driftless-walk null = 2.0x)
+[15:03:48] OK     escape scale L15/L16/L17/L18 (the owed test; driftless-walk null = 2.0x)
+[15:03:48] === DONE. READ IN THIS ORDER ===
+[15:03:48]   1. the ARM VERIFICATION block above (MAP must be -644.51)
+[15:03:48]   2. RESOLVE THE REGISTERED PREDICTION (run_mcmc_L18.sh header) BEFORE anything else:
+[15:03:48]      AIS median_vs_lit ssp245 @2100/@2150/@2300 in outputs/scope_slr_fairunc_cells_ssp245_spliced_L21.csv
+[15:03:48]        L21 is the MIGRATED CHAMPION CANDIDATE. Compare EVERY cell against L14, not against L18.
+[15:03:48]        ⚠ EXPECT TE to move MORE than GIS (OHC RMSE improved 44%, GMST worsened slightly)
+[15:03:48]   3. outputs/bench_ladrillo_L21.md — ⚠ champions.json STAYS UNTOUCHED. L14 remains
+[15:03:48]      champion until MARCUS promotes L21. This run does not promote anything.
+[15:03:48]   4. ⚠ sd(medians)/mean(within-chain sd) @2100, NOT just R-hat (-26b §1: L17 'passed' at
+[15:03:48]      0.142, the worst of four arms). Never quote an arm as converged on R-hat alone.

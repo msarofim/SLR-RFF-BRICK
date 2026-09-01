@@ -1,0 +1,6 @@
+zone north (obs full 2.828 / modern 2.711)
+40 model files
+40 models, 14149 windows -> /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/diag_gis_amp_cmip6_north.csv
+wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/diag_gis_amp_cmip6_summary_north.md
+wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/diag_gis_amp_cmip6_binned_north.csv
+wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/figures/diag_gis_amp_cmip6_north.png

@@ -1,0 +1,35 @@
+Does ais_iceflow0 reach the deliverable? | tag L14 | ssp245 | 1850-2300 | 400 draws/chain
+  amp law ON (the shipped model) | rebaseline 1995-2014
+
+  seed2026: 400 draws in 6s  (ais_iceflow0 p50 1.132)
+  seed2027: 400 draws in 3s  (ais_iceflow0 p50 0.838)
+  seed2028: 400 draws in 3s  (ais_iceflow0 p50 0.865)
+  seed2029: 400 draws in 3s  (ais_iceflow0 p50 0.695)
+
+comp       year |   ratio@p50   ratio@p95 |        r      R^2 | chain medians lo..hi (cm)
+ais        2100 |       0.056       0.320 |   +0.063    0.004 | 4.71 .. 6.04  (sd_wc 11.72)
+ais        2150 |       0.104       0.159 |   +0.053    0.003 | 9.38 .. 16.90  (sd_wc 32.31)
+ais        2300 |       0.081       0.133 |   +0.048    0.002 | 119.87 .. 136.54  (sd_wc 98.39)
+total      2100 |       0.051       0.287 |   +0.062    0.004 | 44.26 .. 45.56  (sd_wc 11.80)
+total      2150 |       0.094       0.113 |   +0.052    0.003 | 68.20 .. 75.01  (sd_wc 32.35)
+total      2300 |       0.081       0.124 |   +0.046    0.002 | 207.01 .. 224.27  (sd_wc 98.43)
+
+==============================================================================
+Worst TOTAL between/within ratio: 0.094 at the median, 0.287 at p95
+Largest share of the AIS projection explained by ais_iceflow0: R^2 = 0.004
+VERDICT: the axis does NOT reach the deliverable. Its R-hat is a REPORTING CAVEAT, not a defect to engineer away — spend the next calibration's effort elsewhere.
+
+==============================================================================
+CONTROLS — correlation with the AIS projection (alignment check)
+==============================================================================
+parameter                       r@2100    r@2150    r@2300
+ais_iceflow0                    +0.063    +0.053    +0.048   <- the axis
+antarctic_temp_threshold        -0.561    -0.647    -0.642
+ais_gmst_amp                    +0.435    +0.488    +0.497
+antarctic_alpha                 +0.081    +0.087    +0.083
+antarctic_gamma                 -0.022    -0.021    -0.010
+ais_mu                          -0.060    -0.062    -0.082
+
+Largest |r| among controls: 0.647 — the pipeline DOES resolve parameter->projection dependence, so ais_iceflow0's ~0 is real
+
+wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/diag_iceflow0_propagation_L14.csv

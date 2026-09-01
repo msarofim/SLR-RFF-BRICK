@@ -1,0 +1,4 @@
+L21: 4 chains x 2000000 (seeds 2026-2029) — L14 config on calib 1.6.0 + CMIP7 drivers
+     amp ~ N(0.95, 0.10) [L14's], adcov=adapted_cov_L14tune_seed2026.csv [L14's], overdispersed starts, BLAS pinned
+L21 chains done. VERIFY FIRST: 'A6 prior' = N(0.950, 0.100); [MAP start] MUST DIFFER from
+L14's -642.84 (same prior, new driver) — if it equals it, the driver did not change.

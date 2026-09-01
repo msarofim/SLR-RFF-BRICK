@@ -1,0 +1,87 @@
+building the Greenland mask rings (GTN-G region 05) ...
+  1 polygon rings; Berkeley land lookup ready
+loading catalog ...
+panel PINNED to the 40 models on disk
+REDO ACCESS-CM2 (missing ['tas_gis_central', 'tas_gis_north'])
+I0818 15:06:45.953752 10766528 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I0818 15:06:45.966371 10766556 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(23, generation: 1)
+OK   ACCESS-CM2 (r1i1p1f1, gn) 823 rows in 37s [1/40]
+REDO ACCESS-ESM1-5 (missing ['tas_gis_central', 'tas_gis_north'])
+OK   ACCESS-ESM1-5 (r31i1p1f1, gn) 423 rows in 24s [2/40]
+REDO AWI-CM-1-1-MR (missing ['tas_gis_central', 'tas_gis_north'])
+OK   AWI-CM-1-1-MR (r1i1p1f1, gn) 422 rows in 50s [3/40]
+REDO BCC-CSM2-MR (missing ['tas_gis_central', 'tas_gis_north'])
+OK   BCC-CSM2-MR (r1i1p1f1, gn) 423 rows in 34s [4/40]
+REDO CAMS-CSM1-0 (missing ['tas_gis_central', 'tas_gis_north'])
+OK   CAMS-CSM1-0 (r1i1p1f1, gn) 420 rows in 32s [5/40]
+REDO CAS-ESM2-0 (missing ['tas_gis_central', 'tas_gis_north'])
+OK   CAS-ESM2-0 (r1i1p1f1, gn) 423 rows in 26s [6/40]
+REDO CESM2 (missing ['tas_gis_central', 'tas_gis_north'])
+OK   CESM2 (r10i1p1f1, gn) 423 rows in 31s [7/40]
+REDO CESM2-WACCM (missing ['tas_gis_central', 'tas_gis_north'])
+OK   CESM2-WACCM (r1i1p1f1, gn) 622 rows in 45s [8/40]
+REDO CIESM (missing ['tas_gis_central', 'tas_gis_north'])
+OK   CIESM (r1i1p1f1, gr) 423 rows in 36s [9/40]
+REDO CMCC-CM2-SR5 (missing ['tas_gis_central', 'tas_gis_north'])
+OK   CMCC-CM2-SR5 (r1i1p1f1, gn) 423 rows in 35s [10/40]
+REDO CMCC-ESM2 (missing ['tas_gis_central', 'tas_gis_north'])
+OK   CMCC-ESM2 (r1i1p1f1, gn) 423 rows in 36s [11/40]
+REDO CNRM-CM6-1 (missing ['tas_gis_central', 'tas_gis_north'])
+OK   CNRM-CM6-1 (r1i1p1f2, gr) 423 rows in 26s [12/40]
+REDO CNRM-CM6-1-HR (missing ['tas_gis_central', 'tas_gis_north'])
+OK   CNRM-CM6-1-HR (r1i1p1f2, gr) 423 rows in 135s [13/40]
+REDO CNRM-ESM2-1 (missing ['tas_gis_central', 'tas_gis_north'])
+OK   CNRM-ESM2-1 (r1i1p1f2, gr) 423 rows in 28s [14/40]
+REDO CanESM5 (missing ['tas_gis_central', 'tas_gis_north'])
+OK   CanESM5 (r1i1p1f1, gn) 823 rows in 17s [15/40]
+REDO CanESM5-CanOE (missing ['tas_gis_central', 'tas_gis_north'])
+OK   CanESM5-CanOE (r1i1p2f1, gn) 423 rows in 14s [16/40]
+REDO EC-Earth3 (missing ['tas_gis_central', 'tas_gis_north'])
+OK   EC-Earth3 (r1i1p1f1, gr) 423 rows in 72s [17/40]
+REDO EC-Earth3-Veg (missing ['tas_gis_central', 'tas_gis_north'])
+OK   EC-Earth3-Veg (r1i1p1f1, gr) 423 rows in 71s [18/40]
+REDO EC-Earth3-Veg-LR (missing ['tas_gis_central', 'tas_gis_north'])
+OK   EC-Earth3-Veg-LR (r1i1p1f1, gr) 423 rows in 37s [19/40]
+REDO FGOALS-f3-L (missing ['tas_gis_central', 'tas_gis_north'])
+OK   FGOALS-f3-L (r1i1p1f1, gr) 423 rows in 36s [20/40]
+REDO FGOALS-g3 (missing ['tas_gis_central', 'tas_gis_north'])
+OK   FGOALS-g3 (r1i1p1f1, gn) 425 rows in 16s [21/40]
+REDO FIO-ESM-2-0 (missing ['tas_gis_central', 'tas_gis_north'])
+OK   FIO-ESM-2-0 (r1i1p1f1, gn) 423 rows in 38s [22/40]
+REDO GFDL-ESM4 (missing ['tas_gis_central', 'tas_gis_north'])
+OK   GFDL-ESM4 (r1i1p1f1, gr1) 423 rows in 35s [23/40]
+REDO GISS-E2-1-G (missing ['tas_gis_central', 'tas_gis_north'])
+OK   GISS-E2-1-G (r1i1p3f1, gn) 423 rows in 17s [24/40]
+REDO GISS-E2-1-H (missing ['tas_gis_central', 'tas_gis_north'])
+OK   GISS-E2-1-H (r1i1p1f2, gn) 1623 rows in 35s [25/40]
+REDO HadGEM3-GC31-LL (missing ['tas_gis_central', 'tas_gis_north'])
+OK   HadGEM3-GC31-LL (r1i1p1f3, gn) 423 rows in 27s [26/40]
+REDO IITM-ESM (missing ['tas_gis_central', 'tas_gis_north'])
+OK   IITM-ESM (r1i1p1f1, gn) 420 rows in 19s [27/40]
+REDO INM-CM4-8 (missing ['tas_gis_central', 'tas_gis_north'])
+OK   INM-CM4-8 (r1i1p1f1, gr1) 423 rows in 20s [28/40]
+REDO INM-CM5-0 (missing ['tas_gis_central', 'tas_gis_north'])
+OK   INM-CM5-0 (r1i1p1f1, gr1) 423 rows in 20s [29/40]
+REDO IPSL-CM6A-LR (missing ['tas_gis_central', 'tas_gis_north'])
+OK   IPSL-CM6A-LR (r1i1p1f1, gr) 423 rows in 19s [30/40]
+REDO KACE-1-0-G (missing ['tas_gis_central', 'tas_gis_north'])
+OK   KACE-1-0-G (r1i1p1f1, gr) 423 rows in 22s [31/40]
+REDO KIOST-ESM (missing ['tas_gis_central', 'tas_gis_north'])
+OK   KIOST-ESM (r1i1p1f1, gr1) 423 rows in 15s [32/40]
+REDO MIROC-ES2L (missing ['tas_gis_central', 'tas_gis_north'])
+OK   MIROC-ES2L (r10i1p1f2, gn) 423 rows in 13s [33/40]
+REDO MIROC6 (missing ['tas_gis_central', 'tas_gis_north'])
+OK   MIROC6 (r1i1p1f1, gn) 423 rows in 26s [34/40]
+REDO MPI-ESM1-2-HR (missing ['tas_gis_central', 'tas_gis_north'])
+OK   MPI-ESM1-2-HR (r1i1p1f1, gn) 423 rows in 43s [35/40]
+REDO MPI-ESM1-2-LR (missing ['tas_gis_central', 'tas_gis_north'])
+OK   MPI-ESM1-2-LR (r1i1p1f1, gn) 423 rows in 16s [36/40]
+REDO MRI-ESM2-0 (missing ['tas_gis_central', 'tas_gis_north'])
+OK   MRI-ESM2-0 (r1i1p1f1, gn) 423 rows in 34s [37/40]
+REDO NESM3 (missing ['tas_gis_central', 'tas_gis_north'])
+OK   NESM3 (r1i1p1f1, gn) 423 rows in 18s [38/40]
+REDO NorESM2-LM (missing ['tas_gis_central', 'tas_gis_north'])
+OK   NorESM2-LM (r1i1p1f1, gn) 423 rows in 15s [39/40]
+REDO NorESM2-MM (missing ['tas_gis_central', 'tas_gis_north'])
+OK   NorESM2-MM (r1i1p1f1, gn) 423 rows in 38s [40/40]
+DONE: 40 models reduced -> /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/data/cmip6_gis

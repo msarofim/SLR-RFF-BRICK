@@ -1,0 +1,58 @@
+[09:57:28] waiting for the L22 chains to finish...
+[12:19:32] chains done.
+[12:19:32] === ARM VERIFICATION ===
+[12:19:33]   seed2026: steric AR(1) noise: MARGINAL σ/sqrt(1-ρ²) CAPPED at 0.1036 cm (1993-2025 mean ε) | L21 fits 0.2671 uncapped A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]   TAG=L22 steric start repaired for the marginal cap: σ 1.0 -> 0.04487 (ρ 0.5 held); marginal 1.1547 -> 0.0518 vs cap 0.1036 steric start repaired for the marginal cap: σ 0.0476 -> 0.01056 (ρ 0.979 held); marginal 0.2336 -> 0.0518 vs cap 0.1036 over-dispersed start (seed 2026, row 1): logpost(θ0) = 190.54  [MAP start = -675.78] 
+[12:19:33]   seed2027: steric AR(1) noise: MARGINAL σ/sqrt(1-ρ²) CAPPED at 0.1036 cm (1993-2025 mean ε) | L21 fits 0.2671 uncapped A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]   TAG=L22 steric start repaired for the marginal cap: σ 1.0 -> 0.04487 (ρ 0.5 held); marginal 1.1547 -> 0.0518 vs cap 0.1036 steric start repaired for the marginal cap: σ 0.05676 -> 0.01572 (ρ 0.9528 held); marginal 0.187 -> 0.0518 vs cap 0.1036 over-dispersed start (seed 2027, row 2): logpost(θ0) = 185.59  [MAP start = -675.78] 
+[12:19:34]   seed2028: steric AR(1) noise: MARGINAL σ/sqrt(1-ρ²) CAPPED at 0.1036 cm (1993-2025 mean ε) | L21 fits 0.2671 uncapped A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]   TAG=L22 steric start repaired for the marginal cap: σ 1.0 -> 0.04487 (ρ 0.5 held); marginal 1.1547 -> 0.0518 vs cap 0.1036 steric start repaired for the marginal cap: σ 0.07033 -> 0.01689 (ρ 0.9454 held); marginal 0.2157 -> 0.0518 vs cap 0.1036 over-dispersed start (seed 2028, row 3): logpost(θ0) = 187.06  [MAP start = -675.78] 
+[12:19:34]   seed2029: steric AR(1) noise: MARGINAL σ/sqrt(1-ρ²) CAPPED at 0.1036 cm (1993-2025 mean ε) | L21 fits 0.2671 uncapped A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]   TAG=L22 steric start repaired for the marginal cap: σ 1.0 -> 0.04487 (ρ 0.5 held); marginal 1.1547 -> 0.0518 vs cap 0.1036 steric start repaired for the marginal cap: σ 0.04309 -> 0.01081 (ρ 0.978 held); marginal 0.2065 -> 0.0518 vs cap 0.1036 over-dispersed start (seed 2029, row 4): logpost(θ0) = 185.23  [MAP start = -675.78] 
+[12:19:34]   EXPECT amp ~ N(0.950, 0.100); four DISTINCT over-dispersed starts ~ +190
+[12:19:34]   EXPECT the cap line: MARGINAL ... CAPPED at 0.1036 cm, and TWO 'start repaired'
+[12:19:34]          lines per chain (the default theta0 and the --overdisperse row).
+[12:19:34]   EXPECT [MAP start = -675.78] — DIFFERENT from L21's -650.59, which is how we
+[12:19:34]          know the cap took. If it EQUALS -650.59 the flag was inert: STOP.
+[12:19:34] START  slr convergence diag (REQUIRED before postprocess)
+[12:22:45] OK     slr convergence diag (REQUIRED before postprocess)
+[12:22:45] START  postprocess (2-3 h — DO NOT KILL)
+[13:00:47] OK     postprocess (2-3 h — DO NOT KILL)
+[13:00:47] START  T_on band occupancy per chain
+[13:03:05] OK     T_on band occupancy per chain
+[13:03:05] START  T_on excursion structure
+[13:03:45] OK     T_on excursion structure
+[13:03:45] START  T_on band hindcast vs L21
+[13:04:22] OK     T_on band hindcast vs L21
+[13:04:22] START  posterior predictive
+[13:04:47] OK     posterior predictive
+[13:04:47] START  ssp components (tap)
+[13:05:39] OK     ssp components (tap)
+[13:05:39] START  ssp components (no-tap)
+[13:06:30] OK     ssp components (no-tap)
+[13:06:30] START  fair-uncertainty joint band ssp126
+[13:09:55] OK     fair-uncertainty joint band ssp126
+[13:09:55] START  fair-uncertainty joint band ssp245
+[13:13:20] OK     fair-uncertainty joint band ssp245
+[13:13:20] START  fair-uncertainty joint band ssp585
+[13:16:45] OK     fair-uncertainty joint band ssp585
+[13:16:45] === python steps (venv) ===
+[13:16:45] START  model comparison
+[13:16:46] OK     model comparison
+[13:16:46] START  benchmark
+[13:16:50] OK     benchmark
+[13:16:50] START  escape scale vs the control arm
+[13:18:15] OK     escape scale vs the control arm
+[13:18:15] START  L21-vs-L22: where did the TE residual go
+[13:18:16] FAILED L21-vs-L22: where did the TE residual go (rc=1) — continuing to the next independent step
+[13:18:16] === DONE. READ IN THIS ORDER ===
+[13:18:16]   1. the ARM VERIFICATION block above — the cap line and BOTH start-repair lines must be
+[13:18:16]      present and [MAP start] must be -675.78, not L21's -650.59. If not, inert.
+[13:18:16]   2. python/diag_l21_vs_l22_steric_cap.py output — it resolves the four predictions
+[13:18:16]      registered in run_mcmc_L22.sh. The one that decides the next step:
+[13:18:16]        COLLAPSE toward ~2 sigma => the 17 sigma was the NOISE MODEL, and the depth split
+[13:18:16]                                    becomes a question about the PROJECTION, not the fit.
+[13:18:16]        STAYS LARGE            => something else holds TE up; the depth split is live.
+[13:18:16]      ⚠ CHECK d2_steric_1/_2 BEFORE CALLING IT: the D2 basis is 1/eps^2-weighted with
+[13:18:16]        prior sd 0.5 cm, FIVE TIMES the cap, so the misfit can be bought off THERE instead.
+[13:18:16]   3. outputs/bench_ladrillo_L22.md — expect SOME axis to look worse. That is the cap
+[13:18:16]      working, not a regression. Report what moved.
+[13:18:16]   4. sd(medians)/mean(within-chain sd) @2100, not just R-hat.
+[13:18:16]   5. ⚠ champions.json STAYS UNTOUCHED. Promotion is Marcus's call and this is a
+[13:18:16]      diagnostic arm, not a champion candidate.

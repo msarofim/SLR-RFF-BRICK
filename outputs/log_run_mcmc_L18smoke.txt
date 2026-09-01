@@ -1,0 +1,8 @@
+L18: 4 chains x 4000 iter (seeds 2026-2029), amp ~ N(1.09, 0.180), adcov=adapted_cov_L15pool_seed2026.csv,
+     OVERDISPERSED starts from outputs/mcmc/overdispersed_starts.csv, BLAS pinned
+L18 chains done -> outputs/mcmc/chain_L18smoke_seed*.csv
+VERIFY THE ARM FIRST (both lines, every seed):
+  tr '\r' '\n' < outputs/mcmc/log_L18smoke_seed2026.txt | grep -m1 'A6 prior'      # N(1.090, 0.180)
+  tr '\r' '\n' < outputs/mcmc/log_L18smoke_seed2026.txt | grep -m1 'logpost'       # over-dispersed start, ~+224
+NEXT: julia/diag_slr_convergence_by_chain_ladrillo.jl --tag=L18smoke, then
+      julia/postprocess_mcmc_ext.jl --tag=L18smoke --accept-slr   (2-3 h, see handoff -26b §5)

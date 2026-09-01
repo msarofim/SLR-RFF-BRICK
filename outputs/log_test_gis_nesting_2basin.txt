@@ -1,0 +1,46 @@
+greenland_3basin nesting gate | 1850-2300 | forcing ssp245 | tol 1e-12
+  Mouginot volume shares: south 0.455782  mid 0.172789  high 0.371429  (sum 1.000000000000000)
+
+[1] COLLAPSE — k = (1, 0, 0), s = 1: must reproduce greenland_ab
+  [1] greenland_sea_level (m)                    max|diff| = 0.000e+00  PASS
+  [1] gis_fast (m)                               max|diff| = 0.000e+00  PASS
+  [1] gis_slow (m)                               max|diff| = 0.000e+00  PASS
+  [1] south basin carries all of it              max|diff| = 0.000e+00  PASS
+  [1] mid basin is identically zero              max|diff| = 0.000e+00  PASS
+  [1] high basin is identically zero             max|diff| = 0.000e+00  PASS
+
+[2] ADDITIVITY — at the production shares, the parts sum to the whole
+  [2] sea_level == sum of the three basins       max|diff| = 2.220e-16  PASS
+  [2] sea_level == gis_fast + gis_slow           max|diff| = 0.000e+00  PASS
+  [2] gis_fast == sum of basin fast channels     max|diff| = 0.000e+00  PASS
+  [2] gis_slow == sum of basin slow channels     max|diff| = 0.000e+00  PASS
+  [2] global_sea_level == 5 components           max|diff| = 0.000e+00  PASS
+
+[3] PARTITION INVARIANCE — Mouginot k, s = 1: the total must NOT move
+  [3] greenland_sea_level (m)                    max|diff| = 5.551e-16  PASS
+  [3] gis_fast (m)                               max|diff| = 4.441e-16  PASS
+  [3] gis_slow (m)                               max|diff| = 1.388e-16  PASS
+  s = 1 gives 1972-2018 loss shares  south 0.456  mid 0.173  high 0.371
+  observed (Mouginot modern rate, 2002-2011) south 0.592  mid 0.207  high 0.201
+  ⇒ the gap between those rows is exactly what the s_b are fitted to close.
+
+[4] TWO BASINS — k = GIS2_VSHARE, s = 1: k_mid = 0 IS a two-basin model
+  two-basin volume shares: active 0.628571  mid 0.000000  high 0.371429  (sum 1.000000000000000)
+  [4] k active == published (6 dp)               0.628571428571429 vs 0.628571  PASS
+  [4] k high == published (6 dp)                 0.371428571428571 vs 0.371429  PASS
+  [4] k sums to exactly 1                        max|diff| = 0.000e+00  PASS
+  [4] mid basin is identically zero              max|diff| = 0.000e+00  PASS
+  [4] active + high == greenland_sea_level       max|diff| = 2.220e-16  PASS
+  [4] greenland_sea_level (m) == greenland_ab    max|diff| = 4.441e-16  PASS
+  [4] gis_fast (m) == greenland_ab               max|diff| = 4.441e-16  PASS
+  [4] gis_slow (m) == greenland_ab               max|diff| = 8.327e-17  PASS
+  s = 1 gives 1972-2018 loss shares  active 0.629  mid 0.000  high 0.371
+  observed (Mouginot modern rate, 2002-2011) active 0.799  mid 0.000  high 0.201
+
+[5] MUTATION TEST — [4] must FAIL when k is perturbed
+  [5A] mid = 0.05 must break 'mid is zero'       max|diff| = 4.038e-02  detected
+  [5A] mid = 0.05 must break 'active + high == total' max|diff| = 4.038e-02  detected
+  [5B] sum(k) = 0.963 must break '== greenland_ab' max|diff| = 2.999e-02  detected
+  [5A] total is CONSERVED (k still sums to 1)    max|diff| = 5.551e-16  PASS
+
+ALL NESTING GATES PASS — the 3-basin component is a strict generalisation of greenland_ab, and at k_mid = 0 it is exactly the two-basin model --gis-basins2 runs.

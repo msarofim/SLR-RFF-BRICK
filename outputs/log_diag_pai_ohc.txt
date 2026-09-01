@@ -1,0 +1,8 @@
+17 models with OHC (zostoga)
+pooled R2:  M1 0.942  M2 0.954
+between-exp residual bias |median|:  M1 0.105 K  M2 0.091 K   (M2/M1 0.87)
+transfer RMSE (fit abrupt -> predict 1pct):  M1 0.983  M2 0.580 K
+beta_OHC > 0 in 17/17 models (median 2.350 K per m zostoga)
+partial corr r(T_ant,OHC|GMST): median 0.46, positive in 17/17
+wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/diag_pai_ohc.png
+wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/diag_pai_ohc_summary.md

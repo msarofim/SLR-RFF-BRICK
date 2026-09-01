@@ -1,0 +1,67 @@
+
+── MRI-ESM2-0 (r1i1p1f1)
+I0829 18:41:41.298718 7462707 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I0829 18:41:41.310929 7462735 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+   historical  zarr   1850-2014
+   ssp585      zarr   2015-2100
+   ssp585      [JOIN] |2101-2100| = 0.058 K
+   ssp585      + ESGF -> 2300
+   ssp126      zarr   2015-2100
+   ssp126      [JOIN] |2101-2100| = 0.102 K
+   ssp126      + ESGF -> 2300
+   wrote tas_series_MRI-ESM2-0.csv  737 rows
+
+── CESM2-WACCM (r1i1p1f1)
+   historical  zarr   1850-2014
+   ssp585      zarr   2015-2100
+/Users/MarcusMarcus/climate-env/lib/python3.14/site-packages/xarray/conventions.py:204: SerializationWarning: variable 'tas' has multiple fill values {np.float32(1e+20), np.float64(1e+20)} defined, decoding all values to NaN.
+  var = coder.decode(var, name=name)
+/Users/MarcusMarcus/climate-env/lib/python3.14/site-packages/xarray/conventions.py:204: SerializationWarning: variable 'tas' has multiple fill values {np.float32(1e+20), np.float64(1e+20)} defined, decoding all values to NaN.
+  var = coder.decode(var, name=name)
+/Users/MarcusMarcus/climate-env/lib/python3.14/site-packages/xarray/conventions.py:204: SerializationWarning: variable 'tas' has multiple fill values {np.float32(1e+20), np.float64(1e+20)} defined, decoding all values to NaN.
+  var = coder.decode(var, name=name)
+/Users/MarcusMarcus/climate-env/lib/python3.14/site-packages/xarray/conventions.py:204: SerializationWarning: variable 'tas' has multiple fill values {np.float32(1e+20), np.float64(1e+20)} defined, decoding all values to NaN.
+  var = coder.decode(var, name=name)
+   ssp585      [JOIN] |2101-2100| = 0.156 K
+   ssp585      + ESGF -> 2299
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/build_coulon_allcells_series.py:103: SerializationWarning: Unable to decode time axis into full numpy.datetime64[ns] objects, continuing using cftime.datetime objects instead, reason: dates out of range. To silence this warning use a coarser resolution 'time_unit' or specify 'use_cftime=True'.
+  ds = xr.open_zarr(fs.get_mapper(q.zstore.iloc[0]), consolidated=True)
+   ssp126      zarr   2015-2100
+/Users/MarcusMarcus/climate-env/lib/python3.14/site-packages/xarray/conventions.py:204: SerializationWarning: variable 'tas' has multiple fill values {np.float32(1e+20), np.float64(1e+20)} defined, decoding all values to NaN.
+  var = coder.decode(var, name=name)
+/Users/MarcusMarcus/climate-env/lib/python3.14/site-packages/xarray/conventions.py:204: SerializationWarning: variable 'tas' has multiple fill values {np.float32(1e+20), np.float64(1e+20)} defined, decoding all values to NaN.
+  var = coder.decode(var, name=name)
+/Users/MarcusMarcus/climate-env/lib/python3.14/site-packages/xarray/conventions.py:204: SerializationWarning: variable 'tas' has multiple fill values {np.float32(1e+20), np.float64(1e+20)} defined, decoding all values to NaN.
+  var = coder.decode(var, name=name)
+/Users/MarcusMarcus/climate-env/lib/python3.14/site-packages/xarray/conventions.py:204: SerializationWarning: variable 'tas' has multiple fill values {np.float32(1e+20), np.float64(1e+20)} defined, decoding all values to NaN.
+  var = coder.decode(var, name=name)
+   ssp126      [JOIN] |2101-2100| = 0.009 K
+   ssp126      + ESGF -> 2299
+   wrote tas_series_CESM2-WACCM.csv  735 rows
+
+── IPSL-CM6A-LR (r1i1p1f1)
+   historical  zarr   1850-2014
+   ssp585      zarr   2015-2100
+   ssp585      [JOIN] |2101-2100| = 0.105 K
+   ssp585      + ESGF -> 2300
+   ssp126      zarr   2015-2100
+   ssp126      [JOIN] |2101-2100| = 0.122 K
+   ssp126      + ESGF -> 2300
+   wrote tas_series_IPSL-CM6A-LR.csv  737 rows
+
+── UKESM1-0-LL (r4i1p1f2)
+   historical  zarr   1850-2014
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/pai_series.py:147: RuntimeWarning: Mean of empty slice
+  m = float(np.nanmean(np.asarray(values, dtype=float)))
+Traceback (most recent call last):
+  File "/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/build_coulon_allcells_series.py", line 142, in <module>
+    main()
+    ~~~~^^
+  File "/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/build_coulon_allcells_series.py", line 118, in main
+    assert_global_plausible(ext.tas_global, f"{model}/{exp}/ext")
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/pai_series.py", line 150, in assert_global_plausible
+    raise ValueError(f"{label}: global mean {m:.2f} K outside {GLOBAL_PLAUSIBLE_K} "
+                     f"-- this is not a global mean. The usual cause is the "
+                     f"sftlf/tas coordinate mismatch: see align_sftlf_to().")
+ValueError: UKESM1-0-LL/historical/ext: global mean nan K outside (283.0, 302.0) -- this is not a global mean. The usual cause is the sftlf/tas coordinate mismatch: see align_sftlf_to().

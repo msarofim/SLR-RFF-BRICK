@@ -1,0 +1,152 @@
+build_t_glac | HadCRUT5.0.2.0 analysis ens-mean | GTN-G 2023 regions | GlaMBIE weights | commit=659e406
+  coverage: obs years 1850-2024
+  region cells>0 / min monthly coverage / pre-1900 coverage:
+    r01*:   45 cells  min 0.00  pre1900 0.55
+    r02*:   56 cells  min 0.35  pre1900 0.77
+    r03*:   34 cells  min 0.00  pre1900 0.13
+    r04*:   26 cells  min 0.01  pre1900 0.73
+    r05 (excl):   62 cells  min 0.65  pre1900 0.88
+    r06*:   12 cells  min 0.81  pre1900 0.99
+    r07*:   27 cells  min 0.64  pre1900 0.89
+    r08*:   28 cells  min 0.87  pre1900 0.92
+    r09*:   37 cells  min 0.35  pre1900 0.66
+    r10*:  196 cells  min 0.43  pre1900 0.76
+    r11*:   16 cells  min 1.00  pre1900 1.00
+    r12*:   15 cells  min 0.64  pre1900 0.98
+    r13*:   33 cells  min 0.03  pre1900 0.69
+    r14*:   10 cells  min 0.00  pre1900 0.52
+    r15*:    9 cells  min 0.00  pre1900 0.66
+    r16*:  441 cells  min 0.34  pre1900 0.72
+    r17*:   35 cells  min 0.48  pre1900 0.92
+    r18*:   16 cells  min 0.00  pre1900 0.86
+    r19*:  642 cells  min 0.02  pre1900 0.35
+  weights (area | loss-share), scope excl r5 incl r19:
+    r01:  14.6% |  25.9%
+    r02:   2.4% |   3.9%
+    r03:  17.1% |  12.8%
+    r04:   6.6% |   9.7%
+    r06:   1.8% |   3.5%
+    r07:   5.6% |   5.8%
+    r08:   0.5% |   0.7%
+    r09:   8.4% |   6.8%
+    r10:   0.4% |   0.6%
+    r11:   0.3% |   0.8%
+    r12:   0.2% |   0.3%
+    r13:   8.1% |   4.4%
+    r14:   5.5% |   2.4%
+    r15:   2.4% |   3.1%
+    r16:   0.4% |   0.4%
+    r17:   4.8% |  11.1%
+    r18:   0.2% |   0.4%
+    r19:  20.8% |   7.5%
+  pre-1900 region-year fills (region ~ amp_r*global + c_r, native frame):
+    r01:  1 yr filled (1855-1855), amp_r=1.44
+    r03: 46 yr filled (1850-1897), amp_r=2.67
+    r14: 22 yr filled (1850-1874), amp_r=0.75
+    r15: 18 yr filled (1850-1874), amp_r=0.91
+    r18:  5 yr filled (1850-1854), amp_r=0.72
+  max composite fill fraction: 39.6% of weight (only years <= 1897)
+
+  ETCW 1930-1940 mean anomaly rel 1850-1900: T_glac(area) +0.582 C vs global +0.250 C  (ratio 2.33x)
+  amp_g (through-origin fit 1901-2024): area 1.59  loss-share 1.63   (GlacierMIP3 fixed value: 1.8)
+  amp_g (through-origin fit 1970-2024): area 1.56  loss-share 1.58   (GlacierMIP3 fixed value: 1.8)
+
+Wrote data/observations/t_glac_hadcrut5.csv, data/observations/t_glac_regions_hadcrut5.csv, data/observations/t_glac_hadcrut5_provenance.md, figures/t_glac_vs_gmst.png
+loading catalog ...
+46 candidate models with ['historical', 'ssp245']; cap 45
+SKIP ACCESS-CM2 (exists)
+SKIP ACCESS-ESM1-5 (exists)
+SKIP AWI-CM-1-1-MR (exists)
+SKIP BCC-CSM2-MR (exists)
+SKIP CAMS-CSM1-0 (exists)
+SKIP CAS-ESM2-0 (exists)
+SKIP CESM2 (exists)
+SKIP CESM2-WACCM (exists)
+SKIP CIESM (exists)
+SKIP CMCC-CM2-SR5 (exists)
+SKIP CMCC-ESM2 (exists)
+I0823 19:50:04.133511 24747170 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I0823 19:50:04.141063 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141154 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141178 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141184 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141188 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141191 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141194 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141197 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141200 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141203 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141206 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141221 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141223 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141225 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141227 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141229 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141231 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141232 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141234 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141236 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141238 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141240 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141242 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141244 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141245 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141247 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141249 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141251 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141252 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141254 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141256 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141257 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141259 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141261 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141262 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141264 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141266 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141268 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141269 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141271 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141273 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141275 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141276 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141278 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141280 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141281 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+I0823 19:50:04.141283 24747193 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(24, generation: 1)
+FAIL CNRM-CM6-1: ValueError: global mean differs from pai reduction by 0.620 K > 0.05
+SKIP CNRM-CM6-1-HR (exists)
+FAIL CNRM-ESM2-1: ValueError: global mean differs from pai reduction by 0.494 K > 0.05
+SKIP CanESM5 (exists)
+SKIP CanESM5-CanOE (exists)
+SKIP E3SM-1-1 (exists)
+SKIP EC-Earth3 (exists)
+SKIP EC-Earth3-CC (exists)
+SKIP EC-Earth3-Veg (exists)
+SKIP EC-Earth3-Veg-LR (exists)
+SKIP FGOALS-f3-L (exists)
+SKIP FGOALS-g3 (exists)
+SKIP FIO-ESM-2-0 (exists)
+SKIP GFDL-CM4 (exists)
+SKIP GFDL-ESM4 (exists)
+FAIL GISS-E2-1-G: ValueError: global mean differs from pai reduction by 1.017 K > 0.05
+SKIP GISS-E2-1-H (exists)
+SKIP HadGEM3-GC31-LL (exists)
+SKIP IITM-ESM (exists)
+SKIP INM-CM4-8 (exists)
+SKIP INM-CM5-0 (exists)
+SKIP IPSL-CM6A-LR (exists)
+SKIP KACE-1-0-G (exists)
+SKIP KIOST-ESM (exists)
+FAIL MCM-UA-1-0: AttributeError: 'Dataset' object has no attribute 'lat'
+SKIP MIROC-ES2L (exists)
+SKIP MIROC6 (exists)
+FAIL MPI-ESM1-2-HR: ValueError: global mean differs from pai reduction by 7.781 K > 0.05
+FAIL MPI-ESM1-2-LR: ValueError: global mean differs from pai reduction by 7.539 K > 0.05
+SKIP MRI-ESM2-0 (exists)
+SKIP NESM3 (exists)
+SKIP NorESM2-LM (exists)
+SKIP NorESM2-MM (exists)
+SKIP TaiESM1 (exists)
+FAIL UKESM1-0-LL: ValueError: global mean differs from pai reduction by 0.590 K > 0.05
+
+39 models written to data/cmip6_glac

@@ -1,0 +1,69 @@
+THE BASIN MOCK IN ZONE SPACE — Ladrillo L12, median params, offline
+  choices: mid=central, high=north, amp=full, W=gmt_equivalent, calibrator=NO
+  south basin = shipped A+B (k=1, s=1.0098, POSTERIOR amp 1.9169); ridge k=1 gate PASSED (5.6e-17)
+  dormant-zone amp = OBSERVED PRIOR MEAN (no posterior exists): mid/central/full 2.3591, high/north/full 2.8278
+  inventory headroom: 6.88 m
+
+=== onset translation (along SSP5-8.5; W is GMT-equivalent) ===
+
+  basin zone      T_on GMT  T_on zone  W zone  W ratio
+  mid   central        2.5       5.39    2.11     2.11
+  mid   central        3.0       6.46    2.13     2.13
+  mid   central        3.5       7.50    2.11     2.11
+  mid   central        4.0       8.59    2.10     2.10
+  mid   central        5.0      10.69    2.15     2.15
+  high  north          5.0      13.55    2.75     2.75
+  high  north          6.0      16.29    2.71     2.71
+  high  north          7.0      19.00    2.71     2.71
+
+=== Z3 parity gate — inert in GMT space must imply inert in zone space ===
+
+  56 (basin, onset, tau, scenario) combinations are inert in GMT space and must stay inert
+  8 are ALREADY active in GMT space (mid onsets below ssp245's 2300 GMT of 3.15 K) — the mock's own grid, not a zone-space effect
+  VERDICT Z3: PASS — no combination activates on a low scenario that was inert in GMT space
+
+=== CENSUS — 720 cells ===
+
+  SSP1-2.6 band @2300       720 / 720
+  SSP2-4.5 band @2300       465 / 720
+  SSP5-8.5 band @2300       322 / 720
+  2100 kept (<= 15%)        162 / 720
+  within inventory          720 / 720
+  ALL PASS                   59 / 720
+
+=== Z3b: dormant loss among PASSERS on the low scenarios ===
+
+  SSP1-2.6  max |dorm2300| over passers = 0.000e+00 m SLE
+  SSP2-4.5  max |dorm2300| over passers = 0.000e+00 m SLE
+  VERDICT Z3b: PASS — ssp126/245 stay bit-identical to shipped
+
+=== Z1: pass region vs the GMT-space mock ===
+
+  zone-space passers 59   GMT-space passers 59
+  in BOTH 59   zone-space ONLY 0   GMT-space ONLY 0
+
+=== Z2: per-cell shift in ssp585 dormant loss (m SLE @2300) ===
+
+  median -0.0024   mean -0.0026   range [-0.0067, -0.0002]
+  as a fraction of the GMT-space dormant loss: median -0.164%
+
+=== the passing REGION (values represented among passers) ===
+
+  t_on_mid   [2.5, 4.0, 5.0]
+  t_on_high  [5.0, 6.0, 7.0]
+  v_tot      [1.5, 2.5, 3.5, 4.5]
+  mid_share  [0.0, 0.3, 0.5, 0.7]
+  tau        [50.0, 100.0, 200.0, 400.0]
+  t_on_mid   among passers with an ACTIVE mid basin: [4.0, 5.0] — the other t_on_mid values above are mid_share=0 PLACEHOLDERS (the dedupe keeps the first inert value); do not read them as onsets
+  ratio span  10.1x - 17.6x  (lit 7.9-31.9x)
+  G4 span     1.000x - 1.133x of shipped
+  cells with an ACTIVE mid basin: 41; single-dormant-basin: 18
+
+=== exemplars (widest 585 margin, median, narrowest) ===
+
+ t_on_mid  t_on_high  v_tot  mid_share  tau  t_on_high_zone  w_high_zone  m2300_SSP1-2.6  m2300_SSP2-4.5  m2300_SSP5-8.5  g4_rel_to_ref  ratio_585_over_245
+    5.000      6.000  2.500      0.300  100          16.294        2.706           0.092           0.172           2.430          1.000              14.131
+    2.500      7.000  2.500      0.000   50          19.000        2.712           0.092           0.172           1.989          1.000              11.567
+    2.500      5.000  3.500      0.000  400          13.546        2.747           0.092           0.172           1.734          1.000              10.084
+
+wrote outputs/scope_gis_basin_zonespace_vs_literature.csv

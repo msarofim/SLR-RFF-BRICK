@@ -1,0 +1,123 @@
+DOES THE PASS REGION SURVIVE PER-ZONE AMP UNCERTAINTY?  — Ladrillo L12, onsets PINNED in zone units
+  ridge k=1 gate PASSED (5.6e-17); base passers 59/720
+  mid  /central  amp arms  lo 1.679  -1sd 1.826  mean 2.359  +1sd 2.892  hi 2.982
+  high /north    amp arms  lo 1.840  -1sd 1.907  mean 2.828  +1sd 3.748  hi 4.056
+
+=== RANGE arms — passers (of 720) ===
+
+arm_high   hi  lo  mean
+arm_mid                
+hi         24   2    20
+lo        139  90   172
+mean       60  28    59
+
+=== RANGE arms — of the 59 base passers, how many survive ===
+
+arm_high  hi  lo  mean
+arm_mid               
+hi         9   0    20
+lo        39   3    44
+mean      38  12    59
+
+=== SIGMA arms — passers (of 720) ===
+
+arm_high  +1sd  -1sd  mean
+arm_mid                   
++1sd        37     5    31
+-1sd       114    69   129
+mean        59    31    59
+
+=== SIGMA arms — of the 59 base passers, how many survive ===
+
+arm_high  +1sd  -1sd  mean
+arm_mid                   
++1sd        18     1    30
+-1sd        43     9    53
+mean        39    13    59
+
+=== ANCHOR arms — passers (of 720) ===
+
+arm_high  cmip6  mean
+arm_mid              
+cmip6        82   162
+mean         31    59
+
+=== ANCHOR arms — of the 59 base passers, how many survive ===
+
+arm_high  cmip6  mean
+arm_mid              
+cmip6         4    46
+mean         13    59
+
+=== A2a HARD — leak among the cells that PASS in each amp cell ===
+
+  none, in all 22 amp cells across both families — VERDICT A2a: PASS
+  every passing cell keeps ssp126/245 identically at their shipped values, at every amp arm
+
+=== A2b — leak over ALL 720 grid cells, in EXCESS of the mean/mean base (288 cells, max 1.932 m) ===
+
+  The base count is NOT an amp effect: the 2.5 and 3.0 K mid onsets sit below
+  ssp245's 2300 GMT and are active at every amp, in GMT space too. Only the
+  EXCESS is attributable to amplification.
+
+  RANGE excess leak cells:
+arm_high   hi   lo  mean
+  arm_mid                 
+  hi        144  144   144
+  lo       -144 -144  -144
+  mean        0    0     0
+
+  SIGMA excess leak cells:
+arm_high  +1sd  -1sd  mean
+  arm_mid                   
+  +1sd       144   144   144
+  -1sd      -144  -144  -144
+  mean         0     0     0
+
+  ANCHOR excess leak cells:
+arm_high  cmip6  mean
+  arm_mid              
+  cmip6      -144  -144
+  mean          0     0
+
+
+=== A1/A3 ===
+
+  emptiest amp cell: RANGE mid=hi high=lo -> 2 passers (0 of the base 59)
+  pass region is NON-EMPTY in 22/22 amp cells
+  A3 sensitivity to mid/central amp: mean passers by arm {'+1sd': 24.3, '-1sd': 104.0, 'cmip6': 122.0, 'hi': 15.3, 'lo': 133.7, 'mean': 48.2}
+  A3 sensitivity to high/north  amp: mean passers by arm {'+1sd': 70.0, '-1sd': 35.0, 'cmip6': 56.5, 'hi': 74.3, 'lo': 40.0, 'mean': 86.4}
+
+=== A4 — the AMP-ROBUST CORE: cells passing in EVERY amp arm ===
+
+  RANGE  core   0   union 284   base-59 in core   0
+
+  SIGMA  core   0   union 213   base-59 in core   0
+
+  ANCHOR core   4   union 214   base-59 in core   4
+           t_on_mid   [2.5, 5.0]
+           t_on_high  [5.0, 6.0, 7.0]
+           v_tot      [2.5, 3.5]
+           mid_share  [0.0, 0.7]
+           tau        [50.0, 100.0]
+           active-mid cells 3; single-basin 1
+
+=== A4b — the DIAGONAL core: both zones moved TOGETHER (lo/lo, mean/mean, hi/hi) ===
+
+  RANGE  core   0   union 161   base-59 in core   0   (arm sizes [90, 59, 24])
+         pairwise overlaps {'lo&mean': 3, 'lo&hi': 0, 'mean&hi': 9}; three-way 0 => the surviving sets at the two ends are DISJOINT
+
+  SIGMA  core   0   union 138   base-59 in core   0   (arm sizes [69, 59, 37])
+         pairwise overlaps {'-1sd&mean': 9, '-1sd&+1sd': 0, 'mean&+1sd': 18}; three-way 0 => the surviving sets at the two ends are DISJOINT
+
+  ANCHOR core   4   union 137   base-59 in core   4   (arm sizes [82, 59])
+         pairwise overlaps {'cmip6&mean': 4}; three-way 4 => the surviving sets at the two ends are overlapping
+           t_on_mid   [2.5, 5.0]
+           t_on_high  [5.0, 6.0, 7.0]
+           v_tot      [2.5, 3.5]
+           mid_share  [0.0, 0.7]
+           tau        [50.0, 100.0]
+           active-mid cells 3; single-basin 1
+
+wrote outputs/scope_gis_basin_zonespace_amp_sens.csv
+wrote outputs/scope_gis_basin_zonespace_amp_sens_robust_core.csv

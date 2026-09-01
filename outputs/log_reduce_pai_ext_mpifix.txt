@@ -1,0 +1,135 @@
+loading catalog ...
+I0824 07:25:13.636931 25986983 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I0824 07:25:13.644442 25987038 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+SKIP ACCESS-CM2 (exists)
+SKIP ACCESS-ESM1-5 (exists)
+SKIP AWI-CM-1-1-MR (exists)
+SKIP BCC-CSM2-MR (exists)
+SKIP CAMS-CSM1-0 (exists)
+SKIP CESM2-WACCM (exists)
+SKIP CESM2 (exists)
+SKIP CMCC-CM2-SR5 (exists)
+SKIP CMCC-ESM2 (exists)
+SKIP CNRM-CM6-1-HR (exists)
+SKIP CNRM-CM6-1 (exists)
+SKIP CNRM-ESM2-1 (exists)
+SKIP CanESM5-CanOE (exists)
+SKIP CanESM5 (exists)
+PASS E3SM-1-1: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+SKIP EC-Earth3-Veg-LR (exists)
+SKIP EC-Earth3-Veg (exists)
+SKIP EC-Earth3 (exists)
+SKIP FGOALS-g3 (exists)
+PASS GFDL-CM4: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+SKIP GFDL-ESM4 (exists)
+SKIP GISS-E2-1-G (exists)
+SKIP GISS-E2-1-H (exists)
+SKIP HadGEM3-GC31-LL (exists)
+SKIP INM-CM4-8 (exists)
+SKIP INM-CM5-0 (exists)
+SKIP IPSL-CM6A-LR (exists)
+SKIP MIROC-ES2L (exists)
+SKIP MIROC6 (exists)
+OK   MPI-ESM1-2-HR (r1i1p1f1) ssp126+ssp370 172 rows in 20s
+OK   MPI-ESM1-2-LR (r1i1p1f1) ssp126+ssp370 172 rows in 7s
+SKIP MRI-ESM2-0 (exists)
+SKIP NorESM2-MM (exists)
+SKIP TaiESM1 (exists)
+SKIP UKESM1-0-LL (exists)
+PASS deck_ACCESS-CM2: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_ACCESS-ESM1-5: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_AWI-CM-1-1-MR: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_BCC-CSM2-MR: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_BCC-ESM1: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_CAMS-CSM1-0: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_CESM2-FV2: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_CESM2-WACCM-FV2: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_CESM2-WACCM: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_CESM2: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_CMCC-CM2-SR5: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_CMCC-ESM2: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_CNRM-CM6-1-HR: member r1i1p1f2 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_CNRM-CM6-1: member r1i1p1f2 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_CNRM-ESM2-1: member r1i1p1f2 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_CanESM5: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_E3SM-1-0: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_EC-Earth3-AerChem: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_EC-Earth3-Veg: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_EC-Earth3: member r3i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_FGOALS-g3: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_GFDL-CM4: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_GFDL-ESM4: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_GISS-E2-1-G: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_GISS-E2-1-H: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_HadGEM3-GC31-LL: member r1i1p1f3 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_HadGEM3-GC31-MM: member r1i1p1f3 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_INM-CM4-8: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_INM-CM5-0: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_IPSL-CM6A-LR: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_MIROC-ES2L: member r1i1p1f2 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_MIROC6: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_MRI-ESM2-0: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_NorCPM1: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_NorESM2-MM: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_SAM0-UNICON: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_TaiESM1: member r1i1p1f1 has none of ['ssp119', 'ssp126', 'ssp370']
+PASS deck_UKESM1-0-LL: member r1i1p1f2 has none of ['ssp119', 'ssp126', 'ssp370']
+FAIL hemis_ACCESS-CM2: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_ACCESS-ESM1-5: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_AWI-CM-1-1-MR: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_BCC-CSM2-MR: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_CAMS-CSM1-0: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_CESM2-WACCM: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_CESM2: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_CMCC-CM2-SR5: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_CMCC-ESM2: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_CNRM-CM6-1-HR: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_CNRM-CM6-1: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_CNRM-ESM2-1: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_CanESM5-CanOE: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_CanESM5: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_E3SM-1-1: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_EC-Earth3-Veg-LR: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_EC-Earth3-Veg: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_EC-Earth3: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_FGOALS-g3: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_GFDL-CM4: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_GFDL-ESM4: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_GISS-E2-1-G: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_GISS-E2-1-H: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_HadGEM3-GC31-LL: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_INM-CM4-8: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_INM-CM5-0: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_IPSL-CM6A-LR: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_MIROC-ES2L: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_MIROC6: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_MPI-ESM1-2-HR: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_MPI-ESM1-2-LR: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_MRI-ESM2-0: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_NorESM2-MM: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_TaiESM1: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL hemis_UKESM1-0-LL: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_ACCESS-CM2: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_ACCESS-ESM1-5: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_BCC-CSM2-MR: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_CMCC-CM2-SR5: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_CMCC-ESM2: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_CNRM-CM6-1-HR: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_CNRM-CM6-1: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_CNRM-ESM2-1: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_CanESM5: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_EC-Earth3-AerChem: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_EC-Earth3-Veg: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_GISS-E2-1-G: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_GISS-E2-1-H: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_HadGEM3-GC31-LL: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_HadGEM3-GC31-MM: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_IPSL-CM6A-LR: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_MIROC6: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_MPI-ESM-1-2-HAM: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_MPI-ESM1-2-HR: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_MPI-ESM1-2-LR: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_MRI-ESM2-0: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_NorESM2-MM: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+FAIL ohc_deck_UKESM1-0-LL: ValueError: Usecols do not match columns, columns expected but not found: ['member']
+DONE ext reduction

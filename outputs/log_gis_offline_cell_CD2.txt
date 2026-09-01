@@ -1,0 +1,102 @@
+gis_offline_cell | commit=4111e5d | zone=south | fit 1900-2025
+  Mouginot surface share verified from file: 0.735
+  driver south 1850-2024; target 1900-2025 (126 yr)
+
+  PRE-REGISTERED GATES
+    G1 modern rate  (2003, 2018): 0.841 mm/yr +/-25%
+    G2 (1942, 1982) mean |bias| < 0.3 cm
+    G3 (1942, 1982) melt-rate trend negative
+    G4 EVAL ONLY 2100 spread in (6.3, 7.3) cm (Ladrillo extC today: 2.16)
+  fitted incumbent nlp=     980.0  rmse=0.533 cm  spread= 2.29 cm
+  fitted stock    nlp=     234.9  rmse=0.325 cm  spread= 7.25 cm
+  fitted A        nlp=      17.9  rmse=0.061 cm  spread=10.85 cm
+  fitted B        nlp=     234.9  rmse=0.325 cm  spread= 7.25 cm   [warm start from stock]
+    repair B        a ridge point scored 232.1833 < 234.9240; refitting from it
+    repair B        nlp=  232.0747  rmse=0.282 cm  spread= 7.27 cm
+  fitted A+B      nlp=      17.9  rmse=0.062 cm  spread=10.44 cm   [warm start from A]
+  fitted A+B'     nlp=      19.2  rmse=0.077 cm  spread= 0.00 cm
+  fitted A+B+C    nlp=     563.2  rmse=0.844 cm  spread= 0.28 cm
+  fitted A+B'+C   nlp=     118.2  rmse=0.350 cm  spread= 6.24 cm
+  fitted A+B+C+D  nlp=      47.0  rmse=0.128 cm  spread= 0.00 cm   [warm start from A+B+C]
+  fitted A+B'+C+D nlp=     116.3  rmse=0.346 cm  spread= 6.50 cm   [warm start from A+B'+C]
+    repair A+B'+C+D a ridge point scored 115.0952 < 116.3160; refitting from it
+    repair A+B'+C+D nlp=  109.0114  rmse=0.349 cm  spread= 5.75 cm
+  fitted A+B'+C+D2 nlp=      21.0  rmse=0.082 cm  spread=15.69 cm   [warm start from A+B'+C+D]
+
+NESTING CHECK -- a container cell cannot score above the cell it nests
+  B            232.0747  <=  stock      234.9240   gap  -2.8493  OK
+  A+B           17.8559  <=  A           17.8745   gap  -0.0186  OK
+  A+B+C+D       47.0438  <=  A+B+C      563.1964   gap -516.1526  OK
+  A+B'+C+D     109.0114  <=  A+B'+C     118.1507   gap  -9.1394  OK
+  A+B'+C+D2     20.9592  <=  A+B'+C+D   109.0114   gap -88.0521  OK
+
+CONVERGENCE CHECK -- no constrained ridge point may beat the optimum
+  A+B        optimum    17.8559  best ridge point    17.8669  gap  -0.0110  OK
+  A+B'       optimum    19.1542  best ridge point    19.6866  gap  -0.5324  OK
+  A+B'+C     optimum   118.1507  best ridge point   118.1507  gap  +0.0000  OK
+  A+B'+C+D   optimum   109.0114  best ridge point   115.0952  gap  -6.0839  OK
+  A+B'+C+D2  optimum    20.9592  best ridge point    20.9592  gap  +0.0000  OK
+  A+B+C      optimum   563.1964  best ridge point   563.1964  gap  +0.0000  OK
+  A+B+C+D    optimum    47.0438  best ridge point    51.1508  gap  -4.1070  OK
+  B          optimum   232.0747  best ridge point   232.1833  gap  -0.1087  OK
+
+FIT QUALITY AND GATES
+  cell       npar  RMSE cm    rate  G1  bias cm  G2     trend  G3   surf  railed
+  incumbent     5    0.533   0.560  --   -0.828  -- +5.19e-05  --      -  
+  stock         5    0.325   0.671  OK   -0.226  OK -5.81e-04  OK      -  
+  A             5    0.061   0.775  OK   +0.014  OK -1.32e-03  OK      -  
+  B             8    0.282   0.662  OK   -0.227  OK -6.91e-04  OK   0.80  alpha_s
+  A+B           8    0.062   0.775  OK   +0.015  OK -1.32e-03  OK   0.74  beta_s
+  A+B'          7    0.077   0.813  OK   -0.003  OK -1.22e-03  OK   0.69  c1
+  A+B+C         7    0.844   0.810  OK   -0.076  OK +4.06e-05  --   0.73  alpha_f|alpha_s|g
+  A+B'+C        6    0.350   0.758  OK   -0.152  OK -7.72e-04  OK   1.00  alpha_s|beta_s
+  A+B+C+D       9    0.128   0.733  OK   -0.050  OK -1.54e-03  OK   0.86  beta_f|beta_s|g
+  A+B'+C+D      7    0.349   0.752  OK   -0.162  OK -8.14e-04  OK   0.83  dT|beta_s|g
+  A+B'+C+D2     9    0.082   0.812  OK   -0.005  OK -1.24e-03  OK   0.78  alpha_s|q_thalf
+
+G4 EVALUATION ONLY -- 2100 GIS, cm rel 1995-2014
+  cell          SSP1-2.6   SSP2-4.5   SSP5-8.5   spread   G4
+  incumbent         6.61       7.27       8.90     2.29   --
+  stock             3.37       5.64      10.61     7.25   OK
+  A                 7.04      10.04      17.89    10.85   --
+  B                 3.33       5.61      10.60     7.27   OK
+  A+B               6.93       9.83      17.37    10.44   --
+  A+B'              1.31       1.31       1.31     0.00   --
+  A+B+C            10.34      10.47      10.62     0.28   --
+  A+B'+C           10.07      12.04      16.31     6.24   --
+  A+B+C+D           7.01       7.01       7.01     0.00   --
+  A+B'+C+D          9.79      11.60      15.54     5.75   --
+  A+B'+C+D2        11.85      16.79      27.54    15.69   --
+  targets: MAGICC-SLR 7.09, FACTS FittedISMIP 6.34, emuGrIS 7.26, bamber19 7.23; Ladrillo extC today 2.16
+
+SEPARABILITY -- pre-registered question: do the fast fraction and the fast
+  timescale identify jointly, or ride a ridge?
+  B        f-beta_f: best (0.783, 4.51e-02)  d<2.3 region spans 20% of the f axis, 0% of log10 beta_f, corr +nan  -> identified
+  A+B      f-beta_f: best (0.761, 7.37e-03)  d<2.3 region spans 80% of the f axis, 50% of log10 beta_f, corr +0.16  -> weakly identified
+  A+B'     k_smb-beta_s: best (0.121, 9.27e-04)  d<2.3 region spans 0% of the k_smb axis, 90% of log10 beta_s, corr +nan  -> weakly identified
+/Users/MarcusMarcus/climate-env/lib/python3.14/site-packages/numpy/lib/_function_base_impl.py:3023: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/Users/MarcusMarcus/climate-env/lib/python3.14/site-packages/numpy/lib/_function_base_impl.py:3024: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[None, :]
+  A+B+C    f-beta_f: best (0.735, 1.65e-04)  d<2.3 region spans 40% of the f axis, 0% of log10 beta_f, corr +nan  -> identified
+  A+B+C    dT-beta_s: best (-1.528, 1.65e-04)  d<2.3 region spans 0% of the dT axis, 20% of log10 beta_s, corr +nan  -> identified
+  A+B'+C   k_smb-beta_s: best (0.054, 1.00e-06)  d<2.3 region spans 0% of the k_smb axis, 50% of log10 beta_s, corr +nan  -> identified
+  A+B'+C   dT-beta_s: best (-0.536, 1.00e-06)  d<2.3 region spans 90% of the dT axis, 90% of log10 beta_s, corr +0.30  -> weakly identified
+  A+B+C+D  f-beta_f: best (0.045, 1.41e-06)  d<2.3 region spans 10% of the f axis, 90% of log10 beta_f, corr -0.44  -> weakly identified
+  A+B+C+D  dT-beta_s: best (-1.527, 1.00e-06)  d<2.3 region spans 10% of the dT axis, 60% of log10 beta_s, corr -0.00  -> weakly identified
+  A+B'+C+D k_smb-beta_s: best (0.054, 2.32e-05)  d<2.3 region spans 0% of the k_smb axis, 30% of log10 beta_s, corr +nan  -> identified
+  A+B'+C+D dT-beta_s: best (-0.360, 4.57e-05)  d<2.3 region spans 100% of the dT axis, 100% of log10 beta_s, corr +0.00  -> weakly identified
+  A+B'+C+D2 k_smb-beta_s: best (0.120, 3.86e-02)  d<2.3 region spans 0% of the k_smb axis, 100% of log10 beta_s, corr +nan  -> weakly identified
+  A+B'+C+D2 dT-beta_s: best (-0.630, 2.23e-02)  d<2.3 region spans 60% of the dT axis, 90% of log10 beta_s, corr +0.27  -> weakly identified
+  ridge = wide region (>25% of both local axes) with |corr| > 0.7; grids are LOCAL around each optimum
+Traceback (most recent call last):
+  File "/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/gis_offline_cell.py", line 957, in <module>
+    main()
+    ~~~~^^
+  File "/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/gis_offline_cell.py", line 807, in main
+    make_figure(series, ctx, fit)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/gis_offline_cell.py", line 917, in make_figure
+    ax.plot(s.index, s[f"{cell}_hindcast_cm"], label=cell, **style[cell])
+                                                             ~~~~~^^^^^^
+KeyError: 'A+B+C+D'

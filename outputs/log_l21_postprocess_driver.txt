@@ -1,0 +1,590 @@
+[11:11:42] waiting for the L21 chains to finish...
+[13:54:47] chains done.
+[13:54:47] === ARM VERIFICATION ===
+[13:54:47]   seed2026: A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]   TAG=L21 over-dispersed start (seed 2026, row 1): logpost(θ0) = 219.37  [MAP start = -650.59] 
+[13:54:48]   seed2027: A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]   TAG=L21 over-dispersed start (seed 2027, row 2): logpost(θ0) = 223.45  [MAP start = -650.59] 
+[13:54:48]   seed2028: A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]   TAG=L21 over-dispersed start (seed 2028, row 3): logpost(θ0) = 219.88  [MAP start = -650.59] 
+[13:54:49]   seed2029: A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]   TAG=L21 over-dispersed start (seed 2029, row 4): logpost(θ0) = 217.68  [MAP start = -650.59] 
+[13:54:49]   EXPECT amp ~ N(0.950, 0.100) on [0.650, 1.390-ish]; four DISTINCT starts ~ +217..+224;
+[13:54:49]   EXPECT [MAP start = -650.59] — DIFFERENT from L14's -642.84, which is how we know the
+[13:54:49]   calib-1.6.0 driver actually took. If it equals -642.84 the migration is a NO-OP: STOP.
+-rw-r--r--@ 1 MarcusMarcus  staff  2325077204 Aug 28 13:51 outputs/mcmc/chain_L21_seed2026_n2000000.csv
+-rw-r--r--@ 1 MarcusMarcus  staff  2327327250 Aug 28 13:54 outputs/mcmc/chain_L21_seed2027_n2000000.csv
+-rw-r--r--@ 1 MarcusMarcus  staff  2325271354 Aug 28 13:52 outputs/mcmc/chain_L21_seed2028_n2000000.csv
+-rw-r--r--@ 1 MarcusMarcus  staff  2326196450 Aug 28 13:52 outputs/mcmc/chain_L21_seed2029_n2000000.csv
+[13:54:49] START  slr convergence diag (REQUIRED before postprocess)
+Ladrillo 1.0 SLR convergence-by-chain diagnostic
+  tag L21 | window 1850-2150 | ssp245 | rebaseline 1995-2014 | Greenland :basins2
+  burn = first 1000000 of 2000000, thinned to 400 draws per chain
+  amp law ON (S anchored at dT_eff = 0.940 K) — certifies the SHIPPED model
+
+  seed2026: 400 draws (thin 2500, rows 1000001..1997501)  46s
+  seed2027: 400 draws (thin 2500, rows 1000001..1997501)  46s
+  seed2028: 400 draws (thin 2500, rows 1000001..1997501)  45s
+  seed2029: 400 draws (thin 2500, rows 1000001..1997501)  46s
+  total 182s
+
+SLR @2100 (cm, rel. 1995-2014)
+  chain           q05      q50      q95     mean       sd
+  seed2026      44.21    48.04    76.02    51.61    10.21
+  seed2027      43.29    47.00    80.35    52.07    11.90
+  seed2028      44.18    47.78    79.76    52.42    12.15
+  seed2029      43.99    47.90    79.12    52.84    11.82
+  POOLED        43.85    47.75    79.37    52.23    11.54
+
+SLR @2150 (cm, rel. 1995-2014)
+  chain           q05      q50      q95     mean       sd
+  seed2026      66.96    74.40   156.05    92.50    30.54
+  seed2027      64.38    72.62   156.99    92.60    33.42
+  seed2028      66.61    73.52   164.90    93.61    33.22
+  seed2029      66.98    75.90   156.19    94.86    32.16
+  POOLED        66.01    74.26   157.79    93.39    32.34
+
+==============================================================================
+CROSS-CHAIN CONVERGENCE OF PROJECTED SLR  (4 chains x 400 thinned draws)
+==============================================================================
+  quantity          R-hat        ESS  sd(medians)  mean(sd_wc)      ratio
+  SLR@2100          1.006     1201.3        0.465       11.520      0.040
+  SLR@2150          1.009     1275.6        1.400       32.334      0.043
+
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/mcmc/slr_convergence_L21.csv
+
+VERDICT: projected SLR IS converged across chains (R-hat < 1.05 at all horizons)
+[13:58:06] OK     slr convergence diag (REQUIRED before postprocess)
+[13:58:06] START  postprocess (2-3 h — DO NOT KILL)
+Combining 4 chains:
+  chain_L21_seed2026_n2000000.csv  (1000000 post-burn)
+  chain_L21_seed2027_n2000000.csv  (1000000 post-burn)
+  chain_L21_seed2028_n2000000.csv  (1000000 post-burn)
+  chain_L21_seed2029_n2000000.csv  (1000000 post-burn)
+
+4 chains × 1000000 draws. Convergence (target R̂<1.05, ESS>400):
+  ais_ocean_temperature₀   R̂=1.115 ESS=47.5 τ=84299  <-- check
+  antarctic_alpha          R̂=1.479 ESS=15.7 τ=254579  <-- check
+  antarctic_nu             R̂=1.111 ESS=45.4 τ=88179  <-- check
+  anto_alpha               R̂=1.067 ESS=80.2 τ=49856  <-- check
+  anto_beta                R̂=1.219 ESS=27.8 τ=143982  <-- check
+  gis_c1                   R̂=1.119 ESS=40.8 τ=97941  <-- check
+  gis_c0                   R̂=1.108 ESS=42.7 τ=93646  <-- check
+  gis_f                    R̂=1.109 ESS=40.7 τ=98339  <-- check
+  gis_slow_ell             R̂=1.124 ESS=38.1 τ=104913  <-- check
+  ais_mu                   R̂=1.087 ESS=64.7 τ=61834  <-- check
+  ais_bedheight0           R̂=1.030 ESS=229.2 τ=17454  <-- check
+  ais_slope                R̂=1.566 ESS=16.0 τ=250642  <-- check
+  ais_iceflow0             R̂=2.323 ESS=11.9 τ=337165  <-- check
+  ais_runoff_Ton           R̂=1.019 ESS=270.4 τ=14791  <-- check
+  rho_ais                  R̂=1.254 ESS=22.8 τ=175445  <-- check
+  rho_gsic                 R̂=1.020 ESS=151.0 τ=26495  <-- check
+  rho_gis                  R̂=1.026 ESS=76.7 τ=52147  <-- check
+  log_post                 R̂=1.025 ESS=189.4 τ=21122  <-- check
+  18 params NOT converged.
+
+--accept-slr: deliverable-level convergence from slr_convergence_L21.csv:
+  SLR@2100  R̂=1.006  ESS=1201.3
+  SLR@2150  R̂=1.009  ESS=1275.6
+ACCEPTED ON DELIVERABLE: parameter marginals not converged (compensating
+AIS-geometry ridge), but projected SLR R̂<1.05 at all horizons -> writing
+canonical outputs (accepted-on-deliverable criterion, Marcus 2026-07-19).
+
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/data/MimiBRICK/parameters_subsample_brick_mengel_L21.csv  (10000-member subsample of 4000000 pooled draws)
+Wrote adapted_cov_L21.csv (empirical posterior cov) -> seeds the next ext run.
+
+Key-param medians  (ext vs 2018-baseline):
+  ais_ocean_temperature₀   ext 0.951   base 0.981   Δ -0.0307
+  anto_alpha               ext 0.283   base 0.405   Δ -0.122
+  thermal_alpha            ext 0.171   base 0.164   Δ +0.00708
+
+** 18 marginals not converged; ACCEPTED ON DELIVERABLE (--accept-slr). **
+[14:45:52] OK     postprocess (2-3 h — DO NOT KILL)
+[14:45:52] START  T_on band occupancy per chain
+ais_runoff_Ton band occupancy per chain | bands LOW<=-18.5 MID(-18.5,-17.4] HIGH>-17.4 | every 500th post-burn draw
+  chain_L21_seed2026_n2000000.csv            n= 2000  LOW   0.0%  MID 100.0%  HIGH   0.0%   mean  -17.84  min  -18.08  max  -17.51  (col 49)
+  chain_L21_seed2027_n2000000.csv            n= 2000  LOW   0.0%  MID 100.0%  HIGH   0.0%   mean  -17.88  min  -18.09  max  -17.47  (col 49)
+  chain_L21_seed2028_n2000000.csv            n= 2000  LOW   0.0%  MID 100.0%  HIGH   0.0%   mean  -17.85  min  -18.05  max  -17.51  (col 49)
+  chain_L21_seed2029_n2000000.csv            n= 2000  LOW   0.0%  MID 100.0%  HIGH   0.0%   mean  -17.84  min  -18.09  max  -17.50  (col 49)
+[14:48:16] OK     T_on band occupancy per chain
+[14:48:16] START  T_on excursion structure
+ais_runoff_Ton MID-excursion structure | LOW<=-18.5 MID(-18.5,-17.4] HIGH>-17.4 | EVERY post-burn draw (no stride)
+  exits=MID->out  returns=out->MID  (|exits-returns|<=1 BY CONSTRUCTION — read the SOJOURNS)
+
+  chain_L21_seed2026_n2000000.csv            col 49  n=1000000
+      occupancy   MID 100.0% (1000000)   LOW   0.0% (0)   HIGH   0.0% (0)
+      transitions exits 0   returns 0   excursions 0 (0 still open at chain end)
+      exit hazard       0.00 per 1e6 MID-draws   (0 exits / 1000000 MID-draws)
+      return hazard UNDEFINED — 0 out-of-MID draws
+      mean excursion  n/a — chain never left MID (exit hazard has NO POWER here)
+      mean MID sojourn n/a — chain never left MID
+  chain_L21_seed2027_n2000000.csv            col 49  n=1000000
+      occupancy   MID 100.0% (1000000)   LOW   0.0% (0)   HIGH   0.0% (0)
+      transitions exits 0   returns 0   excursions 0 (0 still open at chain end)
+      exit hazard       0.00 per 1e6 MID-draws   (0 exits / 1000000 MID-draws)
+      return hazard UNDEFINED — 0 out-of-MID draws
+      mean excursion  n/a — chain never left MID (exit hazard has NO POWER here)
+      mean MID sojourn n/a — chain never left MID
+  chain_L21_seed2028_n2000000.csv            col 49  n=1000000
+      occupancy   MID 100.0% (1000000)   LOW   0.0% (0)   HIGH   0.0% (0)
+      transitions exits 0   returns 0   excursions 0 (0 still open at chain end)
+      exit hazard       0.00 per 1e6 MID-draws   (0 exits / 1000000 MID-draws)
+      return hazard UNDEFINED — 0 out-of-MID draws
+      mean excursion  n/a — chain never left MID (exit hazard has NO POWER here)
+      mean MID sojourn n/a — chain never left MID
+  chain_L21_seed2029_n2000000.csv            col 49  n=1000000
+      occupancy   MID 100.0% (1000000)   LOW   0.0% (0)   HIGH   0.0% (0)
+      transitions exits 0   returns 0   excursions 0 (0 still open at chain end)
+      exit hazard       0.00 per 1e6 MID-draws   (0 exits / 1000000 MID-draws)
+      return hazard UNDEFINED — 0 out-of-MID draws
+      mean excursion  n/a — chain never left MID (exit hazard has NO POWER here)
+      mean MID sojourn n/a — chain never left MID
+[14:48:57] OK     T_on excursion structure
+[14:48:57] START  T_on band hindcast vs L14
+T_on BAND × ARM HINDCAST | 2000 draws requested | AIS target sigma 0.1674 cm
+  bands: LOW ≤ -18.5  |  MID (-18.5, -17.4]  |  HIGH > -17.4   (KDE valley floors)
+  ⚠ CONDITIONAL AND CORRELATIONAL — bands differ in other parameters too.
+
+L14: 2000 draws in 13s
+  LOW    SKIPPED — only 0 draws
+  HIGH   SKIPPED — only 0 draws
+L21: 2000 draws in 10s
+  LOW    SKIPPED — only 0 draws
+  HIGH   SKIPPED — only 0 draws
+
+============================================================================================================
+AIS HINDCAST BY T_on BAND — does the damage track the BAND or the ARM?
+============================================================================================================
+arm   band          n     T_on      amp |   bias/sd     rmse    bandw   cov90 |   bias/sd     rmse    bandw   cov90
+                           med      med |    [full]   [full]   [full]  [full] |   [50-92]  [50-92]  [50-92] [50-92]
+L14   MID        2000   -17.84    0.945 |     0.075   0.0347   0.1146     85% |     0.140   0.0238   0.0938     98%
+L14   POOLED     2000   -17.84    0.945 |     0.075   0.0347   0.1146     85% |     0.140   0.0238   0.0938     98%
+L21   MID        2000   -17.86    0.944 |    -0.020   0.0287   0.0998     86% |     0.018   0.0079   0.0731     98%
+L21   POOLED     2000   -17.86    0.944 |    -0.020   0.0287   0.0998     86% |     0.018   0.0079   0.0731     98%
+
+  REPRODUCTION CHECK — the POOLED rows must match the committed benchmark:
+    L15 1950-1992 bias −0.340 sd, cov90 7% | L16 bias −0.02 sd, cov90 98%
+
+wrote outputs/scope_ais_ton_band_hindcast.csv
+[14:49:37] OK     T_on band hindcast vs L14
+[14:49:37] START  posterior predictive
+NOTE: no calibrated error model for total — reported OUT-OF-SAMPLE, parameter band only, predictive band NaN
+Ladrillo posterior predictive | parameters_subsample_brick_mengel_L21.csv | 2000 draws | 1900-2026 | base 1995-2005 | forcing ssp245harm
+........
+  2000 draws in 13s
+
+Component bias (model p50 - obs, cm; glaciers vs the delta-corrected target)
+ @1900:
+  ais       1900  obs   -0.63  p50   -0.64  bias  -0.01  in 90%
+  glaciers  1900  obs   -5.81  p50   -5.55  bias  +0.26  in 90%
+  gis       1900  obs   -4.13  p50   -4.08  bias  +0.05  in 90%
+  te        1900  obs   -3.61  p50   -3.73  bias  -0.12  in 90%
+  total     1900  obs  -13.94  p50  -12.61  bias  +1.33  OUT  [OUT-OF-SAMPLE]
+ @1950:
+  ais       1950  obs   -0.36  p50   -0.36  bias  -0.00  in 90%
+  glaciers  1950  obs   -2.40  p50   -2.54  bias  -0.15  in 90%
+  gis       1950  obs   -1.36  p50   -1.32  bias  +0.04  in 90%
+  te        1950  obs   -2.82  p50   -2.70  bias  +0.11  in 90%
+  total     1950  obs   -5.99  p50   -5.49  bias  +0.50  in 90%  [OUT-OF-SAMPLE]
+ @2000:
+  ais       2000  obs    0.00  p50   -0.01  bias  -0.01  OUT
+  glaciers  2000  obs   -0.01  p50   -0.00  bias  +0.01  OUT
+  gis       2000  obs   -0.04  p50   -0.05  bias  -0.01  OUT
+  te        2000  obs   -0.24  p50   -0.01  bias  +0.23  OUT
+  total     2000  obs   -0.29  p50   -0.29  bias  -0.00  in 90%  [OUT-OF-SAMPLE]
+ @2018:
+  ais       2018  obs    0.70  p50    0.57  bias  -0.12  OUT
+  glaciers  2018  obs    1.21  p50    1.14  bias  -0.07  in 90%
+  gis       2018  obs    1.27  p50    1.27  bias  -0.00  in 90%
+  te        2018  obs    2.07  p50    2.76  bias  +0.68  OUT
+  total     2018  obs    5.97  p50    6.33  bias  +0.36  in 90%  [OUT-OF-SAMPLE]
+ @series end:
+  ais       2025  obs    0.77  p50    0.85  bias  +0.08  OUT
+  glaciers  2023  obs    1.63  p50    1.48  bias  -0.15  in 90%
+  gis       2025  obs    1.65  p50    1.66  bias  +0.01  in 90%
+  te        2025  obs    3.23  p50    4.08  bias  +0.85  OUT
+  total     2024  obs    8.23  p50    8.56  bias  +0.33  in 90%  [OUT-OF-SAMPLE]
+ AIS plateau (does the fit track the GRACE-FO pause?):
+  ais       2019  obs    0.69  p50    0.61  bias  -0.08  OUT
+  ais       2020  obs    0.74  p50    0.65  bias  -0.09  OUT
+  ais       2022  obs    0.71  p50    0.73  bias  +0.01  in 90%
+  ais       2024  obs    0.76  p50    0.80  bias  +0.04  in 90%
+  ais       2025  obs    0.77  p50    0.85  bias  +0.08  OUT
+
+90% coverage over the fit window (share of obs years inside the band)
+  parameter = posterior parameter spread only; predictive = + the calibrated AR(1)+obs error model
+  ais       126 years   parameter  85.7%   predictive  99.2%   mean bias -0.00 cm
+  glaciers  124 years   parameter  79.0%   predictive 100.0%   mean bias +0.01 cm
+  gis       126 years   parameter  62.7%   predictive  99.2%   mean bias +0.00 cm
+  te        126 years   parameter  35.7%   predictive  94.4%   mean bias +0.22 cm
+  total     125 years   parameter  28.0%   predictive   NaN%   mean bias +0.69 cm   [OUT-OF-SAMPLE: no fitted error model]
+
+wrote outputs/postpred_L21_components_timeseries.csv, outputs/postpred_L21_bias.csv, outputs/postpred_L21_coverage.csv
+[14:50:05] OK     posterior predictive
+[14:50:05] START  ssp components (tap)
+Ladrillo SSP components | posterior parameters_subsample_brick_mengel_L21.csv (2000 draws) | Greenland :basins2 | base 1995-2014 | horizon 2300
+........
+SSP1-2.6  2000 draws in 15s
+  @2100 GMST +1.90 | glac   8.1  gis   6.8  ais    4.6  te  16.4  lws  2.6 | TOTAL   38.4 [ 36.9,   40.0] cm  (finite 2000/2000)
+  @2150 GMST +1.78 | glac  10.1  gis   8.3  ais    7.1  te  20.5  lws  4.2 | TOTAL   50.2 [ 48.2,   52.3] cm  (finite 2000/2000)
+  @2300 GMST +1.81 | glac  12.9  gis  10.5  ais   14.3  te  26.8  lws  8.5 | TOTAL   73.0 [ 69.8,   76.3] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 13s
+  @2100 GMST +2.70 | glac   9.8  gis   8.5  ais    5.6  te  20.7  lws  2.6 | TOTAL   47.6 [ 45.2,   59.9] cm  (finite 2000/2000)
+  @2150 GMST +2.97 | glac  13.8  gis  12.4  ais   11.2  te  30.5  lws  4.2 | TOTAL   73.7 [ 68.2,  129.5] cm  (finite 2000/2000)
+  @2300 GMST +3.18 | glac  19.0  gis  18.4  ais  127.6  te  47.7  lws  8.5 | TOTAL  221.1 [114.5,  319.4] cm  (finite 2000/2000)
+........[ Info: update_gis3_tap!: this driver peaks at 1.97 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.202 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+
+SSP5-8.5  2000 draws in 12s
+  @2100 GMST +4.31 | glac  13.2  gis  12.5  ais   30.4  te  28.9  lws  2.6 | TOTAL   87.7 [ 75.7,  102.8] cm  (finite 2000/2000)
+  @2150 GMST +6.01 | glac  21.0  gis  27.2  ais   87.3  te  53.7  lws  4.2 | TOTAL  192.8 [169.5,  219.5] cm  (finite 2000/2000)
+  @2300 GMST +7.50 | glac  27.3  gis  88.7  ais  268.7  te 108.7  lws  8.5 | TOTAL  502.0 [439.0,  575.1] cm  (finite 2000/2000)
+
+wrote outputs/ssps_components_2300_L21_tap4p69K_V5p64m_tau800_n2_ws.csv
+[14:51:02] OK     ssp components (tap)
+[14:51:02] START  ssp components (no-tap)
+Ladrillo SSP components | posterior parameters_subsample_brick_mengel_L21.csv (2000 draws) | Greenland :basins2 | base 1995-2014 | horizon 2300
+........
+SSP1-2.6  2000 draws in 15s
+  @2100 GMST +1.90 | glac   8.1  gis   6.8  ais    4.6  te  16.4  lws  2.6 | TOTAL   38.4 [ 36.9,   40.0] cm  (finite 2000/2000)
+  @2150 GMST +1.78 | glac  10.1  gis   8.3  ais    7.1  te  20.5  lws  4.2 | TOTAL   50.2 [ 48.2,   52.3] cm  (finite 2000/2000)
+  @2300 GMST +1.81 | glac  12.9  gis  10.5  ais   14.3  te  26.8  lws  8.5 | TOTAL   73.0 [ 69.8,   76.3] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 12s
+  @2100 GMST +2.70 | glac   9.8  gis   8.5  ais    5.6  te  20.7  lws  2.6 | TOTAL   47.6 [ 45.2,   59.9] cm  (finite 2000/2000)
+  @2150 GMST +2.97 | glac  13.8  gis  12.4  ais   11.2  te  30.5  lws  4.2 | TOTAL   73.7 [ 68.2,  129.5] cm  (finite 2000/2000)
+  @2300 GMST +3.18 | glac  19.0  gis  18.4  ais  127.6  te  47.7  lws  8.5 | TOTAL  221.1 [114.5,  319.4] cm  (finite 2000/2000)
+........
+SSP5-8.5  2000 draws in 12s
+  @2100 GMST +4.31 | glac  13.2  gis  12.5  ais   30.4  te  28.9  lws  2.6 | TOTAL   87.7 [ 75.7,  102.8] cm  (finite 2000/2000)
+  @2150 GMST +6.01 | glac  21.0  gis  25.9  ais   87.3  te  53.7  lws  4.2 | TOTAL  191.5 [168.2,  218.2] cm  (finite 2000/2000)
+  @2300 GMST +7.50 | glac  27.3  gis  47.4  ais  268.4  te 108.7  lws  8.5 | TOTAL  460.3 [397.3,  533.4] cm  (finite 2000/2000)
+
+wrote outputs/ssps_components_2300_L21.csv
+[14:51:57] OK     ssp components (no-tap)
+[14:51:57] START  fair-uncertainty joint band ssp126
+SLR WITH FaIR CLIMATE UNCERTAINTY | tag L21 | 500 draws/chain x 4 chains | ssp126 | forcing=spliced
+  reading chain seed2026 ...
+  reading chain seed2027 ...
+  reading chain seed2028 ...
+  reading chain seed2029 ...
+ERROR: LoadError: AssertionError: the cube's year axis is not 1850:2300
+Stacktrace:
+ [1] top-level scope
+   @ ~/Documents/2026/CodeProjects/SLR-RFF-BRICK/julia/scope_slr_fair_uncertainty.jl:186
+ [2] include(mod::Module, _path::String)
+   @ Base ./Base.jl:306
+ [3] exec_options(opts::Base.JLOptions)
+   @ Base ./client.jl:317
+ [4] _start()
+   @ Base ./client.jl:550
+in expression starting at /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/julia/scope_slr_fair_uncertainty.jl:186
+[14:54:59] FAILED fair-uncertainty joint band ssp126 (rc=1) — continuing to the next independent step
+[14:54:59] START  fair-uncertainty joint band ssp245
+SLR WITH FaIR CLIMATE UNCERTAINTY | tag L21 | 500 draws/chain x 4 chains | ssp245 | forcing=spliced
+  reading chain seed2026 ...
+  reading chain seed2027 ...
+  reading chain seed2028 ...
+  reading chain seed2029 ...
+ERROR: LoadError: AssertionError: the cube's year axis is not 1850:2300
+Stacktrace:
+ [1] top-level scope
+   @ ~/Documents/2026/CodeProjects/SLR-RFF-BRICK/julia/scope_slr_fair_uncertainty.jl:186
+ [2] include(mod::Module, _path::String)
+   @ Base ./Base.jl:306
+ [3] exec_options(opts::Base.JLOptions)
+   @ Base ./client.jl:317
+ [4] _start()
+   @ Base ./client.jl:550
+in expression starting at /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/julia/scope_slr_fair_uncertainty.jl:186
+[14:58:00] FAILED fair-uncertainty joint band ssp245 (rc=1) — continuing to the next independent step
+[14:58:00] START  fair-uncertainty joint band ssp585
+SLR WITH FaIR CLIMATE UNCERTAINTY | tag L21 | 500 draws/chain x 4 chains | ssp585 | forcing=spliced
+  reading chain seed2026 ...
+  reading chain seed2027 ...
+  reading chain seed2028 ...
+  reading chain seed2029 ...
+ERROR: LoadError: DimensionMismatch: arrays could not be broadcast to a common size: a has axes Base.OneTo(451) and b has axes Base.OneTo(452)
+Stacktrace:
+  [1] _bcs1
+    @ ./broadcast.jl:535 [inlined]
+  [2] _bcs
+    @ ./broadcast.jl:529 [inlined]
+  [3] broadcast_shape
+    @ ./broadcast.jl:523 [inlined]
+  [4] combine_axes
+    @ ./broadcast.jl:504 [inlined]
+  [5] _axes
+    @ ./broadcast.jl:240 [inlined]
+  [6] axes
+    @ ./broadcast.jl:238 [inlined]
+  [7] combine_axes
+    @ ./broadcast.jl:505 [inlined]
+  [8] instantiate
+    @ ./broadcast.jl:313 [inlined]
+  [9] materialize(bc::Base.Broadcast.Broadcasted{Base.Broadcast.DefaultArrayStyle{1}, Nothing, typeof(abs), Tuple{Base.Broadcast.Broadcasted{Base.Broadcast.DefaultArrayStyle{1}, Nothing, typeof(-), Tuple{Vector{Float64}, Base.Broadcast.Broadcasted{Base.Broadcast.DefaultArrayStyle{1}, Nothing, Type{Float64}, Tuple{Vector{Float64}}}}}}})
+    @ Base.Broadcast ./broadcast.jl:894
+ [10] (::var"#149#150")(c::String)
+    @ Main ./none:-1
+ [11] MappingRF
+    @ ./reduce.jl:92 [inlined]
+ [12] _foldl_impl(op::Base.MappingRF{var"#149#150", Base.BottomRF{typeof(max)}}, init::Base._InitialValue, itr::Vector{String})
+    @ Base ./reduce.jl:50
+ [13] foldl_impl
+    @ ./reduce.jl:40 [inlined]
+ [14] mapfoldl_impl
+    @ ./reduce.jl:36 [inlined]
+ [15] mapfoldl
+    @ ./reduce.jl:167 [inlined]
+ [16] mapreduce
+    @ ./reduce.jl:299 [inlined]
+ [17] maximum(a::Base.Generator{Vector{String}, var"#149#150"})
+    @ Base ./reduce.jl:696
+ [18] top-level scope
+    @ ~/Documents/2026/CodeProjects/SLR-RFF-BRICK/julia/scope_slr_fair_uncertainty.jl:209
+ [19] include(mod::Module, _path::String)
+    @ Base ./Base.jl:306
+ [20] exec_options(opts::Base.JLOptions)
+    @ Base ./client.jl:317
+ [21] _start()
+    @ Base ./client.jl:550
+in expression starting at /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/julia/scope_slr_fair_uncertainty.jl:207
+[15:01:02] FAILED fair-uncertainty joint band ssp585 (rc=1) — continuing to the next independent step
+[15:01:02] === python steps (venv) ===
+[15:01:02] START  model comparison
+Ladrillo vs FACTS / MAGICC-SLR / BRICK 2.0 — cm, rel. 1995-2014 (FACTS rel. baseyear 2005)
+median [17-83%]; * = 5-95% (that source reports no 17-83 band)
+BAND CAVEAT: BRICK bands are posterior-parameter spread on MEAN forcing; MAGICC/FACTS bands also carry climate uncertainty. Compare MEDIANS.
+
+================================================================================================
+@2100
+================================================================================================
+--- glaciers ---
+  Ladrillo    L21           SSP1-2.6:    8.1 [   7.1,   9.3]  SSP2-4.5:    9.8 [   8.6,  11.3]  SSP5-8.5:   13.2 [  11.6,  15.0]
+  BRICK 2.0   BRICK2.0      SSP1-2.6:   12.0 [  11.1,  13.1]  SSP2-4.5:   13.5 [  12.4,  14.7]  SSP5-8.5:   16.5 [  15.1,  18.0]
+  MAGICC-SLR  Nauels2025    SSP1-2.6:   10.4 [   8.4,  12.4]  SSP2-4.5:   12.5 [  10.3,  14.4]  SSP5-8.5:   15.3 [  13.0,  17.0]
+  FACTS       ar5glaciers   SSP1-2.6:    8.9 [   6.7,  11.2]  SSP2-4.5:   11.4 [   8.6,  14.3]  SSP5-8.5:   15.5 [  11.9,  19.9]
+  FACTS       emuglaciers   SSP1-2.6:    9.2 [   7.0,  11.1]  SSP2-4.5:   12.2 [  10.0,  14.4]  SSP5-8.5:   17.7 [  15.0,  20.2]
+--- gis ---
+  Ladrillo    L21           SSP1-2.6:    6.8 [   6.3,   7.2]  SSP2-4.5:    8.5 [   7.8,   9.1]  SSP5-8.5:   12.5 [  11.2,  13.8]
+  BRICK 2.0   BRICK2.0      SSP1-2.6:    6.6 [   5.5,   8.1]  SSP2-4.5:    7.1 [   5.7,   9.0]  SSP5-8.5:    8.2 [   6.2,  11.1]
+  MAGICC-SLR  Nauels2025    SSP1-2.6:    6.4 [   4.5,   8.7]  SSP2-4.5:    9.3 [   7.1,  12.2]  SSP5-8.5:   13.5 [  10.7,  17.2]
+  FACTS       FittedISMIP   SSP1-2.6:    7.7 [   5.8,   9.6]  SSP2-4.5:   10.2 [   7.8,  12.1]  SSP5-8.5:   14.0 [  11.0,  17.4]
+  FACTS       emuGrIS       SSP1-2.6:    5.5 [   1.1,   9.9]  SSP2-4.5:    8.0 [   3.5,  12.2]  SSP5-8.5:   12.7 [   7.8,  17.1]
+  FACTS       bamber19      SSP1-2.6:   13.0 [   7.1,  25.8]  SSP2-4.5:   14.4 [   6.8,  38.8]  SSP5-8.5:   20.3 [   8.3,  49.8]
+--- ais ---
+  Ladrillo    L21           SSP1-2.6:    4.6 [   4.0,   5.1]  SSP2-4.5:    5.6 [   4.6,  18.3]  SSP5-8.5:   30.4 [  19.0,  45.4]
+  BRICK 2.0   BRICK2.0      SSP1-2.6:    4.2 [   2.2,   7.0]  SSP2-4.5:   29.2 [   8.0,  50.8]  SSP5-8.5:   49.0 [  34.2,  69.3]
+  MAGICC-SLR  Nauels2025    SSP1-2.6:    3.7 [  -0.2,  13.1]  SSP2-4.5:   11.2 [   3.2,  23.9]  SSP5-8.5:   39.1 [  22.1,  65.9]
+  FACTS       ar5AIS        SSP1-2.6:    6.3 [  -2.0,  13.6]  SSP2-4.5:    5.5 [  -3.0,  12.9]  SSP5-8.5:    4.0 [  -4.7,  11.7]
+  FACTS       larmip        SSP1-2.6:   11.9 [   4.5,  24.7]  SSP2-4.5:   12.7 [   4.4,  26.7]  SSP5-8.5:   14.4 [   4.6,  32.7]
+  FACTS       deconto21     SSP1-2.6:    8.9 [   6.8,  12.3]  SSP2-4.5:   10.4 [   7.1,  33.1]  SSP5-8.5:   28.6 [   9.6,  50.1]
+  FACTS       emuAIS        SSP1-2.6:    9.5 [   3.0,  14.4]  SSP2-4.5:    9.1 [   2.6,  14.1]  SSP5-8.5:    9.2 [   2.9,  14.2]
+  FACTS       bamber19      SSP1-2.6:    9.1 [  -0.1,  35.3]  SSP2-4.5:   13.7 [  -0.2,  49.9]  SSP5-8.5:   18.0 [  -0.2,  60.3]
+--- te ---
+  Ladrillo    L21           SSP1-2.6:   16.4 [  15.6,  17.1]  SSP2-4.5:   20.7 [  19.6,  21.6]  SSP5-8.5:   28.9 [  27.5,  30.1]
+  BRICK 2.0   BRICK2.0      SSP1-2.6:   13.8 [  11.4,  16.0]  SSP2-4.5:   18.0 [  15.0,  21.0]  SSP5-8.5:   27.0 [  22.5,  31.4]
+  MAGICC-SLR  Nauels2025    SSP1-2.6:   11.1 [   8.2,  14.9]  SSP2-4.5:   16.6 [  12.9,  21.4]  SSP5-8.5:   27.9 [  22.1,  35.7]
+  FACTS       tlm           SSP1-2.6:   14.1 [  11.1,  17.0]  SSP2-4.5:   18.8 [  15.4,  22.7]  SSP5-8.5:   28.8 [  24.0,  34.8]
+--- lws ---
+  Ladrillo    L21           SSP1-2.6:    2.6 [   2.6,   2.6]  SSP2-4.5:    2.6 [   2.6,   2.6]  SSP5-8.5:    2.6 [   2.6,   2.6]
+  BRICK 2.0   BRICK2.0      SSP1-2.6:    2.3 [   2.3,   2.3]  SSP2-4.5:    2.3 [   2.3,   2.3]  SSP5-8.5:    2.3 [   2.3,   2.3]
+  MAGICC-SLR  Nauels2025    SSP1-2.6:    3.0 [   1.7,   4.4]  SSP2-4.5:    3.0 [   1.7,   4.4]  SSP5-8.5:    3.0 [   1.7,   4.4]
+  FACTS       ssp-lws       SSP1-2.6:    3.0 [   1.7,   4.2]  SSP2-4.5:    3.1 [   1.7,   4.5]  SSP5-8.5:    3.0 [   1.7,   4.2]
+--- total ---
+  Ladrillo    L21           SSP1-2.6:   38.4 [  36.9,  40.0]  SSP2-4.5:   47.6 [  45.2,  59.9]  SSP5-8.5:   87.7 [  75.7, 102.8]
+  BRICK 2.0   BRICK2.0      SSP1-2.6:   39.2 [  35.7,  44.2]  SSP2-4.5:   70.9 [  49.7,  92.9]  SSP5-8.5:  104.7 [  88.1, 124.9]
+  MAGICC-SLR  Nauels2025    SSP1-2.6:   35.6 [  27.4,  48.9]  SSP2-4.5:   53.2 [  40.6,  70.4]  SSP5-8.5:   97.8 [  74.8, 132.3]
+  FACTS       wf1e          SSP1-2.6:   41.2 [  32.7,  50.5]  SSP2-4.5:   51.2 [  42.1,  61.9]  SSP5-8.5:   71.0 [  61.3,  83.7]
+  FACTS       wf1f          SSP1-2.6:   39.8 [  31.1,  48.5]  SSP2-4.5:   48.7 [  39.0,  58.1]  SSP5-8.5:   64.9 [  54.4,  77.2]
+  FACTS       wf2e          SSP1-2.6:   45.9 [  35.2,  60.1]  SSP2-4.5:   57.1 [  45.6,  74.5]  SSP5-8.5:   79.4 [  65.4, 101.5]
+  FACTS       wf2f          SSP1-2.6:   46.1 [  37.0,  61.3]  SSP2-4.5:   56.9 [  46.0,  75.2]  SSP5-8.5:   76.6 [  63.6, 101.8]
+  FACTS       wf3e          SSP1-2.6:   41.2 [  34.1,  48.8]  SSP2-4.5:   53.5 [  44.9,  79.2]  SSP5-8.5:   91.9 [  69.9, 115.8]
+  FACTS       wf3f          SSP1-2.6:   43.1 [  37.0,  50.0]  SSP2-4.5:   55.1 [  46.8,  81.2]  SSP5-8.5:   91.9 [  70.6, 114.9]
+  FACTS       wf4           SSP1-2.6:   53.5 [  35.5,  83.9]  SSP2-4.5:   67.9 [  45.2, 120.2]  SSP5-8.5:   90.8 [  60.7, 160.2]
+
+================================================================================================
+@2150
+================================================================================================
+--- glaciers ---
+  Ladrillo    L21           SSP1-2.6:   10.1 [   8.8,  11.6]  SSP2-4.5:   13.8 [  12.1,  15.6]  SSP5-8.5:   21.0 [  18.5,  23.3]
+  BRICK 2.0   BRICK2.0      SSP1-2.6:   17.2 [  15.7,  18.8]  SSP2-4.5:   20.8 [  18.6,  23.0]  SSP5-8.5:   27.1 [  23.7,  30.6]
+  MAGICC-SLR  Nauels2025    SSP1-2.6:   12.3 [   9.9,  14.8]  SSP2-4.5:   16.7 [  14.0,  19.1]  SSP5-8.5:   22.0 [  19.2,  24.0]
+  FACTS       ar5glaciers   SSP1-2.6:   12.0 [   8.9,  15.3]  SSP2-4.5:   17.5 [  13.2,  22.5]  SSP5-8.5:   28.4 [  21.3,  31.6]
+--- gis ---
+  Ladrillo    L21           SSP1-2.6:    8.3 [   7.7,   9.1]  SSP2-4.5:   12.4 [  11.2,  13.6]  SSP5-8.5:   27.2 [  23.9,  30.4]
+  BRICK 2.0   BRICK2.0      SSP1-2.6:    9.9 [   8.2,  12.2]  SSP2-4.5:   11.4 [   9.0,  14.9]  SSP5-8.5:   15.6 [  10.8,  22.5]
+  MAGICC-SLR  Nauels2025    SSP1-2.6:    9.3 [   6.5,  13.0]  SSP2-4.5:   16.5 [  11.5,  20.7]  SSP5-8.5:   32.4 [  23.9,  49.5]
+  FACTS       FittedISMIP   SSP1-2.6:   13.2 [  10.0,  16.5]  SSP2-4.5:   18.2 [  14.4,  22.8]  SSP5-8.5:   27.3 [  21.0,  33.5]
+  FACTS       bamber19      SSP1-2.6:   22.2 [  12.2,  62.9]  SSP2-4.5:   25.6 [  12.6,  67.1]  SSP5-8.5:   38.1 [  15.1,  78.8]
+--- ais ---
+  Ladrillo    L21           SSP1-2.6:    7.1 [   6.1,   8.0]  SSP2-4.5:   11.2 [   8.3,  68.4]  SSP5-8.5:   87.3 [  63.5, 113.1]
+  BRICK 2.0   BRICK2.0      SSP1-2.6:    6.4 [   3.2,  10.6]  SSP2-4.5:   74.5 [  44.6, 110.0]  SSP5-8.5:  104.1 [  73.4, 142.9]
+  MAGICC-SLR  Nauels2025    SSP1-2.6:    5.3 [  -0.3,  19.5]  SSP2-4.5:   27.2 [   9.4,  54.4]  SSP5-8.5:  153.6 [  96.1, 241.3]
+  FACTS       ar5AIS        SSP1-2.6:   13.2 [  -4.9,  28.8]  SSP2-4.5:   10.9 [  -7.6,  26.9]  SSP5-8.5:    6.3 [ -12.6,  22.8]
+  FACTS       larmip        SSP1-2.6:   22.7 [  10.2,  44.9]  SSP2-4.5:   27.7 [  11.6,  54.9]  SSP5-8.5:   37.4 [  14.2,  80.1]
+  FACTS       deconto21     SSP1-2.6:   26.3 [  14.7,  45.3]  SSP2-4.5:   30.3 [  17.0, 221.2]  SSP5-8.5:  198.8 [  89.1, 356.3]
+  FACTS       bamber19      SSP1-2.6:   19.2 [  -1.1,  61.2]  SSP2-4.5:   25.2 [   2.3,  84.8]  SSP5-8.5:   36.5 [  -1.1, 139.7]
+--- te ---
+  Ladrillo    L21           SSP1-2.6:   20.5 [  19.5,  21.3]  SSP2-4.5:   30.5 [  28.9,  31.8]  SSP5-8.5:   53.7 [  51.1,  56.0]
+  BRICK 2.0   BRICK2.0      SSP1-2.6:   17.2 [  14.3,  20.0]  SSP2-4.5:   26.7 [  22.1,  31.0]  SSP5-8.5:   49.9 [  41.5,  58.1]
+  MAGICC-SLR  Nauels2025    SSP1-2.6:   12.7 [   9.0,  18.2]  SSP2-4.5:   23.2 [  17.3,  31.6]  SSP5-8.5:   49.9 [  38.3,  66.4]
+  FACTS       tlm           SSP1-2.6:   17.8 [  13.9,  22.7]  SSP2-4.5:   28.6 [  22.8,  35.3]  SSP5-8.5:   53.3 [  42.8,  65.1]
+--- lws ---
+  Ladrillo    L21           SSP1-2.6:    4.2 [   4.2,   4.2]  SSP2-4.5:    4.2 [   4.2,   4.2]  SSP5-8.5:    4.2 [   4.2,   4.2]
+  BRICK 2.0   BRICK2.0      SSP1-2.6:    4.0 [   4.0,   4.0]  SSP2-4.5:    4.0 [   4.0,   4.0]  SSP5-8.5:    4.0 [   4.0,   4.0]
+  MAGICC-SLR  Nauels2025    SSP1-2.6:    5.0 [   2.9,   7.2]  SSP2-4.5:    5.0 [   2.9,   7.2]  SSP5-8.5:    5.0 [   2.9,   7.2]
+  FACTS       ssp-lws       SSP1-2.6:    4.6 [   2.9,   6.3]  SSP2-4.5:    5.2 [   3.1,   7.3]  SSP5-8.5:    4.7 [   3.0,   6.5]
+--- total ---
+  Ladrillo    L21           SSP1-2.6:   50.2 [  48.2,  52.3]  SSP2-4.5:   73.7 [  68.2, 129.5]  SSP5-8.5:  192.8 [ 169.5, 219.5]
+  BRICK 2.0   BRICK2.0      SSP1-2.6:   55.2 [  50.3,  62.1]  SSP2-4.5:  138.0 [ 107.6, 173.7]  SSP5-8.5:  202.8 [ 169.1, 243.0]
+  MAGICC-SLR  Nauels2025    SSP1-2.6:   45.9 [  34.0,  66.9]  SSP2-4.5:   88.1 [  64.6, 125.3]  SSP5-8.5:  262.9 [ 189.7, 387.8]
+  FACTS       wf1f          SSP1-2.6:   60.2 [  43.5,  77.6]  SSP2-4.5:   80.0 [  61.9,  99.3]  SSP5-8.5:  117.1 [  96.7, 141.5]
+  FACTS       wf2f          SSP1-2.6:   72.0 [  55.1,  97.5]  SSP2-4.5:   98.1 [  79.9, 134.6]  SSP5-8.5:  151.7 [ 123.6, 208.4]
+  FACTS       wf3f          SSP1-2.6:   74.9 [  60.4,  96.6]  SSP2-4.5:  105.2 [  83.1, 300.4]  SSP5-8.5:  310.7 [ 193.8, 476.6]
+  FACTS       wf4           SSP1-2.6:   83.1 [  52.5, 144.2]  SSP2-4.5:  111.2 [  71.9, 207.7]  SSP5-8.5:  162.3 [ 113.3, 306.4]
+
+================================================================================================
+@2300
+================================================================================================
+--- glaciers ---
+  Ladrillo    L21           SSP1-2.6:   12.9 [  11.3,  14.7]  SSP2-4.5:   19.0 [  16.7,  21.4]  SSP5-8.5:   27.3 [  24.2,  30.3]
+  BRICK 2.0   BRICK2.0      SSP1-2.6:   27.3 [  23.7,  30.8]  SSP2-4.5:   32.4 [  26.7,  37.7]  SSP5-8.5:   35.2 [  27.5,  42.9]
+  MAGICC-SLR  Nauels2025    SSP1-2.6:   13.8 [  11.1,  17.1]  SSP2-4.5:   21.5 [  18.2,  24.4]  SSP5-8.5:   29.1 [  26.0,  31.4]
+--- gis ---
+  Ladrillo    L21           SSP1-2.6:   10.5 [   9.4,  12.1]  SSP2-4.5:   18.4 [  16.1,  21.1]  SSP5-8.5:   88.7 [  81.7,  96.8]
+  BRICK 2.0   BRICK2.0      SSP1-2.6:   18.8 [  15.7,  23.1]  SSP2-4.5:   23.8 [  18.2,  32.0]  SSP5-8.5:   40.4 [  25.2,  62.9]
+  MAGICC-SLR  Nauels2025    SSP1-2.6:   15.0 [   9.8,  20.8]  SSP2-4.5:   35.8 [  21.1,  44.8]  SSP5-8.5:  113.0 [  79.8, 369.7]
+--- ais ---
+  Ladrillo    L21           SSP1-2.6:   14.3 [  12.3,  16.2]  SSP2-4.5:  127.6 [  21.3, 224.7]  SSP5-8.5:  268.7 [ 205.7, 340.2]
+  BRICK 2.0   BRICK2.0      SSP1-2.6:   12.6 [   6.5,  20.9]  SSP2-4.5:  207.9 [ 144.7, 295.2]  SSP5-8.5:  290.2 [ 197.3, 400.8]
+  MAGICC-SLR  Nauels2025    SSP1-2.6:    8.7 [  -1.2,  35.6]  SSP2-4.5:   83.5 [  30.5, 172.9]  SSP5-8.5:  712.0 [ 470.0,1005.1]
+--- te ---
+  Ladrillo    L21           SSP1-2.6:   26.8 [  25.4,  27.9]  SSP2-4.5:   47.7 [  45.3,  49.7]  SSP5-8.5:  108.7 [ 103.4, 113.4]
+  BRICK 2.0   BRICK2.0      SSP1-2.6:   22.8 [  18.9,  26.5]  SSP2-4.5:   42.0 [  34.9,  48.9]  SSP5-8.5:  100.2 [  83.2, 116.5]
+  MAGICC-SLR  Nauels2025    SSP1-2.6:   16.7 [  11.6,  25.6]  SSP2-4.5:   36.3 [  26.0,  55.1]  SSP5-8.5:  103.5 [  74.4, 142.9]
+--- lws ---
+  Ladrillo    L21           SSP1-2.6:    8.5 [   8.5,   8.5]  SSP2-4.5:    8.5 [   8.5,   8.5]  SSP5-8.5:    8.5 [   8.5,   8.5]
+  BRICK 2.0   BRICK2.0      SSP1-2.6:    8.9 [   8.9,   8.9]  SSP2-4.5:    8.9 [   8.9,   8.9]  SSP5-8.5:    8.9 [   8.9,   8.9]
+  MAGICC-SLR  Nauels2025    SSP1-2.6:   10.8 [   6.5,  15.5]  SSP2-4.5:   10.8 [   6.5,  15.5]  SSP5-8.5:   10.8 [   6.5,  15.5]
+--- total ---
+  Ladrillo    L21           SSP1-2.6:   73.0 [  69.8,  76.3]  SSP2-4.5:  221.1 [ 114.5, 319.4]  SSP5-8.5:  502.0 [ 439.0, 575.1]
+  BRICK 2.0   BRICK2.0      SSP1-2.6:   91.2 [  82.3, 102.0]  SSP2-4.5:  317.5 [ 253.9, 405.5]  SSP5-8.5:  482.4 [ 386.8, 592.5]
+  MAGICC-SLR  Nauels2025    SSP1-2.6:   66.5 [  47.0, 106.5]  SSP2-4.5:  186.8 [ 118.0, 305.9]  SSP5-8.5: 1016.0 [ 691.1,1585.3]
+
+================================================================================================
+SCENARIO SPREAD  SSP1-2.6 -> SSP5-8.5 (cm, median difference at 2100)
+================================================================================================
+  A glacier module with no finite temperature-dependent equilibrium, or one
+  whose reservoirs are exhausted, shows little spread across scenarios.
+  glaciers  Ladrillo    L21             +5.1
+  glaciers  BRICK 2.0   BRICK2.0        +4.5
+  glaciers  MAGICC-SLR  Nauels2025      +4.8
+  glaciers  FACTS       ar5glaciers     +6.5
+  glaciers  FACTS       emuglaciers     +8.5
+  gis       Ladrillo    L21             +5.7
+  gis       BRICK 2.0   BRICK2.0        +1.6
+  gis       MAGICC-SLR  Nauels2025      +7.1
+  gis       FACTS       FittedISMIP     +6.3
+  gis       FACTS       emuGrIS         +7.3
+  gis       FACTS       bamber19        +7.2
+  ais       Ladrillo    L21            +25.8
+  ais       BRICK 2.0   BRICK2.0       +44.8
+  ais       MAGICC-SLR  Nauels2025     +35.4
+  ais       FACTS       ar5AIS          -2.3
+  ais       FACTS       larmip          +2.5
+  ais       FACTS       deconto21      +19.7
+  ais       FACTS       emuAIS          -0.2
+  ais       FACTS       bamber19        +8.9
+  te        Ladrillo    L21            +12.5
+  te        BRICK 2.0   BRICK2.0       +13.3
+  te        MAGICC-SLR  Nauels2025     +16.8
+  te        FACTS       tlm            +14.8
+  lws       Ladrillo    L21             +0.0
+  lws       BRICK 2.0   BRICK2.0        +0.0
+  lws       MAGICC-SLR  Nauels2025      +0.0
+  lws       FACTS       ssp-lws         -0.0
+  total     Ladrillo    L21            +49.3
+  total     BRICK 2.0   BRICK2.0       +65.4
+  total     MAGICC-SLR  Nauels2025     +62.3
+  total     FACTS       wf1e           +29.8
+  total     FACTS       wf1f           +25.2
+  total     FACTS       wf2e           +33.5
+  total     FACTS       wf2f           +30.5
+  total     FACTS       wf3e           +50.7
+  total     FACTS       wf3f           +48.8
+  total     FACTS       wf4            +37.3
+
+wrote outputs/ladrillo_model_comparison_L21.csv and outputs/ladrillo_model_comparison_L21_spread.csv
+[15:01:02] OK     model comparison
+[15:01:02] START  benchmark
+L21 is missing benchmark inputs: ['draws_ssp126', 'draws_ssp245', 'draws_ssp585']
+  draws_ssp126: outputs/scope_slr_fairunc_draws_ssp126_spliced_L21.csv
+  draws_ssp245: outputs/scope_slr_fairunc_draws_ssp245_spliced_L21.csv
+  draws_ssp585: outputs/scope_slr_fairunc_draws_ssp585_spliced_L21.csv
+[15:01:03] FAILED benchmark (rc=1) — continuing to the next independent step
+[15:01:03] START  escape scale L15/L16/L17/L18 (the owed test; driftless-walk null = 2.0x)
+ais_runoff_Ton ESCAPE SCALE | LOW<=-18.5 MID(-18.5,-17.4] HIGH>-17.4 | every post-burn draw, OUT-OF-MID steps only
+  T_diff = D^2/(p*s^2) is a LOWER BOUND on return time (no drift, no restoring force).
+  observed_longest >> T_diff  =>  REAL BARRIER.   observed ~ T_diff  =>  just slow diffusion.
+
+  chain_L15_seed2026_n2000000.csv            col 49  out-draws 983151
+      move rate p 0.2335   step RMS s 1.515e-02   mean|d| 1.208e-02   (RMS/mean 1.26)
+      distance out of MID:  mean D 0.8949   max 2.7555
+      T_diffusive        14934 draws   observed longest 195151   ratio obs/diff     13.1x
+  chain_L15_seed2027_n2000000.csv            col 49  out-draws 1000000
+      move rate p 0.2354   step RMS s 2.117e-02   mean|d| 1.688e-02   (RMS/mean 1.25)
+      distance out of MID:  mean D 3.3083   max 8.1046
+      T_diffusive       103714 draws   observed longest 1000000   ratio obs/diff      9.6x
+  chain_L15_seed2028_n2000000.csv            col 49  out-draws 971386
+      move rate p 0.2360   step RMS s 1.677e-02   mean|d| 1.335e-02   (RMS/mean 1.26)
+      distance out of MID:  mean D 1.0548   max 3.0972
+      T_diffusive        16766 draws   observed longest 408485   ratio obs/diff     24.4x
+  chain_L15_seed2029_n2000000.csv            col 49  out-draws 994322
+      move rate p 0.2368   step RMS s 1.700e-02   mean|d| 1.356e-02   (RMS/mean 1.25)
+      distance out of MID:  mean D 1.6299   max 4.1545
+      T_diffusive        38815 draws   observed longest 630001   ratio obs/diff     16.2x
+  chain_L16_seed2026_n2000000.csv            col 49  out-draws 198167
+      move rate p 0.2378   step RMS s 1.922e-02   mean|d| 1.531e-02   (RMS/mean 1.26)
+      distance out of MID:  mean D 1.1403   max 2.2594
+      T_diffusive        14803 draws   observed longest 184781   ratio obs/diff     12.5x
+  chain_L16_seed2027_n2000000.csv            col 49  out-draws 7494
+      move rate p 0.2141   step RMS s 1.551e-02   mean|d| 1.224e-02   (RMS/mean 1.27)
+      distance out of MID:  mean D 0.0558   max 0.2205
+      T_diffusive           60 draws   observed longest 778   ratio obs/diff     12.9x
+  chain_L16_seed2028_n2000000.csv            col 49  out-draws 301044
+      move rate p 0.2371   step RMS s 1.964e-02   mean|d| 1.565e-02   (RMS/mean 1.26)
+      distance out of MID:  mean D 0.5171   max 2.1369
+      T_diffusive         2923 draws   observed longest 83438   ratio obs/diff     28.5x
+  chain_L16_seed2029_n2000000.csv            col 49  out-draws 9265
+      move rate p 0.2115   step RMS s 1.679e-02   mean|d| 1.330e-02   (RMS/mean 1.26)
+      distance out of MID:  mean D 0.0454   max 0.2345
+      T_diffusive           35 draws   observed longest 619   ratio obs/diff     17.9x
+  chain_L17_seed2026_n2000000.csv            col 49  out-draws 979831
+      move rate p 0.2298   step RMS s 2.263e-02   mean|d| 1.802e-02   (RMS/mean 1.26)
+      distance out of MID:  mean D 3.5259   max 7.6837
+      T_diffusive       105678 draws   observed longest 724358   ratio obs/diff      6.9x
+  chain_L17_seed2027_n2000000.csv            col 49  out-draws 16866
+      move rate p 0.2130   step RMS s 2.036e-02   mean|d| 1.622e-02   (RMS/mean 1.26)
+      distance out of MID:  mean D 0.0700   max 0.4165
+      T_diffusive           55 draws   observed longest 1049   ratio obs/diff     18.9x
+  chain_L17_seed2028_n2000000.csv            col 49  out-draws 483759
+      move rate p 0.2340   step RMS s 3.498e-02   mean|d| 2.783e-02   (RMS/mean 1.26)
+      distance out of MID:  mean D 6.2682   max 9.8612
+      T_diffusive       137255 draws   observed longest 475232   ratio obs/diff      3.5x
+  chain_L17_seed2029_n2000000.csv            col 49  out-draws 8896
+      move rate p 0.2239   step RMS s 2.020e-02   mean|d| 1.591e-02   (RMS/mean 1.27)
+      distance out of MID:  mean D 0.0620   max 0.3139
+      T_diffusive           42 draws   observed longest 621   ratio obs/diff     14.8x
+  chain_L21_seed2026_n2000000.csv            col 49  NEVER OUT OF MID — no escape scale to measure
+  chain_L21_seed2027_n2000000.csv            col 49  NEVER OUT OF MID — no escape scale to measure
+  chain_L21_seed2028_n2000000.csv            col 49  NEVER OUT OF MID — no escape scale to measure
+  chain_L21_seed2029_n2000000.csv            col 49  NEVER OUT OF MID — no escape scale to measure
+[15:03:48] OK     escape scale L15/L16/L17/L18 (the owed test; driftless-walk null = 2.0x)
+[15:03:48] === DONE. READ IN THIS ORDER ===
+[15:03:48]   1. the ARM VERIFICATION block above (MAP must be -644.51)
+[15:03:48]   2. RESOLVE THE REGISTERED PREDICTION (run_mcmc_L18.sh header) BEFORE anything else:
+[15:03:48]      AIS median_vs_lit ssp245 @2100/@2150/@2300 in outputs/scope_slr_fairunc_cells_ssp245_spliced_L21.csv
+[15:03:48]        L21 is the MIGRATED CHAMPION CANDIDATE. Compare EVERY cell against L14, not against L18.
+[15:03:48]        ⚠ EXPECT TE to move MORE than GIS (OHC RMSE improved 44%, GMST worsened slightly)
+[15:03:48]   3. outputs/bench_ladrillo_L21.md — ⚠ champions.json STAYS UNTOUCHED. L14 remains
+[15:03:48]      champion until MARCUS promotes L21. This run does not promote anything.
+[15:03:48]   4. ⚠ sd(medians)/mean(within-chain sd) @2100, NOT just R-hat (-26b §1: L17 'passed' at
+[15:03:48]      0.142, the worst of four arms). Never quote an arm as converged on R-hat alone.

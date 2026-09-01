@@ -1,0 +1,11 @@
+  starts OK: T_on -22.00..-12.00 (spread 10.00), bands ['HIGH', 'LOW', 'MID'], amp 0.981..1.164
+L19: 4 chains x 2000000 iter (seeds 2026-2029), amp ~ N(0.95, 0.10) [L14's],
+     adcov=adapted_cov_L14tune_seed2026.csv [L14's], T_on-DISPERSED starts from outputs/mcmc/overdispersed_starts_ton.csv, BLAS pinned
+L19 chains done -> outputs/mcmc/chain_L19_seed*.csv
+VERIFY THE ARM (all four seeds):
+  tr '\r' '\n' < outputs/mcmc/log_L19_seed2026.txt | grep -m1 'A6 prior'   # N(0.950, 0.100)
+  tr '\r' '\n' < outputs/mcmc/log_L19_seed2026.txt | grep -m1 'starts file' # ..._ton.csv
+  tr '\r' '\n' < outputs/mcmc/log_L19_seed2026.txt | grep -m1 'logpost'     # FOUR DIFFERENT values
+THEN, BEFORE ANYTHING ELSE — resolve the registered prediction:
+  bash scripts/ton_band_by_chain.sh L19      # did chains MOVE from their start bands?
+  and compare per-chain MEAN LOG-POSTERIOR by band (informative even if they never mix)

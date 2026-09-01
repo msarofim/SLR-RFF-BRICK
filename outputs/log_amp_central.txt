@@ -1,0 +1,6 @@
+zone central (obs full 2.359 / modern 2.240)
+40 model files
+40 models, 14149 windows -> /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/diag_gis_amp_cmip6_central.csv
+wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/diag_gis_amp_cmip6_summary_central.md
+wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/diag_gis_amp_cmip6_binned_central.csv
+wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/figures/diag_gis_amp_cmip6_central.png

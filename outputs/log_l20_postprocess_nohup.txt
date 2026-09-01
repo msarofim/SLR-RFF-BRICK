@@ -1,0 +1,48 @@
+[12:34:59] waiting for the L20 chains to finish...
+[14:11:01] chains done.
+[14:11:01] === ARM VERIFICATION ===
+[14:11:02]   seed2026: A6 prior: amp ~ N(1.090, 0.100) on [0.790, 1.390]   TAG=L20 over-dispersed start (seed 2026, row 1): logpost(θ0) = 225.18  [MAP start = -643.92] 
+[14:11:02]   seed2027: A6 prior: amp ~ N(1.090, 0.100) on [0.790, 1.390]   TAG=L20 over-dispersed start (seed 2027, row 2): logpost(θ0) = 229.40  [MAP start = -643.92] 
+[14:11:03]   seed2028: A6 prior: amp ~ N(1.090, 0.100) on [0.790, 1.390]   TAG=L20 over-dispersed start (seed 2028, row 3): logpost(θ0) = 222.90  [MAP start = -643.92] 
+[14:11:03]   seed2029: A6 prior: amp ~ N(1.090, 0.100) on [0.790, 1.390]   TAG=L20 over-dispersed start (seed 2029, row 4): logpost(θ0) = 221.86  [MAP start = -643.92] 
+[14:11:03]   EXPECT amp ~ N(1.090, 0.100) on [0.790, 1.390]; four DISTINCT starts ~ +221..+230;
+[14:11:03]   EXPECT [MAP start = -643.92] — which equals L15's, so L20 IS option B (L15's prior)
+[14:11:03]   re-run with GOOD starts. If it differs, STOP.
+[14:11:03] START  slr convergence diag (REQUIRED before postprocess)
+[14:14:18] OK     slr convergence diag (REQUIRED before postprocess)
+[14:14:18] START  postprocess (2-3 h — DO NOT KILL)
+[14:45:49] OK     postprocess (2-3 h — DO NOT KILL)
+[14:45:49] START  T_on band occupancy per chain
+[14:48:12] OK     T_on band occupancy per chain
+[14:48:12] START  T_on excursion structure
+[14:48:52] OK     T_on excursion structure
+[14:48:52] START  T_on band hindcast vs L14
+[14:49:30] OK     T_on band hindcast vs L14
+[14:49:30] START  posterior predictive
+[14:49:56] OK     posterior predictive
+[14:49:56] START  ssp components (tap)
+[14:50:49] OK     ssp components (tap)
+[14:50:49] START  ssp components (no-tap)
+[14:51:41] OK     ssp components (no-tap)
+[14:51:41] START  fair-uncertainty joint band ssp126
+[14:55:09] OK     fair-uncertainty joint band ssp126
+[14:55:09] START  fair-uncertainty joint band ssp245
+[14:58:36] OK     fair-uncertainty joint band ssp245
+[14:58:36] START  fair-uncertainty joint band ssp585
+[15:02:04] OK     fair-uncertainty joint band ssp585
+[15:02:04] === python steps (venv) ===
+[15:02:04] START  model comparison
+[15:02:05] OK     model comparison
+[15:02:05] START  benchmark
+[15:02:09] OK     benchmark
+[15:02:09] START  escape scale L15/L16/L17/L18 (the owed test; driftless-walk null = 2.0x)
+[15:04:48] OK     escape scale L15/L16/L17/L18 (the owed test; driftless-walk null = 2.0x)
+[15:04:48] === DONE. READ IN THIS ORDER ===
+[15:04:48]   1. the ARM VERIFICATION block above (MAP must be -644.51)
+[15:04:48]   2. RESOLVE THE REGISTERED PREDICTION (run_mcmc_L18.sh header) BEFORE anything else:
+[15:04:48]      AIS median_vs_lit ssp245 @2100/@2150/@2300 in outputs/scope_slr_fairunc_cells_ssp245_spliced_L20.csv
+[15:04:48]        band: does AIS ssp126@2100 p05-p95 come back near L14's 6.91 cm (vs L18's 47.81)?
+[15:04:48]        median: if it tracks L18's, centre and sigma are SEPARABLE and choosable independently
+[15:04:48]   3. outputs/bench_ladrillo_L20.md  — and champions.json stays UNTOUCHED without Marcus
+[15:04:48]   4. ⚠ sd(medians)/mean(within-chain sd) @2100, NOT just R-hat (-26b §1: L17 'passed' at
+[15:04:48]      0.142, the worst of four arms). Never quote an arm as converged on R-hat alone.

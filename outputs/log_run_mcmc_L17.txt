@@ -1,0 +1,4 @@
+L17: 4 chains x 2000000 iter (seeds 2026-2029), amp ~ N(1.09, 0.180), adcov=adapted_cov_L16MID.csv, BLAS pinned
+L17 chains done -> outputs/mcmc/chain_L17_seed*.csv
+NEXT: julia/diag_slr_convergence_by_chain_ladrillo.jl --tag=L17, then
+      julia/postprocess_mcmc_ext.jl --tag=L17 --accept-slr

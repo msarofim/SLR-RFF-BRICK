@@ -1,0 +1,68 @@
+[SPLICE-MATCH] max |julia splice - python cube| = 4.985e-07 degC (tol 2e-06)  PASS
+BRICK 2.0 + FaIR CLIMATE UNCERTAINTY | ssp585 | 1000 draws (thinned from 10000) | 841 configs
+  arm `fixed` (shipped MEAN driver) ...
+  6.654928 seconds (65.70 M allocations: 2.417 GiB, 2.13% gc time, 24.95% compilation time)
+  arm `joint` (one FaIR config per draw) ...
+  5.006964 seconds (56.35 M allocations: 2.001 GiB, 2.16% gc time)
+  [CONTROL] glaciers @2100  fixed    15.610 vs shipped    15.610  diff  +0.0000 -> PASS
+  [CONTROL] gis      @2100  fixed     7.879 vs shipped     7.879  diff  +0.0000 -> PASS
+  [CONTROL] ais      @2100  fixed    44.140 vs shipped    44.140  diff  +0.0000 -> PASS
+  [CONTROL] te       @2100  fixed    27.065 vs shipped    27.065  diff  +0.0000 -> PASS
+  [CONTROL] lws      @2100  fixed     2.343 vs shipped     2.343  diff  +0.0000 -> PASS
+  [CONTROL] total    @2100  fixed    97.997 vs shipped    97.997  diff  +0.0000 -> PASS
+  [CONTROL] glaciers @2150  fixed    26.248 vs shipped    26.248  diff  +0.0000 -> PASS
+  [CONTROL] gis      @2150  fixed    14.768 vs shipped    14.768  diff  +0.0000 -> PASS
+  [CONTROL] ais      @2150  fixed    97.879 vs shipped    97.879  diff  +0.0000 -> PASS
+  [CONTROL] te       @2150  fixed    50.343 vs shipped    50.343  diff  +0.0000 -> PASS
+  [CONTROL] lws      @2150  fixed     4.043 vs shipped     4.043  diff  +0.0000 -> PASS
+  [CONTROL] total    @2150  fixed   195.146 vs shipped   195.146  diff  +0.0000 -> PASS
+  [CONTROL] glaciers @2300  fixed    35.364 vs shipped    35.364  diff  +0.0000 -> PASS
+  [CONTROL] gis      @2300  fixed    38.598 vs shipped    38.598  diff  +0.0000 -> PASS
+  [CONTROL] ais      @2300  fixed   276.831 vs shipped   276.831  diff  +0.0000 -> PASS
+  [CONTROL] te       @2300  fixed   101.877 vs shipped   101.877  diff  +0.0000 -> PASS
+  [CONTROL] lws      @2300  fixed     8.897 vs shipped     8.897  diff  +0.0000 -> PASS
+  [CONTROL] total    @2300  fixed   467.865 vs shipped   467.865  diff  +0.0000 -> PASS
+  [CONTROL] 18 cells compared, 0 over tolerance
+
+====================================================================================
+BRICK 2.0 WITH vs WITHOUT FaIR CLIMATE UNCERTAINTY -- ssp585, cm rel 1995-2014
+====================================================================================
+  comp      horiz  arm       median       p05       p95    spread     x fixed
+  glaciers  2100   fixed      15.61     13.43     18.25      4.82       1.00x
+  glaciers  2100   joint      15.40     12.28     19.81      7.53       1.56x
+  glaciers  2150   fixed      26.25     20.52     31.64     11.11       1.00x
+  glaciers  2150   joint      25.64     19.68     33.44     13.76       1.24x
+  glaciers  2300   fixed      35.36     23.57     47.18     23.61       1.00x
+  glaciers  2300   joint      35.18     23.54     46.79     23.25       0.98x
+  gis       2100   fixed       7.88      5.16     13.12      7.96       1.00x
+  gis       2100   joint       7.76      5.08     13.48      8.40       1.05x
+  gis       2150   fixed      14.77      8.53     28.12     19.58       1.00x
+  gis       2150   joint      14.50      8.32     29.88     21.56       1.10x
+  gis       2300   fixed      38.60     18.69     81.70     63.00       1.00x
+  gis       2300   joint      36.99     18.27     91.48     73.21       1.16x
+  ais       2100   fixed      44.14     23.22     81.04     57.82       1.00x
+  ais       2100   joint      43.27     16.24     81.29     65.05       1.13x
+  ais       2150   fixed      97.88     53.32    169.90    116.58       1.00x
+  ais       2150   joint      98.07     49.29    175.35    126.06       1.08x
+  ais       2300   fixed     276.83    143.61    473.38    329.77       1.00x
+  ais       2300   joint     275.44    136.89    542.12    405.23       1.23x
+  te        2100   fixed      27.07     19.78     34.86     15.08       1.00x
+  te        2100   joint      26.51     16.68     39.79     23.11       1.53x
+  te        2150   fixed      50.34     36.79     64.84     28.05       1.00x
+  te        2150   joint      48.94     29.23     75.54     46.31       1.65x
+  te        2300   fixed     101.88     74.44    131.21     56.77       1.00x
+  te        2300   joint      99.09     53.04    162.66    109.62       1.93x
+  lws       2100   fixed       2.34      2.34      2.34      0.00        NaNx
+  lws       2100   joint       2.34      2.34      2.34      0.00        NaNx
+  lws       2150   fixed       4.04      4.04      4.04      0.00        NaNx
+  lws       2150   joint       4.04      4.04      4.04      0.00        NaNx
+  lws       2300   fixed       8.90      8.90      8.90      0.00        NaNx
+  lws       2300   joint       8.90      8.90      8.90      0.00        NaNx
+  total     2100   fixed      98.00     74.66    135.28     60.62       1.00x
+  total     2100   joint      96.99     63.28    143.72     80.44       1.33x
+  total     2150   fixed     195.15    145.44    265.58    120.14       1.00x
+  total     2150   joint     194.01    132.94    281.93    149.00       1.24x
+  total     2300   fixed     467.87    325.70    666.92    341.22       1.00x
+  total     2300   joint     463.58    298.29    769.80    471.51       1.38x
+
+wrote outputs/scope_slr_fairunc_{draws,cells}_ssp585_spliced_oldbrick.csv

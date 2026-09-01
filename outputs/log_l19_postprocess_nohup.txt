@@ -1,0 +1,27 @@
+[07:25:22] waiting for the L19 chains...
+[10:00:26] chains done.
+[10:00:26] === ARM VERIFICATION (stdout only flushes at exit) ===
+[10:00:26]   seed2026: A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]   TAG=L19 over-dispersed starts file: outputs/mcmc/overdispersed_starts_ton.csv over-dispersed start (seed 2026, row 1): logpost(θ0) = 221.53  [MAP start = -649.48] 
+[10:00:27]   seed2027: A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]   TAG=L19 over-dispersed starts file: outputs/mcmc/overdispersed_starts_ton.csv over-dispersed start (seed 2027, row 2): logpost(θ0) = 216.81  [MAP start = -649.48] 
+[10:00:27]   seed2028: A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]   TAG=L19 over-dispersed starts file: outputs/mcmc/overdispersed_starts_ton.csv over-dispersed start (seed 2028, row 3): logpost(θ0) = 202.09  [MAP start = -649.48] 
+[10:00:27]   seed2029: A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]   TAG=L19 over-dispersed starts file: outputs/mcmc/overdispersed_starts_ton.csv over-dispersed start (seed 2029, row 4): logpost(θ0) = 220.50  [MAP start = -649.48] 
+[10:00:27]   EXPECT amp ~ N(0.950, 0.100); starts file ..._ton.csv; FOUR DIFFERENT logpost values.
+[10:00:27]   ⚠ [MAP start] will NOT match L14's -642.84 — commit 893bfaa moved lws and
+[10:00:27]   dang_closure_sig AFTER L14 ran. That is WHY seed 2029 is an in-arm MID control.
+[10:00:27] START  band occupancy per chain — DID CHAINS MOVE?
+[10:02:46] OK     band occupancy per chain — DID CHAINS MOVE?
+[10:02:46] START  per-band EQUILIBRATED log-posterior (the key measurement)
+[10:03:35] OK     per-band EQUILIBRATED log-posterior (the key measurement)
+[10:03:35] START  excursion structure
+[10:04:17] OK     excursion structure
+[10:04:17] START  escape scale vs the driftless null (2.0x)
+[10:05:00] OK     escape scale vs the driftless null (2.0x)
+[10:05:00] START  SLR convergence across chains (R-hat expected BAD if they did not mix)
+[10:08:13] OK     SLR convergence across chains (R-hat expected BAD if they did not mix)
+[10:08:13] === RESOLVE THE REGISTERED PREDICTION (run_mcmc_L19.sh header) ===
+[10:08:13]   (A) all four migrate to MID          -> champion CONFIRMED, caveat can be dropped
+[10:08:13]   (B) chains STAY in their start bands -> L14's 100% MID is START-DETERMINED (expected)
+[10:08:13]   (C) MID control (seed 2029) LEAVES   -> MID not favoured under the CURRENT targets
+[10:08:13]   ⚠ the log-posterior table is mean log-DENSITY, not posterior MASS. A narrow tall mode
+[10:08:13]   can beat a broad one on density and lose on mass. Do not call a band 'more probable'.
+[10:08:13]   ⚠ check the drift column first — a chain that has not equilibrated has no usable mean.

@@ -1,0 +1,17 @@
+┌ Warning: GSIC arms disagree by more than the get_model non-determinism
+└ @ Main ~/Documents/2026/CodeProjects/SLR-RFF-BRICK/julia/project_ssps_components_oldbrick.jl:138
+BRICK 2.0 all-component projections: 1000 draws (thinned from 10000), 1850-2300, reref 1995-2014
+  7.359217 seconds (69.29 M allocations: 2.590 GiB, 2.22% gc time, 29.77% compilation time)
+  SSP1-1.9 done: total@2100 med 35.71 cm, @2300 med 79.05 cm
+  5.319705 seconds (56.33 M allocations: 1.969 GiB, 4.80% gc time)
+  SSP1-2.6 done: total@2100 med 41.16 cm, @2300 med 94.76 cm
+  4.978087 seconds (56.33 M allocations: 1.969 GiB, 2.09% gc time)
+  SSP2-4.5 done: total@2100 med 70.19 cm, @2300 med 317.82 cm
+  5.189406 seconds (56.33 M allocations: 1.969 GiB, 5.60% gc time)
+  SSP4-6.0 done: total@2100 med 80.49 cm, @2300 med 352.27 cm
+  4.999942 seconds (56.33 M allocations: 1.969 GiB, 2.12% gc time)
+  SSP3-7.0 done: total@2100 med 83.93 cm, @2300 med 416.09 cm
+  5.132467 seconds (56.33 M allocations: 1.969 GiB, 4.54% gc time)
+  SSP5-8.5 done: total@2100 med 98.00 cm, @2300 med 467.87 cm
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/ssps_components_2300_oldbrick.csv
+[GSIC-MATCH] worst |median difference| vs ssps_gsic_2300.csv: 0.9869 cm  (192 rows compared)

@@ -1,0 +1,17 @@
+┌ Warning: Assignment to `worst` in soft scope is ambiguous because a global variable by the same name exists: `worst` will be treated as a new local. Disambiguate by using `local worst` to suppress this warning or `global worst` to assign to the existing global variable.
+└ @ ~/Documents/2026/CodeProjects/SLR-RFF-BRICK/julia/project_ssps_components_oldbrick.jl:120
+BRICK 2.0 all-component projections: 1000 draws (thinned from 10000), 1850-2300, reref 1995-2014
+  7.487186 seconds (69.29 M allocations: 2.590 GiB, 2.20% gc time, 30.37% compilation time)
+  SSP1-1.9 done: total@2100 med 35.71 cm, @2300 med 79.05 cm
+  5.684019 seconds (56.33 M allocations: 1.969 GiB, 5.71% gc time)
+  SSP1-2.6 done: total@2100 med 41.16 cm, @2300 med 94.76 cm
+  5.147432 seconds (56.33 M allocations: 1.969 GiB, 2.15% gc time)
+  SSP2-4.5 done: total@2100 med 70.19 cm, @2300 med 317.82 cm
+  5.326897 seconds (56.33 M allocations: 1.969 GiB, 2.28% gc time)
+  SSP4-6.0 done: total@2100 med 80.49 cm, @2300 med 352.27 cm
+  6.100476 seconds (56.33 M allocations: 1.969 GiB, 5.81% gc time)
+  SSP3-7.0 done: total@2100 med 83.93 cm, @2300 med 416.09 cm
+  5.735077 seconds (56.33 M allocations: 1.969 GiB, 2.50% gc time)
+  SSP5-8.5 done: total@2100 med 98.00 cm, @2300 med 467.87 cm
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/ssps_components_2300_oldbrick.csv
+[GSIC-MATCH] worst |median difference| vs ssps_gsic_2300.csv: 0.0000 cm

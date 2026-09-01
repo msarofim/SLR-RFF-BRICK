@@ -1,0 +1,15 @@
+models per scenario: ssp119 13, ssp126 33, ssp245 34, ssp585 35
+common subset over ['ssp126', 'ssp245', 'ssp585']: 33 models
+
+matched-warming medians (level: scenario pai@year, rate K/dec):
+  dT=1.0K: ssp119 0.94@2018(r=0.23)  ssp126 1.08@2014(r=0.24)  ssp245 1.13@2014(r=0.25)  ssp585 1.01@2013(r=0.27)
+  dT=1.5K: ssp119 1.31@2027(r=0.26)  ssp126 1.06@2029(r=0.24)  ssp245 1.10@2031(r=0.25)  ssp585 1.13@2026(r=0.34)
+  dT=2.0K: ssp119 1.19@2036(r=0.18)  ssp126 1.12@2041(r=0.22)  ssp245 1.12@2052(r=0.25)  ssp585 1.14@2039(r=0.41)
+  dT=2.5K: ssp126 0.76@2058(r=0.16)  ssp245 1.14@2058(r=0.28)  ssp585 1.14@2051(r=0.45)
+  dT=3.0K: ssp245 1.19@2067(r=0.29)  ssp585 1.10@2061(r=0.51)
+
+level-only fit:  a0=1.001 Ts=10.00  RMSE 0.247
+level+rate fit:  a0=0.772 Ts=10.00 c=-0.645 [-1.066,0.040] K^-1·decade  RMSE 0.230
+interpretation: rate term at 0.5 K/dec (ssp585 mid-century) = +0.32; at 0.15 K/dec (ssp126 mid-century) = +0.10
+wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/diag_pai_cmip6_rate.png
+wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/diag_pai_cmip6_rate_summary.md

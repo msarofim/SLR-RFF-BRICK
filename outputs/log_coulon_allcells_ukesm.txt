@@ -1,0 +1,19 @@
+
+── UKESM1-0-LL (r4i1p1f2)
+I0829 18:44:00.576079 7467032 fork_posix.cc:71] Other threads are currently calling into gRPC, skipping fork() handlers
+I0829 18:44:00.587409 7467058 ev_poll_posix.cc:593] FD from fork parent still in poll list: fd(18, generation: 1)
+   historical  zarr   1850-2014
+   historical  (no post-2100 leg; local file is pre-2100 only)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/build_coulon_allcells_series.py:110: SerializationWarning: Unable to decode time axis into full numpy.datetime64[ns] objects, continuing using cftime.datetime objects instead, reason: dates out of range. To silence this warning use a coarser resolution 'time_unit' or specify 'use_cftime=True'.
+  ds = xr.open_zarr(fs.get_mapper(q.zstore.iloc[0]), consolidated=True)
+   ssp585      zarr   2015-2100
+   ssp585      [JOIN] |2101-2100| = 0.093 K
+   ssp585      + ESGF -> 2300
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/build_coulon_allcells_series.py:110: SerializationWarning: Unable to decode time axis into full numpy.datetime64[ns] objects, continuing using cftime.datetime objects instead, reason: dates out of range. To silence this warning use a coarser resolution 'time_unit' or specify 'use_cftime=True'.
+  ds = xr.open_zarr(fs.get_mapper(q.zstore.iloc[0]), consolidated=True)
+   ssp126      zarr   2015-2100
+   ssp126      [JOIN] |2101-2100| = 0.013 K
+   ssp126      + ESGF -> 2300
+   wrote tas_series_UKESM1-0-LL.csv  737 rows
+
+PROVENANCE: AIS = ALL surface types south of -60.0 deg, cos(lat) weighted. <= 2100 Pangeo zarr re-reduced here; > 2100 local ESGF. Companion to data/cmip6_coulon/ (land mask), which is UNTOUCHED.

@@ -1,0 +1,41 @@
+CAN A MULTI-BASIN GREENLAND CLEAR THE 2300 SCORECARD?  — Ladrillo L12, median params, offline mock
+  south basin = shipped A+B (k=1, s=1.0098); reproduction gate PASSED vs the ridge k=1 row (5.6e-17)
+  incumbent @2300: SSP1-2.6 0.092  SSP2-4.5 0.172  SSP5-8.5 0.469;  G4 ref 8.07 cm; dormant G4 headroom 1.21 cm at 2100
+  inventory headroom for dormant volume: 6.88 m (= V0 7.42 - incumbent Leq at ssp585/2300)
+  ssp585 GMT crossing years: 2.5K:2055  3K:2067  3.5K:2077  4K:2087  5K:2107  6K:2135  7K:2179
+
+=== CENSUS — 720 cells ===
+
+  SSP1-2.6 band @2300       720 / 720
+  SSP2-4.5 band @2300       450 / 720
+  SSP5-8.5 band @2300       322 / 720
+  2100 kept (<= 15%)        162 / 720
+  within inventory          720 / 720
+  ALL PASS                   59 / 720
+
+=== F1: YES — 59 cells clear everything ===
+
+=== F2: the passing REGION (values represented among passers) ===
+
+  t_on_mid   [np.float64(2.5), np.float64(4.0), np.float64(5.0)]
+  t_on_high  [np.float64(5.0), np.float64(6.0), np.float64(7.0)]
+  v_tot      [np.float64(1.5), np.float64(2.5), np.float64(3.5), np.float64(4.5)]
+  mid_share  [np.float64(0.0), np.float64(0.3), np.float64(0.5), np.float64(0.7)]
+  tau        [np.int64(50), np.int64(100), np.int64(200), np.int64(400)]
+  ratio span  10.1x - 17.6x  (lit 7.9-31.9x)
+  G4 span     1.000x - 1.146x of shipped
+
+=== exemplar passing cells (widest 585 margin, then median, then narrowest) ===
+
+ t_on_mid  t_on_high  v_tot  mid_share  tau  m2300_SSP1-2.6  m2300_SSP2-4.5  m2300_SSP5-8.5  dorm2100_SSP5-8.5  g4_rel_to_ref  ratio_585_over_245
+    5.000      6.000  2.500      0.300  100           0.092           0.172           2.433              0.000          1.000              14.150
+    2.500      7.000  2.500      0.000   50           0.092           0.172           1.993              0.000          1.000              11.587
+    2.500      5.000  3.500      0.000  400           0.092           0.172           1.737              0.000          1.000              10.101
+
+=== F3: physical placement ===
+
+  binding onsets among passers: min 2.5 K, max 7 K (scenarios' 2300 GMTs: 3.15 / 7.81 K)
+  cells passing WITH an active mid basin: 41; single-dormant-basin passers: 18
+  passers whose MID onset sits below ssp245's 2300 GMT: 0 (falsifier watches this being the ONLY mode)
+
+wrote outputs/scope_gis_basin_mock_vs_literature.csv

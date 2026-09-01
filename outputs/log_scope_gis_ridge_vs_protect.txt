@@ -1,0 +1,33 @@
+reproduction gate at (k=1, s=1) vs the Julia untapped runs, tol 0.5 cm
+    r2300 2100: offline   19.64  julia   19.49  diff +0.16
+    r2300 2150: offline   28.11  julia   28.05  diff +0.06
+    r2300 2200: offline   31.95  julia   31.98  diff -0.03
+    r2300 2300: offline   35.72  julia   35.72  diff +0.00
+    x2300 2100: offline   19.81  julia   19.88  diff -0.07
+    x2300 2150: offline   45.05  julia   45.16  diff -0.11
+    x2300 2200: offline   67.16  julia   67.26  diff -0.10
+    x2300 2300: offline   90.08  julia   90.03  diff +0.05
+  GATE PASSED, worst 0.16 cm
+
+hindcast 1900-2025 = 5.78 cm, restored by bisection at every k (so it never discriminates)
+     k   rate s  tau@5.6K | r2300 2150 r2300 2300 x2300 2150 x2300 2300   in-band  RMSlog
+  0.50 1000.0000         0 |      16.0      16.0      31.1      45.8   2/8   0.983
+  0.75   2.4683        23 |      24.4      27.4      41.3      70.6   3/8   0.655
+  1.00   1.0152        55 |      28.2      35.7      45.2      90.2   5/8   0.497
+  1.50   0.4826       116 |      33.4      48.1      51.8     121.7   5/8   0.349
+  2.00   0.3201       175 |      36.9      58.0      56.6     147.7   5/8   0.294
+  3.00   0.1924       290 |      41.3      72.7      62.8     189.2   5/8   0.293
+  5.00   0.1073       521 |      45.4      91.0      68.7     243.8   5/8   0.356
+  8.00   0.0646       865 |      47.8     105.0      71.9     264.4   5/8   0.408
+ 12.00   0.0422      1324 |      48.8     113.1      67.6     218.4   1/8   0.406
+ 14.00   0.0360      1553 |      48.3     113.3      62.8     197.3   3/8   0.392
+ 22.60   0.0220      2539 |      38.3      88.9      44.7     137.4   5/8   0.304
+ 50.00   0.0105      5304 |      20.6      46.8      23.9      74.5   5/8   0.644
+
+PROTECT bands (p05-p95, our basis):
+  r2300: 2100 8-25  2150 15-49  2200 21-70  2300 31-109
+  x2300: 2100 9-15  2150 45-53  2200 95-117  2300 219-302
+
+best ridge point: k = 1 (5/8 horizons in band), shipped k = 1 scores 5/8
+best by RMS log-misfit: k = 3 (0.293), shipped k = 1 scores 0.497 -- 1.70x worse
+wrote outputs/scope_gis_ridge_vs_protect.csv

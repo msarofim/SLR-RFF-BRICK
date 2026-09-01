@@ -1,0 +1,34 @@
+vintage,stat,value,boot_sd,ci_lo,ci_hi,note
+v145,p50,6.5817,0.0911,6.4504,6.7377,
+v160,p50,6.3019,0.1106,6.1127,6.4758,
+diff,p50,-0.2798,0.1433,-1.95,,ci_lo column is diff in combined sd
+v145,p75,8.423,0.1246,8.2132,8.5899,
+v160,p75,8.0349,0.1191,7.8578,8.2542,
+diff,p75,-0.3882,0.1724,-2.25,,ci_lo column is diff in combined sd
+v145,p90,10.2078,0.1855,9.8627,10.562,
+v160,p90,9.8876,0.1783,9.6285,10.2345,
+diff,p90,-0.3201,0.2573,-1.24,,ci_lo column is diff in combined sd
+v145,p95,11.3241,0.2135,10.9133,11.6466,
+v160,p95,11.4263,0.2631,10.9034,11.81,
+diff,p95,0.1022,0.3388,0.3,,ci_lo column is diff in combined sd
+v145,p99,13.9106,0.7189,12.8025,14.7541,
+v160,p99,13.7044,0.5297,12.7669,14.5247,
+diff,p99,-0.2062,0.8929,-0.23,,ci_lo column is diff in combined sd
+v145,p99.5,14.8178,1.2611,13.7424,17.0652,
+v160,p99.5,14.5855,0.4164,13.3914,14.9581,
+diff,p99.5,-0.2323,1.3281,-0.17,,ci_lo column is diff in combined sd
+v145,MAX,21.4566,2.0527,17.0279,21.4566,"bootstrap of a max is INCONSISTENT, this bar is a floor"
+v160,MAX,15.4008,0.2289,14.7389,15.4008,"bootstrap of a max is INCONSISTENT, this bar is a floor"
+diff,MAX,-6.0558,2.0654,-2.93,,ci_lo column is diff in combined sd
+v145,n_at_or_above_tant12.0,15.0,3.86,9.0,22.0,GMST >= 12.7105 at amp 0.9441
+v160,n_at_or_above_tant12.0,16.0,3.971,10.0,23.0,GMST >= 12.7105 at amp 0.9441
+v145,n_at_or_above_tant14.5,4.0,1.984,1.0,7.0,GMST >= 15.3585 at amp 0.9441
+v160,n_at_or_above_tant14.5,1.0,1.005,0.0,3.0,GMST >= 15.3585 at amp 0.9441
+v145,n_at_or_above_tant17.0,1.0,0.999,0.0,3.0,GMST >= 18.0066 at amp 0.9441
+v160,n_at_or_above_tant17.0,0.0,0.0,0.0,0.0,GMST >= 18.0066 at amp 0.9441
+v145,arm_lands_tant12.0,11.9855,0.0432,11.8864,11.9981,"T_ant of the config nearest the target, across resamples, at amp 0.9441"
+v160,arm_lands_tant12.0,11.9965,0.045,11.9243,12.0195,"T_ant of the config nearest the target, across resamples, at amp 0.9441"
+v145,arm_lands_tant14.5,13.9199,0.2443,13.5902,14.0496,"T_ant of the config nearest the target, across resamples, at amp 0.9441"
+v160,arm_lands_tant14.5,14.4016,0.2161,13.915,14.5399,"T_ant of the config nearest the target, across resamples, at amp 0.9441"
+v145,arm_lands_tant17.0,16.334,0.639,15.9106,16.6267,"T_ant of the config nearest the target, across resamples, at amp 0.9441"
+v160,arm_lands_tant17.0,14.4016,0.2161,13.915,14.5399,"T_ant of the config nearest the target, across resamples, at amp 0.9441"

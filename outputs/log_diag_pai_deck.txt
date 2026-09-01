@@ -1,0 +1,19 @@
+41 models: ACCESS-CM2, ACCESS-ESM1-5, AWI-CM-1-1-MR, BCC-CSM2-MR, BCC-ESM1, CAMS-CSM1-0, CESM2, CESM2-FV2, CESM2-WACCM, CESM2-WACCM-FV2, CMCC-CM2-SR5, CMCC-ESM2, CNRM-CM6-1, CNRM-CM6-1-HR, CNRM-ESM2-1, CanESM5, E3SM-1-0, EC-Earth3, EC-Earth3-AerChem, EC-Earth3-Veg, FGOALS-g3, GFDL-CM4, GFDL-ESM4, GISS-E2-1-G, GISS-E2-1-H, HadGEM3-GC31-LL, HadGEM3-GC31-MM, INM-CM4-8, INM-CM5-0, IPSL-CM6A-LR, MIROC-ES2L, MIROC6, MPI-ESM-1-2-HAM, MPI-ESM1-2-HR, MPI-ESM1-2-LR, MRI-ESM2-0, NorCPM1, NorESM2-MM, SAM0-UNICON, TaiESM1, UKESM1-0-LL
+
+matched-warming LEVEL ratios (median over models; years since branch):
+  dT=2.5K (n=15): 1pct 1.109@yr98  abrupt 0.930@yr6  D=-0.130 [-0.175,-0.057]
+  dT=3.0K (n=37): 1pct 1.097@yr97  abrupt 0.955@yr6  D=-0.124 [-0.186,-0.100]
+  dT=3.5K (n=39): 1pct 1.089@yr108  abrupt 1.021@yr9  D=-0.092 [-0.174,-0.055]
+  dT=4.0K (n=37): 1pct 1.087@yr119  abrupt 1.075@yr13  D=-0.082 [-0.104,-0.022]
+  dT=4.5K (n=31): 1pct 1.153@yr124  abrupt 1.106@yr22  D=-0.078 [-0.130,-0.029]
+
+abrupt-4xCO2 Gregory slopes / asymptotes (median [IQR] over models):
+  fast    n=41  1.079 [0.937, 1.330]
+  slow    n=41  1.720 [1.318, 2.094]
+  late    n= 3  1.482 [1.264, 1.823]
+  asy150  n=41  1.243 [1.130, 1.454]
+  asy300  n= 2  1.392 [1.290, 1.494]
+  1pct marginal yrs (60, 80): n=41  1.191 [0.973, 1.455]
+  1pct marginal yrs (120, 140): n=41  1.178 [1.071, 1.463]
+wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/diag_pai_deck.png
+wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/diag_pai_deck_summary.md

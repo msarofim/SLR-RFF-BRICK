@@ -1,0 +1,213 @@
+AIS ITEM 4 -- the two badly-mixed parameters that reach the deliverable
+  tag L14  *** SMOKE (--maxrows=2000), PRE-BURN-IN, NOT A RESULT *** | 3 draws/chain x 4 chains | Greenland :basins2
+  subjects: antarctic_alpha (R-hat 1.777) and ais_runoff_Ton (R-hat 1.092)
+  flux windows: anchored 1979-2008 (Rignot A5) | unobserved 2281-2300
+  reading chain seed2026 ...
+  reading chain seed2027 ...
+  reading chain seed2028 ...
+  reading chain seed2029 ...
+
+==============================================================================
+GATES
+==============================================================================
+[RIDGE-CORR] antarctic_alpha    max |corr| with any used param = 0.8718  (ais_iceflow0)
+[RIDGE-CORR] ais_runoff_Ton     max |corr| with any used param = 0.8379  (gic_amp_SLOWP)
+[RIDGE-CORR] pairwise |corr| inside the discharge group ais_iceflow0, antarctic_alpha, ais_ocean_temperature₀, anto_alpha, anto_beta, antarctic_gamma:
+             ais_iceflow0           antarctic_alpha        +0.872
+             ais_iceflow0           ais_ocean_temperature₀ +0.811
+             ais_iceflow0           anto_alpha             -0.305
+             ais_iceflow0           anto_beta              -0.756
+             antarctic_alpha        ais_ocean_temperature₀ +0.738
+             antarctic_alpha        anto_alpha             -0.347
+             antarctic_alpha        anto_beta              -0.656
+             ais_ocean_temperature₀ anto_beta              -0.366
+             anto_alpha             antarctic_gamma        +0.276
+  ssp245 / chain                        :    12 draws in     4s | AIS@2300 median   121.93  p05-p95   234.90 cm
+  ssp245 / antarctic_alpha_to_seed2026  :    12 draws in     0s | AIS@2300 median   120.27  p05-p95   236.45 cm
+  ssp245 / antarctic_alpha_to_seed2027  :    12 draws in     0s | AIS@2300 median   122.88  p05-p95   243.93 cm
+  ssp245 / antarctic_alpha_to_seed2028  :    12 draws in     0s | AIS@2300 median   122.84  p05-p95   243.76 cm
+  ssp245 / antarctic_alpha_to_seed2029  :    12 draws in     0s | AIS@2300 median   122.89  p05-p95   243.80 cm
+  ssp245 / ais_runoff_Ton_to_seed2026   :    12 draws in     0s | AIS@2300 median   121.89  p05-p95   235.97 cm
+  ssp245 / ais_runoff_Ton_to_seed2027   :    12 draws in     0s | AIS@2300 median   121.19  p05-p95   235.28 cm
+  ssp245 / ais_runoff_Ton_to_seed2028   :    12 draws in     0s | AIS@2300 median   122.22  p05-p95   236.35 cm
+  ssp245 / ais_runoff_Ton_to_seed2029   :    12 draws in     0s | AIS@2300 median   121.91  p05-p95   235.69 cm
+  ssp585 / chain                        :    12 draws in     0s | AIS@2300 median   276.40  p05-p95   253.58 cm
+  ssp585 / antarctic_alpha_to_seed2026  :    12 draws in     0s | AIS@2300 median   260.07  p05-p95   255.18 cm
+  ssp585 / antarctic_alpha_to_seed2027  :    12 draws in     0s | AIS@2300 median   276.83  p05-p95   280.52 cm
+  ssp585 / antarctic_alpha_to_seed2028  :    12 draws in     0s | AIS@2300 median   275.63  p05-p95   279.21 cm
+  ssp585 / antarctic_alpha_to_seed2029  :    12 draws in     0s | AIS@2300 median   276.92  p05-p95   278.45 cm
+  ssp585 / ais_runoff_Ton_to_seed2026   :    12 draws in     0s | AIS@2300 median   275.98  p05-p95   253.05 cm
+  ssp585 / ais_runoff_Ton_to_seed2027   :    12 draws in     0s | AIS@2300 median   274.55  p05-p95   251.40 cm
+  ssp585 / ais_runoff_Ton_to_seed2028   :    12 draws in     0s | AIS@2300 median   276.67  p05-p95   253.97 cm
+  ssp585 / ais_runoff_Ton_to_seed2029   :    12 draws in     0s | AIS@2300 median   276.12  p05-p95   253.26 cm
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+┌ Warning: number of draws after splitting must be >4 but is 1. ESS cannot be computed.
+└ @ MCMCDiagnosticTools ~/.julia/packages/MCMCDiagnosticTools/IXbuY/src/ess_rhat.jl:477
+
+==============================================================================
+[1] DOES THE BLOCK'S FAILURE REACH THE DELIVERABLE?  (R-hat OK < 1.05)
+==============================================================================
+scen     cmp         yr    R-hat       ESS   med range     /sd_wc    p05-p95
+ssp245   ais       2100      NaN       NaN       0.65       0.054      28.83  NOT CONVERGED
+ssp245   ais       2150      NaN       NaN      34.70       1.037      81.61  NOT CONVERGED
+ssp245   ais       2300      NaN       NaN     180.76       1.677     234.90  NOT CONVERGED
+ssp245   total     2100      NaN       NaN       3.22       0.259      31.93  NOT CONVERGED
+ssp245   total     2150      NaN       NaN      36.77       1.089      85.34  NOT CONVERGED
+ssp245   total     2300      NaN       NaN     185.77       1.723     239.28  NOT CONVERGED
+ssp585   ais       2100      NaN       NaN      25.15       2.012      37.95  NOT CONVERGED
+ssp585   ais       2150      NaN       NaN      67.21       2.471      87.00  NOT CONVERGED
+ssp585   ais       2300      NaN       NaN     194.28       2.386     253.58  NOT CONVERGED
+ssp585   total     2100      NaN       NaN      24.98       1.875      42.74  NOT CONVERGED
+ssp585   total     2150      NaN       NaN      66.49       2.312      91.64  NOT CONVERGED
+ssp585   total     2300      NaN       NaN     182.26       2.183     267.30  NOT CONVERGED
+
+VERDICT: the projection is NOT converged in 12 of 12 cells
+
+==============================================================================
+[2] IS THE DISCHARGE DEGENERACY PINNED WHERE THE DATA ARE?  (Gt/yr)
+==============================================================================
+scen     quantity   window         R-hat       ESS      median     /sd_wc    p05-p95
+ssp245   smb        anchored         NaN       NaN      1838.8      5.259      266.6  NOT CONVERGED
+ssp245   smb        unobserved       NaN       NaN      1782.1      3.416      296.0  NOT CONVERGED
+ssp245   discharge  anchored         NaN       NaN     -1899.4      5.063      275.2  NOT CONVERGED
+ssp245   discharge  unobserved       NaN       NaN     -1989.8      1.247      543.0  NOT CONVERGED
+ssp245   net        anchored         NaN       NaN       -63.2      2.027       12.6  NOT CONVERGED
+ssp245   net        unobserved       NaN       NaN      -225.6      1.354      351.0  NOT CONVERGED
+ssp585   smb        anchored         NaN       NaN      1838.8      5.259      266.6  NOT CONVERGED
+ssp585   smb        unobserved       NaN       NaN      1566.0      1.861     1398.7  NOT CONVERGED
+ssp585   discharge  anchored         NaN       NaN     -1899.4      5.063      275.2  NOT CONVERGED
+ssp585   discharge  unobserved       NaN       NaN     -2370.4      2.370      380.1  NOT CONVERGED
+ssp585   net        anchored         NaN       NaN       -63.2      2.027       12.6  NOT CONVERGED
+ssp585   net        unobserved       NaN       NaN      -978.0      1.745     1221.3  NOT CONVERGED
+[SMB]   ssp245 anchored SMB median 1838.8 Gt/yr vs Rignot A5 target 1863.4 +/- 118.1 => -0.21 sigma  OK
+[SMB]   ssp585 anchored SMB median 1838.8 Gt/yr vs Rignot A5 target 1863.4 +/- 118.1 => -0.21 sigma  OK
+[NET]   ssp245 anchored NET median -63.2 Gt/yr vs the posterior's own pin -145.0 +/- 15.0
+[NET]   ssp585 anchored NET median -63.2 Gt/yr vs the posterior's own pin -145.0 +/- 15.0
+
+==============================================================================
+[3] WHAT THE BETWEEN-CHAIN DISAGREEMENT IS WORTH (AIS component, cm)
+==============================================================================
+    as-if-independent: a one-column transport breaks the ridge correlations
+    reported by [RIDGE-CORR]; read test [1] for the correlation-respecting number.
+
+
+ssp245 @2100   control: median     4.86  p05-p95    28.83 cm
+  antarctic_alpha_to_seed2026    median     4.56 (  -0.30)  spread    28.86 (x1.001)
+  antarctic_alpha_to_seed2027    median     5.59 (  +0.72)  spread    31.39 (x1.089)
+  antarctic_alpha_to_seed2028    median     5.60 (  +0.74)  spread    31.25 (x1.084)
+  antarctic_alpha_to_seed2029    median     5.71 (  +0.84)  spread    31.27 (x1.085)
+  antarctic_alpha                ENVELOPE median +1.15 cm = 4.0% of the control p05-p95
+  ais_runoff_Ton_to_seed2026     median     4.89 (  +0.02)  spread    28.80 (x0.999)
+  ais_runoff_Ton_to_seed2027     median     4.70 (  -0.16)  spread    28.75 (x0.997)
+  ais_runoff_Ton_to_seed2028     median     5.00 (  +0.14)  spread    28.86 (x1.001)
+  ais_runoff_Ton_to_seed2029     median     4.89 (  +0.03)  spread    28.79 (x0.999)
+  ais_runoff_Ton                 ENVELOPE median +0.30 cm = 1.0% of the control p05-p95
+
+ssp245 @2150   control: median    30.30  p05-p95    81.61 cm
+  antarctic_alpha_to_seed2026    median    29.79 (  -0.51)  spread    81.85 (x1.003)
+  antarctic_alpha_to_seed2027    median    33.22 (  +2.92)  spread    85.89 (x1.052)
+  antarctic_alpha_to_seed2028    median    33.20 (  +2.89)  spread    85.65 (x1.050)
+  antarctic_alpha_to_seed2029    median    33.28 (  +2.98)  spread    85.75 (x1.051)
+  antarctic_alpha                ENVELOPE median +3.49 cm = 4.3% of the control p05-p95
+  ais_runoff_Ton_to_seed2026     median    30.28 (  -0.02)  spread    81.62 (x1.000)
+  ais_runoff_Ton_to_seed2027     median    29.96 (  -0.34)  spread    81.53 (x0.999)
+  ais_runoff_Ton_to_seed2028     median    30.44 (  +0.13)  spread    81.71 (x1.001)
+  ais_runoff_Ton_to_seed2029     median    30.29 (  -0.01)  spread    81.57 (x0.999)
+  ais_runoff_Ton                 ENVELOPE median +0.47 cm = 0.6% of the control p05-p95
+
+ssp245 @2300   control: median   121.93  p05-p95   234.90 cm
+  antarctic_alpha_to_seed2026    median   120.27 (  -1.66)  spread   236.45 (x1.007)
+  antarctic_alpha_to_seed2027    median   122.88 (  +0.94)  spread   243.93 (x1.038)
+  antarctic_alpha_to_seed2028    median   122.84 (  +0.90)  spread   243.76 (x1.038)
+  antarctic_alpha_to_seed2029    median   122.89 (  +0.96)  spread   243.80 (x1.038)
+  antarctic_alpha                ENVELOPE median +2.62 cm = 1.1% of the control p05-p95
+  ais_runoff_Ton_to_seed2026     median   121.89 (  -0.05)  spread   235.97 (x1.005)
+  ais_runoff_Ton_to_seed2027     median   121.19 (  -0.74)  spread   235.28 (x1.002)
+  ais_runoff_Ton_to_seed2028     median   122.22 (  +0.29)  spread   236.35 (x1.006)
+  ais_runoff_Ton_to_seed2029     median   121.91 (  -0.03)  spread   235.69 (x1.003)
+  ais_runoff_Ton                 ENVELOPE median +1.03 cm = 0.4% of the control p05-p95
+
+ssp585 @2100   control: median    37.81  p05-p95    37.95 cm
+  antarctic_alpha_to_seed2026    median    35.77 (  -2.04)  spread    37.09 (x0.977)
+  antarctic_alpha_to_seed2027    median    39.31 (  +1.50)  spread    43.86 (x1.156)
+  antarctic_alpha_to_seed2028    median    39.26 (  +1.45)  spread    43.54 (x1.147)
+  antarctic_alpha_to_seed2029    median    39.39 (  +1.58)  spread    43.49 (x1.146)
+  antarctic_alpha                ENVELOPE median +3.62 cm = 9.5% of the control p05-p95
+  ais_runoff_Ton_to_seed2026     median    37.83 (  +0.02)  spread    38.21 (x1.007)
+  ais_runoff_Ton_to_seed2027     median    37.57 (  -0.24)  spread    37.90 (x0.999)
+  ais_runoff_Ton_to_seed2028     median    37.94 (  +0.13)  spread    38.36 (x1.011)
+  ais_runoff_Ton_to_seed2029     median    37.85 (  +0.03)  spread    38.16 (x1.006)
+  ais_runoff_Ton                 ENVELOPE median +0.37 cm = 1.0% of the control p05-p95
+
+ssp585 @2150   control: median    96.25  p05-p95    87.00 cm
+  antarctic_alpha_to_seed2026    median    91.62 (  -4.63)  spread    85.93 (x0.988)
+  antarctic_alpha_to_seed2027    median    96.27 (  +0.01)  spread    98.82 (x1.136)
+  antarctic_alpha_to_seed2028    median    95.90 (  -0.35)  spread    98.24 (x1.129)
+  antarctic_alpha_to_seed2029    median    96.30 (  +0.05)  spread    98.04 (x1.127)
+  antarctic_alpha                ENVELOPE median +4.68 cm = 5.4% of the control p05-p95
+  ais_runoff_Ton_to_seed2026     median    96.32 (  +0.07)  spread    86.83 (x0.998)
+  ais_runoff_Ton_to_seed2027     median    95.80 (  -0.46)  spread    86.44 (x0.994)
+  ais_runoff_Ton_to_seed2028     median    96.55 (  +0.30)  spread    87.02 (x1.000)
+  ais_runoff_Ton_to_seed2029     median    96.32 (  +0.06)  spread    86.89 (x0.999)
+  ais_runoff_Ton                 ENVELOPE median +0.76 cm = 0.9% of the control p05-p95
+
+ssp585 @2300   control: median   276.40  p05-p95   253.58 cm
+  antarctic_alpha_to_seed2026    median   260.07 ( -16.33)  spread   255.18 (x1.006)
+  antarctic_alpha_to_seed2027    median   276.83 (  +0.43)  spread   280.52 (x1.106)
+  antarctic_alpha_to_seed2028    median   275.63 (  -0.77)  spread   279.21 (x1.101)
+  antarctic_alpha_to_seed2029    median   276.92 (  +0.51)  spread   278.45 (x1.098)
+  antarctic_alpha                ENVELOPE median +16.84 cm = 6.6% of the control p05-p95
+  ais_runoff_Ton_to_seed2026     median   275.98 (  -0.42)  spread   253.05 (x0.998)
+  ais_runoff_Ton_to_seed2027     median   274.55 (  -1.85)  spread   251.40 (x0.991)
+  ais_runoff_Ton_to_seed2028     median   276.67 (  +0.27)  spread   253.97 (x1.002)
+  ais_runoff_Ton_to_seed2029     median   276.12 (  -0.28)  spread   253.26 (x0.999)
+  ais_runoff_Ton                 ENVELOPE median +2.11 cm = 0.8% of the control p05-p95
+
+wrote outputs/diag_ais_item4_deliverable_L14_SMOKE.csv
+      outputs/diag_ais_item4_fluxes_L14_SMOKE.csv
+      outputs/diag_ais_item4_arms_L14_SMOKE.csv  *** SMOKE OUTPUT, PRE-BURN-IN -- NOT A RESULT ***

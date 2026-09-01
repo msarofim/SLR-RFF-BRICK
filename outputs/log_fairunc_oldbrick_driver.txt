@@ -1,0 +1,10 @@
+=== ssp126 10:17:04 ===
+[SPLICE-MATCH] no python-spliced cube for ssp126 -- convention UNVERIFIED here
+  [CONTROL] 18 cells compared, 0 over tolerance
+=== ssp245 10:17:30 ===
+[SPLICE-MATCH] no python-spliced cube for ssp245 -- convention UNVERIFIED here
+  [CONTROL] 18 cells compared, 0 over tolerance
+=== ssp585 10:17:55 ===
+[SPLICE-MATCH] max |julia splice - python cube| = 4.985e-07 degC (tol 2e-06)  PASS
+  [CONTROL] 18 cells compared, 0 over tolerance
+ALL DONE 10:18:21

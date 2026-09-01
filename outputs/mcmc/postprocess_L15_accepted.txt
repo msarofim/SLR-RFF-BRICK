@@ -1,0 +1,43 @@
+Combining 4 chains:
+  chain_L15_seed2026_n2000000.csv  (1000000 post-burn)
+  chain_L15_seed2027_n2000000.csv  (1000000 post-burn)
+  chain_L15_seed2028_n2000000.csv  (1000000 post-burn)
+  chain_L15_seed2029_n2000000.csv  (1000000 post-burn)
+
+4 chains × 1000000 draws. Convergence (target R̂<1.05, ESS>400):
+  ais_ocean_temperature₀   R̂=1.026 ESS=205.0 τ=19513  <-- check
+  antarctic_alpha          R̂=1.438 ESS=18.3 τ=219016  <-- check
+  antarctic_nu             R̂=1.016 ESS=341.7 τ=11706  <-- check
+  anto_alpha               R̂=1.146 ESS=45.0 τ=88840  <-- check
+  anto_beta                R̂=1.146 ESS=35.2 τ=113606  <-- check
+  gis_c1                   R̂=1.018 ESS=194.8 τ=20537  <-- check
+  gis_c0                   R̂=1.025 ESS=187.9 τ=21292  <-- check
+  gis_f                    R̂=1.038 ESS=124.2 τ=32219  <-- check
+  gis_slow_ell             R̂=1.034 ESS=141.3 τ=28301  <-- check
+  ais_slope                R̂=1.313 ESS=21.5 τ=185941  <-- check
+  ais_iceflow0             R̂=1.665 ESS=14.4 τ=277894  <-- check
+  ais_precip0_LOG          R̂=1.070 ESS=84.1 τ=47534  <-- check
+  ais_runoff_Ton           R̂=1.908 ESS=12.8 τ=313191  <-- check
+  ais_c                    R̂=1.094 ESS=61.1 τ=65473  <-- check
+  rho_ais                  R̂=1.022 ESS=182.2 τ=21951  <-- check
+  rho_gsic                 R̂=1.108 ESS=50.3 τ=79539  <-- check
+  rho_gis                  R̂=1.028 ESS=114.2 τ=35029  <-- check
+  log_post                 R̂=1.020 ESS=320.9 τ=12464  <-- check
+  18 params NOT converged.
+
+--accept-slr: deliverable-level convergence from slr_convergence_L15.csv:
+  SLR@2100  R̂=1.002  ESS=1514.0
+  SLR@2150  R̂=1.002  ESS=1466.3
+ACCEPTED ON DELIVERABLE: parameter marginals not converged (compensating
+AIS-geometry ridge), but projected SLR R̂<1.05 at all horizons -> writing
+canonical outputs (accepted-on-deliverable criterion, Marcus 2026-07-19).
+
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/data/MimiBRICK/parameters_subsample_brick_mengel_L15.csv  (10000-member subsample of 4000000 pooled draws)
+Wrote adapted_cov_L15.csv (empirical posterior cov) -> seeds the next ext run.
+
+Key-param medians  (ext vs 2018-baseline):
+  ais_ocean_temperature₀   ext 0.883   base 0.981   Δ -0.0985
+  anto_alpha               ext 0.344   base 0.405   Δ -0.0605
+  thermal_alpha            ext 0.16   base 0.164   Δ -0.00446
+
+** 18 marginals not converged; ACCEPTED ON DELIVERABLE (--accept-slr). **

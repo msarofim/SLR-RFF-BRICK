@@ -1,0 +1,6 @@
+zone south (obs full 1.922 / modern 1.792)
+40 model files
+40 models, 14149 windows -> /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/diag_gis_amp_cmip6.csv
+wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/diag_gis_amp_cmip6_summary.md
+wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/diag_gis_amp_cmip6_binned.csv
+wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/figures/diag_gis_amp_cmip6.png

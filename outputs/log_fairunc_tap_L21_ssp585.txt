@@ -1,0 +1,140 @@
+SLR WITH FaIR CLIMATE UNCERTAINTY | tag L21 | 500 draws/chain x 4 chains | ssp585 | forcing=spliced
+  reading chain seed2026 ...
+  reading chain seed2027 ...
+  reading chain seed2028 ...
+  reading chain seed2029 ...
+[SPLICE-MATCH] max |julia splice - python cube| = 4.985e-07 degC (tol 2e-06)  PASS
+
+  running arm `fixed` (shipped MEAN driver, 2000 draws) ...
+  running arm `joint` (841 configs, 2000 draws) ...
+    100/841 configs
+    200/841 configs
+    300/841 configs
+    400/841 configs
+    500/841 configs
+    600/841 configs
+    700/841 configs
+    800/841 configs
+[ Info: update_gis3_tap!: this driver peaks at 4.611 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.611 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.559 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.233 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.69 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.713 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.333 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.481 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.399 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.688 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.36 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.555 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.041 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.975 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.63 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.375 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.623 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.442 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.326 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.502 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.338 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.209 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.609 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.158 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.44 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.338 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.11 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.357 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.17 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.649 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.42 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.652 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.558 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.545 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+┌ Warning: Assignment to `w` in soft scope is ambiguous because a global variable by the same name exists: `w` will be treated as a new local. Disambiguate by using `local w` to suppress this warning or `global w` to assign to the existing global variable.
+└ @ ~/Documents/2026/CodeProjects/SLR-RFF-BRICK/julia/scope_slr_fair_uncertainty.jl:353
+
+============================================================================================
+GATES
+============================================================================================
+  [PAIRING] 841 of 841 configs used, each 2-3 times (seed 2026)
+            assigned dGMST@2300  p05 3.63 p50 6.29 p95 11.43  |  whole cube  p05 3.62 p50 6.30 p95 11.43 degC
+  [CONTROL] glaciers @2100  fixed median   13.204 vs shipped   13.204  diff +0.0000 cm -> PASS
+  [CONTROL] glaciers @2150  fixed median   20.954 vs shipped   20.954  diff +0.0000 cm -> PASS
+  [CONTROL] glaciers @2300  fixed median   27.289 vs shipped   27.289  diff +0.0000 cm -> PASS
+  [CONTROL] gis   @2100  fixed median   12.497 vs shipped   12.497  diff +0.0000 cm -> PASS
+  [CONTROL] gis   @2150  fixed median   27.166 vs shipped   27.166  diff +0.0000 cm -> PASS
+  [CONTROL] gis   @2300  fixed median   88.722 vs shipped   88.722  diff +0.0000 cm -> PASS
+  [CONTROL] ais   @2100  fixed median   30.385 vs shipped   30.385  diff +0.0000 cm -> PASS
+  [CONTROL] ais   @2150  fixed median   87.262 vs shipped   87.262  diff +0.0000 cm -> PASS
+  [CONTROL] ais   @2300  fixed median  268.737 vs shipped  268.737  diff +0.0000 cm -> PASS
+  [CONTROL] te    @2100  fixed median   28.891 vs shipped   28.891  diff +0.0000 cm -> PASS
+  [CONTROL] te    @2150  fixed median   53.738 vs shipped   53.738  diff +0.0000 cm -> PASS
+  [CONTROL] te    @2300  fixed median  108.748 vs shipped  108.748  diff +0.0000 cm -> PASS
+  [CONTROL] lws   @2100  fixed median    2.596 vs shipped    2.596  diff +0.0000 cm -> PASS
+  [CONTROL] lws   @2150  fixed median    4.231 vs shipped    4.231  diff +0.0000 cm -> PASS
+  [CONTROL] lws   @2300  fixed median    8.484 vs shipped    8.484  diff +0.0000 cm -> PASS
+  [CONTROL] total @2100  fixed median   87.704 vs shipped   87.704  diff +0.0000 cm -> PASS
+  [CONTROL] total @2150  fixed median  192.759 vs shipped  192.759  diff +0.0000 cm -> PASS
+  [CONTROL] total @2300  fixed median  501.985 vs shipped  501.985  diff +0.0000 cm -> PASS
+  [CALIB-MOVE] glaciers 1850-2024  max |joint - fixed| = 0.0000 cm  (no single target scale for :total -- reported raw)
+  [CALIB-MOVE] gis   1850-2024  max |joint - fixed| = 0.0000 cm  (no single target scale for :total -- reported raw)
+  [CALIB-MOVE] ais   1850-2024  max |joint - fixed| = 0.1070 cm = 7.6% of the 1.404 cm AIS target span = 0.76 sigma
+  [CALIB-MOVE] te    1850-2024  max |joint - fixed| = 2.0498 cm  (no single target scale for :total -- reported raw)
+  [CALIB-MOVE] lws   1850-2024  max |joint - fixed| = 0.0000 cm  (no single target scale for :total -- reported raw)
+  [CALIB-MOVE] total 1850-2024  max |joint - fixed| = 2.0984 cm  (no single target scale for :total -- reported raw)
+  [SUM] fixed max |sum(parts) - total| over draws x horizons = 2.274e-13 cm -> PASS
+  [SUM] joint max |sum(parts) - total| over draws x horizons = 3.411e-13 cm -> PASS
+
+============================================================================================
+SLR WITH vs WITHOUT FaIR CLIMATE UNCERTAINTY -- ssp585, cm rel 1995-2014
+============================================================================================
+  comp   horiz  arm       median       p05       p95    spread x fixed sprd
+  glaciers 2100   fixed      13.20     10.43     16.28      5.85       1.00x
+  glaciers 2100   joint      12.88      9.32     17.92      8.60       1.47x
+  glaciers 2150   fixed      20.95     16.73     25.13      8.40       1.00x
+  glaciers 2150   joint      20.40     15.11     26.80     11.68       1.39x
+  glaciers 2300   fixed      27.29     21.59     32.64     11.06       1.00x
+  glaciers 2300   joint      26.65     20.67     32.83     12.16       1.10x
+
+  gis    2100   fixed      12.50     10.59     14.61      4.02       1.00x
+  gis    2100   joint      12.04      8.84     18.89     10.05       2.50x
+  gis    2150   fixed      27.17     22.31     32.58     10.27       1.00x
+  gis    2150   joint      25.56     16.40     46.82     30.42       2.96x
+  gis    2300   fixed      88.72     77.82    105.22     27.40       1.00x
+  gis    2300   joint      82.92     28.80    136.81    108.01       3.94x
+
+  ais    2100   fixed      30.38     10.82     56.83     46.01       1.00x
+  ais    2100   joint      29.49      5.28     62.53     57.25       1.24x
+  ais    2150   fixed      87.26     50.18    134.48     84.30       1.00x
+  ais    2150   joint      84.25     39.42    142.82    103.40       1.23x
+  ais    2300   fixed     268.74    165.27    395.78    230.51       1.00x
+  ais    2300   joint     267.49    150.32    431.29    280.97       1.22x
+
+  te     2100   fixed      28.89     26.11     31.16      5.04       1.00x
+  te     2100   joint      28.30     20.28     38.95     18.68       3.70x
+  te     2150   fixed      53.74     48.57     57.95      9.38       1.00x
+  te     2150   joint      52.62     35.76     74.55     38.79       4.14x
+  te     2300   fixed     108.75     98.30    117.28     18.98       1.00x
+  te     2300   joint     105.22     62.24    161.69     99.44       5.24x
+
+  lws    2100   fixed       2.60      2.60      2.60      0.00        NaNx
+  lws    2100   joint       2.60      2.60      2.60      0.00        NaNx
+  lws    2150   fixed       4.23      4.23      4.23      0.00        NaNx
+  lws    2150   joint       4.23      4.23      4.23      0.00        NaNx
+  lws    2300   fixed       8.48      8.48      8.48      0.00        NaNx
+  lws    2300   joint       8.48      8.48      8.48      0.00        NaNx
+
+  total  2100   fixed      87.70     68.44    114.94     46.50       1.00x
+  total  2100   joint      86.30     53.13    131.25     78.12       1.68x
+  total  2150   fixed     192.76    156.10    241.89     85.80       1.00x
+  total  2150   joint     190.57    125.32    271.10    145.78       1.70x
+  total  2300   fixed     501.98    399.20    627.96    228.77       1.00x
+  total  2300   joint     495.34    320.95    716.98    396.03       1.73x
+
+============================================================================================
+AGAINST COULON 2025, WHOSE BAND SPANS FOUR GCMs
+============================================================================================
+  Coulon ssp585 AIS@2300: median 270, band 73-595 = 522 cm wide
+  fixed  median  268.74 = 1.00x theirs;  band [ 165.27,  395.78] = 230.51 cm = 0.44x their width
+  joint  median  267.49 = 0.99x theirs;  band [ 150.32,  431.29] = 280.97 cm = 0.54x their width
+
+wrote outputs/scope_slr_fairunc_{cells,paths,gates}_ssp585_spliced_L21_tap4p69K_V5p64m_tau800.csv

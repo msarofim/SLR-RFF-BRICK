@@ -1,0 +1,6 @@
+  starts amp 0.8275..1.0945 vs L20 bounds [0.79,1.39] -> OK
+L20: 4 chains x 4000 iter (seeds 2026-2029), amp ~ N(1.09, 0.10), adcov=adapted_cov_L15pool_seed2026.csv,
+     OVERDISPERSED starts from outputs/mcmc/overdispersed_starts.csv (L14/L18's, unrebuilt), BLAS pinned
+L20 chains done. VERIFY: 'A6 prior' must read N(1.090, 0.100) on [0.790, 1.390]
+  and [MAP start] must equal L18's -644.51 ONLY IF sigma did not change the prior density
+  at the MAP — it DID, so expect a small offset. The four starts must be DISTINCT.

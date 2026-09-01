@@ -1,0 +1,49 @@
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/build_t_gis.py:218: UserWarning: WARNING: valid_min not used since it
+cannot be safely cast to variable data type
+  v = np.ma.filled(d.variables["temperature"][:].astype(float), np.nan)
+/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/build_t_gis.py:218: UserWarning: WARNING: valid_max not used since it
+cannot be safely cast to variable data type
+  v = np.ma.filled(d.variables["temperature"][:].astype(float), np.nan)
+  HadCRUT5       grid 36x72  south: 11 cells  all: 44 cells
+  BerkeleyEarth  grid 180x360  south: 174 cells  all: 791 cells
+  GISTEMP        grid 90x180  south: 48 cells  all: 216 cells
+  driver guard PASSED: existing zone columns ['south', 'all'] reproduced to 1e-09
+
+CONFIDENCE -- amplification, through-origin fit of zone on the same product's global, 1901-2024
+  zone          HadCRUT5  BerkeleyEarth        GISTEMP    spread
+  south             1.97           1.51           2.28     1.51x
+  all               2.33           1.67           3.04     1.82x
+  central           2.42           1.68           2.98     1.78x
+  north             2.59           1.84           4.06     2.20x
+
+CONFIDENCE -- amplification, through-origin fit of zone on the same product's global, 1901-1960
+  zone          HadCRUT5  BerkeleyEarth        GISTEMP    spread
+  south             4.01           2.63           4.16     1.58x
+  all               4.06           2.52           5.30     2.10x
+  central           4.09           2.52           5.21     2.06x
+  north             3.98           2.38           6.90     2.89x
+
+CONFIDENCE -- amplification, through-origin fit of zone on the same product's global, 1961-2024
+  zone          HadCRUT5  BerkeleyEarth        GISTEMP    spread
+  south             1.79           1.42           2.16     1.52x
+  all               2.18           1.60           2.89     1.80x
+  central           2.27           1.61           2.84     1.76x
+  north             2.46           1.80           3.87     2.15x
+
+RELEVANCE -- corr with observed melt rate, 1900-2018, 11-yr smoothed
+  zone          HadCRUT5  BerkeleyEarth        GISTEMP
+  south             0.80           0.76           0.80
+  all               0.72           0.73           0.75
+  central           0.70           0.73           0.76
+  north             0.64           0.66           0.68
+
+AMPLIFICATION PRIOR, zone 'south' -- cross-product mean/sd
+  full      (1901, 2024)  N(1.92, 0.32)  range [1.51, 2.28]  1.51x  <- headline window
+  early     (1901, 1960)  N(3.60, 0.69)  range [2.63, 4.16]  1.58x
+  modern    (1961, 2024)  N(1.79, 0.30)  range [1.42, 2.16]  1.52x
+wrote data/observations/t_gis_zones.csv
+wrote data/observations/t_gis_zones_allproducts.csv
+wrote outputs/gis_driver_constants.csv
+wrote outputs/gis_amp_prior.csv
+wrote data/observations/t_gis_provenance.md
+wrote figures/t_gis_driver.png

@@ -1,0 +1,12 @@
+proposal seed for tag=gischeck seed=2026
+  ADCOV = /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/mcmc/adapted_cov_L11tune3_seed2026.csv
+  NK = 57
+  (seeding proposal from adapted covariance adapted_cov_L11tune3_seed2026.csv)
+AIS geometry block + sampled basin scales (sqrt of the covariance diagonal):
+  ais_mu             0.05204      floor 0.003      ok
+  ais_bedheight0     0.5672       floor 0.03       ok
+  ais_slope          8.005e-07    floor 1e-08      ok
+  ais_iceflow0       0.003187     floor 0.0003     ok
+  ais_precip0_LOG    0.01629      floor 0.001      ok
+  ais_runoff_Ton     0.01388      floor 0.0005     ok
+  ais_c              0.6065       floor 0.05       ok
