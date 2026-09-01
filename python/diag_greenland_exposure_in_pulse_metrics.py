@@ -39,8 +39,8 @@ CAVEAT, stated rather than buried
   establish is the BASE the change would start from, and that the pulse metrics
   are decoupled from the Greenland module as currently wired.
 
-READS   outputs/mcmc/wong_cond_pulse_pairs_pr.csv           (CO2 pulse)
-        outputs/mcmc/wong_cond_pulse_pairs_ch4bio1tg_pr.csv (CH4 biogenic pulse)
+READS   outputs/mcmc/wong_cond_pulse_pairs_pr.parquet           (CO2 pulse)
+        outputs/mcmc/wong_cond_pulse_pairs_ch4bio1tg_pr.parquet (CH4 biogenic pulse)
         julia/brick_mengel.jl + the pulse drivers            (wiring check)
 WRITES  outputs/diag_greenland_exposure_in_pulse_metrics.csv
 
@@ -57,8 +57,8 @@ OUT = os.path.join(REPO, "outputs/diag_greenland_exposure_in_pulse_metrics.csv")
 
 # --- named constants that the labels below derive from -----------------------
 PULSES = {
-    "CO2": "outputs/mcmc/wong_cond_pulse_pairs_pr.csv",
-    "CH4_bio": "outputs/mcmc/wong_cond_pulse_pairs_ch4bio1tg_pr.csv",
+    "CO2": "outputs/mcmc/wong_cond_pulse_pairs_pr.parquet",
+    "CH4_bio": "outputs/mcmc/wong_cond_pulse_pairs_ch4bio1tg_pr.parquet",
 }
 HORIZONS = (2130, 2150, 2180)
 COMPONENTS = ("ais", "gsic", "gis", "te")
@@ -117,7 +117,10 @@ def measure_shares():
         if not os.path.exists(path):
             print(f"  {tag}: MISSING {rel} -- skipped")
             continue
-        d = pd.read_csv(path, usecols=cols)
+        # Parquet since 2026-09-01 (CSV deleted after per-file verification, 6.0e-08);
+        # the .csv branch stays for any arm not yet converted.
+        d = (pd.read_parquet(path, columns=cols) if str(path).endswith(".parquet")
+             else pd.read_csv(path, usecols=cols))
         w = d[WEIGHT_COL].to_numpy()
         print(f"  {tag} pulse  ({os.path.basename(rel)})")
         gis_share[tag] = {}

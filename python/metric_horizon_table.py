@@ -66,7 +66,27 @@ CO2_GAS_STEM = "co2_10gt"
 
 
 def pairs_path(basis, tag):
-    return MCMC_DIR / f"wong_cond_pulse_pairs{basis}{tag}.csv"
+    """Prefer the Parquet ensemble. The CSVs it replaced were deleted 2026-09-01 after
+    per-file verification (row count, column order, max relative error 6.0e-08); the .csv
+    branch remains for any arm not yet converted."""
+    stem = f"wong_cond_pulse_pairs{basis}{tag}"
+    pq = MCMC_DIR / f"{stem}.parquet"
+    return pq if pq.exists() else MCMC_DIR / f"{stem}.csv"
+
+
+def pairs_columns(path):
+    """Column names without reading the body (cheap for both formats)."""
+    if path.suffix == ".parquet":
+        import pyarrow.parquet as _pq
+        return list(_pq.ParquetFile(path).schema.names)
+    with open(path) as f:
+        return next(csv.reader(f))
+
+
+def pairs_read(path, cols):
+    if path.suffix == ".parquet":
+        return pd.read_parquet(path, columns=cols)
+    return pd.read_csv(path, usecols=cols)
 
 
 def runmeta_path(basis, tag):
@@ -75,8 +95,7 @@ def runmeta_path(basis, tag):
 
 def total_horizons(path):
     """Calendar years with a d_total@<year> column, in file order."""
-    with open(path) as f:
-        header = next(csv.reader(f))
+    header = pairs_columns(path)
     return [int(c.split("@")[1]) for c in header if c.startswith("d_total@")]
 
 
@@ -84,7 +103,7 @@ def slr_means(path, years):
     """MEAN marginal total SLR at each horizon, equal-weight (INDEPENDENT, production
     basis) and importance-weighted (COUPLED, consistency check)."""
     cols = ["w"] + [f"d_total@{y}" for y in years]
-    df = pd.read_csv(path, usecols=cols)
+    df = pairs_read(path, cols)
     w = df["w"].to_numpy()
     out = {}
     for y in years:
