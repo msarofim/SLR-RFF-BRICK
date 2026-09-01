@@ -1,3 +1,42 @@
+## 2026-09-01 — the L21->L23 AIS move has a CONFIGURATION cause: L23 lost the --adcov flag
+
+`python/diag_proposal_seed_by_vintage.py`. Follows directly from the item-4 null above: with the
+glacier law measured inert in the likelihood (<=7.3e-5), the amp shift needed another mechanism.
+
+**Read out of the runs' own startup diagnostics, not reconstructed.**
+
+| vintage | proposal covariance | mapping |
+|---|---|---|
+| L21, L22 | `adapted_cov_L14tune_seed2026.csv` | NAMED, by name, **58 of 58** |
+| L23, L23b, L24 | `adapted_cov_L11tune3_seed2026.csv` | columns `x1..x57` — **NAMELESS**, POSITIONAL, "as L11 layout" onto a **58**-parameter model |
+
+`run_mcmc_L21.sh` and `run_mcmc_L22.sh` both pass `--adcov=adapted_cov_L14tune_seed2026.csv`.
+There is no `run_mcmc_L23.sh` in the repo; L23/L23b/L24 carry no `--adcov` and fall through to the
+head of the default preference list. This is the SECOND dropped-flag incident on this refit —
+§5.1 of handoff_2026-09-01 records the first (missing `--gis-ordered --gis-basins2`, quarantined).
+
+It is also the precise hazard `calibrate_mcmc_ext.jl` documents against itself where it writes the
+covariance: "A nameless covariance can only be re-read through a hardcoded vintage table, and
+getting one of those orderings wrong is silent (it is a valid permutation of a valid matrix) --
+that is how L13's `ais_c` was seeded with `ais_slope`'s variance."
+
+**Consequence, measured.** The AIS-block proposal is **2.7-5.3x TIGHTER** in L23/L24:
+`ais_c` 3.216 -> 0.6065 (5.30x), `ais_mu` 0.1946 -> 0.05204 (3.74x), `ais_bedheight0` 2.90x,
+`ais_precip0_LOG` 2.69x; `gis_s_high` lands on 0.05, a round number that looks like a fallback
+rather than a tuned value. With 17-19 marginals failing R-hat on every vintage, a 3-5x tighter
+AIS proposal is a mechanism for relocating a POOLED MEDIAN while leaving a width the PRIOR sets
+untouched — which is exactly the shift-without-sharpening signature §7.4 asked about.
+
+⚠ **L23b cannot speak to this.** The "reproducibility replicate" shares the same covariance and
+varied only the RNG stream, so its 0.0014 agreement measured RNG noise inside the defect, not the
+defect (`two_statistics_can_be_blind`).
+
+**NOT YET PROVEN, and the decisive test is cheap.** This is a confirmed configuration difference
+plus a plausible mechanism, not a demonstrated cause. Rerun L23's exact configuration with
+`--adcov=adapted_cov_L14tune_seed2026.csv` (~3 h, 4 chains) and see whether `ais_gmst_amp` returns
+toward L21's 0.945. Until that runs, the honest statement is that the champion's promotion
+reasoning rests on a 2x2 in which a second variable moved.
+
 ## 2026-09-01 — §7 item 4: the glacier law does NOT move the amp likelihood (premise refuted)
 
 `julia/scope_amp_likelihood_tilt.jl` + `python/scope_amp_likelihood_tilt_fit.py`.
