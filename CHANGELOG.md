@@ -1,3 +1,47 @@
+## 2026-09-01b — the draws readers speak both formats; a stale "shipped prior" label
+
+**The eight readers are migrated.** The `scope_slr_fairunc_draws_*` CSVs were kept at the
+Parquet migration because live readers still hardcoded `pd.read_csv(<...>.csv)`. That count
+was wrong in a useful way: the entry above said **twelve** scripts, ten Python and two Julia.
+Measured, it is **eight Python readers** — the three Julia files are WRITERS
+(`scope_slr_fair_uncertainty.jl`, `scope_slr_fairunc_oldbrick.jl`) or mention the stem only
+in a comment (`project_ssps_components_oldbrick.jl`). The writers still emit CSV, which is
+why a format-agnostic reader was the right shape rather than a one-way rewrite.
+
+`python/draws_io.py` resolves a LOGICAL `.csv` path to whichever format exists, modelled on
+`metric_horizon_table.pairs_path`. Three populations coexist and every reader must accept all
+three: the migrated Parquet bulk, the CSV a fresh Julia run lands as, and `bench_ladrillo`'s
+frozen `.csv.gz` references. `SLR_DRAWS_PARQUET=0` forces the float64 CSVs.
+
+**Why this was not a reader swap in `bench_ladrillo`.** `freeze` would have gzipped a Parquet
+body into a `.csv.gz` name and `frozen_paths` would have kept serving it under that name, so
+the mis-parse would have surfaced as a scoring failure in a later session, far from its cause.
+The frozen name now follows the SOURCE format and `frozen_paths` reads back what is present,
+so L14/L21/L23 keep scoring exactly as frozen.
+
+**Equivalence measured on the PRODUCTION statistic**, all eight drivers, both bases, canonical
+outputs restored afterwards. Worst relative error **1.9e-05**; every value above 1e-06 sits on
+a DIFFERENCE column, where cancellation inflates a ratio. In absolute terms the worst is
+**1.0e-04 cm** on `forcing_added_cm` (typical value 6.4 cm) — one micron of sea level.
+
+⚠ **The CSVs are still NOT deleted.** The blocker named in the entry above is now gone, but
+0.80 GB is not worth a decision taken mid-calibration, and the CSVs are the only float64
+record. Marcus's call.
+
+**A stale label, and the structural fix.** `scope_ais_amp_law_form.py` printed
+`N(0.95, 0.10)` as "THE SHIPPED PRIOR" — stale since `165a860` moved it to `N(1.09, 0.180)` —
+and beside it a hardcoded posterior median of `0.945` whose adjacent sd count was computed
+from a different quantity entirely. The prior is now PARSED from `calibrate_mcmc_ext.jl`
+(mutation-tested: deleting either `const` hard-errors instead of falling back to a default),
+and the posterior median comes from the tag's own subsample. The corrected line reverses the
+reading: the prior mean sits **+0.03 prior sd** from the corrected 34-model secant, where the
+stale copy implied a large gap.
+
+**Tried and not done.** Deleting the draw CSVs (above). Re-running `ladrillo_model_comparison`
+with no `--tag` — it defaults to `L10`, whose tapped SSP deliverable no longer exists on disk;
+the equivalence check used `--tag=L23`. That default is stale but was left alone: changing a
+driver's default tag mid-calibration is a methodological choice, not a cleanup.
+
 ## 2026-09-01 — ensembles moved to Parquet; the outputs commit rewritten to results only
 
 **Policy (Marcus 2026-09-01): commit the code, the key results and the figures, not the
