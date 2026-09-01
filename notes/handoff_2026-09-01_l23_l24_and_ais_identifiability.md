@@ -1,7 +1,14 @@
 # Handoff — the glacier ratchet is gone, L23 is champion, and Antarctic amplification turns out to be prior-dominated
 
+> ⛔ **SUPERSEDED TWICE. Do not start here — start at `handoff_2026-09-01c_readers_gates_and_the_amp_error_bar.md`.**
+> This handoff's headline, that the glacier-law change moved Antarctica, is **REFUTED**: the law
+> is inert in the calibration likelihood (a null WITH power at 4–5 orders of headroom) and L23
+> also changed proposal covariance, so the 2x2 was never one variable. See
+> `handoff_2026-09-01b_adcov_and_the_parquet_migration.md` §2–3 and `handoff_2026-09-01c_readers_gates_and_the_amp_error_bar.md` §1.
+> Its "13+ commits UNPUSHED" is also stale — everything is pushed as of 2026-09-01.
+
 **Start here.** Repo `SLR-RFF-BRICK`, branch `ladrillo-dev`, HEAD **`f969e92`** plus one
-outputs commit. **13+ commits UNPUSHED.** Written 2026-09-01, continuing
+outputs commit. Written 2026-09-01, continuing
 `handoff_2026-08-31g_magicc_climate_arm.md`.
 
 **⭐ FIRST STEP NEXT SESSION (Marcus): SCOPE THE SKEWED PRIOR.** See §7.

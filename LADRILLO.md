@@ -3,20 +3,32 @@
 The single definition of what "Ladrillo" currently means: which model, which
 posterior, which files, what may be said about them, and what is not in it.
 If you are picking this up cold, read this file plus
-`notes/handoff_2026-08-23f_v564_and_amp_law.md` (the current pickup document);
-everything else is detail.
+`notes/handoff_2026-09-01c_readers_gates_and_the_amp_error_bar.md` (the current pickup
+document); everything else is detail.
 
-**Status 2026-08-29.** Branch `ladrillo-dev`. Posterior **L21 — champion on all six
-modules since 2026-08-28** (`benchmark/champions.json`): L14's exact configuration re-run on
-**FaIR 2.2.4 (calib 1.6.0) + CMIP7** drivers. Promoted for **coherence, not fit** — L14 is
-fit to drivers that no longer exist in the tree — and TE got **1.2355× worse than BRICK 2.0**
-in the process (L14 was 0.9875×).
-⚠ **This header said 'Posterior L14, canonical since 2026-08-20' until 2026-08-29.** L14's
-*configuration* survives in L21; L14 as a *posterior* does not.
-⚠ **Numbers below have NOT all been regenerated on L21 — see §4.**
+**Status 2026-09-01.** Branch `ladrillo-dev`. Posterior **L23 — champion on all six modules
+since 2026-09-01** (`benchmark/champions.json`): L21's calibration with the melt-only glacier
+ratchet replaced by a floored equilibrium + bounded regrowth. **L21 held it 2026-08-28 to
+09-01** and is L14's exact configuration re-run on **FaIR 2.2.4 (calib 1.6.0) + CMIP7**
+drivers, promoted for **coherence, not fit** — L14 is fit to drivers that no longer exist in
+the tree — with TE **1.2355× worse than BRICK 2.0** in the process (L14 was 0.9875×).
+
+⛔ **L23'S PROMOTION REASONING IS CORRECTED, AND THE CORRECTION IS NOT YET RESOLVED.** It was
+promoted on a 2x2 attributing a **+66 cm** AIS@2300 move to the glacier law. Measured the same
+day: the law is **inert in the calibration likelihood** (≤7.3e-05 log-units against 1.86 for a
+1 % glacier-parameter wiggle — a null WITH power), and the 2x2's "law changed" cell **also**
+changed proposal covariance (L23 lost `--adcov` and fell through to an older tuning vintage,
+AIS-block proposal 2.7–5.3× tighter). So it was never one variable. `champions.json` keeps the
+original reasoning verbatim with a `correction_2026-09-01` field beside it. **L25** — L23's
+config with L21/L22's covariance — is the deciding run. Until it reads out, do not repeat
+"a glacier convention was setting Antarctic amplification" as established.
+
+⚠ **This header said 'Posterior L14, canonical since 2026-08-20' until 2026-08-29, and 'L21'
+until 2026-09-01.** L14's *configuration* survives in L21 and L23; L14 as a *posterior* does not.
+⚠ **Numbers below have NOT been regenerated on L21 or L23 — see §4.**
 
 Both replaced components are shipped and gated in `run_ladrillo_tests.sh`; the convergence
-certificates were cut at the **L14** vintage and have not been re-cut on L21. **Greenland has its own module memo** —
+certificates were cut at the **L14** vintage and have not been re-cut on L21 or L23. **Greenland has its own module memo** —
 `notes/memo_2026-08-23_greenland_module.md` — which is the authority on that
 component; this file gives the model-level view and does not duplicate it.
 
@@ -198,8 +210,9 @@ The base arm is needed as well as the tapped one: `test_gis_tap_wiring.jl` measu
 
 ## 4. Headline numbers
 
-⚠ **THESE ARE L14 NUMBERS AND KEEP THAT LABEL UNTIL RE-RUN.** L21 has been champion since
-2026-08-28 and this table has not been regenerated on it. Do **not** relabel these as L21.
+⚠ **THESE ARE L14 NUMBERS AND KEEP THAT LABEL UNTIL RE-RUN.** The champion has moved twice
+since (L21 on 2026-08-28, **L23** on 2026-09-01) and this table has been regenerated on
+neither. Do **not** relabel these as L21 or L23.
 ⚠ **FaIR-MEAN forcing = a FIXED driver**, so this band is posterior-parameter spread only and
 carries no forcing uncertainty. It is **not** the JOINT band, and it is not comparable in
 width to MAGICC or FACTS. See the band-provenance table in the model document.

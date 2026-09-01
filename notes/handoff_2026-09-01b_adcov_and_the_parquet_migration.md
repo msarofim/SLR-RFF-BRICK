@@ -1,5 +1,11 @@
 # Handoff — the glacier law is inert in the likelihood, L23 lost `--adcov`, and the bulk is Parquet
 
+> ⛔ **SUPERSEDED — start at `handoff_2026-09-01c_readers_gates_and_the_amp_error_bar.md`.** Its §1 L25 readout plan is
+> superseded: the published anchors 0.9455 / 1.0865 are a ~10k thinned pool and are NOT the
+> reference any more; read L25 against L21/L23 **recomputed** with a batch-means se
+> (`python/diag_amp_by_vintage.py`). Its §4 "TWELVE readers" is **eight** — three of the twelve
+> are Julia writers — and those eight are now migrated.
+
 **Start here.** Repo `SLR-RFF-BRICK`, branch `ladrillo-dev`, HEAD **`5308fca`**, **PUSHED** (37.6 MB,
 fast-forward). Written 2026-09-01, continuing `handoff_2026-09-01_l23_l24_and_ais_identifiability.md`.
 

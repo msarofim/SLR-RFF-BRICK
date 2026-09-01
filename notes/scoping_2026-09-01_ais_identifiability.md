@@ -1,8 +1,34 @@
 # Scoping — the AIS refit wander, what causes it, and five ways to deal with it
 
+> ⛔⛔ **CORRECTION, SAME DAY (2026-09-01, later).** This document's premise — "the glacier
+> module, the only thing changed" — is **FALSE**, and two of its 2x2 cells do not survive.
+> The measurements stand; the attribution does not. Read this box before §3's table.
+>
+> 1. **The glacier law is INERT in the calibration likelihood.** Old vs new differ by
+>    **≤7.3e-05** log-units on L23-region draws, against **1.86** for a 1 % wiggle of one
+>    glacier parameter and **11.4** for 1 % of amp — a null **WITH power**, 4–5 orders of
+>    headroom (`julia/scope_amp_likelihood_tilt.jl`). D1 drops the total series, so glaciers
+>    and AIS have separate likelihood terms with no shared channel. There is no mechanism.
+> 2. **L23 was NOT one variable.** It carries no `--adcov` and fell through to
+>    `adapted_cov_L11tune3` where L21/L22 passed `adapted_cov_L14tune`; the AIS-block proposal
+>    is **2.7–5.3× tighter** in L23 (`python/diag_proposal_seed_by_vintage.py`, read from the
+>    runs' own `seed_diag_*.txt`).
+> 3. **Two cells are inside their own error bars.** Recomputed over all 4M post-burn draws with
+>    a batch-means se (`python/diag_amp_by_vintage.py`): L21 **0.9438 ± 0.0018**, L22
+>    **0.9465 ± 0.0021**, L23 **1.0824 ± 0.0037**, L23b **1.0896 ± 0.0029** — every published
+>    cell agrees within 1.6 se, so the table below is the same estimate on a noisier ~10k
+>    thinned pool. But its **L21→L22 delta of −0.0021 recomputes to +0.0026 ± 0.0027** and
+>    flips sign: read that cell as **NO DIFFERENCE**, not as a signed number. And the
+>    **4.93 cm** reproducibility figure is BLIND — L23b shares L23's covariance and varied
+>    only RNG, so it measured noise *inside* the defect.
+>
+> What IS resolved: the L21→L23 span itself, **+0.1386 ± 0.0041, ~34 se**. **L25** (L23's
+> config with L21/L22's covariance, verified to have received L14tune 58/58) is the deciding
+> run. The five options in §5 were scoped under the refuted premise — re-read them against it.
+
 **Written 2026-09-01** after the L23 refit moved Antarctica by +66 cm at ssp245/2300 while the
-glacier module — the only thing changed, and a change that is bit-identical on a monotonically
-warming path — moved 0.05 cm. Measurements from `julia/scope_ais_refit_wander.jl` →
+glacier module — believed at the time to be the only thing changed, and a change that is
+bit-identical on a monotonically warming path — moved 0.05 cm. Measurements from `julia/scope_ais_refit_wander.jl` →
 `outputs/scope_ais_refit_wander_{L21,L23}.csv`. **Scoping only; nothing changed in the model.**
 
 ---
@@ -71,7 +97,9 @@ separates the two changes which landed between L21's chains and L23's — the gl
 (`a0155bf`) and the L22 steric AR(1) marginal cap (`abd308d`). ⚠ **I had missed the second one
 entirely** when I first called this wander; L21 and L23 differed by TWO things, not one.
 
-`ais_gmst_amp` pooled posterior median, prior N(1.09, 0.10):
+`ais_gmst_amp` pooled posterior median, prior N(1.09, 0.10). ⛔ **See the correction box at the
+top: these are a ~10k thinned pool with se ≈ 0.002–0.004, the L21/L22 cell is inside its own bar
+and flips sign on recompute, and the "new glacier law" column also changed proposal covariance:**
 
 | | old glacier law | new glacier law |
 |---|---|---|
