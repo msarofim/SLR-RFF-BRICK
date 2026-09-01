@@ -1,3 +1,46 @@
+## 2026-09-01 — §7 item 4: the glacier law does NOT move the amp likelihood (premise refuted)
+
+`julia/scope_amp_likelihood_tilt.jl` + `python/scope_amp_likelihood_tilt_fit.py`.
+
+**Question (handoff_2026-09-01 §7.4).** Why did the old glacier law displace `ais_gmst_amp`'s
+CENTRE (1.43 prior sd) but not its WIDTH (posterior sd / prior sd = 0.97-0.99)?
+
+**Hypothesis tested** (Claude, not from the literature): a log-likelihood locally LINEAR in amp
+— a TILT — shifts a Gaussian's mean by s*sigma^2 and leaves its sd alone. Laplace predicts
+s ~ -15 per unit amp and c ~ -4 under the old law, s ~ 0 under the new one.
+
+**Method.** Conditional profile of ll(amp) at fixed theta over the prior's +-3 sigma support,
+41 grid points x 9 posterior draws, under a 2x2 on the law itself: R (regrowth cap) x FLOOR.
+OLD law (a0155bf^) == R=Inf AND FLOOR=0 — verified algebraically: the old `exc = max(T-T_eq,0)`
+zeroes the step on cooling exactly as `mult /= Inf` does, and the old S_eq was unfloored.
+Run in an INSTRUMENTED WORKTREE (patch: `outputs/scope_amp_likelihood_tilt_INSTRUMENTATION.patch`)
+so no port-gated component in the main tree was edited.
+
+**Result — the premise is refuted, not the hypothesis alone.** At identical (draw, amp) the OLD
+and NEW laws give a calibration log-likelihood differing by at most **7.3e-5** (L23-region draws)
+and **2.9e-5** (L21-region draws). POWER CHECK on the same theta: a 1% perturbation of a single
+glacier parameter moves ll by up to **1.86**, and 1% of amp by **11.4**. The law's effect is 4-5
+orders of magnitude below the scale the likelihood demonstrably resolves, so it CANNOT have moved
+the amp posterior through the likelihood. Consistent with the structure: `SERIES` drops the total
+(D1), so glaciers and AIS have separate likelihood terms with no shared channel, and the
+calibration window (1850-2024) is where the two laws are near-identical by construction.
+
+**Also tried and abandoned:** the glacier PRIOR-shift route. The calibrator reads the gic_a/b/T_off
+prior centres from `outputs/extc_block_constants.csv` (not `d0_glacier_shootout.csv`, which
+a0155bf did change); that file was last touched at 7e142ff/6771ed5, well before the L21->L23
+range. Dead.
+
+⚠ **Consequence.** The 2x2 attribution quoted in all six `champions.json` entries — that the
+glacier law moved `ais_gmst_amp` — has no mechanism behind it. The remaining untested candidate is
+sampler path-dependence: 17-19 marginals fail R-hat on every vintage, and the proposal is seeded
+from a prior run's `adapted_cov_ext.csv`, so a different seed covariance between the L22 and L23
+launches could move a pooled median without any likelihood change. NOT tested here.
+
+⚠ Conditional profile at fixed theta, NOT a marginal — magnitudes are an upper bound on
+identification (same caveat as `scope_ais_anchor_identification.jl`). The predicted sd ratio 0.399
+vs the measured 0.97 is exactly that gap; the OLD-vs-NEW comparison at identical theta is the
+robust part.
+
 # Changelog
 
 All notable changes to this project. Older history reconstructed from the
