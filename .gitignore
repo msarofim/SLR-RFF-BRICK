@@ -280,3 +280,12 @@ data/cmip6_coulon_ext/
 outputs/mcmc/wong_cond_pulse_pairs_*.csv
 outputs/mcmc/wong_cond_weights_full*.csv
 outputs/mcmc/log_*.txt
+
+# Per-draw SLR ensembles: INTERMEDIATES, not results (Marcus 2026-09-01 -- commit the code,
+# the key results and the figures, not the intermediates). 96 files, 815 MB as CSV; kept on
+# disk as Parquet+zstd float32 alongside. Removing this class from the pending outputs commit
+# takes it from 741 files / 15.82 GB to 542 files / 34.9 MB.
+outputs/scope_slr_fairunc_draws_*.csv
+outputs/scope_slr_fairunc_draws_*.parquet
+outputs/mcmc/wong_cond_pulse_pairs_*.parquet
+outputs/mcmc/wong_cond_weights_full*.parquet
