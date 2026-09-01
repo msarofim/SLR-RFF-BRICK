@@ -289,3 +289,8 @@ outputs/scope_slr_fairunc_draws_*.csv
 outputs/scope_slr_fairunc_draws_*.parquet
 outputs/mcmc/wong_cond_pulse_pairs_*.parquet
 outputs/mcmc/wong_cond_weights_full*.parquet
+
+# Per-chain `ais_gmst_amp` column cache (diag_amp_by_vintage.py). An INTERMEDIATE, not a
+# result: 7.6 MB per chain, 122 MB for the L21/L22/L23/L23b set, and regenerable from the
+# chains in ~45 s each. The table it feeds, outputs/diag_amp_by_vintage.csv, IS committed.
+outputs/mcmc/ampcol_*.npy
