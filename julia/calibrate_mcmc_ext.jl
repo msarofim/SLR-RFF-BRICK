@@ -1163,14 +1163,36 @@ push!(FREE, P("antarctic_kappa",:antarctic_icesheet,:ais_κ))
 # 6-9x smaller than the spread. A state-dependent law would encode a trend the data do not
 # have. Do not rebuild it without re-running that test.
 #
-# σ SIGN-OFF ITEM (Marcus), RE-AFFIRMED 2026-08-25 AT 0.10. The corrected data now DOES give
-# an inter-model sd (0.180), and it was deliberately NOT adopted: the centre is the one
-# moving part of this recalibration, so the delta stays attributable, and between-model
-# spread is the term the standing constraint puts out of scope. 0.10 still spans 0.79-1.39
-# at +-2σ, covering both ensembles' p17-p83 (0.934-1.348).
-# Production: N(1.09, 0.10). --amp-equilibrium: pin at 1.19546 (the old hard-coded map).
+# σ: 0.10 -> 0.180, ADOPTED 2026-09-01 (Marcus). REVERSES the 2026-08-25 sign-off.
+#
+# The earlier decision kept 0.10 because "the centre is the one moving part of this
+# recalibration, so the delta stays attributable, and between-model spread is the term the
+# standing constraint puts out of scope". That reasoning was sound for a re-CENTRING. It
+# predates knowing what this parameter does:
+#   * `amp` is PRIOR-DOMINATED. Its L23 posterior (median 1.086, sd 0.099) is
+#     indistinguishable from its prior, so the LIKELIHOOD ADDS NOTHING and the prior's width
+#     IS the projection uncertainty, not a starting guess the data will tighten.
+#   * and it is HIGH-LEVERAGE: 386 cm per unit on AIS@2300 (`scope_ais_refit_wander.jl`).
+#   * no observational term can fix that — measured, not assumed. A only ever multiplies the
+#     ANOMALY, so its footprint is 0.083 C over the SMB window against 0.455 C at 2300, and a
+#     temperature target's slope se is 0.27-0.54 against this prior. See the ADDENDUM in
+#     notes/scoping_2026-09-01_ais_identifiability.md.
+# Holding a prior-dominated, 386 cm/unit parameter at HALF its measured between-model spread
+# understates the AIS band on the term that dominates it. 0.180 is that measured spread:
+# 34 CMIP6 models, ssp245 0.194 / ssp585 0.177 / pooled 0.180 (`scope_ais_amp_law_form.py`),
+# with an INDEPENDENT 41-model DECK 1pctCO2 ensemble agreeing on the CENTRE (~1.09).
+# ⚠ THIS WIDENS THE BAND. It is not a fit improvement and must not be reported as one.
+#
+# ⚠ AND IT IS STILL A GAUSSIAN ON A SKEWED QUANTITY. The empirical CMIP6 distribution is
+# right-skewed — p17 0.934, median 1.095, p83 1.348, i.e. an upper half-width of 0.253
+# against a lower of 0.161 (1.57x). N(1.09, 0.180) reproduces p17 (0.923) but UNDERSTATES
+# p83 (1.267 vs 1.348). Since the AIS response is convex in amp, the upper tail is exactly
+# where the risk sits, so an empirical/skewed prior would be the better object. NOT done
+# here: it changes the prior's FORM, not one constant, and is a separate decision.
+# Production: N(1.09, 0.180). --amp-equilibrium: pin at 1.19546 (the old hard-coded map).
+# --amp-sigma= still overrides, and reproduces the 0.10 arm exactly for a controlled A/B.
 const AMP_MU    = AMP_MU_OVR    !== nothing ? parse(Float64, AMP_MU_OVR)    : (AMP_EQ ? 1.0/0.8365 : 1.09)
-const AMP_SIGMA = AMP_SIGMA_OVR !== nothing ? parse(Float64, AMP_SIGMA_OVR) : (AMP_EQ ? 0.002 : 0.10)
+const AMP_SIGMA = AMP_SIGMA_OVR !== nothing ? parse(Float64, AMP_SIGMA_OVR) : (AMP_EQ ? 0.002 : 0.180)
 # Bounds are μ±3σ so the prior is NEVER truncated. ⚠ THIS REPLACES THE HARD-CODED (0.70,
 # 1.25), which was built around μ = 0.95 and would clip the new prior at +1.6σ -- a
 # mechanical consequence of moving the centre, not a separate choice. The override branch
