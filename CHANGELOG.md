@@ -1,3 +1,53 @@
+## 2026-09-01e — L25 lands: it was a THIRD dropped flag, `--amp-mu`, not the glacier law
+
+**L25 finished** (4 chains x 2M, accept 0.236) and reads `ais_gmst_amp` = **1.0791 ± 0.0030** —
+**0.98 of the way from L21 to L23**, and **0.7 se from L23** itself. L25 is L23's configuration
+with L21/L22's proposal covariance, so **the covariance is exonerated**. With the likelihood route
+already dead (the glacier law moves the calibration log-likelihood by ≤7.3e-05 against 1.86 for a
+1 % glacier-parameter wiggle — a null WITH power), both standing hypotheses had failed and the
+plan of record said the 2x2 had to be reopened from scratch.
+
+**It did not need reopening; it needed the launch commands read.** `run_mcmc_L21.sh` and
+`run_mcmc_L22.sh` both pass `--amp-mu=0.95`. **There is no `run_mcmc_L23.sh`**, so L23/L23b/L24/L25
+took the default **1.09**. The runs' own banners say it outright:
+
+    L21 / L22   A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]
+    L25         A6 prior: amp ~ N(1.090, 0.100) on [0.790, 1.390]
+
+| | |
+|---|---|
+| PRIOR-MEAN SHIFT | **+0.1400** |
+| POSTERIOR SPAN (L21→L23) | **+0.1386** |
+| ratio | **0.990** |
+
+`ais_gmst_amp` is prior-dominated (posterior sd / prior sd = 0.95–0.99, measured across five
+refits), and a prior-dominated parameter follows its prior mean. At **386 cm/unit** on AIS@2300
+that is **~53 cm** of the ~66–69 cm AIS move this whole arc existed to explain.
+
+⚠⚠ **AND IT DISSOLVES THE ANOMALY THAT STARTED THE ARC.** "Under the old glacier law the
+likelihood pulled amp **1.45 σ below** its prior" — the displaced-centre-without-sharpening
+signature nobody could explain — was **scoring L21 against the wrong prior**. Against the prior each
+run ACTUALLY used, `z_own` is **−0.06 / −0.04 / −0.08 / −0.00 / −0.11** for L21/L22/L23/L23b/L25.
+Every vintage sits on its own prior mean, exactly as a prior-dominated parameter must. There was
+never a displaced centre. `python/diag_amp_by_vintage.py` had the same bug — a hardcoded
+`AMP_MU = 1.09` for all vintages — until this was found; it now reads the prior from each run's own
+banner and reports UNKNOWN rather than defaulting.
+
+⭐ **THIS IS THE THIRD DROPPED FLAG ON ONE REFIT**: `--gis-ordered --gis-basins2` (quarantined
+`20260831_l23_missing_gis_flags`), `--adcov` (`369755c`), now `--amp-mu`. **One cause: L23 has no
+run script.** Write a `run_mcmc_<TAG>.sh` for every vintage, and diff the new banner against the
+predecessor's before believing any between-vintage delta.
+
+⇒ **The glacier law is exonerated as the cause of the AIS move.** L23 may still be the right
+champion — the floored law is a physical improvement Marcus asked for and L23 passed
+`--accept-slr` — but it was promoted on reasoning now known to be wrong, and **L23 vs L21 is not
+like-for-like** because their amp priors differ. `champions.json` carries `why` +
+`correction_2026-09-01` + `resolution_2026-09-01b`; re-promotion is Marcus's call.
+
+**Housekeeping.** The frozen L25 worktree was removed (`git worktree remove --force`) now that the
+chains have landed; its `outputs`/`data` were symlinks, so the live repo is untouched — verified
+1,476 files in `outputs/`, all 4 L25 chains, 96 draws Parquet, 0 tracked modifications.
+
 ## 2026-09-01d — the amp 2x2 gets its error bar, and one cell loses its sign
 
 **`python/diag_amp_by_vintage.py`.** L25 was launched to read `ais_gmst_amp` against two cells of
