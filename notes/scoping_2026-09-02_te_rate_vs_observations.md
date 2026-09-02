@@ -186,3 +186,73 @@ it must be tested before being built. But the case no longer rests on the refute
 
 **What this does NOT change:** the ~22 % modern OHC overshoot is still a FaIR question, still shared
 with BRICK 2.0, and still unfixable inside either sea-level model.
+
+---
+
+# ADDENDUM 2 — THE DEPTH SPLIT, TESTED IN CLOSED FORM. IT IS REFUTED, AND THE REASON IS PHYSICAL.
+
+Addendum 1 said the over-determination "hands the depth split a NEW motivation" and flagged it
+UNTESTED. **Tested now, and it does not survive.** No refit was needed: TE is linear in OHC, so with
+FaIR's own layer output the question closes analytically (`d2_prior_is_not_binding` — count the
+parameter's places first).
+
+Data: `FaIRtoFrEDI/fair_outputs/diag_fair_ohc_layers_full.csv` (H0/H1/H2, 1750-2301). Verified the
+SAME vintage as the calibration driver — layer total minus driver = **0.000** at 1950/2000/2024.
+
+## What each epoch wants, and how its heat is distributed
+
+| epoch | alpha needed (cm per 1e22 J) | shallow share H0+H1 | deep share H2 |
+|---|---|---|---|
+| 1900-1950 | 0.0874 | 0.575 | 0.425 |
+| **1950-1993** | **0.1277** | **0.379** | **0.622** |
+| **1993-2025** | **0.0904** | **0.527** | 0.473 |
+| 1900-2025 | 0.0987 | 0.522 | 0.478 |
+| **fit chose** | **0.11252** | | |
+
+⚠ **My first framing was wrong.** I set the conflict up as EARLY vs MODERN; those two agree to 3.4 %
+(0.0874 vs 0.0904) and their partitions differ by only 4.8 points. **The outlier is MID-CENTURY**,
+which wants **41 % more alpha** than the modern epoch and differs from it by **15 points** of
+partition. That is the system that had to be solved, and I solved the wrong one first.
+
+## The closed form, every epoch pair x every split
+
+Physical requirement: `0 < alpha_deep < alpha_upper` — deep water is colder and expands LESS per
+joule; the pressure effect only partly offsets it. Published efficiency ratios are ~0.4-0.7.
+
+    epoch pair                split          cond    a_upper     a_deep      d/u   physical?
+    1900-1950 vs 1950-1993    H0+H1 | H2      6.0   -0.00287   +0.19877  -69.374   NO negative
+    1900-1950 vs 1950-1993    H0 | H1+H2     19.3   -0.23312   +0.12990   -0.557   NO negative
+    1900-1950 vs 1993-2025    H0+H1 | H2     48.8   -0.00386   +0.20012  -51.821   NO negative
+    1900-1950 vs 1993-2025    H0 | H1+H2    144.7   +0.43886   +0.02954   +0.067   yes, but 15x
+    1950-1993 vs 1993-2025    H0+H1 | H2      9.9   -0.00239   +0.19848  -83.038   NO negative
+    1950-1993 vs 1993-2025    H0 | H1+H2     16.9   -0.09653   +0.12704   -1.316   NO negative
+
+**Five of six give a NEGATIVE coefficient.** The one that does not demands `a_deep/a_upper = 0.067`
+— the deep ocean expanding **15x less per joule than the top 45 m** — against a 0.4-0.7 expectation.
+
+## ⇒ WHY IT FAILS, AND IT IS A MECHANISM, NOT AN ABSENCE OF EVIDENCE
+
+The epoch that wants **HIGH** alpha (1950-1993) is **DEEP-weighted**; the epoch that wants **LOW**
+alpha (1993-2025) is **SHALLOW-weighted**. To satisfy both, the deep reservoir would have to expand
+**MORE** per joule than the shallow one. **The partition structure runs the WRONG WAY**, so a depth
+split moves the model AWAY from reconciling the epochs.
+
+⚠ This is a **stronger** refutation than the 2026-08-29 one. That killed the split as an
+*observational-partition* claim ([[rebased_share_trend_flips]]) and explicitly left the physical case
+"untouched". This kills the physical case too, on FaIR's own layer structure: **there is no
+physically-ordered pair of coefficients that reconciles the epochs.** ⇒ **DO NOT BUILD IT.**
+
+## Caveats — what would overturn this
+
+1. **The mid-century steric target is the load-bearing input**, and it is the least secure one. The
+   target's own splice is internally inconsistent: Frederikse/NOAA slope ratio **0.937** on the
+   2005-2018 overlap, so the target changes method at 2019 ([E] of `diag_te_rate_attribution.py`).
+   If the 1950-1993 requirement of 0.1277 is wrong, the whole conflict changes shape.
+2. **FaIR's boxes are not depth horizons.** Box 0 is **45 m** thick, nothing like 0-700 m or
+   0-2000 m. A split on FaIR's boxes is not the split the literature discusses; a physically-posed
+   version would need a re-mapping, and this test does not rule that out — only the box-wise form.
+3. The test uses ensemble-mean layers, not per-draw. A per-draw version could differ, though not
+   plausibly by enough to flip a negative coefficient.
+
+⇒ **The lever is still the driver, not the coefficient.** ~22 % fast modern OHC, shared with
+BRICK 2.0, unfixable in either sea-level model.
