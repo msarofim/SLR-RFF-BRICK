@@ -107,3 +107,82 @@ AIS/glaciers/GIS run slightly slow (0.97 / 0.92 / 1.00), and they compensate.
 ⚠ **What would NOT be evidence:** a refit. TE's coefficient is neutral and the driver is external,
 so a Ladrillo recalibration cannot move this cell except by buying the residual off in `d2`, which
 it already partly does.
+
+---
+
+# ADDENDUM 2026-09-02 — THE ALPHA CONNECTION, TESTED
+
+§2 above said the driver carries 87 % and alpha is neutral. Both true, and both miss the point:
+**alpha's neutrality is itself the regression.** Tested and confirmed below.
+
+## The cell degraded, and it is the coefficient
+
+| | alpha (cm per 1e22 J) | vs obs-implied | TE rate ratio |
+|---|---|---|---|
+| L14 (August) | 0.10571 | 0.93-0.96x | 1.192x — WARN after scope |
+| L21 / L24 | **0.11252** | 0.99-1.03x | **1.269x — FAIL even after scope** |
+
+⚠ `run_mcmc_L21.sh` states L21 is L14's EXACT configuration with only the forcing driver changed
+(`632f330`). So L14 -> L21 is already a controlled one-variable test, and the variable is the driver.
+⚠ Both read the SAME FILENAME, `fair_mean_ohc_ssp245harm.csv` — its CONTENT was regenerated. The
+pre-migration driver must be recovered from git (`632f330^`), not from `fair_mean_ohc.csv`, which
+is a different 2026-05-25 file. I used the wrong one at first.
+
+## TEST 1 — does the driver's OHC change predict the alpha change? YES
+
+alpha is fit so that `alpha x OHC` tracks the steric target over the fit window (1900-2025), so it
+must scale as the inverse of the driver's OHC gain:
+
+    OHC change 1900-2025   PRE-migration 75.326   POST-migration 69.366   ratio 0.9209
+    PREDICTED alpha ratio  1/0.9209 = 1.0859
+    MEASURED  alpha ratio  0.11252/0.10571 = 1.0644      agreement 98 %
+
+The 2 % shortfall is the rest of the parameter vector absorbing part of it; alpha is not the only
+free term. **Mechanism confirmed.**
+
+## TEST 2 — WHERE did the driver change? ENTIRELY THE PRE-1950 RAMP
+
+    window      dOHC old   dOHC new   new/old
+    1900-1950     14.500      9.092    0.627      <- the whole effect
+    1950-1993     16.769     16.119    0.961
+    1993-2025     44.057     44.156    1.0022     <- satellite era UNTOUCHED
+    1900-2025     75.326     69.366    0.921
+
+Matches [[brick_calib_input]] exactly: *endpoints EQUAL, the gap is the pre-1950 ramp.*
+
+## TEST 3 — IS THE NEW EARLY RAMP BETTER? YES, DECISIVELY
+
+    window      OLD drv   NEW drv   Z+IGCC   Z+Cheng   verdict
+    1900-1950     14.50      9.09     7.34      7.34    NEW closer (|err| 7.16 -> 1.75)
+    1900-1970     20.16     14.35    13.75     12.83    NEW closer (|err| 6.87 -> 1.06)
+    1950-1993     16.77     16.12    17.66     11.72    NEW closer
+    1993-2024     42.33     42.35    33.35     35.44    UNCHANGED (7.93 vs 7.96) — both ~22% fast
+
+calib 1.6.0 **halved a real early-century bias**: the old driver put 2x the observed heat into
+1900-1950. Consistent with the 44 % OHC RMSE improvement recorded for the migration.
+
+## ⇒ THE CHAIN, AND WHAT IT MEANS
+
+1. calib 1.6.0 **correctly** cut early-century OHC uptake (14.50 -> 9.09 against an observed 7.34).
+2. The **modern-era OHC overshoot (~22 %) is untouched** — it predates the migration and survives it.
+3. The fit has **ONE time-invariant alpha** and matches steric over 1900-2025, so the smaller early
+   ramp forced alpha **up 6.4 %**.
+4. That higher alpha, applied to a modern OHC that is still ~22 % fast, **stopped offsetting it** —
+   TE rate 1.192x -> 1.269x, WARN -> FAIL.
+
+**The alpha rise is CORRECT behaviour, not a defect.** The FAIL is the visible symptom of a
+structural limit: **one expansion coefficient cannot simultaneously serve an early ramp that is now
+right and a modern rate whose driver is 22 % fast.** The model was previously hiding the modern
+driver bias inside a low alpha that was compensating for an early-century driver bias. Fixing the
+early bias exposed the modern one.
+
+⭐ **AND THIS HANDS THE DEPTH SPLIT A NEW MOTIVATION — a different one from the refuted case.**
+The two-coefficient split was killed as an *observational-partition* claim ([[rebased_share_trend_flips]]:
+FaIR and IGCC agree on the vertical partition, neither resolved at 2 sigma). This is not that
+argument. It is an **internal over-determination** argument: a single alpha is now provably
+required to satisfy two epochs the driver gets wrong by different amounts. ⚠ **NOT PROVEN that a
+split would fix it** — that depends on whether FaIR's depth structure lines up with the epochs, and
+it must be tested before being built. But the case no longer rests on the refuted partition claim.
+
+**What this does NOT change:** the ~22 % modern OHC overshoot is still a FaIR question, still shared
+with BRICK 2.0, and still unfixable inside either sea-level model.
