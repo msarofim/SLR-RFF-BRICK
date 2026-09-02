@@ -70,10 +70,30 @@ artifact — removing the markers makes it more pronounced. Combined with the pa
 a real property of the scenario pair, and Ladrillo's small sea-level penalty cannot be explained
 away as a forcing-assumption artifact.
 
-## 5. RECOMMENDATION, AND WHAT IS STILL MISSING
+## 5. THE POLICY (Marcus 2026-09-02) — DO NOT COMMINGLE THE TWO SCENARIO GENERATIONS
 
-* **Run marker-free as a SENSITIVITY SET alongside the marker set, not as a replacement.** That
-  turns the marker ambiguity from a choice into a measured quantity, per scenario.
+⭐ **This is a stronger argument than the "lossy mapping" one above, and it supersedes my framing.**
+
+**The SSPs PREDATE the CMIP7 marker scenarios.** So there is no *correct* marker for an SSP — not
+merely an imprecise one. Borrowing CMIP7 marker land use and irrigation for a CMIP6 SSP imports a
+different scenario generation's assumptions into a scenario that already has its own. That is a
+category error, not a tolerance question, and it is why the measured cost (0.003 K where the mapping
+was defensible, 0.054-0.104 K where it was a stretch) understates the problem: even the "defensible"
+mappings are anachronistic, they just happen to agree.
+
+**The van Vuuren markers are the opposite case.** They ARE the CMIP7 markers, so each uses its own
+`volcanic_solar_<MARKER>.csv` natively and the ambiguity is identically zero. The markers are
+*required* there.
+
+⇒ **THE SPLIT:**
+
+| arm | treatment | why |
+|---|---|---|
+| **van Vuuren markers** | **marker-based** | native — each marker uses its own forcing, zero ambiguity |
+| **SSPs** | **marker-free** | scenario-native land use from the SSP's OWN cumulative CO2 AFOLU; no CMIP7 assumption imported |
+
+⚠ Keep the two sets **separate in any figure or table**. They are not a single ensemble, and a
+combined band would mix a native treatment with an anachronistic one.
 * ⚠ **Not appropriate for reproducing van Vuuren's own figures**, which need the per-marker forcing;
   `calibration_v160/README.md` states this.
 * **Still missing for a sea-level answer:** only the GMST/OHC *means* are built. Driving Ladrillo
