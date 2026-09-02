@@ -256,3 +256,66 @@ physically-ordered pair of coefficients that reconciles the epochs.** ⇒ **DO N
 
 ⇒ **The lever is still the driver, not the coefficient.** ~22 % fast modern OHC, shared with
 BRICK 2.0, unfixable in either sea-level model.
+
+---
+
+# ADDENDUM 3 — "WOULD OUR OWN OHC DEPTH RELATIONSHIP HELP?" NO. THE RELATIONSHIP IS NOT BROKEN.
+
+Addendum 2 refuted the BOX-WISE split and explicitly left open a RE-MAPPED one (caveat 2: FaIR's
+box 0 is 45 m, not a depth horizon). That opening is now closed, twice over.
+
+## 1. NO MONOTONE DEPTH RELATIONSHIP CAN WORK — at any resolution
+
+Cumulative SHALLOW fraction of each epoch's heat gain, at every available cut:
+
+    epoch        above H0    above H0+H1
+    1900-1950      0.130        0.575
+    1950-1993      0.021        0.378
+    1993-2025      0.154        0.527
+
+**1950-1993 sits DEEPER than 1993-2025 at EVERY cut** (0.021 < 0.154; 0.378 < 0.527) — stochastic
+dominance. So for ANY non-increasing `alpha(depth)` — ours, FaIR's, at any number of layers —
+`alpha_eff(1950-93) <= alpha_eff(1993-2025)`. **The fit requires the ratio to be 1.41 > 1.**
+⇒ **Impossible for any depth-only weighting.** The box boundaries were never the obstacle.
+
+⚠ **Temperature-dependence does not escape it either.** alpha rises with water temperature and the
+ocean warms monotonically, so a T-dependent alpha_eff rises with TIME — making the MODERN epoch
+higher, the wrong direction again.
+
+## 2. AND THE RELATIONSHIP IS NOT WHAT IS BROKEN — measured against observations only
+
+`alpha_implied = d(steric target) / d(OHC)`, computed with the OBSERVED OHC instead of FaIR's:
+
+| epoch | dSteric cm | FaIR alpha | **obs Z+IGCC alpha** | obs Z+Cheng alpha |
+|---|---|---|---|---|
+| 1900-1950 | 0.795 | 0.0874 | **0.1082** | 0.1082 |
+| 1950-1993 | 2.058 | 0.1277 | **0.1165** | 0.1756 |
+| 1993-2024 | 3.769 | 0.0890 | **0.1130** | 0.1063 |
+| **ratio 1950-93 / 1993-24** | | **1.435** | **1.031** | 1.651 |
+
+⭐ **Against the observed OHC a SINGLE CONSTANT alpha ~0.11 reproduces the steric target across all
+three epochs to within 3 %.** The 41 % epoch conflict appears ONLY under FaIR's OHC.
+
+⭐⭐ **AND THE FIT'S ALPHA IS ALREADY RIGHT.** It chose **0.11252**, inside the obs-implied range
+**0.108-0.116**. The coefficient is correct, the target is self-consistent with the observed heat,
+and a single alpha is the right FORM. **What is wrong is FaIR's OHC — its modern RATE (~22 % fast)
+and its distribution ACROSS EPOCHS.**
+
+⇒ **Building our own depth relationship would be fitting a correction to the wrong term.** It would
+absorb a driver error into an expansion coefficient that is already correct, and it would have to
+run backwards against physics to do it.
+
+## 3. CAVEAT — the mid-century observation is genuinely uncertain
+
+Cheng and IGCC disagree by **~50 %** on the 1950-1993 OHC gain (11.72 vs 17.66 1e22 J). Under Cheng
+the obs-implied alpha ratio is **1.651**, i.e. an epoch conflict survives. IGCC is the product the
+target's own modern segment is built from and Cheng is the known low-side outlier
+([[brick_gouretski_calib]]), so the IGCC reading is the better-supported one — but the mid-century
+is the weakest link in this chain and any future claim about it should say so.
+
+## ⇒ WHERE THE TE ARC ENDS
+
+The TE rate FAIL is **a FaIR OHC problem end to end**: ~22 % fast in the altimetry era, mis-distributed
+across epochs, shared with BRICK 2.0 on the same driver, and **not addressable by anything inside
+either sea-level model** — not the noise model (L22), not `thermal_alpha` (already right), not the
+D2 discrepancy (already absorbing 0.663 cm), and not a depth split in any form.
