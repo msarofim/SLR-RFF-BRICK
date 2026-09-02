@@ -50,8 +50,11 @@ joint arm, marker-free, cm):
 | 2150 | +0.569 | +0.345 | **+0.433** | +0.577 | +2.168 |
 | 2300 | −0.064 | −0.365 | **+0.003** | −1.089 | −1.227 |
 
-**Our AIS carries a third of the 2150 penalty and NONE of the 2300 penalty.** It relaxes all the
-way back. SLEIP's 7 emulators keep 10-30 cm at 2300. That is the gap, and it is Antarctic.
+⛔ **CORRECTED, SAME DAY — do not read the 2300 row as hysteresis.** `python/diag_ais_regrowth.py`:
+the AIS has **ZERO years of decline after 2100** on both SSPs and all seven van Vuuren markers
+(2/2000 draws), so **it never regrows at all**. The penalty closes because our SSP5-3.4-OS crosses
+BELOW our SSP1-2.6 in **2127** and stays **0.126 K cooler**, so the reference arm loses ice faster
+and catches up — both arms lose mass throughout. **The 2300 AIS row is the dT bias, not recovery.**
 
 **Hypothesis (untested).** `INDEX_ais` records that **MICI needs `antarctic_lambda` above the paleo
 prior's maximum and is therefore outside our representable set.** MICI is a mechanism that cannot

@@ -27,8 +27,18 @@ Paired median of `ssp534over_nomarker - ssp126_nomarker`, `joint` arm, marker-fr
 | 2300 | -0.064 | -0.365 | **+0.003** | -1.089 | 0 | **-1.227 ±0.048** | +7.4e-07 ±0.068 |
 
 ⭐ **The row that matters is `ais` at 2300: +0.003 ±0.007 cm.** Antarctica contributes a penalty
-of +0.433 cm at 2150 and **nothing at all** by 2300. Whatever gives the SLEIP ensemble a persistent
-0.1-0.3 m, our Antarctica does not have it — and Antarctica is where 73-79 % of our spread lives.
+of +0.433 cm at 2150 and **nothing at all** by 2300.
+
+⛔ **CORRECTED 2026-09-02 (same day) — this was first written up as "our DAIS relaxes all the way
+back". THAT IS WRONG.** `python/diag_ais_regrowth.py` measures it: Ladrillo's AIS has **ZERO years
+of decline after 2100** on both SSPs *and* all seven van Vuuren markers, and only **2 of 2000**
+draws show any net decline between horizons. **There is no AIS regrowth anywhere in this model.**
+The penalty closes because our SSP5-3.4-OS crosses **BELOW** our SSP1-2.6 in **2127** and stays
+**0.126 K cooler** through 2300, so the REFERENCE arm loses ice faster (0.468 vs 0.441 cm/decade
+over 2175-2225) and catches up — with **both arms losing mass throughout**.
+⇒ **The near-zero AIS penalty at 2300 carries NO information about Antarctic hysteresis.** It is
+the dT bias, which was already a stated caveat and which I failed to connect to this row. A
+hysteresis claim needs a matched-dT scenario pair before it can be made at all.
 
 ⚠ The 2300 total is **negative** and that is the standing dT caveat, not a physical result: our
 SSP5-3.4-OS ends 0.06-0.13 K COOLER than our SSP1-2.6, which drags `te` to -1.089 and `gis` to

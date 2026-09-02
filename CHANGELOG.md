@@ -7,10 +7,16 @@ component × horizon, against a moving-block bootstrap bar of **±0.008 to ±0.0
 four orders below its own bar. **The law is ruled out.**
 
 **What the decomposition handed back instead:** AIS carries **+0.433 cm** of the 2150 penalty and
-**+0.003 cm** of the 2300 penalty. Our DAIS relaxes all the way back; SLEIP's 7 emulators keep
-10-30 cm. ⇒ Antarctica is the live candidate, on evidence rather than on a guess. Hypothesis
-(untested): MICI is outside our representable set and is a mechanism that cannot be undone once
-triggered, so its absence *is* an absence of hysteresis.
+**+0.003 cm** of the 2300 penalty.
+
+⛔ **CORRECTED THE SAME DAY, and the correction matters more than the original.** I wrote "our DAIS
+relaxes all the way back". It does not: `diag_ais_regrowth.py` measures **ZERO years of AIS decline
+after 2100** on both SSPs and all seven van Vuuren markers (2/2000 draws) — **Ladrillo's Antarctica
+never regrows at all.** The penalty closes because our SSP5-3.4-OS crosses BELOW our SSP1-2.6 in
+**2127** and stays **0.126 K cooler**, so the REFERENCE arm loses ice faster and catches up, both
+arms losing mass throughout. ⇒ **The 2300 AIS row is the dT bias, not hysteresis**, and the
+"Antarctic hysteresis" hypothesis it motivated rests on an artifact. A matched-dT scenario pair is
+now a PRECONDITION for any SLEIP comparison at 2300, not a caveat on one.
 
 **TRIED AND ABANDONED — a vacuous gate, reported as a pass before it was caught.** GATE-A
 ("instrumentation at shipped defaults reproduces the shipped arms", max |Δmed| = 0.000e+00) was the
