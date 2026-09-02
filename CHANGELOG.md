@@ -1,3 +1,42 @@
+## 2026-09-02c — GIC_REGROW: the glacier law is NOT the overshoot penalty, and Antarctica is
+
+**Ran §4 of handoff 09-02b.** Swapped the floored-equilibrium glacier law back to the pre-08-31
+melt-only ratchet on the **held L24 posterior, no refit**, and differenced the
+`ssp534over_nomarker − ssp126_nomarker` penalty by component. The move is **≤ 6.2e-05 cm** at every
+component × horizon, against a moving-block bootstrap bar of **±0.008 to ±0.068 cm** — three to
+four orders below its own bar. **The law is ruled out.**
+
+**What the decomposition handed back instead:** AIS carries **+0.433 cm** of the 2150 penalty and
+**+0.003 cm** of the 2300 penalty. Our DAIS relaxes all the way back; SLEIP's 7 emulators keep
+10-30 cm. ⇒ Antarctica is the live candidate, on evidence rather than on a guess. Hypothesis
+(untested): MICI is outside our representable set and is a mechanism that cannot be undone once
+triggered, so its absence *is* an absence of hysteresis.
+
+**TRIED AND ABANDONED — a vacuous gate, reported as a pass before it was caught.** GATE-A
+("instrumentation at shipped defaults reproduces the shipped arms", max |Δmed| = 0.000e+00) was the
+whole verification for one round. It is worthless: it passes **identically** whether the env switch
+works or is silently ignored, which is the `gate_reads_its_own_output` family. The all-exactly-zero
+result across every declining-scenario cell is what flagged it (`Suspicious uniformity ≈ bug`).
+Repaired with three things, in increasing strength: a direct `_nu_step` probe (the two laws differ
+at T = −0.5 / 0.0 / +1.0 K); **branch counters** showing 222,764 of 5,454,000 nu3 steps enter the
+cooling branch (4.1 %) with `S_eq < 0` on 219,602; and **GATE-C, a positive control on vvLN with an
+independently pre-computed answer** — measured **−0.2027 cm** against a pre-computed **−0.20**,
+which is **9,721×** the SSP move. ⇒ Every future law-swap ships a positive control, not a no-op.
+
+**Two handoff claims corrected.** (1) **`R = Inf` ALONE *is* the old law** — `S_eq<0` ⇒ `T<T_off`,
+and `T_eq ≥ T_off` always, so `S_eq<0` ⇒ `d<0` ⇒ `mult /= Inf`; the floor is *unreachable* under
+`R=Inf`, confirmed by the counters (`S_eq<0` and `d<0 AND S_eq<0` are the same 219,602). The
+half-law that really differs is `FLOOR=0` with `R=1`. (2) The existing instrumentation patch
+already carried a nu3 hunk. Also found: **`glaciers_nu_component.jl` is dead code** on the
+projection path (`nu calls = 0`).
+
+**⚠ "The penalty" is two statistics.** The handoff's headline numbers are **differences of
+medians**; the paired median differs by **1.00 cm at 2150** (marker-free +3.169 vs +2.168). Real
+skew, not noise. Both are now printed and labelled.
+
+`python/diag_gic_regrow_penalty.py` (reproduces with no args), 6 arms x ~3.6 min, local.
+Commits `10d8ad8`, `c658d63`.
+
 ## 2026-09-01e — L25 lands: it was a THIRD dropped flag, `--amp-mu`, not the glacier law
 
 **L25 finished** (4 chains x 2M, accept 0.236) and reads `ais_gmst_amp` = **1.0791 ± 0.0030** —
