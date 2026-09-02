@@ -106,6 +106,19 @@ PROV = {
                 glacier="Mengel 2-τ glacier (single reservoir, fast+slow relaxation), as "
                         "labelled at that vintage",
                 gis="Greenland A+B", gpanel="Glaciers (Mengel 2-τ)", gispanel="Greenland"),
+    ## L24 = L23 with the amp prior at its SHIPPED width N(1.09, 0.180) (165a860). CHAMPION
+    ## since 2026-09-02. ⚠ Its convergence line is read from its OWN driver log
+    ## (outputs/log_l24_postprocess_driver.txt), not carried over.
+    "L24": dict(model="Ladrillo L24", calib="calib 1.6.0 + CMIP7",
+                chains="4x2M, 10k draws",
+                conv="convergence disclosed under the --accept-slr gate (19 marginals "
+                     "unconverged; projected SLR R-hat 1.008 at 2100, 1.011 at 2150)",
+                glacier="THREE-reservoir Mengel-form glacier (blocks R19 / SLOWP / FAST, "
+                        "one relaxation κ each), FLOORED equilibrium with bounded "
+                        "regrowth at R = 1",
+                gis="TWO-basin Greenland (active = SW+CW+CE+SE+NW, high = NO+NE), each "
+                    "basin carrying the A+B fast/slow channels",
+                gpanel="Glaciers (3-block: R19/SLOWP/FAST)", gispanel="Greenland (2-basin)"),
 }
 P = PROV.get(TAG)
 if P is None:

@@ -177,6 +177,18 @@ TAG_DESC = {
                      "melt-only glacier ratchet replaced. TWO axes moved, not one: the "
                      "glacier law AND the proposal covariance (L11tune3, not L14tune). "
                      "Accepted on the deliverable criterion (--accept-slr)."),
+    "L24": dict(model="Ladrillo L24",
+                calib="FaIR 2.2.4 calib 1.6.0 + CMIP7",
+                chains="4 chains, chain_L24_seed{2026..2029}_n2000000",
+                glacier="3-reservoir Nauels-nu (glaciers_nu3), FLOORED equilibrium "
+                        "+ bounded regrowth at R = 1",
+                gis="two-basin Greenland with the shipped tap",
+                note="CHAMPION since 2026-09-02. L23's configuration with the amp prior at "
+                     "its SHIPPED width, N(1.09, 0.180) -- the measured 34-model CMIP6 "
+                     "spread (165a860). The ONLY vintage on the shipped prior. On fit it is "
+                     "indistinguishable from L23 (85/65/6 vs 86/64/6; 3 of 304 cells move), "
+                     "so it was promoted on provenance, not skill. ⚠ NOT like-for-like with "
+                     "L21, whose amp prior is N(0.95, 0.10)."),
     "L14": dict(model="Ladrillo L14",
                 calib="FaIR 2.2.4 calib 1.4.5",
                 chains="chain_L14_*",
