@@ -91,5 +91,11 @@ diagnostic. Everything in §1 holds under either.
   Drive with `--tag=<NEWTAG> --chain-tag=L24`, and pre-place a
   `ssps_components_2300_<NEWTAG>_tap..._n2_ws.csv` symlink or the driver errors at const time.
 * `outputs/gic_regrow_INSTRUMENTATION.patch` is the exact diff used, against the shipped modules.
-* ⚠ **`memory/INDEX_slr.md` is 15.3 KB, over its 14 KB soft budget** (hard ceiling 18 KB). Merge
-  when convenient.
+* ✅ **Memory consolidated 2026-09-02.** ⚠ **Budgets are measured on CONTENT, not the file** — strip
+  the HTML comment blocks first, or you "fix" a compliant index (MEMORY.md is 16.0 KB as a file and
+  11.6 KB as content, i.e. compliant). `INDEX_slr` trimmed 15.4 → 14.7 KB content. Still over SOFT,
+  none over hard: `INDEX_ccx_arch` +1982, `INDEX_ccx` +1521, `INDEX_slr` +372, `INDEX_cmp` +327.
+  ⭐ The two CCX ones were left for a session with CCX context loaded — and there is a specific lead:
+  `INDEX_ccx_arch` (an ARCHIVE, "provenance only, never live state") cites **6 targets that the LIVE
+  `INDEX_ccx` also cites**, including `ccx_one_basin_at_25_par` and `ccx_gate_ledger_power`, which
+  MEMORY.md carries as CURRENT rulings. An archive holding live state is the thing to check first.
