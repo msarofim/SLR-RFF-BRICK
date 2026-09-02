@@ -1,12 +1,12 @@
-# Handoff — GIC_REGROW is DONE and NEGATIVE; Antarctica is the live candidate
+# Handoff — GIC_REGROW is DONE and NEGATIVE, and the Antarctic lead it produced is an ARTIFACT
 
 **Start here.** Repo `SLR-RFF-BRICK`, branch `ladrillo-dev`, all pushed. Written 2026-09-02.
 Supersedes `handoff_2026-09-02b_l24_champion_markers_and_the_regrow_test.md` (whose §1-§3 all
 still stand; only its §4 is now closed).
 
-⭐ **FIRST THING NEXT SESSION: the AIS hysteresis diagnostic (§3).** GIC_REGROW answered and the
-answer was negative, and the decomposition it produced hands you the next target on evidence
-rather than on a guess.
+⭐ **FIRST THING NEXT SESSION: build a MATCHED-dT scenario pair (§3).** GIC_REGROW answered and the
+answer was negative. The Antarctic lead it appeared to produce was then MEASURED and is an ARTIFACT
+of the dT bias — so the precondition, not the hysteresis chase, is what is actually owed.
 
 ---
 
@@ -40,7 +40,7 @@ The null is **powered**, and getting it powered took three tries — see §2.
   with an independently pre-computed answer of −0.20 cm, measured −0.2027, = 9,721× the SSP move.**
   ⇒ **Any future law-swap experiment must ship a positive control, not just a no-op check.**
 
-## 3. ⭐ THE NEXT EXPERIMENT — AIS HYSTERESIS
+## 3. ⭐ THE NEXT EXPERIMENT — A MATCHED-dT PAIR (the AIS chase is CANCELLED)
 
 **The evidence.** Penalty by component (paired median, `ssp534over_nomarker − ssp126_nomarker`,
 joint arm, marker-free, cm):
@@ -56,20 +56,31 @@ the AIS has **ZERO years of decline after 2100** on both SSPs and all seven van 
 BELOW our SSP1-2.6 in **2127** and stays **0.126 K cooler**, so the reference arm loses ice faster
 and catches up — both arms lose mass throughout. **The 2300 AIS row is the dT bias, not recovery.**
 
-**Hypothesis (untested).** `INDEX_ais` records that **MICI needs `antarctic_lambda` above the paleo
-prior's maximum and is therefore outside our representable set.** MICI is a mechanism that cannot
-be undone once triggered — so its absence is *precisely* an absence of hysteresis. If that is the
-story, our near-zero 2300 penalty is a structural consequence of the DAIS parameterisation, not a
-result about overshoots.
+**The MICI hypothesis is NOT dead, but it is NOT EVIDENCED either.** `INDEX_ais` records that MICI
+needs `antarctic_lambda` above the paleo prior's maximum and is outside our representable set. That
+remains a real structural limitation worth stating in any write-up. What changed is that **the 2300
+AIS row is no longer evidence for it** — a matched-dT pair has to come first.
 
-**Design.** A component-wise hysteresis diagnostic, **not** another law swap:
-1. For each draw, find the AIS state at the GMST peak and at the GMST re-convergence date, and
-   measure whether AIS returns to the ssp126 trajectory or holds an offset.
-2. Split draws by `antarctic_lambda` and by whether the DAIS retreat threshold was crossed. The
-   prediction is that the penalty at 2300 is carried *entirely* by threshold-crossing draws and is
-   ~0 for the rest — if instead it is ~0 in both, the mechanism is not threshold retreat.
+⚠ **And there is no "unrealistic AIS regrowth" to fix**: `diag_ais_regrowth.py` finds ZERO years of
+AIS decline after 2100 on 2 SSPs and all 7 van Vuuren markers. At the ~1.6 K our declining pathways
+level at, an ice sheet nowhere near equilibrium SHOULD keep losing, so zero regrowth is defensible
+here — unlike glaciers, which equilibrate on decadal-centennial timescales and therefore needed the
+floor.
+
+⛔ **The `antarctic_lambda` / threshold-crossing split this handoff first proposed is CANCELLED.**
+It was designed to explain a 2300 AIS row that is not a physical signal; running it would have
+attributed an artifact to a mechanism.
+
+**Design — fix the comparison first.**
+1. Obtain or construct an SSP5-3.4-OS / SSP1-2.6 pair whose GMST **re-converges** rather than
+   crossing. Ours crosses in 2127 and ends 0.126 K INVERTED, which closes the entire AIS penalty
+   on its own.
+2. Only then re-run the penalty decomposition. A residual AIS penalty on a matched pair would be a
+   real hysteresis signal; the current one is not.
 3. ⚠ **Measure the POWER first.** `spread_blind_to_its_own_tail` already caught a "0.000 cm"
    ssp126 AIS result that was the statistic, not the model. Use the tail, not the p05-p95 spread.
+4. ⚠ SLEIP is a DIFFERENT realisation of SSP5-3.4-OS than ours. Their pair, not a re-derived one,
+   is the like-for-like comparator (`like_for_like_forcing`).
 
 ⚠ **Do not read the 2300 total (−1.227 cm) as physics.** Our SSP5-3.4-OS ends 0.06-0.13 K COOLER
 than our SSP1-2.6, which drags `te` to −1.089 and `gis` to −0.365. The AIS row is the informative
