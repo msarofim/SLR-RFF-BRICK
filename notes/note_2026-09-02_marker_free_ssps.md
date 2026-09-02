@@ -80,3 +80,55 @@ away as a forcing-assumption artifact.
   marker-free needs the per-config **cubes** (`build_fair_cube_v160.py`, which resolves the marker
   the same way and would need the same `none` path), then the arms. Until then this note is about
   the climate driver only, not about sea level.
+
+
+---
+
+# ADDENDUM — THE SEA-LEVEL ANSWER (marker-free arms landed 2026-09-02)
+
+Cubes built for the four like-for-like SSPs (MEAN-MATCH 2-9e-16) and Ladrillo L24 run on them,
+tapped, matching every other L24 arm.
+
+## The overshoot penalty, both ways
+
+    yr   |        MARKER (HL vs L)        |          MARKER-FREE
+         |   OS     126    penalty   dT   |   OS     126   penalty     dT
+    2100 | 43.6    38.4    +5.2 cm  +0.142| 42.5    37.8   +4.7 cm  +0.118
+    2150 | 54.2    50.2    +4.0 cm  -0.063| 52.5    49.4   +3.2 cm  -0.102
+    2300 | 73.7    72.6    +1.1 cm  -0.082| 70.1    71.1   -1.0 cm  -0.133
+
+⭐ **Removing the CMIP7 marker assumption moves the 2300 penalty by −2.2 cm, from +1.1 to −1.0 cm.
+It does not rescue it — it turns it slightly negative. The small penalty is NOT a marker artifact.**
+
+## Against SLEIP
+
+SLEIP's own framing is that the penalty *"persists by 2300 compared to SSP1-2.6, even after GSAT has
+returned to the SSP1-2.6 level by 2150"* — so 2150 onward is where their claim lives.
+
+| | 2150 | 2300 |
+|---|---|---|
+| Ladrillo, marker | +4.0 cm | +1.1 cm |
+| Ladrillo, marker-free | +3.2 cm | −1.0 cm |
+| **SLEIP, 7 emulators** | — | **+10 to +30 cm** |
+
+⇒ **Ladrillo shows 3-5 cm of overshoot penalty where SLEIP's ensemble shows 10-30 cm, and it decays
+to zero by 2300 where theirs persists.** Ladrillo RECOVERS from an overshoot; their ensemble
+largely does not.
+
+⚠ **The honest caveat, unchanged.** Our SSP5-3.4-OS ends 0.06-0.13 K COOLER than our SSP1-2.6, which
+biases our penalty LOW. But it cannot account for a 10-30 cm difference, and it is not a marker
+artifact — going marker-free makes the temperature gap *larger*, not smaller. ⚠ A fully clean
+comparison still needs SLEIP's own scenario pair on a matched dT; ours is a different realisation
+of SSP5-3.4-OS, not theirs.
+
+## ⇒ THE STANDING HYPOTHESIS, NOW WELL POSED
+
+Since the temperature confound is bounded and the marker assumption is excluded, the residual is a
+**model** difference: **Ladrillo has materially less sea-level hysteresis than the SLEIP ensemble.**
+The leading candidate is the floored-equilibrium glacier law — of the four models we compare, only
+MAGICC could express glacier regrowth before Ladrillo's 2026-08-31 change, and Ladrillo's glacier
+rate at 2300 now falls to 0.00-0.55 mm/yr on declining pathways against 1.96 rising.
+
+⚠ **NOT YET DEMONSTRATED.** The decomposition that would show it — the penalty by component, with
+and without the floored law — has not been run. That is the next experiment, and it is cheap: the
+old law is still reachable behind `GIC_REGROW_R`.
