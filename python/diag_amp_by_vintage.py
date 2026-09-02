@@ -63,10 +63,32 @@ MCMC = os.path.join(REPO, "outputs", "mcmc")
 OUT = os.path.join(REPO, "outputs", "diag_amp_by_vintage.csv")
 PARAM = "ais_gmst_amp"
 
-# The prior these refits were SAMPLED under. ⚠ NOT the driver default (0.180 since
-# `165a860`): L21/L22/L23/L23b/L25 all pass --amp-sigma=0.10, so z must use 0.10 or every
-# published z on this arc changes meaning.
-AMP_MU, AMP_SIGMA = 1.09, 0.10
+# ⚠⚠ THE PRIOR IS PER-VINTAGE. IT IS NOT A CONSTANT, AND ASSUMING IT WAS IS THE BUG THIS
+# BLOCK EXISTS TO KILL. `run_mcmc_L21.sh` and `run_mcmc_L22.sh` pass --amp-mu=0.95; there is
+# no run_mcmc_L23.sh, so L23/L23b/L24/L25 take the DEFAULT 1.09. Their own logs say so:
+#     L21/L22   A6 prior: amp ~ N(0.950, 0.100) on [0.650, 1.250]
+#     L25       A6 prior: amp ~ N(1.090, 0.100) on [0.790, 1.390]
+# Scoring every vintage against 1.09 made L21 look 1.46 prior sd BELOW its prior when it is
+# 0.06 sd below its OWN prior -- the "displaced centre without sharpening" signature that the
+# whole L21->L23 arc was built on. Read the prior the run actually used.
+AMP_SIGMA_FALLBACK = 0.10
+
+# Vintages with no surviving log. Their launch command carried no --amp-mu, so they took the
+# default in force at the time. Stated explicitly rather than defaulted silently.
+KNOWN_PRIOR = {"L23": (1.09, 0.10, "no log; launched without --amp-mu, default 1.09"),
+               "L23b": (1.09, 0.10, "no log; launched without --amp-mu, default 1.09")}
+
+
+def prior_for(tag):
+    """(mu, sigma, source) actually used by this vintage. NEVER a bare default."""
+    for f in sorted(glob.glob(os.path.join(MCMC, f"log_{tag}_seed*.txt"))):
+        with open(f, errors="replace") as fh:
+            m = re.search(r"A6 prior: amp ~ N\(([0-9.]+), ([0-9.]+)\)", fh.read().replace("\r", "\n"))
+        if m:
+            return float(m.group(1)), float(m.group(2)), f"log_{tag} banner"
+    if tag in KNOWN_PRIOR:
+        return KNOWN_PRIOR[tag]
+    return None, None, "UNKNOWN"
 
 # The reference tags a new vintage is read against, RECOMPUTED here on this estimator.
 REF_OLD_LAW, REF_NEW_LAW = "L21", "L23"
@@ -154,11 +176,11 @@ def main():
     print(f"{PARAM} POSTERIOR CENTRE BY REFIT — pooled post-burn median, "
           f"batch-means se", flush=True)
     print("=" * 100, flush=True)
-    print(f"\n  prior N({AMP_MU}, {AMP_SIGMA}) AS SAMPLED (--amp-sigma=0.10, not the driver "
-          f"default 0.180)\n  burn: first half of each chain (postprocess_mcmc_ext.jl:47)"
+    print(f"\n  ⚠ prior is PER-VINTAGE, read from each run's own banner (see header)"
+          f"\n  burn: first half of each chain (postprocess_mcmc_ext.jl:47)"
           f"\n  se: {BLOCKS_PER_CHAIN} blocks/chain, spread of block medians\n", flush=True)
     print(f"{'tag':6s} {'ch':>3s} {'post-burn n':>12s} {'pooled med':>11s} {'se':>8s} "
-          f"{'z':>7s} {'R-hat':>7s} {'10k subsam':>11s} {'published':>10s} "
+          f"{'z_own':>7s} {'R-hat':>7s} {'10k subsam':>11s} {'published':>10s} "
           f"{'gap/se':>8s}", flush=True)
     rows, med = [], {}
     for tag in tags:
@@ -171,24 +193,32 @@ def main():
         m = float(np.median(v))
         se, nb = median_se(chains)
         r = rhat(chains)
+        mu, sig, src = prior_for(tag)
         sub, nsub = subsample_median(tag)
         pub = PUBLISHED.get(tag)
         gse = "" if pub is None or se == 0 else f"{(m - pub) / se:+.1f}"
         med[tag] = (m, se)
         print(f"{tag:6s} {len(fs):3d} {len(v):12,d} {m:11.4f} {se:8.5f} "
-              f"{(m - AMP_MU) / AMP_SIGMA:+7.2f} {r:7.3f} {sub:11.4f} "
+              f"{((m-mu)/sig) if mu else float('nan'):+7.2f} {r:7.3f} {sub:11.4f} "
               f"{pub if pub is not None else float('nan'):10.4f} {gse:>8s}", flush=True)
         rows.append(dict(tag=tag, n_chains=len(fs), n_postburn=len(v), pooled_median=m,
-                         median_se=se, n_blocks=nb, z_prior_sd=(m - AMP_MU) / AMP_SIGMA,
+                         median_se=se, n_blocks=nb, prior_mu=mu, prior_sigma=sig,
+                         prior_source=src,
+                         z_prior_sd=((m-mu)/sig) if mu else float("nan"),
                          rhat=r, subsample_median=sub, n_subsample=nsub,
                          published=pub if pub is not None else np.nan))
 
     # --------------------------------------------------- the reading, on ONE estimator
     if REF_OLD_LAW in med and REF_NEW_LAW in med:
         (a, sa), (b, sb) = med[REF_OLD_LAW], med[REF_NEW_LAW]
+        pa=prior_for(REF_OLD_LAW); pb=prior_for(REF_NEW_LAW)
+        print(f"\n  ⚠ PRIOR MEANS DIFFER ACROSS THIS SPAN: {REF_OLD_LAW} N({pa[0]}, {pa[1]}) vs "
+              f"{REF_NEW_LAW} N({pb[0]}, {pb[1]})  ⇒ prior shift {pb[0]-pa[0]:+.4f}")
         print(f"\n  REFERENCE, recomputed here (NOT the published constants):")
         print(f"    {REF_OLD_LAW} {a:.4f} ± {sa:.4f}   {REF_NEW_LAW} {b:.4f} ± {sb:.4f}"
-              f"   span {b - a:+.4f} = {(b - a) / AMP_SIGMA:+.2f} prior sd")
+              f"   span {b - a:+.4f}")
+        print(f"    ⇒ posterior span {b-a:+.4f} vs PRIOR-MEAN shift {pb[0]-pa[0]:+.4f} — "
+              f"ratio {(b-a)/(pb[0]-pa[0]):.3f}. A prior-dominated parameter FOLLOWS ITS PRIOR.")
         for tag, (m, se) in med.items():
             if tag in (REF_OLD_LAW, REF_NEW_LAW):
                 continue
