@@ -76,8 +76,8 @@ multiplier is capped at 1, so each step is a convex combination of `S` and `S_eq
 the stock can never fall below the floor. The regrowth rate ratio R = 1 is a **stated convention, not
 a fitted quantity** — removing the clamp moves the hindcast by 0.014 cm, 3% of the glacier target's
 median σ, so no refit can inform it. On a monotonically warming path the new and old laws are
-**bit-identical**; the change delivers **−0.15 cm** at the low-overshoot marker at 2300 and ~0
-elsewhere. Its value is that stabilization and decline scenarios now halt and reverse rather than
+**bit-identical**; measured as a law-only swap on a held posterior, the change delivers
+**−0.20 cm** at the low-overshoot marker at 2300 and ~0 elsewhere. Its value is that stabilization and decline scenarios now halt and reverse rather than
 ratchet.
 
 ### Greenland
@@ -303,12 +303,19 @@ projection-versus-other-models disagreement rather than an observational conflic
 L24 than on L21 because the amplification prior is wider — which is the honest, measured prior, not a
 tuned one.
 
-**Peak-and-decline scenarios.** ⭐ This is where the glacier law change matters and where Ladrillo now
-behaves like the physics rather than like a ratchet. Under BRICK 2.0's melt-only formulation, glaciers
+**Peak-and-decline scenarios.** ⭐ This is where the glacier law change matters — **structurally
+rather than numerically**, and the distinction is now measured: swapping back to the melt-only
+ratchet on a held posterior moves the total by **≤6.2×10⁻⁵ cm** on the SSPs and −0.20 cm at the
+low-overshoot marker. What it buys is that Ladrillo behaves like the physics rather than like a
+ratchet. Under BRICK 2.0's melt-only formulation, glaciers
 cannot recover mass no matter how far temperature falls. With the floored equilibrium and bounded
 regrowth, **Ladrillo stops when temperature stops** — its glacier rate at 2300 falls to 0.00–0.55
 mm/yr on declining pathways against 1.96 on a rising one — and can reverse. Of the four models
-compared, only MAGICC could previously express this at all.
+compared, only MAGICC could previously express this at all. On a matched-temperature overshoot pair
+that regrowth proves modest and Ladrillo agrees with its comparators — 3.32 cm at 2150 against BRICK
+2.0's 3.35, inside the 2.40–5.48 cm spread of four FACTS process-based workflows — with the long
+upper tails coming from the MICI-capable arm rather than from any disagreement about the central
+estimate.
 
 ---
 
