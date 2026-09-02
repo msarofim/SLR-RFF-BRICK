@@ -118,8 +118,11 @@ arms, all local, ~9 min total.
 
 # ADDENDUM — FACTS on the matched pair (2026-09-02, Marcus's request)
 
-**⚠ HORIZON FIRST: FACTS is configured to `pyear_end` 2150 and does NOT reach 2300.** It cannot
-address SLEIP's 2300 headline. Everything below is 2100/2150, read against Ladrillo/BRICK **at
+**⚠ HORIZON FIRST: our FACTS arms are configured to `pyear_end` 2150**, so they do not reach
+SLEIP's 2300 headline year. ⛔ **CORRECTED 2026-09-02: that is OUR convention, not a FACTS limit.**
+I wrote "FACTS stops at 2150" in four places, having read it off our own `FACTS_REPORT_MAX = 2150`
+constant. Eight configs in the FACTS repo set `pyear_end: 2300`, and SLEIP runs FACTS to 2300 as
+one of its seven emulators. A 2300 arm here is UNTESTED for this module set, not unsupported. Everything below is 2100/2150, read against Ladrillo/BRICK **at
 those years**. Run: facts repo `slr-comparison-arm` `8eccc5e3`;
 `python3 diag_matched_pair_facts_penalty.py`.
 

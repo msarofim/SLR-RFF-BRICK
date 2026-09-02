@@ -277,7 +277,9 @@ Total penalty, paired median, cm (`python/diag_matched_dt_penalty.py`):
 **2.40–5.48 cm** (Bamber SEJ 2.40, IPCC AR5 3.21, DeConto/Kopp 4.07, LARMIP-2 5.48), with Ladrillo
 **3.32** and BRICK 2.0 **3.35** inside that range. FACTS is independent of the BRICK line on both
 glaciers and ice sheets, so this corroborates the Ladrillo/BRICK agreement rather than echoing it.
-⚠ **FACTS stops at 2150** and cannot address SLEIP's 2300 headline.
+⚠ **Our FACTS arms are run to 2150**, so they do not reach SLEIP's 2300 headline year. That is our
+convention, **not a FACTS limit** — eight configs in the FACTS repo set `pyear_end: 2300`, and SLEIP
+runs FACTS to 2300. A 2300 arm is untested for this module set, not unsupported.
 
 ⭐ **The medians agree and the tails do not.** At 2150 medians span 2.3× while p95 spans **44×**
 (IPCC-AR5 **5.2** cm → DeConto/Kopp **230.6**). Ladrillo's **39.3** sits near Bamber SEJ (38.4) and

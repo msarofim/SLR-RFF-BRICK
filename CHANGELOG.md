@@ -39,7 +39,10 @@ with an error about `pipeline.0000` while `ssp534overMATCH` ran fine. Our cube c
 underscored by construction, so every marker-free scenario hits it. Experiment key now decoupled
 from the cube filename, with a guard that refuses a bad key at build time.
 
-⚠ FACTS stops at 2150 and cannot address SLEIP's 2300 headline. ⚠ `ssp534overMATCH` is IDEALISED —
+⚠ Our FACTS arms run to 2150, so they do not reach SLEIP's 2300 headline year — **our convention,
+not a FACTS limit** (corrected 2026-09-02: eight configs in the FACTS repo set `pyear_end: 2300`
+and SLEIP runs FACTS to 2300; I had read "2150 at best" off our own stale `FACTS_REPORT_MAX`
+constant and repeated it in four documents). ⚠ `ssp534overMATCH` is IDEALISED —
 never quote it as SSP5-3.4-OS. SLEIP's 0.1–0.3 m is 4–14× our matched median but a near-match to our
 mean (8.94 cm); which statistic they report is the open question.
 
