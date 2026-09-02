@@ -1,3 +1,51 @@
+## 2026-09-02d — the matched-dT overshoot pair, and FACTS puts Ladrillo mid-pack
+
+**The native pair could not answer the question.** Our ssp534over crosses BELOW ssp126 in 2127 and
+ends 0.126 K COOLER, so the reference arm becomes the warmer one and catches up on its own — which
+closes the entire overshoot penalty and inverts its sign. Built `ssp534overMATCH` =
+`ERF_126 + max(ERF_534 − ERF_126, 0)` **in forcing space**: clipping GMST would leave OHC
+inconsistent (OHC drives TE, the largest negative term) and clipping OHC would destroy real
+ocean-heat hysteresis, since ΔOHC stays positive until 2171 — 44 years past the temperature
+crossing. FaIR then yields consistent GMST *and* OHC with no fitted parameter. dT becomes
+**+0.042 K @2150, +0.020 @2300**.
+
+**Three results.** (1) The penalty flips sign: Ladrillo **−1.23 → +2.21 cm** @2300, BRICK 2.0
+**−0.52 → +2.57**, with p05 going from −24/−29 to +1.2/+0.9 — essentially every draw now shows a
+real penalty. (2) **Ladrillo is mid-pack**: at 2150 the four FACTS process-based workflows span
+**2.40–5.48 cm** (Bamber SEJ 2.40, IPCC AR5 3.21, DeConto/Kopp 4.07, LARMIP-2 5.48) with Ladrillo
+3.32 and BRICK 2.0 3.35 inside. FACTS is independent of the BRICK line on both glaciers and ice
+sheets, so it corroborates rather than echoes. (3) ⭐ **The medians agree and the tails do not** —
+medians span 2.3×, p95 spans **44×** (IPCC-AR5 5.2 → DeConto/Kopp 230.6). Ladrillo's 39.3 is ~6×
+narrower than the one workflow that can express MICI: our MICI gap is real and lives entirely in
+the tail.
+
+**Antarctica comes back.** AIS penalty @2300 goes +0.003 → +0.630 cm (Ladrillo) and +0.174 → +0.793
+(BRICK). The AIS still never regrows anywhere — zero years of decline after 2100 on both SSPs and
+all seven van Vuuren markers — so the native zero was the temperature artifact, not an absence of
+hysteresis.
+
+**TRIED AND CORRECTED.** (a) I asserted the realised forcing would equal `ERF_126 + delta`; it is
+off by 5.0 %, located per specie in **CO2/Ozone/N2O** — temperature feedback on the carbon cycle. A
+warmer overshoot weakens the sinks, so forcing is partly ENDOGENOUS and no forcing addition gives an
+exactly matched dT; the residual +0.020 K is itself correct overshoot physics. The exact gate moved
+onto the mechanism (injected channel, 1.1e-16) and the feedback is reported. (b) I called the
+Ladrillo/BRICK agreement "common-mode, not independent confirmation" — **too strong, per Marcus**:
+they share a lineage but differ substantially (different glacier models, different Greenland,
+independent posteriors), and Ladrillo shares only the glacier *transient equation* with MAGICC — its
+3-basin separation is its own.
+
+**⛔ EnTK forbids underscores in a pipeline name**, so `ssp126_nomarker` died one second into FACTS
+with an error about `pipeline.0000` while `ssp534overMATCH` ran fine. Our cube convention is
+underscored by construction, so every marker-free scenario hits it. Experiment key now decoupled
+from the cube filename, with a guard that refuses a bad key at build time.
+
+⚠ FACTS stops at 2150 and cannot address SLEIP's 2300 headline. ⚠ `ssp534overMATCH` is IDEALISED —
+never quote it as SSP5-3.4-OS. SLEIP's 0.1–0.3 m is 4–14× our matched median but a near-match to our
+mean (8.94 cm); which statistic they report is the open question.
+
+`python/diag_matched_dt_penalty.py`, `python/diag_ais_regrowth.py`,
+facts `diag_matched_pair_facts_penalty.py`. LADRILLO.md §4/§5/§7 updated.
+
 ## 2026-09-02c — GIC_REGROW: the glacier law is NOT the overshoot penalty, and Antarctica is
 
 **Ran §4 of handoff 09-02b.** Swapped the floored-equilibrium glacier law back to the pre-08-31

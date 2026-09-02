@@ -3,38 +3,27 @@
 The single definition of what "Ladrillo" currently means: which model, which
 posterior, which files, what may be said about them, and what is not in it.
 If you are picking this up cold, read this file plus
-`notes/handoff_2026-09-01c_readers_gates_and_the_amp_error_bar.md` (the current pickup
+`notes/handoff_2026-09-03_gic_regrow_done_antarctica_next.md` (the current pickup
 document); everything else is detail.
 
-**Status 2026-09-01.** Branch `ladrillo-dev`. Posterior **L23 — champion on all six modules
-since 2026-09-01** (`benchmark/champions.json`): L21's calibration with the melt-only glacier
-ratchet replaced by a floored equilibrium + bounded regrowth. **L21 held it 2026-08-28 to
-09-01** and is L14's exact configuration re-run on **FaIR 2.2.4 (calib 1.6.0) + CMIP7**
-drivers, promoted for **coherence, not fit** — L14 is fit to drivers that no longer exist in
-the tree — with TE **1.2355× worse than BRICK 2.0** in the process (L14 was 0.9875×).
+**Status 2026-09-02.** Branch `ladrillo-dev`. Posterior **L24 — champion on all six modules
+since 2026-09-02** (`benchmark/champions.json`): L23's configuration with the Antarctic
+amplification prior at its shipped width **N(1.09, 0.180)**, the measured 34-model CMIP6 spread.
+On fit it is indistinguishable from L23 — **3 of 304 cells** change verdict for a 1.8× wider
+prior — so it was promoted on **provenance, not skill**.
 
-⛔ **L23'S PROMOTION REASONING IS WRONG, AND THE CAUSE IS NOW KNOWN.** It was promoted on a
-2x2 attributing a **+66 cm** AIS@2300 move to the glacier law. Three measurements retire that:
-the law is **inert in the calibration likelihood** (≤7.3e-05 log-units against 1.86 for a 1 %
-glacier-parameter wiggle — a null WITH power); **L25** (L23's config with L21/L22's proposal
-covariance) reads **1.0791 ± 0.0030**, 0.7 se from L23, so the covariance is exonerated too;
-and the actual cause is a **third dropped flag**. `run_mcmc_L21.sh`/`run_mcmc_L22.sh` pass
-`--amp-mu=0.95`; there is no `run_mcmc_L23.sh`, so L23 onward took the default **1.09**. The
-runs' own banners say `N(0.950, 0.100)` for L21/L22 and `N(1.090, 0.100)` for L25.
-**Prior-mean shift +0.1400, posterior span +0.1386, ratio 0.990** — and `ais_gmst_amp` is
-prior-dominated, so it follows its prior. At 386 cm/unit that is ~53 cm of the move.
+⚠ **L24 vs L21 is NOT like-for-like.** Their amp priors differ (N(1.09, 0.180) vs N(0.95, 0.10)),
+so the gap between those vintages is a **prior change, not a model improvement**. The L21→L23 amp
+move was a **dropped `--amp-mu=0.95`** — not the glacier law, not the proposal covariance.
+Post-mortem in §6.
 
-⇒ **The glacier law is exonerated as the cause.** L23 may still be the right champion — the
-floored law is a physical improvement and L23 passed `--accept-slr` — but **L23 vs L21 is not
-like-for-like**: their amp priors differ. Re-promotion on a corrected basis is Marcus's call.
-
-⚠ **This header said 'Posterior L14, canonical since 2026-08-20' until 2026-08-29, and 'L21'
-until 2026-09-01.** L14's *configuration* survives in L21 and L23; L14 as a *posterior* does not.
-⚠ **Numbers below have NOT been regenerated on L21 or L23 — see §4.**
+⚠ **This header has named four champions in a fortnight** (L14 until 08-29, L21 until 09-01,
+L23 until 09-02). L14's *configuration* survives in the L21→L24 line; L14 as a *posterior* does not.
+⚠ **Numbers in §4 have NOT been regenerated past L14 — see §4.**
 
 Both replaced components are shipped and gated in `run_ladrillo_tests.sh`; the convergence
-certificates were cut at the **L14** vintage and have not been re-cut on L21 or L23. **Greenland has its own module memo** —
-`notes/memo_2026-08-23_greenland_module.md` — which is the authority on that
+certificates were cut at the **L14** vintage and have not been re-cut since. **Greenland has its
+own module memo** — `notes/memo_2026-08-23_greenland_module.md` — which is the authority on that
 component; this file gives the model-level view and does not duplicate it.
 
 > **This is no longer "Ladrillo 1.0".** That was the 2026-08-13 baseline (tag
@@ -78,20 +67,23 @@ CMIP6 models over 0.75–2.75 K, held flat outside, normalised to 1 at
 regional T for every year of the observational record, so the law is exactly
 hindcast-inert and no chain re-run was needed.
 
-⚠ **The law carries the model's largest known projection-side defect, and as of
-2026-08-24 it is REPORTED rather than corrected.** At 2100 our Greenland runs ~1.31×
-the ISMIP6 median through the law but lands on it (0.99×, n = 5) driven by each GCM's
-own Greenland temperature — so it is the **driver, not the ice response**, and within
-the driver the **level**, not the shape. Three candidate fixes were tested and all
-three failed: a τ relaxation whose preferred timescale **tracks the observational
-product** rather than any decadal mode; re-anchoring to Berkeley Earth, which turns
-out to be the **worst** of the three products against the observed melt record *and*
-is the calibration driver, so switching it is a recalibration; and a glacier-module
-counterpart, which does not exist — the glacier blocks sit **below** CMIP6 at every
-baseline frame. The premise is itself frame-dependent: with both sides rebased
-consistently, obs/CMIP6 is 1.274× on 1850-1900 and **below 1 on all four
-alternatives**. Report the bias, quantified and one-directional; it is worth ~4 cm at
-ssp585 2100 against an AIS spread of 50.6 cm there. Module memo caveat 4.
+⚠ **This law carries the model's largest known projection-side defect, and as of 2026-08-24 it is
+REPORTED rather than corrected.** At 2100 our Greenland runs ~1.31× the ISMIP6 median through the
+law, but lands on it (0.99×, n = 5) when driven by each GCM's own Greenland temperature — so the
+defect is in the **driver**, not the ice response, and within the driver it is the **level**, not
+the shape. Three fixes were tested and all three failed:
+
+- a **τ relaxation**, whose preferred timescale tracks the *observational product* rather than any
+  decadal mode;
+- **re-anchoring to Berkeley Earth**, which is the worst of the three products against the observed
+  melt record *and* is the calibration driver, so switching it is a recalibration;
+- a **glacier-module counterpart**, which does not exist — the glacier blocks sit *below* CMIP6 at
+  every baseline frame.
+
+The premise is itself frame-dependent: rebasing both sides consistently gives obs/CMIP6 = 1.274× on
+1850-1900 and **below 1 on all four alternatives**. So: report the bias, quantified and
+one-directional. It is worth ~4 cm at ssp585 2100 against an AIS spread of 50.6 cm there. Module
+memo caveat 4.
 
 Constants and shape table: `LADRILLO_GIS_*` in `julia/ladrillo_projection.jl`,
 `outputs/gis_amp_shape{,_meta}.csv`.
@@ -134,9 +126,8 @@ not**. Certificate: `outputs/mcmc/slr_convergence_L14.csv`.
   mixtures of chains that never merged, not posteriors. No credible intervals, no
   scatter plots, no cross-vintage marginal comparisons for the **AIS geometry** block
   — worst axis `ais_iceflow0`, whose R̂ has run **2.2–2.4 across recent vintages**
-  (2.359 at L10, 2.449 at L11), plus `antarctic_alpha` and `ais_slope`. **The L14
-  value has not been re-measured for this file** — quote a vintage with its number,
-  or quote none.
+  (2.359 at L10, 2.449 at L11), plus `antarctic_alpha` and `ais_slope`. The L14 value has not
+  been re-measured — quote a vintage with its number, or quote none.
 - **The Greenland half of this caveat is SUPERSEDED.** Ladrillo 1.0's rule named four
   failing Greenland marginals with chain medians spanning 2.8×. At L14 the block is
   **3 of 9 failing, all marginally, worst R̂ 1.075**, and the slow-rate median spread
@@ -215,9 +206,9 @@ The base arm is needed as well as the tapped one: `test_gis_tap_wiring.jl` measu
 
 ## 4. Headline numbers
 
-⚠ **THESE ARE L14 NUMBERS AND KEEP THAT LABEL UNTIL RE-RUN.** The champion has moved twice
-since (L21 on 2026-08-28, **L23** on 2026-09-01) and this table has been regenerated on
-neither. Do **not** relabel these as L21 or L23.
+⚠ **THESE ARE L14 NUMBERS AND KEEP THAT LABEL UNTIL RE-RUN.** The champion has moved three times
+since (L21, L23, **L24**) and this table has been regenerated on none of them. Do **not** relabel
+them.
 ⚠ **FaIR-MEAN forcing = a FIXED driver**, so this band is posterior-parameter spread only and
 carries no forcing uncertainty. It is **not** the JOINT band, and it is not comparable in
 width to MAGICC or FACTS. See the band-provenance table in the model document.
@@ -265,6 +256,44 @@ the total with a p05–p95 of **26.9 cm**; Antarctic is **54.8%** with **252.3 c
 total's spread). **Greenland is now the smallest-uncertainty ice component in the
 model. The leverage is AIS.**
 
+### The overshoot penalty, and the pair you must use to measure it
+
+⛔ **THE NATIVE `ssp534over`/`ssp126` PAIR CANNOT MEASURE THIS.** Our SSP5-3.4-OS crosses
+**below** SSP1-2.6 in **2127** and ends **0.126 K cooler**, so the reference arm becomes the
+warmer one and catches up on its own. That artifact alone closes the whole penalty and inverts
+its sign. Use **`ssp534overMATCH`** = `ERF_126 + max(ERF_534 − ERF_126, 0)`, built in *forcing*
+space (`build_fair_cube_matched_dt.py`, FaIRtoFrEDI `claude/calib160-migration`); GSAT then
+relaxes back from **above** (+0.042 K @2150, +0.020 @2300). ⚠ Idealised — never label it
+SSP5-3.4-OS.
+
+Total penalty, paired median, cm (`python/diag_matched_dt_penalty.py`):
+
+| | native pair | matched pair |
+|---|---|---|
+| Ladrillo L24 @2300 | −1.23 | **+2.21** |
+| BRICK 2.0 @2300 | −0.52 | **+2.57** |
+
+**Ladrillo is mid-pack on the matched pair.** At 2150 the four FACTS process-based workflows span
+**2.40–5.48 cm** (Bamber SEJ 2.40, IPCC AR5 3.21, DeConto/Kopp 4.07, LARMIP-2 5.48), with Ladrillo
+**3.32** and BRICK 2.0 **3.35** inside that range. FACTS is independent of the BRICK line on both
+glaciers and ice sheets, so this corroborates the Ladrillo/BRICK agreement rather than echoing it.
+⚠ **FACTS stops at 2150** and cannot address SLEIP's 2300 headline.
+
+⭐ **The medians agree and the tails do not.** At 2150 medians span 2.3× while p95 spans **44×**
+(IPCC-AR5 **5.2** cm → DeConto/Kopp **230.6**). Ladrillo's **39.3** sits near Bamber SEJ (38.4) and
+BRICK 2.0 (46.4) and is **~6× narrower than the one workflow that can express MICI**. The MICI gap
+is real, quantified, and lives **entirely in the tail**.
+
+⚠ **SLEIP reports 0.1–0.3 m at 2300** — 4–14× our matched **median** (2.21 cm) but a near-match to
+our **mean** (8.94). Which statistic they report is unresolved and decides whether a disagreement
+exists at all.
+
+⭐ **Antarctica carries this.** The AIS penalty @2300 goes **+0.003 → +0.630 cm** (Ladrillo) and
+**+0.174 → +0.793** (BRICK 2.0) between the native and matched pairs — the largest non-TE share in
+both. The AIS still **never regrows** on any pathway (zero years of decline after 2100 on both SSPs
+and all seven van Vuuren markers); the native zero was the temperature artifact, not an absence of
+hysteresis.
+
 ---
 
 ## 5. Standing caveats — carry these into any report
@@ -294,7 +323,10 @@ model. The leverage is AIS.**
    the shipped 95.7 cm is the *maximum* of the admissible range (median 66.8 cm),
    because the cell was chosen as the largest V clearing the melt-rate band. A
    symmetric ± band around it is wrong in both directions.
-7. **Greenland-specific caveats do not all live here.** The module memo carries ten,
+7. **Overshoot scenarios: use the matched pair, and never a median alone.** §4. The native
+   `ssp534over`/`ssp126` pair inverts in temperature and measures an artifact rather than
+   hysteresis; and on the matched pair the models' medians agree to 2.3× while their p95 span 44×.
+8. **Greenland-specific caveats do not all live here.** The module memo carries ten,
    including the 2100 amplification bias, the cool-arm separation residual, the
    contradictory 2150 evidence, and the zero moderate-scenario SC-GHG term.
 
@@ -312,6 +344,23 @@ the reasoning.
 | `outputs/quarantine/20260823_old_tap_cell/` | the first-order tap cell (6.5 K, 2.0 m, 50 yr) — a **refutation** of the form |
 | `outputs/quarantine/20260823_v6p0_cell/` | the V = 6.0 m cascade — a **refinement within one family**, not a refutation |
 
+### Why L23's promotion reasoning was retired
+
+L23 was promoted on a 2x2 attributing a **+66 cm** AIS@2300 move to the glacier law. Three
+measurements retire that attribution:
+
+* the law is **inert in the calibration likelihood** — ≤7.3e-05 log-units against 1.86 for a 1 %
+  glacier-parameter wiggle, a null **with** power;
+* **L25** (L23's config with L21/L22's proposal covariance) reads **1.0791 ± 0.0030**, 0.7 se from
+  L23, so the covariance is exonerated too;
+* the actual cause is a **third dropped flag**. `run_mcmc_L21.sh`/`run_mcmc_L22.sh` pass
+  `--amp-mu=0.95`; there is no `run_mcmc_L23.sh`, so L23 onward took the default **1.09**. Prior-mean
+  shift **+0.1400**, posterior span **+0.1386**, ratio **0.990** — and `ais_gmst_amp` is
+  prior-dominated, so it follows its prior. At 386 cm/unit that is ~53 cm of the move.
+
+The floored glacier law remains a physical improvement; what it does not have is the AIS effect it
+was credited with. Every vintage now has a pinned `run_mcmc_<TAG>.sh` with an arm-verification block.
+
 Named posterior constants for superseded vintages: `LADRILLO_POSTERIOR_L12_CSV`
 (the last whole-sheet vintage, and the `:ab` test fixture — point `:ab` tests here,
 never at the canonical constant) and `LADRILLO_POSTERIOR_L13_CSV` (never promoted;
@@ -326,21 +375,29 @@ prints the gap against the shipped cell at import.
 
 ## 7. Open threads
 
-1. **The Greenland amplification law at 2100** — §1. Diagnosed, three fixes refuted,
-   now a reported bias rather than open work. Reopening needs a new idea; the one
-   live thread is the estimator (a through-origin secant is not baseline-invariant).
-2. ~~The cascade cell-choice envelope~~ — **quantified 2026-08-24**, §5 caveat 6.
-3. **`gis_beta_f` prior re-bounding** — does re-bounding to the data support buy
-   anything, or is β_f riding a ridge with `f`?
-4. **Sampler work on AIS is NOT warranted** — there is no ridge to rotate (worst
-   direction is `ais_iceflow0` alone; block correlation condition number 8) and the
-   axis explains R² < 0.001 of the projection. It is a reporting caveat.
-5. **The Greenland slow-channel reparameterisation is DONE** — this was thread 3 of
-   Ladrillo 1.0. Sampling `(log r_s, tilt)` took the slow channel from R̂ 1.180 /
-   ESS 34 to R̂ 1.005 / ESS 1598. Closed 2026-08-23 by measurement.
-6. **Next calibration** — collects (3) and an explicit discrepancy term for the noise
-   model into ONE spec, rather than changes that each invalidate the last.
-7. **Antarctica is where the leverage is** — §4.
+1. **The Greenland amplification-law estimator** — the bias itself is diagnosed and reported (§1),
+   and three fixes are refuted. The one live thread is the estimator: a through-origin secant is not
+   baseline-invariant. Reopening the law needs a new idea, not another fix.
+2. **`gis_beta_f` prior re-bounding** — does re-bounding to the data support buy anything, or is
+   β_f riding a ridge with `f`?
+3. **Next calibration** — collects (2) and an explicit discrepancy term for the noise model into
+   ONE spec, rather than changes that each invalidate the last.
+4. ⭐ **Which statistic is SLEIP's 0.1–0.3 m?** One fact, and it decides whether our overshoot
+   penalty disagrees with theirs at all (§4). Highest-value open item in this file.
+5. ⭐ **How deep is the real SSP5-3.4-OS overshoot?** Ours has a peak excess of only **+0.311 K**
+   over SSP1-2.6. If the published pair is nearer 0.5–0.6 K, much of any residual gap is scenario
+   depth rather than model physics.
 
-Also owed: ν sensitivity once; a refit with the four glacier set-asides at prior
-centres; and a decision on whether the current state gets a `2.0` tag.
+Also owed: ν sensitivity once; a refit with the four glacier set-asides at prior centres; and a
+decision on whether the current state gets a `2.0` tag.
+
+### Settled — do not re-derive
+
+| question | verdict |
+|---|---|
+| Is the floored glacier law why Ladrillo recovers from an overshoot? | **No**, ruled out *with power*: ≤6.2e-05 cm against a 0.008–0.068 bar (`diag_gic_regrow_penalty.py`) |
+| Does Ladrillo's Antarctica regrow unrealistically fast? | **No — it never regrows at all**; zero years of decline after 2100 on both SSPs and all seven van Vuuren markers (`diag_ais_regrowth.py`). At ~1.6 K, continued loss is expected |
+| Is sampler work on AIS warranted? | **No.** No ridge to rotate (worst direction `ais_iceflow0` alone, block condition number 8) and the axis explains R² < 0.001 of the projection. A reporting caveat |
+| The cascade cell-choice envelope | **Quantified** 2026-08-24 — §5 caveat 6 |
+| The Greenland slow-channel reparameterisation | **Done** 2026-08-23. Sampling `(log r_s, tilt)` took the slow channel from R̂ 1.180 / ESS 34 to R̂ 1.005 / ESS 1598 |
+| Where is the leverage? | **Antarctica** — §4, and the overshoot decomposition agrees: AIS carries the largest non-TE share of the matched-pair penalty in Ladrillo *and* BRICK 2.0 |
