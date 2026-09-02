@@ -92,10 +92,48 @@ this whole arc was built on.
 Totals, median joint band (cm): ssp245/2300 **158.9 → 263.8**, ssp585/2300 **491.6 → 519.2**,
 ssp126/2300 **70.9 → 72.9**.
 
+## 4b. L24 HAS LANDED — AND THE PRIOR WIDTH IS NOT A LEVER (2026-09-02)
+
+`run_l24_postprocess.sh` completed in 66 min, every step OK. **ACCEPTED ON DELIVERABLE**:
+SLR@2100 R-hat **1.008** ESS 1049, SLR@2150 R-hat **1.011** ESS 1061; 19 parameter marginals
+unconverged (L21: 18) — the documented AIS-geometry ridge, same as every vintage.
+
+| | PASS | WARN | FAIL |
+|---|---|---|---|
+| L21 *(superseded prior)* | **87** | 63 | 4 |
+| L23 *(champion)* | 86 | 64 | 6 |
+| **L24 — SHIPPED PRIOR** | **85** | 65 | 6 |
+| L22 | 77 | 72 | 7 |
+
+⭐ **L23 → L24 changes only 3 of 304 cells** (2 worse, 1 better), and two of the three merely
+cross a threshold (`gis ssp585/2150 spread` 0.55→0.47; `total ssp126/2150 spread` 1.49→1.66;
+`total ssp245/2150 median` 1.15→1.07, better). **A 1.8× wider prior is worth three cells.** That
+matches the earlier finding that it widened the AIS band only 1.07×: amplification dominates the
+between-VINTAGE SHIFT, not the BAND.
+
+Totals, median joint (cm) — L24 sits slightly BELOW L23 at the warm end, tracking its lower amp
+median (1.0723 vs 1.0824):
+
+    scenario    yr        L21       L23       L24
+    ssp126    2300      70.85     72.85     72.58
+    ssp245    2300     158.93    263.80    249.20
+    ssp585    2300     491.55    519.20    481.57
+
+⚠ **The one thing the CORRECT prior makes worse is AIS spread against the literature at the cool
+scenario**: `ais ssp126/2100 spread_vs_lit` **2.19 → 2.55× lit** (both FAIL). The measured CMIP6
+prior width produces an AIS band 2.5× the literature's there. Not automatically a defect — 78 % of
+ssp585/2300 AIS width is `antarctic_lambda`, a PRIOR, and narrowness is never scored as a win —
+but it is the sharpest remaining tension and it is not fixed by anything in this comparison.
+
+⇒ **On fit, L23 and L24 are indistinguishable.** The tiebreaker is provenance: L24 is the only
+vintage on the shipped prior N(1.09, 0.180). L21's higher score rests on an amp centre (0.95) that
+was superseded on measured grounds — 34 CMIP6 models put it at 1.09 — so it is not a reason to
+keep L21.
+
 ## 5. WHAT IS ACTUALLY OPEN
 
-1. ⭐ **L24 is running to a benchmark** (`run_l24_postprocess.sh`, 09-01). It is the only vintage
-   on the shipped prior. Until it scores, the production configuration is unmeasured.
+1. ✅ **L24 is benchmarked** (§4b). It scores within 3 cells of L23 and is the only vintage on the
+   shipped prior. **Recommended champion on provenance, not on fit.**
 2. **The champion decision.** L23's promotion reasoning is void and L23-vs-L21 is not
    like-for-like. Re-promotion on a corrected basis is Marcus's call and wants L24's score first.
 3. **The glacier law has never been tested on fit alone** (§2). One 3 h run — L25's config with
