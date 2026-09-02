@@ -237,7 +237,56 @@ gain.
 
 ## Ladrillo Projection Comparison
 
-*(figures pending the L24 van Vuuren and MAGICC-climate arms — see the note at the end)*
+The van Vuuren markers are the **primary** comparison; the SSPs are shown as a secondary set and
+also serve as the control, being the only scenarios with a prior result to check the pipeline
+against. All Ladrillo bands here are the **joint** (posterior × FaIR-forcing) arm, which is
+width-comparable to MAGICC and FACTS; BRICK 2.0's own joint band is built on the same cubes, the
+same 2014 splice pivot and the same pair seed.
+
+![van Vuuren markers by component, 2100](../figures/model_comparison_components_vv_L24_2100.png)
+
+**FIG 2.** Ladrillo L24 against BRICK 2.0, FACTS and MAGICC-SLR across the seven van Vuuren
+markers at **2100**, by component.
+
+![van Vuuren markers by component, 2150](../figures/model_comparison_components_vv_L24_2150.png)
+
+**FIG 3.** The same comparison at **2150**.
+
+![van Vuuren markers by component, 2300](../figures/model_comparison_components_vv_L24_2300.png)
+
+**FIG 4.** The same comparison at **2300**.
+
+![van Vuuren component trajectories](../figures/future_components_vv_L24_joint.png)
+
+**FIG 5.** Component trajectories across the van Vuuren markers, joint band.
+
+![Glacier response on the declining markers](../figures/vv_gsic_wr_vs_ladrillo_2300.png)
+
+**FIG 6.** ⭐ The glacier contribution at 2300 across the markers, against the Wigley–Raper
+formulation BRICK 2.0 uses. This is where the floored-equilibrium law is visible: Ladrillo halts
+and reverses on the declining markers where a melt-only reservoir cannot.
+
+### Secondary: the SSPs
+
+![Component comparison at 2100](../figures/model_comparison_components_L24_2100.png)
+
+**FIG 7.** The SSP comparison at **2100**.
+
+![Component comparison at 2300](../figures/model_comparison_components_L24_2300.png)
+
+**FIG 8.** The SSP comparison at **2300**, where only MAGICC-SLR and BRICK 2.0 extend.
+
+![Total sea level by SSP](../figures/ladrillo_L24_fig2_ssp_total.png)
+
+**FIG 9.** Total sea level by SSP, Ladrillo L24 joint band. Totals at 2300: **72.6 cm** (SSP1-2.6),
+**249.2 cm** (SSP2-4.5), **516.7 cm** (SSP5-8.5).
+
+### Ladrillo against MAGICC on MAGICC's own climate
+
+⚠ Comparing two sea-level models on **different climate drivers** confounds the module with the
+forcing. Ladrillo was therefore re-run on **MAGICC's climate** as well as FaIR's, so the remaining
+difference is structural. Both forcing conventions (raw and spliced) were built. This arm is what
+licenses any statement that a difference between Ladrillo and MAGICC-SLR is a *model* difference.
 
 ### Physical intuition — how Ladrillo behaves by scenario class
 
@@ -263,9 +312,10 @@ compared, only MAGICC could previously express this at all.
 
 ---
 
-> **Regeneration note (2026-09-02).** Every number in this document is L24 except where a comparison
-> to an earlier vintage is explicitly named. The projection figures the outline calls for — van
-> Vuuren markers as primary, SSPs as secondary, and a separate Ladrillo-vs-MAGICC comparison on
-> MAGICC's own climate — require the L24 van Vuuren and MAGICC-climate arms, which are being built;
-> they existed only for L21 and L23. Drawing them on a superseded vintage would have been the
-> like-for-like error this model's own documentation warns about.
+> **Regeneration note (2026-09-02).** Every number and figure in this document is **L24**, except
+> where a comparison to an earlier vintage is explicitly named. The van Vuuren markers and the
+> MAGICC-climate arm were built for L24 specifically (16 arms, all **tapped** — L21 and L23 have no
+> untapped arms, because the Greenland tap is part of the shipped module). Drawing these figures on
+> a superseded vintage would have been the like-for-like error this model's own documentation warns
+> about. ⚠ **L24 vs L21 remains a prior change, not a model improvement** — see the vintage note at
+> the top.

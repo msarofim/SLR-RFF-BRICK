@@ -45,4 +45,13 @@ D=deliverables/LadrilloUpdateDescription_${T}.docx
   echo "  w:tbl elements: $(unzip -p $D word/document.xml | grep -o '<w:tbl>' | wc -l | tr -d ' ')"
   echo "  headings:       $(pandoc $D -t markdown 2>/dev/null | grep -c '^#')"
   echo "  size:           $(du -h $D | cut -f1)"; } | tee -a "$LOG"
-say "DONE. ⚠ Check the media count matches the figure count in the document."
+EXPECTED=$(grep -c "^!\[" deliverables/LadrilloUpdateDescription_FILLED.md)
+GOT=$(unzip -l $D | grep -c "word/media")
+if [ "$EXPECTED" -ne "$GOT" ]; then
+  say "*** FIGURE COUNT MISMATCH: source markdown has $EXPECTED figures, the docx embeds $GOT."
+  say "*** This is the check that caught the 2026-09-02 regression, where the projection figures"
+  say "*** were added to a TEMPORARY build file and not to the canonical source, so a faithful"
+  say "*** rebuild silently shipped 1 figure instead of 6. DO NOT SHIP until they match."
+  exit 1
+fi
+say "DONE. $GOT figures embedded, matching the source."
