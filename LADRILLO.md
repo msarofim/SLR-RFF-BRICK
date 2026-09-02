@@ -13,15 +13,20 @@ ratchet replaced by a floored equilibrium + bounded regrowth. **L21 held it 2026
 drivers, promoted for **coherence, not fit** — L14 is fit to drivers that no longer exist in
 the tree — with TE **1.2355× worse than BRICK 2.0** in the process (L14 was 0.9875×).
 
-⛔ **L23'S PROMOTION REASONING IS CORRECTED, AND THE CORRECTION IS NOT YET RESOLVED.** It was
-promoted on a 2x2 attributing a **+66 cm** AIS@2300 move to the glacier law. Measured the same
-day: the law is **inert in the calibration likelihood** (≤7.3e-05 log-units against 1.86 for a
-1 % glacier-parameter wiggle — a null WITH power), and the 2x2's "law changed" cell **also**
-changed proposal covariance (L23 lost `--adcov` and fell through to an older tuning vintage,
-AIS-block proposal 2.7–5.3× tighter). So it was never one variable. `champions.json` keeps the
-original reasoning verbatim with a `correction_2026-09-01` field beside it. **L25** — L23's
-config with L21/L22's covariance — is the deciding run. Until it reads out, do not repeat
-"a glacier convention was setting Antarctic amplification" as established.
+⛔ **L23'S PROMOTION REASONING IS WRONG, AND THE CAUSE IS NOW KNOWN.** It was promoted on a
+2x2 attributing a **+66 cm** AIS@2300 move to the glacier law. Three measurements retire that:
+the law is **inert in the calibration likelihood** (≤7.3e-05 log-units against 1.86 for a 1 %
+glacier-parameter wiggle — a null WITH power); **L25** (L23's config with L21/L22's proposal
+covariance) reads **1.0791 ± 0.0030**, 0.7 se from L23, so the covariance is exonerated too;
+and the actual cause is a **third dropped flag**. `run_mcmc_L21.sh`/`run_mcmc_L22.sh` pass
+`--amp-mu=0.95`; there is no `run_mcmc_L23.sh`, so L23 onward took the default **1.09**. The
+runs' own banners say `N(0.950, 0.100)` for L21/L22 and `N(1.090, 0.100)` for L25.
+**Prior-mean shift +0.1400, posterior span +0.1386, ratio 0.990** — and `ais_gmst_amp` is
+prior-dominated, so it follows its prior. At 386 cm/unit that is ~53 cm of the move.
+
+⇒ **The glacier law is exonerated as the cause.** L23 may still be the right champion — the
+floored law is a physical improvement and L23 passed `--accept-slr` — but **L23 vs L21 is not
+like-for-like**: their amp priors differ. Re-promotion on a corrected basis is Marcus's call.
 
 ⚠ **This header said 'Posterior L14, canonical since 2026-08-20' until 2026-08-29, and 'L21'
 until 2026-09-01.** L14's *configuration* survives in L21 and L23; L14 as a *posterior* does not.

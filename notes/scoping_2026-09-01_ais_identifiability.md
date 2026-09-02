@@ -22,9 +22,20 @@
 >    **4.93 cm** reproducibility figure is BLIND — L23b shares L23's covariance and varied
 >    only RNG, so it measured noise *inside* the defect.
 >
-> What IS resolved: the L21→L23 span itself, **+0.1386 ± 0.0041, ~34 se**. **L25** (L23's
-> config with L21/L22's covariance, verified to have received L14tune 58/58) is the deciding
-> run. The five options in §5 were scoped under the refuted premise — re-read them against it.
+> ⇒ **RESOLVED, later the same day, by L25.** L25 (L23's config + L21/L22's covariance) reads
+> **1.0791 ± 0.0030** — 0.7 se from L23, 39 se from L21 — so the covariance is exonerated too.
+> Both standing hypotheses dead, the cause is a **THIRD DROPPED FLAG**: `run_mcmc_L21.sh` and
+> `run_mcmc_L22.sh` pass `--amp-mu=0.95`, there is no `run_mcmc_L23.sh`, and L23 onward took the
+> default **1.09**. The banners: L21/L22 `N(0.950, 0.100) on [0.650, 1.250]`, L25
+> `N(1.090, 0.100) on [0.790, 1.390]`. **Prior-mean shift +0.1400 vs posterior span +0.1386,
+> ratio 0.990**, on a parameter this very document measured as prior-dominated. At 386 cm/unit
+> that is ~53 cm of the ~66-69 cm AIS move.
+>
+> ⚠ **AND IT DISSOLVES §2's PREMISE.** "Under the ratchet the likelihood pulled amp 1.45 σ below
+> its prior" was an artifact of scoring L21 against the WRONG prior. Against the prior each run
+> actually used, z_own is **−0.06 / −0.04 / −0.08 / −0.00 / −0.11** for L21/L22/L23/L23b/L25 —
+> every vintage sits on its own prior mean, as a prior-dominated parameter must. There was no
+> displaced centre to explain. `python/diag_amp_by_vintage.py`.
 
 **Written 2026-09-01** after the L23 refit moved Antarctica by +66 cm at ssp245/2300 while the
 glacier module — believed at the time to be the only thing changed, and a change that is
