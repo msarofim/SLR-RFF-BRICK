@@ -38,6 +38,11 @@ projections.
 (prior 1.45). It equilibrates quickly enough that its committed volume is close to its realised
 volume through most of the record.
 
+The three blocks therefore cover **18 of the 19 RGI first-order regions**: `RGI 05` (Greenland
+Periphery) is excluded because it falls inside the Greenland ice-sheet mask and is carried by that
+module, so including it here would double-count. Frederikse's glacier target excludes both
+peripheries (05 and 19); Ladrillo drops 05 and keeps 19 as its own block, for the reason below.
+
 **R19 — Antarctic and Subantarctic periphery.** This block exists for an **observational scope**
 reason, not a dynamical one. The historical glacier target (Frederikse) **assumes zero
 Antarctic-periphery melt**, while the GlaMBIE series spliced in from 2019 onward **includes it**.

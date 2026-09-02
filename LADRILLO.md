@@ -40,13 +40,23 @@ component; this file gives the model-level view and does not duplicate it.
 
 | component | Ladrillo | source |
 |---|---|---|
-| glaciers & small ice caps | **three-reservoir Mengel-type emulator** — R19 (RGI 19), SLOWP (RGI 03/09/07/06) and FAST (the other 13), each on its OWN area-weighted driver | `julia/glaciers_nu3_component.jl` |
+| glaciers & small ice caps | **three-reservoir Mengel-type emulator** — R19 (RGI 19), SLOWP (RGI 03/09/07/06) and FAST (the other 13 — **18 of 19 RGI regions**, see below), each on its OWN area-weighted driver | `julia/glaciers_nu3_component.jl` |
 | Greenland | **two-basin Mouginot-sector A+B** — two-channel relaxation (fast/SMB + slow/dynamic) sharing an equilibrium commitment through `gis_f`, partitioned over active (SW+CW+CE+SE+NW) and high (NO+NE) basins, on a **regional** south-Greenland driver, **plus a volume tap** | `julia/greenland_3basin_component.jl` |
 | Antarctic, thermal expansion, LWS | stock MimiBRICK v2.0.0 | MimiBRICK |
 
 Glacier reservoirs integrate `S_eq,b = a_b (1 − exp(−b_b (T_b − T_off,b)))` with
 `dS_b = min(κ_b · exc^ν_b, 1)(S_eq,b − S_b)`; `ν_b` is **fixed**, not sampled
 (the hindcast cannot identify it).
+
+⚠ **The three blocks cover 18 of the 19 RGI first-order regions — `RGI 05` (Greenland Periphery) is
+excluded, and the two peripheries are treated ASYMMETRICALLY.** Frederikse 2020's glacier target
+excludes **both** peripheral regions (05 and 19), which is why the scope-matched inventory is
+0.221 ± 0.057 m SLE rather than the 0.324 ± 0.084 full-RGI value. Ladrillo drops 05 entirely — it
+falls inside the Greenland ice-sheet mask, so carrying it here would **double-count against the
+Greenland module** — but keeps 19 as its own block, because GlaMBIE (spliced from 2019) does include
+it and RGI 19's ice is not inside DAIS's scope the way 05's is inside the Greenland mask. Hence the
+hindcast is scored on **SLOWP + FAST only**, matching the target's scope, while R19 still contributes
+to projected totals. Members are in `outputs/extc_block_constants.csv`, which is the source of truth.
 
 Greenland carries **nine** sampled parameters: the five A+B shape/rate parameters,
 the slow channel as a reparameterised pair `(gis_slow_ell, gis_slow_w)`, the
