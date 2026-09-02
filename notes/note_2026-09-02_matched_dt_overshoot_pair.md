@@ -113,3 +113,66 @@ FaIR 2.2.4 (calib 1.6.0) + CMIP7, marker-free, 841 configs → Ladrillo L24 (shi
 refit, tapped, 2000 draws) and BRICK 2.0 (`oldbrick`, 1000 draws); `joint` arm, `spliced` forcing,
 cm, end year 2300. Cubes `fair_cube_{gmst,ohc}_ssp534overMATCH_raw.csv`. Six FaIR runs + four SLR
 arms, all local, ~9 min total.
+
+---
+
+# ADDENDUM — FACTS on the matched pair (2026-09-02, Marcus's request)
+
+**⚠ HORIZON FIRST: FACTS is configured to `pyear_end` 2150 and does NOT reach 2300.** It cannot
+address SLEIP's 2300 headline. Everything below is 2100/2150, read against Ladrillo/BRICK **at
+those years**. Run: facts repo `slr-comparison-arm` `8eccc5e3`;
+`python3 diag_matched_pair_facts_penalty.py`.
+
+## Ladrillo is MID-PACK among four process-based methods
+
+Paired median penalty at 2150, matched pair, cm — sorted:
+
+| | median | mean | p95 |
+|---|---|---|---|
+| wf4 Bamber SEJ | 2.40 | 6.80 | 38.4 |
+| wf1f IPCC AR5 | 3.21 | 3.39 | **5.2** |
+| **Ladrillo L24** | **3.32** | 9.06 | 39.3 |
+| **BRICK 2.0** | **3.35** | 11.34 | 46.4 |
+| wf3f DeConto/Kopp | 4.07 | **27.37** | **230.6** |
+| wf2f LARMIP-2 | 5.48 | 6.01 | 10.8 |
+
+FACTS is the comparator independent of the BRICK line on **both** glaciers and ice sheets, so this
+turns the Ladrillo/BRICK agreement from possible common-mode into corroboration.
+
+## ⭐ The medians agree and the tails do not — and that is the finding
+
+Medians span **2.3×** (2.40-5.48). p95 spans **44×** (5.2-230.6). Ladrillo's tail (39.3) sits close
+to Bamber SEJ (38.4) and BRICK (46.4), far wider than IPCC-AR5 (5.2), and **~6× narrower than
+DeConto/Kopp (230.6)** — the one workflow that can express marine ice cliff instability.
+
+⇒ The MICI concern is **real and now quantified**, and it lives **entirely in the tail**, not in the
+central estimate. ⇒ An overshoot penalty compared on medians alone will show agreement that the
+tails do not support — and vice versa.
+
+## Method notes
+
+* **The pairing is EXACT.** FACTS is deterministic on the non-emu workflows (`default_rng(1234)`;
+  two identical runs bit-identical) and both arms draw the SAME 200 configs in the same order, so
+  sample i shares its climate config AND its module RNG draws: structural ice-sheet noise cancels
+  exactly in the difference, not approximately.
+* **Both arms `lws_ssp=ssp1`, deliberately.** `landwaterstorage` selects a POPULATION pathway, not
+  climate; giving the overshoot arm ssp5 would put a reservoir/groundwater difference INTO the
+  penalty. Held fixed, LWS cancels — as it does in Ladrillo and BRICK (LWS penalty 0.000 cm).
+* **Identical workflow set on both arms** (wf1f/wf2f/wf3f/wf4; no emulandice, which is per-SSP
+  trained and 2100-capped), so module differences are module differences, not config differences.
+* ⚠ FACTS is rel. baseyear 2005 where the others are rel. 1995-2014 — the standing approximation.
+* ⛔ **EnTK forbids underscores in an experiment key.** `ssp126_nomarker` failed one second in with
+  a message about `pipeline.0000`; `ssp534overMATCH` ran fine. Our cube convention is underscored by
+  construction, so every marker-free scenario hits it. The key is now decoupled from the cube
+  filename and a guard refuses a bad key at BUILD time.
+
+## ⭐ A framing correction (Marcus, 2026-09-02)
+
+My previous answer called the Ladrillo/BRICK agreement "common-mode, not independent confirmation".
+**That was too strong, and Marcus is right.** The two share a lineage but differ substantially —
+different glacier models (nu3 Mengel+Nauels vs Wigley-Raper), different Greenland, and independent
+posteriors. Likewise Ladrillo and MAGICC share the glacier **transient equation** (Nauels 2017
+Eq. 3), but **Ladrillo's 3-basin separation (R19/SLOWP/FAST) is its own** and MAGICC has no
+counterpart. The right phrasing is "shares the transient law with MAGICC" and "shares a lineage with
+BRICK" — not "is not independent". FACTS then places Ladrillo mid-pack among four genuinely
+independent methods regardless.
