@@ -7,20 +7,14 @@ scenarios, update the Antarctic calibration approach to better match observation
 update the Greenland model to incorporate the different responses of surface melt balance and ice
 discharge.
 
-*(summary)* Ladrillo compares well relative to the other models and sits in a unique space. Unlike
+Ladrillo compares well relative to the other models and sits in a unique space. Unlike
 MAGICC, Ladrillo is designed to work with the FaIR model. Unlike FACTS, Ladrillo has a simplified
 structure. Ladrillo does a good job matching historical observations, with the primary weakness being
 thermal expansion, though that is inherited from FaIR and does not appear when running with OHC from
 observation. For future projections, Ladrillo matches physical expectations and is comparable to the
 other models despite different structural approaches.
 
-> **Vintage.** This document describes posterior **L24**, champion since 2026-09-02. L24 is L23's
-> configuration with the Antarctic amplification prior at its shipped width, **N(1.09, 0.180)** — the
-> measured 34-model CMIP6 between-model spread. It is the only vintage on that prior. On fit it is
-> indistinguishable from L23 (85/65/6 PASS/WARN/FAIL against 86/64/6; 3 of 304 cells change verdict),
-> so it was promoted on provenance rather than skill. ⚠ **L24 is not like-for-like with L21**, whose
-> amplification prior was N(0.95, 0.10): the difference between those vintages is a prior change, not
-> a model improvement. Basis for every number below: **cm, re-referenced to 1995–2014**.
+> **Vintage.** This document describes posterior **L24**. Basis for every number below: **cm, re-referenced to 1995–2014**.
 
 ---
 
@@ -44,7 +38,7 @@ projections.
 (prior 1.45). It equilibrates quickly enough that its committed volume is close to its realised
 volume through most of the record.
 
-**R19 — Antarctic and Subantarctic periphery.** ⚠ This block exists for an **observational scope**
+**R19 — Antarctic and Subantarctic periphery.** This block exists for an **observational scope**
 reason, not a dynamical one. The historical glacier target (Frederikse) **assumes zero
 Antarctic-periphery melt**, while the GlaMBIE series spliced in from 2019 onward **includes it**.
 Folding R19 into either other block would leave the model's hindcast scope mismatched against the
