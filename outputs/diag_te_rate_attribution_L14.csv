@@ -1,0 +1,9 @@
+block,key,value,note
+A,model_over_target,1.1919452899504084,BRICK 2.0 1.171x
+B,fair_over_Zanna+Cheng (0-2000m),1.2852064522217348,obs 1.0826 1e22 J/yr
+B,fair_over_Zanna+IGCC (0-2000m),1.2359051362445361,obs 1.1258 1e22 J/yr
+C,alpha_model_over_Zanna+Cheng (0-2000m),0.9274348785674815,"alpha model 0.10571, obs-implied 0.11398"
+C,alpha_model_over_Zanna+IGCC (0-2000m),0.9644310513768833,"alpha model 0.10571, obs-implied 0.10961"
+D,igcc_fulldepth_over_0_2000m,1.1021504216460887,1993-2024; IGCC ocean_2000-6000m layer
+D,fair_over_igcc_fulldepth,1.1022299510618447,vs 0-2000m 1.215x
+E,frederikse_over_noaa_on_overlap,0.9371642936345013,"2005-2018; splice is a LEVEL match, so a slope ratio != 1 means the two segments of the target have different scope or method"

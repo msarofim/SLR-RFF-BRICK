@@ -71,6 +71,28 @@ PROJ_REF_WINDOW = (1995, 2014)     # AR6 projection re-reference
 WINDOWS = [("full", None), ("1920-1949", (1920, 1949)),
            ("1950-1992", (1950, 1992)), ("1993-2026", (1993, 2026))]
 RATE_WINDOW = (1993, 2026)         # the altimetry era: where a rate is measurable
+
+# ---------------------------------------------------------------- DEPTH SCOPE (2026-09-02)
+# ⚠ THE MODEL AND THE STERIC TARGET DO NOT MEASURE THE SAME OCEAN. FaIR's `ohc_1e22J` is
+# FULL-DEPTH; the steric target is built from 0-2000 m products — `ohc_spliced_zanna_igcc.csv`
+# says so in its own header ("IGCC 2024 ocean_0-2000m"). TE = alpha x OHC, so the model carries
+# a >2000 m expansion the target does not. This benchmark scored the two against each other with
+# NO correction until 2026-09-02, reporting te rate/1993-2026 as 1.27x obs at z=+5.87 — its only
+# observational FAIL — when `scope_before_skill` had already measured the correction in August
+# and found ~51 % of the overshoot was scope. `python/diag_te_rate_attribution.py` is the source.
+#
+# THE FACTOR IS AN UPPER BOUND, NOT A POINT. 1.1022 is IGCC's own full-depth/0-2000 m HEAT ratio
+# over 1993-2024. Scaling a STERIC target by a HEAT ratio overstates the correction, because the
+# deep ocean is colder and expands LESS per joule. The true factor lies in [1.0, 1.1022], so the
+# corrected ratio is an INTERVAL and the verdict must be three-valued rather than pretend to a
+# point (`gate_bound_matches_its_claim`).
+#
+# ⚠ RATE ONLY — IT MUST NOT BE APPLIED TO ACCELERATION. IGCC's `ocean_2000-6000m` column rises by
+# exactly 1.15 ZJ/yr, sd 0.000000: a PRESCRIBED constant rate, not data. A constant rate carries
+# ZERO curvature, so it changes the target's slope and not its second derivative.
+DEPTH_SCOPE_FACTOR = 1.1022        # IGCC full-depth / 0-2000 m heat rate, 1993-2024
+DEPTH_SCOPE_COMPONENTS = ("te",)   # the only component driven by a full-depth OHC series
+DEPTH_SCOPE_SRC = "IGCC ocean_2000-6000m (PRESCRIBED 1.15 ZJ/yr, not data)"
 ACCEL_WINDOW = (1900, 2026)        # the whole record: an acceleration needs the span
 HORIZONS = [2100, 2150, 2300]
 ## FACTS covers 2100 and 2150; MAGICC-SLR covers 2100-2300 (its run always did -- our
@@ -664,15 +686,28 @@ def block_rate_accel(rows, cand_tag, champ_tag, cand_p, champ_p, sigma):
                     continue
                 z = (v - o) / ose if ose > 0 else np.nan
                 resolved = abs(o) / cse >= TARGET_RESOLVED_SIGMA
+                note = ((f"{v/o:.2f}x obs; " if resolved else
+                         f"ratio NOT INTERPRETABLE (obs is {abs(o)/cse:.2f} se from zero); ")
+                        + f"z={z:+.2f} vs the obs error bar")
+                verdict = ("UNRESOLVED" if abs(z) <= 1 else
+                           ("WARN" if abs(z) <= 2 else "FAIL"))
+                # ---- DEPTH SCOPE: rate only, and the factor is a BOUND (see the header)
+                if stat == "rate" and key in DEPTH_SCOPE_COMPONENTS and ose > 0 and resolved:
+                    z_corr = (v - o * DEPTH_SCOPE_FACTOR) / ose      # FULL correction
+                    lo, hi = sorted((z_corr, z))                     # the interval, factor in [1, F]
+                    def _v(zz):
+                        return "UNRESOLVED" if abs(zz) <= 1 else ("WARN" if abs(zz) <= 2 else "FAIL")
+                    verdict = _v(hi) if _v(lo) == _v(hi) else f"CHECK({_v(lo)}..{_v(hi)})"
+                    note = (f"{v/o:.2f}x obs UNCORRECTED, {v/(o*DEPTH_SCOPE_FACTOR):.2f}x at the "
+                            f"FULL depth-scope bound; z spans {lo:+.2f}..{hi:+.2f}. Model is "
+                            f"FULL-DEPTH, target is 0-2000 m; factor <= {DEPTH_SCOPE_FACTOR} from "
+                            f"{DEPTH_SCOPE_SRC}, and it OVERSTATES the correction because deep "
+                            f"water expands less per joule. NOT applied to accel: a prescribed "
+                            f"constant rate carries no curvature.")
                 rows.append(dict(
                     block="R", component=key, scenario="", horizon="",
                     metric=f"{stat}/{win[0]}-{win[1]}", arm=arm, value=v,
-                    unit=unit, value_sigma=z,
-                    note=(f"{v/o:.2f}x obs; " if resolved else
-                          f"ratio NOT INTERPRETABLE (obs is {abs(o)/cse:.2f} se from zero); ")
-                         + f"z={z:+.2f} vs the obs error bar",
-                    verdict=("UNRESOLVED" if abs(z) <= 1 else
-                             ("WARN" if abs(z) <= 2 else "FAIL"))))
+                    unit=unit, value_sigma=z, note=note, verdict=verdict))
 
 
 # ------------------------------------------------------------------ block [P]

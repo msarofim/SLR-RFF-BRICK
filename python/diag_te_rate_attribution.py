@@ -37,15 +37,29 @@ Writes outputs/diag_te_rate_attribution.csv
 import os
 import re
 
+import sys
+
 import numpy as np
 import pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(REPO, "outputs", "diag_te_rate_attribution.csv")
+# ⚠ TAG-AWARE since 2026-09-02. It was hardcoded to L14, so re-running it after any refit
+# silently re-reported the L14 arm under whatever vintage you thought you were looking at.
+TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
+
+# ⚠ TAG IN THE FILENAME. This wrote one untagged path while the script became tag-aware, so
+# the file silently held whichever vintage ran LAST -- the same class as the hardcoded L14.
+OUT = os.path.join(REPO, "outputs", f"diag_te_rate_attribution_{TAG}.csv")
 TARGETS = os.path.join(REPO, "outputs", "recalib_targets_ext.csv")
-POSTPRED = os.path.join(REPO, "outputs", "postpred_L14_components_timeseries.csv")
+POSTPRED = os.path.join(REPO, "outputs", f"postpred_{TAG}_components_timeseries.csv")
 OLDBRICK = os.path.join(REPO, "outputs", "postpred_oldbrick_components_timeseries.csv")
-FAIR_OHC = os.path.join(REPO, "data/observations/fair_mean_ohc.csv")
+# ⚠ THE DRIVER THE CALIBRATOR ACTUALLY READS is fair_mean_ohc_$(FORCING_TAG).csv
+# (calibrate_mcmc_ext.jl:159), i.e. ssp245harm since the calib 1.6.0 + CMIP7 migration. This
+# script read the PRE-MIGRATION fair_mean_ohc.csv until 2026-09-02 — a 0.6 % rate difference,
+# small but the wrong file, and exactly the vintage trap the migration was full of.
+FORCING_TAG = next((a[len("--forcing="):] for a in sys.argv[1:]
+                    if a.startswith("--forcing=")), "ssp245harm")
+FAIR_OHC = os.path.join(REPO, f"data/observations/fair_mean_ohc_{FORCING_TAG}.csv")
 OHC_OBS = {"Zanna+Cheng (0-2000m)": "data/observations/ohc_spliced_zanna_cheng.csv",
            "Zanna+IGCC (0-2000m)": "data/observations/ohc_spliced_zanna_igcc.csv"}
 IGCC_EEI = os.path.join(REPO, "data/observations/raw/igcc2024/ClimateIndicator-data-2cd2409/"
@@ -58,6 +72,7 @@ WIN_IGCC = (1993, 2024)            # IGCC's own coverage
 SPLICE_YEAR = 2019                 # prep_recalib_targets_ext.py SPLICE_FROM["steric"]
 OVERLAP = (2005, 2018)             # where Frederikse and NOAA 0-2000m both exist
 rows = []
+alpha_ratios = []
 
 
 def emit(**kw):
@@ -90,7 +105,7 @@ r_fair, _ = rate(f.year, f.ohc_1e22J, WIN)
 
 print(f"\n[A] THE MISS, restated  ({WIN[0]}-{WIN[1]}, n={n})")
 print(f"    steric target      {r_tgt:.5f} cm/yr")
-print(f"    Ladrillo L14 TE    {r_mod:.5f} cm/yr   = {r_mod/r_tgt:.3f}x")
+print(f"    Ladrillo {TAG} TE    {r_mod:.5f} cm/yr   = {r_mod/r_tgt:.3f}x")
 print(f"    BRICK 2.0 TE       {r_b20:.5f} cm/yr   = {r_b20/r_tgt:.3f}x   <= the SHARED miss")
 emit(block="A", key="model_over_target", value=r_mod / r_tgt, note=f"BRICK 2.0 {r_b20/r_tgt:.3f}x")
 
@@ -115,9 +130,23 @@ for name, rel in OHC_OBS.items():
           f"model/obs = {alpha_mod/a_obs:.3f}")
     emit(block="C", key=f"alpha_model_over_{name}", value=alpha_mod / a_obs,
          note=f"alpha model {alpha_mod:.5f}, obs-implied {a_obs:.5f}")
-print("    => alpha is BELOW 1 in both arms: the expansion coefficient is slightly LOW and")
-print("       partially OFFSETS the driver. It is not the cause and tightening it would")
-print("       make the level fit worse, not better.")
+    alpha_ratios.append(alpha_mod / a_obs)
+# ⚠ THIS VERDICT IS DERIVED, NOT WRITTEN. It said "alpha is BELOW 1 in both arms ... partially
+# OFFSETS the driver" as a hardcoded string, which was true for L14 (0.927/0.964) and became
+# FALSE at L21 without the sentence changing: alpha rose 0.10571 -> 0.11252 cm per 1e22 J across
+# the calib 1.6.0 migration, i.e. 0.987/1.027 -- it stopped offsetting, and that is most of why
+# the TE rate ratio went 1.192x -> 1.269x. A conclusion string that cannot follow its own numbers
+# is the caption-sync bug (`figure_captions`).
+_alo, _ahi = min(alpha_ratios), max(alpha_ratios)
+if _ahi < 1.0:
+    print(f"    => alpha is BELOW 1 in both arms ({_alo:.3f}-{_ahi:.3f}): the coefficient is LOW")
+    print("       and partially OFFSETS the driver. Tightening it would make the fit worse.")
+elif _alo > 1.0:
+    print(f"    => alpha is ABOVE 1 in both arms ({_alo:.3f}-{_ahi:.3f}): the coefficient ADDS to")
+    print("       the driver overshoot rather than offsetting it.")
+else:
+    print(f"    => alpha STRADDLES 1 ({_alo:.3f}-{_ahi:.3f}): the coefficient is neutral within")
+    print("       the spread of the two obs products, so it neither causes nor offsets the miss.")
 
 print(f"\n[D] THE DEPTH SCOPE — measured from IGCC's own >2000 m layer, not recalled")
 k = float(re.search(r"IGCC_UNIT_TO_BRICK\s*=\s*([0-9.eE+-]+)", open(BUILDER).read()).group(1))
@@ -165,8 +194,11 @@ except Exception as e:  # the raw file is not tracked in every checkout
 print("\n\n" + "=" * 100)
 print("VERDICT")
 print("=" * 100)
-print(f"  NOT THE COEFFICIENT. alpha is {alpha_mod:.5f} cm per 1e22 J against an obs-implied")
-print(f"  0.1096-0.1140 -- 0.93-0.97x, i.e. slightly LOW and partially offsetting.")
+_desc = ("slightly LOW and partially offsetting" if _ahi < 1.0 else
+         "ABOVE 1 and ADDING to the driver overshoot" if _alo > 1.0 else
+         "NEUTRAL — it straddles 1 and neither causes nor offsets the miss")
+print(f"  NOT THE COEFFICIENT. alpha is {alpha_mod:.5f} cm per 1e22 J against the two obs-implied")
+print(f"  values -- {_alo:.3f}-{_ahi:.3f}x, i.e. {_desc}.")
 print(f"  IT IS THE DRIVER, AND ABOUT HALF OF THAT IS DEPTH SCOPE. FaIR is {rff/r02:.2f}x the")
 print(f"  0-2000 m products the target is built from, but only {rff/rfd:.2f}x IGCC's OWN")
 print(f"  full-depth series. The >2000 m layer is {100*(rfd/r02-1):.0f}% of the observed trend and")
