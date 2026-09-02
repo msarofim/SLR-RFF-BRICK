@@ -1,4 +1,17 @@
-# Handoff — GIC_REGROW is DONE and NEGATIVE, and the Antarctic lead it produced is an ARTIFACT
+# Handoff — the matched-dT pair is BUILT: Ladrillo is not the outlier, and the SLEIP gap may be a statistic
+
+⭐⭐ **SUPERSEDED IN PART, SAME DAY.** §3 asked for a matched-dT pair; it was BUILT and RUN. See
+`notes/note_2026-09-02_matched_dt_overshoot_pair.md` and memory `matched_dt_overshoot_pair`.
+Headline: the 2300 penalty flips **−1.23 → +2.21 cm** (Ladrillo) and **−0.52 → +2.57** (BRICK 2.0);
+**the two models AGREE**, so Ladrillo is not an outlier; and SLEIP's 0.1-0.3 m is 4-14x our MEDIAN
+but a **near-match to our MEAN** (8.9-11.5 cm) because the penalty is skewed +3.3.
+⇒ **THE TWO OPEN ITEMS ARE NOW: (1) which statistic SLEIP reports, (2) the real SSP5-3.4-OS peak
+temperature excess against our shallow +0.311 K.** Everything below is retained as the record of
+how the pair came to be needed.
+
+---
+
+# (original) Handoff — GIC_REGROW is DONE and NEGATIVE, and the Antarctic lead it produced is an ARTIFACT
 
 **Start here.** Repo `SLR-RFF-BRICK`, branch `ladrillo-dev`, all pushed. Written 2026-09-02.
 Supersedes `handoff_2026-09-02b_l24_champion_markers_and_the_regrow_test.md` (whose §1-§3 all
