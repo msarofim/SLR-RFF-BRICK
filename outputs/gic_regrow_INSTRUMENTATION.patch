@@ -1,0 +1,34 @@
+--- julia/glaciers_nu_component.jl	2026-08-31 15:11:27
++++ julia/glaciers_nu_component.jl	2026-09-02 11:16:15
+@@ -65,7 +65,10 @@
+ ## regrowth rate is LIKELIHOOD-INERT here and no refit can inform it (`no_power_null`).
+ ## Changing it is a one-line change on purpose; the ladder [1, 3, 10, 30, 100] is priced in
+ ## outputs/scope_glacier_regrowth_L21.csv.
+-const GIC_REGROW_R = 1.0
++## GIC_REGROW INSTRUMENTATION (frozen worktree only; NOT committed to the module).
++## Defaults reproduce the SHIPPED law exactly: FLOOR on, R = 1.
++const GIC_FLOOR    = get(ENV, "AMPPROF_FLOOR", "1") == "1"
++const GIC_REGROW_R = parse(Float64, get(ENV, "AMPPROF_R", "1.0"))
+ 
+ 
+ 
+@@ -88,7 +91,7 @@
+             T    = p.glacier_surface_temperature[t-1]
+             # FLOOR + BOUNDED REGROWTH — see the CONVENTIONS block above and the full
+             # rationale in glaciers_nu3_component.jl `_nu_step`, which is the SHIPPED module.
+-            S_eq = max(p.gic_a * (1 - exp(-p.gic_b * (T - p.gic_T_off))), 0.0)
++            S_eq = (GIC_FLOOR ? max(p.gic_a * (1 - exp(-p.gic_b * (T - p.gic_T_off))), 0.0) : p.gic_a * (1 - exp(-p.gic_b * (T - p.gic_T_off))))
+             frac_left = max(1 - S / p.gic_a, 1e-12)
+             T_eq = p.gic_T_off - log(frac_left) / p.gic_b
+             d    = T - T_eq
+--- julia/glaciers_nu3_component.jl	2026-08-31 15:11:27
++++ julia/glaciers_nu3_component.jl	2026-09-02 11:16:15
+@@ -87,7 +87,7 @@
+     ## (`magicc_glacier_drawnset`), so the one comparator that does regrow regrows toward a
+     ## positive floor too. Price on our forcing: it removes 0.33 cm of the 2.16 cm headroom
+     ## at vvLN (15 %) and 0.20 of 2.40 at vvML (8 %).
+-    S_eq = max(a * (1 - exp(-b * (T - T_off))), 0.0)
++    S_eq = (GIC_FLOOR ? max(a * (1 - exp(-b * (T - T_off))), 0.0) : a * (1 - exp(-b * (T - T_off))))
+     frac_left = max(1 - S / a, 1e-12)
+     T_eq = T_off - log(frac_left) / b
+     ## BOUNDED REGROWTH replaces the positive-part ratchet. `exc` is a DISTANCE from
