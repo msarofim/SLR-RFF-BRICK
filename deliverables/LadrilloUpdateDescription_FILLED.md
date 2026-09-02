@@ -101,8 +101,9 @@ control on the 2100 Greenland projection, and the law reduced the relevant sprea
 7.37 cm.
 
 **High-basin volume tap.** A post-2100 commitment above a threshold: V = 5.64 m, τ = 800 yr, onset
-4.69 K, two stages, whole-sheet. It is off by default, port-tested, and does not fire on scenarios
-that stay below the onset. ⚠ It is **likelihood-inert** — it acts entirely after the observational
+4.69 K, two stages, whole-sheet. It is part of the shipped configuration, so every projection here
+includes it, but it does not fire on scenarios that stay below the onset — it contributes exactly
+zero at SSP1-2.6 and SSP2-4.5, and 41.8 cm to the SSP5-8.5 total at 2300. ⚠ It is **likelihood-inert** — it acts entirely after the observational
 record, so it cannot be calibrated in and is a stated structural choice.
 
 **Compared with BRICK 2.0 and MAGICC.** Against BRICK 2.0 this is the largest structural change in

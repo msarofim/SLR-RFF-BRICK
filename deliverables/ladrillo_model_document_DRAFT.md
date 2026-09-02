@@ -198,7 +198,7 @@ interchangeable with them either.
 | **Channel ordering enforced** (`--gis-ordered`) | The fast channel must be faster than the slow one. Without the constraint the two are exchangeable and the posterior can invert them, which is not a physical solution. |
 | **`gis_amp` sampled, with an `amp(GMST)` law** | It was pinned, and it is the dominant control on the 2100 Greenland projection. The law reduced the G4 spread 9.80 → 7.37 cm. |
 | **Multi-basin sheet** with sector shares and a pinned reference basin | Greenland does not respond as one body. The reference basin is pinned because the common mode of the basin shares is *exactly* degenerate — pinning removes an unidentified direction rather than adding information. |
-| **High-basin volume tap**: V = 5.64 m, τ = 800 yr, onset 4.69 K, whole-sheet, 2 stages | Represents post-2100 commitment above a threshold. Off by default and port-tested; it does not fire on scenarios that stay below the onset. |
+| **High-basin volume tap**: V = 5.64 m, τ = 800 yr, onset 4.69 K, whole-sheet, 2 stages | Represents post-2100 commitment above a threshold. Part of the shipped configuration and included in every projection, but it does not fire on scenarios that stay below the onset: exactly zero at SSP1-2.6 and SSP2-4.5, 41.8 cm on the SSP5-8.5 total at 2300. |
 
 ### 1.3 Antarctica — freed geometry, and an identified runoff line
 
