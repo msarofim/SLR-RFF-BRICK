@@ -1,27 +1,47 @@
-============================================================================================
-FACTS ON THE MATCHED-dT OVERSHOOT PAIR — paired penalty, cm
+================================================================================================
+FACTS ON THE MATCHED-dT OVERSHOOT PAIR — paired penalty, cm   [arm run to 2150]
   ssp534overMATCH minus ssp126nomarker   n=200, paired sample-for-sample
-  ⚠ FACTS STOPS AT 2150 — it cannot address SLEIP's 2300 headline.
-============================================================================================
-  workflow                 horizon    median      mean       p05       p95
-  wf1f IPCC AR5               2100     3.177     3.297     2.100     4.854
-  wf1f IPCC AR5               2150     3.214     3.387     1.903     5.156
-  wf2f LARMIP-2               2100     4.218     4.579     2.798     7.087
-  wf2f LARMIP-2               2150     5.477     6.013     3.428    10.842
-  wf3f DeConto/Kopp           2100     3.698     6.390     2.023    30.907
-  wf3f DeConto/Kopp           2150     4.065    27.368     1.975   230.624
-  wf4 Bamber SEJ              2100     2.720     4.888     1.839    17.643
-  wf4 Bamber SEJ              2150     2.400     6.796     1.506    38.388
+================================================================================================
+  workflow               horizon    median      mean       p05       p95
+  wf1f IPCC AR5             2100     3.177     3.297     2.100     4.854
+  wf1f IPCC AR5             2150     3.214     3.387     1.903     5.156
+  wf2f LARMIP-2             2100     4.218     4.579     2.798     7.087
+  wf2f LARMIP-2             2150     5.477     6.013     3.428    10.842
+  wf3f DeConto/Kopp         2100     3.698     6.390     2.023    30.907
+  wf3f DeConto/Kopp         2150     4.065    27.368     1.975   230.624
+  wf4 Bamber SEJ            2100     2.720     4.888     1.839    17.643
+  wf4 Bamber SEJ            2150     2.400     6.796     1.506    38.388
 
-============================================================================================
+================================================================================================
+FACTS ON THE MATCHED-dT OVERSHOOT PAIR — paired penalty, cm   [arm run to 2300]
+  ssp534overMATCH2300 minus ssp126nomarker2300   n=200, paired sample-for-sample
+================================================================================================
+  workflow               horizon    median      mean       p05       p95
+  wf1f IPCC AR5             2100     3.177     3.297     2.100     4.854
+  wf1f IPCC AR5             2150     3.214     3.387     1.903     5.156
+  wf1f IPCC AR5             2300     3.387     3.697     1.876     7.062
+  wf2f LARMIP-2             2100     4.218     4.579     2.798     7.087
+  wf2f LARMIP-2             2150     5.477     6.013     3.428    10.842
+  wf2f LARMIP-2             2300     5.389     5.970     2.951    10.607
+  wf3f DeConto/Kopp         2100     3.698     6.390     2.023    30.907
+  wf3f DeConto/Kopp         2150     4.065    27.368     1.975   230.624
+  wf3f DeConto/Kopp         2300     4.970   107.077     2.463   858.411
+  wf4 Bamber SEJ            2100     2.720     4.888     1.839    17.643
+  wf4 Bamber SEJ            2150     2.400     6.796     1.506    38.388
+  wf4 Bamber SEJ            2300     1.654    12.540     0.639    94.100
+
+================================================================================================
 AGAINST THE BRICK-LINEAGE MODELS ON THE SAME PAIR (paired median, cm)
-============================================================================================
-                               @2100       @2150
-  Ladrillo L24                  4.05        3.32
-  BRICK 2.0                     3.63        3.35
-  wf1f IPCC AR5                 3.18        3.21
-  wf2f LARMIP-2                 4.22        5.48
-  wf3f DeConto/Kopp             3.70        4.06
-  wf4 Bamber SEJ                2.72        2.40
+================================================================================================
+                                 @2100       @2150       @2300
+  Ladrillo L24                    4.05        3.32        2.21
+  BRICK 2.0                       3.63        3.35        2.58
+  wf1f IPCC AR5                   3.18        3.21        3.39
+  wf2f LARMIP-2                   4.22        5.48        5.39
+  wf3f DeConto/Kopp               3.70        4.06        4.97
+  wf4 Bamber SEJ                  2.72        2.40        1.65
 
-  FACTS spread @2150: 2.40 to 5.48 cm across 4 workflows; Ladrillo 3.32, BRICK 2.0 3.35
+  ⭐ AT 2300 — SLEIP's own headline year:
+     FACTS medians 1.65 to 5.39 cm across 4 workflows; Ladrillo 2.21, BRICK 2.0 2.58
+     FACTS p95     7.1 to 858.4 cm   (Ladrillo 43.3, BRICK 2.0 51.3)
+     SLEIP reports 10-30 cm at 2300.

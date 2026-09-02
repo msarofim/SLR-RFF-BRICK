@@ -273,22 +273,35 @@ Total penalty, paired median, cm (`python/diag_matched_dt_penalty.py`):
 | Ladrillo L24 @2300 | −1.23 | **+2.21** |
 | BRICK 2.0 @2300 | −0.52 | **+2.57** |
 
-**Ladrillo is mid-pack on the matched pair.** At 2150 the four FACTS process-based workflows span
-**2.40–5.48 cm** (Bamber SEJ 2.40, IPCC AR5 3.21, DeConto/Kopp 4.07, LARMIP-2 5.48), with Ladrillo
-**3.32** and BRICK 2.0 **3.35** inside that range. FACTS is independent of the BRICK line on both
-glaciers and ice sheets, so this corroborates the Ladrillo/BRICK agreement rather than echoing it.
-⚠ **Our FACTS arms are run to 2150**, so they do not reach SLEIP's 2300 headline year. That is our
-convention, **not a FACTS limit** — eight configs in the FACTS repo set `pyear_end: 2300`, and SLEIP
-runs FACTS to 2300. A 2300 arm is untested for this module set, not unsupported.
+**Ladrillo is mid-pack, at 2300 as well as 2150.** FACTS was run to **2300** on 2026-09-02 — our
+module set runs there unchanged, 26 outputs per arm, same file set as the 2150 twins — so the
+comparison reaches SLEIP's own headline year. Paired median penalty, cm:
 
-⭐ **The medians agree and the tails do not.** At 2150 medians span 2.3× while p95 spans **44×**
-(IPCC-AR5 **5.2** cm → DeConto/Kopp **230.6**). Ladrillo's **39.3** sits near Bamber SEJ (38.4) and
-BRICK 2.0 (46.4) and is **~6× narrower than the one workflow that can express MICI**. The MICI gap
-is real, quantified, and lives **entirely in the tail**.
+| | 2100 | 2150 | **2300** |
+|---|---|---|---|
+| wf4 Bamber SEJ | 2.72 | 2.40 | **1.65** |
+| **Ladrillo L24** | **4.05** | **3.32** | **2.21** |
+| BRICK 2.0 | 3.63 | 3.35 | 2.58 |
+| wf1f IPCC AR5 | 3.18 | 3.21 | 3.39 |
+| wf3f DeConto/Kopp | 3.70 | 4.06 | 4.97 |
+| wf2f LARMIP-2 | 4.22 | 5.48 | 5.39 |
 
-⚠ **SLEIP reports 0.1–0.3 m at 2300** — 4–14× our matched **median** (2.21 cm) but a near-match to
-our **mean** (8.94). Which statistic they report is unresolved and decides whether a disagreement
-exists at all.
+FACTS is independent of the BRICK line on both glaciers and ice sheets, so this corroborates the
+Ladrillo/BRICK agreement rather than echoing it.
+
+⭐ **The models split 3–3 on whether the penalty decays.** 2300/2100 ratio: Ladrillo **0.55**, Bamber
+SEJ 0.61, BRICK 2.0 0.71 — against IPCC-AR5 1.07, LARMIP-2 1.28, DeConto/Kopp 1.34. Ladrillo decays
+fastest, but an independent process-based SEJ workflow sits right beside it, so a decaying overshoot
+penalty is **not a Ladrillo peculiarity**.
+
+⭐ **The medians agree and the tails do not.** At 2300 medians span **1.65–5.39 cm** (3.3×) while p95
+spans **7.1–858.4 cm** (121×). Ladrillo's p95 is 43.3 and BRICK 2.0's 51.3; DeConto/Kopp — the one
+workflow that can express MICI — carries a **mean of 107 cm**. The MICI gap is real and lives
+**entirely in the tail**.
+
+⚠ **SLEIP reports 0.1–0.3 m at 2300, which is above EVERY model's median here** (largest 5.39 cm).
+It sits in the mean/tail region instead — Ladrillo's own mean is 8.94 cm. The likeliest reading is
+that their figure is not a median; confirming which statistic it is remains the open item.
 
 ⭐ **Antarctica carries this.** The AIS penalty @2300 goes **+0.003 → +0.630 cm** (Ladrillo) and
 **+0.174 → +0.793** (BRICK 2.0) between the native and matched pairs — the largest non-TE share in

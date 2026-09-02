@@ -306,10 +306,10 @@ cannot recover mass no matter how far temperature falls. With the floored equili
 regrowth, **Ladrillo stops when temperature stops** — its glacier rate at 2300 falls to 0.00–0.55
 mm/yr on declining pathways against 1.96 on a rising one — and can reverse. Of the four models
 compared, only MAGICC could previously express this at all. On a matched-temperature overshoot pair
-that regrowth proves modest and Ladrillo agrees with its comparators — 3.32 cm at 2150 against BRICK
-2.0's 3.35, inside the 2.40–5.48 cm spread of four FACTS process-based workflows — with the long
-upper tails coming from the MICI-capable arm rather than from any disagreement about the central
-estimate.
+that regrowth proves modest and Ladrillo agrees with its comparators — at 2300, 2.21 cm against BRICK
+2.0's 2.58 and inside the 1.65–5.39 cm spread of four FACTS process-based workflows — with the
+long upper tails coming from the MICI-capable arm rather than from any disagreement about the
+central estimate.
 
 ---
 

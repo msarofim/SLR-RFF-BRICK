@@ -1,3 +1,35 @@
+## 2026-09-02e — FACTS runs to 2300, and SLEIP's number is above every model's median
+
+**I was wrong that FACTS could not go past 2150.** Marcus asked me to confirm it; I could not. It is
+OUR convention — eight configs in the FACTS repo set `pyear_end: 2300` and SLEIP runs FACTS to 2300.
+I had read "2150 at best" off our own stale `FACTS_REPORT_MAX` constant and repeated it in four
+documents (`runnable_is_not_undrivable`: a capability constant goes stale).
+
+**It runs to 2300 with no change**: 26 outputs per arm, same file set as the 2150 twins, axis
+2020–2300. Built as SEPARATE `*2300` experiments so the twelve 2150 configs stay byte-identical and
+the shipped comparison column remains like-for-like; the horizon now travels in the climate file's
+own `PyearEnd` attribute, which the config builder reads, so a config cannot disagree with its
+climate.
+
+**Paired median penalty at 2300, cm:** wf4 Bamber-SEJ **1.65**, Ladrillo **2.21**, BRICK 2.0
+**2.58**, wf1f IPCC-AR5 **3.39**, wf3f DeConto/Kopp **4.97**, wf2f LARMIP-2 **5.39**. Ladrillo is
+inside the spread at 2300 as it was at 2150.
+
+**⭐ The models split 3–3 on whether the penalty decays.** 2300/2100 ratio: Ladrillo 0.55, Bamber SEJ
+0.61, BRICK 2.0 0.71 — against IPCC-AR5 1.07, LARMIP-2 1.28, DeConto/Kopp 1.34. Ladrillo decays
+fastest, but an independent process-based SEJ workflow sits right beside it, so a decaying overshoot
+penalty is **not a Ladrillo peculiarity**. This is the hysteresis question in its cleanest form and
+it is now measured at the year that matters.
+
+**⭐⭐ SLEIP's 0.1–0.3 m is above EVERY model's median** (largest 5.39 cm). At 2300 medians span 3.3×
+while p95 spans **121×** (7.1 → 858.4 cm), and DeConto/Kopp — the MICI-capable arm — carries a
+**mean of 107 cm**. Six models including four process-based FACTS workflows all give medians of
+1.65–5.39 cm; for their figure to be a median, essentially the whole ensemble would have to
+disagree with our reproduction of it. It is far more likely a mean or an upper-range statistic.
+
+`diag_matched_pair_facts_penalty.py`; facts repo `slr-comparison-arm`. LADRILLO.md §4, the note,
+memory and the deliverable updated.
+
 ## 2026-09-02d — the matched-dT overshoot pair, and FACTS puts Ladrillo mid-pack
 
 **The native pair could not answer the question.** Our ssp534over crosses BELOW ssp126 in 2127 and

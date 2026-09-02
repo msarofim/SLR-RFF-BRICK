@@ -126,6 +126,28 @@ one of its seven emulators. A 2300 arm here is UNTESTED for this module set, not
 those years**. Run: facts repo `slr-comparison-arm` `8eccc5e3`;
 `python3 diag_matched_pair_facts_penalty.py`.
 
+## ⭐ AT 2300, SLEIP'S OWN HEADLINE YEAR (added after the 2300 run)
+
+FACTS runs to 2300 on our module set with no change (26 outputs per arm, same file set as the 2150
+twins, years axis 2020–2300). Paired median penalty, cm:
+
+| | 2100 | 2150 | **2300** |
+|---|---|---|---|
+| wf4 Bamber SEJ | 2.72 | 2.40 | **1.65** |
+| **Ladrillo L24** | **4.05** | **3.32** | **2.21** |
+| BRICK 2.0 | 3.63 | 3.35 | 2.58 |
+| wf1f IPCC AR5 | 3.18 | 3.21 | 3.39 |
+| wf3f DeConto/Kopp | 3.70 | 4.06 | 4.97 |
+| wf2f LARMIP-2 | 4.22 | 5.48 | 5.39 |
+
+* **Ladrillo (2.21) and BRICK 2.0 (2.58) sit inside the FACTS spread of 1.65–5.39 cm.**
+* **The models split 3–3 on decay.** 2300/2100: Ladrillo 0.55, Bamber SEJ 0.61, BRICK 0.71 — against
+  IPCC-AR5 1.07, LARMIP-2 1.28, DeConto/Kopp 1.34. Ladrillo decays fastest, but an independent SEJ
+  workflow is right beside it, so a decaying penalty is not a Ladrillo peculiarity.
+* **SLEIP's 0.1–0.3 m is above every model's median** (largest 5.39 cm) and sits in the mean/tail
+  region. At 2300 medians span 3.3× while p95 spans **121×** (7.1 → 858.4), and DeConto/Kopp — the
+  MICI-capable arm — has a **mean of 107 cm**. That is where a 10–30 cm ensemble figure comes from.
+
 ## Ladrillo is MID-PACK among four process-based methods
 
 Paired median penalty at 2150, matched pair, cm — sorted:
