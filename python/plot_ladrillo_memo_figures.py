@@ -111,7 +111,11 @@ TAG_DESC = {"L10": "Ladrillo 1.0 (L10)",
             # outputs/quarantine/20260831_l23_missing_gis_flags/. The flag set is now
             # verified by a smoke run whose column set is byte-identical to L21's, and the
             # pipeline gates on that identity before it will run.
-            "L23": "Ladrillo L23 (L21 + floored glacier equilibrium, bounded regrowth)"}
+            "L23": "Ladrillo L23 (L21 + floored glacier equilibrium, bounded regrowth)",
+            ## L24 = L23 with the amp prior at its SHIPPED width N(1.09, 0.180), the measured
+            ## 34-model CMIP6 spread. CHAMPION since 2026-09-02. ⚠ NOT like-for-like with L21,
+            ## whose amp prior is N(0.95, 0.10) — that difference is a PRIOR change.
+            "L24": "Ladrillo L24 (L23 + amp prior at its shipped width N(1.09, 0.180))"}
 if LADRILLO_TAG not in TAG_DESC:
     raise SystemExit(f"undeclared --tag={LADRILLO_TAG}: add it to TAG_DESC so the figure "
                      f"titles say what the vintage is. Declared: "

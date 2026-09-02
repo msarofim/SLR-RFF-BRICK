@@ -11,6 +11,13 @@
 ## the comparison is not confounded by the forcing (`like_for_like_forcing`). Both the raw and
 ## spliced forcing conventions are built, matching what L21/L23 have.
 ##
+## ⚠⚠ EVERY ARM IS TAPPED. L21 and L23 have NO untapped van Vuuren or MAGICC-climate arms --
+## checked, not assumed -- because the Greenland tap is part of the shipped module and
+## `ladrillo_model_comparison.py` reports the tapped arm. The first version of this script omitted
+## `--tap` and was building an arm that matches nothing; it was stopped after one marker and the
+## partial output removed. An untapped L24 set would have been silently non-comparable to the
+## vintages it is meant to be read against.
+##
 ##   bash run_l24_deliverable_arms.sh
 set -uo pipefail
 cd "$(dirname "$0")"
@@ -26,10 +33,13 @@ step(){ local nm="$1"; shift
 : > "$LOG"
 say "L24 deliverable arms: 7 van Vuuren markers + the MAGICC-climate arm"
 for m in vvVL vvL vvLN vvML vvM vvHL vvH; do
-  step "van Vuuren $m (FaIR climate)" $J julia/scope_slr_fair_uncertainty.jl --tag=$T --ssp=$m
+  step "van Vuuren $m (FaIR climate)" $J julia/scope_slr_fair_uncertainty.jl --tag=$T --ssp=$m --tap
 done
 for s in ssp126 ssp245 ssp585; do
-  step "MAGICC-climate $s (spliced)" $J julia/scope_slr_fair_uncertainty.jl --tag=$T --ssp=$s --climate=magicc
-  step "MAGICC-climate $s (raw)"     $J julia/scope_slr_fair_uncertainty.jl --tag=$T --ssp=$s --climate=magicc --forcing=raw
+  step "MAGICC-climate $s (spliced)" $J julia/scope_slr_fair_uncertainty.jl --tag=$T --ssp=$s --climate=magicc --tap
+  step "MAGICC-climate $s (raw)"     $J julia/scope_slr_fair_uncertainty.jl --tag=$T --ssp=$s --climate=magicc --forcing=raw --tap
+done
+for s in ssp126 ssp245 ssp585; do
+  step "SSP $s TAPPED (the shipped Greenland arm)" $J julia/scope_slr_fair_uncertainty.jl --tag=$T --ssp=$s --tap
 done
 say "=== DONE. Rebuild the comparisons and figures on L24 next. ==="
