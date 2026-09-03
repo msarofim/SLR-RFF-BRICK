@@ -1172,7 +1172,11 @@ push!(FREE, P("antarctic_kappa",:antarctic_icesheet,:ais_κ))
 #   * `amp` is PRIOR-DOMINATED. Its L23 posterior (median 1.086, sd 0.099) is
 #     indistinguishable from its prior, so the LIKELIHOOD ADDS NOTHING and the prior's width
 #     IS the projection uncertainty, not a starting guess the data will tighten.
-#   * and it is HIGH-LEVERAGE: 386 cm per unit on AIS@2300 (`scope_ais_refit_wander.jl`).
+#   * and it is HIGH-LEVERAGE: 386 cm per unit on AIS@2300 (`scope_ais_refit_wander.jl`), that
+#     figure being L23 on ssp245. ⚠ RE-MEASURED AT L24 (2026-09-03): 322.75 on ssp245 but only
+#     133.67 on ssp585 -- the leverage FALLS as forcing rises, because by ssp585 the Antarctic
+#     response is already past the thresholds amplification would otherwise buy. Never carry one
+#     scenario's slope to another, and never quote 386 as an L24 number.
 #   * no observational term can fix that — measured, not assumed. A only ever multiplies the
 #     ANOMALY, so its footprint is 0.083 C over the SMB window against 0.455 C at 2300, and a
 #     temperature target's slope se is 0.27-0.54 against this prior. See the ADDENDUM in

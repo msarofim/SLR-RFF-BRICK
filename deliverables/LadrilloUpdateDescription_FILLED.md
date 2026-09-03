@@ -58,15 +58,15 @@ Additional or replaced observational inputs, relative to BRICK 2.0:
 
 **Deliberately removed: IMBIE**, dropped from the Antarctic likelihood to avoid double-weighting the same mass-balance information already entering through other terms.
 
-**Forcing.** **FaIR 2.2.4 (fair-calibrate 1.6.0, CMIP7 history to 2023)**.
+**Forcing.** **FaIR 2.2.4 (fair-calibrate 1.6.0)**, driven by CMIP7 historical emissions 1750–2023 spliced at 2023.5 to MESSAGE-GLOBIOM SSP2-4.5 and harmonized per species. The calibration's own fit window runs to 2026, so its last three years sit on scenario rather than observed forcing — a difference bounded at about 0.002 W/m².
 
 **Sampler.** Over-dispersed chain starts.
 
 ## Ladrillo Calibration Approach Updates
 
-**58 parameters are sampled**: 17 Antarctic, 9 Greenland, 19 glacier, 13 remaining (thermal expansion, two discrepancy bases, and four AR(1) noise pairs). Three Antarctic changes carry the improvement.
+**58 parameters are sampled**: 17 Antarctic, 9 Greenland, 19 glacier, 13 remaining (thermal expansion, two discrepancy bases, and four AR(1) noise pairs). Four Antarctic changes distinguish Ladrillo's calibration from BRICK 2.0's — the three described below, plus an SMB likelihood term anchoring the Antarctic flux scale to Rignot 2019. They have not been ablated individually against the hindcast, so no single one is credited here.
 
-**The seven DAIS geometry parameters** (`ais_mu`, `ais_bedheight0`, `ais_slope`, `ais_iceflow0`, `ais_precip0_LOG`, `ais_runoff_Ton`, `ais_c`) are freed under a joint paleo prior. This change fixed the pre-1990 Antarctic melt: with the geometry fixed at the prior medoid, BRICK 2.0 draws far more early-20th-century Antarctic mass loss than the record supports, while Ladrillo tracks the observations to within a hundredth of a centimetre.
+**The seven DAIS geometry parameters** (`ais_mu`, `ais_bedheight0`, `ais_slope`, `ais_iceflow0`, `ais_precip0_LOG`, `ais_runoff_Ton`, `ais_c`) are freed under a joint paleo prior. Ladrillo's pre-1990 Antarctic hindcast is far closer to the record than BRICK 2.0's — 1920–1949 bias −0.0096 cm against −1.9579 cm, and 1950–1992 +0.0027 cm against −0.7053 cm — though the freeing is not on its own established as the cause. BRICK 2.0 also samples its DAIS geometry; what differs is the constraint, since its Antarctic likelihood is IMBIE 1992–2017 while Ladrillo fits an Antarctic series from 1900, leaving BRICK 2.0's early record essentially unconstrained.
 
 **The runoff line is sampled in its identified direction.** `h0` and `c` enter only as `hR = h0 + c·T_ant` with a correlation ridge. Ladrillo samples `T_on = −h0/c`, the runoff onset temperature, which is what the data constrain.
 

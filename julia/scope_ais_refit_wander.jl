@@ -27,8 +27,19 @@
 ## This script reports the chain medians' RANGE and SD in CENTIMETRES, the units the
 ## deliverable is quoted in, and prints R-hat only beside them for contrast.
 ##
-##   julia --project=julia_v2 julia/scope_ais_refit_wander.jl [n_per_chain] [--tag=L23]
-## Writes outputs/scope_ais_refit_wander_<TAG>.csv
+##   julia --project=julia_v2 julia/scope_ais_refit_wander.jl [n_per_chain] [--tag=L23] [--ssp=ssp245]
+## Writes outputs/scope_ais_refit_wander_<TAG>_<SSP>.csv
+##
+## ⚠ THE SSP IS IN THE OUTPUT NAME (added 2026-09-03), because it is an ARM and every arm must
+## be distinguishable on disk (`gis_targets.ssps_csv`'s rule). It was NOT, and the very first
+## `--ssp=ssp585` run silently OVERWROTE the ssp245 file with numbers 2.4x smaller
+## (322.75 vs 133.67 cm/unit on `ais_gmst_amp` at 2300) under an identical filename. Nothing
+## errored; the only tell was that a slope had changed since the last read.
+##
+## ⚠ LEGACY FILES: `scope_ais_refit_wander_{L21,L23,L23b,L24}.csv` carry NO ssp suffix and are
+## all the **ssp245** arm, written before this fix. They are kept under their old names because
+## `notes/scoping_2026-09-01_ais_identifiability.md` cites them by those names. New runs never
+## write those names, so a legacy file can no longer be clobbered by a fresh run of any arm.
 ## ============================================================================
 using CSV, DataFrames, Statistics, Printf
 
@@ -160,5 +171,8 @@ end
 @printf("  measured slope. Their sum is what the between-vintage AIS move must be made of;\n")
 @printf("  a large residual means the move is NOT accounted for by these parameters.\n\n")
 
-CSV.write(joinpath(REPO, "outputs", "scope_ais_refit_wander_$(TAG).csv"), rows)
-@printf("\nwrote outputs/scope_ais_refit_wander_%s.csv\n", TAG)
+## THE ARM IS IN THE NAME, so the legacy unsuffixed files are safe STRUCTURALLY rather than by
+## a guard: this path always carries an SSP, so no invocation can produce the old name at all.
+const OUTCSV = joinpath(REPO, "outputs", "scope_ais_refit_wander_$(TAG)_$(SSP).csv")
+CSV.write(OUTCSV, rows)
+@printf("\nwrote outputs/scope_ais_refit_wander_%s_%s.csv\n", TAG, SSP)
