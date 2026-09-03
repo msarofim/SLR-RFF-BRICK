@@ -294,3 +294,13 @@ outputs/mcmc/wong_cond_weights_full*.parquet
 # result: 7.6 MB per chain, 122 MB for the L21/L22/L23/L23b set, and regenerable from the
 # chains in ~45 s each. The table it feeds, outputs/diag_amp_by_vintage.csv, IS committed.
 outputs/mcmc/ampcol_*.npy
+
+# Frozen in-tree copies of a driver, made so a long run cannot be disturbed by an edit
+# to the live file (never_edit_a_running_script). They must live under julia/ because
+# the drivers include ladrillo_projection.jl by @__DIR__; a copy in /tmp cannot resolve it.
+julia/_frozen_*.jl
+
+# Paired pulse cubes from build_fair_pulse_vv_v160.py: 56 files, ~200 MB. Left UNTRACKED
+# (Marcus 2026-09-03) although the scenario cubes beside them are tracked -- they rebuild
+# in ~1 min each from the FaIR driver, and the driver plus its gate log is the record.
+data/observations/fair_cube_*_pulse*_2030_raw.csv
