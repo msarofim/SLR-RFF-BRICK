@@ -3,7 +3,7 @@
 The single definition of what "Ladrillo" currently means: which model, which
 posterior, which files, what may be said about them, and what is not in it.
 If you are picking this up cold, read this file plus
-`notes/handoff_2026-09-03_gic_regrow_done_antarctica_next.md` (the current pickup
+`notes/handoff_2026-09-03b_docx_canonical_and_pulse_next.md` (the current pickup
 document); everything else is detail.
 
 **Status 2026-09-02.** Branch `ladrillo-dev`. Posterior **L24 — champion on all six modules
