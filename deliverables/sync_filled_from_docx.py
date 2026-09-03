@@ -93,6 +93,17 @@ def sync():
 
     gfm = (gfm.replace("\\'", "'").replace("\\-", "-")
               .replace("\\<", "<").replace("\\>", ">").replace("\\|", "|"))
+    ## ADJACENT CODE SPANS. Word run boundaries inside a formula (e.g. Marcus formatting
+    ## "hR = h0 + " and "c" as separate Code-Font runs with nothing between them) make pandoc
+    ## emit two BACK-TO-BACK code spans -- "`hR = h0 + `" + "`c\u00b7T_ant`" -- which
+    ## concatenate to "`hR = h0 + ``c\u00b7T_ant`". CommonMark parses the doubled backtick as
+    ## a DIFFERENT delimiter run, not a span boundary, so the forward pandoc build (gfm ->
+    ## docx) mis-renders it -- caught by --verify 2026-09-03. Merge any run of adjacent
+    ## same-line spans separated by nothing into one span, repeatedly (3+ runs chain).
+    prev = None
+    while prev != gfm:
+        prev = gfm
+        gfm = re.sub(r"`([^`\n]*)``([^`\n]*)`", r"`\1\2`", gfm)
     gfm = re.sub(r"\n{3,}", "\n\n", gfm).strip() + "\n"
     FILLED.write_text(gfm)
     print(f"synced {FILLED.name} <- {DOCX.name}: {len(gfm.split())} words, {n[0]} figures")

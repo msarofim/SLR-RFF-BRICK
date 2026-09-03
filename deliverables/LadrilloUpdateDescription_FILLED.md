@@ -68,11 +68,11 @@ Additional or replaced observational inputs, relative to BRICK 2.0:
 
 **The seven DAIS geometry parameters** (`ais_mu`, `ais_bedheight0`, `ais_slope`, `ais_iceflow0`, `ais_precip0_LOG`, `ais_runoff_Ton`, `ais_c`) are freed under a joint paleo prior. This change fixed the pre-1990 Antarctic melt: with the geometry fixed at the prior medoid, BRICK 2.0 draws far more early-20th-century Antarctic mass loss than the record supports, while Ladrillo tracks the observations to within a hundredth of a centimetre.
 
-**The runoff line is sampled in its identified direction.** `h0` and `c` enter only as `hR = h0 + c·T_ant`, so individually they ride a correlation-0.9997 ridge no sampler can traverse. Ladrillo samples `T_on = −h0/c`, the runoff **onset temperature**, which is what the data constrain.
+**The runoff line is sampled in its identified direction.** `h0` and `c` enter only as `hR = h0 + c·T_ant` with a correlation ridge. Ladrillo samples `T_on = −h0/c`, the runoff onset temperature, which is what the data constrain.
 
-**Antarctic amplification is a key parameter.** Stock DAIS hard-codes 1.196. Ladrillo samples it under N(1.09, 0.180), the measured CMIP6 between-model spread. The parameter is not constrained by observation — the posterior is very close to the prior — and a one-sigma change moves Antarctic sea level at 2300 by about 69 cm on SSP5-8.5, roughly 13% of that scenario's total. That is leverage on a *trajectory*, not on the reported band: widening the prior 1.8× (L23 → L24) widened the AIS@2300 spread only **1.07×** (93.1 → 99.5 cm).
+**Antarctic amplification is a key parameter.** Stock DAIS hard-codes 1.196. Ladrillo samples it under N(1.09, 0.180), the measured CMIP6 between-model spread. The parameter is not constrained by observation — the posterior is very close to the prior — and a one-sigma change moves Antarctic sea level at 2300 by about 69 cm on SSP5-8.5, roughly 13% of that scenario's total.
 
-**Criterion matching.** L24 is accepted under the deliverable criterion: 19 parameter marginals fail R̂ < 1.05 (primarily the Antarctic-geometry ridge) while **projected sea level converges** (R̂ = 1.008 at 2100, 1.011 at 2150; ESS ≈ 1050).
+**Criterion matching.** L24 is accepted under the deliverable criterion: 19 parameter marginals fail R̂ < 1.05 (primarily the Antarctic-geometry ridge) while projected sea level converges (R̂ = 1.008 at 2100, 1.011 at 2150; ESS ≈ 1050).
 
 ## Ladrillo Observational Comparison
 
@@ -90,7 +90,7 @@ RMSE ratio against BRICK 2.0 — **below 1 means Ladrillo is closer to the obser
 | Thermal expansion | 1.150     | 1.137     | 1.462     | 1.236     |
 | **Total**         | **0.411** | **0.277** | 1.128     | **0.373** |
 
-Ladrillo is closer to the observations than BRICK 2.0 on **every ice component in every window** — by two orders of magnitude on early-20th-century Antarctica, and by roughly a factor of ten on Greenland. Cumulative 1900–2026 totals: observed 7.81 cm, Ladrillo 8.55, BRICK 2.0 8.45, against an independent IGCC check of 8.33.
+Ladrillo is closer to the observations than BRICK 2.0 on every ice component particularly in early eras. Cumulative 1900–2026 totals: observed 7.81 cm, Ladrillo 8.55, BRICK 2.0 8.45, against an independent IGCC check of 8.33.
 
 **For thermal expansion Ladrillo is worse than BRICK 2.0, and the cause is FaIR.** In both models thermal expansion is *exactly* proportional to the ocean heat they are given, and both are given the same FaIR driver — so the miss is shared (BRICK 2.0 misses the same cell at 1.17×) and the same driver correction would apply to both. Against *observed* ocean heat a single constant coefficient ≈ 0.11 reproduces the steric target across 1900–1950, 1950–1993 and 1993–2024 to within 3%, and Ladrillo's fitted 0.11252 sits inside that range. Half the apparent miss is depth scope: FaIR's ocean heat is full-depth while the steric target is 0–2000 m, and correcting on IGCC's own >2000 m layer takes the 1993–2026 rate ratio from 1.27× to 1.15×. A depth-resolved coefficient was tested and failed, though that may reflect observational uncertainty — Cheng and IGCC disagree by ~50% on 1950–1993 ocean heat gain.
 
