@@ -14,18 +14,18 @@ BRICK 2.0's glacier model uses a Wigley-Raper equation that is always melting wh
 
 **SLOWP — RGI regions 03, 09, 07, 06** (Arctic Canada North, Russian Arctic, Svalbard, Iceland). Large, high-latitude, long relaxation time, and strongly amplified relative to global mean temperature (prior 2.50). This block dominates the glacier contribution in both the hindcast and the projections.
 
-**FAST — the other 13 RGI regions.** Smaller, faster-responding bodies with weak amplification (prior 1.45). It equilibrates quickly enough that its committed volume is close to its realised volume through most of the record.
+**FAST — 13 other RGI regions.** Smaller, faster-responding bodies with weak amplification (prior 1.45). It equilibrates quickly enough that its committed volume is close to its realised volume through most of the record.
 
 **R19 — Antarctic and Subantarctic periphery.** This block exists because the historical glacier target (Frederikse) **assumes zero Antarctic-periphery melt**, while the GlaMBIE series spliced in from 2019 onward **includes it**. Folding R19 into either SLOWP or FAST would leave the model's hindcast scope mismatched. Keeping it separate lets the hindcast be evaluated on **SLOWP + FAST** while R19 still contributes to projected totals. Its amplification prior (0.72) is also far below the other two, so it is not physically interchangeable with them either. (The three blocks cover 18 of the 19 RGI regions; RGI 05, Greenland Periphery, is excluded — Frederikse's glacier target excludes it and it falls inside the Greenland ice-sheet mask.)
 
-**Compared with BRICK 2.0 and MAGICC.** BRICK 2.0 and Ladrillo now have completely different glacier modules. Compared to MAGICC, both use the formulation from Nauels 2017 Eq. 3; where they differ is the three regions used in Ladrillo. MAGICC's committed 1850 melt is 28–136 mm, Ladrillo's 63–146 mm.
+**Compared with BRICK 2.0 and MAGICC.** BRICK 2.0 and Ladrillo now have completely different glacier modules. MAGICC and Ladrillo both use the formulation from Nauels 2017 Eq. 3; where they differ is the three regions used in Ladrillo. MAGICC's committed 1850 melt is 28–136 mm, Ladrillo's 63–146 mm.
 
 **Regrowth potential.** Neither BRICK nor FACTS can regrow glacial ice, but MAGICC and Ladrillo can. The law is
 
     S_eq = max( a·(1 − exp(−b·(T − T_off))), 0 )        
     dS   = min( κ·|T − T_eq|^ν, 1 ) · (S_eq − S)        
 
-**Regrowth limits.** MAGICC assumes that once ice committed to melt in 1850 has gone, it can't be regrown, but ice past that point can be. In theory, Ladrillo can regrow up until its 1850 ice extent (and no further), but that would require temperatures to drop below 1850 levels.
+**Regrowth limits.** MAGICC assumes that once ice committed to melt in 1850 has gone, it can't be regrown, but ice lost past that point can be. In theory, Ladrillo can regrow up until its 1850 ice extent (though no further), but that would require temperatures to drop below 1850 levels.
 
 ### Greenland
 
@@ -92,7 +92,7 @@ RMSE ratio against BRICK 2.0 — **below 1 means Ladrillo is closer to the obser
 
 Ladrillo is closer to the observations than BRICK 2.0 on every ice component particularly in early eras. Cumulative total sea level rise, 1920–2024: observed +19.45 cm, Ladrillo +18.83, BRICK 2.0 +22.09 — Ladrillo undershoots by 0.6 cm, BRICK overshoots by 2.6.
 
-**For thermal expansion Ladrillo is worse than BRICK 2.0, and the cause is FaIR.** In both models thermal expansion is *exactly* proportional to the ocean heat they are given, and both are given the same FaIR driver. This leads to both models overestimating thermal expansion (BRICK 2.0 misses the same cell at 1.17×). Against *observed* ocean heat a single constant coefficient ≈ 0.11 reproduces the steric target across 1900–1950, 1950–1993 and 1993–2024 to within 3%, and Ladrillo's fitted 0.113 sits inside that range. Half the apparent miss is depth scope: FaIR's ocean heat is full-depth while the steric target is 0–2000 m, and correcting on IGCC's own >2000 m layer takes the 1993–2026 rate ratio from 1.27× to 1.15×. A depth-resolved coefficient was tested and failed, though that may reflect observational uncertainty — Cheng and IGCC disagree by ~50% on 1950–1993 ocean heat gain.
+**For thermal expansion Ladrillo overshoots, and the cause is FaIR.** In both Ladrillo and BRICK thermal expansion is *exactly* proportional to the ocean heat they are given. When given the FaIR driver, both models overestimate thermal expansion (BRICK 2.0 misses the same cell at 1.17× compared to Ladrillo's 1.27×). Against *observed* ocean heat a single constant coefficient ≈ 0.11 reproduces the steric target across 1900–1950, 1950–1993 and 1993–2024 to within 3%, and Ladrillo's fitted 0.113 sits inside that range. Half the apparent miss is depth scope: FaIR's ocean heat is full-depth while the steric target is 0–2000 m, and correcting on IGCC's own >2000 m layer takes the 1993–2026 rate ratio from 1.27× to 1.15×. A depth-resolved coefficient was tested and failed, though that may reflect observational uncertainty — Cheng and IGCC disagree by ~50% on 1950–1993 ocean heat gain.
 
 ## Ladrillo Projection Comparison
 

@@ -132,13 +132,20 @@ def sync():
 
 
 def verify():
+    ## Matches build_l24_deliverable_doc.sh exactly: that script `cd`s to the REPO ROOT before
+    ## running its own `sed 's|../figures/|figures/|g'` + pandoc build, so "figures/<name>.png"
+    ## resolves relative to the repo root, not to deliverables/. Pointing --resource-path at
+    ## HERE (deliverables/) instead of HERE.parent made pandoc silently swap every image for a
+    ## text placeholder ("Could not fetch resource") -- 9 false-positive diff lines, caught only
+    ## because they were all figure-caption text. Mutation-tested 2026-09-03: reverting this
+    ## line reproduces the same 9-line false failure.
     build_md = HERE / f"/tmp/sync_verify_{DOCX.stem}.md"
     text = FILLED.read_text().replace("../figures/", "figures/")
     build_md.write_text(text)
     out_docx = Path(f"/tmp/sync_verify_{DOCX.stem}.docx")
     subprocess.run(
         ["pandoc", str(build_md), "-o", str(out_docx),
-         "--resource-path=" + str(HERE), "--from=gfm+pipe_tables", "--to=docx"],
+         "--resource-path=" + str(HERE.parent), "--from=gfm+pipe_tables", "--to=docx"],
         check=True,
     )
     src = docx_text(DOCX)
