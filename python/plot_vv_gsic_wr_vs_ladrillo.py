@@ -301,13 +301,13 @@ ax[3].legend(handles=[Line2D([], [], color=COL[s], label=s) for s in DECLINE]
 
 fig.text(0.5, 0.004,
          "BRICK 2.0 WR posterior (parameters_subsample_brick.csv, 1000 draws) vs Ladrillo %s "
-         "3-reservoir ν glaciers (L21 chains, `%s` arm) — BOTH posterior-parameter spread on MEAN "
+         "3-reservoir ν glaciers (%s chains, `%s` arm) — BOTH posterior-parameter spread on MEAN "
          "forcing, so the widths are like-for-like.\nFaIR 2.2.4 (calib 1.6.0) van Vuuren marker "
          "GMST; one build, one calibration throughout (driver commit %s), each marker on its OWN "
          "CMIP7 land-use, irrigation and volcanic/solar forcing.\nWR takes GMST directly; Ladrillo "
          "maps it to each block's glacier frame as amp_b·GMST with an anchor-preserving splice — "
          "the same forcing, not the same per-component temperature."
-         % (LADRILLO_TAG, ARM, _COMMIT),
+         % (LADRILLO_TAG, LADRILLO_TAG, ARM, _COMMIT),
          fontsize=6.6, ha="center", color="0.35")
 fig.savefig(OUTPNG, dpi=150, bbox_inches="tight")
 print("wrote " + OUTPNG)
