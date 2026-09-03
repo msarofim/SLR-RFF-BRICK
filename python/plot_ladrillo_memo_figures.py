@@ -195,11 +195,16 @@ def figure2_ssp_total():
     ax.legend(frameon=False); ax.grid(alpha=0.25, lw=0.5)
 
     # right: 2100 comparison across sources, one column per scenario
+    # Ladrillo, BRICK 2.0 (the two SLR emulators) lead each group, then MAGICC-SLR, then
+    # the FACTS process-based workflows -- so the reader's own model and its closest
+    # comparator sit adjacent rather than split across the FACTS cluster.
+    SOURCE_ORDER = {"Ladrillo": 0, "BRICK 2.0": 1, "MAGICC-SLR": 2, "FACTS": 3}
     ax = axes[1]
     order, xt, xl = [], [], []
     x = 0
     for ssp in SSPS:
-        sub = tot[(tot.scenario == ssp) & (tot.year == 2100)]
+        sub = tot[(tot.scenario == ssp) & (tot.year == 2100)].sort_values(
+            "source", key=lambda s: s.map(SOURCE_ORDER), kind="stable")
         start = x
         for _, r in sub.iterrows():
             lo = r.p17 if np.isfinite(r.p17) else r.p05
@@ -212,11 +217,11 @@ def figure2_ssp_total():
         x += 1.5
     ax.set_xticks(xt); ax.set_xticklabels(xl)
     ax.set_ylabel(f"total sea level at 2100 ({PROJECTION_BASELINE})")
-    ax.set_title("Total at 2100: Ladrillo vs MAGICC-SLR and each FACTS workflow\n"
+    ax.set_title("Total at 2100: Ladrillo vs BRICK 2.0, MAGICC-SLR and each FACTS workflow\n"
                  "median with 17-83% (FACTS rel. baseyear 2005)", fontsize=10.5)
     ax.grid(alpha=0.25, lw=0.5, axis="y")
     ax.legend(handles=[mlines.Line2D([], [], color=SOURCE_COLOR[s], lw=2.4, marker="o", label=s)
-                       for s in ("Ladrillo", "MAGICC-SLR", "FACTS")],
+                       for s in ("Ladrillo", "BRICK 2.0", "MAGICC-SLR", "FACTS")],
               frameon=False, fontsize=9, loc="upper left")
     fig.suptitle(f"{VINTAGE} — projected total sea level", fontsize=12)
     fig.tight_layout(rect=[0, 0, 1, 0.94])

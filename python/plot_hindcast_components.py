@@ -150,7 +150,7 @@ print("[IGCC] GMSL ensemble re-referenced to %d-%d over %d years (%d-%d), mm -> 
       % (BASE0, BASE1, len(_igw), int(_ig.index.min()), int(_ig.index.max())))
 
 # --- figure ----------------------------------------------------------------
-fig, axes = plt.subplots(2, 3, figsize=(15.5, 8.6))
+fig, axes = plt.subplots(2, 3, figsize=(15.5, 9.4))
 for ax, comp in zip(axes.ravel(), lf.COMPONENTS):
     t = TGT_COL[comp]
     obs = TGT[t]
@@ -206,7 +206,7 @@ fig.legend(handles=handles, ncol=3, fontsize=8.5, frameon=False, loc="upper cent
 fig.suptitle("Historical sea-level rise 1900–2026 by component — %s vs observations vs "
              "BRICK 2.0   [%s]" % (DESC["model"], lf.commit_stamp()),
              fontsize=12.5, fontweight="bold", y=0.999)
-fig.tight_layout(rect=[0, 0.115, 1, 0.925])
+fig.tight_layout(rect=[0, 0.165, 1, 0.930])
 _cap = (
     "%s — %s; %s.  %s, the CALIBRATION window — NOT the 1995–2014 projection baseline the "
     "future-component figures use; every series above is verified zero-mean over it, and "
@@ -219,10 +219,13 @@ _cap = (
     "Ladrillo look biased when it is not.  "
     "⚠ BRICK 2.0 starts 1920 and was forced from data/observations/fair_mean_{gmst,ohc}.csv "
     "while Ladrillo used ssp245harm — a DIFFERENT driver file, so a Ladrillo-minus-BRICK "
-    "reading here carries that gap.  %s"
+    "reading here carries that gap.  "
+    "⚠ TE: both models' expansion runs on FaIR's FULL-DEPTH ocean heat vs. a 0-2000 m target; "
+    "IGCC's >2000 m layer narrows the 1993-2026 rate mismatch from 1.27x to AS LITTLE AS "
+    "1.15x — a bound, not a point, still a fail (see Observational Comparison).  %s"
     % (DESC["model"], DESC["calib"], DESC["glacier"], lf.CAL_BASELINE.capitalize(),
        DESC["note"]))
-fig.text(0.5, 0.098, "\n".join(textwrap.wrap(_cap, 185)),
+fig.text(0.5, 0.150, "\n".join(textwrap.wrap(_cap, 185)),
          fontsize=7.2, ha="center", va="top", color="0.3")
 fig.savefig(OUT, dpi=150)
 print("wrote %s" % os.path.relpath(OUT, lf.REPO))
