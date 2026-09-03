@@ -45,9 +45,12 @@ Both are now RUN. Say RUN / RUNNABLE / IMPOSSIBLE and keep the middle
 
   FACTS -- RUN 2026-08-31 on the SHARED driver, workflows wf1f/wf2f/wf3f/wf4, n=200,
     facts@slr-comparison-arm. Both caveats this header raised are now settled, not pending:
-      (1) HORIZON. Confirmed: FACTS stops at 2150 (pyear_end). It contributes NOTHING at
-          2300, where MAGICC-SLR is the only comparator -- exactly as on the SSP set. The
-          figure drops it from that horizon's legend rather than advertising an empty series.
+      (1) HORIZON. The 2150 arms cap there (pyear_end), matching every prior FACTS run on
+          this project. 2300 was ADDITIVELY re-run 2026-09-03 (separate *2300 experiment
+          keys, see facts/build_shared_climate_nc.py) specifically for this figure's Fig 4;
+          the 2300 row is merged into these same scenario names. 2150 was our convention,
+          not a FACTS limit (memory `runnable_is_not_undrivable`) -- confirmed by the matched-dT
+          pair reaching 2300 fine on 2026-09-02 first, before the full 7-marker set followed.
       (2) CONVENTION. RESOLVED by doing what this header prescribed: the three SSPs were
           re-run INJECTED alongside the markers, so the whole FACTS column sits on ONE
           climate-driver convention instead of straddling injected-vv against
@@ -157,7 +160,12 @@ MAGICC_N = 600          # AR6 with_slr drawnset members
 ## FACTS is a STACK OF MODULES per component, never one number: they disagree by up to 8x,
 ## so a median across them summarises nothing (`median_needs_agreement`). Every module is
 ## carried as its own row and the figure fans them out.
-FACTS_HORIZONS = [2100, 2150]     # pyear_end 2150; FACTS does not reach 2300
+## 2026-09-03: FACTS re-run on the seven markers with pyear_end 2300 (facts/build_shared_climate_nc.py
+## SCENARIOS' vv*2300 keys), for the L24 deliverable's Fig 4. The 2300 row was merged into these
+## SAME scenario names in outputs/facts_components_shared_n200.csv (year==2300 only, taken from
+## the *2300 extraction and re-labelled) -- the 2100/2150 rows are UNTOUCHED, from the original
+## 2150-horizon run, so this is additive, not a re-run of the whole column.
+FACTS_HORIZONS = [2100, 2150, 2300]
 
 
 def joint_stem(tag):
@@ -405,8 +413,8 @@ def main():
     for src, bank, hz in ((SRC_MAG, MAG, HORIZONS), (SRC_FCT, FCT, FACTS_HORIZONS)):
         for y, ngot, _miss in gate_comparator_coverage(bank, src, hz):
             print(f"[GATE] {src:11s} @{y}: {ngot}/{len(COMPONENTS)} components present")
-    print(f"[GATE] {SRC_FCT} stops at {max(FACTS_HORIZONS)} by construction (pyear_end); "
-          f"at 2300 {SRC_MAG} is the ONLY comparator, as on the SSP set.")
+    print(f"[GATE] {SRC_FCT} covers {FACTS_HORIZONS} (2300 additively re-run 2026-09-03 "
+          f"for the L24 deliverable Fig 4; separate *2300 experiment keys, 2150 arms untouched).")
 
     rows = []
     for m in MKEY:
