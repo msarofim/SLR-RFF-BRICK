@@ -80,6 +80,18 @@ ARM_TAG      = "" if TAPPED else "_notap"
 POSTPRED_CSV = f"outputs/postpred_{LADRILLO_TAG}_components_timeseries.csv"
 SSPS_CSV     = os.path.relpath(gis_targets.ssps_csv(LADRILLO_TAG, tapped=TAPPED), REPO)
 CMP_CSV      = f"outputs/ladrillo_model_comparison_{LADRILLO_TAG}{ARM_TAG}.csv"
+## THE SSP TOTAL PANEL IS THE **JOINT** ARM (2026-09-03). SSPS_CSV is the `fixed` arm --
+## every draw on the shipped MEAN FaIR driver -- and plotting it under a caption quoting
+## joint-arm totals put a 31 cm disagreement (ssp245 2300: 280.6 fixed vs 249.2 joint)
+## between a figure and its own caption, while the deliverable's projection section
+## declares that ALL Ladrillo bands are joint. The joint paths carry p05/p95 ONLY, so the
+## band this panel draws is 5-95, NOT the 17-83 the fixed arm allowed; SSP_BAND_LABEL
+## exists so the title cannot silently keep saying 17-83 after the band changed.
+SSP_JOINT_PATHS = ("outputs/scope_slr_fairunc_paths_%s_spliced_"
+                   f"{LADRILLO_TAG}_tap4p69K_V5p64m_tau800.csv")
+SSP_BAND_LO, SSP_BAND_HI = "p05_cm", "p95_cm"
+SSP_BAND_LABEL = "5-95%"
+SSP_ARM_LABEL = "joint arm: posterior params x FaIR forcing"
 CMP_SPREAD_CSV = f"outputs/ladrillo_model_comparison_{LADRILLO_TAG}{ARM_TAG}_spread.csv"
 FIGSTEM      = f"ladrillo_{LADRILLO_TAG}{ARM_TAG}"
 # What each vintage IS, for the title stamp. A new tag must be declared here.
@@ -176,8 +188,6 @@ def figure1_hindcast():
 
 
 def figure2_ssp_total():
-    b = pd.read_csv(os.path.join(REPO, SSPS_CSV))
-    b["scenario"] = b.ssp.map({v: k for k, v in LABEL.items()})
     cmp_ = pd.read_csv(os.path.join(REPO, CMP_CSV))
     tot = cmp_[(cmp_.component == "total")]
 
@@ -185,13 +195,18 @@ def figure2_ssp_total():
                              gridspec_kw=dict(width_ratios=[1.55, 1]))
     ax = axes[0]
     for ssp in SSPS:
-        s = b[(b.scenario == ssp) & (b.component == "total")].sort_values("year")
-        ax.fill_between(s.year, s.p17, s.p83, color=SSP_COLOR[ssp], alpha=0.20, lw=0)
-        ax.plot(s.year, s.med, color=SSP_COLOR[ssp], lw=1.8, label=LABEL[ssp])
+        p = os.path.join(REPO, SSP_JOINT_PATHS % ssp)
+        d = pd.read_csv(p)
+        s = d[(d.component == "total") & (d.arm == "joint")].sort_values("year")
+        if not len(s):
+            raise SystemExit(f"[ARM] no joint rows for {ssp} in {os.path.basename(p)}")
+        ax.fill_between(s.year, s[SSP_BAND_LO], s[SSP_BAND_HI],
+                        color=SSP_COLOR[ssp], alpha=0.20, lw=0)
+        ax.plot(s.year, s.med_cm, color=SSP_COLOR[ssp], lw=1.8, label=LABEL[ssp])
     ax.set_xlim(2000, 2300); ax.set_ylim(bottom=-5)
     ax.set_xlabel("year"); ax.set_ylabel(f"total sea level ({PROJECTION_BASELINE})")
-    ax.set_title("Ladrillo total sea level, median and 17-83%\n"
-                 "(posterior-parameter spread on FaIR mean forcing)", fontsize=11)
+    ax.set_title(f"Ladrillo total sea level, median and {SSP_BAND_LABEL}\n"
+                 f"({SSP_ARM_LABEL})", fontsize=11)
     ax.legend(frameon=False); ax.grid(alpha=0.25, lw=0.5)
 
     # right: 2100 comparison across sources, one column per scenario
