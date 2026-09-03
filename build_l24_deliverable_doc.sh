@@ -13,6 +13,17 @@
 ## LibreOffice are absent on this machine, so docx-js and the soffice render-check are not
 ## options here. The verification below reads the ARCHIVE instead: embedded media, <w:tbl>
 ## count, and a heading round-trip.
+##
+## ⚠⚠ THE .docx IS CANONICAL (Marcus, 2026-09-03), NOT LadrilloUpdateDescription_FILLED.md.
+## Marcus edits the .docx directly in Word. FILLED.md exists only as pandoc's markdown
+## intermediate and is a GENERATED ARTIFACT — never hand-edit it from memory of what it should
+## say. BEFORE editing the deliverable's text, run
+##     python3 deliverables/sync_filled_from_docx.py --verify
+## to pull FILLED.md up to date with whatever is CURRENTLY in the .docx (Marcus may have
+## edited it since the last sync). Only after that sync make edits, and rebuild the .docx
+## (this script's docx step) before the session ends. Skipping the pre-sync is what caused
+## Marcus's condensing edits to be silently reverted on 2026-09-03 — the rebuild started from
+## a stale FILLED.md instead of his current .docx.
 set -uo pipefail
 cd "$(dirname "$0")"
 T=L24

@@ -190,6 +190,12 @@ from the one the projections use.
 
 ### Reproduce the deliverables
 
+⚠⚠ **`deliverables/LadrilloUpdateDescription_L24.docx` is CANONICAL** (Marcus, 2026-09-03) —
+Marcus edits it directly in Word; `LadrilloUpdateDescription_FILLED.md` is a GENERATED
+pandoc intermediate, never a hand-maintained source. Before editing the deliverable's text:
+`python3 deliverables/sync_filled_from_docx.py --verify`. Skipping that pre-sync reverted
+Marcus's own edits once already.
+
 ```bash
 ./run_ladrillo_tests.sh
 ```
