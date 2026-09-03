@@ -90,9 +90,9 @@ RMSE ratio against BRICK 2.0 — **below 1 means Ladrillo is closer to the obser
 | Thermal expansion | 1.150     | 1.137     | 1.462     | 1.236     |
 | **Total**         | **0.411** | **0.277** | 1.128     | **0.373** |
 
-Ladrillo is closer to the observations than BRICK 2.0 on every ice component particularly in early eras. Cumulative 1900–2026 totals: observed 7.81 cm, Ladrillo 8.55, BRICK 2.0 8.45, against an independent IGCC check of 8.33.
+Ladrillo is closer to the observations than BRICK 2.0 on every ice component particularly in early eras. Cumulative total sea level rise, 1920–2024: observed +19.45 cm, Ladrillo +18.83, BRICK 2.0 +22.09 — Ladrillo undershoots by 0.6 cm, BRICK overshoots by 2.6.
 
-**For thermal expansion Ladrillo is worse than BRICK 2.0, and the cause is FaIR.** In both models thermal expansion is *exactly* proportional to the ocean heat they are given, and both are given the same FaIR driver — so the miss is shared (BRICK 2.0 misses the same cell at 1.17×) and the same driver correction would apply to both. Against *observed* ocean heat a single constant coefficient ≈ 0.11 reproduces the steric target across 1900–1950, 1950–1993 and 1993–2024 to within 3%, and Ladrillo's fitted 0.11252 sits inside that range. Half the apparent miss is depth scope: FaIR's ocean heat is full-depth while the steric target is 0–2000 m, and correcting on IGCC's own >2000 m layer takes the 1993–2026 rate ratio from 1.27× to 1.15×. A depth-resolved coefficient was tested and failed, though that may reflect observational uncertainty — Cheng and IGCC disagree by ~50% on 1950–1993 ocean heat gain.
+**For thermal expansion Ladrillo is worse than BRICK 2.0, and the cause is FaIR.** In both models thermal expansion is *exactly* proportional to the ocean heat they are given, and both are given the same FaIR driver. This leads to both models overestimating thermal expansion (BRICK 2.0 misses the same cell at 1.17×). Against *observed* ocean heat a single constant coefficient ≈ 0.11 reproduces the steric target across 1900–1950, 1950–1993 and 1993–2024 to within 3%, and Ladrillo's fitted 0.113 sits inside that range. Half the apparent miss is depth scope: FaIR's ocean heat is full-depth while the steric target is 0–2000 m, and correcting on IGCC's own >2000 m layer takes the 1993–2026 rate ratio from 1.27× to 1.15×. A depth-resolved coefficient was tested and failed, though that may reflect observational uncertainty — Cheng and IGCC disagree by ~50% on 1950–1993 ocean heat gain.
 
 ## Ladrillo Projection Comparison
 
@@ -116,7 +116,7 @@ The van Vuuren markers are the **primary** comparison; the SSPs are a secondary 
 
 ![Glacier response on the declining markers](../figures/vv_gsic_wr_vs_ladrillo_2300.png)
 
-**FIG 6.** ⭐ The glacier contribution at 2300 across the markers, against the Wigley–Raper formulation BRICK 2.0 uses. This is where the floored-equilibrium law is visible: Ladrillo halts and reverses on the declining markers where a melt-only reservoir cannot.
+**FIG 6.** Glacier contribution over time, comparing Ladrillo vs. BRICK2.0. This is where glacier regrowth is visible in Ladrillo for overshoot scenarios, whereas the Wigley-Raper formulation continues melting.
 
 ### Secondary: the SSPs
 
@@ -134,11 +134,11 @@ The van Vuuren markers are the **primary** comparison; the SSPs are a secondary 
 
 ### Ladrillo compared to MAGICC on MAGICC's own climate
 
-⚠ Comparing two sea-level models on **different climate drivers** confounds the module with the forcing. Ladrillo was therefore re-run on **MAGICC's climate** as well as FaIR's, so the remaining difference is structural. This arm is what licenses any statement that a Ladrillo/MAGICC-SLR difference is a *model* difference.
+Comparing two sea-level models on different climate drivers confounds the module with the forcing. Ladrillo was therefore re-run on MAGICC's climate to test which differences were due to sea level module versus climate module.
 
 ### Physical intuition — how Ladrillo behaves by scenario class
 
-**High scenarios.** Ladrillo is comparable to the other models at 2100 and separates upward at the long horizons — expected of a model whose Antarctic response is threshold-driven rather than linear. ⚠ Its 2300 spread is dominated by `antarctic_lambda`, a **prior** rather than an inference, so the width at the high end is a stated uncertainty.
+**High scenarios.** Ladrillo is comparable to the other models at 2100 and separates upward at the long horizons (due largely to Antarctic threshold behavior). Its 2300 spread is dominated by the prior for `antarctic_lambda`.
 
 **Low scenarios.** Ladrillo sits at the low end of the comparison set on *level*, but its Antarctic band is **wider** than the literature's: 2.55× at ssp126/2100 (54.6 cm against 20.7–40.5), which carries the total to 1.48×. Greenland, glaciers and thermal expansion are all narrower there (0.47×, 0.77×, 0.93×). ⚠ This is the one place the benchmark flags a genuine discrepancy, and it is a projection-versus-other-models disagreement rather than an observational conflict. It is wider on L24 than on L21 because the amplification prior is wider — the honest, measured prior, not a tuned one.
 
@@ -146,6 +146,4 @@ The van Vuuren markers are the **primary** comparison; the SSPs are a secondary 
 
 **MAGICC regrows substantially more than Ladrillo, and about ¾ of that is model structure and ¼ the climate module.** Re-running Ladrillo on MAGICC's own climate closes 13–35% of the regrowth gap (mean 24%) across the five van Vuuren markers where MAGICC regrows, leaving the rest to structure. The structural half is a *rate* limit, not an equilibrium one. At vvLN, where MAGICC's climate falls to −0.71 K by 2300, Ladrillo's own glacier equilibrium drops from 19.1 cm to 2.2 cm — 16.9 cm of headroom — yet it regrows only 2.1 cm of it. The reason is that Ladrillo's regional blocks relax at very different speeds on the cooling limb: FAST has a ~95-year timescale, but SLOWP (~275 yr) and R19 (~465 yr) together hold 60% of the headroom and cannot traverse it inside the horizon while chasing a still-falling equilibrium. MAGICC has no regional split — one global reservoir, relaxing fast enough to reach its floor. ⭐ **The regionalisation that makes Ladrillo fit the historical record better is the same feature that makes it slower to regrow.**
 
-⚠ On a matched-temperature overshoot pair the regrowth is modest for everyone: at 2300 Ladrillo gives 2.21 cm against BRICK 2.0's 2.58, inside the 1.65–5.39 cm spread of four FACTS process-based workflows, with the long upper tails coming from the MICI-capable arm rather than from disagreement about the central estimate.
-
-> **Regeneration note (2026-09-02).** Every number and figure here is **L24** unless an earlier vintage is explicitly named. The van Vuuren markers and the MAGICC-climate arm were built for L24 specifically (16 arms, all **tapped**; L21 and L23 have no untapped van Vuuren or MAGICC arms). ⚠ **L24 vs L21 remains a prior change, not a model improvement.**
+On a matched-temperature overshoot pair the regrowth is modest for everyone: at 2300 Ladrillo gives 2.21 cm against BRICK 2.0's 2.58, inside the 1.65–5.39 cm spread of four FACTS process-based workflows, with the long upper tails coming from the MICI-capable arm rather than from disagreement about the central estimate.

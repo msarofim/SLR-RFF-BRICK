@@ -76,17 +76,38 @@ def sync():
 
     n = [0]
 
-    def repl(m):
-        alt_m = re.search(r'alt="([^"]*)"', m.group(0))
-        alt = alt_m.group(1) if alt_m else ""
+    def next_fig():
         if n[0] >= len(FIGS):
             sys.exit(f"ERROR: docx has more figures than FIGS ({len(FIGS)}) lists — "
                       f"update FIGS in {__file__}")
         f = FIGS[n[0]]
         n[0] += 1
-        return f"![{alt}](../figures/{f})"
+        return f
 
-    gfm = re.sub(r'<img src="(?:media/)?image\d+\.\w+"[^>]*/>', repl, gfm)
+    ## ⚠ THE MEDIA FILENAME IS NOT STABLE — do not match on it. A docx pandoc itself just built
+    ## (no Word re-save) names embedded images by relationship ID ("media/rId14.png"); a docx
+    ## Word has saved/re-saved uses sequential names ("media/image1.png"). Matching only
+    ## "image\d+" silently found ZERO figures on an rId-named file — caught 2026-09-03 because
+    ## the script then hard-errors on a count mismatch rather than emitting a 0-figure doc.
+    ## Match ANY media path, in EITHER an <img> tag (has size attrs, from a Word-saved file) or
+    ## bare markdown image syntax (no size attrs, from a pandoc-only file) — figures are still
+    ## assigned by APPEARANCE ORDER via FIGS, never by filename.
+    ## ONE pass, ONE combined pattern (img-tag OR markdown-image as alternatives) — chaining two
+    ## separate re.sub calls double-matched: the second call re-scanned the FIRST call's own
+    ## output, whose replacement text ("![alt](../figures/name.png)") is itself valid markdown
+    ## image syntax and matched the markdown-image regex a second time. Caught 2026-09-03 by
+    ## the same "more figures than FIGS lists" guard, immediately after the filename fix above.
+    IMG_PATTERN = re.compile(
+        r'<img src="(?:media/)?[^"]+"[^>]*alt="(?P<alt1>[^"]*)"[^>]*/>'
+        r'|<img src="(?:media/)?[^"]+"/>'
+        r'|!\[(?P<alt2>[^\]]*)\]\((?:media/)?[^)]+\)'
+    )
+
+    def repl(m):
+        alt = m.group("alt1") or m.group("alt2") or ""
+        return f"![{alt}](../figures/{next_fig()})"
+
+    gfm = IMG_PATTERN.sub(repl, gfm)
     if n[0] != len(FIGS):
         sys.exit(f"ERROR: docx has {n[0]} figures, FIGS lists {len(FIGS)} — "
                  f"update FIGS in {__file__} to match the CURRENT document before syncing")
