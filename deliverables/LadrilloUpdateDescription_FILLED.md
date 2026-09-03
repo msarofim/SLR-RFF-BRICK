@@ -33,7 +33,7 @@ Large, high-latitude, long relaxation time, and strongly amplified relative to g
 temperature (prior 2.50). This block dominates the glacier contribution in both the hindcast and the
 projections.
 
-**FAST — the remaining 13 RGI regions.** Smaller, faster-responding bodies with weak amplification
+**FAST — the other 13 RGI regions.** Smaller, faster-responding bodies with weak amplification
 (prior 1.45). It equilibrates quickly enough that its committed volume is close to its realised
 volume through most of the record.
 
@@ -46,9 +46,9 @@ other two, so it is not physically interchangeable with them either. (The three 
 the 19 RGI regions; RGI 05, Greenland Periphery, is excluded — Frederikse's glacier target excludes
 it and it falls inside the Greenland ice-sheet mask.)
 
-**Compared with BRICK 2.0 and MAGICC.** Against **BRICK 2.0** the change is substantial. Against
-**MAGICC**, both use the formulation from Nauels 2017 Eq. 3; where they differ is the three regions
-used in Ladrillo. MAGICC's committed 1850 melt is 28–136 mm, Ladrillo's 63–146 mm.
+**Compared with BRICK 2.0 and MAGICC.** BRICK 2.0 and Ladrillo now have completely different
+glacier modules. Compared to MAGICC, both use the formulation from Nauels 2017 Eq. 3; where they
+differ is the three regions used in Ladrillo. MAGICC's committed 1850 melt is 28–136 mm, Ladrillo's 63–146 mm.
 
 **Regrowth potential.** Neither BRICK nor FACTS can regrow glacial ice, but MAGICC and Ladrillo can.
 The law is
@@ -81,7 +81,7 @@ be calibrated on observations, so the parameters were informed by ISMIP6 at 2100
 SSP2-4.5 and 41.8 cm to the SSP5-8.5 total at 2300.
 
 **Compared with BRICK 2.0 and MAGICC.** Greenland is the component where the hindcast gain over
-BRICK 2.0 is largest. MAGICC also splits Greenland into SMB and SID and parameterises against
+BRICK 2.0 is largest. MAGICC similarly splits Greenland into SMB and SID and parameterises against
 SICOPOLIS, but with 17 parameters between the two, of which 9 vary and each of those takes only 4
 distinct values.
 
@@ -124,16 +124,16 @@ tracks the observations to within a hundredth of a centimetre.
 `hR = h0 + c·T_ant`, so individually they ride a correlation-0.9997 ridge no sampler can traverse.
 Ladrillo samples `T_on = −h0/c`, the runoff **onset temperature**, which is what the data constrain.
 
-**Antarctic amplification is freed.** Stock DAIS hard-codes 1.196 — the inverted paleo *equilibrium*
-regression applied to a *transient* problem. Ladrillo samples it under N(1.09, 0.180), the measured
-CMIP6 between-model spread. ⚠ **It is prior-dominated**: the posterior sd is 0.95–0.99 of the prior's
-at every width tried, and it carries 386 cm per unit on Antarctica at 2300, so **the prior's width is
-the projection uncertainty**. No available observation constrains it — the coefficient multiplies a
-temperature *anomaly*, whose footprint is 0.083 °C over the window where the data are.
+**Antarctic amplification is a key parameter.** Stock DAIS hard-codes 1.196. Ladrillo samples it
+under N(1.09, 0.180), the measured CMIP6 between-model spread. The parameter is not constrained by
+observation — the posterior is very close to the prior — and a one-sigma change moves Antarctic sea
+level at 2300 by about 69 cm on SSP5-8.5, roughly 13% of that scenario's total. ⚠ That is leverage on
+a *trajectory*, not on the reported band: widening the prior 1.8× (L23 → L24) widened the AIS@2300
+spread only **1.07×** (93.1 → 99.5 cm).
 
-⚠ **Convergence is disclosed, not claimed.** L24 is accepted under the deliverable criterion:
-19 parameter marginals fail R̂ < 1.05 — the documented Antarctic-geometry ridge, present in every
-vintage — while **projected sea level converges** (R̂ = 1.008 at 2100, 1.011 at 2150; ESS ≈ 1050).
+**Criterion matching.** L24 is accepted under the deliverable criterion:
+19 parameter marginals fail R̂ < 1.05 (primarily the Antarctic-geometry ridge) while **projected
+sea level converges** (R̂ = 1.008 at 2100, 1.011 at 2150; ESS ≈ 1050).
 
 ## Ladrillo Observational Comparison
 
@@ -156,21 +156,16 @@ two orders of magnitude on early-20th-century Antarctica, and by roughly a facto
 Greenland. Cumulative 1900–2026 totals: observed 7.81 cm, Ladrillo 8.55, BRICK 2.0 8.45, against an
 independent IGCC check of 8.33.
 
-**⚠ Thermal expansion is the one component where Ladrillo is worse than the model it replaces, and
-the cause is external.** Four results establish it. **Half the apparent miss is depth scope** — FaIR's
-ocean heat is full-depth while the steric target is built from 0–2000 m products, and correcting on
-IGCC's own >2000 m layer takes the 1993–2026 rate ratio from 1.27× to 1.15×. **What remains is the
-driver, not the coefficient**: expansion is linear in ocean heat, so the miss factors exactly as
-1.270 = 1.236 (driver) × 1.028 (coefficient). **The miss is shared** — BRICK 2.0, an independent
-posterior on the same FaIR driver, misses the same cell at 1.17×, and both models match the observed
-*total* rate (1.07× and 1.04×). And **the coefficient is right**: against observed ocean heat a single
-constant ≈ 0.11 reproduces the steric target across 1900–1950, 1950–1993 and 1993–2024 to within 3%,
-and Ladrillo's fitted 0.11252 sits inside that range.
-
-⚠ A depth-resolved coefficient was tested and does not help: the mid-century epoch needs a *higher*
-coefficient but is *deeper*-weighted than the modern one, so any efficiency declining with depth
-moves the model the wrong way. The weakest link is the mid-century observation itself — Cheng and
-IGCC disagree by ~50% on 1950–1993 ocean heat gain.
+**For thermal expansion Ladrillo is worse than BRICK 2.0, and the cause is FaIR.** In both models
+thermal expansion is *exactly* proportional to the ocean heat they are given, and both are given the
+same FaIR driver — so the miss is shared (BRICK 2.0 misses the same cell at 1.17×) and the same
+driver correction would apply to both. Against *observed* ocean heat a single constant coefficient
+≈ 0.11 reproduces the steric target across 1900–1950, 1950–1993 and 1993–2024 to within 3%, and
+Ladrillo's fitted 0.11252 sits inside that range. Half the apparent miss is depth scope: FaIR's ocean
+heat is full-depth while the steric target is 0–2000 m, and correcting on IGCC's own >2000 m layer
+takes the 1993–2026 rate ratio from 1.27× to 1.15×. A depth-resolved coefficient was tested and
+failed, though that may reflect observational uncertainty — Cheng and IGCC disagree by ~50% on
+1950–1993 ocean heat gain.
 
 ## Ladrillo Projection Comparison
 
@@ -217,7 +212,7 @@ reverses on the declining markers where a melt-only reservoir cannot.
 **FIG 9.** Total sea level by SSP, Ladrillo L24 joint band. Totals at 2300: **72.6 cm** (SSP1-2.6),
 **249.2 cm** (SSP2-4.5), **516.7 cm** (SSP5-8.5).
 
-### Ladrillo against MAGICC on MAGICC's own climate
+### Ladrillo compared to MAGICC on MAGICC's own climate
 
 ⚠ Comparing two sea-level models on **different climate drivers** confounds the module with the
 forcing. Ladrillo was therefore re-run on **MAGICC's climate** as well as FaIR's, so the remaining
@@ -238,16 +233,29 @@ carries the total to 1.48×. Greenland, glaciers and thermal expansion are all n
 projection-versus-other-models disagreement rather than an observational conflict. It is wider on L24
 than on L21 because the amplification prior is wider — the honest, measured prior, not a tuned one.
 
-**Peak-and-decline scenarios.** ⭐ This is where the glacier law change matters — **structurally
-rather than numerically**. Swapping back to the melt-only ratchet on a held posterior moves the total
-by ≤6.2×10⁻⁵ cm on the SSPs and −0.20 cm at the low-overshoot marker. What it buys is that Ladrillo
-behaves like the physics rather than like a ratchet: glaciers halt when temperature halts — the
-glacier rate at 2300 falls to 0.00–0.55 mm/yr on declining pathways against 1.96 on a rising one —
-and can reverse, which BRICK 2.0's melt-only formulation cannot do at all. On a matched-temperature
-overshoot pair that regrowth proves modest and Ladrillo agrees with its comparators: at 2300,
-2.21 cm against BRICK 2.0's 2.58 and inside the 1.65–5.39 cm spread of four FACTS process-based
-workflows, with the long upper tails coming from the MICI-capable arm rather than from any
-disagreement about the central estimate.
+**Peak-and-decline scenarios.** The glacier change is important here because it allows regrowth,
+though that regrowth is modest. Swapping back to the melt-only ratchet on a held posterior moves the
+total by only ≤6.2×10⁻⁵ cm on the SSPs and −0.20 cm at the low-overshoot marker, so what the law buys
+is structural rather than numerical: glaciers halt when temperature halts — the glacier rate at 2300
+falls to 0.00–0.55 mm/yr on declining pathways against 1.96 on a rising one — and can reverse, which
+BRICK 2.0's melt-only formulation cannot do at all.
+
+**MAGICC regrows substantially more than Ladrillo, and about ¾ of that is model structure and ¼ the
+climate module.** Re-running Ladrillo on MAGICC's own climate closes 13–35% of the regrowth gap
+(mean 24%) across the five van Vuuren markers where MAGICC regrows, leaving the rest to structure.
+The structural half is a *rate* limit, not an equilibrium one. At vvLN, where MAGICC's climate falls
+to −0.71 K by 2300, Ladrillo's own glacier equilibrium drops from 19.1 cm to 2.2 cm — 16.9 cm of
+headroom — yet it regrows only 2.1 cm of it. The reason is that Ladrillo's regional blocks relax at
+very different speeds on the cooling limb: FAST has a ~95-year timescale, but SLOWP (~275 yr) and R19
+(~465 yr) together hold 60% of the headroom and cannot traverse it inside the horizon while chasing a
+still-falling equilibrium. MAGICC has no regional split — one global reservoir, relaxing fast enough
+to reach its floor. ⭐ **The regionalisation that makes Ladrillo fit the historical record better is
+the same feature that makes it slower to regrow.**
+
+⚠ On a matched-temperature overshoot pair the regrowth is modest for everyone: at 2300 Ladrillo
+gives 2.21 cm against BRICK 2.0's 2.58, inside the 1.65–5.39 cm spread of four FACTS process-based
+workflows, with the long upper tails coming from the MICI-capable arm rather than from disagreement
+about the central estimate.
 
 > **Regeneration note (2026-09-02).** Every number and figure here is **L24** unless an earlier
 > vintage is explicitly named. The van Vuuren markers and the MAGICC-climate arm were built for L24
