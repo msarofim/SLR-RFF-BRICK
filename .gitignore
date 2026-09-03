@@ -304,3 +304,10 @@ julia/_frozen_*.jl
 # (Marcus 2026-09-03) although the scenario cubes beside them are tracked -- they rebuild
 # in ~1 min each from the FaIR driver, and the driver plus its gate log is the record.
 data/observations/fair_cube_*_pulse*_2030_raw.csv
+
+# Per-draw pulse dumps: 14 files, ~39 MB, and they exist so any statistic can be recomputed
+# WITHOUT a re-run -- but that re-run is 15.6 min, so the same rebuildable-bulk rule the pulse
+# cubes got applies. The cells / paths / gates files ARE tracked: they are the results, the
+# figures read them, and together they are ~1 MB.
+outputs/pulse_ladrillo_draws_*.csv
+outputs/pulse_ladrillo_*_SMOKE.csv
