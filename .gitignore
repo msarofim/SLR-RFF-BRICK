@@ -311,3 +311,7 @@ data/observations/fair_cube_*_pulse*_2030_raw.csv
 # figures read them, and together they are ~1 MB.
 outputs/pulse_ladrillo_draws_*.csv
 outputs/pulse_ladrillo_*_SMOKE.csv
+
+# Mutation-test outputs are DELIBERATELY WRONG tables. The verdict lives in the
+# commit message and CHANGELOG; the file itself must never be mistaken for a result.
+outputs/*_MUT*.csv
