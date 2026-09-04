@@ -149,11 +149,18 @@ PULSE_SIZE === nothing ||
             PULSE_SIZE, SPEC.size_tag, SPEC.pulse_Gt, SPEC.unit)
 const PULSE_YEAR = 2030
 
-## ⚠ CH4 IS NOT A SMALL PERTURBATION and the FaIR stage measured it: 1 GtCH4 = 260 % of one
-## year's CH4 emission at 2030, and the DOUBLING gate came back 2.0332, i.e. measurably
-## SUPERLINEAR. CO2 is 26 % of a year and doubles at 1.9999. Source: FaIRtoFrEDI
-## scripts/build_fair_pulse_vv_v160.py gate output 2026-09-03; NOT a literature constant.
-const FAIR_DOUBLING = Dict("CO2" => 1.9999, "CH4" => 2.0332)
+## ⚠ THE DOUBLING RATIO IS A PROPERTY OF THE SIZE, NOT OF THE SPECIES, so it is keyed by BOTH
+## and a size with no measured entry FAILS rather than silently borrowing another size's number.
+## Measured by `FaIRtoFrEDI/scripts/build_fair_pulse_vv_v160.py --gates`; NOT a literature constant.
+##   OLD SPEC (2026-09-03): 1 GtCH4 = 260% of one year's CH4 emission at 2030 and doubled at
+##   **2.0332** -- measurably SUPERLINEAR; 10 GtCO2 = 26% of a year and doubled at 1.9999.
+##   NEW SPEC (2026-09-04): 0.01 GtCH4 doubles at **2.0003-2.0004** and 1 GtCO2 at **2.0000**,
+##   uniform over all seven markers. Cutting CH4 100x cut its superlinearity ~100x (1.66% -> 0.015%),
+##   which is the scaling a quadratic term predicts -- an independent confirmation, from FaIR, of
+##   the size ruling that the MAGICC floor ladder and the L24 ladder reached separately.
+const FAIR_DOUBLING = Dict(
+    ("CO2", "10Gt")   => 1.9999, ("CH4", "1Gt")     => 2.0332,   # the superseded spec
+    ("CO2", "1Gt")    => 2.0000, ("CH4", "0p01Gt")  => 2.0004)   # the current spec (worst marker)
 
 const HORIZONS   = [2100, 2150, 2300]
 const Y0, Y1     = 1850, 2300
@@ -594,7 +601,7 @@ let H = 2100, v = DIFF[:total][:, yidx(H)], per = median(v) / SPEC.pulse_Gt
     @printf("              5.08e-03 cm/GtCO2 @2100 (OLD model AND pre-1.6.0 calibration).\n")
     if SPECIE == "CH4"
         @printf("              ⚠ CH4 DOUBLING RATIO %.4f (FaIR stage): the pulse is SUPERLINEAR.\n",
-                FAIR_DOUBLING["CH4"])
+                get(FAIR_DOUBLING, (SPECIE, SPEC.size_tag), NaN))
         @printf("                Quote this ratio beside any per-tonne CH4 marginal.\n")
     end
     push_g!("MAGNITUDE", "cm_per_$(SPEC.unit)_$(H)", per, true)

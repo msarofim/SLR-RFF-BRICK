@@ -1,3 +1,57 @@
+## 2026-09-04b — the re-run at 1 GtCO2 / 0.01 GtCH4: a biased median traded for an under-powered mean
+
+Stages 1-3 re-run at the revised spec. 56 FaIR cubes, 14 Ladrillo cells, 14 BRICK 2.0 cells,
+**zero gate failures anywhere**. `--pulse-size` added to both Julia drivers (the size and the size
+TAG move together from one number). Old-size outputs quarantined to
+`outputs/quarantine/20260904_pulse_size_10Gt_1Gt/` with a README, force-tracked.
+
+**⭐ FaIR CONFIRMS THE SIZE RULING INDEPENDENTLY.** `[DOUBLING]` at the new sizes: CO2 **2.0000**
+on all seven markers, CH4 **2.0003-2.0004**. At the old sizes CH4 doubled at **2.0332**. Cutting the
+pulse 100x cut the superlinearity ~100x — the scaling a quadratic term predicts.
+
+**⭐⭐ THE MEASURED SIZE BIAS, on the paired TOTAL per unit (old size / new size):**
+
+| | Ladrillo median | Ladrillo mean | BRICK 2.0 median | BRICK 2.0 mean |
+|---|---|---|---|---|
+| CO2 @2300 | 1.013-1.206 | 0.834-1.027 | 1.090-1.338 | 0.993-1.161 |
+| **CH4 @2300** | **1.021-4.200** | 0.826-1.146 | **1.105-5.822** | 0.783-1.521 |
+
+⇒ the superseded CH4 medians were up to **4.2× (Ladrillo) / 5.8× (BRICK 2.0)** too high.
+
+**⭐⭐ THE CH4 U-SHAPE WAS MOSTLY THE PULSE SIZE.** Median spread over the seven markers:
+CH4 @2100 **2.70× → 1.235×** (Ladrillo) and 1.230× (BRICK 2.0); CH4 @2300 **4.4× → 1.376×** / 1.249×.
+The `2026-09-03e` headline does not survive at the correct size. **CO2's scenario-invariance DOES**:
+median spread @2100 is **1.020×** (Ladrillo) and 1.044× (BRICK 2.0).
+
+**⚠⚠ CORRECTION TO `2026-09-04a`.** That entry reported "the two models agree on the MEAN and
+disagree on the MEDIAN". **Both halves were artefacts of the oversized pulse.** At 1 GtCO2 /
+0.01 GtCH4:
+- the **MEDIAN** ratio BRICK/Ladrillo is a tight, systematic **0.60-0.84** (BRICK ~25-35 % lower) —
+  the old 0.62-1.87 spread was the size bias acting differently in the two models;
+- the **MEAN** ratio is 0.64-1.56 but **statistically indistinguishable**: |z| beyond 2 se in
+  **0/7 cells** at CO2@2100, CH4@2100 and CH4@2300, and only 2/7 at CO2@2300.
+
+⇒ **the models now "agree" on the mean because the mean has NO POWER, not because they agree**
+(`no_power_null`, and it caught my own claim).
+
+**⚠⚠ AND THAT IS THE REAL COST OF THE SIZE CHANGE.** `p_fired` collapses with the pulse, so the
+premium term is estimated on far fewer draws:
+
+| cell | rel se of the mean, old → new | ×worse | p_fired old → new |
+|---|---|---|---|
+| CO2 @2100 | 5.5 % → **13.2 %** | 2.43 | 7.1 % → 0.8 % |
+| CO2 @2300 | 4.4 % → **9.2 %** | 2.09 | 14.8 % → 2.0 % |
+| CH4 @2100 | 3.2 % → **17.0 %** | 5.32 | 31.3 % → 0.5 % |
+| CH4 @2300 | 4.0 % → **19.2 %** | 4.79 | 35.4 % → 0.7 % |
+
+⇒ **the ±5 % target, met on the TOTAL at the old size, is now MISSED by 2-4× on every cell.** This
+is exactly the tension `pulse_size_the_median_is_the_biased_one` predicted — *no single pulse size
+is good for both statistics* — now realised rather than hypothetical. ⚠ **Marcus's 09-04 ruling to
+ACCEPT the AIS precision was taken at the OLD size, when the total was already inside ±5 %. It
+should be revisited: stratification toward the threshold is now the only lever that helps, since
+`ais_gmst_amp` is autocorrelation-exhausted (tau 5500-6800, ~650 independent values in the whole
+chain).** OPEN.
+
 ## 2026-09-04a — STAGE 3: the BRICK 2.0 pulse arm, and the two models agree on the MEAN
 
 `julia/scope_slr_pulse_vv_brick2.jl` — MimiBRICK **v2.0.0** on the SAME paired van Vuuren cubes
