@@ -1,3 +1,57 @@
+## 2026-09-03g — the ladder: the MEDIAN is the size-biased statistic, not the mean
+
+Marcus accepted both recommendations from `2026-09-03f`: report the Lemoine-Traeger pair, and
+re-run the pulse-size ladder for L24 before stages 3-5 lock the spec at 10 GtCO2.
+
+**New: `julia/diag_pulse_size_vv_ladder.jl`** (`c385554`), vvM/CO2, 2000 draws, six rungs
+0.1-30 GtCO2 IRF-scaled from the real 10 Gt pair. All gates pass, and two of them are exact:
+`[BASE-IDENTITY]` **0.000e+00** (the 1 Gt and 10 Gt builds' baseline arms are the same climate)
+and `[P0-IDENTITY]` **0.000e+00** (the P=10 rung reproduces the shipped stage-2 draws file
+bit-identically). `[IRF-VALID]` — the scaled 1 Gt climate against a REAL 1 Gt FaIR cube, pushed
+through Ladrillo per draw — is **0.06-0.11%** of the median response, so the scaling is sound.
+The real cube needed a new `--pulse-size` flag on `build_fair_pulse_vv_v160.py` (`1b7f1bb`).
+
+**⭐⭐ THE MEDIAN AND THE MEAN HAVE OPPOSITE PULSE-SIZE PATHOLOGIES.** Per-GtCO2 total @2300,
+relative to the 1 Gt rung: **median** 0.981 / 1.000 / 1.033 / **1.206** / **2.386** at
+0.1 / 1 / 3 / 10 / 30 Gt, while the **mean** is 1.129 / 1.000 / 0.927 / 0.943 / 0.956. The
+median tracks whether the MEDIAN DRAW has crossed, so it inflates as `p_fired` climbs toward
+50% (0.35% → 20.3% → 55.2% across those rungs); the AIS median at 30 Gt is **5.4x**. The mean
+integrates over all draws and is flat to ~5% over a **30x** size range — it is the SMALL rungs
+where the mean fails, on 4-14 fired draws. ⇒ **There is no single pulse size at which both
+statistics are good**, which is an independent and much better argument for reporting the pair.
+
+⇒ **The 10 GtCO2 spec STANDS**, because the headline is now the mean/LT pair. But the shipped
+stage-2 MEDIANS carry the size bias: **+1.8% at 2100** (so "CO2 is scenario-invariant at
+7.53-7.65e-03 cm/GtCO2" is safe) and **+20.6% at 2300** (so "0.0142-0.0210 cm/GtCO2 by 2300"
+is inflated ~20%). This reproduces `dais_fastdynamics_quant`'s July BRICK-Mengel finding
+(9-20%) and agrees with its ≤1 Gt half exactly: our 0.1/0.3/1.0 rungs span **1.9%**.
+
+**⭐ HALF THE VARIANCE WAS FREE.** Measured first: a median **53%** (range 23-75%) of the AIS
+mean's Monte Carlo variance is carried by `P(fired)` ALONE. And since `amp > 0`,
+`T_ant[t] > thr` is exactly `GMST[t-1] > (thr - TANT0)/amp` — one `gcrit` per draw — so P is
+computable on all **2000 x 841** pairings by binary search, no model runs. Rao-Blackwellising it
+(`f703cb8`) and re-running all 14 cells: **se(RB)/se(plain) = 0.65 median (0.34-0.89)**, i.e.
+**equivalent to 2.35x the draws for zero compute**. The estimator shift is ≤1.29 se everywhere
+(median 0.29 se, 0 of 84 cells beyond 2 se) — same quantity, lower variance.
+
+**⇒ THE ±5% TARGET IS ALREADY MET ON THE TOTAL.** Relative se @2300 after RB: **1.0-6.4%**, and
+only ONE of 14 cells (vvVL/CH4, 6.4%) is outside ±5%. On the AIS sub-component alone, 5 of 14
+remain outside — all cool markers with low `p_fired`.
+
+**⚠ A 5x UNIFORM RE-RUN IS THE WRONG TOOL for what is left**, and this is new information
+Marcus did not have when he asked for more draws: `ais_gmst_amp` has **tau ≈ 5,500-6,800**, so
+the FULL 1M post-burn chain holds only ~150-180 independent values per seed, **~650 over all
+four**. The current 2,000 draws already exceed that; 10,000 adds **ZERO** independent `amp`
+information. (`antarctic_temp_threshold` is different — tau ≈ 430-525, ~8,500 available.) The
+between-chain se corroborates: 0.51-1.69x the iid se, median 0.91x, so the iid se is roughly
+honest and the config axis does the decorrelating. What is left is `E[d|fired]` on 127-251 fired
+draws in the cool cells ⇒ **stratify toward the threshold, do not sample uniformly.** OPEN, and
+Marcus's call.
+
+All 14 re-run cells pass every gate with **zero failures**; `P-FIRED-CONSISTENT` z = 0.02-0.58;
+`int_over_cont` 1.012-1.020, corroborating `2026-09-03f` on the production driver. `SIGN`'s
+`median_cm_2100` is bit-identical to the pre-change file, so the model path is untouched.
+
 ## 2026-09-03f — the pulse's threshold problem is a VARIANCE problem, not a bias problem
 
 Revisiting how a pulse that should be a marginal change is supposed to cross a hard threshold.
