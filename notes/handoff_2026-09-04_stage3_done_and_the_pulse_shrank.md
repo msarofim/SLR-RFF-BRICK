@@ -13,33 +13,49 @@ written.**
 
 ---
 
-## 1. ⚠⚠ WHERE THINGS WERE LEFT MID-FLIGHT — READ BEFORE RUNNING ANYTHING
+## 1. ✅ THE RE-RUN IS DONE — and it CORRECTED a headline from earlier the same day
 
-The FaIR cube rebuild at the new sizes was **launched and not yet verified**:
+Stages 1-3 all re-ran at **1 GtCO₂ / 0.01 GtCH₄**: 56 FaIR cubes, 14 Ladrillo cells, 14 BRICK 2.0
+cells, **zero gate failures anywhere** (`ff8e594`). Old-size outputs are quarantined at
+`outputs/quarantine/20260904_pulse_size_10Gt_1Gt/` with a README, force-tracked (that directory is
+gitignored, so `git add -f` is required — a plain `git mv` there silently untracks).
 
-```
-bash <scratch>/build_cubes.sh     # 14 builds: 7 markers x {CO2 --pulse-size=1, CH4 --pulse-size=0.01}
-```
+**⭐ FaIR confirms the size ruling on its own:** `[DOUBLING]` is **2.0000** for CO₂ on all seven
+markers and **2.0003-2.0004** for CH₄, against **2.0332** at the old CH₄ size. A 100× smaller pulse
+cut the superlinearity ~100×, the scaling a quadratic term predicts.
 
-writing `data/observations/fair_cube_{gmst,ohc}_vv<M>_{pulsebase,pulse}_{CO2_1Gt,CH4_0p01Gt}_2030_raw.csv`
-and `FaIRtoFrEDI/logs/cube_vv*_{CO2_1Gt,CH4_0p01Gt}.log`. **First check all 56 files exist and every
-log's `--gates` block passes** (`[ZERO-PULSE]`, sign-flip, `[DOUBLING]`, `[MAGNITUDE]`), then:
+**⭐⭐ The measured size bias** on the paired TOTAL per unit (old/new): Ladrillo CH₄@2300 median
+**1.02-4.20**, BRICK 2.0 **1.11-5.82**; CO₂@2300 median 1.01-1.21 / 1.09-1.34. Means far stabler
+(0.78-1.52). ⇒ the superseded CH₄ medians were up to **4.2× / 5.8×** too high.
 
-1. **Stage 2 re-run** — `julia/scope_slr_pulse_vv.jl --marker=<M> --specie=<S> --tap --pulse-size=<1|0.01>`,
-   14 runs, 4-concurrent, BLAS pinned, ~16 min. ⚠ Run from a FROZEN COPY under `julia/`.
-2. **Stage 3 re-run** — `julia/scope_slr_pulse_vv_brick2.jl --marker=<M> --specie=<S> --ndraw=2000
-   --pulse-size=<1|0.01>`, ~4 min for all 14.
-3. The old 10Gt/1Gt outputs are **still at their canonical paths**. They are not wrong — they are a
-   different, documented pulse size — so per `~/.claude/CLAUDE.md` they should be **moved to
-   `outputs/quarantine/20260904_pulse_size_10Gt/` with a README** rather than deleted or left to be
-   picked up silently. **NOT DONE YET.**
+**⭐⭐ The CH₄ U-SHAPE was mostly the pulse size.** Median spread over the seven markers:
+CH₄@2100 **2.70× → 1.235×**, CH₄@2300 **4.4× → 1.376×** (BRICK 2.0: 1.230× / 1.249×). The
+`2026-09-03e` headline does NOT survive. **CO₂'s scenario-invariance DOES** — median spread @2100
+**1.020×** (Ladrillo), 1.044× (BRICK 2.0).
 
-⚠ **`--pulse-size` was added to BOTH Julia drivers this session and has NOT been exercised end to
-end.** Its label construction mirrors the Python side character for character
-(`f"{g:g}".replace(".","p") + "Gt"` → `1Gt`, `0p01Gt`); a one-character difference opens the wrong
-cube or none. **Smoke each driver with `--maxrows` before the sweep.**
+**⚠⚠ AND IT REVERSED §2's HEADLINE.** "The two models agree on the MEAN and disagree on the MEDIAN"
+was itself an artefact of the oversized pulse. At the correct size:
+- the **MEDIAN** ratio BRICK/Ladrillo is a tight, systematic **0.60-0.84** (BRICK 25-35 % lower);
+- the **MEAN** ratio is 0.64-1.56 but **indistinguishable** — |z| beyond 2 se in **0/7 cells** at
+  CO₂@2100, CH₄@2100, CH₄@2300; 2/7 at CO₂@2300.
+⇒ **the models "agree" on the mean because the mean has NO POWER** (`no_power_null`).
 
----
+**⚠⚠ THE OPEN ITEM THIS CREATES — READ BEFORE STAGE 4.** `p_fired` collapses with the pulse, so the
+premium is estimated on far fewer draws:
+
+| cell | rel se of the mean, old → new | ×worse | p_fired old → new |
+|---|---|---|---|
+| CO₂ @2100 | 5.5 % → **13.2 %** | 2.43 | 7.1 % → 0.8 % |
+| CO₂ @2300 | 4.4 % → **9.2 %** | 2.09 | 14.8 % → 2.0 % |
+| CH₄ @2100 | 3.2 % → **17.0 %** | 5.32 | 31.3 % → 0.5 % |
+| CH₄ @2300 | 4.0 % → **19.2 %** | 4.79 | 35.4 % → 0.7 % |
+
+**±5 % is now MISSED by 2-4× on every cell.** This is the tension
+`pulse_size_the_median_is_the_biased_one` predicted, now realised. ⚠ **Marcus's 09-04 ruling to
+ACCEPT the AIS precision was taken at the OLD size, when the total was already inside ±5 %. It
+needs revisiting.** A uniform re-run does NOT help (`ais_gmst_amp` tau 5500-6800, ~650 independent
+values in the whole chain); **stratification toward the threshold is the only lever left.** OPEN,
+and put to Marcus.
 
 ## 2. STAGE 3 IS DONE — and the two models agree on the MEAN, not the MEDIAN
 
