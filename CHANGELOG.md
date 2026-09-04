@@ -1,3 +1,37 @@
+## 2026-09-03h — the pair re-run: BOTH stage-2 headlines are median statements
+
+All 14 cells re-run with the Lemoine-Traeger pair and the new gates. **Zero failures**;
+`[P-FIRED-CONSISTENT]` z = 0.02-0.58; `[AIS-CROSSING]` `int_over_cont` 1.012-1.020, corroborating
+`2026-09-03f` on the production driver. **Every prior number is bit-identical** — max |new - old|
+is 0.000e+00 on `paired_med_cm` across all 14 cells files and on `med_diff_cm` across all 14 paths
+files. The model path is untouched; what changed is what is reported.
+
+**Measured effect of the Rao-Blackwellised P:** se(RB)/se(plain) = **0.65 median (0.34-0.89)** =
+**2.35x the draws for zero compute**; estimator shift ≤1.29 se everywhere (median 0.29 se, 0 of 84
+cells beyond 2 se). ⇒ **±5% is already met on the TOTAL** (rel se @2300 = 1.0-6.4%, only vvVL/CH4
+outside). AIS alone leaves 5 of 14 outside, all cool markers.
+
+**⭐⭐ AND THE PAIR IMMEDIATELY CORRECTS TWO SHIPPED HEADLINES.** Both were statements about the
+MEDIAN; both weaken on the mean.
+
+- **"CO2 is scenario-invariant at 2100, 7.53-7.65e-03 cm/GtCO2, a 1.6% spread."** On the MEAN the
+  spread is **1.35x** (0.01321 vvVL → 0.01785 vvML). The invariance belongs to the SMOOTH TERM
+  (0.006896-0.007528 = **9.2%**); the PREMIUM spans **1.85x**. ⇒ *CO2's smooth response is
+  scenario-invariant; its tipping premium is not.* At 2300 the mean spans 1.79x vs the median's 1.48x.
+- **"CH4 is U-SHAPED across markers, 2.70x."** On the MEAN, **1.34x** at 2100 (0.829-1.111); at 2300
+  the median's **4.4x** becomes **1.37x**. The median jumps exactly where `p_fired` crosses 50% —
+  ML→M at 2300 (0.324 → 0.633), vvH at 2100 (0.569) — i.e. where the MEDIAN DRAW starts crossing.
+  ⇒ Much of the U's MAGNITUDE is the `ais_threshold_median_artifact` mechanism. The component
+  decomposition (all four rising +17-25% ⇒ a climate input) still stands FOR THE SMOOTH CHANNEL;
+  the SIZE of the U as a physical statement does not.
+
+⚠ `smooth_term_cm` is `(1-P)*E[.|smooth]`, so it falls partly because P rises — do not read its
+decline across markers as physical saturation without separating the two factors. ⚠ The pair's two
+terms are comparable across runs only AT THE SAME PULSE SIZE.
+
+Mutation-test outputs are now gitignored and deleted: a deliberately-wrong table sitting in
+`outputs/` is the same hazard in the output direction that `OUTSUF` fixed in the naming direction.
+
 ## 2026-09-03g — the ladder: the MEDIAN is the size-biased statistic, not the mean
 
 Marcus accepted both recommendations from `2026-09-03f`: report the Lemoine-Traeger pair, and
