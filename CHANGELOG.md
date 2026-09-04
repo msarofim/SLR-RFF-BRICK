@@ -1,3 +1,61 @@
+## 2026-09-04d — DEPTH WAS THE ANSWER: on MAGICC's climate BRICK 2.0 lands on MAGICC-SLR, and Ladrillo's residual is ANTARCTIC
+
+The decisive arm from 09-04c. Ladrillo's and BRICK 2.0's UNCHANGED modules, driven on MAGICC's own
+ssp534-over/ssp126 climate, so DEPTH is identical to MAGICC-SLR's and only the modules differ.
+
+**2300 total penalty, cm:**
+
+| model | climate | peak dT | paired median | diff of medians |
+|---|---|---|---|---|
+| MAGICC-SLR | MAGICC | +0.659 K | 12.75 | 14.28 |
+| **BRICK 2.0** | MAGICC | +0.659 K | **11.72** | **19.36** |
+| BRICK 2.0 | FaIR | +0.303 K | 2.57 | 5.66 |
+| **Ladrillo L24** | MAGICC | +0.659 K | **5.65** | **9.58** |
+| Ladrillo L24 | FaIR | +0.303 K | 2.21 | 3.43 |
+
+⭐⭐ **DEPTH WAS THE DOMINANT TERM.** Swapping only the climate moves BRICK 2.0 **2.57 → 11.72**
+(4.6x) and Ladrillo **2.21 → 5.65** (2.6x). **BRICK 2.0 now lands on MAGICC-SLR** (11.72 vs 12.75
+paired median, 9 %) and both sit inside SLEIP's 8-29 cm band. The "5-11x disagreement on the same
+model family" was mostly our SHALLOW OVERSHOOT, exactly as 09-04c suspected.
+
+⭐⭐ **AND THE RESIDUAL IS REAL, LOCALISED, AND ANTARCTIC.** Ladrillo keeps about HALF of
+BRICK's/MAGICC's penalty, and the whole difference is one component. AIS penalty @2300 (paired
+median): **BRICK 2.0 8.28 vs Ladrillo 1.58 — 5.2x.** Every other component matches within ~0.3 cm
+(glaciers 1.27 vs 1.07, gis 0.66 vs 0.55, te 1.27 vs 1.40, lws 0 vs 0). As a share of each model's
+own ssp126 level, the AIS penalty at 2100 is **BRICK 198.2 %, MAGICC-SLR 178.2 %, Ladrillo 28.9 %**
+— the two threshold-crossing models nearly identical and Ladrillo an order apart. This is SLEIP's
+own sentence ("BRICK projects the largest Antarctic SLR penalty with a sharp onset in 2050") seen
+from the inside: both models are DAIS-lineage, so the divergence is CALIBRATION, not module
+lineage — the freed geometry under the paleo prior, sampled amplification, and an Antarctic
+likelihood running from 1900 rather than IMBIE 1992-2017.
+
+⚠ **CAVEAT, STATED NOT BURIED: the two climates use DIFFERENTLY CONSTRUCTED pairs.** The MAGICC arm
+uses MAGICC's NATIVE ssp534-over/ssp126; the FaIR arm uses the IDEALISED `ssp534overMATCH`, because
+FaIR's native pair INVERTS after 2150. Their post-convergence residuals are close (+0.044 K vs
++0.035 K @2150), so they are comparable, but they are not identically constructed and the 4.6x /
+2.6x moves carry that.
+
+**Mechanism built:** `magicc_comparison/build_magicc_wide_ssp_overshoot.py` (FaIRtoFrEDI) writes the
+missing `ssp534over` wide cubes; `ssp126`'s already existed. **[GATE-REPRO]** rebuilds ssp126 through
+this script's pandas path and compares it to the committed scmdata-built file: **4.441e-16 (GMST) /
+4.547e-13 (OHC)**. The committed reference arm is never overwritten. `scope_slr_fairunc_oldbrick.jl`
+gained `--climate=magicc`, mirroring the Ladrillo level driver; Ladrillo's had it since 08-31c.
+
+⛔⛔ **A PRE-EXISTING GATE BUG FOUND AND FIXED — `scope_slr_fairunc_oldbrick.jl` [CONTROL].** It read
+`FIXED[c][:, j]` with j in 1:3, i.e. **years 1850/1851/1852**, comparing them against the shipped
+panel's 2100/2150/2300. The 2026-08-31 refactor widened these matrices from
+`length(ROWS) x length(HORIZONS)` to the full year axis and moved `cells`/`draws` to `OI[j]`
+("verified bit-identical"); the gate was not moved with them. It had been reporting **"18 cells
+compared, 18 over tolerance" on every scenario since**, and because only `nchk == 0` raises, it is
+NON-FATAL — four days of runs carried a failing control without stopping.
+**Exposed by suspicious uniformity**: ssp126 and ssp585 returned BYTE-IDENTICAL fixed values
+(total −21.868 / −22.212 / −22.057) and `lws` exactly 0.000. **No result was ever wrong** — the
+model's own outputs already matched the shipped panel to 3 dp, and `cells`, `draws` and `paths` all
+indexed correctly. After the fix: **18 cells, 0 over tolerance, every diff +0.0000**. The broken
+index served as its own mutation test — it failed 18/18, the correct one passes 18/18.
+⚠ **The non-fatality is UNCHANGED and is Marcus's call**: making [CONTROL] raise would alter control
+flow every future caller depends on, so it is reported rather than decided here.
+
 ## 2026-09-04c — SLEIP's penalty is a MEDIAN, and MAGICC's overshoot is 2.1× deeper than FaIR's
 
 The SLEIP Phase 1 preprint (egusphere-2026-3874) arrived on the machine, so both of §7's starred

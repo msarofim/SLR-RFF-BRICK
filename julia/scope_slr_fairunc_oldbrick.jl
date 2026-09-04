@@ -38,6 +38,31 @@ const POST = joinpath(REPO, "data/MimiBRICK/parameters_subsample_brick.csv")
 _arg(p) = (i = findfirst(a -> startswith(a, p), ARGS); i === nothing ? nothing : ARGS[i][length(p)+1:end])
 const SSP   = something(_arg("--ssp="), "ssp585")
 const NDRAW = parse(Int, something(_arg("--ndraw="), "1000"))
+## ---- which climate drives the JOINT arm ----------------------------------
+## `fair`   our 841-config FaIR cube (the default; every existing product).
+## `magicc` MAGICC-SLR's own 600-member climate, per member, from the run that
+##          produced the MAGICC-SLR comparison series.
+## WHY. Ladrillo's level driver gained this 2026-08-31c and its pulse driver 2026-09-04e;
+## BRICK 2.0 had no such arm, so every BRICK-vs-MAGICC statement stayed a TWO-variable
+## comparison (`magicc_colder_than_fair_2300`: 0.38-0.93 K colder at 2300 on the declining
+## markers). Driving BRICK's UNCHANGED modules with MAGICC's climate holds the module axis.
+## ⚠ THE REVERSE ARM IS IMPOSSIBLE (`runnable_is_not_undrivable`): MAGICC-SLR lives inside
+## MAGICC and consumes MAGICC's own climate module. One direction only.
+## ⚠ ONLY THE JOINT ARM MOVES. FIXED runs on MEAN_G/MEAN_O, which stay FaIR's mean path in
+## both climates -- so [CONTROL] below remains a live gate under `--climate=magicc`, and its
+## passing is what shows the swap reached the joint arm ONLY.
+const CLIMATE = something(_arg("--climate="), "fair")
+@assert CLIMATE in ("fair", "magicc") "--climate must be fair or magicc"
+## The filename carries the climate, so a MAGICC-climate run cannot overwrite the
+## FaIR-climate arm it is compared against. Empty on the default arm: existing names untouched.
+const CLIM_TAG = CLIMATE == "fair" ? "" : "_magiccclim"
+## ⚠ MAGICC reports `Heat Content|Ocean` in ZJ = 1e21 J; BRICK wants 1e22 J. 0.1 because ZJ
+## is a DEFINITION -- never from a ratio (`magicc_ohc_zj_not_1e22j`: the MAGICC/FaIR OHC
+## ratio drifts 11.3x -> 7.7x over 2020-2300, so a fitted factor would hide a real difference).
+const ZJ_TO_1E22J = 0.1
+const MAGICC_WIDE = joinpath(homedir(), "Documents/2026/CodeProjects/FaIRtoFrEDI",
+                             "magicc_comparison/processed/vv_wide_20260831")
+const MAGICC_N = 600                            # the AR6 drawnset this run used
 const Y0, Y1       = 1850, 2300
 const BASE0, BASE1 = 1995, 2014                 # AR6 SLR reference, = LADRILLO_REF
 const SPLICE_YEAR  = 2014                       # build_protect_x2300_forcing.py's convention
@@ -61,11 +86,44 @@ lc(p, c) = (d = CSV.read(p, DataFrame);
             [by[y] for y in YEARS])
 
 ## ---- forcing: the cubes and the Ladrillo splice --------------------------
-const CG = CSV.read(joinpath(OBS, "fair_cube_gmst_$(SSP)_raw.csv"), DataFrame)
-const CO = CSV.read(joinpath(OBS, "fair_cube_ohc_$(SSP)_raw.csv"),  DataFrame)
-const CFG = [c for c in String.(propertynames(CG)) if startswith(c, "cfg_")]
+"""Read a MAGICC per-member wide CSV and cut it to Y0:Y1. The files run 1750-2305;
+`end_year_2300` is the horizon for all our work, and the extra years are dropped
+DELIBERATELY rather than silently carried. Mirrors scope_slr_fair_uncertainty.jl."""
+function read_magicc_wide(path, scale)
+    isfile(path) || error("missing $(path)\n  build it with " *
+        "FaIRtoFrEDI/magicc_comparison/build_magicc_wide_ssp_overshoot.py")
+    d = CSV.read(path, DataFrame)
+    yr = Int.(d.year)
+    ix = [findfirst(==(y), yr) for y in YEARS]
+    any(isnothing, ix) && error("$(basename(path)) does not cover $(Y0):$(Y1)")
+    cols = [c for c in String.(propertynames(d)) if startswith(c, "m")]
+    out = DataFrame(year = YEARS)
+    for c in cols; out[!, c] = Float64.(d[ix, c]) .* scale; end
+    out
+end
+const CG, CO = CLIMATE == "fair" ?
+    (CSV.read(joinpath(OBS, "fair_cube_gmst_$(SSP)_raw.csv"), DataFrame),
+     CSV.read(joinpath(OBS, "fair_cube_ohc_$(SSP)_raw.csv"),  DataFrame)) :
+    (read_magicc_wide(joinpath(MAGICC_WIDE, "magicc_gmst_$(SSP)_wide.csv"), 1.0),
+     read_magicc_wide(joinpath(MAGICC_WIDE, "magicc_ohc_$(SSP)_wide_rel1850.csv"), ZJ_TO_1E22J))
+const MEMBER_PREFIX = CLIMATE == "fair" ? "cfg_" : "m"
+const CFG = [c for c in String.(propertynames(CG)) if startswith(c, MEMBER_PREFIX)]
 @assert Int.(CG.year) == YEARS "the gmst cube's year axis is not $(Y0):$(Y1)"
 @assert String.(propertynames(CO))[2:end] == CFG "gmst and ohc cubes disagree on configs"
+## [CLIMATE-SOURCE] the member COUNT catches a truncated build; the ORDER equality above is
+## what lets member j's temperature pair with member j's ocean heat; and the 1850-1900 mean
+## being ~0 is the FRAME check -- a file still on MAGICC's native 1750 zero would sail past
+## every other gate here while putting the whole run on the wrong frame (it would miss by
+## ~0.1-0.3 K, so 1e-9 discriminates by eight orders of magnitude).
+if CLIMATE == "magicc"
+    length(CFG) == MAGICC_N || error("[CLIMATE-SOURCE] $(length(CFG)) members, expected $(MAGICC_N)")
+    let ib = findall(y -> 1850 <= y <= 1900, YEARS),
+        w = maximum(abs(mean(Float64[CG[i, c] for i in ib])) for c in CFG)
+        @printf("[CLIMATE-SOURCE] %d members, max |mean GMST 1850-1900| = %.3e degC (tol 1e-09)  %s\n",
+                length(CFG), w, w <= 1e-9 ? "PASS" : "FAIL")
+        w <= 1e-9 || error("[CLIMATE-SOURCE] the GMST files are not on the 1850-1900 frame")
+    end
+end
 const MEAN_G = lc(joinpath(OBS, "fair_mean_gmst_$(SSP).csv"), "gmst_C")
 const MEAN_O = lc(joinpath(OBS, "fair_mean_ohc_$(SSP).csv"),  "ohc_1e22J")
 
@@ -81,7 +139,11 @@ ohc_of(c)  = convention(Float64.(CO[!, c]), MEAN_O)
 
 ## [SPLICE-MATCH] where a python-spliced cube exists, the Julia splice must reproduce it.
 let ref = joinpath(OBS, "fair_cube_gmst_$(SSP)_spliced.csv")
-    if isfile(ref)
+    ## ⚠ NOT APPLICABLE on the MAGICC arm: the python reference cube is a FaIR product, so
+    ## there is nothing for a MAGICC-driven splice to reproduce. Stated, never silently skipped.
+    if CLIMATE != "fair"
+        @printf("[SPLICE-MATCH] NOT APPLICABLE -- climate=%s, the reference cube is a FaIR product\n", CLIMATE)
+    elseif isfile(ref)
         R = CSV.read(ref, DataFrame)
         w = maximum(maximum(abs.(gmst_of(c) .- Float64.(R[!, c]))) for c in CFG)
         @printf("[SPLICE-MATCH] max |julia splice - python cube| = %.3e degC (tol %.0e)  %s\n",
@@ -169,11 +231,21 @@ let shipped = CSV.read(joinpath(REPO, "outputs/ssps_components_2300_oldbrick.csv
                     (shipped.component .== c), :]
         nrow(r) == 1 || continue
         nchk += 1
-        d = median(FIXED[c][:, j]) - r.med[1]
+        ## ⛔ FIXED 2026-09-04: this read `FIXED[c][:, j]` -- raw j in 1:3, i.e. years
+        ## 1850/1851/1852 -- ever since the 2026-08-31 refactor widened these matrices from
+        ## `length(ROWS) x length(HORIZONS)` to the full year axis. `cells` and `draws` were
+        ## moved to `OI[j]` and verified bit-identical; THIS GATE WAS NOT. It therefore
+        ## compared the model's first three simulated years against 2100/2150/2300 shipped
+        ## values and reported "18 cells, 18 over tolerance" on EVERY scenario -- identical
+        ## numbers for ssp126 and ssp585, which is what exposed it. ⚠ It is NON-FATAL
+        ## (only `nchk == 0` raises), which is why four days of runs carried a failing
+        ## control without stopping. The MODEL was never wrong: the cells it writes already
+        ## match the shipped panel to 3 dp.
+        d = median(FIXED[c][:, OI[j]]) - r.med[1]
         v = abs(d) < CONTROL_TOL_CM ? "PASS" : "CHECK"
         v == "CHECK" && (nbad += 1)
         @printf("  [CONTROL] %-8s @%d  fixed %9.3f vs shipped %9.3f  diff %+8.4f -> %s\n",
-                c, H, median(FIXED[c][:, j]), r.med[1], d, v)
+                c, H, median(FIXED[c][:, OI[j]]), r.med[1], d, v)
     end
     nchk == 0 && error("[CONTROL] compared ZERO cells -- vacuous, not passing.")
     @printf("  [CONTROL] %d cells compared, %d over tolerance\n", nchk, nbad)
@@ -203,8 +275,8 @@ for c in COMPS, (j,H) in enumerate(HORIZONS)
                 c, H, arm, median(v), quantile(v,0.05), quantile(v,0.95), sp, sp/sf)
     end
 end
-CSV.write(joinpath(REPO,"outputs","scope_slr_fairunc_draws_$(SSP)_spliced_oldbrick.csv"), draws)
-CSV.write(joinpath(REPO,"outputs","scope_slr_fairunc_cells_$(SSP)_spliced_oldbrick.csv"), cells)
+CSV.write(joinpath(REPO,"outputs","scope_slr_fairunc_draws_$(SSP)_spliced_oldbrick$(CLIM_TAG).csv"), draws)
+CSV.write(joinpath(REPO,"outputs","scope_slr_fairunc_cells_$(SSP)_spliced_oldbrick$(CLIM_TAG).csv"), cells)
 
 ## ---- paths: the SAME schema scope_slr_fair_uncertainty.jl writes, so a figure reads
 ## both models through one code path. Starts at 1990 for the same reason it does there.
@@ -215,5 +287,5 @@ for c in COMPS, (arm, A) in (("fixed",FIXED[c]), ("joint",JOINT[c])), (i,y) in e
     v = A[:, i]
     push!(paths, (y, String(c), arm, median(v), quantile(v,0.05), quantile(v,0.95)))
 end
-CSV.write(joinpath(REPO,"outputs","scope_slr_fairunc_paths_$(SSP)_spliced_oldbrick.csv"), paths)
-@printf("\nwrote outputs/scope_slr_fairunc_{draws,cells,paths}_%s_spliced_oldbrick.csv\n", SSP)
+CSV.write(joinpath(REPO,"outputs","scope_slr_fairunc_paths_$(SSP)_spliced_oldbrick$(CLIM_TAG).csv"), paths)
+@printf("\nwrote outputs/scope_slr_fairunc_{draws,cells,paths}_%s_spliced_oldbrick%s.csv\n", SSP, CLIM_TAG)

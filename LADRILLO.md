@@ -436,13 +436,20 @@ prints the gap against the shipped cell at import.
    ONE spec, rather than changes that each invalidate the last.
 4. ✅ **ANSWERED 2026-09-04 — SLEIP's 0.1–0.3 m is a MEDIAN** (Fig. 8H caption), so the gap is
    real, not a statistic mismatch. See §4. Do not re-derive.
-5. ⭐ **ANSWERED IN PART, AND NOW THE LIVE ONE.** The real pair's depth is measured: **MAGICC
-   +0.659 K peak vs FaIR +0.308 K on the same scenario pair** — 2.1×, a climate-model difference
-   (§4). What is NOT yet separated is depth from module: the decisive run is **Ladrillo and BRICK
-   2.0 driven on MAGICC's own ssp534-over/ssp126 climate**, which makes depth identical and leaves
-   only the modules. `python/scope_ladrillo_on_magicc_climate.py` already has the decomposition;
-   it needs the two MAGICC-climate arms built (the reverse direction stays IMPOSSIBLE — MAGICC-SLR
-   cannot consume FaIR's GMST).
+5. ✅ **ANSWERED 2026-09-04 — DEPTH WAS THE DOMINANT TERM, AND THE RESIDUAL IS ANTARCTIC.**
+   The real pair's depth is **MAGICC +0.659 K vs FaIR +0.308 K, both peaking 2059** (2.1×, a
+   climate-model difference on an identical scenario pair). Running our UNCHANGED modules on
+   MAGICC's own ssp534-over/ssp126 climate (`python/diag_magiccclim_overshoot_penalty.py`) moves
+   the 2300 paired-median penalty **BRICK 2.0 2.57 → 11.72** and **Ladrillo 2.21 → 5.65**;
+   **BRICK 2.0 lands on MAGICC-SLR's own 12.75** (9 %) and both are inside SLEIP's 8-29 cm band.
+   ⭐ Ladrillo keeps ~half, and it is **one component**: AIS penalty @2300 **BRICK 8.28 vs
+   Ladrillo 1.58 (5.2×)**, everything else within ~0.3 cm. As a share of each model's own ssp126
+   level at 2100 the AIS penalty is **BRICK 198.2 %, MAGICC-SLR 178.2 %, Ladrillo 28.9 %** — the
+   two threshold-crossers together, Ladrillo an order apart. Both are DAIS-lineage, so this is
+   **CALIBRATION, not module lineage**. ⚠ The two climates use differently constructed pairs
+   (MAGICC native vs our idealised `ssp534overMATCH`, because FaIR's native pair inverts); their
+   post-convergence residuals are close (+0.044 vs +0.035 K @2150) but they are not identical.
+   ⚠ The reverse arm stays IMPOSSIBLE — MAGICC-SLR cannot consume FaIR's GMST.
 
 Also owed: ν sensitivity once; a refit with the four glacier set-asides at prior centres; and a
 decision on whether the current state gets a `2.0` tag.

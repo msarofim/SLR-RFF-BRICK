@@ -1,0 +1,161 @@
+  ** --pulse-size 1 -> size tag 1Gt, divisor 1 GtCO2 **
+LADRILLO PULSE ARM | marker vvH | CO2 pulse 1 GtCO2 at 2030 | tag L24  [TAPPED Greenland]
+  climate: MAGICC-SLR's own 600-member AR6 drawnset, PAIRED base/pulse, forcing=raw
+  ⚠ MAGICC CLIMATE ARM -- the module axis is held, the climate axis moves.
+  reading chain seed2026 ...
+  reading chain seed2027 ...
+  reading chain seed2028 ...
+  reading chain seed2029 ...
+[CLIMATE-SOURCE] 600 members x 2 arms, max |mean GMST 1850-1900| = 6.204e-17 degC (tol 1e-09)  PASS
+
+  8000 draws over 600 configs; running BOTH arms per config ...
+    100/600 configs
+    200/600 configs
+    300/600 configs
+    400/600 configs
+    500/600 configs
+    600/600 configs
+[ Info: update_gis3_tap!: this driver peaks at 4.635 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.635 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.956 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.956 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.197 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.197 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.588 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.588 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.635 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.635 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.26 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.261 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.85 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.85 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.566 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.567 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.612 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.613 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.545 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.545 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.297 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.297 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.471 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.472 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.476 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.476 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.372 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.372 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.655 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.656 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.533 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.534 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.644 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.645 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.699 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.699 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.137 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.137 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.419 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.419 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.863 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.863 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.49 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.491 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.581 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.581 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.337 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.337 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.355 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.355 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.401 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.402 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.479 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.479 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.267 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.267 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.808 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.808 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.307 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.307 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.261 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.261 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.621 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.621 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.689 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.689 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.371 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.372 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.143 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.143 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.382 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.382 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.883 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.884 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.386 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.386 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.594 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 4.594 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.828 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.828 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+
+============================================================================================
+GATES
+============================================================================================
+  [PRE-PULSE-ZERO] max |pulse - base| over 1850-2014 = 0.000e+00 cm, all 6 components (bound EXACT 0)  PASS
+                   horizon DERIVED: pulse 2030 - shape window 30/2 - 1. Blind to a config
+                   mis-pairing (pre-splice forcing is config-independent); see [DRAW-PAIRING].
+  [NO-REACHBACK] glaciers/te/lws max |pulse - base| through 2029 = 0.000e+00 cm (bound EXACT 0)  PASS
+  [REACHBACK] glaciers  0.000e+00 cm in 2015-2029 =  0.000% of its own 2100 response  (none)
+  [REACHBACK] gis       2.362e-05 cm in 2015-2029 =  1.198% of its own 2100 response  first differs 2026
+  [REACHBACK] ais       1.469e-07 cm in 2015-2029 =  0.013% of its own 2100 response  first differs 2027
+  [REACHBACK] te        0.000e+00 cm in 2015-2029 =  0.000% of its own 2100 response  (none)
+  [REACHBACK] lws       0.000e+00 cm in 2015-2029 =  0.000% of its own 2100 response  (none)
+  [REACHBACK] total     2.374e-05 cm in 2015-2029 =  0.307% of its own 2100 response  first differs 2026
+              REPORTED, not gated: this is the model's own 30-yr centred window
+              (`smoother_wider_than_feature`), not an error to be tuned away.
+  [DRAW-PAIRING] 0/8000 draws saw a different CONFIG across arms, 0 a different DRAW ROW  PASS
+  [PAIRING] 600 of 600 configs used, each 13-14 times (seed 2026), ONE assignment for both arms
+            median dGMST@2300 bias vs whole cube = 0.0018 degC (tol 0.1)  PASS
+  [SUM] max |sum(parts) - total| in the DIFFERENCE = 2.700e-13 cm (tol 1e-06)  PASS
+  [SIGN] 2100: median +0.00774 cm, 0.00% of draws negative  PASS
+  [SIGN] 2150: median +0.00998 cm, 0.00% of draws negative  PASS
+  [SIGN] 2300: median +0.02192 cm, 0.00% of draws negative  PASS
+  [TAP-CROSSING] 0 of 8000 draws (0.000%) cross the 4.69 K onset ONLY in the pulsed arm
+  [AIS-CROSSING] 2100: fired 104/8000 (1.30%)  bifurcation 1  int/cont 1.0450
+      P(fired) paired 0.0130  vs exact 0.0124 over 4800000 pairings  z=0.45  PASS
+  [AIS-CROSSING] 2150: fired 122/8000 (1.52%)  bifurcation 0  int/cont 1.0364
+      P(fired) paired 0.0152  vs exact 0.0147 over 4800000 pairings  z=0.40  PASS
+  [AIS-CROSSING] 2300: fired 128/8000 (1.60%)  bifurcation 0  int/cont 1.0508
+      P(fired) paired 0.0160  vs exact 0.0152 over 4800000 pairings  z=0.56  PASS
+  [MAGNITUDE] 2100: 7.7402e-03 cm per GtCO2 (median)  -- REPORTED, not gated
+              context: FACTS PoC FaIR->BRICK 5.08e-03 cm/GtCO2 @2100 -- OLD model AND
+              old calibration (pre-1.6.0), an order-of-magnitude check only.
+
+============================================================================================
+PULSE RESPONSE -- vvH, 1 GtCO2 at 2030, cm rel 1995-2014, TAPPED
+============================================================================================
+  comp      horiz    base med   paired med  diff of med   paired p05   paired p95
+  glaciers  2100       11.034      0.00180      0.00154      0.00119      0.00271
+  glaciers  2150       17.483      0.00147      0.00150      0.00106      0.00203
+  glaciers  2300       25.544      0.00059      0.00091      0.00024      0.00091
+
+  gis       2100        9.694      0.00197      0.00228      0.00115      0.00374
+  gis       2150       18.523      0.00264      0.00261      0.00149      0.00645
+  gis       2300       63.109      0.00905      0.00950      0.00210      0.01167
+
+  ais       2100       29.146      0.00111      0.00121      0.00046      0.00282
+  ais       2150       81.536      0.00221      0.01709      0.00087      0.00694
+  ais       2300      260.796      0.00692      0.00396      0.00239      0.02722
+
+  te        2100       18.230      0.00284      0.00278      0.00154      0.00455
+  te        2150       32.038      0.00348      0.00416      0.00184      0.00600
+  te        2300       71.116      0.00480      0.00495      0.00244      0.00905
+
+  lws       2100        2.596      0.00000      0.00000      0.00000      0.00000
+  lws       2150        4.231      0.00000      0.00000      0.00000      0.00000
+  lws       2300        8.484      0.00000      0.00000      0.00000      0.00000
+
+  total     2100       71.124      0.00774      0.00754      0.00503      0.01334
+  total     2150      155.420      0.00998      0.00894      0.00623      0.02014
+  total     2300      430.522      0.02192      0.08012      0.01019      0.04568
+
+
+wrote outputs/pulse_ladrillo_{cells,draws,paths,gates}_vvH_CO2_1Gt_2030_raw_L24_tap4p69K_V5p64m_tau800_magiccclim.csv
