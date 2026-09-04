@@ -1,3 +1,55 @@
+## 2026-09-03f — the pulse's threshold problem is a VARIANCE problem, not a bias problem
+
+Revisiting how a pulse that should be a marginal change is supposed to cross a hard threshold.
+
+**The gate that exists watches the wrong ice sheet.** `scope_slr_pulse_vv.jl` carries exactly one
+threshold gate, `[TAP-CROSSING]`, on the Greenland tap: 6 draws on vvM/CH4, 2 on vvHL, **zero** on
+vvH. Read off the shipped draws files, the Antarctic channel is one to two orders of magnitude
+larger — vvVL/CH4 has **185 of 2000 draws above 1 cm and 72 above 5 cm at 2300**, with a maximum of
+**67.3 cm charged to a 1 GtCH4 pulse**, of which `gis` contributes 0.17 cm. `two_statistics_can_be_blind`.
+
+**New: `julia/diag_ais_crossing_pulse_vv.jl`** (`7f45411`). Closed form from
+`T_ant[t] = amp*GMST[t-1] + TANT0` against the sampled `antarctic_temp_threshold` — no model run —
+on the production run's own chains, thinning and `PAIR_SEED` permutation, with `[CONFIG-IDENTITY]`
+proving the reconstruction against the config column the driver recorded per draw.
+
+**⭐⭐ THE DECISIVE MEASUREMENT: the hard annual step is UNBIASED.** mean(integer years the step
+charges) ÷ mean(continuous time above threshold, linearly interpolated) = **0.917–1.039 across all
+42 cells, median 1.006**. It inflates the per-draw sd by up to **8.8×** and leaves the expectation
+alone. ⇒ **The threshold does not break the pulse; it turns the pulse mean into a Monte Carlo
+problem.** More draws fix it; no model change is required to make the mean meaningful.
+⚠ The first version of this measured the FIRST-CROSSING advance and reported a 3.9× bias. That was
+my error, not the model's: on a peak-and-decline marker the pulse buys time at BOTH ends of the
+above-threshold window, so the entry-side advance understates it ~2×. The continuous **measure** of
+`{t : T_ant(t) > thr}` is the right comparator, not the crossing date.
+
+**⭐ The big responses are NOT bifurcations.** The 67.3 cm draw crosses in **both** arms — 85 years
+above threshold at baseline, **133** under the pulse. Pooled at 2300: smooth 20910, quantization
+7021, **bifurcation 69** (0.25% of draw-cells, 3.2% of the summed response). The premium is bought
+by draws that hover near the threshold for decades, not by draws that tip only when pulsed.
+
+**⭐ The tipping premium is 67–97% of E[ΔAIS].** `P(fired)·E[·|fired]` against `P(smooth)·E[·|smooth]`
+at 2300: vvVL/CO2 0.185 vs 0.028; vvM/CH4 0.816 vs 0.030. ⇒ **Reporting the median deletes ~90% of
+the expected AIS response.** The median is the right *central* statistic and the wrong *expectation*
+— and expectation is what an SC-GHG-style number is.
+
+**Precision, measured.** Relative se of the AIS mean at n=2000 is **1.9–10.5%**; ±5% on every cell
+needs **~8,800 draws**. The median's relative se is 1.4–6.7% at n=2000. Stage 2 was 15.6 min wall
+for 14 runs, so 5× the draws is ~80 min — affordable.
+
+**Not resolved, and flagged for Marcus:** (1) whether to re-report the pulse arm as the
+Lemoine-Traeger pair rather than the bare median — a summary choice, not a code fix;
+(2) whether 10 GtCO2 is inside the linear regime for Ladrillo L24 — `dais_fastdynamics_quant`
+measured a **9–20% per-tonne overstatement at 10 GtCO2 for BRICK-Mengel** and that ladder has never
+been re-run here; (3) the premium's MAGNITUDE still rests on the binary flux form that
+`ais_binary_form_priced` prices at 26–750× of the scenario separation.
+
+Both hard gates mutation-tested: `--mutate=seed` fails `[CONFIG-IDENTITY]` 1999/2000 (and
+`[EXPLAINS-TAIL]` with it); `--mutate=shuffle` fails `[EXPLAINS-TAIL]` alone, which is the
+discriminating outcome. Mutation and single-marker runs write a suffixed filename — the first
+mutation run clobbered the sweep's canonical table before that was added
+(`gate_reads_its_own_output`, in the output direction).
+
 ## 2026-09-02e — FACTS runs to 2300, and SLEIP's number is above every model's median
 
 **I was wrong that FACTS could not go past 2150.** Marcus asked me to confirm it; I could not. It is
