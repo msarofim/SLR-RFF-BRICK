@@ -1,3 +1,69 @@
+## 2026-09-04a — STAGE 3: the BRICK 2.0 pulse arm, and the two models agree on the MEAN
+
+`julia/scope_slr_pulse_vv_brick2.jl` — MimiBRICK **v2.0.0** on the SAME paired van Vuuren cubes
+stage 2 used, so the climate axis is held and only the sea-level model differs. Both arms in ONE
+process off ONE model build, ONE posterior row list and ONE `ASSIGN` vector, so the pairing is an
+identity. All 14 cells (7 markers x 2 species, 2000 draws x 841 configs), **zero gate failures**,
+~4 min for the whole sweep 4-concurrent. Torch verdict: stayed local, correctly — this arm is an
+order of magnitude cheaper than stage 2.
+
+Emits the **Lemoine-Traeger pair** as required by Marcus's 09-03 ruling, in `pulse_ladrillo_*`'s
+schema column for column so one figure code path reads both models.
+
+**⭐⭐ THE HEADLINE: the two models AGREE on the MEAN and DISAGREE on the MEDIAN.**
+Ratio BRICK 2.0 / Ladrillo on the paired TOTAL, over all 28 marker x specie x horizon cells:
+
+| statistic | ratio range | median |
+|---|---|---|
+| **mean** | **0.71-1.22** | **1.09** |
+| median | 0.62-1.87 | 0.85 |
+
+⇒ This is a THIRD independent argument for the pair, and the strongest one yet: the statistic the
+threshold owns is also the statistic the two models agree on. The median's disagreement is largest
+exactly where `p_fired` differs most (CH4 at vvM/vvHL @2100: 1.80-1.87x) — the
+`ais_threshold_median_artifact` mechanism, now seen from outside Ladrillo.
+
+**Both corrected stage-2 headlines REPLICATE in BRICK 2.0:**
+- CO2 @2100 median spread over the seven markers **1.6%** (0.00547-0.00556 cm/GtCO2) — Ladrillo's
+  1.6%, reproduced in a second model. On the MEAN it is **1.43x** (Ladrillo 1.35x). ⇒ the
+  invariance is a MEDIAN statement in both.
+- CH4 @2100: median range **3.9x** (Ladrillo 2.70x), mean range **1.37x** (Ladrillo 1.34x). ⇒ the
+  U's magnitude is a median artifact in both; the means agree at ~1.35x.
+
+**⚠ BRICK 2.0's `p_fired` exceeds Ladrillo's in ALL 28 cells (1.2-1.7x).** All-same-sign across
+N >> 1 got a test, not a story: `julia/diag_gcrit_brick2_vs_ladrillo.jl` puts both models' firing
+condition on ONE axis — the critical GMST at which DAIS fires — on the same draws the runs use.
+**LOCATION** median gcrit **2.313 degC (BRICK 2.0) vs 2.657 (Ladrillo)**: BRICK 2.0 fires 0.344 K
+colder, so more of its draws sit inside the markers' 2100 range (1.64-3.32 K). **SPREAD** sd
+**0.364 vs 0.607**, Ladrillo **1.67x wider** — the sampled `ais_gmst_amp` (sd 0.173) against BRICK
+2.0's slope FIXED at 1.1955. Both channels push the same way. ⇒ the posteriors, not a driver
+defect; report it beside the two `p_fired` columns.
+
+**Gates.** `[AIS-MAP-EXACT]` (new) checks the closed-form Antarctic map against the model's OWN
+`antartic_surface_temperature` — exact 0, and it also certifies the `GMST[t-1]` lag.
+`[LWS-EXACT-ZERO]` (new) demands exact 0 at EVERY year, which only a single build can deliver.
+`[CUBE-PREPULSE]` (new) DERIVES the identity horizon from the cubes' own first differing year
+(2031 → 2030) instead of copying stage 2's 2014, which is Ladrillo's 30-yr shape window and does
+not transfer. `[TAP-CROSSING]` reports **NO COUNTERPART** rather than a structural zero.
+
+**Mutation-tested, three modes, each naming its discriminating gate:** `--mutate=lag` →
+`[AIS-MAP-EXACT]` 3.386e-01 degC FAIL, alone. `--mutate=rebuild` → `[LWS-EXACT-ZERO]` 1.183 cm
+FAIL while `[DRAW-PAIRING]` PASSES. `--mutate=shuffle` → `[DRAW-PAIRING]` 100/100 FAIL.
+⚠ The first `rebuild` harness RESEEDED before each rebuild, so every rebuild produced the SAME
+LWS and **every gate passed** — a mutation that changes no output is not a test. Fixed by dropping
+the reseed, which is the actual defect the gate guards.
+
+⚠ Unlike stage 2's, this arm's `[PRE-PULSE-ZERO]` is **NOT blind to a config mis-pairing**: its
+window runs to 2030, sixteen years past the splice, where each config carries its own anomaly.
+`--mutate=shuffle` measures the power at 2.319 cm.
+
+⚠ **This arm is CORROBORATION, NOT INDEPENDENCE** — Ladrillo descends from BRICK and they share
+the DAIS structure. What it isolates is the effect of Ladrillo's own changes at held climate.
+FACTS (stage 5) is the methodologically independent one.
+
+Outputs `outputs/pulse_brick2_{cells,paths,gates}_vv<M>_<SPECIE>_..._B20.csv` tracked;
+`pulse_brick2_draws_*` gitignored (38 MB, ~4 min to regenerate) on `pulse_ladrillo_draws_*`'s rule.
+
 ## 2026-09-03h — the pair re-run: BOTH stage-2 headlines are median statements
 
 All 14 cells re-run with the Lemoine-Traeger pair and the new gates. **Zero failures**;

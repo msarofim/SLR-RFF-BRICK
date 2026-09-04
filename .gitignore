@@ -310,6 +310,9 @@ data/observations/fair_cube_*_pulse*_2030_raw.csv
 # cubes got applies. The cells / paths / gates files ARE tracked: they are the results, the
 # figures read them, and together they are ~1 MB.
 outputs/pulse_ladrillo_draws_*.csv
+## stage 3 (BRICK 2.0), same rule and same reason: 38 MB over 14 cells, and the whole sweep
+## regenerates in ~4 min. `cells`/`paths`/`gates` are the tracked summaries.
+outputs/pulse_brick2_draws_*.csv
 outputs/pulse_ladrillo_*_SMOKE.csv
 
 # Mutation-test outputs are DELIBERATELY WRONG tables. The verdict lives in the
