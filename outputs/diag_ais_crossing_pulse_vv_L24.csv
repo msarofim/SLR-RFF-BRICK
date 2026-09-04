@@ -1,0 +1,841 @@
+marker,specie,horizon,metric,value,note
+VL,CO2,2100,n_draws,2000.0,
+VL,CO2,2100,n_bifurcation,4.0,"never crosses at base, crosses under pulse"
+VL,CO2,2100,n_quantization,60.0,"crosses in both, integer year count differs"
+VL,CO2,2100,p_fired,0.032,
+VL,CO2,2100,ais_mean_cm,0.0618547411091054,
+VL,CO2,2100,ais_median_cm,0.007524337181203045,
+VL,CO2,2100,ais_smooth_term_cm,0.007853802318958516,P(smooth)*E[d|smooth]
+VL,CO2,2100,ais_premium_cm,0.0540009387901469,P(fired)*E[d|fired]
+VL,CO2,2100,ais_cond_mean_fired_cm,1.6875293371920905,
+VL,CO2,2100,ais_median_smooth_cm,0.007409957329945982,
+VL,CO2,2100,total_mean_cm,0.13214031602535692,
+VL,CO2,2100,total_median_cm,0.07546188225408912,
+VL,CO2,2100,n_cross_both,188.0,
+VL,CO2,2100,mean_dn_years_int,0.055,what the annual step charges
+VL,CO2,2100,mean_dtime_above_yr,0.05294328635982143,what a sub-annual solver would charge
+VL,CO2,2100,quantization_bias_yr,0.0020567136401785716,
+VL,CO2,2100,quantization_bias_ratio,1.0388474872186892,
+VL,CO2,2100,sd_dn_years_int,0.39121800286142466,
+VL,CO2,2100,sd_dtime_above_yr,0.3546323744709395,
+VL,CO2,2100,mean_dt_firstcross_yr,0.32971242511161486,entry side only; understates on peak-and-decline
+VL,CO2,2150,n_draws,2000.0,
+VL,CO2,2150,n_bifurcation,3.0,"never crosses at base, crosses under pulse"
+VL,CO2,2150,n_quantization,81.0,"crosses in both, integer year count differs"
+VL,CO2,2150,p_fired,0.042,
+VL,CO2,2150,ais_mean_cm,0.1014704539932737,
+VL,CO2,2150,ais_median_cm,0.012561827443463347,
+VL,CO2,2150,ais_smooth_term_cm,0.01312254427941035,P(smooth)*E[d|smooth]
+VL,CO2,2150,ais_premium_cm,0.08834790971386335,P(fired)*E[d|fired]
+VL,CO2,2150,ais_cond_mean_fired_cm,2.103521659853889,
+VL,CO2,2150,ais_median_smooth_cm,0.012296694142748699,
+VL,CO2,2150,total_mean_cm,0.19257087100570608,
+VL,CO2,2150,total_median_cm,0.10091511079845361,
+VL,CO2,2150,n_cross_both,190.0,
+VL,CO2,2150,mean_dn_years_int,0.0915,what the annual step charges
+VL,CO2,2150,mean_dtime_above_yr,0.08922971272742072,what a sub-annual solver would charge
+VL,CO2,2150,quantization_bias_yr,0.0022702872725792744,
+VL,CO2,2150,quantization_bias_ratio,1.025443175856842,
+VL,CO2,2150,sd_dn_years_int,0.5977511214557454,
+VL,CO2,2150,sd_dtime_above_yr,0.5770429582384511,
+VL,CO2,2150,mean_dt_firstcross_yr,0.49122654892583006,entry side only; understates on peak-and-decline
+VL,CO2,2300,n_draws,2000.0,
+VL,CO2,2300,n_bifurcation,3.0,"never crosses at base, crosses under pulse"
+VL,CO2,2300,n_quantization,124.0,"crosses in both, integer year count differs"
+VL,CO2,2300,p_fired,0.0635,
+VL,CO2,2300,ais_mean_cm,0.21285334064243114,
+VL,CO2,2300,ais_median_cm,0.027501007961894253,
+VL,CO2,2300,ais_smooth_term_cm,0.02804972446900222,P(smooth)*E[d|smooth]
+VL,CO2,2300,ais_premium_cm,0.18480361617342891,P(fired)*E[d|fired]
+VL,CO2,2300,ais_cond_mean_fired_cm,2.9102931680854947,
+VL,CO2,2300,ais_median_smooth_cm,0.026359296461919257,
+VL,CO2,2300,total_mean_cm,0.33317652017080596,
+VL,CO2,2300,total_median_cm,0.1453626668679746,
+VL,CO2,2300,n_cross_both,190.0,
+VL,CO2,2300,mean_dn_years_int,0.1855,what the annual step charges
+VL,CO2,2300,mean_dtime_above_yr,0.184478516607337,what a sub-annual solver would charge
+VL,CO2,2300,quantization_bias_yr,0.001021483392663003,
+VL,CO2,2300,quantization_bias_ratio,1.005537140104163,
+VL,CO2,2300,sd_dn_years_int,0.9703404197832487,
+VL,CO2,2300,sd_dtime_above_yr,0.9684930482587671,
+VL,CO2,2300,mean_dt_firstcross_yr,0.49122654892583006,entry side only; understates on peak-and-decline
+VL,CH4,2100,n_draws,2000.0,
+VL,CH4,2100,n_bifurcation,13.0,"never crosses at base, crosses under pulse"
+VL,CH4,2100,n_quantization,180.0,"crosses in both, integer year count differs"
+VL,CH4,2100,p_fired,0.0965,
+VL,CH4,2100,ais_mean_cm,0.46981967948601094,
+VL,CH4,2100,ais_median_cm,0.0571989579694403,
+VL,CH4,2100,ais_smooth_term_cm,0.0525513788886473,P(smooth)*E[d|smooth]
+VL,CH4,2100,ais_premium_cm,0.4172683005973637,P(fired)*E[d|fired]
+VL,CH4,2100,ais_cond_mean_fired_cm,4.324023840387189,
+VL,CH4,2100,ais_median_smooth_cm,0.053934358414553074,
+VL,CH4,2100,total_mean_cm,0.9285126662729541,
+VL,CH4,2100,total_median_cm,0.5003207146922293,
+VL,CH4,2100,n_cross_both,188.0,
+VL,CH4,2100,mean_dn_years_int,0.4165,what the annual step charges
+VL,CH4,2100,mean_dtime_above_yr,0.4141582064473267,what a sub-annual solver would charge
+VL,CH4,2100,quantization_bias_yr,0.002341793552673277,
+VL,CH4,2100,quantization_bias_ratio,1.0056543454076676,
+VL,CH4,2100,sd_dn_years_int,2.159481287187934,
+VL,CH4,2100,sd_dtime_above_yr,2.146276354788881,
+VL,CH4,2100,mean_dt_firstcross_yr,2.5989190945130343,entry side only; understates on peak-and-decline
+VL,CH4,2150,n_draws,2000.0,
+VL,CH4,2150,n_bifurcation,12.0,"never crosses at base, crosses under pulse"
+VL,CH4,2150,n_quantization,184.0,"crosses in both, integer year count differs"
+VL,CH4,2150,p_fired,0.098,
+VL,CH4,2150,ais_mean_cm,0.5646236813205963,
+VL,CH4,2150,ais_median_cm,0.06480195592350402,
+VL,CH4,2150,ais_smooth_term_cm,0.06023723250663362,P(smooth)*E[d|smooth]
+VL,CH4,2150,ais_premium_cm,0.5043864488139629,P(fired)*E[d|fired]
+VL,CH4,2150,ais_cond_mean_fired_cm,5.146800498101662,
+VL,CH4,2150,ais_median_smooth_cm,0.06139468170793272,
+VL,CH4,2150,total_mean_cm,0.9302571116649372,
+VL,CH4,2150,total_median_cm,0.4192781107328152,
+VL,CH4,2150,n_cross_both,190.0,
+VL,CH4,2150,mean_dn_years_int,0.5105,what the annual step charges
+VL,CH4,2150,mean_dtime_above_yr,0.5082619996576354,what a sub-annual solver would charge
+VL,CH4,2150,quantization_bias_yr,0.0022380003423645434,
+VL,CH4,2150,quantization_bias_ratio,1.0044032415247885,
+VL,CH4,2150,sd_dn_years_int,2.5778309401855832,
+VL,CH4,2150,sd_dtime_above_yr,2.5652576491563064,
+VL,CH4,2150,mean_dt_firstcross_yr,2.8608763486247595,entry side only; understates on peak-and-decline
+VL,CH4,2300,n_draws,2000.0,
+VL,CH4,2300,n_bifurcation,12.0,"never crosses at base, crosses under pulse"
+VL,CH4,2300,n_quantization,185.0,"crosses in both, integer year count differs"
+VL,CH4,2300,p_fired,0.0985,
+VL,CH4,2300,ais_mean_cm,0.6786474815500434,
+VL,CH4,2300,ais_median_cm,0.07471577235417293,
+VL,CH4,2300,ais_smooth_term_cm,0.07005843013277578,P(smooth)*E[d|smooth]
+VL,CH4,2300,ais_premium_cm,0.6085890514172675,P(fired)*E[d|fired]
+VL,CH4,2300,ais_cond_mean_fired_cm,6.178569049921497,
+VL,CH4,2300,ais_median_smooth_cm,0.07025780757065192,
+VL,CH4,2300,total_mean_cm,0.895994898822303,
+VL,CH4,2300,total_median_cm,0.285855905629262,
+VL,CH4,2300,n_cross_both,190.0,
+VL,CH4,2300,mean_dn_years_int,0.6285,what the annual step charges
+VL,CH4,2300,mean_dtime_above_yr,0.6265019072037166,what a sub-annual solver would charge
+VL,CH4,2300,quantization_bias_yr,0.0019980927962833794,
+VL,CH4,2300,quantization_bias_ratio,1.0031892844591672,
+VL,CH4,2300,sd_dn_years_int,2.9864606516094945,
+VL,CH4,2300,sd_dtime_above_yr,2.969842436584068,
+VL,CH4,2300,mean_dt_firstcross_yr,2.8608763486247595,entry side only; understates on peak-and-decline
+L,CO2,2100,n_draws,2000.0,
+L,CO2,2100,n_bifurcation,1.0,"never crosses at base, crosses under pulse"
+L,CO2,2100,n_quantization,90.0,"crosses in both, integer year count differs"
+L,CO2,2100,p_fired,0.0455,
+L,CO2,2100,ais_mean_cm,0.08914246964496102,
+L,CO2,2100,ais_median_cm,0.007793986051818358,
+L,CO2,2100,ais_smooth_term_cm,0.007848591310296225,P(smooth)*E[d|smooth]
+L,CO2,2100,ais_premium_cm,0.08129387833466482,P(fired)*E[d|fired]
+L,CO2,2100,ais_cond_mean_fired_cm,1.7866786447179082,
+L,CO2,2100,ais_median_smooth_cm,0.007596135370113721,
+L,CO2,2100,total_mean_cm,0.1587884959520152,
+L,CO2,2100,total_median_cm,0.07545717066651036,
+L,CO2,2100,n_cross_both,247.0,
+L,CO2,2100,mean_dn_years_int,0.08,what the annual step charges
+L,CO2,2100,mean_dtime_above_yr,0.0781605222384374,what a sub-annual solver would charge
+L,CO2,2100,quantization_bias_yr,0.0018394777615625968,
+L,CO2,2100,quantization_bias_ratio,1.0235346145199884,
+L,CO2,2100,sd_dn_years_int,0.5037130764946606,
+L,CO2,2100,sd_dtime_above_yr,0.4765235632798039,
+L,CO2,2100,mean_dt_firstcross_yr,0.4022209534936731,entry side only; understates on peak-and-decline
+L,CO2,2150,n_draws,2000.0,
+L,CO2,2150,n_bifurcation,2.0,"never crosses at base, crosses under pulse"
+L,CO2,2150,n_quantization,115.0,"crosses in both, integer year count differs"
+L,CO2,2150,p_fired,0.0585,
+L,CO2,2150,ais_mean_cm,0.13548248729651843,
+L,CO2,2150,ais_median_cm,0.01317659818331185,
+L,CO2,2150,ais_smooth_term_cm,0.013211067062390334,P(smooth)*E[d|smooth]
+L,CO2,2150,ais_premium_cm,0.1222714202341281,P(fired)*E[d|fired]
+L,CO2,2150,ais_cond_mean_fired_cm,2.0901097475919332,
+L,CO2,2150,ais_median_smooth_cm,0.012737439712738663,
+L,CO2,2150,total_mean_cm,0.22611159740317147,
+L,CO2,2150,total_median_cm,0.10118185262273727,
+L,CO2,2150,n_cross_both,250.0,
+L,CO2,2150,mean_dn_years_int,0.1205,what the annual step charges
+L,CO2,2150,mean_dtime_above_yr,0.1197986175632322,what a sub-annual solver would charge
+L,CO2,2150,quantization_bias_yr,0.0007013824367678029,
+L,CO2,2150,quantization_bias_ratio,1.005854678885569,
+L,CO2,2150,sd_dn_years_int,0.6604527605548048,
+L,CO2,2150,sd_dtime_above_yr,0.6393698605426689,
+L,CO2,2150,mean_dt_firstcross_yr,0.40878714241494163,entry side only; understates on peak-and-decline
+L,CO2,2300,n_draws,2000.0,
+L,CO2,2300,n_bifurcation,2.0,"never crosses at base, crosses under pulse"
+L,CO2,2300,n_quantization,174.0,"crosses in both, integer year count differs"
+L,CO2,2300,p_fired,0.088,
+L,CO2,2300,ais_mean_cm,0.24082936060893825,
+L,CO2,2300,ais_median_cm,0.027767359254216473,
+L,CO2,2300,ais_smooth_term_cm,0.027052243304109436,P(smooth)*E[d|smooth]
+L,CO2,2300,ais_premium_cm,0.21377711730482882,P(fired)*E[d|fired]
+L,CO2,2300,ais_cond_mean_fired_cm,2.4292854239185093,
+L,CO2,2300,ais_median_smooth_cm,0.02613004863326651,
+L,CO2,2300,total_mean_cm,0.36128650882401214,
+L,CO2,2300,total_median_cm,0.1459847332779134,
+L,CO2,2300,n_cross_both,250.0,
+L,CO2,2300,mean_dn_years_int,0.2175,what the annual step charges
+L,CO2,2300,mean_dtime_above_yr,0.2169328123404445,what a sub-annual solver would charge
+L,CO2,2300,quantization_bias_yr,0.0005671876595554903,
+L,CO2,2300,quantization_bias_ratio,1.0026145775433242,
+L,CO2,2300,sd_dn_years_int,0.9053195854370375,
+L,CO2,2300,sd_dtime_above_yr,0.8739503968933539,
+L,CO2,2300,mean_dt_firstcross_yr,0.40878714241494163,entry side only; understates on peak-and-decline
+L,CH4,2100,n_draws,2000.0,
+L,CH4,2100,n_bifurcation,7.0,"never crosses at base, crosses under pulse"
+L,CH4,2100,n_quantization,239.0,"crosses in both, integer year count differs"
+L,CH4,2100,p_fired,0.123,
+L,CH4,2100,ais_mean_cm,0.4600827812577227,
+L,CH4,2100,ais_median_cm,0.048747217748990046,
+L,CH4,2100,ais_smooth_term_cm,0.042418026221841994,P(smooth)*E[d|smooth]
+L,CH4,2100,ais_premium_cm,0.41766475503588063,P(fired)*E[d|fired]
+L,CH4,2100,ais_cond_mean_fired_cm,3.395648414925859,
+L,CH4,2100,ais_median_smooth_cm,0.0452560716563748,
+L,CH4,2100,total_mean_cm,0.8284870716468841,
+L,CH4,2100,total_median_cm,0.4066485453442752,
+L,CH4,2100,n_cross_both,247.0,
+L,CH4,2100,mean_dn_years_int,0.407,what the annual step charges
+L,CH4,2100,mean_dtime_above_yr,0.4065928920335266,what a sub-annual solver would charge
+L,CH4,2100,quantization_bias_yr,0.00040710796647336345,
+L,CH4,2100,quantization_bias_ratio,1.0010012668063066,
+L,CH4,2100,sd_dn_years_int,1.5058169684165414,
+L,CH4,2100,sd_dtime_above_yr,1.4871805696767832,
+L,CH4,2100,mean_dt_firstcross_yr,2.629970780776355,entry side only; understates on peak-and-decline
+L,CH4,2150,n_draws,2000.0,
+L,CH4,2150,n_bifurcation,8.0,"never crosses at base, crosses under pulse"
+L,CH4,2150,n_quantization,242.0,"crosses in both, integer year count differs"
+L,CH4,2150,p_fired,0.125,
+L,CH4,2150,ais_mean_cm,0.5454366622827111,
+L,CH4,2150,ais_median_cm,0.05449907122368458,
+L,CH4,2150,ais_smooth_term_cm,0.047919788583545245,P(smooth)*E[d|smooth]
+L,CH4,2150,ais_premium_cm,0.4975168736991657,P(fired)*E[d|fired]
+L,CH4,2150,ais_cond_mean_fired_cm,3.9801349895933256,
+L,CH4,2150,ais_median_smooth_cm,0.05068860470075487,
+L,CH4,2150,total_mean_cm,0.8325606917675018,
+L,CH4,2150,total_median_cm,0.33276140010809385,
+L,CH4,2150,n_cross_both,250.0,
+L,CH4,2150,mean_dn_years_int,0.4875,what the annual step charges
+L,CH4,2150,mean_dtime_above_yr,0.4891119572829068,what a sub-annual solver would charge
+L,CH4,2150,quantization_bias_yr,-0.0016119572829068063,
+L,CH4,2150,quantization_bias_ratio,0.9967043183898805,
+L,CH4,2150,sd_dn_years_int,1.8208518612864608,
+L,CH4,2150,sd_dtime_above_yr,1.8146947530311734,
+L,CH4,2150,mean_dt_firstcross_yr,2.6509971368841296,entry side only; understates on peak-and-decline
+L,CH4,2300,n_draws,2000.0,
+L,CH4,2300,n_bifurcation,8.0,"never crosses at base, crosses under pulse"
+L,CH4,2300,n_quantization,243.0,"crosses in both, integer year count differs"
+L,CH4,2300,p_fired,0.1255,
+L,CH4,2300,ais_mean_cm,0.6198123181665365,
+L,CH4,2300,ais_median_cm,0.06273230975032984,
+L,CH4,2300,ais_smooth_term_cm,0.054901188037419835,P(smooth)*E[d|smooth]
+L,CH4,2300,ais_premium_cm,0.5649111301291166,P(fired)*E[d|fired]
+L,CH4,2300,ais_cond_mean_fired_cm,4.501283905411288,
+L,CH4,2300,ais_median_smooth_cm,0.05759132207471218,
+L,CH4,2300,total_mean_cm,0.7937682033851527,
+L,CH4,2300,total_median_cm,0.23185534509863714,
+L,CH4,2300,n_cross_both,250.0,
+L,CH4,2300,mean_dn_years_int,0.5785,what the annual step charges
+L,CH4,2300,mean_dtime_above_yr,0.5832030892455995,what a sub-annual solver would charge
+L,CH4,2300,quantization_bias_yr,-0.004703089245599479,
+L,CH4,2300,quantization_bias_ratio,0.9919357607455696,
+L,CH4,2300,sd_dn_years_int,1.9921902923868833,
+L,CH4,2300,sd_dtime_above_yr,1.9912305032903521,
+L,CH4,2300,mean_dt_firstcross_yr,2.6509971368841296,entry side only; understates on peak-and-decline
+LN,CO2,2100,n_draws,2000.0,
+LN,CO2,2100,n_bifurcation,1.0,"never crosses at base, crosses under pulse"
+LN,CO2,2100,n_quantization,93.0,"crosses in both, integer year count differs"
+LN,CO2,2100,p_fired,0.047,
+LN,CO2,2100,ais_mean_cm,0.07765516820538264,
+LN,CO2,2100,ais_median_cm,0.007833393928247112,
+LN,CO2,2100,ais_smooth_term_cm,0.007886631613865058,P(smooth)*E[d|smooth]
+LN,CO2,2100,ais_premium_cm,0.0697685365915176,P(fired)*E[d|fired]
+LN,CO2,2100,ais_cond_mean_fired_cm,1.4844369487556937,
+LN,CO2,2100,ais_median_smooth_cm,0.007635412507622785,
+LN,CO2,2100,total_mean_cm,0.14740205344210092,
+LN,CO2,2100,total_median_cm,0.07538582510322556,
+LN,CO2,2100,n_cross_both,260.0,
+LN,CO2,2100,mean_dn_years_int,0.069,what the annual step charges
+LN,CO2,2100,mean_dtime_above_yr,0.0752617618433764,what a sub-annual solver would charge
+LN,CO2,2100,quantization_bias_yr,-0.006261761843376401,
+LN,CO2,2100,quantization_bias_ratio,0.9168002224501807,
+LN,CO2,2100,sd_dn_years_int,0.3889918473807188,
+LN,CO2,2100,sd_dtime_above_yr,0.3668197393913206,
+LN,CO2,2100,mean_dt_firstcross_yr,0.35400306060849274,entry side only; understates on peak-and-decline
+LN,CO2,2150,n_draws,2000.0,
+LN,CO2,2150,n_bifurcation,1.0,"never crosses at base, crosses under pulse"
+LN,CO2,2150,n_quantization,153.0,"crosses in both, integer year count differs"
+LN,CO2,2150,p_fired,0.077,
+LN,CO2,2150,ais_mean_cm,0.12387008084484497,
+LN,CO2,2150,ais_median_cm,0.012953332904531045,
+LN,CO2,2150,ais_smooth_term_cm,0.012563155253325308,P(smooth)*E[d|smooth]
+LN,CO2,2150,ais_premium_cm,0.11130692559151964,P(fired)*E[d|fired]
+LN,CO2,2150,ais_cond_mean_fired_cm,1.4455444882015538,
+LN,CO2,2150,ais_median_smooth_cm,0.01243224024224343,
+LN,CO2,2150,total_mean_cm,0.21572771354854178,
+LN,CO2,2150,total_median_cm,0.10222430841561803,
+LN,CO2,2150,n_cross_both,260.0,
+LN,CO2,2150,mean_dn_years_int,0.111,what the annual step charges
+LN,CO2,2150,mean_dtime_above_yr,0.11587034067893341,what a sub-annual solver would charge
+LN,CO2,2150,quantization_bias_yr,-0.00487034067893341,
+LN,CO2,2150,quantization_bias_ratio,0.9579673223501716,
+LN,CO2,2150,sd_dn_years_int,0.4666775052935093,
+LN,CO2,2150,sd_dtime_above_yr,0.43312723625178656,
+LN,CO2,2150,mean_dt_firstcross_yr,0.35400306060849274,entry side only; understates on peak-and-decline
+LN,CO2,2300,n_draws,2000.0,
+LN,CO2,2300,n_bifurcation,1.0,"never crosses at base, crosses under pulse"
+LN,CO2,2300,n_quantization,167.0,"crosses in both, integer year count differs"
+LN,CO2,2300,p_fired,0.084,
+LN,CO2,2300,ais_mean_cm,0.14354662865196308,
+LN,CO2,2300,ais_median_cm,0.029515955457764864,
+LN,CO2,2300,ais_smooth_term_cm,0.02641011804655817,P(smooth)*E[d|smooth]
+LN,CO2,2300,ais_premium_cm,0.11713651060540493,P(fired)*E[d|fired]
+LN,CO2,2300,ais_cond_mean_fired_cm,1.3944822691119634,
+LN,CO2,2300,ais_median_smooth_cm,0.02782016224945849,
+LN,CO2,2300,total_mean_cm,0.26013797319334947,
+LN,CO2,2300,total_median_cm,0.1416719161252189,
+LN,CO2,2300,n_cross_both,260.0,
+LN,CO2,2300,mean_dn_years_int,0.12,what the annual step charges
+LN,CO2,2300,mean_dtime_above_yr,0.12726323832672407,what a sub-annual solver would charge
+LN,CO2,2300,quantization_bias_yr,-0.00726323832672407,
+LN,CO2,2300,quantization_bias_ratio,0.9429274437597046,
+LN,CO2,2300,sd_dn_years_int,0.4782408986887141,
+LN,CO2,2300,sd_dtime_above_yr,0.44098990184371467,
+LN,CO2,2300,mean_dt_firstcross_yr,0.35400306060849274,entry side only; understates on peak-and-decline
+LN,CH4,2100,n_draws,2000.0,
+LN,CH4,2100,n_bifurcation,11.0,"never crosses at base, crosses under pulse"
+LN,CH4,2100,n_quantization,254.0,"crosses in both, integer year count differs"
+LN,CH4,2100,p_fired,0.1325,
+LN,CH4,2100,ais_mean_cm,0.5406008946419834,
+LN,CH4,2100,ais_median_cm,0.051014411002525684,
+LN,CH4,2100,ais_smooth_term_cm,0.04358301184551942,P(smooth)*E[d|smooth]
+LN,CH4,2100,ais_premium_cm,0.4970178827964641,P(fired)*E[d|fired]
+LN,CH4,2100,ais_cond_mean_fired_cm,3.7510783607280307,
+LN,CH4,2100,ais_median_smooth_cm,0.047045618539454104,
+LN,CH4,2100,total_mean_cm,0.9254089709217863,
+LN,CH4,2100,total_median_cm,0.42538440503268404,
+LN,CH4,2100,n_cross_both,260.0,
+LN,CH4,2100,mean_dn_years_int,0.489,what the annual step charges
+LN,CH4,2100,mean_dtime_above_yr,0.4909348389272397,what a sub-annual solver would charge
+LN,CH4,2100,quantization_bias_yr,-0.0019348389272397237,
+LN,CH4,2100,quantization_bias_ratio,0.996058868155563,
+LN,CH4,2100,sd_dn_years_int,1.731582567795873,
+LN,CH4,2100,sd_dtime_above_yr,1.727518063673843,
+LN,CH4,2100,mean_dt_firstcross_yr,2.5654048906907696,entry side only; understates on peak-and-decline
+LN,CH4,2150,n_draws,2000.0,
+LN,CH4,2150,n_bifurcation,11.0,"never crosses at base, crosses under pulse"
+LN,CH4,2150,n_quantization,255.0,"crosses in both, integer year count differs"
+LN,CH4,2150,p_fired,0.133,
+LN,CH4,2150,ais_mean_cm,0.6222410243465315,
+LN,CH4,2150,ais_median_cm,0.0570800702675065,
+LN,CH4,2150,ais_smooth_term_cm,0.04922035723471337,P(smooth)*E[d|smooth]
+LN,CH4,2150,ais_premium_cm,0.5730206671118182,P(fired)*E[d|fired]
+LN,CH4,2150,ais_cond_mean_fired_cm,4.308426068509911,
+LN,CH4,2150,ais_median_smooth_cm,0.05280551947671164,
+LN,CH4,2150,total_mean_cm,0.9292408472700397,
+LN,CH4,2150,total_median_cm,0.3553960833003096,
+LN,CH4,2150,n_cross_both,260.0,
+LN,CH4,2150,mean_dn_years_int,0.5725,what the annual step charges
+LN,CH4,2150,mean_dtime_above_yr,0.5742703010548104,what a sub-annual solver would charge
+LN,CH4,2150,quantization_bias_yr,-0.0017703010548103526,
+LN,CH4,2150,quantization_bias_ratio,0.9969173034866008,
+LN,CH4,2150,sd_dn_years_int,1.9027753485405217,
+LN,CH4,2150,sd_dtime_above_yr,1.9042337138907632,
+LN,CH4,2150,mean_dt_firstcross_yr,2.5654048906907696,entry side only; understates on peak-and-decline
+LN,CH4,2300,n_draws,2000.0,
+LN,CH4,2300,n_bifurcation,11.0,"never crosses at base, crosses under pulse"
+LN,CH4,2300,n_quantization,257.0,"crosses in both, integer year count differs"
+LN,CH4,2300,p_fired,0.134,
+LN,CH4,2300,ais_mean_cm,0.6212428513305048,
+LN,CH4,2300,ais_median_cm,0.06623580340410307,
+LN,CH4,2300,ais_smooth_term_cm,0.05695010437309456,P(smooth)*E[d|smooth]
+LN,CH4,2300,ais_premium_cm,0.5642927469574102,P(fired)*E[d|fired]
+LN,CH4,2300,ais_cond_mean_fired_cm,4.21113990266724,
+LN,CH4,2300,ais_median_smooth_cm,0.059940562608701065,
+LN,CH4,2300,total_mean_cm,0.8167038795788846,
+LN,CH4,2300,total_median_cm,0.2567333370059046,
+LN,CH4,2300,n_cross_both,260.0,
+LN,CH4,2300,mean_dn_years_int,0.5875,what the annual step charges
+LN,CH4,2300,mean_dtime_above_yr,0.5903207724943987,what a sub-annual solver would charge
+LN,CH4,2300,quantization_bias_yr,-0.0028207724943987156,
+LN,CH4,2300,quantization_bias_ratio,0.9952216275865077,
+LN,CH4,2300,sd_dn_years_int,1.9152487668497415,
+LN,CH4,2300,sd_dtime_above_yr,1.9162573867172372,
+LN,CH4,2300,mean_dt_firstcross_yr,2.5654048906907696,entry side only; understates on peak-and-decline
+ML,CO2,2100,n_draws,2000.0,
+ML,CO2,2100,n_bifurcation,3.0,"never crosses at base, crosses under pulse"
+ML,CO2,2100,n_quantization,160.0,"crosses in both, integer year count differs"
+ML,CO2,2100,p_fired,0.0815,
+ML,CO2,2100,ais_mean_cm,0.11012752707328002,
+ML,CO2,2100,ais_median_cm,0.008528918063249069,
+ML,CO2,2100,ais_smooth_term_cm,0.008207138179438097,P(smooth)*E[d|smooth]
+ML,CO2,2100,ais_premium_cm,0.10192038889384192,P(fired)*E[d|fired]
+ML,CO2,2100,ais_cond_mean_fired_cm,1.2505569189428456,
+ML,CO2,2100,ais_median_smooth_cm,0.008066746205281916,
+ML,CO2,2100,total_mean_cm,0.17849928115050737,
+ML,CO2,2100,total_median_cm,0.07525018671151429,
+ML,CO2,2100,n_cross_both,632.0,
+ML,CO2,2100,mean_dn_years_int,0.098,what the annual step charges
+ML,CO2,2100,mean_dtime_above_yr,0.09759244597529826,what a sub-annual solver would charge
+ML,CO2,2100,quantization_bias_yr,0.00040755402470174507,
+ML,CO2,2100,quantization_bias_ratio,1.0041760816693222,
+ML,CO2,2100,sd_dn_years_int,0.385318355541958,
+ML,CO2,2100,sd_dtime_above_yr,0.2852314008678027,
+ML,CO2,2100,mean_dt_firstcross_yr,0.2825049442897334,entry side only; understates on peak-and-decline
+ML,CO2,2150,n_draws,2000.0,
+ML,CO2,2150,n_bifurcation,1.0,"never crosses at base, crosses under pulse"
+ML,CO2,2150,n_quantization,249.0,"crosses in both, integer year count differs"
+ML,CO2,2150,p_fired,0.125,
+ML,CO2,2150,ais_mean_cm,0.18916736612793303,
+ML,CO2,2150,ais_median_cm,0.01496658923066363,
+ML,CO2,2150,ais_smooth_term_cm,0.013805187962974527,P(smooth)*E[d|smooth]
+ML,CO2,2150,ais_premium_cm,0.17536217816495847,P(fired)*E[d|fired]
+ML,CO2,2150,ais_cond_mean_fired_cm,1.4028974253196678,
+ML,CO2,2150,ais_median_smooth_cm,0.013774327864529923,
+ML,CO2,2150,total_mean_cm,0.2777282769167526,
+ML,CO2,2150,total_median_cm,0.10190910245320595,
+ML,CO2,2150,n_cross_both,642.0,
+ML,CO2,2150,mean_dn_years_int,0.1745,what the annual step charges
+ML,CO2,2150,mean_dtime_above_yr,0.1767505944193368,what a sub-annual solver would charge
+ML,CO2,2150,quantization_bias_yr,-0.00225059441933681,
+ML,CO2,2150,quantization_bias_ratio,0.9872668353578641,
+ML,CO2,2150,sd_dn_years_int,0.5569603688111152,
+ML,CO2,2150,sd_dtime_above_yr,0.4711128801780563,
+ML,CO2,2150,mean_dt_firstcross_yr,0.30161284579797826,entry side only; understates on peak-and-decline
+ML,CO2,2300,n_draws,2000.0,
+ML,CO2,2300,n_bifurcation,1.0,"never crosses at base, crosses under pulse"
+ML,CO2,2300,n_quantization,379.0,"crosses in both, integer year count differs"
+ML,CO2,2300,p_fired,0.19,
+ML,CO2,2300,ais_mean_cm,0.28346863330803446,
+ML,CO2,2300,ais_median_cm,0.03625873023502191,
+ML,CO2,2300,ais_smooth_term_cm,0.026765173634624474,P(smooth)*E[d|smooth]
+ML,CO2,2300,ais_premium_cm,0.2567034596734099,P(fired)*E[d|fired]
+ML,CO2,2300,ais_cond_mean_fired_cm,1.3510708403863678,
+ML,CO2,2300,ais_median_smooth_cm,0.03241868420949512,
+ML,CO2,2300,total_mean_cm,0.40289447164247244,
+ML,CO2,2300,total_median_cm,0.15367250097144236,
+ML,CO2,2300,n_cross_both,642.0,
+ML,CO2,2300,mean_dn_years_int,0.2625,what the annual step charges
+ML,CO2,2300,mean_dtime_above_yr,0.26049389021096386,what a sub-annual solver would charge
+ML,CO2,2300,quantization_bias_yr,0.002006109789036148,
+ML,CO2,2300,quantization_bias_ratio,1.00770117789485,
+ML,CO2,2300,sd_dn_years_int,0.6424952529591462,
+ML,CO2,2300,sd_dtime_above_yr,0.5311365869235743,
+ML,CO2,2300,mean_dt_firstcross_yr,0.30161284579797826,entry side only; understates on peak-and-decline
+ML,CH4,2100,n_draws,2000.0,
+ML,CH4,2100,n_bifurcation,16.0,"never crosses at base, crosses under pulse"
+ML,CH4,2100,n_quantization,619.0,"crosses in both, integer year count differs"
+ML,CH4,2100,p_fired,0.3175,
+ML,CH4,2100,ais_mean_cm,0.6345543240457489,
+ML,CH4,2100,ais_median_cm,0.06021434323197328,
+ML,CH4,2100,ais_smooth_term_cm,0.03429045480724141,P(smooth)*E[d|smooth]
+ML,CH4,2100,ais_premium_cm,0.6002638692385074,P(fired)*E[d|fired]
+ML,CH4,2100,ais_cond_mean_fired_cm,1.8905948637433303,
+ML,CH4,2100,ais_median_smooth_cm,0.04748363689950352,
+ML,CH4,2100,total_mean_cm,1.0263269343046835,
+ML,CH4,2100,total_median_cm,0.45672870438868074,
+ML,CH4,2100,n_cross_both,632.0,
+ML,CH4,2100,mean_dn_years_int,0.575,what the annual step charges
+ML,CH4,2100,mean_dtime_above_yr,0.5678013085806115,what a sub-annual solver would charge
+ML,CH4,2100,quantization_bias_yr,0.007198691419388448,
+ML,CH4,2100,quantization_bias_ratio,1.0126781874409267,
+ML,CH4,2100,sd_dn_years_int,1.1135506263743686,
+ML,CH4,2100,sd_dtime_above_yr,1.0631426585105792,
+ML,CH4,2100,mean_dt_firstcross_yr,1.635834101764885,entry side only; understates on peak-and-decline
+ML,CH4,2150,n_draws,2000.0,
+ML,CH4,2150,n_bifurcation,12.0,"never crosses at base, crosses under pulse"
+ML,CH4,2150,n_quantization,634.0,"crosses in both, integer year count differs"
+ML,CH4,2150,p_fired,0.323,
+ML,CH4,2150,ais_mean_cm,0.7757664802319336,
+ML,CH4,2150,ais_median_cm,0.0702744967843616,
+ML,CH4,2150,ais_smooth_term_cm,0.039098714853473146,P(smooth)*E[d|smooth]
+ML,CH4,2150,ais_premium_cm,0.7366677653784606,P(fired)*E[d|fired]
+ML,CH4,2150,ais_cond_mean_fired_cm,2.280705155970466,
+ML,CH4,2150,ais_median_smooth_cm,0.053664047864643294,
+ML,CH4,2150,total_mean_cm,1.0800822851418712,
+ML,CH4,2150,total_median_cm,0.37782601500033053,
+ML,CH4,2150,n_cross_both,642.0,
+ML,CH4,2150,mean_dn_years_int,0.723,what the annual step charges
+ML,CH4,2150,mean_dtime_above_yr,0.71855489479867,what a sub-annual solver would charge
+ML,CH4,2150,quantization_bias_yr,0.004445105201330013,
+ML,CH4,2150,quantization_bias_ratio,1.006186173434356,
+ML,CH4,2150,sd_dn_years_int,1.4485579588266533,
+ML,CH4,2150,sd_dtime_above_yr,1.4043311686409996,
+ML,CH4,2150,mean_dt_firstcross_yr,1.6777784284971828,entry side only; understates on peak-and-decline
+ML,CH4,2300,n_draws,2000.0,
+ML,CH4,2300,n_bifurcation,12.0,"never crosses at base, crosses under pulse"
+ML,CH4,2300,n_quantization,636.0,"crosses in both, integer year count differs"
+ML,CH4,2300,p_fired,0.324,
+ML,CH4,2300,ais_mean_cm,0.8512687149439091,
+ML,CH4,2300,ais_median_cm,0.0826672629260834,
+ML,CH4,2300,ais_smooth_term_cm,0.04565195812071088,P(smooth)*E[d|smooth]
+ML,CH4,2300,ais_premium_cm,0.8056167568231982,P(fired)*E[d|fired]
+ML,CH4,2300,ais_cond_mean_fired_cm,2.4864714716765377,
+ML,CH4,2300,ais_median_smooth_cm,0.06349878198775816,
+ML,CH4,2300,total_mean_cm,1.0406432775285517,
+ML,CH4,2300,total_median_cm,0.2756387029073437,
+ML,CH4,2300,n_cross_both,642.0,
+ML,CH4,2300,mean_dn_years_int,0.8235,what the annual step charges
+ML,CH4,2300,mean_dtime_above_yr,0.818925744586971,what a sub-annual solver would charge
+ML,CH4,2300,quantization_bias_yr,0.004574255413029027,
+ML,CH4,2300,quantization_bias_ratio,1.0055856778752708,
+ML,CH4,2300,sd_dn_years_int,1.551628668774485,
+ML,CH4,2300,sd_dtime_above_yr,1.4963618209581888,
+ML,CH4,2300,mean_dt_firstcross_yr,1.6777784284971828,entry side only; understates on peak-and-decline
+M,CO2,2100,n_draws,2000.0,
+M,CO2,2100,n_bifurcation,2.0,"never crosses at base, crosses under pulse"
+M,CO2,2100,n_quantization,184.0,"crosses in both, integer year count differs"
+M,CO2,2100,p_fired,0.093,
+M,CO2,2100,ais_mean_cm,0.10099271382304513,
+M,CO2,2100,ais_median_cm,0.009000848052180821,
+M,CO2,2100,ais_smooth_term_cm,0.008533990114638904,P(smooth)*E[d|smooth]
+M,CO2,2100,ais_premium_cm,0.09245872370840624,P(fired)*E[d|fired]
+M,CO2,2100,ais_cond_mean_fired_cm,0.9941798248215725,
+M,CO2,2100,ais_median_smooth_cm,0.008513692884331903,
+M,CO2,2100,total_mean_cm,0.16865989210293122,
+M,CO2,2100,total_median_cm,0.07532109168016632,
+M,CO2,2100,n_cross_both,1131.0,
+M,CO2,2100,mean_dn_years_int,0.094,what the annual step charges
+M,CO2,2100,mean_dtime_above_yr,0.09983488912184817,what a sub-annual solver would charge
+M,CO2,2100,quantization_bias_yr,-0.005834889121848166,
+M,CO2,2100,quantization_bias_ratio,0.9415546090833365,
+M,CO2,2100,sd_dn_years_int,0.29699849166624737,
+M,CO2,2100,sd_dtime_above_yr,0.10575993957764886,
+M,CO2,2100,mean_dt_firstcross_yr,0.17620123078577135,entry side only; understates on peak-and-decline
+M,CO2,2150,n_draws,2000.0,
+M,CO2,2150,n_bifurcation,0.0,"never crosses at base, crosses under pulse"
+M,CO2,2150,n_quantization,301.0,"crosses in both, integer year count differs"
+M,CO2,2150,p_fired,0.1505,
+M,CO2,2150,ais_mean_cm,0.1650893259614175,
+M,CO2,2150,ais_median_cm,0.01819903975960102,
+M,CO2,2150,ais_smooth_term_cm,0.01642687282011075,P(smooth)*E[d|smooth]
+M,CO2,2150,ais_premium_cm,0.14866245314130674,P(fired)*E[d|fired]
+M,CO2,2150,ais_cond_mean_fired_cm,0.987790386320975,
+M,CO2,2150,ais_median_smooth_cm,0.016393212339721686,
+M,CO2,2150,total_mean_cm,0.24986035008675114,
+M,CO2,2150,total_median_cm,0.10449927312190255,
+M,CO2,2150,n_cross_both,1601.0,
+M,CO2,2150,mean_dn_years_int,0.1535,what the annual step charges
+M,CO2,2150,mean_dtime_above_yr,0.16300994108056654,what a sub-annual solver would charge
+M,CO2,2150,quantization_bias_yr,-0.009509941080566547,
+M,CO2,2150,quantization_bias_ratio,0.9416603612176859,
+M,CO2,2150,sd_dn_years_int,0.37149260204839657,
+M,CO2,2150,sd_dtime_above_yr,0.14144688755817683,
+M,CO2,2150,mean_dt_firstcross_yr,0.20363515437922322,entry side only; understates on peak-and-decline
+M,CO2,2300,n_draws,2000.0,
+M,CO2,2300,n_bifurcation,1.0,"never crosses at base, crosses under pulse"
+M,CO2,2300,n_quantization,405.0,"crosses in both, integer year count differs"
+M,CO2,2300,p_fired,0.203,
+M,CO2,2300,ais_mean_cm,0.30151047693516375,
+M,CO2,2300,ais_median_cm,0.05519739335417739,
+M,CO2,2300,ais_smooth_term_cm,0.04819914980849481,P(smooth)*E[d|smooth]
+M,CO2,2300,ais_premium_cm,0.253311327126669,P(fired)*E[d|fired]
+M,CO2,2300,ais_cond_mean_fired_cm,1.2478390498850689,
+M,CO2,2300,ais_median_smooth_cm,0.04433115216774297,
+M,CO2,2300,total_mean_cm,0.4358017046758886,
+M,CO2,2300,total_median_cm,0.18647247114424204,
+M,CO2,2300,n_cross_both,1780.0,
+M,CO2,2300,mean_dn_years_int,0.272,what the annual step charges
+M,CO2,2300,mean_dtime_above_yr,0.28136741723279607,what a sub-annual solver would charge
+M,CO2,2300,quantization_bias_yr,-0.00936741723279605,
+M,CO2,2300,quantization_bias_ratio,0.9667075266748257,
+M,CO2,2300,sd_dn_years_int,0.9795385382280457,
+M,CO2,2300,sd_dtime_above_yr,0.9421705875293069,
+M,CO2,2300,mean_dt_firstcross_yr,0.31673127319357386,entry side only; understates on peak-and-decline
+M,CH4,2100,n_draws,2000.0,
+M,CH4,2100,n_bifurcation,6.0,"never crosses at base, crosses under pulse"
+M,CH4,2100,n_quantization,967.0,"crosses in both, integer year count differs"
+M,CH4,2100,p_fired,0.4865,
+M,CH4,2100,ais_mean_cm,0.659804752686515,
+M,CH4,2100,ais_median_cm,0.10310275129874391,
+M,CH4,2100,ais_smooth_term_cm,0.025925314671650424,P(smooth)*E[d|smooth]
+M,CH4,2100,ais_premium_cm,0.6338794380148645,P(fired)*E[d|fired]
+M,CH4,2100,ais_cond_mean_fired_cm,1.3029382076358982,
+M,CH4,2100,ais_median_smooth_cm,0.04755465839532125,
+M,CH4,2100,total_mean_cm,1.0599712627257463,
+M,CH4,2100,total_median_cm,0.6247478519159557,
+M,CH4,2100,n_cross_both,1131.0,
+M,CH4,2100,mean_dn_years_int,0.6095,what the annual step charges
+M,CH4,2100,mean_dtime_above_yr,0.5975774513822332,what a sub-annual solver would charge
+M,CH4,2100,quantization_bias_yr,0.01192254861776687,
+M,CH4,2100,quantization_bias_ratio,1.0199514700398906,
+M,CH4,2100,sd_dn_years_int,0.7037452512730333,
+M,CH4,2100,sd_dtime_above_yr,0.6191683870877657,
+M,CH4,2100,mean_dt_firstcross_yr,1.0546970196083705,entry side only; understates on peak-and-decline
+M,CH4,2150,n_draws,2000.0,
+M,CH4,2150,n_bifurcation,0.0,"never crosses at base, crosses under pulse"
+M,CH4,2150,n_quantization,1179.0,"crosses in both, integer year count differs"
+M,CH4,2150,p_fired,0.5895,
+M,CH4,2150,ais_mean_cm,0.7672035520444735,
+M,CH4,2150,ais_median_cm,0.7385604906810865,
+M,CH4,2150,ais_smooth_term_cm,0.02481095356968305,P(smooth)*E[d|smooth]
+M,CH4,2150,ais_premium_cm,0.7423925984747906,P(fired)*E[d|fired]
+M,CH4,2150,ais_cond_mean_fired_cm,1.2593597938503656,
+M,CH4,2150,ais_median_smooth_cm,0.054844187078527895,
+M,CH4,2150,total_mean_cm,1.0638391953619224,
+M,CH4,2150,total_median_cm,1.0400170140596572,
+M,CH4,2150,n_cross_both,1601.0,
+M,CH4,2150,mean_dn_years_int,0.7145,what the annual step charges
+M,CH4,2150,mean_dtime_above_yr,0.7058719616889909,what a sub-annual solver would charge
+M,CH4,2150,quantization_bias_yr,0.008628038311009112,
+M,CH4,2150,quantization_bias_ratio,1.0122232342114343,
+M,CH4,2150,sd_dn_years_int,0.6828051416258638,
+M,CH4,2150,sd_dtime_above_yr,0.5486828857422071,
+M,CH4,2150,mean_dt_firstcross_yr,0.8817888340899406,entry side only; understates on peak-and-decline
+M,CH4,2300,n_draws,2000.0,
+M,CH4,2300,n_bifurcation,1.0,"never crosses at base, crosses under pulse"
+M,CH4,2300,n_quantization,1277.0,"crosses in both, integer year count differs"
+M,CH4,2300,p_fired,0.639,
+M,CH4,2300,ais_mean_cm,0.8461409839011526,
+M,CH4,2300,ais_median_cm,0.8276021097949808,
+M,CH4,2300,ais_smooth_term_cm,0.029791551368535372,P(smooth)*E[d|smooth]
+M,CH4,2300,ais_premium_cm,0.8163494325326172,P(fired)*E[d|fired]
+M,CH4,2300,ais_cond_mean_fired_cm,1.277542147938368,
+M,CH4,2300,ais_median_smooth_cm,0.06636376368968833,
+M,CH4,2300,total_mean_cm,1.0441720079475165,
+M,CH4,2300,total_median_cm,1.0131262093287035,
+M,CH4,2300,n_cross_both,1780.0,
+M,CH4,2300,mean_dn_years_int,0.805,what the annual step charges
+M,CH4,2300,mean_dtime_above_yr,0.7948283783560444,what a sub-annual solver would charge
+M,CH4,2300,quantization_bias_yr,0.010171621643955686,
+M,CH4,2300,quantization_bias_ratio,1.0127972552577875,
+M,CH4,2300,sd_dn_years_int,0.8119757707753124,
+M,CH4,2300,sd_dtime_above_yr,0.7016361669893041,
+M,CH4,2300,mean_dt_firstcross_yr,0.8963876497953585,entry side only; understates on peak-and-decline
+HL,CO2,2100,n_draws,2000.0,
+HL,CO2,2100,n_bifurcation,4.0,"never crosses at base, crosses under pulse"
+HL,CO2,2100,n_quantization,176.0,"crosses in both, integer year count differs"
+HL,CO2,2100,p_fired,0.09,
+HL,CO2,2100,ais_mean_cm,0.10302156041581126,
+HL,CO2,2100,ais_median_cm,0.009595768411298167,
+HL,CO2,2100,ais_smooth_term_cm,0.009439875242236068,P(smooth)*E[d|smooth]
+HL,CO2,2100,ais_premium_cm,0.0935816851735752,P(fired)*E[d|fired]
+HL,CO2,2100,ais_cond_mean_fired_cm,1.0397965019286133,
+HL,CO2,2100,ais_median_smooth_cm,0.00916588067837143,
+HL,CO2,2100,total_mean_cm,0.17100035173531541,
+HL,CO2,2100,total_median_cm,0.07647107849196999,
+HL,CO2,2100,n_cross_both,1209.0,
+HL,CO2,2100,mean_dn_years_int,0.1,what the annual step charges
+HL,CO2,2100,mean_dtime_above_yr,0.098959314543763,what a sub-annual solver would charge
+HL,CO2,2100,quantization_bias_yr,0.001040685456237006,
+HL,CO2,2100,quantization_bias_ratio,1.0105162961266954,
+HL,CO2,2100,sd_dn_years_int,0.3392013100864768,
+HL,CO2,2100,sd_dtime_above_yr,0.18694555462760143,
+HL,CO2,2100,mean_dt_firstcross_yr,0.12662316902536636,entry side only; understates on peak-and-decline
+HL,CO2,2150,n_draws,2000.0,
+HL,CO2,2150,n_bifurcation,5.0,"never crosses at base, crosses under pulse"
+HL,CO2,2150,n_quantization,320.0,"crosses in both, integer year count differs"
+HL,CO2,2150,p_fired,0.1625,
+HL,CO2,2150,ais_mean_cm,0.20183578283148826,
+HL,CO2,2150,ais_median_cm,0.017493039673723842,
+HL,CO2,2150,ais_smooth_term_cm,0.015664097394017033,P(smooth)*E[d|smooth]
+HL,CO2,2150,ais_premium_cm,0.1861716854374712,P(fired)*E[d|fired]
+HL,CO2,2150,ais_cond_mean_fired_cm,1.1456719103844382,
+HL,CO2,2150,ais_median_smooth_cm,0.015609304371222876,
+HL,CO2,2150,total_mean_cm,0.28917547753662665,
+HL,CO2,2150,total_median_cm,0.10588201342531534,
+HL,CO2,2150,n_cross_both,1210.0,
+HL,CO2,2150,mean_dn_years_int,0.1975,what the annual step charges
+HL,CO2,2150,mean_dtime_above_yr,0.19514245708730926,what a sub-annual solver would charge
+HL,CO2,2150,quantization_bias_yr,0.0023575429126907466,
+HL,CO2,2150,quantization_bias_ratio,1.0120811377896914,
+HL,CO2,2150,sd_dn_years_int,0.5372504714139553,
+HL,CO2,2150,sd_dtime_above_yr,0.3751170021006279,
+HL,CO2,2150,mean_dt_firstcross_yr,0.12716394527863614,entry side only; understates on peak-and-decline
+HL,CO2,2300,n_draws,2000.0,
+HL,CO2,2300,n_bifurcation,5.0,"never crosses at base, crosses under pulse"
+HL,CO2,2300,n_quantization,541.0,"crosses in both, integer year count differs"
+HL,CO2,2300,p_fired,0.273,
+HL,CO2,2300,ais_mean_cm,0.3453476503655295,
+HL,CO2,2300,ais_median_cm,0.036331697647042915,
+HL,CO2,2300,ais_smooth_term_cm,0.025655042405915592,P(smooth)*E[d|smooth]
+HL,CO2,2300,ais_premium_cm,0.3196926079596139,P(fired)*E[d|fired]
+HL,CO2,2300,ais_cond_mean_fired_cm,1.1710351939912595,
+HL,CO2,2300,ais_median_smooth_cm,0.029267558126871762,
+HL,CO2,2300,total_mean_cm,0.46638771028115616,
+HL,CO2,2300,total_median_cm,0.1594119989302456,
+HL,CO2,2300,n_cross_both,1210.0,
+HL,CO2,2300,mean_dn_years_int,0.337,what the annual step charges
+HL,CO2,2300,mean_dtime_above_yr,0.3342231793366018,what a sub-annual solver would charge
+HL,CO2,2300,quantization_bias_yr,0.0027768206633982384,
+HL,CO2,2300,quantization_bias_ratio,1.0083082827136942,
+HL,CO2,2300,sd_dn_years_int,0.6660726885357225,
+HL,CO2,2300,sd_dtime_above_yr,0.49309058203503897,
+HL,CO2,2300,mean_dt_firstcross_yr,0.12716394527863614,entry side only; understates on peak-and-decline
+HL,CH4,2100,n_draws,2000.0,
+HL,CH4,2100,n_bifurcation,12.0,"never crosses at base, crosses under pulse"
+HL,CH4,2100,n_quantization,951.0,"crosses in both, integer year count differs"
+HL,CH4,2100,p_fired,0.4815,
+HL,CH4,2100,ais_mean_cm,0.6168319495865976,
+HL,CH4,2100,ais_median_cm,0.10540328351691919,
+HL,CH4,2100,ais_smooth_term_cm,0.02671279592467258,P(smooth)*E[d|smooth]
+HL,CH4,2100,ais_premium_cm,0.5901191536619248,P(fired)*E[d|fired]
+HL,CH4,2100,ais_cond_mean_fired_cm,1.2255849504920557,
+HL,CH4,2100,ais_median_smooth_cm,0.04714788169279949,
+HL,CH4,2100,total_mean_cm,0.9897779039114825,
+HL,CH4,2100,total_median_cm,0.5929995298903492,
+HL,CH4,2100,n_cross_both,1209.0,
+HL,CH4,2100,mean_dn_years_int,0.5835,what the annual step charges
+HL,CH4,2100,mean_dtime_above_yr,0.5861965992964908,what a sub-annual solver would charge
+HL,CH4,2100,quantization_bias_yr,-0.002696599296490798,
+HL,CH4,2100,quantization_bias_ratio,0.9953998380411503,
+HL,CH4,2100,sd_dn_years_int,0.7458591709910632,
+HL,CH4,2100,sd_dtime_above_yr,0.6559298938012378,
+HL,CH4,2100,mean_dt_firstcross_yr,0.852301480782591,entry side only; understates on peak-and-decline
+HL,CH4,2150,n_draws,2000.0,
+HL,CH4,2150,n_bifurcation,12.0,"never crosses at base, crosses under pulse"
+HL,CH4,2150,n_quantization,1037.0,"crosses in both, integer year count differs"
+HL,CH4,2150,p_fired,0.5245,
+HL,CH4,2150,ais_mean_cm,0.7758235407779958,
+HL,CH4,2150,ais_median_cm,0.5998944428886652,
+HL,CH4,2150,ais_smooth_term_cm,0.028826565991670026,P(smooth)*E[d|smooth]
+HL,CH4,2150,ais_premium_cm,0.7469969747863255,P(fired)*E[d|fired]
+HL,CH4,2150,ais_cond_mean_fired_cm,1.4242077688967123,
+HL,CH4,2150,ais_median_smooth_cm,0.05380314398096964,
+HL,CH4,2150,total_mean_cm,1.0722981043431623,
+HL,CH4,2150,total_median_cm,0.8971453575853516,
+HL,CH4,2150,n_cross_both,1210.0,
+HL,CH4,2150,mean_dn_years_int,0.7455,what the annual step charges
+HL,CH4,2150,mean_dtime_above_yr,0.7562932506259521,what a sub-annual solver would charge
+HL,CH4,2150,quantization_bias_yr,-0.010793250625952044,
+HL,CH4,2150,quantization_bias_ratio,0.985728749242415,
+HL,CH4,2150,sd_dn_years_int,1.0051044062353505,
+HL,CH4,2150,sd_dtime_above_yr,0.9138459279742808,
+HL,CH4,2150,mean_dt_firstcross_yr,0.8534171110829991,entry side only; understates on peak-and-decline
+HL,CH4,2300,n_draws,2000.0,
+HL,CH4,2300,n_bifurcation,12.0,"never crosses at base, crosses under pulse"
+HL,CH4,2300,n_quantization,1079.0,"crosses in both, integer year count differs"
+HL,CH4,2300,p_fired,0.5455,
+HL,CH4,2300,ais_mean_cm,0.8934499061936229,
+HL,CH4,2300,ais_median_cm,0.6975715368644728,
+HL,CH4,2300,ais_smooth_term_cm,0.02999560926919592,P(smooth)*E[d|smooth]
+HL,CH4,2300,ais_premium_cm,0.8634542969244269,P(fired)*E[d|fired]
+HL,CH4,2300,ais_cond_mean_fired_cm,1.582867638724889,
+HL,CH4,2300,ais_median_smooth_cm,0.05874860805139548,
+HL,CH4,2300,total_mean_cm,1.0853046298302365,
+HL,CH4,2300,total_median_cm,0.8912919757916313,
+HL,CH4,2300,n_cross_both,1210.0,
+HL,CH4,2300,mean_dn_years_int,0.8885,what the annual step charges
+HL,CH4,2300,mean_dtime_above_yr,0.8968893859472689,what a sub-annual solver would charge
+HL,CH4,2300,quantization_bias_yr,-0.008389385947268901,
+HL,CH4,2300,quantization_bias_ratio,0.9906461308621595,
+HL,CH4,2300,sd_dn_years_int,1.11206388892299,
+HL,CH4,2300,sd_dtime_above_yr,1.0019145950741815,
+HL,CH4,2300,mean_dt_firstcross_yr,0.8534171110829991,entry side only; understates on peak-and-decline
+H,CO2,2100,n_draws,2000.0,
+H,CO2,2100,n_bifurcation,3.0,"never crosses at base, crosses under pulse"
+H,CO2,2100,n_quantization,196.0,"crosses in both, integer year count differs"
+H,CO2,2100,p_fired,0.0995,
+H,CO2,2100,ais_mean_cm,0.10329446801366106,
+H,CO2,2100,ais_median_cm,0.009491930196803722,
+H,CO2,2100,ais_smooth_term_cm,0.009005328365278916,P(smooth)*E[d|smooth]
+H,CO2,2100,ais_premium_cm,0.09428913964838215,P(fired)*E[d|fired]
+H,CO2,2100,ais_cond_mean_fired_cm,0.9476295442048457,
+H,CO2,2100,ais_median_smooth_cm,0.009028143883881512,
+H,CO2,2100,total_mean_cm,0.1701244946099413,
+H,CO2,2100,total_median_cm,0.07549506741660394,
+H,CO2,2100,n_cross_both,1482.0,
+H,CO2,2100,mean_dn_years_int,0.0995,what the annual step charges
+H,CO2,2100,mean_dtime_above_yr,0.09822347040606821,what a sub-annual solver would charge
+H,CO2,2100,quantization_bias_yr,0.001276529593931791,
+H,CO2,2100,quantization_bias_ratio,1.0129961768674478,
+H,CO2,2100,sd_dn_years_int,0.2994070344633589,
+H,CO2,2100,sd_dtime_above_yr,0.06269967766855666,
+H,CO2,2100,mean_dt_firstcross_yr,0.13234055407182937,entry side only; understates on peak-and-decline
+H,CO2,2150,n_draws,2000.0,
+H,CO2,2150,n_bifurcation,0.0,"never crosses at base, crosses under pulse"
+H,CO2,2150,n_quantization,264.0,"crosses in both, integer year count differs"
+H,CO2,2150,p_fired,0.132,
+H,CO2,2150,ais_mean_cm,0.14467095774897176,
+H,CO2,2150,ais_median_cm,0.019841554129072847,
+H,CO2,2150,ais_smooth_term_cm,0.018821320218459312,P(smooth)*E[d|smooth]
+H,CO2,2150,ais_premium_cm,0.12584963753051245,P(fired)*E[d|fired]
+H,CO2,2150,ais_cond_mean_fired_cm,0.9534063449281247,
+H,CO2,2150,ais_median_smooth_cm,0.0180319833782292,
+H,CO2,2150,total_mean_cm,0.226949979662052,
+H,CO2,2150,total_median_cm,0.10217800698168844,
+H,CO2,2150,n_cross_both,1913.0,
+H,CO2,2150,mean_dn_years_int,0.132,what the annual step charges
+H,CO2,2150,mean_dtime_above_yr,0.12722061645952504,what a sub-annual solver would charge
+H,CO2,2150,quantization_bias_yr,0.0047793835404749685,
+H,CO2,2150,quantization_bias_ratio,1.0375676810369452,
+H,CO2,2150,sd_dn_years_int,0.3385754224073704,
+H,CO2,2150,sd_dtime_above_yr,0.03830967168801968,
+H,CO2,2150,mean_dt_firstcross_yr,0.13300639462574917,entry side only; understates on peak-and-decline
+H,CO2,2300,n_draws,2000.0,
+H,CO2,2300,n_bifurcation,0.0,"never crosses at base, crosses under pulse"
+H,CO2,2300,n_quantization,283.0,"crosses in both, integer year count differs"
+H,CO2,2300,p_fired,0.1415,
+H,CO2,2300,ais_mean_cm,0.20506970135102967,
+H,CO2,2300,ais_median_cm,0.06549628916708627,
+H,CO2,2300,ais_smooth_term_cm,0.06817851373340053,P(smooth)*E[d|smooth]
+H,CO2,2300,ais_premium_cm,0.1368911876176291,P(fired)*E[d|fired]
+H,CO2,2300,ais_cond_mean_fired_cm,0.9674288877570963,
+H,CO2,2300,ais_median_smooth_cm,0.05650671064586277,
+H,CO2,2300,total_mean_cm,0.3355494245668923,
+H,CO2,2300,total_median_cm,0.20987929639221647,
+H,CO2,2300,n_cross_both,1987.0,
+H,CO2,2300,mean_dn_years_int,0.146,what the annual step charges
+H,CO2,2300,mean_dtime_above_yr,0.1405137527650626,what a sub-annual solver would charge
+H,CO2,2300,quantization_bias_yr,0.0054862472349374025,
+H,CO2,2300,quantization_bias_ratio,1.0390442012043501,
+H,CO2,2300,sd_dn_years_int,0.402200052761335,
+H,CO2,2300,sd_dtime_above_yr,0.22035185823257533,
+H,CO2,2300,mean_dt_firstcross_yr,0.13623436520039636,entry side only; understates on peak-and-decline
+H,CH4,2100,n_draws,2000.0,
+H,CH4,2100,n_bifurcation,10.0,"never crosses at base, crosses under pulse"
+H,CH4,2100,n_quantization,1129.0,"crosses in both, integer year count differs"
+H,CH4,2100,p_fired,0.5695,
+H,CH4,2100,ais_mean_cm,0.7042444134266842,
+H,CH4,2100,ais_median_cm,0.6899892895209536,
+H,CH4,2100,ais_smooth_term_cm,0.022776974082360794,P(smooth)*E[d|smooth]
+H,CH4,2100,ais_premium_cm,0.6814674393443235,P(fired)*E[d|fired]
+H,CH4,2100,ais_cond_mean_fired_cm,1.1966065660128595,
+H,CH4,2100,ais_median_smooth_cm,0.049662401573280945,
+H,CH4,2100,total_mean_cm,1.1113713792968969,
+H,CH4,2100,total_median_cm,1.0975039590427897,
+H,CH4,2100,n_cross_both,1482.0,
+H,CH4,2100,mean_dn_years_int,0.662,what the annual step charges
+H,CH4,2100,mean_dtime_above_yr,0.6554378602182162,what a sub-annual solver would charge
+H,CH4,2100,quantization_bias_yr,0.006562139781783882,
+H,CH4,2100,quantization_bias_ratio,1.0100118412134433,
+H,CH4,2100,sd_dn_years_int,0.6426215692307718,
+H,CH4,2100,sd_dtime_above_yr,0.5255733416016349,
+H,CH4,2100,mean_dt_firstcross_yr,0.8829121191927416,entry side only; understates on peak-and-decline
+H,CH4,2150,n_draws,2000.0,
+H,CH4,2150,n_bifurcation,0.0,"never crosses at base, crosses under pulse"
+H,CH4,2150,n_quantization,1255.0,"crosses in both, integer year count differs"
+H,CH4,2150,p_fired,0.6275,
+H,CH4,2150,ais_mean_cm,0.7706318085513052,
+H,CH4,2150,ais_median_cm,0.7995233777014832,
+H,CH4,2150,ais_smooth_term_cm,0.025279991148752765,P(smooth)*E[d|smooth]
+H,CH4,2150,ais_premium_cm,0.7453518174025525,P(fired)*E[d|fired]
+H,CH4,2150,ais_cond_mean_fired_cm,1.187811661199287,
+H,CH4,2150,ais_median_smooth_cm,0.061046609842279054,
+H,CH4,2150,total_mean_cm,1.0718654059974142,
+H,CH4,2150,total_median_cm,1.0993997180156043,
+H,CH4,2150,n_cross_both,1913.0,
+H,CH4,2150,mean_dn_years_int,0.72,what the annual step charges
+H,CH4,2150,mean_dtime_above_yr,0.7137608284982664,what a sub-annual solver would charge
+H,CH4,2150,quantization_bias_yr,0.006239171501733587,
+H,CH4,2150,quantization_bias_ratio,1.0087412635334172,
+H,CH4,2150,sd_dn_years_int,0.6251363032962087,
+H,CH4,2150,sd_dtime_above_yr,0.4631007453403138,
+H,CH4,2150,mean_dt_firstcross_yr,0.7462214620996047,entry side only; understates on peak-and-decline
+H,CH4,2300,n_draws,2000.0,
+H,CH4,2300,n_bifurcation,0.0,"never crosses at base, crosses under pulse"
+H,CH4,2300,n_quantization,1271.0,"crosses in both, integer year count differs"
+H,CH4,2300,p_fired,0.6355,
+H,CH4,2300,ais_mean_cm,0.7978123266280507,
+H,CH4,2300,ais_median_cm,0.8193267976791532,
+H,CH4,2300,ais_smooth_term_cm,0.03737447128221996,P(smooth)*E[d|smooth]
+H,CH4,2300,ais_premium_cm,0.7604378553458307,P(fired)*E[d|fired]
+H,CH4,2300,ais_cond_mean_fired_cm,1.1965977267440295,
+H,CH4,2300,ais_median_smooth_cm,0.08365485014003582,
+H,CH4,2300,total_mean_cm,1.0152552172804459,
+H,CH4,2300,total_median_cm,1.0237453808950647,
+H,CH4,2300,n_cross_both,1987.0,
+H,CH4,2300,mean_dn_years_int,0.729,what the annual step charges
+H,CH4,2300,mean_dtime_above_yr,0.7231001045893616,what a sub-annual solver would charge
+H,CH4,2300,quantization_bias_yr,0.0058998954106384005,
+H,CH4,2300,quantization_bias_ratio,1.008159168244055,
+H,CH4,2300,sd_dn_years_int,0.6306804887892682,
+H,CH4,2300,sd_dtime_above_yr,0.4694596970156109,
+H,CH4,2300,mean_dt_firstcross_yr,0.7256204613299795,entry side only; understates on peak-and-decline
