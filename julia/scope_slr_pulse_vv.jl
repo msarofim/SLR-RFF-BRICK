@@ -6,8 +6,17 @@
 ## both and reports the PAIRED difference. Stages 3-5 (BRICK 2.0, MAGICC, FACTS) consume the
 ## same cubes so the climate axis is held.
 ##
-## MARCUS'S SPEC, settled 2026-09-03: 10 GtCO2 or 1 GtCH4, pulse year 2030, on each of the
-## seven van Vuuren markers, JOINT driver, against BRICK 2.0 / MAGICC / FACTS.
+## MARCUS'S SPEC, REVISED 2026-09-04: **1 GtCO2 or 0.01 GtCH4**, pulse year 2030, on each of
+## the seven van Vuuren markers, JOINT driver, against BRICK 2.0 / MAGICC / FACTS.
+## ⚠ THE SIZES CHANGED, AND NOT BECAUSE OF A FLOOR. The original spec (10 GtCO2 / 1 GtCH4,
+## settled 09-03) sits ABOVE the clean regime's CEILING, measured two independent ways:
+##   * the L24 ladder (`diag_pulse_size_vv_ladder.jl`) put 10 GtCO2 at +20.6 % on the MEDIAN
+##     at 2300, through the threshold-crossing probability;
+##   * the MAGICC floor ladder (2026-09-04) found 10 GtCO2 puts 30/100 members >1 % off the
+##     linear per-unit value at 2300 with SIX SIGN-FLIPS at 2100, and 1 GtCH4 puts 75/100 off
+##     -- the only rung where even GMST departs. Both ends of MAGICC's clean window unify as
+##     dGMST@2100 in roughly 3e-5 to 4e-4 degC; 1 GtCO2 and 0.01 GtCH4 sit inside it.
+## Results carrying the OLD sizes keep the `10Gt`/`1Gt` tags and are not relabelled.
 ##
 ## ⚠ WHY BOTH ARMS RUN IN ONE PROCESS, AND WHY THAT IS THE WHOLE POINT.
 ## The pulse response is a DIFFERENCE of two numbers that are individually ~100 cm and
@@ -78,7 +87,22 @@ const SPECIE_SPEC = Dict(
     "CO2" => (size_tag = "10Gt", pulse_Gt = 10.0,  unit = "GtCO2"),
     "CH4" => (size_tag = "1Gt",  pulse_Gt = 1.0,   unit = "GtCH4"))
 @assert haskey(SPECIE_SPEC, SPECIE) "--specie must be CO2 or CH4; got '$(SPECIE)'"
-const SPEC = SPECIE_SPEC[SPECIE]
+## ⚠ THE SIZE AND THE TAG MOVE TOGETHER OR NOT AT ALL, exactly as in the FaIR stage
+## (`FaIRtoFrEDI/scripts/build_fair_pulse_vv_v160.py --pulse-size`). The tag is the cube
+## FILENAME this driver opens AND the per-tonne divisor it reports, so both are rewritten from
+## ONE number. The label construction mirrors the Python side character for character --
+## `f"{g:g}".replace(".", "p") + "Gt"` -- because a tag that differs by one character opens a
+## file that does not exist, or worse, opens the WRONG size's cube.
+const PULSE_SIZE = let v = argval("--pulse-size=", ""); v == "" ? nothing : parse(Float64, v) end
+PULSE_SIZE === nothing || PULSE_SIZE > 0 || error("--pulse-size must be > 0; got $(PULSE_SIZE)")
+const SPEC = let s = SPECIE_SPEC[SPECIE]
+    PULSE_SIZE === nothing ? s :
+        (size_tag = replace(@sprintf("%g", PULSE_SIZE), "." => "p") * "Gt",
+         pulse_Gt = PULSE_SIZE, unit = s.unit)
+end
+PULSE_SIZE === nothing ||
+    @printf("  ** --pulse-size %g -> size tag %s, divisor %g %s **\n",
+            PULSE_SIZE, SPEC.size_tag, SPEC.pulse_Gt, SPEC.unit)
 const PULSE_YEAR = 2030
 
 ## ⚠ CH4 IS NOT A SMALL PERTURBATION and the FaIR stage measured it: 1 GtCH4 = 260% of one
