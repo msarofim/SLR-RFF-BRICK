@@ -315,9 +315,30 @@ spans **7.1–858.4 cm** (121×). Ladrillo's p95 is 43.3 and BRICK 2.0's 51.3; D
 workflow that can express MICI — carries a **mean of 107 cm**. The MICI gap is real and lives
 **entirely in the tail**.
 
-⚠ **SLEIP reports 0.1–0.3 m at 2300, which is above EVERY model's median here** (largest 5.39 cm).
-It sits in the mean/tail region instead — Ladrillo's own mean is 8.94 cm. The likeliest reading is
-that their figure is not a median; confirming which statistic it is remains the open item.
+⛔ **RESOLVED 2026-09-04, AGAINST US: SLEIP's 0.1–0.3 m IS A MEDIAN.** Fig. 8H's caption defines
+the penalty as "the median total SLR difference between SSP5-3.4-OS and SSP1-2.6", and Fig. 8B draws
+it as the gap between the two median lines. §4.4 gives 8 cm (FACTS_1f) to 29 cm (FACTS_3f), with
+**BRICK the largest as a share at 34 %** of the SSP1-2.6 2300 total. **The mean-vs-median rescue is
+dead** — do not repeat the "their figure is probably not a median" reading, and do not quote our mean
+(8.94 cm) as if it were the comparable statistic. The gap is real and is 5–11× on the same model
+family (their BRICK ~29–30 cm vs our BRICK 2.0 2.57 paired / 5.66 difference-of-medians).
+⇒ The explanation moved to **scenario depth**, and that is now measured — see the next paragraph.
+
+⭐⭐ **AND THE DEPTH IS THE ANSWER'S LEADING CANDIDATE: MAGICC'S OVERSHOOT IS 2.1× DEEPER THAN FaIR'S
+ON THE SAME SCENARIO PAIR** (`python/diag_magicc_overshoot_depth.py`, 600-member AR6 drawnset).
+Peak of the median ΔT(ssp534-over − ssp126), both peaking in **2059**: **MAGICC +0.659 K** against
+**FaIR native +0.308 K**. This is a CLIMATE-MODEL difference, not a scenario-definition or
+pair-construction one — our idealised `ssp534overMATCH` (+0.303 K median / +0.311 K mean) is in
+family with FaIR's own native pair. The two pairs **agree after convergence** (MAGICC +0.044 K
+@2150, ours +0.035 K) and differ only at the peak, so the penalty difference is about how much
+irreversible commitment is banked during the overshoot. **[GATE-SLEIP]** MAGICC-SLR's own penalty
+on its own climate reproduces at **12.75 cm paired median / 14.28 difference-of-medians @2300**,
+inside SLEIP's stated 8–29 cm band — so the pipeline reproduces a SLEIP-plotted number and the
+Ladrillo/BRICK 2.2–2.6 cm is not an extraction artifact. MAGICC's penalty is **86 % AIS+GIS**
+(7.37 + 3.55 cm), and its AIS penalty at 2100 is **178 % of its own SSP1-2.6 AIS level** — a
+threshold signature our shallow pair never triggers. ⚠ Depth is 2.1× while the penalty gap is
+4–6×, so depth alone does not close it arithmetically; separating depth from module needs Ladrillo
+run on MAGICC's own ssp534-over/ssp126 climate (§7 item 5).
 
 ⭐ **Antarctica carries this.** The AIS penalty @2300 goes **+0.003 → +0.630 cm** (Ladrillo) and
 **+0.174 → +0.793** (BRICK 2.0) between the native and matched pairs — the largest non-TE share in
@@ -413,11 +434,15 @@ prints the gap against the shipped cell at import.
    β_f riding a ridge with `f`?
 3. **Next calibration** — collects (2) and an explicit discrepancy term for the noise model into
    ONE spec, rather than changes that each invalidate the last.
-4. ⭐ **Which statistic is SLEIP's 0.1–0.3 m?** One fact, and it decides whether our overshoot
-   penalty disagrees with theirs at all (§4). Highest-value open item in this file.
-5. ⭐ **How deep is the real SSP5-3.4-OS overshoot?** Ours has a peak excess of only **+0.311 K**
-   over SSP1-2.6. If the published pair is nearer 0.5–0.6 K, much of any residual gap is scenario
-   depth rather than model physics.
+4. ✅ **ANSWERED 2026-09-04 — SLEIP's 0.1–0.3 m is a MEDIAN** (Fig. 8H caption), so the gap is
+   real, not a statistic mismatch. See §4. Do not re-derive.
+5. ⭐ **ANSWERED IN PART, AND NOW THE LIVE ONE.** The real pair's depth is measured: **MAGICC
+   +0.659 K peak vs FaIR +0.308 K on the same scenario pair** — 2.1×, a climate-model difference
+   (§4). What is NOT yet separated is depth from module: the decisive run is **Ladrillo and BRICK
+   2.0 driven on MAGICC's own ssp534-over/ssp126 climate**, which makes depth identical and leaves
+   only the modules. `python/scope_ladrillo_on_magicc_climate.py` already has the decomposition;
+   it needs the two MAGICC-climate arms built (the reverse direction stays IMPOSSIBLE — MAGICC-SLR
+   cannot consume FaIR's GMST).
 
 Also owed: ν sensitivity once; a refit with the four glacier set-asides at prior centres; and a
 decision on whether the current state gets a `2.0` tag.

@@ -1,3 +1,48 @@
+## 2026-09-04c — SLEIP's penalty is a MEDIAN, and MAGICC's overshoot is 2.1× deeper than FaIR's
+
+The SLEIP Phase 1 preprint (egusphere-2026-3874) arrived on the machine, so both of §7's starred
+open items were answerable off the paper plus one new run.
+
+**Item 4 ANSWERED, against us.** Fig. 8H: the penalty is "the median total SLR difference between
+SSP5-3.4-OS and SSP1-2.6"; Fig. 8B draws it as the gap between median lines. Not a mean, not a
+p-box. §4.4 gives 8 cm (FACTS_1f) to 29 cm (FACTS_3f), BRICK largest at 34 % of the SSP1-2.6 2300
+total. ⇒ **The mean-vs-median rescue is dead.** Our BRICK 2.0 gives 2.57 cm paired median / 5.66
+difference-of-medians against their BRICK's ~29–30 cm: 5–11× on the same model family.
+
+**Item 5 ANSWERED in part** — new `python/diag_magicc_overshoot_depth.py`, writing
+`outputs/diag_magicc_overshoot_depth.csv`. The repo's canonical MAGICC extractor
+(`extract_magicc_components.py`) omits `ssp534-over` from its SSPS list, so the overshoot scenario
+had never been pulled from the 600-member drawnset despite living in the same file.
+
+- **Depth: MAGICC +0.659 K vs FaIR +0.308 K**, peak of the median ΔT(ssp534-over − ssp126), both
+  peaking in **2059**. A CLIMATE-MODEL difference on an identical scenario pair, not a
+  pair-construction artifact — our idealised `ssp534overMATCH` (+0.303 K median, +0.311 K mean) is
+  in family with FaIR's own native pair. Confirms the note's +0.311 K and pins its provenance: it
+  is the peak of the **mean**, against the **nomarker** reference arm.
+- The two pairs **agree after convergence** (MAGICC +0.044 K @2150 vs ours +0.035 K) and separate
+  only at the peak.
+- **[GATE-SLEIP] passed**: MAGICC-SLR's own penalty reproduces at **12.75 cm paired median /
+  14.28 difference-of-medians @2300**, inside SLEIP's stated 8–29 cm band. So the pipeline
+  reproduces a SLEIP-plotted number, and Ladrillo/BRICK's 2.2–2.6 cm is not an extraction bug.
+  ⚠ A RANGE check against a published band, not a point identity — their drawnset and LWS handling
+  differ from ours.
+- MAGICC's penalty is **86 % AIS+GIS** (7.37 + 3.55 cm of 12.75) and its AIS penalty at 2100 is
+  **178 % of its own SSP1-2.6 AIS level** — a threshold signature. Ours is spread thinly across
+  te/ais/glaciers/gis (0.73/0.63/0.42/0.28).
+
+**NOT closed, and stated rather than rationalised:** depth is 2.1× while the penalty gap is 4–6×,
+so depth does not close it arithmetically on its own. The decisive experiment is Ladrillo + BRICK
+2.0 driven on MAGICC's own ssp534-over/ssp126 climate, which equalises depth and leaves only the
+modules; `scope_ladrillo_on_magicc_climate.py` already carries the decomposition and needs the two
+arms built. The reverse direction remains IMPOSSIBLE (MAGICC-SLR cannot consume FaIR's GMST).
+
+**Tried and rejected on the way:** reading the matched pair against `ssp126_raw`. It gives +0.264 K
+peak and −0.009/−0.033 K post-convergence, reproducing neither the note's +0.311 K nor its positive
+residual. The committed arm is `ssp534overMATCH` vs **`ssp126_nomarker`**; all six arm/reference
+combinations were tabulated rather than assumed, because three of them are plausible-looking and
+only one is the one the penalty was measured on.
+
+
 ## 2026-09-04b — the re-run at 1 GtCO2 / 0.01 GtCH4: a biased median traded for an under-powered mean
 
 Stages 1-3 re-run at the revised spec. 56 FaIR cubes, 14 Ladrillo cells, 14 BRICK 2.0 cells,
