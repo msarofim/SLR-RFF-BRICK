@@ -390,6 +390,69 @@ else
     push_g!("TAP-CROSSING", "n_draws_crossing", 0, true)
 end
 
+## ---------------------------------------------------------------------------
+## [AIS-CROSSING] THE COUNTERPART [TAP-CROSSING] IS BLIND TO, and it is the bigger one.
+##
+## [TAP-CROSSING] above watches GREENLAND: 6 draws on vvM/CH4, 2 on vvHL, ZERO on vvH. The
+## ANTARCTIC threshold in the same runs moves 185 of 2000 draws past 1 cm on vvVL/CH4 with
+## a maximum of 67.3 cm, of which gis is 0.17 cm. One threshold gate that watches the small
+## threshold reads exactly like a model with no threshold problem
+## (`two_statistics_can_be_blind`). Measured 2026-09-03; `diag_ais_crossing_pulse_vv.jl` is
+## the standalone version and this is its inline sibling.
+##
+## DAIS fires on a HARD ANNUAL STEP (antarctic_icesheet_magdep_component.jl:241) at the full
+## rate regardless of how far above. In Ladrillo the map is closed form --
+## ais_temperature_coefficient = 1/amp, ais_temperature_intercept = -TANT0/amp, and the
+## component reads GMST[t-1] -- so T_ant[t] = amp*GMST[t-1] + TANT0 needs no model run.
+##
+## Three channels: SMOOTH (same integer year count in both arms), QUANTIZATION (crosses in
+## both, count differs) and BIFURCATION (never at baseline, crosses under the pulse).
+## `int_over_cont` is the one that decides whether the mean is usable: integer years charged
+## against the continuous measure of {t : T_ant(t) > thr}. ~1 means the annual step is an
+## UNBIASED randomisation and the mean is a sample-size question; away from 1 means it
+## biases the expectation and no ensemble size fixes it. Measured 0.917-1.039 over 42 cells.
+AIS_FIRED = Dict{Int, Vector{Bool}}()
+let TANT0 = LADRILLO_AIS_TANT0
+    amp = [Float64(r["ais_gmst_amp"]) for r in ROWS]
+    thr = [Float64(r["antarctic_temp_threshold"]) for r in ROWS]
+    tant(a, k) = let g = gmst_of(a, CFG_OF_DRAW[k])
+        T = Vector{Float64}(undef, length(YEARS)); T[1] = -Inf
+        @inbounds for t in 2:length(YEARS); T[t] = amp[k] * g[t - 1] + TANT0; end; T
+    end
+    nyr(T, t0, iH) = count(>(t0), @view T[2:iH])
+    ## the continuous measure -- NOT the first-crossing advance. On a peak-and-decline
+    ## marker the pulse buys time at BOTH ends of the window, so the entry-side advance
+    ## understates it ~2x and over-attributes the rest to discretization.
+    function tabove(T, t0, iH)
+        sacc = 0.0
+        @inbounds for t in 3:iH
+            a, b = T[t - 1], T[t]
+            if a > t0 && b > t0;        sacc += 1.0
+            elseif a <= t0 && b > t0;   sacc += (b - t0) / (b - a)
+            elseif a > t0 && b <= t0;   sacc += (a - t0) / (a - b)
+            end
+        end
+        sacc
+    end
+    TB = [tant("base", k) for k in 1:NDRAW]; TP = [tant("pulse", k) for k in 1:NDRAW]
+    for H in HORIZONS
+        iH = yidx(H)
+        nb = [nyr(TB[k], thr[k], iH) for k in 1:NDRAW]; np = [nyr(TP[k], thr[k], iH) for k in 1:NDRAW]
+        sb = [tabove(TB[k], thr[k], iH) for k in 1:NDRAW]; sp = [tabove(TP[k], thr[k], iH) for k in 1:NDRAW]
+        bif = [nb[k] == 0 && np[k] > 0 for k in 1:NDRAW]
+        fired = [nb[k] != np[k] for k in 1:NDRAW]
+        pf = count(fired) / NDRAW
+        mdn = mean(Float64.(np .- nb)); mds = mean(sp .- sb)
+        @printf("  [AIS-CROSSING] %d: fired %d/%d (%.2f%%)  bifurcation %d  int/cont %.4f\n",
+                H, count(fired), NDRAW, 100pf, count(bif), mds == 0 ? NaN : mdn / mds)
+        push_g!("AIS-CROSSING", "n_fired_$(H)", count(fired), true)
+        push_g!("AIS-CROSSING", "n_bifurcation_$(H)", count(bif), true)
+        push_g!("AIS-CROSSING", "p_fired_$(H)", pf, true)
+        push_g!("AIS-CROSSING", "int_over_cont_$(H)", mds == 0 ? NaN : mdn / mds, true)
+        AIS_FIRED[H] = fired
+    end
+end
+
 ## [MAGNITUDE] REPORTED, NOT GATED, and the reason is `threshold_from_obs_or_law`: the only
 ## comparator on the shelf is the old FACTS proof-of-concept, which is a DIFFERENT MODEL on
 ## a DIFFERENT CALIBRATION (FaIR->BRICK 5.08e-3 cm/GtCO2 @2100, MAGICC-native 1.54e-2, both
@@ -422,7 +485,8 @@ cells = DataFrame(marker = String[], specie = String[], pulse_Gt = Float64[],
                   base_med_cm = Float64[], pulse_med_cm = Float64[],
                   paired_med_cm = Float64[], diff_of_med_cm = Float64[],
                   paired_mean_cm = Float64[], paired_p05_cm = Float64[], paired_p95_cm = Float64[],
-                  per_unit_cm = Float64[])
+                  per_unit_cm = Float64[], se_mean_cm = Float64[], p_fired = Float64[],
+                  smooth_term_cm = Float64[], premium_cm = Float64[])
 @printf("\n%s\nPULSE RESPONSE -- vv%s, %.0f %s at %d, cm rel %d-%d%s\n%s\n",
         repeat("=", 92), MARKER, SPEC.pulse_Gt, SPEC.unit, PULSE_YEAR,
         LADRILLO_REF[1], LADRILLO_REF[2], TAP_ON ? ", TAPPED" : ", untapped", repeat("=", 92))
@@ -432,10 +496,20 @@ for c in COMPONENTS
     for H in HORIZONS
         i = yidx(H)
         b, p, d = RES["base"][c][:, i], RES["pulse"][c][:, i], DIFF[c][:, i]
+        ## ⭐ THE LEMOINE-TRAEGER PAIR, reported as TWO terms and never as the sum alone.
+        ## E[d] = P(smooth)*E[d|smooth] + P(fired)*E[d|fired]. The premium is 67-97% of
+        ## E[dAIS] here, so a median headline deletes ~90% of the expected AIS response --
+        ## the median is the right CENTRAL statistic and the wrong EXPECTATION, and an
+        ## SC-GHG-style number wants the expectation (mimibrick-quirks #11, METHODS 3.5).
+        ## `se_mean_cm` travels beside it because the mean is UNBIASED but under-sampled:
+        ## the threshold makes it a Monte Carlo problem, not a broken quantity.
+        fired = AIS_FIRED[H]; sm = .!fired; pf = count(fired) / NDRAW
+        e_sm = any(sm) ? mean(d[sm]) : 0.0; e_fi = any(fired) ? mean(d[fired]) : 0.0
         push!(cells, (MARKER, SPECIE, SPEC.pulse_Gt, String(c), H, NDRAW,
                       median(b), median(p), median(d), median(p) - median(b),
                       mean(d), quantile(d, 0.05), quantile(d, 0.95),
-                      median(d) / SPEC.pulse_Gt))
+                      median(d) / SPEC.pulse_Gt, std(d) / sqrt(NDRAW), pf,
+                      (1 - pf) * e_sm, pf * e_fi))
         @printf("  %-9s %-6d %10.3f %12.5f %12.5f %12.5f %12.5f\n",
                 c, H, median(b), median(d), median(p) - median(b),
                 quantile(d, 0.05), quantile(d, 0.95))
@@ -457,12 +531,19 @@ end
 
 ## the response PATH -- when the pulse's sea-level signal actually arrives, which is the
 ## question a 2100/2150/2300 table cannot answer
+## ⚠ THE MEAN TRAVELS WITH THE MEDIAN. Until 2026-09-03 this file carried median/p05/p95
+## only, so the figures -- which read `paths` -- could not draw the expectation at all, and
+## the tipping premium (67-97% of E[dAIS]) was invisible in every plot. The mean is the
+## statistic the threshold owns; leaving it out of the only per-year output is how a
+## threshold channel goes unreported without anyone deciding to omit it.
 paths = DataFrame(year = Int[], component = String[], med_diff_cm = Float64[],
+                  mean_diff_cm = Float64[], se_mean_cm = Float64[],
                   p05_diff_cm = Float64[], p95_diff_cm = Float64[])
 for c in COMPONENTS, (i, y) in enumerate(YEARS)
     y < PULSE_YEAR - 5 && continue
     v = DIFF[c][:, i]
-    push!(paths, (y, String(c), median(v), quantile(v, 0.05), quantile(v, 0.95)))
+    push!(paths, (y, String(c), median(v), mean(v), std(v) / sqrt(NDRAW),
+                  quantile(v, 0.05), quantile(v, 0.95)))
 end
 CSV.write(joinpath(REPO, "outputs", "pulse_ladrillo_paths_$(OUTSTEM).csv"), paths)
 @printf("\nwrote outputs/pulse_ladrillo_{cells,draws,paths,gates}_%s.csv\n", OUTSTEM)
