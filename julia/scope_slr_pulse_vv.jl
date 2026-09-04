@@ -412,6 +412,7 @@ end
 ## UNBIASED randomisation and the mean is a sample-size question; away from 1 means it
 ## biases the expectation and no ensemble size fixes it. Measured 0.917-1.039 over 42 cells.
 AIS_FIRED = Dict{Int, Vector{Bool}}()
+AIS_PFULL = Dict{Int, Float64}()
 let TANT0 = LADRILLO_AIS_TANT0
     amp = [Float64(r["ais_gmst_amp"]) for r in ROWS]
     thr = [Float64(r["antarctic_temp_threshold"]) for r in ROWS]
@@ -435,6 +436,34 @@ let TANT0 = LADRILLO_AIS_TANT0
         sacc
     end
     TB = [tant("base", k) for k in 1:NDRAW]; TP = [tant("pulse", k) for k in 1:NDRAW]
+
+    ## ⭐ P(fired) RAO-BLACKWELLISED OVER THE FULL CROSS-PRODUCT, FOR FREE.
+    ## MEASURED 2026-09-03: a median 53% (range 23-75%) of the AIS mean's Monte Carlo
+    ## variance is carried by P(fired) ALONE, not by the conditional means. And P(fired)
+    ## needs no model run at all -- amp > 0, so
+    ##     T_ant[t] > thr   <=>   GMST[t-1] > (thr - TANT0)/amp
+    ## turns the whole classification into a threshold on the CONFIG'S OWN GMST, one
+    ## `gcrit` per draw. Sorting each config's window once makes the year count a binary
+    ## search, so P can be evaluated on all NDRAW x NCFG pairings -- 841x the sample the
+    ## paired run sees -- in seconds. That removes ~half the variance of E[dAIS] at zero
+    ## compute, which is worth more than the same money spent on extra model runs.
+    ## ⚠ Valid ONLY because the draw->config permutation is UNIFORM over configs, so the
+    ## paired sample is an unbiased sample of the very cross-product P is computed on.
+    gcrit = [(thr[k] - TANT0) / amp[k] for k in 1:NDRAW]
+    GS = Dict(a => Dict(c => gmst_of(a, c) for c in CFG) for a in ARMS)
+    nabove(sorted, g0) = length(sorted) - searchsortedlast(sorted, g0)
+    P_FULL = Dict{Int, Float64}()
+    for H in HORIZONS
+        iH = yidx(H)
+        sb = Dict(c => sort(GS["base"][c][1:(iH - 1)]) for c in CFG)
+        sp = Dict(c => sort(GS["pulse"][c][1:(iH - 1)]) for c in CFG)
+        nfire = 0
+        for c in CFG, k in 1:NDRAW
+            nabove(sb[c], gcrit[k]) != nabove(sp[c], gcrit[k]) && (nfire += 1)
+        end
+        P_FULL[H] = nfire / (length(CFG) * NDRAW)
+    end
+
     for H in HORIZONS
         iH = yidx(H)
         nb = [nyr(TB[k], thr[k], iH) for k in 1:NDRAW]; np = [nyr(TP[k], thr[k], iH) for k in 1:NDRAW]
@@ -449,7 +478,19 @@ let TANT0 = LADRILLO_AIS_TANT0
         push_g!("AIS-CROSSING", "n_bifurcation_$(H)", count(bif), true)
         push_g!("AIS-CROSSING", "p_fired_$(H)", pf, true)
         push_g!("AIS-CROSSING", "int_over_cont_$(H)", mds == 0 ? NaN : mdn / mds, true)
+        ## [P-FIRED-CONSISTENT] an ORDERING between two MEASURED quantities, not a chosen
+        ## tolerance (`threshold_from_obs_or_law`): the paired sample's P must sit within
+        ## 3 of its OWN binomial standard errors of the exact cross-product value. It is a
+        ## check on the PAIRING, since a mis-permuted draw->config map would bias the
+        ## paired P while leaving the exact one untouched.
+        let se = sqrt(max(P_FULL[H] * (1 - P_FULL[H]), eps()) / NDRAW), z = abs(pf - P_FULL[H]) / se
+            @printf("      P(fired) paired %.4f  vs exact %.4f over %d pairings  z=%.2f  %s\n",
+                    pf, P_FULL[H], length(CFG) * NDRAW, z, z <= 3 ? "PASS" : "FAIL")
+            push_g!("P-FIRED-CONSISTENT", "p_fired_exact_$(H)", P_FULL[H], z <= 3)
+            push_g!("P-FIRED-CONSISTENT", "z_$(H)", z, z <= 3)
+        end
         AIS_FIRED[H] = fired
+        AIS_PFULL[H] = P_FULL[H]
     end
 end
 
@@ -503,7 +544,9 @@ for c in COMPONENTS
         ## SC-GHG-style number wants the expectation (mimibrick-quirks #11, METHODS 3.5).
         ## `se_mean_cm` travels beside it because the mean is UNBIASED but under-sampled:
         ## the threshold makes it a Monte Carlo problem, not a broken quantity.
-        fired = AIS_FIRED[H]; sm = .!fired; pf = count(fired) / NDRAW
+        ## P comes from the EXACT cross-product, the conditional means from the paired
+        ## sample -- the Rao-Blackwellised estimator, ~half the variance for no compute.
+        fired = AIS_FIRED[H]; sm = .!fired; pf = AIS_PFULL[H]
         e_sm = any(sm) ? mean(d[sm]) : 0.0; e_fi = any(fired) ? mean(d[fired]) : 0.0
         push!(cells, (MARKER, SPECIE, SPEC.pulse_Gt, String(c), H, NDRAW,
                       median(b), median(p), median(d), median(p) - median(b),
