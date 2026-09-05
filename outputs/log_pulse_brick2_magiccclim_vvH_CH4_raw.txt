@@ -1,0 +1,82 @@
+  ** --pulse-size 0.01 -> size tag 0p01Gt, divisor 0.01 GtCH4 **
+BRICK 2.0 PULSE ARM | marker vvH | CH4 pulse 0 GtCH4 at 2030 | tag B20
+  sea level: MimiBRICK v2.0.0 (`precip_log` shim), published posterior subsample
+  climate:   MAGICC-SLR's own 600-member AR6 drawnset, PAIRED base/pulse, forcing=raw
+  ⚠ MAGICC CLIMATE ARM -- the module axis is held, the climate axis moves.
+[CLIMATE-SOURCE] 600 members x 2 arms, max |mean GMST 1850-1900| = 6.204e-17 degC (tol 1e-09)  PASS
+  [CUBE-PREPULSE] the arms' drivers first differ at 2031 over all 600 configs
+                  => identity horizon DERIVED = 2030 (no smoother in BRICK 2.0, so it
+                     must reach the pulse year 2030; stage 2's 2014 bound is Ladrillo's
+                     30-yr shape window and does NOT transfer here)
+  posterior: 2000 draws (every 5 of 10000 rows) x 600 MAGICC members
+  AIS map (read off the build): T_ant[t] = (GMST[t-1] - 15.4200) / 0.8365  -- slope FIXED,
+            not sampled; Ladrillo frees the same slope as `ais_gmst_amp`.
+
+  2000 draws over 600 configs; running BOTH arms per config ...
+    100/600 configs  (0.1 min)
+    200/600 configs  (0.1 min)
+    300/600 configs  (0.2 min)
+    400/600 configs  (0.2 min)
+    500/600 configs  (0.3 min)
+    600/600 configs  (0.4 min)
+    done, 0.4 min
+
+============================================================================================
+GATES
+============================================================================================
+  [AIS-MAP-EXACT] max |model T_ant - closed form| = 0.000e+00 degC (bound EXACT 0)  PASS
+                  also confirms the GMST[t-1] LAG: a GMST[t] form would fail here.
+  [PRE-PULSE-ZERO] max |pulse - base| over 1850-2030 = 0.000e+00 cm, all 6 components (bound EXACT 0)  PASS
+  [LWS-EXACT-ZERO] max |pulse - base| over ALL years = 0.000e+00 cm (bound EXACT 0)  PASS
+  [DRAW-PAIRING] 0/2000 draws saw a different CONFIG across arms, 0 a different DRAW ROW  PASS
+  [PAIRING] 600 of 600 configs used, each 3-4 times (seed 2026), ONE assignment for both arms
+            median dGMST@2300 bias vs whole cube = 0.0018 degC (tol 0.1)  PASS
+  [SUM] max |sum(parts) - total| in the DIFFERENCE = 2.558e-13 cm (tol 1e-06)  PASS
+  [SIGN] 2100: median +0.00216 cm, 0.00% of draws negative  PASS
+  [SIGN] 2150: median +0.00190 cm, 0.00% of draws negative  PASS
+  [SIGN] 2300: median +0.00165 cm, 0.15% of draws negative  PASS
+  [TAP-CROSSING] NO COUNTERPART -- BRICK 2.0 has no Greenland tap mechanism.
+                 Not a measured zero. Say this in any caption that puts the two arms
+                 side by side (Marcus's tap ruling, 2026-09-03).
+  [AIS-CROSSING] 2100: fired 12/2000 (0.60%)  bifurcation 0  int/cont 0.7849
+      P(fired) paired 0.0060  vs exact 0.0077 over 1200000 pairings  z=0.86  PASS
+  [AIS-CROSSING] 2150: fired 12/2000 (0.60%)  bifurcation 0  int/cont 0.7761
+      P(fired) paired 0.0060  vs exact 0.0078 over 1200000 pairings  z=0.90  PASS
+  [AIS-CROSSING] 2300: fired 12/2000 (0.60%)  bifurcation 0  int/cont 0.7757
+      P(fired) paired 0.0060  vs exact 0.0078 over 1200000 pairings  z=0.90  PASS
+  [MAGNITUDE] 2100: 2.1551e-01 cm per GtCH4 (median)  -- REPORTED, not gated
+              context: stage 2 Ladrillo L24 tapped, and the FACTS PoC FaIR->BRICK
+              5.08e-03 cm/GtCO2 @2100 (OLD model AND pre-1.6.0 calibration).
+              ⚠ CH4 DOUBLING RATIO 2.0004 (FaIR stage): the pulse is SUPERLINEAR.
+                Quote this ratio beside any per-tonne CH4 marginal.
+
+============================================================================================
+BRICK 2.0 PULSE RESPONSE -- vvH, 0 GtCH4 at 2030, cm rel 1995-2014
+============================================================================================
+  comp      horiz    base med   paired med  diff of med   paired p05   paired p95
+  glaciers  2100       14.285      0.00078      0.00074      0.00054      0.00108
+  glaciers  2150       23.192      0.00056      0.00057      0.00029      0.00083
+  glaciers  2300       34.068      0.00002      0.00000      0.00000      0.00018
+
+  gis       2100        7.402      0.00028      0.00034      0.00006      0.00079
+  gis       2150       13.017      0.00032      0.00034      0.00007      0.00088
+  gis       2300       33.423      0.00035      0.00039      0.00008      0.00095
+
+  ais       2100       37.063      0.00005      0.03273     -0.00039      0.00104
+  ais       2150       86.332      0.00014      0.00003     -0.00041      0.00158
+  ais       2300      249.735      0.00045      0.00033     -0.00038      0.00362
+
+  te        2100       16.840      0.00096      0.00087      0.00046      0.00178
+  te        2150       29.776      0.00082      0.00088      0.00038      0.00161
+  te        2300       66.216      0.00069      0.00064      0.00032      0.00133
+
+  lws       2100        2.343      0.00000      0.00000      0.00000      0.00000
+  lws       2150        4.043      0.00000      0.00000      0.00000      0.00000
+  lws       2300        8.897      0.00000      0.00000      0.00000      0.00000
+
+  total     2100       80.074      0.00216      0.00224      0.00125      0.00388
+  total     2150      159.328      0.00190      0.00167      0.00100      0.00398
+  total     2300      398.631      0.00165      0.00110      0.00054      0.00547
+
+
+wrote outputs/pulse_brick2_{cells,draws,paths,gates}_vvH_CH4_0p01Gt_2030_raw_B20_magiccclim.csv
