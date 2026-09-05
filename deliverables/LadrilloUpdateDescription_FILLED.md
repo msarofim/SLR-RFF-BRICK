@@ -1,16 +1,18 @@
-# Ladrillo (L24)
+# Ladrillo Sea Level Rise Emulator
 
 Ladrillo is a derivative of Tony Wong's BRICK2.0 model. Ladrillo was developed by Marcus C Sarofim using the Claude model. The primary goals for Ladrillo were to add additional observational data, update the glacier module to better match observations and to halt melting for stabilization scenarios, update the Antarctic calibration approach to better match observations prior to 1980, and update the Greenland model to incorporate the different responses of surface melt balance and ice discharge.
 
-Ladrillo compares well relative to the other models and sits in a unique space. Unlike MAGICC, Ladrillo is designed to work with the FaIR model. Unlike FACTS, Ladrillo has a simplified structure. Ladrillo does a good job matching historical observations, with the primary weakness being thermal expansion, though that is inherited from FaIR and does not appear when running with OHC from observation. For future projections, Ladrillo matches physical expectations and is comparable to the other models despite different structural approaches.
+Ladrillo compares well relative to the other models and sits in a unique space. Unlike MAGICC, Ladrillo is designed to work with the FaIR model. Unlike FACTS, Ladrillo has a simplified structure. Ladrillo does a good job matching historical observations, with the primary weakness being thermal expansion, though that is inherited from FaIR and does not appear when running with OHC from observation. For future projections, Ladrillo matches physical expectations and is comparable to the other models despite different structural approaches. BRICK's design philosophy is to calibrate on historical data products rather than to emulate projections from process-based models, which is what makes it a line of evidence relatively independent of the large Earth system and ice sheet models. Ladrillo extends that philosophy where the data reach — the Antarctic likelihood now runs from 1900 rather than IMBIE's 1992–2017 window, and Dangendorf, GlaMBIE, GRACE and Mouginot are added — but departs from it for the two parameters described below, both in regimes no observation constrains. Ladrillo is also less independent of MAGICC on glaciers than BRICK 2.0 is, having adopted the Nauels 2017 transient.
 
-> **Vintage.** This document describes posterior **L24**. Basis for every number below: **cm, re-referenced to 1995–2014**.
+Ladrillo does include a couple of parameters that are not constrained by observations. A Greenland tap triggers above a threshold temperature and is informed by SICOPOLIS. Local temperature amplification relative to global is informed by CMIP6 in addition to historic observations, and is relevant for Antarctic melt.
+
+> **Vintage.** This document describes posterior L24. Basis for every number below: cm, re-referenced to 1995–2014.
 
 ## Ladrillo Structural Updates
 
 ### GSIC
 
-BRICK 2.0's glacier model uses a Wigley-Raper equation that is always melting when above its equilibrium temperature. Ladrillo replaces it with a **Mengel-style equilibrium volume** `S_eq` **driven by a Nauels-ν transient**, which separates *how much* ice is committed at a given warming from *how fast* it gets there, and splits the world into three reservoirs on regional temperature.
+BRICK 2.0's glacier model uses a Wigley-Raper equation that is always melting when above its equilibrium temperature. Ladrillo replaces it with a Mengel-style equilibrium volume `S_eq` driven by a Nauels-ν transient, which separates *how much* ice is committed at a given warming from *how fast* it gets there, and splits the world into three reservoirs on regional temperature.
 
 **SLOWP — RGI regions 03, 09, 07, 06** (Arctic Canada North, Russian Arctic, Svalbard, Iceland). Large, high-latitude, long relaxation time, and strongly amplified relative to global mean temperature (prior 2.50). This block dominates the glacier contribution in both the hindcast and the projections.
 
@@ -29,11 +31,11 @@ BRICK 2.0's glacier model uses a Wigley-Raper equation that is always melting wh
 
 ### Greenland
 
-BRICK 2.0 treats Greenland as **one body with one response channel**. Ladrillo replaces that with a **two-channel, two-basin sheet**.
+BRICK 2.0 treats Greenland as one body with one response channel. Ladrillo replaces that with a two-channel, two-basin sheet.
 
 **Two channels (fast / slow).** Greenland melt occurs through surface-mass-balance response (fast) and outlet/dynamic discharge (slow). Two channels allow for that partition. "Fast" names which physics the channel carries, not a short time constant — the surface-mass-balance channel drains a multi-millennial commitment, and at the optimum its response time is 86 years.
 
-**Two basins.** The sheet is split into an **active** basin (SW+CW+CE+SE+NW) and a **high** basin (NO+NE), each carrying its own fast/slow channel pair, with sector shares scored against Mouginot.
+**Two basins.** The sheet is split into an active basin (SW+CW+CE+SE+NW) and a high basin (NO+NE), each carrying its own fast/slow channel pair, with sector shares scored against Mouginot.
 
 **Amplification.** The ratio of Greenland warming to global warming is itself a function of temperature.
 
@@ -48,7 +50,7 @@ Additional or replaced observational inputs, relative to BRICK 2.0:
 | data source | what it constrains |
 |----|----|
 | **Dangendorf 2024** GMSL | The total, replacing the previous GMSL reconstruction. |
-| **GlaMBIE** glacier series (2019 onward) | The modern glacier rate, spliced onto Frederikse. It **includes** Antarctic-periphery melt where Frederikse excludes it, which is why R19 is a separate block. |
+| **GlaMBIE** glacier series (2019 onward) | The modern glacier rate, spliced onto Frederikse. It includes Antarctic-periphery melt where Frederikse excludes it, which is why R19 is a separate block. |
 | **JPL GRACE / GRACE-FO mascons** | Land-water storage 2019–2026, which had been held flat; the closure σ is trend-extended over the same period. |
 | **Mouginot** Greenland sector shares | The basin split, as a shares term rather than a level. |
 | **Rignot 2019** Antarctic SMB, area-corrected ×0.888 | The absolute Antarctic flux scale. SMB minus discharge is well constrained at −145 ± 15 Gt/yr but each flux individually has high uncertainty (±505/±509), so Rignot anchors the pair. |
@@ -66,11 +68,11 @@ Additional or replaced observational inputs, relative to BRICK 2.0:
 
 **58 parameters are sampled**: 17 Antarctic, 9 Greenland, 19 glacier, 13 remaining (thermal expansion, two discrepancy bases, and four AR(1) noise pairs). Four Antarctic changes distinguish Ladrillo's calibration from BRICK 2.0's — the three described below, plus an SMB likelihood term anchoring the Antarctic flux scale to Rignot 2019. They have not been ablated individually against the hindcast, so no single one is credited here.
 
-**The seven DAIS geometry parameters** (`ais_mu`, `ais_bedheight0`, `ais_slope`, `ais_iceflow0`, `ais_precip0_LOG`, `ais_runoff_Ton`, `ais_c`) are freed under a joint paleo prior. Ladrillo's pre-1990 Antarctic hindcast is far closer to the record than BRICK 2.0's — 1920–1949 bias −0.0096 cm against −1.9579 cm, and 1950–1992 +0.0027 cm against −0.7053 cm — though the freeing is not on its own established as the cause. BRICK 2.0 also samples its DAIS geometry; what differs is the constraint, since its Antarctic likelihood is IMBIE 1992–2017 while Ladrillo fits an Antarctic series from 1900, leaving BRICK 2.0's early record essentially unconstrained.
+**The seven DAIS geometry parameters** (`ais_mu`, `ais_bedheight0`, `ais_slope`, `ais_iceflow0`, `ais_precip0_LOG`, `ais_runoff_Ton`, `ais_c`) are freed under a joint paleo prior. Ladrillo's pre-1990 Antarctic hindcast is far closer to the record than BRICK 2.0's — 1920–1949 bias −0.0096 cm against −1.9579 cm, and 1950–1992 +0.0027 cm against −0.7053 cm. BRICK 2.0 also samples its DAIS geometry; a key difference is the constraint, since its Antarctic likelihood is IMBIE 1992–2017 while Ladrillo fits an Antarctic series from 1900.
 
 **The runoff line is sampled in its identified direction.** `h0` and `c` enter only as `hR = h0 + c·T_ant` with a correlation ridge. Ladrillo samples `T_on = −h0/c`, the runoff onset temperature, which is what the data constrain.
 
-**Antarctic amplification is a key parameter.** Stock DAIS hard-codes 1.196. Ladrillo samples it under N(1.09, 0.180), the measured CMIP6 between-model spread. The parameter is not constrained by observation — the posterior is very close to the prior — and its leverage is strongly scenario-dependent: across the posterior draws, a one-sigma change moves Antarctic sea level at 2300 by about 58 cm on SSP2-4.5 (roughly 23% of that scenario's total) but only about 24 cm on SSP5-8.5 (under 5%), because by SSP5-8.5 the Antarctic response is already past the thresholds that amplification would otherwise buy. These are regression slopes measured across the posterior draws, not one-at-a-time perturbations, so they carry the posterior's own parameter correlations.
+**Antarctic amplification is a key parameter.** Stock DAIS hard-codes 1.196. Ladrillo samples it under N(1.09, 0.180), the measured CMIP6 between-model spread. The parameter is not strongly constrained by observation and its leverage is strongly scenario-dependent: across the posterior draws, a one-sigma change moves Antarctic sea level at 2300 by about 58 cm on SSP2-4.5 (roughly 23% of that scenario's total) but only about 24 cm on SSP5-8.5 (under 5%), because by SSP5-8.5 the Antarctic response is already past the thresholds where amplification matters.
 
 **Criterion matching.** L24 is accepted under the deliverable criterion: 39 parameters pass. While 19 parameter marginals fail R̂ < 1.05, these primarily involve the Antarctic-geometry ridge and compensate for each other. Projected sea level converges (R̂ = 1.008 at 2100, 1.011 at 2150; with 1050 statistically independent draws in the final sample).
 
@@ -146,4 +148,4 @@ Comparing two sea-level models on different climate drivers confounds the module
 
 **Peak-and-decline scenarios.** The glacier change is evident here because it allows regrowth, though on Ladrillo's own FaIR climate that regrowth is very small: measured from each marker's peak to 2300, it reaches only 0.18 cm at vvLN and 0.13 cm at vvML, and is essentially nil on the other markers. The capacity is larger than the realised amount — driven instead by MAGICC's colder climate, the same module regrows 2.2 cm at vvLN — so what limits regrowth here is how far the scenario cools, not the module's willingness to regrow.
 
-**MAGICC regrows substantially more than Ladrillo, and about ¾ of that is model structure and ¼ the climate module.** Measured on realised regrowth (peak-to-2300) at vvLN, the marker where regrowth is largest: MAGICC regrows 8.59 cm against Ladrillo's 0.18 cm, and driving Ladrillo's unchanged module with MAGICC's own climate recovers 2.20 cm of that gap — leaving 76% to structure and 24% to the climate driver. Pooled across the five markers with a real gap the structure share is higher still, 87%. Comparing instead the two models’ equilibrium laws directly — both evaluated at MAGICC’s own temperature, so climate differences are removed — Ladrillo’s committed equilibrium regrowth is somewhat *less* than MAGICC’s on every marker where the comparison is possible (ratio 0.06–0.86 across three markers). At the two coldest markers no comparison can be made at all: MAGICC’s own tabulated equilibrium curve is undefined below the pre-industrial state, and both markers cool past that floor by 2300. So the gap to MAGICC is not purely a rate effect; the SLOWP and R19 regions’ long timescales (~275 yr, ~465 yr) compound a somewhat smaller equilibrium target, not offset it.
+**MAGICC regrows substantially more than Ladrillo.** About ¾ of the regrowth difference is model structure and ¼ the climate module**.** Measured on realised regrowth (peak-to-2300) at vvLN, the scenario where regrowth is largest: MAGICC regrows 8.59 cm against Ladrillo's 0.18 cm, and driving Ladrillo's module with MAGICC's own climate decreases the gap by 2.20 cm. When driving the two models with MAGICC’s own temperature, Ladrillo’s committed equilibrium regrowth is also somewhat less than MAGICC’s, but MAGICC reaches its regrowth limits in the two coldest van Vuuren scenarios. So while the gap with MAGICC is mainly a rate effect (the SLOWP and R19 regions have long timescales of ~275 yr and ~465 yr) this rate effect is compounded by an equilibrium effect.
