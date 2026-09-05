@@ -19,6 +19,14 @@
 ##     dGMST@2100 in roughly 3e-5 to 4e-4 degC; 1 GtCO2 and 0.01 GtCH4 sit inside it.
 ## Results carrying the OLD sizes keep the `10Gt`/`1Gt` tags and are not relabelled.
 ##
+## ⭐ `--climate=magicc` (2026-09-05) RUNS THE SAME UNCHANGED MimiBRICK v2.0.0 ON MAGICC-SLR'S
+## OWN PAIRED PULSE CLIMATE, so the module axis is held and only the climate axis moves. It is
+## the SECOND module on that contrast -- Ladrillo was the first (`scope_slr_pulse_vv.jl`,
+## 75e5f41, 25 % climate / 75 % module) -- and the discriminating one, because on the LEVEL
+## overshoot penalty the identical swap moved BRICK 4.6x onto MAGICC-SLR while moving Ladrillo
+## only 2.6x. Full rationale at the `CLIMATE` constant below. The default arm is `fair` and is
+## byte-for-byte the shipped stage 3.
+##
 ## ⚠ THIS ARM IS CORROBORATION, NOT INDEPENDENCE. Ladrillo descends from BRICK; the two share
 ## the DAIS structure, the Nauels glacier law's lineage and the same thermal-expansion form.
 ## What it isolates is the effect of Ladrillo's OWN changes (the freed `ais_gmst_amp`, the
@@ -118,6 +126,41 @@ const MUTATE = argval("--mutate=", "")
 MUTATE == "" || @printf("\n  ** MUTATION TEST ACTIVE: --mutate=%s -- OUTPUT IS DELIBERATELY WRONG **\n\n", MUTATE)
 const OUTSUF = OUTSUF_ARG * (MUTATE == "" ? "" : "_MUT$(uppercase(MUTATE))")
 
+## ---- --climate: WHOSE temperature drives BRICK 2.0 on this arm --------------------------
+##  `fair`   the shared FaIR 2.2.4 calib 1.6.0 cubes -- the default and every shipped arm.
+##  `magicc` MAGICC-SLR's own 600-member climate, PAIRED, from the same runs that produced
+##           the MAGICC pulse arm we compare against.
+## ⭐ WHY (Marcus, 2026-09-05, §8 item 5 of handoff_2026-09-04f). The Ladrillo counterpart of
+## this flag (`scope_slr_pulse_vv.jl --climate=magicc`, 75e5f41) split MAGICC's three-direction
+## scenario dependence into 25 % CLIMATE / 75 % MODULE -- but on ONE module. BRICK 2.0 is the
+## second module, and it is the DISCRIMINATING one: on the LEVEL overshoot penalty the same
+## climate swap moved BRICK 4.6x onto MAGICC-SLR within 9 % while moving Ladrillo only 2.6x
+## (SLR-RFF-BRICK 867641f). If BRICK's PULSE arm also closes on MAGICC's climate, the residual
+## is Ladrillo-specific; if it stays short like Ladrillo's, MAGICC's Antarctic pulse
+## sensitivity is the odd one out and `scenario_split_is_antarctic`'s open question sharpens to
+## a DAIS-parameterisation question. Either way the answer is a reading, not a story.
+## ⚠⚠ THE REVERSE ARM IS IMPOSSIBLE, not merely unbuilt (`runnable_is_not_undrivable`):
+## MAGICC-SLR lives inside MAGICC and consumes MAGICC's own climate module, so FaIR's GMST
+## cannot be injected into it. L-shaped design, not a 2x2.
+const CLIMATE = argval("--climate=", "fair")
+@assert CLIMATE in ("fair", "magicc") "--climate must be fair or magicc; got '$(CLIMATE)'"
+## THE FILENAME CARRIES THE CLIMATE, for the same reason it carries the forcing convention: a
+## MAGICC-climate run must not overwrite the FaIR-climate arm it is compared against. Empty on
+## the default arm, so every existing name and every existing consumer is untouched.
+## ⚠ `a_glob_is_not_a_model_key`: the table builder's `_B20_*` glob WILL match a
+## `..._magiccclim.csv`, exactly as `_L24_*` did. The tag exists so the two can be separated;
+## the consumer still has to name it, and `[ROWCOUNT]` is what catches it if it does not.
+const CLIM_TAG = CLIMATE == "fair" ? "" : "_magiccclim"
+## ⚠ MAGICC reports `Heat Content|Ocean` in ZJ = 1e21 J; BRICK wants 1e22 J. 0.1 because ZJ is
+## a DEFINITION -- never from a ratio: the MAGICC/FaIR OHC ratio drifts 11.3x -> 7.7x between
+## 2020 and 2300 (`magicc_ohc_zj_not_1e22j`), so a factor chosen to close the gap would be
+## closing a real model difference as well as the unit. Same constant, same reason, as
+## scope_slr_fair_uncertainty.jl and scope_slr_pulse_vv.jl.
+const ZJ_TO_1E22J = 0.1
+const MAGICC_WIDE = joinpath(homedir(), "Documents/2026/CodeProjects/FaIRtoFrEDI",
+                             "magicc_comparison/processed/vv_pulse_wide_20260904")
+const MAGICC_N = 600                       # the AR6 drawnset these runs used
+
 ## THE SEVEN MARKERS, in van Vuuren's own order. Named here so an unrecognised marker FAILS
 ## LOUDLY at argument parse rather than as a missing-file error minutes into setup.
 const MARKERS = ["VL", "L", "LN", "ML", "M", "HL", "H"]
@@ -181,29 +224,59 @@ const IREF = IB
 yidx(y) = findfirst(==(y), YEARS)
 reref(v) = 100 .* (v .- sum(v[IB]) / length(IB))    # m -> cm, rel 1995-2014
 
-cube(kind, arm) = joinpath(OBS,
-    "fair_cube_$(kind)_vv$(MARKER)_$(arm == "base" ? "pulsebase" : "pulse")_" *
-    "$(SPECIE)_$(SPEC.size_tag)_$(PULSE_YEAR)_raw.csv")
+cube(kind, arm) = CLIMATE == "fair" ?
+    joinpath(OBS,
+        "fair_cube_$(kind)_vv$(MARKER)_$(arm == "base" ? "pulsebase" : "pulse")_" *
+        "$(SPECIE)_$(SPEC.size_tag)_$(PULSE_YEAR)_raw.csv") :
+    joinpath(MAGICC_WIDE,
+        "magicc_$(kind)_vv$(MARKER)_$(arm == "base" ? "pulsebase" : "pulse")_" *
+        "$(SPECIE)_$(SPEC.size_tag)_$(PULSE_YEAR)_" *
+        "$(kind == "ohc" ? "wide_rel1850" : "wide").csv")
+## Both sources land in the SAME shape -- a (year x member) frame whose member columns share
+## one order -- so the splice, the pairing, the arms and every gate below are written once and
+## do not branch on the climate. MAGICC's files run 1750-2305 and are CUT here, deliberately
+## (`end_year_2300`), and its OHC is scaled from ZJ at read time.
+function read_climate(path, scale)
+    d = CSV.read(path, DataFrame)
+    yr = Int.(d.year)
+    idx = [findfirst(==(y), yr) for y in YEARS]
+    any(isnothing, idx) && error("$(basename(path)) does not cover $(Y0):$(Y1)")
+    out = DataFrame(year = YEARS)
+    for c in String.(propertynames(d))
+        startswith(c, "m") && c != "year" && (out[!, c] = Float64.(d[idx, c]) .* scale)
+    end
+    out
+end
 for k in ("gmst", "ohc"), a in ARMS
     isfile(cube(k, a)) || error("missing cube $(cube(k, a))\n  build it with " *
-        "FaIRtoFrEDI/scripts/build_fair_pulse_vv_v160.py --marker=$(MARKER) --specie=$(SPECIE)")
+        (CLIMATE == "fair" ?
+         "FaIRtoFrEDI/scripts/build_fair_pulse_vv_v160.py --marker=$(MARKER) --specie=$(SPECIE)" :
+         "FaIRtoFrEDI/magicc_comparison/build_magicc_pulse_wide_vv.py"))
 end
 
 const OUTSTEM = "vv$(MARKER)_$(SPECIE)_$(SPEC.size_tag)_$(PULSE_YEAR)_$(FORCING)_$(TAG)" *
-                "$(SMOKE ? "_SMOKE" : "")$(OUTSUF)"
+                "$(CLIM_TAG)$(SMOKE ? "_SMOKE" : "")$(OUTSUF)"
 
 @printf("BRICK 2.0 PULSE ARM | marker vv%s | %s pulse %.0f %s at %d | tag %s%s\n",
         MARKER, SPECIE, SPEC.pulse_Gt, SPEC.unit, PULSE_YEAR, TAG,
         SMOKE ? "  ** SMOKE (--maxrows=$(MAXROWS)) **" : "")
 @printf("  sea level: MimiBRICK v2.0.0 (`precip_log` shim), published posterior subsample\n")
-@printf("  climate:   FaIR 2.2.4 calib 1.6.0 + CMIP7, marker forcing volcanic_solar_%s.csv, forcing=%s\n",
-        MARKER, FORCING)
+## The LABEL derives from the flag rather than being hardcoded: a MAGICC-climate run that
+## announces "FaIR 2.2.4" is the labels-from-named-constants bug in its purest form.
+const CLIMATE_LABEL = Dict(
+    "fair"   => "FaIR 2.2.4 calib 1.6.0 + CMIP7, marker forcing volcanic_solar_$(MARKER).csv",
+    "magicc" => "MAGICC-SLR's own $(MAGICC_N)-member AR6 drawnset, PAIRED base/pulse")
+@printf("  climate:   %s, forcing=%s\n", CLIMATE_LABEL[CLIMATE], FORCING)
+CLIMATE == "magicc" && @printf("  ⚠ MAGICC CLIMATE ARM -- the module axis is held, the climate axis moves.\n")
 flush(stdout)
 
 ## ---- the paired climate cubes --------------------------------------------
-const CG = Dict(a => CSV.read(cube("gmst", a), DataFrame) for a in ARMS)
-const CO = Dict(a => CSV.read(cube("ohc",  a), DataFrame) for a in ARMS)
-const CFG = [c for c in String.(propertynames(CG["base"])) if startswith(c, "cfg_")]
+const CG = Dict(a => CLIMATE == "fair" ? CSV.read(cube("gmst", a), DataFrame) :
+                     read_climate(cube("gmst", a), 1.0) for a in ARMS)
+const CO = Dict(a => CLIMATE == "fair" ? CSV.read(cube("ohc",  a), DataFrame) :
+                     read_climate(cube("ohc",  a), ZJ_TO_1E22J) for a in ARMS)
+const MEMBER_PREFIX = CLIMATE == "fair" ? "cfg_" : "m"
+const CFG = [c for c in String.(propertynames(CG["base"])) if startswith(c, MEMBER_PREFIX)]
 const NCFG = length(CFG)
 for a in ARMS
     Int.(CG[a].year) == YEARS || error("$(basename(cube("gmst", a))) year axis is not $(Y0):$(Y1)")
@@ -214,8 +287,26 @@ end
 ## every difference was between two different climates. Equality of the ORDERED vectors is
 ## the check; `issetequal` would be blind to exactly the failure that matters.
 for a in ARMS, (k, D) in (("gmst", CG), ("ohc", CO))
-    cs = [c for c in String.(propertynames(D[a])) if startswith(c, "cfg_")]
+    cs = [c for c in String.(propertynames(D[a])) if startswith(c, MEMBER_PREFIX)]
     cs == CFG || error("[CUBE-ALIGN] $(k)/$(a) config ORDER differs from gmst/base")
+end
+
+## ---- [CLIMATE-SOURCE] the properties the MAGICC arm rests on, asserted not assumed -------
+## The member COUNT catches a truncated build; the ORDER equality above is what lets member j's
+## temperature be paired with member j's ocean heat; and the 1850-1900 mean being ~0 is the
+## FRAME check -- these files are written K rel 1850-1900, and a file still on MAGICC's native
+## 1750 zero would sail through every other gate here while putting the whole hindcast on the
+## wrong frame. Bound from the files' own written precision (full float repr, so the only error
+## is the mean of 51 rebaselined values), NOT picked: a 1750-frame file misses by ~0.1-0.3 K, so
+## this discriminates by EIGHT ORDERS OF MAGNITUDE. Ported verbatim from scope_slr_pulse_vv.jl.
+if CLIMATE == "magicc"
+    NCFG == MAGICC_N || error("[CLIMATE-SOURCE] $(NCFG) members, expected $(MAGICC_N)")
+    let ib = findall(y -> 1850 <= y <= 1900, YEARS)
+        w = maximum(abs(mean(Float64[CG[a][i, c] for i in ib])) for a in ARMS for c in CFG)
+        @printf("[CLIMATE-SOURCE] %d members x %d arms, max |mean GMST 1850-1900| = %.3e degC (tol 1e-09)  %s\n",
+                NCFG, length(ARMS), w, w <= 1e-9 ? "PASS" : "FAIL")
+        w <= 1e-9 || error("[CLIMATE-SOURCE] the GMST files are not on the 1850-1900 frame")
+    end
 end
 
 ## ONE mean driver, the marker's own, SHARED by both arms: the splice pivots on the 1995-2014
@@ -271,8 +362,13 @@ const STEPP = max(1, nrow(post) ÷ NDRAW_REQ)
 const ROWS  = SMOKE ? collect(1:STEPP:nrow(post))[1:min(MAXROWS, length(1:STEPP:nrow(post)))] :
                       collect(1:STEPP:nrow(post))
 const NDRAW = length(ROWS)
-@printf("  posterior: %d draws (every %d of %d rows) x %d FaIR configs\n",
-        NDRAW, STEPP, nrow(post), NCFG); flush(stdout)
+## ⚠ "FaIR configs" was HARDCODED here and is wrong on the MAGICC arm -- the same
+## labels-from-named-constants bug the CLIMATE_LABEL block above exists to prevent. The count
+## itself (841 vs 600) is what gives it away, which is exactly the kind of tell a reader should
+## not have to supply.
+const CFG_NOUN = CLIMATE == "fair" ? "FaIR configs" : "MAGICC members"
+@printf("  posterior: %d draws (every %d of %d rows) x %d %s\n",
+        NDRAW, STEPP, nrow(post), NCFG, CFG_NOUN); flush(stdout)
 
 ## ---- the pairing: ONE assignment, both arms ------------------------------
 const ASSIGN = let rng = MersenneTwister(PAIR_SEED)
