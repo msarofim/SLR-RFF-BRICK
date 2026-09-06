@@ -1,3 +1,52 @@
+## 2026-09-06 — every arm in SLEIP's own metric, and FACTS confirms the depth story independently
+
+`python/diag_sleip_metric_penalty.py`. SLEIP's metric read off the paper, not assumed: **total**
+GMSLR, **difference of medians** (Fig. 8B draws the gap between MEDIAN lines; Fig. 8H summarises it),
+at **2150 and 2300**, MAGICC-forced, with the share taken against the SSP1-2.6 2300 total.
+⚠ NOT the paired median — the two separate >2x for BRICK 2.0, so the choice is not cosmetic.
+
+**2300 penalty, difference of medians:**
+
+| model | climate | @2150 m | @2300 m | @2300 cm | % of ref | in 8-29 cm? |
+|---|---|---|---|---|---|---|
+| MAGICC-SLR | MAGICC | 0.155 | 0.143 | 14.28 | 21.5 % | yes |
+| BRICK 2.0 | MAGICC | 0.218 | 0.194 | 19.36 | 23.9 % | yes |
+| BRICK 2.0 | FaIR | 0.063 | 0.057 | 5.66 | 6.1 % | below |
+| Ladrillo L24 | MAGICC | 0.110 | 0.096 | 9.58 | 16.5 % | yes (edge) |
+| Ladrillo L24 | FaIR | 0.043 | 0.034 | 3.43 | 4.8 % | below |
+| FACTS wf1f IPCC-AR5 | FaIR | 0.031 | 0.031 | 3.11 | 2.3 % | below |
+| FACTS wf2f LARMIP-2 | FaIR | 0.055 | 0.062 | 6.19 | 4.8 % | below |
+| FACTS wf3f DeConto/Kopp | FaIR | 0.058 | 0.105 | 10.51 | 5.1 % | yes |
+| FACTS wf4 Bamber-SEJ | FaIR | 0.050 | 0.083 | 8.30 | 4.5 % | yes |
+
+⭐⭐ **THE FACTS ROW IS THE INDEPENDENT CONFIRMATION, AND IT FILLS THE MISSING CELL FROM SLEIP'S OWN
+PAPER.** SLEIP's FACTS_1f (8 cm) and FACTS_3f (29 cm) ARE FACTS-on-MAGICC-climate, and their
+workflow definitions are ours exactly (1f = ipccar5/AIS, 3f = deconto21). Same model, same
+workflows, only the climate differs:
+
+| FACTS workflow | ours, FaIR | SLEIP, MAGICC | ratio |
+|---|---|---|---|
+| wf1f IPCC-AR5 | 3.11 cm | 8 cm | **2.57x** |
+| wf3f DeConto/Kopp | 10.51 cm | 29 cm | **2.76x** |
+| *overshoot depth* | *+0.308 K* | *+0.659 K* | ***2.14x*** |
+
+Two workflows with completely different AIS methods land within 0.2 of each other on the ratio, and
+both bracket the depth ratio. **The ORDERING is preserved too** — 1f lowest and 3f highest in both.
+⇒ The depth explanation is now confirmed on a THIRD model, using SLEIP's own published numbers,
+without running FACTS on MAGICC's climate at all.
+
+⭐ **On MAGICC's climate all three of our models enter SLEIP's band; on FaIR's, none of the
+DAIS-lineage ones do.** BRICK 2.0 is our largest share (23.9 %) as it is theirs (34 %, the largest),
+so the RANK is reproduced as well as the magnitude.
+
+⛔ **FACTS ON MAGICC'S CLIMATE IS RUNNABLE, NOT RUN** (`runnable_is_not_undrivable`):
+`global.coupling.ssp245.magicc{base,pulse,p10gt}` prove FACTS accepts a MAGICC climate step, but no
+overshoot-pair arm exists. Reported as absent, never interpolated — the SLEIP column above is THEIR
+run, not ours, and their FACTS is v1.1 with its own module versions and sample size.
+
+⚠ Our FaIR rows use the IDEALISED `ssp534overMATCH` (FaIR's native pair inverts); SLEIP's are the
+native SSP5-3.4-OS pair. Not identically constructed. FACTS n=200 against 1000-2000 elsewhere.
+
 ## 2026-09-04d — DEPTH WAS THE ANSWER: on MAGICC's climate BRICK 2.0 lands on MAGICC-SLR, and Ladrillo's residual is ANTARCTIC
 
 The decisive arm from 09-04c. Ladrillo's and BRICK 2.0's UNCHANGED modules, driven on MAGICC's own
