@@ -12941,3 +12941,19 @@ three unable to. The clamp's stated justification ("only binds under strong-cool
 is stale now that four of seven markers decline. Not changed here: removing the clamp gives
 symmetric relaxation, which is wrong the other way; the defensible fix is an asymmetric rate
 with a GlacierMIP3 target.
+
+## 2026-09-09 — SLEIP comment support
+
+- `notes/note_2026-09-09_sleip_comment_support.md`: verified numbers + scope triage for Marcus's
+  EGUsphere comment on SLEIP Phase 1 (open until 28 Oct 2026). Ladrillo excluded per Marcus;
+  illustration is BRICK 2.0 + FACTS on FaIR vs MAGICC climate plus SLEIP's own published values.
+- Key scope finding: SLEIP's native configuration already covers **both** members of the
+  SSP5-3.4-OS / SSP1-2.6 pair (§2), so a native-forced overshoot penalty needs **no new runs** —
+  which is what makes the central ask reviewer-scoped rather than a new experiment.
+- `python/diag_magicc_overshoot_depth.py`: `OUR_PEAK_EXCESS_K = 0.311` was typed from a note
+  (directly under a comment forbidding exactly that) and had drifted from the data. Now computed
+  from the FaIR GMST cubes: **+0.303 K**, depth ratio **2.18×** (was printed as 2.12×; the handoff
+  quotes a third value, 2.14×). Superseded values must not be requoted.
+- Tried and rejected for the comment: asking for distributions on Fig. 8 panels C-G (a re-plot
+  request, out of reviewer scope) and asking for a reversibility column in the Table 2 taxonomy
+  (a new taxonomy axis; downgraded to a suggested limitation sentence).

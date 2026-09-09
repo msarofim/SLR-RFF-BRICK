@@ -50,7 +50,21 @@ MM_TO_CM = 0.1
 # our own matched-pair numbers are READ, never retyped -- `derived_must_mean_computed`
 OUR_MODELS = ["Ladrillo L24", "BRICK 2.0"]
 OUR_PAIR = "matched (dT from ABOVE)"
-OUR_PEAK_EXCESS_K = 0.311        # from note_2026-09-02, quoted as the thing under test
+# ⛔ was a typed 0.311 "from note_2026-09-02" -- a COPY, and it had drifted from the data
+# (live value 0.303). Computed from the FaIR GMST cubes instead; `derived_must_mean_computed`.
+OUR_GMST_DIR = os.path.join(REPO, "data", "observations")
+OUR_GMST_OS, OUR_GMST_REF = "ssp534overMATCH", "ssp126_nomarker"
+
+
+def our_pair_depth():
+    """Peak of the median dT and its post-convergence residuals, computed from the cubes."""
+    def cube(scen):
+        f = os.path.join(OUR_GMST_DIR, "fair_cube_gmst_%s_raw.csv" % scen)
+        return pd.read_csv(f).set_index("year")
+    a, b = cube(OUR_GMST_OS), cube(OUR_GMST_REF)
+    cols = [c for c in a.columns if c in b.columns]
+    med = (a[cols] - b[cols]).median(axis=1).loc[2000:2300]
+    return float(med.max()), int(med.idxmax()), med, len(cols)
 
 COMPONENT_MAP = {
     "te":       ["SLR_EXPANSION"],
@@ -118,9 +132,12 @@ def main():
     print(f"    median of per-member peak : {median_of_peaks:+.3f} K")
     for y in [CONVERGENCE_YEAR, 2300]:
         print(f"    median dT @{y}            : {float(med_dT[y]):+.3f} K")
-    print(f"    OUR idealised pair peak   : {OUR_PEAK_EXCESS_K:+.3f} K "
-          f"(ssp534overMATCH, note_2026-09-02)")
-    print(f"    ⇒ MAGICC's real overshoot is {peak_of_median / OUR_PEAK_EXCESS_K:.2f}x "
+    our_peak, our_year, our_med, our_n = our_pair_depth()
+    print(f"    OUR idealised pair peak   : {our_peak:+.3f} K  (at {our_year}, "
+          f"{OUR_GMST_OS} - {OUR_GMST_REF}, n={our_n} cfgs, COMPUTED)")
+    for y in [CONVERGENCE_YEAR, 2300]:
+        print(f"    OUR median dT @{y}        : {float(our_med[y]):+.4f} K")
+    print(f"    ⇒ MAGICC's real overshoot is {peak_of_median / our_peak:.2f}x "
           f"as deep as the pair our penalty was measured on")
 
     # ---------------- MAGICC-SLR's own penalty, both statistics -----------------------
