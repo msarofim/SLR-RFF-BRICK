@@ -314,38 +314,76 @@ holds SLR components, not OHC).
 
 ### h. ⚠ PANEL LETTERS, and the sub-zero line in Fig. 8D
 
-⚠ **Thermal expansion is panel 8D, not 8E.** The caption order is "(C-G) … total SLR, thermal
-expansion, global glaciers, Greenland ice sheet, and Antarctic ice sheet" ⇒ C total, **D thermal
-expansion**, E glaciers, F Greenland, G Antarctic. Earlier drafts of this note said 8E; corrected.
+⚠ **Thermal expansion is panel 8D, not 8E.** Caption order "(C-G) … total SLR, thermal expansion,
+global glaciers, Greenland ice sheet, and Antarctic ice sheet" ⇒ C total, **D thermal expansion**,
+E glaciers, F Greenland, G Antarctic. Earlier drafts of this note said 8E; corrected.
 
-**The emulator dipping BELOW zero in Fig. 8D in the 2020s–2030s is ProFSea**, not MP25. Identified
-by matching the curve's pixels against legend swatch cores extracted per entry: ProFSea's core is
-(185,132,170) and the dip's core is (190,159,182) — distance **30**, against ≥67 for FACTS_1e/1f and
-105 for MP25. ⚠ MP25 (137,70,200, the saturated violet) stays at or above zero throughout and is the
-*last* series to rise. An earlier colour extraction paired each series' core with its own
-antialiased edge and produced a bogus ProFSea colour; the per-entry extraction supersedes it.
+**The emulator dipping below zero in Fig. 8D is ProFSea**, not MP25. Colour-matched against legend
+swatch cores extracted per entry: ProFSea's core (185,132,170) vs the curve's (190,159,182),
+distance 30, against ≥67 for FACTS_1e/1f and 105 for MP25. MP25 (137,70,200) stays at or above zero
+throughout. Measured from the raster: depth **13 px = 0.0016 m** (gridline spacing 81 px per 0.01 m),
+spanning roughly 2015–2040 and bottoming ~2025–2032. ⚠ An initial 29 px reading was the left axis'
+antialiasing, not the curve.
 
-**Why ProFSea and not the others — mechanism, partly verified.** §3.6: ProFSea's "Thermal expansion
-is computed by taking the OHC directly from FaIR and MAGICC and multiplying by the mean and standard
-deviation of the AR6 expansion coefficients (0.113 ± 0.013 m/YJ)". That is OHC × a constant, with no
-lag, no integrator and no inertia of its own ⇒ **its TE difference is a direct readout of the ΔOHC it
-is handed.** A negative excursion therefore reports a genuinely negative ΔOHC in the driver rather
-than anything ProFSea does.
+**⛔ RETRACTED: the "ProFSea is reading out the driver's ΔOHC" explanation does not survive a
+magnitude check.** ProFSea's coefficient is 0.113 m/YJ (§3.6), so a −1.6 mm excursion requires
+**ΔOHC ≈ −1.42 ×10²² J**. FaIR's ΔOHC minimum on the same scenario pair is **−0.022 ×10²² J** —
+**65× too small**. The FaIR sign reversal (ΔGSAT −0.0016 K in 2027, ΔOHC −0.022 ×10²² J in 2028) is
+real but is not the same phenomenon and must not be offered as corroboration.
 
-Corroborated on FaIR's side, same scenario pair (`ssp534over − ssp126`, 841 cfgs, medians):
-ΔGSAT bottoms at **−0.0016 K in 2027** and ΔOHC at **−0.022 ×10²² J in 2028** before both turn
-sharply positive (ΔGSAT +0.086 K by 2040). So the sign reversal is real in an independent model.
+For scale: −1.4 ×10²² J is about one year of present-day global ocean heat uptake, and would need
+roughly **−0.1 W/m² sustained over ~10 years**. That is not absurd for an aerosol-driven near-term
+difference (SSP1-2.6 cutting SO₂ faster while SSP5-3.4-OS still tracks SSP5-8.5 to 2040) — but it is
+**unverified**, it is ~65× what our FaIR setup produces, and we hold no MAGICC OHC to check it.
 
-⚠ **Hypothesis, NOT verified:** that the early reversal is a short-lived-forcing/aerosol effect —
-SSP1-2.6 briefly warming faster while SSP5-3.4-OS still tracks SSP5-8.5 before their CO₂ pathways
-diverge. We hold no ERF-component cubes for these arms, so the forcing has not been decomposed.
-⚠ Also unverified: why ProFSea alone expresses it when several other emulators are likewise
-OHC-proportional (plausibly the least-damped formulation plus plotting scale — the dip is ~6 % of
-the panel's peak). **Do not assert either in the comment without checking.**
+**⭐ THE BETTER QUESTION — the TE laws are near-identical, so the difference should not exist.**
+Marcus asked whether the other emulators have integration or lag in the OHC→SLR conversion. **They
+do not.** Read from §3:
 
-⇒ If used at all, this is a *line-by-line* observation, not a ranking point: "the sub-zero excursion
-in Fig. 8D in the 2020s appears to be inherited from the driver rather than from the emulator —
-is that right, and is it worth a word in the caption?"
+| emulator | thermal expansion | Table 2 |
+|---|---|---|
+| ProFSea | OHC × AR6 coefficient **0.113 ± 0.013 m/YJ** | 2 |
+| FRISIA | "a linear function of ocean heat content changes", **0.11 ± 0.01 m/YJ** | 2 |
+| FACTS | time-invariant CMIP6 coefficients × emulated OHC | 2 |
+| BRICK | "proportional to the ocean heat uptake", 2 free calibration parameters | 2 |
+| MAGICC | OHC integrated across **40 hemispheric ocean layers**, layer-specific coefficients | 3 |
+| SURFER | product of **layer-specific** coefficients and heat absorbed | 3 |
+| MP25 | GSAT / cumulative-GSAT (not OHC) | 2* |
+
+Only MAGICC and SURFER resolve the ocean vertically, and that is a depth decomposition rather than
+a lag. **ProFSea and FRISIA state the same law with the same coefficient to within 3 %, and in the
+MAGICC-forced configuration receive the same MAGICC OHC — yet only ProFSea goes negative.** That
+cannot come from the TE parameterisation as described.
+
+⇒ **Ask it as a question, claim no mechanism:** two emulators with near-identical stated thermal
+expansion laws and a common OHC input give visibly different TE responses in the same experiment —
+what differs? Surfacing exactly this is what SLEIP is for. Candidates we could not distinguish:
+different OHC depth range or baselining, unpaired Monte Carlo sampling between the two scenario runs
+(ProFSea draws 10⁶ members), or a historical constraint applied per-scenario.
+
+⚠ Separately, §4.2 already notes a *different* negative TE effect: "MAGICC-SLR's multi-layer ocean
+model produces slightly negative thermosteric contributions in later time periods under … SSP5-3.4-OS
+… Simpler emulators do not capture this reversal." That is 2170–2300, not the 2020s dip — do not
+conflate them.
+
+### i. ⭐ SLEIP's GSAT reconvergence is COINCIDENTAL, and that is the stronger framing
+
+The pair is not constructed to match. §4.4: "We only look at one overshoot scenario pair, as SSP1-2.6
+and SSP5-3.4-OS are the only scenarios with GSAT convergence in the SSP-RCP set" — they *selected*
+the pair that happens to converge. The scenarios were designed to different 2100 forcing levels
+(3.4 vs 2.6 W/m²), so any GSAT reconvergence arrives later, through the post-2100 extensions.
+
+⇒ **Both the depth AND the reconvergence are emergent properties of (these two scenarios) × (MAGICC).**
+Our FaIR run is the demonstration: the same two scenarios in a different climate model do not
+reconverge, they **cross** (−0.073 K at 2150, min −0.087 K at 2165).
+
+⇒ **`ssp534overMATCH` should NOT appear in the review comment** (Marcus, 2026-09-09). It is a bespoke
+construction for precise experiments; explaining it in a comment costs more than it buys, and the
+native pair makes the point better. Reserve it for controlled work. Supersedes the earlier suggestion
+that the comment might disclose the idealised pair — the native-pair framing replaces it entirely.
+
+⇒ This also strengthens §6's own proposal for "idealised overshoot profiles" in Phase 2: relying on a
+coincidental convergence in one scenario pair is precisely why a designed overshoot is needed.
 
 ---
 

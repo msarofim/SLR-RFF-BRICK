@@ -12981,3 +12981,14 @@ with a GlacierMIP3 target.
   (-0.022e22 J, 2028) on the same pair. Aerosol mechanism NOT verified - no ERF cubes for these arms.
 - Tried and rejected: locating the panel-D zero line by scanning for grey rows -- it locks onto the
   antialiased black axis. Locate it inside the crop and verify against a magnified view.
+- ⛔ RETRACTED within-session: the claim that ProFSea's Fig. 8D sub-zero dip "reads out the driver's
+  dOHC, corroborated by FaIR". Magnitude check kills it -- ProFSea's 0.113 m/YJ x a -1.6 mm dip needs
+  dOHC = -1.42e22 J, and FaIR's minimum on the same pair is -0.022e22 J, 65x too small. True dip
+  depth is 13 px = 1.6 mm (the first 29 px reading was left-axis antialiasing).
+- Answered: NO, the other emulators have no lag/integrator. ProFSea 0.113, FRISIA 0.11 m/YJ, FACTS
+  CMIP6 coefficients x OHC, BRICK proportional-to-OHU; only MAGICC (40 layers) and SURFER are
+  depth-resolved. So ProFSea and FRISIA state the same law and share an input yet differ -- that is
+  the review question, with no mechanism claimed.
+- SLEIP's GSAT reconvergence is COINCIDENTAL (they selected the only converging SSP pair; the
+  scenarios target different 2100 forcing). ssp534overMATCH is therefore OUT of the review comment
+  (Marcus) -- native-pair framing replaces it.
