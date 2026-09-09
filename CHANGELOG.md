@@ -12992,3 +12992,10 @@ with a GlacierMIP3 target.
 - SLEIP's GSAT reconvergence is COINCIDENTAL (they selected the only converging SSP pair; the
   scenarios target different 2100 forcing). ssp534overMATCH is therefore OUT of the review comment
   (Marcus) -- native-pair framing replaces it.
+- Second-pass review of Marcus's draft: all 11 page/line citations verified correct against the PDF
+  (mapped printed line markers to pages); 8 clarity/accuracy fixes listed in note section j.
+- Seven new comment candidates from a full read (note section k). Best two: SURFER fails the
+  historical check (5.08 mm/yr vs Forster 3.67; trajectory outside obs range; self-declared
+  thermosteric overestimate) yet the p-box takes min-17th/max-83rd ACROSS models so one emulator
+  sets each bound; and the ensemble-combination rule (600 MAGICC members vs FACTS 2,000/workflow vs
+  ProFSea 1,000,000) is never stated, which also decides whether Fig 8's penalty is paired.

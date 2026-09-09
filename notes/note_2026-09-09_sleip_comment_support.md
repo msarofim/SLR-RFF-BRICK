@@ -385,6 +385,86 @@ that the comment might disclose the idealised pair — the native-pair framing r
 ⇒ This also strengthens §6's own proposal for "idealised overshoot profiles" in Phase 2: relying on a
 coincidental convergence in one scenario pair is precisely why a designed overshoot is needed.
 
+### j. DRAFT REVIEW (2026-09-09, second pass) — accuracy verdict
+
+**All eleven page/line citations verified correct** by mapping each printed line marker to its page:
+155→p.6, 200→p.8, 325→p.11, 370→p.13, 440→p.15, 477→p.18, 508→p.19, 530→p.20, 547→p.21, 610→p.24,
+633→p.25. All quoted passages are verbatim. The 0.30 K / 0.66 K overshoot depths are correct
+(FaIR native 0.308, MAGICC 0.659).
+
+Fixes needed:
+1. ¶ on thermal expansion: **"the M25 model" → "MP25"**.
+2. ¶4 of the opening: "of great value to the community **if** certain component modules could be
+   identified" — missing "if".
+3. The AIS paragraph opens "in contrast" — but the new Thermal Expansion section now sits between it
+   and the Wigley-Raper paragraph it was contrasting with. Needs re-anchoring, and a capital.
+4. Fig. 8B/8H ¶: **"though probably quite similar" is not supported.** Our runs: 1.12× (MAGICC-SLR),
+   1.65× (BRICK on MAGICC), **2.20×** (BRICK on FaIR). Suggest "these can differ materially where the
+   distribution is skewed, as it is for the MICI-carrying workflows."
+5. TE ¶: "layer-specific … (as in MAGICC)" — **SURFER also uses layer-specific coefficients**
+   (3 ocean layers, GLODAPv2.2016b-derived, p.14 line ~405).
+6. W-R ¶: "will continue melting at a non-zero rate" — add "as long as glacier volume remains"; the
+   W-R rate scales with the remaining volume fraction as well as with T − T_eq.
+7. ⭐ **The climate-driver ask does not yet say the data already exists.** §2, p.4 line 105–107:
+   "Both sets of simulations cover six SSP-RCP scenarios and their extensions out to 2300" — "both
+   sets" = MAGICC-forced AND native, so the requested native-forced table needs **no new runs**.
+   Saying so is what keeps the biggest ask inside reviewer scope.
+8. ProFSea ¶: strengthen from "worth a sentence explaining" to the specific diagnostic — **FRISIA
+   states the same law with the same coefficient (0.11 vs 0.113 m/YJ) and receives the same MAGICC
+   OHC, yet does not dip.** Claim no mechanism (see §h).
+
+### k. NEW COMMENT CANDIDATES from a full read, ranked
+
+**1. ⭐⭐ SURFER fails the historical check yet still sets p-box bounds.** Four paper-internal facts:
+p.30 line ~725 "SURFER is an exception: its total sea level trajectory runs outside the observational
+range"; Table 6 gives SURFER **5.08 mm/yr** for 2006–2025 against Forster et al. (2026) 3.67 (SLEIP
+mean 3.82); §5 calls SURFER and BRICK "clear outliers" for historical Antarctic contribution; and
+§3.7 (p.14, line ~406) concedes SURFER's own structural bias — "all radiative imbalance is absorbed
+by the ocean, leading to some overestimation of thermosteric rise on centennial timescales". Against
+that, §4.5 (p.26, line ~656) states "we do not differentiate between these confidence levels and
+reflect all participating emulator components within one p-box", and the p-box is the **minimum 17th
+/ maximum 83rd percentile across models** — so a single emulator sets each bound.
+⇒ Ask: should emulators that fail the historical check be flagged, down-weighted, or at least should
+the paper report **which** emulator sets each p-box bound? Squarely the "apply your own judgment"
+theme, and grounded entirely in their own numbers.
+
+**2. ⭐⭐ The ensemble-combination rule is never stated.** MAGICC supplies **600 members** (§2.1);
+FACTS uses **2,000 samples per workflow** (p.10, line ~282); ProFSea draws **1,000,000 members**
+(p.13, line 380); FRISIA runs its own Monte Carlo; BRICK a Bayesian posterior. The paper never says
+how the 600 climate members are combined with each emulator's own parameter ensemble — paired,
+crossed, or independently drawn. That determines what every percentile and p-box bound means, whether
+they are comparable across emulators with ensembles differing by 500×, and **whether Fig. 8's
+overshoot penalty is a paired difference** — which is the same question as the 8B/8H definition and a
+candidate explanation for the ProFSea dip. One sentence in §2 fixes it.
+
+**3. ⭐ p.28 line 696–698 is the strongest form of the claim being challenged** — "Native-climate-
+forcing p-box projections are generally in close agreement with the MAGICC-forced results …
+suggesting that sea level process uncertainty rather than climate modelling uncertainty mainly spans
+the overall **projection envelope**." Worth citing alongside p.15 line 440: it is a statement about
+the envelope, which §4.1 attributes to AIS structural spread, and it cannot license a conclusion
+about a scenario *difference*. Best single anchor for the "add 'for MAGICC' throughout" instinct.
+
+**4. ⭐ SURFER's glacier sea level potential is 0.5 m** (p.14, line 410) — larger than the 0.41 m the
+paper flags for BRICK/FRISIA and well above Farinotti's ~0.32 m — yet §4.1 names only BRICK and
+FRISIA as exceptions. Either SURFER never approaches its potential, or the exception list is
+incomplete. Strengthens the glacier paragraph: the volume-constraint issue is broader than W-R.
+
+**5. Table 6: Forster et al. (2026) is quoted as 3.67 ± 2.47 mm/yr.** ±2.47 on 3.67 is very wide for
+a satellite-era GMSL rate. Worth asking whether that is the intended quantity and interval — as
+printed, essentially every emulator passes, so the comparison has little power.
+⚠ We have NOT checked Forster et al. (2026); ask, do not assert.
+
+**6. Only 5 of 7 emulators have historical simulations** — Table 6 gives FACTS a 2005 start and
+ProFSea 2007, and §5 evaluates BRICK, FRISIA, MAGICC, SURFER and MP25. So two emulators that
+contribute to every p-box are never historically evaluated. Worth one sentence, and it compounds #1.
+
+**7. (minor) Land water storage socioeconomics are not harmonised.** MAGICC-SLR adopts "the SSP2
+(medium population growth) trajectory throughout, applied uniformly across all climate scenarios";
+ProFSea takes AR6 under **SSP3-7.0** for all scenarios; FRISIA and MP25 scale to IIASA population.
+Climate-independent LWS cancels in the overshoot penalty (our MAGICC-SLR run gives exactly 0.00) but
+not in the p-boxes, where LWS reaches 0.08–0.12 m at 2300. The protocol harmonised the climate driver
+but not the socioeconomic one; worth stating.
+
 ---
 
 ## 4. ⛔ Guardrails — things the comment must not say
