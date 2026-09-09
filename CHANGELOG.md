@@ -13005,3 +13005,15 @@ with a GlacierMIP3 target.
   p-box caps at max-83rd = 0.42 m (2150: 0.32; 2100: 0.23), i.e. the W-R 0.41 m ceiling. 0.5 m is a
   model POTENTIAL, not a projected value; nothing published shows SURFER exceeding BRICK/FRISIA.
   Reframe as a question. Couplet (SURFER) is an author.
+- ⛔ WITHDRAWN in session: the p-box argument against Marcus's SURFER-glacier point. The p.18
+  sentence compares an ASSUMED reservoir (W-R 0.41 m) against Farinotti's 0.32 m volume estimate,
+  so SURFER's 0.5 m is the same kind of quantity; arguing from the p-box confused potential with
+  plateau. MEASURED from Fig. 4 instead (SSP5-8.5, 2300): SURFER 0.322-0.326 (flat, deterministic),
+  BRICK 0.233-0.448, FRISIA 0.341-0.374, FACTS 0.311-0.315, MAGICC 0.241-0.333, MP25 0.233-0.322,
+  ProFSea 0.148-0.315. SURFER's assumption is latent at 2300 (200-yr relaxation) but binds on the
+  longer horizons it targets. BRICK's tail reaches 0.448 -- above W-R's own 0.41 -- because initial
+  glacier volume is one of six calibrated parameters.
+- P-box contributor counts differ by component (TE 7, glaciers 8, GIS 9, AIS 11, LWS 5) because of
+  the FACTS grouping. Width is monotone in contributor count, so the AIS p-box is predisposed to be
+  wider than TE/LWS independent of true uncertainty -- cross-component width comparisons are not
+  like-for-like.

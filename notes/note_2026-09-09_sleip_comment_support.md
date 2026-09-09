@@ -465,44 +465,74 @@ Climate-independent LWS cancels in the overshoot penalty (our MAGICC-SLR run giv
 not in the p-boxes, where LWS reaches 0.08–0.12 m at 2300. The protocol harmonised the climate driver
 but not the socioeconomic one; worth stating.
 
-### l. THIRD-PASS CHECK (2026-09-09) — one claim outruns the evidence
+### l. THIRD-PASS CHECK (2026-09-09) — citations verified; SURFER glaciers MEASURED
 
-New citations all verified: p.28 l.696 (quote verbatim), p.14 l.409–410 (SURFER glaciers),
-p.30 l.724 (SURFER outside obs range), **p.5 l.122** (600-member ensemble), p.10 l.282 (FACTS 2,000
-samples), p.18 l.474–480. Forster check is the reviewer's own and is right: Table 11 gives
-3.66 [3.42–3.92], i.e. ≈ ±0.25 against SLEIP's ±2.47 — a factor of ~10, so "order of magnitude" is
-the correct characterisation, and the central values agree (3.66 vs 3.67), so only the interval is
-wrong.
+New citations all verified: p.28 l.696 (verbatim), p.14 l.409–410, p.30 l.724, **p.5 l.122**,
+p.10 l.282, p.18 l.474–480. The Forster check is the reviewer's own and is right: Table 11 gives
+3.66 [3.42–3.92] ≈ ±0.25 vs SLEIP's ±2.47, a factor of ~10, with central values agreeing
+(3.66 vs 3.67) — only the interval is wrong.
 
-⚠⚠ **The SURFER-glacier paragraph asserts more than the paper's tables support.** The draft says
-SURFER's 0.5 m "should be added as another exception on the page 18 line 477 sentence". But that
-sentence is about where models **plateau in the projections** (~0.3 m, consistent with Farinotti's
-0.32 m), with BRICK/FRISIA exceeding it at 0.41 m. SURFER's 0.5 m is a **sea level potential** — a
-model ceiling — not a projected plateau. The published p-boxes cap the glacier component at:
+⛔ **A p-box argument against the SURFER-glacier point was raised in session and WITHDRAWN.** The
+p.18 sentence attributes the BRICK/FRISIA exception to W-R having "**assumed** a maximum glacier SLE
+contribution of 0.41 m", i.e. it compares an ASSUMED RESERVOIR against Farinotti's ~0.32 m volume
+estimate. SURFER's 0.5 m is the same kind of quantity. Arguing from the p-box confused a model
+POTENTIAL with a projected PLATEAU — the very conflation being alleged. Marcus was right.
 
-| horizon | max 83rd percentile across models (highest scenario) |
+**Measured from Fig. 4** (SSP5-8.5, glaciers, 2300; whisker ranges; gridline calibration 27 px per
+0.10 m):
+
+| emulator | range (m) |
 |---|---|
-| 2100 (Table 3) | 0.23 m |
-| 2150 (Table 4) | 0.32 m |
-| 2300 (Table 5) | **0.42 m** |
+| BRICK | 0.233 – **0.448** |
+| FRISIA | 0.341 – 0.374 |
+| **SURFER** | **0.322 – 0.326** (a flat line ≈ 0.324; deterministic) |
+| FACTS 1f–3f, 4 | 0.311 – 0.315 |
+| MAGICC | 0.241 – 0.333 |
+| MP25 | 0.233 – 0.322 |
+| ProFSea | 0.148 – 0.315 |
 
-⇒ **No model's 83rd percentile exceeds 0.42 m at 2300**, which is the W-R ceiling of 0.41 m, not
-0.5 m. Nothing published shows SURFER's glacier contribution exceeding BRICK/FRISIA, so "should be
-added as another exception" may simply be wrong — and Couplet (SURFER) is on the author list.
-**Reframe as a question:** does SURFER's glacier contribution approach its stated 0.5 m potential,
-and if so should it join the exception sentence? ⚠ We cannot resolve it: the p-box reports only
-min-17th/max-83rd across models, never which model sets the bound — which is itself the point below.
+⇒ **The sharpest form of the point.** SURFER assumes a reservoir **56 % larger than Farinotti**
+(0.5 vs 0.32 m) yet realises only ~0.324 m by 2300 — its 200-yr relaxation timescale means the
+assumption is **latent, not binding, at this horizon**. But SURFER is explicitly built for
+"timescales from decades to millions of years", so it would bind on the horizons it targets. Ask why
+the assumed-reservoir comparison is applied to W-R and not to SURFER — while noting SURFER's
+realised 2300 value sits at Farinotti, so it is not an exception to the *plateau* statement.
 
-Two optional strengthenings of the "One More Judgment Call" paragraph:
-- **Name the p-box mechanism.** §4.5 takes the **minimum 17th / maximum 83rd percentile across
-  models**, so one emulator sets each published bound; a model that fails the historical check does
-  not merely join the range, it can define it. The paper also never says which model sets which bound.
-- **A second, independent strike against SURFER, in the authors' own words** (p.14, l.~406): "all
-  radiative imbalance is absorbed by the ocean, leading to some overestimation of thermosteric rise
-  on centennial timescales". Self-declared structural bias, unweighted in §4.5.
+⭐ **Bonus for the same paragraph: BRICK's upper tail reaches ~0.448 m — above W-R's own 0.41 m
+assumed maximum**, because §3.1 makes **initial glacier volume one of six uncertain calibrated
+parameters**. So "W-R assumed 0.41 m" does not bound BRICK; ~40 % above Farinotti's central estimate
+is reachable. Worth asking whether that is intended.
 
-Trivia: the SURFER quote reads "anomaly,with" — missing space. The AIS paragraph still opens
-lower-case "in contrast".
+### m. THE P-BOX AND THE FACTS GROUPING — answering "does it depend on the grouping?"
+
+**A bound is always set by exactly one contributor** — that is what min/max means, and no grouping
+changes it. What the grouping changes is *how many candidates compete* and hence *how wide the
+p-box is*. §4.5 groups FACTS per component, so the number of contributors differs by component:
+
+| component | non-FACTS | FACTS groups | total contributors |
+|---|---|---|---|
+| thermal expansion | 6 | 1 (shared sterodynamic module) | **7** |
+| global glaciers | 6 | 2 (1e–3e; 1f–3f, 4) | **8** |
+| Greenland | 6 | 3 (1e–3e; 1f–3f; 4) | **9** |
+| **Antarctic** | 6 | **5** (1e; 1f; 2e–f; 3e–f; 4) | **11** |
+| land water storage | 4 (BRICK, SURFER absent) | 1 | **5** |
+
+⭐ **The consequence is a genuine artefact: p-box width is monotone in the number of contributors.**
+Splitting FACTS into 5 AIS groups gives a *wider* AIS p-box than pooling them into 1 would — the max
+over five group-83rds is ≥ the 83rd of the pooled mixture, and the min over five ≤ the pooled 17th.
+So the AIS p-box (11 contributors) is structurally predisposed to be wider than thermal expansion (7)
+or land water storage (5), **independent of any true difference in uncertainty** — and AIS is exactly
+the component the paper says dominates the envelope through structural diversity. Cross-component
+comparisons of p-box width are therefore not like-for-like.
+
+Conversely, had all seven workflows counted separately everywhere, FACTS alone would supply 7 of 13
+candidates and could plausibly set both bounds of every component. The grouping is what prevents
+that — but it is a judgment call that directly determines the published ranges, and the paper never
+reports **which contributor sets which bound**. §4.5 also concedes the grouping "introduces a minor
+inconsistency for the number of total SLR p-box estimates" without saying what the inconsistency is.
+
+⇒ Three cheap asks: state the number of contributions entering each component p-box; say which
+contribution sets each bound; and explain the acknowledged total-SLR inconsistency.
 
 ---
 
