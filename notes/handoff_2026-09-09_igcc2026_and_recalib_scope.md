@@ -140,6 +140,13 @@ Neither is in the IGCC release (it ships only the AR6-era `CW2011/HA2015/DA2017/
   repository copy**, so the only host is the blocked one. The abstract *is* reachable (Semantic
   Scholar, `DOI:10.1175/JCLI-D-23-0410.1`) — the data statement is not.
   ⇒ **Don't retry AMS.** Route is a PDF in `ClaudeDocs/Papers/`, or ask Church.
+  ⛔⛔ **RESOLVED 09-09b — THERE IS NOTHING TO DOWNLOAD.** Marcus supplied the statement:
+  **every URL in it is an INPUT** (PSMSL, CSIRO altimetry, NASA/GSFC, ESGF CMIP6, NGL GNSS,
+  ORA20C/SODA/GECCO3, Frederikse 2020, Malles & Marzeion, Peltier + Caron GIA). **Wang
+  archives NO OUTPUT SERIES** ⇒ not an outage, not fixable by retrying; only the authors
+  have it. ⭐ It also settles three things: Wang **uses CMIP6**; Wang **takes Frederikse
+  2020**, so **all three** reconstructions share that input; and Wang uses **"the same tide
+  gauge list and data editing criteria as in CW11"** — inherited, not re-screened.
 
 ---
 
@@ -189,6 +196,29 @@ hours.
    Mu as comparison lines only? *(This is the one that changes the science.)*
 
 ⚠ Both are live. **Do not start §4 work without an answer** — [[handoff_open_item_is_not_a_ruling]].
+
+### ✅ 09-09b UPDATE — Q1 ANSWERED, Q2 STILL OPEN, and the EVIDENCE ON Q2 MOVED
+- **Q1 (sequencing): Marcus ruled DIAGNOSTIC FIRST.** The trend half has RUN —
+  `python/diag_recon_trend_spread.py`, commits `7862308` + `6a45904`.
+- **Q2 (spread vs Dangendorf) is STILL OPEN**, but the case for the spread is now
+  **substantially WEAKER** and should be re-put to Marcus with this evidence:
+  1. The naive 0.35 mm/yr spread is **mostly artifact** — ~0.16 **estimator** (IGCC's 1.85 is
+     **Δ/n, not a slope**) + ~0.14 **window**; matched product term ~0.105, **inside
+     Dangendorf's own ±0.19**.
+  2. What survives is **ONE STRUCTURAL AXIS**, not scatter: CW11-lineage **+0.230** and Mu
+     **+0.210** against Dangendorf over 1900–2007, and Wang **inherits CW11's gauge list**
+     and sits high too. **Dangendorf is alone on the low side.**
+  3. **All three share Frederikse 2020.** A spread across them is not independent error.
+  4. **Wang's data cannot be obtained at all** (no archived output), so a
+     three-reconstruction target is not constructible as specified regardless.
+  ⇒ **My advice is now: KEEP Dangendorf as the fitted target, and carry the CW11 axis as an
+  UNCERTAINTY rather than swapping the central estimate.** ⚠ Still Marcus's call.
+- ⚠ **A NEW ITEM FOR HIM:** the axis is ~**2.46 cm** cumulative against the **+0.74 cm** by
+  which Ladrillo sits above the target ⇒ **the gap we report as a model result sits INSIDE
+  the reconstruction disagreement.** Trend-to-level, sign and magnitude only — **recompute on
+  a stated baseline before quoting**. This is a reason to look, not a result.
+- **Reason 1 (the modern splice / typed `ALT_SIGMA_MM = 4.0`) has NOT been touched.** It is
+  independent of Q2 and is the obvious next diagnostic.
 
 ---
 
