@@ -318,3 +318,12 @@ outputs/pulse_ladrillo_*_SMOKE.csv
 # Mutation-test outputs are DELIBERATELY WRONG tables. The verdict lives in the
 # commit message and CHANGELOG; the file itself must never be mistaken for a result.
 outputs/*_MUT*.csv
+
+# The L24 description .docx is canonical ONLY at deliverables/. A stale 09-02 copy sat at
+# the repo root, was swept in by an unrelated `git add -A` (6ca2ec5), and is exactly the
+# silent-stale-retrieval trap: two tracked paths, one 3 days behind, no way to tell at the
+# point of retrieval. Untracked 09-09b on Marcus's call; the file stays on disk (it is a
+# Marcus-edited source, never ours to delete).
+# ⚠ NOT a wildcard: `LadrilloUpdateDescription.docx` (no _L24, 15 KB) is a DIFFERENT and
+# UNIQUE document with no deliverables counterpart. It stays tracked. Do not broaden this.
+/LadrilloUpdateDescription_L24.docx
