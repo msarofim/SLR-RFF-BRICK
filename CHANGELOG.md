@@ -1,3 +1,86 @@
+## 2026-09-09b — both recalibration questions CLOSED, and BOTH diagnostics inverted their own premise
+
+Two diagnostics, `python/diag_recon_trend_spread.py` and `python/diag_modern_splice_altimetry.py`,
+run under Marcus's "diagnostic pass FIRST" ruling. **Neither target was rebuilt.** The point of
+sequencing this way was to find out whether the recalibration is a *provenance* update or a
+*result* update before committing chains a month from submission. On the evidence below it is
+looking like **provenance**.
+
+**RULINGS (Marcus, 09-09b).** (1) Sequencing: **diagnostic first**. (2) Total term: **keep
+Dangendorf as the fitted target and carry the CW11 axis as an UNCERTAINTY** — not a
+reconstruction spread. (3) The stale root `.docx`: **untrack + gitignore**.
+
+### The reconstruction "spread" is mostly ARTIFACT, and what survives is ONE AXIS
+The naive 0.35 mm/yr across Dangendorf 1.50 / Wang 1.60 / Mu 1.75 / IGCC 1.85 decomposes:
+
+| term | mm/yr | what it is |
+|---|---|---|
+| estimator | **~0.161** | ⛔ **IGCC's 1.85 is Δ/n, NOT a slope.** Same series, same window: Δ/n **1.851** vs OLS **1.691** |
+| window | ~0.135 | Dangendorf ALONE, 1.390 (1900–2007) → 1.524 (1900–2021) — that is acceleration |
+| product | ~0.105 | Dangendorf 1.526 vs IGCC 1.632, derived overlap 1901–2021, matched estimator — **inside Dangendorf's own ±0.19** |
+
+⭐ **Our OLS reproduces CSIRO Recons 1900–2007 = 1.620, matching to quoted precision the 1.62 Mu
+attributes to C2011.** That closes the estimator question Mu never states, so Mu is **+0.210**
+above Dangendorf, not the Δ/n +0.132. And CW-lineage **+0.230** / Mu **+0.210** agree in sign and
+size, with Wang inheriting CW11's gauge list and sitting high too ⇒ **one structural axis with
+Dangendorf alone on the low side, not three independent draws.** All three also take Frederikse
+2020, so a spread across them would not be independent error either.
+
+⚠ **A REASON TO LOOK, NOT A RESULT:** 0.230 mm/yr × 107 yr = **2.46 cm**, against the **+0.74 cm**
+by which Ladrillo sits above the target on the L24 total panel — the axis is ~3× the gap we read
+as a model result. **Trend-to-level; the level depends on the reference window. Recompute on a
+stated baseline before quoting.**
+
+### The modern splice's defect is the LEVEL, not the typed σ — the opposite of the scoping claim
+`ALT_SIGMA_MM = 4.0` is **CONSERVATIVE**: the measured across-product sd **in the spliced years
+2022–24** is 1.9–2.3 mm (2.7–3.2 dropping the suspect column), and Dangendorf's own SE at the join
+is 2.68 mm. **Replacing it TIGHTENS the target.** The scoping note's "1.4–11×" is the **era-wide**
+σ range and is evaluated over the wrong window — early-1990s years the splice never uses dominate
+it. The real finding: offset-matched to Dangendorf over 2003–2018, at 2024 the target reads
+**82.25 mm on STAR vs 85.92 on the IGCC ensemble ⇒ +3.67 mm = 0.92σ**, with **every** IGCC product
+above STAR in **every** spliced year. Reach is **3 of 122 years** (2022–24), though the choice also
+sets the offset. IGCC altimetry runs to **2025**, one year past STAR.
+
+### TRIED AND ABANDONED, with reasons
+- **Wang 2024's data — abandoned as UNOBTAINABLE, not blocked.** Its data-availability statement
+  (supplied by Marcus) lists **only inputs**; it archives **no output series**. Scripted fetch and
+  a real browser both hit a **CloudFront IP block on the whole AMS domain** (not a paywall — the
+  paper is hybrid-OA CC-BY), and OpenAlex lists **no repository copy**. Only the authors have it.
+- ⛔ **`10.5281/zenodo.15288816` — rejected as a DECOY.** Search offered it confidently as Wang
+  2024's data. It is **Shengdao** Wang et al. 2025 (ESSD 17, 7055; 1950–2022). Ours is **Jin-Ping**
+  Wang / Church / Zhang / Chen, 1900–2019. Caught **before** ingestion.
+- **Mu 2025's `SLRv2.nc` — deferred.** Zenodo returned **504 from its own gateway** in ~30 s on
+  every route (`/api/records`, `/records`, via `doi.org`) on both 09-08 and 09-09, while DNS
+  resolved, TCP 443 connected and GitHub + doi.org answered. **Their outage, not our network.**
+  Pure retry. ⚠ Not needed for anything above — Mu's published numbers carried the argument.
+- **The col-3 product-swap hypothesis — WEAKENED but deliberately NOT closed.** §2 of the 09-09
+  note suspected `altimetry_indiv_estimates.csv` col 3 (headed `NOAA`, paper says U. Colorado) of
+  being a swapped product, on a **vintage** observation (+7.1 mm at 2024 between releases). Tested
+  for **identity** instead: it is the **closest** of the three to actual STAR (rms 2.17, mean
+  −0.24) vs NASA 2.44 and AVISO 5.13, and closer than AVISO-vs-NASA (3.18). A swap predicts the
+  opposite ordering. **Not proven either way** — these products share missions — so the standing
+  "do not use until settled" is **left in force**, and every number is reported with and without it
+  (2-product mean at 2024 **85.90** vs 3-product **85.92**).
+- **A hardcoded `COMMON_WINDOW = (1900, 2019)` — replaced by a DERIVED overlap.** It silently
+  reported "NOT COVERED" because IGCC starts 1901.
+- **`round()` on CSIRO Recons' mid-year stamps — replaced by `floor()` + a uniqueness assert.**
+  Banker's rounding mapped 1880.5→1880 but 1881.5→**1882**, duplicating and skipping years. Its
+  `#` header lines also sit **inside a quoted field**, so pandas' `comment=` does not strip them.
+
+### Corrections propagated
+- **The Wang citation was inverted** in the 09-09 note and in memory: both starred the abstract's
+  second clause and dropped its first. It opens *"Despite GMSL budget closure in terms of long-term
+  trend since 1900."* Wang reports **closure** on the long-term trend and **sub-period**
+  non-closure. **Cite it for the second, never the first.** Fixed at every quoting site in one pass.
+- **The `*_ens.csv` files in the IGCC drop are `mean`+`std`, not members** — the names mislead, and
+  "no members ⇒ band not computable" stands for the 1901–2025 GMSL. But
+  `altimetry_indiv_estimates.csv` **does** give three members for the altimetry era, which is where
+  the splice lives. That is what made the splice spread measurable at all.
+- The stale root `LadrilloUpdateDescription_L24.docx` (09-02), swept into tracking by an unrelated
+  `git add -A` in `6ca2ec5`, is untracked and gitignored; `deliverables/` is canonical. ⚠ **Only
+  that file** — `LadrilloUpdateDescription.docx` (no `_L24`, 15 KB) is a *different* document with
+  no counterpart anywhere, so it stays tracked and the ignore rule is a literal path, not a card.
+
 ## 2026-09-06 — every arm in SLEIP's own metric, and FACTS confirms the depth story independently
 
 `python/diag_sleip_metric_penalty.py`. SLEIP's metric read off the paper, not assumed: **total**
