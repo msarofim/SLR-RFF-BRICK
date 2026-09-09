@@ -217,8 +217,23 @@ hours.
   which Ladrillo sits above the target ⇒ **the gap we report as a model result sits INSIDE
   the reconstruction disagreement.** Trend-to-level, sign and magnitude only — **recompute on
   a stated baseline before quoting**. This is a reason to look, not a result.
-- **Reason 1 (the modern splice / typed `ALT_SIGMA_MM = 4.0`) has NOT been touched.** It is
-  independent of Q2 and is the obvious next diagnostic.
+- ✅ **Q2 RULED 09-09b: KEEP DANGENDORF as the fitted target, CARRY THE CW11 AXIS as an
+  uncertainty.** Both open questions are now closed.
+- ✅ **Reason 1 HAS NOW RUN** — `python/diag_modern_splice_altimetry.py`, commit `05d88f8`.
+  ⛔ **It inverts this section's own framing.** The typed `ALT_SIGMA_MM = 4.0` is
+  **CONSERVATIVE**, not loose: the measured across-product sd **in the spliced years** is
+  1.9–2.3 mm (2.7–3.2 dropping the suspect column) and Dangendorf's own SE at the join is
+  2.68 mm. Replacing it **TIGHTENS** the target. The "**1.4–11×**" claim above is the
+  **era-wide** σ range and is **evaluated over the wrong window** — the early-1990s years
+  the splice never touches dominate it.
+  ⭐⭐ **The real defect is the LEVEL:** STAR **82.25** vs IGCC ensemble **85.92** mm at 2024
+  ⇒ **+3.67 mm = 0.92σ**, with **every** IGCC product above STAR in every spliced year.
+  Reach is **3 years** (2022–24), though the choice also sets the offset.
+  ⭐ And §2's suspected col-3 product swap **tests AGAINST**: the `NOAA`-headed column is the
+  **closest** of the three to actual STAR (rms 2.17, mean −0.24) vs NASA 2.44 and AVISO 5.13,
+  and closer than AVISO-vs-NASA (3.18). A swap predicts the opposite ordering. **Vintage
+  change ≠ product swap.** Not settled — the standing "do not use" stays in force, and
+  neither conclusion depends on that column.
 
 ---
 
