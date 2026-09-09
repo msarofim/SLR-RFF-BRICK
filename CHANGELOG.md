@@ -13023,3 +13023,7 @@ with a GlacierMIP3 target.
   volume is one of six uncertain parameters), corroborated by the Fig. 4 asymmetry (FRISIA
   0.341-0.374 inside the 0.41 ceiling; BRICK 0.230-0.456 through it). One residual risk flagged:
   SURFER realises 0.322-0.326 m at 2300, so the "another exception" framing invites a rebuttal.
+- Final review version verified END TO END: every citation checked against the PDF, including the
+  last outstanding one (p.2 l.65-68 -- stranded "however" and objectless "beyond" both confirmed).
+  Reviewer's own rescoping of the SURFER ask to "total meltable ice available" closes the rebuttal
+  risk flagged earlier. Remaining: one grammar nit ("because...then") and an optional citation.

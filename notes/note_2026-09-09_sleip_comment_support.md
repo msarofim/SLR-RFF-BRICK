@@ -563,6 +563,25 @@ Couplet (SURFER, on the author list) can therefore reply "SURFER does not exceed
 reservoir is never approached." Half a sentence preempts it: the concern is the assumed reservoir on
 the long timescales SURFER targets, not its 2300 value.
 
+### o. FINAL VERSION — verified end to end (2026-09-09)
+
+All six mechanical fixes applied. Two substantive improvements the reviewer made himself:
+- The BRICK parenthetical now asserts "**because** it is an adjustable parameter" rather than "if".
+- The SURFER ask is now scoped "**in terms of total meltable ice available** (and 0.5 m is even
+  further from 0.32)" — which closes the rebuttal risk in §n: the exception is explicitly about the
+  reservoir, not the realised 2300 plateau, so SURFER's actual 0.322–0.326 m is no longer a counter.
+
+**The last unverified citation now checks out.** p.2, lines 65–68 reads: "Emulators used in IPCC AR6,
+which were assembled in the Framework for Assessing Changes To Sea-level (FACTS), **however** differ
+substantially in their capacity to project longer term SLR **beyond**, with some methods being
+incapable of projecting beyond their 2100 training horizon". Both observations are right — the
+"however" is stranded mid-sentence, and "beyond" has no object.
+
+⇒ **Every citation in the review has now been checked against the PDF.** Remaining: one grammar nit
+("but because it is an adjustable parameter **then** there will exist" — drop "then") and an optional
+six-word citation for the adjustable-parameter claim (**p.8, line ~201**, "six uncertain parameters,
+including the proportionality constant, initial glacier volume, and exponent").
+
 ---
 
 ## 4. ⛔ Guardrails — things the comment must not say
