@@ -18,7 +18,9 @@ adds the three things neither of those has:
      error. Coverage should be judged against the PREDICTIVE one -- it is the band the
      likelihood actually asserts. Only plot_ladrillo_memo_figures.py drew it, and that script
      SystemExits on --tag=L21.
-  3. THE IGCC 2024 GMSL ENSEMBLE on the total panel, as an INDEPENDENT consensus anchor.
+  3. THE IGCC 2025-INDICATORS GMSL SERIES on the total panel, as an INDEPENDENT consensus
+     anchor (Forster et al. 2026; updated from the 2024-indicators drop 2026-09-09 -- the whole
+     altimetry era was re-derived there, not just extended).
      The calibration target for the total is Dangendorf 2024; IGCC is a different
      multi-product compilation and is not in the fit, so agreement with it is evidence
      rather than circularity. It is the standing first-choice obs product for this variable
@@ -63,8 +65,15 @@ OUT = os.path.join(lf.REPO, "figures", "hindcast_components_%s.png" % TAG)
 LAD_CSV = os.path.join(lf.REPO, "outputs", "postpred_%s_components_timeseries.csv" % TAG)
 BRK_CSV = os.path.join(lf.REPO, "outputs", "postpred_oldbrick_components_timeseries.csv")
 TGT_CSV = os.path.join(lf.REPO, "outputs", "recalib_targets_ext.csv")
-IGCC_CSV = os.path.join(lf.REPO, "data/observations/raw/igcc2024/ClimateIndicator-data-"
-                        "2cd2409/data/sea_level_rise/IGCC_GMSL_ensemble.csv")
+## ⭐ IGCC 2025-indicators release (Forster et al. 2026), ingested and provenance-gated by
+## `python/ingest_igcc2026_gmsl.py` -- read the INGESTED file, not the raw drop, so the
+## Table 11 check stands between the download and every figure that uses it.
+## ⚠⚠ `sigma_level_mm` is a LEVEL uncertainty: near-constant over the record, dominated by a
+## common-mode term, and it therefore largely CANCELS when this series is re-referenced below.
+## It is NOT the uncertainty on the re-referenced anomaly and the legend must not imply it is.
+## IGCC ships no ensemble members, so the correct `sd(x_t - mean(window))` band cannot be
+## computed from this release; the quantitative comparison is the Table 11 benchmark file.
+IGCC_CSV = os.path.join(lf.REPO, "data/observations/igcc2026_gmsl_annual.csv")
 
 BASE0, BASE1 = 1995, 2005          # the CALIBRATION window; see the docstring
 X0, X1 = 1900, 2026
@@ -137,9 +146,8 @@ print("[BASELINE] all %d model/obs series are zero-mean over %d-%d (max |offset|
 ## IGCC is published on its OWN reference and in mm, so it is the one series this script
 ## re-references itself -- to the SAME window, which is why the gate above runs on the
 ## others rather than on it.
-_ig = pd.read_csv(IGCC_CSV)
-_ig["year"] = _ig.time.astype(int)
-_ig = _ig.set_index("year")
+_ig = pd.read_csv(IGCC_CSV).set_index("year")
+_ig = _ig.rename(columns={"gmsl_mm": "mean", "sigma_level_mm": "std"})
 _igw = _ig["mean"].loc[BASE0:BASE1]
 if len(_igw) < 5:
     raise SystemExit("[IGCC] only %d years cover %d-%d -- too few to baseline a noisy GMSL "
@@ -200,7 +208,9 @@ handles = [Line2D([], [], color=C_LAD, lw=2, label="Ladrillo %s (median)" % TAG)
            Line2D([], [], color=C_BRK, lw=1.6, ls="--", label="BRICK 2.0 (median, from 1920)"),
            Line2D([], [], color=C_OBS, lw=1.6, label="observational target (±1.645σ)"),
            Line2D([], [], color=C_IGCC, lw=1.4, ls=(0, (4, 2)),
-                  label="IGCC 2024 GMSL ensemble (independent, not in the fit)")]
+                  label="IGCC 2025-indicators GMSL (independent, not in the fit); shading is "
+                        "the PUBLISHED LEVEL \u03c3, which does not apply to the re-referenced "
+                        "anomaly")]
 fig.legend(handles=handles, ncol=3, fontsize=8.5, frameon=False, loc="upper center",
            bbox_to_anchor=(0.5, 0.975))
 fig.suptitle("Historical sea-level rise 1900–2026 by component — %s vs observations vs "

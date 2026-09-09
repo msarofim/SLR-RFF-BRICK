@@ -10,7 +10,7 @@ period only:
            vs. IGCC 2024 4-dataset mean and Berkeley Earth annual.
   Bottom — Global mean sea level: BRICK LHS-10k baseline, importance-weighted,
            vs. Dangendorf 2024, Church & White 2011 (CSIRO Recons), and
-           IGCC 2024 GMSL ensemble.
+           IGCC 2025-indicators GMSL series.
 
 Conventions:
   - GMST baseline: 1850-1900 mean (pre-industrial reference, AR6).
@@ -52,9 +52,7 @@ IGCC_GMST_CSV   = ROOT / "data" / "observations" / "igcc2024_gmst_4dataset_mean.
 BE_CSV          = ROOT / "data" / "observations" / "berkeley_earth_annual.csv"
 DANGENDORF_CSV  = ROOT / "data" / "observations" / "dangendorf_2024_gmsl.csv"
 CHURCH_CSV      = ROOT / "data" / "calibration" / "CSIRO_Recons_gmsl_yr_2015.csv"
-IGCC_GMSL_CSV   = (ROOT / "data" / "observations" / "raw" / "igcc2024"
-                   / "ClimateIndicator-data-2cd2409" / "data" / "sea_level_rise"
-                   / "IGCC_GMSL_ensemble.csv")
+IGCC_GMSL_CSV   = (ROOT / "data" / "observations" / "igcc2026_gmsl_annual.csv")
 
 # ---- Baseline windows -------------------------------------------------------
 GMST_BASE = (1850, 1900)   # AR6 pre-industrial
@@ -155,8 +153,13 @@ def load_church() -> tuple[np.ndarray, np.ndarray, np.ndarray]:
 
 
 def load_igcc_gmsl() -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """IGCC 2024 GMSL ensemble — returns (years, mean_cm, std_cm)."""
-    d = pd.read_csv(IGCC_GMSL_CSV)
+    """IGCC 2025-indicators GMSL — returns (years, mean_cm, std_cm).
+
+    ⚠ std here is the PUBLISHED LEVEL sigma; it largely cancels under re-referencing and is not
+    the uncertainty on an anomaly. See python/ingest_igcc2026_gmsl.py.
+    """
+    d = pd.read_csv(IGCC_GMSL_CSV).rename(
+        columns={"gmsl_mm": "mean", "sigma_level_mm": "std"})
     return (np.floor(d["time"].to_numpy()).astype(int),
             d["mean"].to_numpy() / 10.0,
             d["std"].to_numpy() / 10.0)
@@ -225,7 +228,7 @@ def main() -> None:
     for loader, color, label in [
         (load_dangendorf, COLOR_DANGEN,   "Dangendorf 2024"),
         (load_church,     COLOR_CHURCH,   "Church & White 2011 (CSIRO Recons)"),
-        (load_igcc_gmsl,  COLOR_IGCC_SLR, "IGCC 2024 ensemble"),
+        (load_igcc_gmsl,  COLOR_IGCC_SLR, "IGCC 2025-indicators GMSL"),
     ]:
         y, v, s = loader()
         v_n = rebaseline_series(y, v, *GMSL_BASE)
