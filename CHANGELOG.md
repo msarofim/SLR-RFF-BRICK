@@ -12957,3 +12957,11 @@ with a GlacierMIP3 target.
 - Tried and rejected for the comment: asking for distributions on Fig. 8 panels C-G (a re-plot
   request, out of reviewer scope) and asking for a reversibility column in the Table 2 taxonomy
   (a new taxonomy axis; downgraded to a suggested limitation sentence).
+- Added §3e to the SLEIP support note: MP25's thermal expansion is described three incompatible
+  ways (§3.5 linear in GSAT / §4.3 linear in cumulative GSAT / §4.4 "direct GSAT scaling"), and the
+  overshoot experiment is where the difference is maximal. Measured in FaIR: R^2 of OHC on
+  instantaneous GSAT is 0.0002 in the overshoot arm vs 0.884 on cumulative GSAT; OHC at matched
+  GSAT is 1.9-3.1x higher on the down-leg. kappa = N/dGSAT falls ~0.80 -> 0.07-0.19 W/m2/K, which
+  is the mechanism behind the paper's own "sub-linear in cumulative GSAT" finding.
+- ⚠ Units: the OHC cubes are 1e22 J, NOT ZJ (builder column `ohc_1e22J`; 1971-2018 gives 430 ZJ vs
+  AR6 ~396 ZJ full-depth). An intermediate table in session mislabelled them 10x low.

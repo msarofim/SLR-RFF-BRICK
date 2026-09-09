@@ -206,6 +206,53 @@ means," with no external work cited at all.
 glaciers with "a slow partial recovery (glacier growth) after the GSAT convergence in 2150" across
 emulators, so the reversibility differences are already visible in their own figure.
 
+### e. ⭐ MP25's thermal expansion is described THREE different ways, and the differences matter here
+
+The paper describes MP25's thermal expansion parameterisation three times, incompatibly:
+
+| location | description |
+|---|---|
+| §3.5 | "Thermal expansion is parameterised as a **linear function of global mean temperature**" |
+| §4.3 | "parameterising thermal expansion as directly proportional to the **cumulative GSAT integral**, and thus the only emulator with a linear relationship by construction" |
+| §4.4 + Table 2 footnote | "computes thermal expansion from a **direct GSAT scaling** rather than MAGICC ocean heat content" |
+
+TE ∝ T and TE ∝ ∫T dt are different models, and the overshoot experiment is the one place the
+difference is maximal: **GSAT reconverges at 2150 by construction, its integral never does.**
+
+**Why this is not pedantry — measured, FaIR 2.2.4 (calib 1.6.0), 841 configs, medians:**
+
+| scenario | R² of OHC on GSAT | R² of OHC on cumulative GSAT |
+|---|---|---|
+| SSP5-8.5 | 0.912 | 0.956 |
+| SSP2-4.5 | 0.830 | 0.933 |
+| SSP1-2.6 | 0.058 | 0.903 |
+| idealised overshoot pair | **0.0002** | 0.884 |
+
+In the overshoot arm, instantaneous GSAT explains **essentially none** of the OHC variance. The
+relation is not merely non-linear, it is **hysteretic**: at matched GSAT, OHC on the down-leg is
+**1.9–3.1×** its up-leg value (e.g. at 0.90 K, 59 vs 185 ×10²² J).
+
+⇒ Fig. 8E is consistent with the §4.3 (integral) reading and not the §3.5 (instantaneous) one:
+MP25's TE penalty peaks ~50 yr later than every other emulator and ends **~3× higher**
+(≈0.038 m vs ≈0.010–0.014 m at 2300). §4.4 notes MP25 is "the exception" but does not quantify or
+weigh it, while stating TE differences are "small in magnitude and tightly clustered."
+
+**Constructive ask:** state which parameterisation MP25 uses, and note in §4.4 that the TE driver
+choice is not neutral under overshoot. Second example for the "apply your own judgment" theme.
+
+⚠ **Also relevant to §4.3's own finding.** §4.3 reports TE "increasing **sub-linearly** with
+cumulative GSAT, basically reflecting the MAGICC ocean heat content response." Our κ measurement
+gives the mechanism: effective ocean heat uptake efficiency κ = N/ΔGSAT is **not constant**, falling
+from ~0.80 W/m²/K at 2030 to 0.07 (SSP1-2.6) / 0.19 (SSP5-8.5) by 2280, because uptake is set by the
+disequilibrium F − λT, not by T. MP25's linear-in-∫T construction assumes constant κ — which is
+exactly the assumption §4.3's own sub-linearity finding contradicts.
+
+⚠ **Not verified:** (i) MAGICC's own OHC-vs-GSAT relation — our `magicc_nauels_components.csv` holds
+SLR components, not OHC, so the measurements above are FaIR's; §4.3's "sub-linearly … reflecting the
+MAGICC OHC response" is their statement, consistent with ours but not independently checked here.
+(ii) Perrette & Mengel (2025) has not been read to settle which of the three descriptions is right.
+(iii) The 0.038 / 0.010–0.014 m figures are read off Fig. 8E by eye, not from released data.
+
 ---
 
 ## 4. ⛔ Guardrails — things the comment must not say
