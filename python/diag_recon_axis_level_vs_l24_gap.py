@@ -61,6 +61,16 @@ NAIVE_AXIS_CM    = AXIS_TREND_MM_YR * AXIS_N_YEARS / 10.0   # 2.46 cm, DERIVED n
 
 REPORT_YEARS = [1900, 1925, 1950, 1975, 2000, 2013, 2021]
 
+# ⚠⚠ THERE ARE TWO DIFFERENT "+0.74 cm" IN THIS PROJECT AND THEY ARE NOT THE SAME QUANTITY
+# ([[verify_the_quantity_not_the_word]]). Section 3 named the FIRST; the numeric coincidence
+# makes them indistinguishable in prose, so both are tested here and labelled apart.
+#   (a) L24_GAP_CM above  -- Ladrillo minus the Dangendorf-built TOTAL target, at 2024.
+#   (b) GATE31_GAP_CM     -- the five COMPONENT targets summing above the independent total,
+#                            averaged over 1950-1980 (prep_recalib_targets_ext.py:73).
+GATE31_GAP_CM   = 0.74
+GATE31_WINDOW   = (1950, 1980)
+GATE31_TOTAL_SD = 1.538      # the total target's own sd over GATE31_WINDOW, note 2026-08-11
+
 
 def load(path, vcol="gmsl_mm"):
     d = pd.read_csv(path)
@@ -168,6 +178,39 @@ def main():
           f"difference of")
     print(f"       {AXIS_TREND_MM_YR:.3f} mm/yr averages ACROSS that shape and represents it "
           f"at no single year.")
+
+    # --- the OTHER +0.74: does the axis reach the MID-CENTURY quantity? ------
+    g0, g1 = GATE31_WINDOW
+    print(f"\n[3c] ⚠⚠ THE OTHER +0.74 cm -- gate 3.1's COMPONENT-vs-TOTAL non-closure over "
+          f"{g0}-{g1}")
+    print(f"     Same number, DIFFERENT QUANTITY. Section 3 named the {L24_YEAR} panel gap; "
+          f"this one is")
+    print(f"     mid-century, which is exactly where [3b] says the axis actually lives.")
+    for lbl in (CW_LBL, IGCC_LBL):
+        d = (ser[lbl] - d0).dropna()
+        w = d.loc[g0:g1]
+        if len(w) != g1 - g0 + 1:
+            print(f"     {lbl:28s}  NOT COVERED over {g0}-{g1} ({len(w)} yr)")
+            continue
+        print(f"     {lbl:28s}  mean over {g0}-{g1} = {w.mean():+.3f} cm  "
+              f"=> {abs(w.mean()) / GATE31_GAP_CM:.1f}x the {GATE31_GAP_CM:.2f} cm non-closure, "
+              f"{abs(w.mean()) / GATE31_TOTAL_SD:.2f}x its own sd {GATE31_TOTAL_SD}")
+    print(f"     ⇒ the reconstruction axis DOES reach the mid-century quantity, and does NOT "
+          f"reach the")
+    print(f"       {L24_YEAR} one. ⛔ Which +0.74 a claim refers to CHANGES THE ANSWER -- "
+          f"always say which.")
+    print(f"     ⛔⛔ SIGN, and it is NOT the convenient one. Gate 3.1 is components summing "
+          f"ABOVE the")
+    print(f"        total. Mid-century the CW11 lineage sits BELOW Dangendorf, so adopting it "
+          f"LOWERS the")
+    print(f"        total and makes the non-closure WORSE, not smaller. The correct reading is "
+          f"MAGNITUDE")
+    print(f"        ONLY: the mid-century non-closure cannot be adjudicated independently of "
+          f"the")
+    print(f"        reconstruction choice, because that choice moves the total by MORE than "
+          f"the")
+    print(f"        non-closure itself. It is NOT 'explained by' or 'absorbed into' the "
+          f"reconstruction spread.")
 
     print(f"\n[4] VERDICT")
     if ratio < 1.0:
