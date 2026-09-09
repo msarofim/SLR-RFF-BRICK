@@ -253,6 +253,65 @@ MAGICC OHC response" is their statement, consistent with ours but not independen
 (ii) Perrette & Mengel (2025) has not been read to settle which of the three descriptions is right.
 (iii) The 0.038 / 0.010–0.014 m figures are read off Fig. 8E by eye, not from released data.
 
+### f. ⚠⚠ TWO CORRECTIONS TO THE CURRENT DRAFT (2026-09-09 version)
+
+**(1) ¶ on the climate driver: FaIR's NATIVE pair does not converge — it INVERTS.** The draft says
+"both MAGICC and FaIR show that post-2150 there is little difference between SSP5-3.4-OS and
+SSP1-2.6." Measured, FaIR 2.2.4 / calib 1.6.0, 841 cfgs, medians:
+
+| FaIR pair | peak ΔGSAT | at | @2150 | min after 2150 | @2300 |
+|---|---|---|---|---|---|
+| native `ssp534over − ssp126` | +0.308 K | 2059 | **−0.073 K** | −0.087 K (2165) | −0.038 K |
+| native nomarker | +0.301 K | 2061 | **−0.107 K** | −0.127 K (2164) | −0.090 K |
+| idealised `ssp534overMATCH` | +0.303 K | 2060 | +0.035 K | — | +0.016 K |
+| *(MAGICC, for contrast)* | *+0.659 K* | *2059* | *+0.044 K* | — | *+0.042 K* |
+
+⇒ **The 0.30 K peak is robust across all three constructions** — quote it freely. But in FaIR's
+native pair SSP5-3.4-OS ends up **cooler** than SSP1-2.6 after 2150, by up to 0.09–0.13 K. The
+"little difference post-2150" clause is true of MAGICC and of our idealised pair, **not** of FaIR's
+native pair. ⛔ Nicholls and Smith are both on the author list and are the people most likely to
+check this.
+
+Two honest ways out, Marcus's call:
+- Say the FaIR figure comes from a **forcing-matched idealised pair** built so that post-2150
+  forcing converges — which is only needed *because* FaIR's native pair inverts.
+- Or drop the idealised pair and make the stronger claim from the native one: in FaIR the scenarios
+  do not merely reconverge, they **cross**, so even the abstract's "returned to the SSP1-2.6 level by
+  2150" premise is climate-model-dependent.
+
+**(2) ¶ on Fig. 8B vs 8H: "though probably quite similar" is not supported.** Difference-of-medians
+vs paired-median, total GMSLR @2300:
+
+| model / climate | diff of medians | paired median | ratio |
+|---|---|---|---|
+| MAGICC-SLR / MAGICC | 14.28 cm | 12.75 cm | 1.12× |
+| BRICK 2.0 / MAGICC | 19.36 cm | 11.72 cm | 1.65× |
+| BRICK 2.0 / FaIR | 5.66 cm | 2.57 cm | **2.20×** |
+
+They coincide only when the penalty distribution is near-symmetric. For the MICI-carrying and
+threshold emulators — the ones setting the top of the 8–29 cm range — they do not.
+
+### g. The Fig. 6 / Fig. 7 self-correction is CORRECT, and there is a number for it
+
+The draft's instinct ("longer time with low warming gives more time for OHC to rise"), then
+withdrawn on inspection, was rightly withdrawn — but the mechanism is worth stating. OHC does **not**
+collapse onto a single curve against cumulative GSAT, and the residual runs *opposite* to the first
+guess. FaIR medians, OHC (10²² J) at matched cumulative GSAT (K·yr from 1850):
+
+| cumulative GSAT | SSP1-2.6 | SSP2-4.5 | SSP5-8.5 | spread |
+|---|---|---|---|---|
+| 300 K·yr | 190 (2167) | 247 (2135) | 308 (2112) | 1.62× |
+| 400 K·yr | 214 (2226) | 298 (2170) | 396 (2132) | **1.85×** |
+
+The cool scenario accrues its cumulative warming slowly, near equilibrium, at collapsed κ; the hot
+one accrues it fast while far from equilibrium. Cumulative GSAT cannot tell "1 K for 400 yr" from
+"4 K for 100 yr", but the energy imbalance can. ⇒ The requested extra column (component SLR against
+GSAT, complementing Figs. 6–7) is well motivated: **cumulative GSAT is itself an incomplete
+predictor for the steric term**, not a neutral change of axis.
+
+⚠ FaIR's OHC. SLEIP's Figs. 6–7 use MAGICC's, which we cannot check (`magicc_nauels_components.csv`
+holds SLR components, not OHC).
+
 ---
 
 ## 4. ⛔ Guardrails — things the comment must not say

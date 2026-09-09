@@ -12965,3 +12965,11 @@ with a GlacierMIP3 target.
   is the mechanism behind the paper's own "sub-linear in cumulative GSAT" finding.
 - ⚠ Units: the OHC cubes are 1e22 J, NOT ZJ (builder column `ohc_1e22J`; 1971-2018 gives 430 ZJ vs
   AR6 ~396 ZJ full-depth). An intermediate table in session mislabelled them 10x low.
+- SLEIP note §3f/§3g: two corrections to Marcus's 2026-09-09 draft. (1) FaIR's NATIVE ssp534over-
+  ssp126 pair does not converge post-2150, it INVERTS (-0.073 K @2150, min -0.087 @2165); the
+  0.30 K peak is robust across all three pair constructions but the "little difference post-2150"
+  clause holds only for MAGICC and for our idealised pair. (2) Fig 8B vs 8H definitions differ by
+  1.12-2.20x, not "probably quite similar". Also: OHC does not collapse vs cumulative GSAT either
+  (1.85x spread at 400 K.yr), which motivates the draft's requested extra figure column.
+- Memory: wrote `ohc_is_not_a_function_of_gsat`, indexed in INDEX_fair.md (full) + INDEX_slr.md
+  (pointer). INDEX_slr.md now 17,495 B against an 18 KB hard ceiling -- needs a split soon.
