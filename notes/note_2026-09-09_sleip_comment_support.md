@@ -465,6 +465,45 @@ Climate-independent LWS cancels in the overshoot penalty (our MAGICC-SLR run giv
 not in the p-boxes, where LWS reaches 0.08–0.12 m at 2300. The protocol harmonised the climate driver
 but not the socioeconomic one; worth stating.
 
+### l. THIRD-PASS CHECK (2026-09-09) — one claim outruns the evidence
+
+New citations all verified: p.28 l.696 (quote verbatim), p.14 l.409–410 (SURFER glaciers),
+p.30 l.724 (SURFER outside obs range), **p.5 l.122** (600-member ensemble), p.10 l.282 (FACTS 2,000
+samples), p.18 l.474–480. Forster check is the reviewer's own and is right: Table 11 gives
+3.66 [3.42–3.92], i.e. ≈ ±0.25 against SLEIP's ±2.47 — a factor of ~10, so "order of magnitude" is
+the correct characterisation, and the central values agree (3.66 vs 3.67), so only the interval is
+wrong.
+
+⚠⚠ **The SURFER-glacier paragraph asserts more than the paper's tables support.** The draft says
+SURFER's 0.5 m "should be added as another exception on the page 18 line 477 sentence". But that
+sentence is about where models **plateau in the projections** (~0.3 m, consistent with Farinotti's
+0.32 m), with BRICK/FRISIA exceeding it at 0.41 m. SURFER's 0.5 m is a **sea level potential** — a
+model ceiling — not a projected plateau. The published p-boxes cap the glacier component at:
+
+| horizon | max 83rd percentile across models (highest scenario) |
+|---|---|
+| 2100 (Table 3) | 0.23 m |
+| 2150 (Table 4) | 0.32 m |
+| 2300 (Table 5) | **0.42 m** |
+
+⇒ **No model's 83rd percentile exceeds 0.42 m at 2300**, which is the W-R ceiling of 0.41 m, not
+0.5 m. Nothing published shows SURFER's glacier contribution exceeding BRICK/FRISIA, so "should be
+added as another exception" may simply be wrong — and Couplet (SURFER) is on the author list.
+**Reframe as a question:** does SURFER's glacier contribution approach its stated 0.5 m potential,
+and if so should it join the exception sentence? ⚠ We cannot resolve it: the p-box reports only
+min-17th/max-83rd across models, never which model sets the bound — which is itself the point below.
+
+Two optional strengthenings of the "One More Judgment Call" paragraph:
+- **Name the p-box mechanism.** §4.5 takes the **minimum 17th / maximum 83rd percentile across
+  models**, so one emulator sets each published bound; a model that fails the historical check does
+  not merely join the range, it can define it. The paper also never says which model sets which bound.
+- **A second, independent strike against SURFER, in the authors' own words** (p.14, l.~406): "all
+  radiative imbalance is absorbed by the ocean, leading to some overestimation of thermosteric rise
+  on centennial timescales". Self-declared structural bias, unweighted in §4.5.
+
+Trivia: the SURFER quote reads "anomaly,with" — missing space. The AIS paragraph still opens
+lower-case "in contrast".
+
 ---
 
 ## 4. ⛔ Guardrails — things the comment must not say

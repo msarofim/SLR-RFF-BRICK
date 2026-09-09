@@ -12999,3 +12999,9 @@ with a GlacierMIP3 target.
   thermosteric overestimate) yet the p-box takes min-17th/max-83rd ACROSS models so one emulator
   sets each bound; and the ensemble-combination rule (600 MAGICC members vs FACTS 2,000/workflow vs
   ProFSea 1,000,000) is never stated, which also decides whether Fig 8's penalty is paired.
+- Third-pass check of the draft. All new citations verified (p.5 l.122, p.10 l.282, p.14 l.409-410,
+  p.28 l.696, p.30 l.724). ⚠ ONE CLAIM OUTRUNS THE EVIDENCE: "SURFER's 0.5 m should be added as
+  another exception" -- the p.18 sentence is about projected PLATEAUS (~0.3 m) and the 2300 glacier
+  p-box caps at max-83rd = 0.42 m (2150: 0.32; 2100: 0.23), i.e. the W-R 0.41 m ceiling. 0.5 m is a
+  model POTENTIAL, not a projected value; nothing published shows SURFER exceeding BRICK/FRISIA.
+  Reframe as a question. Couplet (SURFER) is an author.
