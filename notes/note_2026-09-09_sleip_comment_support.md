@@ -534,6 +534,35 @@ inconsistency for the number of total SLR p-box estimates" without saying what t
 ⇒ Three cheap asks: state the number of contributions entering each component p-box; say which
 contribution sets each bound; and explain the acknowledged total-SLR inconsistency.
 
+### n. SUBMISSION CHECK (2026-09-09, final draft)
+
+**Verdict: ready.** Every citation in the final draft has been verified against the PDF; every quote
+is verbatim; every number traces to a measurement in this note. The p-box paragraph is accurate —
+it says "Table p-boxes" (correctly distinguishing them from the Fig. 3/4 boxplots) and "min and max
+p17 and p83", which matches Table 3's own header `p-box: mean p50 (min p17 - max p83)`.
+
+Mechanical fixes only:
+1. "this particulare 0.1 to 0.3 range" → **particular**
+2. The BRICK parenthetical "(Also… " **never closes** — add ")"
+3. "make it clear that this it is a result" → stray **"it"**
+4. "each emulators set" → **emulator's**
+5. AIS paragraph opens lower-case "in contrast"
+6. "3.66[3.42to3.92]" → spacing
+
+**One free strengthening.** The BRICK parenthetical hedges "if it is an adjustable parameter". It
+demonstrably is, and the citation is the **very next sentence** after the line already cited:
+**p.8, line ~201** — "BRICK's glacier component has six uncertain parameters, including the
+proportionality constant, **initial glacier volume**, and exponent in the power law relationship".
+Our Fig. 4 measurement corroborates the asymmetry: FRISIA's SSP5-8.5 whisker is 0.341–0.374 (inside
+the 0.41 m W-R ceiling) while BRICK's is 0.230–0.456 (through it) — consistent with BRICK sampling
+the initial volume and FRISIA fixing it.
+
+⚠ **One residual risk, Marcus's call (he has kept the "another exception" framing).** SURFER's
+*realised* glacier contribution at 2300 under SSP5-8.5 is **0.322–0.326 m** — i.e. at Farinotti.
+Couplet (SURFER, on the author list) can therefore reply "SURFER does not exceed 0.32 m; the 0.5 m
+reservoir is never approached." Half a sentence preempts it: the concern is the assumed reservoir on
+the long timescales SURFER targets, not its 2300 value.
+
 ---
 
 ## 4. ⛔ Guardrails — things the comment must not say

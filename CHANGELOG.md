@@ -13017,3 +13017,9 @@ with a GlacierMIP3 target.
   the FACTS grouping. Width is monotone in contributor count, so the AIS p-box is predisposed to be
   wider than TE/LWS independent of true uncertainty -- cross-component width comparisons are not
   like-for-like.
+- Submission check on the final review draft: ready. All citations verified, all quotes verbatim,
+  p-box paragraph accurate against Table 3's own header. Six mechanical typos listed. One free
+  strengthening: BRICK's "if it is an adjustable parameter" is citable at p.8 l.201 (initial glacier
+  volume is one of six uncertain parameters), corroborated by the Fig. 4 asymmetry (FRISIA
+  0.341-0.374 inside the 0.41 ceiling; BRICK 0.230-0.456 through it). One residual risk flagged:
+  SURFER realises 0.322-0.326 m at 2300, so the "another exception" framing invites a rebuttal.
