@@ -81,6 +81,24 @@ disagreement**.
 **Sign and order of magnitude ONLY. Recompute on a stated baseline before anyone quotes it.**
 Bears on [[deficits_are_unresolved]] **for the TOTAL term only.**
 
+⛔ **RETRACTED 2026-09-09c — RECOMPUTED, AND THE NUMBER WAS BACKWARDS.**
+`python/diag_recon_axis_level_vs_l24_gap.py`. On the L24 panel's own **1995–2005** baseline the
+axis at its recent end is **+0.445 cm** (CW11−Dangendorf, 2013, the last common year; IGCC−Dangendorf
+**+0.442** at 2021) against the **+0.74 cm** gap ⇒ **0.60×, not ~3×.** The 2.46 cm was a magnitude at
+the **EARLY** end, where a ~2000-centred baseline puts the reconstructions furthest apart and where
+the panel has no gap to explain. ⇒ **the 2024 gap does NOT sit inside the reconstruction
+disagreement.**
+⭐ **And the axis is not a slope difference at all — it has SHAPE**: max |diff| **−4.10 cm at 1940**
+(CW11), **−2.65 cm at 1936** (IGCC), against +0.44 at both recent ends. The 1900–2007 OLS difference
+averages across that and represents it at **no single year**.
+⚠⚠ **AND THERE ARE TWO "+0.74 cm".** This paragraph named the **2024 L24 panel** one. The **other**
+is gate 3.1's **components-minus-total over 1950–1980**, and the axis DOES reach that one:
+**1.4–2.6×** it, **0.65–1.23×** its own sd of 1.538 cm. ⛔ But the **SIGN is not the convenient one** —
+mid-century CW11 sits **BELOW** Dangendorf, so adopting it **worsens** the non-closure. Magnitude
+only: that non-closure **cannot be adjudicated independently of the reconstruction choice**; it is
+**not "explained by"** it. Always say **which +0.74** ([[verify_the_quantity_not_the_word]]).
+
+
 ---
 
 ## 4. ✅ DIAGNOSTIC 2 — `python/diag_modern_splice_altimetry.py` (`05d88f8`)
@@ -146,6 +164,41 @@ and without it**: 2-product mean at 2024 **85.90** vs 3-product **85.92**.
 
 ⚠ **Do not rebuild targets on any of these without an answer** — [[handoff_open_item_is_not_a_ruling]].
 **TORCH VERDICT (standing, say it out loud): LOCAL** for the non-joint sampler; **Torch** if joint.
+
+---
+
+---
+
+## 5b. ⭐ §5 IS NOW RULED — all three, Marcus 2026-09-09c. These are RULINGS, not open items.
+
+1. **ANCHOR: the modern anchor BECOMES the IGCC three-product altimetry ensemble**, not NOAA
+   STAR — **at the next target rebuild.** ⚠ **NOT APPLIED**, see ruling 3.
+   ⚠ It uses the `NOAA`-headed col 3 that the standing note holds back; **the ruling lifts that
+   hold for this purpose**, and nothing turns on it — 2-product 85.90 vs 3-product 85.92 at 2024.
+2. **`ALT_SIGMA_MM` STAYS AT 4.0.** Moving it would TIGHTEN the target; 4.0 is conservative
+   against the splice-window spread (1.9–3.2 mm) and against Dangendorf's own SE at the join
+   (2.68). Recorded at `prep_recalib_targets_ext.py:104`.
+3. ⛔ **THIS IS A PROVENANCE UPDATE, NOT A RESULT UPDATE.** No target rebuilt, no chain run, no
+   shipped number moved. Every downstream consumer — five pulse stages, both `/magiccclim` arms,
+   duration and ordering, the CH₄:CO₂e exchange rate,
+   `deliverables/pulse_model_differences_L24_section.md` — is **untouched and still valid.**
+
+⚠ **RULINGS 1 AND 3 PULL AGAINST EACH OTHER, AND THE RESOLUTION IS DELIBERATE.** Ruling 1 is
+recorded as a **comment at the point of the claim** (`prep_recalib_targets_ext.py`, the
+`# --- TOTAL :` block) and **not applied to the code**, because editing the splice without
+regenerating `outputs/recalib_targets_ext.csv` would leave the script disagreeing with its own
+output — the silent-staleness trap. **The next session that is authorised to rebuild targets
+applies ruling 1 and regenerates in the same commit.**
+⚠ **If Marcus meant "change the code now and regenerate the targets file without refitting",
+that is the option he did NOT pick — ask before doing it.**
+
+**TORCH VERDICT (standing, said out loud): LOCAL** for the non-joint sampler; **Torch** if joint.
+
+## 5c. ⛔ WHAT IS OPEN AFTER 09-09c
+
+**Nothing is blocking.** The only live item is that **ruling 1 is recorded but unapplied**, by
+design. `python/prep_recalib_targets_ext.py` and `outputs/recalib_targets_ext.csv` remain
+**mutually consistent and untouched.**
 
 ---
 

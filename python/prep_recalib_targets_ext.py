@@ -102,6 +102,12 @@ FIT_Y0           = 1900                 # fit start
 EXT_Y1           = 2026                 # widest extension (AIS/GIS GRACE end)
 GT_PER_CM_SLE    = 3620.0              # 362 Gt/mm * 10 (ocean-area based; <1% on increments)
 ALT_SIGMA_MM     = 4.0                 # nominal altimetry annual GMSL 1-sigma (NOAA STAR sigma col empty)
+# ⭐ RULED 2026-09-09c (Marcus): ALT_SIGMA_MM STAYS AT 4.0. Measured against the across-product
+# spread IN THE SPLICE YEARS (2022-24) it is 1.9-3.2 mm, and Dangendorf's own SE at the join is
+# 2.68 -- so 4.0 is CONSERVATIVE and replacing it would TIGHTEN the target, the opposite of what
+# the 09-09 scoping note implied. The scope's "1.4-11x" was the ERA-WIDE range, evaluated over
+# the wrong window ([[like_for_like_forcing]] applies to a sigma's window too).
+# Evidence: python/diag_modern_splice_altimetry.py; notes/handoff_2026-09-09b... section 4.
 # per-component overlap window for the offset-match splice
 OVERLAP = {"ais": (2003, 2018), "gis": (2003, 2018), "gsic": (2003, 2018),
            "steric": (2005, 2018), "dang": (2003, 2018)}
@@ -313,6 +319,22 @@ modern["steric"] = (pd.Series((st.WO / 10.0).values, index=st.yr.values),
                     pd.Series((st.WOse / 10.0).values, index=st.yr.values))
 
 # --- TOTAL : NOAA STAR altimetry GMSL (mm) ---
+# ⭐⭐ RULED 2026-09-09c (Marcus): AT THE NEXT TARGET REBUILD THIS ANCHOR BECOMES THE IGCC
+# THREE-PRODUCT ALTIMETRY ENSEMBLE, not NOAA STAR. NOT APPLIED HERE, DELIBERATELY: the same
+# ruling scoped the 09-09c update as PROVENANCE-ONLY, so no target was rebuilt and no chain
+# was run. Editing this line without regenerating outputs/recalib_targets_ext.csv would leave
+# the script disagreeing with its own output -- do not half-apply it.
+#   why IGCC: STAR is a single product, and the one IGCC dropped (for AVAILABILITY, not
+#   quality); offset-matched over 2003-2018 it sits 3.67 mm = 0.92 sigma BELOW the IGCC
+#   ensemble at 2024, with every IGCC product above it in every spliced year. IGCC also
+#   reaches 2025, one year past STAR.
+#   reach: 3 years directly (2022-24), but the 2003-2018 offset match means the choice moves
+#   those years twice over.
+#   ⚠ the 3-product ensemble USES the `NOAA`-headed col 3 of altimetry_indiv_estimates.csv,
+#   which a standing note says not to use until its header/product mismatch is settled. The
+#   ruling lifts that hold for this purpose; measured cost of honouring it instead is 0.02 mm
+#   at 2024 (2-product mean 85.90 vs 3-product 85.92), so nothing here turns on it.
+# Evidence: python/diag_modern_splice_altimetry.py; notes/handoff_2026-09-09b... section 4-5.
 alt = pd.read_csv(os.path.join(OBS, "nasa_gmsl_annual.csv")).set_index("year")
 modern["dang"] = (alt["value"] / 10.0, pd.Series(ALT_SIGMA_MM / 10.0, index=alt.index))
 

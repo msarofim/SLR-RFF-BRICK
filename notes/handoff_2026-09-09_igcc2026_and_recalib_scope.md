@@ -217,6 +217,11 @@ hours.
   which Ladrillo sits above the target ⇒ **the gap we report as a model result sits INSIDE
   the reconstruction disagreement.** Trend-to-level, sign and magnitude only — **recompute on
   a stated baseline before quoting**. This is a reason to look, not a result.
+  ⛔ **RETRACTED 09-09c — recomputed on the panel's 1995–2005 baseline: the axis is
+  **0.60×** the 2024 gap, not ~3×, and its real structure is MID-CENTURY (max −4.10 cm at
+  1940). It reaches gate 3.1's *different* +0.74 cm (1950–1980) at 1.4–2.6×, but with the
+  sign that WORSENS it. See `python/diag_recon_axis_level_vs_l24_gap.py` and
+  `notes/handoff_2026-09-09b...` §3.
 - ✅ **Q2 RULED 09-09b: KEEP DANGENDORF as the fitted target, CARRY THE CW11 AXIS as an
   uncertainty.** Both open questions are now closed.
 - ✅ **Reason 1 HAS NOW RUN** — `python/diag_modern_splice_altimetry.py`, commit `05d88f8`.

@@ -31,6 +31,37 @@ by which Ladrillo sits above the target on the L24 total panel — the axis is ~
 as a model result. **Trend-to-level; the level depends on the reference window. Recompute on a
 stated baseline before quoting.**
 
+⛔ **RETRACTED 2026-09-09c — RECOMPUTED, AND THE NUMBER WAS BACKWARDS.**
+`python/diag_recon_axis_level_vs_l24_gap.py`. On the L24 panel's own **1995–2005** baseline the
+axis at its recent end is **+0.445 cm** (CW11−Dangendorf, 2013, the last common year; IGCC−Dangendorf
+**+0.442** at 2021) against the **+0.74 cm** gap ⇒ **0.60×, not ~3×.** The 2.46 cm was a magnitude at
+the **EARLY** end, where a ~2000-centred baseline puts the reconstructions furthest apart and where
+the panel has no gap to explain. ⇒ **the 2024 gap does NOT sit inside the reconstruction
+disagreement.**
+⭐ **And the axis is not a slope difference at all — it has SHAPE**: max |diff| **−4.10 cm at 1940**
+(CW11), **−2.65 cm at 1936** (IGCC), against +0.44 at both recent ends. The 1900–2007 OLS difference
+averages across that and represents it at **no single year**.
+⚠⚠ **AND THERE ARE TWO "+0.74 cm".** This paragraph named the **2024 L24 panel** one. The **other**
+is gate 3.1's **components-minus-total over 1950–1980**, and the axis DOES reach that one:
+**1.4–2.6×** it, **0.65–1.23×** its own sd of 1.538 cm. ⛔ But the **SIGN is not the convenient one** —
+mid-century CW11 sits **BELOW** Dangendorf, so adopting it **worsens** the non-closure. Magnitude
+only: that non-closure **cannot be adjudicated independently of the reconstruction choice**; it is
+**not "explained by"** it. Always say **which +0.74** ([[verify_the_quantity_not_the_word]]).
+
+
+### ⭐ 2026-09-09c — the three §5 recalibration choices RULED; PROVENANCE update, not a RESULT update
+
+Marcus ruled all three open choices. (1) The modern anchor **becomes the IGCC three-product
+altimetry ensemble** — **at the next target rebuild**, recorded as a comment at the point of the
+claim and deliberately NOT applied, because editing the splice without regenerating
+`outputs/recalib_targets_ext.csv` would leave the script disagreeing with its own output.
+(2) **`ALT_SIGMA_MM` stays at 4.0** — moving it would TIGHTEN the target. (3) **Provenance
+update**: no target rebuilt, no chain run, **no shipped number moved**; all five pulse stages,
+both `/magiccclim` arms, duration/ordering, the CH₄:CO₂e exchange rate and
+`deliverables/pulse_model_differences_L24_section.md` remain valid.
+The edit to `python/prep_recalib_targets_ext.py` was verified **comment-only** by diff
+(no added non-comment line, no removed line), so the existing targets file is unaffected.
+
 ### The modern splice's defect is the LEVEL, not the typed σ — the opposite of the scoping claim
 `ALT_SIGMA_MM = 4.0` is **CONSERVATIVE**: the measured across-product sd **in the spliced years
 2022–24** is 1.9–2.3 mm (2.7–3.2 dropping the suspect column), and Dangendorf's own SE at the join
