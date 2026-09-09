@@ -232,7 +232,7 @@ In the overshoot arm, instantaneous GSAT explains **essentially none** of the OH
 relation is not merely non-linear, it is **hysteretic**: at matched GSAT, OHC on the down-leg is
 **1.9–3.1×** its up-leg value (e.g. at 0.90 K, 59 vs 185 ×10²² J).
 
-⇒ Fig. 8E is consistent with the §4.3 (integral) reading and not the §3.5 (instantaneous) one:
+⇒ Fig. 8D is consistent with the §4.3 (integral) reading and not the §3.5 (instantaneous) one:
 MP25's TE penalty peaks ~50 yr later than every other emulator and ends **~3× higher**
 (≈0.038 m vs ≈0.010–0.014 m at 2300). §4.4 notes MP25 is "the exception" but does not quantify or
 weigh it, while stating TE differences are "small in magnitude and tightly clustered."
@@ -251,7 +251,7 @@ exactly the assumption §4.3's own sub-linearity finding contradicts.
 SLR components, not OHC, so the measurements above are FaIR's; §4.3's "sub-linearly … reflecting the
 MAGICC OHC response" is their statement, consistent with ours but not independently checked here.
 (ii) Perrette & Mengel (2025) has not been read to settle which of the three descriptions is right.
-(iii) The 0.038 / 0.010–0.014 m figures are read off Fig. 8E by eye, not from released data.
+(iii) The 0.038 / 0.010–0.014 m figures are read off Fig. 8D by eye, not from released data.
 
 ### f. ⚠⚠ TWO CORRECTIONS TO THE CURRENT DRAFT (2026-09-09 version)
 
@@ -311,6 +311,41 @@ predictor for the steric term**, not a neutral change of axis.
 
 ⚠ FaIR's OHC. SLEIP's Figs. 6–7 use MAGICC's, which we cannot check (`magicc_nauels_components.csv`
 holds SLR components, not OHC).
+
+### h. ⚠ PANEL LETTERS, and the sub-zero line in Fig. 8D
+
+⚠ **Thermal expansion is panel 8D, not 8E.** The caption order is "(C-G) … total SLR, thermal
+expansion, global glaciers, Greenland ice sheet, and Antarctic ice sheet" ⇒ C total, **D thermal
+expansion**, E glaciers, F Greenland, G Antarctic. Earlier drafts of this note said 8E; corrected.
+
+**The emulator dipping BELOW zero in Fig. 8D in the 2020s–2030s is ProFSea**, not MP25. Identified
+by matching the curve's pixels against legend swatch cores extracted per entry: ProFSea's core is
+(185,132,170) and the dip's core is (190,159,182) — distance **30**, against ≥67 for FACTS_1e/1f and
+105 for MP25. ⚠ MP25 (137,70,200, the saturated violet) stays at or above zero throughout and is the
+*last* series to rise. An earlier colour extraction paired each series' core with its own
+antialiased edge and produced a bogus ProFSea colour; the per-entry extraction supersedes it.
+
+**Why ProFSea and not the others — mechanism, partly verified.** §3.6: ProFSea's "Thermal expansion
+is computed by taking the OHC directly from FaIR and MAGICC and multiplying by the mean and standard
+deviation of the AR6 expansion coefficients (0.113 ± 0.013 m/YJ)". That is OHC × a constant, with no
+lag, no integrator and no inertia of its own ⇒ **its TE difference is a direct readout of the ΔOHC it
+is handed.** A negative excursion therefore reports a genuinely negative ΔOHC in the driver rather
+than anything ProFSea does.
+
+Corroborated on FaIR's side, same scenario pair (`ssp534over − ssp126`, 841 cfgs, medians):
+ΔGSAT bottoms at **−0.0016 K in 2027** and ΔOHC at **−0.022 ×10²² J in 2028** before both turn
+sharply positive (ΔGSAT +0.086 K by 2040). So the sign reversal is real in an independent model.
+
+⚠ **Hypothesis, NOT verified:** that the early reversal is a short-lived-forcing/aerosol effect —
+SSP1-2.6 briefly warming faster while SSP5-3.4-OS still tracks SSP5-8.5 before their CO₂ pathways
+diverge. We hold no ERF-component cubes for these arms, so the forcing has not been decomposed.
+⚠ Also unverified: why ProFSea alone expresses it when several other emulators are likewise
+OHC-proportional (plausibly the least-damped formulation plus plotting scale — the dip is ~6 % of
+the panel's peak). **Do not assert either in the comment without checking.**
+
+⇒ If used at all, this is a *line-by-line* observation, not a ranking point: "the sub-zero excursion
+in Fig. 8D in the 2020s appears to be inherited from the driver rather than from the emulator —
+is that right, and is it worth a word in the caption?"
 
 ---
 

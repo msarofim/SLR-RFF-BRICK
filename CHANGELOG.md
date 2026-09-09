@@ -12973,3 +12973,11 @@ with a GlacierMIP3 target.
   (1.85x spread at 400 K.yr), which motivates the draft's requested extra figure column.
 - Memory: wrote `ohc_is_not_a_function_of_gsat`, indexed in INDEX_fair.md (full) + INDEX_slr.md
   (pointer). INDEX_slr.md now 17,495 B against an 18 KB hard ceiling -- needs a split soon.
+- ⚠ Corrected throughout: thermal expansion is Fig. 8D, not 8E (C total / D TE / E glaciers /
+  F Greenland / G Antarctic). Note and the ohc_is_not_a_function_of_gsat memory both fixed.
+- The Fig. 8D sub-zero excursion in the 2020s-30s is ProFSea (legend-core colour match, distance
+  30 vs >=67 for alternatives), NOT MP25. ProFSea's TE is OHC x 0.113 m/YJ with no inertia, so it
+  reads out the driver's dOHC; FaIR reproduces a negative dGSAT (-0.0016 K, 2027) and dOHC
+  (-0.022e22 J, 2028) on the same pair. Aerosol mechanism NOT verified - no ERF cubes for these arms.
+- Tried and rejected: locating the panel-D zero line by scanning for grey rows -- it locks onto the
+  antialiased black axis. Locate it inside the crop and verify against a magnified view.
