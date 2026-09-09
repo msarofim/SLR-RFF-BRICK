@@ -101,13 +101,24 @@ be computed from this release. Full rule ⇒ [[published_sigma_may_be_level_not_
 ⇒ **component targets are unchanged**: Frederikse 2020, GlaMBIE, GRACE, Mouginot. What these two
 add is a **SPREAD ON THE TOTAL** — which is exactly the term the deficits arc turns on.
 
-⭐⭐ **WANG INDEPENDENTLY REPORTS OUR NON-CLOSURE.** Its abstract: reconstructions span
-**1.3–2.0 mm yr⁻¹ over 1900–2008**, and there are "discrepancies between the trends from
-available GMSL reconstructions and the sum of independent observation-based contributions over
-different periods in the twentieth century, e.g. the discrepancy at the beginning of the
-twentieth century, which could be related to possible bias in the land ice component estimate."
-That is [[curvature_budget_no_closure]] / [[deficits_are_unresolved]] from outside, with a
-suspect named. **Cite it rather than re-deriving it.**
+⭐⭐ ~~**WANG INDEPENDENTLY REPORTS OUR NON-CLOSURE.**~~ ⛔ **CORRECTED 2026-09-09b — this
+heading INVERTED the abstract by quoting it from its second clause on.** The abstract opens the
+sentence with **"Despite GMSL budget closure in terms of long-term trend since 1900,"** and only
+then reports "discrepancies between the trends from available GMSL reconstructions and the sum of
+independent observation-based contributions over different periods in the 20th century, e.g., the
+discrepancy at the beginning of the 20th century, which could be related to possible bias in the
+land ice component estimate."
+
+⇒ Wang makes **two** claims, and only one of them is ours:
+1. **CLOSURE** on the long-term 1900–2019 trend (1.6 ± 0.2 vs contributions 1.5 ± 0.2).
+   **Wang is NOT an external witness to a whole-record deficit.**
+2. **SUB-PERIOD non-closure**, worst at the century's start, suspect = **land ice** — *this* is
+   what maps onto [[curvature_budget_no_closure]] / [[deficits_are_unresolved]], which are
+   curvature/period-structure claims anyway. **Cite it for (2); never for (1).**
+The **1.3–2.0 mm yr⁻¹ spread is across PRE-EXISTING reconstructions over 1900–2008** — a third
+statement, on a different window again, and not about closure at all.
+⚠ This bears on §4 Reason 2: the spread argument survives intact; the "outside witness to
+non-closure" argument narrows to the early century.
 
 ⚠⚠ **THE THREE TRENDS ARE NOT A CLEAN SPREAD AND MUST NOT BE QUOTED AS ONE** — IGCC **1.85** is
 1901–2025, Wang **1.6** is 1900–2019, Dangendorf **~1.5** is 1900–2021, and the later windows
@@ -115,10 +126,20 @@ carry more acceleration. **Match the windows first** ([[like_for_like_forcing]])
 
 ### ⛔ BLOCKED — neither dataset is on disk
 Neither is in the IGCC release (it ships only the AR6-era `CW2011/HA2015/DA2017/DA2019/FR2020`).
-- **Mu**: Zenodo `10.5281/zenodo.15385035`, file `SLRv2.nc`. **Zenodo unreachable all session.**
-  Retry; this is the easy one.
-- **Wang**: ⚠ **data location UNRESOLVED.** AMS returns **403**, and the data-availability
-  statement is not in Crossref (the abstract is). Try CSIRO / NCEI, or ask Church directly.
+- **Mu**: Zenodo `10.5281/zenodo.15385035`, file `SLRv2.nc`. **Zenodo still DOWN on 09-09b** —
+  `504 Gateway Time-out` in ~30 s on `/api/records`, `/records` and via `doi.org`, while DNS
+  resolved, TCP 443 connected and GitHub + doi.org answered normally. **Their gateway, not our
+  network**, two days running. Pure retry; still the easy one.
+- **Wang**: ⚠ **data location STILL UNRESOLVED after a second pass (09-09b).**
+  ⛔⛔ **A DECOY EXISTS AND SEARCH OFFERS IT CONFIDENTLY: `10.5281/zenodo.15288816` IS NOT WANG
+  2024.** It is **Shengdao** Wang et al. **2025**, *ESSD* 17, 7055 — different group, different
+  reconstruction, **1950–2022**. Ours is **Jin-Ping** Wang / Church / Zhang / Chen, 1900–2019.
+  Same surname, nothing else. **Do not ingest it.**
+  ⚠ **AMS is a CloudFront IP-LEVEL BLOCK on the whole domain, not a paywall** — scripted fetch
+  and a real browser both get 403. The paper is **hybrid OA CC-BY** and OpenAlex lists **NO
+  repository copy**, so the only host is the blocked one. The abstract *is* reachable (Semantic
+  Scholar, `DOI:10.1175/JCLI-D-23-0410.1`) — the data statement is not.
+  ⇒ **Don't retry AMS.** Route is a PDF in `ClaudeDocs/Papers/`, or ask Church.
 
 ---
 
