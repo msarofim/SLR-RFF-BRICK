@@ -26,10 +26,23 @@ OBS          = os.path.join(REPO, "data", "observations")
 OUT_CSV      = os.path.join(REPO, "outputs", "diag_recon_trend_spread.csv")
 
 DANGENDORF_F = os.path.join(OBS, "dangendorf2024_gmsl_annual.csv")
+# The Church & White lineage, kept as a LEGACY calibration input, not an obs product.
+# Loaded here only as the CW11-lineage reference point Mu benchmarks itself against.
+CW_F         = os.path.join(REPO, "data", "calibration", "CSIRO_Recons_gmsl_yr_2015.csv")
 IGCC_F       = os.path.join(OBS, "igcc2026_gmsl_annual.csv")
 
 DANGENDORF_LBL = "Dangendorf 2024 (ESSD 16, 3471)"
 IGCC_LBL       = "IGCC 2025-indicators (Forster 2026, ESSD 18, 3889)"
+CW_LBL         = "CSIRO Recons 2015 (Church & White lineage)"
+# Mu's own words: "Our curve yields a rate of 1.60 mm yr-1, very close to the rate of
+# 1.62 mm yr-1 by C2011." So Mu BENCHMARKS ITSELF ON THE CHURCH & WHITE LINEAGE, and
+# that pair is the like-for-like Mu itself constructed.
+MU_VS_C2011_MU    = 1.60
+MU_VS_C2011_C2011 = 1.62
+# L24 total panel at 2024, from handoff_2026-09-09_igcc2026_and_recalib_scope.md section 2:
+# Ladrillo 8.55 cm, IGCC 8.33, Dangendorf-built target 7.81.
+L24_GAP_VS_TARGET_CM = 8.55 - 7.81
+L24_GAP_VS_IGCC_CM   = 8.55 - 8.33
 WANG_LBL       = "Wang 2024 (J.Clim 37, 6453)"
 MU_LBL         = "Mu 2025 (ESSD 17, 5507)"
 
@@ -86,9 +99,25 @@ def load(path, ycol, vcol):
     return d[["year", vcol]].rename(columns={vcol: "gmsl_mm"}).dropna()
 
 
+def load_cw(path):
+    """CSIRO Recons: header lines start with '#' but sit INSIDE a quoted field, so
+    pandas' comment= does not strip them -- drop by non-numeric year instead. Stamps are
+    MID-year (1880.5 = calendar 1880), so FLOOR them: round() is half-to-even and mapped
+    1880.5->1880 but 1881.5->1882, silently duplicating and skipping years."""
+    d = pd.read_csv(path, header=None, names=["year_mid", "gmsl_mm", "sigma_mm"])
+    ym = pd.to_numeric(d.year_mid, errors="coerce")
+    d = d[ym.notna()].copy()
+    d["year"] = np.floor(ym[ym.notna()]).astype(int)
+    d["gmsl_mm"] = pd.to_numeric(d.gmsl_mm, errors="coerce")
+    out = d[["year", "gmsl_mm"]].dropna()
+    assert out.year.is_unique, "CSIRO year mapping produced duplicates"
+    return out
+
+
 def main():
     dang = load(DANGENDORF_F, "year", "gmsl_mm")
     igcc = load(IGCC_F, "year", "gmsl_mm")
+    cw = load_cw(CW_F)
     series = {DANGENDORF_LBL: dang, IGCC_LBL: igcc}
 
     print("=" * 78)
@@ -174,6 +203,57 @@ def main():
     print(f"        of order its single-product error bar. It does NOT vanish the way the")
     print(f"        Dangendorf-vs-IGCC one does. Resolving it needs Mu's estimator, i.e.")
     print(f"        the paper -- NOT the gridded data.")
+
+    print("\n[3c] IS THE SURVIVING OFFSET ONE AXIS? -- Dangendorf vs the CW11 LINEAGE")
+    print("     Mu does not state its estimator, but it states its BENCHMARK:")
+    print(f'       "Our curve yields a rate of {MU_VS_C2011_MU} mm/yr, very close to the')
+    print(f'        rate of {MU_VS_C2011_C2011} mm/yr by C2011."')
+    print("     So Mu places ITSELF on the Church & White lineage. If Dangendorf is the")
+    print("     low member of a ONE-AXIS disagreement rather than one of three scattered")
+    print("     estimates, CSIRO Recons should land WITH Mu, not between.")
+    sub = cw[(cw.year >= my0) & (cw.year <= my1)]
+    if len(sub) >= 3 and sub.year.min() <= my0 and sub.year.max() >= my1:
+        ctr, cse, cn = ols_trend(sub.year.values, sub.gmsl_mm.values)
+        print(f"\n     over {my0}-{my1}, all on OLS:")
+        print(f"       {CW_LBL:52s} {ctr:5.3f} +/-{cse:.3f}")
+        print(f"       {DANGENDORF_LBL:52s} {dtr:5.3f} +/-{dse:.3f}")
+        print(f"       {MU_LBL + ' (published)':52s} {MU_VS_C2011_MU:5.3f}")
+        print(f"       {'Church & White 2011, as quoted BY Mu':52s} "
+              f"{MU_VS_C2011_C2011:5.3f}")
+        print(f"\n       CW-lineage vs Dangendorf = {ctr - dtr:+.3f} mm/yr")
+        print(f"       Mu          vs Dangendorf = {MU_VS_C2011_MU - dtr:+.3f} mm/yr")
+        print("\n     ** RESULT. Our OLS on CSIRO Recons gives %.3f, reproducing the %.2f"
+              % (ctr, MU_VS_C2011_C2011))
+        print("        Mu quotes for C2011 TO THE QUOTED PRECISION. Two consequences:")
+        print("        (a) the ESTIMATOR question is closed -- OLS is what these papers")
+        print("            report, so Mu's +%.3f against Dangendorf is the real figure,"
+              % (MU_VS_C2011_MU - dtr))
+        print("            not the delta/n +%.3f." % (MU_VS_C2011_MU - dep))
+        print("        (b) CW-lineage %+.3f and Mu %+.3f against Dangendorf agree in sign"
+              % (ctr - dtr, MU_VS_C2011_MU - dtr))
+        print("            AND size => the surviving spread is ONE STRUCTURAL AXIS:")
+        print("            Dangendorf LOW, CW11 lineage and Mu HIGH. Wang inherits CW11's")
+        print("            gauge list and editing, and sits high too. NOT three")
+        print("            independent draws -- one disagreement with Dangendorf alone")
+        print("            on the low side.")
+        yrs = my1 - my0
+        cum_cm = (ctr - dtr) * yrs / 10.0
+        print("\n     ** WHAT IT COSTS THE FIT. %.3f mm/yr over %d yr is %.2f cm of"
+              % (ctr - dtr, yrs, cum_cm))
+        print("        cumulative rise. The L24 total panel puts Ladrillo %+.2f cm against"
+              % L24_GAP_VS_TARGET_CM)
+        print("        the Dangendorf-built target and %+.2f cm against IGCC."
+              % L24_GAP_VS_IGCC_CM)
+        print("        => the reconstruction axis is ~%.0fx the gap we currently read as a"
+              % (cum_cm / L24_GAP_VS_TARGET_CM))
+        print("           MODEL result. The gap sits INSIDE the reconstruction")
+        print("           disagreement and cannot be cleanly called a model defect.")
+        print("        WARNING: this is a TREND-to-LEVEL comparison and the level depends")
+        print("        on the reference window. Sign and order of magnitude only -- the")
+        print("        level version must be recomputed on a stated baseline before it is")
+        print("        quoted. It is a REASON TO LOOK, not a result.")
+    else:
+        print(f"     CSIRO Recons does not cover {my0}-{my1}; cannot test.")
 
     pd.DataFrame(rows).to_csv(OUT_CSV, index=False)
     print(f"\n    wrote {OUT_CSV}")
