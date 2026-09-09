@@ -273,3 +273,23 @@ was run, and no shipped L24 number moved.
 citation), `INDEX_slr_obs` (three new pointer lines).
 Budgets measured on CONTENT ([[memory_budget_is_content_not_file]]) — `INDEX_slr_obs` is well
 under its 14 KB soft target; no split needed.
+
+---
+
+## 11. ⭐ WHAT 09-09c ADDED (same branch, after the rulings in §5b)
+
+**New**: `python/diag_recon_axis_level_vs_l24_gap.py`,
+`outputs/diag_recon_axis_level_vs_l24_gap.csv`.
+**Changed, comment-only (verified by diff — no added non-comment line, no removed line)**:
+`python/prep_recalib_targets_ext.py` (ruling 1 at the `# --- TOTAL :` block, ruling 2 at `:104`).
+**Changed, corrections in place**: this note (§3, §5b), the predecessor handoff, `CHANGELOG.md`.
+⛔ **UNTOUCHED**: `outputs/recalib_targets_ext.csv` and everything downstream. **No target was
+rebuilt, no chain was run, no shipped L24 number moved.**
+
+**MEMORY — new (3)**: `recon_axis_is_midcentury_not_recent`,
+`two_plus_074_cm_are_different_quantities`, `recalib_rulings_20260909c`.
+**Corrected in place**: `recon_spread_is_mostly_estimator_and_window` (its "2.46 cm ≈ 3×"
+paragraph is now an explicit retraction). **Updated**: `INDEX_slr_obs` (three pointer lines, the
+stale ≈3× clause replaced). `INDEX_slr_obs` content = **9,872 B** against its 14 KB soft target.
+Orphan-checked: **all 18 wikilinks in the touched files resolve**, and every surviving "2.46 cm"
+in the tree sits inside an explicit retraction.
