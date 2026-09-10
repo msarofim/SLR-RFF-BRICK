@@ -32,8 +32,17 @@ const FY0, FY1 = 1900, Y1
 FY = collect(FY0:FY1); myi=[idx(y) for y in FY]
 
 lc(p,c)=(d=CSV.read(p,DataFrame); Dict(Int(d[i,"year"])=>Float64(d[i,c]) for i in 1:nrow(d)))
-gmst=[lc(joinpath(OBS,"fair_mean_gmst.csv"),"gmst_C")[y] for y in years]
-ohc =[lc(joinpath(OBS,"fair_mean_ohc.csv"),"ohc_1e22J")[y] for y in years]
+## FORCING, MATCHED TO THE LADRILLO ARM (2026-09-10). This overlay used to read the generic
+## fair_mean_{gmst,ohc}.csv, which are the RFF-SP BASELINE CUBE ensemble mean
+## (build_fair_mean_trajectories.py, written for the obs-driven diagnostic combinations) --
+## a DIFFERENT SCENARIO from the ssp245harm forcing the Ladrillo arm and this deliverable use.
+## Re-referenced to 1995-2005 the two agree after 1950 (~0.1-0.2e22 J) but diverge at the early
+## end: 5.76e22 J at 1900, about 0.65 cm of thermal expansion at BRICK's alpha -- in the era the
+## comparison leans on hardest. Both arms now read the same file, so a Ladrillo-minus-BRICK
+## reading is a MODULE difference and not a driver difference.
+const FORCING = "ssp245harm"
+gmst=[lc(joinpath(OBS,"fair_mean_gmst_$(FORCING).csv"),"gmst_C")[y] for y in years]
+ohc =[lc(joinpath(OBS,"fair_mean_ohc_$(FORCING).csv"),"ohc_1e22J")[y] for y in years]
 
 ## ⭐ SEED, ADDED 2026-09-10 -- THIS DRIVER WAS THE ONLY UNSEEDED ONE.
 ## `MimiBRICK.get_model()` draws from the UNSEEDED global RNG (the mimibrick-quirks item 1
@@ -106,7 +115,7 @@ end
 band[!, "provenance"] = fill(
     "posterior_predictive_oldbrick.jl | stock MimiBRICK get_model(ssp245) | " *
     "Random.seed!($SEED) immediately before get_model | posterior " *
-    "data/MimiBRICK/parameters_subsample_brick.csv ND=$ND | forcing fair_mean_{gmst,ohc}.csv | LWS = OBSERVED series (matches Ladrillo arm) | " *
+    "data/MimiBRICK/parameters_subsample_brick.csv ND=$ND | forcing fair_mean_{gmst,ohc}_$(FORCING).csv | LWS = OBSERVED series (matches Ladrillo arm) | " *
     "run $Y0-$Y1, saved $FY0-$FY1, re-referenced $B0-$B1 | cm", ny)
 CSV.write(joinpath(REPO,"outputs/postpred_oldbrick_components_timeseries.csv"), band)
 println("Wrote outputs/postpred_oldbrick_components_timeseries.csv (seed $SEED, ND=$ND)")

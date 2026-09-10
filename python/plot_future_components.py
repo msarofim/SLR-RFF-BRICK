@@ -158,7 +158,7 @@ fig.tight_layout(rect=[0, 0.10, 1, 0.935])
 _cap = (
     "%s — %s; %s.  Arm: %s, IDENTICAL for both models (same cubes, same 2014 splice pivot, "
     "same 1995–2014 re-reference, same PAIR_SEED), so the bands are the same object and "
-    "their widths ARE comparable.  %s  ⚠ Ladrillo is thinned to 8000 draws and BRICK 2.0 to "
+    "their widths ARE comparable.  %s  Ladrillo is thinned to 8000 draws and BRICK 2.0 to "
     "1000, so fine width differences carry the coarser arm's Monte-Carlo noise.  %s  %s%s"
     % (DESC["model"], DESC["calib"], DESC["glacier"], ARM_DESC,
        lf.PROJ_BASELINE.capitalize(), CALIB_NOTE, DESC["note"], CHECK_NOTE))

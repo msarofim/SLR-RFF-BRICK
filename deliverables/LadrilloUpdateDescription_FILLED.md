@@ -83,23 +83,23 @@ Where a cell says a version is not recorded, that is the actual state of the pro
 
 ![Hindcast: Ladrillo L24 vs BRICK 2.0 vs observations](../figures/hindcast_components_L24.png)
 
-**FIG 1.** Component hindcasts, 1900–2026, against the calibration targets, cm baselined to 1995–2005. Both Ladrillo and BRICK 2.0 are integrated from 1850 and plotted from 1900. The total panel also carries IGCC 2025-indicators GMSL (tag `v2026.06.02`) as an independent consensus check; it is not a calibration target. Land-water storage is observational — neither model predicts it, so that panel shows the observed series alone, and both totals carry it.
+**FIG 1.** Component hindcasts against the observations, 1900–2026, in cm relative to a 1995–2005 baseline. Ladrillo L24 (solid, with its 5–95% band) and BRICK 2.0 (dashed) are both integrated from 1850, plotted from 1900, and driven by the same ssp245harm forcing. The total panel also shows IGCC 2025-indicators GMSL (tag `v2026.06.02`) as an independent consensus check, not a calibration target. Land-water storage is observational — neither model predicts it, so panel (e) shows the observed series alone and both totals carry it.
 
 RMSE ratio against BRICK 2.0 — **below 1 means Ladrillo is closer to the observations**:
 
 | component         | 1900–1919 | 1920–1949 | 1950–1992 | 1993–2026 | full      |
 |-------------------|-----------|-----------|-----------|-----------|-----------|
-| Antarctica        | **0.003** | **0.005** | **0.010** | **0.555** | **0.018** |
-| Greenland         | **0.114** | **0.103** | **0.054** | **0.272** | **0.086** |
-| Glaciers          | **0.421** | **0.361** | 1.027     | **0.355** | **0.408** |
-| Thermal expansion | 1.653     | 1.150     | 1.137     | 1.462     | 1.327     |
-| **Total**         | 4.560     | 1.228     | **0.518** | **0.752** | 1.124     |
+| Antarctica        | **0.003** | **0.005** | **0.010** | **0.676** | **0.019** |
+| Greenland         | **0.110** | **0.102** | **0.054** | **0.263** | **0.085** |
+| Glaciers          | **0.431** | **0.371** | 1.061     | **0.408** | **0.419** |
+| Thermal expansion | **0.703** | **0.723** | 1.107     | 1.519     | **0.820** |
+| **Total**         | 4.138     | 1.369     | **0.519** | **0.892** | 1.172     |
 
-Both arms' totals carry the observed land-water-storage series. Neither model predicts LWS: Ladrillo takes the observed series, and BRICK 2.0's LWS module is inactive over the historical period because its posterior was fitted to a GMSL target with LWS removed — so its components represent sea level excluding LWS, and the observed series is added to put both totals on the same basis as the LWS-inclusive observational total. Separately, BRICK 2.0 runs on its own published posterior against our extended targets, so part of its bias is target vintage — a caveat that carries *more* weight in the earliest, sparsest-observation window than anywhere else.
+Ladrillo uses the observed LWS time series directly, whereas native BRICK subtracts LWS prior to calibration, so its components represent sea level excluding LWS; the observed series is added to both totals to put them on the same basis as the LWS-inclusive observational total. Both arms are also driven by the same ssp245harm forcing, so a Ladrillo-minus-BRICK reading is a module difference. Separately, BRICK 2.0 runs on its own published posterior against our extended targets, so part of its bias is target vintage — a caveat that carries *more* weight in the earliest, sparsest-observation window than anywhere else.
 
 *Thermal expansion in both models is driven by FaIR's full-depth ocean heat against a 0–2000 m target, so this row measures Ladrillo's fit relative to BRICK 2.0, not absolute accuracy — see the depth-scope discussion below.*
 
-Ladrillo is closer to the observations than BRICK 2.0 on every ice component, particularly in early eras. Cumulative total sea level rise, comparing the 1900–1904 mean with the 2020–2024 mean: observed +21.00 cm, Ladrillo +19.84, BRICK 2.0 +22.00 — Ladrillo undershoots by 1.2 cm, BRICK overshoots by 1.0. Over the shorter, more recent window — the level at 2024 relative to the 1995–2005 baseline — both models still run high, but only slightly: observed +7.81 cm, Ladrillo +8.16 (+0.36) and BRICK 2.0 +8.45 (+0.65), with IGCC's independent GMSL estimate between them at +8.21. Each of those means is taken over the three years 2022–2024, the years for which the observational total exists.
+Ladrillo is closer to the observations than BRICK 2.0 on every ice component, particularly in early eras. Cumulative total sea level rise, comparing the 1900–1904 mean with the 2020–2024 mean: observed +21.00 cm, Ladrillo +19.84, BRICK 2.0 +21.34 — Ladrillo undershoots by 1.2 cm, BRICK overshoots by 0.3. Over the shorter, more recent window — the level at 2024 relative to the 1995–2005 baseline — both models still run high, but only slightly: observed +7.81 cm, Ladrillo +8.16 (+0.36) and BRICK 2.0 +8.34 (+0.54), with IGCC's independent GMSL estimate between them at +8.21. Each of those means is taken over the three years 2022–2024, the years for which the observational total exists.
 
 **For thermal expansion Ladrillo overshoots, and the cause is FaIR.** In both Ladrillo and BRICK thermal expansion is *exactly* proportional to the ocean heat they are given. When given the FaIR driver, both models overestimate recent thermal expansion (BRICK 2.0 misses the 1993-2026 thermal expansion rate by 1.17× compared to Ladrillo's 1.27×). However, when using observed OHC Ladrillo reproduces steric changes within 4% at every era. Roughly half the apparent miss is depth scope: FaIR's ocean heat is full-depth while the steric target is 0–2000 m, and correcting on IGCC's own >2000 m layer narrows the 1993–2026 rate ratio from 1.27× to as little as 1.15× — an upper bound on the correction, not a point estimate, since deep water expands less per joule than the heat ratio implies. A depth-resolved coefficient was tested and failed, though that may reflect observational uncertainty — the two spliced observed-OHC series we use, Zanna+Cheng and Zanna+IGCC, differ by 51% on 1950–1993 ocean heat gain (35% on five-year mean endpoints).
 

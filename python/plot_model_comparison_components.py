@@ -413,8 +413,8 @@ for YEAR in YEARS:
         % (DESC["model"], DESC["calib"], DESC["glacier"], DESC["gis"],
            lf.PROJ_BASELINE.capitalize(), WIDTH_NOTE,
            lf.BAND_CAVEAT + "  " + lf.GLACIER_LINEAGE_NOTE,
-           ("⚠ NOT DRAWN AT %d: %s. " % (YEAR, ", ".join(absent))) if absent else "",
-           ("⚠ PARTIAL AT %d (some components only): %s. " % (YEAR, ", ".join(partial)))
+           ("NOT DRAWN AT %d: %s. " % (YEAR, ", ".join(absent))) if absent else "",
+           ("PARTIAL AT %d (some components only): %s. " % (YEAR, ", ".join(partial)))
            if partial else "",
            DESC["note"], LIT_NOTE.strip()))
     if CLIP_CAPTION:

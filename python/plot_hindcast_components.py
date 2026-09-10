@@ -87,9 +87,10 @@ X0, X1 = 1900, 2026
 TGT_COL = {"glaciers": "gsic", "gis": "gis", "ais": "ais", "te": "steric",
            "lws": "lws", "total": "dang"}
 BRK_COL = {"glaciers": "gsic", "gis": "gis", "ais": "ais", "te": "te",
-           "lws": None, "total": "total"}     # None = BRICK emits no hindcast for it
+           "lws": None, "total": "total"}     # None = no modelled series for that panel
 LAD_COL = {c: c for c in lf.COMPONENTS}
-LAD_COL["lws"] = None                          # Ladrillo's postpred carries no lws either
+LAD_COL["lws"] = None                          # neither model predicts LWS -- panel (e)
+                                               # shows the observed series alone
 OBS_LINE = {"glaciers": "glaciers_obs_delta_corrected"}   # see the GLACIER OBS TRAP note
 
 C_LAD, C_BRK = lf.SRC_COLOR["Ladrillo"], lf.SRC_COLOR["BRICK 2.0"]
@@ -222,23 +223,19 @@ fig.suptitle("Historical sea-level rise 1900–2026 by component — %s vs obser
              "BRICK 2.0   [%s]" % (DESC["model"], lf.commit_stamp()),
              fontsize=12.5, fontweight="bold", y=0.999)
 fig.tight_layout(rect=[0, 0.165, 1, 0.930])
+## CAPTION SCOPE: say what the figure DOES, plus the provenance labels every output carries.
+## Anything argued in the document's text belongs there, not here -- the baseline distinction,
+## the IGCC depth-scope correction and the TE verdict were all duplicated and are removed.
 _cap = (
-    "%s — %s; %s.  %s, the CALIBRATION window — NOT the 1995–2014 projection baseline the "
-    "future-component figures use; every series above is verified zero-mean over it, and "
-    "the IGCC ensemble is re-referenced to the same window (mm→cm).  "
-    "Component obs: Frederikse 2020 to 2018, extended by GRACE/GRACE-FO mascons (AIS, GIS), "
-    "GlaMBIE 2025 scope-matched (glaciers), NOAA 0–2000 m thermosteric (TE); total = "
-    "Dangendorf 2024 extended by NOAA STAR altimetry.  "
-    "⚠ Glaciers are shown against the r19-seam-corrected obs (`glaciers_obs_delta_corrected`), "
-    "~1.5 cm from the raw target at 1900 and converging by 2020; the raw series would make "
-    "Ladrillo look biased when it is not.  "
-    "⚠ BRICK 2.0 is integrated from 1850 like Ladrillo and plotted from @@X0@@; it was forced "
-    "from data/observations/fair_mean_{gmst,ohc}.csv "
-    "while Ladrillo used ssp245harm — a DIFFERENT driver file, so a Ladrillo-minus-BRICK "
-    "reading here carries that gap.  "
-    "⚠ TE: both models' expansion runs on FaIR's FULL-DEPTH ocean heat vs. a 0-2000 m target; "
-    "IGCC's >2000 m layer narrows the 1993-2026 rate mismatch from 1.27x to AS LITTLE AS "
-    "1.15x — a bound, not a point, still a fail (see Observational Comparison).  %s"
+    "%s — %s; %s.  Baseline %s; every series is verified zero-mean over it, and the IGCC "
+    "ensemble is re-referenced to the same window (mm→cm).  "
+    "Component observations: Frederikse 2020 to 2018, extended by GRACE/GRACE-FO mascons "
+    "(AIS, GIS), GlaMBIE 2025 scope-matched (glaciers), NOAA 0–2000 m thermosteric (TE); "
+    "total = Dangendorf 2024 extended by NOAA STAR altimetry, and both totals carry the "
+    "observed land-water storage.  "
+    "Glaciers are shown against the r19-seam-corrected observations.  "
+    "Both models are integrated from 1850, plotted from @@X0@@, and driven by the same "
+    "ssp245harm forcing.  %s"
     % (DESC["model"], DESC["calib"], DESC["glacier"], lf.CAL_BASELINE.capitalize(),
        DESC["note"]))
 _cap = _cap.replace("@@X0@@", str(X0))          # derived from the constant, not retyped
