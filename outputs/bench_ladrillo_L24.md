@@ -1,6 +1,6 @@
 # Ladrillo benchmark — `L24`
 
-*benchmark v1.0, 2026-09-02, repo `d21b6f7`. Champion arm: **L24** (the candidate IS the champion — no delta column).*
+*benchmark v1.0, 2026-09-10, repo `e323140`. Champion arm: **L24** (the candidate IS the champion — no delta column).*
 
 Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (stock MimiBRICK v2.0.0, own posterior), **literature** (FACTS + MAGICC-SLR, frozen).
 
