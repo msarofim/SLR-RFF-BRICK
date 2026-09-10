@@ -13155,3 +13155,12 @@ with a GlacierMIP3 target.
 - ⚠ Deleting the W-R ranking paragraph left three loose ends: the section is still titled "Ranking",
   para 26 back-references deep dives that "identified ... robustly superior or inferior", and para 4
   promises an example the body no longer delivers. Middle option offered.
+- Final copyedit pass (2026-09-10). The para-4 fix ("I list a couple of examples below where such an
+  inferior/superior judgment call could potentially be made (though I do not do it here)") plus the
+  section retitle to "Component modules comparisons" resolve the structural mismatch left by deleting
+  the W-R ranking paragraph -- promise and delivery now match, and the AIS back-reference reads
+  correctly against it. BRICK parenthetical now says "is an uncertain parameter" (supported by
+  p.8 l.202) with the Fig 4 0.45 m evidence restored (measured 0.448 native / 0.456 MAGICC-forced).
+  SURFER now "agrees well with more complex models on millennial timescales" -- accurate.
+  Remaining: 4 typos only ("the I would not", "thermostretic", "Component modules comparisons",
+  "SSP5-85"). Review is substantively complete; every citation verified across passes.
