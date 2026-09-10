@@ -629,6 +629,41 @@ overstates an inference; "Also…" reads casual/dismissive. The prominent up-fro
 ("immensely valuable", "definitely worthy of publication") is the strongest tone protection and is
 already in place — do not over-correct.
 
+### q. REVIEW PASS (2026-09-10, post-tone-edit)
+
+Tone work landed well: the commendation sentence is in ¶2; the BRICK parenthetical is now a
+**documentation** suggestion ("be careful to document values as medians or means if they aren't
+constants") rather than an accusation; "red flag" → "also worth noting"; and the SURFER paragraph now
+carries its own defence ("different horses for different courses"). p.14 line 408 verified.
+
+Two typos: ¶2 "I will note that **the** I would not have been able" (stray "the"); ¶29
+"thermo**stretic**" → thermosteric.
+
+Two precision points:
+1. ¶29 says SURFER "is accurate on millennial timescales". The paper (p.14, l.407–408) says
+   "simulated thermosteric rise **agrees well with the UVic2.8 Earth system model** of intermediate
+   complexity" — agreement with another MODEL, not accuracy against observations. Small fix, and it
+   keeps the concession measured rather than a full endorsement.
+2. ¶16 says the BRICK volume constraint "actually varies **around 0.41 m**". Line 202 supports
+   *sampled rather than fixed* ("six uncertain parameters, including … initial glacier volume"); the
+   paper never states BRICK's prior is centred on 0.41 — that number is attributed to W-R (2005).
+   Either say "is sampled rather than held fixed", or restore the dropped Fig. 4 evidence (BRICK's
+   SSP5-8.5 whisker reaches ~0.45 m, measured in §l) as support for the range claim.
+
+⚠ **STRUCTURAL: the W-R ranking paragraph was deleted, and that costs something specific.** It was
+the review's clearest worked example of the judgment ¶4 asks for. Three consequences:
+- The section is still titled "**Ranking** of component modules" but no longer asks for a ranking.
+- ¶26 still back-references "the above component deep dives which identified some areas in which some
+  models might be **robustly superior or inferior**" — now overstated: ¶17 ends at "could be judged as
+  being unphysical", and the TE section explicitly declines to rank.
+- ¶4 promises examples where modules "could be identified as being clearly superior or inferior"; the
+  body no longer delivers one.
+
+Middle option (Marcus's call, he may have cut it deliberately): restore a soft ask — invite the
+authors to say whether the two W-R properties are grounds for preferring other GSIC formulations,
+explicitly leaving the verdict to them — dropping only the word "conclusively". Alternatively soften
+¶26's back-reference and the section title to match what remains.
+
 ---
 
 ## 4. ⛔ Guardrails — things the comment must not say

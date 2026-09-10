@@ -13148,3 +13148,10 @@ with a GlacierMIP3 target.
   already calls MP25's 2300 extension "a pure extrapolation exercise".
 - Tone pass: the risk is CONCENTRATION (BRICK carries the critical role in 4 of 5 substantive
   sections), not any single sentence. Four cost-free mitigations recorded in note section p.
+- Post-tone-edit review pass: tone fixes all landed. Two typos ("the I would not", "thermostretic").
+  Two precision points: SURFER "accurate on millennial timescales" is really "agrees well with the
+  UVic2.8 model" (model, not obs); and "varies around 0.41 m" outruns p.8 l.202, which supports only
+  "sampled rather than fixed" (0.41 is attributed to W-R, not to BRICK's prior).
+- ⚠ Deleting the W-R ranking paragraph left three loose ends: the section is still titled "Ranking",
+  para 26 back-references deep dives that "identified ... robustly superior or inferior", and para 4
+  promises an example the body no longer delivers. Middle option offered.
