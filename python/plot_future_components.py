@@ -80,10 +80,9 @@ for k, lab, _c, _d in SCENS:
               "assert a control it did not pass." % (gate, key, val))
 ## The stamp text is built here so it cannot be forgotten at the caption.
 CHECK_NOTE = ("" if not CHECKS else
-              "  ⚠ CONTROL OVER TOLERANCE (drawn anyway, verdict CHECK, not FAIL): "
+              "  Control over tolerance (drawn anyway, verdict CHECK, not FAIL): "
               + "; ".join("%s %s %+.3f" % (l, k2, v) for l, _g, k2, v in CHECKS)
-              + " — a cross-driver gap between the joint driver's fixed arm and the "
-                "shipped panel; it predates this figure and is an OPEN item.")
+              + " — a gap between the joint driver's fixed arm and the shipped panel.")
 ## ⚠ THE PROVENANCE EXPECTATION DIFFERS BY SET AND IS NOT A STYLE CHOICE. The van Vuuren
 ## markers came from ONE build, so "one commit" is assertable. The three SSPs are calib
 ## 1.6.0 while ssp119/370/460 have no 1.6.0 cube -- the SSP family straddles two
@@ -156,10 +155,11 @@ fig.tight_layout(rect=[0, 0.10, 1, 0.935])
 ## this figure came out 5462x1306 px (4.2:1) instead of the 15.5x8.6 in it asks for, with
 ## the panels squashed into a strip. Wrap first, then save.
 _cap = (
-    "%s — %s; %s.  Arm: %s, IDENTICAL for both models (same cubes, same 2014 splice pivot, "
-    "same 1995–2014 re-reference, same PAIR_SEED), so the bands are the same object and "
-    "their widths ARE comparable.  %s  Ladrillo is thinned to 8000 draws and BRICK 2.0 to "
-    "1000, so fine width differences carry the coarser arm's Monte-Carlo noise.  %s  %s%s"
+    ## CAPTION SCOPE: the arm, the baseline, the draw counts -- what the figure DOES.
+    ## Why the widths are comparable, and what the thinning implies, are arguments -> the text.
+    "%s — %s; %s.  Arm: %s, the same for both models (same cubes, 2014 splice pivot, "
+    "1995–2014 re-reference and PAIR_SEED).  %s  Ladrillo is thinned to 8000 draws, "
+    "BRICK 2.0 to 1000.  %s  %s%s"
     % (DESC["model"], DESC["calib"], DESC["glacier"], ARM_DESC,
        lf.PROJ_BASELINE.capitalize(), CALIB_NOTE, DESC["note"], CHECK_NOTE))
 fig.text(0.5, 0.085, "\n".join(textwrap.wrap(_cap, 185)),

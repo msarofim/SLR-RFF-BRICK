@@ -166,15 +166,10 @@ PARAM_ONLY = sorted({(r.source, b) for r, b in
                      zip(D[~D.band_ok].itertuples(), D[~D.band_ok].band_basis)})
 WIDTHS_COMPARABLE = bool(D.band_ok.all())
 if WIDTHS_COMPARABLE:
-    WIDTH_NOTE = ("Bars are 17-83% (thick) and 5-95% (thin) and are drawn for ALL FOUR "
-                  "sources, because all four now carry climate uncertainty -- which is "
-                  "what the joint arms were built for and what makes these widths "
-                  "comparable at all.")
+    WIDTH_NOTE = "Bars are 17-83% (thick) and 5-95% (thin), drawn for all four sources."
 else:
-    WIDTH_NOTE = ("Bars are 17-83%% (thick) and 5-95%% (thin). ⚠ %d cell(s) are on a "
-                  "PARAMETER-ONLY basis and are drawn as medians with NO bar, because a "
-                  "fixed (mean-forcing) band is narrower than a joint one for reasons "
-                  "that have nothing to do with the model: %s."
+    WIDTH_NOTE = ("Bars are 17-83%% (thick) and 5-95%% (thin). %d cell(s) are on a "
+                  "parameter-only basis and are drawn as medians with no bar: %s."
                   % ((~D.band_ok).sum(),
                      "; ".join("%s = %s" % (a, b) for a, b in PARAM_ONLY)))
 for s in SOURCES:
@@ -196,13 +191,13 @@ print("[BASIS] every row carries climate uncertainty: %s"
 ## being silently skipped: an unfrozen comparator is a real caveat, just not a failure.
 LIT_NOTE = ""
 if SET != "ssp":
-    LIT_NOTE = ("  ⚠ the FACTS/MAGICC comparators are frozen for the SSP set only, so "
+    LIT_NOTE = ("  the FACTS/MAGICC comparators are frozen for the SSP set only, so "
                 "nothing checks that a re-extraction has not moved the %s ones."
                 % SET_DESC[SET])
     print("[LIT] frozen arm covers the SSP set only; %s comparators are UNFROZEN "
           "(stamped on the caption, not skipped silently)" % SET)
 elif not os.path.exists(FROZEN_LIT):
-    LIT_NOTE = ("  ⚠ the FACTS/MAGICC comparators are NOT frozen (no %s), so nothing "
+    LIT_NOTE = ("  the FACTS/MAGICC comparators are NOT frozen (no %s), so nothing "
                 "checks that a re-extraction has not moved them."
                 % os.path.relpath(FROZEN_LIT, lf.REPO))
     print("[LIT] ⚠ no frozen literature arm at %s" % os.path.relpath(FROZEN_LIT, lf.REPO))
@@ -216,7 +211,7 @@ else:
         ## REPORTED AND STAMPED, not fatal: either copy could be the newer one, and which
         ## one is right is a decision, not a default. But a figure must not assert a
         ## frozen comparator it did not verify.
-        LIT_NOTE = ("  ⚠ LITERATURE ARM MOVED: %d of %d FACTS/MAGICC rows differ from the "
+        LIT_NOTE = ("  LITERATURE ARM MOVED: %d of %d FACTS/MAGICC rows differ from the "
                     "frozen copy (%s) — the comparators drawn here are the LIVE ones."
                     % (len(_moved), len(_j), os.path.relpath(FROZEN_LIT, lf.REPO)))
         print("[LIT] ! %d of %d rows differ from the frozen comparator arm:\n%s"
@@ -407,9 +402,8 @@ for YEAR in YEARS:
     ## ⚠ WRAP THE CAPTION BEFORE SAVING. An unwrapped fig.text is one long line and
     ## bbox_inches="tight" then stretches the canvas to fit it, squashing the panels.
     cap = (
-        "%s — %s; %s; %s.  %s.  %s  %s  FACTS n200 is rel. baseyear 2005, treated as "
-        "comparable to the 1995–2014 mean (the standing MAGICC-comparison convention); "
-        "MAGICC-SLR is v7.5.3 + Nauels 2025 on a 600-member AR6 drawnset.  %s%s%s  %s"
+        "%s — %s; %s; %s.  %s.  %s  %s  FACTS n200 is rel. baseyear 2005; MAGICC-SLR is "
+        "v7.5.3 + Nauels 2025.  %s%s%s  %s"
         % (DESC["model"], DESC["calib"], DESC["glacier"], DESC["gis"],
            lf.PROJ_BASELINE.capitalize(), WIDTH_NOTE,
            lf.BAND_CAVEAT + "  " + lf.GLACIER_LINEAGE_NOTE,

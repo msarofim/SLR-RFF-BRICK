@@ -49,12 +49,11 @@ DISPLAY_BASELINE = "1970-2020"               # display-only re-reference
 ##   SMB+SID split, FACTS carries FittedISMIP / emuGrIS / bamber19, BRICK 2.0 carries SIMPLE.
 ##   Four formulations, four lineages.
 GLACIER_LINEAGE_NOTE = (
-    "⚠ Ladrillo's glacier TRANSIENT is Nauels 2017 Eq. 3 — the MAGICC sea-level law "
-    "(glaciers_nu_component.jl:14) — on a Mengel-2016 equilibrium curve. MAGICC-SLR here IS "
-    "Nauels, so the glaciers panel compares reservoir count, driver and posterior WITHIN one "
-    "formulation family, not two independent methods. BRICK 2.0 (Wigley-Raper) and FACTS "
-    "(ar5glaciers/emuglaciers) are independent of us there. At Greenland all four "
-    "formulations differ.")
+    ## CAPTION SCOPE: name the lineage, which a reader needs in order to read the glaciers
+    ## panel correctly. What that implies about independence is an argument -> the text.
+    "Glacier formulations: Ladrillo and MAGICC-SLR both use the Nauels 2017 transient "
+    "(Ladrillo on a Mengel-2016 equilibrium curve); BRICK 2.0 uses Wigley-Raper and FACTS "
+    "ar5glaciers/emuglaciers. At Greenland all four differ.")
 
 # --- components ------------------------------------------------------------
 ## Canonical order and titles. `total` is LAST so it reads as the sum of what precedes it.
@@ -121,12 +120,11 @@ def band_is_comparable(basis):
 ## The caveat that survives the correction. Climate uncertainty is now present on every
 ## arm, but the ENSEMBLES generating it are not the same ensemble, and two of the four
 ## bands are prior propagations rather than refits.
-BAND_CAVEAT = ("All four bands now carry climate uncertainty -- ours from 841 FaIR "
-               "configs, MAGICC-SLR from its 600-member AR6 drawnset, FACTS from its own "
-               "internal ensembles -- so the widths are the same KIND of object and are "
-               "comparable; they are not the same ensemble, and the two joint arms are "
-               "PRIOR PROPAGATIONS (both posteriors were calibrated under fixed forcing), "
-               "not refits.")
+BAND_CAVEAT = (
+    ## CAPTION SCOPE: say what each band IS. Why the widths are comparable, and the
+    ## prior-propagation caveat, are arguments and live in the text.
+    "Bands carry climate uncertainty: Ladrillo from 841 FaIR configs, MAGICC-SLR from a "
+    "600-member AR6 drawnset, FACTS from its own internal ensembles.")
 
 # --- scenario sets ---------------------------------------------------------
 ## One table per set: (key, label, colour). The van Vuuren table additionally carries the
