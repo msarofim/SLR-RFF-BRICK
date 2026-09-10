@@ -44,7 +44,13 @@ IGCC_LBL       = "IGCC 2025-ind."
 CW_LBL         = "CSIRO Recons (CW11 lineage)"
 
 # THE PANEL'S OWN BASELINE. Not typed independently -- this is the value asserted at
-# plot_hindcast_components.py:78 (BASE0, BASE1 = 1995, 2005), the CALIBRATION window.
+# plot_hindcast_components.py:78 (BASE0, BASE1 = 1995, 2005).
+# ⚠ TERMINOLOGY, and this repo is inconsistent about it: 1995-2005 is a BASELINE (re-reference)
+# period -- `calibrate_mcmc_ext.jl:1404` does `reref(v) = 100*(v - mean(v[ib]))` with ib = B0:B1,
+# i.e. it only sets where zero is. It is NOT the period the model is CALIBRATED OVER, which runs
+# 1900 to each series' last valid year (2023-2025). Several files call 1995-2005 "the calibration
+# window" while others use that same phrase for a real fit period (diag_gis_basin_lit_check.py:217
+# says "1900-2025 calibration window"). Say BASELINE for 1995-2005.
 BASE0, BASE1 = 1995, 2005
 BASE_LBL     = f"{BASE0}-{BASE1}"
 
