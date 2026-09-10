@@ -13141,3 +13141,10 @@ with a GlacierMIP3 target.
   last outstanding one (p.2 l.65-68 -- stranded "however" and objectless "beyond" both confirmed).
   Reviewer's own rescoping of the SURFER ask to "total meltable ice available" closes the rebuttal
   risk flagged earlier. Remaining: one grammar nit ("because...then") and an optional citation.
+- MEASURED Fig. 4 SSP5-8.5 thermal expansion @2300: MP25 box ~1.55-2.00 m (median ~1.78) sits
+  entirely above every other model's median (BRICK ~0.85, MAGICC/FRISIA ~1.03, FACTS ~1.12,
+  ProFSea ~1.00, SURFER ~1.07, AR6 ~1.13). MP25 sets the upper TE p-box bound -- confirms the
+  reviewer's parenthetical, and gives a LESS PERSONAL p-box example than SURFER since Sect. 3.5
+  already calls MP25's 2300 extension "a pure extrapolation exercise".
+- Tone pass: the risk is CONCENTRATION (BRICK carries the critical role in 4 of 5 substantive
+  sections), not any single sentence. Four cost-free mitigations recorded in note section p.

@@ -582,6 +582,53 @@ incapable of projecting beyond their 2100 training horizon". Both observations a
 six-word citation for the adjustable-parameter claim (**p.8, line ~201**, "six uncertain parameters,
 including the proportionality constant, initial glacier volume, and exponent").
 
+### p. TONE PASS (2026-09-10) + MP25 thermal-expansion measurement
+
+**Accuracy: clean.** Every citation verified, including the new "page 8 line 202" — "initial glacier
+volume" does appear on line 202. The new parenthetical "(see again MP25's outlier nature for thermal
+expansion)" is **confirmed**. Measured from Fig. 4, SSP5-8.5 thermal expansion at 2300:
+
+| emulator | 17–83 box (m) | median |
+|---|---|---|
+| **MP25** | **~1.55 – 2.00** | **~1.78** |
+| FACTS 1–4 | ~0.95 – 1.35 | ~1.12 |
+| MAGICC | ~0.80 – 1.30 | ~1.03 |
+| FRISIA | ~0.85 – 1.25 | ~1.03 |
+| ProFSea | ~0.70 – 1.55 | ~1.00 |
+| SURFER | flat | ~1.07 |
+| BRICK | ~0.75 – 1.00 | ~0.85 |
+| *AR6* | — | *~1.13* |
+
+⇒ MP25's entire 17–83 box sits **above every other model's median**, and its p83 (~2.0) sets the
+upper thermal-expansion p-box bound. The parenthetical is well founded.
+
+⭐ **This also gives a less personal example for the p-box paragraph.** MP25 is a case where one
+model demonstrably defines a bound, AND the paper has already stated the caveat itself — §3.5: the
+2300 extension is "produced without a recalibration of the model as a pure extrapolation exercise".
+Raising a caveat the authors have already written is far less pointed than proposing that SURFER be
+excluded.
+
+**Tone risk is CONCENTRATION, not any single sentence.** BRICK carries the critical role in four of
+five substantive sections (W-R volume; W-R's inability to stabilise; the adjustable-volume
+parenthetical; historical Antarctic). Each is individually fair; cumulatively it can read as a
+campaign against one model. Wong is an author and the reviewer is signing.
+
+Free, factually-true mitigations that spread or soften the load:
+1. **W-R is a 2005 parameterisation that BOTH BRICK and FRISIA inherited** — critique its vintage,
+   not either team's implementation.
+2. **BRICK sampling initial glacier volume is good practice** (honest uncertainty propagation); the
+   observation is that the sampled range extends above the observational central estimate — a
+   calibration-prior question, not an error.
+3. **SURFER openly trades centennial for millennial accuracy** — §3.7 says so itself. Acknowledging
+   it is generous AND sharpens the p-box question (a model tuned for millennia setting a 2300 bound).
+4. **One sentence noting that every issue was findable *because* the paper documents the models so
+   thoroughly** reframes the criticism as a compliment to the paper's transparency.
+
+Phrase-level: "red flag" (MP25) is the harshest wording in the review; "conclusively ranked below"
+overstates an inference; "Also…" reads casual/dismissive. The prominent up-front verdict
+("immensely valuable", "definitely worthy of publication") is the strongest tone protection and is
+already in place — do not over-correct.
+
 ---
 
 ## 4. ⛔ Guardrails — things the comment must not say
