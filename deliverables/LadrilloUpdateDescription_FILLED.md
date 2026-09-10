@@ -6,7 +6,7 @@ Ladrillo compares well relative to the other models and sits in a unique space. 
 
 Ladrillo does include a couple of parameters that are not constrained by observations. A Greenland tap triggers above a threshold temperature and is informed by SICOPOLIS. Local temperature amplification relative to global is informed by CMIP6 in addition to historic observations, and is relevant for Antarctic melt.
 
-> **Vintage.** This document describes posterior L24. Basis for every number below: cm, re-referenced to 1995–2014.
+> **Vintage.** This document describes posterior L24. Units are cm. **Two re-reference windows are in play and they are not interchangeable: the hindcast section (FIG 1, the RMSE table, and the 2024 levels) is re-referenced to 1995–2005, the calibration window; the projection sections are re-referenced to 1995–2014.** Model version FaIR 2.2.4 (fair-calibrate 1.6.0). Observational vintages are given in the calibration-data table below.
 
 ## Ladrillo Structural Updates
 
@@ -47,16 +47,19 @@ BRICK 2.0 treats Greenland as one body with one response channel. Ladrillo repla
 
 Additional or replaced observational inputs, relative to BRICK 2.0:
 
-| data source | what it constrains |
-|----|----|
-| **Dangendorf 2024** GMSL | The total, replacing the previous GMSL reconstruction. |
-| **GlaMBIE** glacier series (2019 onward) | The modern glacier rate, spliced onto Frederikse. It includes Antarctic-periphery melt where Frederikse excludes it, which is why R19 is a separate block. |
-| **JPL GRACE / GRACE-FO mascons** | Land-water storage 2019–2026, which had been held flat; the closure σ is trend-extended over the same period. |
-| **Mouginot** Greenland sector shares | The basin split, as a shares term rather than a level. |
-| **Rignot 2019** Antarctic SMB, area-corrected ×0.888 | The absolute Antarctic flux scale. SMB minus discharge is well constrained at −145 ± 15 Gt/yr but each flux individually has high uncertainty (±505/±509), so Rignot anchors the pair. |
-| **Glacier inventory** likelihood + a 19th-century flow constraint, `S(1900) − S(1850) ~ N(0.020, 0.009)` m SLE | The absolute inventory and the pre-observational flow, neither of which the 20th-century transient identifies on its own. |
-| **CMIP6 regional amplification** (34–41 models) | Priors on the per-block glacier amplification and on Antarctic amplification. |
-| **Paleo constraints** on DAIS geometry, in a standardised correlation form | The seven freed geometry parameters (below). |
+| data source | vintage / version as used | what it constrains |
+|----|----|----|
+| **Dangendorf 2024** GMSL | Zenodo `10.5281/zenodo.10621070`; GMSL derived from `Fields.nc`, **not** the record's `Global.nc` (mis-written upstream), and validated against a corrected `_v2.nc` supplied by S. Dangendorf, pers. comm. 2026-08-07 | The total, replacing the previous GMSL reconstruction. |
+| **GlaMBIE** glacier series (2019 onward) | Dataset **1.0.0**, DOI `10.5904/wgms-glambie-2024-07`; acquired 2026-06-13; paper `10.1038/s41586-024-08545-z` | The modern glacier rate, spliced onto Frederikse. It includes Antarctic-periphery melt where Frederikse excludes it, which is why R19 is a separate block. |
+| **JPL GRACE / GRACE-FO mascons** | Release **RL06.3Mv04 CRI**, DOI `10.5067/TEMSC-3JC634`, granule `200204_202606` | Land-water storage. **Real data run 2019–2023**; 2024 is held flat from 2023 (GlaMBIE, which is subtracted, ends 2023) and 2025–2026 are blank. The closure σ *is* trend-extended to the file horizon — the data are not. |
+| **Mouginot** Greenland sector shares | `10.1073/pnas.1904242116`, Supplementary Dataset S2 (`pnas.1904242116.sd02.xlsx`, sheet "(2) MB_GIS"). No dataset version is published | The basin split, as a shares term rather than a level. |
+| **Rignot 2019** Antarctic SMB, area-corrected ×0.888 | *PNAS* 116:1095; 2098 ± 133 Gt/yr over the 1979–2008 climatology. **No DOI or dataset version is recorded** — the values enter as typed constants, not a data file | The absolute Antarctic flux scale. SMB minus discharge is well constrained at −145 ± 15 Gt/yr but each flux individually has high uncertainty (±505/±509), so Rignot anchors the pair. |
+| **Glacier inventory** likelihood + a 19th-century flow constraint, `S(1900) − S(1850) ~ N(0.020, 0.009)` m SLE | Inventory: Farinotti 2019 (*Nat. Geosci.* 12:168) reconciled per Hock 2023, at the RGI ~2000 outline epoch — **no DOI or archive version recorded**; region polygons GTN-G Glacier Regions **2023**, DOI `10.5904/gtng-glacreg-2023-07`, on the **RGI6** scheme. 19th-c flow: Leclercq/Oerlemans/Cogley 2011, DOI `10.1007/s10712-011-9121-7` | The absolute inventory and the pre-observational flow, neither of which the 20th-century transient identifies on its own. |
+| **CMIP6 regional amplification** (34–41 models) | Streamed from the live Pangeo/Google-Cloud CMIP6 zarr catalogue. **No catalogue snapshot date and no per-model ESGF dataset versions are recorded**; what is pinned is the member ID per model, a fixed 40-model panel so a drifted catalogue cannot swap the ensemble, and a git commit hash in the derived priors | Priors on the per-block glacier amplification and on Antarctic amplification. |
+| **Paleo constraints** on DAIS geometry, in a standardised correlation form | `DAISfastdyn_calibratedParameters_gamma_29Jan2017.nc` (sha256\[:16\] `0b53b45e2422563b`), the 16-parameter / 800,000-member ensemble shipped with MimiBRICK; extracted 2026-08-24 | The seven freed geometry parameters (below). |
+| *(not a calibration target)* **IGCC 2025-indicators** GMSL | Tag `v2026.06.02`, data DOI `10.5281/zenodo.20499280`, md5 `8ae5ac0041e26351b9f497f969bd0dab`; paper Forster et al. 2026, `10.5194/essd-18-3889-2026` | Shown on FIG 1 as an **independent** consensus check on the total. It is *not* fitted; the fitted total is Dangendorf 2024. |
+
+Where a cell says a version is not recorded, that is the actual state of the provenance, not an omission from this table: those sources enter the calibration as typed constants or as a live catalogue query, and no version string exists in the repository to cite.
 
 **Deliberately removed: IMBIE**, dropped from the Antarctic likelihood to avoid double-weighting the same mass-balance information already entering through other terms.
 
@@ -80,21 +83,23 @@ Additional or replaced observational inputs, relative to BRICK 2.0:
 
 ![Hindcast: Ladrillo L24 vs BRICK 2.0 vs observations](../figures/hindcast_components_L24.png)
 
-**FIG 1.** Component hindcasts, 1900–2026, against the calibration targets.
+**FIG 1.** Component hindcasts, 1900–2026, against the calibration targets, cm re-referenced to 1995–2005. Both Ladrillo and BRICK 2.0 are integrated from 1850 and plotted from 1900. The total panel also carries IGCC 2025-indicators GMSL (tag `v2026.06.02`) as an independent consensus check; it is not a calibration target.
 
 RMSE ratio against BRICK 2.0 — **below 1 means Ladrillo is closer to the observations**:
 
-| component         | 1920–1949 | 1950–1992 | 1993–2026 | full      |
-|-------------------|-----------|-----------|-----------|-----------|
-| Antarctica        | **0.005** | **0.010** | 0.555     | **0.027** |
-| Greenland         | **0.103** | **0.054** | 0.272     | **0.082** |
-| Glaciers          | **0.361** | 1.027     | **0.355** | **0.372** |
-| Thermal expansion | 1.150     | 1.137     | 1.462     | 1.236     |
-| **Total**         | **0.411** | **0.277** | 1.128     | **0.373** |
+| component         | 1900–1919 | 1920–1949 | 1950–1992 | 1993–2026 | full      |
+|-------------------|-----------|-----------|-----------|-----------|-----------|
+| Antarctica        | **0.003** | **0.005** | **0.010** | **0.555** | **0.018** |
+| Greenland         | **0.114** | **0.103** | **0.054** | **0.272** | **0.086** |
+| Glaciers          | **0.421** | **0.361** | 1.027     | **0.355** | **0.408** |
+| Thermal expansion | 1.653     | 1.150     | 1.137     | 1.462     | 1.327     |
+| **Total**         | **0.687** | **0.411** | **0.277** | 1.127     | **0.459** |
+
+The 1900–1919 column is new. It was previously unavailable because the BRICK 2.0 driver saved output only from 1920 although it integrates from 1850, and the scorecard scores both arms on their common years — so the truncation, not a scientific choice, set both the earliest window and the "full" column. With the spans matched, the three shared windows are unchanged and only "full" moves. **Adding the earliest era does not flatter Ladrillo:** its "full" ratio worsens on glaciers (0.372 → 0.408), thermal expansion (1.236 → 1.327) and the total (0.373 → 0.459). ⚠ BRICK 2.0 runs on its own published posterior against our extended targets, so part of its bias is target vintage — a caveat that carries *more* weight in the earliest, sparsest-observation window than anywhere else.
 
 *Thermal expansion in both models is driven by FaIR's full-depth ocean heat against a 0–2000 m target, so this row measures Ladrillo's fit relative to BRICK 2.0, not absolute accuracy — see the depth-scope discussion below.*
 
-Ladrillo is closer to the observations than BRICK 2.0 on every ice component particularly in early eras. Cumulative total sea level rise, 1920–2024: observed +19.45 cm, Ladrillo +18.83, BRICK 2.0 +22.09 — Ladrillo undershoots by 0.6 cm, BRICK overshoots by 2.6. Over the shorter, more recent window — the level at 2024 relative to the 1995–2005 calibration baseline — both models run slightly high instead: observed +7.81 cm, Ladrillo +8.55 (+0.74), BRICK 2.0 +8.45 (+0.64), with IGCC's independent GMSL estimate at +8.33 cm in between.
+Ladrillo is closer to the observations than BRICK 2.0 on every ice component, particularly in early eras. Cumulative total sea level rise, comparing the 1900–1904 mean with the 2020–2024 mean: observed +21.00 cm, Ladrillo +19.84, BRICK 2.0 +23.45 — Ladrillo undershoots by 1.2 cm, BRICK overshoots by 2.5. (On single-year 1900 and 2024 endpoints, as earlier versions of this document reported over 1920–2024, the same comparison reads +22.16 / +21.19 / +24.53; the five-year end-windows are preferred because a single year of a noisy series is not a level.) Over the shorter, more recent window — the level at 2024 relative to the 1995–2005 calibration baseline — both models still run high, but only slightly: observed +7.81 cm, Ladrillo +8.16 (+0.36), BRICK 2.0 +8.03 (+0.22), with IGCC's independent GMSL estimate the highest of the three at +8.21. Each of those means is taken over the three years 2022–2024, the years for which the observational total exists; averaging the models over the full 2022–2026 window while the observations stop in 2024 previously inflated the Ladrillo figure to +0.74 and the BRICK figure to +0.64, roughly half of each being the window mismatch rather than model bias.
 
 **For thermal expansion Ladrillo overshoots, and the cause is FaIR.** In both Ladrillo and BRICK thermal expansion is *exactly* proportional to the ocean heat they are given. When given the FaIR driver, both models overestimate recent thermal expansion (BRICK 2.0 misses the 1993-2026 thermal expansion rate by 1.17× compared to Ladrillo's 1.27×). However, when using observed OHC Ladrillo reproduces steric changes within 4% at every era. Roughly half the apparent miss is depth scope: FaIR's ocean heat is full-depth while the steric target is 0–2000 m, and correcting on IGCC's own >2000 m layer narrows the 1993–2026 rate ratio from 1.27× to as little as 1.15× — an upper bound on the correction, not a point estimate, since deep water expands less per joule than the heat ratio implies, and the cell is still a FAIL even at that bound. A depth-resolved coefficient was tested and failed, though that may reflect observational uncertainty — Cheng and IGCC disagree by ~50% on 1950–1993 ocean heat gain.
 
@@ -148,4 +153,4 @@ Comparing two sea-level models on different climate drivers confounds the module
 
 **Peak-and-decline scenarios.** The glacier change is evident here because it allows regrowth, though on Ladrillo's own FaIR climate that regrowth is very small: measured from each marker's peak to 2300, it reaches only 0.18 cm at vvLN and 0.13 cm at vvML, and is essentially nil on the other markers. The capacity is larger than the realised amount — driven instead by MAGICC's colder climate, the same module regrows 2.2 cm at vvLN — so what limits regrowth here is how far the scenario cools, not the module's willingness to regrow.
 
-**MAGICC regrows substantially more than Ladrillo.** About ¾ of the regrowth difference is model structure and ¼ the climate module**.** Measured on realised regrowth (peak-to-2300) at vvLN, the scenario where regrowth is largest: MAGICC regrows 8.59 cm against Ladrillo's 0.18 cm, and driving Ladrillo's module with MAGICC's own climate decreases the gap by 2.20 cm. When driving the two models with MAGICC’s own temperature, Ladrillo’s committed equilibrium regrowth is also somewhat less than MAGICC’s, but MAGICC reaches its regrowth limits in the two coldest van Vuuren scenarios. So while the gap with MAGICC is mainly a rate effect (the SLOWP and R19 regions have long timescales of ~275 yr and ~465 yr) this rate effect is compounded by an equilibrium effect.
+**MAGICC regrows substantially more than Ladrillo.** About ¾ of the regrowth difference is model structure and ¼ the climate module\*\*.\*\* Measured on realised regrowth (peak-to-2300) at vvLN, the scenario where regrowth is largest: MAGICC regrows 8.59 cm against Ladrillo's 0.18 cm, and driving Ladrillo's module with MAGICC's own climate decreases the gap by 2.20 cm. When driving the two models with MAGICC’s own temperature, Ladrillo’s committed equilibrium regrowth is also somewhat less than MAGICC’s, but MAGICC reaches its regrowth limits in the two coldest van Vuuren scenarios. So while the gap with MAGICC is mainly a rate effect (the SLOWP and R19 regions have long timescales of ~275 yr and ~465 yr) this rate effect is compounded by an equilibrium effect.
