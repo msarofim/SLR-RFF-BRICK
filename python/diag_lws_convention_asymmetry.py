@@ -27,8 +27,15 @@ This is the apples-to-oranges the `mimibrick-quirks` skill (item 6) warns about,
 "add a Wada-style post-hoc LWS correction to BRICK historical, or subtract a Frederikse 2020 LWS
 series from the obs." Our pipeline applies the remedy to ONE arm.
 
-⚠ THIS SCRIPT PROPOSES NO CHANGE. Which arm to put on which convention is a methodological
-choice about how BRICK is scored, and it is Marcus's. It only measures the size.
+⭐ RULED AND IMPLEMENTED 2026-09-10 (Marcus): BRICK now takes the OBSERVED LWS at source, in
+`posterior_predictive_oldbrick.jl`, so both arms are on one convention and every consumer inherits
+it. ⛔ THAT MAKES THE COMPARISON BELOW SELF-REFERENTIAL — `postpred_oldbrick...csv` is now the
+CORRECTED arm, so "as built" and "with obs LWS" would be the same series and the script would
+report a null difference against itself ([[gate_reads_its_own_output]]).
+⇒ this script is now a REGRESSION TEST, not a proposal: it asserts the convention is live, by
+checking that BRICK's implied LWS tracks the observed series. The sizes the decision rested on are
+in the 2026-09-10 commit and in memory [[lws_convention_asymmetry]]; they are NOT recomputed here,
+because the arm they measured no longer exists on disk.
 ⚠ Only the TOTAL is affected — LWS enters no component, so the AIS/GIS/glacier/TE rows stand.
 ⚠ Pre-2019 the correction is EXACT (BRICK's LWS is exactly 0). Over 1993-2026 it interpolates the
 measured 2019-2026 ramp, so that window alone carries a small approximation.
@@ -68,63 +75,36 @@ def main():
     B = pd.read_csv(BRK).set_index("year")
     L = pd.read_csv(LAD).set_index("year")
     T = pd.read_csv(TGT).set_index("year")
-    obs, obs_lws = L["total_obs"], T["lws"].reindex(B.index)
-
-    lws_b = pd.Series(0.0, index=B.index)
-    ky = sorted(BRICK_LWS_MEASURED)
-    span = [y for y in B.index if y >= BRICK_LWS_ZERO_THROUGH]
-    lws_b.loc[span] = np.interp(span, ky, [BRICK_LWS_MEASURED[k] for k in ky])
-    corr = B["total_p50"] - lws_b + obs_lws      # put BRICK on Ladrillo's LWS convention
+    obs_lws = T["lws"].reindex(B.index)
 
     print("=" * 78)
-    print("DIAGNOSTIC: the LWS convention differs between the two hindcast arms")
+    print("REGRESSION TEST: both hindcast arms carry the OBSERVED land-water storage")
     print("=" * 78)
-    print(f"  BRICK's own LWS is EXACTLY 0 through {BRICK_LWS_ZERO_THROUGH}, "
-          f"+{BRICK_LWS_MEASURED[2024]:.3f} cm by 2024 (measured).")
-    print(f"  Observed LWS anomaly: {obs_lws[1900]:+.3f} cm at 1900, "
-          f"{obs_lws[2024]:+.3f} at 2024 (rel 1995-2005).")
-
-    rows = []
-    o = wmean(obs, *CUM[1]) - wmean(obs, *CUM[0])
-    ba = wmean(B['total_p50'], *CUM[1]) - wmean(B['total_p50'], *CUM[0])
-    bc = wmean(corr, *CUM[1]) - wmean(corr, *CUM[0])
-    la = wmean(L['total_p50'], *CUM[1]) - wmean(L['total_p50'], *CUM[0])
-    print(f"\n[1] CUMULATIVE RISE {CUM[0][0]}-{CUM[0][1]} -> {CUM[1][0]}-{CUM[1][1]} (cm)")
-    print(f"    observed {o:6.2f}   Ladrillo {la:6.2f} ({la-o:+.2f})")
-    print(f"    BRICK as built {ba:6.2f} ({ba-o:+.2f})   BRICK on Ladrillo's LWS {bc:6.2f} "
-          f"({bc-o:+.2f})   <== overshoot roughly HALVED")
-    rows.append(dict(quantity="cumulative_rise_cm", obs=o, ladrillo=la,
-                     brick_as_built=ba, brick_obs_lws=bc))
-
-    o2 = wmean(obs, *LVL)
-    print(f"\n[2] LEVEL AT 2024 ({LVL[0]}-{LVL[1]} mean, cm)   observed {o2:.2f}")
-    print(f"    BRICK gap as built {wmean(B['total_p50'],*LVL)-o2:+.2f}   "
-          f"on Ladrillo's LWS {wmean(corr,*LVL)-o2:+.2f}")
-    rows.append(dict(quantity="level_2024_gap_cm", obs=o2, ladrillo=wmean(L['total_p50'],*LVL)-o2,
-                     brick_as_built=wmean(B['total_p50'],*LVL)-o2,
-                     brick_obs_lws=wmean(corr,*LVL)-o2))
-
-    print(f"\n[3] ⛔ RMSE RATIO ON THE TOTAL (Ladrillo / BRICK; <1 = Ladrillo closer)")
-    print(f"    {'window':11s} {'as built':>9s} {'BRICK on Ladrillo LWS':>23s}  verdict flip?")
-    for wn, (a, b) in WINDOWS.items():
-        m = obs.notna() & (obs.index >= a) & (obs.index <= b)
-        rl = np.sqrt(((L["total_p50"][m] - obs[m]) ** 2).mean())
-        rb = np.sqrt(((B["total_p50"][m] - obs[m]) ** 2).mean())
-        rc = np.sqrt(((corr[m] - obs[m]) ** 2).mean())
-        flip = "YES" if (rl / rb < 1) != (rl / rc < 1) else "no"
-        print(f"    {wn:11s} {rl/rb:9.3f} {rl/rc:23.3f}  {flip}")
-        rows.append(dict(quantity=f"rmse_ratio_total_{wn}", obs=np.nan, ladrillo=np.nan,
-                         brick_as_built=rl/rb, brick_obs_lws=rl/rc))
-
-    print(f"\n[4] VERDICT")
-    print(f"    The TOTAL row of the deliverable's RMSE table is substantially an LWS-CONVENTION")
-    print(f"    artifact, not a skill difference: on 'full' it moves 0.459 -> 1.123, i.e. the")
-    print(f"    direction of the verdict REVERSES. The component rows are untouched.")
-    print(f"    ⚠ NO CHANGE PROPOSED — which arm gets which convention is Marcus's call.")
+    imp_b = B["total_p50"] - (B["ais_p50"] + B["gsic_p50"] + B["gis_p50"] + B["te_p50"])
+    imp_l = L["total_p50"] - (L["ais_p50"] + L["glaciers_p50"] + L["gis_p50"] + L["te_p50"])
+    print(f"  {'year':>6} {'BRICK implied lws':>18} {'Ladrillo implied lws':>21} {'obs lws':>9}")
+    rows, worst = [], 0.0
+    for y in (1900, 1950, 2000, 2018, 2024):
+        o = float(obs_lws[y])
+        print(f"  {y:>6} {imp_b[y]:18.3f} {imp_l[y]:21.3f} {o:9.3f}")
+        worst = max(worst, abs(imp_b[y] - o))
+        rows.append(dict(year=y, brick_implied_lws=imp_b[y], ladrillo_implied_lws=imp_l[y],
+                         obs_lws=o))
+    # ⚠ implied != obs exactly: total_p50 is the quantile of the SUM, not the sum of quantiles.
+    # The bound is scaled to that spread, not typed to a round number.
+    tol = 0.15 * float(obs_lws.loc[1900:2024].abs().max())
+    print(f"\n  [GATE LWS CONVENTION] max |BRICK implied lws - obs lws| = {worst:.3f} cm "
+          f"against a tolerance of {tol:.3f}")
+    print("    (tolerance = 15% of the observed LWS range, not a typed constant; the residual is "
+          "the\n     quantile-of-sum vs sum-of-quantiles gap, which no exact test can remove)")
+    if worst > tol:
+        raise SystemExit("[GATE LWS CONVENTION] FAILED - BRICK's total does not track the "
+                         "observed LWS. The arms are back on different conventions.")
+    print("    => PASS. Both arms are on one LWS convention.")
 
     stamp(pd.DataFrame(rows), __file__, tag=TAG,
           inputs={"brick": BRK, "ladrillo": LAD, "targets": TGT},
-          extra="cm; BRICK LWS measured by julia/diag_brick_lws_extract.jl"
+          extra="cm rel 1995-2005; regression test of the shared LWS convention"
           ).to_csv(OUT_CSV, index=False)
     print(f"\n[wrote] {os.path.relpath(OUT_CSV, REPO)}")
 

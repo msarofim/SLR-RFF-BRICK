@@ -55,6 +55,29 @@ Random.seed!(SEED)
 m = MimiBRICK.get_model(ssprcp_scenario="ssp245", start_year=Y0, end_year=Y1)
 set_forcing!(m, gmst, ohc)
 reref(v)=100 .* (v .- sum(v[ib])/length(ib))
+## ⭐⭐ LWS CONVENTION, MATCHED TO THE LADRILLO ARM (Marcus, 2026-09-10).
+## BRICK's OWN landwater_storage is IDENTICALLY ZERO until 2019 -- MimiBRICK zeroes it before
+## first_projection_year because Wong's CW11 calibration target had LWS REMOVED BEFORE FITTING.
+## Measured, not assumed: julia/diag_brick_lws_extract.jl gives 0.0000 at 1900/1950/2000/2015/2018
+## across 20 draws, first nonzero 2019, +0.19 cm by 2024.
+## => BRICK's components were fit to (GMSL - LWS), so its total IS (GMSL - LWS). Scoring that
+## against the Dangendorf total, which INCLUDES LWS, compares two different quantities and
+## charged BRICK the whole omission as error -- +1.57 cm at 1900 on this baseline, in the era
+## the deliverable singles out. The Ladrillo arm already adds the OBSERVED lws
+## (posterior_predictive_ladrillo.jl:175), so the two arms were on different conventions.
+## !! NOT double-counting: the components cannot contain a term their calibration target had
+## stripped out. This RESTORES the like-for-like quantity.
+## !! The identical remedy is to subtract lws from the target instead -- residual
+## (model+lws)-target == model-(target-lws) -- verified equal to 1e-12. The choice is
+## presentational; adding it here keeps both totals comparable to published GMSL.
+tg_lws = let d = CSV.read(joinpath(REPO,"outputs/recalib_targets_ext.csv"), DataFrame)
+    Dict(Int(d[i,"year"]) => Float64(d[i,"lws"]) for i in 1:nrow(d) if !ismissing(d[i,"lws"]))
+end
+lws_obs = [get(tg_lws, y, NaN) for y in FY]
+all(isfinite, lws_obs) || error("observed lws does not cover $(FY0)-$(FY1); refusing to splice " *
+                                "a partly-NaN LWS into the BRICK total")
+println("LWS: using the OBSERVED series (recalib_targets_ext.csv), matching the Ladrillo arm; ",
+        "BRICK's own LWS is 0 before 2019 by calibration design.")
 post = CSV.read(joinpath(REPO,"data/MimiBRICK/parameters_subsample_brick.csv"), DataFrame)
 ND = min(NDRAW, nrow(post))
 println("OLD-BRICK posterior-predictive: $ND draws × stock BRICK forward ($Y0-$Y1), saving $FY0-$FY1...")
@@ -68,9 +91,9 @@ store = Dict(c => Array{Float64}(undef, ND, ny) for c in comps)
     gsic = reref(m[:glaciers_small_icecaps, :gsic_sea_level])[myi]
     gis  = reref(m[:greenland_icesheet, :greenland_sea_level])[myi]
     te   = reref(m[:thermal_expansion, :te_sea_level])[myi]
-    lws  = reref(m[:landwater_storage, :lws_sea_level])[myi]
+    # BRICK's own LWS deliberately NOT used -- see the LWS CONVENTION note above.
     store[:ais][i,:]=ais; store[:gsic][i,:]=gsic; store[:gis][i,:]=gis; store[:te][i,:]=te
-    store[:total][i,:]=ais.+gsic.+gis.+te.+lws
+    store[:total][i,:]=ais.+gsic.+gis.+te.+lws_obs
 end
 band = DataFrame(year=FY)
 for c in comps
@@ -83,7 +106,7 @@ end
 band[!, "provenance"] = fill(
     "posterior_predictive_oldbrick.jl | stock MimiBRICK get_model(ssp245) | " *
     "Random.seed!($SEED) immediately before get_model | posterior " *
-    "data/MimiBRICK/parameters_subsample_brick.csv ND=$ND | forcing fair_mean_{gmst,ohc}.csv | " *
+    "data/MimiBRICK/parameters_subsample_brick.csv ND=$ND | forcing fair_mean_{gmst,ohc}.csv | LWS = OBSERVED series (matches Ladrillo arm) | " *
     "run $Y0-$Y1, saved $FY0-$FY1, re-referenced $B0-$B1 | cm", ny)
 CSV.write(joinpath(REPO,"outputs/postpred_oldbrick_components_timeseries.csv"), band)
 println("Wrote outputs/postpred_oldbrick_components_timeseries.csv (seed $SEED, ND=$ND)")
