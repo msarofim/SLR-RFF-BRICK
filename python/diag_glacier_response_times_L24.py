@@ -31,6 +31,9 @@ WRITES only outputs/. Changes no target, no posterior, no chain.
 import os
 import numpy as np
 import pandas as pd
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from provenance import stamp
 
 REPO     = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAG      = "L24"
@@ -127,7 +130,8 @@ def main():
     print(f"    ⚠ R19's posterior spans {r19['p05_yr']:.0f}–{r19['p95_yr']:.0f} yr "
           f"({r19['p95_yr']/r19['p05_yr']:.0f}x). A bare median overstates the precision.")
 
-    pd.DataFrame(rows).to_csv(OUT_CSV, index=False)
+    stamp(pd.DataFrame(rows), __file__, tag=TAG, inputs={'posterior': POST, 'consts': CONSTS},
+          extra=f'tau50 yr; nu FIXED at the anchor; every {THIN}th draw').to_csv(OUT_CSV, index=False)
     print(f"\n[wrote] {os.path.relpath(OUT_CSV, REPO)}")
 
 

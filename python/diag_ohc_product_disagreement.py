@@ -27,6 +27,9 @@ WRITES only outputs/. Reports only.
 import os
 import numpy as np
 import pandas as pd
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from provenance import stamp
 
 REPO   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OBS    = os.path.join(REPO, "data", "observations")
@@ -123,7 +126,8 @@ def main():
           f"OHC products',")
     print(f"       not 'Cheng and IGCC'.")
 
-    pd.DataFrame(rows).to_csv(OUT_CSV, index=False)
+    stamp(pd.DataFrame(rows), __file__, inputs=FILES,
+          extra='cumulative 1e22 J; gains are endpoint differences').to_csv(OUT_CSV, index=False)
     print(f"\n[wrote] {os.path.relpath(OUT_CSV, REPO)}")
 
 

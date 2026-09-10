@@ -23,6 +23,9 @@ WRITES NOTHING. Changes no target, no figure, no chain. Reports only.
 import os
 import numpy as np
 import pandas as pd
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from provenance import stamp
 
 REPO    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_CSV = os.path.join(REPO, "outputs", "diag_epoch_window_asymmetry.csv")
@@ -119,7 +122,8 @@ def main():
           f"target or chain")
     print(f"      is implicated. It is also INDEPENDENT of the recalibration rulings.")
 
-    pd.DataFrame(rows).to_csv(OUT_CSV, index=False)
+    stamp(pd.DataFrame(rows), __file__, tag=TAG, inputs={'targets': TGT_CSV, 'ladrillo': LAD_CSV},
+          extra=f'cm; epoch means +/-{HALF_WIDTH} yr, matched windows').to_csv(OUT_CSV, index=False)
     print(f"\n[wrote] {OUT_CSV}")
 
 

@@ -26,6 +26,9 @@ WRITES NOTHING outside outputs/. Changes no target, runs no chain. Reports only.
 import os
 import numpy as np
 import pandas as pd
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from provenance import stamp
 
 # ---- named constants: every label and message below derives from these -------
 REPO   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -244,6 +247,8 @@ def main():
     df["l24_gap_cm"] = L24_GAP_CM
     df["l24_gap_year"] = L24_YEAR
     os.makedirs(os.path.dirname(OUT_CSV), exist_ok=True)
+    df = stamp(df, __file__, inputs={'dangendorf': DANGENDORF_F, 'igcc': IGCC_F, 'cw11': CW_F},
+               extra=f'cm rel {BASE_LBL}')
     df.to_csv(OUT_CSV, index=False)
     print(f"\n[wrote] {OUT_CSV}")
 

@@ -37,6 +37,9 @@ import sys
 
 import numpy as np
 import pandas as pd
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from provenance import stamp
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # --tag= (default L10) picks the Ladrillo arm and travels into the output name,
@@ -134,6 +137,9 @@ def main():
         print()
 
     df = pd.DataFrame(rows)
+    df = stamp(df, __file__, tag=LADRILLO_TAG,
+               inputs={'ladrillo': L10_TS, 'brick20': B20_TS, 'targets': TARGETS},
+               extra=f'cm rel {REF[0]}-{REF[1]}; RMSE ratio = Ladrillo/BRICK2.0')
     df.to_csv(OUT, index=False)
 
     print("  VERDICT per component — RMSE ratio Ladrillo / BRICK 2.0 "

@@ -1,6 +1,6 @@
-window,endpoint,gain_cheng,gain_igcc,ratio,pct_of_smaller,note
-1950-1960,single-year,5.833866,5.833866,1.0,0.0,both series ARE Zanna - identical by construction
-1961-1980,single-year,8.599165999999999,5.291890000000002,0.6153957255854816,62.49706626554964,Cheng vs ZANNA - NOT a Cheng/IGCC disagreement
-1981-1993,single-year,0.40333299999999994,4.702995000000001,11.660327818452748,1066.0327818452747,Cheng vs IGCC - the only genuine head-to-head
-1950-1993,single-year,11.720266,17.663711,1.507108371089871,50.71083710898711,the window the deliverable quotes
-1950-1993,5-yr mean,12.687177200000002,17.067524999999996,1.345257871861362,34.5257871861362,"multi-year endpoints, the project's standing rule"
+window,endpoint,gain_cheng,gain_igcc,ratio,pct_of_smaller,note,provenance
+1950-1960,single-year,5.833866,5.833866,1.0,0.0,both series ARE Zanna - identical by construction,diag_ohc_product_disagreement.py | seed n/a (no RNG in this driver) | Zanna+Cheng ohc_spliced_zanna_cheng.csv | Zanna+IGCC ohc_spliced_zanna_igcc.csv | commit a1f808b-dirty | cumulative 1e22 J; gains are endpoint differences
+1961-1980,single-year,8.599165999999999,5.291890000000002,0.6153957255854816,62.49706626554964,Cheng vs ZANNA - NOT a Cheng/IGCC disagreement,diag_ohc_product_disagreement.py | seed n/a (no RNG in this driver) | Zanna+Cheng ohc_spliced_zanna_cheng.csv | Zanna+IGCC ohc_spliced_zanna_igcc.csv | commit a1f808b-dirty | cumulative 1e22 J; gains are endpoint differences
+1981-1993,single-year,0.40333299999999994,4.702995000000001,11.660327818452748,1066.0327818452747,Cheng vs IGCC - the only genuine head-to-head,diag_ohc_product_disagreement.py | seed n/a (no RNG in this driver) | Zanna+Cheng ohc_spliced_zanna_cheng.csv | Zanna+IGCC ohc_spliced_zanna_igcc.csv | commit a1f808b-dirty | cumulative 1e22 J; gains are endpoint differences
+1950-1993,single-year,11.720266,17.663711,1.507108371089871,50.71083710898711,the window the deliverable quotes,diag_ohc_product_disagreement.py | seed n/a (no RNG in this driver) | Zanna+Cheng ohc_spliced_zanna_cheng.csv | Zanna+IGCC ohc_spliced_zanna_igcc.csv | commit a1f808b-dirty | cumulative 1e22 J; gains are endpoint differences
+1950-1993,5-yr mean,12.687177200000002,17.067524999999996,1.345257871861362,34.5257871861362,"multi-year endpoints, the project's standing rule",diag_ohc_product_disagreement.py | seed n/a (no RNG in this driver) | Zanna+Cheng ohc_spliced_zanna_cheng.csv | Zanna+IGCC ohc_spliced_zanna_igcc.csv | commit a1f808b-dirty | cumulative 1e22 J; gains are endpoint differences
