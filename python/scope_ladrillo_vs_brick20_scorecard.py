@@ -63,7 +63,16 @@ COMPONENTS = [("AIS", "ais", "ais", "ais"),
 # satellite era — so "TE is the one regression" is a statement about the
 # pre-1993 record, not a uniform one. Splitting at 1950 and 1993 separates the
 # sparse-obs era, the pre-satellite era, and the altimetry era.
-WINDOWS = [("full", None), ("1920-1949", (1920, 1949)),
+## ⭐ 1900-1919 ADDED 2026-09-10. It was absent only because the BRICK 2.0 driver SAVED from
+## 1920 while running from 1850, and this script scores on `Ladrillo.index INTERSECT
+## BRICK.index` -- so the truncation, not a scientific choice, set the earliest window AND the
+## "full" column. With the BRICK span matched to Ladrillo's 1900 the era is now available, and
+## it is the era where the doc claims the gain is largest, so it should be shown, not folded
+## into "full".
+## ⚠ THE VINTAGE CAVEAT GETS HEAVIER HERE, NOT LIGHTER: BRICK 2.0 runs on its OWN published
+## posterior against our extended targets, so part of its bias is target vintage and that
+## favours Ladrillo -- most of all in the earliest, sparsest-obs window. Report per window.
+WINDOWS = [("full", None), ("1900-1919", (1900, 1919)), ("1920-1949", (1920, 1949)),
            ("1950-1992", (1950, 1992)), ("1993-2026", (1993, 2026))]
 
 

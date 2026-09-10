@@ -28,7 +28,7 @@ adds the three things neither of those has:
 
 ⚠ THE TWO MODELS DO NOT SHARE A SCHEMA, A START YEAR, OR A DRIVER FILE.
   Ladrillo  1900-2026, `glaciers`/`te`, `_p05`, driven via ssp245harm
-  BRICK 2.0 1920-2026, `gsic`/`te`,     `_p5`,  forced on data/observations/fair_mean_{gmst,ohc}.csv
+  BRICK 2.0 1900-2026, `gsic`/`te`,     `_p5`,  forced on data/observations/fair_mean_{gmst,ohc}.csv
 The name mapping is a declared table below, never a string guess, and the different START
 YEARS are why the BRICK line simply begins later rather than being extrapolated back.
 ⚠ The two were forced from DIFFERENT driver files -- that is a real caveat on any
@@ -77,6 +77,11 @@ IGCC_CSV = os.path.join(lf.REPO, "data/observations/igcc2026_gmsl_annual.csv")
 
 BASE0, BASE1 = 1995, 2005          # the CALIBRATION window; see the docstring
 X0, X1 = 1900, 2026
+## ⚠ X0 is the PLOT span, and BOTH arms are integrated from 1850 -- neither "starts" here.
+## The caption used to say "BRICK 2.0 starts 1920", which was false: 1920 was the year its
+## driver happened to SAVE from, and it silently set the scorecard's evaluation window too.
+## Fixed 2026-09-10 by matching the BRICK save-span to Ladrillo's 1900. Any span text below
+## derives from X0 so a future change cannot leave the caption behind.
 ## Declared name mapping. Ladrillo/target/BRICK each spell some components differently, and
 ## a string guess here silently drops a panel.
 TGT_COL = {"glaciers": "gsic", "gis": "gis", "ais": "ais", "te": "steric",
@@ -205,7 +210,7 @@ axes[1, 0].set_xlabel("year")
 handles = [Line2D([], [], color=C_LAD, lw=2, label="Ladrillo %s (median)" % TAG),
            Patch(facecolor=C_LAD, alpha=0.22, label="Ladrillo 5–95% (parameters)"),
            Patch(facecolor=C_LAD, alpha=0.10, label="Ladrillo 5–95% (predictive, +AR(1)+obs err)"),
-           Line2D([], [], color=C_BRK, lw=1.6, ls="--", label="BRICK 2.0 (median, from 1920)"),
+           Line2D([], [], color=C_BRK, lw=1.6, ls="--", label="BRICK 2.0 (median)"),
            Line2D([], [], color=C_OBS, lw=1.6, label="observational target (±1.645σ)"),
            Line2D([], [], color=C_IGCC, lw=1.4, ls=(0, (4, 2)),
                   label="IGCC 2025-indicators GMSL (independent, not in the fit); shading is "
@@ -227,7 +232,8 @@ _cap = (
     "⚠ Glaciers are shown against the r19-seam-corrected obs (`glaciers_obs_delta_corrected`), "
     "~1.5 cm from the raw target at 1900 and converging by 2020; the raw series would make "
     "Ladrillo look biased when it is not.  "
-    "⚠ BRICK 2.0 starts 1920 and was forced from data/observations/fair_mean_{gmst,ohc}.csv "
+    "⚠ BRICK 2.0 is integrated from 1850 like Ladrillo and plotted from @@X0@@; it was forced "
+    "from data/observations/fair_mean_{gmst,ohc}.csv "
     "while Ladrillo used ssp245harm — a DIFFERENT driver file, so a Ladrillo-minus-BRICK "
     "reading here carries that gap.  "
     "⚠ TE: both models' expansion runs on FaIR's FULL-DEPTH ocean heat vs. a 0-2000 m target; "
@@ -235,6 +241,8 @@ _cap = (
     "1.15x — a bound, not a point, still a fail (see Observational Comparison).  %s"
     % (DESC["model"], DESC["calib"], DESC["glacier"], lf.CAL_BASELINE.capitalize(),
        DESC["note"]))
+_cap = _cap.replace("@@X0@@", str(X0))          # derived from the constant, not retyped
+assert "@@" not in _cap, "caption sentinel left unsubstituted"
 fig.text(0.5, 0.150, "\n".join(textwrap.wrap(_cap, 185)),
          fontsize=7.2, ha="center", va="top", color="0.3")
 fig.savefig(OUT, dpi=150)
@@ -244,25 +252,59 @@ print("wrote %s" % os.path.relpath(OUT, lf.REPO))
 ## The comparison-range rule: a "does it match" check over the historical period is made on
 ## at least a 5-year window, so interannual variability neither side controls cannot drive
 ## the answer. A "1900" label below is the 1898-1902 mean.
-print("\nmodel vs obs, 5-year means centred on each year (cm rel. %d-%d)" % (BASE0, BASE1))
-for y in (1900, 1950, 2000, 2024):
-    print("  @%d (%d-%d mean)" % (y, y - 2, y + 2))
+## ⛔⛔ MATCHED WINDOWS, AND THIS IS NOT A TIDY-UP. This block used to average the MODEL over
+## all HALF_WIDTH*2+1 years while pandas' .mean() SILENTLY SKIPPED NaN on the OBS side. At the
+## ragged modern end the obs stop early (the total target's Dangendorf splice ends 2024, GlaMBIE
+## 2023), so @2024 compared a 5-year model mean centred 2024 against a 3-year obs mean centred
+## 2023 -- on a series rising ~0.4 cm/yr. That put 0.387 cm of pure arithmetic into a 0.744 cm
+## number reported as a model excess (52% of it), and for glaciers, with only 2 obs years, the
+## artifact EXCEEDED the gap and set its SIGN.
+## The control that proved it was a mechanism and not a slip: the identical test at @1950 and
+## @2000, where the obs cover every year, returns EXACTLY zero.
+## ⇒ every mean below is taken over the years where THAT ARM and the obs are BOTH finite, and
+## the count is printed so a short window can never again pass as a full one.
+## Measured 2026-09-09c by python/diag_epoch_window_asymmetry.py; see [[like_for_like_forcing]].
+HALF_WIDTH = 2
+EPOCHS = (1900, 1950, 2000, 2024)
+
+
+def _matched(obs, arm, y):
+    """obs and arm means over the years BOTH are finite, plus that count. Never a bare
+    .mean() over a window -- that is the bug this function exists to prevent."""
+    w = range(y - HALF_WIDTH, y + HALF_WIDTH + 1)
+    yy = [t for t in w if t in obs.index and t in arm.index
+          and np.isfinite(obs.get(t, np.nan)) and np.isfinite(arm.get(t, np.nan))]
+    if not yy:
+        return None
+    return obs.loc[yy].mean(), arm.loc[yy].mean(), len(yy)
+
+
+print("\nmodel vs obs, %d-year means centred on each year (cm rel. %d-%d)"
+      % (2 * HALF_WIDTH + 1, BASE0, BASE1))
+print("  n = years actually used; obs is re-averaged on each arm's own matched window, so the\n"
+      "  obs column may differ between arms where their coverage differs. That is the point.")
+for y in EPOCHS:
+    print("  @%d (%d-%d window)" % (y, y - HALF_WIDTH, y + HALF_WIDTH))
     for comp in lf.COMPONENTS:
         ## ⚠ THE SAME CORRECTED OBS THE FIGURE PLOTS. Reading the raw target here made the
         ## table report a +1.68 cm glacier residual at 1900 against a panel that shows
         ## agreement -- a console summary that contradicts its own figure is worse than none.
         _os = LAD[OBS_LINE[comp]] if comp in OBS_LINE else TGT[TGT_COL[comp]]
-        o = _os.loc[y - 2:y + 2].mean()
-        row = "    %-22s obs %8.2f" % (lf.COMP_TITLE[comp], o)
-        if LAD_COL[comp]:
-            v = LAD["%s_p50" % LAD_COL[comp]].loc[y - 2:y + 2].mean()
-            row += "   Ladrillo %8.2f (%+.2f)" % (v, v - o)
-        else:
-            row += "   Ladrillo %8s        " % "n/a"
-        if BRK_COL[comp] and y >= 1922:
-            v = BRK["%s_p50" % BRK_COL[comp]].loc[y - 2:y + 2].mean()
-            row += "   BRICK 2.0 %8.2f (%+.2f)" % (v, v - o)
+        row = "    %-22s" % lf.COMP_TITLE[comp]
+        for arm_lbl, col_map, df, w in (("Ladrillo", LAD_COL, LAD, 8),
+                                        ("BRICK 2.0", BRK_COL, BRK, 8)):
+            if not col_map[comp]:
+                row += "   %s %*s        " % (arm_lbl, w, "n/a")
+                continue
+            r = _matched(_os, df["%s_p50" % col_map[comp]], y)
+            if r is None:
+                row += "   %s %*s        " % (arm_lbl, w, "--")
+                continue
+            o, v, n = r
+            row += "   %s obs %*.2f mod %*.2f (%+.2f, n=%d)" % (arm_lbl, w, o, w, v, v - o, n)
         print(row)
-    if y >= 1902:
-        g = IGCC_MEAN.loc[y - 2:y + 2].mean()
-        print("    %-22s IGCC %7.2f  (independent check on the total)" % ("", g))
+    r = _matched(TGT[TGT_COL["total"]], IGCC_MEAN, y)
+    if r is not None:
+        o, g, n = r
+        print("    %-22s IGCC %7.2f vs obs %7.2f (%+.2f, n=%d)  (independent check on the total)"
+              % ("", g, o, g - o, n))

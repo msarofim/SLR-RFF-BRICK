@@ -18,7 +18,18 @@ const OBS  = joinpath(REPO, "data/observations")
 const Y0, Y1, B0, B1 = 1850, 2026, 1995, 2005
 years = collect(Y0:Y1); ib = [findfirst(==(y),years) for y in B0:B1]; idx(y)=findfirst(==(y),years)
 NDRAW = length(ARGS) >= 1 ? parse(Int, ARGS[1]) : typemax(Int)
-FY = collect(1920:2026); myi=[idx(y) for y in FY]      # plot starts 1920
+## OUTPUT SPAN. The MODEL runs Y0-Y1 (1850-2026); this only says which years are SAVED.
+## Was 1920, which was neither a model property nor a scientific choice -- but it silently set
+## the evaluation window of the whole Ladrillo-vs-BRICK scorecard, because that script scores on
+## `Ladrillo.index INTERSECT BRICK.index`. That discarded 1900-1919 from every RMSE ratio and
+## from the cumulative-rise number, i.e. exactly the early era where the gain is claimed.
+## Now matched to the Ladrillo driver's own FY0 (posterior_predictive_ext.jl:33 = 1900), which is
+## also the panel's x-axis start and the first year of the total target.
+## ⚠ reref() is computed on the FULL 1850-based vector BEFORE this subset, so lowering FY0 CANNOT
+## move an existing value -- the 1920+ rows must come back BIT-IDENTICAL. That is asserted after
+## the run, against a pre-change copy, and it is the regression test for this change.
+const FY0, FY1 = 1900, Y1
+FY = collect(FY0:FY1); myi=[idx(y) for y in FY]
 
 lc(p,c)=(d=CSV.read(p,DataFrame); Dict(Int(d[i,"year"])=>Float64(d[i,c]) for i in 1:nrow(d)))
 gmst=[lc(joinpath(OBS,"fair_mean_gmst.csv"),"gmst_C")[y] for y in years]
@@ -30,7 +41,7 @@ set_forcing!(m, gmst, ohc)
 reref(v)=100 .* (v .- sum(v[ib])/length(ib))
 post = CSV.read(joinpath(REPO,"data/MimiBRICK/parameters_subsample_brick.csv"), DataFrame)
 ND = min(NDRAW, nrow(post))
-println("OLD-BRICK posterior-predictive: $ND draws × stock BRICK forward (1850-2026)...")
+println("OLD-BRICK posterior-predictive: $ND draws × stock BRICK forward ($Y0-$Y1), saving $FY0-$FY1...")
 
 comps = (:ais, :gsic, :gis, :te, :total); ny = length(FY)
 store = Dict(c => Array{Float64}(undef, ND, ny) for c in comps)
