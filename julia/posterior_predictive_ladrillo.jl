@@ -206,6 +206,14 @@ end
 # report its posterior median so the overlay is self-consistent
 bands[!, "glaciers_obs_delta_corrected"] =
     [(v = qv(obs_corrected[:, j], 0.50); isnan(v) ? missing : v) for j in 1:ny]
+## ⭐ RECORD THE SEED IN THE ARTIFACT (Marcus, 2026-09-10): a seed recorded only in the script
+## is lost the moment the CSV is read anywhere else, so the analysis cannot be re-run FROM the
+## file. This driver was already correctly SEEDED (NOISE_SEED, MersenneTwister) -- what was
+## missing was the RECORD. The sibling BRICK 2.0 arm carries the same column.
+bands[!, "provenance"] = fill(
+    "posterior_predictive_ladrillo.jl | tag $POST_TAG | AR(1) obs-noise MersenneTwister" *
+    "(NOISE_SEED=$NOISE_SEED) | posterior $(basename(POSTERIOR)) NTHIN=$NTHIN, forcing $FORCING | " *
+    "targets recalib_targets_ext.csv | cm", nrow(bands))
 CSV.write(OUT_BANDS, bands)
 
 ## ---------------------------------------------------------------------------

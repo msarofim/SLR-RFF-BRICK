@@ -10,7 +10,7 @@
 ##   julia --project=julia_v2 julia/posterior_predictive_oldbrick.jl [n_draws]
 ## ============================================================================
 
-using CSV, DataFrames, Mimi, MimiBRICK, Statistics, Printf
+using CSV, DataFrames, Mimi, MimiBRICK, Statistics, Printf, Random
 include(joinpath(@__DIR__, "brick_mengel.jl"))      # set_forcing! + (transitively) update_brick_params!
 
 const REPO = abspath(joinpath(@__DIR__, ".."))
@@ -35,6 +35,22 @@ lc(p,c)=(d=CSV.read(p,DataFrame); Dict(Int(d[i,"year"])=>Float64(d[i,c]) for i i
 gmst=[lc(joinpath(OBS,"fair_mean_gmst.csv"),"gmst_C")[y] for y in years]
 ohc =[lc(joinpath(OBS,"fair_mean_ohc.csv"),"ohc_1e22J")[y] for y in years]
 
+## ⭐ SEED, ADDED 2026-09-10 -- THIS DRIVER WAS THE ONLY UNSEEDED ONE.
+## `MimiBRICK.get_model()` draws from the UNSEEDED global RNG (the mimibrick-quirks item 1
+## non-determinism, and the LWS realization with it), so two runs of this script produced
+## DIFFERENT numbers: measured 5.05e-02 cm on the total and 3.3e-04 on AIS, with gsic/gis/te
+## exactly zero. Every BRICK 2.0 figure in the L24 deliverable therefore carried ~0.05 cm of
+## run-to-run jitter and could not be reproduced.
+## SEED VALUE IS NOT NEW: `Random.seed!(2026)` immediately before `get_model` is the convention
+## already used by diag_component_hindcast.jl, diag_brick20_crossmodel.jl, diag_annual_step_pulse.jl,
+## diag_brick_level_distribution.jl, diag_decomposition{,_pulse}.jl and diag_nonoise_pulse_median.jl,
+## and it matches `brick_mengel.jl`'s LWS_SEED = 2026. It is the BRICK-2.0/`main` form of the
+## project's LWS lock ("seed before get_model"), so this driver now agrees with its siblings.
+## ⚠ The seed MUST be set immediately before get_model: it is get_model that consumes the stream.
+## ⚠ The seed is RECORDED IN THE OUTPUT (provenance column below), not only here, so the file
+## can be re-run from the file itself.
+const SEED = 2026
+Random.seed!(SEED)
 # stock BRICK (single-reservoir glacier), old posterior, FaIR-forced
 m = MimiBRICK.get_model(ssprcp_scenario="ssp245", start_year=Y0, end_year=Y1)
 set_forcing!(m, gmst, ohc)
@@ -62,5 +78,12 @@ for c in comps
     band[!, "$(c)_p50"] = [quantile(store[c][:,j], 0.50) for j in 1:ny]
     band[!, "$(c)_p95"] = [quantile(store[c][:,j], 0.95) for j in 1:ny]
 end
+## PROVENANCE IN THE FILE ITSELF. A seed recorded only in the script is lost the moment the
+## CSV is read somewhere else; this column makes the run re-creatable from the artifact.
+band[!, "provenance"] = fill(
+    "posterior_predictive_oldbrick.jl | stock MimiBRICK get_model(ssp245) | " *
+    "Random.seed!($SEED) immediately before get_model | posterior " *
+    "data/MimiBRICK/parameters_subsample_brick.csv ND=$ND | forcing fair_mean_{gmst,ohc}.csv | " *
+    "run $Y0-$Y1, saved $FY0-$FY1, re-referenced $B0-$B1 | cm", ny)
 CSV.write(joinpath(REPO,"outputs/postpred_oldbrick_components_timeseries.csv"), band)
-println("Wrote outputs/postpred_oldbrick_components_timeseries.csv")
+println("Wrote outputs/postpred_oldbrick_components_timeseries.csv (seed $SEED, ND=$ND)")
