@@ -57,6 +57,8 @@ threshold 2.5–2.9 K) and carries essentially all of MAGICC's Greenland spread;
 temperature-driven with fitted response times; MAGICC's split is one climate-driven SMB law
 plus a scheduled discharge. Numbers for Marcus to draft from; the Greenland paragraph is untouched.
 
+**Corroborated by the SLEIP preprint (via the SLEIP-review session, same day):** Table 6 lists MAGICC's component start-years as TE 1750, glaciers 1850, **Greenland 1990, Antarctic 2002**, LWS 1900 — identical to the drawnset; and MAGICC's 2006–2025 GMSL rate there is 3.41 mm/yr, second-lowest of seven, at the bottom edge of Forster's 3.66 [3.42–3.92]. The SLEIP Zenodo release is the same model and drawnset (never downloaded here; would add only a byte-level cross-check).
+
 **Products.** `extract_magicc_components.py` now ALSO writes `data/comparison/magicc_nauels_components_hist.csv`
 (1900–2026, rel 1995–2005, ssp245, + gis/ais SMB/SID splits, NaN before each module's start —
 [HIST-START]; [HIST-SCEN] proves the pre-2015 history scenario-invariant to 9e-3 mm against a
