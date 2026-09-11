@@ -1,5 +1,5 @@
 {
-  "frozen_git_head": "97d7cd1",
+  "frozen_git_head": "b7ad086",
   "bench_version": "1.0",
   "files": {
     "targets": {
@@ -8,7 +8,7 @@
     },
     "brick20_hindcast": {
       "source": "outputs/postpred_oldbrick_components_timeseries.csv",
-      "sha256_16": "edd49fb19a0c2600"
+      "sha256_16": "c2f3c14ee2d438f7"
     },
     "brick20_projection": {
       "source": "outputs/ssps_components_2300_oldbrick.csv",
@@ -16,16 +16,16 @@
     },
     "facts_source": {
       "source": "outputs/facts_components_shared_n200.csv",
-      "sha256_16": "2f1f066888881410"
+      "sha256_16": "1a014107ffe6e876"
     },
     "magicc_source": {
       "source": "data/comparison/magicc_nauels_components.csv",
       "sha256_16": "1e47612319775fc6"
     },
     "literature": {
-      "source": "outputs/ladrillo_model_comparison_L21.csv",
-      "sha256_16": "4f4be5ccb4377dc7",
-      "n_rows": 150,
+      "source": "outputs/ladrillo_model_comparison_L24.csv",
+      "sha256_16": "a7cc3571f7516b04",
+      "n_rows": 189,
       "sources": [
         "FACTS",
         "MAGICC-SLR"

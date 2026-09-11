@@ -1,3 +1,33 @@
+## 2026-09-11h — FULL BENCHMARK RE-FREEZE (Marcus): the yardstick now matches the document
+
+`bench_ladrillo.py --tag=L24 --freeze-fixed`. Re-snapshotted `benchmark/reference/_fixed/`:
+literature rows 150 → 189 (+39 FACTS @2300), `facts_components_shared_n200.csv` (+5,450 rows),
+and — the one that had silently drifted — `postpred_oldbrick_components_timeseries.csv`, the BRICK
+2.0 hindcast arm, which the snapshot still held in its PRE-09-10 form (span 1920, unseeded, own LWS,
+RFF-SP forcing; 236 lines differ). Targets, BRICK projection and MAGICC unchanged (same sha).
+The [LIT] gate on the comparison figures now reads "189 rows match" and the caption stamp is gone;
+document rebuilt.
+
+**Verdict changes: 48 of 535 cells (+9 new `spread_vs_lit_ALL` cells).** Tally: PASS 110 → 136,
+WARN 107 → 77, FAIL 19 → 21, WORSE 18 → 19. Diff kept at scratch `bench_L24_before.csv` vs
+`outputs/bench_ladrillo_L24.csv` (git HEAD~1 has the pre-freeze CSV).
+- **29 WARN → PASS**, almost all 2300 cells that were WARN only because MAGICC-SLR had been the
+  ONLY comparator there (separation ×5, V-block ×6, median_vs_lit te/lws/total/gis/ais-ssp126).
+- **Hindcast block now agrees with Table 2**: TE rmse ratio full 1.236 → **0.820** (BETTER), 1920–49
+  1.150 → 0.723; total full 0.373 → **1.172** (WORSE) and 1920–49 0.411 → 1.369 — exactly the
+  shipped table's numbers. BRICK's own TE hindcast PASS → WARN (+1.11 sd bias); its 1993–2026 total
+  rate UNRESOLVED → WARN (1.10× obs).
+- **Two new FAILs, both AIS ssp245/2300 median_vs_lit**: L24 154 cm vs lit 41–136 (median 74, n=4)
+  and BRICK 2.0 206 cm. This is the cell bench already flags as a THRESHOLD ARTIFACT (48 % of
+  draws tip, so the median is not a location) — the FACTS comparators just made the bracket
+  scoreable. Not a new finding.
+- **Two new WARNs on spread**: glaciers ssp585/2300 (L24 12.0 cm vs lit 0.13–9.8, n=2) — the
+  comparator spread is ar5glaciers AT ITS 31.57 cm CAP (spread collapsed to 0.13 cm), a
+  comparator artefact; total ssp245/2300 1.31× (lit 189–1328).
+- Four BETTER → WORSE in the L24-vs-BRICK deltas at 2300 (glaciers ssp245, total ssp126,
+  V total ssp126): the literature median moved when four FACTS workflows joined MAGICC.
+Champion stays L24 (sole candidate; no --promote).
+
 ## 2026-09-11g — Marcus's second 9/11 comments file (`moreLadrillocomments.9.11.23.docx`): eight of nine applied, one answered with a figure
 
 1. **Bolding** — all within-sentence bold removed; paragraph lead-ins, FIG/Table labels and the
