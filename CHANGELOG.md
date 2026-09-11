@@ -1,3 +1,45 @@
+## 2026-09-11c — MAGICC's Greenland: no history before 1991 by construction; the 17/9/4 sentence VERIFIED
+
+**Tasks 1b and 1d of the 09-11 handoff (Marcus's 9/11 comment [1]).** No MAGICC re-run was needed —
+the 08-25 lesson again: the source run (`SSPs_Nauels2025_withOCH_2026_06_16_100817.csv`) spans
+**1750–2305**; only our extractor cut it at 2000.
+
+**⭐ MAGICC-SLR has NO Greenland hindcast before 1991, and no Antarctic one before 2003.** The
+drawnset sets `slr_gis_{smb,sid}_startyear = 1990` and `slr_ais_*_startyear = 2002`; the run's
+series are identically zero before those years (first year the ensemble median moves: GIS 1991,
+AIS 2003, glaciers and expansion 1851, LWS 1900). So the first half of comment [1] — does
+MAGICC's *historical* Greenland match observations? — can only be asked from 1991, and the
+answer there is: **it runs low. 1993–2026, scorecard metric (median vs Frederikse+GRACE, matched
+years): MAGICC bias −0.26 cm, RMSE 0.35, 90 % coverage 0.27; BRICK 2.0 −0.13 / 0.17 / 0.45;
+Ladrillo L24 +0.00 / 0.05 / 0.45** (`diag_magicc_gis_hindcast.py`; at 2024, 5-yr matched window:
+obs 1.59, Ladrillo 1.60, BRICK 1.38, MAGICC 1.06). ⚠ In-sample vs out-of-sample: Ladrillo is
+fitted to this target, BRICK 2.0 to its own older one, MAGICC's Greenland to no sea-level record
+at all — a real ranking, not three out-of-sample skills. ⚠ MAGICC is on its own climate.
+
+**The deliverable's un-receipted sentence is now VERIFIED against the drawnset**
+(`diag_magicc_gis_structure.py`, log in `outputs/`): 17 `slr_gis_*` parameters, 8 constant, **9 vary
+and each takes exactly 4 distinct values**; parameterisation label `GREVE` (= SICOPOLIS). Refinement
+the sentence does not carry: the 4 SMB tunes (6 params) and 4 SID tunes (3 params) are drawn
+**independently — 16 joint combinations**, so "four Greenland tunes" is per block, not per member.
+
+**What the second basin buys, read off MAGICC's own output (`magicc_nauels_gis_split.csv`, cm rel
+1995–2014, medians [5–95]):** SID is nearly deterministic (5–95 width 1–2 cm at every horizon) and
+**not monotone in warming at 2300 — ssp126 21.0 > ssp245 20.1 > ssp585 17.8** — a prescribed-rate
+term with a `maxyear`, not a climate response. SMB is **negative to mid-century in every SSP**
+(−0.6 to −1.0 cm at 2050: the below-threshold branch has a negative coefficient in all 4 tunes,
+threshold 2.5–2.9 K) and carries essentially all of MAGICC's Greenland spread; under ssp585 its
+2300 p95 hits the 7260 mm initial volume (the cap). Ladrillo's two basins are both
+temperature-driven with fitted response times; MAGICC's split is one climate-driven SMB law
+plus a scheduled discharge. Numbers for Marcus to draft from; the Greenland paragraph is untouched.
+
+**Products.** `extract_magicc_components.py` now ALSO writes `data/comparison/magicc_nauels_components_hist.csv`
+(1900–2026, rel 1995–2005, ssp245, + gis/ais SMB/SID splits, NaN before each module's start —
+[HIST-START]; [HIST-SCEN] proves the pre-2015 history scenario-invariant to 9e-3 mm against a
+bound of 1e-3 × the 194 mm signal) and `magicc_nauels_gis_split.csv` (projection side, all SSPs).
+**The projection file is byte-identical** (it is frozen in the benchmark). FIG 1 gains MAGICC-SLR
+on the Greenland panel from 1991 with a start-year note; console summary carries a MAGICC arm for
+every component; caption updated; .docx rebuilt and verified with python-docx.
+
 ## 2026-09-11b — FACTS SSP controls to 2300 (FIG 8 gets its FACTS bars); the *2300 merge is now reproducible
 
 **Marcus's 9/11 comment [12] (task 1a of the 09-11 handoff).** The SSP comparison at 2300 had no

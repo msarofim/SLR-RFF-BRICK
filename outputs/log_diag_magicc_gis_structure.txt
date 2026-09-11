@@ -1,0 +1,32 @@
+[DRAWNSET] magicc-ar6-0fd0f62-f023edb-drawnset_with_slr.json
+  Greenland (slr_gis_*) parameters: 17 total; 8 CONSTANT across all 600 members; 9 VARY
+  constant: sid_initial_volume_mm=7260, sid_maxcontribution=571.41, sid_parameterisation=GREVE, sid_rate1990=0.594577, sid_startyear=1990, smb_initial_volume_mm=7260, smb_parameterisation=GREVE, smb_startyear=1990
+  varying : sid_coef3 (4 distinct), sid_coef4 (4 distinct), sid_maxyear (4 distinct), smb_coef1_above (4 distinct), smb_coef1_below (4 distinct), smb_coef2_above (4 distinct), smb_coef2_below (4 distinct), smb_sens_exponent2 (4 distinct), smb_temp_threshold (4 distinct)
+  joint tuples over all 9: 16 distinct (member counts [48, 46, 43, 42, 42, 40, 39, 39, 39, 38, 38, 35, 31, 29, 29, 22])
+    SMB block (6 params): 4 distinct tuples
+    SID block (3 params): 4 distinct tuples
+  => the 4 SMB tunes and the 4 SID tunes are drawn INDEPENDENTLY (4 x 4 = 16 combinations), so 'four Greenland tunes' is per BLOCK, not per member.
+  [CLAIM] '17 parameters, 9 vary, each 4 distinct values': VERIFIED
+  parameterisation label (SMB, SID): ['GREVE']  -> Greve = SICOPOLIS (the label, not a citation of the paper the fit came from)
+  start years: SMB 1990, SID 1990; initial volume 7260 mm; SID max contribution 571.41 mm
+  SMB law shape: piecewise in GMST at a per-tune temp_threshold (2.5-2.9 K across the 4 tunes); coef1 BELOW the threshold is negative in 4 of 4 tunes -> SMB LOWERS sea level below it; the ABOVE branch carries the melt.
+
+[RUN] SSPs_Nauels2025_withOCH_2026_06_16_100817.csv, ssp245
+  SLR_GIS_SMB    first year the median moves: 1991
+  SLR_GIS_SID    first year the median moves: 1991
+  SLR_AIS_SMB    first year the median moves: 2003
+  SLR_AIS_SID    first year the median moves: 2003
+  SLR_GL         first year the median moves: 1851
+  SLR_EXPANSION  first year the median moves: 1851
+  SLR_LANDWATER  first year the median moves: 1900
+  => MAGICC has NO Greenland (or Antarctic) hindcast before its start year: the series are identically zero, so a 1900-1990 comparison against observations is IMPOSSIBLE, not merely absent. Glaciers and expansion ARE hindcast from 1851.
+  ssp126  (cm rel 1995-2014, median [5-95])
+     SMB 2050:   -1.0 [  -2.0,  -0.2]  2100:   -1.6 [  -4.1,   4.1]  2300:   -6.1 [ -13.3,  16.3]
+     SID 2050:    3.7 [   3.4,   4.2]  2100:    8.1 [   7.2,   9.3]  2300:   21.0 [  20.2,  22.1]
+  ssp245  (cm rel 1995-2014, median [5-95])
+     SMB 2050:   -0.9 [  -1.9,   0.1]  2100:    0.7 [  -2.3,   4.5]  2300:   15.5 [  -3.7,  37.8]
+     SID 2050:    3.7 [   3.4,   4.3]  2100:    8.5 [   7.5,   9.7]  2300:   20.1 [  19.0,  21.0]
+  ssp585  (cm rel 1995-2014, median [5-95])
+     SMB 2050:   -0.6 [  -1.6,   0.8]  2100:    4.5 [   0.5,  11.1]  2300:   96.0 [  46.4, 726.5]
+     SID 2050:    3.8 [   3.5,   4.4]  2100:    9.2 [   8.0,  10.6]  2300:   17.8 [  15.9,  19.0]
+  => SID is nearly deterministic (5-95 width ~1-2 cm at every horizon) and is NOT monotone in warming at 2300 (ssp126 > ssp245 > ssp585): it is a prescribed-rate term with a maxyear, not a climate response. SMB is NEGATIVE to mid-century in every SSP (the below-threshold branch) and carries essentially ALL of MAGICC's Greenland spread; under ssp585 its 2300 p95 reaches the 7260 mm initial volume, i.e. the cap.

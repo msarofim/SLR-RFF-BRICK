@@ -74,6 +74,17 @@ TGT_CSV = os.path.join(lf.REPO, "outputs", "recalib_targets_ext.csv")
 ## IGCC ships no ensemble members, so the correct `sd(x_t - mean(window))` band cannot be
 ## computed from this release; the quantitative comparison is the Table 11 benchmark file.
 IGCC_CSV = os.path.join(lf.REPO, "data/observations/igcc2026_gmsl_annual.csv")
+## ⭐ MAGICC-SLR's HISTORY (2026-09-11, Marcus's 9/11 comment [1]: does MAGICC's historical
+## Greenland match observations?). The source run spans 1750-2305; the extractor now writes a
+## separate hindcast file on THIS figure's baseline. ⚠ MAGICC's Greenland module STARTS IN 1990
+## (`slr_gis_*_startyear`) -- the series is identically zero before, so there is no MAGICC
+## Greenland hindcast to compare before 1991, by construction; the file carries NaN there and
+## the line simply begins. MAGICC runs on its OWN emissions-driven climate, not the ssp245harm
+## FaIR driver the other two share (history is scenario-invariant before 2015, [HIST-SCEN]).
+## Drawn on the GREENLAND panel, which is what was asked; MAGICC has every other component
+## too (glaciers/TE from 1851) and the console summary reports them all.
+MAG_CSV = os.path.join(lf.REPO, "data/comparison/magicc_nauels_components_hist.csv")
+MAG_PANELS = ("gis",)
 
 BASE0, BASE1 = 1995, 2005          # the CALIBRATION window; see the docstring
 X0, X1 = 1900, 2026
@@ -94,14 +105,24 @@ LAD_COL["lws"] = None                          # neither model predicts LWS -- p
 OBS_LINE = {"glaciers": "glaciers_obs_delta_corrected"}   # see the GLACIER OBS TRAP note
 
 C_LAD, C_BRK = lf.SRC_COLOR["Ladrillo"], lf.SRC_COLOR["BRICK 2.0"]
+C_MAG = lf.SRC_COLOR["MAGICC-SLR"]
 C_OBS, C_IGCC = "#333333", "#b2182b"
 
-for f in (LAD_CSV, BRK_CSV, TGT_CSV, IGCC_CSV):
+for f in (LAD_CSV, BRK_CSV, TGT_CSV, IGCC_CSV, MAG_CSV):
     if not os.path.exists(f):
         raise SystemExit("missing %s" % os.path.relpath(f, lf.REPO))
 LAD = pd.read_csv(LAD_CSV).set_index("year")
 BRK = pd.read_csv(BRK_CSV).set_index("year")
 TGT = pd.read_csv(TGT_CSV).set_index("year")
+## MAGICC: long table -> one wide frame per component, columns med/p05/p95, NaN before start.
+_mg = pd.read_csv(MAG_CSV)
+assert (_mg.unit == "cm rel %d-%d" % (BASE0, BASE1)).all(), \
+    "MAGICC hindcast file is not on this figure's baseline: %s" % _mg.unit.unique()
+MAG = {c: g.set_index("year")[["med", "p05", "p95"]].sort_index()
+       for c, g in _mg.groupby("component")}
+MAG_START = {c: int(g.start_year.iloc[0]) for c, g in _mg.groupby("component")}
+MAG_COL = {"glaciers": "glaciers", "gis": "gis", "ais": "ais", "te": "te", "lws": "lws",
+           "total": "total"}
 
 ## ---------------------------------------------------------------------------
 ## BASELINE GATE. Every series on this figure must be on the SAME window, and the two model
@@ -124,7 +145,9 @@ def _base_mean(s):
 _alt = []
 for _nm, _df, _c in ([("lad", LAD, "%s_p50" % LAD_COL[c]) for c in lf.COMPONENTS if LAD_COL[c]]
                      + [("brk", BRK, "%s_p50" % BRK_COL[c]) for c in lf.COMPONENTS if BRK_COL[c]]
-                     + [("obs", TGT, TGT_COL[c]) for c in lf.COMPONENTS]):
+                     + [("obs", TGT, TGT_COL[c]) for c in lf.COMPONENTS]
+                     + [("mag", MAG[MAG_COL[c]], "med") for c in lf.COMPONENTS
+                        if MAG_START[MAG_COL[c]] <= BASE0]):
     _s = _df[_c]
     _alt.append(abs(_s.loc[BASE0:BASE1].mean() - _s.loc[BASE0:2014].mean()))
 BASE_TOL = min(_alt) / 10.0
@@ -136,6 +159,8 @@ for comp in lf.COMPONENTS:
     if BRK_COL[comp]:
         _off["BRICK 2.0/" + comp] = _base_mean(BRK["%s_p50" % BRK_COL[comp]])
     _off["obs/" + comp] = _base_mean(TGT[TGT_COL[comp]])
+    if MAG_START[MAG_COL[comp]] <= BASE0:          # a module that starts inside the window
+        _off["MAGICC-SLR/" + comp] = _base_mean(MAG[MAG_COL[comp]]["med"])   # cannot be gated
 _bad = {k: v for k, v in _off.items() if abs(v) > BASE_TOL}
 if _bad:
     raise SystemExit(
@@ -196,7 +221,14 @@ for ax, comp in zip(axes.ravel(), lf.COMPONENTS):
         ax.fill_between(BRK.index, BRK["%s_p5" % c], BRK["%s_p95" % c],
                         color=C_BRK, alpha=0.16, lw=0)
         ax.plot(BRK.index, BRK["%s_p50" % c], color=C_BRK, lw=1.6, ls="--", zorder=5)
-    else:
+    if comp in MAG_PANELS:
+        m = MAG[MAG_COL[comp]].dropna()
+        ax.fill_between(m.index, m["p05"], m["p95"], color=C_MAG, alpha=0.14, lw=0)
+        ax.plot(m.index, m["med"], color=C_MAG, lw=1.6, ls=(0, (2, 1.2)), zorder=5)
+        ax.text(0.03, 0.90, "MAGICC-SLR's Greenland module starts in %d —\nzero before, "
+                "so no earlier hindcast exists" % MAG_START[MAG_COL[comp]],
+                transform=ax.transAxes, fontsize=7.6, color="0.35", va="top")
+    if not BRK_COL[comp]:
         ## STATED, NOT OMITTED. An empty model panel with no explanation reads as a bug.
         ax.text(0.03, 0.90, "neither model emits an LWS hindcast —\nobservation shown alone",
                 transform=ax.transAxes, fontsize=7.6, color="0.35", va="top")
@@ -212,17 +244,19 @@ handles = [Line2D([], [], color=C_LAD, lw=2, label="Ladrillo %s (median)" % TAG)
            Patch(facecolor=C_LAD, alpha=0.22, label="Ladrillo 5–95% (parameters)"),
            Patch(facecolor=C_LAD, alpha=0.10, label="Ladrillo 5–95% (predictive, +AR(1)+obs err)"),
            Line2D([], [], color=C_BRK, lw=1.6, ls="--", label="BRICK 2.0 (median)"),
+           Line2D([], [], color=C_MAG, lw=1.6, ls=(0, (2, 1.2)),
+                  label="MAGICC-SLR (median, 5–95%%; Greenland only, from %d)" % MAG_START["gis"]),
            Line2D([], [], color=C_OBS, lw=1.6, label="observational target (±1.645σ)"),
            Line2D([], [], color=C_IGCC, lw=1.4, ls=(0, (4, 2)),
                   label="IGCC 2025-indicators GMSL (independent, not in the fit); shading is "
                         "the PUBLISHED LEVEL \u03c3, which does not apply to the re-referenced "
                         "anomaly")]
-fig.legend(handles=handles, ncol=3, fontsize=8.5, frameon=False, loc="upper center",
-           bbox_to_anchor=(0.5, 0.975))
+fig.legend(handles=handles, ncol=2, fontsize=8.5, frameon=False, loc="upper center",
+           bbox_to_anchor=(0.5, 0.978))
 fig.suptitle("Historical sea-level rise 1900–2026 by component — %s vs observations vs "
-             "BRICK 2.0   [%s]" % (DESC["model"], lf.commit_stamp()),
+             "BRICK 2.0 (and MAGICC-SLR at Greenland)   [%s]" % (DESC["model"], lf.commit_stamp()),
              fontsize=12.5, fontweight="bold", y=0.999)
-fig.tight_layout(rect=[0, 0.165, 1, 0.930])
+fig.tight_layout(rect=[0, 0.165, 1, 0.915])
 ## CAPTION SCOPE: say what the figure DOES, plus the provenance labels every output carries.
 ## Anything argued in the document's text belongs there, not here -- the baseline distinction,
 ## the IGCC depth-scope correction and the TE verdict were all duplicated and are removed.
@@ -235,7 +269,9 @@ _cap = (
     "observed land-water storage.  "
     "Glaciers are shown against the r19-seam-corrected observations.  "
     "Both models are integrated from 1850, plotted from @@X0@@, and driven by the same "
-    "ssp245harm forcing.  %s"
+    "ssp245harm forcing.  MAGICC-SLR (v7.5.3 + Nauels 2025, 600-member AR6 drawnset, its own "
+    "emissions-driven climate) is drawn on the Greenland panel from its module start year, "
+    "re-referenced to the same window.  %s"
     % (DESC["model"], DESC["calib"], DESC["glacier"], lf.CAL_BASELINE.capitalize(),
        DESC["note"]))
 _cap = _cap.replace("@@X0@@", str(X0))          # derived from the constant, not retyped
@@ -289,11 +325,14 @@ for y in EPOCHS:
         _os = LAD[OBS_LINE[comp]] if comp in OBS_LINE else TGT[TGT_COL[comp]]
         row = "    %-22s" % lf.COMP_TITLE[comp]
         for arm_lbl, col_map, df, w in (("Ladrillo", LAD_COL, LAD, 8),
-                                        ("BRICK 2.0", BRK_COL, BRK, 8)):
+                                        ("BRICK 2.0", BRK_COL, BRK, 8),
+                                        ("MAGICC-SLR", MAG_COL, None, 8)):
             if not col_map[comp]:
                 row += "   %s %*s        " % (arm_lbl, w, "n/a")
                 continue
-            r = _matched(_os, df["%s_p50" % col_map[comp]], y)
+            arm = (MAG[col_map[comp]]["med"] if df is None
+                   else df["%s_p50" % col_map[comp]])
+            r = _matched(_os, arm, y)
             if r is None:
                 row += "   %s %*s        " % (arm_lbl, w, "--")
                 continue

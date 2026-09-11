@@ -85,7 +85,7 @@ Two kinds of source carry no dataset version. Rignot 2019 and the Farinotti/Hock
 
 ![Hindcast: Ladrillo L24 vs BRICK 2.0 vs observations](../figures/hindcast_components_L24.png)
 
-**FIG 1.** Component hindcasts against the observations, 1900–2026, in cm relative to a 1995–2005 baseline. Ladrillo L24 (solid, with its 5–95% band) and BRICK 2.0 (dashed) are both integrated from 1850, plotted from 1900, and driven by the same ssp245harm forcing. The total panel also shows IGCC 2025-indicators GMSL (tag `v2026.06.02`) as an independent consensus check, not a calibration target. Land-water storage is observational — neither model predicts it, so panel (e) shows the observed series alone and both totals carry it.
+**FIG 1.** Component hindcasts against the observations, 1900–2026, in cm relative to a 1995–2005 baseline. Ladrillo L24 (solid, with its 5–95% band) and BRICK 2.0 (dashed) are both integrated from 1850, plotted from 1900, and driven by the same ssp245harm forcing. The Greenland panel also shows MAGICC-SLR (v7.5.3 + Nauels 2025, dotted, with its 5–95% band) from 1991, the first year its Greenland module is active; it runs on its own emissions-driven climate. The total panel also shows IGCC 2025-indicators GMSL (tag `v2026.06.02`) as an independent consensus check, not a calibration target. Land-water storage is observational — neither model predicts it, so panel (e) shows the observed series alone and both totals carry it.
 
 **Table 2.** RMSE of the Ladrillo L24 median against the observations, divided by BRICK 2.0's, by component and window; below 1 means Ladrillo is closer. Components are scored against their own targets and the total against Dangendorf 2024, all in cm relative to a 1995–2005 baseline.
 
