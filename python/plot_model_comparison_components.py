@@ -382,10 +382,7 @@ for YEAR in YEARS:
                     color=lf.SRC_COLOR["FACTS"])
             CLIP_CAPTION.append("%s: %s" % (lf.COMP_TITLE[comp], "; ".join(clipped)))
         ## The one panel where two of the four arms are not independent gets told so.
-        if comp == "glaciers":
-            ax.text(0.985, 0.03, "Ladrillo transient = Nauels 2017 Eq. 3 = MAGICC's law",
-                    transform=ax.transAxes, ha="right", va="bottom", fontsize=6.6,
-                    style="italic", color="0.35")
+        ## (the "Ladrillo transient = MAGICC's law" panel note moved to the text, 09-11b)
         ax.axhline(0, color="0.85", lw=0.8, zorder=1)
         ax.set_xticks(range(len(SCENS)))
         ax.set_xticklabels([l for _k, l, _c2, _d in SCENS], fontsize=SET_XTICK_FS[SET])
@@ -431,18 +428,18 @@ for YEAR in YEARS:
                  fontsize=12.5, fontweight="bold", y=0.999)
     ## ⚠ WRAP THE CAPTION BEFORE SAVING. An unwrapped fig.text is one long line and
     ## bbox_inches="tight" then stretches the canvas to fit it, squashing the panels.
+    ## CAPTION STYLE (Marcus 2026-09-11b): vintage, baseline, what the bars are, what FACTS
+    ## and MAGICC are, and anything absent or unfrozen. Formulation lineages and the
+    ## climate-uncertainty caveat are in the document text.
     cap = (
-        "%s — %s; %s; %s.  %s.  %s  %s  FACTS n200 is rel. baseyear 2005; MAGICC-SLR is "
-        "v7.5.3 + Nauels 2025.  FACTS workflows differ only in their Antarctic module, so the "
-        "Total panel shows them as one bracket over the workflow medians and the AIS panel keeps "
-        "them apart.  %s%s%s  %s"
-        % (DESC["model"], DESC["calib"], DESC["glacier"], DESC["gis"],
-           lf.PROJ_BASELINE.capitalize(), WIDTH_NOTE,
-           lf.BAND_CAVEAT + "  " + lf.GLACIER_LINEAGE_NOTE,
+        "%s — %s.  %s.  %s  FACTS n200 per module, rel. baseyear 2005; its workflows differ "
+        "only in their Antarctic module, so the Total panel shows them as one bracket over the "
+        "workflow medians.  MAGICC-SLR is v7.5.3 + Nauels 2025.  %s%s%s"
+        % (DESC["model"], DESC["calib"], lf.PROJ_BASELINE.capitalize(), WIDTH_NOTE,
            ("NOT DRAWN AT %d: %s. " % (YEAR, ", ".join(absent))) if absent else "",
            ("PARTIAL AT %d (some components only): %s. " % (YEAR, ", ".join(partial)))
            if partial else "",
-           DESC["note"], LIT_NOTE.strip()))
+           LIT_NOTE.strip()))
     if CLIP_CAPTION:
         cap += ("  Elicited 5–95%% ranges off panel (cm), listed here rather than over the "
                 "data they annotate — %s." % "  ".join(CLIP_CAPTION))

@@ -157,11 +157,10 @@ fig.tight_layout(rect=[0, 0.10, 1, 0.935])
 _cap = (
     ## CAPTION SCOPE: the arm, the baseline, the draw counts -- what the figure DOES.
     ## Why the widths are comparable, and what the thinning implies, are arguments -> the text.
-    "%s — %s; %s.  Arm: %s, the same for both models (same cubes, 2014 splice pivot, "
-    "1995–2014 re-reference and PAIR_SEED).  %s  Ladrillo is thinned to 8000 draws, "
-    "BRICK 2.0 to 1000.  %s  %s%s"
-    % (DESC["model"], DESC["calib"], DESC["glacier"], ARM_DESC,
-       lf.PROJ_BASELINE.capitalize(), CALIB_NOTE, DESC["note"], CHECK_NOTE))
+    ## CAPTION STYLE (Marcus 2026-09-11b): vintage, arm, baseline, draw counts; nothing implied.
+    "%s — %s.  Arm: %s, the same for both models.  %s.  Ladrillo is thinned to 8000 draws, "
+    "BRICK 2.0 to 1000.%s"
+    % (DESC["model"], DESC["calib"], ARM_DESC, lf.PROJ_BASELINE.capitalize(), CHECK_NOTE))
 fig.text(0.5, 0.085, "\n".join(textwrap.wrap(_cap, 185)),
          fontsize=7.2, ha="center", va="top", color="0.3")
 fig.savefig(OUT, dpi=150)

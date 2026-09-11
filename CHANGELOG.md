@@ -1,3 +1,46 @@
+## 2026-09-11g — Marcus's second 9/11 comments file (`moreLadrillocomments.9.11.23.docx`): eight of nine applied, one answered with a figure
+
+1. **Bolding** — all within-sentence bold removed; paragraph lead-ins, FIG/Table labels and the
+   Table 2 below-1 cells kept.
+2. **"closer on every ice component" was FALSE** (glaciers 1950–1992 ratio 1.061) — now "every ice
+   component in every window except glaciers over 1950–1992".
+3./4. **In-figure captions cut to what the reader needs**: vintage line, baseline, what the bars and
+   sources are, anything absent. Gone everywhere: the glacier-law and Greenland-tap specification
+   strings, the Antarctic-amplification-prior sentence (`DESC["note"]`), the verification/mm→cm
+   notes, the band caveat and glacier-lineage note (both in the text), the glaciers-panel
+   "= MAGICC's law" note, the memo figure's amp-prior/tap title. "Frederikse 2020 to 2018" →
+   "Frederikse et al. (2020), 1900–2018". IGCC's level-σ shading dropped from the total panel with
+   its disclaimer legend. Hindcast caption band resized to the shorter caption.
+5. **The >2000 m correction IS on the TE panel now, as a bound**: hatched band above the observation
+   = IGCC's own deep-ocean heat (`ocean_2000-6000m`, re-referenced) × the upper-ocean expansion
+   coefficient the observations imply (0.1087 cm per 1e22 J, target steric / IGCC 0–2000 m heat,
+   1993–2024). It reaches **+0.30 cm at 2024 against Ladrillo's +0.81 cm excess** (2022–2026
+   matched window). Drawn 1971–2024 (the column's span; ⚠ it is a prescribed constant rate, 2
+   distinct increments). Not added to the observation as a line: deep water expands less per
+   joule, so this is an UPPER bound.
+6. **The TE contradiction resolved in the text** — it was wording, not arithmetic: FaIR's full-depth
+   OHC is 1.22–1.29× the 0–2000 m products (`diag_te_rate_attribution.py --tag=L24`); IGCC's
+   full-depth/0–2000 m ratio 1.102 is one half, FaIR/IGCC-full-depth 1.102 the other; observed
+   0–2000 m OHC removes BOTH (same scope as the target) ⇒ "within 4%" and "half is depth scope"
+   are consistent. The coefficient straddles 1 (0.987–1.027) — not the cause.
+7. **Fig 9b WAS a duplicate of FIG 7's Total panel** — dropped (`plot_ladrillo_memo_figures.py`
+   single-panel; `--with-2100-panel` restores it).
+8. **"separates upward from BRICK 2.0" — not warranted** (439 vs 414 cm at vvH/2300, 6%). Rewritten
+   from the swap table; the requested single figure is **FIG 10** (`plot_vv_climate_swap.py`):
+   Ladrillo and BRICK 2.0 each drawn on the FaIR driver and on MAGICC's climate against MAGICC-SLR.
+   BRICK 2.0 on MAGICC's climate was RUN for the 7 markers + ssp245/585 (`run_brick2_vv_magiccclim.sh`,
+   ~25 s each; [ARM-MATCH] 2000/2000 and 1000/1000 draws). vvH/2300 totals: Ladrillo 439→425, BRICK
+   414→393, MAGICC-SLR 570 — the gap survives the swap; it is Antarctica (255/248 vs 382).
+9. Found on review, not in the comments: **"narrower than both BRICK 2.0 and FACTS on every
+   component" was FALSE** — at Antarctica LARMIP (103) and DeConto (113) are narrower than
+   Ladrillo (134), and wf2f/wf3f totals (144/155) are narrower than 163; "FACTS's 148 / 259" were
+   MEANS across workflows. Rewritten per module (107–190; 144–561).
+
+Build script now regenerates every deliverable figure (FIG 1, the vv set, FIG 5, FIG 10 were
+outside it). .docx rebuilt, verified with python-docx; round-trip 127/127. The FIG 8 caption
+sentence is Marcus's ("completely melted (31.6 cm SLE) under SSP5-8.5") — the cap is reached
+under SSP2-4.5 too (median = p95 = 31.57), suggested addition, not applied.
+
 ## 2026-09-11f — OPTION A APPLIED (Marcus): the Total panel draws FACTS as one workflow-range bracket
 
 `plot_model_comparison_components.py`: `FACTS_BRACKET_PANELS = ("total",)` — thick capped bar = range of

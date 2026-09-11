@@ -56,6 +56,7 @@ FIGS = [
     "model_comparison_components_L24_2100.png",
     "model_comparison_components_L24_2300.png",
     "ladrillo_L24_fig2_ssp_total.png",
+    "vv_climate_swap_L24_2300.png",      # FIG 10, 09-11b
 ]
 
 

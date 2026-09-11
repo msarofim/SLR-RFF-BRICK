@@ -44,6 +44,10 @@ step "vv gsic ladrillo-only"    python python/plot_vv_gsic_wr_vs_ladrillo.py --t
 step "vv model comparison"      python python/vv_model_comparison.py --tag=$T
 step "ladrillo model comparison" python python/ladrillo_model_comparison.py --tag=$T
 step "memo figures"             python python/plot_ladrillo_memo_figures.py --tag=$T
+step "hindcast (FIG 1)"          python python/plot_hindcast_components.py --tag=$T
+step "vv comparison figures"     python python/plot_model_comparison_components.py --tag=$T --set=vv --year=all
+step "vv trajectories (FIG 5)"   python python/plot_future_components.py --tag=$T --set=vv
+step "climate swap (FIG 10)"     python python/plot_vv_climate_swap.py --tag=$T --year=all
 step "benchmark (refresh)"      python python/bench_ladrillo.py --tag=$T
 
 say "=== figures now present for $T ==="

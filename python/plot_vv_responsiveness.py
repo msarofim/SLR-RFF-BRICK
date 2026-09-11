@@ -153,16 +153,14 @@ fig.legend(handles=handles, ncol=3, fontsize=8.5, frameon=False, loc="upper cent
 fig.suptitle(TITLE % (HI, LO, DESC["model"], lf.commit_stamp()), fontsize=12.5,
              fontweight="bold", y=0.999)
 fig.tight_layout(rect=[0, 0.12, 1, 0.925])
-cap = ("%s — %s; %s; %s.  Each point is med(%s) − med(%s) at that horizon, both medians on "
-       "%s; FACTS per module, never collapsed; no paired-draw statistic is used, so all four "
-       "sources carry the same estimator.  Ladrillo, BRICK 2.0 and FACTS share one FaIR 2.2.4 "
-       "calib 1.6.0 + CMIP7 driver (GMST gap %s K at %s); MAGICC-SLR runs on its own "
-       "emissions-driven climate (gap %s K).  FACTS n200 is rel. baseyear 2005; MAGICC-SLR is "
-       "v7.5.3 + Nauels 2025.  %s"
-       % (DESC["model"], DESC["calib"], DESC["glacier"], DESC["gis"], HI, LO, lf.PROJ_BASELINE,
+cap = ("%s — %s.  Each point is med(%s) − med(%s) at that horizon, both on %s; FACTS per "
+       "module.  Ladrillo, BRICK 2.0 and FACTS share one FaIR 2.2.4 calib 1.6.0 + CMIP7 driver "
+       "(GMST gap %s K at %s); MAGICC-SLR runs on its own climate (gap %s K).  FACTS n200 is "
+       "rel. baseyear 2005; MAGICC-SLR is v7.5.3 + Nauels 2025."
+       % (DESC["model"], DESC["calib"], HI, LO, lf.PROJ_BASELINE,
           "/".join("%.2f" % fair_dT[y] for y in HORIZONS if y in fair_dT),
           "/".join(str(y) for y in HORIZONS if y in fair_dT),
-          "/".join("%.2f" % mag_dT[y] for y in HORIZONS if y in mag_dT), DESC["note"]))
+          "/".join("%.2f" % mag_dT[y] for y in HORIZONS if y in mag_dT)))
 fig.text(0.5, 0.105, "\n".join(textwrap.wrap(cap, 185)), fontsize=7.2, ha="center", va="top",
          color="0.3")
 fig.savefig(OUT_PNG, dpi=150)

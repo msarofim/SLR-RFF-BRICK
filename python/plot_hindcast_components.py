@@ -74,6 +74,22 @@ TGT_CSV = os.path.join(lf.REPO, "outputs", "recalib_targets_ext.csv")
 ## IGCC ships no ensemble members, so the correct `sd(x_t - mean(window))` band cannot be
 ## computed from this release; the quantitative comparison is the Table 11 benchmark file.
 IGCC_CSV = os.path.join(lf.REPO, "data/observations/igcc2026_gmsl_annual.csv")
+## ⭐ THE TE DEPTH-SCOPE BAND (2026-09-11b, Marcus: "deliberately omitting expansion below 2000 m
+## from observations seems wrong"). The steric target is 0-2000 m; both models expand FULL-DEPTH
+## ocean heat. Rather than leave the reader to discount the model, the panel shades ABOVE the
+## observation the MOST the >2000 m ocean could add: IGCC's own deep-ocean heat (its
+## `ocean_2000-6000m` column, re-referenced to the same window) times the UPPER-ocean expansion
+## coefficient implied by the observations themselves (target steric rate / IGCC 0-2000 m heat
+## rate over 1993-2024). Deep water is colder and expands LESS per joule, so this is an upper
+## bound, not a point -- which is why it is a band from the observation UP, not a shifted line.
+## ⚠ IGCC's deep column is a PRESCRIBED constant rate (2 distinct increments over 1971-2024),
+## so the band has no curvature of its own; it is a slope allowance, drawn over the column's
+## 1971-2024 span only.
+IGCC_EEI = os.path.join(lf.REPO, "data/observations/raw/igcc2024/ClimateIndicator-data-2cd2409/"
+                        "data/earth_energy_imbalance/earth_energy_imbalance.csv")
+DEEP_COL, UPPER_COLS = "ocean_2000-6000m", ("ocean_0-700m", "ocean_700-2000m")
+DEEP_RATE_WINDOW = (1993, 2024)     # where alpha_obs is measured: the altimetry-era rate
+ZJ_TO_1E22J = 0.1
 ## ⭐ MAGICC-SLR's HISTORY (2026-09-11, Marcus's 9/11 comment [1]: does MAGICC's historical
 ## Greenland match observations?). The source run spans 1750-2305; the extractor now writes a
 ## separate hindcast file on THIS figure's baseline. ⚠ MAGICC's Greenland module STARTS IN 1990
@@ -108,7 +124,7 @@ C_LAD, C_BRK = lf.SRC_COLOR["Ladrillo"], lf.SRC_COLOR["BRICK 2.0"]
 C_MAG = lf.SRC_COLOR["MAGICC-SLR"]
 C_OBS, C_IGCC = "#333333", "#b2182b"
 
-for f in (LAD_CSV, BRK_CSV, TGT_CSV, IGCC_CSV, MAG_CSV):
+for f in (LAD_CSV, BRK_CSV, TGT_CSV, IGCC_CSV, MAG_CSV, IGCC_EEI):
     if not os.path.exists(f):
         raise SystemExit("missing %s" % os.path.relpath(f, lf.REPO))
 LAD = pd.read_csv(LAD_CSV).set_index("year")
@@ -188,6 +204,25 @@ IGCC_SIG = _ig["std"] / 10.0
 print("[IGCC] GMSL ensemble re-referenced to %d-%d over %d years (%d-%d), mm -> cm"
       % (BASE0, BASE1, len(_igw), int(_ig.index.min()), int(_ig.index.max())))
 
+## The deep-scope band: alpha_obs x deep heat anomaly, both from observations only.
+_eei = pd.read_csv(IGCC_EEI)
+_eei["year"] = np.floor(_eei["time"]).astype(int)
+_eei = _eei.set_index("year")
+_deep = _eei[DEEP_COL].dropna() * ZJ_TO_1E22J
+_upper = _eei[list(UPPER_COLS)].sum(axis=1).dropna() * ZJ_TO_1E22J
+_w = range(DEEP_RATE_WINDOW[0], DEEP_RATE_WINDOW[1] + 1)
+_yy = [t for t in _w if t in _upper.index and t in TGT.index and np.isfinite(TGT.loc[t, "steric"])]
+_alpha_obs = (np.polyfit(_yy, TGT.loc[_yy, "steric"].values, 1)[0]
+              / np.polyfit(_yy, _upper.loc[_yy].values, 1)[0])          # cm per 1e22 J
+_deep_anom = _deep - _deep.loc[BASE0:BASE1].mean()
+DEEP_BOUND = _alpha_obs * _deep_anom                                     # cm, rel BASE0-BASE1
+_r = (_deep.loc[_yy[-1]] - _deep.loc[_yy[0]]) / (_upper.loc[_yy[-1]] - _upper.loc[_yy[0]])
+print("[DEPTH-SCOPE] alpha_obs = %.4f cm per 1e22 J (target steric / IGCC 0-2000 m heat, %d-%d); "
+      "deep/upper heat ratio %.3f; band = alpha_obs x IGCC >2000 m heat anomaly, %d-%d, "
+      "reaching %+.2f cm at %d (an UPPER bound: deep water expands less per joule)"
+      % (_alpha_obs, DEEP_RATE_WINDOW[0], DEEP_RATE_WINDOW[1], _r, int(DEEP_BOUND.index.min()),
+         int(DEEP_BOUND.index.max()), DEEP_BOUND.iloc[-1], int(DEEP_BOUND.index.max())))
+
 # --- figure ----------------------------------------------------------------
 fig, axes = plt.subplots(2, 3, figsize=(15.5, 9.4))
 for ax, comp in zip(axes.ravel(), lf.COMPONENTS):
@@ -202,11 +237,19 @@ for ax, comp in zip(axes.ravel(), lf.COMPONENTS):
         obs = corr
     ax.fill_between(obs.index, lo, hi, color=C_OBS, alpha=0.16, lw=0, zorder=1)
     ax.plot(obs.index, obs.values, color=C_OBS, lw=1.6, zorder=4)
+    if comp == "te":
+        yrs = [t for t in DEEP_BOUND.index if t in obs.index and np.isfinite(obs.loc[t])]
+        ax.fill_between(yrs, obs.loc[yrs].values, obs.loc[yrs].values + DEEP_BOUND.loc[yrs].values,
+                        facecolor="#e08214", edgecolor="#b35806", hatch="////", lw=0, alpha=0.45,
+                        zorder=3)
+        ax.text(0.03, 0.90, "hatched: the most the ocean below 2000 m could add\n"
+                "(observation is 0–2000 m; both models are full-depth)",
+                transform=ax.transAxes, fontsize=7.4, color="0.35", va="top")
 
     if comp == "total":
+        ## No shading: IGCC's published sigma is a LEVEL uncertainty that cancels on
+        ## re-referencing, so the only honest band was one the legend had to disclaim (09-11b).
         m = (IGCC_MEAN.index >= X0) & (IGCC_MEAN.index <= X1)
-        ax.fill_between(IGCC_MEAN.index[m], (IGCC_MEAN - 1.645 * IGCC_SIG)[m],
-                        (IGCC_MEAN + 1.645 * IGCC_SIG)[m], color=C_IGCC, alpha=0.11, lw=0)
         ax.plot(IGCC_MEAN.index[m], IGCC_MEAN.values[m], color=C_IGCC, lw=1.4, ls=(0, (4, 2)))
 
     if LAD_COL[comp]:
@@ -247,36 +290,36 @@ handles = [Line2D([], [], color=C_LAD, lw=2, label="Ladrillo %s (median)" % TAG)
            Line2D([], [], color=C_MAG, lw=1.6, ls=(0, (2, 1.2)),
                   label="MAGICC-SLR (median, 5–95%%; Greenland only, from %d)" % MAG_START["gis"]),
            Line2D([], [], color=C_OBS, lw=1.6, label="observational target (±1.645σ)"),
+           Patch(facecolor="#e08214", edgecolor="#b35806", hatch="////", alpha=0.45,
+                 label="TE: most the >2000 m ocean could add (upper bound)"),
            Line2D([], [], color=C_IGCC, lw=1.4, ls=(0, (4, 2)),
-                  label="IGCC 2025-indicators GMSL (independent, not in the fit); shading is "
-                        "the PUBLISHED LEVEL \u03c3, which does not apply to the re-referenced "
-                        "anomaly")]
+                  label="IGCC 2025-indicators GMSL (not a calibration target)")]
 fig.legend(handles=handles, ncol=2, fontsize=8.5, frameon=False, loc="upper center",
            bbox_to_anchor=(0.5, 0.978))
 fig.suptitle("Historical sea-level rise 1900–2026 by component — %s vs observations vs "
              "BRICK 2.0 (and MAGICC-SLR at Greenland)   [%s]" % (DESC["model"], lf.commit_stamp()),
              fontsize=12.5, fontweight="bold", y=0.999)
-fig.tight_layout(rect=[0, 0.165, 1, 0.915])
+fig.tight_layout(rect=[0, 0.09, 1, 0.915])
 ## CAPTION SCOPE: say what the figure DOES, plus the provenance labels every output carries.
 ## Anything argued in the document's text belongs there, not here -- the baseline distinction,
 ## the IGCC depth-scope correction and the TE verdict were all duplicated and are removed.
+## CAPTION STYLE (Marcus 2026-09-11b): what the reader needs to read the panels, nothing that is
+## implied or belongs in the text -- no verification notes, no unit conversions, no model
+## specification beyond the vintage line.
 _cap = (
-    "%s — %s; %s.  Baseline %s; every series is verified zero-mean over it, and the IGCC "
-    "ensemble is re-referenced to the same window (mm→cm).  "
-    "Component observations: Frederikse 2020 to 2018, extended by GRACE/GRACE-FO mascons "
-    "(AIS, GIS), GlaMBIE 2025 scope-matched (glaciers), NOAA 0–2000 m thermosteric (TE); "
-    "total = Dangendorf 2024 extended by NOAA STAR altimetry, and both totals carry the "
-    "observed land-water storage.  "
-    "Glaciers are shown against the r19-seam-corrected observations.  "
-    "Both models are integrated from 1850, plotted from @@X0@@, and driven by the same "
-    "ssp245harm forcing.  MAGICC-SLR (v7.5.3 + Nauels 2025, 600-member AR6 drawnset, its own "
-    "emissions-driven climate) is drawn on the Greenland panel from its module start year, "
-    "re-referenced to the same window.  %s"
-    % (DESC["model"], DESC["calib"], DESC["glacier"], lf.CAL_BASELINE.capitalize(),
-       DESC["note"]))
+    "%s — %s.  Baseline %d–%d.  "
+    "Component observations: Frederikse et al. (2020), 1900–2018, extended by GRACE/GRACE-FO "
+    "(AIS, GIS), GlaMBIE 2025 (glaciers), NOAA 0–2000 m thermosteric (TE); total = Dangendorf "
+    "2024 extended by NOAA STAR altimetry, and both totals carry the observed land-water storage.  "
+    "Both models are run from 1850, plotted from @@X0@@, on the same ssp245harm forcing.  "
+    "MAGICC-SLR (v7.5.3 + Nauels 2025) is drawn on the Greenland panel from 1991, on its own "
+    "climate.  Thermal expansion: the hatched band above the observation is the most the ocean "
+    "below 2000 m could add (IGCC deep-ocean heat × the observed upper-ocean expansion "
+    "coefficient), drawn over 1971–2024."
+    % (DESC["model"], DESC["calib"], BASE0, BASE1))
 _cap = _cap.replace("@@X0@@", str(X0))          # derived from the constant, not retyped
 assert "@@" not in _cap, "caption sentinel left unsubstituted"
-fig.text(0.5, 0.150, "\n".join(textwrap.wrap(_cap, 185)),
+fig.text(0.5, 0.075, "\n".join(textwrap.wrap(_cap, 185)),
          fontsize=7.2, ha="center", va="top", color="0.3")
 fig.savefig(OUT, dpi=150)
 print("wrote %s" % os.path.relpath(OUT, lf.REPO))

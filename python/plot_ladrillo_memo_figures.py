@@ -127,14 +127,20 @@ TAG_DESC = {"L10": "Ladrillo 1.0 (L10)",
             ## L24's amp prior is at its SHIPPED width N(1.09, 0.180), the measured 34-model
             ## CMIP6 spread. (Provenance vs L21/L23 lives in CHANGELOG.md, not here — this
             ## string is baked into figure captions, including the standalone deliverable.)
-            "L24": "Ladrillo L24 (Antarctic amp prior N(1.09, 0.180), the measured CMIP6 spread)"}
+            ## 09-11b (Marcus): titles carry the VINTAGE ONLY; the amp prior and the tap cell
+            ## are model specification and live in the document, not in a figure title.
+            "L24": "Ladrillo L24"}
 if LADRILLO_TAG not in TAG_DESC:
     raise SystemExit(f"undeclared --tag={LADRILLO_TAG}: add it to TAG_DESC so the figure "
                      f"titles say what the vintage is. Declared: "
                      f"{', '.join(sorted(TAG_DESC))}. Do NOT relax this guard -- an "
                      f"undeclared tag would be stamped with someone else's vintage.")
 VINTAGE = TAG_DESC[LADRILLO_TAG] + (
-    f", tap {gis_targets.tap_cell_label()}" if TAPPED else ", NO TAP (base Greenland)")
+    "" if (TAPPED and LADRILLO_TAG == "L24") else
+    (f", tap {gis_targets.tap_cell_label()}" if TAPPED else ", NO TAP (base Greenland)"))
+## ⭐ 09-11b (Marcus): the 2100-comparison panel (old Fig 9b) duplicated the SSP comparison
+## figure's Total panel (FIG 7) and is dropped; `--with-2100-panel` restores it.
+WITH_2100_PANEL = "--with-2100-panel" in sys.argv
 SOURCE_COLOR = {"Ladrillo": "#2166ac", "BRICK 2.0": "#7f7f7f",
                 "MAGICC-SLR": "#d62728", "FACTS": "#ff9900"}
 COMPONENT_TITLE = {"ais": "Antarctic ice sheet", "glaciers": "Glaciers",
@@ -191,9 +197,12 @@ def figure2_ssp_total():
     cmp_ = pd.read_csv(os.path.join(REPO, CMP_CSV))
     tot = cmp_[(cmp_.component == "total")]
 
-    fig, axes = plt.subplots(1, 2, figsize=(13.5, 5.4),
-                             gridspec_kw=dict(width_ratios=[1.55, 1]))
-    ax = axes[0]
+    if WITH_2100_PANEL:
+        fig, axes = plt.subplots(1, 2, figsize=(13.5, 5.4),
+                                 gridspec_kw=dict(width_ratios=[1.55, 1]))
+        ax = axes[0]
+    else:
+        fig, ax = plt.subplots(1, 1, figsize=(8.6, 5.4))
     for ssp in SSPS:
         p = os.path.join(REPO, SSP_JOINT_PATHS % ssp)
         d = pd.read_csv(p)
@@ -214,6 +223,12 @@ def figure2_ssp_total():
     # the FACTS process-based workflows -- so the reader's own model and its closest
     # comparator sit adjacent rather than split across the FACTS cluster.
     SOURCE_ORDER = {"Ladrillo": 0, "BRICK 2.0": 1, "MAGICC-SLR": 2, "FACTS": 3}
+    if not WITH_2100_PANEL:
+        fig.suptitle(f"{VINTAGE} — projected total sea level", fontsize=12)
+        fig.tight_layout(rect=[0, 0, 1, 0.94])
+        out = os.path.join(FIGDIR, f"{FIGSTEM}_fig2_ssp_total.png")
+        fig.savefig(out, dpi=180); plt.close(fig)
+        return out
     ax = axes[1]
     order, xt, xl = [], [], []
     x = 0
