@@ -122,6 +122,16 @@ SRC_LABEL = {"Ladrillo": "Ladrillo %s" % TAG, "BRICK 2.0": "BRICK 2.0",
 ## modules out inside it; the others are single markers.
 SLOT = {"Ladrillo": -0.30, "BRICK 2.0": -0.12, "MAGICC-SLR": 0.06, "FACTS": 0.30}
 FACTS_FAN = 0.055        # module-to-module spacing inside the FACTS slot
+## ⭐ OPTION A (Marcus, 2026-09-11): the TOTAL panel draws FACTS as ONE BRACKET, not a fan.
+## The four f-workflows share glaciers, TE, LWS and (bar wf4) the GrIS module and differ ONLY in
+## the AIS module, so the 4-point fan in the Total panel was the AIS panel's fan drawn a second
+## time (83-131 cm of workflow spread at 2300, all Antarctica). The AIS panel KEEPS its fan --
+## the AIS-method spread is what FACTS contributes. The bracket spans the RANGE OF THE FOUR
+## WORKFLOW MEDIANS (thick, capped) and the UNION of their 5-95 % (thin); no single "FACTS
+## median" is drawn, because the workflows disagree and a median across them summarises
+## nothing (`median_needs_agreement`). Memory: facts_workflows_differ_only_in_ais.
+FACTS_BRACKET_PANELS = ("total",)
+FACTS_BRACKET_HALF = 0.035   # cap half-width of the bracket
 MARK = {"Ladrillo": "s", "BRICK 2.0": "s", "MAGICC-SLR": "D", "FACTS": "o"}
 SEJ_MARK = "^"           # open triangle: structured expert judgement, not a model spread
 
@@ -284,6 +294,20 @@ for YEAR in YEARS:
                 if s.empty:
                     continue
                 col = lf.SRC_COLOR[src]
+                if src == "FACTS" and comp in FACTS_BRACKET_PANELS:
+                    ## OPTION A: one bracket over the workflows (see FACTS_BRACKET_PANELS).
+                    mods = sorted(s.module.astype(str))
+                    x = i + SLOT[src]
+                    m_lo, m_hi = float(s.med.min()), float(s.med.max())
+                    ax.plot([x, x], [m_lo, m_hi], color=col, lw=2.6, solid_capstyle="butt",
+                            zorder=3)
+                    for yv in (m_lo, m_hi):
+                        ax.plot([x - FACTS_BRACKET_HALF, x + FACTS_BRACKET_HALF], [yv, yv],
+                                color=col, lw=1.6, zorder=3)
+                    if s.band_ok.all():
+                        ax.plot([x, x], [float(s.p05.min()), float(s.p95.max())], color=col,
+                                lw=0.8, alpha=0.7, solid_capstyle="butt", zorder=2)
+                    continue
                 if src == "FACTS":
                     ## FACTS: one series per MODULE, fanned inside its slot, so the
                     ## DISAGREEMENT between modules is the thing the reader sees. A median
@@ -385,6 +409,12 @@ for YEAR in YEARS:
                            mfc="none", mew=1.4, ms=7,
                            label="FACTS, structured expert judgement (%s)"
                                  % ", ".join(sej_drawn))]
+    if "FACTS" in drawn:
+        handles += [Line2D([], [], color=lf.SRC_COLOR["FACTS"], lw=2.6, marker="_", ms=9,
+                           mew=1.6, label="FACTS total: range of the %d workflow medians "
+                                          "(thick) / union of their 5–95%% (thin)"
+                                          % D[(D.source == "FACTS") & (D.component == "total")
+                                              & (D.year == YEAR)].module.nunique())]
     handles += [Line2D([], [], color="0.3", lw=2.2,
                        label="17–83% (thick) / 5–95% (thin), all sources"
                              if WIDTHS_COMPARABLE else
@@ -403,7 +433,9 @@ for YEAR in YEARS:
     ## bbox_inches="tight" then stretches the canvas to fit it, squashing the panels.
     cap = (
         "%s — %s; %s; %s.  %s.  %s  %s  FACTS n200 is rel. baseyear 2005; MAGICC-SLR is "
-        "v7.5.3 + Nauels 2025.  %s%s%s  %s"
+        "v7.5.3 + Nauels 2025.  FACTS workflows differ only in their Antarctic module, so the "
+        "Total panel shows them as one bracket over the workflow medians and the AIS panel keeps "
+        "them apart.  %s%s%s  %s"
         % (DESC["model"], DESC["calib"], DESC["glacier"], DESC["gis"],
            lf.PROJ_BASELINE.capitalize(), WIDTH_NOTE,
            lf.BAND_CAVEAT + "  " + lf.GLACIER_LINEAGE_NOTE,

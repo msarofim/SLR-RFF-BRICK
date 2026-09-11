@@ -1,3 +1,12 @@
+## 2026-09-11f — OPTION A APPLIED (Marcus): the Total panel draws FACTS as one workflow-range bracket
+
+`plot_model_comparison_components.py`: `FACTS_BRACKET_PANELS = ("total",)` — thick capped bar = range of
+the four workflow MEDIANS, thin line = union of their 5–95 %; no single "FACTS median" is drawn. The AIS
+panel keeps its per-module fan (that spread is what FACTS contributes); GIS keeps its two modules. Legend
+entry + caption sentence derive from the data. Both sets regenerated (FIGs 2–4, 7–8), FIG 2 caption
+updated, .docx rebuilt and verified (python-docx: caption text; embedded media = the new PNGs). Nothing
+in the comparison CSVs or the benchmark changed — this is presentation only.
+
 ## 2026-09-11e — should any FACTS workflow be dropped to simplify the figures? Measured; nothing changed
 
 **Structure.** wf1f/wf2f/wf3f share ar5glaciers, tlm, ssp-lws and FittedISMIP GrIS and differ ONLY in

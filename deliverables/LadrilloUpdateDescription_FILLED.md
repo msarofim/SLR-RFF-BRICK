@@ -111,7 +111,7 @@ On glaciers, Ladrillo and MAGICC-SLR share the Nauels 2017 transient, so that pa
 
 ![van Vuuren markers by component, 2100](../figures/model_comparison_components_vv_L24_2100.png)
 
-**FIG 2.** Ladrillo L24 compared against BRICK 2.0, FACTS and MAGICC-SLR across the seven van Vuuren markers at **2100**, by component.
+**FIG 2.** Ladrillo L24 compared against BRICK 2.0, FACTS and MAGICC-SLR across the seven van Vuuren markers at **2100**, by component. FACTS is drawn per module; its four workflows differ only in the Antarctic module, so the Total panel shows them as one bracket spanning the workflow medians (thin line: the union of their 5–95%).
 
 ![van Vuuren markers by component, 2150](../figures/model_comparison_components_vv_L24_2150.png)
 
