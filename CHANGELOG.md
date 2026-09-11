@@ -1,3 +1,26 @@
+## 2026-09-11e — should any FACTS workflow be dropped to simplify the figures? Measured; nothing changed
+
+**Structure.** wf1f/wf2f/wf3f share ar5glaciers, tlm, ssp-lws and FittedISMIP GrIS and differ ONLY in
+the AIS module (ar5AIS / larmip / deconto21); wf4 = bamber19 in both ice sheets. So the 4-point FACTS
+fan in every Total panel is the AIS fan drawn a second time — workflow-total spread 12–20 cm @2100,
+25–34 @2150, 83–131 cm @2300, all AIS (+ wf4's GIS).
+
+**⭐ deconto21 and bamber19 are post-2100 BLIND.** `deconto21_AIS_project.py:pickScenario` integrates
+the injected SAT over 2000–2099 and picks an RCP2.6/4.5/8.5 sample stream per sample (markers
+133/167/245 K·yr); bamber19's injected mode picks its high/low core the same way. Measured: vvH and
+vvHL give IDENTICAL 2300 AIS (deconto21 161.6 cm; bamber19 76.7/76.0) because they share the 21st
+century. Their 2150/2300 values are RCP tables; deconto21's p95 (1441 cm at vvH/2300) sets the AIS
+and Total axes. larmip, ar5AIS and FittedISMIP respond continuously (ar5AIS negatively).
+⚠ This also qualifies the responsiveness figure: deconto21's and bamber19's vvH−vvVL are bucket
+jumps, not climate responses. Memory: `facts_workflows_differ_only_in_ais`.
+
+**Options (none applied — a module change moves the benchmark's comparator bracket):**
+A. keep all four in the AIS panel, collapse the Total fan to one workflow-range bracket (−3 points
+   per marker, keeps AR6's four workflows); B. drop wf4/bamber19 (SEJ, already open-marker; −1 AIS,
+   −1 GIS, −1 Total point); C. hollow markers for the two lookup modules at 2150/2300 (the SEJ device,
+   reused). Recommendation: A, optionally + C. Not B: the AIS-method spread IS what FACTS contributes,
+   and SLEIP/AR6 carry wf4.
+
 ## 2026-09-11d — the responsiveness figure (task 1c): High − Very Low per component × model × horizon
 
 **Marcus's 9/11 comment [9].** `python/plot_vv_responsiveness.py --tag=L24` →
