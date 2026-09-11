@@ -235,7 +235,11 @@ ax[0].set_title(("Glacier melt to 2300 — %s, seven van Vuuren CMIP7 markers" %
                 if LADRILLO_ONLY else
                 ("Glacier melt to 2300 — %s vs %s, seven van Vuuren CMIP7 markers"
                  % (WR_NAME, LAD_NAME)), fontsize=11, fontweight="bold", loc="left")
-ax[0].legend(ncol=4, fontsize=7.5, frameon=False, loc="upper left")
+## Panel letter, so the figure matches its caption ("GMST forcing (a), cumulative melt (b),
+## melt rate (c)") -- (b) and (c) carried theirs, (a) did not (found 2026-09-11).
+ax[0].text(0.012, 0.93, "(a)  GMST forcing", transform=ax[0].transAxes, fontsize=9.5,
+           fontweight="bold", va="top")
+ax[0].legend(ncol=4, fontsize=7.5, frameon=False, loc="upper left", bbox_to_anchor=(0.0, 0.88))
 _pk = {s: (wr(s).set_index("year").gmst.loc[2015:2300].idxmax(),
            wr(s).set_index("year").gmst.loc[2015:2300].max()) for s in DECLINE}
 ax[0].annotate("%d peak-and-decline pathways\n(peaks %.2f–%.2f °C, %d–%d)"

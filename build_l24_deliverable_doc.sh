@@ -38,6 +38,9 @@ source ~/climate-env/bin/activate
 for d in plot_future_components plot_model_comparison_components plot_vv_gsic_wr_vs_ladrillo; do
   step "$d" python python/$d.py --tag=$T
 done
+## FIG 6 is the LADRILLO-ONLY glacier figure since Marcus's 9/11 comment [11]; the 4-panel
+## Wigley-Raper contrast above keeps its filename but is no longer in the document.
+step "vv gsic ladrillo-only"    python python/plot_vv_gsic_wr_vs_ladrillo.py --tag=$T --ladrillo-only
 step "vv model comparison"      python python/vv_model_comparison.py --tag=$T
 step "ladrillo model comparison" python python/ladrillo_model_comparison.py --tag=$T
 step "memo figures"             python python/plot_ladrillo_memo_figures.py --tag=$T

@@ -1,3 +1,68 @@
+## 2026-09-11b — FACTS SSP controls to 2300 (FIG 8 gets its FACTS bars); the *2300 merge is now reproducible
+
+**Marcus's 9/11 comment [12] (task 1a of the 09-11 handoff).** The SSP comparison at 2300 had no
+FACTS bars because only the van Vuuren set had been extended (09-02e / 09-03). Same recipe: three
+separate keys `ssp1262300` / `ssp2452300` / `ssp5852300` in the facts repo (commit 2f007423), horizon
+carried in the climate file's `PyearEnd`, the 2150 controls untouched, no emulandice on the twins
+(2100-capped; per-SSP-trained from a Scenario label the twin keys do not carry — the emulandice cells
+at 2100 come from the 2150 controls as before). All three ran in ~1 min each.
+
+**Two things fixed on the way.**
+1. **The vv*2300 → vv* merge had been done BY HAND on the CSV** (a1341eb) — re-running
+   `extract_facts_shared_components.py` would have silently undone it, so
+   `outputs/facts_components_shared_n200.csv` was not reproducible from its own producer. The
+   extractor now merges each twin's years > 2150 under its base name itself, behind a new
+   **[EXTEND] gate: the twin must reproduce its base run BIT-FOR-BIT on every overlapping year in
+   every component file** (bound 0.0, an identity — same driver, modules and seeds). PASS 10/10
+   twins; **mutation-tested** (a 1 mm perturbation of one sample-year fails it). Regression: all
+   9,600 pre-existing CSV rows byte-identical; 5,352 rows added (years 2160–2300).
+2. **FIG 6 in the canonical .docx was still the 4-panel Wigley-Raper figure.** The 09-11 "[11]
+   applied" changed the caption and the script but neither the image path in FILLED.md nor the
+   sync script's FIGS list, so every rebuild re-embedded `vv_gsic_wr_vs_ladrillo_2300.png` (found by
+   matching the embedded media size, 365,566 B). Both fixed; the build script now runs the
+   `--ladrillo-only` step; panel (a) gained the letter the caption already used.
+
+**What the figure shows (cm rel. 1995–2014, FACTS @2300, medians).** Totals: ssp126 wf1f 137 /
+wf2f 132 / wf3f 208 / wf4 186 (Ladrillo 73, BRICK 95, MAGICC 66); ssp585 wf1f 228 / wf2f 341 /
+wf3f 896 / wf4 318 (Ladrillo 517, BRICK 464, MAGICC 1016). FACTS is far LESS scenario-sensitive at
+2300 than the other three (ssp126→585 total spread 91–688 cm across workflows vs 444 / 369 / 950),
+and the **AR5 glacier module sits at a hard ceiling of 31.57 cm** (med = p95 under ssp245/585).
+The FIG 8 caption now says only what the figure does (the "stop at 2150" sentence is gone).
+
+**⚠ NOT DONE — a decision for Marcus, two-part.** `ladrillo_model_comparison_L24.csv` gained 39 FACTS
+rows at 2300 (all 258 existing rows unchanged, max|Δmed| = 0), so the plot's [LIT] gate now stamps
+"LITERATURE ARM MOVED: 39 of 189" on FIGs 7/8 and `bench_ladrillo.py` scores on the frozen copy.
+A `--freeze-fixed` would (a) add those 39 comparator rows — additive, but it gives the 2300 cells
+FIVE comparators where they had one, so 2300 verdicts can change — AND (b) re-freeze the BRICK 2.0
+hindcast arm (`postpred_oldbrick_components_timeseries.csv`, 236 lines differ), because the
+09-10 span/seed/LWS/forcing changes were made at source and never re-frozen — that moves HINDCAST
+verdicts too. Measured by a trial re-freeze, then restored from git (`_fixed` is tracked). Neither
+half is silently resolved here. Options: literature-only additive re-freeze (needs a flag), full
+re-freeze (benchmark catches up with Table 2), or leave frozen and accept the stamp.
+
+**Files.** facts: `build_shared_climate_nc.py`, `build_shared_configs.py` (stale "2300 NOT attempted"
+header fixed), `extract_facts_shared_components.py` ([EXTEND], `merge_twins`), `run_ssp_facts_2300.sh`,
+three `config.yml`. Here: `outputs/facts_components_shared_n200.csv`, `ladrillo_model_comparison_L24.csv`,
+`figures/model_comparison_components_L24_{2100,2150,2300}.png`, `vv_gsic_ladrillo_2300.png`,
+`plot_vv_gsic_wr_vs_ladrillo.py`, `build_l24_deliverable_doc.sh`, `deliverables/sync_filled_from_docx.py`,
+the deliverable .md/.docx (verified with python-docx: FIG 8 text and FIG 6 media both correct).
+
+## 2026-09-10/11 — the L24 hindcast arc (LWS / forcing / captions) — LOGGED LATE, from the 09-11 handoff
+
+Not entered at the time; recorded here 09-11b from `notes/handoff_2026-09-11_l24_comments_applied.md`
+§2–4, which is the primary record. Three confounds removed at source in the Ladrillo-vs-BRICK 2.0
+hindcast: (1) BRICK saved from 1920 → now 1900 (`FY0`); (2) `get_model()` unseeded → `Random.seed!(2026)`
+immediately before it, both arms stamp a `provenance` column, two runs byte-identical; (3) LWS
+convention — BRICK's total now takes the OBSERVED LWS like Ladrillo's (its components were fitted to
+an LWS-free target; not double-counting) → TOTAL verdict flips (full 0.459 → 1.12); (4) forcing —
+BRICK read the RFF-SP baseline cube, now `ssp245harm` like Ladrillo → TE flips (1.327 → 0.820 full).
+Shipped Table 2 (windows 1900–19 / 1920–49 / 1950–92 / 1993–2026 / full): AIS 0.003/0.005/0.010/0.676/0.019
+· Greenland 0.110/0.102/0.054/0.263/0.085 · Glaciers 0.431/0.371/1.061/0.408/0.419 · TE
+0.703/0.723/1.107/1.519/0.820 · Total 4.138/1.369/0.519/0.892/1.172. Component-vs-total inversion =
+compensating error (`diag_component_error_cancellation.py`). Ten of Marcus's thirteen 9/11 comments
+applied; the pandoc gfm table-width bug fixed (`balance_table_widths.py`). Quarantine:
+`outputs/quarantine/20260910_oldbrick_span1920/`.
+
 ## 2026-09-09b — both recalibration questions CLOSED, and BOTH diagnostics inverted their own premise
 
 Two diagnostics, `python/diag_recon_trend_spread.py` and `python/diag_modern_splice_altimetry.py`,

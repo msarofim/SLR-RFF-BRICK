@@ -125,7 +125,7 @@ On glaciers, Ladrillo and MAGICC-SLR share the Nauels 2017 transient, so that pa
 
 **FIG 5.** Component trajectories across the van Vuuren markers, joint band.
 
-![Glacier response on the declining markers](../figures/vv_gsic_wr_vs_ladrillo_2300.png)
+![Glacier response on the declining markers](../figures/vv_gsic_ladrillo_2300.png)
 
 **FIG 6.** Ladrillo glacier contribution to 2300 across the seven van Vuuren markers: GMST forcing (a), cumulative glacier melt (b), and the melt rate on the peak-and-decline pathways (c). Regrowth appears where temperature declines, because the three reservoirs equilibrate to the prevailing temperature rather than melting toward a fixed ceiling.
 
@@ -137,7 +137,7 @@ On glaciers, Ladrillo and MAGICC-SLR share the Nauels 2017 transient, so that pa
 
 ![Component comparison at 2300](../figures/model_comparison_components_L24_2300.png)
 
-**FIG 8.** The SSP comparison at 2300. MAGICC-SLR and BRICK 2.0 extend to 2300; the FACTS SSP runs used here stop at 2150.
+**FIG 8.** The SSP comparison at **2300**, with FACTS run to 2300 on the same shared driver as at 2100 and 2150. The FACTS AR5 glacier module sits at its ceiling (31.6 cm) under SSP2-4.5 and SSP5-8.5.
 
 ![Total sea level by SSP](../figures/ladrillo_L24_fig2_ssp_total.png)
 
