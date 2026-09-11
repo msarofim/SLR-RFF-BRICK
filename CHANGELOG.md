@@ -1,3 +1,28 @@
+## 2026-09-11d — the responsiveness figure (task 1c): High − Very Low per component × model × horizon
+
+**Marcus's 9/11 comment [9].** `python/plot_vv_responsiveness.py --tag=L24` →
+`figures/vv_responsiveness_L24.png` + `outputs/vv_responsiveness_L24.csv` (stamped). No new runs:
+read off `vv_model_comparison_L24.csv`. **Not in the deliverable** — whether it goes in is Marcus's
+call; it was asked for as an analysis input.
+
+**Design choices, STATED on the figure, none silently resolved:** (i) FACTS per module, never
+collapsed; (ii) **difference of medians** med(vvH) − med(vvVL) for all four sources (only
+Ladrillo/BRICK have paired draws; one estimator for everyone — the paired variant is a one-line
+change if wanted); (iii) baseline 1995–2014, cm (a marker difference on one baseline is
+baseline-invariant anyway). MAGICC is on its own climate: GMST gap vvH−vvVL **2.03/3.61/5.86 K**
+at 2100/2150/2300 vs the FaIR driver's **1.68/3.12/5.46 K**; the console prints cm per K of each
+source's own gap. LWS: FACTS's is a population-pathway difference (ssp3 vs ssp1), stated on the panel.
+
+**What it shows (Δ cm, @2100 / 2150 / 2300).** Glaciers: Ladrillo +3.7/+8.3/+14.9, BRICK
++2.8/+7.1/+10.6, MAGICC +3.8/+8.6/+17.3, ar5glaciers +3.1/+9.7/+13.0 — the four agree to ~1.5×.
+Greenland: **Ladrillo +3.6/+10.8/+49.5 ≈ MAGICC +4.4/+12.1/+55.3, both ~3× BRICK +0.9/+3.2/+15.0**,
+FittedISMIP +3.0/+7.4/+21.2. Antarctica: Ladrillo +21/+70/+243, BRICK +31/+77/+236, MAGICC
++14/+60/**+380**; every FACTS AIS module ≤ +82 at 2300 and **ar5AIS is NEGATIVE (−1.5/−5.0/−22.1
+— more warming, less AIS rise; accumulation dominates that law)**. TE: all four within 10 % of
+each other at every horizon (+66 to +73 at 2300). Total @2300: MAGICC +524, Ladrillo +382, BRICK
++333, FACTS +96 to +201. ⇒ the DAIS-lineage pair and MAGICC are 2–5× more scenario-responsive at
+2300 than any FACTS workflow, and the difference is Antarctica.
+
 ## 2026-09-11c — MAGICC's Greenland: no history before 1991 by construction; the 17/9/4 sentence VERIFIED
 
 **Tasks 1b and 1d of the 09-11 handoff (Marcus's 9/11 comment [1]).** No MAGICC re-run was needed —
