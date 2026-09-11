@@ -68,6 +68,12 @@ WR_CSV = "outputs/vv_gsic_2300.csv"
 LAD_PATHS = "outputs/scope_slr_fairunc_paths_{m}_%s_{stem}.csv" % FORCING
 LAD_GATES = "outputs/scope_slr_fairunc_gates_{m}_%s_{stem}.csv" % FORCING
 OUTPNG = "figures/vv_gsic_wr_vs_ladrillo_2300.png"
+## --ladrillo-only (Marcus, 2026-09-11): the deliverable describes Ladrillo, and BRICK's
+## Wigley-Raper problem is already made in the text, so the memo figure drops the WR panel and
+## the WR lines. The four-panel contrast is kept under the original filename.
+LADRILLO_ONLY = "--ladrillo-only" in sys.argv
+if LADRILLO_ONLY:
+    OUTPNG = "figures/vv_gsic_ladrillo_2300.png"
 
 MARKERS = [
     ("Very Low",      "vvVL", "#00a9cf", True),
@@ -211,16 +217,24 @@ def lad(lab):
     return d[d.index >= X0]
 
 
-fig, ax = plt.subplots(4, 1, figsize=(8.6, 12.2), sharex=True,
-                       gridspec_kw=dict(height_ratios=[0.85, 1.2, 1.2, 0.95], hspace=0.13))
+if LADRILLO_ONLY:
+    fig, _axs = plt.subplots(3, 1, figsize=(8.6, 9.4), sharex=True,
+                             gridspec_kw=dict(height_ratios=[0.85, 1.2, 0.95], hspace=0.13))
+    ax = {0: _axs[0], 1: None, 2: _axs[1], 3: _axs[2]}   # same panel keys, WR slot empty
+else:
+    fig, _axs = plt.subplots(4, 1, figsize=(8.6, 12.2), sharex=True,
+                             gridspec_kw=dict(height_ratios=[0.85, 1.2, 1.2, 0.95], hspace=0.13))
+    ax = {i: _axs[i] for i in range(4)}
 
 # ---- (a) GMST forcing ----
 for s in LABELS:
     d = wr(s)
     ax[0].plot(d.year.values, d.gmst.values, color=COL[s], lw=1.8, label=s)
 ax[0].set_ylabel("GMST (°C rel. PI)")
-ax[0].set_title("Glacier melt to 2300 — %s vs %s, seven van Vuuren CMIP7 markers"
-                % (WR_NAME, LAD_NAME), fontsize=11, fontweight="bold", loc="left")
+ax[0].set_title(("Glacier melt to 2300 — %s, seven van Vuuren CMIP7 markers" % LAD_NAME)
+                if LADRILLO_ONLY else
+                ("Glacier melt to 2300 — %s vs %s, seven van Vuuren CMIP7 markers"
+                 % (WR_NAME, LAD_NAME)), fontsize=11, fontweight="bold", loc="left")
 ax[0].legend(ncol=4, fontsize=7.5, frameon=False, loc="upper left")
 _pk = {s: (wr(s).set_index("year").gmst.loc[2015:2300].idxmax(),
            wr(s).set_index("year").gmst.loc[2015:2300].max()) for s in DECLINE}
@@ -230,17 +244,19 @@ ax[0].annotate("%d peak-and-decline pathways\n(peaks %.2f–%.2f °C, %d–%d)"
                   min(y for y, _ in _pk.values()), max(y for y, _ in _pk.values())),
                xy=(2235, 2.55), fontsize=7.5, color="0.3", ha="center")
 
-ymax = max(WR.gsic_hi.max(), max(lad(s).p95_cm.max() for s in LABELS)) * 1.02
+_lad_max = max(lad(s).p95_cm.max() for s in LABELS)
+ymax = (_lad_max if LADRILLO_ONLY else max(WR.gsic_hi.max(), _lad_max)) * 1.02
 
-# ---- (b) Wigley-Raper ----
-for s in LABELS:
-    d = wr(s)
-    ax[1].plot(d.year.values, d.gsic_med.values, color=COL[s], lw=1.9)
-    if s == SPREAD_LO:
-        ax[1].fill_between(d.year.values, d.gsic_lo.values, d.gsic_hi.values,
-                           color=COL[s], alpha=0.15, lw=0)
-ax[1].text(0.012, 0.93, "(b)  %s — keeps melting toward a common ceiling even where T declines"
-           % WR_NAME, transform=ax[1].transAxes, fontsize=9.5, fontweight="bold", va="top")
+# ---- (b) Wigley-Raper ---- (absent under --ladrillo-only)
+if ax[1] is not None:
+    for s in LABELS:
+        d = wr(s)
+        ax[1].plot(d.year.values, d.gsic_med.values, color=COL[s], lw=1.9)
+        if s == SPREAD_LO:
+            ax[1].fill_between(d.year.values, d.gsic_lo.values, d.gsic_hi.values,
+                               color=COL[s], alpha=0.15, lw=0)
+    ax[1].text(0.012, 0.93, "(b)  %s — keeps melting toward a common ceiling even where T declines"
+               % WR_NAME, transform=ax[1].transAxes, fontsize=9.5, fontweight="bold", va="top")
 
 # ---- (c) Ladrillo L21 ----
 for s in LABELS:
@@ -249,7 +265,7 @@ for s in LABELS:
     if s == SPREAD_LO:
         ax[2].fill_between(d.index.values, d.p05_cm.values, d.p95_cm.values,
                            color=COL[s], alpha=0.15, lw=0)
-ax[2].text(0.012, 0.93, "(c)  %s — the 3 reservoirs equilibrate, so declining T slows the melt"
+ax[2].text(0.012, 0.93, ("(b)" if LADRILLO_ONLY else "(c)") + "  %s — the 3 reservoirs equilibrate, so declining T slows the melt"
            % LAD_NAME, transform=ax[2].transAxes, fontsize=9.5, fontweight="bold", va="top")
 sp_wr = (wr(SPREAD_HI).set_index("year").gsic_med.loc[2300]
          - wr(SPREAD_LO).set_index("year").gsic_med.loc[2300])
@@ -262,15 +278,15 @@ sp_lad = lad(SPREAD_HI).med_cm.loc[2300] - lad(SPREAD_LO).med_cm.loc[2300]
 ## costs nothing: the b=0.52 counterfactual existed only to restore a spread that plain
 ## Mengel's b->0.89 had collapsed (3.5 cm), and the shipped model never collapses it.
 ax[2].legend(handles=[Line2D([], [], color="none",
-                             label=f"{SPREAD_LO}→{SPREAD_HI} spread @2300:"),
-                      Line2D([], [], color="none",
-                             label=f"   {WR_NAME}  {sp_wr:.1f} cm"),
-                      Line2D([], [], color="none",
-                             label=f"   {LAD_NAME}  {sp_lad:.1f} cm  ← WIDER")],
+                             label=f"{SPREAD_LO}→{SPREAD_HI} spread @2300:")]
+                     + ([] if LADRILLO_ONLY else
+                        [Line2D([], [], color="none", label=f"   {WR_NAME}  {sp_wr:.1f} cm")])
+                     + [Line2D([], [], color="none",
+                               label=f"   {LAD_NAME}  {sp_lad:.1f} cm" + ("" if LADRILLO_ONLY else "  ← WIDER"))],
              fontsize=8, loc="lower right", handlelength=0, handletextpad=0,
              frameon=True, framealpha=0.88, edgecolor="none", facecolor="white")
 
-for a in (ax[1], ax[2]):
+for a in [x for x in (ax[1], ax[2]) if x is not None]:
     a.set_ylim(0, ymax)
     a.axvline(2100, color="0.6", lw=0.8, ls=":")
     a.set_ylabel("cumulative glacier\nmelt (cm SLE, rel 1995–2014)")
@@ -279,35 +295,42 @@ for a in (ax[1], ax[2]):
 ## THE COMMITMENT PANEL, built from the DECLINE flag in MARKERS rather than a typed list,
 ## so it cannot fall out of step with panel (a).
 for s in DECLINE:
-    d = wr(s)
-    ax[3].plot(d.year.values, np.gradient(d.gsic_med.values, d.year.values) * 100,
-               color=COL[s], lw=1.8, ls="-")
+    if not LADRILLO_ONLY:
+        d = wr(s)
+        ax[3].plot(d.year.values, np.gradient(d.gsic_med.values, d.year.values) * 100,
+                   color=COL[s], lw=1.8, ls="-")
     e = lad(s)
     ax[3].plot(e.index.values, np.gradient(e.med_cm.values, e.index.values) * 100,
-               color=COL[s], lw=1.8, ls="--")
+               color=COL[s], lw=1.8, ls="-" if LADRILLO_ONLY else "--")
 ax[3].axhline(0, color="0.6", lw=0.8)
 ax[3].axvline(2100, color="0.6", lw=0.8, ls=":")
 ax[3].set_ylabel("melt rate\n(cm / century)")
 ax[3].set_xlabel("year")
 ax[3].set_xlim(X0, X1)
-ax[3].text(0.012, 0.93, "(d)  melt rate on the %d peak-and-decline pathways — WR solid stays "
-           "high, Ladrillo dashed falls toward zero" % len(DECLINE),
+ax[3].text(0.012, 0.93, (("(c)  melt rate on the %d peak-and-decline pathways — falls toward zero "
+                          "as the reservoirs equilibrate") if LADRILLO_ONLY else
+                         ("(d)  melt rate on the %d peak-and-decline pathways — WR solid stays "
+                          "high, Ladrillo dashed falls toward zero")) % len(DECLINE),
            transform=ax[3].transAxes, fontsize=9.5, fontweight="bold", va="top")
 ax[3].legend(handles=[Line2D([], [], color=COL[s], label=s) for s in DECLINE]
-             + [Line2D([], [], color="0.3", ls="-", label="Wigley–Raper"),
-                Line2D([], [], color="0.3", ls="--", label="Ladrillo %s" % LADRILLO_TAG)],
+             + ([] if LADRILLO_ONLY else
+                [Line2D([], [], color="0.3", ls="-", label="Wigley–Raper"),
+                 Line2D([], [], color="0.3", ls="--", label="Ladrillo %s" % LADRILLO_TAG)]),
              fontsize=8, frameon=False, loc="upper right",
              bbox_to_anchor=(1.0, 0.80), ncol=3)
 
 fig.text(0.5, 0.004,
          ## CAPTION SCOPE: whose posterior, which arm, which forcing. The like-for-like
          ## argument and the frame-mapping discussion are arguments and live in the text.
-         "BRICK 2.0 Wigley-Raper posterior (parameters_subsample_brick.csv, 1000 draws) vs "
-         "Ladrillo %s 3-reservoir ν glaciers (%s chains, `%s` arm); both are posterior-parameter "
-         "spread on mean forcing.\nFaIR 2.2.4 (calib 1.6.0) van Vuuren marker GMST; one build, one "
-         "calibration throughout (driver commit %s), each marker on its own CMIP7 land-use, "
-         "irrigation and volcanic/solar forcing."
-         % (LADRILLO_TAG, LADRILLO_TAG, ARM, _COMMIT),
+         (("Ladrillo %s 3-reservoir ν glaciers (%s chains, `%s` arm), posterior-parameter spread "
+           "on mean forcing.\n") if LADRILLO_ONLY else
+          ("BRICK 2.0 Wigley-Raper posterior (parameters_subsample_brick.csv, 1000 draws) vs "
+           "Ladrillo %s 3-reservoir ν glaciers (%s chains, `%s` arm); both are posterior-parameter "
+           "spread on mean forcing.\n"))
+         % (LADRILLO_TAG, LADRILLO_TAG, ARM)
+         + "FaIR 2.2.4 (calib 1.6.0) van Vuuren marker GMST; one build, one calibration "
+           "throughout (driver commit %s), each marker on its own CMIP7 land-use, irrigation and "
+           "volcanic/solar forcing." % _COMMIT,
          fontsize=6.6, ha="center", color="0.35")
 fig.savefig(OUTPNG, dpi=150, bbox_inches="tight")
 print("wrote " + OUTPNG)

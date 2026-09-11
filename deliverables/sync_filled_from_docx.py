@@ -145,7 +145,11 @@ def verify():
     out_docx = Path(f"/tmp/sync_verify_{DOCX.stem}.docx")
     subprocess.run(
         ["pandoc", str(build_md), "-o", str(out_docx),
-         "--resource-path=" + str(HERE.parent), "--from=gfm+pipe_tables", "--to=docx"],
+         "--resource-path=" + str(HERE.parent), ## READER (2026-09-11): the gfm reader IGNORES the dash-count relative column widths of a pipe
+         ## table, so every table came out with equal columns; the markdown reader honours them.
+         ## -smart keeps quotes/dashes literal as gfm did; -implicit_figures stops an image's alt
+         ## text becoming a caption paragraph. Verified: zero text-block differences, same figures.
+         "--from=markdown+pipe_tables-smart-implicit_figures", "--to=docx"],
         check=True,
     )
     src = docx_text(DOCX)

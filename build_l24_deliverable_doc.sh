@@ -46,9 +46,11 @@ step "benchmark (refresh)"      python python/bench_ladrillo.py --tag=$T
 say "=== figures now present for $T ==="
 ls figures/ | grep "$T" | sed 's/^/  /' | tee -a "$LOG"
 
+## READER: markdown, not gfm -- gfm ignores pipe-table dash-count widths (all columns equal);
+## -smart and -implicit_figures make it otherwise identical to the gfm build (verified 2026-09-11).
 say "=== rebuilding the .docx ==="
-step "docx" bash -c "sed 's|\.\./figures/|figures/|g' deliverables/LadrilloUpdateDescription_FILLED.md > /tmp/doc_build_${T}.md && \
-  pandoc /tmp/doc_build_${T}.md -o deliverables/LadrilloUpdateDescription_${T}.docx --resource-path=. --from=gfm+pipe_tables --to=docx"
+step "docx" bash -c "sed 's|\.\./figures/|figures/|g' deliverables/LadrilloUpdateDescription_FILLED.md | python3 deliverables/balance_table_widths.py /dev/stdin > /tmp/doc_build_${T}.md && \
+  pandoc /tmp/doc_build_${T}.md -o deliverables/LadrilloUpdateDescription_${T}.docx --resource-path=. --from=markdown+pipe_tables-smart-implicit_figures --to=docx"
 
 say "=== VERIFY THE ARCHIVE (no soffice available; do not trust the build silently) ==="
 D=deliverables/LadrilloUpdateDescription_${T}.docx
