@@ -2,7 +2,7 @@
 
 Ladrillo is a derivative of Tony Wong's BRICK2.0 model. Ladrillo was developed by Marcus C Sarofim using the Claude model. The primary goals for Ladrillo were to add additional observational data, update the glacier module to better match observations and to halt melting for stabilization scenarios, update the Antarctic calibration approach to better match observations prior to 1980, and update the Greenland model to incorporate the different responses of surface melt balance and ice discharge.
 
-Ladrillo compares well relative to the other models and sits in a unique space. Unlike MAGICC, Ladrillo is designed to work with the FaIR model. Unlike FACTS, Ladrillo has a simplified structure. Ladrillo does a good job matching historical observations, with the primary weakness being thermal expansion, though that is inherited from FaIR and does not appear when running with OHC from observation. For future projections, Ladrillo matches physical expectations and is comparable to the other models despite different structural approaches. BRICK's design philosophy is to calibrate on historical data products rather than to emulate projections from process-based models, which is what makes it a line of evidence relatively independent of the large Earth system and ice sheet models. Ladrillo extends that philosophy where the data reach — the Antarctic likelihood now runs from 1900 rather than IMBIE's 1992–2017 window, and Dangendorf, GlaMBIE, GRACE and Mouginot are added — but departs from it for the two parameters described below, both in regimes with no observational constraints. Ladrillo is also less independent of MAGICC on glaciers than BRICK 2.0 is, having adopted the Nauels 2017 transient.
+Ladrillo is comparable in quality to other sea level emulators, and occupies its own niche. Unlike MAGICC, Ladrillo is designed to work with the FaIR model. Unlike FACTS, Ladrillo has a simplified structure. Ladrillo does a good job matching historical observations, with the primary weakness being thermal expansion, though that is inherited from FaIR and does not appear when running with OHC from observation. For future projections, Ladrillo matches physical expectations and is comparable to the other models despite different structural approaches. BRICK's design philosophy is to calibrate on historical data products rather than to emulate projections from process-based models, which is what makes it a line of evidence relatively independent of the large Earth system and ice sheet models. Ladrillo extends that philosophy where the data reach — the Antarctic likelihood now runs from 1900 rather than IMBIE's 1992–2017 window, and Dangendorf, GlaMBIE, GRACE and Mouginot are added — but departs from it for the two parameters described below, both in regimes with no observational constraints.
 
 There are two key parameters not constrained by observations that are included in Ladrillo. The first is a Greenland tap that triggers above a threshold temperature and is informed by SICOPOLIS. The second is the use of local temperature amplification relative to global that is informed by CMIP6 in addition to historic observations, and is relevant for Antarctic melt.
 
@@ -18,11 +18,13 @@ BRICK 2.0's glacier model uses a Wigley-Raper equation that is always melting wh
 
 **FAST — 13 other RGI regions.** Smaller, faster-responding bodies with weak amplification (prior 1.45). It equilibrates quickly enough that its committed volume is close to its realised volume through most of the record.
 
-**R19 — Antarctic and Subantarctic periphery.** This block exists because the historical glacier target (Frederikse) assumes zero Antarctic-periphery melt, while the GlaMBIE series spliced in from 2019 onward includes it. Folding R19 into either SLOWP or FAST would leave the model's hindcast scope mismatched. Keeping it separate lets the hindcast be evaluated on SLOWP + FAST while R19 still contributes to projected totals. Its amplification prior (0.72) is also far below the other two, so it is not physically interchangeable with them either. (The three blocks cover 18 of the 19 RGI regions; RGI 05, Greenland Periphery, is excluded — Frederikse's glacier target excludes it and it falls inside the Greenland ice-sheet mask.)
+**R19 — Antarctic and Subantarctic periphery.** This block exists because the historical glacier target (Frederikse) assumes zero Antarctic-periphery melt, while the GlaMBIE series spliced in from 2019 onward includes it. Folding R19 into either SLOWP or FAST would leave the model's hindcast scope mismatched. Keeping it separate lets the hindcast be evaluated on SLOWP + FAST while R19 still contributes to projected totals. Its amplification prior (0.72) is also far below the other two, so it is not physically interchangeable with them either.
+
+(The three blocks cover 18 of the 19 RGI regions; RGI 05, Greenland Periphery, is excluded — Frederikse's glacier target excludes it and it falls inside the Greenland ice-sheet mask.)
 
 **Compared with BRICK 2.0 and MAGICC.** BRICK 2.0 and Ladrillo now have completely different glacier modules. MAGICC and Ladrillo both use the formulation from Nauels 2017 Eq. 3; where they differ is the three regions used in Ladrillo. MAGICC's committed 1850 melt is 28–136 mm, Ladrillo's 63–146 mm.
 
-**Regrowth potential.** Neither BRICK nor FACTS can regrow glacial ice, but MAGICC and Ladrillo can. The law is
+**Regrowth potential.** Neither BRICK nor FACTS can regrow glacial ice, but MAGICC and Ladrillo can. The equations governing melt are:
 
     S_eq = max( a·(1 − exp(−b·(T − T_off))), 0 )        
     dS   = min( κ·|T − T_eq|^ν, 1 ) · (S_eq − S)        
@@ -41,11 +43,11 @@ BRICK 2.0 treats Greenland as one body with one response channel. Ladrillo repla
 
 **High-basin volume tap.** A post-2100 commitment above a threshold: V = 5.64 m, τ = 800 yr, onset 4.69 K, two stages, whole-sheet. The tap does not fire until temperatures exceed the onset. It cannot be calibrated on observations, so the parameters were informed by ISMIP6 at 2100 and SICOPOLIS at 2300 and 3001. It is included in every projection here, contributing 35.1 cm to the SSP5-8.5 total at 2300 on the joint arm this document reports throughout, and nothing at SSP1-2.6 (exactly zero) or SSP2-4.5 (+0.04 cm).
 
-**Compared with BRICK 2.0 and MAGICC.** Greenland is the component where the hindcast gain over BRICK 2.0 is largest. MAGICC similarly splits Greenland into SMB and SID and parameterises against SICOPOLIS, but with 17 parameters between the two, of which 9 vary and each of those takes only 4 distinct values.
+**Compared with BRICK 2.0 and MAGICC.** The observed Greenland contribution rises quickly from the 1930s to the 1960s, nearly stalls from the 1960s to 1990, then accelerates; BRICK 2.0's single-channel response to global temperature yields an almost uniform rate across the century (0.46–0.49 cm/decade in every 30-year period against an observed 0.67 then 0.23), so it runs about 1 cm low through the 1950s–60s and 0.2 cm low since 2010. Ladrillo reproduces the shape because its fast surface-mass-balance channel responds to Greenland's own temperature — which warmed about 1.2 °C during 1920–45 against 0.2 °C globally, then cooled through 1990 while the globe warmed — and relaxes when that regional warming reversed, while the slow discharge channel carries the long-term trend. MAGICC similarly splits Greenland into SMB and SID and parameterises against SICOPOLIS, but with 17 parameters between the two, of which 9 vary and each of those takes only 4 distinct values.
 
 ## Ladrillo Calibration Data Updates
 
-Additional or replaced observational inputs, relative to BRICK 2.0:
+**Table 1.** Observational inputs added or replaced relative to BRICK 2.0, with the version of each as used in the calibration.
 
 | data source | vintage / version as used | what it constrains |
 |----|----|----|
@@ -85,7 +87,7 @@ Where a cell says a version is not recorded, that is the actual state of the pro
 
 **FIG 1.** Component hindcasts against the observations, 1900–2026, in cm relative to a 1995–2005 baseline. Ladrillo L24 (solid, with its 5–95% band) and BRICK 2.0 (dashed) are both integrated from 1850, plotted from 1900, and driven by the same ssp245harm forcing. The total panel also shows IGCC 2025-indicators GMSL (tag `v2026.06.02`) as an independent consensus check, not a calibration target. Land-water storage is observational — neither model predicts it, so panel (e) shows the observed series alone and both totals carry it.
 
-RMSE ratio against BRICK 2.0 — **below 1 means Ladrillo is closer to the observations**:
+**Table 2.** RMSE of the Ladrillo L24 median against the observations, divided by BRICK 2.0's, by component and window; below 1 means Ladrillo is closer. Components are scored against their own targets and the total against Dangendorf 2024, all in cm relative to a 1995–2005 baseline.
 
 | component         | 1900–1919 | 1920–1949 | 1950–1992 | 1993–2026 | full      |
 |-------------------|-----------|-----------|-----------|-----------|-----------|
