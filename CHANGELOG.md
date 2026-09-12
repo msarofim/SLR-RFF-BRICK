@@ -1,3 +1,15 @@
+## 2026-09-12d — would a newer FACTS give climate-driven ice sheets past 2100? No.
+
+Upstream `radical-collaboration/facts` is at v1.1.5, 12 commits past our v1.1.4 base — **none touch
+FittedISMIP, larmip, deconto21, bamber19 or ipccar5** (`git log HEAD..origin/main -- modules/…` is
+empty). SLEIP (egusphere-2026-3874 §3.2) runs **FACTS v1.1** with the same seven workflows and
+describes FittedISMIP as "a cubic function of GSAT and quadratic function of time" and the
+bamber19/deconto21 modules as an "interpolated sampling scheme" (Reedy and Kopp 2023) — i.e. the
+same t² term and the same 2000–2099 lookups we measured; its introduction concedes "some methods
+being incapable of projecting beyond their 2100 training horizon (Kopp et al., 2023)". So SLEIP's
+2300 FACTS numbers ARE these extrapolations; our rule is stricter than SLEIP's inclusion, and the
+document now says so in one sentence.
+
 ## 2026-09-12c — FACTS past 2100: Greenland cannot be made climate-driven, LARMIP forgets at 2300; the scope rule is applied
 
 **Can FACTS be re-run with climate-driven ice sheets?** Tested, not assumed. Disabling FittedISMIP's
