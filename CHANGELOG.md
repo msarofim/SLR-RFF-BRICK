@@ -1,3 +1,55 @@
+## 2026-09-12 — RGI 05 / RGI 19: who counts the peripheral glaciers, and MAGICC's real glacier ceiling
+
+`python/diag_glacier_periphery_scope.py` → `outputs/diag_glacier_periphery_scope.csv`. Every claim
+from a source ON THIS MACHINE, none from recollection.
+
+**1. SLEIP's 0.32 m ceiling is a 19-region total, and a third of it is the two peripheries.**
+Farinotti 2019 Table 3 as emulandice carries it (`R/main.R`, `e$max_glaciers`): all 19 RGI regions
+= **324.2 mm**; RGI 05 (Greenland periphery) **33.6 mm = 10.4 %**, RGI 19 (Antarctic periphery)
+**69.4 mm = 21.4 %**, together **103 mm = 31.8 %**. Excluding RGI 19 the ceiling is **255 mm**.
+SLEIP's phrase "outside the ice sheets" is RGI's definition — peripheral glaciers ARE outside the
+ice sheets in that sense. ⚠ The word "peripher" appears NOWHERE in the SLEIP preprint.
+
+**2. Which glacier inventories include them — read from GlacierMIP2's own training set**
+(`20201106_SLE_SIMULATIONS.csv` in emulandice): region_5 covered by 7 of 11 models, region_19 by
+only **4 of 11**. ⭐ **`Mar-12` — Marzeion 2012, the model MAGICC's S_eq table is "based on"
+(MAGICC7.f90:18904) — covers 18 regions: region_5 IN, region_19 OUT.** Parkes & Marzeion 2018
+(on disk) gives the reason: the model's climate data "does not extend to these latitudes", so
+"none of the glaciers in this region can be explicitly modelled". ⇒ **MAGICC's glacier inventory
+includes RGI 05 and excludes RGI 19** (inference on Nauels 2017 inheriting Marzeion's scope; the
+GlacierMIP2 coverage is FACT).
+**FACTS emulandice** (1e/2e/3e): explicit `region_5` and `region_19` emulators, labelled
+"Greenland periphery" / "Antarctic periphery" in `main.R` — **both IN**. **FACTS ipccar5**
+(1f/2f/3f/4): global total calibrated to GlacierMIP2 (all-19 scope); its spatial fingerprint file
+has `gis` at **14.2 %** of the 2010 allocation plus `glac5`, and no glac18/19 — so RGI 05 is
+certainly IN, RGI 19's presence in the GLOBAL total is ambiguous (the fingerprint file's own
+comment calls it defective; `diag_glacier_level_attribution.py` already flagged this).
+**Ladrillo**: RGI 05 in the GIS target (Frederikse GrIS + GRACE mascon include it), RGI 19 in its
+own glacier block — its own ceiling should be read against **291 mm**, not 324.
+
+**3. Double-count exposure, stated as exposure not verdict.** For MAGICC and every FACTS workflow
+RGI 05 sits in the glacier component; whether it ALSO sits inside SICOPOLIS / ISMIP6 GrIS /
+FittedISMIP domain masks is a model-domain question **not answerable from this machine**
+(Goelzer 2020 §2, Greve & Chambers 2022, AR6 §9.5.1.3 needed). For RGI 19: FACTS emulandice
+carries it in glaciers AND ISMIP6 AIS may carry the mainland-periphery part; MAGICC carries it in
+NEITHER glaciers (Mar-12) nor — unless PISM's domain does — anywhere, an UNDER-count of up to 69 mm.
+Magnitude at stake at 2100 RCP8.5 (GlacierMIP2 multi-model medians): r5 **1.83 cm**, r19 **2.01 cm**,
+together ~24 % of the ~16 cm glacier total.
+
+**4. MAGICC's glacier ceiling, and it DOES exceed the scope-matched Farinotti number.** MAGICC7.f90
+hard-caps S_eq at the top of its 10.3 K table (`IF T > MAXVAL(EQUITEMP) THEN EQUISLR =
+MAXVAL(EQUISLR)`) and relaxes toward it, so the contribution is bounded at **356 / 426 / 451 mm**
+(min / median / max over 15 GCM tunes) rel 1850 (`SLR_GL_STARTYEAR = 1850`). MAGICC's own hindcast
+melts **98.6 mm** by 1995–2014, so its implied PRESENT-DAY inventory is **327 mm median (257–352)**.
+Realised ssp585 @2300: rel 1850 median 402 / max 444 mm — near the cap; **rel 1995–2014 (SLEIP's
+frame) median 0.291 m, p95 0.337, max 0.356; 80 of 600 members above 0.32 m, none above 0.41;
+still melting at 0.176 mm/yr — NOT plateaued.** So against the 19-region 0.32 m the MEDIAN does not
+exceed it (the upper 13 % does); but against the **scope-matched 255 mm** (Farinotti excl. RGI 19),
+MAGICC's inventory is **1.28x** and **516 of 600 members exceed it by 2300**. SLEIP's "consistent
+with 0.32 m" for MAGICC is a coincidence: a ~28 % higher inventory (Marzeion-2012 vintage,
+volume–area scaling) on a narrower (18-region) scope lands on the 19-region Farinotti number.
+⚠ A vintage difference in inventory, not a bug.
+
 ## 2026-09-12b — units unified to cm; FACTS post-2100: which modules see the climate at all
 
 **Units (Marcus):** cm throughout, matching every figure, Table 2 and the Vintage box. Converted the

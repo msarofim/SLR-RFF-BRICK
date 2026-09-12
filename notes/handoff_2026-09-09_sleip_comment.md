@@ -22,8 +22,10 @@ deliverable from the comment session; that work is live elsewhere.
 **SLEIP Phase 1**, `https://doi.org/10.5194/egusphere-2026-3874`, discussion started **2 Sep 2026**.
 Nauels, Möller, Couplet, Kopp, Kumar, Mengel, Munday, Nicholls, Ramme, Slangen, Smith, Weeks, Wong.
 
-⭐ **THE PDF IS ON THIS MACHINE**: `~/Documents/2026/ClaudeDocs/Papers/SLEIP.egusphere-2026-3874`
-(a PDF, **no file extension** — `pdftotext -layout` works). Data `10.5281/zenodo.21027187`;
+⭐ **THE PDF IS ON THIS MACHINE**: `~/Documents/2026/ClaudeDocs/Papers/SLEIP.egusphere-2026-3874.pdf`
+(⚠ renamed with a `.pdf` extension between 09-09 and 09-12; an older note gives it without one).
+⚠ Marcus has a draft at `~/Documents/2026/PaperReviews/SLEIPreview.docx` — READ IT FIRST; do not
+duplicate what he has already written. Data `10.5281/zenodo.21027187`;
 figure code `zenodo.org/records/21166356`. **Neither Zenodo archive has been downloaded.**
 
 ⚠ **FIRST ACTION: find the discussion deadline.** EGUsphere comment periods are finite and the
@@ -146,6 +148,28 @@ the *magnitude* of that structural spread is conditional on the driver's oversho
 ⚠⚠ **THE MOST INTERESTING AND THE MOST CONTESTABLE POINT.** Measured on two DAIS-lineage models
 plus MAGICC-SLR. Non-threshold emulators (ProFSea, MP25, thermal expansion generally) should
 amplify far less. **Do not claim the whole 8–29 cm range would collapse.**
+
+### ⭐ H. (added 09-12) The 0.32 m glacier ceiling is a 19-region number, a third of it is peripheral glaciers, and the paper never says who counts them
+
+§4.2 cites "total global glacier volume outside the ice sheets of approximately 0.32 m SLE
+(Farinotti et al., 2019)". Region by region (emulandice's transcription of Farinotti Table 3):
+**RGI 05 Greenland periphery 33.6 mm, RGI 19 Antarctic periphery 69.4 mm — together 103 mm, 32 %
+of the 324 mm total.** The word "peripher" does not appear in the preprint. Yet:
+- **MAGICC's** glacier table is built on Marzeion 2012, which in GlacierMIP2's own training set
+  covers 18 regions — region_5 IN, **region_19 OUT** (its climate data "does not extend to these
+  latitudes", Parkes & Marzeion 2018). So MAGICC's scope-matched ceiling is **255 mm**, and its
+  ssp585 median at 2300 (0.291 m rel 1995–2014, still melting at 0.18 mm/yr) **exceeds it in 516
+  of 600 members**. "Consistent with 0.32 m" is a higher inventory on a narrower scope.
+- **FACTS emulandice** carries both peripheries as explicit glacier regions; region_19 rests on
+  **4 of 11** GlacierMIP2 models.
+- Whether each emulator's GrIS/AIS component ALSO holds the periphery is a domain-mask question
+  the paper does not address — the double-count exposure is up to 103 mm of inventory, ~24 % of
+  the 2100 RCP8.5 glacier signal (r5 1.83 + r19 2.01 cm of ~16 cm, GlacierMIP2 medians).
+**Constructive ask:** state each emulator's RGI scope and its ice-sheet mask treatment of RGI 05
+and 19 in Table 2 or §3, and quote the ceiling scope-matched. Reproduce:
+`python3 python/diag_glacier_periphery_scope.py` (CHANGELOG 2026-09-12).
+⚠ Ladrillo's own scope (05 in GIS, 19 in glaciers) is the cleanest partition in the set — the one
+place Ladrillo genuinely adds to the point.
 
 ### G. (weaker — CHECK BEFORE USING) The penalty is reported as a median, and it is heavily skewed
 
