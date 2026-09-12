@@ -60,6 +60,9 @@ say "=== rebuilding the .docx ==="
 step "docx" bash -c "sed 's|\.\./figures/|figures/|g' deliverables/LadrilloUpdateDescription_FILLED.md | python3 deliverables/balance_table_widths.py /dev/stdin > /tmp/doc_build_${T}.md && \
   pandoc /tmp/doc_build_${T}.md -o deliverables/LadrilloUpdateDescription_${T}.docx --resource-path=. --from=markdown+pipe_tables-smart-implicit_figures --to=docx"
 
+## Tables 1-2 (nine columns) get an 8 pt font; a post-pass because pandoc has no per-table control.
+step "table fonts" python3 deliverables/shrink_attribute_tables.py deliverables/LadrilloUpdateDescription_${T}.docx
+
 say "=== VERIFY THE ARCHIVE (no soffice available; do not trust the build silently) ==="
 D=deliverables/LadrilloUpdateDescription_${T}.docx
 { echo "  media embedded: $(unzip -l $D | grep -c 'word/media')"
