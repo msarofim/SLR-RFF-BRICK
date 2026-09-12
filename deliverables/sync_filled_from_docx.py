@@ -53,6 +53,7 @@ FIGS = [
     "model_comparison_components_vv_L24_2300.png",
     "future_components_vv_L24_joint.png",
     "vv_gsic_ladrillo_2300.png",       # Ladrillo-only since 9/11 comment [11]; was vv_gsic_wr_vs_ladrillo_2300.png
+    "vv_responsiveness_L24.png",       # FIG 7, 09-12
     "model_comparison_components_L24_2100.png",
     "model_comparison_components_L24_2300.png",
     "ladrillo_L24_fig2_ssp_total.png",

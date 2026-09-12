@@ -47,7 +47,8 @@ step "memo figures"             python python/plot_ladrillo_memo_figures.py --ta
 step "hindcast (FIG 1)"          python python/plot_hindcast_components.py --tag=$T
 step "vv comparison figures"     python python/plot_model_comparison_components.py --tag=$T --set=vv --year=all
 step "vv trajectories (FIG 5)"   python python/plot_future_components.py --tag=$T --set=vv
-step "climate swap (FIG 10)"     python python/plot_vv_climate_swap.py --tag=$T --year=all
+step "climate swap (FIG 11)"     python python/plot_vv_climate_swap.py --tag=$T --year=all
+step "responsiveness (FIG 7)"    python python/plot_vv_responsiveness.py --tag=$T
 step "benchmark (refresh)"      python python/bench_ladrillo.py --tag=$T
 
 say "=== figures now present for $T ==="

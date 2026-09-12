@@ -1,3 +1,35 @@
+## 2026-09-12 — Marcus's 9/12 comments (`Ladrillocomments.9.12.26.docx`): five items, all in the document
+
+1. **MAGICC's Low-to-Negative Greenland upper bound (144 cm p95 at 2300 vs 25 at Low; medians 13/14):**
+   read out of the VV run (`VVandSSPs_Nauels2025_withOCH_2026_08_31_073153.csv`). On MAGICC's own
+   climate vvLN cools BELOW PREINDUSTRIAL by 2300 in **597 of 600 members** (median −0.59 K, min
+   −1.96), and the Greenland SMB parameterisation — fitted for warming — turns POSITIVE there: SMB@2300
+   p95 grows with cooling, 64 → 126 → 230 → 326 cm for GSAT bins −0.5→0, −1→−0.5, −1.5→−1, −2→−1.5 K
+   (Spearman −0.32 among T<0); the five largest SMB members (+283 to +343 cm) sit at −1.4 to −1.8 K.
+   SID is unaffected (16 cm). Same class as the out-of-domain glacier regrowth finding
+   (`magicc_glacier_regrowth_survives_indomain`). A comparator artefact, now stated in the text.
+2. **AIS spread ≈ BRICK's despite "the lambda prior":** BRICK 2.0 SAMPLES `antarctic_lambda` too —
+   `parameters_subsample_brick.csv` mean 0.0104 sd 0.0036 = Ladrillo's prior row (0.0104 / 0.00364,
+   the DAISfastdyn ensemble). Same distribution in both, hence similar widths (ssp585/2300 5–95: 329 vs
+   405 cm). The premise that BRICK lacks it was wrong; sentence rewritten.
+3. **Glacier inventories and RGI 05:** FACTS ar5glaciers caps at `glmass = 412.0 − 96.3 = 315.7 mm`
+   ("from Tab 4.2", `ipccar5_glaciers_fit.py:35`); its fingerprint region list carries `gis`
+   (Greenland periphery) and no Antarctic region. MAGICC's tabulated `S_eq` curves top out at
+   **356–451 mm SLE** across the 15 tunes. Ladrillo excludes RGI 05 ≈ 0.034 m SLE (0.324 full-RGI −
+   0.221 target scope − 0.069 R19). ⚠ Whether Marzeion 2012 / Nauels 2017 include the peripheries is
+   NOT verified from the paper (search found the calibration lineage but not the region list) — the
+   document states only the measured ceilings; the RGI-05 sentence names Ladrillo's exclusion.
+4. **Other comparisons / complementary value:** added the one like-for-like number available —
+   2006–2025 GMSL rate (SLEIP Table 6's metric), OLS on annual values: Ladrillo 3.74, BRICK 3.89,
+   obs target 3.92, IGCC 3.99 mm/yr. ⚠ SLEIP's own values (MAGICC 3.41, FACTS 3.81–4.45, SURFER 5.08)
+   are a different estimator; Forster Table 11 gives 3.66 [3.42–3.92] for the same window vs 3.99 by
+   OLS on IGCC's annual series here — do not mix. Narrative suggestions in the session reply.
+5. **Responsiveness figure added as FIG 7**; FIGs 7–10 → 8–11; sync FIGS list and build script updated.
+
+⚠ Process: the first edit pass ABORTED on a stale anchor (Marcus had reworded the 2022–2024
+sentence) AFTER the FIGS list had been extended — the sync then refused (11 listed vs 10 in the
+docx). Re-anchored and re-run; verified 127/127 and 11 media.
+
 ## 2026-09-11h — FULL BENCHMARK RE-FREEZE (Marcus): the yardstick now matches the document
 
 `bench_ladrillo.py --tag=L24 --freeze-fixed`. Re-snapshotted `benchmark/reference/_fixed/`:
