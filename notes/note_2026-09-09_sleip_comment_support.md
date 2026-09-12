@@ -664,6 +664,49 @@ authors to say whether the two W-R properties are grounds for preferring other G
 explicitly leaving the verdict to them — dropping only the word "conclusively". Alternatively soften
 ¶26's back-reference and the section title to match what remains.
 
+### r. WIGLEY & RAPER 2005 READ IN FULL (2026-09-12) — SLEIP's "0.41 m" is a conflation
+
+Read via the Wiley page (doi 10.1029/2004GL021238, free access). What the paper actually contains:
+
+| figure in W-R | what it IS | W-R's own words |
+|---|---|---|
+| **V₀ = 40 cm** (2σ **30–50 cm**) | the initial GSIC ice volume — the parameter they introduce | "an initial ice volume (V0) of 40 cm has been assumed" (¶14); "the 2-sigma uncertainty range for V0 is about 40 ± 10 cm" (¶16) |
+| **40.1 cm** | the value of `gu` (uncorrected melt) at which the TAR's quadratic area correction saturates — an ARTIFACT | "interpreting this upper bound as the available amount of GSIC ice would be **inappropriate** because the available amount of ice should be an independent input, not an artifact of an empirical correction" (¶5) |
+| 18.7 cm | the artificial `gs` maximum under the TAR formula | ¶5 |
+| 50 cm | TAR Table 11.3's inventory **including** glaciers on the Greenland / Antarctic Peninsula margins (~20 % of GSIC area); W-R exclude those to get 40 | ¶14 |
+
+⇒ **SLEIP's "assumed a maximum glacier SLE contribution of 0.41 m" matches nothing in W-R exactly.**
+V₀ is 40 (not 41); the 40.1 is a threshold W-R explicitly say is not an ice volume. Most likely a
+conflation of the two. (BRICK's own initial volume is ~42 cm per the Ladrillo session — a third
+number.) Worth asking the authors which quantity they meant.
+
+**Epoch — confirmed preindustrial, but W-R's own hindcast makes the adjustment SMALL.** V₀ is the
+volume at the "GSIC steady-state point", which sits BEFORE the late 19th century (T_eq = −0.15 °C
+relative to late-19th-century T; ¶4). So it is a preindustrial stock, as the addendum guesses. BUT
+Appendix A: **gs(1990) = 1.945 cm** — in W-R's own formulation only ~2 cm had melted by 1990, leaving
+~38 cm. The "minus ~10 cm" in the draft addendum only follows from MODERN historical-loss estimates
+(MAGICC's run gives 9.4 cm 1850–2000). ⇒ Hedge: the size of the epoch adjustment depends on whose
+historical loss is used; W-R's own is ~2 cm, modern reconstructions are larger.
+
+**Scope and vintage may matter more than epoch.** W-R's 40 cm EXCLUDES peripheral glaciers; Farinotti
+2019's ~0.32 m is (per SLEIP's own wording) "total global glacier volume outside the ice sheets",
+which includes them. And W-R's V₀ descends from TAR (2001) inventory estimates that later work has
+revised DOWN substantially. So the W-R/Farinotti gap is partly definitional and largely a matter of
+inventory VINTAGE — which is the framing most generous to BRICK/FRISIA (they inherited a 2001 input)
+and the one SLEIP §6 itself uses for calibration data generally.
+
+⭐ **W-R's own 2σ range 30–50 cm already brackets Farinotti's 32 cm.** The "disagreement" is inside
+W-R's stated uncertainty. That dissolves "is the W-R volume wrong?" outright.
+
+⭐⭐ **W-R THEMSELVES flag the non-stabilisation property Marcus criticised in ¶17.** Their ¶22: "One
+of the implications of the present model is that, even if temperatures remained constant at today's
+level, all of the GSIC ice would eventually melt … Given the altitudinal distribution of GSIC ice,
+this is unlikely to be realistic." ⇒ The review's second W-R point is not Marcus vs Wigley & Raper;
+it is Wigley & Raper's own published caveat, which BRICK and FRISIA inherited. Citing it removes any
+sting from that paragraph.
+
+**SURFER's 50 cm** coincides with TAR Table 11.3's inclusive figure. Possible source; unverified.
+
 ---
 
 ## 4. ⛔ Guardrails — things the comment must not say

@@ -13595,3 +13595,10 @@ with a GlacierMIP3 target.
   SURFER now "agrees well with more complex models on millennial timescales" -- accurate.
   Remaining: 4 typos only ("the I would not", "thermostretic", "Component modules comparisons",
   "SSP5-85"). Review is substantively complete; every citation verified across passes.
+- Read Wigley & Raper 2005 in full. SLEIP's "0.41 m" matches nothing in it: V0 = 40 cm (2-sigma
+  30-50), and the 40.1 cm is the gu threshold at which the TAR area correction saturates -- W-R say
+  explicitly it must NOT be read as an ice volume. Epoch confirmed preindustrial (steady-state
+  point, T_eq = -0.15 C), but W-R's own hindcast has only gs(1990) = 1.945 cm melted, so the epoch
+  adjustment is ~2 cm in their accounting vs ~10 cm in modern. W-R's 30-50 range brackets Farinotti's
+  32. And W-R's own para 22 flags the non-stabilisation property as "unlikely to be realistic" --
+  the review's second W-R point is W-R's own caveat.
