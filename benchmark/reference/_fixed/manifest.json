@@ -1,5 +1,5 @@
 {
-  "frozen_git_head": "b7ad086",
+  "frozen_git_head": "c1be6c4",
   "bench_version": "1.0",
   "files": {
     "targets": {
@@ -24,8 +24,8 @@
     },
     "literature": {
       "source": "outputs/ladrillo_model_comparison_L24.csv",
-      "sha256_16": "a7cc3571f7516b04",
-      "n_rows": 189,
+      "sha256_16": "e90fd0e56c57d90b",
+      "n_rows": 132,
       "sources": [
         "FACTS",
         "MAGICC-SLR"

@@ -55,6 +55,37 @@ GLACIER_LINEAGE_NOTE = (
     "(Ladrillo on a Mengel-2016 equilibrium curve); BRICK 2.0 uses Wigley-Raper and FACTS "
     "ar5glaciers/emuglaciers. At Greenland all four differ.")
 
+# --- FACTS: which modules are CLIMATE-DRIVEN at each horizon (Marcus 2026-09-12) ---------
+## Read out of the FACTS module code and confirmed on the vv*2300 outputs (CHANGELOG 09-12b/c):
+##   FittedISMIP GrIS   rate = const + cubic(T) + (b4 t + b5 t^2), fitted 2015-2100; FACTS then
+##                      OVERWRITES years >= 2100 with the 2080-2100 rate (crateyear default).
+##                      Disabling that made vvHL Greenland go 46 -> 112 cm at 2300 while its
+##                      climate COOLED -- the t^2 term, not temperature. Not climate-driven >2100.
+##   bamber19, deconto21  lookups keyed on SAT integrated over 2000-2099. Not climate-driven >2100.
+##   ar5AIS             SMB follows the path; DYNAMICS is a prescribed function of time.
+##   larmip             response-function convolution -- but the RFs are 200 yr long and FACTS
+##                      ZERO-PADS beyond (RF at lag 200 is still at full strength, 8.6e-5 vs
+##                      8.1e-5 at lag 50), so at 2300 every pre-2100 forcing year is dropped.
+##                      Climate-driven at 2150 (only pre-1950 forcing lost); not at 2300.
+##   ar5glaciers, tlm, lws   climate-driven (glaciers cap at 31.57 cm); LWS is exempt by rule.
+## RULE (Marcus): drop any module, and any TOTAL containing one, whose components are not
+## climate-driven at that horizon (LWS excepted). Every workflow total carries FittedISMIP, so
+## no FACTS total survives past 2100. Applied where the comparison TABLES are built, so the
+## figures, the responsiveness figure and the benchmark's literature arm all inherit it; the
+## raw extraction CSV keeps every module.
+FACTS_CLIMATE_DRIVEN = {
+    2100: None,                                        # None = every module is genuine here
+    2150: {"larmip", "ar5glaciers", "tlm", "ssp-lws"},
+    2300: {"ar5glaciers", "tlm", "ssp-lws"},
+}
+
+
+def facts_module_ok(module, year):
+    """True if this FACTS module/workflow is climate-driven at this horizon (see the table)."""
+    keep = FACTS_CLIMATE_DRIVEN.get(int(year))
+    return True if keep is None else str(module) in keep
+
+
 # --- components ------------------------------------------------------------
 ## Canonical order and titles. `total` is LAST so it reads as the sum of what precedes it.
 COMPONENTS = ["glaciers", "gis", "ais", "te", "lws", "total"]

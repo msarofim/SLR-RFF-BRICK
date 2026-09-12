@@ -1,3 +1,37 @@
+## 2026-09-12c — FACTS past 2100: Greenland cannot be made climate-driven, LARMIP forgets at 2300; the scope rule is applied
+
+**Can FACTS be re-run with climate-driven ice sheets?** Tested, not assumed. Disabling FittedISMIP's
+rate extrapolation (`crateyear_end: 0`, a scratch copy of vvHL2300) makes it integrate its fitted
+rate on the temperature path — but that rate is `const + cubic(T) + b4·t + b5·t²` (fitted to
+2015–2100), and the t² term dominates past 2100: **High-to-Low Greenland goes 46.5 → 111.6 cm at
+2300 (p95 300) while its GMST falls 1.6 K** (≤2100 identical, other modules bit-identical). So the
+module's own linear extrapolation is the LESS wrong option, and neither is climate-driven.
+bamber19/deconto21 are lookups by construction. AR5 AIS dynamics is `time_projection`. **LARMIP's
+response functions are 200 values long and FACTS zero-pads beyond** (`ReadResponseFunctions`,
+`larmip_icesheet_project.py:59-66`); RF at lag 200 = 8.6e-5 vs 8.1e-5 at lag 50 — still at full
+strength — so at 2300 (t = 400 from 1900) every pre-2100 forcing year carries weight zero. Usable at
+2150 (only pre-1950 forcing lost); not at 2300. ⇒ **IMPOSSIBLE for Greenland at any post-2100
+horizon; for Antarctica only LARMIP at 2150.**
+
+**Rule applied (Marcus): drop any module, and any total containing one, whose components are not
+climate-driven at that horizon (LWS exempt).** `ladrillo_figs.FACTS_CLIMATE_DRIVEN` = {2100: all;
+2150: larmip, ar5glaciers, tlm, ssp-lws; 2300: ar5glaciers, tlm, ssp-lws}; applied where the two
+comparison TABLES are built (`vv_model_comparison.py`, `ladrillo_model_comparison.py`), so the
+figures, the responsiveness figure and the benchmark inherit it; the raw FACTS extraction keeps every
+module. The vv coverage gate is scope-aware (an absence explained by the rule is stated, any other
+absence still fails). 220 of 14,952 FACTS rows dropped from the SSP table; vv table 2150 = 4/6
+components, 2300 = 3/6. Panels emptied by the rule say "FACTS not drawn: no climate-driven module";
+the workflow-range bracket and its legend appear only where a total exists (2100).
+
+**Benchmark re-frozen again** (literature 189 → 132 rows): 36 verdicts move, essentially the 09-11h
+gains reversed where FACTS was the only extra comparator — 2150/2300 GIS/AIS/total median cells
+PASS → WARN (single comparator again), the two ssp245 AIS FAILs back to WARN. PASS 136 → 116,
+WARN 77 → 101, FAIL 21 → 18.
+
+Document: the comparator paragraph after FIG 7 now states the rule and the three findings (time
+term, lookups, LARMIP's 200-yr memory); FIG 2 caption notes the rule; the Low-scenarios paragraph
+no longer quotes FACTS totals or Antarctic widths at 2300. .docx rebuilt, verified 127/127.
+
 ## 2026-09-12 — RGI 05 / RGI 19: who counts the peripheral glaciers, and MAGICC's real glacier ceiling
 
 `python/diag_glacier_periphery_scope.py` → `outputs/diag_glacier_periphery_scope.csv`. Every claim

@@ -78,6 +78,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import gis_targets  # noqa: E402
+import ladrillo_figs as lf  # noqa: E402
 from draws_io import draws_exists, read_draws  # noqa: E402
 
 import numpy as np
@@ -277,6 +278,10 @@ def load_comparator(rel, source, module_col, horizons, n_default=None):
                     continue
                 for r in sub.itertuples():
                     mod = str(getattr(r, module_col)) if module_col else MAGICC_MODULE
+                    ## Marcus 2026-09-12: FACTS modules that are not climate-driven at this
+                    ## horizon are dropped here (ladrillo_figs.FACTS_CLIMATE_DRIVEN).
+                    if source == SRC_FCT and not lf.facts_module_ok(mod, y):
+                        continue
                     out[(mod, comp, y, m)] = dict(
                         med=float(r.med), p05=float(r.p05), p17=float(r.p17),
                         p83=float(r.p83), p95=float(r.p95),
@@ -289,14 +294,29 @@ def gate_comparator_coverage(bank, source, horizons):
     horizon it covers only PARTIALLY. A source that is wholly absent at a horizon is
     honest (FACTS stops at 2150 and the figure says so); a source present for three
     components and missing two is a broken extract wearing the same appearance."""
+    ## Marcus 2026-09-12: for FACTS the EXPECTED set at a horizon is the components that
+    ## still have a climate-driven module (ladrillo_figs.FACTS_CLIMATE_DRIVEN) -- a component
+    ## absent for that reason is a stated limitation; one absent for any OTHER reason is still
+    ## a broken extract, and the gate keeps firing on it.
+    FACTS_COMP_OF = {"larmip": "ais", "ar5AIS": "ais", "deconto21": "ais", "bamber19": None,
+                     "FittedISMIP": "gis", "ar5glaciers": "glaciers", "tlm": "te", "ssp-lws": "lws"}
     lines = []
     for y in horizons:
         got = sorted({c for (_mod, c, yy, _m) in bank if yy == y})
-        miss = [c for c in COMPONENTS if c not in got]
+        expect = list(COMPONENTS)
+        if source == SRC_FCT and lf.FACTS_CLIMATE_DRIVEN.get(int(y)) is not None:
+            keep = lf.FACTS_CLIMATE_DRIVEN[int(y)]
+            expect = [c for c in COMPONENTS if c != "total"
+                      and any(FACTS_COMP_OF.get(m) == c for m in keep)]
+        miss = [c for c in expect if c not in got]
         if got and miss:
             raise SystemExit(f"[GATE] {source} @{y}: has {got} but is MISSING {miss}. A "
                              f"partial horizon is an incomplete extract, not a limitation.")
-        lines.append((y, len(got), miss))
+        scoped = [c for c in COMPONENTS if c not in expect]
+        if scoped:
+            print(f"[FACTS-SCOPE] @{y}: {', '.join(scoped)} carried by no climate-driven FACTS "
+                  f"module -- dropped by rule, not missing.")
+        lines.append((y, len(got), [c for c in COMPONENTS if c not in got]))
     return lines
 
 

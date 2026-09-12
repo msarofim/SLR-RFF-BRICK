@@ -50,6 +50,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import gis_targets  # noqa: E402
+import ladrillo_figs as lf  # noqa: E402
 from draws_io import draws_exists, read_draws  # noqa: E402
 
 import numpy as np
@@ -307,8 +308,14 @@ def load_magicc():
 
 
 def load_facts():
-    return _rows(pd.read_csv(FACTS_CSV), "FACTS", module_col="module",
-                 basis=BASIS_CLIM)
+    d = pd.read_csv(FACTS_CSV)
+    ## Marcus 2026-09-12: only climate-driven modules past 2100 (ladrillo_figs.FACTS_CLIMATE_DRIVEN).
+    keep = d.apply(lambda r: lf.facts_module_ok(r.module, r.year), axis=1)
+    print(f"[FACTS-SCOPE] {(~keep).sum()} of {len(d)} FACTS rows dropped as not climate-driven at "
+          f"their horizon (rule: ladrillo_figs.FACTS_CLIMATE_DRIVEN); kept per horizon: "
+          + ", ".join(f"{y}={'all' if k is None else ','.join(sorted(k))}"
+                      for y, k in lf.FACTS_CLIMATE_DRIVEN.items()))
+    return _rows(d[keep], "FACTS", module_col="module", basis=BASIS_CLIM)
 
 
 def band(r):

@@ -345,7 +345,11 @@ for YEAR in YEARS:
                 if s not in absent
                 and D[(D.source == s) & (D.component == comp) & (D.year == YEAR)].empty]
         if gone:
-            ax.text(0.985, 0.03, "no " + ", ".join(gone) + " at %d" % YEAR,
+            ## A FACTS panel emptied by the climate-driven rule says WHY, not just that.
+            _scoped = ("FACTS" in gone and lf.FACTS_CLIMATE_DRIVEN.get(YEAR) is not None)
+            _txt = ("FACTS not drawn: no climate-driven module at %d" % YEAR if _scoped and
+                    gone == ["FACTS"] else "no " + ", ".join(gone) + " at %d" % YEAR)
+            ax.text(0.985, 0.03, _txt,
                     transform=ax.transAxes, ha="right", va="bottom",
                     fontsize=7.2, color="0.35", style="italic")
         ## ⚠ THE Y-AXIS IS SET BY THE SAMPLED SERIES, AND THE ELICITED ONE IS CLIPPED
@@ -406,12 +410,11 @@ for YEAR in YEARS:
                            mfc="none", mew=1.4, ms=7,
                            label="FACTS, structured expert judgement (%s)"
                                  % ", ".join(sej_drawn))]
-    if "FACTS" in drawn:
+    _n_wf = D[(D.source == "FACTS") & (D.component == "total") & (D.year == YEAR)].module.nunique()
+    if "FACTS" in drawn and _n_wf:
         handles += [Line2D([], [], color=lf.SRC_COLOR["FACTS"], lw=2.6, marker="_", ms=9,
                            mew=1.6, label="FACTS total: range of the %d workflow medians "
-                                          "(thick) / union of their 5–95%% (thin)"
-                                          % D[(D.source == "FACTS") & (D.component == "total")
-                                              & (D.year == YEAR)].module.nunique())]
+                                          "(thick) / union of their 5–95%% (thin)" % _n_wf)]
     handles += [Line2D([], [], color="0.3", lw=2.2,
                        label="17–83% (thick) / 5–95% (thin), all sources"
                              if WIDTHS_COMPARABLE else
@@ -431,11 +434,16 @@ for YEAR in YEARS:
     ## CAPTION STYLE (Marcus 2026-09-11b): vintage, baseline, what the bars are, what FACTS
     ## and MAGICC are, and anything absent or unfrozen. Formulation lineages and the
     ## climate-uncertainty caveat are in the document text.
+    _keep = lf.FACTS_CLIMATE_DRIVEN.get(YEAR)
+    _facts_note = ("its workflows differ only in their Antarctic module, so the Total panel "
+                   "shows them as one bracket over the workflow medians" if _keep is None else
+                   "only its climate-driven modules are drawn at this horizon (%s); its Greenland "
+                   "modules, the other Antarctic modules and every workflow total are not"
+                   % ", ".join(sorted(_keep)))
     cap = (
-        "%s — %s.  %s.  %s  FACTS n200 per module, rel. baseyear 2005; its workflows differ "
-        "only in their Antarctic module, so the Total panel shows them as one bracket over the "
-        "workflow medians.  MAGICC-SLR is v7.5.3 + Nauels 2025.  %s%s%s"
-        % (DESC["model"], DESC["calib"], lf.PROJ_BASELINE.capitalize(), WIDTH_NOTE,
+        "%s — %s.  %s.  %s  FACTS n200 per module, rel. baseyear 2005; %s.  "
+        "MAGICC-SLR is v7.5.3 + Nauels 2025.  %s%s%s"
+        % (DESC["model"], DESC["calib"], lf.PROJ_BASELINE.capitalize(), WIDTH_NOTE, _facts_note,
            ("NOT DRAWN AT %d: %s. " % (YEAR, ", ".join(absent))) if absent else "",
            ("PARTIAL AT %d (some components only): %s. " % (YEAR, ", ".join(partial)))
            if partial else "",

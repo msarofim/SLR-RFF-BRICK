@@ -1,5 +1,5 @@
-[13:57:22] arms finished; building figures
-[13:57:22] START  plot_future_components
+[14:28:14] arms finished; building figures
+[14:28:14] START  plot_future_components
 [GATE] SSP1-2.6       ssp126  Ladrillo gates pass (CONTROL PASS, 841 configs)
 [GATE] SSP2-4.5       ssp245  Ladrillo gates pass (CONTROL PASS, 841 configs)
 [GATE] SSP5-8.5       ssp585  Ladrillo gates pass (CONTROL PASS, 841 configs)
@@ -32,14 +32,14 @@ median cm, rel. 1995-2014, joint arm — Ladrillo L24 / BRICK 2.0
     SSP1-2.6             12.4 /     26.7       10.2 /     18.6       14.5 /     15.2       25.7 /     24.0        8.5 /      8.9       72.6 /     94.8
     SSP2-4.5             18.2 /     31.6       17.5 /     23.0      154.3 /    187.3       45.8 /     43.1        8.5 /      8.9      249.2 /    302.7
     SSP5-8.5             26.5 /     35.2       83.7 /     37.0      292.5 /    275.4      105.0 /     99.1        8.5 /      8.9      516.7 /    463.6
-[13:57:23] OK     plot_future_components
-[13:57:23] START  plot_model_comparison_components
+[14:28:14] OK     plot_future_components
+[14:28:14] START  plot_model_comparison_components
 [BASIS] Ladrillo    joint (posterior params x FaIR forcing)
 [BASIS] BRICK 2.0   joint (BRICK 2.0 posterior x FaIR forcing)
 [BASIS] MAGICC-SLR  climate + parameter
 [BASIS] FACTS       climate + parameter
 [BASIS] every row carries climate uncertainty: YES -- all four bands drawn and comparable
-[LIT] 189 FACTS/MAGICC rows match the frozen comparator arm exactly
+[LIT] 132 FACTS/MAGICC rows match the frozen comparator arm exactly
 [CLASS] FACTS modules classified `sej` (open markers; nothing is scored here, the
         class only changes the marker): bamber19, wf4
 
@@ -51,17 +51,17 @@ median cm, rel. 1995-2014, joint arm — Ladrillo L24 / BRICK 2.0
   @2100  Land-water storage   BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
   @2100  Total                BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
   @2150  Glaciers             BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
-  @2150  Greenland ice sheet  BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2150  Greenland ice sheet  BRICK 2.0, Ladrillo, MAGICC-SLR MISSING: FACTS
   @2150  Antarctic ice sheet  BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
   @2150  Thermal expansion    BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
   @2150  Land-water storage   BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
-  @2150  Total                BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2150  Total                BRICK 2.0, Ladrillo, MAGICC-SLR MISSING: FACTS
   @2300  Glaciers             BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
-  @2300  Greenland ice sheet  BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
-  @2300  Antarctic ice sheet  BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2300  Greenland ice sheet  BRICK 2.0, Ladrillo, MAGICC-SLR MISSING: FACTS
+  @2300  Antarctic ice sheet  BRICK 2.0, Ladrillo, MAGICC-SLR MISSING: FACTS
   @2300  Thermal expansion    BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
   @2300  Land-water storage   BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
-  @2300  Total                BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2300  Total                BRICK 2.0, Ladrillo, MAGICC-SLR MISSING: FACTS
 
 wrote figures/model_comparison_components_L24_2100.png
   [SUM] sum-of-component-medians vs median-of-total @2100 (medians do not add — reported, not gated)
@@ -133,13 +133,13 @@ median cm, rel. 1995–2014.  Ladrillo L24 / BRICK 2.0 / MAGICC-SLR / FACTS [min
       SSP2-4.5      13.3     20.2     16.7     17.8–17.8     (n=1)
       SSP5-8.5      20.3     25.6     22.0     26.2–26.2     (n=1)
     Greenland ice sheet
-      SSP1-2.6       8.1      9.8      9.3     14.4–24.5   * (n=2)
-      SSP2-4.5      12.0     11.2     16.5     18.0–25.8   * (n=2)
-      SSP5-8.5      25.7     14.5     32.4     24.1–32.5   * (n=2)
+      SSP1-2.6       8.1      9.8      9.3              –
+      SSP2-4.5      12.0     11.2     16.5              –
+      SSP5-8.5      25.7     14.5     32.4              –
     Antarctic ice sheet
-      SSP1-2.6       7.3      7.7      5.3     12.5–27.6   * (n=4)
-      SSP2-4.5      39.9     67.1     27.2     10.5–30.4   * (n=4)
-      SSP5-8.5      95.7     98.1    153.6      6.9–128.1  * (n=4)
+      SSP1-2.6       7.3      7.7      5.3     24.0–24.0     (n=1)
+      SSP2-4.5      39.9     67.1     27.2     27.4–27.4     (n=1)
+      SSP5-8.5      95.7     98.1    153.6     34.3–34.3     (n=1)
     Thermal expansion
       SSP1-2.6      20.0     18.5     12.7     21.0–21.0     (n=1)
       SSP2-4.5      29.6     27.6     23.2     30.8–30.8     (n=1)
@@ -149,9 +149,9 @@ median cm, rel. 1995–2014.  Ladrillo L24 / BRICK 2.0 / MAGICC-SLR / FACTS [min
       SSP2-4.5       4.2      4.0      5.0      5.2–5.2      (n=1)
       SSP5-8.5       4.2      4.0      5.0      4.7–4.7      (n=1)
     Total
-      SSP1-2.6      50.2     58.2     45.9     65.3–92.4   * (n=4)
-      SSP2-4.5     100.5    133.9     88.1     80.5–111.4  * (n=4)
-      SSP5-8.5     200.3    194.0    262.9    114.0–250.8  * (n=4)
+      SSP1-2.6      50.2     58.2     45.9              –
+      SSP2-4.5     100.5    133.9     88.1              –
+      SSP5-8.5     200.3    194.0    262.9              –
 
   @2300
     Glaciers
@@ -159,13 +159,13 @@ median cm, rel. 1995–2014.  Ladrillo L24 / BRICK 2.0 / MAGICC-SLR / FACTS [min
       SSP2-4.5      18.2     31.6     21.5     31.6–31.6     (n=1)
       SSP5-8.5      26.5     35.2     29.1     31.6–31.6     (n=1)
     Greenland ice sheet
-      SSP1-2.6      10.2     18.6     15.0     32.4–61.5   * (n=2)
-      SSP2-4.5      17.5     23.0     35.8     42.7–68.7   * (n=2)
-      SSP5-8.5      83.7     37.0    113.0     59.8–78.0   * (n=2)
+      SSP1-2.6      10.2     18.6     15.0              –
+      SSP2-4.5      17.5     23.0     35.8              –
+      SSP5-8.5      83.7     37.0    113.0              –
     Antarctic ice sheet
-      SSP1-2.6      14.5     15.2      8.7     39.7–126.6  * (n=4)
-      SSP2-4.5     154.3    187.3     83.5     40.8–136.4  * (n=4)
-      SSP5-8.5     292.5    275.4    712.0     22.5–680.7  * (n=4)
+      SSP1-2.6      14.5     15.2      8.7              –
+      SSP2-4.5     154.3    187.3     83.5              –
+      SSP5-8.5     292.5    275.4    712.0              –
     Thermal expansion
       SSP1-2.6      25.7     24.0     16.7     26.8–26.8     (n=1)
       SSP2-4.5      45.8     43.1     36.3     47.2–47.2     (n=1)
@@ -175,11 +175,11 @@ median cm, rel. 1995–2014.  Ladrillo L24 / BRICK 2.0 / MAGICC-SLR / FACTS [min
       SSP2-4.5       8.5      8.9     10.8     11.1–11.1     (n=1)
       SSP5-8.5       8.5      8.9     10.8      7.5–7.5      (n=1)
     Total
-      SSP1-2.6      72.6     94.8     66.5    132.1–208.3  * (n=4)
-      SSP2-4.5     249.2    302.7    186.8    170.8–269.4  * (n=4)
-      SSP5-8.5     516.7    463.6   1016.0    228.5–895.7  * (n=4)
-[13:57:24] OK     plot_model_comparison_components
-[13:57:24] START  plot_vv_gsic_wr_vs_ladrillo
+      SSP1-2.6      72.6     94.8     66.5              –
+      SSP2-4.5     249.2    302.7    186.8              –
+      SSP5-8.5     516.7    463.6   1016.0              –
+[14:28:16] OK     plot_model_comparison_components
+[14:28:16] START  plot_vv_gsic_wr_vs_ladrillo
 [VINTAGE] WR arm matches the current fair_mean drivers (delta 0.0000 K, 2177 rows)
 [GATE] all 7 Ladrillo L24 arms pass (arm=fixed, 841 configs, tap stem L24_tap4p69K_V5p64m_tau800)
 [PROVENANCE] all seven van Vuuren drivers share one commit (one build, one calibration): 6cc34b6 (7 drivers verified)
@@ -193,8 +193,8 @@ Medium-to-Low        2.37     2095      26.17      12.57         1.90        -0.
 Medium               4.29     2300      34.15      22.13         2.30         1.84
 High-to-Low          2.96     2084      29.28      14.98         2.95         0.16
 High                 6.66     2300      35.25      25.94         0.23         2.16
-[13:57:25] OK     plot_vv_gsic_wr_vs_ladrillo
-[13:57:25] START  vv gsic ladrillo-only
+[14:28:17] OK     plot_vv_gsic_wr_vs_ladrillo
+[14:28:17] START  vv gsic ladrillo-only
 [VINTAGE] WR arm matches the current fair_mean drivers (delta 0.0000 K, 2177 rows)
 [GATE] all 7 Ladrillo L24 arms pass (arm=fixed, 841 configs, tap stem L24_tap4p69K_V5p64m_tau800)
 [PROVENANCE] all seven van Vuuren drivers share one commit (one build, one calibration): 6cc34b6 (7 drivers verified)
@@ -208,8 +208,8 @@ Medium-to-Low        2.37     2095      26.17      12.57         1.90        -0.
 Medium               4.29     2300      34.15      22.13         2.30         1.84
 High-to-Low          2.96     2084      29.28      14.98         2.95         0.16
 High                 6.66     2300      35.25      25.94         0.23         2.16
-[13:57:26] OK     vv gsic ladrillo-only
-[13:57:26] START  vv model comparison
+[14:28:18] OK     vv gsic ladrillo-only
+[14:28:18] START  vv model comparison
 ON THE SEVEN MARKERS:
   Ladrillo    ✅ ours -- scope_slr_fair_uncertainty.jl on the van Vuuren cubes
   BRICK 2.0   ✅ ours -- scope_slr_fairunc_oldbrick.jl on the SAME cubes
@@ -260,9 +260,11 @@ Both are now RUN. Say RUN / RUNNABLE / IMPOSSIBLE and keep the middle
 [GATE] MAGICC-SLR  @2100: 6/6 components present
 [GATE] MAGICC-SLR  @2150: 6/6 components present
 [GATE] MAGICC-SLR  @2300: 6/6 components present
+[FACTS-SCOPE] @2150: gis, total carried by no climate-driven FACTS module -- dropped by rule, not missing.
+[FACTS-SCOPE] @2300: gis, ais, total carried by no climate-driven FACTS module -- dropped by rule, not missing.
 [GATE] FACTS       @2100: 6/6 components present
-[GATE] FACTS       @2150: 6/6 components present
-[GATE] FACTS       @2300: 6/6 components present
+[GATE] FACTS       @2150: 4/6 components present
+[GATE] FACTS       @2300: 3/6 components present
 [GATE] FACTS covers [2100, 2150, 2300] (2300 additively re-run 2026-09-03 for the L24 deliverable Fig 4; separate *2300 experiment keys, 2150 arms untouched).
 
 ================================================================================================
@@ -275,17 +277,17 @@ FOUR-SOURCE COVERAGE (sources present per component and horizon)
   @2100  lws       BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR         
   @2100  total     BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR         
   @2150  glaciers  BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR         
-  @2150  gis       BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR         
+  @2150  gis       BRICK 2.0, Ladrillo, MAGICC-SLR                MISSING: FACTS
   @2150  ais       BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR         
   @2150  te        BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR         
   @2150  lws       BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR         
-  @2150  total     BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR         
+  @2150  total     BRICK 2.0, Ladrillo, MAGICC-SLR                MISSING: FACTS
   @2300  glaciers  BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR         
-  @2300  gis       BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR         
-  @2300  ais       BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR         
+  @2300  gis       BRICK 2.0, Ladrillo, MAGICC-SLR                MISSING: FACTS
+  @2300  ais       BRICK 2.0, Ladrillo, MAGICC-SLR                MISSING: FACTS
   @2300  te        BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR         
   @2300  lws       BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR         
-  @2300  total     BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR         
+  @2300  total     BRICK 2.0, Ladrillo, MAGICC-SLR                MISSING: FACTS
 
 ================================================================================================
 Ladrillo (L24, tapped) vs BRICK 2.0 — cm, rel. 1995-2014, median [17-83%]
@@ -546,11 +548,12 @@ see the PATH_CLUSTER note in the source for why it is unreliable on a tipping di
   contrast is gone. 2100 is the only horizon where it can be read.
 
 wrote outputs/vv_model_comparison_L24.csv, outputs/vv_model_comparison_L24_width.csv, outputs/vv_model_comparison_L24_gmst.csv, outputs/vv_model_comparison_L24_pathdep.csv
-[13:57:27] OK     vv model comparison
-[13:57:27] START  ladrillo model comparison
+[14:28:18] OK     vv model comparison
+[14:28:18] START  ladrillo model comparison
 [BAND] joint arm is TAPPED (matches this comparison)
 [BAND] Ladrillo REPORTED cells: 54 on the JOINT arm, 0 held on FIXED, of 54. (Non-horizon years are never reported and are left on FIXED.)
 [BAND] BRICK 2.0 REPORTED cells: 54 on its OWN JOINT arm, 0 on FIXED, of 54.
+[FACTS-SCOPE] 220 of 14952 FACTS rows dropped as not climate-driven at their horizon (rule: ladrillo_figs.FACTS_CLIMATE_DRIVEN); kept per horizon: 2100=all, 2150=ar5glaciers,larmip,ssp-lws,tlm, 2300=ar5glaciers,ssp-lws,tlm
 Ladrillo vs FACTS / MAGICC-SLR / BRICK 2.0 — cm, rel. 1995-2014 (FACTS rel. baseyear 2005)
 median [17-83%]; * = 5-95% (that source reports no 17-83 band)
 BAND BASIS is now a COLUMN, per row. Ladrillo is on the JOINT arm (posterior params x FaIR
@@ -619,16 +622,11 @@ BAND BASIS is now a COLUMN, per row. Ladrillo is on the JOINT arm (posterior par
   Ladrillo    L24           SSP1-2.6:    8.1 [   6.6,  10.3]  SSP2-4.5:   12.0 [   9.8,  15.8]  SSP5-8.5:   25.7 [  19.2,  36.8]
   BRICK 2.0   BRICK2.0      SSP1-2.6:    9.8 [   8.1,  12.4]  SSP2-4.5:   11.2 [   8.7,  14.8]  SSP5-8.5:   14.5 [  10.2,  21.3]
   MAGICC-SLR  Nauels2025    SSP1-2.6:    9.3 [   6.5,  13.0]  SSP2-4.5:   16.5 [  11.5,  20.7]  SSP5-8.5:   32.4 [  23.9,  49.5]
-  FACTS       FittedISMIP   SSP1-2.6:   14.4 [  11.0,  18.9]  SSP2-4.5:   18.0 [  14.1,  23.2]  SSP5-8.5:   24.1 [  19.4,  30.3]
-  FACTS       bamber19      SSP1-2.6:   24.5 [  11.6,  63.1]  SSP2-4.5:   25.8 [  13.1,  68.2]  SSP5-8.5:   32.5 [  14.1,  75.8]
 --- ais ---
   Ladrillo    L24           SSP1-2.6:    7.3 [   6.0,  18.4]  SSP2-4.5:   39.9 [   8.0, 102.4]  SSP5-8.5:   95.7 [  64.6, 133.9]
   BRICK 2.0   BRICK2.0      SSP1-2.6:    7.7 [   4.1,  59.3]  SSP2-4.5:   67.1 [   9.5, 108.2]  SSP5-8.5:   98.1 [  65.0, 137.6]
   MAGICC-SLR  Nauels2025    SSP1-2.6:    5.3 [  -0.3,  19.5]  SSP2-4.5:   27.2 [   9.4,  54.4]  SSP5-8.5:  153.6 [  96.1, 241.3]
-  FACTS       ar5AIS        SSP1-2.6:   12.5 [  -5.0,  27.6]  SSP2-4.5:   10.5 [  -6.8,  25.9]  SSP5-8.5:    6.9 [ -11.9,  23.2]
   FACTS       larmip        SSP1-2.6:   24.0 [  10.5,  47.0]  SSP2-4.5:   27.4 [  11.5,  54.9]  SSP5-8.5:   34.3 [  13.4,  72.1]
-  FACTS       deconto21     SSP1-2.6:   27.6 [  14.8,  51.9]  SSP2-4.5:   30.4 [  16.9, 171.1]  SSP5-8.5:  128.1 [  25.2, 288.7]
-  FACTS       bamber19      SSP1-2.6:   20.6 [  -1.3,  68.0]  SSP2-4.5:   22.0 [  -0.2,  79.9]  SSP5-8.5:   28.3 [  -0.1, 118.5]
 --- te ---
   Ladrillo    L24           SSP1-2.6:   20.0 [  15.9,  25.0]  SSP2-4.5:   29.6 [  24.1,  36.7]  SSP5-8.5:   52.5 [  43.1,  64.3]
   BRICK 2.0   BRICK2.0      SSP1-2.6:   18.5 [  13.7,  24.6]  SSP2-4.5:   27.6 [  20.8,  36.4]  SSP5-8.5:   48.9 [  37.0,  63.6]
@@ -643,10 +641,6 @@ BAND BASIS is now a COLUMN, per row. Ladrillo is on the JOINT arm (posterior par
   Ladrillo    L24           SSP1-2.6:   50.2 [  42.3,  70.5]  SSP2-4.5:  100.5 [  60.5, 169.6]  SSP5-8.5:  200.3 [ 158.5, 251.4]
   BRICK 2.0   BRICK2.0      SSP1-2.6:   58.2 [  48.9, 116.9]  SSP2-4.5:  133.9 [  69.2, 177.9]  SSP5-8.5:  194.0 [ 153.7, 242.8]
   MAGICC-SLR  Nauels2025    SSP1-2.6:   45.9 [  34.0,  66.9]  SSP2-4.5:   88.1 [  64.6, 125.3]  SSP5-8.5:  262.9 [ 189.7, 387.8]
-  FACTS       wf1f          SSP1-2.6:   65.3 [  46.4,  84.6]  SSP2-4.5:   80.5 [  62.4, 102.0]  SSP5-8.5:  114.0 [  91.3, 140.1]
-  FACTS       wf2f          SSP1-2.6:   77.8 [  61.4, 107.9]  SSP2-4.5:  100.4 [  80.7, 136.1]  SSP5-8.5:  146.6 [ 117.1, 194.0]
-  FACTS       wf3f          SSP1-2.6:   83.5 [  64.1, 111.2]  SSP2-4.5:  106.9 [  82.5, 246.0]  SSP5-8.5:  250.8 [ 121.9, 416.2]
-  FACTS       wf4           SSP1-2.6:   92.4 [  56.3, 165.9]  SSP2-4.5:  111.4 [  71.5, 210.5]  SSP5-8.5:  152.8 [ 106.3, 278.2]
 
 ================================================================================================
 @2300
@@ -660,16 +654,10 @@ BAND BASIS is now a COLUMN, per row. Ladrillo is on the JOINT arm (posterior par
   Ladrillo    L24           SSP1-2.6:   10.2 [   7.6,  14.1]  SSP2-4.5:   17.5 [  13.2,  25.5]  SSP5-8.5:   83.7 [  49.4, 113.8]
   BRICK 2.0   BRICK2.0      SSP1-2.6:   18.6 [  15.5,  23.8]  SSP2-4.5:   23.0 [  17.7,  31.9]  SSP5-8.5:   37.0 [  23.9,  60.0]
   MAGICC-SLR  Nauels2025    SSP1-2.6:   15.0 [   9.8,  20.8]  SSP2-4.5:   35.8 [  21.1,  44.8]  SSP5-8.5:  113.0 [  79.8, 369.7]
-  FACTS       FittedISMIP   SSP1-2.6:   32.4 [  24.1,  44.7]  SSP2-4.5:   42.7 [  33.1,  56.9]  SSP5-8.5:   59.8 [  46.8,  74.0]
-  FACTS       bamber19      SSP1-2.6:   61.5 [  23.4, 140.9]  SSP2-4.5:   68.7 [  27.6, 158.1]  SSP5-8.5:   78.0 [  32.9, 200.2]
 --- ais ---
   Ladrillo    L24           SSP1-2.6:   14.5 [  11.4,  54.9]  SSP2-4.5:  154.3 [  18.4, 277.0]  SSP5-8.5:  292.5 [ 209.9, 396.5]
   BRICK 2.0   BRICK2.0      SSP1-2.6:   15.2 [   8.7, 135.5]  SSP2-4.5:  187.3 [  27.4, 289.2]  SSP5-8.5:  275.4 [ 187.2, 406.2]
   MAGICC-SLR  Nauels2025    SSP1-2.6:    8.7 [  -1.2,  35.6]  SSP2-4.5:   83.5 [  30.5, 172.9]  SSP5-8.5:  712.0 [ 470.0,1005.1]
-  FACTS       ar5AIS        SSP1-2.6:   48.1 [ -19.4, 105.8]  SSP2-4.5:   40.8 [ -26.2,  98.6]  SSP5-8.5:   22.5 [ -47.8,  83.1]
-  FACTS       larmip        SSP1-2.6:   39.7 [  15.0,  72.1]  SSP2-4.5:   65.2 [  26.3, 121.4]  SSP5-8.5:  136.1 [  60.4, 262.0]
-  FACTS       deconto21     SSP1-2.6:  126.6 [  81.0, 164.0]  SSP2-4.5:  136.4 [  96.4, 833.0]  SSP5-8.5:  680.7 [ 120.4,1210.2]
-  FACTS       bamber19      SSP1-2.6:   68.5 [  -7.3, 182.6]  SSP2-4.5:   73.1 [  -8.1, 187.0]  SSP5-8.5:   78.2 [  -6.0, 223.1]
 --- te ---
   Ladrillo    L24           SSP1-2.6:   25.7 [  18.3,  34.9]  SSP2-4.5:   45.8 [  34.0,  60.6]  SSP5-8.5:  105.0 [  80.4, 136.8]
   BRICK 2.0   BRICK2.0      SSP1-2.6:   24.0 [  16.2,  33.4]  SSP2-4.5:   43.1 [  30.3,  58.7]  SSP5-8.5:   99.1 [  71.2, 132.1]
@@ -684,10 +672,6 @@ BAND BASIS is now a COLUMN, per row. Ladrillo is on the JOINT arm (posterior par
   Ladrillo    L24           SSP1-2.6:   72.6 [  58.9, 122.0]  SSP2-4.5:  249.2 [  97.6, 388.4]  SSP5-8.5:  516.7 [ 400.1, 655.4]
   BRICK 2.0   BRICK2.0      SSP1-2.6:   94.8 [  78.7, 229.1]  SSP2-4.5:  302.7 [ 130.8, 406.8]  SSP5-8.5:  463.6 [ 356.5, 611.0]
   MAGICC-SLR  Nauels2025    SSP1-2.6:   66.5 [  47.0, 106.5]  SSP2-4.5:  186.8 [ 118.0, 305.9]  SSP5-8.5: 1016.0 [ 691.1,1585.3]
-  FACTS       wf1f          SSP1-2.6:  137.5 [  70.1, 203.1]  SSP2-4.5:  170.8 [ 104.4, 238.4]  SSP5-8.5:  228.5 [ 156.4, 301.2]
-  FACTS       wf2f          SSP1-2.6:  132.1 [  95.6, 178.5]  SSP2-4.5:  196.0 [ 154.0, 275.1]  SSP5-8.5:  341.4 [ 254.1, 495.0]
-  FACTS       wf3f          SSP1-2.6:  208.3 [ 167.3, 266.9]  SSP2-4.5:  269.4 [ 216.9, 990.7]  SSP5-8.5:  895.7 [ 302.2,1427.8]
-  FACTS       wf4           SSP1-2.6:  186.1 [  98.7, 361.5]  SSP2-4.5:  235.5 [ 130.3, 435.7]  SSP5-8.5:  317.7 [ 199.0, 649.4]
 
 ================================================================================================
 SCENARIO SPREAD  SSP1-2.6 -> SSP5-8.5 (cm, median difference at 2100)
@@ -733,13 +717,13 @@ SCENARIO SPREAD  SSP1-2.6 -> SSP5-8.5 (cm, median difference at 2100)
   total     FACTS       wf3e           +37.4
 
 wrote outputs/ladrillo_model_comparison_L24.csv and outputs/ladrillo_model_comparison_L24_spread.csv
-[13:57:28] OK     ladrillo model comparison
-[13:57:28] START  memo figures
+[14:28:19] OK     ladrillo model comparison
+[14:28:19] START  memo figures
 wrote figures/ladrillo_L24_fig1_hindcast.png
 wrote figures/ladrillo_L24_fig2_ssp_total.png
 wrote figures/ladrillo_L24_fig3_glaciers.png
-[13:57:28] OK     memo figures
-[13:57:28] START  hindcast (FIG 1)
+[14:28:20] OK     memo figures
+[14:28:20] START  hindcast (FIG 1)
 [BASELINE] all 21 model/obs series are zero-mean over 1995-2005 (max |offset| 2.23e-03 cm, tolerance 0.0097 cm = 1/10 of the smallest wrong-window displacement in these data)
 [IGCC] GMSL ensemble re-referenced to 1995-2005 over 11 years (1901-2025), mm -> cm
 [DEPTH-SCOPE] alpha_obs = 0.1087 cm per 1e22 J (target steric / IGCC 0-2000 m heat, 1993-2024); deep/upper heat ratio 0.107; band = alpha_obs x IGCC >2000 m heat anomaly, 1971-2024, reaching +0.30 cm at 2024 (an UPPER bound: deep water expands less per joule)
@@ -780,8 +764,8 @@ model vs obs, 5-year means centred on each year (cm rel. 1995-2005)
     Land-water storage       Ladrillo      n/a           BRICK 2.0      n/a           MAGICC-SLR obs     0.58 mod     0.42 (-0.16, n=5)
     Total                    Ladrillo obs     7.81 mod     8.16 (+0.36, n=3)   BRICK 2.0 obs     7.81 mod     8.34 (+0.54, n=3)   MAGICC-SLR obs     7.81 mod     7.40 (-0.40, n=3)
                            IGCC    8.21 vs obs    7.81 (+0.40, n=3)  (independent check on the total)
-[13:57:29] OK     hindcast (FIG 1)
-[13:57:29] START  vv comparison figures
+[14:28:21] OK     hindcast (FIG 1)
+[14:28:21] START  vv comparison figures
 [BASIS] Ladrillo    joint (Ladrillo posterior x FaIR forcing, tapped)
 [BASIS] BRICK 2.0   joint (BRICK 2.0 posterior x FaIR forcing)
 [BASIS] MAGICC-SLR  climate + parameter
@@ -799,17 +783,17 @@ model vs obs, 5-year means centred on each year (cm rel. 1995-2005)
   @2100  Land-water storage   BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
   @2100  Total                BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
   @2150  Glaciers             BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
-  @2150  Greenland ice sheet  BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2150  Greenland ice sheet  BRICK 2.0, Ladrillo, MAGICC-SLR MISSING: FACTS
   @2150  Antarctic ice sheet  BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
   @2150  Thermal expansion    BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
   @2150  Land-water storage   BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
-  @2150  Total                BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2150  Total                BRICK 2.0, Ladrillo, MAGICC-SLR MISSING: FACTS
   @2300  Glaciers             BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
-  @2300  Greenland ice sheet  BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
-  @2300  Antarctic ice sheet  BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2300  Greenland ice sheet  BRICK 2.0, Ladrillo, MAGICC-SLR MISSING: FACTS
+  @2300  Antarctic ice sheet  BRICK 2.0, Ladrillo, MAGICC-SLR MISSING: FACTS
   @2300  Thermal expansion    BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
   @2300  Land-water storage   BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
-  @2300  Total                BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2300  Total                BRICK 2.0, Ladrillo, MAGICC-SLR MISSING: FACTS
 
 wrote figures/model_comparison_components_vv_L24_2100.png
   [SUM] sum-of-component-medians vs median-of-total @2100 (medians do not add — reported, not gated)
@@ -945,21 +929,21 @@ median cm, rel. 1995–2014.  Ladrillo L24 / BRICK 2.0 / MAGICC-SLR / FACTS [min
       High-to-Low     13.4     20.4     15.9     18.2–18.2     (n=1)
       High          17.1     22.9     19.3     22.1–22.1     (n=1)
     Greenland ice sheet
-      Very Low       7.2      9.3      8.1     13.2–23.4   * (n=2)
-      Low-to-Neg      7.3      9.5      8.8     13.9–23.6   * (n=2)
-      Low            7.9      9.7      9.0     14.1–23.6   * (n=2)
-      Medium-to-Low      9.9     10.4     11.7     16.9–25.2   * (n=2)
-      Medium        14.1     11.6     16.7     18.8–26.0   * (n=2)
-      High-to-Low     11.8     11.2     15.8     19.6–27.8   * (n=2)
-      High          17.9     12.6     20.1     20.6–28.1   * (n=2)
+      Very Low       7.2      9.3      8.1              –
+      Low-to-Neg      7.3      9.5      8.8              –
+      Low            7.9      9.7      9.0              –
+      Medium-to-Low      9.9     10.4     11.7              –
+      Medium        14.1     11.6     16.7              –
+      High-to-Low     11.8     11.2     15.8              –
+      High          17.9     12.6     20.1              –
     Antarctic ice sheet
-      Very Low       6.4      6.6      2.3     13.4–26.1   * (n=4)
-      Low-to-Neg      6.7      6.8      3.5     13.1–26.4   * (n=4)
-      Low            6.9      6.8      4.4     12.8–26.2   * (n=4)
-      Medium-to-Low      8.5     13.2     12.4     11.5–29.9   * (n=4)
-      Medium        60.1     73.5     33.8      9.5–30.4   * (n=4)
-      High-to-Low     43.4     68.8     23.0     10.2–42.6   * (n=4)
-      High          76.9     83.9     62.7      8.5–42.6   * (n=4)
+      Very Low       6.4      6.6      2.3     22.1–22.1     (n=1)
+      Low-to-Neg      6.7      6.8      3.5     23.1–23.1     (n=1)
+      Low            6.9      6.8      4.4     23.1–23.1     (n=1)
+      Medium-to-Low      8.5     13.2     12.4     25.6–25.6     (n=1)
+      Medium        60.1     73.5     33.8     27.9–27.9     (n=1)
+      High-to-Low     43.4     68.8     23.0     29.4–29.4     (n=1)
+      High          76.9     83.9     62.7     30.0–30.0     (n=1)
     Thermal expansion
       Very Low      17.3     16.1      9.9     17.9–17.9     (n=1)
       Low-to-Neg     17.3     16.1      9.4     18.0–18.0     (n=1)
@@ -977,13 +961,13 @@ median cm, rel. 1995–2014.  Ladrillo L24 / BRICK 2.0 / MAGICC-SLR / FACTS [min
       High-to-Low      4.2      4.0      5.0      4.7–4.7      (n=1)
       High           4.2      4.0      5.0      6.9–6.9      (n=1)
     Total
-      Very Low      44.2     52.0     37.4     60.1–85.3   * (n=4)
-      Low-to-Neg     44.9     52.8     39.0     62.0–87.1   * (n=4)
-      Low           48.2     55.3     43.5     64.3–89.7   * (n=4)
-      Medium-to-Low     59.8     74.2     61.0     73.1–100.2  * (n=4)
-      Medium       128.6    145.2     99.4     87.5–118.9  * (n=4)
-      High-to-Low     99.7    133.2     79.2     81.0–114.1  * (n=4)
-      High         158.4    165.0    140.4     99.4–133.2  * (n=4)
+      Very Low      44.2     52.0     37.4              –
+      Low-to-Neg     44.9     52.8     39.0              –
+      Low           48.2     55.3     43.5              –
+      Medium-to-Low     59.8     74.2     61.0              –
+      Medium       128.6    145.2     99.4              –
+      High-to-Low     99.7    133.2     79.2              –
+      High         158.4    165.0    140.4              –
 
   @2300
     Glaciers
@@ -995,21 +979,21 @@ median cm, rel. 1995–2014.  Ladrillo L24 / BRICK 2.0 / MAGICC-SLR / FACTS [min
       High-to-Low     14.5     28.3     13.3     26.6–26.6     (n=1)
       High          25.3     34.9     27.4     31.6–31.6     (n=1)
     Greenland ice sheet
-      Very Low       7.8     17.1     12.8     28.6–57.9   * (n=2)
-      Low-to-Neg      4.5     15.7     13.0     31.1–58.8   * (n=2)
-      Low            8.2     17.6     14.1     31.6–58.8   * (n=2)
-      Medium-to-Low      7.3     17.7     17.3     39.6–65.4   * (n=2)
-      Medium        24.4     26.0     38.9     44.6–67.7   * (n=2)
-      High-to-Low     10.4     19.6     21.4     46.5–71.2   * (n=2)
-      High          57.2     32.1     68.1     49.8–71.2   * (n=2)
+      Very Low       7.8     17.1     12.8              –
+      Low-to-Neg      4.5     15.7     13.0              –
+      Low            8.2     17.6     14.1              –
+      Medium-to-Low      7.3     17.7     17.3              –
+      Medium        24.4     26.0     38.9              –
+      High-to-Low     10.4     19.6     21.4              –
+      High          57.2     32.1     68.1              –
     Antarctic ice sheet
-      Very Low      11.8     12.5      1.7     31.8–116.6  * (n=4)
-      Low-to-Neg      8.7     12.1     -0.4     21.3–119.8  * (n=4)
-      Low           12.5     12.9      4.3     34.0–119.3  * (n=4)
-      Medium-to-Low     13.2     19.7     11.1     36.6–132.6  * (n=4)
-      Medium       211.6    216.5    147.1     35.2–136.4  * (n=4)
-      High-to-Low     48.3     77.8     26.5     46.2–161.6  * (n=4)
-      High         255.1    248.0    381.6     27.8–161.6  * (n=4)
+      Very Low      11.8     12.5      1.7              –
+      Low-to-Neg      8.7     12.1     -0.4              –
+      Low           12.5     12.9      4.3              –
+      Medium-to-Low     13.2     19.7     11.1              –
+      Medium       211.6    216.5    147.1              –
+      High-to-Low     48.3     77.8     26.5              –
+      High         255.1    248.0    381.6              –
     Thermal expansion
       Very Low      18.6     17.4      9.4     18.9–18.9     (n=1)
       Low-to-Neg      8.1      7.4     -5.3      8.1–8.1      (n=1)
@@ -1027,15 +1011,15 @@ median cm, rel. 1995–2014.  Ladrillo L24 / BRICK 2.0 / MAGICC-SLR / FACTS [min
       High-to-Low      8.5      8.9     10.8      7.5–7.5      (n=1)
       High           8.5      8.9     10.8     22.5–22.5     (n=1)
     Total
-      Very Low      57.5     80.7     45.7    107.0–190.0  * (n=4)
-      Low-to-Neg     39.4     65.2     27.0     86.8–182.9  * (n=4)
-      Low           60.8     83.9     53.4    118.7–202.2  * (n=4)
-      Medium-to-Low     59.7     92.6     55.6    125.1–219.2  * (n=4)
-      Medium       332.8    346.6    266.1    184.5–286.4  * (n=4)
-      High-to-Low    107.4    162.5     88.9    151.6–258.8  * (n=4)
-      High         439.2    414.0    569.8    219.3–350.4  * (n=4)
-[13:57:31] OK     vv comparison figures
-[13:57:31] START  vv trajectories (FIG 5)
+      Very Low      57.5     80.7     45.7              –
+      Low-to-Neg     39.4     65.2     27.0              –
+      Low           60.8     83.9     53.4              –
+      Medium-to-Low     59.7     92.6     55.6              –
+      Medium       332.8    346.6    266.1              –
+      High-to-Low    107.4    162.5     88.9              –
+      High         439.2    414.0    569.8              –
+[14:28:22] OK     vv comparison figures
+[14:28:22] START  vv trajectories (FIG 5)
 [GATE] Very Low       vvVL    Ladrillo gates pass (CONTROL SKIPPED, 841 configs)
 [GATE] Low-to-Neg     vvLN    Ladrillo gates pass (CONTROL SKIPPED, 841 configs)
 [GATE] Low            vvL     Ladrillo gates pass (CONTROL SKIPPED, 841 configs)
@@ -1092,8 +1076,8 @@ median cm, rel. 1995-2014, joint arm — Ladrillo L24 / BRICK 2.0
     Medium               21.4 /     33.3       24.4 /     26.0      211.6 /    216.5       60.8 /     57.0        8.5 /      8.9      332.8 /    346.6
     High-to-Low          14.5 /     28.3       10.4 /     19.6       48.3 /     77.8       25.5 /     23.9        8.5 /      8.9      107.4 /    162.5
     High                 25.3 /     34.9       57.2 /     32.1      255.1 /    248.0       89.6 /     84.0        8.5 /      8.9      439.2 /    414.0
-[13:57:32] OK     vv trajectories (FIG 5)
-[13:57:32] START  climate swap (FIG 11)
+[14:28:23] OK     vv trajectories (FIG 5)
+[14:28:23] START  climate swap (FIG 11)
 [ARM-MATCH] Ladrillo 2000 draws on both climates, BRICK 2.0 1000 on both; MAGICC-SLR 600 members.
 wrote outputs/vv_climate_swap_L24.csv (252 rows)
 wrote figures/vv_climate_swap_L24_2100.png
@@ -1126,10 +1110,10 @@ wrote figures/vv_climate_swap_L24_2300.png
   Medium          Ladrillo  332.8 ->  311.1  BRICK 2.  346.6 ->  323.8  | MAGICC  266.1
   High-to-Low     Ladrillo  107.4 ->   79.1  BRICK 2.  162.5 ->  125.5  | MAGICC   88.9
   High            Ladrillo  439.2 ->  424.7  BRICK 2.  414.0 ->  392.5  | MAGICC  569.8
-[13:57:34] OK     climate swap (FIG 11)
-[13:57:34] START  responsiveness (FIG 7)
+[14:28:25] OK     climate swap (FIG 11)
+[14:28:25] START  responsiveness (FIG 7)
 wrote figures/vv_responsiveness_L24.png
-wrote outputs/vv_responsiveness_L24.csv  (93 rows)
+wrote outputs/vv_responsiveness_L24.csv  (74 rows)
 
 GMST gap vvH - vvVL:  FaIR driver {2100: 1.68, 2150: 3.12, 2300: 5.46}   MAGICC {2100: 2.03, 2150: 3.61, 2300: 5.86}
 
@@ -1143,35 +1127,35 @@ GMST gap vvH - vvVL:  FaIR driver {2100: 1.68, 2150: 3.12, 2300: 5.46}   MAGICC 
 
 === @2150  Δ cm (and Δ cm per K of that source's own GMST gap) ===
   Glaciers             BRICK 2.0 +7.1 (+2.3/K)  FACTS:ar5glaciers +9.7 (+3.1/K)  Ladrillo +8.3 (+2.6/K)  MAGICC-SLR +8.6 (+2.4/K)
-  Greenland ice sheet  BRICK 2.0 +3.2 (+1.0/K)  FACTS:FittedISMIP +7.4 (+2.4/K)  FACTS:bamber19 +4.7 (+1.5/K)  Ladrillo +10.8 (+3.5/K)  MAGICC-SLR +12.1 (+3.4/K)
-  Antarctic ice sheet  BRICK 2.0 +77.3 (+24.7/K)  FACTS:ar5AIS -5.0 (-1.6/K)  FACTS:bamber19 +3.7 (+1.2/K)  FACTS:deconto21 +16.5 (+5.3/K)  FACTS:larmip +7.9 (+2.5/K)  Ladrillo +70.4 (+22.5/K)  MAGICC-SLR +60.4 (+16.7/K)
+  Greenland ice sheet  BRICK 2.0 +3.2 (+1.0/K)  Ladrillo +10.8 (+3.5/K)  MAGICC-SLR +12.1 (+3.4/K)
+  Antarctic ice sheet  BRICK 2.0 +77.3 (+24.7/K)  FACTS:larmip +7.9 (+2.5/K)  Ladrillo +70.4 (+22.5/K)  MAGICC-SLR +60.4 (+16.7/K)
   Thermal expansion    BRICK 2.0 +22.1 (+7.1/K)  FACTS:tlm +23.6 (+7.6/K)  Ladrillo +23.9 (+7.6/K)  MAGICC-SLR +24.8 (+6.9/K)
   Land-water storage   BRICK 2.0 +0.0 (+0.0/K)  FACTS:ssp-lws +2.3 (+0.7/K)  Ladrillo +0.0 (+0.0/K)  MAGICC-SLR +0.0 (+0.0/K)
-  Total                BRICK 2.0 +113.0 (+36.2/K)  FACTS:wf1f +39.3 (+12.6/K)  FACTS:wf2f +52.3 (+16.8/K)  FACTS:wf3f +56.4 (+18.0/K)  FACTS:wf4 +47.9 (+15.3/K)  Ladrillo +114.2 (+36.6/K)  MAGICC-SLR +103.0 (+28.6/K)
+  Total                BRICK 2.0 +113.0 (+36.2/K)  Ladrillo +114.2 (+36.6/K)  MAGICC-SLR +103.0 (+28.6/K)
 
 === @2300  Δ cm (and Δ cm per K of that source's own GMST gap) ===
   Glaciers             BRICK 2.0 +10.6 (+1.9/K)  FACTS:ar5glaciers +13.0 (+2.4/K)  Ladrillo +14.9 (+2.7/K)  MAGICC-SLR +17.3 (+3.0/K)
-  Greenland ice sheet  BRICK 2.0 +15.0 (+2.7/K)  FACTS:FittedISMIP +21.2 (+3.9/K)  FACTS:bamber19 +13.2 (+2.4/K)  Ladrillo +49.5 (+9.1/K)  MAGICC-SLR +55.3 (+9.4/K)
-  Antarctic ice sheet  BRICK 2.0 +235.5 (+43.1/K)  FACTS:ar5AIS -22.1 (-4.0/K)  FACTS:bamber19 +11.9 (+2.2/K)  FACTS:deconto21 +45.0 (+8.2/K)  FACTS:larmip +81.8 (+15.0/K)  Ladrillo +243.2 (+44.5/K)  MAGICC-SLR +380.0 (+64.9/K)
+  Greenland ice sheet  BRICK 2.0 +15.0 (+2.7/K)  Ladrillo +49.5 (+9.1/K)  MAGICC-SLR +55.3 (+9.4/K)
+  Antarctic ice sheet  BRICK 2.0 +235.5 (+43.1/K)  Ladrillo +243.2 (+44.5/K)  MAGICC-SLR +380.0 (+64.9/K)
   Thermal expansion    BRICK 2.0 +66.6 (+12.2/K)  FACTS:tlm +72.8 (+13.3/K)  Ladrillo +71.0 (+13.0/K)  MAGICC-SLR +66.3 (+11.3/K)
   Land-water storage   BRICK 2.0 +0.0 (+0.0/K)  FACTS:ssp-lws +15.2 (+2.8/K)  Ladrillo +0.0 (+0.0/K)  MAGICC-SLR +0.0 (+0.0/K)
-  Total                BRICK 2.0 +333.3 (+61.0/K)  FACTS:wf1f +95.6 (+17.5/K)  FACTS:wf2f +200.8 (+36.8/K)  FACTS:wf3f +160.4 (+29.4/K)  FACTS:wf4 +130.8 (+23.9/K)  Ladrillo +381.7 (+69.9/K)  MAGICC-SLR +524.1 (+89.5/K)
-[13:57:34] OK     responsiveness (FIG 7)
-[13:57:34] START  benchmark (refresh)
+  Total                BRICK 2.0 +333.3 (+61.0/K)  Ladrillo +381.7 (+69.9/K)  MAGICC-SLR +524.1 (+89.5/K)
+[14:28:26] OK     responsiveness (FIG 7)
+[14:28:26] START  benchmark (refresh)
   + 2 extra comparator row(s) from benchmark/literature_extra.csv: Coulon25-KoriULB, Coulon25-PISM
   + 2 extra comparator row(s) from benchmark/literature_extra.csv: Coulon25-KoriULB, Coulon25-PISM
 ================================================================================================
 LADRILLO BENCHMARK v1.0 — candidate L24, champion L24
 ================================================================================================
   module        hindcast     rate/accel   projection   separation   vs champion 
-  AIS           PASS         UNRESOLVED   FAIL         PASS         -           
+  AIS           PASS         UNRESOLVED   FAIL         WARN         -           
   glaciers      WARN         UNRESOLVED   WARN         PASS         -           
-  Greenland     PASS         UNRESOLVED   FAIL         PASS         -           
+  Greenland     PASS         UNRESOLVED   FAIL         WARN         -           
   thermal exp.  WARN         FAIL         PASS         PASS         -           
   land water    -            -            WARN         PASS         -           
-  TOTAL         PASS         UNRESOLVED   WARN         PASS         -           
+  TOTAL         PASS         UNRESOLVED   WARN         WARN         -           
 
-  26 FAIL/WORSE cells for the CANDIDATE:
+  22 FAIL/WORSE cells for the CANDIDATE:
     [H] glaciers                    rmse_ratio/1950-1992       L24 vs BRICK 2.0     1.061 ratio
     [H] thermal exp.                rmse_ratio/1950-1992       L24 vs BRICK 2.0     1.107 ratio
     [H] thermal exp.                rmse_ratio/1993-2026       L24 vs BRICK 2.0     1.519 ratio
@@ -1179,7 +1163,6 @@ LADRILLO BENCHMARK v1.0 — candidate L24, champion L24
     [H] TOTAL                       rmse_ratio/1920-1949       L24 vs BRICK 2.0     1.369 ratio
     [R] thermal exp.                rate/1993-2026             L24                  0.157 cm/yr
     [P] AIS          ssp126   2100  spread_vs_lit              L24                  2.553 x lit spread
-    [P] AIS          ssp245   2300  median_vs_lit              L24                  2.075 x lit median
     [P] Greenland    ssp126   2100  spread_vs_lit              L24                  0.472 x lit spread
     [P] thermal exp. ssp126   2100  median_vs_lit_delta        L24 vs BRICK 2.0     0.054 |ratio-1| diff
     [P] thermal exp. ssp126   2150  median_vs_lit_delta        L24 vs BRICK 2.0     0.046 |ratio-1| diff
@@ -1191,15 +1174,12 @@ LADRILLO BENCHMARK v1.0 — candidate L24, champion L24
     [P] land water   ssp245   2300  median_vs_lit_delta        L24 vs BRICK 2.0     0.038 |ratio-1| diff
     [P] land water   ssp585   2300  median_vs_lit_delta        L24 vs BRICK 2.0     0.045 |ratio-1| diff
     [P] TOTAL        ssp126   2100  median_vs_lit_delta        L24 vs BRICK 2.0     0.061 |ratio-1| diff
-    [P] TOTAL        ssp126   2150  median_vs_lit_delta        L24 vs BRICK 2.0     0.107 |ratio-1| diff
-    [P] TOTAL        ssp126   2300  median_vs_lit_delta        L24 vs BRICK 2.0     0.165 |ratio-1| diff
-    [V] TOTAL        ssp126   2150  component-error sum vs total error L24 vs BRICK 2.0     0.020 sum |ratio-1| diff
-    [V] TOTAL        ssp126   2300  component-error sum vs total error L24 vs BRICK 2.0     0.225 sum |ratio-1| diff
+    [V] TOTAL        ssp126   2300  component-error sum vs total error L24 vs BRICK 2.0     0.102 sum |ratio-1| diff
     [V] AIS                         projection                 L24                    nan 
     [V] Greenland                   projection                 L24                    nan 
     [V] thermal exp.                rate/accel                 L24                    nan 
 
-  14 FAIL cells for the COMPARATOR arms (this is the benchmark working, not a defect of L24):
+  12 FAIL cells for the COMPARATOR arms (this is the benchmark working, not a defect of L24):
     [H] AIS                         hindcast/full              BRICK 2.0            1.574 cm
     [H] AIS                         hindcast/1920-1949         BRICK 2.0            1.957 cm
     [H] AIS                         hindcast/1950-1992         BRICK 2.0            0.804 cm
@@ -1211,24 +1191,21 @@ LADRILLO BENCHMARK v1.0 — candidate L24, champion L24
     [R] AIS                         accel/1900-2026            BRICK 2.0           -0.000 cm/yr2
     [R] glaciers                    accel/1900-2026            BRICK 2.0            0.001 cm/yr2
     [P] AIS          ssp245   2100  median_vs_lit              BRICK 2.0            2.613 x lit median
-    [P] AIS          ssp245   2150  median_vs_lit              BRICK 2.0            2.658 x lit median
-    [P] AIS          ssp245   2300  median_vs_lit              BRICK 2.0            2.770 x lit median
     [P] AIS          ssp585   2100  median_vs_lit              BRICK 2.0            3.345 x lit median
 
   1 CHECK cells for the CANDIDATE (surfaced, not failing -- Marcus 2026-08-31: separating the scenarios MORE than every comparator is a model difference on an unobservable future, not a defect):
     [S] glaciers     ssp585/ssp126 2150  separation                 L24                  2.072 x  CHECK(wide)
         FACTS 1.93-1.93 (n=1); MAGICC-SLR 1.79-1.79 (n=1); 0.14 outside the bracket = 109% of its own range
 
-  ⚠ COMPARATOR CLASSIFICATION AUDIT: 27 spread cells are scored with the SEJ
+  ⚠ COMPARATOR CLASSIFICATION AUDIT: 9 spread cells are scored with the SEJ
     envelope excluded (benchmark/comparator_classes.csv). It improves the score by up
-    to 1.66x. Cells whose VERDICT depends on it:
+    to 1.56x. Cells whose VERDICT depends on it:
       Greenland    ssp245    2100  0.701 (PASS) vs 0.449 (FAIL) with SEJ in
-      Greenland    ssp585    2150  0.563 (PASS) vs 0.339 (FAIL) with SEJ in
 
 wrote outputs/bench_ladrillo_L24.csv
 wrote outputs/bench_ladrillo_L24.md
-[13:57:36] OK     benchmark (refresh)
-[13:57:36] === figures now present for L24 ===
+[14:28:28] OK     benchmark (refresh)
+[14:28:28] === figures now present for L24 ===
   future_components_ssp_L24_joint.png
   future_components_vv_L24_joint.png
   hindcast_components_L24.png
@@ -1245,12 +1222,12 @@ wrote outputs/bench_ladrillo_L24.md
   vv_climate_swap_L24_2150.png
   vv_climate_swap_L24_2300.png
   vv_responsiveness_L24.png
-[13:57:36] === rebuilding the .docx ===
-[13:57:36] START  docx
-[13:57:37] OK     docx
-[13:57:37] === VERIFY THE ARCHIVE (no soffice available; do not trust the build silently) ===
+[14:28:28] === rebuilding the .docx ===
+[14:28:28] START  docx
+[14:28:28] OK     docx
+[14:28:28] === VERIFY THE ARCHIVE (no soffice available; do not trust the build silently) ===
   media embedded: 11
   w:tbl elements: 2
   headings:       11
   size:           3.0M
-[13:57:37] DONE. 11 figures embedded, matching the source.
+[14:28:28] DONE. 11 figures embedded, matching the source.
