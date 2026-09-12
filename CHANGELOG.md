@@ -1,3 +1,17 @@
+## 2026-09-12g — glacier inventories on ONE epoch (2000), with BRICK's own 1850→2000 melt measured
+
+Marcus: MAGICC's 35.6–45.1 cm is its 1850 stock (the S_eq curves start at 2.8–13.6 cm committed loss
+at zero warming), BRICK's 42 cm is its 1850 initial volume, SURFER's 50 cm a preindustrial potential —
+while Farinotti, FACTS's AR5 cap and Ladrillo's 29.0 are ~2000 inventories. Table 2's row is now
+"Glacier inventory at 2000": BRICK **37.7 (28–48)** = 41.7 (32.0–51.8) v0 less its own **4.0 cm**
+of melt 1850→2000 (only **0.7 cm before 1900**; 5.8 to 2020) — new `julia/diag_brick_gsic_melt_1850_2000.jl`,
+10,000 draws, same posterior/forcing/seed as the postpred driver, increments from the 1850 level
+(never a re-referenced level), stamped CSV `outputs/diag_brick_gsic_melt_1850_2000.csv`; MAGICC
+**≈26–36** = curves less its own **9.4 cm (4.7–13.2)** 1850→2000 from the ssp245 run (2.8 cm before
+1900); FACTS 31.6, Ladrillo 29.0 ± 6.0 unchanged; SURFER n.d. on a 2000 basis. Footnotes 7 and 9
+carry the arithmetic; the GSIC paragraph says the same. ⚠ BRICK's 0.7 cm of 1850–1900 melt against
+Ladrillo's 2.0 ± 0.9 constraint and MAGICC's 2.8 is a real difference in the pre-1900 glacier history.
+
 ## 2026-09-12f — Table 1: attributes of the seven SLEIP emulators and Ladrillo
 
 Ten attributes × eight emulators, inserted before the Vintage box; the old Tables 1–2 become 2–3.
