@@ -1,3 +1,17 @@
+## 2026-09-12f — Table 1: attributes of the seven SLEIP emulators and Ladrillo
+
+Ten attributes × eight emulators, inserted before the Vintage box; the old Tables 1–2 become 2–3.
+Sources: SLEIP Table 6 (start years), Table 2 (parametrisation types, regional/RSL), §3.1–3.7 (drivers,
+calibration targets, TE form, glacier form, GIS SMB/SID split, SURFER's 50 cm glacier potential); our
+own measurements for FACTS past 2100 (09-12b/c), the BRICK 42 / MAGICC 35.6–45.1 / FACTS 31.6 cm
+glacier inventories, and Ladrillo. "n.s." where SLEIP does not state it (FRISIA/MP25/ProFSea glacier
+volumes, MP25 regrowth). Judgment calls, stated: FRISIA "yes" for post-2100 on SLEIP's protocol
+statement (no extrapolation noted, MAGICC-v6 ice-sheet forms); ProFSea GIS "as FACTS" from "the
+corresponding FACTS implementation"; SURFER regrowth "yes" from "relaxes toward an equilibrium";
+FRISIA/BRICK glacier regrowth "no" because the Wigley–Raper equilibrium (−0.15 °C) is below any
+scenario. Marcus's intro edit (four-emulator count → "only three" of the SLEIP seven, Ladrillo aside;
+SNEASY mention) kept as written.
+
 ## 2026-09-12e — introduction paragraph rewritten around what the comparators cannot do (Marcus's framing, receipts from SLEIP)
 
 Second paragraph replaced (the third, on the two unconstrained parameters, folded into its last
