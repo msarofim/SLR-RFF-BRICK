@@ -6,7 +6,7 @@ Ladrillo occupies a distinct niche among current sea level emulators. Of the sev
 
 As a derivative of BRICK, Ladrillo and BRICK do have a similar niche. However, while Ladrillo generally keeps to BRICK’s design philosophy of physically based components calibrated on the historical record, it does depart from that philosophy in two places that observations cannot reach, namely a Greenland commitment above a threshold, informed by SICOPOLIS, and local-to-global temperature amplification, informed by CMIP6. Ladrillo also extended some of BRICK’s observational constraints (an Antarctic likelihood from 1900 rather than IMBIE's 1992–2017; Dangendorf, GlaMBIE, GRACE and Mouginot added), and is calibrated to a current version of FaIR (2.2.4, calibration 1.6.0, 841-member climate ensemble) rather than being coupled to SNEASY.
 
-**Table 1.** Attributes of the seven SLEIP emulators and Ladrillo. SLEIP entries are taken from the SLEIP preprint (Tables 2 and 6 and §3); FACTS's post-2100 behaviour, and the BRICK 2.0, MAGICC and FACTS glacier inventories, are read from the model code and drawnsets in this project. "—" means the emulator lacks the component; "n.s." means not stated in SLEIP.
+**Table 1.** Scope and calibration of the seven SLEIP emulators and Ladrillo. SLEIP entries are taken from the SLEIP preprint (Tables 2 and 6 and §3); FACTS's post-2100 behaviour is read from the model code in this project.
 
 | attribute | BRICK 2.0 | FACTS | FRISIA | MAGICC-SLR | MP25 | ProFSea | SURFER | Ladrillo |
 |----|----|----|----|----|----|----|----|----|
@@ -14,12 +14,17 @@ As a derivative of BRICK, Ladrillo and BRICK do have a similar niche. However, w
 | Calibrated on observations rather than process-model projections | yes | no (emulates ISMIP6, LARMIP, DeConto; SEJ) | mixed (Horwath obs + AR6) | no (SICOPOLIS, PISM, Marzeion) | mixed (Frederikse + AR6 2100) | no (ISMIP6, GlacierMIP2) | no (tipping points from ice-sheet models) | yes, plus two priors (SICOPOLIS tap, CMIP6 amplification) |
 | Accepts an external climate (can be run on FaIR) | yes | yes (FaIR 1.6.4 native) | yes (FaIR 2.1.1 native) | no (MAGICC only) | GMST only | yes (OHC from FaIR or MAGICC) | no (own climate from emissions) | yes (FaIR 2.2.4, calib 1.6.0) |
 | Components climate-driven past 2100 | yes | TE, glaciers only (ice sheets extrapolate or sample 21st-century projections) | yes | yes (calibrated to 2300–2500) | no (2100 model, extrapolated) | partial (GIS as FACTS; AIS to 2300) | yes | yes |
+| Regional output / relative sea level | yes / no | yes / yes | yes / no | no / no | yes / yes | yes / yes | no / no | no / no |
+
+**Table 2.** Component structure of the same eight emulators. Glacier inventories for BRICK 2.0, MAGICC and FACTS are read from their parameter files and code in this project; "not documented" means the SLEIP preprint does not state it. Farinotti 2019 gives 32.4 ± 8.4 cm SLE for all RGI regions.
+
+| attribute | BRICK 2.0 | FACTS | FRISIA | MAGICC-SLR | MP25 | ProFSea | SURFER | Ladrillo |
+|----|----|----|----|----|----|----|----|----|
 | Thermal expansion | ∝ OHC | coefficient × OHC | coefficient × OHC | 40-layer, layer-specific | linear in GSAT | coefficient × OHC | 3-layer, layer-specific | ∝ OHC |
-| Glacier inventory vs Farinotti 2019 (32.4 ± 8.4 cm full RGI) | 42 cm (Wigley–Raper 41) | 31.6 cm cap (AR5 Table 4.2) | n.s. | 35.6–45.1 cm across tunes | n.s. | n.s. (AR5 form) | 50 cm | 29.0 ± 6.0 cm on target scope |
-| Glaciers can regrow under cooling | no | no | no | yes | n.s. | no | yes | yes |
+| Glacier inventory (cm SLE) | 42 (Wigley–Raper 41) | 31.6 cap (AR5 Table 4.2) | not documented | 35.6–45.1 across tunes | not documented | not documented (AR5 form) | 50 | 29.0 ± 6.0 = Farinotti on Ladrillo's scope, which excludes RGI 05 (3.4) |
+| Glaciers can regrow under cooling | no | no | no | yes | not documented | no | yes | yes |
 | Greenland SMB / discharge split | no | no | yes | yes | no | no | no | yes (two channels, two basins) |
 | Antarctic ice sheet (SLEIP type) | physical model (DAIS) | statistical / parametric / SEJ by workflow | physical model (DAIS) | parametric | parametric | statistical fit | physical model (ODE tipping element) | physical model (DAIS, recalibrated) |
-| Regional output / relative sea level | yes / no | yes / yes | yes / no | no / no | yes / yes | yes / yes | no / no | no / no |
 
 > **Vintage.** This document describes posterior L24. Units are cm. Two baseline windows are used: 1995-2005 for the hindcast section (FIG 1, the RMSE table, and the 2024 levels); and 1995-2014 for the projection sections. Model version FaIR 2.2.4 (fair-calibrate 1.6.0). Observational vintages are given in the calibration-data table below. Both hindcast arms are reproducible: every random seed is fixed and is recorded inside the output file each figure reads, so any number here can be regenerated from the artifact alone.
 
@@ -62,7 +67,7 @@ BRICK 2.0 treats Greenland as one body with one response channel responsive to g
 
 ## Ladrillo Calibration Data Updates
 
-**Table 2.** Observational inputs added or replaced relative to BRICK 2.0, with the version of each as used in the calibration.
+**Table 3.** Observational inputs added or replaced relative to BRICK 2.0, with the version of each as used in the calibration.
 
 | data source | vintage / version as used | what it constrains |
 |----|----|----|
@@ -100,7 +105,7 @@ BRICK 2.0 treats Greenland as one body with one response channel responsive to g
 
 **FIG 1.** Component hindcasts against the observations, 1900–2026, in cm relative to a 1995–2005 baseline. Ladrillo L24 (solid, with its 5–95% band) and BRICK 2.0 (dashed) are both run starting in 1850, plotted from 1900, and driven by the same ssp245harm forcing. The Greenland panel also shows MAGICC-SLR (v7.5.3 + Nauels 2025, dotted, with its 5–95% band) from 1991, the first year its Greenland module is active; it runs on its own emissions-driven climate. The total panel also shows IGCC 2025-indicators GMSL, which is not a calibration target. On the thermal-expansion panel the hatched band above the observation is the most the ocean below 2000 m could add to a 0–2000 m observation (IGCC deep-ocean heat times the observed upper-ocean expansion coefficient; an upper bound). Land-water storage is observational — neither model predicts it, so panel (e) shows the observed series alone and both totals carry it.
 
-**Table 3.** RMSE of the Ladrillo L24 median against the observations, divided by BRICK 2.0's, by component and window; below 1 means Ladrillo is closer. Components are scored against their own targets and the total against Dangendorf 2024, all in cm relative to a 1995–2005 baseline.
+**Table 4.** RMSE of the Ladrillo L24 median against the observations, divided by BRICK 2.0's, by component and window; below 1 means Ladrillo is closer. Components are scored against their own targets and the total against Dangendorf 2024, all in cm relative to a 1995–2005 baseline.
 
 | component         | 1900–1919 | 1920–1949 | 1950–1992 | 1993–2026 | full      |
 |-------------------|-----------|-----------|-----------|-----------|-----------|
