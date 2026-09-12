@@ -1,3 +1,14 @@
+## 2026-09-12e — introduction paragraph rewritten around what the comparators cannot do (Marcus's framing, receipts from SLEIP)
+
+Second paragraph replaced (the third, on the two unconstrained parameters, folded into its last
+sentence). Every claim has a receipt: SLEIP Table 6 start years (BRICK/SURFER 1850, MP25 1900,
+Ladrillo 1900; MAGICC/FRISIA GIS 1990, AIS 2002; ProFSea 2007; FACTS 2005); SLEIP §3.5 (MP25
+"projections to 2100 only… pure extrapolation exercise"), §5 (SURFER "runs outside the observational
+range"); FACTS post-2100 (CHANGELOG 09-12b/c); MAGICC-only (`ladrillo_on_magicc_climate`); Table 2
+for "every ice component". ⚠ First draft said "only three" have a full hindcast — SURFER starts 1850
+too; corrected to FOUR before insertion (Marcus caught it). "Unlike MAGICC, designed to work with
+FaIR" DROPPED as a distinguishing claim: FRISIA also takes external GSAT/OHC and is FaIR-driven natively.
+
 ## 2026-09-12d — would a newer FACTS give climate-driven ice sheets past 2100? No.
 
 Upstream `radical-collaboration/facts` is at v1.1.5, 12 commits past our v1.1.4 base — **none touch
