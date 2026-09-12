@@ -1,5 +1,5 @@
-[12:56:51] arms finished; building figures
-[12:56:51] START  plot_future_components
+[13:57:22] arms finished; building figures
+[13:57:22] START  plot_future_components
 [GATE] SSP1-2.6       ssp126  Ladrillo gates pass (CONTROL PASS, 841 configs)
 [GATE] SSP2-4.5       ssp245  Ladrillo gates pass (CONTROL PASS, 841 configs)
 [GATE] SSP5-8.5       ssp585  Ladrillo gates pass (CONTROL PASS, 841 configs)
@@ -32,8 +32,8 @@ median cm, rel. 1995-2014, joint arm — Ladrillo L24 / BRICK 2.0
     SSP1-2.6             12.4 /     26.7       10.2 /     18.6       14.5 /     15.2       25.7 /     24.0        8.5 /      8.9       72.6 /     94.8
     SSP2-4.5             18.2 /     31.6       17.5 /     23.0      154.3 /    187.3       45.8 /     43.1        8.5 /      8.9      249.2 /    302.7
     SSP5-8.5             26.5 /     35.2       83.7 /     37.0      292.5 /    275.4      105.0 /     99.1        8.5 /      8.9      516.7 /    463.6
-[12:56:52] OK     plot_future_components
-[12:56:52] START  plot_model_comparison_components
+[13:57:23] OK     plot_future_components
+[13:57:23] START  plot_model_comparison_components
 [BASIS] Ladrillo    joint (posterior params x FaIR forcing)
 [BASIS] BRICK 2.0   joint (BRICK 2.0 posterior x FaIR forcing)
 [BASIS] MAGICC-SLR  climate + parameter
@@ -178,8 +178,8 @@ median cm, rel. 1995–2014.  Ladrillo L24 / BRICK 2.0 / MAGICC-SLR / FACTS [min
       SSP1-2.6      72.6     94.8     66.5    132.1–208.3  * (n=4)
       SSP2-4.5     249.2    302.7    186.8    170.8–269.4  * (n=4)
       SSP5-8.5     516.7    463.6   1016.0    228.5–895.7  * (n=4)
-[12:56:54] OK     plot_model_comparison_components
-[12:56:54] START  plot_vv_gsic_wr_vs_ladrillo
+[13:57:24] OK     plot_model_comparison_components
+[13:57:24] START  plot_vv_gsic_wr_vs_ladrillo
 [VINTAGE] WR arm matches the current fair_mean drivers (delta 0.0000 K, 2177 rows)
 [GATE] all 7 Ladrillo L24 arms pass (arm=fixed, 841 configs, tap stem L24_tap4p69K_V5p64m_tau800)
 [PROVENANCE] all seven van Vuuren drivers share one commit (one build, one calibration): 6cc34b6 (7 drivers verified)
@@ -193,8 +193,8 @@ Medium-to-Low        2.37     2095      26.17      12.57         1.90        -0.
 Medium               4.29     2300      34.15      22.13         2.30         1.84
 High-to-Low          2.96     2084      29.28      14.98         2.95         0.16
 High                 6.66     2300      35.25      25.94         0.23         2.16
-[12:56:55] OK     plot_vv_gsic_wr_vs_ladrillo
-[12:56:55] START  vv gsic ladrillo-only
+[13:57:25] OK     plot_vv_gsic_wr_vs_ladrillo
+[13:57:25] START  vv gsic ladrillo-only
 [VINTAGE] WR arm matches the current fair_mean drivers (delta 0.0000 K, 2177 rows)
 [GATE] all 7 Ladrillo L24 arms pass (arm=fixed, 841 configs, tap stem L24_tap4p69K_V5p64m_tau800)
 [PROVENANCE] all seven van Vuuren drivers share one commit (one build, one calibration): 6cc34b6 (7 drivers verified)
@@ -208,8 +208,8 @@ Medium-to-Low        2.37     2095      26.17      12.57         1.90        -0.
 Medium               4.29     2300      34.15      22.13         2.30         1.84
 High-to-Low          2.96     2084      29.28      14.98         2.95         0.16
 High                 6.66     2300      35.25      25.94         0.23         2.16
-[12:56:55] OK     vv gsic ladrillo-only
-[12:56:55] START  vv model comparison
+[13:57:26] OK     vv gsic ladrillo-only
+[13:57:26] START  vv model comparison
 ON THE SEVEN MARKERS:
   Ladrillo    ✅ ours -- scope_slr_fair_uncertainty.jl on the van Vuuren cubes
   BRICK 2.0   ✅ ours -- scope_slr_fairunc_oldbrick.jl on the SAME cubes
@@ -546,8 +546,8 @@ see the PATH_CLUSTER note in the source for why it is unreliable on a tipping di
   contrast is gone. 2100 is the only horizon where it can be read.
 
 wrote outputs/vv_model_comparison_L24.csv, outputs/vv_model_comparison_L24_width.csv, outputs/vv_model_comparison_L24_gmst.csv, outputs/vv_model_comparison_L24_pathdep.csv
-[12:56:56] OK     vv model comparison
-[12:56:56] START  ladrillo model comparison
+[13:57:27] OK     vv model comparison
+[13:57:27] START  ladrillo model comparison
 [BAND] joint arm is TAPPED (matches this comparison)
 [BAND] Ladrillo REPORTED cells: 54 on the JOINT arm, 0 held on FIXED, of 54. (Non-horizon years are never reported and are left on FIXED.)
 [BAND] BRICK 2.0 REPORTED cells: 54 on its OWN JOINT arm, 0 on FIXED, of 54.
@@ -733,13 +733,13 @@ SCENARIO SPREAD  SSP1-2.6 -> SSP5-8.5 (cm, median difference at 2100)
   total     FACTS       wf3e           +37.4
 
 wrote outputs/ladrillo_model_comparison_L24.csv and outputs/ladrillo_model_comparison_L24_spread.csv
-[12:56:57] OK     ladrillo model comparison
-[12:56:57] START  memo figures
+[13:57:28] OK     ladrillo model comparison
+[13:57:28] START  memo figures
 wrote figures/ladrillo_L24_fig1_hindcast.png
 wrote figures/ladrillo_L24_fig2_ssp_total.png
 wrote figures/ladrillo_L24_fig3_glaciers.png
-[12:56:58] OK     memo figures
-[12:56:58] START  hindcast (FIG 1)
+[13:57:28] OK     memo figures
+[13:57:28] START  hindcast (FIG 1)
 [BASELINE] all 21 model/obs series are zero-mean over 1995-2005 (max |offset| 2.23e-03 cm, tolerance 0.0097 cm = 1/10 of the smallest wrong-window displacement in these data)
 [IGCC] GMSL ensemble re-referenced to 1995-2005 over 11 years (1901-2025), mm -> cm
 [DEPTH-SCOPE] alpha_obs = 0.1087 cm per 1e22 J (target steric / IGCC 0-2000 m heat, 1993-2024); deep/upper heat ratio 0.107; band = alpha_obs x IGCC >2000 m heat anomaly, 1971-2024, reaching +0.30 cm at 2024 (an UPPER bound: deep water expands less per joule)
@@ -780,8 +780,8 @@ model vs obs, 5-year means centred on each year (cm rel. 1995-2005)
     Land-water storage       Ladrillo      n/a           BRICK 2.0      n/a           MAGICC-SLR obs     0.58 mod     0.42 (-0.16, n=5)
     Total                    Ladrillo obs     7.81 mod     8.16 (+0.36, n=3)   BRICK 2.0 obs     7.81 mod     8.34 (+0.54, n=3)   MAGICC-SLR obs     7.81 mod     7.40 (-0.40, n=3)
                            IGCC    8.21 vs obs    7.81 (+0.40, n=3)  (independent check on the total)
-[12:56:58] OK     hindcast (FIG 1)
-[12:56:58] START  vv comparison figures
+[13:57:29] OK     hindcast (FIG 1)
+[13:57:29] START  vv comparison figures
 [BASIS] Ladrillo    joint (Ladrillo posterior x FaIR forcing, tapped)
 [BASIS] BRICK 2.0   joint (BRICK 2.0 posterior x FaIR forcing)
 [BASIS] MAGICC-SLR  climate + parameter
@@ -1034,8 +1034,8 @@ median cm, rel. 1995–2014.  Ladrillo L24 / BRICK 2.0 / MAGICC-SLR / FACTS [min
       Medium       332.8    346.6    266.1    184.5–286.4  * (n=4)
       High-to-Low    107.4    162.5     88.9    151.6–258.8  * (n=4)
       High         439.2    414.0    569.8    219.3–350.4  * (n=4)
-[12:57:00] OK     vv comparison figures
-[12:57:00] START  vv trajectories (FIG 5)
+[13:57:31] OK     vv comparison figures
+[13:57:31] START  vv trajectories (FIG 5)
 [GATE] Very Low       vvVL    Ladrillo gates pass (CONTROL SKIPPED, 841 configs)
 [GATE] Low-to-Neg     vvLN    Ladrillo gates pass (CONTROL SKIPPED, 841 configs)
 [GATE] Low            vvL     Ladrillo gates pass (CONTROL SKIPPED, 841 configs)
@@ -1092,8 +1092,8 @@ median cm, rel. 1995-2014, joint arm — Ladrillo L24 / BRICK 2.0
     Medium               21.4 /     33.3       24.4 /     26.0      211.6 /    216.5       60.8 /     57.0        8.5 /      8.9      332.8 /    346.6
     High-to-Low          14.5 /     28.3       10.4 /     19.6       48.3 /     77.8       25.5 /     23.9        8.5 /      8.9      107.4 /    162.5
     High                 25.3 /     34.9       57.2 /     32.1      255.1 /    248.0       89.6 /     84.0        8.5 /      8.9      439.2 /    414.0
-[12:57:01] OK     vv trajectories (FIG 5)
-[12:57:01] START  climate swap (FIG 11)
+[13:57:32] OK     vv trajectories (FIG 5)
+[13:57:32] START  climate swap (FIG 11)
 [ARM-MATCH] Ladrillo 2000 draws on both climates, BRICK 2.0 1000 on both; MAGICC-SLR 600 members.
 wrote outputs/vv_climate_swap_L24.csv (252 rows)
 wrote figures/vv_climate_swap_L24_2100.png
@@ -1126,8 +1126,8 @@ wrote figures/vv_climate_swap_L24_2300.png
   Medium          Ladrillo  332.8 ->  311.1  BRICK 2.  346.6 ->  323.8  | MAGICC  266.1
   High-to-Low     Ladrillo  107.4 ->   79.1  BRICK 2.  162.5 ->  125.5  | MAGICC   88.9
   High            Ladrillo  439.2 ->  424.7  BRICK 2.  414.0 ->  392.5  | MAGICC  569.8
-[12:57:03] OK     climate swap (FIG 11)
-[12:57:03] START  responsiveness (FIG 7)
+[13:57:34] OK     climate swap (FIG 11)
+[13:57:34] START  responsiveness (FIG 7)
 wrote figures/vv_responsiveness_L24.png
 wrote outputs/vv_responsiveness_L24.csv  (93 rows)
 
@@ -1156,8 +1156,8 @@ GMST gap vvH - vvVL:  FaIR driver {2100: 1.68, 2150: 3.12, 2300: 5.46}   MAGICC 
   Thermal expansion    BRICK 2.0 +66.6 (+12.2/K)  FACTS:tlm +72.8 (+13.3/K)  Ladrillo +71.0 (+13.0/K)  MAGICC-SLR +66.3 (+11.3/K)
   Land-water storage   BRICK 2.0 +0.0 (+0.0/K)  FACTS:ssp-lws +15.2 (+2.8/K)  Ladrillo +0.0 (+0.0/K)  MAGICC-SLR +0.0 (+0.0/K)
   Total                BRICK 2.0 +333.3 (+61.0/K)  FACTS:wf1f +95.6 (+17.5/K)  FACTS:wf2f +200.8 (+36.8/K)  FACTS:wf3f +160.4 (+29.4/K)  FACTS:wf4 +130.8 (+23.9/K)  Ladrillo +381.7 (+69.9/K)  MAGICC-SLR +524.1 (+89.5/K)
-[12:57:03] OK     responsiveness (FIG 7)
-[12:57:03] START  benchmark (refresh)
+[13:57:34] OK     responsiveness (FIG 7)
+[13:57:34] START  benchmark (refresh)
   + 2 extra comparator row(s) from benchmark/literature_extra.csv: Coulon25-KoriULB, Coulon25-PISM
   + 2 extra comparator row(s) from benchmark/literature_extra.csv: Coulon25-KoriULB, Coulon25-PISM
 ================================================================================================
@@ -1227,8 +1227,8 @@ LADRILLO BENCHMARK v1.0 — candidate L24, champion L24
 
 wrote outputs/bench_ladrillo_L24.csv
 wrote outputs/bench_ladrillo_L24.md
-[12:57:05] OK     benchmark (refresh)
-[12:57:05] === figures now present for L24 ===
+[13:57:36] OK     benchmark (refresh)
+[13:57:36] === figures now present for L24 ===
   future_components_ssp_L24_joint.png
   future_components_vv_L24_joint.png
   hindcast_components_L24.png
@@ -1245,12 +1245,12 @@ wrote outputs/bench_ladrillo_L24.md
   vv_climate_swap_L24_2150.png
   vv_climate_swap_L24_2300.png
   vv_responsiveness_L24.png
-[12:57:05] === rebuilding the .docx ===
-[12:57:05] START  docx
-[12:57:06] OK     docx
-[12:57:06] === VERIFY THE ARCHIVE (no soffice available; do not trust the build silently) ===
+[13:57:36] === rebuilding the .docx ===
+[13:57:36] START  docx
+[13:57:37] OK     docx
+[13:57:37] === VERIFY THE ARCHIVE (no soffice available; do not trust the build silently) ===
   media embedded: 11
   w:tbl elements: 2
   headings:       11
   size:           3.0M
-[12:57:06] DONE. 11 figures embedded, matching the source.
+[13:57:37] DONE. 11 figures embedded, matching the source.

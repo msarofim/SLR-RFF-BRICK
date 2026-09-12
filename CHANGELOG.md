@@ -1,3 +1,26 @@
+## 2026-09-12b — units unified to cm; FACTS post-2100: which modules see the climate at all
+
+**Units (Marcus):** cm throughout, matching every figure, Table 2 and the Vintage box. Converted the
+glacier inventory sentence (42 / 41 / 29.0 ± 6.0 / 6.9 / 32.4 ± 8.4 cm SLE; MAGICC 2.8–13.6, Ladrillo
+6.3–14.6 cm committed; MAGICC curves 35.6–45.1 cm; RGI 05 3.4 cm), the tap volume (564 cm), Table 1's
+19th-century flow prior (N(2.0, 0.9) cm SLE) and the 2006–2025 rates (0.374/0.389/0.392/0.399 cm/yr).
+Ocean DEPTHS (0–2000 m) stay in m. Stale pre-09-10 BRICK AIS biases refreshed from the scorecard
+(1920–49 −1.93, 1950–92 −0.71 cm) and cut to 2 decimals.
+
+**⭐ FACTS after 2100 — read out of the module code and confirmed on the vv*2300 outputs:**
+| module | post-2100 behaviour | receipt |
+|---|---|---|
+| FittedISMIP GrIS (wf1f–3f) | **linear extrapolation of the 2080–2100 rate** — `--crateyear_end` defaults to 2100, `ExtrapolateRate` overwrites every year ≥ 2100; measured: vvH median rate 0.195 cm/yr in 2100–2150 AND 2250–2300, vvHL 0.178 → 0.177 while its GMST falls 1.6 K | `FittedISMIP_GrIS_project.py:122,151,259` |
+| bamber19 (wf4, both sheets) | lookup on integrated 2000–2099 SAT (high/low core) | `bamber19_icesheets_project.py:197-212` |
+| deconto21 AIS (wf3f) | lookup on integrated 2000–2099 SAT into RCP2.6/4.5/8.5 sample streams | `deconto21_AIS_project.py:127-152` |
+| ar5AIS (wf1f) | SMB from the integrated temperature PATH (responds); dynamics = `time_projection`, a prescribed function of time; no rate extrapolation (`crateyear` defaults None) | `ipccar5_icesheets_project.py:98-153,243-246` |
+| larmip (wf2f) | response-function convolution of the forcing to 2300 — **fully path-driven** | `larmip_icesheet_project.py:73-82` |
+| ar5glaciers, tlm | path-driven (glaciers cap at 31.57 cm) | measured |
+⇒ **No FACTS Greenland module sees post-2100 temperature**; for Antarctica only LARMIP (and the SMB
+half of AR5) does. At 2150/2300 FACTS is a climate-responsive comparator for TE, glaciers and
+LARMIP-AIS only. Stated in the document's comparator-artefacts paragraph. What to DRAW at
+2150/2300 is Marcus's call (options in the session reply); nothing changed in the figures yet.
+
 ## 2026-09-12 — Marcus's 9/12 comments (`Ladrillocomments.9.12.26.docx`): five items, all in the document
 
 1. **MAGICC's Low-to-Negative Greenland upper bound (144 cm p95 at 2300 vs 25 at Low; medians 13/14):**
