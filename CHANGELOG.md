@@ -1,3 +1,29 @@
+## 2026-09-13b — SLEIP Table 2 parametrisation types: a row for all eight emulators, Ladrillo classified
+
+New last row in Table 2, "SLEIP parametrisation type (TE / glaciers / GIS / AIS / LWS)". The seven
+SLEIP entries are transcribed from SLEIP Table 2 (BRICK 2/2/2/3/—, FACTS 2/1/1,SEJ/1,2,SEJ/1, FRISIA
+2/2/2/3/1, MAGICC 3/2/2/2/1, MP25 2/2/2/2/1, ProFSea 2/1/1/1/1, SURFER 3/2/3/3/—). **Ladrillo =
+2 / 2 / 2 / 3 / 1**, each call against the caption's definitions (type 1 = statistical fit or direct
+sampling of obs/model output; 2 = form from physical reasoning; 3 = coupled ODEs implementing
+physical laws):
+- **TE 2** — BRICK's `:thermal_expansion` component unchanged in form (∝ OHC, one alpha;
+  `ladrillo_projection.jl:294`).
+- **Glaciers 2** — Mengel-2016 `S_eq` + Nauels-2017-Eq.-3 transient, the law SLEIP itself classes
+  type 2 for MAGICC; three regional reservoirs do not change the form (SLEIP §2: "all parametrization
+  types can be spatially resolved").
+- **GIS 2** — `greenland_ab`: SIMPLE-lineage relaxation to a linear-in-T committed loss, per channel
+  per basin, plus the threshold tap. Not coupled ODEs implementing ice dynamics (SURFER's type-3
+  criterion). The type classifies the FORM, not the calibration source, so the SICOPOLIS-informed tap
+  and CMIP6 amplification priors do not move it to type 1 — FACTS's FittedISMIP is type 1 because its
+  FORM is a fit to ISMIP6 output, not because ISMIP6 informs it. Judgement call, stated in note 15.
+- **AIS 3** — DAIS, recalibrated; form unchanged.
+- **LWS 1** — observed series in the hindcast, BRICK's stochastic Dieng-2015 module in projections;
+  SLEIP: "land water storage is tier 1 throughout".
+- Regional / RSL unchanged (Table 1: no / no).
+Note 14 records that SLEIP's Table 2 and results give BRICK no LWS component while its §3.1 describes
+one; our BRICK 2.0 arm runs it (zero before 2019, [[brick_lws_calib]]). Marcus's 9/13 comments file
+(`Ladrillocomments.9.13.26.docx`) appeared at 14:57 and is EMPTY (3 KB document.xml) — not acted on.
+
 ## 2026-09-13 — W&R initial volume corrected (40 cm, 2σ 30–50); a Word save clobbered it; re-applied
 
 The 09-12 SLEIP-session reading of Wigley & Raper 2005 (commit 8174c26): their initial glacier volume
