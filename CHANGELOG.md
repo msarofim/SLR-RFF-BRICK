@@ -1,3 +1,14 @@
+## 2026-09-13g — per-block ice volumes in the GSIC paragraphs; Marcus's 17:33 Word edits kept
+
+Marcus: add each reservoir's ice volume to its paragraph. Farinotti-basis inventories at 2000 from
+`ladrillo_data.build_reservoir` (`a0 − S2000_data`): **SLOWP 12.7 ± 3.3, FAST 9.4 ± 2.4, RGI 19
+6.9 ± 1.8 cm SLE**, summing to the 29.0 the text already quotes (22.1 non-R19 split by ice mass +
+Farinotti's own RGI 19). The σ are mass shares of Farinotti's 5.7 (non-R19) and its 1.8 (R19). The
+a0 the calibrator's A-prior is centred on is the 1900 stock (14.6 / 14.0 / 6.9), NOT quoted.
+Confirmed for Marcus that "Farinotti 2019 excluding RGI region 5" is equivalent to "excluding 5 and
+19, plus 6.9 for 19" (the 6.9 IS Farinotti's RGI 19). Synced his 17:33 Word edits (RGI 05
+sentence, "Compared with" paragraph) before editing; Word was closed.
+
 ## 2026-09-13f — SCOPED, not run: swapping the glacier driver HadCRUT5 → Berkeley Earth (option 3)
 
 Marcus: "scope whether this change would be both reasonable and meaningful." Verdict: NEITHER, on
