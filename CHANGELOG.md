@@ -1,3 +1,31 @@
+## 2026-09-13j — what the two departures from BRICK's obs-only philosophy buy (three projection-only arms)
+
+Marcus: how much difference do the CMIP6 amplification and the Greenland threshold channel make —
+i.e. if Ladrillo stuck with BRICK's philosophy? `python/diag_brick_philosophy_arms.py` →
+`outputs/diag_brick_philosophy_arms.csv`, fixed FaIR-mean forcing, 2000 draws, medians rel 1995–2014,
+each arm undoing ONE element on the shipped L24 posterior (component delta; total in brackets):
+
+| arm | SSP1-2.6 2100/2300 | SSP2-4.5 2100/2300 | SSP5-8.5 2100/2150/2300 |
+|---|---|---|---|
+| no above-threshold channel (existing `--no-tap` arm) | 0 / 0 | 0 / 0 | 0 / −1.3 / **−41.3** (of 529) |
+| constant Greenland amp (S=1, obs level 1.92; drop the CMIP6 shape) | +0.7 / +1.0 | +1.4 / +3.5 | +2.8 / +5.6 / +9.0 |
+| AIS amplification fixed at stock DAIS 1.196 (drop the CMIP6 prior) | 0 / +0.1 | **+16.8 / +41.7** (of 52 / 281) | +8.6 / +10.7 / +19.4 |
+
+- The threshold channel is the SSP5-8.5-2300 story only (the joint-arm figure in the document is
+  35.1 cm; 41.3 here on the fixed driver). Nothing at 2100 on any scenario, nothing on the cool SSPs.
+- The Greenland CMIP6 shape is a 1–3 % effect on the total; dropping it (constant observed amp) raises
+  Greenland by up to 9 cm at ssp585-2300.
+- The Antarctic amplification is the large one, and in the OPPOSITE direction from "BRICK is
+  conservative": stock DAIS's 1.196 vs Ladrillo's sampled median 1.074 adds **a third of the SSP2-4.5
+  2100 total** and +42 cm at 2300, because the DAIS thresholds sit near SSP2-4.5's warming; ssp585 is
+  already past them (+9/+19). ⚠ Projection-side override, not a refit (ais_gmst_amp is
+  prior-dominated, not likelihood-inert); the refit-based L21→L23 slope (386 cm/unit at ssp245-2300,
+  `amp_prior_mu_was_dropped`) predicts ~47 cm for this 0.122 step vs 41.7 measured — same order.
+  Medians only; fixing the value also removes the amp's spread.
+New tracked inputs: `outputs/gis_amp_shape_const{,_meta}.csv` (S=1 on the default grid). The
+override posterior `parameters_subsample_brick_mengel_L24aisamp1p196.csv` is untracked (10 MB,
+regeneration stated in the script header).
+
 ## 2026-09-13i — "tap" → "above-threshold discharge channel" in the deliverable (Marcus)
 
 "Tap" was project jargon from the 08-18 basin arc (a valve on the high basin's volume that opens
