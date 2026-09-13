@@ -1,3 +1,12 @@
+## 2026-09-13c — second stale-Word save; Marcus's GSIC/Vintage edits kept, the row and W&R re-applied
+
+Marcus saved and closed Word at 15:05 from the same buffer that predated both 09-13 rebuilds, so the
+Table 2 SLEIP-type row + notes 13–15 AND the W&R correction were reverted a second time, while his
+edits landed (GSIC opening sentence: "the total achievable melt is determined by the change in
+temperature relative to preindustrial while the rate of melt is driven by the warming relative to the
+new equilibrium…"; Vintage box: "read by … figure"). Same recovery: sync → re-apply → docx step →
+python-docx check. Word is now closed; the .docx on disk is the merged version.
+
 ## 2026-09-13b — SLEIP Table 2 parametrisation types: a row for all eight emulators, Ladrillo classified
 
 New last row in Table 2, "SLEIP parametrisation type (TE / glaciers / GIS / AIS / LWS)". The seven
