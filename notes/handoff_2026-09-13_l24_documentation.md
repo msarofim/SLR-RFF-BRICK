@@ -124,8 +124,9 @@ pulse work.
 - ⚠ **A stale Word save clobbered e078504** (Word had the .docx open since 09-12 17:04; saved 14:55):
   the W&R 40 cm fix was reverted and Marcus's intro edits landed. Recovered in 3fc0d6b (CHANGELOG
   09-13). **Close Word or reopen the file after every build** — Word's buffer does not see a rebuild.
-- ✅ **§1 DONE** — Table 2 has the SLEIP-type row; Ladrillo = 2/2/2/3/1 (881d438, CHANGELOG 09-13b,
-  memory `sleip2026_emulator_intercomparison`). Marcus has not yet ruled on the GIS call.
+- ✅ **§1 DONE, then the row DROPPED by Marcus** (CHANGELOG 09-13b/d): Ladrillo = 2/2/2/3/1 stays on
+  record in the CHANGELOG and memory `sleip2026_emulator_intercomparison`, not in the deliverable.
+  Tables 1–2 now carry measured word floors (`balance_table_widths.py`), unverified in Word.
 - `deliverables/Ladrillocomments.9.13.26.docx` appeared at 14:57, EMPTY at last read — Marcus's next
   comment round; read it before anything else.
 - **NEXT = the pulse analysis** (`INDEX_cmp_pulse.md`, `INDEX_cmp_pulse_dur.md`), per §1's last paragraph.

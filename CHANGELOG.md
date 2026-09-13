@@ -1,3 +1,18 @@
+## 2026-09-13d — SLEIP-type row DROPPED (Marcus); Tables 1–2 get measured word floors and a narrower attribute column
+
+Marcus does not want the SLEIP parametrisation-type row: removed with notes 13–15 (the classification
+itself stays on record in 09-13b and memory `sleip2026_emulator_intercomparison`). Table widths:
+`balance_table_widths.py` now gives every column of a nine-column table a FLOOR equal to the measured
+width of its longest unbreakable token (Aptos, the theme's body font, at the 8 pt the post-pass sets;
+Word wraps at spaces and after hyphens) plus the 2 × 5.4 pt cell margins, and shares the rest by
+text load with the attribute column's load at half weight. Attribute column 33 % → 16 % (Table 1)
+and 32 % → 12 % (Table 2); emulator columns 8–13 % → 8–14 %, each at or above its floor
+(SURFER 8.7 dashes of 100, "parametric" 10.8, "statistical" 10.0, "preindustrial)" 12.6). The
+3- and 6-column tables keep their load-proportional layout unchanged (floors would let a DOI or
+granule id swallow the prose column). ⚠ Unverified in Word itself (no soffice here): the floors
+assume Letter with 1 in margins (468 pt text width; the sectPr carries no pgMar) and pandoc's
+`tblW` 100 % / fixed layout.
+
 ## 2026-09-13c — second stale-Word save; Marcus's GSIC/Vintage edits kept, the row and W&R re-applied
 
 Marcus saved and closed Word at 15:05 from the same buffer that predated both 09-13 rebuilds, so the
