@@ -113,3 +113,19 @@ pulse work.
 `build_l24_deliverable_doc.sh`, `deliverables/sync_filled_from_docx.py`, the deliverable, `benchmark/reference/_fixed/`.
 **Memory (new/updated):** `facts_workflows_differ_only_in_ais` (the 09-12 rule and tests), `magicc_gis_starts_1991`,
 `facts_twin_extend_gate`, `vv_responsiveness_high_minus_verylow`, `INDEX_cmp`, `INDEX_cmp_magicc`.
+
+---
+
+## 6. STATUS UPDATE 09-13b (later session)
+
+- **Pushed**: `ladrillo-dev` → origin at 881d438 (all authorship Marcus); `FaIRtoFrEDI`
+  `heat-ed-morbidity` pushed. `facts` `slr-comparison-arm` has NO pushable remote (origin =
+  radical-collaboration upstream, no fork) — left as is.
+- ⚠ **A stale Word save clobbered e078504** (Word had the .docx open since 09-12 17:04; saved 14:55):
+  the W&R 40 cm fix was reverted and Marcus's intro edits landed. Recovered in 3fc0d6b (CHANGELOG
+  09-13). **Close Word or reopen the file after every build** — Word's buffer does not see a rebuild.
+- ✅ **§1 DONE** — Table 2 has the SLEIP-type row; Ladrillo = 2/2/2/3/1 (881d438, CHANGELOG 09-13b,
+  memory `sleip2026_emulator_intercomparison`). Marcus has not yet ruled on the GIS call.
+- `deliverables/Ladrillocomments.9.13.26.docx` appeared at 14:57, EMPTY at last read — Marcus's next
+  comment round; read it before anything else.
+- **NEXT = the pulse analysis** (`INDEX_cmp_pulse.md`, `INDEX_cmp_pulse_dur.md`), per §1's last paragraph.
