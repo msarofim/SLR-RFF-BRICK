@@ -1,3 +1,18 @@
+## 2026-09-13 — W&R initial volume corrected (40 cm, 2σ 30–50); a Word save clobbered it; re-applied
+
+The 09-12 SLEIP-session reading of Wigley & Raper 2005 (commit 8174c26): their initial glacier volume
+is **40 cm with 2σ 30–50**, not an "assumed maximum of 41 cm". The GSIC paragraph and Table 2
+footnote 7 were corrected and the .docx rebuilt (e078504, 14:48).
+⚠ **Marcus's Word had the .docx open since 09-12 17:04 and saved at 14:55**, so its stale buffer
+overwrote the rebuilt file: his two intro-paragraph edits ("leaving BRICK and Ladrillo as the two
+models which run 1900-2300 and match observations"; "the FACTS workflow starts in 2005"; "cannot
+inform") landed, and the W&R correction was silently reverted. Detected by the pre-edit sync
+(`sync_filled_from_docx.py --verify` diffed against HEAD). Fix: sync → re-apply the two W&R sites to
+FILLED.md → docx step only (figures unchanged since the 14:48 build; the stamped CSVs are
+byte-identical modulo the `commit` field). Marcus's intro edits stand. ⚠ A .docx that is open in
+Word while the build rebuilds it will lose the rebuild on Word's next save — close Word (or reopen the
+file) after every build.
+
 ## 2026-09-12g — glacier inventories on ONE epoch (2000), with BRICK's own 1850→2000 melt measured
 
 Marcus: MAGICC's 35.6–45.1 cm is its 1850 stock (the S_eq curves start at 2.8–13.6 cm committed loss
