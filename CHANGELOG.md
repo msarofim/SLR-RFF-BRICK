@@ -1,3 +1,18 @@
+## 2026-09-13i — "tap" → "above-threshold discharge channel" in the deliverable (Marcus)
+
+"Tap" was project jargon from the 08-18 basin arc (a valve on the high basin's volume that opens
+above a GMT onset). Literature survey from the SLEIP text: no standard name — BRICK's Antarctic
+analogue is "fast dynamics" (Wong, Bakker & Keller 2017; collides with our "fast" SMB channel),
+FRISIA's Greenland analogue is "additional discharge above a GSAT anomaly threshold" (a
+low-likelihood switch), SURFER's is a "tipping element" (bistable ODE — over-claims for ours).
+Marcus chose **"above-threshold discharge channel"**, closest to FRISIA's phrasing. Renamed at the
+three text sites (Table 1 note 4, the Greenland sub-heading + paragraph — now says "a third
+discharge channel on the high basin, distinct from the slow channel", "does not open" — and the
+FIG 11 caption); no L24 figure title carries the word. Code, filenames (`tap4p69K`), CHANGELOG
+history and memory keep "tap" — it is the identifier, the document has the English. Marcus's
+Word edits since 4a43bd6 synced first (GSIC opening sentence, FAST "smaller amplification",
+"Compared with other emulators", regrowth sentence naming MAGICC and SURFER).
+
 ## 2026-09-13h — "bracketing Farinotti" retracted: MAGICC's inventory is on an 18-region scope
 
 Marcus: the MAGICC ≈26–36 cm vs Farinotti 32.4 comparison is wrong if MAGICC excludes RGI 19 — and it
