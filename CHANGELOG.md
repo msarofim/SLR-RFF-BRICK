@@ -1,3 +1,13 @@
+## 2026-09-13h — "bracketing Farinotti" retracted: MAGICC's inventory is on an 18-region scope
+
+Marcus: the MAGICC ≈26–36 cm vs Farinotti 32.4 comparison is wrong if MAGICC excludes RGI 19 — and it
+does (Marzeion 2012 basis, RGI 05 in / RGI 19 out; CHANGELOG 09-12 "RGI 05 / RGI 19"). Scope-matched
+Farinotti is 25.5 cm, so MAGICC sits ~1.3× above it, not bracketing. Per Marcus, LESS detail: the
+GSIC "Compared with" paragraph now lists the 2000 inventories (FACTS 31.6 cap, MAGICC ≈26–36) and
+carries one caveat — not every model covers all 19 RGI regions (MAGICC omits RGI 19, Ladrillo RGI 05),
+so small differences should not be over-read. The AR5 Table 4.2 arithmetic and the fingerprint
+detail were dropped from the paragraph (they survive in Table 2 notes 8–9 and CHANGELOG 09-12g).
+
 ## 2026-09-13g — per-block ice volumes in the GSIC paragraphs; Marcus's 17:33 Word edits kept
 
 Marcus: add each reservoir's ice volume to its paragraph. Farinotti-basis inventories at 2000 from
