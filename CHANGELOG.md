@@ -1,3 +1,38 @@
+## 2026-09-13f — SCOPED, not run: swapping the glacier driver HadCRUT5 → Berkeley Earth (option 3)
+
+Marcus: "scope whether this change would be both reasonable and meaningful." Verdict: NEITHER, on
+the evidence to hand; not launched. Receipts (nothing new computed except the arithmetic):
+- **What it would take** (Explore pass, file:line in the session): product switch in
+  `build_t_glac.py` (HadCRUT5 hard-coded :46), alternate-path artifacts from `ladrillo_data.py`
+  (five driver-dependent block constants: amp_obsfit and the b/T_off/κ/ν obsfit anchors), new
+  `--block-drivers=`/`--block-constants=` flags in `calibrate_mcmc_ext.jl` (:184, :216) and
+  `ladrillo_projection.jl` (:167-168), re-derived `AMP_PRIOR`, then L24's pinned command line as
+  a new tag: ~2.9 h chains + ~66 min postprocess on the M4 (Torch: local). Greenland stays on
+  HadCRUT5 (08-24: Berkeley is the WORST product against the Greenland melt record).
+- **Reasonable?** The product gap is SLOWP (BE 1.82 / Had 2.48 / GISTEMP 3.46); FAST 1.34/1.40,
+  R19 0.85/0.61 with 6.9 cm of inventory. (i) CMIP6 42-model historical SLOWP amplification is
+  **2.85 (p05–p95 1.57–4.29)**: HadCRUT5 sits at the median, Berkeley in the low tail.
+  (ii) The Berkeley-on-5°-footprint arm (SLOWP 1.80) shows the gap is dataset CONTENT, not grid.
+  (iii) The two products' SLOWP series correlate 0.95 (0.88 pre-1960) and their largest 11-yr
+  divergence, 0.61 °C, is in **2019** — the satellite era, not the sparse early record where an
+  infilling method would tell. (iv) The only in-house skill test of driver products (Greenland,
+  `diag_gis_driver_product_skill.py`) ranked Berkeley last. Berkeley's better pre-1901 coverage
+  (SLOWP 0.90 vs 0.64 of cells) is real but is not where the products disagree.
+- **Meaningful?** The hindcast targets are unchanged, so a refit compensates a cooler SLOWP driver
+  with a higher b. First principles on SLOWP (a 14.6 cm, b 0.27/K, T_off 0.34, ssp245 2100 GMST
+  ~2.7 K): HadCRUT5 committed 12.0 cm; Berkeley driver + Berkeley amp (arm A, self-consistent)
+  11.9 cm — **≈0.1 cm**; Berkeley driver + L24 amp (arm B, inconsistent) 13.2 cm — **≈+1 cm**.
+  The D1f obs-amp arm (08-09) is the measured analogue of B: a 0.78 SLOWP-amp change with the
+  hindcast held moved ssp245-2100 glaciers 10.2 → 11.3 cm. Against a 45 cm total at ssp245-2100
+  that is <1 % (A) or ~2 % (B); at 2300 the inventory caps it. The prior N(2.50, 0.45) already
+  spans the product disagreement — 2.1 % of L24 draws sit within 0.1 of Berkeley's SLOWP amp.
+  The one place B would "help" is the glacier bench WARN (0.68–0.84× lit), and B is the arm that
+  projects a 1.82×-calibrated block with a 2.50× future.
+- **If a number is still wanted:** arm B's bound is a projection-only amp override (~5 min); arm
+  A's is an offline d1f-style refit on a Berkeley driver (~1 h of code, no MCMC). Neither needs
+  the 4-h chain. Unverified assumption noted: which sea-ice convention the Berkeley
+  Land_and_Ocean file carries (air-over-ice vs water), which could explain a recent-era gap.
+
 ## 2026-09-13e — R19 amplification: is 0.72 too low, and does CMIP6's FUTURE ratio rise? (No rise.)
 
 Marcus: Berkeley Earth (0.85) has the best infilling and CMIP6's historical R19 amplification is 0.87,
