@@ -1,3 +1,25 @@
+## 2026-09-13e — R19 amplification: is 0.72 too low, and does CMIP6's FUTURE ratio rise? (No rise.)
+
+Marcus: Berkeley Earth (0.85) has the best infilling and CMIP6's historical R19 amplification is 0.87,
+so N(0.72, 0.15) looks low; check the future CMIP6 ratio; could R19 take a CMIP6 amplification like
+Greenland does, and would that need a rebuild? New `python/diag_glac_amp_cmip6_future.py` (42 models,
+historical+ssp245 from `data/cmip6_glac`, secant on anomalies rel 1995–2014, stamped CSV
+`outputs/diag_glac_amp_cmip6_future.csv`):
+- **R19: historical 1901–2024 0.84 (p05–p95 0.31–1.17); future 2025–2100 0.77 (0.38–1.16);
+  late 2070–2100 0.77.** The Southern-Ocean-delay expectation (ratio rising toward 1) is NOT in
+  CMIP6 to 2100 — the future ratio is slightly LOWER than the historical one, and 0.3 prior-sd from
+  the 0.72 centre. SLOWP 2.85 → 2.81, FAST 1.49 → 1.47: all three blocks are stationary in CMIP6.
+- The 0.87 quoted earlier is the 1850–1900-frame historical value (`diag_glac_amp_cmip6_offset.csv`);
+  on the projection frame (1995–2014) it is 0.84.
+Where amp acts: the HINDCAST driver is the observed HadCRUT5 block series (`t_glac_blocks.csv`), so the
+amp prior never touches the hindcast; amp only scales the post-2024 splice tail, which is
+likelihood-inert (calibrator comment at AMP_PRIOR; the Greenland amp law was changed projection-side
+on exactly that ground). ⇒ re-centring `gic_amp_R19` is a PROJECTION-SIDE override, no refit — the
+one frame caveat is the κ-prior centre's log-linear dependence on amp (`K10_PTS`). A refit is needed
+only if the historical DRIVER product were swapped (HadCRUT5 → Berkeley), which is a different and
+larger change (the SLOWP product spread 1.82/2.48/3.46 dominates it, not R19). Not run: the override
+arm's leverage (R19 inventory 6.9 cm caps it). Awaiting Marcus.
+
 ## 2026-09-13d — SLEIP-type row DROPPED (Marcus); Tables 1–2 get measured word floors and a narrower attribute column
 
 Marcus does not want the SLEIP parametrisation-type row: removed with notes 13–15 (the classification
