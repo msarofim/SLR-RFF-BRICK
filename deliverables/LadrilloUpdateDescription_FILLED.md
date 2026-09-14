@@ -18,7 +18,7 @@ As a derivative of BRICK, Ladrillo and BRICK do share a similar niche. However, 
 | Climate-driven past 2100 | yes | TE, glaciers only⁵ | yes | yes | no⁶ | partial⁵ | yes | yes |
 | Regional / relative sea level | yes / no | yes / yes | yes / no | no / no | yes / yes | yes / yes | no / no | no / no |
 
-¹ Ice sheets start in 1990 (Greenland) and 2002 (Antarctica). ² Calibrated to process-model projections (ISMIP6, LARMIP, DeConto, SICOPOLIS, PISM, GlacierMIP2) or structured expert judgement. ³ Observations plus AR6 projections. ⁴ Except the above-threshold discharge channel (ISMIP6/SICOPOLIS) and the Antarctic amplification prior (CMIP6). ⁵ Ice-sheet modules extrapolate the 2080–2100 rate or sample 21st-century projections; ProFSea's Greenland uses the FACTS implementation. ⁶ A 2100 model, extended to 2300 by extrapolation.
+¹ Ice sheets start in 1990 (Greenland) and 2002 (Antarctica). ² Calibrated to process-model projections (ISMIP6, LARMIP, DeConto, SICOPOLIS, PISM, GlacierMIP2) or structured expert judgement. ³ Observations plus AR6 projections. ⁴ Except the above-threshold discharge channel (ISMIP6/SICOPOLIS), the glacier committed-loss curves and response-time anchors (GlacierMIP3) and the Antarctic amplification prior (CMIP6). ⁵ Ice-sheet modules extrapolate the 2080–2100 rate or sample 21st-century projections; ProFSea's Greenland uses the FACTS implementation. ⁶ A 2100 model, extended to 2300 by extrapolation.
 
 **Table 2.** Component structure of the same eight emulators. Glacier inventories for BRICK 2.0, MAGICC and FACTS read from their parameter files and code; Farinotti 2019 gives 32.4 ± 8.4 cm SLE for all RGI regions. n.d. = not documented in SLEIP.
 
@@ -32,7 +32,7 @@ As a derivative of BRICK, Ladrillo and BRICK do share a similar niche. However, 
 
 ⁷ Calibrated initial volume 42 cm (5–95% 32–52) at the 1850 start (Wigley and Raper's assumed 40 ± 10), less BRICK's own 4.0 cm of melt to 2000 (0.7 cm of it before 1900). ⁸ Cumulative-melt cap from AR5 Table 4.2, less the Antarctic periphery. ⁹ Equilibrium curves reach 35.6–45.1 cm at 1850 across the 15 tunes, less MAGICC's own 9.4 cm (5–95% 4.7–13.2) of melt to 2000. ¹⁰ Farinotti 2019 on Ladrillo's scope, which excludes RGI 05 (3.4 cm, included in the Greenland ice sheet). ¹¹ Two channels (SMB, discharge) in each of two basins. ¹² AR5 (parametric), LARMIP (response functions), DeConto (sampled), Bamber (expert judgement).
 
-> **Vintage.** This document describes posterior L24. Units are cm. Two baseline windows are used: 1995-2005 for the hindcast section (FIG 1, the RMSE table, and the 2024 levels); and 1995-2014 for the projection sections. Model version FaIR 2.2.4 (fair-calibrate 1.6.0). Both hindcast arms are reproducible: every random seed is fixed and is recorded inside the output file read by each figure, so any number in this document can be regenerated precisely.
+> **Units and baselines.** Units are cm. Two baseline windows are used: 1995–2005 for the hindcast section (FIG 1, the RMSE table, and the 2024 levels); and 1995–2014 for the projection sections.
 
 ## Ladrillo Structural Updates
 
@@ -77,29 +77,33 @@ MAGICC similarly splits Greenland into SMB and SID and parameterises against SIC
 
 ## Ladrillo Calibration Data Updates
 
-**Table 3.** Observational inputs added or replaced relative to BRICK 2.0, with the version of each as used in the calibration.
+**Table 3.** Calibration inputs added or replaced relative to BRICK 2.0, with the version of each as used, and the two total-sea-level series the hindcast is compared against but not fitted to.
 
-| data source | vintage / version as used | what it constrains |
+| data source | version as used | what it constrains |
 |----|----|----|
-| Dangendorf 2024 GMSL | Zenodo `10.5281/zenodo.10621070`¹³ | The total, replacing the CSIRO (Church & White 2011 lineage, 2015 update) reconstruction BRICK 2.0 was calibrated to. In L24 the total is not a likelihood term (it was dropped so that RGI 19 is constrained by its own observation rather than by budget closure); Dangendorf is the comparison target for the total in FIG 1 and Table 4. |
-| GlaMBIE glacier series (2019 onward) | Dataset 1.0.0, DOI `10.5904/wgms-glambie-2024-07`; paper `10.1038/s41586-024-08545-z`¹⁴ | The modern glacier rate, spliced onto Frederikse. It includes Antarctic-periphery melt (RGI 19) which is excluded by Frederikse. |
-| JPL GRACE / GRACE-FO mascons | Release RL06.3Mv04 CRI, DOI `10.5067/TEMSC-3JC634`¹⁵ | Land-water storage. GRACE data run 2019–2023; the 2023 value is then held constant through 2026, the end of the calibration window. In projections LWS follows BRICK's stochastic land-water module from 2019. |
-| Mouginot Greenland sector shares | `10.1073/pnas.1904242116`, Supplementary Dataset S2 (`pnas.1904242116.sd02.xlsx`, sheet "(2) MB_GIS"). No dataset version is published | The basin split, as a shares term rather than a level. |
-| Rignot 2019 Antarctic SMB, area-corrected ×0.888 | *PNAS* 116:1095; 2098 ± 133 Gt/yr over the 1979–2008 climatology, entered as published values | The absolute Antarctic flux scale. SMB minus discharge is well constrained at −145 ± 15 Gt/yr but each flux individually has high uncertainty (±505/±509), so Rignot anchors the pair. |
-| Glacier inventory likelihood + a 19th-century flow constraint, `S(1900) − S(1850) ~ N(2.0, 0.9)` cm SLE | Inventory: Farinotti 2019 (*Nat. Geosci.* 12:168) reconciled per Hock 2023, at the RGI ~2000 outline epoch, entered as published values; region polygons GTN-G Glacier Regions 2023, DOI `10.5904/gtng-glacreg-2023-07`, on the RGI6 scheme. 19th-c flow: Leclercq/Oerlemans/Cogley 2011, DOI `10.1007/s10712-011-9121-7` | The absolute inventory and the pre-observational flow. |
-| CMIP6 regional amplification (34–41 models) | Pangeo/Google-Cloud CMIP6 zarr catalogue¹⁶ | Prior on the Antarctic amplification; the warming-dependence and prior width of the Greenland amplification (its level is observed). The glacier-region amplifications are fitted to observations; the CMIP6 glacier panel served as a check only. |
-| Paleo constraints on DAIS geometry, in a standardised correlation form | `DAISfastdyn_calibratedParameters_gamma_29Jan2017.nc`, the 16-parameter / 800,000-member ensemble shipped with MimiBRICK¹⁷ | The seven freed geometry parameters (below). |
-| *(not a calibration target)* IGCC 2025-indicators GMSL | Tag `v2026.06.02`, data DOI `10.5281/zenodo.20499280`; paper Forster et al. 2026, `10.5194/essd-18-3889-2026`¹⁸ | Shown on FIG 1 as an independent consensus check on the total. |
+| GlaMBIE glacier series (2019 onward) | Dataset 1.0.0, DOI `10.5904/wgms-glambie-2024-07`; paper `10.1038/s41586-024-08545-z`¹³ | The modern glacier rate, spliced onto Frederikse. |
+| JPL GRACE / GRACE-FO mascons | Release RL06.3Mv04 CRI, DOI `10.5067/TEMSC-3JC634`¹⁴ | Land-water storage, 2019–2023¹⁵. |
+| Mouginot 2019 Greenland sector shares | *PNAS* 116:9239, Supplementary Dataset S2¹⁶ | The basin split, as a shares term rather than a level. |
+| Rignot 2019 Antarctic SMB | *PNAS* 116:1095; 2098 ± 133 Gt/yr over 1979–2008¹⁷ | The absolute Antarctic flux scale. |
+| Farinotti 2019 glacier inventory | *Nat. Geosci.* 12:168, reconciled per Hock 2023¹⁸ | The glacier volume remaining at 2000 (29.0 ± 6.0 cm SLE on Ladrillo's scope). |
+| Leclercq et al. 2011 19th-century glacier change | *Surv. Geophys.* 32:519, DOI `10.1007/s10712-011-9121-7` | The pre-observational melt, `S(1900) − S(1850) ~ N(2.0, 0.9)` cm SLE. |
+| GlacierMIP3 equilibrium experiments (Zekollari et al. 2025) | *Science*, DOI `10.1126/science.adu4675`; data `10.5281/zenodo.15046588` | Each glacier block's committed-loss fraction at 1.2–3.0 K and its response-time anchors (a process-model constraint, not an observation). |
+| CMIP6 regional amplification (34–41 models) | Pangeo/Google-Cloud CMIP6 zarr catalogue¹⁹ | Prior on the Antarctic amplification; the warming-dependence and prior width of the Greenland amplification (its level is observed; the glacier amplifications are observation-fitted, CMIP6 a check only). |
+| DAIS paleo ensemble | `DAISfastdyn_calibratedParameters_gamma_29Jan2017.nc`, shipped with MimiBRICK²⁰ | Joint prior on the seven freed geometry parameters (below). |
+| *(not a calibration target)* Dangendorf 2024 GMSL | Zenodo `10.5281/zenodo.10621070`²¹ | The total in FIG 1 and Table 4. |
+| *(not a calibration target)* IGCC 2025-indicators GMSL | Tag `v2026.06.02`, data DOI `10.5281/zenodo.20499280`; Forster et al. 2026, `10.5194/essd-18-3889-2026`²² | An independent consensus check on the total, FIG 1. |
 
-¹³ GMSL derived from `Fields.nc`, not the record's `Global.nc` (mis-written upstream), and validated against a corrected `_v2.nc` supplied by S. Dangendorf (pers. comm., 2026-08-07). ¹⁴ Acquired 2026-06-13. ¹⁵ Granule `200204_202606`. ¹⁶ Fetched 2026-07-21 to 2026-08-24 (Greenland panel 2026-08-18, glacier panel 2026-08-23); member ID recorded per model and the panel pinned to the fetched files, so a later catalogue change cannot swap the ensemble. ¹⁷ sha256\[:16\] `0b53b45e2422563b`; extracted 2026-08-24. ¹⁸ md5 `8ae5ac0041e26351b9f497f969bd0dab`.
+¹³ Acquired 2026-06-13. ¹⁴ Granule `200204_202606`. ¹⁵ The 2023 value is held constant through 2026, the end of the calibration window; in projections LWS follows BRICK's stochastic land-water module from 2019. ¹⁶ `pnas.1904242116.sd02.xlsx`, sheet "(2) MB_GIS"; no dataset version is published. ¹⁷ Area-corrected ×0.888; entered as published values. ¹⁸ At the RGI ~2000 outline epoch, entered as published values; region polygons GTN-G Glacier Regions 2023, DOI `10.5904/gtng-glacreg-2023-07`, on the RGI6 scheme. ¹⁹ Fetched 2026-07-21 to 2026-08-24 (Greenland panel 2026-08-18, glacier panel 2026-08-23); member ID recorded per model and the panel pinned to the fetched files, so a later catalogue change cannot swap the ensemble. ²⁰ The 16-parameter / 800,000-member ensemble, used in a standardised correlation form; sha256\[:16\] `0b53b45e2422563b`, extracted 2026-08-24. ²¹ GMSL derived from `Fields.nc`, not the record's `Global.nc` (mis-written upstream), and validated against a corrected `_v2.nc` supplied by S. Dangendorf (pers. comm., 2026-08-07). ²² md5 `8ae5ac0041e26351b9f497f969bd0dab`.
 
-**Deliberately removed: IMBIE.** Dropped from the Antarctic likelihood to avoid double-weighting the same mass-balance information already entering through other terms.
+**Deliberately removed: IMBIE, and the total.** IMBIE was dropped from the Antarctic likelihood to avoid double-weighting mass-balance information already entering through other terms. The total sea-level series — the CSIRO (Church & White 2011 lineage, 2015 update) reconstruction in BRICK 2.0 — is not a likelihood term at all: it was dropped because RGI 19, the one block with no target of its own, was absorbing the observational budget's non-closure through it. Ladrillo is therefore fitted to the four component series and the point constraints above only, and the total's hindcast in FIG 1 and Table 4 (Dangendorf 2024) is an out-of-sample check, with the observed land-water storage added.
 
 **Forcing.** FaIR 2.2.4 (fair-calibrate 1.6.0), driven by CMIP7 historical emissions 1750–2023 spliced at 2023.5 to MESSAGE-GLOBIOM SSP2-4.5 and harmonized per species. The calibration's fit window runs to 2026, so its last three years are driven by the scenario rather than by the historical emissions inventory (an effect of only about 0.002 W/m²).
 
 ## Ladrillo Calibration Approach Updates
 
-58 parameters are sampled: 17 Antarctic, 9 Greenland, 19 glacier, 13 remaining (thermal expansion, two discrepancy bases of two coefficients each, and four AR(1) noise pairs). Four Antarctic changes distinguish Ladrillo's calibration from BRICK 2.0's — the three described below, plus an SMB likelihood term anchoring the Antarctic flux scale to Rignot 2019. The Antarctic changes have not been tested individually, so the AIS changes cannot be formally attributed by parameter.
+**Vintage.** This document describes posterior L24, calibrated on FaIR 2.2.4 (fair-calibrate 1.6.0). Both hindcast arms are reproducible: every random seed is fixed and is recorded inside the output file read by each figure, so any number in this document can be regenerated precisely.
+
+58 parameters are sampled: 17 Antarctic, 9 Greenland, 19 glacier, 13 remaining (thermal expansion, two discrepancy bases of two coefficients each, and four AR(1) noise pairs). Four Antarctic changes distinguish Ladrillo's calibration from BRICK 2.0's — the three described below, plus an SMB likelihood term anchoring the Antarctic flux scale to Rignot 2019: the net balance (−145 ± 15 Gt/yr) is well constrained, but surface mass balance and discharge individually carry about ±505 Gt/yr each, so the anchor fixes the scale of the pair. The Antarctic changes have not been tested individually, so the AIS changes cannot be formally attributed by parameter.
 
 **The seven DAIS geometry parameters.** The seven parameters (`ais_mu`, `ais_bedheight0`, `ais_slope`, `ais_iceflow0`, `ais_precip0_LOG`, `ais_runoff_Ton`, `ais_c`) are freed under a joint paleo prior. Ladrillo's pre-1990 Antarctic hindcast is far closer to the record than BRICK 2.0's (see Figure 1 and Table 4). A key driver of differences between BRICK and Ladrillo is the observational constraint, since BRICK’s Antarctic likelihood is IMBIE 1992–2017 while Ladrillo fits an Antarctic series from 1900.
 
@@ -133,7 +137,7 @@ Ladrillo is closer than BRICK 2.0 on every component in the two earliest windows
 
 The observational budget's own non-closure is common to both arms and small in these windows (−0.31 and +0.17 cm), so it cannot account for the difference. The component rows are therefore the skill statement; the total row additionally reflects whether a model's errors cancel after calibration.
 
-ƒLadrillo uses the observed LWS time series directly, whereas native BRICK subtracts LWS prior to calibration, so its components represent sea level excluding LWS; the observed series is added to both totals to put them on the same basis as the LWS-inclusive observational total. Separately, BRICK 2.0 runs on its own published posterior against our extended targets, so part of its bias is target vintage.
+Ladrillo uses the observed LWS time series directly, whereas native BRICK subtracts LWS prior to calibration, so its components represent sea level excluding LWS; the observed series is added to both totals to put them on the same basis as the LWS-inclusive observational total. Separately, BRICK 2.0 runs on its own published posterior against our extended targets, so part of its bias is target vintage.
 
 Ladrillo is closer to the observations than BRICK 2.0 on every ice component in every window except glaciers over 1950–1992, and the gains are largest in the early eras.
 
@@ -147,7 +151,7 @@ That excess has two parts of similar size. FaIR's ocean heat is full-depth while
 
 We report comparisons to both the van Vuuren scenarios and the SSPs. All Ladrillo bands are the joint (posterior × FaIR-forcing) arm. Bars are 17–83% (thick) and 5–95% (thin). Ladrillo, BRICK, and FACTS have the same source of climate uncertainty (Ladrillo and BRICK 2.0 from the 841 FaIR configs with the same cubes, splice pivot, and pair seed; FACTS from 200 of the same configs, plus its modules' own sampling) whereas MAGICC-SLR relies on its own 600-member AR6 ensemble. F
 
-ACTS is reported relative to base year 2005, treated as comparable to the 1995–2014 mean. FACTS's three emulandice workflows (Gaussian-process emulators of ISMIP6 and GlacierMIP2 output) end in 2100 by construction, so they appear only at that horizon on both scenario sets; its four other workflows run to 2300.
+FACTS is reported relative to base year 2005, treated as comparable to the 1995–2014 mean. FACTS's three emulandice workflows (Gaussian-process emulators of ISMIP6 and GlacierMIP2 output) end in 2100 by construction, so they appear only at that horizon on both scenario sets; its four other workflows run to 2300.
 
 On glaciers, Ladrillo and MAGICC-SLR share the Nauels 2017 transient, so differences between Ladrillo and MAGICC reflect differences in reservoir count, driver, and posterior; BRICK 2.0 and FACTS have independent modules. For Greenland all four formulations differ. For Antarctica Ladrillo and BRICK 2.0 share DAIS for the ice sheet though with different calibration sets, while FACTS (LARMIP, DeConto, Bamber, AR5 and emulated ice-sheet modules) and MAGICC-SLR differ. Ladrillo and BRICK 2.0 both use a proportional relationship between thermal expansion and ocean heat while FACTS uses a two-layer expansion model and MAGICC-SLR uses a 40-layer approach.
 

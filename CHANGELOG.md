@@ -1,3 +1,30 @@
+## 2026-09-14f — second comment round (`deliverables/Ladrillo.9.14.26.docx`, three items) + sync of Marcus's paragraph splits
+
+Marcus's 11:23 Word edits synced first (`3775280`: eight paragraph splits from the 09-14e list, the
+RGI 19 paragraph reordered); two typos his splits introduced fixed ("ƒLadrillo", "ACTS is reported").
+
+1. **GlacierMIP3 in the "departs from BRICK's philosophy" sentence?** Answered yes in the reply
+   (the rung is a process-model likelihood on future commitment, exactly the class the sentence
+   defines); the intro sentence is his prose and is offered, not applied. **Table 1 note 4 now
+   lists it** alongside the channel and the AIS amp prior.
+2. **Dangendorf / Table 3.** Confirmed from `calibrate_mcmc_ext.jl`: with `DROP_TOTAL` the
+   likelihood is the four component AR(1) series + the point terms (inventory, ledger, GlaMBIE
+   share, R19 rate, SMB, Mouginot, rungs); NOTHING scores the sum (`tot_full` has no other use).
+   So the total's Table 4 / FIG 1 skill is out-of-sample (observed LWS added). Table 3 REBUILT:
+   caption "Calibration inputs … and the two total series compared against but not fitted";
+   Dangendorf moved to second-to-last as "(not a calibration target)"; every cell shortened —
+   granule, sheet, area-correction, epoch/polygons, fetch dates, sha256/md5, member counts to
+   footnotes ¹³–²²; GlaMBIE's RGI-19 note dropped from the table (already in the GSIC text);
+   the Rignot rationale (net −145 ± 15 vs ±505 per flux) moved into the calibration paragraph;
+   the inventory + flow row split into Farinotti and Leclercq rows; **a GlacierMIP3 row added**
+   (Zekollari et al. 2025, `10.1126/science.adu4675`, Zenodo 15046588; labelled process-model, not
+   observation). "Deliberately removed" now covers IMBIE AND the total (CSIRO/Church & White in
+   BRICK 2.0), with the RGI 19 budget-closure reason ([[ladrillo_d1_chain]]).
+3. **Vintage paragraph split**: the intro keeps only "Units and baselines"; posterior L24, the FaIR
+   version and the seed/reproducibility statement now open the Calibration Approach section.
+
+Docx step only; `--verify` round-trip clean (262 paragraphs), 11 figures, 4 tables.
+
 ## 2026-09-14e — Marcus's 09-13 comment round (`deliverables/Ladrillocomments.9.13.26.docx`, nine items): technical items applied to the deliverable, prose handed back
 
 The comments file — empty every time it was read on 09-13/14 — now carries nine items. Sync → edit
