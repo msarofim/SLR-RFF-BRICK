@@ -1,3 +1,21 @@
+## 2026-09-14j — is the emulandice gap an AGGREGATION artefact? No (GlacierMIP3 Table S1a)
+
+Marcus asked whether the SLOWG / RGI 19 deficit (09-14i) is "an unavoidable function of Ladrillo's
+aggregation". Checked on GlacierMIP3's per-region response times (`data/observations/raw/gmip3/
+table_S1a.csv`, τ at 1.5 ± 0.2 K): a single-τ block set at the MASS-weighted mean τ responds more
+slowly at first than the mixture of its regions (whose initial rate is the mass-weighted mean of
+1/τ), so aggregation CAN bias early melt low — but the size is set by within-block τ spread, and:
+SLOWG τ 316–644 yr → mass-weighted 523 vs rate-weighted 483 yr (8 %); FASTG 23–241 yr → 130 vs 109
+(19 %); RGI 19 is ONE region (0 %). The largest deficit (RGI 19, ratio 0.45) has no aggregation at
+all, and the block with the most heterogeneity (FASTG) runs HIGH. ⇒ Aggregation is ruled out.
+What remains: (i) the timescale SOURCE — GlacierMIP3's equilibrium τ80 anchors (Arctic Canada N
+644 yr, Russian Arctic 445, Antarctic periphery 828) vs the faster 2015–2100 transients of the
+GlacierMIP2 models emulandice reproduces; (ii) the INVENTORY basis — emulandice is in mm from the
+GlacierMIP2 models' OWN volumes, Ladrillo from Farinotti on its scope; the Aug-14 fraction-of-mass
+comparison (`diag_blocks_vs_glacier_models.csv`, L10 vs GloGEM/OGGM) had the slow blocks ABOVE
+those models on % lost, which would point at (ii). Not isolated; a % metric against emulandice
+needs the GlacierMIP2 per-model volumes (`20201106_SLE_SIMULATIONS.csv` in the emulandice bundle).
+
 ## 2026-09-14i — Ladrillo glacier blocks vs emulandice on the SAME 200 FaIR configs: the 2100 gap is SLOWG and RGI 19, FASTG runs HIGH, and the driver amplification is not the cause
 
 **Question (Marcus).** Ladrillo's glaciers sit ~25% below emulandice at 2100 on every scenario
