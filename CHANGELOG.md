@@ -1,3 +1,14 @@
+## 2026-09-14h — document: glacier blocks renamed SLOWG / FASTG; code rename deferred
+
+Marcus: the "P" in SLOWP has no recorded expansion (best reading: SLOW′, the two-block SLOW
+{19,03,09,07,06} with RGI 19 split off — `ladrillo_data.SPEC_2BLK` vs `SPEC_3RES`), and the bare
+FAST/slow labels collide with Greenland's fast (SMB) / slow (discharge) channels. Document now says
+**SLOWG / FASTG** with "(`SLOWP` / `FAST` in the code and output files)" at the definitions; three
+occurrences changed, no figure carries the labels. Code rename DEFERRED (handoff §1.3): 48 scripts +
+44 data files' headers incl. the L24 posterior. Also synced Marcus's edits (Table 1 note 4 now names
+two exceptions — he dropped the CMIP6 amp prior from it, matching his "two departures" framing; note 7
+trimmed). Docx rebuilt, `--verify` clean.
+
 ## 2026-09-14g — intro list: "Dangendorf" dropped (Marcus ruling)
 
 The intro's list of observational constraints added over BRICK 2.0 read "Dangendorf, GlaMBIE, GRACE and Mouginot"; Dangendorf is not a likelihood term in L24 ([[dangendorf_not_in_l24_likelihood]]), so Marcus ruled to drop it rather than refit with `--keep-total`. Docx rebuilt, `--verify` clean.

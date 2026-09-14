@@ -27,6 +27,11 @@ emulandice, projections 1 min, figure build 20 s). Nothing belongs on Torch.
    `tap4p69K_V5p64m_tau800` stems → `ladrillo_figs.joint_stem()`; the duplicated palette / label /
    `TAG_DESC` tables across the plot scripts; `calibrate_mcmc_ext.jl`'s 2400-line history (the
    A6-amp block, the adcov ladder, `OLD35/38/39` covariance branches); `dang` → `total` rename.
+   **Block rename `SLOWP`/`FAST` → `SLOWG`/`FASTG` (Marcus 09-14; the G disambiguates from Greenland's
+   fast/slow channels — the document already uses the new names with a code-name footnote).** Touches
+   48 scripts and the column headers of 44 data files including the L24 posterior (`gic_*_SLOWP`), so it
+   needs a name-map for every reader of an existing chain/subsample; do it with the L25 cleanup, never
+   in place on shipped files.
 4. **Prose items handed to Marcus, not applied** (agent review 09-14): the "**Sampler.**
    Over-dispersed chain starts." fragment; SLOWP/FAST/R19, joint/fixed arm, L24, R̂, "discrepancy
    bases" used before definition; the three longest paragraphs; Table 3's checksums/fetch dates.
