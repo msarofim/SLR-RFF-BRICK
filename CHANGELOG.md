@@ -1,3 +1,19 @@
+## 2026-09-14 — one departure from BRICK's philosophy (Marcus's intro edit), propagated through the document
+
+Marcus rewrote the intro: the threshold channel is the ONE departure; the Antarctic amplification is
+"updated from the paleo-equilibrium ratio to a CMIP6-based one", and Greenland/glacier amplifications
+are "added" (they are observation-fitted). Made consistent elsewhere (synced his 08:13 save first;
+Word closed): Table 1 note 4 (channel ISMIP6/SICOPOLIS + Antarctic prior CMIP6; Greenland and glacier
+amps fitted to observations); the Greenland "Amplification" line (observed level 1.92, CMIP6 width
+and warming-dependence 1.50→1.28, 1–9 cm if held constant — 09-13j); the channel paragraph (2.7 vs
+7.9–31.9 ratio, `gis_tap_wired`); Table 3's CMIP6 row role — it had said "priors on the per-block
+glacier amplification", which is WRONG: the glacier amps are HadCRUT5 through-origin fits with
+cross-product bounds (`AMP_PRIOR`), the CMIP6 glacier panel was `diag_glac_amp_cmip6_offset` (a
+check); and the Antarctic-amplification paragraph now carries the draft's identifiability,
+reversion-cost and frame-span sentences (`draft_2026-09-14_philosophy_reframe.md` §2). ⚠ The
+Greenland amp prior's sd (0.318) is the CMIP6 spread scaled to the observed level (`gis_amp_prior.csv`,
+spread_ratio 1.51) — hence "prior width taken from the CMIP6 spread", not "observational".
+
 ## 2026-09-13j — what the two departures from BRICK's obs-only philosophy buy (three projection-only arms)
 
 Marcus: how much difference do the CMIP6 amplification and the Greenland threshold channel make —
