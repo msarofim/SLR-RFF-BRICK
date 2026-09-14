@@ -11,7 +11,7 @@ figure: `plot_b2_component_comparison.py` draws a per-component panel for BRICK-
 (Ladrillo's PREDECESSOR, see handoff 2026-08-31c §1) against FACTS and AR6, and stops at
 2150. `plot_future_components.py` draws Ladrillo vs BRICK 2.0 over time with no external
 comparator at all. This is the first figure carrying all FOUR sources, and the first to
-carry the 2300 horizon, where FACTS does not reach and MAGICC-SLR is the ONLY comparator.
+carry the 2300 horizon (FACTS reaches it since 2026-09-03/09-11, climate-driven modules only).
 
 THE YEAR IS THE FIGURE, the scenario is the x axis and the component is the panel. Chosen
 so every panel of one figure shares a horizon and therefore a plausible y-scale; putting
@@ -55,7 +55,6 @@ import ladrillo_figs as lf  # noqa: E402
 
 import textwrap
 
-import numpy as np
 import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
@@ -396,10 +395,8 @@ for YEAR in YEARS:
         ax.tick_params(labelsize=8)
         ax.grid(axis="y", alpha=0.25, lw=0.6)
 
-    ## ⚠ THE LEGEND IS BUILT FROM WHAT WAS ACTUALLY DRAWN AT THIS HORIZON. Carrying the
-    ## full source list into the 2300 figure advertised a FACTS series that has no marker
-    ## anywhere on it -- a legend entry with nothing behind it reads as a series the
-    ## reader failed to find, which is exactly backwards.
+    ## The legend is built from what was actually drawn at this horizon, so a source with
+    ## nothing on the figure (e.g. a FACTS module dropped past 2100) gets no entry.
     drawn = [s for s in SOURCES if s not in absent]
     sej_drawn = sorted(set(D[(D.source == "FACTS") & (D.year == YEAR)].module.astype(str))
                        & set(SEJ))
@@ -421,10 +418,7 @@ for YEAR in YEARS:
                              "17–83% / 5–95% — absent where the arm is parameter-only")]
     fig.legend(handles=handles, ncol=3, fontsize=8.5, frameon=False,
                loc="upper center", bbox_to_anchor=(0.5, 0.972))
-    ## ⚠ THE TITLE NAMES WHAT WAS DRAWN, for the same reason the legend does. A hardcoded
-    ## "vs BRICK 2.0 vs FACTS vs MAGICC-SLR" advertised FACTS on the 2300 figure, which has
-    ## no FACTS marker anywhere on it -- the legend already derived itself from `drawn` and
-    ## the title did not, so the two disagreed about the same figure.
+    ## The title names what was drawn, for the same reason the legend does.
     _title_srcs = " vs ".join([DESC["model"] if s0 == "Ladrillo" else s0 for s0 in drawn])
     fig.suptitle("Sea-level rise by component at %d, %s — %s   [%s]"
                  % (YEAR, SET_DESC[SET], _title_srcs, lf.commit_stamp()),
@@ -435,8 +429,9 @@ for YEAR in YEARS:
     ## and MAGICC are, and anything absent or unfrozen. Formulation lineages and the
     ## climate-uncertainty caveat are in the document text.
     _keep = lf.FACTS_CLIMATE_DRIVEN.get(YEAR)
-    _facts_note = ("its workflows differ only in their Antarctic module, so the Total panel "
-                   "shows them as one bracket over the workflow medians" if _keep is None else
+    _facts_note = ("the Total panel shows its workflow totals as one bracket over their medians "
+                   "(the three emulandice workflows end at 2100; the other four differ only in "
+                   "their Antarctic module)" if _keep is None else
                    "only its climate-driven modules are drawn at this horizon (%s); its Greenland "
                    "modules, the other Antarctic modules and every workflow total are not"
                    % ", ".join(sorted(_keep)))

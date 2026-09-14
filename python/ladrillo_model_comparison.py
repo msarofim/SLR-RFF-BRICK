@@ -8,8 +8,8 @@ plus the scenario-spread diagnostic (SSP1-2.6 -> SSP5-8.5 median difference per
 component), which is what exposes a glacier module that saturates.
 
 Sources
-  Ladrillo    outputs/ssps_components_2300_<TAG>.csv  (--tag=, default L10)
-              L10 = Ladrillo 1.0; L11 = the D1+D2 change set accepted 2026-08-15.
+  Ladrillo    outputs/ssps_components_2300_<TAG>.csv  (--tag=, default L24)
+              L24 = the canonical posterior (champion since 2026-09-02).
               2000 draws, FaIR-mean forcing per SSP, Greenland A+B with the
               amp(GMST) law.
   BRICK 2.0   outputs/ssps_components_2300_oldbrick.csv  (REPOINTED 2026-08-27)
@@ -42,7 +42,7 @@ ROW's band qualifies is decided per row by its own `band_basis` via
 ladrillo_figs.band_is_comparable -- never by a source-name list, which is exactly the
 constant that went stale here and suppressed three of four bands on the figure.
 
-  python3 python/ladrillo_model_comparison.py [--tag=L11]
+  python3 python/ladrillo_model_comparison.py [--tag=L24] [--no-tap]
 Writes outputs/ladrillo_model_comparison_<TAG>{,_spread}.csv
 """
 import os
@@ -59,24 +59,24 @@ import pandas as pd
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # The posterior TAG drives the input file, the OUTPUT filenames, and the module
-# column of every row emitted, so a run on L11 cannot overwrite or be mistaken
-# for L10. Both tags are suffixed symmetrically -- there is no bare-name default
-# that silently means one vintage.
+# column of every row emitted, so a run on one vintage cannot overwrite or be
+# mistaken for another. Every tag is suffixed symmetrically -- there is no
+# bare-name default that silently means one vintage.
 LADRILLO_TAG = next((a[len("--tag="):] for a in sys.argv[1:]
-                     if a.startswith("--tag=")), "L10")
-## WHICH ARM. The tap is part of the module (2026-08-23), so the TAPPED deliverable is
-## what this comparison reports unless --no-tap is passed. Resolved through
+                     if a.startswith("--tag=")), "L24")
+## WHICH ARM. The above-threshold discharge channel is part of the Greenland module
+## (2026-08-23), so the deliverable WITH that channel is what this comparison reports
+## unless --no-tap is passed. Resolved through
 ## gis_targets.ssps_csv, which rebuilds the cell-encoded filename from the same Julia
 ## GIS_TAP_CELL the projection driver's own TAG derives from -- this script used to
 ## build the path by f-string and could therefore only ever see the untapped file,
 ## which is why no comparison had ever been produced for the shipped model.
-## The ARM IS IN THE OUTPUT NAME: an untapped comparison must not be mistakable for a
-## tapped one on disk, the same rule the projections themselves follow.
+## The ARM IS IN THE OUTPUT NAME: a no-channel comparison must not be mistakable for a
+## with-channel one on disk, the same rule the projections themselves follow.
 TAPPED = "--no-tap" not in sys.argv[1:]
 LADRILLO_CSV = gis_targets.ssps_csv(LADRILLO_TAG, tapped=TAPPED)
 ARM_TAG = "" if TAPPED else "_notap"
 OUT = os.path.join(REPO, f"outputs/ladrillo_model_comparison_{LADRILLO_TAG}{ARM_TAG}.csv")
-BRICK20_GSIC_CSV = os.path.join(REPO, "outputs/ssps_gsic_2300.csv")   # superseded, see load_brick20
 BRICK20_COMPONENTS_CSV = os.path.join(REPO, "outputs/ssps_components_2300_oldbrick.csv")
 MAGICC_CSV = os.path.join(REPO, "data/comparison/magicc_nauels_components.csv")
 ## ⚠ THE FACTS ARM MOVED ONTO THE SHARED MACHINERY, 2026-08-31 (Marcus: "everything using the
@@ -96,14 +96,15 @@ MAGICC_CSV = os.path.join(REPO, "data/comparison/magicc_nauels_components.csv")
 ## rows as moved until the arm is deliberately RE-FROZEN with a note saying why. Do not re-freeze
 ## to silence it; re-freeze because the driver changed on purpose.
 ##
-## The three SSPs keep emuAIS / emuGrIS / emuglaciers and wf1e/wf2e/wf3e: emulandice is
-## per-SSP-TRAINED, so it is valid here and only excluded on the van Vuuren markers. Dropping
-## those comparators would have been a real loss disguised as a plumbing change.
+## The three SSPs keep emuAIS / emuGrIS / emuglaciers and wf1e/wf2e/wf3e (2100 only, the
+## module's cap); since 2026-09-14 the van Vuuren scenarios carry them too. Dropping those
+## comparators would have been a real loss disguised as a plumbing change.
 FACTS_CSV = os.path.join(REPO, "outputs/facts_components_shared_n200.csv")
 
 ## 2300 added 2026-08-25: MAGICC-SLR was always run to 2305, and only our own extractor
-## cut it at 2100 (`extract_magicc_components.py` [YEARS-PRESENT]). FACTS still stops at
-## 2150, so 2300 carries ONE comparator -- which the benchmark flags rather than hides.
+## cut it at 2100 (`extract_magicc_components.py` [YEARS-PRESENT]). FACTS reaches 2300 on
+## the SSP controls too, but only its climate-driven modules are kept past 2100
+## (ladrillo_figs.FACTS_CLIMATE_DRIVEN, applied in load_facts).
 HORIZONS = [2100, 2150, 2300]
 SCENARIOS = ["ssp126", "ssp245", "ssp585"]      # the three all four sources share
 LABEL = {"ssp126": "SSP1-2.6", "ssp245": "SSP2-4.5", "ssp585": "SSP5-8.5"}
@@ -121,26 +122,28 @@ COLS = ["source", "module", "scenario", "component", "year", "med", "p05", "p17"
 ## only the joint band is like-for-like against them (`like_for_like_forcing`).
 ##
 ## ⚠ WHERE IT IS NOT VALID, AND WHY THE GATE IS NOT STATISTICAL.
-## scope_slr_fair_uncertainty.jl has NO tap support (grepped: no "tap" in the file) --
-## it projects the UNTAPPED Greenland, while this comparison reports the TAPPED
-## deliverable. So the joint draws are the wrong ARM wherever the tap fires, and
-## substituting them there would silently drop 41 cm of GIS at ssp585/2300.
+## The joint driver (scope_slr_fair_uncertainty.jl) produces the above-threshold discharge
+## channel only when run with --tap (added 2026-08-30; JOINT_TAP_GLOB below). When only the
+## no-channel joint files exist, the joint draws are the wrong ARM wherever the channel
+## fires, and substituting them there would silently drop 41 cm of GIS at ssp585/2300.
 ##
-## The gate therefore reads the CAUSE, not a proxy: the exact per-cell tap effect,
+## The gate therefore reads the CAUSE, not a proxy: the exact per-cell channel effect,
 ## differenced from the two SHIPPED files we already have. A first version compared the
 ## joint driver's own FIXED arm against this table and accepted a cell when the gap sat
 ## inside the median's sampling error -- that gate had NO POWER on total/ssp585/2150,
-## where a real 1.31 cm tap offset is smaller than the total's own Monte-Carlo noise
+## where a real 1.31 cm channel offset is smaller than the total's own Monte-Carlo noise
 ## (`no_power_null`). An exact difference has no noise floor and needs no tolerance.
-TAP_EPS      = 0.0        # cm; a cell is joint-eligible only if the tap effect is EXACTLY zero
+## When the with-channel joint files are present for every scenario the gate is moot
+## (see _joint_bands / load_ladrillo).
+TAP_EPS      = 0.0        # cm; a cell is joint-eligible only if the channel effect is EXACTLY zero
 BASIS_JOINT  = "joint (posterior params x FaIR forcing)"
-BASIS_TAPPED = "FIXED (tapped arm; no joint band exists)"
+BASIS_TAPPED = "FIXED (tapped arm; no joint band exists)"   # string is a data label in the CSV; kept verbatim
 BASIS_FIXED  = "fixed (posterior params, mean forcing)"
 BASIS_CLIM   = "climate + parameter"
 JOINT_GLOB   = "outputs/scope_slr_fairunc_draws_{ssp}_spliced_{tag}.csv"
-## The TAPPED joint arm, produced by scope_slr_fair_uncertainty.jl --tap (added
+## The with-channel joint arm, produced by scope_slr_fair_uncertainty.jl --tap (added
 ## 2026-08-30). When present it is PREFERRED, because it is the same Greenland arm this
-## comparison reports -- and then the tap gate has nothing left to hold.
+## comparison reports -- and then the channel gate has nothing left to hold.
 JOINT_TAP_GLOB = ("outputs/scope_slr_fairunc_draws_{ssp}_spliced_{tag}"
                   "_tap4p69K_V5p64m_tau800.csv")
 ## BRICK 2.0's OWN joint band (scope_slr_fairunc_oldbrick.jl, 2026-08-30). Built on the
@@ -166,12 +169,11 @@ def _rows(df, source, module_col=None, module=None, basis=""):
 
 
 def _tap_effect():
-    """EXACT per-cell |tapped - untapped| median, from the two shipped files. No noise,
-    so no tolerance is needed and none is invented. Returns {(scenario, component, year): cm}."""
-    import gis_targets as _gt
+    """EXACT per-cell |with-channel - no-channel| median, from the two shipped files. No
+    noise, so no tolerance is needed and none is invented. Returns {(scenario, component, year): cm}."""
     k = ["year", "ssp", "component"]
-    unt = pd.read_csv(_gt.ssps_csv(LADRILLO_TAG, False)).set_index(k)
-    tap = pd.read_csv(_gt.ssps_csv(LADRILLO_TAG, True)).set_index(k)
+    unt = pd.read_csv(gis_targets.ssps_csv(LADRILLO_TAG, False)).set_index(k)
+    tap = pd.read_csv(gis_targets.ssps_csv(LADRILLO_TAG, True)).set_index(k)
     j = tap[["med"]].join(unt[["med"]], rsuffix="_u").reset_index()
     j["scenario"] = j.ssp.map({v: k2 for k2, v in LABEL.items()})
     return {(r.scenario, r.component, int(r.year)): abs(r.med - r.med_u)
@@ -182,8 +184,8 @@ def _joint_bands():
     """Per-cell joint-arm quantiles from the paired (posterior x FaIR config) draws.
 
     Returns (bands, tapped) where `tapped` is True only if EVERY scenario supplied a
-    tapped file. A partial set would mix arms across scenarios, which is worse than
-    using none of it, so it is treated as untapped."""
+    with-channel file. A partial set would mix arms across scenarios, which is worse
+    than using none of it, so it is treated as no-channel."""
     out, tap_seen, n_ssp = {}, 0, 0
     for ssp in SCENARIOS:
         ft = os.path.join(REPO, JOINT_TAP_GLOB.format(ssp=ssp, tag=LADRILLO_TAG))
@@ -204,26 +206,27 @@ def _joint_bands():
                                              p83=q[3], p95=q[4], n=len(v))
     tapped = (tap_seen == len(SCENARIOS))
     if 0 < tap_seen < len(SCENARIOS):
-        print(f"[BAND] ⚠ tapped joint files found for only {tap_seen}/{len(SCENARIOS)} "
-              f"scenarios -- treating the whole set as UNTAPPED rather than mixing arms.")
+        print(f"[BAND] ⚠ threshold-channel joint files found for only {tap_seen}/{len(SCENARIOS)} "
+              f"scenarios -- treating the whole set as NO-CHANNEL rather than mixing arms.")
     return out, tapped
 
 
 def load_ladrillo():
-    """Ladrillo on the JOINT arm wherever that arm is valid, FIXED (tapped) where it is
-    not. The gate is the exact tap effect -- see the BAND PROVENANCE note above."""
+    """Ladrillo on the JOINT arm wherever that arm is valid, FIXED (with the threshold
+    channel) where it is not. The gate is the exact channel effect -- see the BAND
+    PROVENANCE note above."""
     df = pd.read_csv(LADRILLO_CSV)
     df["scenario"] = df.ssp.map({v: k for k, v in LABEL.items()})
     df = _rows(df, "Ladrillo", module=LADRILLO_TAG, basis=BASIS_TAPPED)
     tap, (jb, jb_tapped) = _tap_effect(), _joint_bands()
     if jb_tapped:
-        # the joint arm IS the tapped arm now, so the tap can no longer disqualify a cell
+        # the joint arm carries the channel too, so the channel can no longer disqualify a cell
         tap = {k: 0.0 for k in tap}
     n_j = n_t = n_missing = 0
     for i, r in df.iterrows():
         key = (r.scenario, r.component, int(r.year))
         te = tap.get(key)
-        if te is None or te > TAP_EPS:            # tap fires (or unknown) -> keep FIXED
+        if te is None or te > TAP_EPS:            # channel fires (or unknown) -> keep FIXED
             n_t += 1; continue
         b = jb.get(key)
         if b is None:
@@ -236,15 +239,15 @@ def load_ladrillo():
                   and k[1] in COMPONENTS and k[2] in HORIZONS)
     rep = df[df.scenario.isin(SCENARIOS) & df.component.isin(COMPONENTS)
              & df.year.isin(HORIZONS)]
-    print(f"[BAND] joint arm is {'TAPPED (matches this comparison)' if jb_tapped else 'UNTAPPED'}")
+    print(f"[BAND] joint arm {'CARRIES the threshold channel (matches this comparison)' if jb_tapped else 'has NO threshold channel'}")
     print(f"[BAND] Ladrillo REPORTED cells: {(rep.band_basis == BASIS_JOINT).sum()} on the "
           f"JOINT arm, {(rep.band_basis != BASIS_JOINT).sum()} held on FIXED, of {len(rep)}. "
           f"(Non-horizon years are never reported and are left on FIXED.)")
     if held:
-        print("[BAND] HELD ON FIXED because the joint driver has no tap support "
-              "(scope_slr_fair_uncertainty.jl); substituting there would drop the tap:")
+        print("[BAND] HELD ON FIXED because no with-channel joint file exists "
+              "(scope_slr_fair_uncertainty.jl --tap); substituting would drop the threshold channel:")
         for k in held:
-            print(f"          {k[1]:>8s} {k[0]} {k[2]}   tap effect {tap[k]:7.3f} cm")
+            print(f"          {k[1]:>8s} {k[0]} {k[2]}   channel effect {tap[k]:7.3f} cm")
     return df
 
 
@@ -272,8 +275,8 @@ def load_brick20():
     df["scenario"] = df.ssp.map({v: k for k, v in LABEL.items()})
     df = df.dropna(subset=["scenario"])
     df = _rows(df, "BRICK 2.0", basis=BASIS_FIXED, module="BRICK2.0")
-    # substitute the joint arm wherever it exists. BRICK 2.0 has NO Greenland tap, so
-    # unlike Ladrillo there is no arm to gate on -- the joint driver's own [CONTROL]
+    # substitute the joint arm wherever it exists. BRICK 2.0 has NO Greenland threshold
+    # channel, so unlike Ladrillo there is no arm to gate on -- the joint driver's own [CONTROL]
     # (its fixed arm vs the shipped panel, on the SAME thinning) is the check.
     jb = {}
     for ssp in SCENARIOS:
@@ -334,13 +337,12 @@ def main():
     print("Ladrillo vs FACTS / MAGICC-SLR / BRICK 2.0 — cm, rel. 1995-2014 "
           "(FACTS rel. baseyear 2005)")
     print("median [17-83%]; * = 5-95% (that source reports no 17-83 band)")
-    print("BAND BASIS is now a COLUMN, per row. Ladrillo is on the JOINT arm (posterior "
-          "params x FaIR\n  forcing) wherever the Greenland tap does not fire, which makes it "
-          "LIKE-FOR-LIKE against MAGICC\n  and FACTS. BRICK 2.0 is posterior-parameter spread "
-          "on MEAN forcing and can never be joint, so\n  its WIDTHS are not comparable to any "
-          "other source here -- compare its MEDIANS only.\n  ⚠ ssp585 gis/total/ais at "
-          "2150 and 2300 are HELD ON FIXED: the joint driver has no tap\n  support, so no "
-          "joint band exists for the tapped arm. Those rows say so in band_basis.")
+    print("BAND BASIS is a COLUMN, per row. Ladrillo and BRICK 2.0 are each on their own "
+          "JOINT arm\n  (posterior params x the same 841 FaIR configs) wherever a joint draw "
+          "file exists, which makes\n  their bands LIKE-FOR-LIKE against MAGICC and FACTS. "
+          "Cells with no joint draws stay on FIXED\n  (posterior params, mean forcing); for "
+          "Ladrillo that includes any cell where the Greenland\n  threshold channel fires but "
+          "only no-channel joint files are present. Read band_basis per row.")
 
     for y in HORIZONS:
         print(f"\n{'='*96}\n@{y}\n{'='*96}")

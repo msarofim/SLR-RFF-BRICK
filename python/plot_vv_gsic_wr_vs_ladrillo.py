@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Glacier melt to 2300 under the seven van Vuuren CMIP7 markers: BRICK 2.0 (Wigley-Raper) vs Ladrillo L21.
+"""Glacier melt to 2300 under the seven van Vuuren CMIP7 scenarios: BRICK 2.0 (Wigley-Raper) vs Ladrillo L24.
+
+  python3 python/plot_vv_gsic_wr_vs_ladrillo.py [--tag=L24] [--ladrillo-only]
 
 The two models we actually ship, on one forcing set. Sibling of
 plot_ssps_gsic_wr_vs_mengel.py, which draws the SSPs and still carries the plain-Mengel arms.
@@ -10,12 +12,12 @@ This figure used to compare Wigley-Raper against "Mengel" -- meaning `glaciers_m
 posterior. THAT IS NOT LADRILLO. It is the single-reservoir Mengel-2016 emulator inside BRICK
 (BRICK-AM), Ladrillo's PREDECESSOR on the glacier axis:
 
-  extA108 plain Mengel                     Ladrillo L21 (this figure)
+  extA108 plain Mengel                     Ladrillo L24 (this figure)
   ONE global reservoir pair (fast/slow)    THREE reservoirs: R19 / SLOWP / FAST
   S_eq = a(1-exp(-b(T - T_lia)))           S_eq,b = a_b(1-exp(-b_b(T_b - T_off_b))) per block
   fixed tau_fast / tau_slow, split by f    dS_b = min(kappa_b exc^nu_b, 1)(S_eq,b - S_b)
   driven by global GMST                    driven by per-block glacier-frame temperature
-  posterior parameters_subsample_..._extA108   posterior = the L21 chains
+  posterior parameters_subsample_..._extA108   posterior = the L24 chains
 
 So the arms differ in STRUCTURE, RATE LAW, DRIVER FRAME and POSTERIOR -- four axes, not a label.
 Ladrillo's glacier module is the 3-reservoir Nauels-nu component (`glaciers_nu3`), built through
@@ -28,24 +30,24 @@ Marcus's call 2026-08-31: b->0.89 is a failed intermediate and b=0.52 is its cou
 properties of a calibration neither shipped model uses. Their van Vuuren outputs
 (outputs/vv_gsic_2300_mengel{,_b052}.csv) are KEPT ON DISK as provenance, just not plotted.
 
-VERSION NAMING. The Ladrillo arm is **L21** -- L14's config on the calib 1.6.0 + CMIP7 drivers,
-champion since 2026-08-28, carrying its OWN chain set (outputs/mcmc/chain_L21_seed*_n2000000.csv),
-NOT the parameters_subsample_brick_mengel_L14.csv thinning. ⚠ SLR@2100 = 45.01 cm is an L14 number
-and stays labelled L14.
+VERSION NAMING. The Ladrillo arm defaults to **L24**, the canonical posterior (champion since
+2026-09-02) on the calib 1.6.0 + CMIP7 drivers, carrying its OWN chain set
+(outputs/mcmc/chain_<TAG>_seed*_n2000000.csv), NOT the parameters_subsample_brick_mengel_L14.csv
+thinning. ⚠ SLR@2100 = 45.01 cm is an L14 number and stays labelled L14.
 
 BOTH ARMS ARE POSTERIOR-PARAMETER SPREAD ON MEAN FORCING (the `fixed` arm), so their widths are
 like-for-like. Ladrillo's `joint` arm exists in the same files and is DELIBERATELY not used here:
 it carries FaIR climate uncertainty that the Wigley-Raper arm has no counterpart for, and mixing
 the two would compare a climate+parameter band against a parameter-only one (`like_for_like_forcing`).
 
-⚠ THE DRIVER IS THE SAME GMST, WITH A STATED MAPPING. Wigley-Raper takes the marker's mean GMST
+⚠ THE DRIVER IS THE SAME GMST, WITH A STATED MAPPING. Wigley-Raper takes the scenario's mean GMST
 directly. Ladrillo maps it to each block's glacier-frame temperature as `amp_b * GMST`, spliced to
 preserve the observed mean over the last 11 observed years (ladrillo_projection.jl:740). So "the
 same temperatures drive both" is true of the FORCING, not of the numbers each component sees, and
 the caption says so rather than implying a raw common driver.
 
 Reads outputs/vv_gsic_2300.csv (WR) and
-      outputs/scope_slr_fairunc_paths_vv<M>_spliced_<L21 tap stem>.csv (Ladrillo).
+      outputs/scope_slr_fairunc_paths_vv<M>_spliced_<TAG threshold-channel stem>.csv (Ladrillo).
 """
 import os
 import subprocess
@@ -61,7 +63,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(REPO)
 
 LADRILLO_TAG = next((a[len("--tag="):] for a in sys.argv[1:]
-                     if a.startswith("--tag=")), "L21")
+                     if a.startswith("--tag=")), "L24")
 FORCING = "spliced"
 ARM = "fixed"                    # see the like-for-like note in the docstring
 WR_CSV = "outputs/vv_gsic_2300.csv"
@@ -149,7 +151,7 @@ print("[VINTAGE] WR arm matches the current fair_mean drivers (delta %.4f K, %d 
 ## GATE 2 -- the Ladrillo arm has no gmst column, so its forcing is verified through the
 ## driver's OWN gates file instead. A MISSING gates file is a FAILURE, not a skip: an
 ## absent gate and a passing gate must not look the same. CONTROL is legitimately SKIPPED
-## on every van Vuuren marker (no shipped panel row exists to compare against); a CONTROL
+## on every van Vuuren scenario (no shipped panel row exists to compare against); a CONTROL
 ## verdict of CHECK or FAIL is still an error.
 LAD = {}
 for lab in LABELS:
@@ -179,7 +181,7 @@ _nc = int(pd.read_csv(LAD_GATES.format(m=KEY[LABELS[0]], stem=STEM))
 print("[GATE] all %d Ladrillo %s arms pass (arm=%s, %d configs, tap stem %s)"
       % (len(LABELS), LADRILLO_TAG, ARM, _nc, STEM))
 
-## GATE 3 -- CROSS-MARKER PROVENANCE. All seven markers came from ONE run of
+## GATE 3 -- CROSS-SCENARIO PROVENANCE. All seven scenarios came from ONE run of
 ## build_fair_cube_vv_v160.py, so they must share a SINGLE driver commit. That is
 ## checkable without declaring anything and cannot rot the way the SSP figure's
 ## hand-typed _DRIVER_PROVENANCE table can -- which that figure needs only because its
@@ -200,7 +202,7 @@ _commits = sorted(set(_actual.values()))
 if len(_commits) != 1:
     raise SystemExit(
         "[PROVENANCE] %s -- but %d commits are present, so the one-calibration claim is "
-        "FALSE:\n%s\n  Rebuild the marker set in one run. Do NOT drop this gate."
+        "FALSE:\n%s\n  Rebuild the scenario set in one run. Do NOT drop this gate."
         % (_PROVENANCE_RULE, len(_commits),
            "\n".join("    %-16s %s" % (l, c) for l, c in sorted(_actual.items()))))
 _COMMIT = _commits[0]
@@ -262,7 +264,7 @@ if ax[1] is not None:
     ax[1].text(0.012, 0.93, "(b)  %s — keeps melting toward a common ceiling even where T declines"
                % WR_NAME, transform=ax[1].transAxes, fontsize=9.5, fontweight="bold", va="top")
 
-# ---- (c) Ladrillo L21 ----
+# ---- (c) Ladrillo ----
 for s in LABELS:
     d = lad(s)
     ax[2].plot(d.index.values, d.med_cm.values, color=COL[s], lw=1.9)
@@ -278,7 +280,7 @@ sp_lad = lad(SPREAD_HI).med_cm.loc[2300] - lad(SPREAD_LO).med_cm.loc[2300]
 ## the provenance gate above has proved that it does not here.
 ## ⚠ LADRILLO'S SCENARIO SPREAD IS THE WIDER ONE, and that is the point. Wigley-Raper
 ## saturates toward a common ceiling, which COMPRESSES its spread; Ladrillo keeps tracking
-## temperature, so its markers stay separated. It is also why dropping the extA108 arms
+## temperature, so its scenarios stay separated. It is also why dropping the extA108 arms
 ## costs nothing: the b=0.52 counterfactual existed only to restore a spread that plain
 ## Mengel's b->0.89 had collapsed (3.5 cm), and the shipped model never collapses it.
 ax[2].legend(handles=[Line2D([], [], color="none",
@@ -340,7 +342,7 @@ fig.savefig(OUTPNG, dpi=150, bbox_inches="tight")
 print("wrote " + OUTPNG)
 
 print("\n%-16s %8s %8s %10s %10s %12s %12s"
-      % ("marker", "peak K", "@yr", "WR@2300", "Lad@2300", "WR rate@2300", "Lad rate@2300"))
+      % ("scenario", "peak K", "@yr", "WR@2300", "Lad@2300", "WR rate@2300", "Lad rate@2300"))
 for s in LABELS:
     g = wr(s).set_index("year").gmst.loc[2015:2300]
     d, e = wr(s), lad(s)

@@ -6,8 +6,8 @@ is centred on the HadCRUT5/GISTEMP historical fit (0.61/0.58; Berkeley 0.85), an
 historical median is 0.87. If the Southern Ocean's low ratio is a DELAY (Armour et al. 2016), the
 ratio should rise toward 1 over the 21st century, and a fixed historical amp under-warms R19 in
 projection. This measures the ssp245 amplification per model on the FUTURE window alone and on
-the full run, for all three blocks, against the historical value the offset diagnostic already
-reports. Same secant estimator (through-origin on anomalies), same models
+the full run, for all three blocks, against the historical value the offset diagnostic
+(diag_glac_amp_cmip6_offset.py) already reports. Same secant estimator (through-origin on anomalies), same models
 (data/cmip6_glac, reduce_cmip6_tas_glac.py), historical + ssp245 concatenated.
 
 WRITES outputs/diag_glac_amp_cmip6_future.csv (stamped)
@@ -29,7 +29,9 @@ WINDOWS = {"historical 1901-2024": (1901, 2024),
            "future 2025-2100": (2025, 2100),
            "late 2070-2100": (2070, 2100),
            "full 1901-2100": (1901, 2100)}
-PRIOR = {"R19": (0.72, 0.15), "SLOWP": (2.50, 0.45), "FAST": (1.45, 0.15)}  # calibrate_mcmc_ext AMP_PRIOR
+# (mu, sigma) per block; MIRRORS julia/calibrate_mcmc_ext.jl AMP_PRIOR (its first two entries,
+# verified 2026-09-14). Stamped into the CSV as prior_mu/prior_sd -- keep the two in step by hand.
+PRIOR = {"R19": (0.72, 0.15), "SLOWP": (2.50, 0.45), "FAST": (1.45, 0.15)}
 
 
 def secant(x, y):

@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Set a smaller font in the two nine-column attribute tables of the L24 deliverable .docx.
 
+  python3 deliverables/shrink_attribute_tables.py <deliverable.docx>
+Rewrites the .docx IN PLACE (argv[1]); prints a [TABLE-FONT] check line, exits nonzero on a miss.
+
 Runs AFTER pandoc in build_l24_deliverable_doc.sh. pandoc's markdown->docx has no per-table font
 control, so this post-pass sets every run in each table with NINE columns (Tables 1 and 2 -- the
 calibration-data and RMSE tables have 3 and 6) to PT. Text is untouched, so the docx->markdown sync

@@ -26,7 +26,7 @@
 ## BRICK draw to a FaIR config -- and [PAIRING] reports the realised assignment so
 ## the independence is visible rather than asserted.
 ##
-## SPLICED, NOT RAW, AND THE REASON IS THE POSTERIOR. L14 was calibrated against
+## SPLICED, NOT RAW, AND THE REASON IS THE POSTERIOR. The posterior was calibrated against
 ## observations on the shipped historical driver. Feeding each config's OWN hindcast
 ## would make the posterior inconsistent with the forcing it is conditioned on. The
 ## splice (our path through 2014, then the config's anomaly re-referenced to its own
@@ -39,9 +39,18 @@
 ## posterior fitted jointly with the driver. It is the right band to COMPARE
 ## against ensembles that carry climate uncertainty; it is not a recalibration.
 ##
-##   julia --project=julia_v2 julia/scope_slr_fair_uncertainty.jl [n_per_chain] [--tag=L14] [--maxrows=N]
-##        [--chain-tag=L16] [--ton-band=LOW|MID|HIGH]
+##   julia --project=julia_v2 julia/scope_slr_fair_uncertainty.jl [n_per_chain] [--tag=L24] [--maxrows=N]
+##        [--ssp=ssp585] [--forcing=spliced|raw] [--climate=fair|magicc] [--ton-band=LOW|MID|HIGH]
+##        [--chain-tag=L24] [--tap] [--build-ssp=ssp245]
 ##
+## n_per_chain  post-burn draws taken per chain (positional; default 500).
+## --tag        posterior tag: names the outputs and the [CONTROL] comparison file.
+## --maxrows    smoke mode: read only N rows per chain; outputs get a _SMOKE suffix.
+## --ssp        FaIR cube scenario (default ssp585).
+## --forcing    spliced (default) or raw config hindcast, see above.
+## --climate    fair (default) or magicc as the climate ensemble.
+## --tap        turn the above-threshold discharge channel ON (default OFF here, see below).
+## --build-ssp  the scenario the Ladrillo model is BUILT on (default ssp245).
 ## --chain-tag  READ the chains from a different tag than the one outputs are named for.
 ##              Everything else (output names, the [CONTROL] comparison against
 ##              ssps_components_2300_<TAG>.csv) still keys off --tag, so a derived arm
@@ -52,7 +61,11 @@
 ##              re-running a chain. DEFAULT OFF; when off this file behaves exactly as before.
 ##              ⚠ Conditioning is NOT resampling: the result answers 'what do this arm's
 ##              in-band draws project', not 'what would a chain confined to the band find'.
-## Writes outputs/scope_slr_fairunc_{cells,paths,gates}_<tag>.csv
+## Writes four files, outputs/scope_slr_fairunc_{cells,paths,gates,draws}_<ssp>_<forcing>[_magicc]_<tag>[_tap][_SMOKE].csv
+##   cells  the summary table per (year, component) — the deliverable
+##   paths  per-draw trajectories
+##   gates  the pre-registered checks ([PAIRING], [CALIB-MOVE], [CONTROL], [OHC-OFFSET], ...)
+##   draws  per-draw values at each horizon, fixed vs joint arm, with the assigned config
 ## ============================================================================
 using CSV, DataFrames, Statistics, Printf, Mimi, Random
 
@@ -63,7 +76,7 @@ const SEEDS  = [2026, 2027, 2028, 2029]
 const NITER  = 2000000
 const NBURN  = 1000000
 const TAG    = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
-    i === nothing ? "L14" : ARGS[i][7:end]
+    i === nothing ? "L14" : ARGS[i][7:end]   # run scripts pass --tag explicitly; the bare default is not the canonical posterior
 end
 const MAXROWS = let i = findfirst(a -> startswith(a, "--maxrows="), ARGS)
     i === nothing ? nothing : parse(Int, ARGS[i][11:end])
@@ -512,7 +525,7 @@ end
 ## [OHC-OFFSET] does a CONSTANT shift in ocean heat move Ladrillo's sea level?
 ## Track C verified it does not -- the TE module re-references SLR to 1995-2014, so an
 ## offset cancels -- but it verified that on BRICK-Mengel, and handoff 31f section 6.4 is
-## explicit that this must be RE-verified on Ladrillo L21 rather than inherited. It
+## explicit that this must be RE-verified on Ladrillo itself rather than inherited. It
 ## matters because MAGICC's OHC history sits ~11e22 J above ours; if the offset cancels,
 ## that difference cannot reach sea level and only the SHAPE can.
 ## The shift is the measured MAGICC-minus-ours offset itself, so the test is run at the

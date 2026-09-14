@@ -1,5 +1,12 @@
 # greenland_3basin_component.jl — the 3-basin (Mouginot sector) Greenland, 2026-08-19.
 #
+# USED BY. Built into the model by `build_brick_nu3_gis3` (brick_mengel.jl). The
+# canonical L24 posterior uses the `:basins2` configuration (k_mid = 0, GIS2_VSHARE).
+# The slow channel arrives as (gis_slow_ell, gis_slow_w) and is converted upstream
+# (`ladrillo_native_greenland!`) before reaching gis_alpha_s / gis_beta_s here. The
+# tap is switched on via `update_gis3_tap!` (brick_mengel.jl) / `ladrillo_set_tap!`;
+# in prose it is the document's "above-threshold discharge channel".
+#
 # WHY THIS EXISTS. `greenland_ab` is calibrated to the TOTAL Greenland loss while
 # driven by a single regional temperature, so its fitted parameters compensate for
 # mass that came from basins it does not represent. Scored against Mouginot 2019
@@ -26,9 +33,9 @@
 #   * its ONE free knob is the rate scale s_b, multiplying BOTH channel rates
 #
 # So the restructure adds exactly THREE sampled parameters. The high basin's
-# volume TAP is deliberately NOT here — deferred to a later commit (it only bites
-# near 2300, where the shares term cannot see it). The mid basin gets NO tap at
-# all: Aschwanden (PMC6584365) has NW outlet glaciers going land-terminating with
+# volume TAP (the above-threshold discharge channel) is a separate, prior-specified
+# mechanism below (GIS_TAP_CELL); it only bites near 2300, where the shares term
+# cannot see it. The mid basin gets NO tap at all: Aschwanden (PMC6584365) has NW outlet glaciers going land-terminating with
 # "ice discharge there ... greatly reduced" by 2300 under RCP8.5 — a DECELERATION,
 # the opposite sign from a tap. Carried as a stated caveat that NW is biased
 # slightly HIGH at 2300, not parameterised.
@@ -97,6 +104,7 @@ const GIS2_VSHARE = (south = GIS3_VSHARE.south + GIS3_VSHARE.mid,
                      mid   = 0.0,
                      high  = GIS3_VSHARE.high)
 
+## HISTORY (how the shipped cell was chosen) — skip to `const GIS_TAP_CELL` for the live specification.
 # ---- the HIGH-BASIN VOLUME TAP (Marcus 2026-08-20) ---------------------------
 # WHAT IT IS. A third discharge channel on the high (NO+NE) basin that opens above
 # a GLOBAL temperature onset: a unit tap S_t relaxes with timescale tau toward a
@@ -363,8 +371,8 @@ const GIS_TAP_WHOLESHEET_ON  = 1.0    # whole-sheet clamp, tap OUT of the basin 
         # sum. If the headroom never binds, the two are identical and the offline
         # pricing transfers exactly; that is a measurement, not an assumption.
         #
-        # WHOLE-SHEET HOME (2026-08-23). The cells now under consideration carry
-        # V up to the WHOLE SHEET (6.0-7.42 m). Clamping that against the high
+        # WHOLE-SHEET HOME (2026-08-23). The shipped cell (GIS_TAP_CELL) and the
+        # admissible set carry V up to the WHOLE SHEET (6.0-7.42 m). Clamping that against the high
         # basin's own k_high*v0 ~ 2.76 m ledger would silently deliver a fraction
         # of what was priced, and booking it into gis_sl_high would attribute
         # whole-sheet mass to one basin. `gis_tap_wholesheet = 1` clamps against

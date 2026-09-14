@@ -56,8 +56,10 @@ Both are now RUN. Say RUN / RUNNABLE / IMPOSSIBLE and keep the middle
           climate-driver convention instead of straddling injected-vv against
           FACTS-internal-FaIR-1.6.4 SSPs. The ssp245 control reproduces the prior
           calib-1.4.5 run to within 0.5-2.5% on all eight workflow x horizon cells.
-      ⚠ emulandice ("e") workflows are NOT run and cannot be: they select per-SSP-TRAINED
-        GP emulators from the scenario label, so there is no van Vuuren emulator to pick.
+      ⚠ emulandice ("e") workflows ARE run on the seven van Vuuren scenarios since
+        2026-09-14 (2100 only -- the module is 2100-capped). The earlier claim that they
+        "select per-SSP-trained emulators from the scenario label" was wrong: the module
+        runs its GP emulators on the supplied GSAT path as one pseudo-scenario "FACTS".
 
 BANDS. Both models are on their OWN JOINT arm -- posterior parameters x 841 FaIR configs,
 same cubes, same 2014 splice pivot, same 1995-2014 re-reference, same PAIR_SEED, same
@@ -500,12 +502,11 @@ def main():
     ## WIDTH RATIO -- the cool-scenario under-dispersion, on a second scenario family.
     print(f"\n{'=' * W}")
     print("p05-p95 WIDTH RATIO, Ladrillo / BRICK 2.0  (<1 = Ladrillo narrower)")
-    print("Replicates the SSP-set result (2.8x narrower at ssp126/2100, 4.4x at "
-          "ssp126/2300, ~13% at ssp585)\non a DIFFERENT scenario family, with seven "
-          "points tracing a gradient where three could not.")
+    print("The SSP-set width ratio on a DIFFERENT scenario family, with seven points "
+          "tracing a gradient where three could not.")
     print("=" * W)
     wrows = []
-    hdr = "  " + f"{'marker':16s}" + "".join(f"{y:>10d}" for y in HORIZONS)
+    hdr = "  " + f"{'scenario':16s}" + "".join(f"{y:>10d}" for y in HORIZONS)
     for comp in ("total", "gis", "ais", "te", "glaciers"):
         print(f"  --- {comp} ---\n{hdr}")
         for m in MKEY:
@@ -592,21 +593,11 @@ def main():
                           med_diff_brick20=cells[SRC_BRK + "_med"]))
     pd.DataFrame(prows).to_csv(OUT_PATH, index=False)
     print()
-    print("  READING, on the paired statistic:")
-    print("  * AIS is POSITIVE in BOTH models and well clear of its se -- High-to-Low's")
-    print("    EARLIER warming leaves more ice-sheet response at 2100 even though it ends")
-    print("    5.3 K cooler. This is the path-dependence signal, and it REPLICATES across")
-    print("    two independent ice-sheet modules.")
-    print("  * TE is NEGATIVE in both and nearly identical between them (they share the")
-    print("    OHC forcing), tracking the cooler endpoint.")
-    print("  * TOTAL at 2100 is the small RESIDUAL of those two larger opposing terms, so")
-    print("    its SIGN is model-dependent and should not be quoted as a headline. The")
-    print("    robust claim is the COMPONENT SPLIT, not the net.")
-    print("  ⚠ The 2026-08-31 handoff quoted +3.02 cm (BRICK fixed-arm median). The paired")
-    print("    mean is far smaller; the median overstates it because of the tipping tail.")
-    print("  At 2150 and 2300 every component is strongly negative in both models -- once")
-    print("  the endpoint gap dominates, High-to-Low falls far below High and the timing")
-    print("  contrast is gone. 2100 is the only horizon where it can be read.")
+    print("  HOW TO READ the paired statistic: at 2100 the AIS and TE terms oppose (earlier")
+    print("  warming vs cooler endpoint), so the TOTAL is a small residual whose sign is")
+    print("  model-dependent -- quote the component split, not the net. At 2150 and 2300")
+    print("  the endpoint gap dominates every component. (Interpretation recorded in")
+    print("  CHANGELOG 2026-08-31; the numbers are in the table above, not here.)")
 
     print(f"\nwrote {os.path.relpath(OUT, REPO)}, {os.path.relpath(OUT_WIDTH, REPO)}, "
           f"{os.path.relpath(OUT_GMST, REPO)}, {os.path.relpath(OUT_PATH, REPO)}")

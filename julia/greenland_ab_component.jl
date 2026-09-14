@@ -1,5 +1,11 @@
 # greenland_ab_component.jl — Greenland pass 1, cell A+B (2026-08-10).
 #
+# STATUS: superseded in the Greenland slot by `greenland_3basin` (L13+, canonical L24);
+# kept as the k = (1, 0, 0) nesting reference (test_greenland_3basin_nesting.jl) and
+# for the `:ab` posteriors L10-L12. The calibrator samples the slow channel as
+# (gis_slow_ell, gis_slow_w); `ladrillo_native_greenland!` converts to the native
+# (gis_alpha_s, gis_beta_s) this component takes.
+#
 # Offline provenance: python/gis_offline_cell.py, cell "A+B". That cell was
 # selected because it is the only one passing every pre-registered gate AND the
 # Mouginot partition AND landing inside the FACTS/MAGICC 2100 spread band.

@@ -1,7 +1,7 @@
 ## ============================================================================
 ## posterior_predictive_ladrillo.jl — Ladrillo hindcast vs observations
 ##
-## Forward-runs the accepted Ladrillo 1.0 (L10) posterior over the calibration
+## Forward-runs the canonical Ladrillo posterior (currently L24) over the calibration
 ## window and compares component bands to the observational targets they were
 ## fit to. This is the observation-comparison deliverable for the sharing memo.
 ##
@@ -28,9 +28,10 @@
 ##                       to GlaMBIE 2019+, r19 removed
 ##   total               Frederikse 2020 spliced to NOAA STAR altimetry
 ##
-##   julia --project=julia_v2 julia/posterior_predictive_ladrillo.jl [n_draws] [--tag=L11]
+##   julia --project=julia_v2 julia/posterior_predictive_ladrillo.jl [n_draws] [--tag=L24]
 ##
-## --tag selects the posterior AND every output filename together (default L10),
+## --tag selects the posterior AND every output filename together (default = the
+## canonical posterior, LADRILLO_POSTERIOR_CSV, currently L24),
 ## so a run on one posterior cannot write files labelled with another.
 ## ============================================================================
 
@@ -114,19 +115,10 @@ const OBS_SIGMA = Dict(tcol => [obs_sigma(tcol, y) for y in FY] for (_, tcol, _)
 post = ladrillo_posterior(path=POSTERIOR, cols=:all, nthin=NTHIN)  # :all — the ledger columns are needed here
 const VARIANT = ladrillo_posterior_variant(POSTERIOR)
 ## WHICH SERIES THE POSTERIOR WAS ACTUALLY FIT TO, read off the posterior itself
-## rather than assumed. L11's D1 change DROPPED the total stream, so an L11
-## posterior has no sd_dang/rho_dang and there is no calibrated error model for
-## the total.
-##
-## That does NOT make the total uninteresting — it makes it OUT-OF-SAMPLE, which
-## is the direct evidence on whether D1 cost anything. So the total is still run
-## and still compared to obs, but:
-##   * its `pred` (predictive) band is NaN, because inventing a noise model for
-##     an unfitted stream would fabricate the very thing being tested; and
-##   * its coverage is reported for the PARAMETER band only, and is NOT
-##     comparable to a fitted series' coverage_pred, nor to L10's total, which
-##     WAS in-sample.
-## `in_sample` in the bias/coverage outputs carries this distinction downstream
+## rather than assumed: a series is fitted iff its sd_*/rho_* error-model columns
+## are present. The total stream has been out-of-sample since L11 (D1), so it is
+## still run and compared to obs, but its `pred` band is NaN and its coverage is
+## PARAMETER-band only. `in_sample` in the bias/coverage outputs carries this distinction downstream
 ## so a reader cannot mistake an out-of-sample total for a fitted one.
 const FITTED = Set(k for (k, _, sfx) in SERIES
                    if ("sd_$sfx" in names(post)) && ("rho_$sfx" in names(post)))

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Historical SLR 1900-2026 by component and total: Ladrillo vs observations vs BRICK 2.0.
 
-  python3 python/plot_hindcast_components.py [--tag=L21]
+  python3 python/plot_hindcast_components.py [--tag=L24]
 Writes figures/hindcast_components_<TAG>.png
 
 THE HINDCAST MEMBER OF THE SUITE. Same 2x3 grid, same component order, same palette and the
@@ -26,13 +26,13 @@ adds the three things neither of those has:
      rather than circularity. It is the standing first-choice obs product for this variable
      and no Ladrillo figure had ever used it.
 
-⚠ THE TWO MODELS DO NOT SHARE A SCHEMA, A START YEAR, OR A DRIVER FILE.
+⚠ THE TWO MODELS DO NOT SHARE A SCHEMA, but they DO share a driver and a span.
   Ladrillo  1900-2026, `glaciers`/`te`, `_p05`, driven via ssp245harm
-  BRICK 2.0 1900-2026, `gsic`/`te`,     `_p5`,  forced on data/observations/fair_mean_{gmst,ohc}.csv
-The name mapping is a declared table below, never a string guess, and the different START
-YEARS are why the BRICK line simply begins later rather than being extrapolated back.
-⚠ The two were forced from DIFFERENT driver files -- that is a real caveat on any
-Ladrillo-minus-BRICK reading here, and it is stated on the figure rather than assumed away.
+  BRICK 2.0 1900-2026, `gsic`/`te`,     `_p5`,  driven via fair_mean_{gmst,ohc}_ssp245harm.csv
+The name mapping is a declared table below, never a string guess. Both arms are integrated
+from 1850 and saved from 1900 on the SAME ssp245harm FaIR-mean forcing (matched 2026-09-10;
+see the X0 note below), so a Ladrillo-minus-BRICK reading here is a MODULE difference, not
+a driver difference.
 
 ⚠ BASELINE: everything on this figure is cm rel. 1995-2005, the CALIBRATION re-reference --
 NOT the 1995-2014 projection baseline the future figures use. The IGCC series is
@@ -58,7 +58,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 from matplotlib.lines import Line2D  # noqa: E402
 from matplotlib.patches import Patch  # noqa: E402
 
-TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L21")
+TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
 DESC = lf.tag_desc(TAG)
 OUT = os.path.join(lf.REPO, "figures", "hindcast_components_%s.png" % TAG)
 

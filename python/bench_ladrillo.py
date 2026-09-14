@@ -11,9 +11,12 @@ comparison as well, so we can quickly check if any changes improve against that
 best version."*
 
     source ~/climate-env/bin/activate
-    python python/bench_ladrillo.py --tag=L15
-    python python/bench_ladrillo.py --tag=L15 --freeze
-    python python/bench_ladrillo.py --tag=L15 --promote --why="ssp126 tail fixed"
+    python python/bench_ladrillo.py --tag=L24
+    python python/bench_ladrillo.py --tag=L24 --freeze
+    python python/bench_ladrillo.py --tag=L24 --promote --why="ssp126 tail fixed" [--modules=ais,gis]
+    python python/bench_ladrillo.py --tag=L24 --freeze-fixed     # re-freeze the comparator arms
+    python python/bench_ladrillo.py --tag=L24 --champion=L23     # score against a named champion
+    python python/bench_ladrillo.py --selftest
 
 THE ARMS. candidate (live, `outputs/`), champion (FROZEN, `benchmark/reference/<tag>/`),
 BRICK 2.0 and the literature (FROZEN, `benchmark/reference/_fixed/`). The comparators are
@@ -186,11 +189,10 @@ CAVEATS = [
     "out-of-sample for BRICK 2.0. It can REJECT an arm; a small fitted bias is not skill.",
     "BANDS ARE NOT ONE OBJECT -- Ladrillo-fixed is posterior-parameter spread; "
     "Ladrillo-JOINT, FACTS and MAGICC carry climate uncertainty. Only the JOINT band is "
-    "scored against the literature. NOTE 2026-08-30: BRICK 2.0 NOW HAS A JOINT ARM TOO "
-    "(scope_slr_fairunc_oldbrick.jl), but THIS BENCHMARK still takes BRICK 2.0 from the "
-    "shipped FIXED panel (brick20_projection), so BRICK widths here remain fixed-driver. "
-    "ladrillo_model_comparison.py DOES use the joint arm. Do not read a width comparison "
-    "against BRICK 2.0 out of this table -- read it out of the comparison.",
+    "scored against the literature. BRICK 2.0 has a joint arm (scope_slr_fairunc_oldbrick.jl) "
+    "but this benchmark takes it from the shipped FIXED panel (brick20_projection), so BRICK "
+    "widths here are fixed-driver; read a BRICK 2.0 width comparison out of "
+    "ladrillo_model_comparison.py, which does use the joint arm.",
     f"SOME WIDTH IS A PRIOR, NOT AN INFERENCE -- {LAMBDA_SHARE_2300:.0%} of the ssp585 2300 "
     "AIS band is antarctic_lambda's paleo prior, so narrowness is never scored as a win "
     "at " + ", ".join(f"{c}/{s}" for c, s in sorted(PRIOR_WIDTH_CELLS)) + ".",
@@ -236,7 +238,7 @@ def frozen_paths(tag):
     p = {"postpred": os.path.join(d, "postpred_components_timeseries.csv"),
          "comparison": os.path.join(d, "model_comparison.csv")}
     for s in SSPS:
-        # L14/L21/L23 were frozen as gzipped CSV; a tag frozen after the 2026-09-01
+        # L14/L21/L23/L24 were frozen as gzipped CSV; a tag frozen after the 2026-09-01
         # Parquet migration lands as .parquet. Read back whichever IS there, so an old
         # champion keeps scoring bit-for-bit as it was frozen.
         pq = os.path.join(d, f"draws_{s}_spliced.parquet")

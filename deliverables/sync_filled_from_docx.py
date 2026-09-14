@@ -17,8 +17,8 @@ exactly what caused the 2026-09-03 incident: Marcus's condensed edits were silen
 because the rebuild started from a stale FILLED.md instead of his current .docx.
 
 WHAT IT DOES
-  1. pandoc .docx -> gfm (pipe tables, so pandoc's forward build --from=gfm+pipe_tables reads
-     them back identically)
+  1. pandoc .docx -> gfm (pipe tables, so pandoc's forward build
+     --from=markdown+pipe_tables-smart-implicit_figures reads them back identically)
   2. remaps <img src="media/imageN..."> back to ![alt](../figures/<canonical-name>.png) in
      FIGURE-APPEARANCE ORDER, using the FIGS list below — the inverse of what
      build_l24_deliverable_doc.sh's `sed 's|../figures/|figures/|g'` step does forward.
@@ -141,7 +141,7 @@ def verify():
     ## text placeholder ("Could not fetch resource") -- 9 false-positive diff lines, caught only
     ## because they were all figure-caption text. Mutation-tested 2026-09-03: reverting this
     ## line reproduces the same 9-line false failure.
-    build_md = HERE / f"/tmp/sync_verify_{DOCX.stem}.md"
+    build_md = Path(f"/tmp/sync_verify_{DOCX.stem}.md")  # absolute; HERE / "/tmp/.." resolved to this anyway
     text = FILLED.read_text().replace("../figures/", "figures/")
     build_md.write_text(text)
     out_docx = Path(f"/tmp/sync_verify_{DOCX.stem}.docx")

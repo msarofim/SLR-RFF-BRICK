@@ -1,3 +1,63 @@
+## 2026-09-14c — FACTS emulandice run on the seven van Vuuren scenarios (2100); the "per-SSP-trained" reason was wrong
+
+**The 08-31 rationale for excluding wf1e/wf2e/wf3e from the van Vuuren set does not survive reading
+the module.** `emulandice_preprocess.py` writes every forcing row with scenario `"FACTS"` and the R
+side (`main.R`, dataset == "FACTS") runs the GP emulators on the supplied 2015–2100 GSAT paths as one
+pseudo-scenario; the NetCDF `Scenario` attribute reaches only output metadata. The emulators take
+any GSAT path; the van Vuuren 2100 GSATs sit inside the ISMIP6/GlacierMIP2 training range. The real
+limit is the 2100 cap (years hard-coded 2015–2100). `facts/build_shared_configs.py` and
+`extract_facts_shared_components.py` now gate emulandice on `EMU_KEYS` = 3 SSP controls + 7 vv base
+keys (twins and pulse keys excluded by their own Scenario labels); docstrings corrected. Seven
+experiments re-run under Colima (~5 min each with emulandice, 09:32–10:07; pre-run outputs backed up
+in the session scratchpad); re-extraction: every existing row byte-identical (max |Δmed| 0.0),
+**378 rows added** (emuAIS/emuGrIS/emuglaciers + wf1e/2e/3e, 2020–2100, 7 scenarios); [COMPOSITION]
+/ [DRIVER] / [EXTEND] gates pass. `emuAIS` is ~scenario-invariant at 2100 (9.1–9.4 cm on all ten
+keys). FIGs 2 (seven-workflow bracket, three emulator points per ice component) and 7 (emu points at
+2100) re-emitted; FIGs 3, 4, 9 unchanged (2100 cap). Document: comparison-section sentence and FIG 2
+caption corrected (Marcus's "SSP specific" sentence replaced). Benchmark: SSP literature arm
+unmoved (0 verdicts changed); the vv set is unfrozen by design.
+
+**Confirmed again (Marcus): FACTS past 2100 in FIGs 7 and 9.** From the tables the figures draw
+(`vv_responsiveness_L24.csv`, `ladrillo_model_comparison_L24.csv`): Greenland — FittedISMIP,
+bamber19, emuGrIS at 2100 only, nothing at 2150/2300 (FittedISMIP extrapolates its 2080–2100 rate;
+bamber19 is a 2000–2099-integrated-SAT lookup; emulandice ends 2100); Antarctica — four/five modules at
+2100, **larmip only at 2150**, none at 2300 (200-yr response functions forget every pre-2100 year);
+glaciers/TE/LWS at every horizon; no workflow total past 2100 (each carries FittedISMIP). Rule:
+`ladrillo_figs.FACTS_CLIMATE_DRIVEN`, applied in both table builders.
+
+## 2026-09-14d — code-cleanliness pass before sharing with Tony Wong (comment/label/default-tag only)
+
+Three read-only reviews (Julia+shell, Python/deliverable scripts, the document) then two constrained
+edit passes; nothing numerical changed. **Proof:** `project_ssps_components_ladrillo.jl --tag=L24`
+re-run after the Julia edits → shipped CSV **byte-identical**; the full `build_l24_deliverable_doc.sh`
+re-run → SSP comparison CSV unchanged, 0 benchmark verdicts moved, 11 figures embedded. Applied:
+default `--tag`/canonical-posterior constants → L24 in 8 Python scripts and `ladrillo_projection.jl`
+(`LADRILLO_POSTERIOR_CSV`; bare invocations now produce L24 — every pipeline call already passed
+`--tag=L24`); stale vintage/flag text (L10/L11/L12/L14/L21 "canonical", `NU_FIXED`, `--drop-total`
+opt-in, dead `--gsic-early-sigma-x2` epitaph, stale TODO) corrected; usage blocks completed
+(scope_slr_fair_uncertainty 10 flags/4 outputs, postprocess, diag_slr_convergence, bench, gsic
+figure); `RHAT_MAX` hoisted in postprocess; dead constants removed (`CAL_BASELINE`,
+`DISPLAY_BASELINE`, `GLACIER_LINEAGE_NOTE`, `BAND_CAVEAT`, `BRICK20_GSIC_CSV`, two unused numpy
+imports); "tap"→"threshold channel" and "marker"→"scenario" in user-visible strings (identifiers,
+filenames, CSV data labels kept — `BASIS_TAPPED`'s string deliberately verbatim); hard-typed result
+numbers removed from `vv_model_comparison.py`'s console narrative; the false printed banner in
+`ladrillo_model_comparison.py` ("BRICK 2.0 can never be joint") rewritten; component headers state
+USED-BY / requires; `greenland_3basin`'s two self-contradictions fixed (tap "deferred", cells "under
+consideration"); calibrate_mcmc_ext gets a CANONICAL RUN block naming `run_mcmc_L24.sh`. NOT done
+(deferred, larger): the 19 literal tap stems → `joint_stem()`; the duplicated palette/label tables;
+calibrate_mcmc_ext's 2400-line history trims; `dang`→total rename.
+
+**Document accuracy pass (agent, 59 checks):** verified Table 4, the cancellation paragraph, vv
+medians/widths, GMST gaps, regrowth numbers, response times, FIG 10 totals, parameter counts, priors,
+block inventories, BRICK glacier numbers, R̂/ESS, SLEIP Table 6. Corrected: Greenland no-channel
+ratio 2.7 → **2.6** (2.7 was L14's; L24 joint 45.6/17.5); AIS-1.196 reversion (9 and **22**, not 19,
+on SSP5-8.5 — total basis; "fixed-driver arm" stated); MAGICC-climate totals "15–20" → **15–22 cm**;
+`antarctic_lambda` "0.0104/0.0036 in both" → L24 0.0105/0.0033 vs BRICK 0.0104/0.0036; FIG 1 "panel
+(e)" (panels are unlettered); "BRICK2.0" ×2; FaIR label form. The 35.1 cm / +0.04 cm channel figures
+the agent could not trace ARE traceable: joint-arm fairunc cells, tap vs no-tap
+(`scope_slr_fairunc_cells_ssp{585,245}_spliced_L24{,_tap…}.csv`: +35.14 / +0.04 total). Clarity list
+(jargon at first use, three long paragraphs, the "Sampler." fragment) handed to Marcus, not applied.
+
 ## 2026-09-14b — "markers" → "scenarios" in the figures; the document now SAYS FACTS runs on our FaIR
 
 Marcus replaced "markers" with "scenarios" in the text himself (synced); the five figures whose

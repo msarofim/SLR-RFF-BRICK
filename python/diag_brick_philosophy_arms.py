@@ -2,7 +2,8 @@
 """HOW MUCH DO LADRILLO'S TWO DEPARTURES FROM BRICK'S OBS-ONLY PHILOSOPHY BUY? (Marcus 2026-09-13)
 
 Three projection-only arms on the shipped L24 posterior, each undoing one non-observational
-element, against the shipped L24 projection (tapped, CMIP6 Greenland amp shape, sampled AIS amp).
+element, against the shipped L24 projection (with the above-threshold discharge channel, CMIP6
+Greenland amp shape, sampled AIS amp).
 All arms are the FIXED FaIR-mean-forcing ssp projections of project_ssps_components_ladrillo.jl
 (2000 draws, medians rel 1995-2014), so the numbers are parameter-spread medians on one climate.
 
@@ -11,7 +12,8 @@ All arms are the FIXED FaIR-mean-forcing ssp projections of project_ssps_compone
   2. CONSTANT Greenland amplification ......... LADRILLO_GIS_SHAPE=gis_amp_shape_const: S(dT)=1, i.e.
      the OBSERVED through-origin amp level (1.92) at every warming, dropping the CMIP6 shape that
      lets the amp fall with warming (1.50 -> 1.28 over 0.75-2.75 K). Tables written by this
-     session: outputs/gis_amp_shape_const{,_meta}.csv (S=1 on the default grid, same anchor).
+     script's companion step (see CHANGELOG 09-13j): outputs/gis_amp_shape_const{,_meta}.csv
+     (S=1 on the default grid, same anchor).
   3. AIS amplification FIXED at 1.196 ......... stock DAIS's hard-coded GMST->T_ant slope (the
      inverted paleo regression BRICK 2.0 keeps), replacing Ladrillo's sampled N(1.09, 0.180)
      CMIP6 prior (L24 posterior median 1.074). Posterior copy with the column overwritten:
@@ -22,7 +24,7 @@ All arms are the FIXED FaIR-mean-forcing ssp projections of project_ssps_compone
      likelihood-inert, so the other AIS parameters were drawn jointly with the sampled amp. The
      refit-based cross-check is the L21->L23 pair (memory amp_prior_mu_was_dropped): +0.14 of
      amp moved AIS@2300 ssp245 by ~53 cm on a 386 cm/unit slope; 0.122 here would give ~47 cm
-     against the 41.7 measured below. Same order; the override is if anything conservative.
+     against the measured value (see the CSV). Same order; the override is if anything conservative.
      Fixing the value also removes the amp's spread; only MEDIANS are reported.
 
 WRITES outputs/diag_brick_philosophy_arms.csv (stamped)
@@ -50,7 +52,7 @@ def med(d, comp, ssp, year):
 
 def main():
     base = pd.read_csv(BASE)
-    commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True).stdout.strip()
+    commit = subprocess.run(["git", "-C", REPO, "rev-parse", "--short", "HEAD"], capture_output=True, text=True).stdout.strip()
     prov = (f"diag_brick_philosophy_arms.py | seed n/a (reads project_ssps_components outputs; their seed is "
             f"recorded in the posterior subsample) | base {BASE} | fixed FaIR-mean forcing, 2000 draws, medians "
             f"rel 1995-2014, cm | commit {commit}")

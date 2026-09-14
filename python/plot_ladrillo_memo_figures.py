@@ -15,16 +15,20 @@ plot_ladrillo_memo_figures.py — the Ladrillo sharing-memo figure set.
 
 Units are cm. Figure 1 is referenced to 1995-2005, the calibration window;
 figures 2 and 3 to 1995-2014, the projection baseline (FACTS to baseyear 2005).
-BRICK bands are posterior-parameter spread on mean forcing; MAGICC and FACTS
-carry climate spread too — medians are comparable, band widths are not.
+The SSP total panel (figure 2) is drawn from the JOINT arm (posterior params x
+841 FaIR configs, 5-95%), so its band carries climate spread like MAGICC and
+FACTS; the 2100 comparison rows carry their own `band_basis`, and only the
+fixed-arm rows (posterior params on mean forcing) are not width-comparable.
 
---tag= (default L10) selects the posterior vintage and travels into every input
+--tag= (default L24) selects the posterior vintage and travels into every input
 path, every output filename, and each figure's title stamp.
 
+  L24  CANONICAL, champion since 2026-09-02. Drawn WITH the Greenland above-threshold
+       discharge channel by default (the channel is part of the module); pass
+       --no-tap for the base Greenland, which lands in _notap filenames.
   L10  Ladrillo 1.0, accepted 2026-08-13.
-  L14  CANONICAL since 2026-08-20: two-basin Greenland, reparameterised slow
-       channel. Drawn on the TAPPED arm by default (the tap is part of the module);
-       pass --no-tap for the base Greenland, which lands in _notap filenames.
+  L14  two-basin Greenland, reparameterised slow channel (canonical 2026-08-20 to
+       2026-08-28).
   L11  the D1+D2 change set, accepted 2026-08-15. D1 drops the Dangendorf TOTAL
        from the likelihood, so the L11 total has NO calibrated error model —
        figure 1's total panel therefore has no predictive band, and the total is
@@ -34,7 +38,7 @@ Inputs  outputs/postpred_<TAG>_components_timeseries.csv
         outputs/ssps_components_2300_<TAG>.csv
         outputs/ladrillo_model_comparison_<TAG>{,_spread}.csv
         outputs/ssps_gsic_2300.csv
-  python3 python/plot_ladrillo_memo_figures.py [--tag=L11]
+  python3 python/plot_ladrillo_memo_figures.py [--tag=L24] [--no-tap] [--with-2100-panel]
 """
 import os
 import sys
@@ -63,18 +67,18 @@ SSP_COLOR = {"ssp126": "#1b7837", "ssp245": "#2166ac", "ssp585": "#b2182b"}
 LADRILLO_COLOR = "#2166ac"
 # One place names the posterior vintage the whole figure set is drawn from: it
 # drives every input path, every OUTPUT filename, and the vintage stamp in each
-# figure's title, so an L11 run cannot overwrite or be mistaken for L10.
+# figure's title, so a run on one vintage cannot overwrite or be mistaken for another.
 LADRILLO_TAG = next((a[len("--tag="):] for a in sys.argv[1:]
-                     if a.startswith("--tag=")), "L10")
-## WHICH ARM. The tap is part of the module (2026-08-23), so these figures are drawn
-## on the TAPPED deliverable unless --no-tap is passed. Resolved through
+                     if a.startswith("--tag=")), "L24")
+## WHICH ARM. The above-threshold discharge channel is part of the Greenland module
+## (2026-08-23), so these figures are drawn WITH it unless --no-tap is passed. Resolved through
 ## gis_targets.ssps_csv, which rebuilds the cell-encoded filename from the same Julia
 ## GIS_TAP_CELL the projection driver's TAG derives from; the f-string this used to be
-## could only ever find the untapped file. The HINDCAST is arm-independent by
-## construction -- the tap's onset is 4.69 K against an observational record topping
+## could only ever find the no-channel file. The HINDCAST is arm-independent by
+## construction -- the channel's onset is 4.69 K against an observational record topping
 ## out at 1.385 K, so it is exactly inert there and postpred carries no arm suffix.
-## THE ARM IS IN THE FIGURE STEM, so an untapped figure cannot be mistaken for a
-## tapped one on disk or in a talk.
+## THE ARM IS IN THE FIGURE STEM, so a no-channel figure cannot be mistaken for a
+## with-channel one on disk or in a talk.
 TAPPED       = "--no-tap" not in sys.argv[1:]
 ARM_TAG      = "" if TAPPED else "_notap"
 POSTPRED_CSV = f"outputs/postpred_{LADRILLO_TAG}_components_timeseries.csv"
@@ -109,7 +113,7 @@ TAG_DESC = {"L10": "Ladrillo 1.0 (L10)",
             "L11": "Ladrillo L11 (D1: no total; D2: gsic+steric discrepancy)",
             "L12": "Ladrillo L12 (ordered Greenland channels, whole sheet)",
             "L14": "Ladrillo L14 (two-basin Greenland)",
-            # champion since 2026-08-28 (memory INDEX_slr); melt-only glacier ratchet.
+            # champion 2026-08-28 to 2026-09-02; melt-only glacier ratchet.
             "L21": "Ladrillo L21 (calib 1.6.0 + CMIP7, melt-only glacier ratchet)",
             # 2026-08-31 refit: L21's calibration -- `--gis-ordered --gis-basins2
             # --overdisperse`, 4 x 2M -- with the glacier ratchet replaced by a FLOORED
@@ -127,9 +131,9 @@ TAG_DESC = {"L10": "Ladrillo 1.0 (L10)",
             ## L24's amp prior is at its SHIPPED width N(1.09, 0.180), the measured 34-model
             ## CMIP6 spread. (Provenance vs L21/L23 lives in CHANGELOG.md, not here — this
             ## string is baked into figure captions, including the standalone deliverable.)
-            ## 09-11b (Marcus): titles carry the VINTAGE ONLY; the amp prior and the tap cell
-            ## are model specification and live in the document, not in a figure title.
-            "L24": "Ladrillo L24"}
+            ## 09-11b (Marcus): titles carry the VINTAGE ONLY; the amp prior and the threshold
+            ## cell are model specification and live in the document, not in a figure title.
+            "L24": "Ladrillo L24"}  # CANONICAL, champion since 2026-09-02
 if LADRILLO_TAG not in TAG_DESC:
     raise SystemExit(f"undeclared --tag={LADRILLO_TAG}: add it to TAG_DESC so the figure "
                      f"titles say what the vintage is. Declared: "
@@ -137,7 +141,8 @@ if LADRILLO_TAG not in TAG_DESC:
                      f"undeclared tag would be stamped with someone else's vintage.")
 VINTAGE = TAG_DESC[LADRILLO_TAG] + (
     "" if (TAPPED and LADRILLO_TAG == "L24") else
-    (f", tap {gis_targets.tap_cell_label()}" if TAPPED else ", NO TAP (base Greenland)"))
+    (f", threshold channel {gis_targets.tap_cell_label()}" if TAPPED
+     else ", NO THRESHOLD CHANNEL (base Greenland)"))
 ## ⭐ 09-11b (Marcus): the 2100-comparison panel (old Fig 9b) duplicated the SSP comparison
 ## figure's Total panel (FIG 7) and is dropped; `--with-2100-panel` restores it.
 WITH_2100_PANEL = "--with-2100-panel" in sys.argv

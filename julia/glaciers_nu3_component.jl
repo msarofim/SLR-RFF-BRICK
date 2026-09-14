@@ -2,14 +2,16 @@
 # 2026-08-09). Offline provenance: python/d1d_fourrung_seam.py (structure C_both:
 # R19 {19} / SLOWP {03,09,07,06} / FAST {13 regions}) + d1e_dside_ledger.py (D-ledger)
 # + build_extc_inputs.py (constants). Marcus green-light 2026-08-09.
+# requires glaciers_nu_component.jl (GIC_REGROW_R) included first.
 #
-# Per-reservoir law (identical to glaciers_nu, replicated per block; the python
-# reference is integrate_N in d0_glacier_shootout.py). The CONVENTIONS block in
-# glaciers_nu_component.jl governs this module too — including the corrected
-# note on the positive-part clamp (it binds on 4 of 7 van Vuuren markers and in
-# the hindcast; it is kept on price, ≤ 0.24 cm at 2300, not on dormancy):
-#   S_eq,b = a_b (1 − exp(−b_b (T_b − T_off_b)))
-#   dS_b   = min(κ_b exc^ν_b, 1) (S_eq,b − S_b),  exc = T_b − T_eq(S_b)
+# Per-reservoir law (replicated per block; see `_nu_step` below, which is what the
+# code does). The CONVENTIONS block in glaciers_nu_component.jl governs this module too:
+#   S_eq,b = max(a_b (1 − exp(−b_b (T_b − T_off_b))), 0)        floored at 0
+#   d      = T_b − T_eq(S_b)                                     SIGNED distance from equilibrium
+#   mult   = min(κ_b |d|^ν_b, 1);  d < 0 → mult /= GIC_REGROW_R  (bounded regrowth, rate divided
+#                                                                by GIC_REGROW_R, defined in
+#                                                                glaciers_nu_component.jl)
+#   S_b   += mult (S_eq,b − S_b)
 # with LAGGED per-block drivers T_b[t−1] (frame: glacier-area K rel 1850–1900,
 # amp_b-spliced forward — the frame contract from glaciers_nu applies to every
 # block driver: the names deliberately do NOT match Mimi's shared

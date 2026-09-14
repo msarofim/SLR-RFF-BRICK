@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """Rewrite each pipe table's separator row so column widths are proportional to the text each
 column carries, with every column at least wide enough for its longest unbreakable word.
-Reads a markdown file, writes to stdout. Run in the docx build chain.
+  python3 deliverables/balance_table_widths.py <FILLED.md>  > <balanced.md>
+Reads a markdown file (argv[1]), writes the rewritten markdown to stdout; nothing on disk.
+Run in the docx build chain.
 
 WHY THIS IS A BUILD STEP AND NOT A HAND EDIT (2026-09-11): pandoc's markdown reader takes
 relative column widths from the dash counts of the separator row, but the docx->gfm sync that
 regenerates FILLED.md writes every separator back as equal dashes, so a hand-set width is lost
 on the very next sync. Deriving it from content at build time makes it structural. It also
-balances line counts across columns by construction, which is what Marcus asked for.
+balances line counts across columns by construction, which is the intended layout.
 
 WORD FLOORS (2026-09-13, Marcus): load-proportional widths alone gave the "attribute" column a
 third of the nine-column Tables 1-2 while "SURFER", "(1850)", "partial", "parametric" and
@@ -59,8 +61,8 @@ def widths_for(cells, ncol):
     wide = ncol >= WIDE_TABLE_NCOLS
     pt = WIDE_TABLE_FONT_PT if wide else BODY_FONT_PT
     ## Floors only for the wide tables: the 3- and 6-column tables carry DOIs and granule ids whose
-    ## unbreakable length would otherwise swallow the prose column, and Marcus accepted their
-    ## load-proportional layout on 09-11.
+    ## unbreakable length would otherwise swallow the prose column; their load-proportional
+    ## layout stands as settled on 09-11.
     floor = [max([text_width_pt(t, pt) for c in cells if len(c) > k for t in tokens(c[k])] or [0])
              + CELL_MARGIN_PT + FLOOR_SLACK_PT if wide else 0.0 for k in range(ncol)]
     load = [sum(text_width_pt(c[k], pt) for c in cells if len(c) > k) for k in range(ncol)]

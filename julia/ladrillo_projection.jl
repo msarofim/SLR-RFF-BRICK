@@ -1,8 +1,8 @@
 ## ============================================================================
-## ladrillo_projection.jl — the Ladrillo projection kernel (extC posterior)
+## ladrillo_projection.jl — the Ladrillo projection kernel
 ##
 ## ONE place that knows how to push a draw of the Ladrillo posterior through
-## MimiBRICK. Every extC-era driver (SSP projections, posterior-predictive,
+## MimiBRICK. Every Ladrillo driver (SSP projections, posterior-predictive,
 ## comparison arms, pulse experiments) includes this file instead of
 ## re-deriving the parameter map, the per-block glacier drivers, and the
 ## rebaselining convention. Before extraction that block was copy-pasted into
@@ -20,13 +20,11 @@
 ##   on its OWN area-weighted surface-temperature driver T_b.
 ##
 ## POSTERIOR
-##   data/MimiBRICK/parameters_subsample_brick_mengel_L12.csv — 10 000 draws
-##   from 4 x 2M chains (seeds 2026-2029, acceptance 0.237), accepted on the
-##   deliverable 2026-08-18 (SLR@2100 R-hat 1.002), with the Greenland channel
-##   ordering imposed. 57 columns = the 52
-##   below with the five stock-SIMPLE Greenland columns replaced by the eight
-##   Ladrillo ones (7 sampled gis_* + gis_amp), PLUS the four d2_* basis columns
-##   and MINUS sd_dang/rho_dang (dropped by D1). Its predecessor
+##   The canonical posterior subsample (see LADRILLO_POSTERIOR_CSV below, currently
+##   L24). Its columns = the 52 stock-layout columns below with the five stock-SIMPLE
+##   Greenland columns replaced by the Ladrillo gis_* ones (sampled channel
+##   parameters + gis_amp + the basin rate scale), PLUS the four d2_* basis columns
+##   and MINUS sd_dang/rho_dang (dropped by D1). Its ancestor
 ##   parameters_subsample_brick_mengel_extC.csv (stock SIMPLE, 52 columns) is
 ##   LADRILLO_POSTERIOR_EXTC_CSV. The column layout of the 52:
 ##     21 non-glacier physical params applied directly       (PHYSICAL_PARAMS)
@@ -41,7 +39,7 @@
 ##   nu_b is FIXED at the anchored value in outputs/extc_block_constants.csv
 ##   (column nu_anch_obsfit — the calibrator's FIT_BASIS in sampled-amp mode).
 ##   The hindcast cannot identify nu; freeing it only adds an unconstrained
-##   direction. Every consumer must use the SAME basis, hence NU_FIXED here.
+##   direction. Every consumer must use the SAME basis, hence LADRILLO_NU_BASIS here.
 ##
 ## THE PER-BLOCK DRIVERS
 ##   Historical: data/observations/t_glac_blocks.csv — GlaMBIE-area-weighted
@@ -52,6 +50,12 @@
 ##   rebuilt per draw — cheap, it is linear in amp.
 ##   This reproduces the calibrator's `tg3` construction exactly; the identity
 ##   is asserted by julia/test_ladrillo_projection.jl.
+##
+## ENV VAR
+##   LADRILLO_GIS_SHAPE — stem (under outputs/) of the Greenland amp-shape table
+##   S(dT) and its _meta row; default "gis_amp_shape". Set only for the
+##   pre-registered sensitivity arms (e.g. gis_amp_shape_fullcurve); deliverables
+##   use the default. See LADRILLO_GIS_SHAPE_STEM below.
 ##
 ## F_UNCH — A HINDCAST-TARGET CONSTRUCT, NOT A RESERVOIR
 ##   gic_u_unch prices the uncharted-ice content of the Frederikse glacier
@@ -66,7 +70,7 @@
 ## USAGE
 ##   include(joinpath(@__DIR__, "ladrillo_projection.jl"))
 ##   bf = ladrillo_setup(ssp="ssp245", y0=1850, y1=2300)     # forcing + drivers
-##   post = ladrillo_posterior()                             # 10 000 x 52
+##   post = ladrillo_posterior()                             # the canonical subsample (LADRILLO_POSTERIOR_CSV)
 ##   for r in eachrow(post)
 ##       ladrillo_run_draw!(bf, r)                           # apply + run(m)
 ##       total = ladrillo_series(bf, :total)                 # cm, rel. baseline
@@ -79,89 +83,32 @@ include(joinpath(@__DIR__, "brick_mengel.jl"))
 const LADRILLO_REPO = abspath(joinpath(@__DIR__, ".."))
 const LADRILLO_OBS  = joinpath(LADRILLO_REPO, "data/observations")
 
-"""Canonical Ladrillo posterior subsample: tag L12, 4 x 2M chains (seeds
-2026-2029, acceptance 0.237 on all four), ACCEPTED ON THE DELIVERABLE
-2026-08-18 — projected SLR converges at R-hat 1.002 @2100 / 1.004 @2150 (ESS
-1445 / 1401) while 16 parameter marginals are NOT converged (`ais_iceflow0`
-R-hat 1.755, improved from L11's 2.449 and L10's 2.359). Consequence, carried
-here because this file is what every driver reads: the posterior MAY be used for
-projected SLR and anything derived from it, and MAY NOT be used for
-parameter-level inference (the pooled AIS-geometry marginals are a mixture of
-four chains that never merged, not posteriors). Pooled SLR, cm rel. 1995-2014:
-2100 = 45.53 [41.64, 78.55]; 2150 = 70.84 [63.01, 156.74].
-
-L12 = L11's change set PLUS the Greenland CHANNEL-ORDERING constraint
-(`--gis-ordered`): every draw satisfies `alpha_s <= alpha_f AND beta_s <=
-beta_f`, verified 100.00 % on all 10,000. Timescales are correctly ordered at
-every temperature the projections visit (tau_fast 61.7 / tau_slow 194.1 yr at
-Tbar), and the long-lived reservoir the earlier vintages lacked is present:
-39.96 % of draws exceed 221 yr against L11's 13.61 %. Total SLR is essentially
-unchanged from L11 (+0.04 to +0.24 cm @2100), so the constraint bought
-interpretability, not different numbers.
-
-57 columns; Greenland is the A+B variant, so consumers must build the model with
-`ladrillo_setup(gis_ab=true)` — `ladrillo_posterior_variant()` reads that off the
-file. Like L11 and UNLIKE L10 it carries the slow channel in the REPARAMETERISED
-`(gis_slow_ell, gis_slow_w)` coordinates, not native `(gis_alpha_s,
-gis_beta_s)`, so anything doing parameter-level work on the Greenland channels
-must go through `ladrillo_native_greenland!` first. Also carries the four `d2_*`
-basis columns and drops `sd_dang`/`rho_dang` (D1).
-
-CANONICAL = **L14** since 2026-08-20 (Marcus): the TWO-BASIN Greenland
-(`--gis-basins2`), SLR@2100 **45.01 cm** / @2150 **70.58 cm**, projected SLR converged
-at R-hat 1.017 / 1.015. It reads as `:basins2`, NOT `:ab` — it carries `gis_s_high` and
-NOT `gis_s_mid` — so anything asserting the canonical posterior is `:ab` is now wrong;
-use `LADRILLO_POSTERIOR_L12_CSV` for that fixture. **20 parameter marginals are not
-converged** (the compensating AIS-geometry ridge, re-measured on L14 and confirmed not
-to reach the deliverable), so this posterior is for PROJECTIONS, not parameter-level
-inference."""
+"""Canonical Ladrillo posterior subsample: **L24**, canonical since 2026-09-02.
+Two-basin Greenland (`:basins2` — carries `gis_s_high`, NOT `gis_s_mid`) with the
+above-threshold discharge channel, which is PRIOR-SPECIFIED projection-side
+(`ladrillo_set_tap!` / `GIS_TAP_CELL`), not sampled. The slow channel is sampled as
+`(gis_slow_ell, gis_slow_w)` and converted to native `(gis_alpha_s, gis_beta_s)` by
+`ladrillo_native_greenland!`. Run script `run_mcmc_L24.sh`, postprocess
+`run_l24_postprocess.sh`. For PROJECTIONS, not parameter-level inference: 20
+marginals are unconverged along the compensating AIS-geometry ridge."""
 const LADRILLO_POSTERIOR_CSV =
+    joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_L24.csv")
+"""The L14 posterior (two-basin, canonical 2026-08-20 to 2026-09-02, no threshold channel); kept as the fixture for tests and validators that still read it."""
+const LADRILLO_POSTERIOR_L14_CSV =
     joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_L14.csv")
-"""The L13 posterior (3-basin Mouginot sectors, certified 2026-08-20), which L14
-supersedes. L13 was never promoted — L12 held canonical through its whole life — so
-this is the provenance of no shipped deliverable, but it is kept as a named constant
-for two reasons: it is the FALLBACK named in memory `gis_two_basin_decision` if any of
-the three revert conditions ever fires, and it is the only `:basins` (three-basin)
-posterior, so it is the fixture for every test that needs a vintage carrying
-`gis_s_mid` — including the `:basins`-vs-`:basins2` detection gates in
-`test_ladrillo_basins2_variant.jl`."""
+"""The L13 posterior (three-basin `:basins`, never canonical); kept as the only fixture carrying `gis_s_mid` for the `:basins`-vs-`:basins2` detection tests, and the fallback named in memory `gis_two_basin_decision`."""
 const LADRILLO_POSTERIOR_L13_CSV =
     joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_L13.csv")
-"""The L12 posterior (accepted 2026-08-18), which L14 supersedes. It was CANONICAL from
-2026-08-18 to 2026-08-20 and is therefore the provenance of every deliverable quoting
-**SLR@2100 45.53 cm / @2150 70.84 cm** — the number in circulation for most of this arc.
-
-It is also the last WHOLE-SHEET Greenland posterior: L13 and L14 both carry basin rate
-scales, so L12 is the only vintage that exercises the `:ab` branch of
-`ladrillo_gis_variant` end to end. Any test needing an `:ab` canonical-shaped fixture
-should point HERE explicitly rather than at the canonical constant."""
+"""The L12 posterior (whole-sheet `:ab` Greenland, canonical 2026-08-18 to 2026-08-20); kept as the `:ab` fixture for `ladrillo_gis_variant` tests and as the provenance of the 45.53 cm @2100 deliverables."""
 const LADRILLO_POSTERIOR_L12_CSV =
     joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_L12.csv")
-"""The L11 posterior (accepted 2026-08-15), which L12 supersedes.
-
-Kept as a named constant on the `LADRILLO_POSTERIOR_L10_CSV` precedent: it is
-the provenance of every L11-vintage deliverable, and it is the last
-UNCONSTRAINED-Greenland posterior, so it is the fixture for any test that needs
-a vintage where the channel ordering does NOT hold — 37.53 % of its draws
-satisfy the wedge. `diag_gis_ordering_in_l11_posterior.py` defaults to it
-deliberately: its unsuffixed output IS the L11 measurement that the decision to
-build L12 rested on, so do not repoint that default at the canonical constant."""
+"""The L11 posterior (last UNCONSTRAINED-Greenland vintage); kept as the fixture where the channel ordering does not hold — `diag_gis_ordering_in_l11_posterior.py` defaults to it deliberately."""
 const LADRILLO_POSTERIOR_L11_CSV =
     joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_L11.csv")
-"""The L10 posterior (accepted 2026-08-13, commit 6d73349), which L11 supersedes.
-
-Kept as a named constant for the same reason `LADRILLO_POSTERIOR_EXTC_CSV` is:
-it is the provenance of every L10-vintage deliverable, AND it is the last
-NATIVE-Greenland posterior, so it is the only fixture that exercises the branch
-where `ladrillo_native_greenland!` is a no-op. `diag_r19_modern_rate.jl
---check-l10` anchors on it deliberately — do NOT repoint that at the canonical
-constant, or the anchor silently starts measuring L11 under an L10 label."""
+"""The L10 posterior (last NATIVE-Greenland vintage, `ladrillo_native_greenland!` a no-op); kept as the anchor for `diag_r19_modern_rate.jl --check-l10` — do not repoint it."""
 const LADRILLO_POSTERIOR_L10_CSV =
     joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_L10.csv")
-"""The extC posterior (accepted 2026-08-10, commit 205ccbf), which Ladrillo 1.0
-supersedes. Kept as a named constant because it is the stock-SIMPLE Greenland
-vintage the variant-detection tests exercise, and the provenance of every
-pre-L10 deliverable."""
+"""The extC posterior (stock-SIMPLE Greenland, pre-Ladrillo); kept as the `:stock` fixture for the variant-detection tests and the provenance of pre-L10 deliverables."""
 const LADRILLO_POSTERIOR_EXTC_CSV =
     joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_extC.csv")
 const LADRILLO_BLOCK_CONSTANTS_CSV = joinpath(LADRILLO_REPO, "outputs/extc_block_constants.csv")
@@ -245,7 +192,7 @@ abs(ladrillo_gis_shape(LADRILLO_GIS_SHAPE_ANCHOR_DT) - 1.0) < 1e-9 ||
           "$(ladrillo_gis_shape(LADRILLO_GIS_SHAPE_ANCHOR_DT)) != 1; " *
           "$(basename(LADRILLO_GIS_SHAPE_CSV)) and " *
           "$(basename(LADRILLO_GIS_SHAPE_META_CSV)) disagree on the anchor")
-"""Medoid row supplying the params the extC posterior does NOT sample (e.g. ais_sea_level₀)."""
+"""Medoid row supplying the params the posterior does NOT sample (e.g. ais_sea_level₀)."""
 const LADRILLO_MEDOID_CSV = joinpath(LADRILLO_REPO, "outputs/recalib_central_row.csv")
 
 const LADRILLO_BLOCKS = ("R19", "SLOWP", "FAST")

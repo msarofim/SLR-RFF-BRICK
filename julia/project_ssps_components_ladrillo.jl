@@ -2,16 +2,15 @@
 ## project_ssps_components_ladrillo.jl — Ladrillo per-component SSP projections
 ##
 ## Component-resolved sea-level bands for SSP1-2.6 / SSP2-4.5 / SSP5-8.5 from
-## the accepted Ladrillo (extC) posterior, 1990-2300, cm relative to 1995-2014.
+## the canonical Ladrillo posterior, 1990-2300, cm relative to 1995-2014.
 ## This is the projection deliverable the sharing memo's SSP section and every
 ## comparison arm (FACTS, MAGICC, pre-Mengel BRICK 2.0) read.
 ##
 ## Basis
 ##   posterior : data/MimiBRICK/parameters_subsample_brick_mengel_<TAG>.csv,
-##               --tag=, default L10 (Ladrillo 1.0, 4 x 2M chains, seeds
-##               2026-2029; accepted on the deliverable 2026-08-13). L11 is the
-##               D1+D2 change set, accepted 2026-08-15, and stores the Greenland
-##               slow channel as (ell, w) — the loader derives the native pair.
+##               --tag=, default = the canonical posterior (LADRILLO_POSTERIOR_CSV,
+##               currently L24). The file stores the Greenland slow channel as
+##               (gis_slow_ell, gis_slow_w) — the loader derives the native pair.
 ##               The Greenland variant is read off the file, not assumed. CAVEAT
 ##               carried from both acceptances: the 2150 and 2300 columns rest on
 ##               the AIS tipping tail, the slowest-mixing feature (chain-median
@@ -32,9 +31,14 @@
 ## fast-dynamics tail can go non-finite, so the finite count is reported per
 ## scenario and carried in the output.
 ##
-##   julia --project=julia_v2 julia/project_ssps_components_ladrillo.jl [n_draws] [--tag=L11]
+##   [LADRILLO_GIS_SHAPE=<stem>] julia --project=julia_v2 julia/project_ssps_components_ladrillo.jl \
+##       [n_draws] [--tag=L24] [--no-tap] [--tap-set[=csv]]
 ##
-## --tag selects the posterior AND the output filename together (default L10).
+## --tag selects the posterior AND the output filename together (default = the
+## canonical posterior, LADRILLO_POSTERIOR_CSV, currently L24). --no-tap runs the
+## base arm without the above-threshold discharge channel; --tap-set runs the whole
+## admissible cell set (optionally from a named csv). LADRILLO_GIS_SHAPE (env) swaps
+## the Greenland amp-shape table for the pre-registered sensitivity arms.
 ## ============================================================================
 
 using CSV, DataFrames, Mimi, Printf, Statistics
@@ -47,8 +51,7 @@ const NTHIN    = let p = filter(a -> !startswith(a, "--"), ARGS)
 end
 ## POSTERIOR TAG drives BOTH the input posterior and the output filename, so a
 ## run on one vintage cannot write a file labelled with another. The default
-## tracks the CANONICAL posterior (L14 since 2026-08-20; L12 from 08-18, L11 from
-## 08-17, L10 before that), so it
+## tracks the CANONICAL posterior (L24 since 2026-09-02), so it
 ## is derived from LADRILLO_POSTERIOR_CSV rather than written out again — the
 ## two cannot drift. Passing --tag=X asserts the file exists rather than
 ## silently falling back, and older vintages stay reachable that way.
@@ -75,7 +78,7 @@ end
 ## -- and the last of those would become SELF-REFERENTIAL: it scales "how far may
 ## the tap move 2150" by a sampled spread that would then already contain the tap.
 ## So: the DEFAULT ARM moves, the FILENAMES keep their meanings, and no file on disk
-## silently changes what it is. `--tap` is still accepted and is now a no-op.
+## silently changes what it is.
 const NO_TAP = "--no-tap" in ARGS
 ## --tap-set RUNS THE WHOLE ADMISSIBLE SET, not one cell (Marcus 2026-08-21).
 ##
@@ -134,7 +137,7 @@ post = ladrillo_posterior(path=POSTERIOR, nthin=NTHIN)
 @printf("Ladrillo SSP components | posterior %s (%d draws) | Greenland :%s | base %d-%d | horizon %d\n",
         basename(POSTERIOR), nrow(post), VARIANT,
         LADRILLO_REF[1], LADRILLO_REF[2], Y1)
-VARIANT === :ab && @printf("  amp law ON: S anchored at dT_eff = %.3f K, %d-yr window\n",
+VARIANT !== :stock && @printf("  amp law ON: S anchored at dT_eff = %.3f K, %d-yr window\n",
                            LADRILLO_GIS_SHAPE_ANCHOR_DT, LADRILLO_GIS_SHAPE_WIN)
 
 ## Non-set arms keep the EXACT pre-existing schema so downstream consumers of the

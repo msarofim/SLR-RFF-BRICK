@@ -1,51 +1,18 @@
 ## ============================================================================
 ## diag_slr_convergence_by_chain_ladrillo.jl — is the DELIVERABLE converged?
 ##
-## Ladrillo 1.0 (greenland_ab, 55-param L10 chains) counterpart of
-## diag_slr_convergence_by_chain{,_extc}.jl. Those two are hard-wired to a
-## Greenland block Ladrillo does not have: the base file demands `greenland_a`
-## and dies on an L10 chain with
-##     ArgumentError: column name :greenland_a not found in the data frame
-## which is how this file came to exist.
-##
-## WHY IT IS NEEDED
-## postprocess_mcmc_ext.jl --tag=L10 reports 19 non-converged parameter
-## marginals, led by the AIS geometry block:
-##     ais_iceflow0      R-hat 2.359  ESS 12.0  tau 334529
-##     antarctic_alpha   R-hat 1.505  ESS 15.9
-##     gis_f             R-hat 1.335  ESS 21.4
-## and REFUSES to write the canonical subsample. That is the expected reading,
-## not a surprise: the base diagnostic's own header records ais_iceflow0 at
-## R-hat 1.320 / ESS 10.6 in the 35-param v-next calibration, and calibrate's
-## --overdisperse comment predicts R-hat will LOOK WORSE than a common start
-## "-- that is the diagnostic working, not a regression". Our number is worse
-## still for a mechanical reason: overdispersed_starts.csv is built by drawing
-## at ais_iceflow0 quantiles 0.02/0.35/0.65/0.98, so the four chains are
-## deliberately spread along precisely this axis, and with tau ~ 3.3e5 a
-## 1e6-draw post-burn half holds only ~3 effective samples of it.
-##
-## The AIS geometry params are strongly correlated, so a poorly-identified ridge
-## in parameter space can still map onto a well-determined projection. This
-## script asks the only question that matters downstream:
-##
-##     is projected SSP2-4.5 SLR at 2100 / 2150 converged ACROSS the 4 chains?
-##
-## Its output outputs/mcmc/slr_convergence_L10.csv is what
-## postprocess_mcmc_ext.jl --tag=L10 --accept-slr reads to decide whether the
-## parameter-level failures may be accepted on the deliverable.
-##
-## WHY IT DELEGATES TO ladrillo_projection.jl
-## The extC diagnostic re-implements the draw->BRICK mapping inline, which is
-## how the projection kernel came to be silently hard-wired to stock SIMPLE in
-## the first place (handoff 2026-08-12c section 2). ladrillo_projection.jl is the
-## ONE place that knows how to push a Ladrillo draw through MimiBRICK, it detects
-## the Greenland variant from the posterior's own columns with no default and no
-## fallback, and validate_gis_projection_ab.jl gates it end-to-end. Using it here
-## means this diagnostic cannot drift onto a different model than the projections
-## it is certifying.
+## Certifies that projected SSP2-4.5 SLR at 2100 / 2150 is converged ACROSS the
+## four chains (R-hat / ESS on the projection, not the parameters): the AIS
+## geometry ridge is poorly identified in parameter space but maps onto a
+## well-determined projection, which is the only question that matters downstream.
+## Reads  outputs/mcmc/chain_<tag>_seed<seed>_n<NITER>.csv (post-burn half), pushes
+##        draws through ladrillo_projection.jl (the ONE draw->BRICK kernel, variant
+##        detected from the chain's own columns).
+## Writes outputs/mcmc/slr_convergence_<tag>.csv, which GATES
+##        postprocess_mcmc_ext.jl --tag=<tag> --accept-slr.
 ##
 ##   julia --project=julia_v2 julia/diag_slr_convergence_by_chain_ladrillo.jl \
-##         [n_per_chain] [--tag=L10] [--no-shape]
+##         [n_per_chain] [--tag=L24] [--no-shape]
 ## ============================================================================
 using CSV, DataFrames, Statistics, Printf, MCMCDiagnosticTools
 
@@ -55,8 +22,8 @@ const REPO       = LADRILLO_REPO
 const SEEDS      = [2026, 2027, 2028, 2029]
 const NITER      = 2000000
 const NBURN      = 1000000                # discard the FIRST HALF
-## Default tracks the CANONICAL posterior (L14 since 2026-08-20), derived from
-## LADRILLO_POSTERIOR_CSV so the two cannot drift. This diagnostic GATES
+## Default tracks the canonical posterior (LADRILLO_POSTERIOR_CSV), derived from
+## it so the two cannot drift. This diagnostic GATES
 ## `postprocess --accept-slr`, so a stale default here would accept a new
 ## vintage against the previous one's chains. --tag=X reaches older vintages.
 const CHAIN_TAG  = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
@@ -97,17 +64,8 @@ allequal(values(VARIANTS)) || error("the $(length(SEEDS)) chains disagree on the
     "variant: $(join(["seed$sd=>:$(VARIANTS[sd])" for sd in SEEDS], ", ")). " *
     "Mixing vintages in one R-hat would compare different models, not chains.")
 const VARIANT = VARIANTS[SEEDS[1]]
-# :basins (L13+) is accepted alongside :ab and certified through the 3-basin
-# Greenland with the chain's OWN sampled rate scales. Before 2026-08-19 the kernel
-# had no :basins, so an L13 chain read as :ab and was projected at s = 1 — the
-# partition-invariance null — which is NOT the model those chains were fitted
-# under; see diag_l13_projection_variant.jl for what that was worth (-1.7 cm on
-# the 2100 median at 4 draws/chain). Only :stock is refused here.
-# :basins2 (L14+) joins them 2026-08-20, and for exactly the same reason: an L14 chain
-# carries gis_s_high but NOT gis_s_mid, so the pre-fix presence-only test made it read as
-# :ab and it would have been projected at s = 1 — the SAME hole, the SAME -1.7 cm class of
-# silent error, one layout later. The projector now distinguishes them by the ABSENCE of
-# gis_s_mid and binds GIS2_VSHARE rather than GIS3_VSHARE.
+# :ab, :basins and :basins2 are all certified through the chain's OWN Greenland variant and
+# sampled rate scales (a mis-read variant projects at s = 1, a -1.7 cm class of silent error); only :stock is refused.
 VARIANT in (:ab, :basins, :basins2) || error("chains read as :$VARIANT — this is the Ladrillo 1.0 " *
     "(greenland_ab / greenland_3basin) diagnostic; use " *
     "diag_slr_convergence_by_chain_extc.jl for stock-SIMPLE chains")

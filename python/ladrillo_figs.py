@@ -26,9 +26,7 @@ import pandas as pd
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # --- baselines -------------------------------------------------------------
-CAL_BASELINE = "cm, rel. 1995-2005"          # postpred_*, recalib_targets_ext
 PROJ_BASELINE = "cm, rel. 1995-2014"         # every projection product
-DISPLAY_BASELINE = "1970-2020"               # display-only re-reference
 
 ## ⚠ SHARED FORMULATION LINEAGE — WHICH PANELS COMPARE INDEPENDENT METHODS AND WHICH DO NOT.
 ## Established 2026-08-31 from the component sources, not from the model names.
@@ -44,16 +42,10 @@ DISPLAY_BASELINE = "1970-2020"               # display-only re-reference
 ##   ⇒ BRICK 2.0 (Wigley-Raper) and FACTS (ar5glaciers / emuglaciers, the Marzeion-AR5 and
 ##     emulandice-over-GlacierMIP lines) ARE independent of Ladrillo at this component.
 ## GREENLAND: no comparator shares Ladrillo's formulation. Ours is the two-basin A+B
-##   commitment cell with the shipped tap (`greenland_ab_component.jl`,
+##   commitment cell with the above-threshold discharge channel (`greenland_ab_component.jl`,
 ##   `greenland_3basin_component.jl`), fitted offline in this repo. MAGICC/Nauels carries an
 ##   SMB+SID split, FACTS carries FittedISMIP / emuGrIS / bamber19, BRICK 2.0 carries SIMPLE.
 ##   Four formulations, four lineages.
-GLACIER_LINEAGE_NOTE = (
-    ## CAPTION SCOPE: name the lineage, which a reader needs in order to read the glaciers
-    ## panel correctly. What that implies about independence is an argument -> the text.
-    "Glacier formulations: Ladrillo and MAGICC-SLR both use the Nauels 2017 transient "
-    "(Ladrillo on a Mengel-2016 equilibrium curve); BRICK 2.0 uses Wigley-Raper and FACTS "
-    "ar5glaciers/emuglaciers. At Greenland all four differ.")
 
 # --- FACTS: which modules are CLIMATE-DRIVEN at each horizon (Marcus 2026-09-12) ---------
 ## Read out of the FACTS module code and confirmed on the vv*2300 outputs (CHANGELOG 09-12b/c):
@@ -151,11 +143,6 @@ def band_is_comparable(basis):
 ## The caveat that survives the correction. Climate uncertainty is now present on every
 ## arm, but the ENSEMBLES generating it are not the same ensemble, and two of the four
 ## bands are prior propagations rather than refits.
-BAND_CAVEAT = (
-    ## CAPTION SCOPE: say what each band IS. Why the widths are comparable, and the
-    ## prior-propagation caveat, are arguments and live in the text.
-    "Bands carry climate uncertainty: Ladrillo from 841 FaIR configs, MAGICC-SLR from a "
-    "600-member AR6 drawnset, FACTS from its own internal ensembles.")
 
 # --- scenario sets ---------------------------------------------------------
 ## One table per set: (key, label, colour). The van Vuuren table additionally carries the
@@ -185,15 +172,15 @@ TAG_DESC = {
                 ## note, which PROPOSED an 8-seed array that was never run here.
                 chains="4 chains, chain_L21_seed{2026..2029}_n2000000",
                 glacier="3-reservoir Nauels-nu (glaciers_nu3): R19 / SLOWP / FAST",
-                gis="two-basin Greenland with the shipped tap",
-                note="champion since 2026-08-28; L14's config on the 1.6.0 drivers. "
+                gis="two-basin Greenland with the above-threshold discharge channel",
+                note="champion 2026-08-28 to 09-02 (superseded by L24); L14's config on the 1.6.0 drivers. "
                      "SLR@2100 = 45.01 cm is an L14 number and keeps that label."),
     "L23": dict(model="Ladrillo L23",
                 calib="FaIR 2.2.4 calib 1.6.0 + CMIP7",
                 chains="4 chains, chain_L23_seed*_n2000000",
                 glacier="3-reservoir Nauels-nu (glaciers_nu3), FLOORED equilibrium "
                         "+ bounded regrowth at R = 1",
-                gis="two-basin Greenland with the shipped tap",
+                gis="two-basin Greenland with the above-threshold discharge channel",
                 ## ⚠ THIS NOTE SAID "the glacier law is the only axis that moved".
                 ## REFUTED 2026-09-01: L23 carries NO --adcov and fell through to the
                 ## default list head, so it sampled under adapted_cov_L11tune3 where
@@ -211,7 +198,7 @@ TAG_DESC = {
                 chains="4 chains, chain_L24_seed{2026..2029}_n2000000",
                 glacier="3-reservoir Nauels-nu (glaciers_nu3), FLOORED equilibrium "
                         "+ bounded regrowth at R = 1",
-                gis="two-basin Greenland with the shipped tap",
+                gis="two-basin Greenland with the above-threshold discharge channel",
                 note="Antarctic amplification prior N(1.09, 0.180), the measured "
                      "34-model CMIP6 spread (commit 165a860)."),
     "L14": dict(model="Ladrillo L14",
@@ -286,7 +273,7 @@ def gate_ladrillo(scen, tag="L21", forcing="spliced"):
     """Read the driver's OWN gates file and refuse a scenario whose run did not pass.
 
     ⚠ A MISSING GATES FILE IS A FAILURE, NOT A SKIP -- an absent gate and a passing gate
-    must not look the same. CONTROL is legitimately SKIPPED on every van Vuuren marker
+    must not look the same. CONTROL is legitimately SKIPPED on every van Vuuren scenario
     (no shipped panel row exists to compare against); a CONTROL verdict of CHECK or FAIL is
     still an error here."""
     f = gates_csv(scen, tag, forcing)
@@ -329,7 +316,7 @@ def gate_ladrillo(scen, tag="L21", forcing="spliced"):
 def gate_driver_provenance(keys, expect_one_commit=True):
     """git-log the mean-GMST driver behind each scenario.
 
-    For the van Vuuren set the claim is STRONG and checkable: all seven markers came from
+    For the van Vuuren set the claim is STRONG and checkable: all seven scenarios came from
     ONE run of build_fair_cube_vv_v160.py, so they must share a SINGLE commit -- which
     cannot rot the way a hand-typed table can. For the SSP set it is FALSE by construction
     (ssp126/245/585 are calib 1.6.0; ssp119/370/460 have no 1.6.0 cube and remain 1.4.5),

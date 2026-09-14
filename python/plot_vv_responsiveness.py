@@ -82,7 +82,7 @@ lo = D[D.marker == LO].set_index(key)[STAT]
 both = hi.index.intersection(lo.index)
 missing = sorted(set(hi.index.symmetric_difference(lo.index)))
 if missing:
-    print("[PAIR] %d (source, module, component, year) cells present on ONE marker only -- "
+    print("[PAIR] %d (source, module, component, year) cells present on ONE scenario only -- "
           "dropped, not imputed: %s" % (len(missing), missing[:6]))
 R = pd.DataFrame({"hi_med": hi.loc[both], "lo_med": lo.loc[both]}).reset_index()
 R["delta_cm"] = R.hi_med - R.lo_med

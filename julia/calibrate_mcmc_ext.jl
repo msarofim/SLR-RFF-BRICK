@@ -1,4 +1,10 @@
 ## ============================================================================
+## CANONICAL RUN = run_mcmc_L24.sh (flags --gis-ordered --gis-basins2 --overdisperse
+##   --adcov=adapted_cov_L11tune3_seed2026.csv --amp-mu=1.09 --amp-sigma=0.180).
+## The defaults below do NOT reproduce L24 — always launch via the run script.
+## Postprocess with run_l24_postprocess.sh (postprocess_mcmc_ext.jl --tag=L24 --accept-slr,
+## gated by diag_slr_convergence_by_chain_ladrillo.jl).
+## ============================================================================
 ## calibrate_mcmc_ext.jl  —  BRICK-Mengel MCMC on the EXTENDED (post-2018) targets
 ##
 ## ★ CANONICAL BRICK-AM calibration (mean forcing). Forcing is a FIXED prior — NOT a free parameter;
@@ -107,11 +113,11 @@ const TAG_OVR       = _argval("--tag=")
 # row of overdispersed_starts.csv sits at marginal 0.187-0.234 and the default θ0 at
 # 1.155, so without the repair logposterior(θ0) = -Inf and the structural guard errors.
 const STERIC_CAP_ARG = _argval("--steric-marg-cap=")
-# --drop-total: SPEC D1 (Marcus 2026-08-14, spec_2026-08-14_next_calibration.md §2).
+# DROP_TOTAL: SPEC D1 (Marcus 2026-08-14, spec_2026-08-14_next_calibration.md §2).
 # Removes the independent-total ("dang") likelihood term AND its sd_dang/rho_dang
-# noise pair, 55 -> 53 sampled parameters. OPT-IN, so the shipped L10
-# configuration stays bit-for-bit reproducible; flip the default only when D1 is
-# promoted to production. The tie it removes is EXACT per draw:
+# noise pair, 55 -> 53 sampled parameters. The total is DROPPED BY DEFAULT (D1 is
+# production since L11); `--keep-total` restores it for reproducing the L10
+# configuration. The tie it removes is EXACT per draw:
 # total_model - sum(component_models) = gsic_tot - gsic_flow = the R19 seam. Note
 # this is a deliberate DISCARD of an independent observational constraint, not the
 # removal of a double-count (spec §8.1) -- the Wong weights are already off for
@@ -627,15 +633,6 @@ let ri = [rowof(y) for y in S.dang.years], cs = closure_sigma(ri)
                    for i in [findfirst(==(y), S.dang.years) for y in (1900, 1950, 2000)]]...))...,
             S.dang.years[end], base[end], S.dang.ϵ[end], S.dang.ϵ[end]/base[end])
 end
-
-# ---- extB3b fallback: REMOVED 2026-08-14, obsolete (spec_2026-08-14 §8.2) -----------------
-# `--gsic-early-sigma-x2` inflated the GSIC flow σ before 1940 by ×2. It was the documented
-# remedy for the extB3 wiggle-tracking mode (σ_gsic → 0.032 cm with ρ 0.96, gic_nu piled at 0,
-# S(1900) median 45 mm, 0/4 evaluation gates). That mode's cause was a FREE ν; ν is now fixed
-# at the anchored value and is not sampled at all, and L10 sits at σ_gsic 0.0156 / ρ 0.649 —
-# nowhere near the signature. The flag was never passed to any shipped run (L10 launched as
-# `--tag=L10 --overdisperse`), so this was dead code guarding a condition that can no longer
-# arise. Recoverable from git history if the ν-free configuration is ever revisited.
 
 # ---- extC: r19-seam-adjusted gsic target (obs_adj) + δ ramp ------------------------------
 # The Frederikse gsic segment assumes zero r19 melt; the GlaMBIE splice (2019+) includes it.
@@ -1301,7 +1298,7 @@ const INV_YEAR_IDX = idx(2000)
 # convention (drop r5, add r19) are a few mm with offsetting signs. µ=20, σ=9 mm spans all
 # four within ~1.2σ. Kills the extB1 fiction decisively: 131 mm → z≈12 (~-76 logL).
 #
-# ---- 2026-08-09 OPTION-D LEDGER (Marcus-approved) — TODO(extC surgery): wire this in ----
+# ---- 2026-08-09 OPTION-D LEDGER (Marcus-approved) ----
 # The offline cells (d1e_dside_ledger.py) replaced the bare comparison with a MODEL-SIDE
 # ledger; the datum stays N(20, 9) mm (basis: excl r19, incl r5). extC must implement:
 #   S_ledger(1900) = S_nonr19(1900)            (SLOWP+FAST melt 1850->1900; NOT the R19 res.)

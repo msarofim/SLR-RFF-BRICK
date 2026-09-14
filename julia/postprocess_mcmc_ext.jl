@@ -1,12 +1,13 @@
 ## ============================================================================
-## postprocess_mcmc_ext.jl  —  postprocess the EXTENDED-target MCMC chains
+## postprocess_mcmc_ext.jl  —  the generic per-tag postprocessor for calibrate_mcmc_ext.jl chains
 ##
-## Variant of postprocess_mcmc.jl for the post-2018-extended re-fit
-## (calibrate_mcmc_ext.jl). Globs chain_ext_seed*.csv, burns first half, R̂/ESS,
-## and writes a SEPARATE posterior subsample + adapted cov so the 2018-baseline
-## outputs (parameters_subsample_brick_mengel.csv, adapted_cov.csv) are NOT clobbered.
+## Reads outputs/mcmc/chain_<tag>_seed*.csv, burns the first half of each chain,
+## computes R̂/ESS per parameter (gate: R̂ <= RHAT_MAX, ESS >= ESS_MIN), and — if the
+## gate passes, or --accept-slr certifies projected SLR, or --force — writes
+##   data/MimiBRICK/parameters_subsample_brick_mengel_<tag>.csv   (posterior subsample)
+##   outputs/mcmc/adapted_cov_<tag>.csv                           (proposal seed for the next run)
 ##
-##   julia --project=julia_v2 julia/postprocess_mcmc_ext.jl [n_subsample]
+##   julia --project=julia_v2 julia/postprocess_mcmc_ext.jl [n_subsample] --tag=L24 [--force] [--accept-slr]
 ## ============================================================================
 
 using CSV, DataFrames, Statistics, Printf, LinearAlgebra
@@ -17,15 +18,16 @@ const TAG  = let i = findfirst(a -> startswith(a, "--tag="), ARGS)   # 2026-07-2
     i === nothing ? "ext" : ARGS[i][7:end]                            # alternate chain sets
 end
 const ESS_MIN = 400
+const RHAT_MAX = 1.05   # R̂ threshold, parameter marginals and (via --accept-slr) projected SLR alike
 # Writing a posterior subsample or a proposal seed from NON-CONVERGED chains is how a bad
 # posterior reaches downstream consumers silently. Both writes are gated on convergence;
 # pass --force to override (the files then carry a _NOTCONVERGED suffix).
 #
 # --accept-slr: accepted-on-deliverable criterion (Marcus 2026-07-19). The AIS geometry
 # block is a compensating ridge whose MARGINALS will not converge in feasible compute,
-# but the chains agree on projected SLR. If outputs/mcmc/slr_convergence_ext.csv
-# (written by diag_slr_convergence_by_chain.jl, and FRESHER than every chain file)
-# shows R̂<1.05 at all horizons, the canonical subsample/seed are written even though
+# but the chains agree on projected SLR. If outputs/mcmc/slr_convergence_<tag>.csv
+# (written by diag_slr_convergence_by_chain_ladrillo.jl, and FRESHER than every chain file)
+# shows R̂<RHAT_MAX at all horizons, the canonical subsample/seed are written even though
 # the parameter-level gate fails.
 const FORCE = "--force" in ARGS
 const ACCEPT_SLR = "--accept-slr" in ARGS
@@ -64,7 +66,7 @@ end
 pnames = [n for n in names(chains[1]) if !(n in ["accept_rate"])]   # log_post IS diagnosed (see below)
 
 nmin = minimum(nrow.(chains)); nc = length(chains)
-println("\n$(nc) chains × $nmin draws. Convergence (target R̂<1.05, ESS>$(ESS_MIN)):")
+println("\n$(nc) chains × $nmin draws. Convergence (target R̂<$(RHAT_MAX), ESS>$(ESS_MIN)):")
 bad = String[]
 for p in pnames
     arr = Array{Float64}(undef, nmin, nc)
@@ -79,11 +81,11 @@ for p in pnames
     # NaN-ESS param silently PASSES the gate (this falsely certified the sigma-fix re-baseline
     # as converged). Cap maxlag well below the chain length, and treat non-finite ESS as FAIL.
     r = rhat(arr); e = ess(arr; maxlag = min(nmin - 4, 200_000))
-    conv = isfinite(r) && isfinite(e) && r <= 1.05 && e >= ESS_MIN
+    conv = isfinite(r) && isfinite(e) && r <= RHAT_MAX && e >= ESS_MIN
     τ = (nmin*nc) / max(e, 1e-9)
     conv || (push!(bad, p); @printf("  %-24s R̂=%.3f ESS=%.1f τ=%.0f  <-- check\n", p, r, e, τ))
 end
-isempty(bad) ? println("  all params converged (R̂<1.05, ESS>$(ESS_MIN)).") :
+isempty(bad) ? println("  all params converged (R̂<$(RHAT_MAX), ESS>$(ESS_MIN)).") :
                println("  $(length(bad)) params NOT converged.")
 const CONVERGED = isempty(bad)
 
@@ -93,13 +95,13 @@ slr_accepted = false
 if !CONVERGED && ACCEPT_SLR
     slr_csv = joinpath(MCMCDIR, "slr_convergence_$(TAG).csv")
     if !isfile(slr_csv)
-        println("\n--accept-slr: $slr_csv not found. Run diag_slr_convergence_by_chain.jl first.")
+        println("\n--accept-slr: $slr_csv not found. Run diag_slr_convergence_by_chain_ladrillo.jl first.")
     elseif mtime(slr_csv) < maximum(mtime.(files))
         println("\n--accept-slr: $slr_csv is OLDER than the newest chain file -> STALE; refusing.")
-        println("Re-run diag_slr_convergence_by_chain.jl on the current chains.")
+        println("Re-run diag_slr_convergence_by_chain_ladrillo.jl on the current chains.")
     else
         sd = CSV.read(slr_csv, DataFrame)
-        ok = all(isfinite.(sd.rhat)) && all(sd.rhat .< 1.05)
+        ok = all(isfinite.(sd.rhat)) && all(sd.rhat .< RHAT_MAX)
         println("\n--accept-slr: deliverable-level convergence from $(basename(slr_csv)):")
         for r in eachrow(sd)
             @printf("  SLR@%d  R̂=%.3f  ESS=%.1f\n", r.horizon, r.rhat, r.ess)
@@ -107,10 +109,10 @@ if !CONVERGED && ACCEPT_SLR
         if ok
             slr_accepted = true
             println("ACCEPTED ON DELIVERABLE: parameter marginals not converged (compensating")
-            println("AIS-geometry ridge), but projected SLR R̂<1.05 at all horizons -> writing")
+            println("AIS-geometry ridge), but projected SLR R̂<$(RHAT_MAX) at all horizons -> writing")
             println("canonical outputs (accepted-on-deliverable criterion, Marcus 2026-07-19).")
         else
-            println("SLR-level R̂ >= 1.05 at some horizon -> NOT accepted.")
+            println("SLR-level R̂ >= $(RHAT_MAX) at some horizon -> NOT accepted.")
         end
     end
 end
@@ -155,6 +157,6 @@ if !isempty(bad)
         println("\n** $(length(bad)) marginals not converged; ACCEPTED ON DELIVERABLE (--accept-slr). **")
     else
         println("\n** NOT CONVERGED ** ($(length(bad)) params). Re-run longer, or check the")
-        println("deliverable with diag_slr_convergence_by_chain.jl and re-run with --accept-slr.")
+        println("deliverable with diag_slr_convergence_by_chain_ladrillo.jl and re-run with --accept-slr.")
     end
 end

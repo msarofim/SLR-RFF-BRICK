@@ -9,7 +9,8 @@ members-only MAGICC working copy. MAGICC *output* is publishable (the binary,
 source and drawnset are not), so the extracted bands are tracked here and the
 comparison script never needs the private tree.
 
-MAGICC's seven SLR modules are mapped onto BRICK's five components:
+MAGICC's seven SLR modules are mapped onto the six BRICK/Ladrillo components (five
+physical components plus the reported total; COMPONENT_MAP below):
     te        = SLR_EXPANSION
     glaciers  = SLR_GL
     gis       = SLR_GIS_SMB + SLR_GIS_SID
@@ -66,14 +67,8 @@ SPLIT_MAP = {"gis_smb": ["SLR_GIS_SMB"], "gis_sid": ["SLR_GIS_SID"],
 
 BASE_YEARS = list(range(1995, 2015))
 MM_TO_CM = 0.1
-## ⚠ CORRECTED 2026-08-25. This used to read `range(2000, 2101)` with the comment "this
-## MAGICC run ends at 2100". THE RUN DOES NOT END AT 2100 — the source file carries annual
-## columns through 2305-01-01, because `slr-refresh/notebooks/302_run-magicc-scenarios-SSPs.py`
-## sets `endyear_run = 2300 + 5` and its own summary table filters to `year=[2100, 2300]`.
-## The 2100 cut was OURS, and it is why every comparison this repo has ever made at 2150 had
-## only FACTS to compare against ("NO UPPER COMPARATOR AT THIS HORIZON" in bench_ladrillo,
-## and step 1's caveat that the separation ruling "is a 2100 statement"). No MAGICC re-run is
-## needed to fix it; only this line was wrong.
+## The MAGICC run reaches 2305 (302_run-magicc-scenarios-SSPs.py sets endyear_run = 2305);
+## an earlier `range(2000, 2101)` here was OUR cut, corrected 2026-08-25 (see CHANGELOG).
 ## [YEARS-PRESENT] below asserts the columns actually exist rather than trusting this range.
 YEARS_OUT = list(range(2000, 2301))
 SSPS = ["ssp119", "ssp126", "ssp245", "ssp370", "ssp585"]
