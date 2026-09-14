@@ -2,7 +2,7 @@
 
 Ladrillo is a derivative of Tony Wong's BRICK 2.0 model. Ladrillo was developed by Marcus C Sarofim using the Claude model. The primary goals for Ladrillo were to add additional observational data, update the glacier module to better match observations and to halt melting for stabilization scenarios, update the Antarctic calibration approach to better match observations prior to 1980, and update the Greenland model to incorporate the different responses of surface melt balance and ice discharge.
 
-Ladrillo occupies a distinct niche among current sea level emulators. Of the seven emulators in the SLEIP intercomparison, only three carry a hindcast of every component starting in 1900 or earlier: BRICK 2.0, SURFER, and MP25. Of these three, SURFER's historical total runs outside the observational range in SLEIP's own assessment, and MP25 is a statistical fit to the Frederikse reconstruction that projects only to 2100, leaving BRICK as the only SLEIP models which both runs 1900-2300 and matches observed total sea level.
+Ladrillo occupies a distinct niche among current sea level emulators. Of the seven emulators in the SLEIP intercomparison, only three carry a hindcast of every component starting in 1900 or earlier: BRICK 2.0, SURFER, and MP25. Of these three, SURFER's historical total runs outside the observational range in SLEIP's own assessment, and MP25 is a statistical fit to the Frederikse reconstruction that projects only to 2100, leaving BRICK as the only SLEIP model that both runs 1900–2300 and matches observed total sea level.
 
 MAGICC-SLR and FRISIA start their ice sheets in 1990 and 2002, ProFSea starts in 2007, and the FACTS workflow starts in 2005. Some other limitations of other emulators are that FACTS's ice-sheet modules either extrapolate or sample from 21st-century projections and that MAGICC-SLR can only be run on MAGICC's own climate.
 
@@ -149,7 +149,7 @@ That excess has two parts of similar size. FaIR's ocean heat is full-depth while
 
 ## Ladrillo Projection Comparison
 
-We report comparisons to both the van Vuuren scenarios and the SSPs. All Ladrillo bands are the joint (posterior × FaIR-forcing) arm. Bars are 17–83% (thick) and 5–95% (thin). Ladrillo, BRICK, and FACTS have the same source of climate uncertainty (Ladrillo and BRICK 2.0 from the 841 FaIR configs with the same cubes, splice pivot, and pair seed; FACTS from 200 of the same configs, plus its modules' own sampling) whereas MAGICC-SLR relies on its own 600-member AR6 ensemble. F
+We report comparisons to both the van Vuuren scenarios and the SSPs. All Ladrillo bands are the joint (posterior × FaIR-forcing) arm. Bars are 17–83% (thick) and 5–95% (thin). Ladrillo, BRICK, and FACTS have the same source of climate uncertainty (Ladrillo and BRICK 2.0 from the 841 FaIR configs with the same cubes, splice pivot, and pair seed; FACTS from 200 of the same configs, plus its modules' own sampling) whereas MAGICC-SLR relies on its own 600-member AR6 ensemble.
 
 FACTS is reported relative to base year 2005, treated as comparable to the 1995–2014 mean. FACTS's three emulandice workflows (Gaussian-process emulators of ISMIP6 and GlacierMIP2 output) end in 2100 by construction, so they appear only at that horizon on both scenario sets; its four other workflows run to 2300.
 
