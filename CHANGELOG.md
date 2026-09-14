@@ -1,3 +1,55 @@
+## 2026-09-14i — Ladrillo glacier blocks vs emulandice on the SAME 200 FaIR configs: the 2100 gap is SLOWG and RGI 19, FASTG runs HIGH, and the driver amplification is not the cause
+
+**Question (Marcus).** Ladrillo's glaciers sit ~25% below emulandice at 2100 on every scenario
+(09-14 reply). Which block, and is it the driver? emulandice is GSAT-driven; Ladrillo drives each
+block with amp_b × GSAT.
+
+**Method.** `python/dump_shared_climate_for_blocks.py` dumps the very NetCDFs FACTS ran on
+(`facts/experiments/global.shared.<scen>.n200/input/shared_<scen>_{gsat,ohc}.nc`, 200 configs,
+spliced@2014, 1850–1900 frame asserted) → `julia/diag_gsic_blocks_vs_emulandice.jl` runs Ladrillo
+L24 per block on them: arm `joint` (posterior draw k on sample k; draws = seeded randperm of the
+10k subsample, seed 2026 recorded in the output), `fixed` (all draws on the mean path),
+`joint_cmip6amp` (amps overridden by CMIP6 `amp_regchar` 1.03/1.70/1.23 for R19/SLOWP/FAST — the
+driver lever). ~20 s per scenario. `python/diag_gsic_blocks_vs_emulandice.py` sums emulandice's
+per-region outputs (`glaciers_glac1..19_globalsl.nc`, decadal 2020–2100, base 2005, mm) to the
+blocks — RGI 05 dropped — rebases Ladrillo to 2005 (single-year rebase justified in the header:
+smooth deterministic series) and pairs by sample. Outputs `outputs/diag_gsic_blocks_vs_emulandice.csv`
+(provenance column), `figures/diag_gsic_blocks_vs_emulandice.png`.
+
+**Result (2100 melt since 2005, medians over the 200 matched samples; ratio Ladrillo/emulandice;
+identical pattern on ssp126/245/585, vvVL, vvH):**
+
+| block | ssp245 emu | Ladrillo | ratio | paired diff med [5–95] | ratio at CMIP6 amps |
+|---|---|---|---|---|---|
+| SLOWG (03/09/07/06) | 4.83 | 3.55 | **0.74** | −1.00 [−3.33, +1.21] | 0.60 |
+| FASTG (13 regions) | 4.69 | 5.32 | **1.13** | +0.54 [−1.43, +2.84] | 1.06 |
+| RGI 19 | 1.75 | 0.79 | **0.45** | −0.84 [−2.75, +1.16] | 0.61 |
+| sum excl. RGI 05 | 11.27 | 9.86 | **0.87** | −1.22 [−4.99, +2.39] | 0.81 |
+
+Ratios across the five scenarios: SLOWG 0.73–0.75, FASTG 1.10–1.13, RGI 19 0.45–0.53, sum
+0.86–0.89. So on matched scope AND matched climate the gap is **13%, not 25%** — the other ~1.6 cm
+of the headline gap is RGI 05 (in emulandice's total, in Ladrillo's Greenland). ⚠ Every paired
+5–95% spans zero: the medians differ but posterior + GP spread is wider than the offset.
+
+**Reading.** (1) It is two blocks, not the module: FASTG is 10–13% ABOVE emulandice. (2) The
+curves agree at 2020 and diverge with time (figure) — the initial rate is shared (both see the
+GlaMBIE era), the ACCELERATION is not: SLOWG's slow response (τ ~270 yr at 1.5 K, anchored on
+GlacierMIP3's τ80) and RGI 19's near-flat commitment are what emulandice's GlacierMIP2 GPs do not
+have. (3) **The driver amplification is NOT the cause.** Ladrillo's fitted Arctic amp (2.50) is
+ABOVE the CMIP6 pattern (1.70) a GCM-trained emulator implicitly carries; putting the CMIP6 amps in
+LOWERS SLOWG further (0.74 → 0.60) and lifts RGI 19 only a third of the way (0.45 → 0.61). The amp
+is a real lever (−19% SLOWG for 2.5 → 1.7; +36% RGI 19 for 0.72 → 1.03) because the law is
+nonlinear, but it points the wrong way for SLOWG. (4) Marcus's question "is a GSAT driver a scalar
+that falls out?" — no: emulandice carries the training GCMs' regional pattern implicitly; Ladrillo
+carries an explicit, observation-fitted one; under matched GSAT the two differ by that pattern,
+and the arm above prices it.
+
+**Open.** Whether GlacierMIP2 (transient) and GlacierMIP3 (equilibrium) are mutually consistent
+is still untested; this diagnostic says Ladrillo, built on GlacierMIP3's τ anchors, is slower
+than GlacierMIP2's transients on SLOWG and RGI 19. ⚠ The SLOWG amp itself is product-dependent
+(BE 1.82 / HadCRUT 2.48 / GISTEMP 3.46, CHANGELOG 09-13f) — a Berkeley-frame refit was rejected
+09-13 and is not re-raised here.
+
 ## 2026-09-14h — document: glacier blocks renamed SLOWG / FASTG; code rename deferred
 
 Marcus: the "P" in SLOWP has no recorded expansion (best reading: SLOW′, the two-block SLOW

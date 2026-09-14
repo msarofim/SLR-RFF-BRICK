@@ -327,3 +327,6 @@ outputs/*_MUT*.csv
 # ⚠ NOT a wildcard: `LadrilloUpdateDescription.docx` (no _L24, 15 KB) is a DIFFERENT and
 # UNIQUE document with no deliverables counterpart. It stays tracked. Do not broaden this.
 /LadrilloUpdateDescription_L24.docx
+outputs/diag_emu_blocks/ladrillo_blocks_*.csv
+outputs/diag_emu_blocks/shared_*.csv
+outputs/diag_emu_blocks/run_log.txt
