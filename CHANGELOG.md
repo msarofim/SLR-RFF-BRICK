@@ -1,3 +1,88 @@
+## 2026-09-14e — Marcus's 09-13 comment round (`deliverables/Ladrillocomments.9.13.26.docx`, nine items): technical items applied to the deliverable, prose handed back
+
+The comments file — empty every time it was read on 09-13/14 — now carries nine items. Sync → edit
+FILLED.md → docx step only (no figure changed) → `--verify` round-trip clean (244 paragraphs).
+Docx rebuilt from the edited markdown, 11 figures embedded, 4 tables. Item by item:
+
+1. **"How does Ladrillo calibrate RGI 19 with only 7 years of data?"** — it barely does, and the
+   seven-year premise is off by scope. Read from `calibrate_mcmc_ext.jl`: the 2019 GlaMBIE splice
+   is the AGGREGATE gsic channel (SLOWP+FAST, `HIND_BLOCKS`); RGI 19's only direct sea-level
+   observation is the separate GlaMBIE **2000–2024** R19 mean-rate term, 0.049 ± 0.116 mm SLE/yr
+   (`R19_RATE_MU/SD`; the σ is the serially-correlated value, zero gravimetry, one DEM estimate),
+   plus the Farinotti inventory (6.9 ± 1.8 cm at 2000). Its dynamics — `gic_b_R19`, `gic_T_off_R19`
+   (σ=10 flat priors) and `gic_log10_kappa_R19` (σ 0.114 dex), ν fixed — rest on the GlacierMIP3
+   rung likelihood (committed-loss fractions at 1.2/1.5/2.0/3.0 K, 8-model range ÷ d₂(8), corr 0.6)
+   and the τ80@1.5 K / τ50@3 K anchors, which all three blocks share. One factual sentence added to
+   the RGI 19 paragraph (GlaMBIE rate, inventory, GlacierMIP3 = Zekollari et al. 2025, the 80–3200 yr
+   posterior response time). ⚠ **The document had never named GlacierMIP3**, and Table 1 note 4
+   ("calibrated on observations except the channel and the AIS amp prior") omits it — the rung term
+   is a process-model likelihood on every glacier block. Flagged to Marcus, not edited (framing).
+2. **Over-dispersed chain starts — where and how.** The fragment "**Sampler.** Over-dispersed chain
+   starts." sat in the DATA section; deleted there and written as a **Sampler** paragraph in the
+   Calibration Approach section: RAM (Vihola 2012; `RAM_sample`, `opt_α=0.234`, seed
+   `adapted_cov_L11tune3`), 4 × 2,000,000, first half burned, 4M pooled draws thinned evenly to
+   10,000 (`postprocess_mcmc_ext.jl:120-121`), starts = real draws of an earlier tuning chain at
+   `ais_iceflow0` quantiles 0.02/0.35/0.65/0.98 (`build_overdispersed_starts.jl`), the rejected
+   jitter alternative named (200/200 non-finite).
+3. **"Still Mengel-style now that we use Nauels?"** — answered, not edited. The law in
+   `glaciers_nu3_component.jl:80-103` is Mengel 2016's EQUILIBRIUM `S_eq = a(1−exp(−b(T−T_off)))`
+   (floored at 0, with Ladrillo's `T_off`) driven by Nauels 2017 Eq. 3's TRANSIENT
+   `min(κ|T−T_eq|^ν,1)(S_eq−S)`; Mengel's own transient `(S_eq−S)/τ` is the ν=0 case (κ=1/τ,
+   `validate_glaciers_nu.jl` nests it). "Mengel-style equilibrium volume driven by a Nauels-ν
+   transient" is therefore exact as written; a wording option handed to Marcus.
+4. **SLOWP / FAST names** — they are the code identifiers (`BLOCKS`, `ladrillo_data.SPEC_3RES`);
+   SLOWP is the two-block SLOW {19,03,09,07,06} with RGI 19 split off (`SPEC_2BLK`); no expansion
+   is documented anywhere in the repo. Definition-before-use verified: first appearances are the
+   two definitions (GSIC section) and the only later use is the peak-and-decline paragraph. No
+   L24 figure carries the labels (`TAG_DESC["L24"].glacier` does not name them). Prose choice.
+5. **Table 3 checksums and dates → footnotes ¹³–¹⁸** (Dangendorf `Fields.nc` note + pers. comm.
+   date; GlaMBIE acquisition date; GRACE granule; CMIP6 fetch dates + pinning note; DAIS sha256 +
+   extraction date; IGCC md5). Numbering continues Table 2's ¹²; same inline-superscript
+   convention as Tables 1–2.
+6. **"Is SSP5-8.5 still warmer in 2300 than vv High?"** — YES, at every horizon. Ensemble-MEAN
+   FaIR GMST rel. 1850–1900, the convention both tables already use (`vv_model_comparison.py
+   gmst_context` and `project_ssps_components_ladrillo.jl` both read the mean cube): SSP5-8.5
+   **4.31 / 7.50 K** at 2100 / 2300 vs vvH **3.32 / 6.66 K**; medians of the 841-config raw cubes
+   7.11 vs 6.27 at 2300; per config, SSP5-8.5 is warmer in 100 % of configs at 2100 and 99.0 % at
+   2300; ∫GMST 2100–2300 of the mean path 1266 vs 1043 K·yr. Marcus's premise about the extension is
+   right — RCMIP v5.1.0 SSP5-8.5 CO₂ falls linearly from 126 GtCO₂/yr (2100) to 0 by 2250 — but
+   the ~9,500 GtCO₂ emitted on the way keeps warming rising to 2300 (peak year 2299). His figure
+   reading is the FACTS **ar5glaciers** cap, not Ladrillo: `facts_components_shared_n200.csv` at 2300
+   has vvH p05 = 27.4 cm (not all 200 samples at the 31.57 cap) vs ssp585 p05 = 31.44 (all at it).
+   Ladrillo's own glacier bars are alike (vvH 25.3, 5–95 % 19.4–31.6; ssp585 26.5, 20.6–32.6) because
+   each draw's ceiling is its own `a`. Answered in the reply; no document edit (his framing).
+7. **Discrepancy bases** — new **Discrepancy terms** paragraph (Calibration Approach): two streams
+   (gsic, steric) × 2 coefficients, orthogonalised against the constant and against `TE_SHAPE` /
+   `DELTA_RAMP`, unit-RMS basis, N(0, 0.5 cm) prior (`calibrate_mcmc_ext.jl:656-760`). Marcus's
+   "3 of them are centred near zero" verified on the L24 subsample: medians `d2_gsic_1` 0.036,
+   `d2_gsic_2` 0.041, `d2_steric_2` 0.013; **`d2_steric_1` 0.258 (5–95 % 0.093–0.402)**. Parameter
+   count line reworded ("two discrepancy bases of two coefficients each"). Stated that FIG 1 /
+   Table 4 show the bare modules (no δ) — [[postpred_omits_discrepancy]] — which keeps BRICK 2.0
+   like-for-like.
+8. **R̂ description** — new **Convergence criterion** paragraph replaces "Criterion matching".
+   `MCMCDiagnosticTools` 0.3.18 `rhat` default is `kind=:rank, split_chains=2` (Vehtari et al.
+   2021), stated. ⚠ **Corrected a wrong criterion**: the document said "19 parameter marginals fail
+   R̂ < 1.05" — the gate is R̂ < 1.05 **AND ESS > 400** (`postprocess_mcmc_ext.jl:69`); on R̂ alone
+   only 14 fail (`rhat_L24_summary.csv`), 19 on the joint gate (`log_l24_postprocess_driver.txt:56-76`;
+   the 09-03c note recorded this exact 14-vs-19 trap). "1050 statistically independent draws in the
+   final sample" → "effective sample size of about 1050 on the 1,600 thinned draws used for the
+   diagnostic" (`slr_convergence_L24.csv`: 4 × 400). Failing set named (AIS block + Greenland slow
+   channel; `ais_iceflow0` 1.26, `antarctic_alpha` 1.28).
+9. **Long paragraphs** — identified, not split (list in the reply): 14 paragraphs ≥110 words, the
+   six longest 158 (202 w), 122 (194), 126 (179), 49 (169), 194 (148), 110 (147, a caption).
+
+**⚠ FOUND WHILE ANSWERING 1 — the document says Dangendorf is a calibration target; L24's
+likelihood has no total term.** `DROP_TOTAL = !("--keep-total" in ARGS)` (`calibrate_mcmc_ext.jl:134`,
+D1 since L11); `run_mcmc_L24.sh` passes no `--keep-total`; the L25 banner (same calibrator) prints
+"total DROPPED"; the L24 subsample carries four AR(1) pairs (no `sd_dang`/`rho_dang`) and the document
+itself counts "four AR(1) noise pairs". Dangendorf enters ONLY through `S.dang`, whose single use is
+inside the `DROP_TOTAL ||` guard (`:1481-1483`). So in L24 Dangendorf 2024 is the COMPARISON target
+for the total (FIG 1, Table 4), not a fitted one. Marcus's 09-09b ruling ("keep Dangendorf as the
+fitted target") was made on the premise that it is fitted. Table 3's Dangendorf row now says so
+(second sentence added); the intro's "Dangendorf, GlaMBIE, GRACE and Mouginot added" is his prose
+and is flagged, not edited. Whether to refit with `--keep-total` (a model change, a new vintage) is
+his call.
+
 ## 2026-09-14c — FACTS emulandice run on the seven van Vuuren scenarios (2100); the "per-SSP-trained" reason was wrong
 
 **The 08-31 rationale for excluding wf1e/wf2e/wf3e from the van Vuuren set does not survive reading
