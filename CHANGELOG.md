@@ -1,3 +1,7 @@
+## 2026-09-14g — intro list: "Dangendorf" dropped (Marcus ruling)
+
+The intro's list of observational constraints added over BRICK 2.0 read "Dangendorf, GlaMBIE, GRACE and Mouginot"; Dangendorf is not a likelihood term in L24 ([[dangendorf_not_in_l24_likelihood]]), so Marcus ruled to drop it rather than refit with `--keep-total`. Docx rebuilt, `--verify` clean.
+
 ## 2026-09-14f — second comment round (`deliverables/Ladrillo.9.14.26.docx`, three items) + sync of Marcus's paragraph splits
 
 Marcus's 11:23 Word edits synced first (`3775280`: eight paragraph splits from the 09-14e list, the
