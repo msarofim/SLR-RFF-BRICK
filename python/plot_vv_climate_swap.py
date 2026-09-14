@@ -149,7 +149,7 @@ for YEAR in YEARS:
         if comp == "lws":
             ax.text(0.03, 0.92, "LWS is scenario-free in all three; the swap moves nothing",
                     transform=ax.transAxes, fontsize=7.4, color="0.35", va="top")
-    axes[1, 0].set_xlabel("van Vuuren marker")
+    axes[1, 0].set_xlabel("van Vuuren scenario")
     handles = [Line2D([], [], color=lf.SRC_COLOR["Ladrillo"], marker="s", ls="none", ms=7,
                       label="Ladrillo %s on the FaIR driver" % TAG),
                Line2D([], [], color=lf.SRC_COLOR["Ladrillo"], marker="s", ls="none", ms=7,
@@ -163,12 +163,12 @@ for YEAR in YEARS:
                Line2D([], [], color="0.3", lw=0.9, label="5–95%; connector = the climate swap")]
     fig.legend(handles=handles, ncol=3, fontsize=8.5, frameon=False, loc="upper center",
                bbox_to_anchor=(0.5, 0.972))
-    fig.suptitle("Sea-level rise at %d on the van Vuuren markers — Ladrillo and BRICK 2.0 on the "
+    fig.suptitle("Sea-level rise at %d on the van Vuuren scenarios — Ladrillo and BRICK 2.0 on the "
                  "FaIR driver and on MAGICC's climate, vs MAGICC-SLR   [%s]"
                  % (YEAR, lf.commit_stamp()), fontsize=12, fontweight="bold", y=0.999)
     fig.tight_layout(rect=[0, 0.10, 1, 0.925])
     cap = ("%s — %s.  Cm, rel. 1995–2014; joint arms (posterior × climate ensemble), medians "
-           "with 5–95%%.  Open markers: the same posterior, tap and draws, driven by MAGICC's "
+           "with 5–95%%.  Open symbols: the same posterior, threshold channel and draws, driven by MAGICC's "
            "600-member emissions-driven climate instead of the FaIR 2.2.4 calib 1.6.0 + CMIP7 "
            "driver (spliced injection).  MAGICC-SLR is v7.5.3 + Nauels 2025.  FACTS has no "
            "MAGICC-climate arm and is not drawn." % (DESC["model"], DESC["calib"]))

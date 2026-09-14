@@ -231,9 +231,9 @@ for s in LABELS:
     d = wr(s)
     ax[0].plot(d.year.values, d.gmst.values, color=COL[s], lw=1.8, label=s)
 ax[0].set_ylabel("GMST (°C rel. PI)")
-ax[0].set_title(("Glacier melt to 2300 — %s, seven van Vuuren CMIP7 markers" % LAD_NAME)
+ax[0].set_title(("Glacier melt to 2300 — %s, seven van Vuuren CMIP7 scenarios" % LAD_NAME)
                 if LADRILLO_ONLY else
-                ("Glacier melt to 2300 — %s vs %s, seven van Vuuren CMIP7 markers"
+                ("Glacier melt to 2300 — %s vs %s, seven van Vuuren CMIP7 scenarios"
                  % (WR_NAME, LAD_NAME)), fontsize=11, fontweight="bold", loc="left")
 ## Panel letter, so the figure matches its caption ("GMST forcing (a), cumulative melt (b),
 ## melt rate (c)") -- (b) and (c) carried theirs, (a) did not (found 2026-09-11).
@@ -332,8 +332,8 @@ fig.text(0.5, 0.004,
            "Ladrillo %s 3-reservoir ν glaciers (%s chains, `%s` arm); both are posterior-parameter "
            "spread on mean forcing.\n"))
          % (LADRILLO_TAG, LADRILLO_TAG, ARM)
-         + "FaIR 2.2.4 (calib 1.6.0) van Vuuren marker GMST; one build, one calibration "
-           "throughout (driver commit %s), each marker on its own CMIP7 land-use, irrigation and "
+         + "FaIR 2.2.4 (calib 1.6.0) van Vuuren scenario GMST; one build, one calibration "
+           "throughout (driver commit %s), each scenario on its own CMIP7 land-use, irrigation and "
            "volcanic/solar forcing." % _COMMIT,
          fontsize=6.6, ha="center", color="0.35")
 fig.savefig(OUTPNG, dpi=150, bbox_inches="tight")

@@ -54,7 +54,7 @@ if ARM not in ("joint", "fixed"):
     raise SystemExit("--arm must be 'joint' or 'fixed', not %r" % ARM)
 DESC = lf.tag_desc(TAG)
 SCENS = lf.scen_set(SET)
-SETNAME = {"ssp": "CMIP6 SSPs", "vv": "van Vuuren CMIP7 markers"}[SET]
+SETNAME = {"ssp": "CMIP6 SSPs", "vv": "van Vuuren CMIP7 scenarios"}[SET]
 OUT = os.path.join(lf.REPO, "figures",
                    "future_components_%s_%s_%s.png" % (SET, TAG, ARM))
 
@@ -91,7 +91,7 @@ _actual, _commits = lf.gate_driver_provenance([s[0] for s in SCENS],
                                               expect_one_commit=(SET == "vv"))
 if SET == "vv":
     CALIB_NOTE = ("one build, one calibration throughout (calib 1.6.0 + CMIP7, driver "
-                  "commit %s); each marker on its OWN CMIP7 land-use, irrigation and "
+                  "commit %s); each scenario on its OWN CMIP7 land-use, irrigation and "
                   "volcanic/solar forcing" % _commits[0])
     print("[PROVENANCE] all %d van Vuuren drivers share one commit: %s"
           % (len(_actual), _commits[0]))

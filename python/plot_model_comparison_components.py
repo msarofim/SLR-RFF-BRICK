@@ -90,7 +90,7 @@ SET_PRODUCER = {"ssp": "python3 python/ladrillo_model_comparison.py --tag=%s",
 ## is being drawn.
 SET_INFIX = {"ssp": "", "vv": "_vv"}
 SET_DESC = {"ssp": "three CMIP6 SSPs",
-            "vv":  "seven van Vuuren CMIP7 markers"}
+            "vv":  "seven van Vuuren CMIP7 scenarios"}
 ## Seven groups need more width than three; the panel geometry is otherwise identical.
 SET_FIGSIZE = {"ssp": (14.5, 8.4), "vv": (18.0, 8.8)}
 SET_XTICK_FS = {"ssp": 9, "vv": 7.6}

@@ -63,7 +63,7 @@ SLOT = {"Ladrillo": -0.30, "BRICK 2.0": -0.12, "MAGICC-SLR": 0.06, "FACTS": 0.30
 FACTS_FAN = 0.055
 MARK = {"Ladrillo": "s", "BRICK 2.0": "s", "MAGICC-SLR": "D", "FACTS": "o"}
 SEJ_MARK = "^"
-TITLE = ("Scenario responsiveness by component — %s minus %s van Vuuren marker, %s vs "
+TITLE = ("Scenario responsiveness by component — %s minus %s van Vuuren scenario, %s vs "
          "BRICK 2.0 vs MAGICC-SLR vs FACTS   [%s]")
 YLAB = "Δ cm SLE, High − Very Low (each on %s)" % lf.PROJ_BASELINE.split(", ")[1]
 
@@ -135,7 +135,7 @@ for ax, comp in zip(axes.ravel(), lf.COMPONENTS):
     ax.tick_params(labelsize=8)
     ax.grid(axis="y", alpha=0.25, lw=0.6)
     if comp == "lws":
-        ax.text(0.03, 0.92, "FACTS LWS follows the marker's SSP population\npathway "
+        ax.text(0.03, 0.92, "FACTS LWS follows the scenario's SSP population\npathway "
                 "(ssp3 vs ssp1) — socioeconomics, not climate;\nLadrillo/BRICK LWS is "
                 "scenario-free by construction", transform=ax.transAxes, fontsize=7.4,
                 color="0.35", va="top")

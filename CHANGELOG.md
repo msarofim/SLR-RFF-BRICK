@@ -1,3 +1,16 @@
+## 2026-09-14b — "markers" → "scenarios" in the figures; the document now SAYS FACTS runs on our FaIR
+
+Marcus replaced "markers" with "scenarios" in the text himself (synced); the five figures whose
+titles/labels/in-figure captions still said "marker" were re-emitted (FIGs 2–4, 5, 6, 7, 11:
+`plot_model_comparison_components`, `plot_future_components`, `plot_vv_gsic_wr_vs_ladrillo`,
+`plot_vv_responsiveness`, `plot_vv_climate_swap`; "Open markers" → "Open symbols", "tap" →
+"threshold channel" in FIG 11's in-figure caption), and the four image alt-texts. Column names and
+console strings keep `marker`. FACTS's climate: the comparison-section sentence said "FACTS from its
+own internal ensembles", which has been FALSE since 08-31 — every FACTS number in the document is on
+200 of the same 841 FaIR 2.2.4 calib 1.6.0 configs injected as its climate file
+(`facts_shared_climate_arm`); the sentence now says so and names what it replaced (FACTS's internal
+AR6-calibrated FaIR 1.6 module: RCMIP v5.1.0 emissions + `fair_ar6_climate_params_v4.0.nc`).
+
 ## 2026-09-14 — one departure from BRICK's philosophy (Marcus's intro edit), propagated through the document
 
 Marcus rewrote the intro: the threshold channel is the ONE departure; the Antarctic amplification is
