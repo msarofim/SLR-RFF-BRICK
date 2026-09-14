@@ -1,3 +1,14 @@
+## 2026-09-14k — document: the emulandice comparison added as a subsection + FIG 12
+
+Marcus: add it. New subsection "Ladrillo's glaciers against emulandice on the same climate" between
+the MAGICC-climate subsection (FIG 11) and "Physical intuition", with `figures/gsic_blocks_vs_emulandice_L24.png`
+as FIG 12 (the diag figure renamed to carry the tag; `diag_gsic_blocks_vs_emulandice.py` writes it there).
+Paragraph = the 09-14i/j numbers (13 % on matched scope; SLOWG 0.74×, RGI 19 0.45×, FASTG 1.13×; paired
+bands span zero; CMIP6-amp arm does not close it; aggregation ruled out; timescale source vs inventory
+basis not separated). `sync_filled_from_docx.py` FIGS list extended to 12 (the 09-13 trap), build script
+gained the FIG 12 step (notes the Julia prerequisite). Docx rebuilt: 12 embedded = 12 in the source,
+`--verify` clean (265 paragraphs).
+
 ## 2026-09-14j — is the emulandice gap an AGGREGATION artefact? No (GlacierMIP3 Table S1a)
 
 Marcus asked whether the SLOWG / RGI 19 deficit (09-14i) is "an unavoidable function of Ladrillo's

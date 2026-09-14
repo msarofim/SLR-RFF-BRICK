@@ -49,6 +49,9 @@ step "vv comparison figures"     python python/plot_model_comparison_components.
 step "vv trajectories (FIG 5)"   python python/plot_future_components.py --tag=$T --set=vv
 step "climate swap (FIG 11)"     python python/plot_vv_climate_swap.py --tag=$T --year=all
 step "responsiveness (FIG 7)"    python python/plot_vv_responsiveness.py --tag=$T
+## FIG 12 needs the Julia per-block runs (outputs/diag_emu_blocks/, ~20 s per scenario, gitignored):
+##   julia --project=julia_v2 julia/diag_gsic_blocks_vs_emulandice.jl --scen=<scen>  for ssp126 ssp245 ssp585 vvVL vvH
+step "glaciers vs emulandice (FIG 12)" python python/diag_gsic_blocks_vs_emulandice.py
 step "benchmark (refresh)"      python python/bench_ladrillo.py --tag=$T
 
 say "=== figures now present for $T ==="

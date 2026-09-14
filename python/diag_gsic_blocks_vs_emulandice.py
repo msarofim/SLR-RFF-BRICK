@@ -24,7 +24,7 @@ PAIRING. Ladrillo sample k and emulandice sample k saw the same GSAT path, so th
 difference (Ladrillo_k - emulandice_k) removes the climate spread; its median and 5-95%
 are reported per block next to the unpaired medians.
 
-Writes outputs/diag_gsic_blocks_vs_emulandice.csv and figures/diag_gsic_blocks_vs_emulandice.png.
+Writes outputs/diag_gsic_blocks_vs_emulandice.csv and figures/gsic_blocks_vs_emulandice_L24.png (FIG 12).
     python3 python/diag_gsic_blocks_vs_emulandice.py [--scens=ssp126,ssp245,ssp585,vvVL,vvH]
 """
 import os
@@ -41,7 +41,8 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FACTS = os.path.expanduser("~/Documents/2026/CodeProjects/facts/experiments")
 IN_DIR = os.path.join(REPO, "outputs", "diag_emu_blocks")
 OUT_CSV = os.path.join(REPO, "outputs", "diag_gsic_blocks_vs_emulandice.csv")
-OUT_PNG = os.path.join(REPO, "figures", "diag_gsic_blocks_vs_emulandice.png")
+TAG = "L24"
+OUT_PNG = os.path.join(REPO, "figures", f"gsic_blocks_vs_emulandice_{TAG}.png")   # FIG 12 of the L24 document
 SCENS_DEFAULT = ["ssp126", "ssp245", "ssp585", "vvVL", "vvH"]
 LABEL = {"ssp126": "SSP1-2.6", "ssp245": "SSP2-4.5", "ssp585": "SSP5-8.5",
          "vvVL": "vv Very Low", "vvH": "vv High"}

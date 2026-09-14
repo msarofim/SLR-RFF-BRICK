@@ -209,6 +209,14 @@ Comparing two sea-level models on different climate drivers confounds the module
 
 **FIG 11.** Ladrillo L24 and BRICK 2.0 at 2300 on the seven van Vuuren scenarios, each drawn twice — on the shared FaIR driver (filled) and on MAGICC's own 600-member climate (open), with the connector showing the swap — against MAGICC-SLR. Same posterior, above-threshold channel and draws on both climates; FACTS has no MAGICC-climate arm and is not drawn.
 
+### Ladrillo's glaciers against emulandice on the same climate
+
+FACTS's emulandice glacier module (Gaussian-process emulators of the GlacierMIP2 transient runs, one per RGI region, GSAT-driven, 2015–2100) was run on the same 200 FaIR configurations as Ladrillo, so the two can be compared sample by sample, with its regions summed to Ladrillo's blocks and RGI 05 excluded (FIG 12). At 2100 Ladrillo's glacier melt since 2005 is 13% below emulandice on every scenario (SSP2-4.5: 9.9 vs 11.3 cm); the deficit is confined to SLOWG (0.74×) and RGI 19 (0.45×) while FASTG runs 1.13×; the two agree at 2020 and diverge thereafter; and every paired 5–95% range spans zero. Replacing Ladrillo's fitted amplifications with the CMIP6 regional ratios does not close the gap (SLOWG falls to 0.60×, RGI 19 rises only to 0.61×), so it lies in the block dynamics rather than the driver. Aggregation is not the cause either: GlacierMIP3's per-region response times put the single-timescale bias at 8% for SLOWG and zero for RGI 19, which is a single region. What remains is the source of the timescales (GlacierMIP3's equilibrium anchors against GlacierMIP2's transients) and the inventory basis (emulandice reports the GlacierMIP2 models' own volumes), which have not been separated.
+
+![Ladrillo glacier blocks vs emulandice on the same 200 FaIR configs](../figures/gsic_blocks_vs_emulandice_L24.png)
+
+**FIG 12.** Glacier melt since 2005 by block, Ladrillo L24 (posterior draw k on shared configuration k) against FACTS emulandice on the same 200 FaIR configurations: median and 5–95% over the matched samples, 2020–2100, on the three SSPs and the two van Vuuren extremes. emulandice's per-region outputs are summed to Ladrillo's blocks; RGI 05 is dropped from emulandice because Ladrillo carries it in the Greenland ice sheet.
+
 ### Physical intuition — how Ladrillo behaves by scenario class
 
 **High scenarios.** For the High scenario, the three models are fairly similar at 2100 (Ladrillo 72 cm, BRICK 2.0 82, MAGICC-SLR 62). By 2300 Ladrillo and BRICK 2.0 sit together (439 and 414 cm, median) well below MAGICC-SLR (570 cm), and the gap is due to Antarctica: 255 and 248 cm against MAGICC's 382. Driving both on MAGICC's own climate actually decreases their totals by 15–22 cm mainly due to thermal expansion (to 425 and 393; FIG 11), so the difference is the ice-sheet modules, not the climate.

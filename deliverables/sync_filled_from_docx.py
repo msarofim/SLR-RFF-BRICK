@@ -58,6 +58,7 @@ FIGS = [
     "model_comparison_components_L24_2300.png",
     "ladrillo_L24_fig2_ssp_total.png",
     "vv_climate_swap_L24_2300.png",      # FIG 10, 09-11b
+    "gsic_blocks_vs_emulandice_L24.png", # FIG 12, 09-14
 ]
 
 
