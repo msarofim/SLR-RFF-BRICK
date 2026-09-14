@@ -94,7 +94,8 @@ def ladrillo_blocks(scen, arm):
         w = d[d.block == code].pivot(index="sample", columns="year", values="melt_cm").sort_index()
         base = w[BASE_YEAR].values[:, None]
         out[b] = (w[EMU_YEARS].values - base)
-    return out, d.provenance.iloc[0]
+    prov = open(f.replace('.csv', '_provenance.txt')).read().strip()
+    return out, prov
 
 
 def summarise(scens):

@@ -24,7 +24,8 @@
 ## OUTPUT (cm SLE, cumulative melt since the model start, i.e. NOT re-referenced;
 ## the python side rebases both models to FACTS's base year 2005):
 ##   outputs/diag_emu_blocks/ladrillo_blocks_<scen>.csv
-##   columns scen, arm, sample, draw_row, block (R19/SLOWP/FAST), year, melt_cm, provenance
+##   columns scen, arm, sample, draw_row, block (R19/SLOWP/FAST), year, melt_cm
+##   + ladrillo_blocks_<scen>_provenance.txt (driver, posterior, seed, climate, units)
 ##
 ##   julia --project=julia_v2 julia/diag_gsic_blocks_vs_emulandice.jl --scen=ssp245 [--ndraw=200] [--seed=2026]
 ## Needs outputs/diag_emu_blocks/shared_<scen>_{gmst,ohc}.csv from
@@ -73,13 +74,13 @@ const PROV = "driver=diag_gsic_blocks_vs_emulandice.jl; posterior=$(basename(LAD
 flush(stdout)
 
 rows = DataFrame(scen=String[], arm=String[], sample=Int[], draw_row=Int[], block=String[],
-                 year=Int[], melt_cm=Float64[], provenance=String[])
+                 year=Int[], melt_cm=Float64[])
 
 function record!(bf, arm, k, drow)
     for (b, slot) in SLOTS
         s = Float64.(bf.m[:glaciers_small_icecaps, slot])   # m SLE since 1850, raw
         for y in YEARS_OUT
-            push!(rows, (SCEN, arm, k, drow, b, y, 100.0 * s[ladrillo_yi(bf, y)], PROV))
+            push!(rows, (SCEN, arm, k, drow, b, y, 100.0 * s[ladrillo_yi(bf, y)]))
         end
     end
 end
@@ -122,6 +123,8 @@ end
 
 mkpath(DIR)
 CSV.write(OUT, rows)
+## provenance ONCE per file (a per-row column made the file 17 MB; the sidecar keeps the stamp)
+open(replace(OUT, ".csv" => "_provenance.txt"), "w") do io; println(io, PROV); end
 ## summary: 2100 melt since 2005 per block, both arms
 @printf("\n  %-6s %-6s %10s %18s\n", "arm", "block", "2100-2005", "5-95%")
 for arm in ("fixed", "joint", "joint_cmip6amp"), (b, _) in SLOTS
