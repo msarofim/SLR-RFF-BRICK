@@ -186,9 +186,13 @@ const AMP_G = 1.8            # aggregate convention (d0 gates/patho frame; kept 
 # every product; regchar sits below the obs range. Priors = center near HadCRUT5 with
 # σ from the dataset spread; hard bounds = the cross-dataset ranges.
 # Fixed-basis modes (regchar/obsfit) retained for A/B arms.
-## The per-block glacier amplification is SAMPLED (gic_amp_b); the fixed-amp arms
-## (--amp-basis=regchar|obsfit) were removed 2026-09-16.
-const AMP_BASIS = "sampled"
+## The per-block glacier amplification is SAMPLED (gic_amp_b). `--amp-basis=regchar|obsfit`
+## pins it at a fixed basis and is a TEST-ONLY knob: validate_glaciers_nu3.jl (the port gate,
+## run_ladrillo_tests.sh [2/10]) compares the Julia objective against the python reference at
+## the fixed amps. No shipped vintage runs fixed-amp.
+const AMP_BASIS = something(_argval("--amp-basis="), "sampled")
+AMP_BASIS in ("sampled", "regchar", "obsfit") || error("--amp-basis must be sampled|regchar|obsfit")
+const SAMPLED_AMP = AMP_BASIS == "sampled"
 const BLOCKS = ["R19", "SLOWP", "FAST"]
 const HIND_BLOCKS = ["SLOWP", "FAST"]   # r19 seam: excluded from the flow/ledger scope
 bcdf = CSV.read(joinpath(REPO, "outputs/extc_block_constants.csv"), DataFrame)
@@ -200,7 +204,9 @@ const AMP_PRIOR = Dict("R19"   => (0.72, 0.15, 0.58, 0.88),
 # κ-prior center: the drivers' amp-dependent part is the 2025-2026 splice tail, which
 # no likelihood term reads (gsic obs end 2023; GlaMBIE rate ends at melt[2024] ←
 # T[2023] = obs). Drivers are therefore built ONCE at the amp-prior centers.
-const AMP_B = Dict(b => AMP_PRIOR[b][1] for b in BLOCKS)
+const AMP_B = SAMPLED_AMP ?
+    Dict(b => AMP_PRIOR[b][1] for b in BLOCKS) :
+    Dict(b => Float64(bcrow(b)["amp_$(AMP_BASIS)"]) for b in BLOCKS)
 # κ-anchor center as a function of amp: log-linear interpolation between the two
 # precomputed τ50 anchor solves (regchar-amp and obsfit-amp points, per block) — keeps
 # the τ50-as-prior centered consistently when amp moves.
@@ -213,8 +219,10 @@ function k10c(b, amp)
     return k1 + (k2 - k1) * (amp - a1) / (a2 - a1)
 end
 const K10_SIG = 0.114        # ±30% at 1σ — the ANCH-vs-MID freedom (offline evidence)
-const FIT_BASIS = "obsfit"                              # θ0 (b, T_off) start frame
-const KAP_ANCH = Dict(b => 10.0^k10c(b, AMP_B[b]) for b in BLOCKS)
+const FIT_BASIS = SAMPLED_AMP ? "obsfit" : AMP_BASIS   # θ0 (b, T_off) start frame
+const KAP_ANCH = SAMPLED_AMP ?
+    Dict(b => 10.0^k10c(b, AMP_B[b]) for b in BLOCKS) :
+    Dict(b => Float64(bcrow(b)["kappa_anch_$(AMP_BASIS)"]) for b in BLOCKS)
 const NU_ANCH  = Dict(b => Float64(bcrow(b)["nu_anch_$(FIT_BASIS)"]) for b in BLOCKS)
 const S2020_D  = Dict(b => Float64(bcrow(b).S2020_data)              for b in BLOCKS)
 const GLAMBIE_RATE = Dict(b => Float64(bcrow(b).glambie_rate)    for b in BLOCKS)
@@ -936,14 +944,18 @@ for b in BLOCKS
     push!(FREE, (name="gic_T_off_$b", comp=G, sym=Symbol("gic_T_off_$b"),
                  μ=Float64(r["T_off_fit_$(FIT_BASIS)"]), σ=10.0, lo=-3.0, hi=1.0, islog=false))
     # κ bounds: sampled mode spans the anchor-center range over the amp prior bounds ±1
-    klo, khi = let c1 = k10c(b, AMP_PRIOR[b][3]), c2 = k10c(b, AMP_PRIOR[b][4])
+    klo, khi = if SAMPLED_AMP
+        c1 = k10c(b, AMP_PRIOR[b][3]); c2 = k10c(b, AMP_PRIOR[b][4])
         (min(c1, c2) - 1.0, max(c1, c2) + 1.0)
+    else
+        (log10(KAP_ANCH[b]) - 1.0, log10(KAP_ANCH[b]) + 1.0)
     end
     push!(FREE, (name="gic_log10_kappa_$b", comp=G, sym=Symbol("gic_kappa_$b"),
                  μ=log10(KAP_ANCH[b]), σ=K10_SIG, lo=klo, hi=khi, islog=false))
 end
-for b in BLOCKS
-    let (μa, σa, loa, hia) = AMP_PRIOR[b]
+if SAMPLED_AMP
+    for b in BLOCKS
+        μa, σa, loa, hia = AMP_PRIOR[b]
         push!(FREE, (name="gic_amp_$b", comp=:likelihood_only, sym=:none,
                      μ=μa, σ=σa, lo=loa, hi=hia, islog=false))
     end
@@ -1008,7 +1020,9 @@ const GIS_ORDERED = true
 const DELTA_IDX  = findfirst(k -> k.name == "gic_delta", FREE)
 const UPRE_IDX   = findfirst(k -> k.name == "gic_u_pre", FREE)
 const SR5_IDX    = findfirst(k -> k.name == "gic_s_r5", FREE)
-const AMPB_IDX3  = Dict(b => findfirst(k -> k.name == "gic_amp_$b", FREE) for b in BLOCKS)
+const AMPB_IDX3  = SAMPLED_AMP ?
+    Dict(b => findfirst(k -> k.name == "gic_amp_$b", FREE) for b in BLOCKS) :
+    Dict{String,Int}()
 const GISAMP_IDX = findfirst(k -> k.name == "gis_amp", FREE)   # nothing when --stock-gis
 # the three basin rate scales, sampled as log10 -- the component gets 10^θ, so they
 # are DERIVED in the same sense gic_kappa is and must be skipped by the setp! loop.
@@ -1029,7 +1043,7 @@ const SETP_SKIP  = Set(vcat(collect(values(KAPPA_IDX3)),
                             collect(values(GISB_IDX3))))
 # sampled mode: the κ prior is amp-dependent (center k10c(amp)) — exclude κ from the
 # generic Normal(μ,σ) prior loop and add the explicit term in logposterior
-const PRIOR_SKIP = Set(values(KAPPA_IDX3))
+const PRIOR_SKIP = SAMPLED_AMP ? Set(values(KAPPA_IDX3)) : Set{Int}()
 # per-block rung likelihood data (data-basis committed %, band σ, cross-rung corr 0.6)
 const GMIP_LEVELS = [1.2, 1.5, 2.0, 3.0]
 const RUNG_CORR = 0.6
@@ -1465,7 +1479,7 @@ function logposterior(θ)
     for b in BLOCKS
         a = θ[A_IDX3[b]]; bb = θ[B_IDX3[b]]; T0 = θ[TOFF_IDX3[b]]
         s20 = S2020_D[b]
-        amp = θ[AMPB_IDX3[b]]
+        amp = SAMPLED_AMP ? θ[AMPB_IDX3[b]] : AMP_B[b]
         r4 = [100.0*(a*(1 - exp(-bb*(amp*L - T0))) - s20)/max(a - s20, 1e-9) - RUNG_Y[b][i]
               for (i, L) in enumerate(GMIP_LEVELS)]
         ll += -0.5 * (r4' * (RUNG_CI[b] * r4))
@@ -1563,8 +1577,10 @@ function logposterior(θ)
         lp += logpdf(Normal(FREE[k].μ, FREE[k].σ), θ[k])
     end
     # sampled mode: τ50-as-prior with the center moving consistently with the sampled amp
-    for b in BLOCKS
-        lp += logpdf(Normal(k10c(b, θ[AMPB_IDX3[b]]), K10_SIG), θ[KAPPA_IDX3[b]])
+    if SAMPLED_AMP
+        for b in BLOCKS
+            lp += logpdf(Normal(k10c(b, θ[AMPB_IDX3[b]]), K10_SIG), θ[KAPPA_IDX3[b]])
+        end
     end
     lp += logpdf(GEO_PRIOR, (θ[GEO_IDX] .- GEO_MU) ./ GEO_SD)
     for i in 1:length(SERIES); lp += logpdf(truncated(Normal(0,5),0,Inf), σn[i]); end
@@ -1707,10 +1723,11 @@ for k in GEO_IDX; prop[k] = GEO_PROP_SCALE * Float64(FREE[k].σ); end
 # chain byte-for-byte (scripts/gate_calibrator_identity.sh). The pre-cleanup calibrator
 # is kept verbatim at benchmark/reference/calibrator_300iter/.
 const ADCOV_OVERRIDE = _argval("--adcov=")
-isnothing(ADCOV_OVERRIDE) && error("--adcov=<file> is required: the proposal covariance is a " *
-    "second axis of every run and must be chosen on the command line (run_mcmc_L24.sh " *
-    "passes adapted_cov_L11tune3_seed2026_named.csv)")
-const ADCOV = let a = ADCOV_OVERRIDE
+## Default = the canonical L24 seed, and the banner SAYS whether it was chosen or defaulted.
+## (A default that is the canonical file and is announced is not the 2026-09-01 defect; that
+## was a silent preference ladder handing a run a covariance nobody had picked.)
+const ADCOV_DEFAULT = "adapted_cov_L11tune3_seed2026_named.csv"
+const ADCOV = let a = something(ADCOV_OVERRIDE, ADCOV_DEFAULT)
     cands_ov = [a, joinpath(REPO, a), joinpath(REPO, "outputs/mcmc", a)]
     k = findfirst(isfile, cands_ov)
     isnothing(k) && error("--adcov=$a: no such file (tried " * join(cands_ov, ", ") * ")")
@@ -1747,7 +1764,9 @@ let old = Matrix(adf)
             (isempty(fresh) ? "" : "; fresh diagonal for " * join(fresh, ", ")) * ")")
 end
 println(adcov_msg)
-println("--adcov: proposal covariance CHOSEN explicitly ($(basename(ADCOV))).")
+println(isnothing(ADCOV_OVERRIDE) ?
+        "--adcov not passed: proposal covariance DEFAULTED to the canonical L24 seed ($(basename(ADCOV)))." :
+        "--adcov: proposal covariance CHOSEN explicitly ($(basename(ADCOV))).")
 isposdef(cov0) || error("seed proposal covariance is not positive definite")
 
 # ---- GEOMETRY SEED GATE (Marcus 2026-08-19; handoff_2026-08-19c §1.1) -------------
