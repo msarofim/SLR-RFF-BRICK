@@ -330,3 +330,7 @@ outputs/*_MUT*.csv
 outputs/diag_emu_blocks/ladrillo_blocks_*.csv
 outputs/diag_emu_blocks/shared_*.csv
 outputs/diag_emu_blocks/run_log.txt
+
+# The SHIPPED Ladrillo posterior (L24) and its AIS-amp-1.196 override arm are tracked deliberately
+!data/MimiBRICK/parameters_subsample_brick_mengel_L24.csv
+!data/MimiBRICK/parameters_subsample_brick_mengel_L24aisamp1p196.csv
