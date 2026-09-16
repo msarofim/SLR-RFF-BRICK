@@ -1458,9 +1458,9 @@ function logposterior(θ)
             ll += hetero_logl_ar1(full[s.myi] .- s.obs, σn[i], ρn[i], s.ϵ)
         end
     end
-    # total: modeled ice+steric at "dang" years + observed LWS. NB the "dang"-labeled
-    # target is the FREDERIKSE 2020 total (label fix 2026-07-20) spliced with NOAA STAR
-    # altimetry -- rename pending the M3 total-term rework.
+    # total: the "dang" target IS Dangendorf 2024 GMSL spliced with NOAA STAR (M3 rework
+    # 2026-07-20; prep_recalib_targets_ext.py). It is read for the banner and the closure
+    # diagnostics only -- the total is NOT scored (SERIES excludes it).
     # (The total is deliberately NOT scored -- see the SERIES constant; S.dang is read only
     # for the fit-window banner and the closure-sigma diagnostics.)
     # A5: SMB anchor -- model β_total (1979-2008 mean, Gt/yr) vs area-scaled Rignot 2019

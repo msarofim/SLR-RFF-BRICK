@@ -1,3 +1,47 @@
+## 2026-09-16b — code-review-ready cleanups (Marcus: "do all the Ladrillo cleanups"; Zenodo waits for the team review)
+
+Every step below is gated. **New gate: `scripts/gate_calibrator_identity.sh`** — runs the L24
+configuration for 300 iterations from seed 2026 and demands BYTE-IDENTITY of the chain and adapted
+covariance against `benchmark/reference/calibrator_300iter/` (40 s). Mutation-tested at creation
+(`--amp-sigma=0.181` → differs). The pre-cleanup calibrator is kept verbatim beside the reference.
+
+1. **19 literal `tap4p69K_V5p64m_tau800` stems → `ladrillo_figs.joint_stem` / `gis_targets.tap_tag`**
+   (15 files). Every replaced constant evaluated equal to its literal; `bench_ladrillo.py` re-run
+   numerically identical (stamps only). `01f25ef`.
+2. **The shipped L24 posterior was NOT under version control** (`data/MimiBRICK/*` gitignored) — now
+   tracked with the AIS-amp-1.196 arm (`d33ff8e`).
+3. **`calibrate_mcmc_ext.jl` 2,412 → 2,108 lines**, gate PASS after every stage:
+   - stage 1 (`ed…`): the adcov preference ladder and SIX vintage name tables (OLD35/38/39/52/54,
+     L10, L11) removed; covariance files must be self-describing (named header). The one file L24
+     needs was converted by HEADER REPLACEMENT ONLY (`adapted_cov_L11tune3_seed2026_named.csv`,
+     body bytes untouched) and reproduces the chain byte-for-byte. `--adcov` defaults to it with a
+     banner that says DEFAULTED vs CHOSEN.
+   - stage 2: `--amp-equilibrium`, `--keep-total`, `--no-r19-rate`, `--rung-sig-legacy`,
+     `--glambie-absolute`, `--no-closure-sigma` arms removed (the L11 change set IS the objective;
+     `ALL_SERIES`/`:dang` gone from the layout).
+   - stage 3: `--gis-native`, `--no-d2`, `--d2-streams=` removed; `--amp-basis` KEPT as a documented
+     TEST-ONLY knob (validate_glaciers_nu3 port gate needs the fixed bases; PASS on both).
+   - stage 4: A+B two-basin ORDERED Greenland with the sector-share term is the default
+     (`--gis-ordered`/`--gis-basins2` accepted as no-ops so run_mcmc_L24.sh is unchanged in effect;
+     `--stock-gis`, `--gis-basins`, `--no-gis-shares` removed). Header rewritten: the defaults now
+     DO reproduce L24.
+   - stale "'dang' is Frederikse" comment corrected.
+   NOT removed: the steric marginal cap (`--steric-marg-cap=`, a documented optional arm) and the
+   else-branches of the Greenland variant flags beyond the constants (77 sites; next pass).
+4. **`git gc`**: 8 garbage `tmp_pack_*` removed; pack 7.8 → 7.07 GB. ⚠ The history carries ~15 GB of
+   1 GB `outputs/mcmc/wong_cond_pulse_pairs_*.csv` blobs (June); purging needs `git filter-repo`
+   on a public repo — Marcus's call, and one more reason the review copy should be an EXTRACTED
+   package, not a clone.
+5. **Standing suite `run_ladrillo_tests.sh`**: 1–5, 7–10 PASS. **6 (`validate_gis_projection_ab.jl`
+   block [3]) FAILS and was ALREADY FAILING**: its offline-cell reference constants (6.928 / 9.834 /
+   17.367 cm) were computed on calib-1.4.5 forcing; the last passing log is 08-23 and the mean
+   drivers moved 08-28. ssp245 still passes (−0.05 cm), ssp126 +0.35, ssp585 −1.84 — the
+   migration's signature, not today's. Per the standing rule the test was NOT edited; it needs the
+   offline cell regenerated on the 1.6.0 forcing (Marcus).
+6. SLOWP/FAST → SLOWG/FASTG in CODE deliberately NOT done: 44 tracked data files incl. the
+   posterior, the frozen benchmark reference and the chain headers carry the names; do it at the
+   v1.0 package extraction on fresh files.
+
 ## 2026-09-16 — Tony Wong's reply: the double-counting / dataset-correlation ledger
 
 Tony (09-15): interested; fine with MIP/expert constraints; wants "any potential criticisms about

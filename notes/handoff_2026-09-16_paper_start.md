@@ -59,9 +59,24 @@ constraints, wants double-counting/correlation nipped in the bud, asked if still
   dropped; FRISIA is FaIR-coupled but no pre-2002 ice-sheet test; BRICK also climate-driven past
   2100 on FaIR; LARMIP DOES respond after 2100 (200-yr memory).
 
-## 3. CLEANUPS — see CHANGELOG 09-16b for what was done and the gates that proved inertness
-
-(Filled in by the cleanup commits that follow this note; each names its identity gate.)
+## 3. CLEANUPS DONE (CHANGELOG 09-16b has the receipts)
+- ⭐ **`scripts/gate_calibrator_identity.sh`** — 300-iter seed-2026 byte-identity against
+  `benchmark/reference/calibrator_300iter/` (40 s, mutation-tested). RUN IT after ANY edit to
+  `calibrate_mcmc_ext.jl`. The pre-cleanup file sits beside the reference.
+- `calibrate_mcmc_ext.jl` 2,412 → 2,108 lines: adcov ladder + six vintage name tables gone
+  (covariances must be NAMED files; `adapted_cov_L11tune3_seed2026_named.csv` = header-replaced
+  copy, chain byte-identical); ten legacy flag arms gone; L24's Greenland is the default;
+  `--amp-basis` kept as a TEST-ONLY knob; `--adcov` defaults to the canonical seed with a banner.
+  **Still to do:** the else-branches of `GIS_AB/GIS_BASINS/GISB_TERM/GIS_ORDERED` (77 sites, all
+  constants now `true`), the steric-cap arm (documented optional; keep or drop is a choice).
+- Literal tap stems → helpers (15 files); the L24 posterior + 1.196 arm now TRACKED; `git gc`.
+- ⚠ **`run_ladrillo_tests.sh` test 6 [3] FAILS and was already failing since the 08-28 driver
+  migration** (offline-cell reference constants are 1.4.5-forcing numbers). Not edited (standing
+  rule). Fix = regenerate `python/gis_offline_cell.py`'s cell on the 1.6.0 forcing, Marcus's call.
+- NOT done, by decision: SLOWP/FAST code rename (44 data files incl. the posterior and the frozen
+  benchmark carry the names — do it at the v1.0 package extraction); `dang`→`total` column rename
+  (same reason; the stale comment is fixed). ~15 GB of June `wong_cond_pulse_pairs_*` blobs sit in
+  history — `git filter-repo` on a public repo is Marcus's call.
 
 ## 4. ⚠ NON-OBVIOUS STATE / TRAPS (new this arc)
 - **`outputs/diag_emu_blocks/`**: per-draw CSVs and the shared-climate dumps are GITIGNORED
