@@ -1,7 +1,8 @@
 ## ============================================================================
-## CANONICAL RUN = run_mcmc_L24.sh (flags --gis-ordered --gis-basins2 --overdisperse
-##   --adcov=adapted_cov_L11tune3_seed2026.csv --amp-mu=1.09 --amp-sigma=0.180).
-## The defaults below do NOT reproduce L24 — always launch via the run script.
+## CANONICAL RUN = run_mcmc_L24.sh (--overdisperse --adcov=adapted_cov_L11tune3_seed2026_named.csv
+##   --amp-mu=1.09 --amp-sigma=0.180; --gis-ordered --gis-basins2 are accepted no-ops since the
+##   2026-09-16 cleanup made them the defaults). scripts/gate_calibrator_identity.sh proves any
+##   edit to this file still reproduces the L24 objective byte-for-byte (300 iter, seed 2026).
 ## Postprocess with run_l24_postprocess.sh (postprocess_mcmc_ext.jl --tag=L24 --accept-slr,
 ## gated by diag_slr_convergence_by_chain_ladrillo.jl).
 ## ============================================================================
@@ -247,7 +248,7 @@ end
 # HERE, inside the model's own inputs, exactly as the glacier block drivers are.
 # Do not promote it to a required input -- that drop-in property is what
 # distinguishes Ladrillo from MAGICC-SLR.
-const GIS_AB = !("--stock-gis" in ARGS)
+const GIS_AB = true          # the A+B two-channel Greenland is the only Greenland (--stock-gis removed 2026-09-16)
 # --gis-zone=<south|all|central|north>. A FLAG, not a source edit, for the same
 # reason --adcov is: the arm becomes runnable, reviewable in the run script, and
 # recorded in the log, instead of living as an uncommitted one-character diff.
@@ -298,8 +299,10 @@ const GIS_V0_M = 7.42             # Greenland volume, m SLE — STRUCTURAL, not 
 # Mouginot sector groups in the slot (julia/greenland_3basin_component.jl, gated by
 # julia/test_greenland_3basin_nesting.jl) and adds ONE rate scale per basin. The
 # geometry — the volume shares k_b — is FIXED, never sampled.
-const GIS_BASINS2 = "--gis-basins2" in ARGS
-const GIS_BASINS = ("--gis-basins" in ARGS) || GIS_BASINS2
+## Two basins (active + high) is the DEFAULT since 2026-09-16; `--gis-basins2` is accepted as a
+## no-op so run_mcmc_L24.sh keeps reproducing L24. The whole-sheet and three-basin arms are gone.
+const GIS_BASINS2 = true
+const GIS_BASINS = true
 GIS_BASINS && !GIS_AB && error("--gis-basins requires the A+B Greenland module (drop --stock-gis)")
 # ---- --gis-basins2: the TWO-basin configuration (Marcus 2026-08-20) -----------
 # NO NEW COMPONENT. `greenland_3basin` at k_mid = 0 IS a two-basin model, and it is
@@ -331,7 +334,7 @@ GIS_BASINS && !GIS_AB && error("--gis-basins requires the A+B Greenland module (
 GIS_BASINS2 && !GIS_BASINS && error("--gis-basins2 implies the basin component")
 # The term itself is separable from the state, so step 2 of the handoff's order of
 # work (basins in, term OFF, confirm the total is unchanged) is reachable as a run.
-const GISB_TERM = GIS_BASINS && !("--no-gis-shares" in ARGS)
+const GISB_TERM = true       # the Mouginot sector-share term is part of the objective (--no-gis-shares removed 2026-09-16)
 # THE VOLUME SHARES ACTUALLY USED. Both tables are DERIVED from GIS3_VOL_M in
 # greenland_3basin_component.jl, never typed as literals here: the two-basin k is
 # (south + mid, 0, high) = (0.628571, 0, 0.371429), and a literal would silently stop
@@ -999,7 +1002,9 @@ const GIS_BETA_F_IDX  = findfirst(k -> k.name == "gis_beta_f", FREE)
 ## (diag_gis_ordering_projection_cost.py).
 ##
 ## OFF by default: L11 and every earlier vintage must stay bit-reproducible.
-const GIS_ORDERED = "--gis-ordered" in ARGS
+## ON by default since 2026-09-16 (`--gis-ordered` accepted as a no-op): L12+ vintages all carry
+## the ordering wedge and L11 is reproduced from its frozen calibrator, not from this file.
+const GIS_ORDERED = true
 const DELTA_IDX  = findfirst(k -> k.name == "gic_delta", FREE)
 const UPRE_IDX   = findfirst(k -> k.name == "gic_u_pre", FREE)
 const SR5_IDX    = findfirst(k -> k.name == "gic_s_r5", FREE)
