@@ -73,6 +73,10 @@ constraints, wants double-counting/correlation nipped in the bud, asked if still
 - ⚠ **`run_ladrillo_tests.sh` test 6 [3] FAILS and was already failing since the 08-28 driver
   migration** (offline-cell reference constants are 1.4.5-forcing numbers). Not edited (standing
   rule). Fix = regenerate `python/gis_offline_cell.py`'s cell on the 1.6.0 forcing, Marcus's call.
+  Same signature: running the suite REWRITES `outputs/gis_port_reference.csv` (test 4 regenerates
+  it; max |Δ| 0.36 cm after 2024 on the 1.6.0 forcing vs the tracked 08-20 file) — reverted, not
+  committed, because a reference a test writes itself is not a reference. Decide the regeneration
+  together with test 6.
 - NOT done, by decision: SLOWP/FAST code rename (44 data files incl. the posterior and the frozen
   benchmark carry the names — do it at the v1.0 package extraction); `dang`→`total` column rename
   (same reason; the stale comment is fixed). ~15 GB of June `wong_cond_pulse_pairs_*` blobs sit in
