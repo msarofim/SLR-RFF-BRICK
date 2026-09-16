@@ -33,7 +33,7 @@ set -e
 cd "$(dirname "$0")"
 NITER="${1:-2000000}"
 TAG="${TAG:-L24}"
-ADCOV=adapted_cov_L11tune3_seed2026.csv
+ADCOV=adapted_cov_L11tune3_seed2026_named.csv   # header = parameter names (2026-09-16); byte-identical chain to the x1..x57 file via L11_NAMES, gate_calibrator_identity.sh
 STARTS=outputs/mcmc/overdispersed_starts.csv
 mkdir -p outputs/mcmc
 [[ -f "$STARTS" ]] || { echo "MISSING $STARTS"; exit 1; }
