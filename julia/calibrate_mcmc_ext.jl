@@ -135,8 +135,10 @@ const STERIC_CAP_ARG = _argval("--steric-marg-cap=")
 # 2026-09-16: the change set is the production objective since L11 and no shipped result
 # depends on the L10 configuration. `--keep-total` in particular is gone because the total
 # is NOT a likelihood term in any Ladrillo vintage (see the document, "Deliberately removed").
-const D2_ON = !("--no-d2" in ARGS)
-const GIS_REPARAM = !("--gis-native" in ARGS)
+## The two-stream model-discrepancy term is always on; --no-d2 and --d2-streams= were
+## removed 2026-09-16 (both were attribution-only arms, never a shipped configuration).
+## The Greenland slow channel is always sampled as (log r_s, w); the native (alpha_s, beta_s)
+## arm (--gis-native) was removed 2026-09-16.
 const TAG = TAG_OVR !== nothing ? TAG_OVR :
             "D1"                                              # output infix (legacy default)
 years = collect(Y0:Y1); ib = [findfirst(==(y),years) for y in B0:B1]; idx(y)=findfirst(==(y),years)
@@ -183,9 +185,9 @@ const AMP_G = 1.8            # aggregate convention (d0 gates/patho frame; kept 
 # every product; regchar sits below the obs range. Priors = center near HadCRUT5 with
 # σ from the dataset spread; hard bounds = the cross-dataset ranges.
 # Fixed-basis modes (regchar/obsfit) retained for A/B arms.
-const AMP_BASIS = something(_argval("--amp-basis="), "sampled")
-AMP_BASIS in ("sampled", "regchar", "obsfit") || error("--amp-basis must be sampled|regchar|obsfit")
-const SAMPLED_AMP = AMP_BASIS == "sampled"
+## The per-block glacier amplification is SAMPLED (gic_amp_b); the fixed-amp arms
+## (--amp-basis=regchar|obsfit) were removed 2026-09-16.
+const AMP_BASIS = "sampled"
 const BLOCKS = ["R19", "SLOWP", "FAST"]
 const HIND_BLOCKS = ["SLOWP", "FAST"]   # r19 seam: excluded from the flow/ledger scope
 bcdf = CSV.read(joinpath(REPO, "outputs/extc_block_constants.csv"), DataFrame)
@@ -197,9 +199,7 @@ const AMP_PRIOR = Dict("R19"   => (0.72, 0.15, 0.58, 0.88),
 # κ-prior center: the drivers' amp-dependent part is the 2025-2026 splice tail, which
 # no likelihood term reads (gsic obs end 2023; GlaMBIE rate ends at melt[2024] ←
 # T[2023] = obs). Drivers are therefore built ONCE at the amp-prior centers.
-const AMP_B = SAMPLED_AMP ?
-    Dict(b => AMP_PRIOR[b][1] for b in BLOCKS) :
-    Dict(b => Float64(bcrow(b)["amp_$(AMP_BASIS)"]) for b in BLOCKS)
+const AMP_B = Dict(b => AMP_PRIOR[b][1] for b in BLOCKS)
 # κ-anchor center as a function of amp: log-linear interpolation between the two
 # precomputed τ50 anchor solves (regchar-amp and obsfit-amp points, per block) — keeps
 # the τ50-as-prior centered consistently when amp moves.
@@ -212,10 +212,8 @@ function k10c(b, amp)
     return k1 + (k2 - k1) * (amp - a1) / (a2 - a1)
 end
 const K10_SIG = 0.114        # ±30% at 1σ — the ANCH-vs-MID freedom (offline evidence)
-const FIT_BASIS = SAMPLED_AMP ? "obsfit" : AMP_BASIS   # θ0 (b, T_off) start frame
-const KAP_ANCH = SAMPLED_AMP ?
-    Dict(b => 10.0^k10c(b, AMP_B[b]) for b in BLOCKS) :
-    Dict(b => Float64(bcrow(b)["kappa_anch_$(AMP_BASIS)"]) for b in BLOCKS)
+const FIT_BASIS = "obsfit"                              # θ0 (b, T_off) start frame
+const KAP_ANCH = Dict(b => 10.0^k10c(b, AMP_B[b]) for b in BLOCKS)
 const NU_ANCH  = Dict(b => Float64(bcrow(b)["nu_anch_$(FIT_BASIS)"]) for b in BLOCKS)
 const S2020_D  = Dict(b => Float64(bcrow(b).S2020_data)              for b in BLOCKS)
 const GLAMBIE_RATE = Dict(b => Float64(bcrow(b).glambie_rate)    for b in BLOCKS)
@@ -694,11 +692,7 @@ const D2_BASIS_SD = 0.5      # cm, prior sd on each coefficient (residuals are 0
 # other stream's coefficients from FREE and from D2_IDX, and `d2()` is already
 # keyed on haskey(D2_IDX, st), so the other stream reverts to no-discrepancy
 # exactly.
-const D2_STREAMS  = let a = _argval("--d2-streams=")
-    a === nothing ? ["gsic", "steric"] : split(a, ",")
-end
-issubset(D2_STREAMS, ["gsic", "steric"]) ||
-    error("--d2-streams= takes gsic and/or steric, got $(D2_STREAMS)")
+const D2_STREAMS  = ["gsic", "steric"]
 
 """Orthonormal (unit-RMS) discrepancy basis for one stream: shifted Legendre-like
 powers of scaled time, Gram-Schmidt'd against `protect` and against each other,
@@ -838,19 +832,12 @@ if GIS_AB
                  μ=0.0028487, σ=0.020, lo=0.0, hi=0.5, islog=false))
     push!(FREE, (name="gis_beta_f", comp=GISC, sym=:gis_beta_f,
                  μ=0.0073684, σ=0.050, lo=1e-6, hi=0.5, islog=false))
-    if GIS_REPARAM
-        push!(FREE, (name="gis_slow_ell", comp=:likelihood_only, sym=:none,
-                     μ=GIS_ELL_MU, σ=GIS_ELL_SD,
-                     lo=GIS_ELL_MU - 4*GIS_ELL_SD, hi=GIS_ELL_MU + 4*GIS_ELL_SD,
-                     islog=false))
-        push!(FREE, (name="gis_slow_w", comp=:likelihood_only, sym=:none,
-                     μ=GIS_W_MU, σ=1e3, lo=0.0, hi=1.0, islog=false))
-    else
-        push!(FREE, (name="gis_alpha_s", comp=GISC, sym=:gis_alpha_s,
-                     μ=0.0070727, σ=0.020, lo=0.0, hi=0.2, islog=false))
-        push!(FREE, (name="gis_beta_s", comp=GISC, sym=:gis_beta_s,
-                     μ=0.0010000, σ=0.020, lo=1e-6, hi=0.2, islog=false))
-    end
+    push!(FREE, (name="gis_slow_ell", comp=:likelihood_only, sym=:none,
+                 μ=GIS_ELL_MU, σ=GIS_ELL_SD,
+                 lo=GIS_ELL_MU - 4*GIS_ELL_SD, hi=GIS_ELL_MU + 4*GIS_ELL_SD,
+                 islog=false))
+    push!(FREE, (name="gis_slow_w", comp=:likelihood_only, sym=:none,
+                 μ=GIS_W_MU, σ=1e3, lo=0.0, hi=1.0, islog=false))
     # The regional amplification, SAMPLED (Marcus 2026-08-12), not pinned at the
     # prior centre. Same treatment as the glacier blocks' gic_amp_b and the same
     # reasoning as the 4.2 beta_f ruling: the likelihood cannot see it, but it is
@@ -946,18 +933,14 @@ for b in BLOCKS
     push!(FREE, (name="gic_T_off_$b", comp=G, sym=Symbol("gic_T_off_$b"),
                  μ=Float64(r["T_off_fit_$(FIT_BASIS)"]), σ=10.0, lo=-3.0, hi=1.0, islog=false))
     # κ bounds: sampled mode spans the anchor-center range over the amp prior bounds ±1
-    klo, khi = if SAMPLED_AMP
-        c1 = k10c(b, AMP_PRIOR[b][3]); c2 = k10c(b, AMP_PRIOR[b][4])
+    klo, khi = let c1 = k10c(b, AMP_PRIOR[b][3]), c2 = k10c(b, AMP_PRIOR[b][4])
         (min(c1, c2) - 1.0, max(c1, c2) + 1.0)
-    else
-        (log10(KAP_ANCH[b]) - 1.0, log10(KAP_ANCH[b]) + 1.0)
     end
     push!(FREE, (name="gic_log10_kappa_$b", comp=G, sym=Symbol("gic_kappa_$b"),
                  μ=log10(KAP_ANCH[b]), σ=K10_SIG, lo=klo, hi=khi, islog=false))
 end
-if SAMPLED_AMP
-    for b in BLOCKS
-        μa, σa, loa, hia = AMP_PRIOR[b]
+for b in BLOCKS
+    let (μa, σa, loa, hia) = AMP_PRIOR[b]
         push!(FREE, (name="gic_amp_$b", comp=:likelihood_only, sym=:none,
                      μ=μa, σ=σa, lo=loa, hi=hia, islog=false))
     end
@@ -976,18 +959,15 @@ const A_IDX3     = Dict(b => findfirst(k -> k.name == "gic_a_$b", FREE) for b in
 const B_IDX3     = Dict(b => findfirst(k -> k.name == "gic_b_$b", FREE) for b in BLOCKS)
 const TOFF_IDX3  = Dict(b => findfirst(k -> k.name == "gic_T_off_$b", FREE) for b in BLOCKS)
 const UUNCH_IDX  = findfirst(k -> k.name == "gic_u_unch", FREE)
-if D2_ON
-    for st in D2_STREAMS, k in 1:D2_BASIS_N
-        push!(FREE, (name="d2_$(st)_$(k)", comp=:likelihood_only, sym=:none,
-                     μ=0.0, σ=D2_BASIS_SD, lo=-5*D2_BASIS_SD, hi=5*D2_BASIS_SD,
-                     islog=false))
-    end
+for st in D2_STREAMS, k in 1:D2_BASIS_N
+    push!(FREE, (name="d2_$(st)_$(k)", comp=:likelihood_only, sym=:none,
+                 μ=0.0, σ=D2_BASIS_SD, lo=-5*D2_BASIS_SD, hi=5*D2_BASIS_SD,
+                 islog=false))
 end
-const D2_IDX = D2_ON ?
-    Dict(st => [findfirst(k -> k.name == "d2_$(st)_$(i)", FREE) for i in 1:D2_BASIS_N]
-         for st in D2_STREAMS) : Dict{String,Vector{Int}}()
-const GIS_ELL_IDX = GIS_REPARAM ? findfirst(k -> k.name == "gis_slow_ell", FREE) : nothing
-const GIS_W_IDX   = GIS_REPARAM ? findfirst(k -> k.name == "gis_slow_w", FREE) : nothing
+const D2_IDX = Dict(st => [findfirst(k -> k.name == "d2_$(st)_$(i)", FREE) for i in 1:D2_BASIS_N]
+                    for st in D2_STREAMS)
+const GIS_ELL_IDX = findfirst(k -> k.name == "gis_slow_ell", FREE)
+const GIS_W_IDX   = findfirst(k -> k.name == "gis_slow_w", FREE)
 const GIS_ALPHA_F_IDX = findfirst(k -> k.name == "gis_alpha_f", FREE)
 const GIS_BETA_F_IDX  = findfirst(k -> k.name == "gis_beta_f", FREE)
 ## ---------------------------------------------------------------------------
@@ -1020,16 +1000,10 @@ const GIS_BETA_F_IDX  = findfirst(k -> k.name == "gis_beta_f", FREE)
 ##
 ## OFF by default: L11 and every earlier vintage must stay bit-reproducible.
 const GIS_ORDERED = "--gis-ordered" in ARGS
-if GIS_ORDERED && !GIS_REPARAM
-    error("--gis-ordered needs the (ell, w) reparameterisation; the " *
-          "native-coordinate branch would need its own wedge.")
-end
 const DELTA_IDX  = findfirst(k -> k.name == "gic_delta", FREE)
 const UPRE_IDX   = findfirst(k -> k.name == "gic_u_pre", FREE)
 const SR5_IDX    = findfirst(k -> k.name == "gic_s_r5", FREE)
-const AMPB_IDX3  = SAMPLED_AMP ?
-    Dict(b => findfirst(k -> k.name == "gic_amp_$b", FREE) for b in BLOCKS) :
-    Dict{String,Int}()
+const AMPB_IDX3  = Dict(b => findfirst(k -> k.name == "gic_amp_$b", FREE) for b in BLOCKS)
 const GISAMP_IDX = findfirst(k -> k.name == "gis_amp", FREE)   # nothing when --stock-gis
 # the three basin rate scales, sampled as log10 -- the component gets 10^θ, so they
 # are DERIVED in the same sense gic_kappa is and must be skipped by the setp! loop.
@@ -1045,12 +1019,12 @@ const SETP_SKIP  = Set(vcat(collect(values(KAPPA_IDX3)),
                             reduce(vcat, values(D2_IDX); init=Int[]),
                             # (ell, w) are DERIVED: they set gis_alpha_s/gis_beta_s
                             # in logposterior, they are not Mimi parameters.
-                            GIS_REPARAM ? [GIS_ELL_IDX, GIS_W_IDX] : Int[],
+                            [GIS_ELL_IDX, GIS_W_IDX],
                             GISAMP_IDX === nothing ? Int[] : [GISAMP_IDX],
                             collect(values(GISB_IDX3))))
 # sampled mode: the κ prior is amp-dependent (center k10c(amp)) — exclude κ from the
 # generic Normal(μ,σ) prior loop and add the explicit term in logposterior
-const PRIOR_SKIP = SAMPLED_AMP ? Set(values(KAPPA_IDX3)) : Set{Int}()
+const PRIOR_SKIP = Set(values(KAPPA_IDX3))
 # per-block rung likelihood data (data-basis committed %, band σ, cross-rung corr 0.6)
 const GMIP_LEVELS = [1.2, 1.5, 2.0, 3.0]
 const RUNG_CORR = 0.6
@@ -1335,7 +1309,7 @@ println("MCMC: $NP physical (incl $(length(GEO_IDX)) DAIS-geometry under a joint
         "DROPPED",
         "ON",
         R19_RATE_MU, R19_RATE_SD, RUNG_SIG_SCALE)
-GIS_REPARAM && println("Greenland slow channel: (log r_s, w) at Tbar = " *
+println("Greenland slow channel: (log r_s, w) at Tbar = " *
         "$(round(GIS_TBAR, digits=4)) K | ell ~ N($(round(GIS_ELL_MU, digits=4)), " *
         "$GIS_ELL_SD) | w flat on [0,1], centred $(round(GIS_W_MU, digits=4))")
 println("Greenland channel ordering: " * (GIS_ORDERED ?
@@ -1343,10 +1317,10 @@ println("Greenland channel ordering: " * (GIS_ORDERED ?
         "WEDGE in (ell, w); the labels are otherwise carried only by Mouginot" :
         "FREE (default) -- channels are exchangeable in the likelihood, so the " *
         "fast/slow labels rest entirely on the Mouginot share prior"))
-println("D2 discrepancy: " * (D2_ON ? "ON" : "OFF (--no-d2)") *
+println("D2 discrepancy: ON" *
         " | $D2_BASIS_N dof per stream on " * join(D2_STREAMS, "+") *
         " | prior sd $D2_BASIS_SD cm | orthogonal to the constant" *
-        (D2_ON ? ", to DELTA_RAMP on gsic, and to S(t) on steric" : ""))
+        ", to DELTA_RAMP on gsic, and to S(t) on steric")
 
 # ---- model base (medoid + glacier init), forcing once -- extC 3-reservoir build ----
 medoid = CSV.read(joinpath(REPO,"outputs/recalib_central_row.csv"), DataFrame)[1,:]
@@ -1428,8 +1402,7 @@ function logposterior(θ)
     end
     # A4: runoff line -- reconstruct h0 from the identified direction
     update_param!(m, :antarctic_icesheet, :ais_runoffline_snowheight₀, -θ[TON_IDX] * θ[C_IDX])
-    if GIS_REPARAM                     # (ell, w) -> the component's native rate pair
-        r_s = exp(θ[GIS_ELL_IDX]); w_s = θ[GIS_W_IDX]
+    let r_s = exp(θ[GIS_ELL_IDX]), w_s = θ[GIS_W_IDX]   # (ell, w) -> the native rate pair
         update_param!(m, _GIS_SLOT, :gis_alpha_s, w_s * r_s / GIS_TBAR)
         update_param!(m, _GIS_SLOT, :gis_beta_s, (1 - w_s) * r_s)
     end
@@ -1453,8 +1426,7 @@ function logposterior(θ)
     # D2: delta(t) is added to the MODEL (it is a model-discrepancy term), so the
     # per-year band sigma and the AR(1) noise are untouched — spec section 3
     # sub-choice 2 requires delta to be added to, not to replace, diag(eps^2).
-    d2 = (st, v) -> (!D2_ON || !haskey(D2_IDX, st)) ? v :
-                    v .+ D2_BASIS[st] * [θ[j] for j in D2_IDX[st]]
+    d2 = (st, v) -> v .+ D2_BASIS[st] * [θ[j] for j in D2_IDX[st]]
     for (i,(s,full)) in enumerate(zip([S.ais,S.gsic,S.gis,S.steric], [ais,gsic_flow,gis,te]))
         if i == 2
             ll += hetero_logl_ar1(d2("gsic", full[s.myi]) .-
@@ -1488,7 +1460,7 @@ function logposterior(θ)
     for b in BLOCKS
         a = θ[A_IDX3[b]]; bb = θ[B_IDX3[b]]; T0 = θ[TOFF_IDX3[b]]
         s20 = S2020_D[b]
-        amp = SAMPLED_AMP ? θ[AMPB_IDX3[b]] : AMP_B[b]
+        amp = θ[AMPB_IDX3[b]]
         r4 = [100.0*(a*(1 - exp(-bb*(amp*L - T0))) - s20)/max(a - s20, 1e-9) - RUNG_Y[b][i]
               for (i, L) in enumerate(GMIP_LEVELS)]
         ll += -0.5 * (r4' * (RUNG_CI[b] * r4))
@@ -1586,10 +1558,8 @@ function logposterior(θ)
         lp += logpdf(Normal(FREE[k].μ, FREE[k].σ), θ[k])
     end
     # sampled mode: τ50-as-prior with the center moving consistently with the sampled amp
-    if SAMPLED_AMP
-        for b in BLOCKS
-            lp += logpdf(Normal(k10c(b, θ[AMPB_IDX3[b]]), K10_SIG), θ[KAPPA_IDX3[b]])
-        end
+    for b in BLOCKS
+        lp += logpdf(Normal(k10c(b, θ[AMPB_IDX3[b]]), K10_SIG), θ[KAPPA_IDX3[b]])
     end
     lp += logpdf(GEO_PRIOR, (θ[GEO_IDX] .- GEO_MU) ./ GEO_SD)
     for i in 1:length(SERIES); lp += logpdf(truncated(Normal(0,5),0,Inf), σn[i]); end
@@ -1947,7 +1917,7 @@ if "--gis-check" in ARGS
     end
     # THE SLOW CHANNEL NEEDS THE (ell, w) MAP, and this is the second half of the
     # 2026-08-19 --gis-check repair. GIS_OFFLINE_G0 is keyed on the NATIVE names
-    # gis_alpha_s / gis_beta_s, which do not exist in FREE under GIS_REPARAM — so
+    # gis_alpha_s / gis_beta_s, which do not exist in FREE under the (ell, w) reparameterisation — so
     # both overrides were silently skipped and θchk kept whatever slow channel θ0
     # carried. Under --gis-ordered θ0's slow channel is deliberately overwritten
     # with the L11 ORD-half medians (see the GIS_ORDERED block above), giving
@@ -1955,8 +1925,7 @@ if "--gis-check" in ARGS
     # the whole of the four-gate failure. WITHOUT --gis-ordered it passed only
     # because θ0's MAP happened to sit near the offline slow channel, so the
     # defect was masked in exactly the configuration nobody ships.
-    if GIS_REPARAM
-        a_s, b_s = GIS_OFFLINE_G0["gis_alpha_s"], GIS_OFFLINE_G0["gis_beta_s"]
+    let a_s = GIS_OFFLINE_G0["gis_alpha_s"], b_s = GIS_OFFLINE_G0["gis_beta_s"]
         r_s = a_s * GIS_TBAR + b_s
         θchk[GIS_ELL_IDX] = log(r_s)
         θchk[GIS_W_IDX]   = a_s * GIS_TBAR / r_s
@@ -1975,10 +1944,10 @@ if "--gis-check" in ARGS
     end
     # NO SILENT SKIPS. Every offline key must reach a parameter, or the diagnostic
     # is comparing a vector that is not the reference vector — which is precisely
-    # how this went unnoticed. Under GIS_REPARAM the native slow pair is consumed
+    # how this went unnoticed. Under the (ell, w) reparameterisation the native slow pair is consumed
     # by the map above rather than matched by name.
     let want = Set(keys(GIS_OFFLINE_G0)),
-        got = Set(GIS_REPARAM ? vcat(applied, ["gis_alpha_s", "gis_beta_s"]) : applied)
+        got = Set(vcat(applied, ["gis_alpha_s", "gis_beta_s"]))
         missed = setdiff(want, got)
         isempty(missed) || error("--gis-check: $(length(missed)) offline reference " *
             "value(s) matched no free parameter and were SILENTLY DROPPED: " *
