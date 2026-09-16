@@ -1735,234 +1735,33 @@ for k in GEO_IDX; prop[k] = GEO_PROP_SCALE * Float64(FREE[k].σ); end
 # d2_* columns either.
 # Whether the proposal covariance was CHOSEN or INHERITED. Read once, so the banner
 # at `println(adcov_msg)` can say which.
+# ---- proposal covariance seed: an EXPLICIT, SELF-DESCRIBING file ---------------------
+# --adcov=<file> is REQUIRED. The file's header must be parameter names (the calibrator
+# writes adapted_cov_<tag>_seed<seed>.csv that way); rows are embedded BY NAME, so a file
+# from any vintage seeds the parameters it shares and leaves the rest on the diagonal.
+# HISTORY (2026-09-16 cleanup): this replaced a 300-line preference ladder plus six
+# hand-transcribed vintage name tables (OLD35/38/39/52/54, L10, L11) that mapped the
+# x1..xN placeholder headers of pre-2026-08-19 files. That machinery was where the L13
+# "frozen ais_c" (a shifted row) and the L23/L24 "nobody chose the covariance" defects
+# lived. The one file L24 needs, adapted_cov_L11tune3_seed2026.csv, was converted by
+# header replacement to adapted_cov_L11tune3_seed2026_named.csv and reproduces the L24
+# chain byte-for-byte (scripts/gate_calibrator_identity.sh). The pre-cleanup calibrator
+# is kept verbatim at benchmark/reference/calibrator_300iter/.
 const ADCOV_OVERRIDE = _argval("--adcov=")
-const ADCOV = let l11c = joinpath(REPO,"outputs/mcmc/adapted_cov_L11tune3_seed2026.csv"),
-                  l11b = joinpath(REPO,"outputs/mcmc/adapted_cov_L11tune2_seed2026.csv"),
-                  l11a = joinpath(REPO,"outputs/mcmc/adapted_cov_L11tune_seed2026.csv"),
-                  l10b = joinpath(REPO,"outputs/mcmc/adapted_cov_L10tune2_seed2026.csv"),
-                  l10 = joinpath(REPO,"outputs/mcmc/adapted_cov_L10tune_seed2026.csv"),
-                  c1s = joinpath(REPO,"outputs/mcmc/adapted_cov_extC1_seed2026.csv"),
-                  c1 = joinpath(REPO,"outputs/mcmc/adapted_cov_extC1.csv"),
-                  b3c = joinpath(REPO,"outputs/mcmc/adapted_cov_extB3c_seed2026.csv"),
-                  b2 = joinpath(REPO,"outputs/mcmc/adapted_cov_extB2_seed2026.csv"),
-                  e = joinpath(REPO,"outputs/mcmc/adapted_cov_ext.csv"),
-                  b = joinpath(REPO,"outputs/mcmc/adapted_cov.csv")
-    # PRODUCTION: prefer the extC1-tuned full-rank cov (52x52, used as-is when NK
-    # matches). Falls back to extB3c (38-param, name-mapped, fresh glacier diagonal)
-    # for the first tuning run itself; a dimension mismatch is caught by the
-    # dispatch below (visible WARNING -> diagonal), never silently misused.
-    # L10tune2 is the 55-param (gis_amp sampled) tuning run and matches NK exactly,
-    # so it is used AS-IS. L10tune is the 54-param first tuning run, name-mapped via
-    # OLD54_NAMES. Both beat the extC covariance for a Ladrillo 1.0 run.
-    # Preference order, most-preferred first. The Ladrillo-only covariances are
-    # offered only when the A+B Greenland module is on; the rest are the pre-Ladrillo
-    # fallbacks. Falls through to the 2018-baseline `b` if none exist.
-    cands = String[]
-    GIS_AB && append!(cands, [l11c, l11b, l11a, l10b, l10])
-    append!(cands, [c1s, c1, b3c, b2, e])
-    # --adcov=<name-or-path> overrides the preference list entirely. Added for the
-    # L13 reseed: the list is ordered for the L11/L12 line and would keep handing an
-    # L13-layout run the L11tune3 covariance, when the covariance actually wanted is
-    # the CANONICAL L12 production one. An explicit flag also puts the choice in the
-    # run script, where it is reviewable, instead of in a preference ordering.
-    ov = ADCOV_OVERRIDE
-    if !isnothing(ov)
-        # Accept an absolute path, a path relative to the repo root (what the
-        # run_*.sh scripts define, e.g. outputs/mcmc/adapted_cov_L13tune_seed2026.csv),
-        # a path relative to the cwd, or a bare filename in outputs/mcmc/.
-        a = ov
-        cands_ov = [a, joinpath(REPO, a), joinpath(REPO, "outputs/mcmc", a)]
-        k = findfirst(isfile, cands_ov)
-        isnothing(k) && error("--adcov=$a: no such file (tried " *
-                              join(cands_ov, ", ") * ")")
-        cands_ov[k]
-    else
-        i = findfirst(isfile, cands)
-        isnothing(i) ? b : cands[i]
-    end
+isnothing(ADCOV_OVERRIDE) && error("--adcov=<file> is required: the proposal covariance is a " *
+    "second axis of every run and must be chosen on the command line (run_mcmc_L24.sh " *
+    "passes adapted_cov_L11tune3_seed2026_named.csv)")
+const ADCOV = let a = ADCOV_OVERRIDE
+    cands_ov = [a, joinpath(REPO, a), joinpath(REPO, "outputs/mcmc", a)]
+    k = findfirst(isfile, cands_ov)
+    isnothing(k) && error("--adcov=$a: no such file (tried " * join(cands_ov, ", ") * ")")
+    cands_ov[k]
 end
 cov0 = Matrix(Diagonal(prop.^2))
-# Column order of the 35-param v-next chains/covs (18 physical + 7 geometry with the OLD
-# ais_runoff_h0 coordinate + 10 AR(1) noise). Embedding is BY NAME: carried-over params
-# keep the ridge-tuned proposal shape; the four new params (λ, γ, κ, amp) and the
-# reparameterized T_on get the diagonal (h0's old row is deliberately NOT mapped -- its
-# scale/meaning is wrong for T_on).
-const OLD35_NAMES = vcat(
-    ["ais_ocean_temperature₀","antarctic_alpha","antarctic_nu","antarctic_temp_threshold",
-     "anto_alpha","anto_beta","greenland_a","greenland_b","greenland_alpha","greenland_beta",
-     "greenland_v0","thermal_alpha","gic_a","gic_b","gic_T_lia","gic_f","gic_tau_fast","gic_tau_slow",
-     "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG","ais_runoff_h0","ais_c"],
-    vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
-# extB2-vintage 39-param chain/cov order (29 physical + 10 noise), for name-mapping the
-# tuned proposal shape into the extB3 parameter set. The gic_* rows are deliberately NOT
-# mapped: the extB3 glacier block is a different structure AND frame, so the old glacier
-# proposal scales/correlations are meaningless — those rows keep the fresh diagonal.
-const OLD39_NAMES = vcat(
-    ["ais_ocean_temperature₀","antarctic_alpha","antarctic_nu","antarctic_temp_threshold",
-     "anto_alpha","anto_beta","greenland_a","greenland_b","greenland_alpha","greenland_beta",
-     "greenland_v0","thermal_alpha","gic_a","gic_b","gic_T_lia","gic_f","gic_tau_fast","gic_tau_slow",
-     "antarctic_lambda","antarctic_gamma","antarctic_kappa","ais_gmst_amp",
-     "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG","ais_runoff_Ton","ais_c"],
-    vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
-# extB3-vintage 38-param chain/cov order (28 physical + 10 noise) — the verified header of
-# chain_extB3*_seed2026_n500000.csv. Used to name-map the extB3c tuned proposal shape into
-# the extC set; the single-reservoir gic_* rows are skipped (different structure).
-const OLD38_NAMES = vcat(
-    ["ais_ocean_temperature₀","antarctic_alpha","antarctic_nu","antarctic_temp_threshold",
-     "anto_alpha","anto_beta","greenland_a","greenland_b","greenland_alpha","greenland_beta",
-     "greenland_v0","thermal_alpha","gic_a","gic_b","gic_T_off","gic_log10_kappa","gic_nu",
-     "antarctic_lambda","antarctic_gamma","antarctic_kappa","ais_gmst_amp",
-     "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG","ais_runoff_Ton","ais_c"],
-    vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
-# extC-vintage 52-param chain/cov order (42 physical + 10 noise) — the verified
-# header of chain_extC_seed2026_n2000000.csv. Used to name-map the extC1 tuned
-# proposal shape into the Ladrillo 1.0 set, where the five stock-SIMPLE Greenland
-# rows disappear and seven gis_* rows arrive on a fresh diagonal. The glacier rows
-# ARE mapped here (unlike the older vintages): extC and Ladrillo 1.0 share the same
-# three-reservoir glacier structure and frame, so those proposal scales still mean
-# what they meant.
-const OLD52_NAMES = vcat(
-    ["ais_ocean_temperature₀","antarctic_alpha","antarctic_nu","antarctic_temp_threshold",
-     "anto_alpha","anto_beta","greenland_a","greenland_b","greenland_alpha","greenland_beta",
-     "greenland_v0","thermal_alpha",
-     "gic_a_R19","gic_b_R19","gic_T_off_R19","gic_log10_kappa_R19",
-     "gic_a_SLOWP","gic_b_SLOWP","gic_T_off_SLOWP","gic_log10_kappa_SLOWP",
-     "gic_a_FAST","gic_b_FAST","gic_T_off_FAST","gic_log10_kappa_FAST",
-     "gic_amp_R19","gic_amp_SLOWP","gic_amp_FAST",
-     "gic_u_unch","gic_delta","gic_u_pre","gic_s_r5",
-     "antarctic_lambda","antarctic_gamma","antarctic_kappa","ais_gmst_amp",
-     "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG",
-     "ais_runoff_Ton","ais_c"],
-    vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
 
-# L10tune-vintage 54-param order (44 physical + 10 noise) — the header of
-# chain_L10tune_seed2026_n2000000.csv, the first Ladrillo 1.0 tuning run. It is
-# the 55-param production set minus gis_amp, so 54 of 55 rows map and only the
-# new amp row takes a fresh diagonal. This is a much better seed than the extC
-# covariance: every Greenland row is already Ladrillo-shaped.
-const OLD54_NAMES = vcat(
-    ["ais_ocean_temperature₀","antarctic_alpha","antarctic_nu","antarctic_temp_threshold",
-     "anto_alpha","anto_beta",
-     "gis_c1","gis_c0","gis_f","gis_alpha_f","gis_beta_f","gis_alpha_s","gis_beta_s",
-     "thermal_alpha",
-     "gic_a_R19","gic_b_R19","gic_T_off_R19","gic_log10_kappa_R19",
-     "gic_a_SLOWP","gic_b_SLOWP","gic_T_off_SLOWP","gic_log10_kappa_SLOWP",
-     "gic_a_FAST","gic_b_FAST","gic_T_off_FAST","gic_log10_kappa_FAST",
-     "gic_amp_R19","gic_amp_SLOWP","gic_amp_FAST",
-     "gic_u_unch","gic_delta","gic_u_pre","gic_s_r5",
-     "antarctic_lambda","antarctic_gamma","antarctic_kappa","ais_gmst_amp",
-     "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG",
-     "ais_runoff_Ton","ais_c"],
-    vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
-
-# The SHIPPED Ladrillo 1.0 layout: whatever FREE currently is, plus the full
-# five-stream noise block. Built from FREE rather than typed out so it cannot
-# drift, and it is what `pn0` equals when --drop-total is OFF. With --drop-total
-# ON, NK=53 no longer matches the 55x55 L10-tuned covariance, and this table is
-# what lets the by-name embedding carry the tuned shape across: sd_dang/rho_dang
-# simply find no target in pn0 and are skipped.
-# The L11tune layout: the current FREE set with the Greenland pair in its NATIVE
-# coordinates, i.e. what the first tuning run sampled. Lets that covariance be
-# name-mapped once the reparameterisation is on.
-# THE SAME TRAP AS ALL_SERIES ABOVE, one layer out. These tables describe the
-# layout of FILES ON DISK, so they must NOT follow the live FREE either: with
-# --gis-basins the three gis_s_* rows do not exist in ANY pre-existing covariance,
-# and letting them lengthen L11_NAMES from 57 to 60 makes the `size(old,1) ==
-# length(L11_NAMES)` dispatch below MISS the L12 covariance entirely. That fails
-# safe (visible warning -> fresh diagonal) rather than catastrophically, but it
-# throws away the tuned proposal shape and would be read as "the covariance is
-# incompatible" when in fact 57 of its 60 rows map perfectly. Filter them out.
-const GISB_PNAMES = ["gis_s_$b" for b in GIS3_BASINS]   # all three; only some are sampled
-prelayout(fr) = [k for k in fr if !(k.name in GISB_PNAMES)]
-
-const L11A_NAMES = vcat(
-    [k.name == "gis_slow_ell" ? "gis_alpha_s" :
-     k.name == "gis_slow_w"   ? "gis_beta_s"  : k.name for k in prelayout(FREE)],
-    vcat([["sd_$s","rho_$s"] for s in SERIES]...))
-
-const L10_NAMES = vcat([k.name for k in prelayout(FREE)],
-                       vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
-
-# The L11 PRODUCTION layout: both D2 streams, D1 noise block. Built independently
-# of the live D2_STREAMS so a one-stream run can still name-map the L11 covariance.
-#
-# SIZE COLLISION, and it is why this exists. L10_NAMES and the L11 layout are BOTH
-# 57 long — L10 = 53 physical + 2 gis-native + 10 five-stream noise; L11 = 53
-# physical + 2 gis-reparam + 4 D2 + 8 four-stream noise. So `size(old,1) ==
-# length(L10_NAMES)` MATCHES AN L11 COVARIANCE, and a --d2-streams= run (NK=55)
-# silently mapped adapted_cov_L11tune3 through L10's names: d2 coefficients landed
-# on noise parameters, the Greenland pair on the wrong coordinates, and the chain
-# accepted EXACTLY 0 of 2000 proposals. Caught 2026-08-16 by the acceptance being
-# 0.0 rather than merely low. The shipped L11 production run is NOT affected — at
-# NK=57 the `size(old,1) == NK` branch fires first and uses the matrix as-is,
-# which is correct — so this is a latent trap the new flag exposed, not a defect
-# in any published result. Dispatch on the file's VINTAGE, never on its size.
-#
-# IT MUST BE THE FILE'S PHYSICAL ROW ORDER, AND FOR A YEAR IT WAS NOT. The first
-# version of this constant was built as `[non-d2 physical...] ++ [d2...] ++ noise`
-# -- i.e. it PULLED the d2 block out of its FREE position and re-appended it after
-# the AIS geometry block. The d2 params are pushed into FREE right after gic_s_r5
-# and BEFORE antarctic_lambda, so on disk they are rows 35-38 while that literal
-# put them at 45-48. The name SET still matched, so `embed_cov!` mapped 57 of 57
-# rows and logged "dropped <nothing>" -- while shifting every row from 35 to 49 by
-# four. Live `ais_c` was handed `ais_slope`'s variance, 8.005e-07 instead of 0.6065,
-# which is a proposal that cannot move a parameter whose posterior spans ~95 units.
-# That is the whole of the L13 "frozen ais_c": it was never an adaptation collapse,
-# it was born dead at the seed (measured 2026-08-19d; see notes/handoff_2026-08-19c).
-# RAM's update is multiplicative and rank-one along L*u, so a coordinate whose row
-# of L is ~0 contributes ~0 to every proposal and can never be re-inflated -- the
-# seed is the only chance the coordinate gets.
-#
-# So this is now a FROZEN LITERAL transcribed from the header of
-# chain_L11tune3_seed2026_n1000000.csv (which is written in pn0 order, i.e. exactly
-# the order RAM wrote the covariance in). It deliberately does NOT derive from the
-# live FREE/SERIES: the file is a historical artefact and its layout cannot change,
-# whereas FREE moves with every flag. Derived-from-live is what broke it.
-const L11_NAMES = [
-    "ais_ocean_temperature₀", "antarctic_alpha", "antarctic_nu", "antarctic_temp_threshold",
-    "anto_alpha", "anto_beta", "gis_c1", "gis_c0",
-    "gis_f", "gis_alpha_f", "gis_beta_f", "gis_slow_ell",
-    "gis_slow_w", "gis_amp", "thermal_alpha", "gic_a_R19",
-    "gic_b_R19", "gic_T_off_R19", "gic_log10_kappa_R19", "gic_a_SLOWP",
-    "gic_b_SLOWP", "gic_T_off_SLOWP", "gic_log10_kappa_SLOWP", "gic_a_FAST",
-    "gic_b_FAST", "gic_T_off_FAST", "gic_log10_kappa_FAST", "gic_amp_R19",
-    "gic_amp_SLOWP", "gic_amp_FAST", "gic_u_unch", "gic_delta",
-    "gic_u_pre", "gic_s_r5", "d2_gsic_1", "d2_gsic_2",
-    "d2_steric_1", "d2_steric_2", "antarctic_lambda", "antarctic_gamma",
-    "antarctic_kappa", "ais_gmst_amp", "ais_mu", "ais_bedheight0",
-    "ais_slope", "ais_iceflow0", "ais_precip0_LOG", "ais_runoff_Ton",
-    "ais_c", "sd_ais", "rho_ais", "sd_gsic",
-    "rho_gsic", "sd_gis", "rho_gis", "sd_steric",
-    "rho_steric"]
-# The literal is checked against the live derivation as a SET (order is the whole
-# point of the literal, so it is the one thing that must not be re-derived). A live
-# config that cannot reproduce the L11 name set has no business reading an L11 file.
-let live = Set(vcat([k.name for k in prelayout(FREE)],
-                    ["d2_$(st)_$(k)" for st in ["gsic","steric"] for k in 1:D2_BASIS_N],
-                    vcat([["sd_$s","rho_$s"] for s in SERIES]...)))
-    Set(L11_NAMES) ⊆ live || @warn "L11_NAMES has names absent from the live layout; " *
-        "the L11-vintage branch will leave those rows on the fresh diagonal: " *
-        join(setdiff(Set(L11_NAMES), live), ", ")
-end
-"""Covariance files whose rows are in the L11 production ordering."""
-# The L12 line adds NO parameters (--gis-ordered is a log-prior wedge), so every L12
-# covariance is byte-for-byte in this same 57-row order -- verified 2026-08-19 by
-# comparing the chain headers, which are written in pn0 order: all six L11/L12 chains
-# compare equal to chain_L11tune3's. Listing them lets an L13-layout run reseed from
-# the CANONICAL posterior's proposal instead of the two-vintages-older L11tune3.
-const L11_VINTAGE_ADCOV = ["adapted_cov_L11tune2_seed2026.csv",
-                           "adapted_cov_L11tune3_seed2026.csv",
-                           "adapted_cov_L11_seed2026.csv",
-                           "adapted_cov_L12tune_seed2026.csv",
-                           "adapted_cov_L12_seed2026.csv",
-                           "adapted_cov_L12_seed2027.csv",
-                           "adapted_cov_L12_seed2028.csv",
-                           "adapted_cov_L12_seed2029.csv"]
-
-function embed_cov!(cov0, old, old_names; skip_gic::Bool=false)
+function embed_cov!(cov0, old, old_names)
     oi = Int[]; ni = Int[]
     for (i, nm) in enumerate(old_names)
-        skip_gic && startswith(nm, "gic_") && continue
         j = findfirst(==(nm), pn0)
         isnothing(j) && continue                          # dropped/renamed params
         push!(oi, i); push!(ni, j)
@@ -1971,103 +1770,25 @@ function embed_cov!(cov0, old, old_names; skip_gic::Bool=false)
     return length(oi)
 end
 # The seeding message is CAPTURED, not just printed: the run log is overwritten by
-# ProgressMeter within seconds, and "which name list did this run map through" is the
-# single most important fact about a seeded proposal. It is written to seed_diag_*.txt
-# alongside the geometry gate below.
-adcov_msg = "(no adapted covariance found; diagonal proposal)"
-if isfile(ADCOV)
-    adf = CSV.read(ADCOV, DataFrame)
-    old = Matrix(adf)
-    # SELF-DESCRIBING FILES FIRST. Files written before 2026-08-19 used
-    # DataFrame(covout, :auto) and carry the placeholder header x1..xN, so their
-    # row order is recoverable only from a vintage table (the ladder below, and
-    # the source of the L11_NAMES order bug). Files written from now on carry pn0
-    # as the header, so they name their own rows and need no vintage entry ever.
-    adcov_named = !all(nm -> occursin(r"^x\d+$", nm), names(adf))
-    # SIZE IS NOT IDENTITY. adapted_cov_L11tune is 57x57 and NK is 57, but its
-    # Greenland rows are (alpha_s, beta_s) while ours are (ell, w) — taking it
-    # as-is would apply an alpha_s proposal scale of ~0.005 to an ell of ~-4.2.
-    # That is the positional-index trap; match on NAMES whenever they can differ.
-    if adcov_named
-        nmap = embed_cov!(cov0, old, names(adf))
-        dropped = setdiff(names(adf), pn0)
-        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
-                "$(basename(ADCOV)) using the FILE'S OWN header" *
-                (isempty(dropped) ? "" : "; dropped " * join(dropped, ", ")) * ")")
-    elseif size(old,1) == NK &&
-       !(GIS_REPARAM && basename(ADCOV) == "adapted_cov_L11tune_seed2026.csv")
-        cov0 = old
-        adcov_msg = ("(seeding proposal from adapted covariance $(basename(ADCOV)))")
-    elseif basename(ADCOV) == "adapted_cov_L11tune_seed2026.csv" &&
-           size(old,1) == length(L11A_NAMES)
-        # native-coordinate Greenland rows are deliberately NOT mapped onto
-        # (ell, w): the scales and meanings differ, so they keep a fresh diagonal.
-        nmap = embed_cov!(cov0, old, L11A_NAMES)
-        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
-                "$(basename(ADCOV)); fresh diagonal for gis_slow_ell, gis_slow_w)")
-    elseif basename(ADCOV) in L11_VINTAGE_ADCOV && size(old,1) == length(L11_NAMES)
-        # MUST precede the L10 branch: the two layouts are the same length (see
-        # the L11_NAMES comment), so size alone cannot tell them apart.
-        nmap = embed_cov!(cov0, old, L11_NAMES)
-        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
-                "$(basename(ADCOV)) as L11 layout; dropped " *
-                join(setdiff(L11_NAMES, pn0), ", ") * ")")
-    elseif size(old,1) == length(L10_NAMES)
-        basename(ADCOV) in L11_VINTAGE_ADCOV &&
-            error("$(basename(ADCOV)) is an L11-vintage covariance but did not match " *
-                  "L11_NAMES ($(size(old,1)) vs $(length(L11_NAMES))); refusing to " *
-                  "read it under L10 names — that is the size collision, and it " *
-                  "produces a zero-acceptance chain rather than an obvious failure")
-        nmap = embed_cov!(cov0, old, L10_NAMES)
-        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
-                "$(basename(ADCOV)); dropped " *
-                join(setdiff(L10_NAMES, pn0), ", ") * ")")
-    elseif size(old,1) == length(OLD54_NAMES)
-        nmap = embed_cov!(cov0, old, OLD54_NAMES)
-        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
-                "$(basename(ADCOV)); fresh diagonal for " *
-                join(setdiff(pn0[1:NP], OLD54_NAMES), ", ") * ")")
-    elseif size(old,1) == length(OLD52_NAMES)
-        nmap = embed_cov!(cov0, old, OLD52_NAMES)
-        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
-                "$(basename(ADCOV)); fresh diagonal for " *
-                join(setdiff(pn0[1:NP], OLD52_NAMES), ", ") * ")")
-    elseif size(old,1) == length(OLD38_NAMES)
-        nmap = embed_cov!(cov0, old, OLD38_NAMES; skip_gic=true)
-        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
-                "$(basename(ADCOV)); fresh diagonal for the extC glacier/ledger block " *
-                join([nm for nm in pn0[1:NP] if startswith(nm,"gic_")], ", ") * ")")
-    elseif size(old,1) == length(OLD39_NAMES)
-        nmap = embed_cov!(cov0, old, OLD39_NAMES; skip_gic=true)
-        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
-                "$(basename(ADCOV)); fresh diagonal for the extB3 glacier block " *
-                join([nm for nm in pn0[1:NP] if startswith(nm,"gic_")], ", ") * ")")
-    elseif size(old,1) == length(OLD35_NAMES)
-        nmap = embed_cov!(cov0, old, OLD35_NAMES; skip_gic=true)
-        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
-                "$(basename(ADCOV)); diagonal for " *
-                join(setdiff(pn0[1:NP], OLD35_NAMES), ", ") * ")")
-    else
-        adcov_msg = ("(WARNING: $(basename(ADCOV)) is $(size(old,1))x$(size(old,1)), incompatible " *
-                "with NK=$NK -- falling back to the diagonal proposal)")
-    end
+# ProgressMeter within seconds, and "which rows seeded this proposal" is the single most
+# important fact about a seeded proposal. It is written to seed_diag_*.txt below.
+adf = CSV.read(ADCOV, DataFrame)
+all(nm -> occursin(r"^x\d+$", nm), names(adf)) &&
+    error("$(basename(ADCOV)) has a placeholder x1..xN header; convert it to a NAMED file " *
+          "by header replacement (see adapted_cov_L11tune3_seed2026_named.csv, 2026-09-16) " *
+          "-- positional reading is exactly the trap this calibrator no longer allows")
+size(adf, 1) == size(adf, 2) || error("$(basename(ADCOV)) is not square")
+let old = Matrix(adf)
+    nmap = embed_cov!(cov0, old, names(adf))
+    dropped = setdiff(names(adf), pn0)
+    fresh = setdiff(pn0, names(adf))
+    global adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+            "$(basename(ADCOV)) using the FILE'S OWN header" *
+            (isempty(dropped) ? "" : "; dropped " * join(dropped, ", ")) *
+            (isempty(fresh) ? "" : "; fresh diagonal for " * join(fresh, ", ")) * ")")
 end
 println(adcov_msg)
-# SAY WHICH, LOUDLY. L23/L23b/L24 were launched without --adcov and fell through to the
-# list head (adapted_cov_L11tune3) where L21/L22 passed adapted_cov_L14tune. The AIS-block
-# proposal is 2.7-5.3x tighter under L11tune3 and gis_s_high lands on its floor, so a 2x2
-# meant to isolate ONE change carried a second moved axis for a week. The line above named
-# the file the whole time; what it did not say is that NOBODY CHOSE it. A default that
-# reads like a decision is the defect.
-if isnothing(ADCOV_OVERRIDE)
-    println("!! NO --adcov PASSED: the proposal covariance above came from the built-in " *
-            "PREFERENCE ORDER, not from this run's command line. That order is tuned for " *
-            "the L11/L12 line and does not track the current vintage. If this run is meant " *
-            "to be comparable with another, pass --adcov=<file> explicitly -- a covariance " *
-            "is a second axis, and it does NOT show up in the chain's column set.")
-else
-    println("--adcov: proposal covariance CHOSEN explicitly ($(basename(ADCOV))).")
-end
+println("--adcov: proposal covariance CHOSEN explicitly ($(basename(ADCOV))).")
 isposdef(cov0) || error("seed proposal covariance is not positive definite")
 
 # ---- GEOMETRY SEED GATE (Marcus 2026-08-19; handoff_2026-08-19c §1.1) -------------
