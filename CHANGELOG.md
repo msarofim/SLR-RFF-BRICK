@@ -1,3 +1,19 @@
+## 2026-09-16 — Tony Wong's reply: the double-counting / dataset-correlation ledger
+
+Tony (09-15): interested; fine with MIP/expert constraints; wants "any potential criticisms about
+possible double-counting of information or potential correlation between datasets" nipped in the bud;
+asks whether the model is still Mimi (yes). `notes/audit_2026-09-16_likelihood_independence.md`
+lists all 18 terms/priors with their sources and what each shares with what. Already removed for this
+reason: IMBIE and the total. Residual exposures, in order: (i) Mouginot 2019 is inside Frederikse's
+GrIS level target AND the two share terms (shares are ratios of rate differences, so the level is
+projected out, but the error source is shared); (ii) GlaMBIE in the glacier-series tail, the
+SLOWG/FASTG share and the R19 rate (share cancels common mode; absolute-rate terms retired 08-14);
+(iii) driver–target dependence: FaIR calib 1.6.0 was itself constrained on observed GSAT/OHC —
+inherent to any emulator on a calibrated climate; (iv) cross-series error correlation between the
+Frederikse components is NOT modelled (AR(1) independent across series); (v) GlacierMIP3 twice
+(rungs + τ), CMIP6 twice (two amp priors). Cheap receipts named: per-term precision shares
+(closed form), Frederikse-ensemble cross-component residual correlation.
+
 ## 2026-09-14k — document: the emulandice comparison added as a subsection + FIG 12
 
 Marcus: add it. New subsection "Ladrillo's glaciers against emulandice on the same climate" between
