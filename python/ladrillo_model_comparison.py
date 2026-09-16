@@ -144,8 +144,7 @@ JOINT_GLOB   = "outputs/scope_slr_fairunc_draws_{ssp}_spliced_{tag}.csv"
 ## The with-channel joint arm, produced by scope_slr_fair_uncertainty.jl --tap (added
 ## 2026-08-30). When present it is PREFERRED, because it is the same Greenland arm this
 ## comparison reports -- and then the channel gate has nothing left to hold.
-JOINT_TAP_GLOB = ("outputs/scope_slr_fairunc_draws_{ssp}_spliced_{tag}"
-                  "_tap4p69K_V5p64m_tau800.csv")
+JOINT_TAP_GLOB = ("outputs/scope_slr_fairunc_draws_{ssp}_spliced_{tag}" + lf.joint_stem("") + ".csv")
 ## BRICK 2.0's OWN joint band (scope_slr_fairunc_oldbrick.jl, 2026-08-30). Built on the
 ## SAME cubes, the same 2014 splice pivot, the same 1995-2014 re-reference and the same
 ## PAIR_SEED as the Ladrillo joint arm -- otherwise the two would not be comparable and

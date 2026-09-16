@@ -24,6 +24,7 @@ import os
 
 import numpy as np
 import pandas as pd
+import ladrillo_figs as _lf  # tap stem from the Julia GIS_TAP_CELL, never a literal
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTD = os.path.join(REPO, "outputs")
@@ -35,7 +36,7 @@ ARM = "joint"                       # posterior x climate, the width-comparable 
 COMPONENTS = ["glaciers", "gis", "ais", "te", "lws", "total"]
 HORIZONS = [2100, 2150, 2300]
 
-LAD = "scope_slr_fairunc_draws_%s_spliced_magiccclim_L24_tap4p69K_V5p64m_tau800.csv"
+LAD = "scope_slr_fairunc_draws_%s_spliced_magiccclim_" + _lf.joint_stem("L24") + ".csv"
 BRK = "scope_slr_fairunc_draws_%s_spliced_oldbrick_magiccclim.csv"
 MODELS = {"Ladrillo L24": LAD, "BRICK 2.0": BRK}
 

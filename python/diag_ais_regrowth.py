@@ -21,11 +21,13 @@
 ## memory entry, both of which named a physical property for an artifact.
 ## ============================================================================
 import pathlib, glob, os, numpy as np, pandas as pd
+import ladrillo_figs as _lf  # tap stem from the Julia GIS_TAP_CELL, never a literal
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 OUT  = REPO / "outputs"
 OVERSHOOT, REFERENCE = "ssp534over_nomarker", "ssp126_nomarker"
-TAG, TAP, FORCING, ARM = "L24", "_tap4p69K_V5p64m_tau800", "spliced", "joint"
+TAG, FORCING, ARM = "L24", "spliced", "joint"
+TAP = _lf.joint_stem(TAG)[len(TAG):]      # "_tap..." suffix
 HORIZONS = [2100, 2150, 2300]
 ## Observational bound on how fast an ice sheet CAN gain mass, for scale. Antarctic
 ## surface mass balance is ~2100 Gt/yr (IMBIE/Rignot-era syntheses) and 360 Gt = 1 mm

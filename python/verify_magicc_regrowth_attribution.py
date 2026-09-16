@@ -55,6 +55,7 @@ import os
 
 import numpy as np
 import pandas as pd
+import ladrillo_figs as _lf  # tap stem from the Julia GIS_TAP_CELL, never a literal
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTD = os.path.join(REPO, "outputs")
@@ -62,7 +63,7 @@ MAGICC_MED = os.path.join(REPO, "data/comparison/magicc_nauels_components_vv.csv
 
 ## THE ARM. The tapped file is the shipped deliverable arm; the tap does not touch glaciers
 ## but mixing arms across the three columns would not be like-for-like on anything else.
-TAP_SUFFIX = "_tap4p69K_V5p64m_tau800"
+TAP_SUFFIX = _lf.joint_stem("")           # "_tap..." suffix
 COMPONENT = "glaciers"
 LADRILLO_ARM = "joint"          # posterior x FaIR-forcing, the width-comparable band
 END_YEAR = 2300

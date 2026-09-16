@@ -52,6 +52,7 @@ import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from draws_io import draws_exists, draws_path, read_draws  # noqa: E402
+import ladrillo_figs as _lf  # tap stem from the Julia GIS_TAP_CELL, never a literal
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BENCH = os.path.join(REPO, "benchmark")
@@ -224,7 +225,7 @@ def live_paths(tag):
         # the joint band unusable for 6 cells. The Greenland tap is part of the shipped
         # module, so the tapped arm is the one the benchmark is meant to score.
         tapped = os.path.join(
-            o, f"scope_slr_fairunc_draws_{s}_spliced_{tag}_tap4p69K_V5p64m_tau800.csv")
+            o, f"scope_slr_fairunc_draws_{s}_spliced_{_lf.joint_stem(tag)}.csv")
         untapped = os.path.join(o, f"scope_slr_fairunc_draws_{s}_spliced_{tag}.csv")
         # `draws_path` resolves each name to its Parquet twin when one exists (the
         # 2026-09-01 migration); the tap preference is decided on the LOGICAL name, so

@@ -28,10 +28,11 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.ticker import LogFormatterSciNotation
+import ladrillo_figs as _lf  # tap stem from the Julia GIS_TAP_CELL, never a literal
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT, FIGS = os.path.join(REPO, "outputs"), os.path.join(REPO, "figures")
-SUFFIX = "_2030_spliced_L24_tap4p69K_V5p64m_tau800.csv"
+SUFFIX = "_2030_spliced_" + _lf.joint_stem("L24") + ".csv"
 
 # ---- the analysis choices, each with the label that reports it ---------------
 FOCAL         = "M"

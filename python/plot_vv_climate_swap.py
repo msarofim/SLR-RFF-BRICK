@@ -40,7 +40,7 @@ DESC = lf.tag_desc(TAG)
 CMP_CSV = os.path.join(lf.REPO, "outputs", "vv_model_comparison_%s.csv" % TAG)
 ## The tap stem the joint driver writes (mirrors vv_model_comparison.joint_stem); read from
 ## the comparison table's own provenance rather than retyped: the FaIR-arm cells file name.
-TAP_STEM = "tap4p69K_V5p64m_tau800"
+TAP_STEM = lf.joint_stem("")[1:]          # "tap..." with no leading underscore
 LAD_MAG = os.path.join(lf.REPO, "outputs",
                        "scope_slr_fairunc_cells_%%s_spliced_magiccclim_%s_%s.csv" % (TAG, TAP_STEM))
 BRK_MAG = os.path.join(lf.REPO, "outputs", "scope_slr_fairunc_cells_%s_spliced_oldbrick_magiccclim.csv")

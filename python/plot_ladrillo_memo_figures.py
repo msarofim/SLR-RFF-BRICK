@@ -92,7 +92,7 @@ CMP_CSV      = f"outputs/ladrillo_model_comparison_{LADRILLO_TAG}{ARM_TAG}.csv"
 ## band this panel draws is 5-95, NOT the 17-83 the fixed arm allowed; SSP_BAND_LABEL
 ## exists so the title cannot silently keep saying 17-83 after the band changed.
 SSP_JOINT_PATHS = ("outputs/scope_slr_fairunc_paths_%s_spliced_"
-                   f"{LADRILLO_TAG}_tap4p69K_V5p64m_tau800.csv")
+                   f"{lf.joint_stem(LADRILLO_TAG)}.csv")
 SSP_BAND_LO, SSP_BAND_HI = "p05_cm", "p95_cm"
 SSP_BAND_LABEL = "5-95%"
 SSP_ARM_LABEL = "joint arm: posterior params x FaIR forcing"

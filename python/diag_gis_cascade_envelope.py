@@ -39,9 +39,10 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "python"))
 os.chdir(REPO)
 import gis_targets  # noqa: E402
+import gis_targets as _gt  # tap tag from the Julia GIS_TAP_CELL, never a literal
 
 SCAN = os.path.join(REPO, "outputs/diag_gis_cascade_rate_crit_scan.csv")
-DELIV = "outputs/ssps_components_2300_L14_tap4p69K_V5p64m_tau800_n2_ws.csv"
+DELIV = f"outputs/ssps_components_2300_{_gt.tap_tag('L14')}.csv"
 OUT = os.path.join(REPO, "outputs/diag_gis_cascade_envelope.csv")
 ## The shipped cell's own Greenland@2300, from the WIRED deliverable at 2000 draws --
 ## not from the offline grid, because that is the number that actually ships.

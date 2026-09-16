@@ -44,6 +44,7 @@ import os
 
 import numpy as np
 import pandas as pd
+import ladrillo_figs as _lf  # tap stem from the Julia GIS_TAP_CELL, never a literal
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTD = os.path.join(REPO, "outputs")
@@ -65,7 +66,7 @@ HORIZONS = [2100, 2150, 2300]
 ## 14 places. The tap suffix stays fixed because the tap cell is fixed; only the tag moves.
 _TAG = next((a[len("--tag="):] for a in __import__("sys").argv[1:]
              if a.startswith("--tag=")), "L23")
-ARM_TAG = "%s_tap4p69K_V5p64m_tau800" % _TAG
+ARM_TAG = _lf.joint_stem(_TAG)
 ## ⚠ THE DRAW COUNT IS NOT A CONSTANT ACROSS SCENARIOS, and hardcoding one is how this
 ## check would have passed on a mismatch. The shipped FaIR-climate arm runs 8000 draws for
 ## the seven markers and ssp585 but 2000 for ssp126 and ssp245. [ARM-MATCH] therefore takes

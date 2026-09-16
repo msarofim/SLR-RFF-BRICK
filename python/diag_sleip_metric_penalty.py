@@ -29,6 +29,7 @@ import os
 
 import numpy as np
 import pandas as pd
+import ladrillo_figs as _lf  # tap stem from the Julia GIS_TAP_CELL, never a literal
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTD = os.path.join(REPO, "outputs")
@@ -45,11 +46,11 @@ SLEIP = {"range_cm": (8.0, 29.0), "lo_name": "FACTS_1f", "hi_name": "FACTS_3f",
 
 # --- our FaIR-climate pair --------------------------------------------------------------
 FAIR_REF, FAIR_OS = "ssp126_nomarker", "ssp534overMATCH"
-LAD_T = "scope_slr_fairunc_draws_%s_spliced_L24_tap4p69K_V5p64m_tau800.csv"
+LAD_T = "scope_slr_fairunc_draws_%s_spliced_" + _lf.joint_stem("L24") + ".csv"
 BRK_T = "scope_slr_fairunc_draws_%s_spliced_oldbrick.csv"
 # --- our MAGICC-climate pair ------------------------------------------------------------
 MAG_REF, MAG_OS = "ssp126", "ssp534over"
-LAD_M = "scope_slr_fairunc_draws_%s_spliced_magiccclim_L24_tap4p69K_V5p64m_tau800.csv"
+LAD_M = "scope_slr_fairunc_draws_%s_spliced_magiccclim_" + _lf.joint_stem("L24") + ".csv"
 BRK_M = "scope_slr_fairunc_draws_%s_spliced_oldbrick_magiccclim.csv"
 # --- FACTS, FaIR climate only -----------------------------------------------------------
 FACTS_ARMS = ("global.shared.ssp126nomarker2300.n200", "global.shared.ssp534overMATCH2300.n200")

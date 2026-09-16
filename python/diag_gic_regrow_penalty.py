@@ -42,6 +42,7 @@
 ## block one.
 ## ============================================================================
 import sys, pathlib, numpy as np, pandas as pd
+import ladrillo_figs as _lf  # tap stem from the Julia GIS_TAP_CELL, never a literal
 
 REPO      = pathlib.Path(__file__).resolve().parents[1]
 OUT       = REPO / "outputs"
@@ -53,7 +54,7 @@ POSCTRL   = "vvLN"                     # van Vuuren LOW-NEGATIVE marker; marker-
                                        # 2026-09-02 policy, because it IS a CMIP7 marker
 ARM       = "joint"                    # the reported band carries climate uncertainty
 FORCING   = "spliced"
-TAP       = "_tap4p69K_V5p64m_tau800"
+TAP       = _lf.joint_stem("")           # "_tap..." suffix
 TAG_SHIP  = "L24"                      # the shipped arms, run by run_l24_nomarker_arms.sh
 TAG_NEW   = "L24GICNEW"                # instrumentation at shipped defaults
 TAG_OLD   = "L24GICOLD"                # the melt-only ratchet

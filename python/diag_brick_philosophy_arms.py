@@ -33,14 +33,15 @@ WRITES outputs/diag_brick_philosophy_arms.csv (stamped)
 import os
 import subprocess
 import pandas as pd
+import gis_targets as _gt  # tap tag from the Julia GIS_TAP_CELL, never a literal
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(REPO)
-BASE = "outputs/ssps_components_2300_L24_tap4p69K_V5p64m_tau800_n2_ws.csv"
+BASE = f"outputs/ssps_components_2300_{_gt.tap_tag('L24')}.csv"
 ARMS = {
     "no_threshold_channel": ("gis", "outputs/ssps_components_2300_L24.csv"),
-    "constant_greenland_amp": ("gis", "outputs/ssps_components_2300_L24_tap4p69K_V5p64m_tau800_n2_ws_shapeconst.csv"),
-    "ais_amp_fixed_1p196": ("ais", "outputs/ssps_components_2300_L24aisamp1p196_tap4p69K_V5p64m_tau800_n2_ws.csv"),
+    "constant_greenland_amp": ("gis", f"outputs/ssps_components_2300_{_gt.tap_tag('L24')}_shapeconst.csv"),
+    "ais_amp_fixed_1p196": ("ais", f"outputs/ssps_components_2300_{_gt.tap_tag('L24aisamp1p196')}.csv"),
 }
 YEARS = (2100, 2150, 2300)
 OUT = "outputs/diag_brick_philosophy_arms.csv"

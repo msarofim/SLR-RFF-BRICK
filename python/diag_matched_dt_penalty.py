@@ -29,11 +29,13 @@
 ## the penalty statistic, not per draw.
 ## ============================================================================
 import pathlib, numpy as np, pandas as pd
+import ladrillo_figs as _lf  # tap stem from the Julia GIS_TAP_CELL, never a literal
 
 REPO = pathlib.Path(__file__).resolve().parents[1]; OUT = REPO / "outputs"
 REFERENCE = "ssp126_nomarker"
 PAIRS = {"native (dT INVERTS)": "ssp534over_nomarker", "matched (dT from ABOVE)": "ssp534overMATCH"}
-LAD_TAG, LAD_TAP = "L24", "_tap4p69K_V5p64m_tau800"
+LAD_TAG = "L24"
+LAD_TAP = _lf.joint_stem("")             # "_tap..." suffix
 MODELS = ["Ladrillo L24", "BRICK 2.0"]
 ARM, FORCING = "joint", "spliced"
 HORIZONS = [2100, 2150, 2300]

@@ -50,6 +50,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from scipy.optimize import minimize
+import gis_targets as _gt  # tap tag from the Julia GIS_TAP_CELL, never a literal
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -63,7 +64,7 @@ TAG = "L14"
 ## follow that. SHIPPED_TAP_TAG is the ONE place the cell appears; if it stops
 ## resolving, that is the signal the cell moved again, and the error says so.
 UNTAPPED_CSV = os.path.join(REPO, f"outputs/ssps_components_2300_{TAG}.csv")
-SHIPPED_TAP_TAG = "tap4p69K_V5p64m_tau800_n2_ws"
+SHIPPED_TAP_TAG = _gt.tap_tag("")[1:]     # "tap..._n2_ws" with no leading underscore
 SHIPPED_TAP_CSV = os.path.join(
     REPO, f"outputs/ssps_components_2300_{TAG}_{SHIPPED_TAP_TAG}.csv")
 
