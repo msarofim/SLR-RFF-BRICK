@@ -735,11 +735,25 @@ def splice_regional(t_reg_obs, gmst_hist, gmst_scen, last_obs_year):
     return out
 
 
-def project(cell, theta, t_reg_obs, gmst_hist, last_obs_year):
+def project(cell, theta, t_reg_obs, last_obs_year):
+    """G4 projections. The splice anchor is taken from EACH SCENARIO'S OWN
+    HISTORY, not from fair_mean_gmst.csv, because that is how the kernel
+    builds it: ladrillo_setup reads ONE file per scenario and anchors on it.
+
+    CORRECTED 2026-09-16. Until then the anchor came from fair_mean_gmst.csv
+    (the calib-1.4.5 RFF-cube mean, never regenerated on 1.6.0) while the
+    future came from the 1.6.0 scenario files. Over the 2014-2024 anchor the
+    two histories differ by 0.027 K; through AMP that is a 0.05 K level
+    offset on every projected year, and 0.15-0.17 cm at 2100 on the g=0 A+B
+    cell -- larger than the 0.10 cm parity tolerance the kernel is held to
+    (validate_gis_projection_ab.jl [3]). With the anchor read the way the
+    kernel reads it the residual is 0.005-0.017 cm, which is the 1.9222-vs-
+    1.92 amp rounding. Blast radius: proj_SSP* and spread_2100_cm only; the
+    fit never sees a scenario file."""
     out = {}
     for label, tag in PROJ_SCENARIOS.items():
         g = extend(load_gmst(tag))
-        tr = splice_regional(t_reg_obs, gmst_hist, g, last_obs_year)
+        tr = splice_regional(t_reg_obs, g, g, last_obs_year)
         L, _ = run_cell(cell, theta, tr, g)
         out[label] = reref(L, PROJ_REF_WIN)[_yi[PROJ_YEAR]]
     return out
@@ -835,7 +849,7 @@ def main():
         order = [theta[n] for n in cell_params(cell)]
         L, Lf = run_cell(cell, order, t_reg, gmst_hist)
         g = evaluate_gates(L, ctx)
-        proj = project(cell, order, t_reg, gmst_hist, last_obs_year)
+        proj = project(cell, order, t_reg, last_obs_year)
         spread = proj["SSP5-8.5"] - proj["SSP1-2.6"]
         share = model_surface_share(L, Lf) if CELLS[cell]["two_channel"] else np.nan
         rails = "|".join(n for n in cell_params(cell)

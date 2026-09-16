@@ -41,12 +41,35 @@ using CSV, DataFrames, Printf
 include(joinpath(@__DIR__, "ladrillo_projection.jl"))
 
 const TOL_CM = 0.10          # kernel-vs-offline 2100 GIS; the two build GMST differently
-# python/gis_offline_cell.py cell A+B at g = 0 (outputs/gis_g_betaf_variants.csv)
-const OFFLINE_THETA = Dict(
-    "gis_c1" => 0.032766, "gis_c0" => 0.0404293, "gis_f" => 0.782569,
-    "gis_alpha_f" => 0.00284865, "gis_beta_f" => 0.00736838,
-    "gis_alpha_s" => 0.00707271, "gis_beta_s" => 1e-6, "gis_amp" => 1.92)
-const OFFLINE_2100 = ("ssp126" => 6.928, "ssp245" => 9.834, "ssp585" => 17.367)
+# python/gis_offline_cell.py cell A+B at g = 0, READ from the file that produced it
+# (outputs/gis_g_betaf_variants.csv, row `g=0`) -- the same read calibrate_mcmc_ext.jl
+# --gis-check makes, and for the same reason. Until 2026-09-16 the theta and the
+# three 2100 values were TRANSCRIBED here (6.928 / 9.834 / 17.367 cm), and they
+# were the calib-1.4.5 projections: the SSP mean-GMST files moved to calib 1.6.0
+# on 2026-08-28 (839a176), the kernel moved with them, the literal did not, and
+# [3] failed for three weeks (ssp126 +0.35, ssp585 -1.84 cm) for a reason that had
+# nothing to do with the kernel. A transcribed reference cannot tell a driver
+# change from a kernel defect; the file can be regenerated on the current
+# drivers and the check keeps measuring what it is for -- that the projector's
+# Greenland build reproduces the python cell on the SAME inputs.
+# Units: the file carries c1, c0 in cm (the calibrator divides by 100 too); the
+# rates are per-yr in both. gis_amp is the SAME derived value the offline cell
+# spliced with (outputs/gis_amp_prior.csv, keyed on the calibrator's zone/window;
+# CAL_AMP below), not the projector's rounded constant, so the residual [3]
+# measures is the GMST build, not the 0.0022 amp rounding that [1] already prices.
+const OFFLINE_REF_CSV = joinpath(@__DIR__, "..", "outputs", "gis_g_betaf_variants.csv")
+isfile(OFFLINE_REF_CSV) || error("[3] needs $(OFFLINE_REF_CSV): regenerate with " *
+    "python/gis_offline_cell.py then python/diag_gis_g_betaf.py. Do NOT re-hardcode " *
+    "the numbers -- a transcribed reference is what this read replaced.")
+const OFFLINE_ROW = let df = CSV.read(OFFLINE_REF_CSV, DataFrame), r = df[df.variant .== "g=0", :]
+    nrow(r) == 1 || error("[3]: expected exactly ONE `g=0` row in $(basename(OFFLINE_REF_CSV)), found $(nrow(r))")
+    r[1, :]
+end
+const OFFLINE_PARAMS = Dict(String(strip(kv[1])) => parse(Float64, strip(kv[2]))
+                            for kv in split.(split(String(OFFLINE_ROW.params), ";"), "="))
+const OFFLINE_2100 = ("ssp126" => Float64(OFFLINE_ROW[Symbol("proj_SSP1-2.6")]),
+                      "ssp245" => Float64(OFFLINE_ROW[Symbol("proj_SSP2-4.5")]),
+                      "ssp585" => Float64(OFFLINE_ROW[Symbol("proj_SSP5-8.5")]))
 
 fails = String[]
 chk(label, ok, detail="") = begin
@@ -163,6 +186,16 @@ chk("Tbar matches the calibrator's asserted 1.963 K",
     abs(LADRILLO_GIS_TBAR - 1.963) < 5e-3, @sprintf("%.4f K", LADRILLO_GIS_TBAR))
 
 println("\n[3] end-to-end: an A+B draw reproduces the offline cell at 2100")
+OFFLINE_THETA = Dict(
+    "gis_c1" => OFFLINE_PARAMS["c1"] / 100, "gis_c0" => OFFLINE_PARAMS["c0"] / 100,
+    "gis_f" => OFFLINE_PARAMS["f"],
+    "gis_alpha_f" => OFFLINE_PARAMS["alpha_f"], "gis_beta_f" => OFFLINE_PARAMS["beta_f"],
+    "gis_alpha_s" => OFFLINE_PARAMS["alpha_s"], "gis_beta_s" => OFFLINE_PARAMS["beta_s"],
+    "gis_amp" => something(CAL_AMP, LADRILLO_GIS_AMP))
+chk("the offline g=0 row is at g = 0", OFFLINE_PARAMS["g"] == 0.0, "g = $(OFFLINE_PARAMS["g"])")
+@printf("  offline reference %s [g=0]: 2100 GIS %.3f / %.3f / %.3f cm, amp %.7f\n",
+        basename(OFFLINE_REF_CSV), OFFLINE_2100[1][2], OFFLINE_2100[2][2], OFFLINE_2100[3][2],
+        OFFLINE_THETA["gis_amp"])
 # The offline cell is CONSTANT-amp, so this parity is with the amp law OFF. The
 # law's own gates are [5]; the constant-parity reading of [1] moved there too.
 # Build a one-row A+B posterior from the extC posterior's non-Greenland columns.

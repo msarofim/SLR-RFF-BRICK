@@ -64,9 +64,12 @@ def main():
     drv = pd.read_csv(gc.DRIVER_CSV).set_index("year")[gc.DRIVER_ZONE]
     last_obs = int(drv.index.max())
     t_reg_obs = gc.extend(drv)
-    gmst_hist = gc.extend(gc.load_gmst())
     gmst_scen = gc.extend(gc.load_gmst(a.forcing))
-    driver = gc.splice_regional(t_reg_obs, gmst_hist, gmst_scen, last_obs)
+    # The splice anchor comes from the SCENARIO'S OWN history, as ladrillo_setup
+    # builds it and as gis_offline_cell.project does since 2026-09-16 (see the
+    # note there: the old fair_mean_gmst.csv anchor was a calib-1.4.5 history
+    # under a 1.6.0 future, a 0.05 K level offset on the projected driver).
+    driver = gc.splice_regional(t_reg_obs, gmst_scen, gmst_scen, last_obs)
 
     L, Lf = gc.run_cell(CELL, [theta[n] for n in names], driver, gmst_scen)
     p = dict(zip(names, [theta[n] for n in names]))

@@ -1,3 +1,44 @@
+## 2026-09-16c — suite test 6 fixed: the Greenland offline cell regenerated on calib 1.6.0, and its splice anchor was mixed-vintage
+
+Marcus: "Fix test 6." `validate_gis_projection_ab.jl` [3] had failed since the 08-28 driver
+migration (CHANGELOG 09-16b §5): its offline-cell reference (6.928 / 9.834 / 17.367 cm at 2100) was
+transcribed from a calib-1.4.5 run. Regenerating alone would NOT have fixed it — a second defect
+sat underneath.
+
+1. **`gis_offline_cell.project()` anchored the splice on `fair_mean_gmst.csv`** (the calib-1.4.5
+   RFF-cube mean, never regenerated) while the future came from the 1.6.0 scenario file. The kernel
+   (`ladrillo_setup`) anchors on the scenario's OWN history. Over 2014–2024 the two histories differ
+   by 0.027 K → ×amp = 0.05 K on every projected year → **0.15–0.17 cm at 2100 on the g=0 A+B cell**,
+   above the 0.10 cm parity tolerance. Measured before regenerating: stored theta on the current
+   drivers gives 7.124 / 9.626 / 15.354 with the old anchor vs kernel 7.277 / 9.789 / 15.526;
+   with the scenario-own anchor 7.282 / 9.798 / 15.543 vs kernel (at the same amp) 7.282 / 9.798 /
+   15.543. Fixed in `project()` (signature loses `gmst_hist`; `diag_gis_g_betaf.py` caller updated)
+   and in `emit_gis_port_reference.py` (test 4's driver) so the reference driver IS the kernel's.
+   Blast radius: `proj_SSP*`, `spread_2100_cm`, the projection series, the port reference past
+   2024. The FIT never reads a scenario file.
+2. **Regenerated** `gis_offline_cell.py` (1 h 54 min, 11 cells) → `diag_gis_g_betaf.py`. Receipt:
+   **all 11 cell rows and all 5 variant rows have byte-identical `params`, nlp, rmse** to the
+   quarantined run; only the projections moved. So `GIS_OFFLINE_G0`, the five `gis_*` prior centres
+   and test 5's reference (rmse 0.0617 / bias 0.0146 / rate 0.7749 / share 0.7351) are unchanged.
+   A+B g=0 2100: 6.927 / 9.833 / 17.368 → **7.282 / 9.798 / 15.543 cm** (1.6.0 is warmer at ssp126,
+   cooler at ssp585 at 2100 — the migration's known signature). G4 spread 10.44 → 8.26 cm.
+   Pre-fix outputs → `outputs/quarantine/20260916_gis_offline_cell_v145_anchor/` (README).
+3. **Test 6 [3] now READS the g=0 row of `outputs/gis_g_betaf_variants.csv`** (theta, cm→m on
+   c1/c0, and the three 2100 values) instead of transcribed literals — the same read `--gis-check`
+   makes, for the same reason: a transcribed reference cannot tell a driver change from a kernel
+   defect. The kernel draw uses the amp the cell spliced with (`CAL_AMP`, 1.9221976 from
+   `gis_amp_prior.csv`), so [3] measures the GMST build, not the 0.0022 rounding [1] already prices.
+   Mutation-tested: against the quarantined (1.4.5) file the rewritten gate FAILS on ssp126/ssp585
+   with the old numbers; against the regenerated file kernel == offline to 0.001 cm on all three.
+4. **`outputs/gis_port_reference.csv` regenerated and committed** (the handoff's open question):
+   bit-identical through 2024, ≤0.24 cm sea level / 0.13 K driver after; theta file unchanged.
+   Test 4 PASS at 1e-9. Precedent: `0e0b491` committed the same regeneration after 09eec0a.
+5. Not regenerated: the `--zone=all` sensitivity arm (`*_all.csv`, same stale projections).
+   `fair_mean_gmst.csv` itself is still the 1.4.5 RFF mean — its other readers
+   (`calibrate_mengel_glacier.py`, `glacier_2tau_validate.py`, `plot_recalib_components.py`,
+   legacy `calibrate_mcmc.jl`) are not on the live path; flagged, not touched.
+Torch verdict: not needed (single-threaded scipy, ~2 h 20 min on the laptop, no licence/substrate).
+
 ## 2026-09-16b — code-review-ready cleanups (Marcus: "do all the Ladrillo cleanups"; Zenodo waits for the team review)
 
 Every step below is gated. **New gate: `scripts/gate_calibrator_identity.sh`** — runs the L24

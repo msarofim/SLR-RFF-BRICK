@@ -192,7 +192,7 @@ def describe(theta, nlp, ctx, last_obs_year, label, ref_nlp=None, n_fixed=0):
     order = [theta[n] for n in goc.cell_params(CELL)]
     L, Lf = goc.run_cell(CELL, order, ctx["t_reg"], ctx["t_gmst"])
     gates = goc.evaluate_gates(L, ctx)
-    proj = goc.project(CELL, order, ctx["t_reg"], ctx["t_gmst"], last_obs_year)
+    proj = goc.project(CELL, order, ctx["t_reg"], last_obs_year)
     spread = proj["SSP5-8.5"] - proj["SSP1-2.6"]
     rails = "|".join(n for n in goc.cell_params(CELL)
                      if abs(theta[n] - goc.PBOUNDS[n][0]) < 1e-9
