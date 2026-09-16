@@ -70,13 +70,14 @@ constraints, wants double-counting/correlation nipped in the bud, asked if still
   **Still to do:** the else-branches of `GIS_AB/GIS_BASINS/GISB_TERM/GIS_ORDERED` (77 sites, all
   constants now `true`), the steric-cap arm (documented optional; keep or drop is a choice).
 - Literal tap stems → helpers (15 files); the L24 posterior + 1.196 arm now TRACKED; `git gc`.
-- ⚠ **`run_ladrillo_tests.sh` test 6 [3] FAILS and was already failing since the 08-28 driver
-  migration** (offline-cell reference constants are 1.4.5-forcing numbers). Not edited (standing
-  rule). Fix = regenerate `python/gis_offline_cell.py`'s cell on the 1.6.0 forcing, Marcus's call.
-  Same signature: running the suite REWRITES `outputs/gis_port_reference.csv` (test 4 regenerates
-  it; max |Δ| 0.36 cm after 2024 on the 1.6.0 forcing vs the tracked 08-20 file) — reverted, not
-  committed, because a reference a test writes itself is not a reference. Decide the regeneration
-  together with test 6.
+- ✅ **`run_ladrillo_tests.sh` test 6 FIXED 09-16c (`f2ade83`); suite 10/10 PASS.** Two defects, not
+  one: the transcribed 1.4.5 reference AND a mixed-vintage splice anchor in `gis_offline_cell.project()`
+  (1.4.5 `fair_mean_gmst.csv` history under a 1.6.0 future, 0.15–0.17 cm at 2100). Cell + variants
+  regenerated: every fitted parameter byte-identical, only projections moved (A+B g=0 2100 →
+  7.28/9.80/15.54 cm). Test 6 [3] now READS the g=0 row of `gis_g_betaf_variants.csv`;
+  `gis_port_reference.csv` regenerated and committed (bit-identical through 2024). Pre-fix outputs in
+  `outputs/quarantine/20260916_gis_offline_cell_v145_anchor/`. Still 1.4.5: `fair_mean_gmst.csv`
+  itself (off the live path) and the `--zone=all` arm. CHANGELOG 09-16c.
 - NOT done, by decision: SLOWP/FAST code rename (44 data files incl. the posterior and the frozen
   benchmark carry the names — do it at the v1.0 package extraction); `dang`→`total` column rename
   (same reason; the stale comment is fixed). ~15 GB of June `wong_cond_pulse_pairs_*` blobs sit in
