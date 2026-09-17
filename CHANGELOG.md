@@ -1,3 +1,49 @@
+## 2026-09-17 — GMD draft reviewed as a redline: `deliverables/GMD.Ladrillo.v1_review-2026-09-17.docx`
+
+Marcus: "Update attached word document. Consider the previous documentation memo, the BRICK v0.2 GMD article,
+and ongoing updates and code polishing. Review for accuracy and clarity." His `GMD.Ladrillo.v1.docx` (5,916
+words, 6 figures, Sep 17 17:58 — it already carries Table 5 + the AIC paragraph from 09-16f) is UNTOUCHED;
+the review is a sibling copy with every change a `<w:ins>`/`<w:del>` under author "Claude" (62 ins / 22 del)
+plus 10 comments. Validated (`validate.py --original --author Claude`: PASS, no untracked text change) and
+reject-all reproduces the original text byte-for-byte via pandoc.
+
+**Tracked edits (accuracy):** LWS "a constant for now" → observed in the hindcast / BRICK's stochastic
+module in projections; "the three [Antarctic changes] described below" → above (the AIS section precedes
+it in the paper); glacier regrowth "would require temperatures to drop below 1850 levels" → full regrowth
+needs a RETURN to 1850 temperature, partial regrowth starts below the current volume's equilibrium
+temperature (the floored S_eq law); figure numbering made contiguous (old FIG 4/5/6/7 → 3/4/5/6, the FIG
+2 caption's "FIGs 3, 4 and 9" → "FIG 3", the "FIG 11" climate-swap reference dropped with a comment);
+the internal tag "L24" removed from FIG 1 / Table 4 / Table 5 / FIG 2 captions and the convergence
+sentence; "ssp245harm" → "SSP2-4.5 forcing (see Forcing)"; "(SLEIP reference)" → Nauels et al. 2026;
+"Wong 2017" → Wong et al. (2017); "premiere", "Ladrillo largest", "cmoparisons", the dangling "both"
+fixed; the conclusions' "[describe] [languages]" placeholder filled (Julia / Mimi / MIT).
+
+**Tracked insertions (methodology — the empty sections):** Thermal Expansion (BRICK's module unchanged,
+ΔTE = α ΔOHC/(A C ρ²), prior N(0.16, 0.029) on [0.10, 0.24], FaIR full-depth ensemble-mean OHC as the
+driver, L24 posterior α 0.172 (0.155–0.185) — computed from the L24 subsample, NOT the Aug-10
+`ladrillo_posterior_summary.csv` which is a 52-parameter earlier vintage); Land water storage (observed
+Frederikse→GRACE in the hindcast, BRICK's seeded stochastic module N(0.30, 0.18) mm/yr from 2019 in
+projections, ≈0.2 cm by 2024, ≈8 cm by 2300); Model code structure (Julia 1.12 / Mimi 1.6 / MimiBRICK
+v2.0.0, which components are swapped and which are upstream unchanged, drivers built outside the
+components, RAM sampler, 1–2 ms per evaluation, ~3 h for 4×2M on the laptop, the 10-test suite); Code and
+data availability (Zenodo/repository/fair-calibrate placeholders); a References list in Copernicus style
+(14 entries with DOIs verified from the PDFs in ClaudeDocs/Papers or Table 3, plus one bracketed line of
+what is still missing). Fact receipts came from an Explore pass over `julia/brick_mengel.jl`,
+`calibrate_mcmc_ext.jl`, `ladrillo_projection.jl`, the upstream MimiBRICK components and `julia_v2/Manifest.toml`.
+
+**Comments (Marcus's call, not edited):** the GMD checklist (numbered sections, Author contributions, the
+Wong-2017-style Appendix A prior/posterior table for all 58 parameters — offered, not built); "much more
+sensitive" holds for Greenland (≈3× BRICK at 2300) but glaciers are ≈1.4×; which "Sarofim reduced
+complexity model paper"; SSP5-8.5 widths inside a van-Vuuren-only section; the conclusions' "modest
+implications for future projections" vs the amplification paragraph's 58 cm/σ and 42 cm; a "Model
+calibration" heading over the calibration paragraphs now under "Model code structure"; the FACTS arm's
+missing remote as a blocker for the availability section.
+
+Tooling kept at `deliverables/redline/{redline.py,apply_edits.py}` (string-level tracked-change editor on
+`document.xml` after `merge_runs.py`; no ElementTree, per the docx-namespace rule). No LibreOffice here, so
+no render check — XSD validation + pandoc accept/reject round-trips only. Image alt-text still says "L24"
+(attribute, not visible text).
+
 ## 2026-09-16f — Table 5 + the AIC paragraph added to the L24 documentation (docx rebuilt)
 
 `deliverables/LadrilloUpdateDescription_L24.docx` (canonical) and its `_FILLED.md` intermediate: **Table 5**
