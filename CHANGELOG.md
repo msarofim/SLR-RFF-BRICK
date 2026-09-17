@@ -1,3 +1,13 @@
+## 2026-09-16e — handoff: the AIC paragraph drafted, GMD vs JOSS argued
+
+`notes/handoff_2026-09-16b_test6_ic_and_venue.md`: §3 drafts Table 5 + the documentation paragraph on the
+AIC/BIC test, modelled on Wong et al. 2017 GMD §4.2.2–4.2.3 (metrics at the maximum-likelihood ensemble
+member; their own full-BRICK-vs-emulator result was the same "AIC favours, BIC does not" pattern, read as
+"not unreasonably over-parameterized"); §4 lays out GMD (model-description paper: science reviewed,
+Zenodo at submission, the draft's content) vs JOSS (4-page software paper, software-only review, no
+evaluation) with the recommendation GMD now, JOSS later only for an extracted registered package — Wong's
+own order (GMD 2017 → JOSS 2022). Memory: `ic_ladrillo_vs_brick20`, `gis_offline_cell_anchor_vintage`.
+
 ## 2026-09-16d — AIC/BIC test: the Ladrillo-vs-BRICK 2.0 hindcast gain is not the 23 extra parameters
 
 Marcus: "Do an Akaike information test of Ladrillo vs BRICK 2.0 to prove that the RMSE improvement isn't
