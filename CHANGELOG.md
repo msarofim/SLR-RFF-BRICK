@@ -1,3 +1,21 @@
+## 2026-09-16f — Table 5 + the AIC paragraph added to the L24 documentation (docx rebuilt)
+
+`deliverables/LadrilloUpdateDescription_L24.docx` (canonical) and its `_FILLED.md` intermediate: **Table 5**
+(the four IC arms: iid; AR(1) at ρ ≤ 0.99 / 0.95 / 0.90; k, ln L, ΔAIC, ΔBIC) and one paragraph, "Ladrillo's
+hindcast gain is not its extra parameters", inserted in "Ladrillo Observational Comparison" after the Table 4
+discussion and before the thermal-expansion paragraph. Numbers verified line-by-line against
+`outputs/ic_ladrillo_vs_brick20_L24{,_rho0.95,_rho0.9}.md` (09-16d). One correction to the 09-16b draft
+caption: k is **50 / 27 under the iid arm** (the noise pairs are not used) and 58 / 35 under AR(1) — the
+caption now says so instead of "every sampled parameter". Citations in the document's inline style
+(Wong 2017, Akaike 1974, Schwarz 1978). Procedure per `sync_filled_from_docx.py`'s rule: sync from the
+docx FIRST (`--verify`: 265 paragraphs, no drift — Marcus had not edited since 09-14), edit the md, rebuild
+with the build script's docx step + `shrink_attribute_tables.py` (climate-env: `docx` module), re-verify
+(292 paragraphs, round-trip exact; 5 `<w:tbl>`, 12 media byte-identical to the previous docx — the 3.12 →
+2.92 MB size change is Word's re-save vs pandoc's fresh archive, `document.xml` 130 → 105 KB, not content).
+Document now 6559 words. The GMD-draft version of the paragraph (≈170 words + one footnote for the
+ρ sensitivity) is in `notes/handoff_2026-09-16b_test6_ic_and_venue.md` §3a for Marcus to accept or rewrite —
+NOT applied to `GMD.Ladrillo.v1.docx` (his file). Venue (GMD vs JOSS, §4 there) still Marcus's call.
+
 ## 2026-09-16e — handoff: the AIC paragraph drafted, GMD vs JOSS argued
 
 `notes/handoff_2026-09-16b_test6_ic_and_venue.md`: §3 drafts Table 5 + the documentation paragraph on the

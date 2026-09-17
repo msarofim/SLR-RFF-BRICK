@@ -93,6 +93,31 @@ footnote or the supplement, ≈120 words. The numbers are all in `outputs/ic_lad
 regenerate with `julia … ic_hindcast_residuals.jl` (90 s) then `scripts/run_ic_arms_20260916.sh` (~35 min).
 Cite Akaike 1974 and Schwarz 1978 as Wong does; Kass & Raftery 1995 for reading ΔBIC.)
 
+### 3a. ✅ DONE 09-16f — documentation placement applied; the PAPER block for Marcus
+
+Table 5 + the documentation paragraph are IN `LadrilloUpdateDescription_L24.docx` (CHANGELOG 09-16f; the
+caption's k was corrected to 50 / 27 under iid, 58 / 35 under AR(1)). Below is the GMD-draft version for
+"Results: Comparisons to Observations" — Marcus's text; a block to accept or rewrite, not applied to
+`GMD.Ladrillo.v1.docx`. ≈170 words + a footnote (the ρ sensitivity and the glacier/Greenland split).
+
+> Ladrillo samples 58 parameters against BRICK 2.0's 35, so we test whether the hindcast gains in Table 4
+> are bought by the extra 23 with the Akaike and Bayesian information criteria (Akaike 1974; Schwarz 1978),
+> following Wong et al. (2017): each model is scored at its maximum-likelihood posterior draw on the same
+> four component series (N = 502 observation-years), charging every sampled parameter the likelihood uses
+> (Table 5). With independent observational errors the log-likelihood gain of 1328 dwarfs the charge. Under
+> the calibration's own AR(1)-plus-observational-error likelihood, with noise scale and autocorrelation
+> profiled per series for both models, the gain is 68 log-likelihood units: three times the AIC charge
+> (ΔAIC = +89) and level on BIC (ΔBIC = −8)¹. Thermal expansion ties by construction (same module, same
+> driver). The criteria therefore do not indicate that Ladrillo is over-parameterized relative to BRICK 2.0,
+> with two caveats: the maximum over draws is a lower bound on each model's maximum likelihood, and
+> Ladrillo was calibrated to these targets while BRICK 2.0 was calibrated to its own.
+>
+> ¹ At the calibration's ρ ≤ 0.99 bound the AR(1) term acts as a near-random-walk discrepancy that absorbs
+> BRICK 2.0's smooth component biases cheaply; bounding ρ at 0.95 gives ΔBIC = +53, at 0.90 +125. The gain
+> is carried by glaciers (+33) and Greenland (+30), with Antarctica +6.
+
+Table 5 for the paper = the documentation's Table 5 verbatim (`deliverables/LadrilloUpdateDescription_FILLED.md`).
+
 ## 4. GMD vs JOSS — the case either way (Marcus's call)
 
 What the two venues ARE, from the two BRICK papers in the Papers folder:
