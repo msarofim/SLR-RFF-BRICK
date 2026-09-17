@@ -336,3 +336,8 @@ outputs/diag_emu_blocks/run_log.txt
 !data/MimiBRICK/parameters_subsample_brick_mengel_L24aisamp1p196.csv
 outputs/mcmc/*gate300*
 outputs/log_ladrillo_tests_*.txt
+# IC comparison: per-draw residual matrices (132 MB + 25 MB, regenerate in 90 s with
+# julia/ic_hindcast_residuals.jl) and the rho-sensitivity per-draw ln L tables; the
+# headline per-draw table (ic_ladrillo_vs_brick20_L24_perdraw.csv) IS tracked.
+outputs/ic_hindcast_residuals_*.csv
+outputs/ic_ladrillo_vs_brick20_*_rho*_perdraw.csv

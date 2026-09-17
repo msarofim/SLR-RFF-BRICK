@@ -1,3 +1,56 @@
+## 2026-09-16d — AIC/BIC test: the Ladrillo-vs-BRICK 2.0 hindcast gain is not the 23 extra parameters
+
+Marcus: "Do an Akaike information test of Ladrillo vs BRICK 2.0 to prove that the RMSE improvement isn't
+just a function of the number of parameters." Built as two scripts, both gated:
+
+1. **`julia/ic_hindcast_residuals.jl`** — per-draw hindcast residuals (model − obs, cm) of BOTH posteriors on
+   ONE target set (recalib_targets_ext.csv + the r19-seam-adjusted glacier target), 1900–2026, ssp245harm
+   forcing, 1995–2005 reref — the postpred drivers' conventions. Ladrillo 2000 draws (= the postpred's
+   NTHIN, thinned identically), BRICK 2.0 all 10,000 (= its postpred). **GATE: the per-draw medians
+   reproduce both `postpred_*_components_timeseries.csv` p50 series to ≤4.4e-16** — these ARE the Table 4
+   residuals. (A 2000-of-10,000 BRICK subset missed by 0.039 cm on AIS; running all 10,000 made it exact.)
+   No delta ramp, no d2 on either arm (Ladrillo-only likelihood devices). Ladrillo 22 s, BRICK 67 s.
+2. **`python/ic_ladrillo_vs_brick20.py [--rho-max=]`** — two likelihood arms, each applied identically to
+   both models: **obs_iid** (independent Gaussian, per-year observational σ only; lenient) and **ar1_prof**
+   (the calibrator's `hetero_logl_ar1` form: stationary AR(1) + obs diagonal, sd/ρ PROFILED per series per
+   draw on both models; strict). ln L = max over draws (a lower bound on each true maximum; the 2000-vs-10000
+   asymmetry favours BRICK). **k = EVERY sampled parameter**: Ladrillo 50 physical + 8 noise = 58, BRICK 2.0
+   27 + 8 = 35 (Ladrillo's 4 ledger + 4 d2 columns charged though inert here — the conservative direction).
+   N = 502 obs-years (ais 126, gsic 124, gis 126, steric 126). Profiling: a (sd, ρ) grid with ONE Cholesky
+   per grid point shared across all draws, then a per-draw Nelder-Mead polish, VALIDATED against a
+   6-start multistart on 24 random draws per series (agree to ≤0.04 ln L; the first ρ≤0.90 run tripped a
+   0.02 gate because the reference's ρ start sat ON the bound — starts now scale with the bound).
+
+**Result (Δ = Ladrillo − BRICK 2.0 on ln L; ΔAIC/ΔBIC = BRICK − Ladrillo, positive favours Ladrillo):**
+
+| likelihood | Δln L (best draw) | Δln L (median series = Table 4 basis) | ΔAIC | ΔBIC | gain in parameter-equivalents AIC / BIC | Δk |
+|---|---|---|---|---|---|---|
+| obs_iid | **+1328** | +3327 | **+2610** | **+2512** | 1328 / 427 | 23 |
+| ar1_prof, ρ ≤ 0.99 (calibrator's bound) | **+67.5** | +100 | **+89** | **−8** | 68 / 22 | 23 |
+| ar1_prof, ρ ≤ 0.95 | **+97.8** | +170 | **+150** | **+53** | 98 / 31 | 23 |
+| ar1_prof, ρ ≤ 0.90 | **+133.8** | +244 | **+222** | **+125** | 134 / 43 | 23 |
+
+Reading: under AIC the gain exceeds the parameter charge by 3× (strict) to 60× (lenient); under BIC it does
+in every arm except ρ ≤ 0.99, where it is a tie (−8). The tie is diagnosable: **for every BRICK 2.0 series
+the profiled ρ sits AT the bound** (Ladrillo: only steric and gsic), so the AR(1) term becomes a
+near-random-walk discrepancy that absorbs BRICK's smooth biases (−1.15 cm AIS, −0.60 gis, +0.94 gsic) at
+~1.5σ marginal cost — the ρ ≤ 0.95 arm shows the BIC verdict flips as soon as the noise model is allowed
+less than that. Per series (ρ ≤ 0.99, joint-best draw): AIS +6.4, glaciers +32.9, Greenland +29.8,
+**steric −1.6 ≈ tie BY CONSTRUCTION** — Ladrillo's TE module IS BRICK's (one α on the same OHC); the two
+best draws give the same residual to 3 decimals (0.338 / 0.442 / 0.233 cm at 1900/1950/2000). The gain is in
+every Table 4 window (iid: 1900–19 +155, 1920–49 +179, 1950–92 +567, 1993–2026 +427). The total (out-of-
+sample for BOTH) is a wash: −163 vs −165 at each model's best.
+
+**What it does NOT show (must be said wherever this is used):** Ladrillo was calibrated to these targets and
+BRICK 2.0 to Wong's CW11-era set; AIC corrects a fitted model's own optimism, not a comparator fitted to
+other data. The structure test that removes that axis is the BRICK-2.0-recalibrated-on-extended-targets arm
+(note_2026-08-14_ladrillo_vs_brick20_scorecard.md), still not run. DIC/p_V are in the CSV only (p_V is not
+an effective parameter count when the likelihood is not the fitted one: BRICK 158 vs nominal 35).
+Abandoned on the way: per-draw 6-start multistart (2 h; replaced by the shared-Cholesky grid, 10 min for all
+arms); the p_V/DIC columns in the table (meaningless on the iid arm: 3e5).
+Outputs: `outputs/ic_hindcast_residuals_{ladrillo_L24,brick20}.csv`, `ic_hindcast_obs_sigma.csv`,
+`ic_ladrillo_vs_brick20_L24{,_rho0.95,_rho0.9}.{csv,md}` + `_perdraw.csv`. Torch verdict: not needed.
+
 ## 2026-09-16c — suite test 6 fixed: the Greenland offline cell regenerated on calib 1.6.0, and its splice anchor was mixed-vintage
 
 Marcus: "Fix test 6." `validate_gis_projection_ab.jl` [3] had failed since the 08-28 driver
