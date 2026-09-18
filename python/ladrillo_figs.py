@@ -199,6 +199,8 @@ TAG_DESC = {
                 glacier="3-reservoir Nauels-nu (glaciers_nu3), FLOORED equilibrium "
                         "+ bounded regrowth at R = 1",
                 gis="two-basin Greenland with the above-threshold discharge channel",
+                lws="constant 0.3 mm/yr from 2019 (LWS_MODE=:central since 2026-09-18; "
+                    "arms dated before that carry the seeded realisation, seed 2026)",
                 note="Antarctic amplification prior N(1.09, 0.180), the measured "
                      "34-model CMIP6 spread (commit 165a860)."),
     "L14": dict(model="Ladrillo L14",

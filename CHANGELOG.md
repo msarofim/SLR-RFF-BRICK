@@ -1,3 +1,32 @@
+## 2026-09-18b — LWS switched to the constant 0.3 mm/yr mode on BOTH projection arms (Marcus); paper-arm re-run script prepared, not launched
+
+Marcus: "Switch LWS to the constant 0.3 mm/yr mode." Done as a NAMED CONSTANT `LWS_MODE = :central` in
+`julia/brick_mengel.jl` (with `LWS_MODES` and a new `set_lws!(m, lws)` helper for models built by stock
+`get_model`); every builder and `ladrillo_setup` (`julia/ladrillo_projection.jl`) default to it. The
+BRICK 2.0 joint-band arm (`julia/scope_slr_fairunc_oldbrick.jl`) now calls `set_lws!(M, LWS_MODE)` right
+after `get_model`, so both models carry an IDENTICAL land-water series — before this the two arms carried
+two DIFFERENT seeded realisations (Ladrillo's local MersenneTwister(2026) vs BRICK's global
+`Random.seed!(2026)` consumed by `get_model`), a like-for-like defect nobody had measured. Both `cells`
+outputs now carry a `provenance` column (driver, tag/posterior, ssp, climate, **lws mode + mean + seed
+if seeded**, span, reref, Julia) — the LWS seed had lived only in the script, against the
+seed-in-the-artifact rule. Pulse drivers (`scope_slr_pulse_vv*.jl`) untouched: LWS cancels in a paired
+difference and their [LWS-EXACT-ZERO] gates assume the seeded build.
+
+**MEASURED, not assumed** (`scratchpad/lws_check.jl`, ssp245 1850–2300, one draw): Ladrillo
+seeded→central moves lws/total by −0.006 / −0.136 / −0.024 cm at 2024 / 2100 / 2300; BRICK 2.0 by
++0.014 / +0.117 / −0.437; the two arms' LWS had differed by +0.25 cm at 2100 and −0.41 at 2300, now 0.
+Central 2300 = 8.460 cm = 0.03 cm/yr × 282 yr exactly. `run_ladrillo_tests.sh` **10/10 PASS** after the
+change (`outputs/log_ladrillo_tests_20260918_lws.txt`).
+
+**Not re-run yet** (Marcus asked what else to fix first): `run_paper_arms_lws_central_20260918.sh` re-runs
+every projection arm behind FIGs 2–6 and the text's MAGICC-climate numbers — Ladrillo 7 vv + 3 SSP (FaIR,
+tapped) + 3 SSP × {spliced, raw} MAGICC climate (~4 min each); BRICK 2.0 7 vv + 3 SSP (FaIR) + 9 MAGICC
+climate (~30 s each) — ~1.5 h, then the figure + benchmark steps of `build_l24_deliverable_doc.sh`.
+Hindcast arms (FIG 1, Tables 4–5) use the OBSERVED LWS and are unaffected. `ladrillo_figs.TAG_DESC["L24"]`
+gained an `lws` line so the stamp declares the mode. ⚠ Every L24 projection output dated before
+2026-09-18 is on the seeded realisation — quarantine them when the re-run lands (`outputs/quarantine/
+20260918_lws_seeded/`), never mix.
+
 ## 2026-09-18 — GMD draft, round 2: Marcus's comments answered, references extended, closing paragraph; Ladrillo-vs-BRICK runtime measured
 
 Input: `deliverables/GMD.Ladrillo.v1_review-2026-09-17.docx` after Marcus accepted round 1 and edited (Sep 18

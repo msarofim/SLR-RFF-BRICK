@@ -603,6 +603,9 @@ for c in COMPONENTS
     end
     println()
 end
+cells.provenance .= "scope_slr_fair_uncertainty.jl | Ladrillo $TAG | ssp $SSP | forcing $FORCING | climate $CLIMATE | " *
+    "lws $(LWS_MODE) (mean $(LWS_MEAN) m/yr$(LWS_MODE === :seeded ? ", seed $LWS_SEED" : "")) | tap $(TAP_ON) | " *
+    "run $Y0-$Y1 reref $(LADRILLO_REF[1])-$(LADRILLO_REF[2]) | julia $(VERSION)"
 CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_cells_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SMOKE ? "_SMOKE" : "").csv"), cells)
 
 ## ==========================================================================

@@ -43,16 +43,40 @@ const _GIS_SLOT = :greenland_icesheet               # name kept by Mimi replace!
 const LWS_MEAN  = 0.0003    # m/yr  (mean of MimiBRICK's N(0.0003, 0.00018) LWS rate)
 const LWS_SD    = 0.00018   # m/yr  (sd  of that distribution)
 const LWS_SEED  = 2026      # locks the :seeded realization (matches the obs-driven driver default)
+# THE DEFAULT MODE (Marcus 2026-09-18): :central. The seeded draw was ONE realization shared by every
+# posterior draw and scenario, so it added no spread to any band, and its own random-walk wobble is
+# LWS_SD*sqrt(281) ~ 0.3 cm by 2300 -- pure artifact. Every builder below and ladrillo_setup default to
+# LWS_MODE; the BRICK 2.0 comparison arms apply the same mode through set_lws! so the two models carry
+# an IDENTICAL land-water series (before 09-18 their two seeded realizations differed by up to ~0.3 cm).
+# Runs before 2026-09-18 (L24 arms of 09-14, the shipped memo figures) are :seeded -- see CHANGELOG.
+const LWS_MODE  = :central
+const LWS_MODES = (:seeded, :central, :zero, :random)
 
 """
-    build_brick_mengel(; ssp, y0, y1, lws=:seeded, lws_seed=LWS_SEED)
+    set_lws!(m, lws=LWS_MODE; lws_seed=LWS_SEED)
+
+Set MimiBRICK's `lws_random_sample` on an already-built model `m` (n = its year count) to the
+treatment `lws`; `:random` leaves get_model's unseeded draw in place. Returns `m`.
+"""
+function set_lws!(m, lws::Symbol=LWS_MODE; lws_seed::Int=LWS_SEED)
+    lws in LWS_MODES || error("set_lws!: lws must be one of $(LWS_MODES) (got :$lws)")
+    lws === :random && return m
+    n = length(Mimi.dim_keys(m, :time))
+    v = lws === :seeded  ? LWS_MEAN .+ LWS_SD .* randn(MersenneTwister(lws_seed), n) :
+        lws === :central ? fill(LWS_MEAN, n) : zeros(n)
+    update_param!(m, :landwater_storage, :lws_random_sample, v)
+    return m
+end
+
+"""
+    build_brick_mengel(; ssp, y0, y1, lws=LWS_MODE, lws_seed=LWS_SEED)
 
 Build a v2.0.0 BRICK with the Mengel glacier emulator swapped in (wiring preserved). `lws` selects the
-land-water-storage treatment: `:seeded` (default) = fixed-seed random realization (reproducible);
+land-water-storage treatment (default `LWS_MODE`): `:seeded` = fixed-seed random realization (reproducible);
 `:central` = smooth 0.3 mm/yr mean; `:zero` = no LWS; `:random` = legacy unseeded draw (irreproducible).
 """
 function build_brick_mengel(; ssp::String="ssp245", y0::Int=1850, y1::Int=2100,
-                            lws::Symbol=:seeded, lws_seed::Int=LWS_SEED)
+                            lws::Symbol=LWS_MODE, lws_seed::Int=LWS_SEED)
     m = MimiBRICK.get_model(ssprcp_scenario=ssp, start_year=y0, end_year=y1)
     replace!(m, _MENGEL_GLAC_SLOT => glaciers_mengel)
     n = y1 - y0 + 1
@@ -105,14 +129,14 @@ end
 # ============================================================================
 
 """
-    build_brick_nu(; ssp, y0, y1, lws=:seeded, lws_seed=LWS_SEED)
+    build_brick_nu(; ssp, y0, y1, lws=LWS_MODE, lws_seed=LWS_SEED)
 
 `build_brick_mengel` with the glaciers_nu component in the glacier slot. The new
 `glacier_surface_temperature` driver is UNBOUND after the build — call
 `set_glacier_forcing!` before `run(m)`.
 """
 function build_brick_nu(; ssp::String="ssp245", y0::Int=1850, y1::Int=2026,
-                        lws::Symbol=:seeded, lws_seed::Int=LWS_SEED)
+                        lws::Symbol=LWS_MODE, lws_seed::Int=LWS_SEED)
     m = MimiBRICK.get_model(ssprcp_scenario=ssp, start_year=y0, end_year=y1)
     replace!(m, _MENGEL_GLAC_SLOT => glaciers_nu)
     n = y1 - y0 + 1
@@ -161,14 +185,14 @@ end
 const NU3_BLOCKS = ("R19", "SLOWP", "FAST")
 
 """
-    build_brick_nu3(; ssp, y0, y1, lws=:seeded, lws_seed=LWS_SEED)
+    build_brick_nu3(; ssp, y0, y1, lws=LWS_MODE, lws_seed=LWS_SEED)
 
 `build_brick_nu` with the 3-reservoir glaciers_nu3 component in the glacier
 slot. All three per-block drivers are UNBOUND after the build — call
 `set_glacier_forcing3!` before `run(m)`.
 """
 function build_brick_nu3(; ssp::String="ssp245", y0::Int=1850, y1::Int=2026,
-                         lws::Symbol=:seeded, lws_seed::Int=LWS_SEED)
+                         lws::Symbol=LWS_MODE, lws_seed::Int=LWS_SEED)
     m = MimiBRICK.get_model(ssprcp_scenario=ssp, start_year=y0, end_year=y1)
     replace!(m, _MENGEL_GLAC_SLOT => glaciers_nu3)
     n = y1 - y0 + 1
@@ -226,14 +250,14 @@ end
 # ============================================================================
 
 """
-    build_brick_nu3_gis(; ssp, y0, y1, lws=:seeded, lws_seed=LWS_SEED)
+    build_brick_nu3_gis(; ssp, y0, y1, lws=LWS_MODE, lws_seed=LWS_SEED)
 
 `build_brick_nu3` with `greenland_ab` in the Greenland slot as well. BOTH the
 glacier block drivers and the Greenland regional driver are UNBOUND after the
 build — call `set_glacier_forcing3!` and `set_gis_forcing!` before `run(m)`.
 """
 function build_brick_nu3_gis(; ssp::String="ssp245", y0::Int=1850, y1::Int=2026,
-                             lws::Symbol=:seeded, lws_seed::Int=LWS_SEED)
+                             lws::Symbol=LWS_MODE, lws_seed::Int=LWS_SEED)
     m = build_brick_nu3(; ssp=ssp, y0=y0, y1=y1, lws=lws, lws_seed=lws_seed)
     replace!(m, _GIS_SLOT => greenland_ab)
     return m
@@ -254,7 +278,7 @@ function update_gis_ab!(m, gis)
 end
 
 """
-    build_brick_nu3_gis3(; ssp, y0, y1, lws=:seeded, lws_seed=LWS_SEED)
+    build_brick_nu3_gis3(; ssp, y0, y1, lws=LWS_MODE, lws_seed=LWS_SEED)
 
 `build_brick_nu3` with the 3-BASIN Greenland (`greenland_3basin`) in the Greenland
 slot — Mouginot sectors south{SW,CW,CE,SE} / mid{NW} / high{NO,NE} on ONE shared
@@ -262,7 +286,7 @@ regional driver. Same unbound-driver contract as `build_brick_nu3_gis`: call
 `set_glacier_forcing3!` and `set_gis_forcing!` before `run(m)`.
 """
 function build_brick_nu3_gis3(; ssp::String="ssp245", y0::Int=1850, y1::Int=2026,
-                              lws::Symbol=:seeded, lws_seed::Int=LWS_SEED)
+                              lws::Symbol=LWS_MODE, lws_seed::Int=LWS_SEED)
     m = build_brick_nu3(; ssp=ssp, y0=y0, y1=y1, lws=lws, lws_seed=lws_seed)
     replace!(m, _GIS_SLOT => greenland_3basin)
     # TAP OFF BY DEFAULT (gis_tap_v = 0), so every existing consumer of this builder

@@ -182,6 +182,10 @@ alloc() = Dict(c => Matrix{Float64}(undef, length(ROWS), length(YEARS)) for c in
 
 Random.seed!(SEED)
 const M = MimiBRICK.get_model(ssprcp_scenario="ssp245", start_year=Y0, end_year=Y1)
+## LWS on the SAME treatment as the Ladrillo arm (LWS_MODE in brick_mengel.jl; :central since
+## 2026-09-18). Before this line the arm carried get_model's seeded-random realization, which
+## differed from Ladrillo's own seeded realization by up to ~0.3 cm -- a like-for-like defect.
+set_lws!(M, LWS_MODE)
 
 """Run draw indices `ks` on forcing (g,o); write the FULL year axis into `store`."""
 function run_into!(store, ks, g, o)
@@ -276,6 +280,9 @@ for c in COMPS, (j,H) in enumerate(HORIZONS)
     end
 end
 CSV.write(joinpath(REPO,"outputs","scope_slr_fairunc_draws_$(SSP)_spliced_oldbrick$(CLIM_TAG).csv"), draws)
+cells.provenance .= "scope_slr_fairunc_oldbrick.jl | BRICK 2.0 stock MimiBRICK v2.0.0 get_model(ssp245), Random.seed!($SEED) before get_model | " *
+    "posterior $(basename(POST)) | ssp $SSP | climate $CLIMATE | lws $(LWS_MODE) (mean $(LWS_MEAN) m/yr" *
+    "$(LWS_MODE === :seeded ? ", seed $LWS_SEED" : "")) | run $Y0-$Y1 reref $BASE0-$BASE1 | julia $(VERSION)"
 CSV.write(joinpath(REPO,"outputs","scope_slr_fairunc_cells_$(SSP)_spliced_oldbrick$(CLIM_TAG).csv"), cells)
 
 ## ---- paths: the SAME schema scope_slr_fair_uncertainty.jl writes, so a figure reads

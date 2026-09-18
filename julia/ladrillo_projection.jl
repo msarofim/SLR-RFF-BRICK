@@ -550,7 +550,7 @@ _yearmap(path, col) = (d = CSV.read(path, DataFrame);
 
 """
     ladrillo_setup(; ssp="ssp245", y0=1850, y1=2300, forcing_tag=ssp, ref=LADRILLO_REF,
-                   gmst=nothing, ohc=nothing, lws=:seeded)
+                   gmst=nothing, ohc=nothing, lws=LWS_MODE)
 
 Build the Ladrillo model on a scenario, attach forcing, and precompute the
 draw-independent parts of the per-block glacier drivers.
@@ -565,7 +565,7 @@ function ladrillo_setup(; ssp::String="ssp245", y0::Int=1850, y1::Int=2300,
                       forcing_tag::String=ssp, ref::Tuple{Int,Int}=LADRILLO_REF,
                       gmst::Union{Nothing,Vector{<:Real}}=nothing,
                       ohc::Union{Nothing,Vector{<:Real}}=nothing,
-                      lws::Symbol=:seeded, gis_ab::Bool=false,
+                      lws::Symbol=LWS_MODE, gis_ab::Bool=false,
                       gis_variant::Union{Nothing,Symbol}=nothing,
                       gis_shape::Bool=true)
     years = collect(y0:y1)
