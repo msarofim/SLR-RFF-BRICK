@@ -1,6 +1,6 @@
 # Ladrillo benchmark — `L24`
 
-*benchmark v1.0, 2026-09-14, repo `cab2a0b`. Champion arm: **L24** (the candidate IS the champion — no delta column).*
+*benchmark v1.0, 2026-09-18, repo `ae3e0ee`. Champion arm: **L24** (the candidate IS the champion — no delta column).*
 
 Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (stock MimiBRICK v2.0.0, own posterior), **literature** (FACTS + MAGICC-SLR, frozen).
 
@@ -112,10 +112,10 @@ Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (s
 | AIS | ssp126 | 2100 | median_vs_lit | 0.527 x lit median | **PASS** | ours 4.76 cm vs lit 3.66-11.93 (median 9.04), n_lit=5 [1 SEJ comparator(s) excluded from the score; full range 3.66-11.93] |
 | AIS | ssp126 | 2100 | median_vs_lit | 0.478 x lit median | **PASS** | BRICK 2.0 4.32 cm vs the same lit median 9.04; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | AIS | ssp126 | 2100 | spread_vs_lit | 2.553 x lit spread | **FAIL** | ours 54.64 cm vs model-based lit 20.72-40.49 (median 21.40, n=5); ALL comparators 20.72-105.01 |
-| AIS | ssp126 | 2150 | median_vs_lit | 0.500 x lit median | **PASS** | ours 7.33 cm vs lit 5.34-24.01 (median 14.67), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary |
+| AIS | ssp126 | 2150 | median_vs_lit | 0.499 x lit median | **PASS** | ours 7.33 cm vs lit 5.34-24.01 (median 14.67), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary |
 | AIS | ssp126 | 2150 | median_vs_lit | 0.445 x lit median | **PASS** | BRICK 2.0 6.52 cm vs the same lit median 14.67; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | AIS | ssp126 | 2150 | spread_vs_lit | 2.003 x lit spread | **WARN** | ours 104.38 cm vs model-based lit 33.17-71.04 (median 52.10, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN |
-| AIS | ssp126 | 2300 | median_vs_lit | 1.663 x lit median | **WARN** | ours 14.48 cm vs lit 8.71-8.71 (median 8.71), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| AIS | ssp126 | 2300 | median_vs_lit | 1.662 x lit median | **WARN** | ours 14.47 cm vs lit 8.71-8.71 (median 8.71), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
 | AIS | ssp126 | 2300 | median_vs_lit | 1.495 x lit median | **WARN** | BRICK 2.0 13.01 cm vs the same lit median 8.71; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | AIS | ssp126 | 2300 | spread_vs_lit | 3.533 x lit spread | **WARN** | ours 245.86 cm vs model-based lit 69.60-69.60 (median 69.60, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN |
 | AIS | ssp245 | 2100 | median_vs_lit | 0.736 x lit median | **PASS** | ours 7.72 cm vs lit 5.22-12.17 (median 10.49), n_lit=5 [1 SEJ comparator(s) excluded from the score; full range 5.22-12.17] |
@@ -124,10 +124,10 @@ Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (s
 | AIS | ssp245 | 2150 | median_vs_lit | 1.459 x lit median | **WARN** | ours 39.85 cm vs lit 27.21-27.41 (median 27.31), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
 | AIS | ssp245 | 2150 | median_vs_lit | 2.658 x lit median | **WARN** | BRICK 2.0 72.60 cm vs the same lit median 27.31; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | AIS | ssp245 | 2150 | spread_vs_lit | 1.513 x lit spread | **PASS** | ours 129.18 cm vs model-based lit 80.10-90.72 (median 85.41, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary |
-| AIS | ssp245 | 2300 | median_vs_lit | 1.849 x lit median | **WARN** | ours 154.29 cm vs lit 83.46-83.46 (median 83.46), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| AIS | ssp245 | 2300 | median_vs_lit | 1.849 x lit median | **WARN** | ours 154.28 cm vs lit 83.46-83.46 (median 83.46), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
 | AIS | ssp245 | 2300 | median_vs_lit | 2.468 x lit median | **WARN** | BRICK 2.0 205.94 cm vs the same lit median 83.46; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | AIS | ssp245 | 2300 | spread_vs_lit | 1.223 x lit spread | **PASS** | ours 332.11 cm vs model-based lit 271.56-271.56 (median 271.56, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary |
-| AIS | ssp585 | 2100 | median_vs_lit | 2.838 x lit median | **PASS** | ours 37.45 cm vs lit 4.30-39.10 (median 13.20), n_lit=5 [1 SEJ comparator(s) excluded from the score; full range 4.30-39.10] |
+| AIS | ssp585 | 2100 | median_vs_lit | 2.838 x lit median | **PASS** | ours 37.44 cm vs lit 4.30-39.10 (median 13.20), n_lit=5 [1 SEJ comparator(s) excluded from the score; full range 4.30-39.10] |
 | AIS | ssp585 | 2100 | median_vs_lit | 3.345 x lit median | **FAIL** | BRICK 2.0 44.14 cm vs the same lit median 13.20; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | AIS | ssp585 | 2100 | spread_vs_lit | 1.406 x lit spread | **PASS** | ours 72.24 cm vs model-based lit 20.71-79.00 (median 51.40, n=5); ALL comparators 20.71-126.10; width here is the antarctic_lambda PRIOR -- do NOT narrow |
 | AIS | ssp585 | 2150 | median_vs_lit | 1.018 x lit median | **PASS** | ours 95.70 cm vs lit 34.31-153.62 (median 93.97), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary |
@@ -217,58 +217,58 @@ Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (s
 | thermal exp. | ssp585 | 2300 | median_vs_lit | 0.986 x lit median | **PASS** | ours 104.98 cm vs lit 103.49-109.39 (median 106.44), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary |
 | thermal exp. | ssp585 | 2300 | median_vs_lit | 0.957 x lit median | **WARN** | BRICK 2.0 101.88 cm vs the same lit median 106.44; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | thermal exp. | ssp585 | 2300 | spread_vs_lit | 0.823 x lit spread | **PASS** | ours 98.73 cm vs model-based lit 118.64-121.40 (median 120.02, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary |
-| land water | ssp126 | 2100 | median_vs_lit | 0.865 x lit median | **WARN** | ours 2.60 cm vs lit 2.99-3.01 (median 3.00), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| land water | ssp126 | 2100 | median_vs_lit | 0.820 x lit median | **WARN** | ours 2.46 cm vs lit 2.99-3.01 (median 3.00), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
 | land water | ssp126 | 2100 | median_vs_lit | 0.781 x lit median | **WARN** | BRICK 2.0 2.34 cm vs the same lit median 3.00; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | land water | ssp126 | 2100 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs model-based lit 3.64-4.06 (median 3.85, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
-| land water | ssp126 | 2150 | median_vs_lit | 0.887 x lit median | **WARN** | ours 4.23 cm vs lit 4.58-4.96 (median 4.77), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| land water | ssp126 | 2150 | median_vs_lit | 0.830 x lit median | **WARN** | ours 3.96 cm vs lit 4.58-4.96 (median 4.77), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
 | land water | ssp126 | 2150 | median_vs_lit | 0.847 x lit median | **WARN** | BRICK 2.0 4.04 cm vs the same lit median 4.77; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | land water | ssp126 | 2150 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs model-based lit 5.64-5.78 (median 5.71, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
-| land water | ssp126 | 2300 | median_vs_lit | 0.941 x lit median | **PASS** | ours 8.48 cm vs lit 7.25-10.78 (median 9.01), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary |
+| land water | ssp126 | 2300 | median_vs_lit | 0.939 x lit median | **PASS** | ours 8.46 cm vs lit 7.25-10.78 (median 9.01), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary |
 | land water | ssp126 | 2300 | median_vs_lit | 0.987 x lit median | **PASS** | BRICK 2.0 8.90 cm vs the same lit median 9.01; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | land water | ssp126 | 2300 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs model-based lit 8.70-12.12 (median 10.41, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
-| land water | ssp245 | 2100 | median_vs_lit | 0.848 x lit median | **WARN** | ours 2.60 cm vs lit 3.01-3.11 (median 3.06), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| land water | ssp245 | 2100 | median_vs_lit | 0.804 x lit median | **WARN** | ours 2.46 cm vs lit 3.01-3.11 (median 3.06), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
 | land water | ssp245 | 2100 | median_vs_lit | 0.765 x lit median | **WARN** | BRICK 2.0 2.34 cm vs the same lit median 3.06; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | land water | ssp245 | 2100 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs model-based lit 3.64-4.48 (median 4.06, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
-| land water | ssp245 | 2150 | median_vs_lit | 0.833 x lit median | **WARN** | ours 4.23 cm vs lit 4.96-5.20 (median 5.08), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| land water | ssp245 | 2150 | median_vs_lit | 0.780 x lit median | **WARN** | ours 3.96 cm vs lit 4.96-5.20 (median 5.08), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
 | land water | ssp245 | 2150 | median_vs_lit | 0.796 x lit median | **WARN** | BRICK 2.0 4.04 cm vs the same lit median 5.08; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | land water | ssp245 | 2150 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs model-based lit 5.78-6.87 (median 6.33, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
-| land water | ssp245 | 2300 | median_vs_lit | 0.774 x lit median | **WARN** | ours 8.48 cm vs lit 10.78-11.14 (median 10.96), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| land water | ssp245 | 2300 | median_vs_lit | 0.772 x lit median | **WARN** | ours 8.46 cm vs lit 10.78-11.14 (median 10.96), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
 | land water | ssp245 | 2300 | median_vs_lit | 0.812 x lit median | **WARN** | BRICK 2.0 8.90 cm vs the same lit median 10.96; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | land water | ssp245 | 2300 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs model-based lit 12.12-13.82 (median 12.97, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
-| land water | ssp585 | 2100 | median_vs_lit | 0.871 x lit median | **WARN** | ours 2.60 cm vs lit 2.96-3.01 (median 2.98), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| land water | ssp585 | 2100 | median_vs_lit | 0.825 x lit median | **WARN** | ours 2.46 cm vs lit 2.96-3.01 (median 2.98), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
 | land water | ssp585 | 2100 | median_vs_lit | 0.786 x lit median | **WARN** | BRICK 2.0 2.34 cm vs the same lit median 2.98; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | land water | ssp585 | 2100 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs model-based lit 3.64-4.12 (median 3.88, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
-| land water | ssp585 | 2150 | median_vs_lit | 0.875 x lit median | **WARN** | ours 4.23 cm vs lit 4.70-4.96 (median 4.83), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| land water | ssp585 | 2150 | median_vs_lit | 0.819 x lit median | **WARN** | ours 3.96 cm vs lit 4.70-4.96 (median 4.83), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
 | land water | ssp585 | 2150 | median_vs_lit | 0.836 x lit median | **WARN** | BRICK 2.0 4.04 cm vs the same lit median 4.83; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | land water | ssp585 | 2150 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs model-based lit 5.78-5.80 (median 5.79, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
-| land water | ssp585 | 2300 | median_vs_lit | 0.927 x lit median | **PASS** | ours 8.48 cm vs lit 7.53-10.78 (median 9.16), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary |
+| land water | ssp585 | 2300 | median_vs_lit | 0.924 x lit median | **PASS** | ours 8.46 cm vs lit 7.53-10.78 (median 9.16), n_lit=2 ⚠ n_lit=2 < 3: a median of so few is not a summary |
 | land water | ssp585 | 2300 | median_vs_lit | 0.972 x lit median | **PASS** | BRICK 2.0 8.90 cm vs the same lit median 9.16; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | land water | ssp585 | 2300 | spread_vs_lit | 0.000 x lit spread | **N/A(by construction)** | ours 0.00 cm vs model-based lit 9.04-12.12 (median 10.58, n=2); ⚠ n=2 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN; LWS is a seeded constant -- zero spread is the DESIGN, not a defect |
-| TOTAL | ssp126 | 2100 | median_vs_lit | 0.841 x lit median | **PASS** | ours 38.40 cm vs lit 35.59-50.06 (median 45.68), n_lit=7 [1 SEJ comparator(s) excluded from the score; full range 35.59-55.88] |
+| TOTAL | ssp126 | 2100 | median_vs_lit | 0.838 x lit median | **PASS** | ours 38.26 cm vs lit 35.59-50.06 (median 45.68), n_lit=7 [1 SEJ comparator(s) excluded from the score; full range 35.59-55.88] |
 | TOTAL | ssp126 | 2100 | median_vs_lit | 0.901 x lit median | **PASS** | BRICK 2.0 41.16 cm vs the same lit median 45.68; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | TOTAL | ssp126 | 2100 | spread_vs_lit | 1.481 x lit spread | **PASS** | ours 68.62 cm vs model-based lit 32.73-55.62 (median 46.34, n=7); ALL comparators 32.73-125.52 |
-| TOTAL | ssp126 | 2150 | median_vs_lit | 1.094 x lit median | **WARN** | ours 50.24 cm vs lit 45.94-45.94 (median 45.94), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| TOTAL | ssp126 | 2150 | median_vs_lit | 1.088 x lit median | **WARN** | ours 49.97 cm vs lit 45.94-45.94 (median 45.94), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
 | TOTAL | ssp126 | 2150 | median_vs_lit | 1.260 x lit median | **WARN** | BRICK 2.0 57.89 cm vs the same lit median 45.94; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | TOTAL | ssp126 | 2150 | spread_vs_lit | 2.108 x lit spread | **WARN** | ours 124.28 cm vs model-based lit 58.97-58.97 (median 58.97, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN |
-| TOTAL | ssp126 | 2300 | median_vs_lit | 1.092 x lit median | **WARN** | ours 72.58 cm vs lit 66.49-66.49 (median 66.49), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| TOTAL | ssp126 | 2300 | median_vs_lit | 1.091 x lit median | **WARN** | ours 72.56 cm vs lit 66.49-66.49 (median 66.49), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
 | TOTAL | ssp126 | 2300 | median_vs_lit | 1.425 x lit median | **WARN** | BRICK 2.0 94.76 cm vs the same lit median 66.49; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | TOTAL | ssp126 | 2300 | spread_vs_lit | 2.420 x lit spread | **WARN** | ours 282.19 cm vs model-based lit 116.60-116.60 (median 116.60, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN |
-| TOTAL | ssp245 | 2100 | median_vs_lit | 0.944 x lit median | **PASS** | ours 52.14 cm vs lit 49.78-58.27 (median 55.25), n_lit=7 [1 SEJ comparator(s) excluded from the score; full range 49.78-67.77] |
+| TOTAL | ssp245 | 2100 | median_vs_lit | 0.941 x lit median | **PASS** | ours 52.00 cm vs lit 49.78-58.27 (median 55.25), n_lit=7 [1 SEJ comparator(s) excluded from the score; full range 49.78-67.77] |
 | TOTAL | ssp245 | 2100 | median_vs_lit | 1.270 x lit median | **WARN** | BRICK 2.0 70.19 cm vs the same lit median 55.25; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | TOTAL | ssp245 | 2100 | spread_vs_lit | 1.462 x lit spread | **PASS** | ours 77.99 cm vs model-based lit 35.22-64.58 (median 53.36, n=7); ALL comparators 35.22-151.34 |
-| TOTAL | ssp245 | 2150 | median_vs_lit | 1.141 x lit median | **WARN** | ours 100.53 cm vs lit 88.11-88.11 (median 88.11), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| TOTAL | ssp245 | 2150 | median_vs_lit | 1.138 x lit median | **WARN** | ours 100.25 cm vs lit 88.11-88.11 (median 88.11), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
 | TOTAL | ssp245 | 2150 | median_vs_lit | 1.566 x lit median | **WARN** | BRICK 2.0 137.98 cm vs the same lit median 88.11; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | TOTAL | ssp245 | 2150 | spread_vs_lit | 1.417 x lit spread | **PASS** | ours 153.45 cm vs model-based lit 108.33-108.33 (median 108.33, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary |
-| TOTAL | ssp245 | 2300 | median_vs_lit | 1.335 x lit median | **WARN** | ours 249.25 cm vs lit 186.77-186.77 (median 186.77), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| TOTAL | ssp245 | 2300 | median_vs_lit | 1.334 x lit median | **WARN** | ours 249.22 cm vs lit 186.77-186.77 (median 186.77), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
 | TOTAL | ssp245 | 2300 | median_vs_lit | 1.702 x lit median | **WARN** | BRICK 2.0 317.82 cm vs the same lit median 186.77; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
-| TOTAL | ssp245 | 2300 | spread_vs_lit | 1.123 x lit spread | **PASS** | ours 381.57 cm vs model-based lit 339.75-339.75 (median 339.75, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary |
-| TOTAL | ssp585 | 2100 | median_vs_lit | 1.251 x lit median | **PASS** | ours 94.21 cm vs lit 62.39-97.85 (median 75.33), n_lit=7 [1 SEJ comparator(s) excluded from the score; full range 62.39-97.85] |
+| TOTAL | ssp245 | 2300 | spread_vs_lit | 1.123 x lit spread | **PASS** | ours 381.58 cm vs model-based lit 339.75-339.75 (median 339.75, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary |
+| TOTAL | ssp585 | 2100 | median_vs_lit | 1.249 x lit median | **PASS** | ours 94.07 cm vs lit 62.39-97.85 (median 75.33), n_lit=7 [1 SEJ comparator(s) excluded from the score; full range 62.39-97.85] |
 | TOTAL | ssp585 | 2100 | median_vs_lit | 1.301 x lit median | **WARN** | BRICK 2.0 98.00 cm vs the same lit median 75.33; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | TOTAL | ssp585 | 2100 | spread_vs_lit | 1.271 x lit spread | **PASS** | ours 87.52 cm vs model-based lit 40.46-106.79 (median 68.88, n=7); ALL comparators 40.46-181.04 |
-| TOTAL | ssp585 | 2150 | median_vs_lit | 0.762 x lit median | **WARN** | ours 200.26 cm vs lit 262.93-262.93 (median 262.93), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| TOTAL | ssp585 | 2150 | median_vs_lit | 0.761 x lit median | **WARN** | ours 199.99 cm vs lit 262.93-262.93 (median 262.93), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
 | TOTAL | ssp585 | 2150 | median_vs_lit | 0.742 x lit median | **WARN** | BRICK 2.0 195.15 cm vs the same lit median 262.93; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | TOTAL | ssp585 | 2150 | spread_vs_lit | 0.389 x lit spread | **WARN** | ours 156.89 cm vs model-based lit 403.38-403.38 (median 403.38, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN |
-| TOTAL | ssp585 | 2300 | median_vs_lit | 0.509 x lit median | **WARN** | ours 516.71 cm vs lit 1015.98-1015.98 (median 1015.98), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
+| TOTAL | ssp585 | 2300 | median_vs_lit | 0.509 x lit median | **WARN** | ours 516.68 cm vs lit 1015.98-1015.98 (median 1015.98), n_lit=1 ⚠ n_lit=1 < 3: a median of so few is not a summary; verdict CAPPED at WARN |
 | TOTAL | ssp585 | 2300 | median_vs_lit | 0.461 x lit median | **WARN** | BRICK 2.0 467.87 cm vs the same lit median 1015.98; ⚠ FIXED-driver median, scored on medians only -- its parameter-only SPREAD is not comparable with our joint band |
 | TOTAL | ssp585 | 2300 | spread_vs_lit | 0.321 x lit spread | **WARN** | ours 443.05 cm vs model-based lit 1379.10-1379.10 (median 1379.10, n=1); ⚠ n=1 < 3 comparators WITH A BAND, so this median is not a summary; verdict CAPPED at WARN |
 
@@ -278,11 +278,11 @@ Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (s
 |---|---|---|---|---|---|
 | AIS | ssp126 | 2100 | 4.76 | (is champion) | 4.32 |
 | AIS | ssp126 | 2150 | 7.33 | (is champion) | 6.52 |
-| AIS | ssp126 | 2300 | 14.48 | (is champion) | 13.01 |
+| AIS | ssp126 | 2300 | 14.47 | (is champion) | 13.01 |
 | AIS | ssp245 | 2100 | 7.72 | (is champion) | 27.41 |
 | AIS | ssp245 | 2150 | 39.85 | (is champion) | 72.60 |
-| AIS | ssp245 | 2300 | 154.29 | (is champion) | 205.94 |
-| AIS | ssp585 | 2100 | 37.45 | (is champion) | 44.14 |
+| AIS | ssp245 | 2300 | 154.28 | (is champion) | 205.94 |
+| AIS | ssp585 | 2100 | 37.44 | (is champion) | 44.14 |
 | AIS | ssp585 | 2150 | 95.70 | (is champion) | 97.88 |
 | AIS | ssp585 | 2300 | 292.53 | (is champion) | 276.83 |
 | glaciers | ssp126 | 2100 | 7.92 | (is champion) | 12.09 |
@@ -312,30 +312,30 @@ Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (s
 | thermal exp. | ssp585 | 2100 | 28.38 | (is champion) | 27.07 |
 | thermal exp. | ssp585 | 2150 | 52.53 | (is champion) | 50.34 |
 | thermal exp. | ssp585 | 2300 | 104.98 | (is champion) | 101.88 |
-| land water | ssp126 | 2100 | 2.60 | (is champion) | 2.34 |
-| land water | ssp126 | 2150 | 4.23 | (is champion) | 4.04 |
-| land water | ssp126 | 2300 | 8.48 | (is champion) | 8.90 |
-| land water | ssp245 | 2100 | 2.60 | (is champion) | 2.34 |
-| land water | ssp245 | 2150 | 4.23 | (is champion) | 4.04 |
-| land water | ssp245 | 2300 | 8.48 | (is champion) | 8.90 |
-| land water | ssp585 | 2100 | 2.60 | (is champion) | 2.34 |
-| land water | ssp585 | 2150 | 4.23 | (is champion) | 4.04 |
-| land water | ssp585 | 2300 | 8.48 | (is champion) | 8.90 |
-| TOTAL | ssp126 | 2100 | 38.40 | (is champion) | 41.16 |
-| TOTAL | ssp126 | 2150 | 50.24 | (is champion) | 57.89 |
-| TOTAL | ssp126 | 2300 | 72.58 | (is champion) | 94.76 |
-| TOTAL | ssp245 | 2100 | 52.14 | (is champion) | 70.19 |
-| TOTAL | ssp245 | 2150 | 100.53 | (is champion) | 137.98 |
-| TOTAL | ssp245 | 2300 | 249.25 | (is champion) | 317.82 |
-| TOTAL | ssp585 | 2100 | 94.21 | (is champion) | 98.00 |
-| TOTAL | ssp585 | 2150 | 200.26 | (is champion) | 195.15 |
-| TOTAL | ssp585 | 2300 | 516.71 | (is champion) | 467.87 |
+| land water | ssp126 | 2100 | 2.46 | (is champion) | 2.34 |
+| land water | ssp126 | 2150 | 3.96 | (is champion) | 4.04 |
+| land water | ssp126 | 2300 | 8.46 | (is champion) | 8.90 |
+| land water | ssp245 | 2100 | 2.46 | (is champion) | 2.34 |
+| land water | ssp245 | 2150 | 3.96 | (is champion) | 4.04 |
+| land water | ssp245 | 2300 | 8.46 | (is champion) | 8.90 |
+| land water | ssp585 | 2100 | 2.46 | (is champion) | 2.34 |
+| land water | ssp585 | 2150 | 3.96 | (is champion) | 4.04 |
+| land water | ssp585 | 2300 | 8.46 | (is champion) | 8.90 |
+| TOTAL | ssp126 | 2100 | 38.26 | (is champion) | 41.16 |
+| TOTAL | ssp126 | 2150 | 49.97 | (is champion) | 57.89 |
+| TOTAL | ssp126 | 2300 | 72.56 | (is champion) | 94.76 |
+| TOTAL | ssp245 | 2100 | 52.00 | (is champion) | 70.19 |
+| TOTAL | ssp245 | 2150 | 100.25 | (is champion) | 137.98 |
+| TOTAL | ssp245 | 2300 | 249.22 | (is champion) | 317.82 |
+| TOTAL | ssp585 | 2100 | 94.07 | (is champion) | 98.00 |
+| TOTAL | ssp585 | 2150 | 199.99 | (is champion) | 195.15 |
+| TOTAL | ssp585 | 2300 | 516.68 | (is champion) | 467.87 |
 
 ## [S] Scenario separation — ssp585/ssp126 median ratio
 
 | module | horizon | ours | verdict | literature |
 |---|---|---|---|---|
-| AIS | 2100 | 7.86x | **PASS** | FACTS 0.73-2.10 (n=5); MAGICC-SLR 10.69-10.69 (n=1) |
+| AIS | 2100 | 7.87x | **PASS** | FACTS 0.73-2.10 (n=5); MAGICC-SLR 10.69-10.69 (n=1) |
 | AIS | 2150 | 13.06x | **PASS** | FACTS 1.43-1.43 (n=1); MAGICC-SLR 28.79-28.79 (n=1) |
 | AIS | 2300 | 20.21x | **WARN** | MAGICC-SLR 81.77-81.77 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON] |
 | glaciers | 2100 | 1.62x | **PASS** | FACTS 1.43-1.65 (n=2); MAGICC-SLR 1.46-1.46 (n=1) |
@@ -350,8 +350,8 @@ Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (s
 | land water | 2100 | 1.00x | **PASS** | FACTS 0.99-0.99 (n=1); MAGICC-SLR 1.00-1.00 (n=1) |
 | land water | 2150 | 1.00x | **PASS** | FACTS 1.03-1.03 (n=1); MAGICC-SLR 1.00-1.00 (n=1) |
 | land water | 2300 | 1.00x | **PASS** | FACTS 1.04-1.04 (n=1); MAGICC-SLR 1.00-1.00 (n=1) |
-| TOTAL | 2100 | 2.45x | **PASS** | FACTS 1.44-1.82 (n=7); MAGICC-SLR 2.75-2.75 (n=1) |
-| TOTAL | 2150 | 3.99x | **WARN** | MAGICC-SLR 5.72-5.72 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON] |
+| TOTAL | 2100 | 2.46x | **PASS** | FACTS 1.44-1.82 (n=7); MAGICC-SLR 2.75-2.75 (n=1) |
+| TOTAL | 2150 | 4.00x | **WARN** | MAGICC-SLR 5.72-5.72 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON] |
 | TOTAL | 2300 | 7.12x | **WARN** | MAGICC-SLR 15.28-15.28 (n=1)  [NO UPPER COMPARATOR AT THIS HORIZON] |
 
 ---

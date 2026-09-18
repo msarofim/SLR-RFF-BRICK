@@ -52,6 +52,7 @@ import matplotlib.lines as mlines
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import gis_targets  # noqa: E402
+import ladrillo_figs as lf  # noqa: E402  (joint_stem; missing since 01f25ef, caught 2026-09-18)
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIGDIR = os.path.join(REPO, "figures")

@@ -1,3 +1,24 @@
+## 2026-09-18c — paper arms re-run on LWS_MODE=:central (35 arms, figures, benchmark); memo-figure driver import fix
+
+`run_paper_arms_lws_central_20260918.sh` from a frozen copy, 11:22–12:47 under heavy contention (nine R
+`run_dispersed_multistart` jobs from another session, load ~21 on 10 cores): Ladrillo arms 4.4–4.9 min
+each vs 3.6 uncontended (1.3×), BRICK 2.0 arms ~35 s. **All 35 arms OK.** 121 pre-switch files quarantined
+first (`outputs/quarantine/20260918_lws_seeded/`, README; gitignored like every quarantine, 92 MB).
+
+**Benchmark vs the pre-switch `bench_ladrillo_L24.csv` (526 cells): 4 verdict flips, all LWS-driven.**
+Three `lws median_vs_lit_delta` cells at 2150 go BETTER→SAME — the seeded realisation had happened to sit
+0.27 cm closer to the literature LWS at 2150 than the constant rate does, a random-draw "win" that should
+never have counted; and `total ssp126 2100 component-error sum vs total error` CANCELLATION→WORSE at
+0.028 (noise level). Ladrillo total medians move −0.14 cm at 2100, −0.27 at 2150, −0.02 at 2300 on every
+SSP (LWS only; AIS medians move ≤ 0.003 through the sea-level feedback). The benchmark's BRICK 2.0
+comparator values did NOT change — it reads the FROZEN reference arm, still on the seeded LWS; the
+`--freeze-fixed` refresh is Marcus's call. FIGs 2–6 rebuilt; differences invisible at figure scale.
+
+**Bug caught by the re-run:** `python/plot_ladrillo_memo_figures.py` failed with `NameError: lf` — the
+09-16 cleanup `01f25ef` made it call `lf.joint_stem()` without `import ladrillo_figs as lf`, and the script
+had not been run since ("every replaced constant verified equal to its literal" did not include running
+this driver). One-line import added; re-run OK (fig1/fig2/fig3 memo figures written).
+
 ## 2026-09-18b — LWS switched to the constant 0.3 mm/yr mode on BOTH projection arms (Marcus); paper-arm re-run script prepared, not launched
 
 Marcus: "Switch LWS to the constant 0.3 mm/yr mode." Done as a NAMED CONSTANT `LWS_MODE = :central` in
