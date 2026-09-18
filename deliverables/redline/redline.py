@@ -155,3 +155,56 @@ def add_comment(x, anchor, text, nth=0, para=None):
     region = (region[:m.start()] + f'<w:commentRangeStart w:id="{cid}"/>' + m.group(0)
               + f'<w:commentRangeEnd w:id="{cid}"/>' + ref + region[m.end():])
     return x[:ps] + region + x[pe:]
+
+
+# ---------- round-2 additions ----------
+def add_reply(x, parent_cid, text):
+    """Reply to comment `parent_cid`; markers nested inside the parent's range."""
+    save(x)
+    r = subprocess.run([sys.executable, str(SK / "scripts/comment.py"), str(HERE / "unpacked"), text,
+                        "--parent", str(parent_cid)], capture_output=True, text=True)
+    if r.returncode:
+        raise RuntimeError(r.stderr + r.stdout)
+    cid = re.search(r"id=(\d+)", r.stdout).group(1)
+    x = load()
+    ps = f'<w:commentRangeStart w:id="{parent_cid}"/>'
+    pe = f'<w:commentRangeEnd w:id="{parent_cid}"/>'
+    refm = f'<w:commentReference w:id="{parent_cid}"/>'
+    assert x.count(ps) == 1 and x.count(pe) == 1 and x.count(refm) == 1, f"parent {parent_cid} markers"
+    ri = x.find(refm); rs = x.rfind("<w:r>", 0, ri); re_ = x.find("</w:r>", ri) + len("</w:r>")
+    pref = x[rs:re_]
+    x = x.replace(ps, ps + f'<w:commentRangeStart w:id="{cid}"/>')
+    x = x.replace(pe, f'<w:commentRangeEnd w:id="{cid}"/>' + pe)
+    x = x.replace(pref, pref + f'<w:r><w:rPr><w:rStyle w:val="CommentReference"/></w:rPr>'
+                              f'<w:commentReference w:id="{cid}"/></w:r>')
+    return x
+
+def replace_para_text(x, anchor, new_text):
+    """Tracked: delete every text run of the paragraph containing `anchor`, insert `new_text`
+    (with **bold** support) at the end. Comment markers and reference runs are kept."""
+    ps, pe = find_para(x, anchor)
+    para = x[ps:pe]
+    def delrun(m):
+        run = m.group(0)
+        if "<w:t" not in run or "commentReference" in run:
+            return run
+        run = re.sub(r"<w:t(?: [^>]*)?>", "<w:delText xml:space=\"preserve\">", run).replace("</w:t>", "</w:delText>")
+        return f'<w:del w:id="{nid()}" w:author="{AUTHOR}" w:date="{DATE}">{run}</w:del>'
+    para2 = R_RE.sub(delrun, para)
+    # insert the new runs before the closing </w:p> (and before a trailing commentRangeEnd if any)
+    tail = re.search(r'((?:<w:commentRangeEnd [^>]*/>|<w:r><w:rPr><w:rStyle w:val="CommentReference"/></w:rPr><w:commentReference [^>]*/></w:r>)*)</w:p>$', para2, re.S)
+    ins = _inline_runs(new_text)
+    para2 = para2[:tail.start(1)] + ins + para2[tail.start(1):]
+    return x[:ps] + para2 + x[pe:]
+
+def set_table_widths(x, anchor_text, grid, tcw):
+    """Formatting only (not tracked): set gridCol and per-cell tcW of the table containing anchor_text."""
+    i = x.find(esc(anchor_text)); ts = x.rfind("<w:tbl>", 0, i); te = x.find("</w:tbl>", i) + len("</w:tbl>")
+    t = x[ts:te]
+    t = re.sub(r"<w:tblGrid>.*?</w:tblGrid>", "<w:tblGrid>" + "".join(f'<w:gridCol w:w="{g}"/>' for g in grid) + "</w:tblGrid>", t, flags=re.S)
+    k = [0]
+    def tc(m):
+        v = tcw[k[0] % len(tcw)]; k[0] += 1
+        return f'<w:tcW w:w="{v}" w:type="dxa"/>'
+    t = re.sub(r'<w:tcW [^>]*/>', tc, t)
+    return x[:ts] + t + x[te:]

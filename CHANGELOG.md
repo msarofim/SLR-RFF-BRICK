@@ -1,3 +1,48 @@
+## 2026-09-18 — GMD draft, round 2: Marcus's comments answered, references extended, closing paragraph; Ladrillo-vs-BRICK runtime measured
+
+Input: `deliverables/GMD.Ladrillo.v1_review-2026-09-17.docx` after Marcus accepted round 1 and edited (Sep 18
+10:32; 5 comments of his). Output: `deliverables/GMD.Ladrillo.v1_review-2026-09-18.docx` — again every text
+change tracked under "Claude" (validated `--author Claude`; reject-all differs from his file only in the
+Table 5 column widths, which are formatting), replies nested under each of his comments.
+
+- **[4] glacier regrowth — Marcus was right, my 09-17 sentence wrong.** In the L24 posterior `gic_T_off`
+  (the regional temperature at which the 1850 volume is the equilibrium) sits BELOW the 1850–1900 mean:
+  SLOWG median −1.6 K (94 % of draws < 0), FASTG −1.5 K (100 %), R19 −0.05 (straddles). So the 1850 ice
+  was already committed to loss and FULL regrowth needs cooling below 1850–1900, not a return to it.
+  Text corrected with the numbers.
+- **[5] LWS** — text now says the projection module starts in 2019 regardless of the hindcast's held-2023
+  observed series (BRICK's `first_projection_year` = 2018 untouched), the 2019–2026 convention mismatch
+  is < 0.5 cm and the projection omits the observed 1995–2018 LWS change (≈0.4 cm rel. 1995–2014;
+  `outputs/recalib_targets_ext.csv`: 2018 = +0.53 cm rel 1995–2005, 1995–2014 mean +0.10). The seeded
+  single realisation adds NO spread to the band; its own random-walk wobble is ≈0.18 mm/yr × √281 ≈ 0.3 cm
+  by 2300. Told Marcus `lws=:central` (constant 0.3 mm/yr) exists and would move projections ≤ 0.3 cm —
+  his call (needs a figure re-run).
+- **[8] Table 5** — ΔAIC/ΔBIC columns widened 561/468 → 1130/1130 dxa (grid), likelihood column narrowed.
+- **[9] AIC paragraph streamlined** ~290 → ~200 words, numbers unchanged.
+- **[13] relative speed — MEASURED**: new `julia/diag_runtime_ladrillo_vs_brick20.jl` (both models built
+  once on the same ssp245harm FaIR driver, 300 evenly-thinned draws each, warm-up excluded, mean/sd/median)
+  → `outputs/diag_runtime_ladrillo_vs_brick20.csv` (+ provenance column). Medians, ms per draw:
+  1850–2300 apply-draw+run Ladrillo **6.17** vs BRICK 2.0 **4.96** (**1.25×**); 1850–2026 5.17 vs 4.12
+  (1.26×); the Mimi `run(m)` alone 0.78 vs 0.65 (1.20×) at 2300, 0.28 vs 0.27 at 2026. ⚠ Parameter
+  handling (Mimi `update_param!` over 58 vs 35 parameters + Ladrillo's per-draw driver rebuild) is ~85 %
+  of the per-draw cost in BOTH models — the model evaluation is < 1 ms. A first run's Ladrillo-2300 mean
+  carried GC pauses (sd 8 ms), hence medians. Conclusions sentence now carries the numbers.
+- **[2]** "Sarofim et al. 2021" = Sarofim, Smith, St. Juliana, Hartin, Nat. Clim. Change 11, 1–3
+  (PMC8311623 → 10.1038/s41558-020-00973-9); NAS 2017 cited in full.
+- **References** +17 entries (Church & White 2011, Dangendorf 2024, Forster 2026, GlaMBIE 2025, Goelzer
+  2020, Greve & Chambers 2022, Hartin 2023, Hock 2023, Kopp 2023, Leach 2021, Leclercq 2011, Millan 2022,
+  Mouginot 2019, Rignot 2019, Sarofim 2021, Smith 2024, van Vuuren 2026), inserted in alphabetical position;
+  Dangendorf, Forster, Hock, Rignot, Greve, Hartin, Smith, Leach, Kopp, Millan, Zekollari, GlaMBIE, van
+  Vuuren checked against publisher pages today; Church & White, Leclercq, Mouginot, Goelzer from memory of
+  the DOIs (flagged for a spot-check). ⚠ The ScenarioMIP-CMIP7 paper is **GMD 19, 2627–2656, 2026** (not
+  2025) — in-text citation added at the first "van Vuuren scenarios". Still open: the MAGICC-SLR "Nauels
+  2025" source, the fair-calibrate 1.6.0 Zenodo DOI, four incomplete author lists.
+- **Closing paragraph** added from Marcus's wording (complement to the emulator set; FrEDI / Hartin 2023;
+  SC-CO2; decision makers).
+- Tooling: `deliverables/redline/redline.py` gained `add_reply`, `replace_para_text`, `set_table_widths`;
+  `apply_edits_r2.py` is the round-2 script. ⚠ Word writes its own `<w:rPr>` inside comment-reference
+  runs, so a reply must locate the parent's reference run by its `w:id`, not by a literal template.
+
 ## 2026-09-17 — GMD draft reviewed as a redline: `deliverables/GMD.Ladrillo.v1_review-2026-09-17.docx`
 
 Marcus: "Update attached word document. Consider the previous documentation memo, the BRICK v0.2 GMD article,
