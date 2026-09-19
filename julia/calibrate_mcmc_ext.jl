@@ -151,7 +151,10 @@ function hetero_logl_ar1(res::Vector{Float64}, σ::Float64, ρ::Float64, ϵ::Vec
     n = length(res)
     σp = σ^2/(1-ρ^2)
     H  = abs.(collect(1:n)' .- collect(1:n))
-    Σ  = σp .* ρ.^H .+ Diagonal(ϵ.^2)
+    ## --obs-corr-len (L26): the band is a correlated error with e-folding length OBS_CORR_LEN yr;
+    ## L = 0 reproduces the L24 diagonal exactly.
+    Σ  = OBS_CORR_LEN > 0 ? σp .* ρ.^H .+ (ϵ * ϵ') .* exp.(-H ./ OBS_CORR_LEN) :
+                            σp .* ρ.^H .+ Diagonal(ϵ.^2)
     return logpdf(MvNormal(Symmetric(Σ)), res)
 end
 
@@ -703,7 +706,7 @@ const D2_BASIS_SD = 0.5      # cm, prior sd on each coefficient (residuals are 0
 # other stream's coefficients from FREE and from D2_IDX, and `d2()` is already
 # keyed on haskey(D2_IDX, st), so the other stream reverts to no-discrepancy
 # exactly.
-const D2_STREAMS  = ["gsic", "steric"]
+const D2_STREAMS  = "--no-d2-gsic" in ARGS ? ["steric"] : ["gsic", "steric"]   # NO_D2_GSIC is defined later; same flag
 
 """Orthonormal (unit-RMS) discrepancy basis for one stream: shifted Legendre-like
 powers of scaled time, Gram-Schmidt'd against `protect` and against each other,
@@ -799,7 +802,43 @@ end
 # ---- free physical params (name, comp, sym, prior μ, σ, lo, hi, islog) -- UNCHANGED
 pri = CSV.read(joinpath(REPO,"outputs/param_priors.csv"), DataFrame)
 prow(n)=pri[findfirst(==(n),pri.param),:]
-P(n,c,s;islog=false)=(r=prow(n); (name=n,comp=c,sym=s,μ=r.mean,σ=r.std,lo=r.lo,hi=r.hi,islog=islog))
+## ---------------------------------------------------------------------------
+## L26 STRUCTURE FLAGS (2026-09-19, Marcus: "scientifically justifiable fit, structure and priors;
+## minimise parameters"). All default OFF so the L24 identity gate is untouched.
+##   --paleo-priors   the eight non-geometry DAIS parameters take the DAISfastdyn paleo-ensemble
+##                    marginals (mean, sd, min, max; outputs/paleo_dais_marginals.csv = MimiBRICK's own
+##                    prior construction) instead of outputs/param_priors.csv, which is BRICK 2.0's
+##                    POSTERIOR mean/sd truncated at +-2 sd (found 09-19); thermal_alpha takes
+##                    MimiBRICK's Uniform(0.05, 0.3).
+##   --no-delta       gic_delta (the M15 early-segment target ramp) is not sampled; the ramp is 0.
+##   --no-d2-gsic     the two glacier discrepancy coefficients are not sampled (steric's stay).
+##   --obs-corr-len=L the published per-year bands enter the likelihood as a CORRELATED error,
+##                    (eps_i eps_j) exp(-|i-j|/L) yr, instead of a diagonal (L = 0 = L24). A
+##                    reconstruction band is a level-like uncertainty; treating it as independent
+##                    per-year noise is what forced a target correction (delta / u_unch) to exist.
+##   --precip-reparam sample u = log P0 + kappa_DAIS * Tbar instead of log P0 (the r = +0.96 ridge);
+##                    log P0 is derived per draw, the joint paleo prior is evaluated on it.
+##   (--toff-lo=, --delta-sigma= are separate flags, above/below.)
+const PALEO_PRIORS   = "--paleo-priors" in ARGS
+const NO_DELTA       = "--no-delta" in ARGS
+const NO_D2_GSIC     = "--no-d2-gsic" in ARGS
+const OBS_CORR_LEN   = let v = _argval("--obs-corr-len="); v === nothing ? 0.0 : parse(Float64, v) end
+const PRECIP_REPARAM = "--precip-reparam" in ARGS
+const PALEO_DAIS = PALEO_PRIORS ? CSV.read(joinpath(REPO, "outputs/paleo_dais_marginals.csv"), DataFrame) : nothing
+const PALEO_SET  = Set(["anto_alpha","anto_beta","antarctic_gamma","antarctic_alpha","antarctic_nu",
+                        "antarctic_kappa","antarctic_lambda","antarctic_temp_threshold"])
+function P(n,c,s;islog=false)
+    if PALEO_PRIORS && n in PALEO_SET
+        r = PALEO_DAIS[findfirst(==(n), PALEO_DAIS.param), :]
+        return (name=n,comp=c,sym=s,μ=Float64(r.mean),σ=Float64(r.sd),lo=Float64(r.lo),hi=Float64(r.hi),islog=islog)
+    elseif PALEO_PRIORS && n == "thermal_alpha"
+        return (name=n,comp=c,sym=s,μ=0.16,σ=1.0e3,lo=0.05,hi=0.30,islog=islog)   # MimiBRICK Uniform(0.05, 0.3)
+    end
+    r=prow(n); (name=n,comp=c,sym=s,μ=r.mean,σ=r.std,lo=r.lo,hi=r.hi,islog=islog)
+end
+any((PALEO_PRIORS, NO_DELTA, NO_D2_GSIC, OBS_CORR_LEN > 0, PRECIP_REPARAM)) &&
+    println("L26 structure flags: paleo-priors=$PALEO_PRIORS no-delta=$NO_DELTA no-d2-gsic=$NO_D2_GSIC " *
+            "obs-corr-len=$OBS_CORR_LEN precip-reparam=$PRECIP_REPARAM")
 FREE = NamedTuple[]
 push!(FREE, (name="ais_ocean_temperature₀",comp=:antarctic_icesheet,sym=:ais_ocean_temperature₀,μ=0.72,σ=0.50,lo=0.50,hi=2.00,islog=false))
 push!(FREE, P("antarctic_alpha",:antarctic_icesheet,:ais_α))
@@ -971,7 +1010,7 @@ push!(FREE, (name="gic_u_unch", comp=:likelihood_only, sym=:none,
 ## early-segment target correction at ~0 to see what the other glacier parameters do without it.
 const DELTA_SIGMA = let v = _argval("--delta-sigma="); v === nothing ? 0.30 : parse(Float64, v) end
 DELTA_SIGMA != 0.30 && println("gic_delta prior sd OVERRIDDEN: $DELTA_SIGMA (default 0.30)")
-push!(FREE, (name="gic_delta", comp=:likelihood_only, sym=:none,
+NO_DELTA || push!(FREE, (name="gic_delta", comp=:likelihood_only, sym=:none,
              μ=0.0, σ=DELTA_SIGMA, lo=-1.2, hi=1.2, islog=false))
 push!(FREE, (name="gic_u_pre", comp=:likelihood_only, sym=:none,
              μ=12.5, σ=1.0e3, lo=0.0, hi=25.0, islog=false))
@@ -1039,7 +1078,7 @@ const GISB_IDX3 = GIS_BASINS ?
     Dict(b => findfirst(k -> k.name == "gis_s_$b", FREE) for b in GISB_FREE_BASINS) :
     Dict{Symbol,Int}()
 const SETP_SKIP  = Set(vcat(collect(values(KAPPA_IDX3)),
-                            [UUNCH_IDX, DELTA_IDX, UPRE_IDX, SR5_IDX],
+                            filter(!isnothing, [UUNCH_IDX, DELTA_IDX, UPRE_IDX, SR5_IDX]),
                             collect(values(AMPB_IDX3)),
                             # D2's delta(t) coefficients are likelihood_only: they
                             # correct the MODEL SERIES, not a Mimi parameter, so
@@ -1249,6 +1288,25 @@ const GEO_IDX   = (length(FREE)-length(GEO_SYMS)+1):length(FREE)
 const GEO_PRIOR = MvNormal(zeros(length(GEO_SYMS)), Matrix(GEO_C))
 const TON_IDX   = GEO_IDX[findfirst(==("ais_runoff_Ton"), GEO_NAMES)]   # derived: h0 = -T_on*c
 const C_IDX     = GEO_IDX[findfirst(==("ais_c"), GEO_NAMES)]
+## --precip-reparam (L26): sample u = log P0 + kappa_DAIS * TBAR_ANT in the precip slot. DAIS
+## precipitation is P0 exp(kappa T_ant), so the hindcast identifies log P0 + kappa * <T_ant>, not the
+## pair (posterior r = +0.96 in L24). TBAR_ANT = AIS_TANT0 + AMP_MU * mean(GMST over the fit window),
+## a documented constant (any constant decorrelates; this one centres it). log P0 = u - kappa TBAR_ANT
+## is derived per draw: the joint paleo prior, the paleo bounds and the model all see the derived value.
+const PRECIP_IDX = GEO_IDX[findfirst(==("ais_precip0_LOG"), GEO_NAMES)]
+const KAPPA_DAIS_IDX = findfirst(k -> k.name == "antarctic_kappa", FREE)
+const TBAR_ANT = AIS_TANT0 + AMP_MU * mean(gmst[[findfirst(==(y), years) for y in 1900:Y1]])
+const PRECIP_LO, PRECIP_HI = FREE[PRECIP_IDX].lo, FREE[PRECIP_IDX].hi     # paleo bounds on log P0
+if PRECIP_REPARAM
+    let f = FREE[PRECIP_IDX], κμ = FREE[KAPPA_DAIS_IDX].μ
+        FREE[PRECIP_IDX] = (name="ais_precip_u", comp=f.comp, sym=f.sym,
+                            μ=f.μ + κμ * TBAR_ANT, σ=f.σ, lo=-1e9, hi=1e9, islog=false)
+    end
+    @printf("precip reparam: u = log P0 + kappa * TBAR_ANT, TBAR_ANT = %.3f (DAIS scale); log P0 bounds [%.3f, %.3f] enforced on the derived value\n",
+            TBAR_ANT, PRECIP_LO, PRECIP_HI)
+end
+"""log P0 for a theta vector: the sampled value, or the derived one under --precip-reparam."""
+precip_log(θ) = PRECIP_REPARAM ? θ[PRECIP_IDX] - θ[KAPPA_DAIS_IDX] * TBAR_ANT : θ[PRECIP_IDX]
 
 # ---- phase-2 A5: SMB likelihood term on the model's own β_total vs Rignot 2019 ----------
 # The posterior pinned SMB - discharge to -145±15 Gt/yr (34:1 tighter than either flux)
@@ -1398,6 +1456,7 @@ reref(v)=100 .* (v .- sum(v[ib])/length(ib))
 
 function logposterior(θ)
     @inbounds for k in 1:NP; (θ[k]<FREE[k].lo || θ[k]>FREE[k].hi) && return -Inf; end
+    PRECIP_REPARAM && (precip_log(θ) < PRECIP_LO || precip_log(θ) > PRECIP_HI) && return -Inf
     σn = θ[NP+1:2:NK]; ρn = θ[NP+2:2:NK]
     (any(σn .<= 0) || any(ρn .< 0) || any(ρn .>= 0.99)) && return -Inf
     # L22: the MARGINAL, not σ. Evaluated here with the other hard rejections and BEFORE
@@ -1414,8 +1473,10 @@ function logposterior(θ)
     end
     @inbounds for k in 1:NP
         (k == AMP_IDX || k == TON_IDX || k in SETP_SKIP) && continue   # derived/likelihood-only
+        (PRECIP_REPARAM && k == PRECIP_IDX) && continue                # derived: log P0 below
         setp!(FREE[k], θ[k])
     end
+    PRECIP_REPARAM && update_param!(m, :antarctic_icesheet, :ais_precipitation₀, precip_log(θ))
     # extC: per-block κ sampled as log10 -- the component gets the linear value
     for b in BLOCKS
         update_param!(m, G, Symbol("gic_kappa_$b"), 10.0^θ[KAPPA_IDX3[b]])
@@ -1454,11 +1515,11 @@ function logposterior(θ)
     # D2: delta(t) is added to the MODEL (it is a model-discrepancy term), so the
     # per-year band sigma and the AR(1) noise are untouched — spec section 3
     # sub-choice 2 requires delta to be added to, not to replace, diag(eps^2).
-    d2 = (st, v) -> v .+ D2_BASIS[st] * [θ[j] for j in D2_IDX[st]]
+    d2 = (st, v) -> haskey(D2_IDX, st) ? v .+ D2_BASIS[st] * [θ[j] for j in D2_IDX[st]] : v
     for (i,(s,full)) in enumerate(zip([S.ais,S.gsic,S.gis,S.steric], [ais,gsic_flow,gis,te]))
         if i == 2
             ll += hetero_logl_ar1(d2("gsic", full[s.myi]) .-
-                                  (s.obs .+ θ[DELTA_IDX] .* DELTA_RAMP),
+                                  (s.obs .+ (NO_DELTA ? 0.0 : θ[DELTA_IDX]) .* DELTA_RAMP),
                                   σn[i], ρn[i], s.ϵ)
         elseif i == 4
             ll += hetero_logl_ar1(d2("steric", full[s.myi]) .- s.obs,
@@ -1591,7 +1652,7 @@ function logposterior(θ)
             lp += logpdf(Normal(k10c(b, θ[AMPB_IDX3[b]]), K10_SIG), θ[KAPPA_IDX3[b]])
         end
     end
-    lp += logpdf(GEO_PRIOR, (θ[GEO_IDX] .- GEO_MU) ./ GEO_SD)
+    lp += logpdf(GEO_PRIOR, ((PRECIP_REPARAM ? (g = θ[GEO_IDX]; g[findfirst(==(PRECIP_IDX), GEO_IDX)] = precip_log(θ); g) : θ[GEO_IDX]) .- GEO_MU) ./ GEO_SD)
     for i in 1:length(SERIES); lp += logpdf(truncated(Normal(0,5),0,Inf), σn[i]); end
     return ll + lp
 end
@@ -1618,8 +1679,9 @@ for k in 1:NP
         if nm == "ais_runoff_Ton"                        # medoid T_on = -h0/c
             push!(θ0, -Float64(medoid["antarctic_runoff_height0"]) / Float64(medoid["antarctic_c"]))
         else
-            v = Float64(medoid[GEO_MEDOID_COL[nm]])      # medoid stores precip₀ LINEAR
-            push!(θ0, nm == "ais_precip0_LOG" ? log(v) : v)  # ...but θ/model are log-space
+            v = Float64(medoid[GEO_MEDOID_COL[nm == "ais_precip_u" ? "ais_precip0_LOG" : nm]])      # medoid stores precip₀ LINEAR
+            push!(θ0, nm == "ais_precip0_LOG" ? log(v) :
+                      nm == "ais_precip_u"    ? log(v) + FREE[KAPPA_DAIS_IDX].μ * TBAR_ANT : v)  # ...but θ/model are log-space
         end
     elseif nm in FD_MEDOID
         push!(θ0, Float64(medoid[nm]))
@@ -2148,10 +2210,10 @@ if _argval("--profile=") !== nothing
         ais = reref(m[:antarctic_icesheet, :ais_sea_level])
         gsic_flow = reref(m[G, :gsic_hind] .+ Funch)
         gis = reref(m[:greenland_icesheet, :greenland_sea_level]); te = reref(m[:thermal_expansion, :te_sea_level])
-        d2 = (st, v) -> v .+ D2_BASIS[st] * [θ[j] for j in D2_IDX[st]]
+        d2 = (st, v) -> haskey(D2_IDX, st) ? v .+ D2_BASIS[st] * [θ[j] for j in D2_IDX[st]] : v
         t = zeros(4)
         for (i, (sr, full)) in enumerate(zip([S.ais, S.gsic, S.gis, S.steric], [ais, gsic_flow, gis, te]))
-            t[i] = i == 2 ? hetero_logl_ar1(d2("gsic", full[sr.myi]) .- (sr.obs .+ θ[DELTA_IDX] .* DELTA_RAMP), σn[i], ρn[i], sr.ϵ) :
+            t[i] = i == 2 ? hetero_logl_ar1(d2("gsic", full[sr.myi]) .- (sr.obs .+ (NO_DELTA ? 0.0 : θ[DELTA_IDX]) .* DELTA_RAMP), σn[i], ρn[i], sr.ϵ) :
                    i == 4 ? hetero_logl_ar1(d2("steric", full[sr.myi]) .- sr.obs, σn[i], ρn[i], sr.ϵ) :
                             hetero_logl_ar1(full[sr.myi] .- sr.obs, σn[i], ρn[i], sr.ϵ)
         end
