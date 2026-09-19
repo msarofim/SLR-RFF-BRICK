@@ -1,3 +1,34 @@
+## 2026-09-19 — Table A1: priors and posterior median / 5–95 % for all 58 L24 parameters (GMD appendix)
+
+Marcus: "Rebuild the table of priors and posterior median / 5–95% for all 58 parameters for L24." The old
+`python/ladrillo_posterior_summary.py` was extC-vintage (52 parameters, `dang` in the likelihood, priors
+TRANSCRIBED by hand). Rebuilt so the priors are never transcribed:
+
+- **`calibrate_mcmc_ext.jl --dump-priors`** (new mode, exits before sampling): writes
+  `outputs/ladrillo_priors_<TAG>.csv` with every FREE entry's (mu, sigma, lo, hi) plus the prior FORM the
+  sampler actually applies — `flat` where sigma >= 10 (the calibrator's own bounds-only convention:
+  gic_b, gic_T_off, gic_u_unch, gic_u_pre, gis_slow_w), `N(k10c(amp), 0.114)` for the three log10 kappa
+  (PRIOR_SKIP, centre conditional on the sampled amp), the joint paleo MvNormal marginals for the seven
+  DAIS geometry parameters, half-normal N+(0,5) cm for the four AR(1) sds, flat [0, 0.99) for the four rhos;
+  provenance names the ARGS (run with run_mcmc_L24.sh's flags: `--gis-ordered --gis-basins2 --amp-mu=1.09
+  --amp-sigma=0.180`). 58 rows = 50 physical + 8 noise, in theta order.
+- **`python/ladrillo_prior_posterior_table.py --tag=L24`** joins that to the shipped posterior
+  (`parameters_subsample_brick_mengel_L24.csv`, 10,000 draws): median / 5 / 95 % / mean, grouped by block
+  in Wong et al. 2017 Appendix-A style, three significant figures per row. The only hand-written column is
+  description + units (sources in the header: DAIS units from Wong 2017 Table A4 and the MimiBRICK
+  component docstrings; glacier/Greenland from the component files; ledger terms mm; d2 and noise cm).
+  GATES: prior order == posterior columns; every draw inside its prior bounds (rho < 0.99); exactly 58;
+  every parameter has a description. All PASS. Outputs `outputs/ladrillo_prior_posterior_L24.{csv,md}`
+  and `deliverables/GMD_TableA1_priors_posterior_L24.docx` (pandoc, for pasting into the paper).
+- Consistency with the paper's "58 = 17 Antarctic + 9 Greenland + 19 glacier + 13 remaining": 17 =
+  ais_gmst_amp + T_oc,0 + alpha/nu/threshold + anto a/b + lambda/gamma/kappa + 7 geometry; 9 Greenland;
+  12 + 3 + 4 glacier; 13 = thermal_alpha + 4 d2 + 8 noise. ✓
+- Things the table makes visible: gis_f posterior 0.54 (0.31–0.72) against a prior centred 0.78;
+  ais_runoff_Ton −17.8 (−18.0 to −17.5) against a paleo sd of 5.5 (the identified direction); gic_delta
+  0.24 (0.11–0.39) mm/yr, a full sd off its N(0, 0.3) prior; gic_T_off SLOWG/FASTG −1.6 / −1.5 (the
+  09-18 regrowth correction). ⚠ Old `outputs/ladrillo_posterior_summary.csv` (Aug 10, extC) left in place
+  but is NOT L24 — the new file is the one to cite.
+
 ## 2026-09-18c — paper arms re-run on LWS_MODE=:central (35 arms, figures, benchmark); memo-figure driver import fix
 
 `run_paper_arms_lws_central_20260918.sh` from a frozen copy, 11:22–12:47 under heavy contention (nine R

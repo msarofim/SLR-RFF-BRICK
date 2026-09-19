@@ -81,7 +81,7 @@
 ## where threaded BLAS pays for itself, so the threads were never buying anything here.
 ## ============================================================================
 
-using CSV, DataFrames, Mimi, MimiBRICK, Statistics, LinearAlgebra, Distributions, Random, Printf
+using CSV, DataFrames, Dates, Mimi, MimiBRICK, Statistics, LinearAlgebra, Distributions, Random, Printf
 using RobustAdaptiveMetropolisSampler
 include(joinpath(@__DIR__, "brick_mengel.jl"))
 
@@ -1921,6 +1921,45 @@ end
 # theta0 (whose gis_* entries ARE the offline g=0 fit) and checks the four numbers the
 # offline cell reports for that same parameter vector. A wiring error shows up as a
 # gross miss, not a rounding difference, so the tolerances are deliberately loose.
+## ---------------------------------------------------------------------------
+## --dump-priors (2026-09-19, for the GMD paper's prior/posterior appendix table).
+## Writes outputs/ladrillo_priors_<TAG>.csv: one row per sampled parameter in theta order,
+## with the prior AS THE CALIBRATOR SCORES IT -- read off FREE, PRIOR_SKIP, GEO_*, K10_SIG
+## and the noise block of logposterior, never transcribed by hand. Run with the SAME flags
+## as the production chain (run_mcmc_L24.sh: --amp-mu/--amp-sigma etc.), then exit.
+## A sigma >= 10 is the calibrator's own convention for "no Gaussian information" (the
+## bounds alone), so those rows are labelled flat.
+if "--dump-priors" in ARGS
+    rows = DataFrame(index=Int[], name=String[], comp=String[], mu=Float64[], sigma=Float64[],
+                     lo=Float64[], hi=Float64[], prior_form=String[], note=String[])
+    for (k, f) in enumerate(FREE)
+        form, note = if k in GEO_IDX
+            ("joint paleo MvNormal (standardised, corr from paleo_geo_prior_ton.csv); marginal N(mu, sigma) on [lo, hi]",
+             "DAIS geometry; ais_precip0_LOG is log-space; ais_runoff_Ton = -h0/c, h0 reconstructed per draw")
+        elseif k in PRIOR_SKIP
+            b = first(bb for bb in BLOCKS if KAPPA_IDX3[bb] == k)
+            (@sprintf("N(k10c(gic_amp_%s), %.3f) on [lo, hi] -- centre is a log-linear function of the sampled amp", b, K10_SIG),
+             @sprintf("tau50-as-prior; at the amp prior mean the centre is %.3f", k10c(b, AMP_PRIOR[b][1])))
+        elseif f.σ >= 10.0
+            ("flat on [lo, hi]", "sigma = $(f.σ) in the code = bounds-only; mu is the start point")
+        else
+            ("N(mu, sigma) on [lo, hi]", "")
+        end
+        push!(rows, (k, f.name, String(f.comp), f.μ, f.σ, f.lo, f.hi, form, note))
+    end
+    for (i, s) in enumerate(SERIES)
+        push!(rows, (NP + 2i - 1, "sd_$s", "noise", 0.0, 5.0, 0.0, Inf, "half-normal N+(0, 5) cm", "AR(1) innovation sd of the $s residual"))
+        push!(rows, (NP + 2i,     "rho_$s", "noise", NaN, NaN, 0.0, 0.99, "flat on [0, 0.99)", "AR(1) lag-1 autocorrelation of the $s residual; 0.99 is a hard bound"))
+    end
+    rows.provenance .= "calibrate_mcmc_ext.jl --dump-priors | tag $TAG | ARGS: " * join(ARGS, " ") *
+        " | amp prior N($AMP_MU, $AMP_SIGMA) | GIS_ORDERED=$GIS_ORDERED (wedge: alpha_s <= alpha_f AND beta_s <= beta_f, a hard constraint on top of these marginals)" *
+        " | D2 sd $D2_BASIS_SD cm | K10_SIG $K10_SIG | $(Dates.now())"
+    out = joinpath(REPO, "outputs/ladrillo_priors_$(TAG).csv")
+    CSV.write(out, rows)
+    println("wrote $(relpath(out, REPO)): $(nrow(rows)) rows ($NP physical + $NN noise)")
+    exit(0)
+end
+
 if "--gis-check" in ARGS
     GIS_AB || error("--gis-check requires the A+B module (drop --stock-gis)")
     # Run at the EXACT offline g=0 vector, not at theta0. Two of the seven prior
