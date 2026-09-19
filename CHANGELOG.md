@@ -1,3 +1,45 @@
+## 2026-09-19d — L26 PRODUCTION LAUNCHED (4 x 2M): paleo priors, no delta, no glacier d2, correlated bands L = 100, T_off bound -4, precip reparam; 55 parameters
+
+Marcus: follow the recommendation on delta, update the nine priors, the T_off bound, the kappa-P0
+reparameterisation and the T_on precision tests; priorities = justifiable fit, justifiable structure and
+priors, fewer parameters. Then "Do it."
+
+**Calibrator flags (all default-off; the L24 `--dump-priors` output is byte-identical after every change):**
+`--paleo-priors` (eight DAIS parameters on `outputs/paleo_dais_marginals.csv` = the DAISfastdyn ensemble
+mean/sd with bounds at its min/max, MimiBRICK's own prior construction; `thermal_alpha` Uniform(0.05, 0.3) as in
+MimiBRICK), `--no-delta`, `--no-d2-gsic`, `--obs-corr-len=<L|sample>` (bands as a correlated error
+(eps_i eps_j) exp(-|i-j|/L)), `--precip-reparam` (u = log P0 + kappa * TBAR_ANT, TBAR_ANT = -17.992 =
+AIS_TANT0 + AMP_MU * mean GMST 1900-2026; log P0 derived, joint paleo prior and bounds on the derived value),
+`--toff-lo=`. ⚠ Correction to 09-19's note §1: for lambda, gamma, nu and the threshold BRICK's posterior IS
+essentially the paleo prior, so the switch bites through the +-2 sd truncation and for anto_alpha /
+antarctic_alpha / kappa, which BRICK's modern data had moved.
+
+**Single-chain arms (500k, seed 2026, `outputs/mcmc/README_L26_arms_20260919.md`, RMSEs in
+`outputs/l26_arms_hindcast_rmse.csv`):** L26a L=20, L26b L=0, L26c L=50, L26d L sampled on [5,100].
+- Dropping delta fixes the early glacier fit in every arm (1900-1919 RMSE 1.44 -> 0.50-0.70 cm; full 0.66 ->
+  0.26-0.32) and `gic_u_unch` rises to 33-37 mm (bound 41.8) to do delta's job — the scope term is the physical
+  device, the paper must say it sits in the upper half of the Parkes & Marzeion range.
+- The correlated band widens T_on (5-95 % 0.4 -> 1.4-1.8 °C) but the runoff-onset LOCATION follows L:
+  1991 (L=20), 2027 (diagonal), 2049 (L=50), 2063 (L=100). **L26d: L sampled RAILS at the 100-yr bound
+  (99.0 [95.6, 99.9], all four quarters)** — the residuals are smooth relative to the bands, i.e. the band is a
+  level-like error, which is what a cumulative-reconstruction band physically is. Production therefore FIXES
+  L = 100 (one parameter fewer than sampling it); 20 and 50 are the reported sensitivities.
+- Cost: Greenland RMSE 0.06 -> 0.17-0.21 cm (the GIS series is fitted to its wide pre-1990s band rather than
+  tracked); discharge timescale 168 -> 270-284 yr. The kappa-P0 ridge is gone (r = -0.02). AIS medians
+  (antarctic_alpha 0.36-0.77, iceflow0 0.67-0.87) differ chain to chain — the block that failed R̂ in L24.
+
+**Production:** `run_mcmc_L26.sh` (frozen copy), 4 x 2M, seeds 2026-2029, starts =
+`overdispersed_starts_L26.csv` (L26d 2nd-half draws at ais_iceflow0 quantiles 0.02/0.35/0.65/0.98), proposal
+seed = L26d's adapted covariance. Launched 23:05 at commit 17869ee; 5-min meter: ETA 6.2-6.7 h at load 28
+(the other session's R jobs) — ~2x the uncontended 3 h; left to run overnight, Torch reserved for FrEDI.
+`run_l26_postprocess.sh` is waiting on the chains (slr-convergence diag -> postprocess --accept-slr -> prior
+dump -> postpred -> ssp components -> 3 joint bands -> model comparison -> benchmark). champions.json untouched.
+
+**Kernel:** `ladrillo_projection.jl` derives log P0 from `ais_precip_u` with `LADRILLO_TBAR_ANT` (the same
+constant); `julia/test_ladrillo_precip_reparam.jl` gates it (0.0 cm identity) and mutation-tests it (TBAR off
+by 1 K -> 5.9 cm at 2300). `ladrillo_figs.TAG_DESC["L26"]` declared; `ladrillo_prior_posterior_table.py`
+tag-aware (dropped/renamed parameters). ⚠ Not yet: the hindcast figure/Table 4 drivers on L26, the paper text.
+
 ## 2026-09-19b — Appendix A inserted in the GMD draft; prior-to-posterior shifts evaluated
 
 `deliverables/GMD.Ladrillo.v1_review-2026-09-19.docx` (on the 09-18b copy): "Appendix A: prior and posterior
