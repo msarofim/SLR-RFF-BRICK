@@ -722,6 +722,15 @@ amp), and the two derived AIS quantities:
     `coefficient = 1/amp`, `intercept = -T_ant0/amp`, so only the anomaly
     scaling moves.
 """
+## TBAR_ANT for --precip-reparam posteriors: AIS_TANT0 + AMP_MU * mean(GMST 1900-2026, ssp245harm ensemble
+## mean), exactly as calibrate_mcmc_ext.jl computes it (-17.992 for L26). A CONVENTION, not a fitted quantity:
+## any constant decorrelates kappa and log P0; this one is recorded here so the kernel and the calibrator can
+## never disagree on it. AMP_MU = 1.09 is the amp prior mean of every posterior since L16.
+const LADRILLO_TBAR_ANT = let d = CSV.read(joinpath(LADRILLO_OBS, "fair_mean_gmst_ssp245harm.csv"), DataFrame)
+    (-15.42 / 0.8365) + 1.09 * mean(d.gmst_C[(d.year .>= 1900) .& (d.year .<= 2026)])
+end
+_hascol(row, c) = row isa DataFrameRow ? hasproperty(parent(row), Symbol(c)) : haskey(row, c)
+
 function ladrillo_apply_draw!(bf::Ladrillo, row)
     m = bf.m
     # The row and the model must agree on which Greenland structure they are.
@@ -732,6 +741,12 @@ function ladrillo_apply_draw!(bf::Ladrillo, row)
         LADRILLO_GIS_AB_PARAMS
     @inbounds for (col, comp, sym) in Iterators.flatten((LADRILLO_PHYSICAL_PARAMS_NOGIS,
                                                          gis_params))
+        if col == "ais_precip0_LOG" && !_hascol(row, "ais_precip0_LOG") && _hascol(row, "ais_precip_u")
+            ## L26 (2026-09-19): the calibrator samples u = log P0 + kappa * TBAR_ANT (--precip-reparam);
+            ## log P0 is derived here with the SAME constant the calibrator used (see LADRILLO_TBAR_ANT).
+            update_param!(m, comp, sym, Float64(row["ais_precip_u"]) - Float64(row["antarctic_kappa"]) * LADRILLO_TBAR_ANT)
+            continue
+        end
         update_param!(m, comp, sym, Float64(row[col]))
     end
     bf.gis_variant !== :stock &&
