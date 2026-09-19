@@ -1,3 +1,23 @@
+## 2026-09-19b — Appendix A inserted in the GMD draft; prior-to-posterior shifts evaluated
+
+`deliverables/GMD.Ladrillo.v1_review-2026-09-19.docx` (on the 09-18b copy): "Appendix A: prior and posterior
+parameter distributions" — one intro paragraph + Table A1 (caption + 58-row table from
+`outputs/ladrillo_prior_posterior_L24.md` via the pandoc docx) inserted before References, every paragraph and
+table row a tracked insertion (`<w:trPr><w:ins/>` per row); the "58 parameters are sampled" sentence now points to
+it. ⚠ pandoc's reject view leaves an empty table skeleton (its known limitation with inserted rows); Word removes
+the rows. XSD clean; the author-check fails only on the still-pending round-2 reference insertions, as before.
+Tooling: `deliverables/redline/apply_edits_r3_appendix.py`.
+
+**Shift evaluation** → `notes/note_2026-09-19_prior_posterior_shifts.md`. Largest |z|: `gis_s_high` −1.3σ (lands on
+the offline prototype's 0.2165 from a null-centred prior — justified), `gis_slow_ell` −0.9σ (τ 67 → 169 yr —
+justified, weak prior), `gic_delta` +0.8σ and 2.7σ from zero (a +1.5 cm target correction at 1900 — justifiable but
+must be STATED; test = refit with δ pinned at 0), `gis_f` −0.8σ (justified: the implied modern SMB share is 0.745
+(0.66–0.82) vs Mouginot 0.735 ± 0.05 — MEASURED with `scratchpad/smb_share.jl`, 500 draws), `ais_iceflow0` −0.8
+paleo-σ (direction fine; per-chain medians 0.92–1.02, R̂ 1.26 ⇒ pooled width is a lower bound), `ais_runoff_Ton`
+−0.4σ but width 2 % of the prior (−17.8 ± 0.25 °C; identical in all four chains ⇒ the likelihood, not mixing; the
+unmodelled reconstruction error overstates the precision — the "must state" item). Bound-active: `gic_T_off_SLOWP`
+p05 at −2.85 against the −3 bound (10 % of draws piled) — bears on the regrowth statement; test = bound at −4.
+
 ## 2026-09-19 — Table A1: priors and posterior median / 5–95 % for all 58 L24 parameters (GMD appendix)
 
 Marcus: "Rebuild the table of priors and posterior median / 5–95% for all 58 parameters for L24." The old
