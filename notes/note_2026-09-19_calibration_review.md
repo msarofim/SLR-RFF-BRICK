@@ -104,3 +104,37 @@ L24: `gic_T_off_SLOWP` flat on [−3, 1], posterior −1.65 (−2.85, +0.09), 10
 posterior width of −3. The conditional profile is soft on this side (−1 posterior sd costs 30 log-units, 23 of
 them in the glacier term, 5 in the Antarctic term through the sea-level feedback), so the marginal reaches −3
 only through its co-movement with `gic_b_SLOWP` (+0.65) and `gic_u_unch` (+0.48).
+
+**Result (`L24TOFF4`, 500k, one chain, second half):** with the bound at −4 the posterior is −2.02 (−3.73, −0.09)
+against L24's −1.63 (−2.86, +0.17); **23 % of the mass lies below −3**, i.e. the −3 bound was clipping about a
+quarter of it, and only 2.7 % sits within 0.15 of −4, so the new bound is nearly free. Everything else in the
+glacier block moves by < 0.3 of its width (b_SLOWG 0.200 → 0.177, amp 2.55 → 2.71, u_unch 28.1 → 27.5, δ
+unchanged); log-posterior unchanged (220.0 → 220.8, same flat prior). The glacier hindcast RMSE is unchanged to
+0.1 cm (1900–1919 1.44 → 1.34; full 0.66 → 0.61). Reading: T_off_SLOWG is unidentified toward cold values —
+the data pin the product b·T_off (the committed loss at 1850–1900 temperature, S_eq(0)/a = 1 − e^{b·T_off}, which
+is 0.27 in L24 and 0.30 here), not the two factors (r = +0.65). **Recommendation:** ship the bound at −4 (or
+reparameterise to (b, S_eq(0)/a)) and say the offset's cold tail is prior-bounded; the regrowth statement
+("full regrowth needs cooling below 1850–1900") only strengthens.
+
+## 7. The gic_delta test (`L24DELTA0`, δ pinned at 0 by a N(0, 0.001) prior)
+
+| | L24 | δ = 0 |
+|---|---|---|
+| glacier hindcast RMSE vs the BARE target, cm: 1900–1919 / 1920–1949 / 1950–1992 / 1993–2026 / full | 1.44 / 0.60 / 0.14 / 0.09 / 0.66 | **0.45 / 0.18** / **0.25** / 0.09 / 0.25 |
+| `gic_u_unch` (uncharted ice, mm; flat on [14.5, 41.8]) | 28.1 (18.2–37.8) | **37.0 (29.6–41.3)** — 15 % of draws within 5 % of the upper bound |
+| `gic_T_off_FASTG` / `gic_b_FASTG` | −1.53 / 0.332 | −1.90 / 0.292 |
+| `gic_T_off_SLOWG` | −1.63 | −2.00 |
+| `gic_delta` | 0.24 (0.11–0.39) | 0.000 |
+| log-posterior (2nd-half median; priors differ, so indicative only) | 220.0 | 221.8 |
+
+So the model CAN fit the raw early-century glacier series three times better than L24 does — L24 chose to
+correct the target (+1.5 cm at 1900) instead — and the price of not correcting it is (a) the uncharted-ice scope
+term pushed to the top of the Parkes & Marzeion range and piling on its bound, (b) colder equilibrium offsets in
+both large blocks, (c) the 1950–1992 window worse by 0.12 cm (its Table 4 ratio would go from 1.06 to ≈ 2).
+The two devices, δ and u_unch, are alternative explanations of the same feature: the model's early-century
+glacier melt is ~1.5 cm short of Frederikse/Marzeion-2015 unless the uncharted-ice content is maximal. Neither
+chain is "wrong"; the paper has to say which story it tells and why. My reading: the δ = 0 arm is the more
+defensible one to SHOW (it scores the target we publish against and it does not change Table 4's construction),
+with the u_unch bound then the thing to justify; the L24 arm is the more defensible one to SAMPLE only if
+Marzeion-2015's early-segment bias can be cited independently — and I could not find that citation in the repo.
+Decision for Marcus. (A four-chain production run of the δ = 0 arm is ~3 h.)
