@@ -49,14 +49,14 @@ CMP_CSV = os.path.join(lf.REPO, "outputs", "vv_model_comparison_%s.csv" % TAG)
 FAIR_GMST = os.path.join(lf.REPO, "data/observations", "fair_mean_gmst_%s.csv")   # per marker
 MAG_GMST_CSV = os.path.join(lf.REPO, "data/comparison/magicc_gmst_vv.csv")
 CLASSES_CSV = os.path.join(lf.REPO, "benchmark/comparator_classes.csv")
-OUT_PNG = os.path.join(lf.REPO, "figures", "vv_responsiveness_%s.png" % TAG)
+OUT_PNG = lf.paper_path(os.path.join(lf.REPO, "figures", "vv_responsiveness_%s.png" % TAG))
 OUT_CSV = os.path.join(lf.REPO, "outputs", "vv_responsiveness_%s.csv" % TAG)
 
 HI, LO = "vvH", "vvVL"                 # the pair: High minus Very Low
 HORIZONS = [2100, 2150, 2300]
 STAT = "med"                           # difference of MEDIANS, choice (ii)
 SOURCES = ["Ladrillo", "BRICK 2.0", "MAGICC-SLR", "FACTS"]
-SRC_LABEL = {"Ladrillo": "Ladrillo %s" % TAG, "BRICK 2.0": "BRICK 2.0",
+SRC_LABEL = {"Ladrillo": DESC["model"], "BRICK 2.0": "BRICK 2.0",
              "MAGICC-SLR": "MAGICC-SLR (Nauels 2025; own climate)",
              "FACTS": "FACTS n200 (per module)"}
 SLOT = {"Ladrillo": -0.30, "BRICK 2.0": -0.12, "MAGICC-SLR": 0.06, "FACTS": 0.30}
@@ -150,9 +150,9 @@ if sej_drawn:
                           label="FACTS, structured expert judgement (%s)" % ", ".join(sej_drawn)))
 fig.legend(handles=handles, ncol=3, fontsize=8.5, frameon=False, loc="upper center",
            bbox_to_anchor=(0.5, 0.965))
-fig.suptitle(TITLE % (HI, LO, DESC["model"], lf.commit_stamp()), fontsize=12.5,
-             fontweight="bold", y=0.999)
-fig.tight_layout(rect=[0, 0.12, 1, 0.925])
+if not lf.PAPER:
+    fig.suptitle(TITLE % (HI, LO, DESC["model"], lf.commit_stamp()), fontsize=12.5,
+                 fontweight="bold", y=0.999)
 cap = ("%s — %s.  Each point is med(%s) − med(%s) at that horizon, both on %s; FACTS per "
        "module.  Ladrillo, BRICK 2.0 and FACTS share one FaIR 2.2.4 calib 1.6.0 + CMIP7 driver "
        "(GMST gap %s K at %s); MAGICC-SLR runs on its own climate (gap %s K).  FACTS n200 is "
@@ -161,9 +161,11 @@ cap = ("%s — %s.  Each point is med(%s) − med(%s) at that horizon, both on %
           "/".join("%.2f" % fair_dT[y] for y in HORIZONS if y in fair_dT),
           "/".join(str(y) for y in HORIZONS if y in fair_dT),
           "/".join("%.2f" % mag_dT[y] for y in HORIZONS if y in mag_dT)))
-fig.text(0.5, 0.105, "\n".join(textwrap.wrap(cap, 185)), fontsize=7.2, ha="center", va="top",
-         color="0.3")
-fig.savefig(OUT_PNG, dpi=150)
+if not lf.PAPER:
+    fig.tight_layout(rect=[0, 0.12, 1, 0.925])
+    fig.text(0.5, 0.105, "\n".join(textwrap.wrap(cap, 185)), fontsize=7.2, ha="center", va="top",
+             color="0.3")
+lf.paper_finish(fig, OUT_PNG, cap, rect=[0, 0.12, 1, 0.925])
 print("wrote %s" % os.path.relpath(OUT_PNG, lf.REPO))
 
 # --- outputs + console -----------------------------------------------------------

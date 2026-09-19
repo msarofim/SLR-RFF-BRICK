@@ -18,6 +18,7 @@ This module deliberately does NOT import matplotlib: it is data + gates only, so
 script can use the loaders without a display stack.
 """
 import os
+import sys
 import subprocess
 
 import numpy as np
@@ -220,6 +221,8 @@ def tag_desc(tag):
             "it was not written for -- that is how an L21 figure came to print L11-era "
             "facts. Declare it; do not derive it from the tag string."
             % tag)
+    if PAPER:   # the paper carries the version number, not the internal calibration tag
+        return dict(TAG_DESC[tag], model="Ladrillo")
     return TAG_DESC[tag]
 
 
@@ -379,3 +382,34 @@ def check_component_sum(byc, scen, model, year=2300, tol_cm=1e-6):
     ## whenever the components are not comonotonic, so this is reported as a MEASUREMENT,
     ## not a pass/fail -- asserting it would be asserting something false.
     return s, float(byc["total"].med_cm.loc[year])
+
+## ---------------------------------------------------------------------------
+## PAPER MODE (--paper, 2026-09-19, Marcus's comment [7] on the GMD draft): the memo figures
+## carry a bold title with the commit stamp and a wrapped provenance caption inside the PNG;
+## in the paper those duplicate the figure caption and the methods text. With --paper a driver
+## draws NO suptitle and NO in-figure caption, lets tight_layout use the full canvas, and writes
+## to figures/paper/<same name>. The memo figure is untouched: paper mode never overwrites it.
+## The provenance still travels with the file -- paper_finish() writes a sidecar .txt with the
+## caption text that would have been drawn, so the stamp is one directory away, not lost.
+PAPER = "--paper" in sys.argv
+
+def paper_path(out):
+    """figures/<name>.png -> figures/paper/<name>.png under --paper, unchanged otherwise."""
+    if not PAPER:
+        return out
+    d = os.path.join(os.path.dirname(out), "paper")
+    os.makedirs(d, exist_ok=True)
+    return os.path.join(d, os.path.basename(out))
+
+def paper_finish(fig, out, caption, rect, dpi=150, **savekw):
+    """Lay out and save. Memo mode: the caller has already drawn its suptitle and caption and
+    passes its usual rect. Paper mode: no caption band, full canvas, caption to a sidecar."""
+    if PAPER:
+        # keep the caller's TOP margin (the figure legend lives there); drop only the caption band
+        fig.tight_layout(rect=[0, 0.005, 1, rect[3]])
+        fig.savefig(out, dpi=dpi, **savekw)
+        with open(os.path.splitext(out)[0] + ".caption.txt", "w") as fh:
+            fh.write(caption.strip() + "\n")
+    else:
+        fig.tight_layout(rect=rect)
+        fig.savefig(out, dpi=dpi, **savekw)

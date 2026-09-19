@@ -115,7 +115,7 @@ CLASSES_CSV = os.path.join(lf.REPO, "benchmark/comparator_classes.csv")
 ## Source order = plotting order = legend order, declared once. `Ladrillo` is the row this
 ## figure is about and is drawn leftmost in every slot.
 SOURCES = ["Ladrillo", "BRICK 2.0", "MAGICC-SLR", "FACTS"]
-SRC_LABEL = {"Ladrillo": "Ladrillo %s" % TAG, "BRICK 2.0": "BRICK 2.0",
+SRC_LABEL = {"Ladrillo": DESC["model"], "BRICK 2.0": "BRICK 2.0",
              "MAGICC-SLR": "MAGICC-SLR (Nauels 2025)", "FACTS": "FACTS n200 (per module)"}
 ## Slot centres within one scenario group. FACTS gets the widest slot because it fans its
 ## modules out inside it; the others are single markers.
@@ -275,9 +275,9 @@ def _sum_check(y):
 # --- figure -----------------------------------------------------------------
 SCENS = lf.scen_set(SET)
 for YEAR in YEARS:
-    OUT = os.path.join(lf.REPO, "figures",
+    OUT = lf.paper_path(os.path.join(lf.REPO, "figures",
                        "model_comparison_components%s_%s_%d.png"
-                       % (SET_INFIX[SET], TAG, YEAR))
+                       % (SET_INFIX[SET], TAG, YEAR)))
     absent = sorted({s for s in SOURCES
                      if D[(D.source == s) & (D.year == YEAR)].empty})
     partial = sorted({s for s in SOURCES if s not in absent and
@@ -420,9 +420,10 @@ for YEAR in YEARS:
                loc="upper center", bbox_to_anchor=(0.5, 0.972))
     ## The title names what was drawn, for the same reason the legend does.
     _title_srcs = " vs ".join([DESC["model"] if s0 == "Ladrillo" else s0 for s0 in drawn])
-    fig.suptitle("Sea-level rise by component at %d, %s — %s   [%s]"
-                 % (YEAR, SET_DESC[SET], _title_srcs, lf.commit_stamp()),
-                 fontsize=12.5, fontweight="bold", y=0.999)
+    if not lf.PAPER:
+        fig.suptitle("Sea-level rise by component at %d, %s — %s   [%s]"
+                     % (YEAR, SET_DESC[SET], _title_srcs, lf.commit_stamp()),
+                     fontsize=12.5, fontweight="bold", y=0.999)
     ## ⚠ WRAP THE CAPTION BEFORE SAVING. An unwrapped fig.text is one long line and
     ## bbox_inches="tight" then stretches the canvas to fit it, squashing the panels.
     ## CAPTION STYLE (Marcus 2026-09-11b): vintage, baseline, what the bars are, what FACTS
@@ -454,10 +455,11 @@ for YEAR in YEARS:
     _lines = textwrap.wrap(cap, SET_WRAP[SET])
     _line_frac = CAP_FONTSIZE * CAP_LINESPACING / (SET_FIGSIZE[SET][1] * 72.0)
     _band = len(_lines) * _line_frac + CAP_PAD
-    fig.tight_layout(rect=[0, _band, 1, 0.925])
-    fig.text(0.5, _band - CAP_PAD / 2, "\n".join(_lines), fontsize=CAP_FONTSIZE,
-             ha="center", va="top", color="0.3", linespacing=CAP_LINESPACING)
-    fig.savefig(OUT, dpi=150)
+    if not lf.PAPER:
+        fig.tight_layout(rect=[0, _band, 1, 0.925])
+        fig.text(0.5, _band - CAP_PAD / 2, "\n".join(_lines), fontsize=CAP_FONTSIZE,
+                 ha="center", va="top", color="0.3", linespacing=CAP_LINESPACING)
+    lf.paper_finish(fig, OUT, cap, rect=[0, _band, 1, 0.925])
     plt.close(fig)
     print("\nwrote %s" % os.path.relpath(OUT, lf.REPO))
 

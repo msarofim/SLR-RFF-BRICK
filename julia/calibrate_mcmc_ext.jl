@@ -933,6 +933,11 @@ G=:glaciers_small_icecaps
 #   gic_u_unch — F_unch U (mm scope, flat[14.5,41.8] via σ=1e3); gic_delta — M15 bias
 #   (mm/yr, N(0,0.30), 1900-1960); gic_u_pre + gic_s_r5 — the Option-D ledger
 #   (memo_2026-08-09_d_ledger_target_spec.md).
+## --toff-lo=<K>: the lower bound of the three flat gic_T_off priors (default -3.0). Added
+## 2026-09-19 for the SLOWG bound test: L24's gic_T_off_SLOWP has p05 = -2.85 against the -3 bound
+## (10 % of draws within a tenth of the posterior width of it), so the bound is doing work.
+const TOFF_LO = let v = _argval("--toff-lo="); v === nothing ? -3.0 : parse(Float64, v) end
+TOFF_LO != -3.0 && println("gic_T_off lower bound OVERRIDDEN: $TOFF_LO (default -3.0)")
 for b in BLOCKS
     r = bcrow(b)
     a_lo = max(1.5*Float64(r.S2020_data), Float64(r.a0) - 3.5*Float64(r.a0_sig), 0.01)
@@ -942,7 +947,7 @@ for b in BLOCKS
     push!(FREE, (name="gic_b_$b", comp=G, sym=Symbol("gic_b_$b"),
                  μ=Float64(r["b_fit_$(FIT_BASIS)"]), σ=10.0, lo=0.05, hi=3.0, islog=false))
     push!(FREE, (name="gic_T_off_$b", comp=G, sym=Symbol("gic_T_off_$b"),
-                 μ=Float64(r["T_off_fit_$(FIT_BASIS)"]), σ=10.0, lo=-3.0, hi=1.0, islog=false))
+                 μ=Float64(r["T_off_fit_$(FIT_BASIS)"]), σ=10.0, lo=TOFF_LO, hi=1.0, islog=false))
     # κ bounds: sampled mode spans the anchor-center range over the amp prior bounds ±1
     klo, khi = if SAMPLED_AMP
         c1 = k10c(b, AMP_PRIOR[b][3]); c2 = k10c(b, AMP_PRIOR[b][4])
@@ -962,8 +967,12 @@ if SAMPLED_AMP
 end
 push!(FREE, (name="gic_u_unch", comp=:likelihood_only, sym=:none,
              μ=28.15, σ=1.0e3, lo=14.5, hi=41.8, islog=false))
+## --delta-sigma=<mm/yr>: prior sd of gic_delta (default 0.30). 2026-09-19 test: 0.001 pins the
+## early-segment target correction at ~0 to see what the other glacier parameters do without it.
+const DELTA_SIGMA = let v = _argval("--delta-sigma="); v === nothing ? 0.30 : parse(Float64, v) end
+DELTA_SIGMA != 0.30 && println("gic_delta prior sd OVERRIDDEN: $DELTA_SIGMA (default 0.30)")
 push!(FREE, (name="gic_delta", comp=:likelihood_only, sym=:none,
-             μ=0.0, σ=0.30, lo=-1.2, hi=1.2, islog=false))
+             μ=0.0, σ=DELTA_SIGMA, lo=-1.2, hi=1.2, islog=false))
 push!(FREE, (name="gic_u_pre", comp=:likelihood_only, sym=:none,
              μ=12.5, σ=1.0e3, lo=0.0, hi=25.0, islog=false))
 push!(FREE, (name="gic_s_r5", comp=:likelihood_only, sym=:none,
@@ -2120,6 +2129,55 @@ end
 # (e.g. weight_brick_conditional_fair.jl) WITHOUT running the chain. Run-as-script behaviour unchanged.
 if abspath(PROGRAM_FILE) == @__FILE__
 Random.seed!(SEED)
+## ---------------------------------------------------------------------------
+## --profile=<param>[,<param>...] (2026-09-19): a 1-D profile of the log-posterior and of each
+## series' likelihood term through the L24 posterior MEDIAN, along one parameter at a time, at
+## offsets of {0, ±0.5, ±1, ±2, ±4, ±8} posterior sd. Every other parameter is held at its median
+## (a conditional slice, not a marginal). Answers "which term pins this parameter, and how hard".
+## Writes outputs/profile_<TAG>_<param>.csv and exits.
+if _argval("--profile=") !== nothing
+    prof_names = split(_argval("--profile="), ",")
+    psub = CSV.read(joinpath(REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_$(TAG).csv"), DataFrame)
+    θmed = Float64[median(psub[!, nm]) for nm in pn0]
+    θsd  = Float64[std(psub[!, nm]) for nm in pn0]
+    function series_terms(θ)
+        lpt = logposterior(θ)           # applies θ and runs m; the model now holds this state
+        isfinite(lpt) || return (lpt, fill(NaN, 4))
+        σn = θ[NP+1:2:NK]; ρn = θ[NP+2:2:NK]
+        Funch = FUNCH_UNIT .* θ[UUNCH_IDX]
+        ais = reref(m[:antarctic_icesheet, :ais_sea_level])
+        gsic_flow = reref(m[G, :gsic_hind] .+ Funch)
+        gis = reref(m[:greenland_icesheet, :greenland_sea_level]); te = reref(m[:thermal_expansion, :te_sea_level])
+        d2 = (st, v) -> v .+ D2_BASIS[st] * [θ[j] for j in D2_IDX[st]]
+        t = zeros(4)
+        for (i, (sr, full)) in enumerate(zip([S.ais, S.gsic, S.gis, S.steric], [ais, gsic_flow, gis, te]))
+            t[i] = i == 2 ? hetero_logl_ar1(d2("gsic", full[sr.myi]) .- (sr.obs .+ θ[DELTA_IDX] .* DELTA_RAMP), σn[i], ρn[i], sr.ϵ) :
+                   i == 4 ? hetero_logl_ar1(d2("steric", full[sr.myi]) .- sr.obs, σn[i], ρn[i], sr.ϵ) :
+                            hetero_logl_ar1(full[sr.myi] .- sr.obs, σn[i], ρn[i], sr.ϵ)
+        end
+        return (lpt, t)
+    end
+    lp0, t0 = series_terms(copy(θmed))
+    @printf("profile base: log-posterior at the %s posterior median = %.2f (ais %.2f gsic %.2f gis %.2f steric %.2f)\n", TAG, lp0, t0...)
+    for nm in prof_names
+        k = findfirst(==(String(nm)), pn0); k === nothing && error("--profile: unknown parameter $nm")
+        rows = DataFrame(param=String[], offset_sd=Float64[], value=Float64[], logpost=Float64[], dlogpost=Float64[],
+                         d_ais=Float64[], d_gsic=Float64[], d_gis=Float64[], d_steric=Float64[], d_rest=Float64[])
+        for z in (-8.0, -4.0, -2.0, -1.0, -0.5, 0.0, 0.5, 1.0, 2.0, 4.0, 8.0)
+            θ = copy(θmed); θ[k] = θmed[k] + z * θsd[k]
+            lpz, tz = series_terms(θ)
+            d = tz .- t0; drest = (lpz - lp0) - sum(d)
+            push!(rows, (String(nm), z, θ[k], lpz, lpz - lp0, d..., drest))
+            @printf("  %-22s %+5.1f sd  value %10.4f  dlogpost %10.2f | ais %9.2f gsic %9.2f gis %9.2f steric %9.2f rest %9.2f\n",
+                    nm, z, θ[k], lpz - lp0, d..., drest)
+        end
+        rows.provenance .= "calibrate_mcmc_ext.jl --profile | tag $TAG | conditional slice through the posterior median of " *
+            "parameters_subsample_brick_mengel_$(TAG).csv | offsets in posterior sd ($(round(θsd[k], sigdigits=4))) | rest = prior + point terms + wedge | ARGS " * join(ARGS, " ")
+        CSV.write(joinpath(REPO, "outputs/profile_$(TAG)_$(nm).csv"), rows)
+    end
+    println("profile done"); exit(0)
+end
+
 @time chain, accept, covout, lp = RAM_sample(logposterior, θ0, cov0, N_ITER; opt_α=0.234, output_log_probability_x=true)
 mkpath(joinpath(REPO,"outputs/mcmc"))
 # Header = pn0, NOT :auto. A nameless covariance can only be re-read through a

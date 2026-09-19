@@ -60,7 +60,7 @@ from matplotlib.patches import Patch  # noqa: E402
 
 TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
 DESC = lf.tag_desc(TAG)
-OUT = os.path.join(lf.REPO, "figures", "hindcast_components_%s.png" % TAG)
+OUT = lf.paper_path(os.path.join(lf.REPO, "figures", "hindcast_components_%s.png" % TAG))
 
 LAD_CSV = os.path.join(lf.REPO, "outputs", "postpred_%s_components_timeseries.csv" % TAG)
 BRK_CSV = os.path.join(lf.REPO, "outputs", "postpred_oldbrick_components_timeseries.csv")
@@ -283,7 +283,7 @@ for ax, comp in zip(axes.ravel(), lf.COMPONENTS):
     ax.tick_params(labelsize=8)
 axes[1, 0].set_xlabel("year")
 
-handles = [Line2D([], [], color=C_LAD, lw=2, label="Ladrillo %s (median)" % TAG),
+handles = [Line2D([], [], color=C_LAD, lw=2, label="%s (median)" % DESC["model"]),
            Patch(facecolor=C_LAD, alpha=0.22, label="Ladrillo 5–95% (parameters)"),
            Patch(facecolor=C_LAD, alpha=0.10, label="Ladrillo 5–95% (predictive, +AR(1)+obs err)"),
            Line2D([], [], color=C_BRK, lw=1.6, ls="--", label="BRICK 2.0 (median)"),
@@ -296,10 +296,10 @@ handles = [Line2D([], [], color=C_LAD, lw=2, label="Ladrillo %s (median)" % TAG)
                   label="IGCC 2025-indicators GMSL (not a calibration target)")]
 fig.legend(handles=handles, ncol=2, fontsize=8.5, frameon=False, loc="upper center",
            bbox_to_anchor=(0.5, 0.978))
-fig.suptitle("Historical sea-level rise 1900–2026 by component — %s vs observations vs "
-             "BRICK 2.0 (and MAGICC-SLR at Greenland)   [%s]" % (DESC["model"], lf.commit_stamp()),
-             fontsize=12.5, fontweight="bold", y=0.999)
-fig.tight_layout(rect=[0, 0.09, 1, 0.915])
+if not lf.PAPER:
+    fig.suptitle("Historical sea-level rise 1900–2026 by component — %s vs observations vs "
+                 "BRICK 2.0 (and MAGICC-SLR at Greenland)   [%s]" % (DESC["model"], lf.commit_stamp()),
+                 fontsize=12.5, fontweight="bold", y=0.999)
 ## CAPTION SCOPE: say what the figure DOES, plus the provenance labels every output carries.
 ## Anything argued in the document's text belongs there, not here -- the baseline distinction,
 ## the IGCC depth-scope correction and the TE verdict were all duplicated and are removed.
@@ -319,9 +319,10 @@ _cap = (
     % (DESC["model"], DESC["calib"], BASE0, BASE1))
 _cap = _cap.replace("@@X0@@", str(X0))          # derived from the constant, not retyped
 assert "@@" not in _cap, "caption sentinel left unsubstituted"
-fig.text(0.5, 0.075, "\n".join(textwrap.wrap(_cap, 185)),
-         fontsize=7.2, ha="center", va="top", color="0.3")
-fig.savefig(OUT, dpi=150)
+if not lf.PAPER:
+    fig.text(0.5, 0.075, "\n".join(textwrap.wrap(_cap, 185)),
+             fontsize=7.2, ha="center", va="top", color="0.3")
+lf.paper_finish(fig, OUT, _cap, rect=[0, 0.09, 1, 0.915])
 print("wrote %s" % os.path.relpath(OUT, lf.REPO))
 
 # --- console summary: 5-year-window comparisons, never single years --------

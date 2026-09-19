@@ -325,19 +325,25 @@ ax[3].legend(handles=[Line2D([], [], color=COL[s], label=s) for s in DECLINE]
              fontsize=8, frameon=False, loc="upper right",
              bbox_to_anchor=(1.0, 0.80), ncol=3)
 
-fig.text(0.5, 0.004,
-         ## CAPTION SCOPE: whose posterior, which arm, which forcing. The like-for-like
-         ## argument and the frame-mapping discussion are arguments and live in the text.
-         (("Ladrillo %s 3-reservoir ν glaciers (%s chains, `%s` arm), posterior-parameter spread "
-           "on mean forcing.\n") if LADRILLO_ONLY else
-          ("BRICK 2.0 Wigley-Raper posterior (parameters_subsample_brick.csv, 1000 draws) vs "
-           "Ladrillo %s 3-reservoir ν glaciers (%s chains, `%s` arm); both are posterior-parameter "
-           "spread on mean forcing.\n"))
-         % (LADRILLO_TAG, LADRILLO_TAG, ARM)
-         + "FaIR 2.2.4 (calib 1.6.0) van Vuuren scenario GMST; one build, one calibration "
-           "throughout (driver commit %s), each scenario on its own CMIP7 land-use, irrigation and "
-           "volcanic/solar forcing." % _COMMIT,
-         fontsize=6.6, ha="center", color="0.35")
+_PAPER = "--paper" in sys.argv
+if _PAPER:
+    import os as _os
+    _os.makedirs("figures/paper", exist_ok=True)
+    OUTPNG = _os.path.join("figures/paper", _os.path.basename(OUTPNG))
+else:
+    fig.text(0.5, 0.004,
+             ## CAPTION SCOPE: whose posterior, which arm, which forcing. The like-for-like
+             ## argument and the frame-mapping discussion are arguments and live in the text.
+             (("Ladrillo %s 3-reservoir ν glaciers (%s chains, `%s` arm), posterior-parameter spread "
+               "on mean forcing.\n") if LADRILLO_ONLY else
+              ("BRICK 2.0 Wigley-Raper posterior (parameters_subsample_brick.csv, 1000 draws) vs "
+               "Ladrillo %s 3-reservoir ν glaciers (%s chains, `%s` arm); both are posterior-parameter "
+               "spread on mean forcing.\n"))
+             % (LADRILLO_TAG, LADRILLO_TAG, ARM)
+             + "FaIR 2.2.4 (calib 1.6.0) van Vuuren scenario GMST; one build, one calibration "
+               "throughout (driver commit %s), each scenario on its own CMIP7 land-use, irrigation and "
+               "volcanic/solar forcing." % _COMMIT,
+             fontsize=6.6, ha="center", color="0.35")
 fig.savefig(OUTPNG, dpi=150, bbox_inches="tight")
 print("wrote " + OUTPNG)
 

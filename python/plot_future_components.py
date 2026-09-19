@@ -55,8 +55,8 @@ if ARM not in ("joint", "fixed"):
 DESC = lf.tag_desc(TAG)
 SCENS = lf.scen_set(SET)
 SETNAME = {"ssp": "CMIP6 SSPs", "vv": "van Vuuren CMIP7 scenarios"}[SET]
-OUT = os.path.join(lf.REPO, "figures",
-                   "future_components_%s_%s_%s.png" % (SET, TAG, ARM))
+OUT = lf.paper_path(os.path.join(lf.REPO, "figures",
+                   "future_components_%s_%s_%s.png" % (SET, TAG, ARM)))
 
 X0, X1 = 2000, 2300
 ## Bands are drawn only where they can be READ. With three scenarios every band fits; with
@@ -139,17 +139,17 @@ for ax, comp in zip(axes.ravel(), lf.COMPONENTS):
 axes[1, 0].set_xlabel("year")
 
 handles = [Line2D([], [], color=c, lw=2, label=l) for _k, l, c, _d in SCENS]
-handles += [Line2D([], [], color="0.3", ls="-", lw=2, label="Ladrillo %s" % TAG),
+handles += [Line2D([], [], color="0.3", ls="-", lw=2, label=DESC["model"]),
             Line2D([], [], color="0.3", ls="--", lw=1.5, label="BRICK 2.0"),
             Line2D([], [], color="0.3", alpha=0.2, lw=8,
                    label="5–95%% band (%s)" % ("all scenarios" if len(SCENS) <= 3
                                                else "extremes only"))]
 fig.legend(handles=handles, ncol=min(6, len(handles)), fontsize=8.5, frameon=False,
            loc="upper center", bbox_to_anchor=(0.5, 0.975))
-fig.suptitle("Sea-level rise to 2300 by component — %s vs BRICK 2.0, %s   [%s]"
-             % (DESC["model"], SETNAME, lf.commit_stamp()),
-             fontsize=12.5, fontweight="bold", y=0.999)
-fig.tight_layout(rect=[0, 0.10, 1, 0.935])
+if not lf.PAPER:
+    fig.suptitle("Sea-level rise to 2300 by component — %s vs BRICK 2.0, %s   [%s]"
+                 % (DESC["model"], SETNAME, lf.commit_stamp()),
+                 fontsize=12.5, fontweight="bold", y=0.999)
 ## ⚠ THE CAPTION IS WRAPPED, NOT LEFT TO THE RENDERER. An unwrapped fig.text is one long
 ## line, and `bbox_inches="tight"` then expands the CANVAS to fit it -- the first render of
 ## this figure came out 5462x1306 px (4.2:1) instead of the 15.5x8.6 in it asks for, with
@@ -161,9 +161,11 @@ _cap = (
     "%s — %s.  Arm: %s, the same for both models.  %s.  Ladrillo is thinned to 8000 draws, "
     "BRICK 2.0 to 1000.%s"
     % (DESC["model"], DESC["calib"], ARM_DESC, lf.PROJ_BASELINE.capitalize(), CHECK_NOTE))
-fig.text(0.5, 0.085, "\n".join(textwrap.wrap(_cap, 185)),
-         fontsize=7.2, ha="center", va="top", color="0.3")
-fig.savefig(OUT, dpi=150)
+if not lf.PAPER:
+    fig.tight_layout(rect=[0, 0.10, 1, 0.935])
+    fig.text(0.5, 0.085, "\n".join(textwrap.wrap(_cap, 185)),
+             fontsize=7.2, ha="center", va="top", color="0.3")
+lf.paper_finish(fig, OUT, _cap, rect=[0, 0.10, 1, 0.935])
 print("\nwrote %s" % os.path.relpath(OUT, lf.REPO))
 
 # --- console summary: the numbers a caption would quote --------------------
