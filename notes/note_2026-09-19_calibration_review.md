@@ -138,3 +138,52 @@ defensible one to SHOW (it scores the target we publish against and it does not 
 with the u_unch bound then the thing to justify; the L24 arm is the more defensible one to SAMPLE only if
 Marzeion-2015's early-segment bias can be cited independently — and I could not find that citation in the repo.
 Decision for Marcus. (A four-chain production run of the δ = 0 arm is ~3 h.)
+
+## 8. The L26 candidate arms (2026-09-19 evening; single chains, 500k, seed 2026, start = MAP)
+
+Common to all: paleo priors on the eight DAIS parameters + thermal_alpha Uniform(0.05, 0.3); δ not sampled;
+glacier d2 not sampled; T_off bound −4; κ–P₀ reparameterised (u = log P₀ + κ·T̄, T̄ = −17.99). 55 parameters.
+Arms differ only in the band error model: **a** L = 20 yr, **b** L = 0 (diagonal, = L24's), **c** L = 50 yr.
+`outputs/l26_arms_hindcast_rmse.csv` (posterior-mean path vs the bare Table-4 targets, cm).
+
+| | L24 | L26a (L=20) | L26b (L=0) | L26c (L=50) |
+|---|---|---|---|---|
+| glaciers RMSE 1900–19 / 1920–49 / 1950–92 / 1993–2026 / full | 1.44 / 0.60 / 0.14 / 0.09 / **0.66** | 0.68 / 0.19 / 0.23 / 0.06 / **0.32** | 0.50 / 0.18 / 0.25 / 0.04 / **0.26** | 0.62 / 0.18 / 0.24 / 0.06 / **0.30** |
+| Greenland RMSE full | **0.060** | 0.174 | 0.061 | 0.206 |
+| Antarctica RMSE full | 0.029 | 0.049 | 0.059 | 0.080 |
+| thermal expansion RMSE full | 0.446 | 0.486 | 0.435 | 0.460 |
+| total RMSE full (obs LWS added) | 0.844 | 0.512 | **0.402** | 0.381 |
+| `gic_u_unch` (bound 41.8) | 28.1 (18–38) | 36.7 (27–41.3) | 33.2 (27–40) | 35.1 (23–41.2) |
+| `gic_T_off_SLOWG` | −1.63 | −2.09 (−3.77, −0.12) | −2.07 | −2.66 |
+| `ais_runoff_Ton` | −17.77 (−17.94, −17.55) | −17.83 (**−19.26**, −17.47) | −16.98 (−17.89, −16.20) | −16.31 (−16.93, −15.51) |
+| runoff onset, GMST rel. 1850–1900 → year crossed (ssp245 mean) | +0.60 K → 1998 [1990, 2001] | +0.57 K → 1991 [<1850, 2003] | +1.39 K → 2027 [1991, 2054] | +1.86 K → 2049 [2026, 2137] |
+| `antarctic_alpha` | 0.29 | 0.36 | 0.60 | 0.52 |
+| `ais_iceflow0` | 1.02 | 0.72 | 0.87 | 0.72 |
+| `gis_slow_ell` → τ | −5.12 → 168 yr | −5.60 → 270 yr | −4.89 → 133 yr | −5.65 → 284 yr |
+| `sd_gsic` / `rho_gsic` | 0.017 / 0.75 | 0.005 / 0.54 | 0.012 / 0.36 | 0.013 / 0.77 |
+| u–κ correlation | (log P₀–κ +0.96) | −0.02 | | |
+
+**What the arms say.**
+1. **Dropping δ is what fixes the early glacier fit** (1.44 → 0.5–0.7 cm in 1900–1919, full 0.66 → 0.26–0.32),
+   in every arm — the error model is not what does it. In every arm `u_unch` moves up to 33–37 mm (bound 41.8),
+   i.e. the uncharted-ice scope term is the device that replaces δ, exactly as in `L24DELTA0`. The scope term is
+   at least a PHYSICAL quantity with a published range (Parkes & Marzeion 2018) rather than a target ramp, but
+   the paper must say the posterior sits in the upper half of that range.
+2. **The correlated band error does what it was meant to for Antarctica**: T_on's 5–95 % width goes 0.4 → 1.8 °C
+   (L = 20) and the fitted runoff onset acquires an uncertainty spanning the whole record. But the onset's
+   LOCATION depends on L: 1991 (L=20), 2027 (diagonal), 2049 (L=50) — the pre-1992 reconstruction and how much
+   its band is trusted decide when DAIS's runoff switch fires. That is now the single most projection-relevant
+   convention in the calibration and cannot be left as a fixed number. → **`L26d` (running): L sampled as one
+   shared parameter, flat on [5, 100] yr** — the data choose it; 56 parameters.
+3. The correlated error costs Greenland: RMSE 0.06 → 0.17–0.21 cm (a, c) because the GIS series is no longer
+   tracked inside its (wide, pre-1990s) band; the discharge timescale moves 168 → 270–284 yr. Whether that is
+   "worse" is exactly the question the error model answers differently: L24 tracked a reconstruction; L26a fits
+   a band. Table 4 (RMSE against the point series) will show it as a loss; a coverage/CRPS table would not.
+4. The κ–P₀ ridge is gone (r −0.02). The paleo priors move `antarctic_alpha` up (0.29 → 0.36–0.60) and
+   `ais_iceflow0` down (1.02 → 0.72–0.87); these are single chains in the block that failed R̂ in L24, so
+   treat the AIS medians as ±one chain until a 4-chain run exists.
+5. `gic_T_off_SLOWG` sits at −2.1 (−3.8, −0.1) with the −4 bound — free, as in `L24TOFF4`.
+
+**Recommendation:** production (4 × 2M) of the L26d configuration once its single chain shows where L lands;
+if L is not identified (posterior ≈ prior), fall back to L26a with L = 50 as the reported sensitivity. Either
+way the paper's Antarctic text changes: the runoff onset is a posterior with a wide band, not a date.
