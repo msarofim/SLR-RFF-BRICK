@@ -6,3 +6,4 @@ Common: --gis-ordered --gis-basins2 --amp-mu=1.09 --amp-sigma=0.180 --paleo-prio
 55 parameters (L24: 58): gic_delta, d2_gsic_1, d2_gsic_2 not sampled; ais_precip0_LOG replaced by ais_precip_u = log P0 + kappa*TBAR_ANT.
 Priors: the eight non-geometry DAIS parameters on the DAISfastdyn paleo marginals (outputs/paleo_dais_marginals.csv), thermal_alpha Uniform(0.05, 0.3).
 Machine: nine R multistart jobs from another session (load ~32/10 cores) — expect 2-3x the uncontended 50 min.
+  L26d  --obs-corr-len=sample (one shared log10 L, flat on [5, 100] yr; 56 parameters) — launched 16:35

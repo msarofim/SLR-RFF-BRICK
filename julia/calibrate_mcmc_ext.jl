@@ -147,14 +147,14 @@ N_ITER = length(ARGS)>=1 ? parse(Int,ARGS[1]) : 2000
 SEED   = length(ARGS)>=2 ? parse(Int,ARGS[2]) : 2026
 
 # ---- AR(1) heteroscedastic log-likelihood (Ruckert et al. 2017; MimiBRICK form) ----
-function hetero_logl_ar1(res::Vector{Float64}, σ::Float64, ρ::Float64, ϵ::Vector{Float64})
+function hetero_logl_ar1(res::Vector{Float64}, σ::Float64, ρ::Float64, ϵ::Vector{Float64}, L::Float64=OBS_CORR_LEN)
     n = length(res)
     σp = σ^2/(1-ρ^2)
     H  = abs.(collect(1:n)' .- collect(1:n))
-    ## --obs-corr-len (L26): the band is a correlated error with e-folding length OBS_CORR_LEN yr;
-    ## L = 0 reproduces the L24 diagonal exactly.
-    Σ  = OBS_CORR_LEN > 0 ? σp .* ρ.^H .+ (ϵ * ϵ') .* exp.(-H ./ OBS_CORR_LEN) :
-                            σp .* ρ.^H .+ Diagonal(ϵ.^2)
+    ## --obs-corr-len (L26): the band is a correlated error with e-folding length L yr (fixed, or
+    ## sampled as one shared log10 L under --obs-corr-len=sample); L = 0 reproduces the L24 diagonal.
+    Σ  = L > 0 ? σp .* ρ.^H .+ (ϵ * ϵ') .* exp.(-H ./ L) :
+                 σp .* ρ.^H .+ Diagonal(ϵ.^2)
     return logpdf(MvNormal(Symmetric(Σ)), res)
 end
 
@@ -822,7 +822,8 @@ prow(n)=pri[findfirst(==(n),pri.param),:]
 const PALEO_PRIORS   = "--paleo-priors" in ARGS
 const NO_DELTA       = "--no-delta" in ARGS
 const NO_D2_GSIC     = "--no-d2-gsic" in ARGS
-const OBS_CORR_LEN   = let v = _argval("--obs-corr-len="); v === nothing ? 0.0 : parse(Float64, v) end
+const OBS_CORR_SAMPLED = _argval("--obs-corr-len=") == "sample"     # one shared L, sampled as log10 L
+const OBS_CORR_LEN   = let v = _argval("--obs-corr-len="); (v === nothing || v == "sample") ? 0.0 : parse(Float64, v) end
 const PRECIP_REPARAM = "--precip-reparam" in ARGS
 const PALEO_DAIS = PALEO_PRIORS ? CSV.read(joinpath(REPO, "outputs/paleo_dais_marginals.csv"), DataFrame) : nothing
 const PALEO_SET  = Set(["anto_alpha","anto_beta","antarctic_gamma","antarctic_alpha","antarctic_nu",
@@ -1029,6 +1030,12 @@ for st in D2_STREAMS, k in 1:D2_BASIS_N
 end
 const D2_IDX = Dict(st => [findfirst(k -> k.name == "d2_$(st)_$(i)", FREE) for i in 1:D2_BASIS_N]
                     for st in D2_STREAMS)
+## --obs-corr-len=sample: ONE band-correlation length shared by the four series, sampled as log10 L,
+## flat on [log10 5, log10 100] yr (a reconstruction band cannot be shorter-correlated than its
+## decadal smoothing nor longer than the record). Likelihood-only.
+OBS_CORR_SAMPLED && push!(FREE, (name="obs_corr_log10L", comp=:likelihood_only, sym=:none,
+                                 μ=log10(20.0), σ=1.0e3, lo=log10(5.0), hi=log10(100.0), islog=false))
+const OBSL_IDX = findfirst(k -> k.name == "obs_corr_log10L", FREE)
 const GIS_ELL_IDX = findfirst(k -> k.name == "gis_slow_ell", FREE)
 const GIS_W_IDX   = findfirst(k -> k.name == "gis_slow_w", FREE)
 const GIS_ALPHA_F_IDX = findfirst(k -> k.name == "gis_alpha_f", FREE)
@@ -1078,7 +1085,7 @@ const GISB_IDX3 = GIS_BASINS ?
     Dict(b => findfirst(k -> k.name == "gis_s_$b", FREE) for b in GISB_FREE_BASINS) :
     Dict{Symbol,Int}()
 const SETP_SKIP  = Set(vcat(collect(values(KAPPA_IDX3)),
-                            filter(!isnothing, [UUNCH_IDX, DELTA_IDX, UPRE_IDX, SR5_IDX]),
+                            filter(!isnothing, [UUNCH_IDX, DELTA_IDX, UPRE_IDX, SR5_IDX, OBSL_IDX]),
                             collect(values(AMPB_IDX3)),
                             # D2's delta(t) coefficients are likelihood_only: they
                             # correct the MODEL SERIES, not a Mimi parameter, so
@@ -1516,16 +1523,17 @@ function logposterior(θ)
     # per-year band sigma and the AR(1) noise are untouched — spec section 3
     # sub-choice 2 requires delta to be added to, not to replace, diag(eps^2).
     d2 = (st, v) -> haskey(D2_IDX, st) ? v .+ D2_BASIS[st] * [θ[j] for j in D2_IDX[st]] : v
+    Lc = OBS_CORR_SAMPLED ? 10.0^θ[OBSL_IDX] : OBS_CORR_LEN
     for (i,(s,full)) in enumerate(zip([S.ais,S.gsic,S.gis,S.steric], [ais,gsic_flow,gis,te]))
         if i == 2
             ll += hetero_logl_ar1(d2("gsic", full[s.myi]) .-
                                   (s.obs .+ (NO_DELTA ? 0.0 : θ[DELTA_IDX]) .* DELTA_RAMP),
-                                  σn[i], ρn[i], s.ϵ)
+                                  σn[i], ρn[i], s.ϵ, Lc)
         elseif i == 4
             ll += hetero_logl_ar1(d2("steric", full[s.myi]) .- s.obs,
-                                  σn[i], ρn[i], s.ϵ)
+                                  σn[i], ρn[i], s.ϵ, Lc)
         else
-            ll += hetero_logl_ar1(full[s.myi] .- s.obs, σn[i], ρn[i], s.ϵ)
+            ll += hetero_logl_ar1(full[s.myi] .- s.obs, σn[i], ρn[i], s.ϵ, Lc)
         end
     end
     # total: the "dang" target IS Dangendorf 2024 GMSL spliced with NOAA STAR (M3 rework
