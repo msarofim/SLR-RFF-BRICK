@@ -52,7 +52,7 @@ BLOCKS = [
         "ais_gmst_amp", "ais_ocean_temperature₀", "antarctic_alpha", "antarctic_nu",
         "antarctic_temp_threshold", "anto_alpha", "anto_beta", "antarctic_lambda",
         "antarctic_gamma", "antarctic_kappa",
-        "ais_mu", "ais_bedheight0", "ais_slope", "ais_iceflow0", "ais_precip0_LOG",
+        "ais_mu", "ais_bedheight0", "ais_slope", "ais_iceflow0", "ais_precip0_LOG", "ais_precip_u",
         "ais_runoff_Ton", "ais_c"]),
     ("Thermal expansion", ["thermal_alpha"]),
     ("Model-discrepancy coefficients", ["d2_gsic_1", "d2_gsic_2", "d2_steric_1", "d2_steric_2"]),
@@ -104,6 +104,7 @@ DESC = {
     "ais_slope": ("Bed slope", "–"),
     "ais_iceflow0": ("Ice-flow constant f₀", "m yr⁻¹"),
     "ais_precip0_LOG": ("ln of the precipitation constant P₀", "ln(m yr⁻¹)"),
+    "ais_precip_u": ("u = ln P₀ + κ_DAIS·T̄ (T̄ = −17.99 °C, DAIS scale); ln P₀ is derived", "ln(m yr⁻¹)"),
     "ais_runoff_Ton": ("Runoff onset temperature T_on = −h₀/c (sampled in place of h₀)", "°C (DAIS scale)"),
     "ais_c": ("Runoff-line slope c", "m °C⁻¹"),
     "thermal_alpha": ("Thermal expansion coefficient α", "kg m⁻³ °C⁻¹"),
@@ -157,12 +158,14 @@ def main():
     post = pd.read_csv(post_path)
     names = list(pri.name)
     # ---- gates ----
-    assert len(names) == 58, f"expected 58 sampled parameters, prior file has {len(names)}"
-    assert list(post.columns[:58]) == names, "prior file order != posterior column order"
+    npost = [c for c in post.columns if c != "log_post"]
+    assert len(names) == len(npost), f"prior file has {len(names)} parameters, posterior has {len(npost)}"
+    assert list(npost) == names, "prior file order != posterior column order"
     missing = [n for n in names if n not in DESC]
     assert not missing, f"no description/units for {missing}"
-    listed = [n for _, ps in BLOCKS for n in ps]
-    assert sorted(listed) == sorted(names), "BLOCKS does not cover every parameter exactly once"
+    blocks = [(h, [n for n in ps if n in names]) for h, ps in BLOCKS]     # tag-aware: L26 drops 3, renames 1
+    listed = [n for _, ps in blocks for n in ps]
+    assert sorted(listed) == sorted(names), f"BLOCKS does not cover every parameter exactly once: {sorted(set(names)-set(listed))}"
     for r in pri.itertuples():
         v = post[r.name].to_numpy()
         lo, hi = r.lo, r.hi
@@ -194,7 +197,9 @@ def main():
              "DAIS scale; ais_runoff_Ton replaces h₀ (h₀ = −T_on·c).", ""]
     lines += ["| Parameter | Description | Units | Prior | Median | 5% | 95% |",
               "|---|---|---|---|---|---|---|"]
-    for head, ps in BLOCKS:
+    for head, ps in blocks:
+        if not ps:
+            continue
         lines.append(f"| **{head}** | | | | | | |")
         for n in ps:
             r = out.loc[n]

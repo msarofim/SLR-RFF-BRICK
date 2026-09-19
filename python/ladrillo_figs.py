@@ -204,6 +204,18 @@ TAG_DESC = {
                     "arms dated before that carry the seeded realisation, seed 2026)",
                 note="Antarctic amplification prior N(1.09, 0.180), the measured "
                      "34-model CMIP6 spread (commit 165a860)."),
+    "L26": dict(model="Ladrillo L26",
+                calib="FaIR 2.2.4 calib 1.6.0 + CMIP7",
+                chains="4 chains, chain_L26_seed{2026..2029}_n2000000",
+                glacier="3-reservoir Nauels-nu (glaciers_nu3), FLOORED equilibrium "
+                        "+ bounded regrowth at R = 1; no early-segment target ramp, no glacier "
+                        "discrepancy term; T_off bound -4",
+                gis="two-basin Greenland with the above-threshold discharge channel",
+                lws="constant 0.3 mm/yr from 2019 (LWS_MODE=:central)",
+                note="2026-09-19 review: DAIS priors = DAISfastdyn paleo marginals (L24's were "
+                     "BRICK 2.0's posterior +-2 sd), thermal_alpha Uniform(0.05, 0.3); published bands "
+                     "as a correlated error (e-folding 100 yr; L sampled on [5,100] railed at 100); "
+                     "log P0 + kappa*Tbar sampled (ais_precip_u); 55 parameters. Amp prior N(1.09, 0.180)."),
     "L14": dict(model="Ladrillo L14",
                 calib="FaIR 2.2.4 calib 1.4.5",
                 chains="chain_L14_*",
