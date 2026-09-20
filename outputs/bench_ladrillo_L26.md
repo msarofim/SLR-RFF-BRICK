@@ -1,6 +1,6 @@
 # Ladrillo benchmark — `L26`
 
-*benchmark v1.0, 2026-09-20, repo `a2532f3`. Champion arm: **L24**.*
+*benchmark v1.0, 2026-09-20, repo `8c9de13`. Champion arm: **L26** (the candidate IS the champion — no delta column).*
 
 Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (stock MimiBRICK v2.0.0, own posterior), **literature** (FACTS + MAGICC-SLR, frozen).
 
@@ -18,76 +18,56 @@ Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (s
 
 | module | hindcast | rate/accel | projection | separation | vs champion |
 |---|---|---|---|---|---|
-| **AIS** | PASS | WARN | FAIL | WARN | WORSE |
-| **glaciers** | PASS | UNRESOLVED | WARN | PASS | BETTER |
-| **Greenland** | WARN | UNRESOLVED | FAIL | WARN | WORSE |
-| **thermal exp.** | WARN | FAIL | WARN | PASS | SAME |
+| **AIS** | PASS | WARN | FAIL | WARN | — |
+| **glaciers** | PASS | UNRESOLVED | WARN | PASS | — |
+| **Greenland** | WARN | UNRESOLVED | FAIL | WARN | — |
+| **thermal exp.** | WARN | FAIL | WARN | PASS | — |
 | **land water** | — | — | WARN | PASS | — |
-| **TOTAL** | PASS | UNRESOLVED | WARN | WARN | BETTER |
+| **TOTAL** | PASS | UNRESOLVED | WARN | WARN | — |
 
 ## [H] Hindcast — the full observational period, scaled to each component's own target 1-sigma
 
 | module | target 1σ (cm) | window | arm | RMSE (cm) | RMSE (σ) | note |
 |---|---|---|---|---|---|---|
 | AIS | 0.1674 | full | L26 | 0.0895 | 0.53 | bias -0.0741 cm = -0.44 sd; cov90 85%; n=126 |
-| AIS | 0.1674 | full | L24* | 0.0292 | 0.17 | bias -0.0042 cm = -0.02 sd; cov90 85%; n=126 |
 | AIS | 0.1674 | full | BRICK 2.0 | 1.5740 | 9.40 | bias -1.1500 cm = -6.87 sd; cov90 25%; n=126 |
 | AIS | 0.1674 | 1920-1949 | L26 | 0.1143 | 0.68 | bias -0.1142 cm = -0.68 sd; cov90 100%; n=30 |
-| AIS | 0.1674 | 1920-1949 | L24* | 0.0099 | 0.06 | bias -0.0096 cm = -0.06 sd; cov90 100%; n=30 |
 | AIS | 0.1674 | 1920-1949 | BRICK 2.0 | 1.9565 | 11.68 | bias -1.9306 cm = -11.53 sd; cov90 0%; n=30 |
 | AIS | 0.1674 | 1950-1992 | L26 | 0.0735 | 0.44 | bias -0.0638 cm = -0.38 sd; cov90 98%; n=43 |
-| AIS | 0.1674 | 1950-1992 | L24* | 0.0084 | 0.05 | bias +0.0027 cm = +0.02 sd; cov90 98%; n=43 |
 | AIS | 0.1674 | 1950-1992 | BRICK 2.0 | 0.8044 | 4.80 | bias -0.7067 cm = -4.22 sd; cov90 0%; n=43 |
 | AIS | 0.1674 | 1993-2026 | L26 | 0.0871 | 0.52 | bias -0.0466 cm = -0.28 sd; cov90 45%; n=33 |
-| AIS | 0.1674 | 1993-2026 | L24* | 0.0550 | 0.33 | bias -0.0057 cm = -0.03 sd; cov90 45%; n=33 |
 | AIS | 0.1674 | 1993-2026 | BRICK 2.0 | 0.0814 | 0.49 | bias +0.0424 cm = +0.25 sd; cov90 97%; n=33 |
 | glaciers | 0.4593 | full | L26 | 0.3150 | 0.69 | bias +0.0578 cm = +0.13 sd; cov90 69%; n=124 |
-| glaciers | 0.4593 | full | L24* | 0.6484 | 1.41 | bias +0.3694 cm = +0.80 sd; cov90 44%; n=124 |
 | glaciers | 0.4593 | full | BRICK 2.0 | 1.5475 | 3.37 | bias +0.9400 cm = +2.05 sd; cov90 42%; n=124 |
 | glaciers | 0.4593 | 1920-1949 | L26 | 0.1821 | 0.40 | bias -0.0054 cm = -0.01 sd; cov90 100%; n=30 |
-| glaciers | 0.4593 | 1920-1949 | L24* | 0.5909 | 1.29 | bias +0.5283 cm = +1.15 sd; cov90 20%; n=30 |
 | glaciers | 0.4593 | 1920-1949 | BRICK 2.0 | 1.5932 | 3.47 | bias +1.4701 cm = +3.20 sd; cov90 0%; n=30 |
 | glaciers | 0.4593 | 1950-1992 | L26 | 0.2312 | 0.50 | bias -0.1170 cm = -0.25 sd; cov90 56%; n=43 |
-| glaciers | 0.4593 | 1950-1992 | L24* | 0.1347 | 0.29 | bias +0.0783 cm = +0.17 sd; cov90 56%; n=43 |
 | glaciers | 0.4593 | 1950-1992 | BRICK 2.0 | 0.1269 | 0.28 | bias +0.0552 cm = +0.12 sd; cov90 95%; n=43 |
 | glaciers | 0.4593 | 1993-2026 | L26 | 0.0454 | 0.10 | bias -0.0203 cm = -0.04 sd; cov90 39%; n=31 |
-| glaciers | 0.4593 | 1993-2026 | L24* | 0.0874 | 0.19 | bias -0.0522 cm = -0.11 sd; cov90 81%; n=31 |
 | glaciers | 0.4593 | 1993-2026 | BRICK 2.0 | 0.2143 | 0.47 | bias +0.1441 cm = +0.31 sd; cov90 35%; n=31 |
 | Greenland | 0.1832 | full | L26 | 0.1981 | 1.08 | bias -0.1430 cm = -0.78 sd; cov90 34%; n=126 |
-| Greenland | 0.1832 | full | L24* | 0.0598 | 0.33 | bias +0.0042 cm = +0.02 sd; cov90 60%; n=126 |
 | Greenland | 0.1832 | full | BRICK 2.0 | 0.7030 | 3.84 | bias -0.5958 cm = -3.25 sd; cov90 19%; n=126 |
 | Greenland | 0.1832 | 1920-1949 | L26 | 0.2016 | 1.10 | bias -0.1527 cm = -0.83 sd; cov90 57%; n=30 |
-| Greenland | 0.1832 | 1920-1949 | L24* | 0.0808 | 0.44 | bias +0.0267 cm = +0.15 sd; cov90 53%; n=30 |
 | Greenland | 0.1832 | 1920-1949 | BRICK 2.0 | 0.7952 | 4.34 | bias -0.7459 cm = -4.07 sd; cov90 27%; n=30 |
 | Greenland | 0.1832 | 1950-1992 | L26 | 0.2718 | 1.48 | bias -0.2535 cm = -1.38 sd; cov90 0%; n=43 |
-| Greenland | 0.1832 | 1950-1992 | L24* | 0.0494 | 0.27 | bias -0.0142 cm = -0.08 sd; cov90 58%; n=43 |
 | Greenland | 0.1832 | 1950-1992 | BRICK 2.0 | 0.9104 | 4.97 | bias -0.8614 cm = -4.70 sd; cov90 0%; n=43 |
 | Greenland | 0.1832 | 1993-2026 | L26 | 0.1213 | 0.66 | bias -0.0822 cm = -0.45 sd; cov90 18%; n=33 |
-| Greenland | 0.1832 | 1993-2026 | L24* | 0.0459 | 0.25 | bias +0.0018 cm = +0.01 sd; cov90 45%; n=33 |
 | Greenland | 0.1832 | 1993-2026 | BRICK 2.0 | 0.1745 | 0.95 | bias -0.1258 cm = -0.69 sd; cov90 45%; n=33 |
 | thermal exp. | 0.3091 | full | L26 | 0.4717 | 1.53 | bias +0.2717 cm = +0.88 sd; cov90 39%; n=126 |
-| thermal exp. | 0.3091 | full | L24* | 0.4396 | 1.42 | bias +0.2198 cm = +0.71 sd; cov90 33%; n=126 |
 | thermal exp. | 0.3091 | full | BRICK 2.0 | 0.5357 | 1.73 | bias +0.3440 cm = +1.11 sd; cov90 91%; n=126 |
 | thermal exp. | 0.3091 | 1920-1949 | L26 | 0.6292 | 2.04 | bias +0.5098 cm = +1.65 sd; cov90 33%; n=30 |
-| thermal exp. | 0.3091 | 1920-1949 | L24* | 0.5452 | 1.76 | bias +0.4078 cm = +1.32 sd; cov90 33%; n=30 |
 | thermal exp. | 0.3091 | 1920-1949 | BRICK 2.0 | 0.7538 | 2.44 | bias +0.6519 cm = +2.11 sd; cov90 90%; n=30 |
 | thermal exp. | 0.3091 | 1950-1992 | L26 | 0.1934 | 0.63 | bias -0.0460 cm = -0.15 sd; cov90 70%; n=43 |
-| thermal exp. | 0.3091 | 1950-1992 | L24* | 0.2156 | 0.70 | bias -0.1063 cm = -0.34 sd; cov90 56%; n=43 |
 | thermal exp. | 0.3091 | 1950-1992 | BRICK 2.0 | 0.1948 | 0.63 | bias +0.0381 cm = +0.12 sd; cov90 100%; n=43 |
 | thermal exp. | 0.3091 | 1993-2026 | L26 | 0.3677 | 1.19 | bias +0.2392 cm = +0.77 sd; cov90 15%; n=33 |
-| thermal exp. | 0.3091 | 1993-2026 | L24* | 0.4299 | 1.39 | bias +0.2831 cm = +0.92 sd; cov90 12%; n=33 |
 | thermal exp. | 0.3091 | 1993-2026 | BRICK 2.0 | 0.2830 | 0.92 | bias +0.1779 cm = +0.58 sd; cov90 85%; n=33 |
 | TOTAL | 1.5380 | full | L26 | 0.4174 | 0.27 | bias +0.1987 cm = +0.13 sd; cov90 81%; n=125 |
-| TOTAL | 1.5380 | full | L24* | 0.8646 | 0.56 | bias +0.6898 cm = +0.45 sd; cov90 30%; n=125 |
 | TOTAL | 1.5380 | full | BRICK 2.0 | 0.7377 | 0.48 | bias -0.3148 cm = -0.20 sd; cov90 47%; n=125 |
 | TOTAL | 1.5380 | 1920-1949 | L26 | 0.4487 | 0.29 | bias +0.2350 cm = +0.15 sd; cov90 100%; n=30 |
-| TOTAL | 1.5380 | 1920-1949 | L24* | 1.0471 | 0.68 | bias +0.9894 cm = +0.64 sd; cov90 27%; n=30 |
 | TOTAL | 1.5380 | 1920-1949 | BRICK 2.0 | 0.7651 | 0.50 | bias -0.4210 cm = -0.27 sd; cov90 63%; n=30 |
 | TOTAL | 1.5380 | 1950-1992 | L26 | 0.2137 | 0.14 | bias +0.0253 cm = +0.02 sd; cov90 86%; n=43 |
-| TOTAL | 1.5380 | 1950-1992 | L24* | 0.5171 | 0.34 | bias +0.4809 cm = +0.31 sd; cov90 35%; n=43 |
 | TOTAL | 1.5380 | 1950-1992 | BRICK 2.0 | 0.9966 | 0.65 | bias -0.9052 cm = -0.59 sd; cov90 9%; n=43 |
 | TOTAL | 1.5380 | 1993-2026 | L26 | 0.2696 | 0.18 | bias +0.0743 cm = +0.05 sd; cov90 44%; n=32 |
-| TOTAL | 1.5380 | 1993-2026 | L24* | 0.3569 | 0.23 | bias +0.1973 cm = +0.13 sd; cov90 41%; n=32 |
 | TOTAL | 1.5380 | 1993-2026 | BRICK 2.0 | 0.4002 | 0.26 | bias +0.2089 cm = +0.14 sd; cov90 50%; n=32 |
 
 ## [R] Rate (1993-2026) and acceleration (1900-2026), with an error bar on the observations
@@ -96,43 +76,33 @@ Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (s
 |---|---|---|---|---|---|---|
 | AIS | rate | observations | 0.032608 | cm/yr | — | se: estimator 0.003405, band-correlated 0.0005689, band-independent 0.003061; CONSERVATIVE 0.003405 cm/yr; |obs|/se = 9.58 |
 | AIS | rate | L26 | 0.027812 | cm/yr | -1.41 | 0.85x obs; z=-1.41 vs the obs error bar |
-| AIS | rate | L24* | 0.031598 | cm/yr | -0.30 | 0.97x obs; z=-0.30 vs the obs error bar |
 | AIS | rate | BRICK 2.0 | 0.03785 | cm/yr | +1.54 | 1.16x obs; z=+1.54 vs the obs error bar |
 | glaciers | rate | observations | 0.068013 | cm/yr | — | se: estimator 0.0005236, band-correlated 0.0001274, band-independent 0.009223; CONSERVATIVE 0.009223 cm/yr; |obs|/se = 7.37 |
 | glaciers | rate | L26 | 0.066762 | cm/yr | -0.14 | 0.98x obs; z=-0.14 vs the obs error bar |
-| glaciers | rate | L24* | 0.06276 | cm/yr | -0.57 | 0.92x obs; z=-0.57 vs the obs error bar |
 | glaciers | rate | BRICK 2.0 | 0.087211 | cm/yr | +2.08 | 1.28x obs; z=+2.08 vs the obs error bar |
 | Greenland | rate | observations | 0.06596 | cm/yr | — | se: estimator 0.01044, band-correlated 0.0006502, band-independent 0.003349; CONSERVATIVE 0.01044 cm/yr; |obs|/se = 6.32 |
 | Greenland | rate | L26 | 0.058977 | cm/yr | -0.67 | 0.89x obs; z=-0.67 vs the obs error bar |
-| Greenland | rate | L24* | 0.065783 | cm/yr | -0.02 | 1.00x obs; z=-0.02 vs the obs error bar |
 | Greenland | rate | BRICK 2.0 | 0.057934 | cm/yr | -0.77 | 0.88x obs; z=-0.77 vs the obs error bar |
 | thermal exp. | rate | observations | 0.1234 | cm/yr | — | se: estimator 0.003756, band-correlated 0.002392, band-independent 0.005651; CONSERVATIVE 0.005651 cm/yr; |obs|/se = 21.84 |
 | thermal exp. | rate | L26 | 0.15155 | cm/yr | +4.98 | 1.23x obs UNCORRECTED, 1.11x at the FULL depth-scope bound; z spans +2.75..+4.98. Model is FULL-DEPTH, target is 0-2000 m; factor <= 1.1022 from IGCC ocean_2000-6000m (PRESCRIBED 1.15 ZJ/yr, not data), and it OVERSTATES the correction because deep water expands less per joule. NOT applied to accel: a prescribed constant rate carries no curvature. |
-| thermal exp. | rate | L24* | 0.15655 | cm/yr | +5.87 | 1.27x obs UNCORRECTED, 1.15x at the FULL depth-scope bound; z spans +3.64..+5.87. Model is FULL-DEPTH, target is 0-2000 m; factor <= 1.1022 from IGCC ocean_2000-6000m (PRESCRIBED 1.15 ZJ/yr, not data), and it OVERSTATES the correction because deep water expands less per joule. NOT applied to accel: a prescribed constant rate carries no curvature. |
 | thermal exp. | rate | BRICK 2.0 | 0.14458 | cm/yr | +3.75 | 1.17x obs UNCORRECTED, 1.06x at the FULL depth-scope bound; z spans +1.52..+3.75. Model is FULL-DEPTH, target is 0-2000 m; factor <= 1.1022 from IGCC ocean_2000-6000m (PRESCRIBED 1.15 ZJ/yr, not data), and it OVERSTATES the correction because deep water expands less per joule. NOT applied to accel: a prescribed constant rate carries no curvature. |
 | TOTAL | rate | observations | 0.32469 | cm/yr | — | se: estimator 0.02949, band-correlated 0.02545, band-independent 0.02945; CONSERVATIVE 0.02949 cm/yr; |obs|/se = 11.01 |
 | TOTAL | rate | L26 | 0.33598 | cm/yr | +0.38 | 1.03x obs; z=+0.38 vs the obs error bar |
-| TOTAL | rate | L24* | 0.34702 | cm/yr | +0.76 | 1.07x obs; z=+0.76 vs the obs error bar |
 | TOTAL | rate | BRICK 2.0 | 0.35585 | cm/yr | +1.06 | 1.10x obs; z=+1.06 vs the obs error bar |
 | AIS | accel | observations | 0.00020499 | cm/yr2 | — | se: estimator 0.0001336, band-correlated 3.924e-05, band-independent 2.522e-05; CONSERVATIVE 0.0001336 cm/yr2; |obs|/se = 1.53 |
 | AIS | accel | L26 | 0.00020868 | cm/yr2 | +0.03 | ratio NOT INTERPRETABLE (obs is 1.53 se from zero); z=+0.03 vs the obs error bar |
-| AIS | accel | L24* | 0.00020415 | cm/yr2 | -0.01 | ratio NOT INTERPRETABLE (obs is 1.53 se from zero); z=-0.01 vs the obs error bar |
 | AIS | accel | BRICK 2.0 | -0.00012334 | cm/yr2 | -2.46 | ratio NOT INTERPRETABLE (obs is 1.53 se from zero); z=-2.46 vs the obs error bar |
 | glaciers | accel | observations | -0.00054814 | cm/yr2 | — | se: estimator 0.000447, band-correlated 3.442e-05, band-independent 7.199e-05; CONSERVATIVE 0.000447 cm/yr2; |obs|/se = 1.23 |
 | glaciers | accel | L26 | -0.00016782 | cm/yr2 | +0.85 | ratio NOT INTERPRETABLE (obs is 1.23 se from zero); z=+0.85 vs the obs error bar |
-| glaciers | accel | L24* | -0.00010791 | cm/yr2 | +0.98 | ratio NOT INTERPRETABLE (obs is 1.23 se from zero); z=+0.98 vs the obs error bar |
 | glaciers | accel | BRICK 2.0 | 0.00063496 | cm/yr2 | +2.65 | ratio NOT INTERPRETABLE (obs is 1.23 se from zero); z=+2.65 vs the obs error bar |
 | Greenland | accel | observations | -0.00027825 | cm/yr2 | — | se: estimator 0.0005241, band-correlated 6.83e-05, band-independent 2.759e-05; CONSERVATIVE 0.0005241 cm/yr2; |obs|/se = 0.53 |
 | Greenland | accel | L26 | -0.00012279 | cm/yr2 | +0.30 | ratio NOT INTERPRETABLE (obs is 0.53 se from zero); z=+0.30 vs the obs error bar |
-| Greenland | accel | L24* | -0.00025266 | cm/yr2 | +0.05 | ratio NOT INTERPRETABLE (obs is 0.53 se from zero); z=+0.05 vs the obs error bar |
 | Greenland | accel | BRICK 2.0 | 0.00010691 | cm/yr2 | +0.73 | ratio NOT INTERPRETABLE (obs is 0.53 se from zero); z=+0.73 vs the obs error bar |
 | thermal exp. | accel | observations | 0.0008428 | cm/yr2 | — | se: estimator 0.0002431, band-correlated 2.312e-05, band-independent 4.655e-05; CONSERVATIVE 0.0002431 cm/yr2; |obs|/se = 3.47 |
 | thermal exp. | accel | L26 | 0.0012333 | cm/yr2 | +1.61 | 1.46x obs; z=+1.61 vs the obs error bar |
-| thermal exp. | accel | L24* | 0.001274 | cm/yr2 | +1.77 | 1.51x obs; z=+1.77 vs the obs error bar |
 | thermal exp. | accel | BRICK 2.0 | 0.0011766 | cm/yr2 | +1.37 | 1.40x obs; z=+1.37 vs the obs error bar |
 | TOTAL | accel | observations | 0.00089376 | cm/yr2 | — | se: estimator 0.001159, band-correlated 0.0001276, band-independent 0.0002363; CONSERVATIVE 0.001159 cm/yr2; |obs|/se = 0.77 |
 | TOTAL | accel | L26 | 0.0013348 | cm/yr2 | +0.38 | ratio NOT INTERPRETABLE (obs is 0.77 se from zero); z=+0.38 vs the obs error bar |
-| TOTAL | accel | L24* | 0.0012964 | cm/yr2 | +0.35 | ratio NOT INTERPRETABLE (obs is 0.77 se from zero); z=+0.35 vs the obs error bar |
 | TOTAL | accel | BRICK 2.0 | 0.0019643 | cm/yr2 | +0.92 | ratio NOT INTERPRETABLE (obs is 0.77 se from zero); z=+0.92 vs the obs error bar |
 
 ## [P] Projections vs the literature — scored on the JOINT band
@@ -306,60 +276,60 @@ Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (s
 
 | module | ssp | horizon | candidate (joint) | champion (joint) | BRICK 2.0 (fixed) |
 |---|---|---|---|---|---|
-| AIS | ssp126 | 2100 | 4.96 | 4.76 | 4.32 |
-| AIS | ssp126 | 2150 | 7.71 | 7.33 | 6.52 |
-| AIS | ssp126 | 2300 | 15.37 | 14.48 | 13.01 |
-| AIS | ssp245 | 2100 | 11.45 | 7.72 | 27.41 |
-| AIS | ssp245 | 2150 | 48.37 | 39.85 | 72.60 |
-| AIS | ssp245 | 2300 | 164.20 | 154.29 | 205.94 |
-| AIS | ssp585 | 2100 | 38.94 | 37.45 | 44.14 |
-| AIS | ssp585 | 2150 | 96.91 | 95.69 | 97.88 |
-| AIS | ssp585 | 2300 | 292.94 | 292.09 | 276.83 |
-| glaciers | ssp126 | 2100 | 8.09 | 7.92 | 12.09 |
-| glaciers | ssp126 | 2150 | 9.96 | 9.79 | 17.44 |
-| glaciers | ssp126 | 2300 | 12.51 | 12.38 | 27.72 |
-| glaciers | ssp245 | 2100 | 9.69 | 9.56 | 13.34 |
-| glaciers | ssp245 | 2150 | 13.33 | 13.30 | 20.69 |
-| glaciers | ssp245 | 2300 | 17.96 | 18.21 | 32.50 |
-| glaciers | ssp585 | 2100 | 12.83 | 12.81 | 15.61 |
-| glaciers | ssp585 | 2150 | 20.04 | 20.30 | 26.25 |
-| glaciers | ssp585 | 2300 | 26.16 | 26.53 | 35.36 |
-| Greenland | ssp126 | 2100 | 6.35 | 6.58 | 6.62 |
-| Greenland | ssp126 | 2150 | 8.53 | 8.09 | 10.01 |
-| Greenland | ssp126 | 2300 | 12.18 | 10.19 | 19.04 |
-| Greenland | ssp245 | 2100 | 7.42 | 8.23 | 7.03 |
-| Greenland | ssp245 | 2150 | 11.40 | 11.97 | 11.35 |
-| Greenland | ssp245 | 2300 | 18.84 | 17.52 | 23.71 |
-| Greenland | ssp585 | 2100 | 9.90 | 12.10 | 7.88 |
-| Greenland | ssp585 | 2150 | 21.73 | 24.64 | 14.77 |
-| Greenland | ssp585 | 2300 | 81.46 | 45.61 | 38.60 |
-| thermal exp. | ssp126 | 2100 | 15.64 | 16.09 | 15.34 |
-| thermal exp. | ssp126 | 2150 | 19.47 | 19.96 | 19.18 |
-| thermal exp. | ssp126 | 2300 | 25.14 | 25.68 | 25.08 |
-| thermal exp. | ssp245 | 2100 | 19.77 | 20.28 | 19.37 |
-| thermal exp. | ssp245 | 2150 | 28.96 | 29.64 | 28.53 |
-| thermal exp. | ssp245 | 2300 | 44.66 | 45.81 | 44.66 |
-| thermal exp. | ssp585 | 2100 | 27.65 | 28.38 | 27.07 |
-| thermal exp. | ssp585 | 2150 | 51.05 | 52.53 | 50.34 |
-| thermal exp. | ssp585 | 2300 | 102.78 | 104.98 | 101.88 |
-| land water | ssp126 | 2100 | 2.46 | 2.60 | 2.34 |
-| land water | ssp126 | 2150 | 3.96 | 4.23 | 4.04 |
-| land water | ssp126 | 2300 | 8.46 | 8.48 | 8.90 |
-| land water | ssp245 | 2100 | 2.46 | 2.60 | 2.34 |
-| land water | ssp245 | 2150 | 3.96 | 4.23 | 4.04 |
-| land water | ssp245 | 2300 | 8.46 | 8.48 | 8.90 |
-| land water | ssp585 | 2100 | 2.46 | 2.60 | 2.34 |
-| land water | ssp585 | 2150 | 3.96 | 4.23 | 4.04 |
-| land water | ssp585 | 2300 | 8.46 | 8.48 | 8.90 |
-| TOTAL | ssp126 | 2100 | 38.19 | 38.40 | 41.16 |
-| TOTAL | ssp126 | 2150 | 50.74 | 50.24 | 57.89 |
-| TOTAL | ssp126 | 2300 | 75.75 | 72.58 | 94.76 |
-| TOTAL | ssp245 | 2100 | 53.21 | 52.14 | 70.19 |
-| TOTAL | ssp245 | 2150 | 107.64 | 100.53 | 137.98 |
-| TOTAL | ssp245 | 2300 | 262.58 | 249.20 | 317.82 |
-| TOTAL | ssp585 | 2100 | 92.85 | 94.21 | 98.00 |
-| TOTAL | ssp585 | 2150 | 195.72 | 199.04 | 195.15 |
-| TOTAL | ssp585 | 2300 | 511.65 | 481.57 | 467.87 |
+| AIS | ssp126 | 2100 | 4.96 | (is champion) | 4.32 |
+| AIS | ssp126 | 2150 | 7.71 | (is champion) | 6.52 |
+| AIS | ssp126 | 2300 | 15.37 | (is champion) | 13.01 |
+| AIS | ssp245 | 2100 | 11.45 | (is champion) | 27.41 |
+| AIS | ssp245 | 2150 | 48.37 | (is champion) | 72.60 |
+| AIS | ssp245 | 2300 | 164.20 | (is champion) | 205.94 |
+| AIS | ssp585 | 2100 | 38.94 | (is champion) | 44.14 |
+| AIS | ssp585 | 2150 | 96.91 | (is champion) | 97.88 |
+| AIS | ssp585 | 2300 | 292.94 | (is champion) | 276.83 |
+| glaciers | ssp126 | 2100 | 8.09 | (is champion) | 12.09 |
+| glaciers | ssp126 | 2150 | 9.96 | (is champion) | 17.44 |
+| glaciers | ssp126 | 2300 | 12.51 | (is champion) | 27.72 |
+| glaciers | ssp245 | 2100 | 9.69 | (is champion) | 13.34 |
+| glaciers | ssp245 | 2150 | 13.33 | (is champion) | 20.69 |
+| glaciers | ssp245 | 2300 | 17.96 | (is champion) | 32.50 |
+| glaciers | ssp585 | 2100 | 12.83 | (is champion) | 15.61 |
+| glaciers | ssp585 | 2150 | 20.04 | (is champion) | 26.25 |
+| glaciers | ssp585 | 2300 | 26.16 | (is champion) | 35.36 |
+| Greenland | ssp126 | 2100 | 6.35 | (is champion) | 6.62 |
+| Greenland | ssp126 | 2150 | 8.53 | (is champion) | 10.01 |
+| Greenland | ssp126 | 2300 | 12.18 | (is champion) | 19.04 |
+| Greenland | ssp245 | 2100 | 7.42 | (is champion) | 7.03 |
+| Greenland | ssp245 | 2150 | 11.40 | (is champion) | 11.35 |
+| Greenland | ssp245 | 2300 | 18.84 | (is champion) | 23.71 |
+| Greenland | ssp585 | 2100 | 9.90 | (is champion) | 7.88 |
+| Greenland | ssp585 | 2150 | 21.73 | (is champion) | 14.77 |
+| Greenland | ssp585 | 2300 | 81.46 | (is champion) | 38.60 |
+| thermal exp. | ssp126 | 2100 | 15.64 | (is champion) | 15.34 |
+| thermal exp. | ssp126 | 2150 | 19.47 | (is champion) | 19.18 |
+| thermal exp. | ssp126 | 2300 | 25.14 | (is champion) | 25.08 |
+| thermal exp. | ssp245 | 2100 | 19.77 | (is champion) | 19.37 |
+| thermal exp. | ssp245 | 2150 | 28.96 | (is champion) | 28.53 |
+| thermal exp. | ssp245 | 2300 | 44.66 | (is champion) | 44.66 |
+| thermal exp. | ssp585 | 2100 | 27.65 | (is champion) | 27.07 |
+| thermal exp. | ssp585 | 2150 | 51.05 | (is champion) | 50.34 |
+| thermal exp. | ssp585 | 2300 | 102.78 | (is champion) | 101.88 |
+| land water | ssp126 | 2100 | 2.46 | (is champion) | 2.34 |
+| land water | ssp126 | 2150 | 3.96 | (is champion) | 4.04 |
+| land water | ssp126 | 2300 | 8.46 | (is champion) | 8.90 |
+| land water | ssp245 | 2100 | 2.46 | (is champion) | 2.34 |
+| land water | ssp245 | 2150 | 3.96 | (is champion) | 4.04 |
+| land water | ssp245 | 2300 | 8.46 | (is champion) | 8.90 |
+| land water | ssp585 | 2100 | 2.46 | (is champion) | 2.34 |
+| land water | ssp585 | 2150 | 3.96 | (is champion) | 4.04 |
+| land water | ssp585 | 2300 | 8.46 | (is champion) | 8.90 |
+| TOTAL | ssp126 | 2100 | 38.19 | (is champion) | 41.16 |
+| TOTAL | ssp126 | 2150 | 50.74 | (is champion) | 57.89 |
+| TOTAL | ssp126 | 2300 | 75.75 | (is champion) | 94.76 |
+| TOTAL | ssp245 | 2100 | 53.21 | (is champion) | 70.19 |
+| TOTAL | ssp245 | 2150 | 107.64 | (is champion) | 137.98 |
+| TOTAL | ssp245 | 2300 | 262.58 | (is champion) | 317.82 |
+| TOTAL | ssp585 | 2100 | 92.85 | (is champion) | 98.00 |
+| TOTAL | ssp585 | 2150 | 195.72 | (is champion) | 195.15 |
+| TOTAL | ssp585 | 2300 | 511.65 | (is champion) | 467.87 |
 
 ## [S] Scenario separation — ssp585/ssp126 median ratio
 
