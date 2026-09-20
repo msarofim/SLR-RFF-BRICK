@@ -30,7 +30,7 @@ antarctic_alpha / kappa, which BRICK's modern data had moved.
 
 **Production:** `run_mcmc_L26.sh` (frozen copy), 4 x 2M, seeds 2026-2029, starts =
 `overdispersed_starts_L26.csv` (L26d 2nd-half draws at ais_iceflow0 quantiles 0.02/0.35/0.65/0.98), proposal
-seed = L26d's adapted covariance. Launched 23:05 at commit 17869ee; 5-min meter: ETA 6.2-6.7 h at load 28
+seed = L26d's adapted covariance. Launched ~17:55 (09-19) at commit 17869ee; 5-min meter: ETA 6.2-6.7 h at load 28
 (the other session's R jobs) — ~2x the uncontended 3 h; left to run overnight, Torch reserved for FrEDI.
 `run_l26_postprocess.sh` is waiting on the chains (slr-convergence diag -> postprocess --accept-slr -> prior
 dump -> postpred -> ssp components -> 3 joint bands -> model comparison -> benchmark). champions.json untouched.
