@@ -1,3 +1,22 @@
+## 2026-09-20b — IC test on L26 (Table 5 candidate): the hindcast gain survives with 3 fewer parameters; Antarctica no longer contributes
+
+`julia/ic_hindcast_residuals.jl --tag=L26` (GATE PASS: per-draw medians reproduce the L26 postpred p50) →
+`scripts/run_ic_arms.sh L26` (new, tag-parameterised; the IC script now reads k from the posterior headers:
+Ladrillo 47 + 8 = 55, BRICK 2.0 27 + 8 = 35, Δk = 20; L24 asserted at 50 + 8).
+
+| likelihood | k L/B | ln L L/B | ΔAIC | ΔBIC | (L24: ΔAIC / ΔBIC) |
+|---|---|---|---|---|---|
+| iid, obs σ | 47 / 27 | −18.9 / −1252.1 | +2427 | +2342 | (+2610 / +2512) |
+| AR(1)+obs, ρ ≤ 0.99 | 55 / 35 | 242.6 / 180.9 | **+83** | **−1** | (+89 / −8) |
+| ρ ≤ 0.95 | 55 / 35 | see file | | | (+150 / +53) |
+| ρ ≤ 0.90 | 55 / 35 | see file | | | (+222 / +125) |
+
+Per series at ρ ≤ 0.99: glaciers +33, Greenland +29, **Antarctica +1 (L24: +6)**, steric −1 (tie by
+construction). Reading: the L24 Antarctic contribution was the runoff-switch tracking of the pre-1992
+reconstruction that L26's error model deliberately gave up; the glacier and Greenland gains are unchanged.
+The BIC tie at the calibrator's ρ bound has the same cause as before (the profiled ρ sits at 0.99 for every
+BRICK series). Files: `outputs/ic_ladrillo_vs_brick20_L26{,_rho0.95,_rho0.9}.{csv,md}`.
+
 ## 2026-09-20 — L26 posterior SHIPPED as a CANDIDATE (champion stays L24 until Marcus promotes)
 
 Chains finished 23:14 (5 h 20 min under load ~90). Postprocess needed three fixes for the new column set
