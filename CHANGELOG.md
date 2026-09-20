@@ -1,3 +1,31 @@
+## 2026-09-20 — L26 posterior SHIPPED as a CANDIDATE (champion stays L24 until Marcus promotes)
+
+Chains finished 23:14 (5 h 20 min under load ~90). Postprocess needed three fixes for the new column set
+(readers selecting `ais_precip0_LOG` from a chain that carries `ais_precip_u`; the posterior loader's
+required-column check; the posterior predictive's `gic_delta` read) — all three are now header-aware
+(`ladrillo_used_cols(variant, header)`), and `run_l26_postprocess.sh` lacked the untapped SSP step the
+comparison needs (run by hand). Convergence: **18 of 55 marginals fail the R̂ gate (L24: 19 of 58), the same
+AIS-geometry block (T_on 1.33, iceflow0 1.28, slope 1.23); projected SLR R̂ 1.002 @2100 / 1.001 @2150,
+ESS ~1500 ⇒ accepted on the deliverable criterion (`--accept-slr`), as L24 was.** Subsample
+`data/MimiBRICK/parameters_subsample_brick_mengel_L26.csv` (10,000 draws, 55 columns + derived Greenland
+pair; log P0 derived by the kernel from `ais_precip_u`).
+
+**Hindcast (posterior-predictive median vs the bare targets, cm; L24 → L26):** glaciers 0.65 → **0.32**
+(1900–1919 1.43 → 0.67), total (out-of-sample) 0.87 → **0.42** (1900–1919 1.50 → 0.76), Antarctica 0.03 →
+0.09, Greenland 0.06 → 0.20, TE 0.44 → 0.47. Against BRICK 2.0 (full window): glaciers 0.20, AIS 0.06, GIS
+0.28, TE 0.88, total 0.57 — better on every component and, now, on the total. Cells where L26 is WORSE than
+BRICK: AIS 1993–2026 (1.07), glaciers 1950–1992 (1.82), TE 1993–2026 (1.30; L24 was 1.52). Coverage of the
+total by the parameter band 0.30 → 0.81; Greenland parameter-band coverage 0.60 → 0.34 (predictive 0.92),
+mean bias −0.14 cm — the GIS series is fitted to its band, not tracked.
+
+**Projections (ssp245 joint, median [5–95 %]):** total 2100 52.0 → 53.2 cm, 2300 249 → 263; AIS 2100 7.7 →
+11.5, 2300 154 → 164; Greenland 2300 17.5 → 18.8; glaciers and TE within 1 cm. Benchmark
+(`bench_ladrillo_L26.md`, champion L24): 29 FAIL/WORSE cells for the candidate, dominated by the "vs
+champion" hindcast rows for AIS (mean RMSE ratio 6.2) and Greenland (3.5) — i.e. the benchmark scores the
+loss of near-exact tracking that the error model deliberately gave up; glaciers and TOTAL BETTER. Not a
+one-axis comparison; promotion is Marcus's call.
+
+**Table A1 for L26:** `outputs/ladrillo_prior_posterior_L26.{csv,md}` (55 rows, gates PASS).
 ## 2026-09-19d — L26 PRODUCTION LAUNCHED (4 x 2M): paleo priors, no delta, no glacier d2, correlated bands L = 100, T_off bound -4, precip reparam; 55 parameters
 
 Marcus: follow the recommendation on delta, update the nine priors, the T_off bound, the kappa-P0
