@@ -1,3 +1,12 @@
+## 2026-09-20d — handoff: L26 promoted, L27 running, the GMD draft at review round 5
+
+`notes/handoff_2026-09-20_L26_promoted_L27_running.md` — the map for the next session: state at handoff (L27
+4 x 2M launched 13:34, postprocess queued behind a noise-mode gate; L26 champion; draft on L24 numbers), the
+ordered NEXT list (read L27's one-axis gate vs L26 → IC test → re-run the paper arms and swap every table and
+figure in ONE round → the 09-16 list), decisions with reasons, files, traps (start point vs noise init;
+header-aware chain readers; vintage mixing; TAG_DESC for L27), open questions. Memory: `l26_candidate_posterior`
+updated (promotion + L27), `INDEX_slr.md` live-state pointer.
+
 ## 2026-09-20c — Table A2 (the identified Antarctic combinations) in the draft; Antarctic-block PCA diagnostic
 
 Marcus: "Could we do something like PCA with the group of Antarctic variables on the ridge?" → yes, done:
