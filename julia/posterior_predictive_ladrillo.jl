@@ -167,7 +167,9 @@ for (i, r) in enumerate(eachrow(post))
     tot  = ladrillo_series(bf, :glaciers; funch=u)[imy] .+ ais .+ gis .+ te .+ lws_obs
     model[:ais][i, :] = ais; model[:glaciers][i, :] = gsic
     model[:gis][i, :] = gis; model[:te][i, :] = te; model[:total][i, :] = tot
-    obs_corrected[i, :] = [obs_of(:gsic, y) for y in FY] .+ Float64(r["gic_delta"]) .* delta_ramp
+    ## L26+: gic_delta is not sampled (--no-delta) -> the ramp is 0 and the "corrected" target IS the raw one
+    δ = _hascol(r, "gic_delta") ? Float64(r["gic_delta"]) : 0.0
+    obs_corrected[i, :] = [obs_of(:gsic, y) for y in FY] .+ δ .* delta_ramp
     for (key, tcol, sfx) in SERIES
         if key in FITTED
             ar1_plus_obs_error!(rng, noise, Float64(r["sd_$sfx"]), Float64(r["rho_$sfx"]), OBS_SIGMA[tcol])

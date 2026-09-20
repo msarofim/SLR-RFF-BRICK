@@ -454,13 +454,9 @@ function ladrillo_posterior(; path::AbstractString=LADRILLO_POSTERIOR_CSV,
         # the header, decide the Greenland variant from it, then demand the full
         # set for that variant.
         hdr = String.(propertynames(CSV.read(path, DataFrame; limit=0)))
-        want = ladrillo_used_cols(ladrillo_gis_variant(hdr))
-        # An L11+ posterior stores the slow channel as (ell, w); ask the file for
-        # what it HAS, then derive the native pair the kernel needs after reading.
-        # Demanding alpha_s/beta_s here would reject every post-L11 posterior.
-        ladrillo_gis_needs_native(hdr) &&
-            (want = vcat(setdiff(want, LADRILLO_GIS_SLOW_NATIVE_COLS),
-                         LADRILLO_GIS_SLOW_REPARAM_COLS))
+        # Ask the file for what it HAS: an L11+ posterior stores the slow channel as (ell, w) and an
+        # L26+ one stores ais_precip_u; the kernel derives the native quantities (header-aware form).
+        want = ladrillo_used_cols(ladrillo_gis_variant(hdr), hdr)
         missing_cols = [c for c in want if !(c in hdr)]
         isempty(missing_cols) || error("ladrillo_posterior: $path is missing " *
             "$(length(missing_cols)) required column(s): $(join(missing_cols, ", "))")
