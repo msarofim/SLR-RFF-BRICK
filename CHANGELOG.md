@@ -1,3 +1,24 @@
+## 2026-09-20c — Table A2 (the identified Antarctic combinations) in the draft; Antarctic-block PCA diagnostic
+
+Marcus: "Could we do something like PCA with the group of Antarctic variables on the ridge?" → yes, done:
+`python/diag_ais_block_pca.py --tag=` (posterior PCs of the 17-parameter block in PRIOR-sd units — the paleo
+joint prior for the geometry, the tag's own dumped priors for the rest — with posterior/prior variance per
+PC and a split R̂ of the PC score across the four chains) and `python/ladrillo_table_a2.py --tag=` (the
+table: PCs with posterior variance < 20 % of prior; caption derived from the data, not typed).
+
+**Finding:** the direction that fails the convergence gate (L26 PC1: f₀, λ, T_crit, κ; R̂ 1.17) keeps 88 %
+of its PRIOR variance — the unmixed "ridge" is a prior-dominated flat direction, not an identified one, so
+PC-coordinate sampling would not help and fixing it would delete projection uncertainty. The record pins
+5 (L24) / 4 (L26) combinations: for L24 the sharpest is T_on ALONE at 0.0 % of its prior variance (the
+over-precision, now in a table), then ln P₀/slope/f₀ (0.1 %), slope/ln P₀ (0.7 %); for L26 the sharpest is
+ln P₀ − slope − κ (0.5 %) and T_on appears only in mixtures with a_ANTO and α_DAIS (6.5 %, 16 %).
+Amp is its own PC at 93–97 % of prior variance in both — exactly "propagated, not estimated".
+
+**Draft:** `deliverables/GMD.Ladrillo.v1_review-2026-09-20.docx` (on 09-19b): Table A2 on the **L24** basis
+(the paper's current posterior; the L26 version is `outputs/ladrillo_table_a2_L26.md` and swaps in with the
+rest if L26 is promoted) inserted after Table A1 as a tracked change with one intro sentence, and a pointer
+from the Convergence paragraph. XSD clean.
+
 ## 2026-09-20b — IC test on L26 (Table 5 candidate): the hindcast gain survives with 3 fewer parameters; Antarctica no longer contributes
 
 `julia/ic_hindcast_residuals.jl --tag=L26` (GATE PASS: per-draw medians reproduce the L26 postpred p50) →

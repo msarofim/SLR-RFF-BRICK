@@ -1,0 +1,41 @@
+"""Round 3 (2026-09-19): Appendix A (Table A1) inserted before References as a tracked change."""
+from redline import *
+import re
+
+x = load()
+t = open("tbl/word/document.xml").read()
+tbl = re.search(r"<w:tbl>.*?</w:tbl>", t, re.S).group(0)
+cap = re.search(r"<w:p\b[^>]*>(?:(?!</w:p>).)*Table A2(?:(?!</w:p>).)*</w:p>", t, re.S).group(0)
+
+def track_para(p):
+    """Mark an existing paragraph (from the pandoc docx) as inserted: mark + every run wrapped."""
+    mark = f'<w:ins w:id="{nid()}" w:author="{AUTHOR}" w:date="{DATE}"/>'
+    if "<w:pPr>" in p:
+        if "<w:rPr>" in p.split("</w:pPr>")[0]:
+            p = p.replace("<w:rPr>", f"<w:rPr>{mark}", 1)
+        else:
+            p = p.replace("</w:pPr>", f"<w:rPr>{mark}</w:rPr></w:pPr>", 1)
+    else:
+        p = re.sub(r"^(<w:p\b[^>]*>)", lambda m: m.group(1) + f"<w:pPr><w:rPr>{mark}</w:rPr></w:pPr>", p, count=1)
+    p = re.sub(r"(<w:r\b[^>]*>.*?</w:r>)", lambda m: f'<w:ins w:id="{nid()}" w:author="{AUTHOR}" w:date="{DATE}">{m.group(1)}</w:ins>', p, flags=re.S)
+    return p
+
+def track_table(tb):
+    def row(m):
+        r = m.group(0)
+        mark = f'<w:trPr><w:ins w:id="{nid()}" w:author="{AUTHOR}" w:date="{DATE}"/></w:trPr>'
+        if "<w:trPr>" in r:
+            r = r.replace("</w:trPr>", f'<w:ins w:id="{nid()}" w:author="{AUTHOR}" w:date="{DATE}"/></w:trPr>', 1)
+        else:
+            r = re.sub(r"^(<w:tr\b[^>]*>)(<w:tblPrEx>.*?</w:tblPrEx>)?", lambda mm: mm.group(1) + (mm.group(2) or "") + mark, r, count=1, flags=re.S)
+        r = re.sub(r"(<w:r\b[^>]*>.*?</w:r>)", lambda mm: f'<w:ins w:id="{nid()}" w:author="{AUTHOR}" w:date="{DATE}">{mm.group(1)}</w:ins>', r, flags=re.S)
+        return r
+    return re.sub(r"<w:tr\b.*?</w:tr>", row, tb, flags=re.S)
+
+intro = new_para("Table A2 reports which directions of the Antarctic parameter space the observations constrain: a principal-component decomposition of the block's posterior in prior-standardised coordinates. Only a handful of combinations are identified; the fast-dynamics parameters and the amplification are carried by their priors, which is what the projection spread beyond 2100 rests on.")
+block = new_para("") + intro + track_para(cap) + track_table(tbl) + new_para("")
+i = x.find(">References<"); ps = x.rfind("<w:p", 0, i)
+x = x[:ps] + block + x[ps:]
+
+x = replace_text(x, "directions that are weakly identified and compensate for each other.", "directions that are weakly identified and compensate for each other (Appendix A, Table A2 gives the combinations the record does identify).")
+save(x); print("r4 applied")

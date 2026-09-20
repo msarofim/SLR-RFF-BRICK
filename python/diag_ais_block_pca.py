@@ -7,8 +7,8 @@ ridge?"  Answer: the unmixed direction is the PRIOR-DOMINATED one, not an identi
 
   python3 python/diag_ais_block_pca.py --tag=L26
 Reads outputs/mcmc/chain_<tag>_seed{2026..2029}_n2000000.csv (2nd half, thinned 1:200), the paleo joint
-prior (outputs/paleo_geo_prior_ton.csv), the paleo marginals (outputs/paleo_dais_marginals.csv), amp prior
-N(1.09, 0.18), T_oc0 prior sd 0.50. Writes outputs/diag_ais_block_pca_<tag>.csv (+ provenance).
+prior (outputs/paleo_geo_prior_ton.csv) for the geometry block and the tag's own dumped priors
+(outputs/ladrillo_priors_<tag>.csv) for the other ten parameters. Writes outputs/diag_ais_block_pca_<tag>.csv (+ provenance).
 """
 import sys, os, datetime
 import numpy as np, pandas as pd
@@ -32,9 +32,11 @@ g = open(os.path.join(REPO, "outputs/paleo_geo_prior_ton.csv")).read().splitline
 rows = {l.split(",")[0]: l.split(",")[1:] for l in g if l and not l.startswith("#")}
 sd = np.array([float(x) for x in rows["sd"]])
 corr = np.array([[float(v) for v in l.split(",")[1:]] for l in g if l.startswith("corr")])
-pm = pd.read_csv(os.path.join(REPO, "outputs/paleo_dais_marginals.csv")).set_index("param")
-psd = {**{c: pm.loc[c, "sd"] for c in FD if c in pm.index}, "ais_gmst_amp": 0.18, "ais_ocean_temperature₀": 0.50}
-pmu = {**{c: pm.loc[c, "mean"] for c in FD if c in pm.index}, "ais_gmst_amp": 1.09, "ais_ocean_temperature₀": 0.72}
+## the non-geometry priors are THIS TAG'S, read from the calibrator's own dump (--dump-priors), so an L24
+## table is standardised by L24's priors (BRICK-posterior moments) and an L26 one by the paleo marginals
+pr = pd.read_csv(os.path.join(REPO, f"outputs/ladrillo_priors_{TAG}.csv")).set_index("name")
+psd = {c: float(pr.loc[c, "sigma"]) for c in FD}
+pmu = {c: float(pr.loc[c, "mu"]) for c in FD}
 S = np.zeros((17, 17)); S[:7, :7] = np.outer(sd, sd) * corr
 for i, c in enumerate(FD): S[7 + i, 7 + i] = psd[c] ** 2
 mu = np.array([float(x) for x in rows["mean"]] + [pmu[c] for c in FD])
@@ -55,6 +57,6 @@ for k in range(17):
                     **{f"v_{USE[i]}": v[i] for i in range(17)}))
 df = pd.DataFrame(out)
 df["provenance"] = (f"diag_ais_block_pca.py | tag {TAG} | chains 2nd half thinned 1:200 | prior: paleo joint (geometry), "
-                    f"paleo marginals (fast dynamics, ocean), amp N(1.09,0.18), Toc0 sd 0.5 | split R-hat over 4 chains | {datetime.date.today()}")
+                    f"this tag's own priors for the rest (outputs/ladrillo_priors_{TAG}.csv) | split R-hat over 4 chains | {datetime.date.today()}")
 df.to_csv(os.path.join(REPO, f"outputs/diag_ais_block_pca_{TAG}.csv"), index=False)
 print("cumulative variance first 3/5/8 PCs:", np.round(np.cumsum(w) / w.sum(), 2)[[2, 4, 7]])
