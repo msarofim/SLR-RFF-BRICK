@@ -1,3 +1,84 @@
+## 2026-09-20e — L27 SHIPPED as the paper's posterior (50 parameters): hindcast unchanged vs L26; IC ΔBIC turns positive; the IC optimiser fixed
+
+Chains finished 17:39 (4 h 05 under load ~10; acceptance 0.237–0.238 on all four); `run_l27_postprocess.sh` ran
+unattended 17:39–18:19. Arm verification: every chain's banner carries `cut-fastdyn=true (lambda 0.009913,
+T_crit −15.667 held) fix-gamma=true (2.834) no-ledger=true`, 42 physical + 8 noise = 50 free. **Noise-mode gate
+PASS** (2nd-half sd_gis 0.0254–0.0255 in every chain, sd_ais 0.0216, log-post 790–792 — the L27tune trap absent).
+Convergence: **8 of 50 marginals fail R̂** (L26 18/55, L24 19/58) — the AIS geometry ridge only (T_on 1.31, c 1.08,
+slope 1.06, α 1.05, precip_u 1.04, iceflow0 1.03, anto α/β 1.01); the whole Greenland block now converges.
+Projected SLR R̂ 1.001 @2100 / 1.002 @2150, ESS ~1240 ⇒ `--accept-slr`. Subsample
+`data/MimiBRICK/parameters_subsample_brick_mengel_L27.csv` (10,000 draws, 50 columns; λ/T_crit/γ are NOT in the
+file — the kernel attaches them at projection time).
+
+**THE ONE-AXIS GATE (handoff §1.1) — PASS. Hindcast unchanged.** Posterior-predictive median vs bare targets, full
+window, cm, L26 → L27 (the L26 values reproduce CHANGELOG 09-20 to the printed digit): glaciers 0.315 → 0.317,
+AIS 0.090 → 0.093, GIS 0.198 → 0.196, TE 0.472 → 0.467, total (out-of-sample) 0.417 → 0.403. Largest move in any
+window: total 1900–19, −0.037. Glaciers and Greenland — the two the ledger marginalisation (option D) could have
+touched — are 10× inside the 0.05 cm gate, so option D is exonerated and no L27b is needed. Per Marcus's 09-20
+conditional ("if unchanged, L27 is the paper's posterior"): **L27 is the paper's posterior.** The three cut
+parameters were provably likelihood-flat in L26 — posterior sd / prior sd 0.99 (λ), 1.00 (T_crit), 0.86 (γ; exactly
+the truncation factor of N(2.77, 0.94) on [0.5, 4.25]: a = −2.42, b = 1.58 ⇒ var factor 0.741), correlations with the
+geometry ≤ 0.04.
+
+**Projections (fixed-climate SSP components, L26 → L27, median [5–95]):** glaciers / TE / GIS move ≤ 0.5 cm at every
+cell except GIS ssp585/2300 −1.3 (on 87). **AIS moves**: ssp245 2100 15.5 → 12.6, 2300 191 → 178; ssp585 2100 40.4 →
+38.0, 2300 294 → 281; **ssp126 2300 p95 167 → 65** (total p95 226 → 125). Two mechanisms, both receipted:
+- *The tail*: `outputs/paleo_fastdyn_draws.csv` carries corr(λ, T_crit) = +0.45 (Spearman +0.44); the collapse-prone
+  corner (λ > paleo p90 AND T_crit < paleo p10) holds 0.25 % of the joint draws vs 1.14 % of L26's independently
+  sampled marginals — 4.5× fewer draws that tip under ssp126. This is the designed effect of option A.
+- *The medians*: the DAIS geometry moved 0.3–0.5 L26-sd (antarctic_α −0.50, anto_α +0.46, anto_β +0.54, slope −0.44,
+  c +0.35, iceflow0 +0.27) with the AIS RMSE unchanged (0.090 → 0.093) — a move ALONG the flat ridge, not priced by
+  the likelihood. Per-chain medians (`outputs/diag_ais_geometry_perchain_L26_L27.csv`, 2nd halves, L26-sd units):
+  slope / iceflow0 / T_on — L26's chain 2029 sat 0.8–1.4 sd off the other three and L27's four agree with those
+  three (L26 mixing); anto_α / anto_β / ocean_T₀ / antarctic_α — all four L27 chains agree (range ≤ 0.5) at a place
+  OUTSIDE L26's four-chain range. That part is NOT explained by L26's between-chain spread and CANNOT be a
+  likelihood effect of the cut parameters. ⚠ OPEN: the between-refit precision of the AIS projection medians
+  (~3 cm @2100, ~13 cm @2300 on ssp245, i.e. 6 % / 4 % of the 90 % band) should be MEASURED by a same-objective
+  re-run with new seeds (L27r, ~4 h) and STATED in the paper; a mode-vs-mode likelihood comparison needs a Julia
+  evaluation (the chains write no likelihood column). Not done — Marcus's call.
+
+**Benchmark** (`bench_ladrillo_L27.md`, champion L26): of 178 candidate verdicts **2 change, both WARN → PASS**
+(ssp126 @2150 AIS and total spread-vs-literature — the narrowed tail). Vs champion: hindcast ratios 0.96–1.09
+(AIS "WORSE" at 1.04 = the 0.003 cm; total BETTER 0.96). champions.json untouched — promotion is Marcus's call.
+
+**IC test on L27 (`julia/ic_hindcast_residuals.jl --tag=L27` GATE PASS at 0.0 vs the postpred p50; `scripts/run_ic_arms.sh L27`):**
+Δk = 15 (42 vs 27 physical, read from the headers). ρ ≤ 0.99: Δln L 57.1 ⇒ **ΔAIC +84.1, ΔBIC +20.8**; ρ ≤ 0.95:
+85.6 ⇒ +141.2 / +78.0; ρ ≤ 0.90: 119.0 ⇒ +207.9 / +144.6. The BIC tie of L24/L26 is gone at every bound (L26:
++83.3 / −1.1 at Δk 20). Max-over-draws ln L 238.0 vs L26's 242.6 while the posterior-median series scores 229.9 vs
+230.2 — the max is an extreme-value statistic over a different thinning, not a fit change. Per-series at the joint
+max draw (ρ ≤ 0.99): AIS +3.8, glaciers +29.9, Greenland +23.6, steric −0.2 (tie by construction).
+
+**BUG FOUND AND FIXED by the IC script's own gate — `python/ic_ladrillo_vs_brick20.py` (commit d774b01).** The first
+L27 run FAILED the 24-draw validation on the glacier residuals: grid+polish vs the reference multistart differed by
+1.24 ln L (ρ ≤ 0.99; the CHEAP path was higher), 0.30 (0.95) and 0.36 (0.90). Diagnosis (`worst draw 1571`): the
+profiled surface is BIMODAL — a plateau at sd → 0 (obs error alone explains the residual; ln L ≈ 3.0 flat in ρ) and a
+separate peak at ρ → bound with sd 0.02 (ln L 4.4). Three defects: (1) the 6-start reference had no near-bound or
+small-sd start and sat on the plateau; (2) the single polish from the global grid optimum could not cross into the
+other basin; (3) `GRID_RHO`'s near-bound rows were literals for the 0.99 bound, so `--rho-max=0.90` had no row between
+0.87 and the bound where that draw's optimum sat (ρ = 0.900, sd 0.039). Fix: 12 reference starts (ρ₀ up to
+0.995·RHO_MAX, sd₀ down to 0.01), polish from the best grid point in EACH ρ regime (`POLISH_RHO_SPLIT = 0.9·RHO_MAX`),
+near-bound grid rows at RHO_MAX·{0.95…0.999}. The tolerance (0.1 ln L) was NOT touched. After the fix every arm
+validates (worst miss 0.059, cheap path higher). **Regression on L26 (ρ ≤ 0.99, re-run): Δln L 61.6 / ΔAIC +83.3 /
+ΔBIC −1.1 — identical to the shipped 09-20b values**; summary-table values move ≤ 0.010, per-draw ln L ≤ 0.14 (the
+bimodal draws relocate between modes). Pre-fix outputs → `outputs/quarantine/20260920_ic_optimiser/` (README). L24's
+IC outputs (the draft's current Table 5) were not re-run: same gate passed, and Table 5 moves to L27.
+
+**Table A1 / A2 on L27:** `outputs/ladrillo_prior_posterior_L27.{csv,md}` (50 rows, gates PASS, written by the
+driver); `python/diag_ais_block_pca.py` made tag-aware on the SAMPLED set (it hard-coded the 17-parameter block;
+L27 samples 14) → `outputs/diag_ais_block_pca_L27.csv`, `outputs/ladrillo_table_a2_L27.md`: the same 3 identified
+combinations (ln P₀ / slope twice; a_ANTO + α_DAIS − T_on), 1 of 14 retains > 80 % of its prior variance; the one
+unmixed direction is PC1 (c + T_on + amp, R̂ 1.17) at 67 % of its prior variance — prior-dominated, not identified.
+
+**Also:** `ladrillo_figs.TAG_DESC` declares L27 (1a51056); `run_paper_arms_L27.sh` written (5a27c0b) and LAUNCHED
+18:43 — 7 vv + 6 MAGICC-climate Ladrillo arms, then every memo figure and the five `--paper` renders on L27, then the
+benchmark refresh (BRICK 2.0 arms are tag-independent, not re-run; no quarantine — a new tag writes new filenames).
+Memory: `l27_paper_posterior`, `ic_profile_optimiser_bimodal`; `INDEX_slr.md` LIVE STATE header rewritten (it still
+said L24 champion).
+
+**NEXT:** read the paper-arm figures + benchmark; then the ONE-ROUND swap of every table and figure in the GMD draft
+to L27 (Tables 4, 5, A1, A2; FIGs; the Antarctic text from "onset 1998" to the wide posterior; "55"/"58" parameter
+counts → 50; Δk 15); then the 09-16 list (venue, package extraction, `facts` remote, FACTS/MAGICC scope).
+
 ## 2026-09-20d — handoff: L26 promoted, L27 running, the GMD draft at review round 5
 
 `notes/handoff_2026-09-20_L26_promoted_L27_running.md` — the map for the next session: state at handoff (L27
