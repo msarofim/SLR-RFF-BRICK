@@ -158,8 +158,13 @@ def _profile_one(args):
     reference optimiser, used to VALIDATE the grid+polish path on a random subset."""
     r, years, eps = args
     best = None
-    for rho0 in (0.3 * RHO_MAX, 0.7 * RHO_MAX, 0.92 * RHO_MAX):   # inside the bound whatever it is
-        for lsd0 in (np.log(0.1), np.log(0.5)):
+    ## 12 starts, not 6 (2026-09-20, L27): the profiled surface can be BIMODAL -- a plateau at sd -> 0
+    ## (obs error alone explains the residual) and a separate peak at the rho bound with a tiny sd.
+    ## Starts at 0.3/0.7/0.92 x RHO_MAX from sd 0.1/0.5 all fell onto the plateau for one L27 glacier
+    ## draw and the "reference" sat 1.24 ln L BELOW the grid; a near-bound start and a small-sd start
+    ## reach the peak.
+    for rho0 in (0.3 * RHO_MAX, 0.7 * RHO_MAX, 0.92 * RHO_MAX, 0.995 * RHO_MAX):   # inside the bound whatever it is
+        for lsd0 in (np.log(0.01), np.log(0.1), np.log(0.5)):
             o = minimize(lambda x: _nll(x, r, years, eps), [lsd0, rho0], method="Nelder-Mead",
                          options=dict(xatol=1e-5, fatol=1e-7, maxiter=600))
             if best is None or o.fun < best.fun:
@@ -175,18 +180,29 @@ def _nll(x, r, years, eps):
 
 
 def _polish_one(args):
-    r, years, eps, lsd0, rho0 = args
-    o = minimize(lambda x: _nll(x, r, years, eps), [lsd0, rho0], method="Nelder-Mead",
-                 options=dict(xatol=1e-5, fatol=1e-7, maxiter=400))
-    return -o.fun, float(np.exp(o.x[0])), float(o.x[1])
+    """Nelder-Mead polish from each of several grid starts; the best result wins. One start (the
+    global grid optimum) missed by up to 0.36 ln L on the bimodal glacier draws (2026-09-20, L27)."""
+    r, years, eps, starts = args
+    best = None
+    for lsd0, rho0 in starts:
+        o = minimize(lambda x: _nll(x, r, years, eps), [lsd0, rho0], method="Nelder-Mead",
+                     options=dict(xatol=1e-5, fatol=1e-7, maxiter=400))
+        if best is None or o.fun < best.fun:
+            best = o
+    return -best.fun, float(np.exp(best.x[0])), float(best.x[1])
 
 
 # grid for the shared-Cholesky pass: Sigma depends on (sd, rho, eps, years) only, so one
 # factorisation serves every draw at that grid point
-GRID_RHO = np.unique(np.concatenate([np.linspace(0.0, 0.90, 31), np.linspace(0.91, 0.989, 20)]))
+## near-bound rows are placed RELATIVE TO THE BOUND (2026-09-20, L27): the optimum can sit at rho -> RHO_MAX with
+## a finite sd, and with the bound at 0.90 the old grid ended at 0.87 -- the polish from there slid onto the
+## sd -> 0 plateau, 0.36 ln L below the reference multistart, on one glacier draw.
+GRID_RHO = np.unique(np.concatenate([np.linspace(0.0, 0.90, 31), np.linspace(0.91, 0.989, 20),
+                                     RHO_MAX * np.array([0.95, 0.97, 0.98, 0.99, 0.995, 0.999])]))
 GRID_RHO = GRID_RHO[GRID_RHO < RHO_MAX]
 GRID_LSD = np.log(np.geomspace(0.01, 5.0, 46))
 N_VALIDATE = 24                                   # draws re-optimised by full multistart
+POLISH_RHO_SPLIT = 0.9 * RHO_MAX                  # the two rho regimes the polish starts from (plateau / near-bound peak), scaled to the bound
 VALIDATE_TOL = 0.1                                # ln L units the two paths may differ by (gaps of interest are O(10-100))
 
 
@@ -198,7 +214,11 @@ def ll_ar1_profiled(r, years, eps, workers, rng=None):
     ys, es, rs = years[fin].astype(float), eps[fin], r[:, fin]
     n, nd = fin.sum(), rs.shape[0]
     lag = np.abs(ys[:, None] - ys[None, :])
+    ## the grid optimum is kept PER RHO REGIME (below / above POLISH_RHO_SPLIT) and the polish starts
+    ## from both: the profiled surface is bimodal on some draws (see _profile_one) and a polish from
+    ## the global grid optimum alone lost up to 0.36 ln L to the other mode's basin.
     best = np.full(nd, -np.inf); bi = np.zeros(nd, int); bj = np.zeros(nd, int)
+    best2 = np.full(nd, -np.inf); bi2 = np.zeros(nd, int); bj2 = np.zeros(nd, int)   # the other regime's optimum
     for i, rho in enumerate(GRID_RHO):
         P = rho ** lag
         for j, lsd in enumerate(GRID_LSD):
@@ -206,10 +226,16 @@ def ll_ar1_profiled(r, years, eps, workers, rng=None):
             L = np.linalg.cholesky((sd ** 2 / (1 - rho ** 2)) * P + np.diag(es ** 2))
             U = np.linalg.solve(L, rs.T)                       # (n, nd)
             ll = -0.5 * (U ** 2).sum(axis=0) - np.log(np.diag(L)).sum() - 0.5 * LN2PI * n
-            m = ll > best; best[m] = ll[m]; bi[m] = i; bj[m] = j
+            if rho < POLISH_RHO_SPLIT:
+                m = ll > best; best[m] = ll[m]; bi[m] = i; bj[m] = j
+            else:
+                m = ll > best2; best2[m] = ll[m]; bi2[m] = i; bj2[m] = j
+    grid_best = np.maximum(best, best2)
     with ProcessPoolExecutor(workers) as ex:
-        out = list(ex.map(_polish_one, [(rs[d], ys, es, GRID_LSD[bj[d]], GRID_RHO[bi[d]]) for d in range(nd)],
+        out = list(ex.map(_polish_one, [(rs[d], ys, es, [(GRID_LSD[bj[d]], GRID_RHO[bi[d]]),
+                                                        (GRID_LSD[bj2[d]], GRID_RHO[bi2[d]])]) for d in range(nd)],
                           chunksize=32))
+    best = grid_best
     ll = np.array([o[0] for o in out]); sd = np.array([o[1] for o in out]); rho = np.array([o[2] for o in out])
     assert np.all(ll >= best - 1e-6), "polish lost the grid optimum"
     # validation: the cheap path must reproduce the reference optimiser
