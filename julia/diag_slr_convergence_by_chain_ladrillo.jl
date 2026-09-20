@@ -91,13 +91,9 @@ for sd in SEEDS
     t0 = time()
 
     hdr = chain_header(sd)
-    need = ladrillo_used_cols(VARIANT)
-    # An L11+ chain carries the Greenland slow channel as the sampled (ell, w),
-    # not the native (alpha_s, beta_s) the kernel applies. Read what the chain
-    # HAS; ladrillo_native_greenland! derives the native pair below.
-    ladrillo_gis_needs_native(hdr) &&
-        (need = vcat(setdiff(need, LADRILLO_GIS_SLOW_NATIVE_COLS),
-                     LADRILLO_GIS_SLOW_REPARAM_COLS))
+    # Read what the chain HAS: the sampled Greenland (ell, w) for the native pair, and for a
+    # --precip-reparam chain (L26+) ais_precip_u for ais_precip0_LOG; the kernel derives both.
+    need = ladrillo_used_cols(VARIANT, hdr)
     # CSV.jl's select= silently returns only the columns it FINDS, so demand them.
     missing_cols = setdiff(need, hdr)
     isempty(missing_cols) || error("chain_$(CHAIN_TAG)_seed$(sd) is missing " *

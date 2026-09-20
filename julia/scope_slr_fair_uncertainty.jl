@@ -216,11 +216,8 @@ const SHIPPED_TAG = TAP_ON ?
     "$(GIS_TAP_CELL.wholesheet ? "_ws" : "")" : TAG
 
 function read_draws(sd)
-    need = ladrillo_used_cols(VARIANT)
     h = hdr(sd)
-    rd = ladrillo_gis_needs_native(h) ?
-        vcat(setdiff(need, LADRILLO_GIS_SLOW_NATIVE_COLS),
-             LADRILLO_GIS_SLOW_REPARAM_COLS) |> unique : need
+    rd = ladrillo_used_cols(VARIANT, h)     # header-aware: (ell, w) and, for L26+, ais_precip_u
     df = SMOKE ? CSV.read(chain_path(sd), DataFrame; select = rd, limit = MAXROWS) :
                  CSV.read(chain_path(sd), DataFrame; select = rd)
     nb = SMOKE ? 0 : NBURN

@@ -414,6 +414,24 @@ ladrillo_used_cols(variant::Symbol) = vcat(
 ## (exactly how test_ladrillo_projection.jl failed when the canonical posterior
 ## moved to L10). Ask for the variant you have: ladrillo_used_cols(VARIANT).
 
+## L26 (--precip-reparam): a chain/subsample carries `ais_precip_u` INSTEAD of `ais_precip0_LOG`; the
+## kernel derives log P0 (ladrillo_apply_draw!). Readers that SELECT columns from a chain header must
+## ask for the column the file has — CSV.jl's select= drops a missing name silently.
+const LADRILLO_PRECIP_NATIVE_COL  = "ais_precip0_LOG"
+const LADRILLO_PRECIP_REPARAM_COL = "ais_precip_u"
+ladrillo_precip_reparam(cols) = (LADRILLO_PRECIP_REPARAM_COL in cols) && !(LADRILLO_PRECIP_NATIVE_COL in cols)
+"""`ladrillo_used_cols(variant, header)` — the kernel's columns AS THIS FILE SPELLS THEM: the sampled
+Greenland pair for the native one where the header says so, and `ais_precip_u` for `ais_precip0_LOG`
+on a reparameterised posterior. Use this, not the one-argument form, wherever a header is at hand."""
+function ladrillo_used_cols(variant::Symbol, header)
+    need = ladrillo_used_cols(variant)
+    ladrillo_gis_needs_native(header) &&
+        (need = vcat(setdiff(need, LADRILLO_GIS_SLOW_NATIVE_COLS), LADRILLO_GIS_SLOW_REPARAM_COLS))
+    ladrillo_precip_reparam(header) &&
+        (need = vcat(setdiff(need, [LADRILLO_PRECIP_NATIVE_COL]), [LADRILLO_PRECIP_REPARAM_COL]))
+    return unique(need)
+end
+
 const _GLACIER_SYMS = Dict(nm => Symbol(nm) for nm in LADRILLO_GLACIER_COLS)
 
 """
