@@ -37,6 +37,15 @@ cell except GIS ssp585/2300 −1.3 (on 87). **AIS moves**: ssp245 2100 15.5 → 
   re-run with new seeds (L27r, ~4 h) and STATED in the paper; a mode-vs-mode likelihood comparison needs a Julia
   evaluation (the chains write no likelihood column). Not done — Marcus's call.
 
+**Paper arms** (`run_paper_arms_L27.sh`, 18:43–19:40, 13 Ladrillo arms all OK; the five `--paper` renders + hindcast,
+vv comparison ×3, trajectories, gsic, responsiveness in `figures/paper/*L27*`; `memo figures` and `climate swap`
+FAILED — the memo driver keeps its OWN TAG_DESC (L26 was never in it; L26/L27 added) and FIG 11 needs the 7 vv
+MAGICC-climate arms no re-run script ever regenerated (`run_l27_vv_magiccclim.sh`, launched 19:40, then both
+drivers). **JOINT band, L24 → L26 → L27, med [5–95] cm:** ssp245 total 2100 52.0 → 53.2 → **52.6** [36.2, 107.1],
+2300 249 → 263 → **248** [84, 445]; ssp585 total 2100 94.1 → 92.8 → **90.7**, 2300 517 → 512 → **498**; ssp126 total
+2300 p95 334 → 334 → 299. AIS ssp245 joint 2100 7.7 → 11.5 → 10.5, 2300 154 → 164 → 156 (the 48 %-tipped cell —
+quote mean + tipped fraction); ssp585 AIS 2300 292 → 293 → 278. Table 4 = `outputs/ladrillo_model_comparison_L27.csv`.
+
 **Benchmark** (`bench_ladrillo_L27.md`, champion L26): of 178 candidate verdicts **2 change, both WARN → PASS**
 (ssp126 @2150 AIS and total spread-vs-literature — the narrowed tail). Vs champion: hindcast ratios 0.96–1.09
 (AIS "WORSE" at 1.04 = the 0.003 cm; total BETTER 0.96). champions.json untouched — promotion is Marcus's call.

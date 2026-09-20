@@ -134,7 +134,9 @@ TAG_DESC = {"L10": "Ladrillo 1.0 (L10)",
             ## string is baked into figure captions, including the standalone deliverable.)
             ## 09-11b (Marcus): titles carry the VINTAGE ONLY; the amp prior and the threshold
             ## cell are model specification and live in the document, not in a figure title.
-            "L24": "Ladrillo L24"}  # CANONICAL, champion since 2026-09-02
+            "L24": "Ladrillo L24",  # champion 2026-09-02 to 09-20
+            "L26": "Ladrillo L26",  # CANONICAL, champion since 2026-09-20
+            "L27": "Ladrillo L27"}  # the paper's posterior (50 params), 2026-09-20
 if LADRILLO_TAG not in TAG_DESC:
     raise SystemExit(f"undeclared --tag={LADRILLO_TAG}: add it to TAG_DESC so the figure "
                      f"titles say what the vintage is. Declared: "

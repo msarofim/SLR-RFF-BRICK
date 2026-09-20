@@ -1,0 +1,1 @@
+Ladrillo — FaIR 2.2.4 calib 1.6.0 + CMIP7.  Arm: joint (posterior parameters x 841 FaIR configs), the same for both models.  Cm, rel. 1995-2014.  Ladrillo is thinned to 8000 draws, BRICK 2.0 to 1000.
