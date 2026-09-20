@@ -825,6 +825,23 @@ const NO_D2_GSIC     = "--no-d2-gsic" in ARGS
 const OBS_CORR_SAMPLED = _argval("--obs-corr-len=") == "sample"     # one shared L, sampled as log10 L
 const OBS_CORR_LEN   = let v = _argval("--obs-corr-len="); (v === nothing || v == "sample") ? 0.0 : parse(Float64, v) end
 const PRECIP_REPARAM = "--precip-reparam" in ARGS
+## L27 flags (2026-09-20, note_2026-09-20_ais_reduction_and_L26_vs_L24.md §2, options A/C/D):
+##   --cut-fastdyn  lambda and T_crit are NOT sampled: their likelihood is exactly flat (the threshold is never
+##                  crossed in the hindcast; --profile 09-20). The model holds their paleo MEDIANS during the
+##                  calibration; projections attach JOINT paleo draws per posterior draw (ladrillo_projection.jl,
+##                  outputs/paleo_fastdyn_draws.csv) — "propagated, not estimated", made literal.
+##   --fix-gamma    gamma fixed at its paleo median (likelihood +-0.1 log-units across its prior; no projection leverage).
+##   --no-ledger    gic_u_pre and gic_s_r5 are not sampled; the Leclercq ledger term is MARGINALISED over their
+##                  priors instead (uniform[0,25] mm ~ N(12.5, 7.2), N(2.5, 2.0) mm): the 1850-1900 melt is scored
+##                  against N(M19_MU - 15 mm, sqrt(M19_SIGMA^2 + 7.2^2 + 2.0^2) mm).
+const CUT_FASTDYN = "--cut-fastdyn" in ARGS
+const FIX_GAMMA   = "--fix-gamma" in ARGS
+const NO_LEDGER   = "--no-ledger" in ARGS
+const PALEO_MED   = let d = CSV.read(joinpath(REPO, "outputs/paleo_dais_marginals.csv"), DataFrame)
+    Dict(String(r.param) => Float64(r.p50) for r in eachrow(d)) end
+any((CUT_FASTDYN, FIX_GAMMA, NO_LEDGER)) &&
+    println("L27 flags: cut-fastdyn=$CUT_FASTDYN (lambda $(PALEO_MED["antarctic_lambda"]), T_crit $(PALEO_MED["antarctic_temp_threshold"]) held at paleo medians) " *
+            "fix-gamma=$FIX_GAMMA (gamma $(PALEO_MED["antarctic_gamma"])) no-ledger=$NO_LEDGER (ledger marginalised)")
 const PALEO_DAIS = PALEO_PRIORS ? CSV.read(joinpath(REPO, "outputs/paleo_dais_marginals.csv"), DataFrame) : nothing
 const PALEO_SET  = Set(["anto_alpha","anto_beta","antarctic_gamma","antarctic_alpha","antarctic_nu",
                         "antarctic_kappa","antarctic_lambda","antarctic_temp_threshold"])
@@ -844,7 +861,7 @@ FREE = NamedTuple[]
 push!(FREE, (name="ais_ocean_temperature₀",comp=:antarctic_icesheet,sym=:ais_ocean_temperature₀,μ=0.72,σ=0.50,lo=0.50,hi=2.00,islog=false))
 push!(FREE, P("antarctic_alpha",:antarctic_icesheet,:ais_α))
 push!(FREE, P("antarctic_nu",:antarctic_icesheet,:ais_ν))
-push!(FREE, P("antarctic_temp_threshold",:antarctic_icesheet,:temperature_threshold))
+CUT_FASTDYN || push!(FREE, P("antarctic_temp_threshold",:antarctic_icesheet,:temperature_threshold))
 push!(FREE, P("anto_alpha",:antarctic_ocean,:anto_α)); push!(FREE, P("anto_beta",:antarctic_ocean,:anto_β))
 if GIS_AB
     # ---- Greenland A+B: 7 sampled params (gis_g fixed at 0, gis_v0 structural) ----
@@ -1013,9 +1030,9 @@ const DELTA_SIGMA = let v = _argval("--delta-sigma="); v === nothing ? 0.30 : pa
 DELTA_SIGMA != 0.30 && println("gic_delta prior sd OVERRIDDEN: $DELTA_SIGMA (default 0.30)")
 NO_DELTA || push!(FREE, (name="gic_delta", comp=:likelihood_only, sym=:none,
              μ=0.0, σ=DELTA_SIGMA, lo=-1.2, hi=1.2, islog=false))
-push!(FREE, (name="gic_u_pre", comp=:likelihood_only, sym=:none,
+NO_LEDGER || push!(FREE, (name="gic_u_pre", comp=:likelihood_only, sym=:none,
              μ=12.5, σ=1.0e3, lo=0.0, hi=25.0, islog=false))
-push!(FREE, (name="gic_s_r5", comp=:likelihood_only, sym=:none,
+NO_LEDGER || push!(FREE, (name="gic_s_r5", comp=:likelihood_only, sym=:none,
              μ=2.5, σ=2.0, lo=0.0, hi=8.0, islog=false))
 # name-based derived/likelihood-only index sets (the positional KAPPA_IDX trap is gone)
 const KAPPA_IDX3 = Dict(b => findfirst(k -> k.name == "gic_log10_kappa_$b", FREE) for b in BLOCKS)
@@ -1176,8 +1193,8 @@ const GLAMBIE_TOT_FLOOR = 1e-9        # a vanishing modern rate makes the share 
 # uncertainty. They are observationally unidentified over the historical window (T_ant never
 # crosses temperature_threshold), so their marginals will simply sample the prior. That is
 # the point: propagate real fast-dynamics uncertainty. temperature_threshold was ALREADY free.
-push!(FREE, P("antarctic_lambda",:antarctic_icesheet,:λ))
-push!(FREE, P("antarctic_gamma",:antarctic_icesheet,:ais_γ))
+CUT_FASTDYN || push!(FREE, P("antarctic_lambda",:antarctic_icesheet,:λ))
+FIX_GAMMA   || push!(FREE, P("antarctic_gamma",:antarctic_icesheet,:ais_γ))
 push!(FREE, P("antarctic_kappa",:antarctic_icesheet,:ais_κ))
 
 # ---- phase-2 A6: GMST->Antarctic temperature map as a sampled amplification ----
@@ -1420,6 +1437,10 @@ medoid = CSV.read(joinpath(REPO,"outputs/recalib_central_row.csv"), DataFrame)[1
 m = GIS_BASINS ? build_brick_nu3_gis3(ssp="ssp245", y0=Y0, y1=Y1) :
     GIS_AB     ? build_brick_nu3_gis(ssp="ssp245", y0=Y0, y1=Y1) :
                  build_brick_nu3(ssp="ssp245", y0=Y0, y1=Y1)
+## L27: parameters not sampled are HELD at their paleo medians in the calibration model (set once)
+CUT_FASTDYN && (update_param!(m, :antarctic_icesheet, :λ, PALEO_MED["antarctic_lambda"]);
+                update_param!(m, :antarctic_icesheet, :temperature_threshold, PALEO_MED["antarctic_temp_threshold"]))
+FIX_GAMMA   && update_param!(m, :antarctic_icesheet, :ais_γ, PALEO_MED["antarctic_gamma"])
 gic3_init = (; (Symbol(b) => (a=Float64(bcrow(b).a0),
                               b=Float64(bcrow(b)["b_fit_$(FIT_BASIS)"]),
                               T_off=Float64(bcrow(b)["T_off_fit_$(FIT_BASIS)"]),
@@ -1549,9 +1570,15 @@ function logposterior(θ)
                  sum(θ[A_IDX3[b]] for b in BLOCKS) - Float64(gsic_all_raw[INV_YEAR_IDX]))
     # Option-D ledger (replaces the pre-D A2b): datum N(20,9)mm untouched; model side =
     # S_hind(1900) + U_pre + S_r5 (memo_2026-08-09_d_ledger_target_spec.md)
-    S_ledger_m = (Float64(gsic_hind_raw[M19_I1900]) - Float64(gsic_hind_raw[M19_I1850])) +
-                 (θ[UPRE_IDX] + θ[SR5_IDX]) / 1000.0
-    ll += logpdf(Normal(M19_MU_M, M19_SIGMA_M), S_ledger_m)
+    if NO_LEDGER
+        ## the two set-asides integrated out under their priors (see the L27 flag comment above)
+        S_1850_1900 = Float64(gsic_hind_raw[M19_I1900]) - Float64(gsic_hind_raw[M19_I1850])
+        ll += logpdf(Normal(M19_MU_M - 0.015, sqrt(M19_SIGMA_M^2 + 0.0072^2 + 0.0020^2)), S_1850_1900)
+    else
+        S_ledger_m = (Float64(gsic_hind_raw[M19_I1900]) - Float64(gsic_hind_raw[M19_I1850])) +
+                     (θ[UPRE_IDX] + θ[SR5_IDX]) / 1000.0
+        ll += logpdf(Normal(M19_MU_M, M19_SIGMA_M), S_ledger_m)
+    end
     # per-block GlacierMIP3 rung likelihood (data-basis committed %, corr 0.6, band σ);
     # sampled mode: the frame conversion uses the SAMPLED amp
     for b in BLOCKS

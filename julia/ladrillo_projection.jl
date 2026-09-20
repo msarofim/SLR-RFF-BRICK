@@ -77,7 +77,7 @@
 ##   end
 ## ============================================================================
 
-using CSV, DataFrames, Mimi, MimiBRICK, Statistics
+using CSV, DataFrames, Mimi, MimiBRICK, Statistics, Random
 include(joinpath(@__DIR__, "brick_mengel.jl"))
 
 const LADRILLO_REPO = abspath(joinpath(@__DIR__, ".."))
@@ -378,10 +378,43 @@ the `GIS_REPARAM` branch), and it is the only place the projection stack knows
 it. No-op on a posterior that already carries the native pair, so it is safe to
 call unconditionally and safe to call twice."""
 function ladrillo_native_greenland!(df)
+    ladrillo_attach_propagated!(df)            # L27+: lambda/T_crit/gamma when the posterior does not sample them
     ladrillo_gis_needs_native(String.(names(df))) || return df
     r_s = exp.(Float64.(df.gis_slow_ell)); w_s = Float64.(df.gis_slow_w)
     df.gis_alpha_s = w_s .* r_s ./ LADRILLO_GIS_TBAR
     df.gis_beta_s  = (1 .- w_s) .* r_s
+    return df
+end
+
+## L27 (2026-09-20): a posterior calibrated with --cut-fastdyn carries NO lambda / T_crit columns (their
+## likelihood is exactly flat; they are propagated from the paleo prior, not estimated) and one calibrated
+## with --fix-gamma carries no gamma (held at the paleo median). The kernel needs values per draw:
+##   lambda, T_crit : JOINT paleo draws (r = +0.45 in the DAISfastdyn ensemble) from
+##                    outputs/paleo_fastdyn_draws.csv (20,000 seeded ensemble rows), one row per posterior
+##                    draw, assigned by a FIXED-seed RNG so a given posterior file always gets the same rows.
+##   gamma          : the paleo median (outputs/paleo_dais_marginals.csv p50) — the calibration's own value.
+## No-op on a posterior that carries the columns, so every loader may call it unconditionally.
+const LADRILLO_PROPAGATED_PAIR = ["antarctic_lambda", "antarctic_temp_threshold"]
+const LADRILLO_FIXED_PALEO     = ["antarctic_gamma"]
+const LADRILLO_PALEO_DRAWS     = joinpath(LADRILLO_REPO, "outputs/paleo_fastdyn_draws.csv")
+const LADRILLO_PALEO_MEDIANS   = joinpath(LADRILLO_REPO, "outputs/paleo_dais_marginals.csv")
+const LADRILLO_PALEO_SEED      = 20260920
+function ladrillo_attach_propagated!(df)
+    hdr = String.(names(df))
+    if !all(c -> c in hdr, LADRILLO_PROPAGATED_PAIR)
+        pd = CSV.read(LADRILLO_PALEO_DRAWS, DataFrame)
+        idx = rand(MersenneTwister(LADRILLO_PALEO_SEED), 1:nrow(pd), nrow(df))
+        df.antarctic_lambda = Float64.(pd.antarctic_lambda[idx])
+        df.antarctic_temp_threshold = Float64.(pd.antarctic_temp_threshold[idx])
+        println("ladrillo_attach_propagated!: lambda/T_crit attached as JOINT paleo draws " *
+                "(seed $LADRILLO_PALEO_SEED, $(nrow(df)) rows of $(basename(LADRILLO_PALEO_DRAWS)))")
+    end
+    if !("antarctic_gamma" in hdr)
+        pm = CSV.read(LADRILLO_PALEO_MEDIANS, DataFrame)
+        g = Float64(pm.p50[findfirst(==("antarctic_gamma"), pm.param)])
+        df.antarctic_gamma = fill(g, nrow(df))
+        println("ladrillo_attach_propagated!: gamma held at the paleo median $g")
+    end
     return df
 end
 """Which Greenland variant a posterior FILE carries, from its header alone.
@@ -429,6 +462,8 @@ function ladrillo_used_cols(variant::Symbol, header)
         (need = vcat(setdiff(need, LADRILLO_GIS_SLOW_NATIVE_COLS), LADRILLO_GIS_SLOW_REPARAM_COLS))
     ladrillo_precip_reparam(header) &&
         (need = vcat(setdiff(need, [LADRILLO_PRECIP_NATIVE_COL]), [LADRILLO_PRECIP_REPARAM_COL]))
+    # L27+: propagated / fixed parameters are attached after reading, so do not demand them from the file
+    need = [c for c in need if c in header || !(c in LADRILLO_PROPAGATED_PAIR || c in LADRILLO_FIXED_PALEO)]
     return unique(need)
 end
 
