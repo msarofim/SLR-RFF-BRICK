@@ -83,11 +83,24 @@ WINDOWS = {"1900-2026": (1900, 2026), "1900-1919": (1900, 1919), "1920-1949": (1
 # headers (58 and 35 columns) and split by role. Ladrillo's 50 physical include 4
 # glacier-ledger and 4 discrepancy (d2) coefficients that do not move the series
 # scored here; they are CHARGED anyway -- the conservative direction.
-K_PHYS = {"ladrillo": 50, "brick20": 27}          # posterior columns minus the 8 sd_/rho_ pairs
+def _count_sampled(path):
+    """(physical, total) sampled parameters from a posterior file's header: every column that is not an
+    AR(1) noise pair, a log-posterior, or a column the loader DERIVES (native Greenland pair). Read from
+    the file, never typed: L24 has 50 + 8, L26 (no delta, no glacier d2, precip reparam) has 47 + 8."""
+    cols = open(path).readline().rstrip("\n").split(",")
+    cols = [c for c in cols if c not in ("log_post", "gis_alpha_s", "gis_beta_s") or path.endswith("parameters_subsample_brick.csv")]
+    noise = [c for c in cols if c.startswith("sd_") or c.startswith("rho_")]
+    return len(cols) - len(noise), len(cols)
+_LAD = os.path.join(REPO, f"data/MimiBRICK/parameters_subsample_brick_mengel_{TAG}.csv")
+_BRK = os.path.join(REPO, "data/MimiBRICK/parameters_subsample_brick.csv")
+K_PHYS = {"ladrillo": _count_sampled(_LAD)[0], "brick20": _count_sampled(_BRK)[0]}
 K_NOISE_PROF = 2 * len(FIT_SERIES)                # sd, rho per scored series, profiled in ar1_prof
 K = {"obs_iid": K_PHYS,
      "ar1_prof": {m: K_PHYS[m] + K_NOISE_PROF for m in MODELS}}
-K_TOTAL_IN_FILE = {"ladrillo": 58, "brick20": 35}
+K_TOTAL_IN_FILE = {"ladrillo": _count_sampled(_LAD)[1], "brick20": _count_sampled(_BRK)[1]}
+assert K_PHYS["brick20"] == 27 and K_TOTAL_IN_FILE["brick20"] == 35, K_PHYS
+if TAG == "L24":
+    assert K_PHYS["ladrillo"] == 50 and K_TOTAL_IN_FILE["ladrillo"] == 58, K_PHYS   # the 09-16 result
 
 # The AR(1) rho bound. 0.99 is the calibrator's own hard bound (calibrate_mcmc_ext.jl:1393).
 # It MATTERS here: BRICK 2.0's residuals are smooth biases, and a rho at the bound turns the
