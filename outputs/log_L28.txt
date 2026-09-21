@@ -1,0 +1,178 @@
+[09-21 13:15:20] L28: 4 chains x 2000000 (seeds 2026 2027 2028 2029) — --gis-ordered --gis-basins2 --amp-mu=1.09 --amp-sigma=0.180 --paleo-priors --no-delta --no-d2-gsic --obs-corr-len=100 --toff-lo=-4 --precip-reparam --cut-fastdyn --fix-gamma --no-ledger ; adcov=adapted_cov_L27_named.csv starts=outputs/mcmc/overdispersed_starts_L27r.csv ; commit 24e0ba8 ; load 3.88 3.17 2.96
+[09-21 13:15:20]   chain PIDs: 4629 4630 4631 4632
+[09-21 16:40:29] L28 chains done. ARM VERIFICATION:
+[09-21 16:40:30]   seed2026: L26 structure flags: paleo-priors=true no-delta=true no-d2-gsic=true obs-corr-len=100.0 precip-reparam=true | (seeding proposal: name-mapped 50 of 50 rows of adapted_cov_L27_named.csv using the FILE'S
+[09-21 16:40:31]   seed2027: L26 structure flags: paleo-priors=true no-delta=true no-d2-gsic=true obs-corr-len=100.0 precip-reparam=true | (seeding proposal: name-mapped 50 of 50 rows of adapted_cov_L27_named.csv using the FILE'S
+[09-21 16:40:32]   seed2028: L26 structure flags: paleo-priors=true no-delta=true no-d2-gsic=true obs-corr-len=100.0 precip-reparam=true | (seeding proposal: name-mapped 50 of 50 rows of adapted_cov_L27_named.csv using the FILE'S
+[09-21 16:40:33]   seed2029: L26 structure flags: paleo-priors=true no-delta=true no-d2-gsic=true obs-corr-len=100.0 precip-reparam=true | (seeding proposal: name-mapped 50 of 50 rows of adapted_cov_L27_named.csv using the FILE'S
+  seed2026: sd_gis median 0.0255  sd_ais 0.0141  log_post 820.5  OK
+  seed2027: sd_gis median 0.0256  sd_ais 0.0137  log_post 821.7  OK
+  seed2028: sd_gis median 0.0254  sd_ais 0.0141  log_post 819.6  OK
+  seed2029: sd_gis median 0.0255  sd_ais 0.0139  log_post 821.1  OK
+NOISE-MODE GATE L28: PASS
+[09-21 16:40:52] START  L28 slr convergence diag
+Ladrillo 1.0 SLR convergence-by-chain diagnostic
+  tag L28 | window 1850-2150 | ssp245 | rebaseline 1995-2014 | Greenland :basins2
+  burn = first 1000000 of 2000000, thinned to 400 draws per chain
+  amp law ON (S anchored at dT_eff = 0.940 K) — certifies the SHIPPED model
+
+ladrillo_attach_propagated!: lambda/T_crit attached as JOINT paleo draws (seed 20260920, 400 rows of paleo_fastdyn_draws.csv)
+ladrillo_attach_propagated!: gamma held at the paleo median 2.8344574
+  seed2026: 400 draws (thin 2500, rows 1000001..1997501)  46s
+ladrillo_attach_propagated!: lambda/T_crit attached as JOINT paleo draws (seed 20260920, 400 rows of paleo_fastdyn_draws.csv)
+ladrillo_attach_propagated!: gamma held at the paleo median 2.8344574
+  seed2027: 400 draws (thin 2500, rows 1000001..1997501)  44s
+ladrillo_attach_propagated!: lambda/T_crit attached as JOINT paleo draws (seed 20260920, 400 rows of paleo_fastdyn_draws.csv)
+ladrillo_attach_propagated!: gamma held at the paleo median 2.8344574
+  seed2028: 400 draws (thin 2500, rows 1000001..1997501)  45s
+ladrillo_attach_propagated!: lambda/T_crit attached as JOINT paleo draws (seed 20260920, 400 rows of paleo_fastdyn_draws.csv)
+ladrillo_attach_propagated!: gamma held at the paleo median 2.8344574
+  seed2029: 400 draws (thin 2500, rows 1000001..1997501)  45s
+  total 180s
+
+SLR @2100 (cm, rel. 1995-2014)
+  chain           q05      q50      q95     mean       sd
+  seed2026      43.20    50.50    91.96    59.00    17.02
+  seed2027      43.28    49.08    92.16    58.69    17.49
+  seed2028      43.44    50.56    89.37    58.45    16.67
+  seed2029      42.44    49.05    94.85    58.76    17.95
+  POOLED        43.02    49.80    91.94    58.73    17.27
+
+SLR @2150 (cm, rel. 1995-2014)
+  chain           q05      q50      q95     mean       sd
+  seed2026      65.76   108.51   175.20   109.20    38.05
+  seed2027      64.71   102.93   174.98   106.83    38.38
+  seed2028      65.77   109.55   171.00   108.30    37.25
+  seed2029      63.59   102.36   174.20   106.30    39.57
+  POOLED        64.82   106.21   174.11   107.66    38.30
+
+==============================================================================
+CROSS-CHAIN CONVERGENCE OF PROJECTED SLR  (4 chains x 400 thinned draws)
+==============================================================================
+  quantity          R-hat        ESS  sd(medians)  mean(sd_wc)      ratio
+  SLR@2100          1.003     1288.5        0.847       17.283      0.049
+  SLR@2150          1.003     1254.2        3.718       38.311      0.097
+
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/mcmc/slr_convergence_L28.csv
+
+VERDICT: projected SLR IS converged across chains (R-hat < 1.05 at all horizons)
+[09-21 16:44:10] OK     L28 slr convergence diag
+[09-21 16:44:10] START  L28 postprocess (subsample; DO NOT KILL)
+Combining 4 chains:
+  chain_L28_seed2026_n2000000.csv  (1000000 post-burn)
+  chain_L28_seed2027_n2000000.csv  (1000000 post-burn)
+  chain_L28_seed2028_n2000000.csv  (1000000 post-burn)
+  chain_L28_seed2029_n2000000.csv  (1000000 post-burn)
+
+4 chains × 1000000 draws. Convergence (target R̂<1.05, ESS>400):
+  ais_ocean_temperature₀   R̂=1.010 ESS=386.3 τ=10353  <-- check
+  antarctic_alpha          R̂=1.113 ESS=54.8 τ=72992  <-- check
+  antarctic_nu             R̂=1.027 ESS=227.6 τ=17576  <-- check
+  anto_beta                R̂=1.035 ESS=152.1 τ=26303  <-- check
+  ais_slope                R̂=1.061 ESS=90.7 τ=44098  <-- check
+  ais_iceflow0             R̂=1.100 ESS=59.1 τ=67733  <-- check
+  ais_precip_u             R̂=1.090 ESS=54.6 τ=73235  <-- check
+  ais_runoff_Ton           R̂=1.270 ESS=23.8 τ=167993  <-- check
+  sd_ais                   R̂=1.022 ESS=323.2 τ=12377  <-- check
+  log_post                 R̂=1.056 ESS=99.0 τ=40393  <-- check
+  10 params NOT converged.
+
+--accept-slr: deliverable-level convergence from slr_convergence_L28.csv:
+  SLR@2100  R̂=1.003  ESS=1288.5
+  SLR@2150  R̂=1.003  ESS=1254.2
+ACCEPTED ON DELIVERABLE: parameter marginals not converged (compensating
+AIS-geometry ridge), but projected SLR R̂<1.05 at all horizons -> writing
+canonical outputs (accepted-on-deliverable criterion, Marcus 2026-07-19).
+
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/data/MimiBRICK/parameters_subsample_brick_mengel_L28.csv  (10000-member subsample of 4000000 pooled draws)
+Wrote adapted_cov_L28.csv (empirical posterior cov) -> seeds the next ext run.
+
+Key-param medians  (ext vs 2018-baseline):
+  ais_ocean_temperature₀   ext 1.03   base 0.981   Δ +0.0446
+  anto_alpha               ext 0.287   base 0.405   Δ -0.118
+  thermal_alpha            ext 0.167   base 0.164   Δ +0.00223
+
+** 10 marginals not converged; ACCEPTED ON DELIVERABLE (--accept-slr). **
+[09-21 17:15:25] OK     L28 postprocess (subsample; DO NOT KILL)
+[09-21 17:15:25] START  L28 posterior predictive
+ladrillo_attach_propagated!: lambda/T_crit attached as JOINT paleo draws (seed 20260920, 2000 rows of paleo_fastdyn_draws.csv)
+ladrillo_attach_propagated!: gamma held at the paleo median 2.8344574
+NOTE: no calibrated error model for total — reported OUT-OF-SAMPLE, parameter band only, predictive band NaN
+Ladrillo posterior predictive | parameters_subsample_brick_mengel_L28.csv | 2000 draws | 1900-2026 | base 1995-2005 | forcing ssp245harm
+........
+  2000 draws in 15s
+
+Component bias (model p50 - obs, cm; glaciers vs the delta-corrected target)
+ @1900:
+  ais       1900  obs   -0.77  p50   -1.29  bias  -0.52  OUT
+  glaciers  1900  obs   -7.28  p50   -6.40  bias  +0.88  in 90%
+  gis       1900  obs   -4.13  p50   -4.10  bias  +0.03  in 90%
+  te        1900  obs   -3.61  p50   -3.62  bias  -0.01  in 90%
+  total     1900  obs  -13.94  p50  -14.09  bias  -0.16  in 90%  [OUT-OF-SAMPLE]
+ @1950:
+  ais       1950  obs   -0.50  p50   -0.71  bias  -0.21  OUT
+  glaciers  1950  obs   -2.64  p50   -2.93  bias  -0.29  in 90%
+  gis       1950  obs   -1.36  p50   -1.67  bias  -0.31  OUT
+  te        1950  obs   -2.82  p50   -2.62  bias  +0.19  in 90%
+  total     1950  obs   -5.99  p50   -6.50  bias  -0.52  in 90%  [OUT-OF-SAMPLE]
+ @2000:
+  ais       2000  obs    0.00  p50   -0.01  bias  -0.01  OUT
+  glaciers  2000  obs   -0.01  p50    0.00  bias  +0.01  OUT
+  gis       2000  obs   -0.04  p50   -0.03  bias  +0.01  OUT
+  te        2000  obs   -0.24  p50   -0.01  bias  +0.23  OUT
+  total     2000  obs   -0.29  p50   -0.27  bias  +0.02  OUT  [OUT-OF-SAMPLE]
+ @2018:
+  ais       2018  obs    0.86  p50    0.65  bias  -0.21  OUT
+  glaciers  2018  obs    1.21  p50    1.21  bias  +0.00  in 90%
+  gis       2018  obs    1.27  p50    1.11  bias  -0.17  OUT
+  te        2018  obs    2.07  p50    2.68  bias  +0.60  OUT
+  total     2018  obs    5.97  p50    6.24  bias  +0.27  in 90%  [OUT-OF-SAMPLE]
+ @series end:
+  ais       2025  obs    0.91  p50    0.95  bias  +0.04  in 90%
+  glaciers  2023  obs    1.63  p50    1.56  bias  -0.07  in 90%
+  gis       2025  obs    1.65  p50    1.49  bias  -0.16  OUT
+  te        2025  obs    3.23  p50    3.96  bias  +0.73  OUT
+  total     2024  obs    8.23  p50    8.47  bias  +0.24  in 90%  [OUT-OF-SAMPLE]
+ AIS plateau (does the fit track the GRACE-FO pause?):
+  ais       2019  obs    0.91  p50    0.69  bias  -0.21  OUT
+  ais       2020  obs    0.94  p50    0.73  bias  -0.21  OUT
+  ais       2022  obs    0.96  p50    0.82  bias  -0.14  OUT
+  ais       2024  obs    0.91  p50    0.91  bias  -0.00  in 90%
+  ais       2025  obs    0.91  p50    0.95  bias  +0.04  in 90%
+
+90% coverage over the fit window (share of obs years inside the band)
+  parameter = posterior parameter spread only; predictive = + the calibrated AR(1)+obs error model
+  ais       126 years   parameter  44.4%   predictive  96.0%   mean bias -0.19 cm
+  glaciers  124 years   parameter  70.2%   predictive 100.0%   mean bias +0.05 cm
+  gis       126 years   parameter  34.1%   predictive  91.3%   mean bias -0.15 cm
+  te        126 years   parameter  40.5%   predictive  99.2%   mean bias +0.27 cm
+  total     125 years   parameter  80.0%   predictive   NaN%   mean bias -0.00 cm   [OUT-OF-SAMPLE: no fitted error model]
+
+wrote outputs/postpred_L28_components_timeseries.csv, outputs/postpred_L28_bias.csv, outputs/postpred_L28_coverage.csv
+[09-21 17:15:57] OK     L28 posterior predictive
+[09-21 17:15:57] START  L28 ssp components (tap, fixed climate)
+ladrillo_attach_propagated!: lambda/T_crit attached as JOINT paleo draws (seed 20260920, 2000 rows of paleo_fastdyn_draws.csv)
+ladrillo_attach_propagated!: gamma held at the paleo median 2.8344574
+Ladrillo SSP components | posterior parameters_subsample_brick_mengel_L28.csv (2000 draws) | Greenland :basins2 | base 1995-2014 | horizon 2300
+  amp law ON: S anchored at dT_eff = 0.940 K, 30-yr window
+........
+SSP1-2.6  2000 draws in 17s
+  @2100 GMST +1.90 | glac   8.3  gis   6.4  ais    5.2  te  15.9  lws  2.8 | TOTAL   38.8 [ 36.9,   40.9] cm  (finite 2000/2000)
+  @2150 GMST +1.78 | glac  10.3  gis   8.5  ais    8.1  te  19.9  lws  4.3 | TOTAL   51.4 [ 48.6,   54.5] cm  (finite 2000/2000)
+  @2300 GMST +1.81 | glac  13.0  gis  12.2  ais   16.4  te  26.0  lws  8.8 | TOTAL   76.8 [ 71.9,   82.4] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 14s
+  @2100 GMST +2.70 | glac   9.9  gis   7.4  ais    8.1  te  20.1  lws  2.8 | TOTAL   49.7 [ 45.1,   75.1] cm  (finite 2000/2000)
+  @2150 GMST +2.97 | glac  13.8  gis  11.4  ais   45.6  te  29.6  lws  4.3 | TOTAL  104.3 [ 69.0,  143.4] cm  (finite 2000/2000)
+  @2300 GMST +3.18 | glac  18.8  gis  19.0  ais  165.7  te  46.3  lws  8.8 | TOTAL  258.2 [120.5,  336.7] cm  (finite 2000/2000)
+........[ Info: update_gis3_tap!: this driver peaks at 1.97 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.202 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+
+SSP5-8.5  2000 draws in 14s
+  @2100 GMST +4.31 | glac  13.2  gis  10.0  ais   36.1  te  28.0  lws  2.8 | TOTAL   90.1 [ 77.0,  106.1] cm  (finite 2000/2000)
+  @2150 GMST +6.01 | glac  20.6  gis  22.2  ais   90.9  te  52.2  lws  4.3 | TOTAL  190.5 [167.9,  219.4] cm  (finite 2000/2000)
+  @2300 GMST +7.50 | glac  26.9  gis  85.9  ais  271.6  te 105.6  lws  8.8 | TOTAL  500.8 [436.9,  580.3] cm  (finite 2000/2000)
+
+wrote outputs/ssps_components_2300_L28_tap4p69K_V5p64m_tau800_n2_ws.csv
+[09-21 17:17:01] OK     L28 ssp components (tap, fixed climate)
+[09-21 17:17:01] ALLDONE

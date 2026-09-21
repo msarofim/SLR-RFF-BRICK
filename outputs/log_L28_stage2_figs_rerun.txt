@@ -1,0 +1,762 @@
+undeclared --tag=L28: add it to TAG_DESC so the figure titles say what the vintage is. Declared: L10, L11, L12, L14, L21, L23, L24, L26, L27. Do NOT relax this guard -- an undeclared tag would be stamped with someone else's vintage.
+[BASELINE] all 21 model/obs series are zero-mean over 1995-2005 (max |offset| 2.23e-03 cm, tolerance 0.0097 cm = 1/10 of the smallest wrong-window displacement in these data)
+[IGCC] GMSL ensemble re-referenced to 1995-2005 over 11 years (1901-2025), mm -> cm
+[DEPTH-SCOPE] alpha_obs = 0.1087 cm per 1e22 J (target steric / IGCC 0-2000 m heat, 1993-2024); deep/upper heat ratio 0.107; band = alpha_obs x IGCC >2000 m heat anomaly, 1971-2024, reaching +0.30 cm at 2024 (an UPPER bound: deep water expands less per joule)
+wrote figures/hindcast_components_L28.png
+
+model vs obs, 5-year means centred on each year (cm rel. 1995-2005)
+  n = years actually used; obs is re-averaged on each arm's own matched window, so the
+  obs column may differ between arms where their coverage differs. That is the point.
+  @1900 (1898-1902 window)
+    Glaciers                 Ladrillo obs    -7.19 mod    -6.36 (+0.83, n=3)   BRICK 2.0 obs    -7.19 mod    -3.36 (+3.83, n=3)   MAGICC-SLR obs    -7.19 mod    -6.64 (+0.55, n=3)
+    Greenland ice sheet      Ladrillo obs    -4.13 mod    -4.05 (+0.07, n=3)   BRICK 2.0 obs    -4.13 mod    -4.74 (-0.62, n=3)   MAGICC-SLR       --        
+    Antarctic ice sheet      Ladrillo obs    -0.76 mod    -1.28 (-0.52, n=3)   BRICK 2.0 obs    -0.76 mod    -3.87 (-3.11, n=3)   MAGICC-SLR       --        
+    Thermal expansion        Ladrillo obs    -3.69 mod    -3.59 (+0.10, n=3)   BRICK 2.0 obs    -3.69 mod    -3.42 (+0.27, n=3)   MAGICC-SLR obs    -3.69 mod    -4.96 (-1.27, n=3)
+    Land-water storage       Ladrillo      n/a           BRICK 2.0      n/a           MAGICC-SLR obs     1.80 mod     1.77 (-0.04, n=3)
+    Total                    Ladrillo obs   -13.65 mod   -13.73 (-0.07, n=3)   BRICK 2.0 obs   -13.65 mod   -13.62 (+0.03, n=3)   MAGICC-SLR obs   -13.65 mod   -10.29 (+3.37, n=3)
+                           IGCC  -14.34 vs obs  -13.51 (-0.83, n=2)  (independent check on the total)
+  @1950 (1948-1952 window)
+    Glaciers                 Ladrillo obs    -2.65 mod    -2.93 (-0.28, n=5)   BRICK 2.0 obs    -2.65 mod    -2.21 (+0.43, n=5)   MAGICC-SLR obs    -2.65 mod    -3.49 (-0.84, n=5)
+    Greenland ice sheet      Ladrillo obs    -1.38 mod    -1.65 (-0.28, n=5)   BRICK 2.0 obs    -1.38 mod    -2.47 (-1.09, n=5)   MAGICC-SLR       --        
+    Antarctic ice sheet      Ladrillo obs    -0.50 mod    -0.71 (-0.21, n=5)   BRICK 2.0 obs    -0.50 mod    -1.74 (-1.25, n=5)   MAGICC-SLR       --        
+    Thermal expansion        Ladrillo obs    -2.78 mod    -2.63 (+0.15, n=5)   BRICK 2.0 obs    -2.78 mod    -2.50 (+0.28, n=5)   MAGICC-SLR obs    -2.78 mod    -3.01 (-0.23, n=5)
+    Land-water storage       Ladrillo      n/a           BRICK 2.0      n/a           MAGICC-SLR obs     1.70 mod     1.66 (-0.04, n=5)
+    Total                    Ladrillo obs    -5.76 mod    -6.36 (-0.60, n=5)   BRICK 2.0 obs    -5.76 mod    -7.26 (-1.50, n=5)   MAGICC-SLR obs    -5.76 mod    -5.22 (+0.54, n=5)
+                           IGCC   -7.18 vs obs   -5.76 (-1.42, n=5)  (independent check on the total)
+  @2000 (1998-2002 window)
+    Glaciers                 Ladrillo obs    -0.00 mod    -0.00 (+0.00, n=5)   BRICK 2.0 obs    -0.00 mod    -0.01 (-0.01, n=5)   MAGICC-SLR obs    -0.00 mod    -0.01 (-0.01, n=5)
+    Greenland ice sheet      Ladrillo obs    -0.04 mod    -0.02 (+0.02, n=5)   BRICK 2.0 obs    -0.04 mod    -0.00 (+0.03, n=5)   MAGICC-SLR obs    -0.04 mod    -0.00 (+0.04, n=5)
+    Antarctic ice sheet      Ladrillo obs    -0.00 mod    -0.01 (-0.01, n=5)   BRICK 2.0 obs    -0.00 mod     0.00 (+0.00, n=5)   MAGICC-SLR       --        
+    Thermal expansion        Ladrillo obs    -0.08 mod    -0.00 (+0.08, n=5)   BRICK 2.0 obs    -0.08 mod    -0.00 (+0.08, n=5)   MAGICC-SLR obs    -0.08 mod     0.01 (+0.08, n=5)
+    Land-water storage       Ladrillo      n/a           BRICK 2.0      n/a           MAGICC-SLR obs    -0.04 mod    -0.04 (+0.00, n=5)
+    Total                    Ladrillo obs    -0.16 mod    -0.07 (+0.09, n=5)   BRICK 2.0 obs    -0.16 mod    -0.05 (+0.10, n=5)   MAGICC-SLR obs    -0.16 mod    -0.04 (+0.12, n=5)
+                           IGCC   -0.04 vs obs   -0.16 (+0.12, n=5)  (independent check on the total)
+  @2024 (2022-2026 window)
+    Glaciers                 Ladrillo obs     1.57 mod     1.53 (-0.05, n=2)   BRICK 2.0 obs     1.57 mod     2.03 (+0.46, n=2)   MAGICC-SLR obs     1.57 mod     2.50 (+0.93, n=2)
+    Greenland ice sheet      Ladrillo obs     1.59 mod     1.42 (-0.17, n=4)   BRICK 2.0 obs     1.59 mod     1.38 (-0.21, n=4)   MAGICC-SLR obs     1.59 mod     1.06 (-0.54, n=4)
+    Antarctic ice sheet      Ladrillo obs     0.94 mod     0.89 (-0.05, n=4)   BRICK 2.0 obs     0.94 mod     0.93 (-0.01, n=4)   MAGICC-SLR obs     0.94 mod    -0.01 (-0.95, n=4)
+    Thermal expansion        Ladrillo obs     2.96 mod     3.67 (+0.70, n=4)   BRICK 2.0 obs     2.96 mod     3.49 (+0.53, n=4)   MAGICC-SLR obs     2.96 mod     3.44 (+0.47, n=4)
+    Land-water storage       Ladrillo      n/a           BRICK 2.0      n/a           MAGICC-SLR obs     0.58 mod     0.42 (-0.16, n=5)
+    Total                    Ladrillo obs     7.81 mod     8.06 (+0.26, n=3)   BRICK 2.0 obs     7.81 mod     8.34 (+0.54, n=3)   MAGICC-SLR obs     7.81 mod     7.40 (-0.40, n=3)
+                           IGCC    8.21 vs obs    7.81 (+0.40, n=3)  (independent check on the total)
+[BASIS] Ladrillo    joint (Ladrillo posterior x FaIR forcing, tapped)
+[BASIS] BRICK 2.0   joint (BRICK 2.0 posterior x FaIR forcing)
+[BASIS] MAGICC-SLR  climate + parameter
+[BASIS] FACTS       climate + parameter
+[BASIS] every row carries climate uncertainty: YES -- all four bands drawn and comparable
+[LIT] frozen arm covers the SSP set only; vv comparators are UNFROZEN (stamped on the caption, not skipped silently)
+[CLASS] FACTS modules classified `sej` (open markers; nothing is scored here, the
+        class only changes the marker): bamber19, wf4
+
+[COVERAGE] sources present per component and horizon
+  @2100  Glaciers             BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2100  Greenland ice sheet  BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2100  Antarctic ice sheet  BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2100  Thermal expansion    BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2100  Land-water storage   BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2100  Total                BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2150  Glaciers             BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2150  Greenland ice sheet  BRICK 2.0, Ladrillo, MAGICC-SLR MISSING: FACTS
+  @2150  Antarctic ice sheet  BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2150  Thermal expansion    BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2150  Land-water storage   BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2150  Total                BRICK 2.0, Ladrillo, MAGICC-SLR MISSING: FACTS
+  @2300  Glaciers             BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2300  Greenland ice sheet  BRICK 2.0, Ladrillo, MAGICC-SLR MISSING: FACTS
+  @2300  Antarctic ice sheet  BRICK 2.0, Ladrillo, MAGICC-SLR MISSING: FACTS
+  @2300  Thermal expansion    BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2300  Land-water storage   BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2300  Total                BRICK 2.0, Ladrillo, MAGICC-SLR MISSING: FACTS
+
+wrote figures/model_comparison_components_vv_L28_2100.png
+  [SUM] sum-of-component-medians vs median-of-total @2100 (medians do not add — reported, not gated)
+        Ladrillo    Very Low     34.85 vs    35.04  (-0.18 cm)
+        Ladrillo    Low-to-Neg    37.03 vs    37.12  (-0.10 cm)
+        Ladrillo    Low          37.08 vs    37.20  (-0.13 cm)
+        Ladrillo    Medium-to-Low    43.38 vs    44.45  (-1.08 cm)
+        Ladrillo    Medium       52.40 vs    54.15  (-1.75 cm)
+        Ladrillo    High-to-Low    68.18 vs    68.07  (+0.12 cm)
+        Ladrillo    High         67.78 vs    67.62  (+0.16 cm)
+        BRICK 2.0   Very Low     38.07 vs    38.30  (-0.23 cm)
+        BRICK 2.0   Low-to-Neg    39.71 vs    40.00  (-0.28 cm)
+        BRICK 2.0   Low          39.82 vs    40.14  (-0.32 cm)
+        BRICK 2.0   Medium-to-Low    48.24 vs    52.49  (-4.25 cm)
+        BRICK 2.0   Medium       70.38 vs    71.58  (-1.20 cm)
+        BRICK 2.0   High-to-Low    83.78 vs    85.03  (-1.24 cm)
+        BRICK 2.0   High         81.66 vs    82.41  (-0.75 cm)
+        MAGICC-SLR  Very Low     29.46 vs    30.59  (-1.13 cm)
+        MAGICC-SLR  Low-to-Neg    33.38 vs    34.43  (-1.05 cm)
+        MAGICC-SLR  Low          33.79 vs    34.65  (-0.86 cm)
+        MAGICC-SLR  Medium-to-Low    44.08 vs    45.43  (-1.34 cm)
+        MAGICC-SLR  Medium       51.54 vs    51.94  (-0.40 cm)
+        MAGICC-SLR  High-to-Low    57.30 vs    57.12  (+0.18 cm)
+        MAGICC-SLR  High         62.31 vs    62.29  (+0.03 cm)
+
+wrote figures/model_comparison_components_vv_L28_2150.png
+  [SUM] sum-of-component-medians vs median-of-total @2150 (medians do not add — reported, not gated)
+        Ladrillo    Very Low     44.60 vs    45.14  (-0.54 cm)
+        Ladrillo    Low-to-Neg    45.36 vs    45.76  (-0.41 cm)
+        Ladrillo    Low          48.23 vs    48.62  (-0.39 cm)
+        Ladrillo    Medium-to-Low    57.96 vs    59.85  (-1.89 cm)
+        Ladrillo    Medium      119.33 vs   120.77  (-1.44 cm)
+        Ladrillo    High-to-Low    92.52 vs    91.88  (+0.64 cm)
+        Ladrillo    High        146.43 vs   148.10  (-1.66 cm)
+        BRICK 2.0   Very Low     52.14 vs    52.32  (-0.17 cm)
+        BRICK 2.0   Low-to-Neg    52.79 vs    53.05  (-0.26 cm)
+        BRICK 2.0   Low          55.39 vs    55.56  (-0.17 cm)
+        BRICK 2.0   Medium-to-Low    68.55 vs    74.44  (-5.89 cm)
+        BRICK 2.0   Medium      142.40 vs   145.48  (-3.08 cm)
+        BRICK 2.0   High-to-Low   131.19 vs   133.45  (-2.26 cm)
+        BRICK 2.0   High        161.95 vs   165.28  (-3.34 cm)
+        MAGICC-SLR  Very Low     35.99 vs    37.40  (-1.41 cm)
+        MAGICC-SLR  Low-to-Neg    37.78 vs    39.01  (-1.24 cm)
+        MAGICC-SLR  Low          42.11 vs    43.54  (-1.43 cm)
+        MAGICC-SLR  Medium-to-Low    59.16 vs    61.04  (-1.88 cm)
+        MAGICC-SLR  Medium       99.61 vs    99.35  (+0.26 cm)
+        MAGICC-SLR  High-to-Low    79.47 vs    79.22  (+0.25 cm)
+        MAGICC-SLR  High        141.82 vs   140.42  (+1.40 cm)
+
+wrote figures/model_comparison_components_vv_L28_2300.png
+  [SUM] sum-of-component-medians vs median-of-total @2300 (medians do not add — reported, not gated)
+        Ladrillo    Very Low     60.11 vs    60.75  (-0.64 cm)
+        Ladrillo    Low-to-Neg    43.57 vs    43.86  (-0.29 cm)
+        Ladrillo    Low          62.96 vs    63.68  (-0.73 cm)
+        Ladrillo    Medium-to-Low    61.37 vs    63.40  (-2.03 cm)
+        Ladrillo    Medium      305.62 vs   312.93  (-7.31 cm)
+        Ladrillo    High-to-Low   102.37 vs   102.45  (-0.08 cm)
+        Ladrillo    High        407.71 vs   413.95  (-6.24 cm)
+        BRICK 2.0   Very Low     80.10 vs    80.66  (-0.56 cm)
+        BRICK 2.0   Low-to-Neg    64.79 vs    65.16  (-0.37 cm)
+        BRICK 2.0   Low          82.85 vs    83.85  (-1.00 cm)
+        BRICK 2.0   Medium-to-Low    86.42 vs    92.48  (-6.06 cm)
+        BRICK 2.0   Medium      341.67 vs   346.51  (-4.84 cm)
+        BRICK 2.0   High-to-Low   158.45 vs   162.37  (-3.93 cm)
+        BRICK 2.0   High        407.79 vs   413.92  (-6.13 cm)
+        MAGICC-SLR  Very Low     44.75 vs    45.65  (-0.90 cm)
+        MAGICC-SLR  Low-to-Neg    20.53 vs    26.99  (-6.46 cm)
+        MAGICC-SLR  Low          51.84 vs    53.42  (-1.58 cm)
+        MAGICC-SLR  Medium-to-Low    53.12 vs    55.64  (-2.52 cm)
+        MAGICC-SLR  Medium      267.48 vs   266.14  (+1.34 cm)
+        MAGICC-SLR  High-to-Low    87.14 vs    88.89  (-1.76 cm)
+        MAGICC-SLR  High        563.55 vs   569.77  (-6.22 cm)
+
+median cm, rel. 1995–2014.  Ladrillo L28 / BRICK 2.0 / MAGICC-SLR / FACTS [min–max across modules, sej marked *]
+
+  @2100
+    Glaciers
+      Very Low       7.5     11.2      9.5      9.3–9.6      (n=2)
+      Low-to-Neg      8.0     11.7     10.3      9.7–9.9      (n=2)
+      Low            8.0     11.6     10.3      9.7–10.3     (n=2)
+      Medium-to-Low      9.3     12.7     11.7     11.0–11.8     (n=2)
+      Medium        10.1     13.3     12.4     11.7–13.3     (n=2)
+      High-to-Low     11.0     14.1     12.9     12.5–13.3     (n=2)
+      High          11.1     14.0     13.3     12.4–14.6     (n=2)
+    Greenland ice sheet
+      Very Low       5.8      6.3      5.7      5.9–13.3   * (n=3)
+      Low-to-Neg      6.2      6.4      6.4      6.0–13.7   * (n=3)
+      Low            6.2      6.4      6.3      6.4–13.7   * (n=3)
+      Medium-to-Low      7.1      6.7      7.8      7.4–14.0   * (n=3)
+      Medium         7.6      6.9      9.0      8.7–14.5   * (n=3)
+      High-to-Low      8.2      7.2     10.1      8.4–15.2   * (n=3)
+      High           8.3      7.2     10.1      9.7–15.2   * (n=3)
+    Antarctic ice sheet
+      Very Low       4.6      4.3      2.0      6.2–11.1   * (n=5)
+      Low-to-Neg      4.9      4.4      3.3      5.9–11.2   * (n=5)
+      Low            4.9      4.4      3.3      5.9–11.1   * (n=5)
+      Medium-to-Low      5.8      8.4      7.4      5.3–11.6   * (n=5)
+      Medium        11.2     27.6     10.5      5.0–11.7   * (n=5)
+      High-to-Low     24.0     38.6     13.9      4.8–12.3   * (n=5)
+      High          22.6     35.6     16.1      4.7–12.5   * (n=5)
+    Thermal expansion
+      Very Low      14.0     13.4      9.2     14.9–14.9     (n=1)
+      Low-to-Neg     15.1     14.4     10.4     16.0–16.0     (n=1)
+      Low           15.3     14.5     10.8     16.3–16.3     (n=1)
+      Medium-to-Low     18.4     17.6     14.2     19.4–19.4     (n=1)
+      Medium        20.7     19.8     16.6     21.7–21.7     (n=1)
+      High-to-Low     22.1     21.1     17.4     23.3–23.3     (n=1)
+      High          23.0     22.1     19.8     24.1–24.1     (n=1)
+    Land-water storage
+      Very Low       2.8      2.8      3.0      3.0–3.0      (n=1)
+      Low-to-Neg      2.8      2.8      3.0      3.1–3.1      (n=1)
+      Low            2.8      2.8      3.0      3.1–3.1      (n=1)
+      Medium-to-Low      2.8      2.8      3.0      3.1–3.1      (n=1)
+      Medium         2.8      2.8      3.0      3.1–3.1      (n=1)
+      High-to-Low      2.8      2.8      3.0      3.0–3.0      (n=1)
+      High           2.8      2.8      3.0      3.6–3.6      (n=1)
+    Total
+      Very Low      35.0     38.3     30.6     41.0–53.1   * (n=7)
+      Low-to-Neg     37.1     40.0     34.4     42.9–54.4   * (n=7)
+      Low           37.2     40.1     34.6     43.0–54.9   * (n=7)
+      Medium-to-Low     44.5     52.5     45.4     48.2–62.8   * (n=7)
+      Medium        54.1     71.6     51.9     51.5–71.0   * (n=7)
+      High-to-Low     68.1     85.0     57.1     54.3–74.7   * (n=7)
+      High          67.6     82.4     62.3     56.2–76.1   * (n=7)
+
+  @2150
+    Glaciers
+      Very Low       9.0     15.8     10.7     12.4–12.4     (n=1)
+      Low-to-Neg      9.3     16.2     11.0     12.7–12.7     (n=1)
+      Low            9.7     16.6     11.9     13.6–13.6     (n=1)
+      Medium-to-Low     11.6     18.6     14.1     15.9–15.9     (n=1)
+      Medium        14.9     21.3     17.5     19.6–19.6     (n=1)
+      High-to-Low     13.5     20.4     15.9     18.2–18.2     (n=1)
+      High          17.0     22.9     19.3     22.1–22.1     (n=1)
+    Greenland ice sheet
+      Very Low       7.5      9.3      8.1              –
+      Low-to-Neg      7.7      9.5      8.8              –
+      Low            8.1      9.7      9.0              –
+      Medium-to-Low      9.6     10.4     11.7              –
+      Medium        12.6     11.6     16.7              –
+      High-to-Low     11.2     11.2     15.8              –
+      High          15.3     12.6     20.1              –
+    Antarctic ice sheet
+      Very Low       6.9      6.6      2.3     22.1–22.1     (n=1)
+      Low-to-Neg      7.2      6.8      3.5     23.1–23.1     (n=1)
+      Low            7.4      6.8      4.4     23.1–23.1     (n=1)
+      Medium-to-Low      9.3     13.2     12.4     25.6–25.6     (n=1)
+      Medium        54.4     73.5     33.8     27.9–27.9     (n=1)
+      High-to-Low     35.8     68.8     23.0     29.4–29.4     (n=1)
+      High          69.8     83.9     62.7     30.0–30.0     (n=1)
+    Thermal expansion
+      Very Low      16.8     16.1      9.9     17.9–17.9     (n=1)
+      Low-to-Neg     16.8     16.1      9.4     18.0–18.0     (n=1)
+      Low           18.7     18.0     11.8     19.9–19.9     (n=1)
+      Medium-to-Low     23.1     22.1     15.9     24.6–24.6     (n=1)
+      Medium        33.2     31.8     26.6     35.0–35.0     (n=1)
+      High-to-Low     27.6     26.4     19.8     29.1–29.1     (n=1)
+      High          40.0     38.3     34.7     41.5–41.5     (n=1)
+    Land-water storage
+      Very Low       4.3      4.3      5.0      4.6–4.6      (n=1)
+      Low-to-Neg      4.3      4.3      5.0      5.2–5.2      (n=1)
+      Low            4.3      4.3      5.0      5.2–5.2      (n=1)
+      Medium-to-Low      4.3      4.3      5.0      5.2–5.2      (n=1)
+      Medium         4.3      4.3      5.0      5.2–5.2      (n=1)
+      High-to-Low      4.3      4.3      5.0      4.7–4.7      (n=1)
+      High           4.3      4.3      5.0      6.9–6.9      (n=1)
+    Total
+      Very Low      45.1     52.3     37.4              –
+      Low-to-Neg     45.8     53.1     39.0              –
+      Low           48.6     55.6     43.5              –
+      Medium-to-Low     59.8     74.4     61.0              –
+      Medium       120.8    145.5     99.4              –
+      High-to-Low     91.9    133.5     79.2              –
+      High         148.1    165.3    140.4              –
+
+  @2300
+    Glaciers
+      Very Low      10.7     24.2     10.1     18.6–18.6     (n=1)
+      Low-to-Neg      9.6     20.8      2.5     12.3–12.3     (n=1)
+      Low           11.2     25.0     11.2     20.3–20.3     (n=1)
+      Medium-to-Low     12.3     25.3      7.9     20.4–20.4     (n=1)
+      Medium        21.3     33.3     23.8     31.6–31.6     (n=1)
+      High-to-Low     14.5     28.3     13.3     26.6–26.6     (n=1)
+      High          25.0     34.9     27.4     31.6–31.6     (n=1)
+    Greenland ice sheet
+      Very Low       9.6     17.1     12.8              –
+      Low-to-Neg      7.3     15.7     13.0              –
+      Low           10.1     17.6     14.1              –
+      Medium-to-Low      9.9     17.7     17.3              –
+      Medium        23.7     26.0     38.9              –
+      High-to-Low     12.4     19.6     21.4              –
+      High          53.4     32.1     68.1              –
+    Antarctic ice sheet
+      Very Low      12.8     12.5      1.7              –
+      Low-to-Neg     10.0     12.1     -0.4              –
+      Low           13.5     12.9      4.3              –
+      Medium-to-Low     14.7     19.7     11.1              –
+      Medium       192.8    216.5    147.1              –
+      High-to-Low     41.8     77.8     26.5              –
+      High         233.5    248.0    381.6              –
+    Thermal expansion
+      Very Low      18.2     17.4      9.4     18.9–18.9     (n=1)
+      Low-to-Neg      7.9      7.4     -5.3      8.1–8.1      (n=1)
+      Low           19.3     18.5     11.5     20.5–20.5     (n=1)
+      Medium-to-Low     15.7     14.8      6.1     16.3–16.3     (n=1)
+      Medium        59.0     57.0     46.9     62.2–62.2     (n=1)
+      High-to-Low     24.8     23.9     15.2     26.1–26.1     (n=1)
+      High          86.9     84.0     75.7     91.7–91.7     (n=1)
+    Land-water storage
+      Very Low       8.8      8.8     10.8      7.2–7.2      (n=1)
+      Low-to-Neg      8.8      8.8     10.8     11.1–11.1     (n=1)
+      Low            8.8      8.8     10.8     11.1–11.1     (n=1)
+      Medium-to-Low      8.8      8.8     10.8     11.1–11.1     (n=1)
+      Medium         8.8      8.8     10.8     11.1–11.1     (n=1)
+      High-to-Low      8.8      8.8     10.8      7.5–7.5      (n=1)
+      High           8.8      8.8     10.8     22.5–22.5     (n=1)
+    Total
+      Very Low      60.8     80.7     45.7              –
+      Low-to-Neg     43.9     65.2     27.0              –
+      Low           63.7     83.9     53.4              –
+      Medium-to-Low     63.4     92.5     55.6              –
+      Medium       312.9    346.5    266.1              –
+      High-to-Low    102.4    162.4     88.9              –
+      High         414.0    413.9    569.8              –
+[GATE] Very Low       vvVL    Ladrillo gates pass (CONTROL SKIPPED, 841 configs)
+[GATE] Low-to-Neg     vvLN    Ladrillo gates pass (CONTROL SKIPPED, 841 configs)
+[GATE] Low            vvL     Ladrillo gates pass (CONTROL SKIPPED, 841 configs)
+[GATE] Medium-to-Low  vvML    Ladrillo gates pass (CONTROL SKIPPED, 841 configs)
+[GATE] Medium         vvM     Ladrillo gates pass (CONTROL SKIPPED, 841 configs)
+[GATE] High-to-Low    vvHL    Ladrillo gates pass (CONTROL SKIPPED, 841 configs)
+[GATE] High           vvH     Ladrillo gates pass (CONTROL SKIPPED, 841 configs)
+[PROVENANCE] all 7 van Vuuren drivers share one commit: 6cc34b6
+[SUM] Ladrillo  vvVL    @2300  sum-of-medians    60.11  vs median-of-total    60.75  (-0.64 cm; medians do not add -- reported, not gated)
+[SUM] BRICK 2.0 vvVL    @2300  sum-of-medians    80.10  vs median-of-total    80.66  (-0.56 cm; medians do not add -- reported, not gated)
+[SUM] Ladrillo  vvLN    @2300  sum-of-medians    43.57  vs median-of-total    43.86  (-0.29 cm; medians do not add -- reported, not gated)
+[SUM] BRICK 2.0 vvLN    @2300  sum-of-medians    64.79  vs median-of-total    65.16  (-0.37 cm; medians do not add -- reported, not gated)
+[SUM] Ladrillo  vvL     @2300  sum-of-medians    62.96  vs median-of-total    63.68  (-0.73 cm; medians do not add -- reported, not gated)
+[SUM] BRICK 2.0 vvL     @2300  sum-of-medians    82.85  vs median-of-total    83.85  (-1.00 cm; medians do not add -- reported, not gated)
+[SUM] Ladrillo  vvML    @2300  sum-of-medians    61.37  vs median-of-total    63.40  (-2.03 cm; medians do not add -- reported, not gated)
+[SUM] BRICK 2.0 vvML    @2300  sum-of-medians    86.42  vs median-of-total    92.48  (-6.06 cm; medians do not add -- reported, not gated)
+[SUM] Ladrillo  vvM     @2300  sum-of-medians   305.62  vs median-of-total   312.93  (-7.31 cm; medians do not add -- reported, not gated)
+[SUM] BRICK 2.0 vvM     @2300  sum-of-medians   341.67  vs median-of-total   346.51  (-4.84 cm; medians do not add -- reported, not gated)
+[SUM] Ladrillo  vvHL    @2300  sum-of-medians   102.37  vs median-of-total   102.45  (-0.08 cm; medians do not add -- reported, not gated)
+[SUM] BRICK 2.0 vvHL    @2300  sum-of-medians   158.45  vs median-of-total   162.37  (-3.93 cm; medians do not add -- reported, not gated)
+[SUM] Ladrillo  vvH     @2300  sum-of-medians   407.71  vs median-of-total   413.95  (-6.24 cm; medians do not add -- reported, not gated)
+[SUM] BRICK 2.0 vvH     @2300  sum-of-medians   407.79  vs median-of-total   413.92  (-6.13 cm; medians do not add -- reported, not gated)
+
+wrote figures/future_components_vv_L28_joint.png
+
+median cm, rel. 1995-2014, joint arm — Ladrillo L28 / BRICK 2.0
+
+  @2100
+    scenario                    Glaciers   Greenland ice sheet   Antarctic ice sheet     Thermal expansion    Land-water storage                 Total
+    Very Low              7.5 /     11.2        5.8 /      6.3        4.6 /      4.3       14.0 /     13.4        2.8 /      2.8       35.0 /     38.3
+    Low-to-Neg            8.0 /     11.7        6.2 /      6.4        4.9 /      4.4       15.1 /     14.4        2.8 /      2.8       37.1 /     40.0
+    Low                   8.0 /     11.6        6.2 /      6.4        4.9 /      4.4       15.3 /     14.5        2.8 /      2.8       37.2 /     40.1
+    Medium-to-Low         9.3 /     12.7        7.1 /      6.7        5.8 /      8.4       18.4 /     17.6        2.8 /      2.8       44.5 /     52.5
+    Medium               10.1 /     13.3        7.6 /      6.9       11.2 /     27.6       20.7 /     19.8        2.8 /      2.8       54.1 /     71.6
+    High-to-Low          11.0 /     14.1        8.2 /      7.2       24.0 /     38.6       22.1 /     21.1        2.8 /      2.8       68.1 /     85.0
+    High                 11.1 /     14.0        8.3 /      7.2       22.6 /     35.6       23.0 /     22.1        2.8 /      2.8       67.6 /     82.4
+
+  @2150
+    scenario                    Glaciers   Greenland ice sheet   Antarctic ice sheet     Thermal expansion    Land-water storage                 Total
+    Very Low              9.0 /     15.8        7.5 /      9.3        6.9 /      6.6       16.8 /     16.1        4.3 /      4.3       45.1 /     52.3
+    Low-to-Neg            9.3 /     16.2        7.7 /      9.5        7.2 /      6.8       16.8 /     16.1        4.3 /      4.3       45.8 /     53.1
+    Low                   9.7 /     16.6        8.1 /      9.7        7.4 /      6.8       18.7 /     18.0        4.3 /      4.3       48.6 /     55.6
+    Medium-to-Low        11.6 /     18.6        9.6 /     10.4        9.3 /     13.2       23.1 /     22.1        4.3 /      4.3       59.8 /     74.4
+    Medium               14.9 /     21.3       12.6 /     11.6       54.4 /     73.5       33.2 /     31.8        4.3 /      4.3      120.8 /    145.5
+    High-to-Low          13.5 /     20.4       11.2 /     11.2       35.8 /     68.8       27.6 /     26.4        4.3 /      4.3       91.9 /    133.5
+    High                 17.0 /     22.9       15.3 /     12.6       69.8 /     83.9       40.0 /     38.3        4.3 /      4.3      148.1 /    165.3
+
+  @2300
+    scenario                    Glaciers   Greenland ice sheet   Antarctic ice sheet     Thermal expansion    Land-water storage                 Total
+    Very Low             10.7 /     24.2        9.6 /     17.1       12.8 /     12.5       18.2 /     17.4        8.8 /      8.8       60.8 /     80.7
+    Low-to-Neg            9.6 /     20.8        7.3 /     15.7       10.0 /     12.1        7.9 /      7.4        8.8 /      8.8       43.9 /     65.2
+    Low                  11.2 /     25.0       10.1 /     17.6       13.5 /     12.9       19.3 /     18.5        8.8 /      8.8       63.7 /     83.9
+    Medium-to-Low        12.3 /     25.3        9.9 /     17.7       14.7 /     19.7       15.7 /     14.8        8.8 /      8.8       63.4 /     92.5
+    Medium               21.3 /     33.3       23.7 /     26.0      192.8 /    216.5       59.0 /     57.0        8.8 /      8.8      312.9 /    346.5
+    High-to-Low          14.5 /     28.3       12.4 /     19.6       41.8 /     77.8       24.8 /     23.9        8.8 /      8.8      102.4 /    162.4
+    High                 25.0 /     34.9       53.4 /     32.1      233.5 /    248.0       86.9 /     84.0        8.8 /      8.8      414.0 /    413.9
+missing MAGICC-climate arm for Ladrillo vvVL: outputs/scope_slr_fairunc_cells_vvVL_spliced_magiccclim_L28_tap4p69K_V5p64m_tau800.csv
+wrote figures/vv_responsiveness_L28.png
+wrote outputs/vv_responsiveness_L28.csv  (80 rows)
+
+GMST gap vvH - vvVL:  FaIR driver {2100: 1.68, 2150: 3.12, 2300: 5.46}   MAGICC {2100: 2.03, 2150: 3.61, 2300: 5.86}
+
+=== @2100  Δ cm (and Δ cm per K of that source's own GMST gap) ===
+  Glaciers             BRICK 2.0 +2.8 (+1.6/K)  FACTS:ar5glaciers +3.1 (+1.9/K)  FACTS:emuglaciers +5.0 (+3.0/K)  Ladrillo +3.5 (+2.1/K)  MAGICC-SLR +3.8 (+1.9/K)
+  Greenland ice sheet  BRICK 2.0 +0.9 (+0.5/K)  FACTS:FittedISMIP +3.0 (+1.8/K)  FACTS:bamber19 +1.9 (+1.1/K)  FACTS:emuGrIS +3.8 (+2.3/K)  Ladrillo +2.5 (+1.5/K)  MAGICC-SLR +4.4 (+2.2/K)
+  Antarctic ice sheet  BRICK 2.0 +31.3 (+18.6/K)  FACTS:ar5AIS -1.5 (-0.9/K)  FACTS:bamber19 +2.7 (+1.6/K)  FACTS:deconto21 +2.5 (+1.5/K)  FACTS:emuAIS +0.0 (+0.0/K)  FACTS:larmip +0.8 (+0.5/K)  Ladrillo +17.9 (+10.7/K)  MAGICC-SLR +14.1 (+6.9/K)
+  Thermal expansion    BRICK 2.0 +8.7 (+5.2/K)  FACTS:tlm +9.3 (+5.5/K)  Ladrillo +9.0 (+5.4/K)  MAGICC-SLR +10.6 (+5.2/K)
+  Land-water storage   BRICK 2.0 +0.0 (+0.0/K)  FACTS:ssp-lws +0.6 (+0.4/K)  Ladrillo +0.0 (+0.0/K)  MAGICC-SLR +0.0 (+0.0/K)
+  Total                BRICK 2.0 +44.1 (+26.3/K)  FACTS:wf1e +18.4 (+11.0/K)  FACTS:wf1f +15.2 (+9.1/K)  FACTS:wf2e +19.8 (+11.8/K)  FACTS:wf2f +17.5 (+10.5/K)  FACTS:wf3e +21.9 (+13.1/K)  FACTS:wf3f +20.4 (+12.2/K)  FACTS:wf4 +23.0 (+13.7/K)  Ladrillo +32.6 (+19.4/K)  MAGICC-SLR +31.7 (+15.6/K)
+
+=== @2150  Δ cm (and Δ cm per K of that source's own GMST gap) ===
+  Glaciers             BRICK 2.0 +7.1 (+2.3/K)  FACTS:ar5glaciers +9.7 (+3.1/K)  Ladrillo +8.0 (+2.6/K)  MAGICC-SLR +8.6 (+2.4/K)
+  Greenland ice sheet  BRICK 2.0 +3.2 (+1.0/K)  Ladrillo +7.8 (+2.5/K)  MAGICC-SLR +12.1 (+3.4/K)
+  Antarctic ice sheet  BRICK 2.0 +77.3 (+24.7/K)  FACTS:larmip +7.9 (+2.5/K)  Ladrillo +62.8 (+20.1/K)  MAGICC-SLR +60.4 (+16.7/K)
+  Thermal expansion    BRICK 2.0 +22.1 (+7.1/K)  FACTS:tlm +23.6 (+7.6/K)  Ladrillo +23.2 (+7.4/K)  MAGICC-SLR +24.8 (+6.9/K)
+  Land-water storage   BRICK 2.0 +0.0 (+0.0/K)  FACTS:ssp-lws +2.3 (+0.7/K)  Ladrillo +0.0 (+0.0/K)  MAGICC-SLR +0.0 (+0.0/K)
+  Total                BRICK 2.0 +113.0 (+36.2/K)  Ladrillo +103.0 (+32.9/K)  MAGICC-SLR +103.0 (+28.6/K)
+
+=== @2300  Δ cm (and Δ cm per K of that source's own GMST gap) ===
+  Glaciers             BRICK 2.0 +10.6 (+1.9/K)  FACTS:ar5glaciers +13.0 (+2.4/K)  Ladrillo +14.4 (+2.6/K)  MAGICC-SLR +17.3 (+3.0/K)
+  Greenland ice sheet  BRICK 2.0 +15.0 (+2.7/K)  Ladrillo +43.8 (+8.0/K)  MAGICC-SLR +55.3 (+9.4/K)
+  Antarctic ice sheet  BRICK 2.0 +235.5 (+43.1/K)  Ladrillo +220.7 (+40.4/K)  MAGICC-SLR +380.0 (+64.9/K)
+  Thermal expansion    BRICK 2.0 +66.6 (+12.2/K)  FACTS:tlm +72.8 (+13.3/K)  Ladrillo +68.8 (+12.6/K)  MAGICC-SLR +66.3 (+11.3/K)
+  Land-water storage   BRICK 2.0 +0.0 (+0.0/K)  FACTS:ssp-lws +15.2 (+2.8/K)  Ladrillo +0.0 (+0.0/K)  MAGICC-SLR +0.0 (+0.0/K)
+  Total                BRICK 2.0 +333.3 (+61.0/K)  Ladrillo +353.2 (+64.7/K)  MAGICC-SLR +524.1 (+89.5/K)
+[BASELINE] all 21 model/obs series are zero-mean over 1995-2005 (max |offset| 2.23e-03 cm, tolerance 0.0097 cm = 1/10 of the smallest wrong-window displacement in these data)
+[IGCC] GMSL ensemble re-referenced to 1995-2005 over 11 years (1901-2025), mm -> cm
+[DEPTH-SCOPE] alpha_obs = 0.1087 cm per 1e22 J (target steric / IGCC 0-2000 m heat, 1993-2024); deep/upper heat ratio 0.107; band = alpha_obs x IGCC >2000 m heat anomaly, 1971-2024, reaching +0.30 cm at 2024 (an UPPER bound: deep water expands less per joule)
+wrote figures/paper/hindcast_components_L28.png
+
+model vs obs, 5-year means centred on each year (cm rel. 1995-2005)
+  n = years actually used; obs is re-averaged on each arm's own matched window, so the
+  obs column may differ between arms where their coverage differs. That is the point.
+  @1900 (1898-1902 window)
+    Glaciers                 Ladrillo obs    -7.19 mod    -6.36 (+0.83, n=3)   BRICK 2.0 obs    -7.19 mod    -3.36 (+3.83, n=3)   MAGICC-SLR obs    -7.19 mod    -6.64 (+0.55, n=3)
+    Greenland ice sheet      Ladrillo obs    -4.13 mod    -4.05 (+0.07, n=3)   BRICK 2.0 obs    -4.13 mod    -4.74 (-0.62, n=3)   MAGICC-SLR       --        
+    Antarctic ice sheet      Ladrillo obs    -0.76 mod    -1.28 (-0.52, n=3)   BRICK 2.0 obs    -0.76 mod    -3.87 (-3.11, n=3)   MAGICC-SLR       --        
+    Thermal expansion        Ladrillo obs    -3.69 mod    -3.59 (+0.10, n=3)   BRICK 2.0 obs    -3.69 mod    -3.42 (+0.27, n=3)   MAGICC-SLR obs    -3.69 mod    -4.96 (-1.27, n=3)
+    Land-water storage       Ladrillo      n/a           BRICK 2.0      n/a           MAGICC-SLR obs     1.80 mod     1.77 (-0.04, n=3)
+    Total                    Ladrillo obs   -13.65 mod   -13.73 (-0.07, n=3)   BRICK 2.0 obs   -13.65 mod   -13.62 (+0.03, n=3)   MAGICC-SLR obs   -13.65 mod   -10.29 (+3.37, n=3)
+                           IGCC  -14.34 vs obs  -13.51 (-0.83, n=2)  (independent check on the total)
+  @1950 (1948-1952 window)
+    Glaciers                 Ladrillo obs    -2.65 mod    -2.93 (-0.28, n=5)   BRICK 2.0 obs    -2.65 mod    -2.21 (+0.43, n=5)   MAGICC-SLR obs    -2.65 mod    -3.49 (-0.84, n=5)
+    Greenland ice sheet      Ladrillo obs    -1.38 mod    -1.65 (-0.28, n=5)   BRICK 2.0 obs    -1.38 mod    -2.47 (-1.09, n=5)   MAGICC-SLR       --        
+    Antarctic ice sheet      Ladrillo obs    -0.50 mod    -0.71 (-0.21, n=5)   BRICK 2.0 obs    -0.50 mod    -1.74 (-1.25, n=5)   MAGICC-SLR       --        
+    Thermal expansion        Ladrillo obs    -2.78 mod    -2.63 (+0.15, n=5)   BRICK 2.0 obs    -2.78 mod    -2.50 (+0.28, n=5)   MAGICC-SLR obs    -2.78 mod    -3.01 (-0.23, n=5)
+    Land-water storage       Ladrillo      n/a           BRICK 2.0      n/a           MAGICC-SLR obs     1.70 mod     1.66 (-0.04, n=5)
+    Total                    Ladrillo obs    -5.76 mod    -6.36 (-0.60, n=5)   BRICK 2.0 obs    -5.76 mod    -7.26 (-1.50, n=5)   MAGICC-SLR obs    -5.76 mod    -5.22 (+0.54, n=5)
+                           IGCC   -7.18 vs obs   -5.76 (-1.42, n=5)  (independent check on the total)
+  @2000 (1998-2002 window)
+    Glaciers                 Ladrillo obs    -0.00 mod    -0.00 (+0.00, n=5)   BRICK 2.0 obs    -0.00 mod    -0.01 (-0.01, n=5)   MAGICC-SLR obs    -0.00 mod    -0.01 (-0.01, n=5)
+    Greenland ice sheet      Ladrillo obs    -0.04 mod    -0.02 (+0.02, n=5)   BRICK 2.0 obs    -0.04 mod    -0.00 (+0.03, n=5)   MAGICC-SLR obs    -0.04 mod    -0.00 (+0.04, n=5)
+    Antarctic ice sheet      Ladrillo obs    -0.00 mod    -0.01 (-0.01, n=5)   BRICK 2.0 obs    -0.00 mod     0.00 (+0.00, n=5)   MAGICC-SLR       --        
+    Thermal expansion        Ladrillo obs    -0.08 mod    -0.00 (+0.08, n=5)   BRICK 2.0 obs    -0.08 mod    -0.00 (+0.08, n=5)   MAGICC-SLR obs    -0.08 mod     0.01 (+0.08, n=5)
+    Land-water storage       Ladrillo      n/a           BRICK 2.0      n/a           MAGICC-SLR obs    -0.04 mod    -0.04 (+0.00, n=5)
+    Total                    Ladrillo obs    -0.16 mod    -0.07 (+0.09, n=5)   BRICK 2.0 obs    -0.16 mod    -0.05 (+0.10, n=5)   MAGICC-SLR obs    -0.16 mod    -0.04 (+0.12, n=5)
+                           IGCC   -0.04 vs obs   -0.16 (+0.12, n=5)  (independent check on the total)
+  @2024 (2022-2026 window)
+    Glaciers                 Ladrillo obs     1.57 mod     1.53 (-0.05, n=2)   BRICK 2.0 obs     1.57 mod     2.03 (+0.46, n=2)   MAGICC-SLR obs     1.57 mod     2.50 (+0.93, n=2)
+    Greenland ice sheet      Ladrillo obs     1.59 mod     1.42 (-0.17, n=4)   BRICK 2.0 obs     1.59 mod     1.38 (-0.21, n=4)   MAGICC-SLR obs     1.59 mod     1.06 (-0.54, n=4)
+    Antarctic ice sheet      Ladrillo obs     0.94 mod     0.89 (-0.05, n=4)   BRICK 2.0 obs     0.94 mod     0.93 (-0.01, n=4)   MAGICC-SLR obs     0.94 mod    -0.01 (-0.95, n=4)
+    Thermal expansion        Ladrillo obs     2.96 mod     3.67 (+0.70, n=4)   BRICK 2.0 obs     2.96 mod     3.49 (+0.53, n=4)   MAGICC-SLR obs     2.96 mod     3.44 (+0.47, n=4)
+    Land-water storage       Ladrillo      n/a           BRICK 2.0      n/a           MAGICC-SLR obs     0.58 mod     0.42 (-0.16, n=5)
+    Total                    Ladrillo obs     7.81 mod     8.06 (+0.26, n=3)   BRICK 2.0 obs     7.81 mod     8.34 (+0.54, n=3)   MAGICC-SLR obs     7.81 mod     7.40 (-0.40, n=3)
+                           IGCC    8.21 vs obs    7.81 (+0.40, n=3)  (independent check on the total)
+[BASIS] Ladrillo    joint (Ladrillo posterior x FaIR forcing, tapped)
+[BASIS] BRICK 2.0   joint (BRICK 2.0 posterior x FaIR forcing)
+[BASIS] MAGICC-SLR  climate + parameter
+[BASIS] FACTS       climate + parameter
+[BASIS] every row carries climate uncertainty: YES -- all four bands drawn and comparable
+[LIT] frozen arm covers the SSP set only; vv comparators are UNFROZEN (stamped on the caption, not skipped silently)
+[CLASS] FACTS modules classified `sej` (open markers; nothing is scored here, the
+        class only changes the marker): bamber19, wf4
+
+[COVERAGE] sources present per component and horizon
+  @2100  Glaciers             BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2100  Greenland ice sheet  BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2100  Antarctic ice sheet  BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2100  Thermal expansion    BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2100  Land-water storage   BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2100  Total                BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2150  Glaciers             BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2150  Greenland ice sheet  BRICK 2.0, Ladrillo, MAGICC-SLR MISSING: FACTS
+  @2150  Antarctic ice sheet  BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2150  Thermal expansion    BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2150  Land-water storage   BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2150  Total                BRICK 2.0, Ladrillo, MAGICC-SLR MISSING: FACTS
+  @2300  Glaciers             BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2300  Greenland ice sheet  BRICK 2.0, Ladrillo, MAGICC-SLR MISSING: FACTS
+  @2300  Antarctic ice sheet  BRICK 2.0, Ladrillo, MAGICC-SLR MISSING: FACTS
+  @2300  Thermal expansion    BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2300  Land-water storage   BRICK 2.0, FACTS, Ladrillo, MAGICC-SLR 
+  @2300  Total                BRICK 2.0, Ladrillo, MAGICC-SLR MISSING: FACTS
+
+wrote figures/paper/model_comparison_components_vv_L28_2100.png
+  [SUM] sum-of-component-medians vs median-of-total @2100 (medians do not add — reported, not gated)
+        Ladrillo    Very Low     34.85 vs    35.04  (-0.18 cm)
+        Ladrillo    Low-to-Neg    37.03 vs    37.12  (-0.10 cm)
+        Ladrillo    Low          37.08 vs    37.20  (-0.13 cm)
+        Ladrillo    Medium-to-Low    43.38 vs    44.45  (-1.08 cm)
+        Ladrillo    Medium       52.40 vs    54.15  (-1.75 cm)
+        Ladrillo    High-to-Low    68.18 vs    68.07  (+0.12 cm)
+        Ladrillo    High         67.78 vs    67.62  (+0.16 cm)
+        BRICK 2.0   Very Low     38.07 vs    38.30  (-0.23 cm)
+        BRICK 2.0   Low-to-Neg    39.71 vs    40.00  (-0.28 cm)
+        BRICK 2.0   Low          39.82 vs    40.14  (-0.32 cm)
+        BRICK 2.0   Medium-to-Low    48.24 vs    52.49  (-4.25 cm)
+        BRICK 2.0   Medium       70.38 vs    71.58  (-1.20 cm)
+        BRICK 2.0   High-to-Low    83.78 vs    85.03  (-1.24 cm)
+        BRICK 2.0   High         81.66 vs    82.41  (-0.75 cm)
+        MAGICC-SLR  Very Low     29.46 vs    30.59  (-1.13 cm)
+        MAGICC-SLR  Low-to-Neg    33.38 vs    34.43  (-1.05 cm)
+        MAGICC-SLR  Low          33.79 vs    34.65  (-0.86 cm)
+        MAGICC-SLR  Medium-to-Low    44.08 vs    45.43  (-1.34 cm)
+        MAGICC-SLR  Medium       51.54 vs    51.94  (-0.40 cm)
+        MAGICC-SLR  High-to-Low    57.30 vs    57.12  (+0.18 cm)
+        MAGICC-SLR  High         62.31 vs    62.29  (+0.03 cm)
+
+wrote figures/paper/model_comparison_components_vv_L28_2150.png
+  [SUM] sum-of-component-medians vs median-of-total @2150 (medians do not add — reported, not gated)
+        Ladrillo    Very Low     44.60 vs    45.14  (-0.54 cm)
+        Ladrillo    Low-to-Neg    45.36 vs    45.76  (-0.41 cm)
+        Ladrillo    Low          48.23 vs    48.62  (-0.39 cm)
+        Ladrillo    Medium-to-Low    57.96 vs    59.85  (-1.89 cm)
+        Ladrillo    Medium      119.33 vs   120.77  (-1.44 cm)
+        Ladrillo    High-to-Low    92.52 vs    91.88  (+0.64 cm)
+        Ladrillo    High        146.43 vs   148.10  (-1.66 cm)
+        BRICK 2.0   Very Low     52.14 vs    52.32  (-0.17 cm)
+        BRICK 2.0   Low-to-Neg    52.79 vs    53.05  (-0.26 cm)
+        BRICK 2.0   Low          55.39 vs    55.56  (-0.17 cm)
+        BRICK 2.0   Medium-to-Low    68.55 vs    74.44  (-5.89 cm)
+        BRICK 2.0   Medium      142.40 vs   145.48  (-3.08 cm)
+        BRICK 2.0   High-to-Low   131.19 vs   133.45  (-2.26 cm)
+        BRICK 2.0   High        161.95 vs   165.28  (-3.34 cm)
+        MAGICC-SLR  Very Low     35.99 vs    37.40  (-1.41 cm)
+        MAGICC-SLR  Low-to-Neg    37.78 vs    39.01  (-1.24 cm)
+        MAGICC-SLR  Low          42.11 vs    43.54  (-1.43 cm)
+        MAGICC-SLR  Medium-to-Low    59.16 vs    61.04  (-1.88 cm)
+        MAGICC-SLR  Medium       99.61 vs    99.35  (+0.26 cm)
+        MAGICC-SLR  High-to-Low    79.47 vs    79.22  (+0.25 cm)
+        MAGICC-SLR  High        141.82 vs   140.42  (+1.40 cm)
+
+wrote figures/paper/model_comparison_components_vv_L28_2300.png
+  [SUM] sum-of-component-medians vs median-of-total @2300 (medians do not add — reported, not gated)
+        Ladrillo    Very Low     60.11 vs    60.75  (-0.64 cm)
+        Ladrillo    Low-to-Neg    43.57 vs    43.86  (-0.29 cm)
+        Ladrillo    Low          62.96 vs    63.68  (-0.73 cm)
+        Ladrillo    Medium-to-Low    61.37 vs    63.40  (-2.03 cm)
+        Ladrillo    Medium      305.62 vs   312.93  (-7.31 cm)
+        Ladrillo    High-to-Low   102.37 vs   102.45  (-0.08 cm)
+        Ladrillo    High        407.71 vs   413.95  (-6.24 cm)
+        BRICK 2.0   Very Low     80.10 vs    80.66  (-0.56 cm)
+        BRICK 2.0   Low-to-Neg    64.79 vs    65.16  (-0.37 cm)
+        BRICK 2.0   Low          82.85 vs    83.85  (-1.00 cm)
+        BRICK 2.0   Medium-to-Low    86.42 vs    92.48  (-6.06 cm)
+        BRICK 2.0   Medium      341.67 vs   346.51  (-4.84 cm)
+        BRICK 2.0   High-to-Low   158.45 vs   162.37  (-3.93 cm)
+        BRICK 2.0   High        407.79 vs   413.92  (-6.13 cm)
+        MAGICC-SLR  Very Low     44.75 vs    45.65  (-0.90 cm)
+        MAGICC-SLR  Low-to-Neg    20.53 vs    26.99  (-6.46 cm)
+        MAGICC-SLR  Low          51.84 vs    53.42  (-1.58 cm)
+        MAGICC-SLR  Medium-to-Low    53.12 vs    55.64  (-2.52 cm)
+        MAGICC-SLR  Medium      267.48 vs   266.14  (+1.34 cm)
+        MAGICC-SLR  High-to-Low    87.14 vs    88.89  (-1.76 cm)
+        MAGICC-SLR  High        563.55 vs   569.77  (-6.22 cm)
+
+median cm, rel. 1995–2014.  Ladrillo L28 / BRICK 2.0 / MAGICC-SLR / FACTS [min–max across modules, sej marked *]
+
+  @2100
+    Glaciers
+      Very Low       7.5     11.2      9.5      9.3–9.6      (n=2)
+      Low-to-Neg      8.0     11.7     10.3      9.7–9.9      (n=2)
+      Low            8.0     11.6     10.3      9.7–10.3     (n=2)
+      Medium-to-Low      9.3     12.7     11.7     11.0–11.8     (n=2)
+      Medium        10.1     13.3     12.4     11.7–13.3     (n=2)
+      High-to-Low     11.0     14.1     12.9     12.5–13.3     (n=2)
+      High          11.1     14.0     13.3     12.4–14.6     (n=2)
+    Greenland ice sheet
+      Very Low       5.8      6.3      5.7      5.9–13.3   * (n=3)
+      Low-to-Neg      6.2      6.4      6.4      6.0–13.7   * (n=3)
+      Low            6.2      6.4      6.3      6.4–13.7   * (n=3)
+      Medium-to-Low      7.1      6.7      7.8      7.4–14.0   * (n=3)
+      Medium         7.6      6.9      9.0      8.7–14.5   * (n=3)
+      High-to-Low      8.2      7.2     10.1      8.4–15.2   * (n=3)
+      High           8.3      7.2     10.1      9.7–15.2   * (n=3)
+    Antarctic ice sheet
+      Very Low       4.6      4.3      2.0      6.2–11.1   * (n=5)
+      Low-to-Neg      4.9      4.4      3.3      5.9–11.2   * (n=5)
+      Low            4.9      4.4      3.3      5.9–11.1   * (n=5)
+      Medium-to-Low      5.8      8.4      7.4      5.3–11.6   * (n=5)
+      Medium        11.2     27.6     10.5      5.0–11.7   * (n=5)
+      High-to-Low     24.0     38.6     13.9      4.8–12.3   * (n=5)
+      High          22.6     35.6     16.1      4.7–12.5   * (n=5)
+    Thermal expansion
+      Very Low      14.0     13.4      9.2     14.9–14.9     (n=1)
+      Low-to-Neg     15.1     14.4     10.4     16.0–16.0     (n=1)
+      Low           15.3     14.5     10.8     16.3–16.3     (n=1)
+      Medium-to-Low     18.4     17.6     14.2     19.4–19.4     (n=1)
+      Medium        20.7     19.8     16.6     21.7–21.7     (n=1)
+      High-to-Low     22.1     21.1     17.4     23.3–23.3     (n=1)
+      High          23.0     22.1     19.8     24.1–24.1     (n=1)
+    Land-water storage
+      Very Low       2.8      2.8      3.0      3.0–3.0      (n=1)
+      Low-to-Neg      2.8      2.8      3.0      3.1–3.1      (n=1)
+      Low            2.8      2.8      3.0      3.1–3.1      (n=1)
+      Medium-to-Low      2.8      2.8      3.0      3.1–3.1      (n=1)
+      Medium         2.8      2.8      3.0      3.1–3.1      (n=1)
+      High-to-Low      2.8      2.8      3.0      3.0–3.0      (n=1)
+      High           2.8      2.8      3.0      3.6–3.6      (n=1)
+    Total
+      Very Low      35.0     38.3     30.6     41.0–53.1   * (n=7)
+      Low-to-Neg     37.1     40.0     34.4     42.9–54.4   * (n=7)
+      Low           37.2     40.1     34.6     43.0–54.9   * (n=7)
+      Medium-to-Low     44.5     52.5     45.4     48.2–62.8   * (n=7)
+      Medium        54.1     71.6     51.9     51.5–71.0   * (n=7)
+      High-to-Low     68.1     85.0     57.1     54.3–74.7   * (n=7)
+      High          67.6     82.4     62.3     56.2–76.1   * (n=7)
+
+  @2150
+    Glaciers
+      Very Low       9.0     15.8     10.7     12.4–12.4     (n=1)
+      Low-to-Neg      9.3     16.2     11.0     12.7–12.7     (n=1)
+      Low            9.7     16.6     11.9     13.6–13.6     (n=1)
+      Medium-to-Low     11.6     18.6     14.1     15.9–15.9     (n=1)
+      Medium        14.9     21.3     17.5     19.6–19.6     (n=1)
+      High-to-Low     13.5     20.4     15.9     18.2–18.2     (n=1)
+      High          17.0     22.9     19.3     22.1–22.1     (n=1)
+    Greenland ice sheet
+      Very Low       7.5      9.3      8.1              –
+      Low-to-Neg      7.7      9.5      8.8              –
+      Low            8.1      9.7      9.0              –
+      Medium-to-Low      9.6     10.4     11.7              –
+      Medium        12.6     11.6     16.7              –
+      High-to-Low     11.2     11.2     15.8              –
+      High          15.3     12.6     20.1              –
+    Antarctic ice sheet
+      Very Low       6.9      6.6      2.3     22.1–22.1     (n=1)
+      Low-to-Neg      7.2      6.8      3.5     23.1–23.1     (n=1)
+      Low            7.4      6.8      4.4     23.1–23.1     (n=1)
+      Medium-to-Low      9.3     13.2     12.4     25.6–25.6     (n=1)
+      Medium        54.4     73.5     33.8     27.9–27.9     (n=1)
+      High-to-Low     35.8     68.8     23.0     29.4–29.4     (n=1)
+      High          69.8     83.9     62.7     30.0–30.0     (n=1)
+    Thermal expansion
+      Very Low      16.8     16.1      9.9     17.9–17.9     (n=1)
+      Low-to-Neg     16.8     16.1      9.4     18.0–18.0     (n=1)
+      Low           18.7     18.0     11.8     19.9–19.9     (n=1)
+      Medium-to-Low     23.1     22.1     15.9     24.6–24.6     (n=1)
+      Medium        33.2     31.8     26.6     35.0–35.0     (n=1)
+      High-to-Low     27.6     26.4     19.8     29.1–29.1     (n=1)
+      High          40.0     38.3     34.7     41.5–41.5     (n=1)
+    Land-water storage
+      Very Low       4.3      4.3      5.0      4.6–4.6      (n=1)
+      Low-to-Neg      4.3      4.3      5.0      5.2–5.2      (n=1)
+      Low            4.3      4.3      5.0      5.2–5.2      (n=1)
+      Medium-to-Low      4.3      4.3      5.0      5.2–5.2      (n=1)
+      Medium         4.3      4.3      5.0      5.2–5.2      (n=1)
+      High-to-Low      4.3      4.3      5.0      4.7–4.7      (n=1)
+      High           4.3      4.3      5.0      6.9–6.9      (n=1)
+    Total
+      Very Low      45.1     52.3     37.4              –
+      Low-to-Neg     45.8     53.1     39.0              –
+      Low           48.6     55.6     43.5              –
+      Medium-to-Low     59.8     74.4     61.0              –
+      Medium       120.8    145.5     99.4              –
+      High-to-Low     91.9    133.5     79.2              –
+      High         148.1    165.3    140.4              –
+
+  @2300
+    Glaciers
+      Very Low      10.7     24.2     10.1     18.6–18.6     (n=1)
+      Low-to-Neg      9.6     20.8      2.5     12.3–12.3     (n=1)
+      Low           11.2     25.0     11.2     20.3–20.3     (n=1)
+      Medium-to-Low     12.3     25.3      7.9     20.4–20.4     (n=1)
+      Medium        21.3     33.3     23.8     31.6–31.6     (n=1)
+      High-to-Low     14.5     28.3     13.3     26.6–26.6     (n=1)
+      High          25.0     34.9     27.4     31.6–31.6     (n=1)
+    Greenland ice sheet
+      Very Low       9.6     17.1     12.8              –
+      Low-to-Neg      7.3     15.7     13.0              –
+      Low           10.1     17.6     14.1              –
+      Medium-to-Low      9.9     17.7     17.3              –
+      Medium        23.7     26.0     38.9              –
+      High-to-Low     12.4     19.6     21.4              –
+      High          53.4     32.1     68.1              –
+    Antarctic ice sheet
+      Very Low      12.8     12.5      1.7              –
+      Low-to-Neg     10.0     12.1     -0.4              –
+      Low           13.5     12.9      4.3              –
+      Medium-to-Low     14.7     19.7     11.1              –
+      Medium       192.8    216.5    147.1              –
+      High-to-Low     41.8     77.8     26.5              –
+      High         233.5    248.0    381.6              –
+    Thermal expansion
+      Very Low      18.2     17.4      9.4     18.9–18.9     (n=1)
+      Low-to-Neg      7.9      7.4     -5.3      8.1–8.1      (n=1)
+      Low           19.3     18.5     11.5     20.5–20.5     (n=1)
+      Medium-to-Low     15.7     14.8      6.1     16.3–16.3     (n=1)
+      Medium        59.0     57.0     46.9     62.2–62.2     (n=1)
+      High-to-Low     24.8     23.9     15.2     26.1–26.1     (n=1)
+      High          86.9     84.0     75.7     91.7–91.7     (n=1)
+    Land-water storage
+      Very Low       8.8      8.8     10.8      7.2–7.2      (n=1)
+      Low-to-Neg      8.8      8.8     10.8     11.1–11.1     (n=1)
+      Low            8.8      8.8     10.8     11.1–11.1     (n=1)
+      Medium-to-Low      8.8      8.8     10.8     11.1–11.1     (n=1)
+      Medium         8.8      8.8     10.8     11.1–11.1     (n=1)
+      High-to-Low      8.8      8.8     10.8      7.5–7.5      (n=1)
+      High           8.8      8.8     10.8     22.5–22.5     (n=1)
+    Total
+      Very Low      60.8     80.7     45.7              –
+      Low-to-Neg     43.9     65.2     27.0              –
+      Low           63.7     83.9     53.4              –
+      Medium-to-Low     63.4     92.5     55.6              –
+      Medium       312.9    346.5    266.1              –
+      High-to-Low    102.4    162.4     88.9              –
+      High         414.0    413.9    569.8              –
+[GATE] Very Low       vvVL    Ladrillo gates pass (CONTROL SKIPPED, 841 configs)
+[GATE] Low-to-Neg     vvLN    Ladrillo gates pass (CONTROL SKIPPED, 841 configs)
+[GATE] Low            vvL     Ladrillo gates pass (CONTROL SKIPPED, 841 configs)
+[GATE] Medium-to-Low  vvML    Ladrillo gates pass (CONTROL SKIPPED, 841 configs)
+[GATE] Medium         vvM     Ladrillo gates pass (CONTROL SKIPPED, 841 configs)
+[GATE] High-to-Low    vvHL    Ladrillo gates pass (CONTROL SKIPPED, 841 configs)
+[GATE] High           vvH     Ladrillo gates pass (CONTROL SKIPPED, 841 configs)
+[PROVENANCE] all 7 van Vuuren drivers share one commit: 6cc34b6
+[SUM] Ladrillo  vvVL    @2300  sum-of-medians    60.11  vs median-of-total    60.75  (-0.64 cm; medians do not add -- reported, not gated)
+[SUM] BRICK 2.0 vvVL    @2300  sum-of-medians    80.10  vs median-of-total    80.66  (-0.56 cm; medians do not add -- reported, not gated)
+[SUM] Ladrillo  vvLN    @2300  sum-of-medians    43.57  vs median-of-total    43.86  (-0.29 cm; medians do not add -- reported, not gated)
+[SUM] BRICK 2.0 vvLN    @2300  sum-of-medians    64.79  vs median-of-total    65.16  (-0.37 cm; medians do not add -- reported, not gated)
+[SUM] Ladrillo  vvL     @2300  sum-of-medians    62.96  vs median-of-total    63.68  (-0.73 cm; medians do not add -- reported, not gated)
+[SUM] BRICK 2.0 vvL     @2300  sum-of-medians    82.85  vs median-of-total    83.85  (-1.00 cm; medians do not add -- reported, not gated)
+[SUM] Ladrillo  vvML    @2300  sum-of-medians    61.37  vs median-of-total    63.40  (-2.03 cm; medians do not add -- reported, not gated)
+[SUM] BRICK 2.0 vvML    @2300  sum-of-medians    86.42  vs median-of-total    92.48  (-6.06 cm; medians do not add -- reported, not gated)
+[SUM] Ladrillo  vvM     @2300  sum-of-medians   305.62  vs median-of-total   312.93  (-7.31 cm; medians do not add -- reported, not gated)
+[SUM] BRICK 2.0 vvM     @2300  sum-of-medians   341.67  vs median-of-total   346.51  (-4.84 cm; medians do not add -- reported, not gated)
+[SUM] Ladrillo  vvHL    @2300  sum-of-medians   102.37  vs median-of-total   102.45  (-0.08 cm; medians do not add -- reported, not gated)
+[SUM] BRICK 2.0 vvHL    @2300  sum-of-medians   158.45  vs median-of-total   162.37  (-3.93 cm; medians do not add -- reported, not gated)
+[SUM] Ladrillo  vvH     @2300  sum-of-medians   407.71  vs median-of-total   413.95  (-6.24 cm; medians do not add -- reported, not gated)
+[SUM] BRICK 2.0 vvH     @2300  sum-of-medians   407.79  vs median-of-total   413.92  (-6.13 cm; medians do not add -- reported, not gated)
+
+wrote figures/paper/future_components_vv_L28_joint.png
+
+median cm, rel. 1995-2014, joint arm — Ladrillo L28 / BRICK 2.0
+
+  @2100
+    scenario                    Glaciers   Greenland ice sheet   Antarctic ice sheet     Thermal expansion    Land-water storage                 Total
+    Very Low              7.5 /     11.2        5.8 /      6.3        4.6 /      4.3       14.0 /     13.4        2.8 /      2.8       35.0 /     38.3
+    Low-to-Neg            8.0 /     11.7        6.2 /      6.4        4.9 /      4.4       15.1 /     14.4        2.8 /      2.8       37.1 /     40.0
+    Low                   8.0 /     11.6        6.2 /      6.4        4.9 /      4.4       15.3 /     14.5        2.8 /      2.8       37.2 /     40.1
+    Medium-to-Low         9.3 /     12.7        7.1 /      6.7        5.8 /      8.4       18.4 /     17.6        2.8 /      2.8       44.5 /     52.5
+    Medium               10.1 /     13.3        7.6 /      6.9       11.2 /     27.6       20.7 /     19.8        2.8 /      2.8       54.1 /     71.6
+    High-to-Low          11.0 /     14.1        8.2 /      7.2       24.0 /     38.6       22.1 /     21.1        2.8 /      2.8       68.1 /     85.0
+    High                 11.1 /     14.0        8.3 /      7.2       22.6 /     35.6       23.0 /     22.1        2.8 /      2.8       67.6 /     82.4
+
+  @2150
+    scenario                    Glaciers   Greenland ice sheet   Antarctic ice sheet     Thermal expansion    Land-water storage                 Total
+    Very Low              9.0 /     15.8        7.5 /      9.3        6.9 /      6.6       16.8 /     16.1        4.3 /      4.3       45.1 /     52.3
+    Low-to-Neg            9.3 /     16.2        7.7 /      9.5        7.2 /      6.8       16.8 /     16.1        4.3 /      4.3       45.8 /     53.1
+    Low                   9.7 /     16.6        8.1 /      9.7        7.4 /      6.8       18.7 /     18.0        4.3 /      4.3       48.6 /     55.6
+    Medium-to-Low        11.6 /     18.6        9.6 /     10.4        9.3 /     13.2       23.1 /     22.1        4.3 /      4.3       59.8 /     74.4
+    Medium               14.9 /     21.3       12.6 /     11.6       54.4 /     73.5       33.2 /     31.8        4.3 /      4.3      120.8 /    145.5
+    High-to-Low          13.5 /     20.4       11.2 /     11.2       35.8 /     68.8       27.6 /     26.4        4.3 /      4.3       91.9 /    133.5
+    High                 17.0 /     22.9       15.3 /     12.6       69.8 /     83.9       40.0 /     38.3        4.3 /      4.3      148.1 /    165.3
+
+  @2300
+    scenario                    Glaciers   Greenland ice sheet   Antarctic ice sheet     Thermal expansion    Land-water storage                 Total
+    Very Low             10.7 /     24.2        9.6 /     17.1       12.8 /     12.5       18.2 /     17.4        8.8 /      8.8       60.8 /     80.7
+    Low-to-Neg            9.6 /     20.8        7.3 /     15.7       10.0 /     12.1        7.9 /      7.4        8.8 /      8.8       43.9 /     65.2
+    Low                  11.2 /     25.0       10.1 /     17.6       13.5 /     12.9       19.3 /     18.5        8.8 /      8.8       63.7 /     83.9
+    Medium-to-Low        12.3 /     25.3        9.9 /     17.7       14.7 /     19.7       15.7 /     14.8        8.8 /      8.8       63.4 /     92.5
+    Medium               21.3 /     33.3       23.7 /     26.0      192.8 /    216.5       59.0 /     57.0        8.8 /      8.8      312.9 /    346.5
+    High-to-Low          14.5 /     28.3       12.4 /     19.6       41.8 /     77.8       24.8 /     23.9        8.8 /      8.8      102.4 /    162.4
+    High                 25.0 /     34.9       53.4 /     32.1      233.5 /    248.0       86.9 /     84.0        8.8 /      8.8      414.0 /    413.9
+wrote figures/paper/vv_responsiveness_L28.png
+wrote outputs/vv_responsiveness_L28.csv  (80 rows)
+
+GMST gap vvH - vvVL:  FaIR driver {2100: 1.68, 2150: 3.12, 2300: 5.46}   MAGICC {2100: 2.03, 2150: 3.61, 2300: 5.86}
+
+=== @2100  Δ cm (and Δ cm per K of that source's own GMST gap) ===
+  Glaciers             BRICK 2.0 +2.8 (+1.6/K)  FACTS:ar5glaciers +3.1 (+1.9/K)  FACTS:emuglaciers +5.0 (+3.0/K)  Ladrillo +3.5 (+2.1/K)  MAGICC-SLR +3.8 (+1.9/K)
+  Greenland ice sheet  BRICK 2.0 +0.9 (+0.5/K)  FACTS:FittedISMIP +3.0 (+1.8/K)  FACTS:bamber19 +1.9 (+1.1/K)  FACTS:emuGrIS +3.8 (+2.3/K)  Ladrillo +2.5 (+1.5/K)  MAGICC-SLR +4.4 (+2.2/K)
+  Antarctic ice sheet  BRICK 2.0 +31.3 (+18.6/K)  FACTS:ar5AIS -1.5 (-0.9/K)  FACTS:bamber19 +2.7 (+1.6/K)  FACTS:deconto21 +2.5 (+1.5/K)  FACTS:emuAIS +0.0 (+0.0/K)  FACTS:larmip +0.8 (+0.5/K)  Ladrillo +17.9 (+10.7/K)  MAGICC-SLR +14.1 (+6.9/K)
+  Thermal expansion    BRICK 2.0 +8.7 (+5.2/K)  FACTS:tlm +9.3 (+5.5/K)  Ladrillo +9.0 (+5.4/K)  MAGICC-SLR +10.6 (+5.2/K)
+  Land-water storage   BRICK 2.0 +0.0 (+0.0/K)  FACTS:ssp-lws +0.6 (+0.4/K)  Ladrillo +0.0 (+0.0/K)  MAGICC-SLR +0.0 (+0.0/K)
+  Total                BRICK 2.0 +44.1 (+26.3/K)  FACTS:wf1e +18.4 (+11.0/K)  FACTS:wf1f +15.2 (+9.1/K)  FACTS:wf2e +19.8 (+11.8/K)  FACTS:wf2f +17.5 (+10.5/K)  FACTS:wf3e +21.9 (+13.1/K)  FACTS:wf3f +20.4 (+12.2/K)  FACTS:wf4 +23.0 (+13.7/K)  Ladrillo +32.6 (+19.4/K)  MAGICC-SLR +31.7 (+15.6/K)
+
+=== @2150  Δ cm (and Δ cm per K of that source's own GMST gap) ===
+  Glaciers             BRICK 2.0 +7.1 (+2.3/K)  FACTS:ar5glaciers +9.7 (+3.1/K)  Ladrillo +8.0 (+2.6/K)  MAGICC-SLR +8.6 (+2.4/K)
+  Greenland ice sheet  BRICK 2.0 +3.2 (+1.0/K)  Ladrillo +7.8 (+2.5/K)  MAGICC-SLR +12.1 (+3.4/K)
+  Antarctic ice sheet  BRICK 2.0 +77.3 (+24.7/K)  FACTS:larmip +7.9 (+2.5/K)  Ladrillo +62.8 (+20.1/K)  MAGICC-SLR +60.4 (+16.7/K)
+  Thermal expansion    BRICK 2.0 +22.1 (+7.1/K)  FACTS:tlm +23.6 (+7.6/K)  Ladrillo +23.2 (+7.4/K)  MAGICC-SLR +24.8 (+6.9/K)
+  Land-water storage   BRICK 2.0 +0.0 (+0.0/K)  FACTS:ssp-lws +2.3 (+0.7/K)  Ladrillo +0.0 (+0.0/K)  MAGICC-SLR +0.0 (+0.0/K)
+  Total                BRICK 2.0 +113.0 (+36.2/K)  Ladrillo +103.0 (+32.9/K)  MAGICC-SLR +103.0 (+28.6/K)
+
+=== @2300  Δ cm (and Δ cm per K of that source's own GMST gap) ===
+  Glaciers             BRICK 2.0 +10.6 (+1.9/K)  FACTS:ar5glaciers +13.0 (+2.4/K)  Ladrillo +14.4 (+2.6/K)  MAGICC-SLR +17.3 (+3.0/K)
+  Greenland ice sheet  BRICK 2.0 +15.0 (+2.7/K)  Ladrillo +43.8 (+8.0/K)  MAGICC-SLR +55.3 (+9.4/K)
+  Antarctic ice sheet  BRICK 2.0 +235.5 (+43.1/K)  Ladrillo +220.7 (+40.4/K)  MAGICC-SLR +380.0 (+64.9/K)
+  Thermal expansion    BRICK 2.0 +66.6 (+12.2/K)  FACTS:tlm +72.8 (+13.3/K)  Ladrillo +68.8 (+12.6/K)  MAGICC-SLR +66.3 (+11.3/K)
+  Land-water storage   BRICK 2.0 +0.0 (+0.0/K)  FACTS:ssp-lws +15.2 (+2.8/K)  Ladrillo +0.0 (+0.0/K)  MAGICC-SLR +0.0 (+0.0/K)
+  Total                BRICK 2.0 +333.3 (+61.0/K)  Ladrillo +353.2 (+64.7/K)  MAGICC-SLR +524.1 (+89.5/K)
+[MISSING] vvVL   scope_slr_fairunc_paths_vvVL_spliced_magiccclim_L28_tap4p69K_V5p64m_tau800.csv
+[MISSING] vvLN   scope_slr_fairunc_paths_vvLN_spliced_magiccclim_L28_tap4p69K_V5p64m_tau800.csv
+[MISSING] vvL    scope_slr_fairunc_paths_vvL_spliced_magiccclim_L28_tap4p69K_V5p64m_tau800.csv
+[MISSING] vvML   scope_slr_fairunc_paths_vvML_spliced_magiccclim_L28_tap4p69K_V5p64m_tau800.csv
+[MISSING] vvM    scope_slr_fairunc_paths_vvM_spliced_magiccclim_L28_tap4p69K_V5p64m_tau800.csv
+[MISSING] vvHL   scope_slr_fairunc_paths_vvHL_spliced_magiccclim_L28_tap4p69K_V5p64m_tau800.csv
+[MISSING] vvH    scope_slr_fairunc_paths_vvH_spliced_magiccclim_L28_tap4p69K_V5p64m_tau800.csv
+[FATAL] no marker had all three arms

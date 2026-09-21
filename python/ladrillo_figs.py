@@ -230,6 +230,19 @@ TAG_DESC = {
                      "paleo draws from outputs/paleo_fastdyn_draws.csv, seed 20260920), gamma fixed at "
                      "its paleo median, ledger set-asides marginalised; 50 parameters. Starts = L26 "
                      "draws, proposal = adapted_cov_L26_named. Everything else as L26."),
+    "L28": dict(model="Ladrillo L28",
+                calib="FaIR 2.2.4 calib 1.6.0 + CMIP7",
+                chains="4 chains, chain_L28_seed{2026..2029}_n2000000",
+                glacier="3-reservoir Nauels-nu (glaciers_nu3), FLOORED equilibrium "
+                        "+ bounded regrowth at R = 1; no early-segment target ramp, no glacier "
+                        "discrepancy term; T_off bound -4; the two 1850-1900 glacier set-asides "
+                        "integrated out (--no-ledger)",
+                gis="two-basin Greenland with the above-threshold discharge channel",
+                lws="observed series through 2023, 0.30 mm/yr after (LWS_MODE=:observed); hindcast side :central",
+                note="L27's objective REFIT ON THE IMBIE-2026 ANTARCTIC TARGET (Otosaka et al. 2026; "
+                     "IMBIE 1979-2023 replaces Frederikse+GRACE, CHANGELOG 09-21g/h): one axis vs L27. "
+                     "NOT champion, NOT the paper's posterior (09-21h: fitted the level not the shape; "
+                     "rho_ais on the bound). Starts = L27 draws, proposal = adapted_cov_L27_named."),
     "L14": dict(model="Ladrillo L14",
                 calib="FaIR 2.2.4 calib 1.4.5",
                 chains="chain_L14_*",
