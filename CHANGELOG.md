@@ -1,3 +1,29 @@
+## 2026-09-21i — `--rho-max=` built and gate-tested; `run_L29.sh` (L28 + rho_ais ≤ 0.90) prepared, NOT launched
+
+**The flag** (`julia/calibrate_mcmc_ext.jl`): `--rho-max=<series>:<val>[,<series>:<val>]` is a PER-SERIES hard upper bound on the
+AR(1) lag-1 autocorrelation, replacing the literal 0.99 at the rejection (`RHO_MAX`, a vector over `SERIES`, default 0.99 each) and
+in the `--dump-priors` table. Per-series because the arm is a test of ONE stream: a single cap on all four would also move gis
+(0.96–0.99) and steric (0.90–0.99) and stop being one axis. A capped series' start rho above the cap is REPAIRED
+(`repair_rho_start!`, mirrors the steric repair): rho → 0.95 × cap, σ scaled so the marginal σ/√(1−ρ²) is held — only the start
+moves; the bound is the same flat prior truncated. Bad series / value out of (0, 0.99] error at load.
+
+**Gate + mutation.** Identity gate PASS with the flag absent (byte-identical chain and covariance; the banner prints "DEFAULT 0.99
+on every series"). ⚠ The first mutation (`--rho-max=ais:0.90` on the gate config) came back IDENTICAL — the L24 start row sits at
+rho_ais 0.61 and a 300-iteration chain never proposes above 0.66, so that mutation has NO POWER (`no_power_null`). The mutation
+WITH power: cap 0.60 (below the start) → the repair fires (0.608 → 0.570, marginal 0.0363 held), the chain differs, and its
+rho_ais runs up to 0.59998928 without crossing. Smoke on the L28 configuration, seed 2029 (row 4, the only L27r start row above
+0.90): repair 0.916 → 0.855 (σ 0.0209 → 0.0271, marginal 0.0522 held), logpost(θ₀) 790.15 (L28's unrepaired start 805.10 —
+the 15 log-units the likelihood pays for ρ = 0.855 over 0.916 at that θ); 2000-iteration acceptance 0.063 vs 0.056 uncapped
+(both RAM warm-up; L28 finished at 0.239).
+
+**`run_L29.sh`** = `run_L28.sh` + `--rho-max=ais:0.90`, everything else identical (IMBIE target md5 asserted, BASEFLAGS +
+`--no-ledger`, seeds 2026–2029, `overdispersed_starts_L27r.csv`, `adapted_cov_L27_named.csv`); CONTROL = L28, ONE axis: the
+rho_ais bound. Arm verification greps the cap banner and the repair line per chain; the noise gate also FAILS if any chain's
+second-half rho_ais reaches 0.90 (the cap not live). Stage 2 = L28's diagnostics (prior dump, no-tap, joint bands, flux split,
+IMBIE diagnostics, model comparison, benchmark, prior/posterior table, refit precision vs L28), NO paper arms. `L29` declared in
+both figure TAG_DESC guards. **Not launched** — Marcus's call (handoff §1.1); Torch verdict when it is: Mac (4 chains, ~4 h, as
+every refit since L24), noting four CCX multistart R jobs are already at 100 % on 4 of the 10 cores.
+
 ## 2026-09-21h — L28 LANDED: the reconciled AIS record fitted on the level, NOT the shape — the physics did not move, ρ_ais went to 0.97, projections went DOWN; the structural verdict is revised
 
 **L28 result** (chains 13:15–16:40, acceptance 0.237–0.238; noise gate PASS, sd_gis 0.0255; SLR R̂ 1.003 @2100/2150, ESS ~1270,

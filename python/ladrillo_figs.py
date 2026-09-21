@@ -243,6 +243,20 @@ TAG_DESC = {
                      "IMBIE 1979-2023 replaces Frederikse+GRACE, CHANGELOG 09-21g/h): one axis vs L27. "
                      "NOT champion, NOT the paper's posterior (09-21h: fitted the level not the shape; "
                      "rho_ais on the bound). Starts = L27 draws, proposal = adapted_cov_L27_named."),
+    "L29": dict(model="Ladrillo L29",
+                calib="FaIR 2.2.4 calib 1.6.0 + CMIP7",
+                chains="4 chains, chain_L29_seed{2026..2029}_n2000000",
+                glacier="3-reservoir Nauels-nu (glaciers_nu3), FLOORED equilibrium "
+                        "+ bounded regrowth at R = 1; no early-segment target ramp, no glacier "
+                        "discrepancy term; T_off bound -4; the two 1850-1900 glacier set-asides "
+                        "integrated out (--no-ledger)",
+                gis="two-basin Greenland with the above-threshold discharge channel",
+                lws="observed series through 2023, 0.30 mm/yr after (LWS_MODE=:observed); hindcast side :central",
+                note="L28's objective with the Antarctic AR(1) rho CAPPED at 0.90 (--rho-max=ais:0.90; "
+                     "scoping_2026-09-21_dais_structure_vs_imbie2026.md §4): one axis vs L28 — the decisive "
+                     "test of whether DAIS's physics can carry the reconciled record's shape once the noise "
+                     "model cannot absorb it. NOT champion, NOT the paper's posterior. Starts = L27 draws "
+                     "(row 4's rho_ais 0.916 repaired to 0.855, marginal held), proposal = adapted_cov_L27_named."),
     "L14": dict(model="Ladrillo L14",
                 calib="FaIR 2.2.4 calib 1.4.5",
                 chains="chain_L14_*",

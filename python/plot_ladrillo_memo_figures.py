@@ -137,7 +137,8 @@ TAG_DESC = {"L10": "Ladrillo 1.0 (L10)",
             "L24": "Ladrillo L24",  # champion 2026-09-02 to 09-20
             "L26": "Ladrillo L26",  # CANONICAL, champion since 2026-09-20
             "L27": "Ladrillo L27",  # the paper's posterior (50 params), 2026-09-20
-            "L28": "Ladrillo L28"}  # L27's objective on the IMBIE-2026 AIS target, 2026-09-21; NOT the paper's
+            "L28": "Ladrillo L28",  # L27's objective on the IMBIE-2026 AIS target, 2026-09-21; NOT the paper's
+            "L29": "Ladrillo L29"}  # L28 + rho_ais capped at 0.90 (--rho-max=ais:0.90), 2026-09-21; NOT the paper's
 if LADRILLO_TAG not in TAG_DESC:
     raise SystemExit(f"undeclared --tag={LADRILLO_TAG}: add it to TAG_DESC so the figure "
                      f"titles say what the vintage is. Declared: "

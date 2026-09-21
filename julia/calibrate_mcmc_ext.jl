@@ -62,6 +62,7 @@
 ##
 ## Usage:  julia --project=julia_v2 julia/calibrate_mcmc_ext.jl [n_iter] [seed] [--overdisperse] [--amp-equilibrium]
 ##   --overdisperse     start each chain from a real over-dispersed posterior draw (production)
+##   --rho-max=<series>:<val>[,...]  per-series hard cap on the AR(1) rho (default 0.99 each; 2026-09-21, the L28 rho-cap arm)
 ##   --amp-equilibrium  A6 SENSITIVITY: pin the amplification at the old equilibrium 1.196
 ##                      (prior N(1.19546,0.002)); output infix -> "extA6eq". Isolates A6.
 ##
@@ -1410,6 +1411,33 @@ const NN = 2*length(SERIES); const NK = NP + NN
 const STERIC_NI = findfirst(==(:steric), SERIES)
 isnothing(STERIC_NI) && isfinite(STERIC_MARG_CAP) &&
     error("--steric-marg-cap= given but :steric is not in SERIES")
+# --rho-max=<series>:<val>[,<series>:<val>] (2026-09-21, the L28 rho-cap arm): a PER-SERIES hard
+# upper bound on the AR(1) lag-1 autocorrelation, in place of the literal 0.99 every series has
+# carried since phase 2. Default = 0.99 for every series (the objective is byte-identical without
+# the flag; the identity gate checks that). WHY per-series: the cap is a test of ONE stream — L28
+# took the IMBIE-2026 AIS target with rho_ais 0.89 -> 0.97 against the bound, absorbing the
+# record's acceleration as persistent noise instead of moving the physics (scoping note §4). A
+# single cap on all four streams would also move gis (0.96-0.99) and steric (0.90-0.99) and the
+# arm would no longer be one axis. The bound is applied in logposterior with the other hard
+# rejections; the START POINT is repaired below (repair_rho_start!) exactly as the steric cap's is.
+const RHO_MAX_DEFAULT = 0.99
+const RHO_MAX = let v = fill(RHO_MAX_DEFAULT, length(SERIES)), a = _argval("--rho-max=")
+    if a !== nothing
+        for tok in split(a, ",")
+            kv = split(tok, ":"); length(kv) == 2 || error("--rho-max= expects <series>:<val>[,...], got '$a'")
+            i = findfirst(==(Symbol(kv[1])), SERIES)
+            isnothing(i) && error("--rho-max= series '$(kv[1])' is not in SERIES $(SERIES)")
+            r = parse(Float64, kv[2]); (0 < r <= RHO_MAX_DEFAULT) || error("--rho-max= value must be in (0, $RHO_MAX_DEFAULT], got $r")
+            v[i] = r
+        end
+    end
+    v
+end
+const RHO_CAPPED = any(RHO_MAX .< RHO_MAX_DEFAULT)
+println(RHO_CAPPED ?
+    "AR(1) rho bound: CAPPED — " * join(["rho_$(s) < $(RHO_MAX[i])" for (i, s) in enumerate(SERIES) if RHO_MAX[i] < RHO_MAX_DEFAULT], ", ") *
+        " (others at the default $RHO_MAX_DEFAULT; --rho-max=)" :
+    "AR(1) rho bound: DEFAULT $RHO_MAX_DEFAULT on every series (--rho-max=<series>:<val> to cap one)")
 # parameter names in θ order (physical, then AR(1) noise). Defined here because
 # --overdisperse needs it before sampling; the post-run summary reuses it.
 const pn0 = vcat([k.name for k in FREE], vcat([["sd_$s","rho_$s"] for s in SERIES]...))
@@ -1487,7 +1515,7 @@ function logposterior(θ)
     @inbounds for k in 1:NP; (θ[k]<FREE[k].lo || θ[k]>FREE[k].hi) && return -Inf; end
     PRECIP_REPARAM && (precip_log(θ) < PRECIP_LO || precip_log(θ) > PRECIP_HI) && return -Inf
     σn = θ[NP+1:2:NK]; ρn = θ[NP+2:2:NK]
-    (any(σn .<= 0) || any(ρn .< 0) || any(ρn .>= 0.99)) && return -Inf
+    (any(σn .<= 0) || any(ρn .< 0) || any(ρn .>= RHO_MAX)) && return -Inf   # RHO_MAX: 0.99 per series unless --rho-max=
     # L22: the MARGINAL, not σ. Evaluated here with the other hard rejections and BEFORE
     # run(m), so a proposal outside the bound costs no model evaluation.
     (isfinite(STERIC_MARG_CAP) &&
@@ -1791,6 +1819,27 @@ function repair_steric_start!(θ)
     return nothing
 end
 repair_steric_start!(θ0)
+## --rho-max: a capped series' start rho may sit above the cap (L27's start rows carry rho_ais up
+## to 0.916). Move rho to RHO_START_FRAC x cap (interior, as the steric repair is) and SCALE σ so
+## the MARGINAL σ/sqrt(1-ρ²) is unchanged — the start keeps the noise level it had, only its
+## persistence moves. Only the START moves; the bound is the same flat prior TRUNCATED.
+const RHO_START_FRAC = 0.95
+function repair_rho_start!(θ)
+    RHO_CAPPED || return nothing
+    for (i, s) in enumerate(SERIES)
+        si, ri = NP + 2i - 1, NP + 2i
+        θ[ri] < RHO_MAX[i] && continue
+        ρold, σold = θ[ri], θ[si]
+        ρnew = RHO_START_FRAC * RHO_MAX[i]
+        σnew = σold * sqrt((1 - ρnew^2) / (1 - ρold^2))
+        println("rho_$s start repaired for the cap: ρ $(round(ρold, digits=4)) -> $(round(ρnew, digits=4)), " *
+                "σ $(round(σold, digits=5)) -> $(round(σnew, digits=5)) (marginal " *
+                "$(round(σold/sqrt(1-ρold^2), digits=4)) held) vs cap $(RHO_MAX[i])")
+        θ[ri] = ρnew; θ[si] = σnew
+    end
+    return nothing
+end
+repair_rho_start!(θ0)
 # extC: cap the proposal scale at (hi-lo)/4 — the flat-prior params (σ=10 / 1e3) would
 # otherwise get absurd initial proposal widths; RAM adapts from a sane start instead
 prop = vcat([0.1*Float64(min(k.σ, (k.hi - k.lo)/4)) for k in FREE],
@@ -2006,6 +2055,7 @@ if OVERDISPERSE
     # equilibrium value so the chain begins on the pinned prior, not +100σ off it.
     # the starts file is a pre-cap posterior draw, so it needs the same repair θ0 got
     repair_steric_start!(θ0)
+    repair_rho_start!(θ0)
     lp0 = logposterior(θ0)
     isfinite(lp0) || error("--overdisperse: start row $si for seed $SEED has non-finite logposterior")
     @printf("over-dispersed start (seed %d, row %d): logpost(θ0) = %.2f  [MAP start = %.2f]\n",
@@ -2063,7 +2113,9 @@ if "--dump-priors" in ARGS
     end
     for (i, s) in enumerate(SERIES)
         push!(rows, (NP + 2i - 1, "sd_$s", "noise", 0.0, 5.0, 0.0, Inf, "half-normal N+(0, 5) cm", "AR(1) innovation sd of the $s residual"))
-        push!(rows, (NP + 2i,     "rho_$s", "noise", NaN, NaN, 0.0, 0.99, "flat on [0, 0.99)", "AR(1) lag-1 autocorrelation of the $s residual; 0.99 is a hard bound"))
+        push!(rows, (NP + 2i,     "rho_$s", "noise", NaN, NaN, 0.0, RHO_MAX[i], "flat on [0, $(RHO_MAX[i]))",
+                     "AR(1) lag-1 autocorrelation of the $s residual; $(RHO_MAX[i]) is a hard bound" *
+                     (RHO_MAX[i] < RHO_MAX_DEFAULT ? " (--rho-max=, default $RHO_MAX_DEFAULT)" : "")))
     end
     rows.provenance .= "calibrate_mcmc_ext.jl --dump-priors | tag $TAG | ARGS: " * join(ARGS, " ") *
         " | amp prior N($AMP_MU, $AMP_SIGMA) | GIS_ORDERED=$GIS_ORDERED (wedge: alpha_s <= alpha_f AND beta_s <= beta_f, a hard constraint on top of these marginals)" *
