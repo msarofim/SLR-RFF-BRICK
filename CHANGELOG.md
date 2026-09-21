@@ -1,3 +1,18 @@
+## 2026-09-21b — L27 PROMOTED TO CHAMPION (all six modules); the L27-vs-L24 observation plot
+
+`bench_ladrillo.py --tag=L27 --freeze` → `benchmark/reference/L27/`; `--promote --why=…` (Marcus 2026-09-21: "Promote
+L27 to champion") → `champions.json` ais/glaciers/gis/te/lws/total = **L27, since 2026-09-21** (L26 held it one day,
+09-20 → 09-21). The registry carries the reasoning verbatim (hindcast unchanged vs L26, BIC positive at every ρ bound,
+8/50 fails, between-refit precision ≤ 1.3 cm at 2300, the L26→L27 shift = L26's unfinished relaxation).
+
+`plot_hindcast_components.py --tag=L27 --compare=L24` (new option, Marcus: "a version of the observation plot just for
+me with L24 and L27"): a second Ladrillo posterior drawn dashed in purple with its parameter band, BRICK 2.0 and
+MAGICC-SLR dropped, written to its OWN name `figures/hindcast_components_L27_vs_L24.png` (the default render is
+byte-identical to HEAD — checked). Reading: L24 hugs the Antarctic and Greenland reconstructions inside a band a few mm
+wide (the T_on over-precision Table A2 recorded at 0.0 % of prior variance) where L27's band is the width the
+correlated-band error model gives it; early-century glaciers L27 sits closer to the raw target (the L24 median was
+fitted against the δ-ramped target, which is not drawn); TE and total are indistinguishable.
+
 ## 2026-09-21a — OVERNIGHT RESULT: the AIS medians reproduce between refits to ~1 cm; the L26→L27 "move" was L26's own unfinished relaxation
 
 `run_overnight_L27r_L27b.sh` ran 20:58 → 03:26 unattended (ALLDONE; every gate PASS; log `outputs/log_overnight_L27r_L27b.txt`;

@@ -60,7 +60,14 @@ from matplotlib.patches import Patch  # noqa: E402
 
 TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
 DESC = lf.tag_desc(TAG)
-OUT = lf.paper_path(os.path.join(lf.REPO, "figures", "hindcast_components_%s.png" % TAG))
+## --compare=<TAG2> (2026-09-21, Marcus: "a version of the observation plot just for me with L24 and
+## L27"): a SECOND Ladrillo posterior drawn beside the first (median + parameter band, distinct
+## colour); BRICK 2.0 and MAGICC-SLR are dropped so the two vintages are the only model lines.
+## Written under its own name, so it can never overwrite the paper's figure.
+CMP = next((a[len("--compare="):] for a in sys.argv[1:] if a.startswith("--compare=")), None)
+CMP_DESC = lf.tag_desc(CMP) if CMP else None
+OUT = lf.paper_path(os.path.join(lf.REPO, "figures", "hindcast_components_%s%s.png"
+                                 % (TAG, "_vs_%s" % CMP if CMP else "")))
 
 LAD_CSV = os.path.join(lf.REPO, "outputs", "postpred_%s_components_timeseries.csv" % TAG)
 BRK_CSV = os.path.join(lf.REPO, "outputs", "postpred_oldbrick_components_timeseries.csv")
@@ -129,6 +136,11 @@ for f in (LAD_CSV, BRK_CSV, TGT_CSV, IGCC_CSV, MAG_CSV, IGCC_EEI):
         raise SystemExit("missing %s" % os.path.relpath(f, lf.REPO))
 LAD = pd.read_csv(LAD_CSV).set_index("year")
 BRK = pd.read_csv(BRK_CSV).set_index("year")
+CMP_CSV = os.path.join(lf.REPO, "outputs", "postpred_%s_components_timeseries.csv" % CMP) if CMP else None
+if CMP and not os.path.exists(CMP_CSV):
+    raise SystemExit("missing %s" % os.path.relpath(CMP_CSV, lf.REPO))
+LADC = pd.read_csv(CMP_CSV).set_index("year") if CMP else None
+C_CMP = "#7b3294"                                  # a purple no other source on this figure uses
 TGT = pd.read_csv(TGT_CSV).set_index("year")
 ## MAGICC: long table -> one wide frame per component, columns med/p05/p95, NaN before start.
 _mg = pd.read_csv(MAG_CSV)
@@ -259,12 +271,17 @@ for ax, comp in zip(axes.ravel(), lf.COMPONENTS):
         ax.fill_between(LAD.index, LAD["%s_p05" % c], LAD["%s_p95" % c],
                         color=C_LAD, alpha=0.22, lw=0)
         ax.plot(LAD.index, LAD["%s_p50" % c], color=C_LAD, lw=1.9, zorder=5)
-    if BRK_COL[comp]:
+    if CMP and LAD_COL[comp]:
+        c = LAD_COL[comp]
+        ax.fill_between(LADC.index, LADC["%s_p05" % c], LADC["%s_p95" % c],
+                        color=C_CMP, alpha=0.18, lw=0)
+        ax.plot(LADC.index, LADC["%s_p50" % c], color=C_CMP, lw=1.7, ls="--", zorder=5)
+    if BRK_COL[comp] and not CMP:
         c = BRK_COL[comp]
         ax.fill_between(BRK.index, BRK["%s_p5" % c], BRK["%s_p95" % c],
                         color=C_BRK, alpha=0.16, lw=0)
         ax.plot(BRK.index, BRK["%s_p50" % c], color=C_BRK, lw=1.6, ls="--", zorder=5)
-    if comp in MAG_PANELS:
+    if comp in MAG_PANELS and not CMP:
         m = MAG[MAG_COL[comp]].dropna()
         ax.fill_between(m.index, m["p05"], m["p95"], color=C_MAG, alpha=0.14, lw=0)
         ax.plot(m.index, m["med"], color=C_MAG, lw=1.6, ls=(0, (2, 1.2)), zorder=5)
@@ -284,11 +301,13 @@ for ax, comp in zip(axes.ravel(), lf.COMPONENTS):
 axes[1, 0].set_xlabel("year")
 
 handles = [Line2D([], [], color=C_LAD, lw=2, label="%s (median)" % DESC["model"]),
-           Patch(facecolor=C_LAD, alpha=0.22, label="Ladrillo 5–95% (parameters)"),
-           Patch(facecolor=C_LAD, alpha=0.10, label="Ladrillo 5–95% (predictive, +AR(1)+obs err)"),
+           Patch(facecolor=C_LAD, alpha=0.22, label="%s 5–95%% (parameters)" % (TAG if CMP else "Ladrillo")),
+           Patch(facecolor=C_LAD, alpha=0.10, label="%s 5–95%% (predictive, +AR(1)+obs err)" % (TAG if CMP else "Ladrillo"))] + ([
+           Line2D([], [], color=C_CMP, lw=1.7, ls="--", label="%s (median)" % CMP_DESC["model"]),
+           Patch(facecolor=C_CMP, alpha=0.18, label="%s 5–95%% (parameters)" % CMP)] if CMP else [
            Line2D([], [], color=C_BRK, lw=1.6, ls="--", label="BRICK 2.0 (median)"),
            Line2D([], [], color=C_MAG, lw=1.6, ls=(0, (2, 1.2)),
-                  label="MAGICC-SLR (median, 5–95%%; Greenland only, from %d)" % MAG_START["gis"]),
+                  label="MAGICC-SLR (median, 5–95%%; Greenland only, from %d)" % MAG_START["gis"])]) + [
            Line2D([], [], color=C_OBS, lw=1.6, label="observational target (±1.645σ)"),
            Patch(facecolor="#e08214", edgecolor="#b35806", hatch="////", alpha=0.45,
                  label="TE: most the >2000 m ocean could add (upper bound)"),
@@ -297,8 +316,10 @@ handles = [Line2D([], [], color=C_LAD, lw=2, label="%s (median)" % DESC["model"]
 fig.legend(handles=handles, ncol=2, fontsize=8.5, frameon=False, loc="upper center",
            bbox_to_anchor=(0.5, 0.978))
 if not lf.PAPER:
-    fig.suptitle("Historical sea-level rise 1900–2026 by component — %s vs observations vs "
-                 "BRICK 2.0 (and MAGICC-SLR at Greenland)   [%s]" % (DESC["model"], lf.commit_stamp()),
+    fig.suptitle(("Historical sea-level rise 1900–2026 by component — %s vs %s vs observations   [%s]"
+                  % (DESC["model"], CMP_DESC["model"], lf.commit_stamp())) if CMP else
+                 ("Historical sea-level rise 1900–2026 by component — %s vs observations vs "
+                  "BRICK 2.0 (and MAGICC-SLR at Greenland)   [%s]" % (DESC["model"], lf.commit_stamp())),
                  fontsize=12.5, fontweight="bold", y=0.999)
 ## CAPTION SCOPE: say what the figure DOES, plus the provenance labels every output carries.
 ## Anything argued in the document's text belongs there, not here -- the baseline distinction,
@@ -307,16 +328,18 @@ if not lf.PAPER:
 ## implied or belongs in the text -- no verification notes, no unit conversions, no model
 ## specification beyond the vintage line.
 _cap = (
-    "%s — %s.  Baseline %d–%d.  "
-    "Component observations: Frederikse et al. (2020), 1900–2018, extended by GRACE/GRACE-FO "
+    ("%s — %s.  Baseline %d–%d.  " % (DESC["model"], DESC["calib"], BASE0, BASE1))
+    + "Component observations: Frederikse et al. (2020), 1900–2018, extended by GRACE/GRACE-FO "
     "(AIS, GIS), GlaMBIE 2025 (glaciers), NOAA 0–2000 m thermosteric (TE); total = Dangendorf "
     "2024 extended by NOAA STAR altimetry, and both totals carry the observed land-water storage.  "
     "Both models are run from 1850, plotted from @@X0@@, on the same ssp245harm forcing.  "
-    "MAGICC-SLR (v7.5.3 + Nauels 2025) is drawn on the Greenland panel from 1991, on its own "
-    "climate.  Thermal expansion: the hatched band above the observation is the most the ocean "
+    + ("The dashed line is the %s posterior (%s), the solid line %s; parameter band only for the "
+       "comparison vintage.  " % (CMP, CMP_DESC["model"], TAG) if CMP else
+       "MAGICC-SLR (v7.5.3 + Nauels 2025) is drawn on the Greenland panel from 1991, on its own "
+       "climate.  ")
+    + "Thermal expansion: the hatched band above the observation is the most the ocean "
     "below 2000 m could add (IGCC deep-ocean heat × the observed upper-ocean expansion "
-    "coefficient), drawn over 1971–2024."
-    % (DESC["model"], DESC["calib"], BASE0, BASE1))
+    "coefficient), drawn over 1971–2024.")
 _cap = _cap.replace("@@X0@@", str(X0))          # derived from the constant, not retyped
 assert "@@" not in _cap, "caption sentinel left unsubstituted"
 if not lf.PAPER:
