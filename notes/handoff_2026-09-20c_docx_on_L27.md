@@ -85,3 +85,19 @@ value it replaces), `deliverables/redline/run_r6.sh` (re-runnable pipeline), `de
   Not a defect; the XSD validation passed and the media/rels are verified by md5 in the CHANGELOG-era check.
 - The memo deliverable `LadrilloUpdateDescription_FILLED.md` / its docx is an L24 document and stays so; only its
   gsic figure REFERENCE was renamed to the tagged L24 filename.
+
+## 6. OVERNIGHT (added 21:45) — L27r then L27b are RUNNING on the Mac
+
+`run_overnight_L27r_L27b.sh` (nohup, launched 20:58; log `outputs/log_overnight_L27r_L27b.txt`, chain PIDs in it;
+CHANGELOG 09-20g). L27r = L27's objective on the 3026–3029 seed bank with L27's own starts + named covariance;
+L27b = L27 with the ledger sampled. Each is gated (noise mode → SLR convergence → postprocess `--accept-slr` →
+postpred → fixed-climate SSP components); the run ends with `python/diag_refit_precision.py --tags=L26,L27,L27r,L27b`
+and `ALLDONE`. Expected ~07:00. **Read first in the morning:** the last lines of the log; `outputs/diag_refit_
+precision_L26_L27_L27r_L27b.csv`; the "BETWEEN-REFIT SPREAD, L27 vs L27r" block = the number the paper states for
+the AIS medians' precision. If L27r's AIS geometry sits ON L27's (≤ ~0.2 L26-sd), the L26→L27 move was real; if it
+lands between or beyond, quote the L27–L27r spread as the precision. If L27b's geometry sits on L26's, option D
+couples; on L27's, D is inert. ⚠ Do NOT edit `run_overnight_L27r_L27b.sh` or `calibrate_mcmc_ext.jl` while it runs
+(bash reads incrementally; L27b re-launches the calibrator). Kill by the PIDs in the log, never `pkill -f`.
+The review docx was REGENERATED at 21:35 with the re-run sensitivity numbers (same filename); if Marcus had
+already opened the 21:00 copy, the 21:35 one supersedes it (four fewer comments, four numbers changed: §3 of
+CHANGELOG 09-20g).
