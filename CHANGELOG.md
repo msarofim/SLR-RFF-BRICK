@@ -1,3 +1,34 @@
+## 2026-09-21f — IMBIE 2026 (Otosaka et al., Sci Data 13:1301) against Ladrillo's ice-sheet targets: the AIS target is ~25 % low on the modern rate, L27 is 4σ low; GIS fine
+
+Marcus asked whether the new reconciled ice-sheet record (Greenland 1972–2023, Antarctica 1979–2023, 42 estimates,
+SMB / dynamics split; Antarctic loss over 1992–2020 **140 ± 13 Gt/yr, +50 % on IMBIE 2023's 92**) should change Ladrillo.
+Downloaded the ten PDC CSVs (`data/observations/raw/imbie2026/`, OGL v3, README with provenance). New
+`python/diag_imbie2026_vs_targets.py --tag=` (annual means in cm SLE rel. 1995–2005; **both bars on every difference** —
+ours = the Frederikse 5000-member spread of the SAME level difference + the GRACE splice σ in quadrature, IMBIE's = its
+cumulative σ; outputs `diag_imbie2026_vs_targets{,_windows,_anchors}_L27.csv`, figure `diag_imbie2026_vs_targets_L27.png`).
+
+**Antarctica.** Our target (Frederikse ≤ 2018 + GRACE-FO) is BELOW IMBIE 2026 in every window since 1979 — cumulative
+1979–2023 **0.91 ± 0.18 vs 1.33 ± 0.14 cm (−1.8σ)**, 1992–2020 rate **0.031 vs 0.039 cm/yr (−1.3σ; ratio 0.78)**, each
+decade −0.7 to −1.5σ. **L27 is lower still: −2.6σ on the cumulative, −3.9σ on the 1992–2020 rate (0.024 cm/yr, −38 %),
+−2.6 / −3.3σ on 2003–2010 / 2011–2017** — the DAIS hindcast is a smooth ramp that does not follow the 2005–2018
+acceleration even against its own target (0.024 vs 0.031). BRICK 2.0's modern AIS rate is CLOSER to IMBIE (0.036,
+−0.6σ) but it is +2.4σ high pre-1992 and −114 Gt/yr over 1979–2008 against IMBIE's −78 (−3.2σ indep.). 2020–2023: IMBIE
+0.016 cm/yr (EAIS gains), our GRACE target 0.002, L27 0.037 — all inside the bars. ⚠ The A5 "Rignot anchor" scores the
+ABSOLUTE SMB flux (β_total 1863 ± 118 Gt/yr); IMBIE publishes anomalies only, so it cannot replace that term — what it
+adds is the reconciled NET series. Over 1979–2008 IMBIE's net is −78 ± 11 (independent years) / ± 59 (fully correlated)
+Gt/yr; target −51 ± 14 (z +1.5 / +0.4), L27 −56.
+
+**Greenland.** Target within ~1σ of IMBIE in every window but 2011–2017 (+2.5σ: 0.085 vs 0.068 cm/yr — Frederikse's
+GrIS runs hot in the GRACE decade); modern rate 0.055 vs 0.050 (+1.0σ). L27's known pre-1992 excess (+3.7σ over
+1972–1991, 0.025 vs 0.006 cm/yr) is against IMBIE too; its modern rate is fine (+0.4σ). IMBIE's surface share of the
+2000–2018-over-1972–1990 extra loss is **0.60 vs the Mouginot term's 0.735 ± 0.05, but IMBIE's own bar on that share is
+0.10–0.44** (the 1970s SMB σ is ±78 Gt/yr) — z −1.2 / −0.3, NO POWER; the Mouginot term stands. Greenland INCLUDES the
+peripheral glaciers in both products (scope-matched).
+
+**Recommendation put to Marcus (methodological choice, his call):** rebuild the AIS target on IMBIE 2026 over 1979–2023
+(Frederikse before, GRACE after) and refit (L28); leave GIS. The pull-up is 1.3–1.8σ on the target but the paper's
+posterior would otherwise ship 4σ low on the modern Antarctic rate against a reconciled assessment published the week
+before submission; the AIS numbers (Table 4, the IC gain, the ssp245 medians) would change. Not started.
 ## 2026-09-21e — Marcus's r8 review answered: the amplification leverage re-run on L27 (and it is a THRESHOLD effect), the runtime re-timed twice, the "up to 31 cm" confirmed; draft r9
 
 **Marcus's pass on r8 (11:14, tracking off):** every earlier round accepted; wording edits to the LWS paragraph, the
