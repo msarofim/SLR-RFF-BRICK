@@ -8,7 +8,13 @@ the post-2020 Antarctic GRACE-FO "pause" -- shift the BRICK-Mengel calibration,
 and extend Greenland / thermal-expansion / glaciers at the same time.
 
 Extension data (all reconciled multi-method products; see README in raw/):
-  - AIS : GRACE-FO JPL mascon RL06.3Mv4 Antarctic mass (2002-2026), DOI 10.5067/TEMSC-3JC634
+  - AIS : ⭐ SINCE 2026-09-21 (Marcus): IMBIE 2026 (Otosaka et al., Sci Data 13:1301; PDC 10.5285/128c5e33)
+          reconciled Antarctic mass balance 1979-2023 REPLACES Frederikse's AIS over those years; Frederikse
+          1900-1978 is offset-matched onto it over IMBIE_JOIN_WIN; GRACE-FO JPL mascon RL06.3Mv4 (DOI
+          10.5067/TEMSC-3JC634) is offset-matched onto IMBIE over 2003-2023 and fills 2024-2026 only.
+          `--ais-frederikse` restores the pre-09-21 target (Frederikse to 2018 + GRACE from 2019), byte-identical.
+          Why: diag_imbie2026_vs_targets.py -- the old target sat 22 % below the reconciled record on the 1992-2020
+          rate (-1.3 sigma with both bars), every window since 1979 low; CHANGELOG 09-21f/g.
   - GIS : GRACE-FO JPL mascon RL06.3Mv4 Greenland mass (2002-2026), same DOI
   - GSIC: GlaMBIE 2025 glacier mass (2000-2023), DOI 10.5904/wgms-glambie-2024-07,
           SCOPE-MATCHED = global MINUS region 5 (r5 is in the GIS target), region 19 KEPT
@@ -52,6 +58,13 @@ import xarray as xr
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
+import argparse
+_ap = argparse.ArgumentParser()
+_ap.add_argument("--ais-frederikse", action="store_true",
+                 help="pre-2026-09-21 AIS target (Frederikse to 2018 + GRACE from 2019) instead of IMBIE 2026")
+_ARGS = _ap.parse_args()
+AIS_SOURCE = "frederikse" if _ARGS.ais_frederikse else "imbie2026"
 
 REPO = os.path.expanduser("~/Documents/2026/CodeProjects/SLR-RFF-BRICK")
 RAW  = os.path.join(REPO, "data/observations/raw")
@@ -111,6 +124,16 @@ ALT_SIGMA_MM     = 4.0                 # nominal altimetry annual GMSL 1-sigma (
 # per-component overlap window for the offset-match splice
 OVERLAP = {"ais": (2003, 2018), "gis": (2003, 2018), "gsic": (2003, 2018),
            "steric": (2005, 2018), "dang": (2003, 2018)}
+# ---- IMBIE 2026 AIS (AIS_SOURCE == "imbie2026") ----
+IMBIE26_CSV      = os.path.join(RAW, "imbie2026/imbie3_antarctica_mm_partitioned.csv")
+IMBIE26_Y0, IMBIE26_Y1 = 1979, 2023     # complete years in the record
+IMBIE_JOIN_WIN   = (1979, 1988)         # Frederikse 1900-1978 is offset-matched onto IMBIE over its first decade
+                                        # ‼ METHODOLOGICAL CHOICE (flagged 09-21g): a 10-yr join window; the pre-1979
+                                        # SHAPE is Frederikse's, its LEVEL is IMBIE's. Its band adds IMBIE's join-window
+                                        # sigma in quadrature to the ensemble sd re-referenced to the join window.
+IMBIE_GRACE_OVERLAP = (2003, 2023)      # GRACE is offset-matched onto IMBIE over this window, then fills 2024-2026
+IMBIE_SIG_REF_YR = 2000                 # centre of BASE: IMBIE's level sigma is the random-walk distance from it
+IMBIE_SIG_FLOOR  = 0.01                 # cm; the GRACE path uses the same floor
 
 FRED = os.path.join(RAW, "frederikse2020_global_basin_timeseries.xlsx")
 FRED_MAP = {"Antarctic Ice Sheet": "ais", "Glaciers": "gsic",
@@ -214,6 +237,42 @@ for fname, tgt in FRED_MAP.items():
     sig = ens_sig[tgt].reindex(years)
     out[tgt + "_lo"] = (mean_s - 1.645 * sig).values
     out[tgt + "_hi"] = (mean_s + 1.645 * sig).values
+
+# ============================================================ IMBIE 2026 replaces Frederikse's AIS 1979-2023
+imbie26 = None
+if AIS_SOURCE == "imbie2026":
+    _im = pd.read_csv(IMBIE26_CSV, comment="#")
+    _im["year"] = pd.to_datetime(_im.Date).dt.year; _im["month"] = pd.to_datetime(_im.Date).dt.month
+    _dec = _im[(_im.month == 12) & (_im.year >= IMBIE26_Y0) & (_im.year <= IMBIE26_Y1)].set_index("year")
+    assert list(_dec.index) == list(range(IMBIE26_Y0, IMBIE26_Y1 + 1)), "IMBIE: incomplete years"
+    # ice mass (negative = loss), mm -> sea level, cm; end-of-year level = December cumulative
+    imb_level = -_dec["Cumulative mass balance anomaly (mm)"] / 10.0
+    imb_cumsig = _dec["Cumulative mass balance anomaly uncertainty (mm)"] / 10.0
+    imb_rel = reref(imb_level, (BASE_Y0, BASE_Y1))
+    # level sigma relative to BASE: IMBIE's cumulative sigma is a random walk from 1979, so the sigma of the
+    # level DIFFERENCE between year y and the reference centre is sqrt(|s(y)^2 - s(ref)^2|)
+    imb_sig = np.sqrt(np.abs(imb_cumsig ** 2 - imb_cumsig.loc[IMBIE_SIG_REF_YR] ** 2)).clip(lower=IMBIE_SIG_FLOOR)
+    # Frederikse 1900-1978 onto IMBIE's level over the join window
+    _jw = list(range(IMBIE_JOIN_WIN[0], IMBIE_JOIN_WIN[1] + 1))
+    off_join = float(imb_rel.loc[_jw].mean() - fred["ais"].loc[_jw].mean())
+    # its band: ensemble members re-referenced to the JOIN window (+ IMBIE's join-window sigma in quadrature)
+    _ds = xr.open_dataset(FRED_ENS_NC); _ey = _ds["time"].values.astype(int); _w = _ds["likelihood"].values.astype(float)
+    _mm = _ds["AIS"].values / 10.0; _jm = (_ey >= IMBIE_JOIN_WIN[0]) & (_ey <= IMBIE_JOIN_WIN[1])
+    _mm = _mm - _mm[:, _jm].mean(axis=1, keepdims=True)
+    _mean = np.average(_mm, axis=0, weights=_w); _sd = np.sqrt(np.average((_mm - _mean) ** 2, axis=0, weights=_w))
+    sig_pre = pd.Series(_sd, index=_ey)
+    sig_join = float(np.sqrt(np.abs(imb_cumsig.loc[_jw].mean() ** 2 - imb_cumsig.loc[IMBIE_SIG_REF_YR] ** 2)))
+    for y in range(FIT_Y0, IMBIE26_Y0):
+        v = fred["ais"].loc[y] + off_join; sg = float(np.sqrt(sig_pre.loc[y] ** 2 + sig_join ** 2))
+        out.loc[y, "ais"] = v; out.loc[y, "ais_lo"] = v - 1.645 * sg; out.loc[y, "ais_hi"] = v + 1.645 * sg
+    for y in range(IMBIE26_Y0, IMBIE26_Y1 + 1):
+        v = float(imb_rel.loc[y]); sg = float(imb_sig.loc[y])
+        out.loc[y, "ais"] = v; out.loc[y, "ais_lo"] = v - 1.645 * sg; out.loc[y, "ais_hi"] = v + 1.645 * sg
+    imbie26 = (imb_rel, imb_sig)
+    print(f"AIS target = IMBIE 2026 {IMBIE26_Y0}-{IMBIE26_Y1} (rel {BASE_Y0}-{BASE_Y1}); Frederikse 1900-{IMBIE26_Y0 - 1} "
+          f"offset {off_join:+.3f} cm over {IMBIE_JOIN_WIN} (join sigma {sig_join:.3f} cm); "
+          f"IMBIE 1992-2020 rate {(imb_rel.loc[2020] - imb_rel.loc[1991]) / 29:.4f} cm/yr vs Frederikse+GRACE "
+          f"{(fred['ais'].loc[2018] - fred['ais'].loc[1991]) / 27:.4f} (to 2018)")
 
 # "Total" term (rel window). M3 REWORK 2026-07-20 (Marcus): the total is now the REAL
 # Dangendorf 2024 reconstruction (1900-2021), NOT Frederikse (which the old file secretly
@@ -347,24 +406,32 @@ print(f"{'comp':6s} {'overlap':12s} {'offset_cm':>9s} {'from':>5s} {'end_yr':>6s
 splices = {}
 for tgt in ["ais", "gis", "gsic", "steric", "dang"]:
     mod_cm, mod_sig = modern[tgt]
-    off, yrs = splice_offset(mod_cm, fred[tgt], OVERLAP[tgt])
+    if tgt == "ais" and imbie26 is not None:
+        off, yrs = splice_offset(mod_cm, imbie26[0], IMBIE_GRACE_OVERLAP)   # GRACE onto IMBIE, not Frederikse
+        y0 = IMBIE26_Y1 + 1
+    else:
+        off, yrs = splice_offset(mod_cm, fred[tgt], OVERLAP[tgt])
+        y0 = SPLICE_FROM[tgt]
     spl = mod_cm + off
     end = int(spl.index.max())
     splices[tgt] = (spl, mod_sig)
-    y0 = SPLICE_FROM[tgt]
     for y in range(y0, end + 1):
         if y in spl.index:
             out.loc[y, tgt] = spl[y]
             s = mod_sig.get(y, np.nan)
             s = 0.05 if not np.isfinite(s) else max(s, 0.01)
+            if tgt == "ais" and imbie26 is not None:
+                # the fill years inherit IMBIE's level sigma at the join (the mascon sigma is a per-year
+                # measurement error; the level relative to BASE cannot be tighter than the series it sits on)
+                s = float(np.sqrt(s ** 2 + imbie26[1].loc[IMBIE26_Y1] ** 2))
             out.loc[y, tgt + "_lo"] = spl[y] - 1.645 * s
             out.loc[y, tgt + "_hi"] = spl[y] + 1.645 * s
     if tgt == "dang":
         for y in range(y0, end + 1):
             if y in spl.index:
                 out.loc[y, "dang_sig"] = ALT_SIGMA_MM / 10.0
-    inc = spl[end] - fred[tgt].get(y0 - 1, np.nan)
-    print(f"{tgt:6s} {str(OVERLAP[tgt]):12s} {off:9.3f} {y0:5d} {end:6d}  {inc:+.3f}")
+    inc = spl[end] - (imbie26[0] if (tgt == "ais" and imbie26 is not None) else fred[tgt]).get(y0 - 1, np.nan)
+    print(f"{tgt:6s} {str(IMBIE_GRACE_OVERLAP if (tgt == 'ais' and imbie26 is not None) else OVERLAP[tgt]):12s} {off:9.3f} {y0:5d} {end:6d}  {inc:+.3f}")
 
 # LWS 2019+: REAL DATA (GRACE/GRACE-FO), replacing the hold-flat fiat -- WIRED IN 2026-08-25.
 #
@@ -441,6 +508,8 @@ src = pd.DataFrame({"year": years}).set_index("year")
 for tgt in ["ais", "gis", "gsic", "steric", "dang"]:
     src[tgt + "_fred"]   = fred[tgt].reindex(years).values                  # Frederikse (components) / Dangendorf (total)
     src[tgt + "_modern"] = splices[tgt][0].reindex(years).values            # offset-matched modern, full range
+src["ais_imbie2026"] = imbie26[0].reindex(years).values if imbie26 is not None else np.nan
+src.attrs["ais_source"] = AIS_SOURCE
 src.reset_index().to_csv(OUT_SRC, index=False)
 print(f"Wrote {OUT_SRC}  (Frederikse vs modern-extension columns, separated)")
 

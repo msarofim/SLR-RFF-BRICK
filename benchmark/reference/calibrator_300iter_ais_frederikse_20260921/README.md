@@ -1,16 +1,4 @@
-# calibrator_300iter — the L24-objective identity reference (RE-FROZEN 2026-09-21, twice)
-
-**Second re-freeze, 2026-09-21 (afternoon): the AIS TARGET changed.** `outputs/recalib_targets_ext.csv` now carries
-IMBIE 2026 over 1979–2023 (Otosaka et al., Sci Data 13:1301) in place of Frederikse 2020 + GRACE-FO (CHANGELOG 09-21g).
-logpost(θ₀) at the L24 start row moves **219.64 → 148.36**. The morning's (:central, Frederikse-AIS) reference is
-archived verbatim in `../calibrator_300iter_ais_frederikse_20260921/`, and the current calibrator reproduces it
-byte-for-byte with the quarantined target file swapped in (`outputs/quarantine/20260921_ais_target_frederikse/`,
-proof run 09-21 ~13:40) — so the target is the ONLY change. Mutation test at this re-freeze: `--amp-sigma=0.181` →
-chain differs (FAIL), as it must. First calibration on the new target: L28.
-
----
-(the morning re-freeze's README follows)
-
+# calibrator_300iter — the L24-objective identity reference (RE-FROZEN 2026-09-21)
 
 `chain_L24_seed2026_n300.csv` and `adapted_cov_L24_seed2026.csv` are the 300-iteration, seed-2026 run of the L24
 configuration (`scripts/gate_calibrator_identity.sh`) on the calibrator at commit `b94888c` + the seed_diag fix,

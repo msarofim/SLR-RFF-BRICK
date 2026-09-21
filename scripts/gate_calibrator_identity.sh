@@ -10,6 +10,9 @@
 ##
 ##   bash scripts/gate_calibrator_identity.sh            # ~40 s; exit 0 = identical
 ##
+## RE-FROZEN AGAIN 2026-09-21 (afternoon) on the IMBIE-2026 AIS target (logpost(θ0) 219.64 -> 148.36; the Frederikse-AIS
+## reference is archived in benchmark/reference/calibrator_300iter_ais_frederikse_20260921/ and reproduces with the
+## quarantined target swapped in). Earlier the same day:
 ## RE-FROZEN 2026-09-21 under LWS_MODE = :central (the 09-18 land-water ruling enters the objective through
 ## the Antarctic sea-level feedback, ~1e-4 log-units, enough to flip accept/reject inside 300 iterations); the
 ## 09-16 :seeded reference is archived beside it and is reproduced byte-for-byte by the current calibrator with
