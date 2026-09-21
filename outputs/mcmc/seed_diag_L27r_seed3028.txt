@@ -1,0 +1,12 @@
+proposal seed for tag=L27r seed=3028
+  ADCOV = /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/mcmc/adapted_cov_L27_named.csv
+  NK = 50
+  (seeding proposal: name-mapped 50 of 50 rows of adapted_cov_L27_named.csv using the FILE'S OWN header)
+AIS geometry block + sampled basin scales (sqrt of the covariance diagonal):
+  ais_mu             1.436        floor 0.003      ok
+  ais_bedheight0     18.72        floor 0.03       ok
+  ais_slope          2.772e-05    floor 1e-08      ok
+  ais_iceflow0       0.2449       floor 0.0003     ok
+  ais_runoff_Ton     4.001        floor 0.0005     ok
+  ais_c              21.57        floor 0.05       ok
+  gis_s_high         0.1281       floor 0.001      ok

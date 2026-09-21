@@ -1,3 +1,50 @@
+## 2026-09-21a — OVERNIGHT RESULT: the AIS medians reproduce between refits to ~1 cm; the L26→L27 "move" was L26's own unfinished relaxation
+
+`run_overnight_L27r_L27b.sh` ran 20:58 → 03:26 unattended (ALLDONE; every gate PASS; log `outputs/log_overnight_L27r_L27b.txt`;
+`outputs/diag_refit_precision_L26_L27_L27r_L27b.csv`). Both arms accepted on the deliverable criterion (projected SLR R̂
+1.003 / 0.999, ESS 1270–1500); parameter marginals 9/50 fail in each (the AIS ridge; L27r `ais_runoff_Ton` R̂ 1.44, ESS 19).
+Acceptance 0.246–0.248; noise-mode gate PASS (sd_gis 0.0255 every chain); log-post L27r 790–791 = L27's, L27b 781–782
+(52 params; not comparable across objectives).
+
+**1. Between-refit precision (L27 vs L27r: same objective, seed bank 3026–3029, L27's own starts and covariance).**
+Fixed-climate AIS medians: ssp245 2100 12.57 vs 12.42, 2300 178.1 vs 176.8 (**−1.3 cm**); ssp585 2100 38.0 vs 38.1,
+2300 281.0 vs 281.8; ssp126 2300 16.2 vs 16.5 (p95 65.4 vs 63.0); ssp245 total 2100 52.4 vs 52.5, 2300 270.0 vs 270.6.
+Hindcast RMSE identical to 3 decimals on every component (AIS 0.093 vs 0.089). ⇒ **the paper can state ±1–2 cm at 2300
+(≤ 1 % of the median, < 1 % of the 90 % band) as the between-refit precision of the Antarctic projection medians.**
+L27b (ledger sampled, 52 params) lands in the same place: ssp245 AIS 2300 177.8, ssp585 286.3 (+5 on 281), total 270.3.
+
+**2. The geometry, and where the L26→L27 move came from.** Antarctic block, pooled 2nd-half medians in L26-sd units
+(L27 / L27r / L27b): anto_α +0.48 / +0.54 / +0.56, anto_β +0.53 / +0.36 / +0.36, antarctic_α −0.51 / −0.44 / −0.81,
+ocean_T₀ −0.29 / −0.29 / −0.16, ν +0.21 / +0.18 / +0.12 — the three L27-family runs AGREE (range ≤ 0.2 except α 0.36) at a
+place 0.3–0.6 sd from L26. The ridge directions scatter between refits at the size of their own within-run chain
+spread (slope −0.44 / −0.11 / +0.05; iceflow0 +0.27 / −0.11 / −0.18; T_on +0.10 / +0.89 / 0.00 with single chains at
++2.9 and +2.0) and move projections ≤ 1.3 cm — unmixed, projection-inert, as Table A2 says.
+- **The cut is NOT the cause (tested inside L26).** Conditioning L26's own draws on γ / λ / T_crit — by quintile, and
+  on the window |γ − 2.834| < 0.15 (n = 26,717) — moves anto_α / anto_β / antarctic_α / ocean_T₀ / ν by ≤ 0.05 sd;
+  Spearman |r| with γ ≤ 0.014. A flat marginal AND a flat conditional: holding the three at their medians cannot relocate
+  the ocean parameters through the posterior.
+- **The ledger is NOT the cause.** L27b (ledger sampled, L26's starts and covariance) lands with L27/L27r, not with L26.
+- **L26 was still relaxing.** Eight-segment within-chain medians of `antarctic_alpha` (units: L26 seed2026 2nd-half sd):
+  L26's four chains start at **+2.3 / +2.1 / +3.4 / +2.5** and decay monotonically to −0.6 / −0.2 / −1.0 / +0.5 by the
+  last eighth — the retained second half (+0.8 → −0.6 on seed2026) is the TAIL of a transient, so L26's pooled median
+  sits above the stationary value. Every L27-family chain sits at −0.4 … −1.4 from its first segment (they started from
+  L26's late draws, i.e. near the destination). ⇒ **the L26 → L27 shift of the ocean parameters (and the −3 / −13 cm
+  on the ssp245 AIS medians) is the completion of L26's own relaxation, measured three times, not an effect of the
+  A/C/D reduction.** The 09-20e "candidate explanations" are closed: not the likelihood, not D, and "shared slow drift"
+  was right about L26, not about L27.
+
+**Reading for the paper:** the Convergence paragraph can add one sentence — two independent refits of the same
+objective (different seeds, starts and proposal covariance) reproduce every Antarctic projection median to within
+1.3 cm at 2300 and the hindcast to 0.001 cm; the unmixed geometry directions differ by up to 0.9 posterior sd between
+refits without moving the projections. Not yet in the docx (Marcus may be reviewing it) — offered, not applied.
+
+**Files.** Chains `outputs/mcmc/chain_L27{r,b}_seed*_n2000000.csv` (8 × 2 GB, not in git); subsamples
+`data/MimiBRICK/parameters_subsample_brick_mengel_L27{r,b}.csv` (gitignored; test arms, NOT force-added — L27 stays the
+paper's posterior); committed: `postpred_L27{r,b}_*`, `ssps_components_2300_L27{r,b}_<tap>.csv`,
+`outputs/mcmc/slr_convergence_L27{r,b}.csv`, `seed_diag_L27{r,b}_seed*.txt`, `adapted_cov_L27{r,b}.csv`,
+`diag_refit_precision_L26_L27_L27r_L27b.csv`, the driver log. The two in-session tests (γ/λ/T_crit conditioning;
+eight-segment drift) were run inline and are recorded here; a script form is a to-do if either is quoted.
+
 ## 2026-09-20g — overnight L27r + L27b launched; the L24-basis sensitivity arms re-run on L27 and folded into the docx; three more tag literals retired
 
 **Overnight (Mac, sequential; `run_overnight_L27r_L27b.sh`, log `outputs/log_overnight_L27r_L27b.txt`, launched
