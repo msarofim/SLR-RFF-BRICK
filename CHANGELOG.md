@@ -1,3 +1,41 @@
+## 2026-09-21h — L28 LANDED: the reconciled AIS record fitted on the level, NOT the shape — the physics did not move, ρ_ais went to 0.97, projections went DOWN; the structural verdict is revised
+
+**L28 result** (chains 13:15–16:40, acceptance 0.237–0.238; noise gate PASS, sd_gis 0.0255; SLR R̂ 1.003 @2100/2150, ESS ~1270,
+`--accept-slr`; 10 of 50 marginals fail R̂ — the AIS ridge, L27 8; postprocess 16:44–17:15; subsample
+`parameters_subsample_brick_mengel_L28.csv`; stage 2 = joint bands, no-tap, flux split, IMBIE diagnostics, benchmark, prior/posterior
+table, refit precision, then the paper arms — `outputs/log_L28_stage2.txt`, 0 failures at 18:00, arms still running).
+
+**Against IMBIE (both bars), L27 → L28:** 1979–2023 cumulative 0.95 → **1.22 cm (−2.6σ → −0.8σ)**; 1992–2020 rate 0.024 →
+**0.031 cm/yr (−3.9σ → −1.8σ)**; 2011–2017 0.031 → **0.039 (−3.3σ → −2.1σ)**; 2018–23 0.036 → 0.043 (+0.9σ; the SMB pause,
+expected). ⚠ **The pre-registered line (09-21g: 2011–17 rate < 0.042 ⇒ something binds) is crossed.**
+
+**What moved — the noise, not the physics.** Antarctic parameters ≤ 0.8 L27-sd, the sensitivity ones DOWN (anto_α 0.38 → 0.29
+[−0.55 sd; L27r's between-refit move +0.05], ice-flow₀ 1.20 → 1.06 [−0.56; L27r −0.43, ridge noise], antarctic_α −0.25, T_oc,0
++0.28, anto_β −0.37, ais_c −0.58). **`sd_ais` 0.0216 → 0.0139 (−4 sd) and `rho_ais` 0.89 → 0.97, its spread ×0.35, on the 0.99
+bound** — the AR(1) absorbs the acceleration as persistent noise (the mechanism of 09-16d's BIC tie). Per-draw split
+(`diag_ais_flux_split_vs_imbie_L28`): discharge anomaly over 1992–2002 → 2011–17 **−50 Gt/yr, down from L27's −82** (IMBIE −106);
+SMB −24 (L27 +17, IMBIE −14); baseline 1979–2008 net −87 (L27 −64, IMBIE −78). The cumulative was bought as a LEVEL: 1900–1978
+loss **−43 Gt/yr vs the target's −20** (L27 −19); the 1935 level 0.31 cm below the target (1.4σ; benchmark 1920–49 bias −1.86 sd,
+cov90 0 %). **Projections move the WRONG way**: fixed-climate AIS SSP2-4.5 2100 **12.6 → 8.1 cm**, 2300 178 → 166; SSP5-8.5 38 →
+36, 281 → 272; SSP1-2.6 unchanged; every p95 narrower — the record's higher mean loss was fitted as a larger standing imbalance,
+not a stronger response to warming. Benchmark roll-up (`bench_ladrillo_L28.md`, ⚠ the L27* rows were scored on the OLD target):
+AIS hindcast PASS → WARN, projection FAIL → WARN, "vs champion WORSE" on three modules — read with the target change in mind.
+
+**Why (the number that revises 09-21g):** loss per unit GMST on the new target — 1900–78 −113 Gt/yr K⁻¹ (0.17 K), 1978–91 −98,
+1991–2002 −137, 2002–10 −186, 2010–17 **−198** (1.02 K): the ratio doubles across 0.45 → 1.0 K; local exponents 0.85 before 1978,
+1.3–2.3 after. DAIS's discharge speed (1−α) + α·r² is r² = 0.87 + 0.19·GMST + 0.01·GMST² at the fitted values — **linear to
+1 %**. A linear response with the modern slope loses 2× too much in 1900–78; with the early slope it is 2× short in 2010–17. L28
+split the difference and let ρ carry the rest. (09-21g's "linear in GMST" was read on 1984–2018; the early century breaks it.)
+
+**Revised structural verdict** (`notes/scoping_2026-09-21_dais_structure_vs_imbie2026.md` §4): the reconciled record asks for a
+discharge response that STEEPENS above ~0.5 K; DAIS's is linear over the historical range. Candidates re-ordered: (1) a
+reachable steepening — a free exponent on the ocean-temperature ratio (nests DAIS at 2; one parameter; a curvature, not a claim)
+or a fast-dynamics onset within the observed range (reads as "instability under way"; large projection consequences);
+ocean lag is the wrong direction; the WAIS/EAIS split stays a projection motivation. **Decisive test before any build (Marcus's
+call, ~4 h):** L28 with `rho_ais` capped at 0.90 (`calibrate_mcmc_ext.jl:1490` hard-codes 0.99; a `--rho-max` flag) — if the
+physics can carry the shape the sensitivity parameters rise and the early misfit grows; if not, the fit degrades everywhere.
+champions.json UNTOUCHED (L27 stays); the draft stays on L27 pending the ruling.
+
 ## 2026-09-21g — THE AIS TARGET IS IMBIE 2026 (Marcus's ruling); L28 launched; the identity gate re-frozen; DAIS structure scoped (not warranted)
 
 **Ruling (Marcus 2026-09-21):** "Rebuild the AIS target on IMBIE 2026 and refit L28. Also, explore whether a structural
