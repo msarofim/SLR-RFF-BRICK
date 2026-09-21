@@ -33,10 +33,10 @@ spread (slope −0.44 / −0.11 / +0.05; iceflow0 +0.27 / −0.11 / −0.18; T_o
   A/C/D reduction.** The 09-20e "candidate explanations" are closed: not the likelihood, not D, and "shared slow drift"
   was right about L26, not about L27.
 
-**Reading for the paper:** the Convergence paragraph can add one sentence — two independent refits of the same
+**In the docx (r7, 07:05, Marcus "Add the sentence"):** `deliverables/GMD.Ladrillo.v1_review-2026-09-21_L27.docx` = the r6 file + one pure tracked insertion at the end of the Convergence paragraph (`apply_edits_r7_precision.py`, numbers read from the diag CSV: 1.3 cm / 0.005 cm / 0.8 sd; validate PASS; reject-all == the 09-20 base). The sentence — two independent refits of the same
 objective (different seeds, starts and proposal covariance) reproduce every Antarctic projection median to within
 1.3 cm at 2300 and the hindcast to 0.001 cm; the unmixed geometry directions differ by up to 0.9 posterior sd between
-refits without moving the projections. Not yet in the docx (Marcus may be reviewing it) — offered, not applied.
+refits without moving the projections.
 
 **Files.** Chains `outputs/mcmc/chain_L27{r,b}_seed*_n2000000.csv` (8 × 2 GB, not in git); subsamples
 `data/MimiBRICK/parameters_subsample_brick_mengel_L27{r,b}.csv` (gitignored; test arms, NOT force-added — L27 stays the
