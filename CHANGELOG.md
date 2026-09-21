@@ -1,3 +1,48 @@
+## 2026-09-21g — THE AIS TARGET IS IMBIE 2026 (Marcus's ruling); L28 launched; the identity gate re-frozen; DAIS structure scoped (not warranted)
+
+**Ruling (Marcus 2026-09-21):** "Rebuild the AIS target on IMBIE 2026 and refit L28. Also, explore whether a structural
+change to DAIS would be warranted by the new information."
+
+**Target rebuild** (`python/prep_recalib_targets_ext.py`, default `AIS_SOURCE = "imbie2026"`): the AIS column is IMBIE 2026's
+December cumulative (ice mass → cm SLE, sign flipped) over **1979–2023**, re-referenced to 1995–2005 directly (the record spans
+the window); Frederikse 1900–1978 offset-matched onto it over **1979–1988** (−0.134 cm; ‼ a methodological choice — 10-yr join
+window — flagged in the file); GRACE-FO offset-matched onto IMBIE over 2003–2023 and used for 2024–2025 only. Band σ: IMBIE
+segment = the random-walk distance of its cumulative σ from the reference centre (2000), floored at 0.01 cm (0.05 at 1992,
+0.12 at 2023 — the old GRACE years carried 0.01); pre-1979 = the Frederikse ensemble sd re-referenced to the join window +
+IMBIE's join-window σ (0.067) in quadrature; the GRACE fill years inherit IMBIE's 2023 σ. **Every non-AIS column is
+byte-identical; `--ais-frederikse` regenerates the old file byte-for-byte (md5 070f74ab…); new md5 eb768cd9….** Net: 1992–2020
+rate 0.0305 → 0.0389 cm/yr, 1979–2023 cumulative 0.91 → 1.32 cm. Old file → `outputs/quarantine/20260921_ais_target_frederikse/`
+(README: superseded input, not a bug; every result through L27 / draft r9 rests on it).
+
+**Identity gate**: FAIL on the new target as it must (logpost(θ₀) at the L24 start **219.64 → 148.36**, −71 log-units — the
+L24 posterior's Antarctic series misfits the reconciled record by that much); with the quarantined file swapped in the current
+calibrator reproduces the morning's reference byte-for-byte ⇒ the target is the ONLY change; re-frozen on the new target, the
+Frederikse-AIS reference archived in `benchmark/reference/calibrator_300iter_ais_frederikse_20260921/`, mutation test
+(`--amp-sigma=0.181` → differs) PASS.
+
+**L28 launched 13:15** (`run_L28.sh`, run from a frozen copy; 4 chains × 2 M, seeds 2026–2029, PIDs 4629–4632; L27's flags
++ `--no-ledger`, starts = L27's own draws (`overdispersed_starts_L27r.csv`), covariance `adapted_cov_L27_named.csv`; ETA ~17:00,
+then postprocess/postpred/components). **Torch verdict said out loud: Mac** — 4 chains, 4 h, the same as every refit since L24;
+Torch would cost a sync of the target and code for no wall-clock gain. CONTROL = L27, ONE axis: the AIS target.
+`run_L28_stage2.sh` prepared (prior dump, no-tap components, joint bands, the IMBIE diagnostics, benchmark, prior/posterior
+table, refit precision vs L27/L27r, then `TAG=L28 run_paper_arms_L27.sh`). champions.json and the draft UNTOUCHED.
+
+**Structural scoping — NOT warranted** (`notes/scoping_2026-09-21_dais_structure_vs_imbie2026.md`; new
+`julia/diag_ais_flux_split_vs_imbie.jl` = DAIS's own β_total / ice_flux per draw on the calibration span). The reconciled
+record is dynamics-dominated (84 %), WAIS-only, its dynamics anomaly LINEAR in contemporaneous GMST (−232 Gt/yr K⁻¹ on 11-yr
+means, residual sd 22, no lag), SMB a noisy near-zero anomaly (sd 123 Gt/yr; the 2018–23 slowdown is +144 Gt/yr of SMB).
+DAIS on L27 has the same structure: loss in the discharge, discharge anomaly tracking GMST (1979–91 → 2011–17: −108 vs
+IMBIE −117 Gt/yr, 92 %), modern/early ratio 2.8 vs 2.9. The acceleration-window gap (1992–2002 → 2011–17: net −64 vs −121)
+is discharge at 77 % (−82 vs −106) plus **SMB of the opposite sign (+17 vs −14)** — inside SMB's own noise (se ~45 for a
+window mean). ⚠ The L27 posterior cannot reach the observed acceleration (2011–17 minus 1992–2002 rate 0.015 cm/yr, max
+0.033 over 1000 draws, IMBIE 0.034; 2011–17 rate 0.026–0.034 vs 0.056 ± 0.007) and **no AIS parameter controls it (|ρ| ≤
+0.16)** — the compensating ridge; the sensitivity parameters are only partly identified (posterior/prior sd 0.64–0.71), so
+the priors leave ~2× room. Candidates ranked and declined: ocean lag (none visible), WAIS/EAIS split (a projection
+motivation, weeks), weaker κ / SMB trend (inside noise), stronger convexity (linear suffices). **The test that flips the
+verdict:** L28's 2011–17 rate still < ~0.042 cm/yr ⇒ the pre-1979 Frederikse record or the paleo geometry prior binds the
+sensitivity; discriminate with L28 + 1900–78 σ ×3 vs L28 + geometry prior widened. Memory
+`dais_structure_not_warranted_by_imbie2026`.
+
 ## 2026-09-21f — IMBIE 2026 (Otosaka et al., Sci Data 13:1301) against Ladrillo's ice-sheet targets: the AIS target is ~25 % low on the modern rate, L27 is 4σ low; GIS fine
 
 Marcus asked whether the new reconciled ice-sheet record (Greenland 1972–2023, Antarctica 1979–2023, 42 estimates,
