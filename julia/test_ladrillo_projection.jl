@@ -52,7 +52,8 @@ end
 ## so the python reference is comparable.
 ## ---------------------------------------------------------------------------
 println("[setup] calibration window 1850-2026, forcing ssp245harm")
-hind = ladrillo_setup(gis_variant = VARIANT, ssp="ssp245", y0=1850, y1=2026, forcing_tag="ssp245harm", ref=(1995, 2005))
+## lws=:central PINNED (2026-09-21): the objective was calibrated with land water zero before 2018 (:central since 09-18); projections default to :observed (brick_mengel.jl LWS_MODE) and must not move the hindcast side.
+hind = ladrillo_setup(gis_variant = VARIANT, ssp="ssp245", y0=1850, y1=2026, forcing_tag="ssp245harm", ref=(1995, 2005), lws=:central)
 @assert Int.(REF.year) == hind.years "port reference year grid mismatch"
 # The A+B Greenland slot has NO defaults: ladrillo_setup deliberately leaves its
 # seven parameters unset so a projection cannot silently run on placeholder

@@ -1,3 +1,54 @@
+## 2026-09-21d — PROJECTIONS CARRY THE OBSERVED LAND-WATER SERIES (Marcus's ruling); a stale-Parquet trap that had frozen every BRICK 2.0 comparison number at the 09-01 run
+
+**Ruling (Marcus 2026-09-21):** "If we have LWS observations we should use them: we are trying to make the best SLR model,
+not the model that is easiest to compare to BRICK." `brick_mengel.jl`: new land-water mode **`:observed`**, now
+**`LWS_MODE`'s default for projections** — the Frederikse 2020 + GRACE/GRACE-FO series (`recalib_targets_ext.csv` `lws`,
+the same column the hindcast total carries) is fed to MimiBRICK's land-water component from 1900 (`first_projection_year`
+1900, `lws₀` = the 1900 value, per-year increments through **`LWS_OBS_LAST_REAL_YEAR = 2023`**, then `LWS_MEAN` = 0.30 mm/yr),
+with a gate that fires if the target's post-2023 values stop being the held 2023 value (a record extension must move the
+constant deliberately). Both projection arms take it through `set_lws!` (Ladrillo and the BRICK 2.0 comparison — an
+observational input, so like-for-like is kept without bending the model). **Hindcast-side drivers pin `lws=:central`
+explicitly** (calibrator, posterior predictive, IC residuals, `test_ladrillo_projection`'s hindcast arm): the posterior
+was fitted with land water zero before 2018 and LWS reaches the Antarctic hindcast through the sea-level feedback, so
+those products stay byte-stable under their own convention. Identity gate PASS; suite **10/10**.
+- **Gate on the change** (fixed-climate SSP components, L27, :central → :observed): glaciers / GIS / TE move **exactly 0**;
+  AIS ≤ **0.0125 cm** at 2300 (the feedback; stated, not hidden); lws and total move by the observed-minus-constant
+  offset: **+0.35 cm from 2024 on, rel. 1995–2014** (−0.33 at 2000). Verified afterwards on all 52 regenerated
+  cells files (27 Ladrillo, 20 BRICK 2.0 FaIR + MAGICC climate; lws +0.354 in every one, total +0.36 ± 0.01, AIS ≤ 0.011)
+  and on 90 paths/gates/ssps files for shape against HEAD. `land water contributes 8.8 cm by 2300` (was 8.5).
+- **Re-run** (`run_lws_observed_rerun.sh`, three parallel streams, 07:57–09:18): 10 Ladrillo FaIR arms (tap) + 3 no-tap +
+  fixed-climate SSPs (tap, no-tap, const-Greenland-amp, AIS-amp-1.196) + 20 Ladrillo MAGICC-climate arms + 20 BRICK 2.0
+  arms; then the comparison tables, memo + paper figures, regrowth attribution, philosophy arms, benchmark. ⚠ Process
+  incident: the first launch command errored AFTER starting the script, so TWO driver instances ran concurrently for
+  ~1 h writing the same files ~40 s apart; the duplicate was killed by PID and every output was verified as above
+  (none corrupted). The four `ssp534over*`/`nomarker` BRICK arms are not in the paper's set and were not re-run (:central).
+
+**FOUND ON THE WAY — a silent-stale-retrieval trap in `draws_io.draws_path`.** It preferred the Parquet twin of a draws
+CSV unconditionally. The ten BRICK 2.0 FaIR-climate joint arms had 09-01 Parquet twins (from the Parquet migration) and
+were re-run on 09-18 (LWS :central) and today (:observed) as CSV only — so **every `vv_model_comparison`, FIG 2/3/4/6 and
+the draft's BRICK 2.0 numbers had been reading the 09-01 draws (LWS :seeded)** since 09-01. Size: ≤ 0.44 cm (the seeded
+random-walk realisation vs the constant rate), e.g. vvH total 2300 414.00 (09-01) vs 413.56 (09-18) vs 413.92 (today);
+no rounded number in the draft moved except vvH 2100 (81.9 → 82.4, still "82"). Fix: `draws_path` now ignores a Parquet
+twin that is OLDER than its CSV (one-line stderr warning naming both mtimes), and `python/refresh_draws_parquet.py`
+re-derives stale twins (float32, per-file gate at 1e-7 relative; 10 refreshed). The post-steps were re-run on the
+refreshed twins (`log_lws_rerun_post2.txt`, 0 stale warnings). ⇒ [[stale_parquet_twin_shadowed_the_csv]]: a format
+cache that is preferred by NAME rather than by FRESHNESS is a stale-retrieval trap; the BRICK numbers in every output
+between 09-01 and today are the 09-01 arm.
+
+**Draft r8** (`GMD.Ladrillo.v1_review-2026-09-21b_L27.docx`, on the 09-21 file AS ON DISK — Marcus had edited it at 07:49
+with tracking OFF: abstract, two intro paragraphs, "almost" in the tap sentence, the fast-dynamics paragraph's last
+clause removed, parentheses for the em-dashes in the LWS paragraph; all kept, r8 builds on them): the land-water
+paragraph rewritten (pending r4 insertion → nested deletion + new insertion; Marcus's parenthetical style adopted), the
+design-overview clause and footnote 15 (`edit_ins_text`/`smart_replace` — an edit inside a pending insertion splits it
+so validate.py still recognises the pieces), the High / Low paragraphs (numbers read from the regenerated tables:
+71/82/62, 422/414/570, 407/392; Low **60**/46/81 — 59.5 rounds up; widths unchanged), and FIGs 2/3/4's media replaced
+IN PLACE inside the pending r6 insertion (FIG 1/5/6 unchanged, asserted). validate PASS; reject-all == the 09-21 file
+as on disk.
+
+**Superseded:** memory `lws_central_default` (09-18) — :central is now the HINDCAST-side pin only; projections are :observed.
+Every projection output dated 09-18 → 09-21 morning is :central; before 09-18 :seeded; never mix (the provenance
+column says which: "lws observed / central / seeded").
+
 ## 2026-09-21c — the low-hanging list done: the identity gate was RED since 09-18 (the LWS ruling), now re-frozen with proof; seed_diag clobber fixed; runtime on L27; three more tag literals; postprocess and paper-arms templates by tag
 
 **The calibrator identity gate (`scripts/gate_calibrator_identity.sh`) had been FAILING since 2026-09-18 and nobody had run

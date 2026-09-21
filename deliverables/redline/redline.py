@@ -375,3 +375,53 @@ def replace_image(x, unpacked, old_descr_png, new_png, new_alt, new_pic_descr):
     out = (f'<w:del w:id="{nid()}" w:author="{AUTHOR}" w:date="{DATE}">{old}</w:del>'
            f'<w:ins w:id="{nid()}" w:author="{AUTHOR}" w:date="{DATE}">{new}</w:ins>')
     return x[:m.start()] + out + x[m.end():]
+
+
+# ---------- round-8 addition: edit inside one of Claude's own PENDING insertions ----------
+def edit_ins_text(x, old, new):
+    """Replace `old` by `new` where `old` sits inside a PENDING <w:ins> run (an earlier round's insertion
+    Marcus has not acted on). The outer insertion is SPLIT around the edit -- before / deleted-old / new /
+    after -- with the before/after pieces keeping the original author+date (fresh ids) so validate.py
+    still recognises them, the deletion NESTED inside a piece of the original insertion (what Word
+    writes when you delete your own pending text), and `new` as a fresh insertion under today's DATE.
+    (Generalised from apply_edits_r2b.py, which reused the original id for every piece.)"""
+    o = esc(old)
+    hits = [m for m in re.finditer(r"<w:ins [^>/]*>(?:(?!</w:ins>).)*</w:ins>", x, re.S) if o in m.group(0)]
+    if len(hits) != 1:
+        raise KeyError(f"edit_ins_text: {old[:50]!r} found in {len(hits)} pending insertions (need exactly 1)")
+    m = hits[0]; ins = m.group(0)
+    head0 = re.match(r"<w:ins [^>/]*>", ins).group(0)
+    def head():
+        return re.sub(r'w:id="\d+"', f'w:id="{nid()}"', head0, count=1)
+    runs = [r for r in R_RE.finditer(ins) if o in r.group(0)]
+    if len(runs) != 1:
+        raise KeyError(f"edit_ins_text: {old[:50]!r} spans runs inside the insertion")
+    run = runs[0].group(0)
+    rpr, text = run_parts(run)
+    i = text.index(o); before, after = text[:i], text[i + len(o):]
+    pre, post = ins[:runs[0].start()], ins[runs[0].end():]        # other runs of the same insertion, if any
+    out = ""
+    if pre != head0:
+        out += pre + "</w:ins>"
+    if before:
+        out += head() + mk_run(before, rpr) + "</w:ins>"
+    out += head() + mk_del(o, rpr) + "</w:ins>"
+    if new:
+        out += mk_ins(esc(new), rpr)
+    if after:
+        out += head() + mk_run(after, rpr) + "</w:ins>"
+    if post != "</w:ins>":
+        out += head() + post
+    return x[:m.start()] + out + x[m.end():]
+
+def in_pending_ins(x, old):
+    """True if the run containing `old` sits inside a <w:ins> element."""
+    o = esc(old); i = x.find(o)
+    if i < 0:
+        raise KeyError(old[:50])
+    last_open = x.rfind("<w:ins ", 0, i); last_close = x.rfind("</w:ins>", 0, i)
+    return last_open > last_close
+
+def smart_replace(x, old, new):
+    """replace_text for live text, edit_ins_text for text inside a pending insertion."""
+    return edit_ins_text(x, old, new) if in_pending_ins(x, old) else replace_text(x, old, new)

@@ -127,7 +127,8 @@ post = ladrillo_posterior(path=POSTERIOR, cols=:all, nthin=NDRAW_L)
 const VARIANT = ladrillo_posterior_variant(POSTERIOR)
 nfull = nrow(CSV.read(POSTERIOR, DataFrame; select=[1]))
 ldraws = collect(1:cld(nfull, NDRAW_L):nfull)[1:nrow(post)]      # the rows _ladrillo_thin keeps
-bf  = ladrillo_setup(ssp="ssp245", y0=Y0, y1=Y1, forcing_tag=FORCING, ref=FIT_REF, gis_variant=VARIANT)
+## lws=:central PINNED (2026-09-21): the objective was calibrated with land water zero before 2018 (:central since 09-18); projections default to :observed (brick_mengel.jl LWS_MODE) and must not move the hindcast side.
+bf  = ladrillo_setup(ssp="ssp245", y0=Y0, y1=Y1, forcing_tag=FORCING, ref=FIT_REF, gis_variant=VARIANT, lws=:central)
 imy = [ladrillo_yi(bf, y) for y in FY]
 @printf("Ladrillo %s | %d of %d draws | %d-%d scored, base %d-%d | forcing %s\n",
         POST_TAG, nrow(post), nfull, FIT_START, Y1, FIT_REF[1], FIT_REF[2], FORCING)

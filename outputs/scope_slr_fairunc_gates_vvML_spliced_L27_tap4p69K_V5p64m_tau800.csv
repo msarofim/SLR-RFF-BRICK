@@ -4,12 +4,12 @@ PAIRING,median_dgmst_bias_degC,0.0015477499999999589,PASS
 CONTROL,skipped_no_shipped_panel,NaN,SKIPPED
 SPLICE-IDENTITY,max_cm_through_1998,0.0,PASS
 SPLICE-IDENTITY,first_divergence_year,2015.0,measured
-OHC-OFFSET,max_cm,1.1368683772161603e-13,CANCELS
+OHC-OFFSET,max_cm,5.684341886080802e-14,CANCELS
 CALIB-MOVE,glaciers_max_cm,0.0,measured
 CALIB-MOVE,gis_max_cm,0.0,measured
-CALIB-MOVE,ais_max_cm,0.8054005247725593,measured
+CALIB-MOVE,ais_max_cm,0.8054051490067882,measured
 CALIB-MOVE,te_max_cm,1.819346375139757,measured
 CALIB-MOVE,lws_max_cm,0.0,measured
-CALIB-MOVE,total_max_cm,1.8472533920982102,measured
+CALIB-MOVE,total_max_cm,1.8472571174749142,measured
 SUM,fixed_max_cm,5.684341886080802e-14,PASS
 SUM,joint_max_cm,8.526512829121202e-14,PASS

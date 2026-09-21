@@ -5,9 +5,9 @@ CONTROL,skipped_no_shipped_panel,NaN,SKIPPED
 OHC-OFFSET,max_cm,1.4210854715202004e-14,CANCELS
 CALIB-MOVE,glaciers_max_cm,0.0,measured
 CALIB-MOVE,gis_max_cm,0.0,measured
-CALIB-MOVE,ais_max_cm,5.452677896696746,measured
+CALIB-MOVE,ais_max_cm,5.4526946937155,measured
 CALIB-MOVE,te_max_cm,5.307828090689296,measured
 CALIB-MOVE,lws_max_cm,0.0,measured
-CALIB-MOVE,total_max_cm,5.798705491911994,measured
+CALIB-MOVE,total_max_cm,5.7987558146243465,measured
 SUM,fixed_max_cm,5.684341886080802e-14,PASS
 SUM,joint_max_cm,5.684341886080802e-14,PASS

@@ -1,0 +1,245 @@
+[07:57:49] LWS :observed re-run for L27 | commit 31ace68 | load 6.39 4.21 3.57
+[07:57:49] streams: fair 87811, magicc 87812, brick 87813
+[07:57:49] START  ladrillo ssp126 FaIR (tapped)
+[07:57:49] START  ladrillo ssp126 MAGICC climate (spliced)
+[07:57:49] START  BRICK 2.0 ssp126 FaIR
+[07:58:05] OK     BRICK 2.0 ssp126 FaIR
+[07:58:05] START  BRICK 2.0 ssp126 MAGICC climate
+[07:58:49] OK     BRICK 2.0 ssp126 FaIR
+[07:58:49] START  BRICK 2.0 ssp126 MAGICC climate
+[07:59:08] OK     BRICK 2.0 ssp126 MAGICC climate
+[07:59:08] START  BRICK 2.0 ssp245 FaIR
+[07:59:49] OK     BRICK 2.0 ssp126 MAGICC climate
+[07:59:49] START  BRICK 2.0 ssp245 FaIR
+[08:00:07] OK     BRICK 2.0 ssp245 FaIR
+[08:00:07] START  BRICK 2.0 ssp245 MAGICC climate
+[08:00:48] OK     BRICK 2.0 ssp245 FaIR
+[08:00:48] START  BRICK 2.0 ssp245 MAGICC climate
+[08:01:07] OK     BRICK 2.0 ssp245 MAGICC climate
+[08:01:07] START  BRICK 2.0 ssp585 FaIR
+[08:01:47] OK     BRICK 2.0 ssp245 MAGICC climate
+[08:01:47] START  BRICK 2.0 ssp585 FaIR
+[08:02:11] OK     BRICK 2.0 ssp585 FaIR
+[08:02:11] START  BRICK 2.0 ssp585 MAGICC climate
+[08:02:59] OK     BRICK 2.0 ssp585 FaIR
+[08:02:59] START  BRICK 2.0 ssp585 MAGICC climate
+[08:03:26] OK     BRICK 2.0 ssp585 MAGICC climate
+[08:03:26] START  BRICK 2.0 vvVL FaIR
+[08:03:56] OK     ladrillo ssp126 MAGICC climate (spliced)
+[08:03:56] START  ladrillo ssp126 MAGICC climate (raw)
+[08:04:12] OK     ladrillo ssp126 FaIR (tapped)
+[08:04:12] START  ladrillo ssp245 FaIR (tapped)
+[08:04:12] OK     BRICK 2.0 ssp585 MAGICC climate
+[08:04:12] START  BRICK 2.0 vvVL FaIR
+[08:04:26] OK     ladrillo ssp126 MAGICC climate (spliced)
+[08:04:26] START  ladrillo ssp126 MAGICC climate (raw)
+[08:04:28] OK     BRICK 2.0 vvVL FaIR
+[08:04:28] START  BRICK 2.0 vvVL MAGICC climate
+[08:04:38] OK     ladrillo ssp126 FaIR (tapped)
+[08:04:38] START  ladrillo ssp245 FaIR (tapped)
+[08:05:01] OK     BRICK 2.0 vvVL FaIR
+[08:05:01] START  BRICK 2.0 vvVL MAGICC climate
+[08:05:17] OK     BRICK 2.0 vvVL MAGICC climate
+[08:05:17] START  BRICK 2.0 vvL FaIR
+[08:05:52] OK     BRICK 2.0 vvVL MAGICC climate
+[08:05:52] START  BRICK 2.0 vvL FaIR
+[08:06:05] OK     BRICK 2.0 vvL FaIR
+[08:06:05] START  BRICK 2.0 vvL MAGICC climate
+[08:06:38] OK     BRICK 2.0 vvL FaIR
+[08:06:38] START  BRICK 2.0 vvL MAGICC climate
+[08:06:52] OK     BRICK 2.0 vvL MAGICC climate
+[08:06:52] START  BRICK 2.0 vvLN FaIR
+[08:07:25] OK     BRICK 2.0 vvL MAGICC climate
+[08:07:25] START  BRICK 2.0 vvLN FaIR
+[08:07:38] OK     BRICK 2.0 vvLN FaIR
+[08:07:38] START  BRICK 2.0 vvLN MAGICC climate
+[08:08:13] OK     BRICK 2.0 vvLN FaIR
+[08:08:13] START  BRICK 2.0 vvLN MAGICC climate
+[08:08:26] OK     BRICK 2.0 vvLN MAGICC climate
+[08:08:26] START  BRICK 2.0 vvML FaIR
+[08:09:04] OK     BRICK 2.0 vvLN MAGICC climate
+[08:09:04] START  BRICK 2.0 vvML FaIR
+[08:09:20] OK     ladrillo ssp126 MAGICC climate (raw)
+[08:09:20] START  ladrillo ssp245 MAGICC climate (spliced)
+[08:09:20] OK     BRICK 2.0 vvML FaIR
+[08:09:20] START  BRICK 2.0 vvML MAGICC climate
+[08:09:44] OK     ladrillo ssp245 FaIR (tapped)
+[08:09:44] START  ladrillo ssp585 FaIR (tapped)
+[08:09:58] OK     ladrillo ssp126 MAGICC climate (raw)
+[08:09:58] START  ladrillo ssp245 MAGICC climate (spliced)
+[08:10:00] OK     BRICK 2.0 vvML FaIR
+[08:10:00] START  BRICK 2.0 vvML MAGICC climate
+[08:10:12] OK     BRICK 2.0 vvML MAGICC climate
+[08:10:12] START  BRICK 2.0 vvM FaIR
+[08:10:14] OK     ladrillo ssp245 FaIR (tapped)
+[08:10:14] START  ladrillo ssp585 FaIR (tapped)
+[08:10:45] OK     BRICK 2.0 vvML MAGICC climate
+[08:10:45] START  BRICK 2.0 vvM FaIR
+[08:10:57] OK     BRICK 2.0 vvM FaIR
+[08:10:57] START  BRICK 2.0 vvM MAGICC climate
+[08:11:31] OK     BRICK 2.0 vvM FaIR
+[08:11:31] START  BRICK 2.0 vvM MAGICC climate
+[08:11:44] OK     BRICK 2.0 vvM MAGICC climate
+[08:11:44] START  BRICK 2.0 vvHL FaIR
+[08:12:19] OK     BRICK 2.0 vvM MAGICC climate
+[08:12:19] START  BRICK 2.0 vvHL FaIR
+[08:12:29] OK     BRICK 2.0 vvHL FaIR
+[08:12:29] START  BRICK 2.0 vvHL MAGICC climate
+[08:13:07] OK     BRICK 2.0 vvHL FaIR
+[08:13:07] START  BRICK 2.0 vvHL MAGICC climate
+[08:13:21] OK     BRICK 2.0 vvHL MAGICC climate
+[08:13:21] START  BRICK 2.0 vvH FaIR
+[08:13:58] OK     BRICK 2.0 vvHL MAGICC climate
+[08:13:58] START  BRICK 2.0 vvH FaIR
+[08:14:14] OK     BRICK 2.0 vvH FaIR
+[08:14:14] START  BRICK 2.0 vvH MAGICC climate
+[08:14:57] OK     ladrillo ssp245 MAGICC climate (spliced)
+[08:14:57] START  ladrillo ssp245 MAGICC climate (raw)
+[08:14:59] OK     BRICK 2.0 vvH FaIR
+[08:14:59] START  BRICK 2.0 vvH MAGICC climate
+[08:15:14] OK     BRICK 2.0 vvH MAGICC climate
+[08:15:21] OK     ladrillo ssp585 FaIR (tapped)
+[08:15:21] START  ladrillo vvVL FaIR (tapped)
+[08:15:30] OK     ladrillo ssp245 MAGICC climate (spliced)
+[08:15:31] START  ladrillo ssp245 MAGICC climate (raw)
+[08:15:43] OK     BRICK 2.0 vvH MAGICC climate
+[08:15:46] OK     ladrillo ssp585 FaIR (tapped)
+[08:15:46] START  ladrillo vvVL FaIR (tapped)
+[08:19:09] OK     ladrillo ssp245 MAGICC climate (raw)
+[08:19:09] START  ladrillo ssp585 MAGICC climate (spliced)
+[08:19:30] OK     ladrillo vvVL FaIR (tapped)
+[08:19:30] START  ladrillo vvL FaIR (tapped)
+[08:19:36] OK     ladrillo ssp245 MAGICC climate (raw)
+[08:19:36] START  ladrillo ssp585 MAGICC climate (spliced)
+[08:19:55] OK     ladrillo vvVL FaIR (tapped)
+[08:19:55] START  ladrillo vvL FaIR (tapped)
+[08:23:12] OK     ladrillo ssp585 MAGICC climate (spliced)
+[08:23:12] START  ladrillo ssp585 MAGICC climate (raw)
+[08:23:33] OK     ladrillo vvL FaIR (tapped)
+[08:23:33] START  ladrillo vvLN FaIR (tapped)
+[08:23:35] OK     ladrillo ssp585 MAGICC climate (spliced)
+[08:23:35] START  ladrillo ssp585 MAGICC climate (raw)
+[08:23:57] OK     ladrillo vvL FaIR (tapped)
+[08:23:57] START  ladrillo vvLN FaIR (tapped)
+[08:27:14] OK     ladrillo ssp585 MAGICC climate (raw)
+[08:27:14] START  ladrillo vvVL MAGICC climate (spliced)
+[08:27:32] OK     ladrillo ssp585 MAGICC climate (raw)
+[08:27:32] START  ladrillo vvVL MAGICC climate (spliced)
+[08:27:35] OK     ladrillo vvLN FaIR (tapped)
+[08:27:35] START  ladrillo vvML FaIR (tapped)
+[08:28:01] OK     ladrillo vvLN FaIR (tapped)
+[08:28:01] START  ladrillo vvML FaIR (tapped)
+[08:31:17] OK     ladrillo vvVL MAGICC climate (spliced)
+[08:31:17] START  ladrillo vvVL MAGICC climate (raw)
+[08:31:30] OK     ladrillo vvVL MAGICC climate (spliced)
+[08:31:30] START  ladrillo vvVL MAGICC climate (raw)
+[08:31:37] OK     ladrillo vvML FaIR (tapped)
+[08:31:37] START  ladrillo vvM FaIR (tapped)
+[08:32:07] OK     ladrillo vvML FaIR (tapped)
+[08:32:07] START  ladrillo vvM FaIR (tapped)
+[08:35:21] OK     ladrillo vvVL MAGICC climate (raw)
+[08:35:21] START  ladrillo vvL MAGICC climate (spliced)
+[08:35:31] OK     ladrillo vvVL MAGICC climate (raw)
+[08:35:31] START  ladrillo vvL MAGICC climate (spliced)
+[08:35:37] OK     ladrillo vvM FaIR (tapped)
+[08:35:37] START  ladrillo vvHL FaIR (tapped)
+[08:36:09] OK     ladrillo vvM FaIR (tapped)
+[08:36:09] START  ladrillo vvHL FaIR (tapped)
+[08:39:10] OK     ladrillo vvL MAGICC climate (spliced)
+[08:39:10] START  ladrillo vvL MAGICC climate (raw)
+[08:39:10] OK     ladrillo vvL MAGICC climate (spliced)
+[08:39:10] START  ladrillo vvL MAGICC climate (raw)
+[08:39:16] OK     ladrillo vvHL FaIR (tapped)
+[08:39:16] START  ladrillo vvH FaIR (tapped)
+[08:39:54] OK     ladrillo vvHL FaIR (tapped)
+[08:39:54] START  ladrillo vvH FaIR (tapped)
+[08:42:51] OK     ladrillo vvL MAGICC climate (raw)
+[08:42:51] START  ladrillo vvLN MAGICC climate (spliced)
+[08:42:51] OK     ladrillo vvL MAGICC climate (raw)
+[08:42:51] START  ladrillo vvLN MAGICC climate (spliced)
+[08:42:52] OK     ladrillo vvH FaIR (tapped)
+[08:42:52] START  ladrillo ssp126 FaIR (no tap)
+[08:43:34] OK     ladrillo vvH FaIR (tapped)
+[08:43:34] START  ladrillo ssp126 FaIR (no tap)
+[08:46:28] OK     ladrillo vvLN MAGICC climate (spliced)
+[08:46:28] START  ladrillo vvLN MAGICC climate (raw)
+[08:46:29] OK     ladrillo vvLN MAGICC climate (spliced)
+[08:46:29] START  ladrillo vvLN MAGICC climate (raw)
+[08:46:29] OK     ladrillo ssp126 FaIR (no tap)
+[08:46:29] START  ladrillo ssp245 FaIR (no tap)
+[08:47:13] OK     ladrillo ssp126 FaIR (no tap)
+[08:47:13] START  ladrillo ssp245 FaIR (no tap)
+[08:50:08] OK     ladrillo vvLN MAGICC climate (raw)
+[08:50:08] START  ladrillo vvML MAGICC climate (spliced)
+[08:50:08] OK     ladrillo vvLN MAGICC climate (raw)
+[08:50:08] START  ladrillo vvML MAGICC climate (spliced)
+[08:50:09] OK     ladrillo ssp245 FaIR (no tap)
+[08:50:09] START  ladrillo ssp585 FaIR (no tap)
+[08:50:53] OK     ladrillo ssp245 FaIR (no tap)
+[08:50:53] START  ladrillo ssp585 FaIR (no tap)
+[08:53:48] OK     ladrillo vvML MAGICC climate (spliced)
+[08:53:48] START  ladrillo vvML MAGICC climate (raw)
+[08:53:48] OK     ladrillo vvML MAGICC climate (spliced)
+[08:53:48] START  ladrillo vvML MAGICC climate (raw)
+[08:53:50] OK     ladrillo ssp585 FaIR (no tap)
+[08:53:50] START  ssp components (tap)
+[08:54:34] OK     ladrillo ssp585 FaIR (no tap)
+[08:54:34] START  ssp components (tap)
+[08:54:51] OK     ssp components (tap)
+[08:54:51] START  ssp components (no-tap)
+[08:55:39] OK     ssp components (tap)
+[08:55:39] START  ssp components (no-tap)
+[08:55:56] OK     ssp components (no-tap)
+[08:55:56] START  ssp components (const Greenland amp)
+[08:56:57] OK     ssp components (const Greenland amp)
+[08:56:57] START  ssp components (AIS amp 1.196)
+[08:57:25] OK     ladrillo vvML MAGICC climate (raw)
+[08:57:25] START  ladrillo vvM MAGICC climate (spliced)
+[08:57:58] OK     ssp components (AIS amp 1.196)
+[09:00:55] OK     ladrillo vvM MAGICC climate (spliced)
+[09:00:55] START  ladrillo vvM MAGICC climate (raw)
+[09:04:19] OK     ladrillo vvM MAGICC climate (raw)
+[09:04:19] START  ladrillo vvHL MAGICC climate (spliced)
+[09:07:38] OK     ladrillo vvHL MAGICC climate (spliced)
+[09:07:38] START  ladrillo vvHL MAGICC climate (raw)
+[09:10:58] OK     ladrillo vvHL MAGICC climate (raw)
+[09:10:58] START  ladrillo vvH MAGICC climate (spliced)
+[09:14:18] OK     ladrillo vvH MAGICC climate (spliced)
+[09:14:18] START  ladrillo vvH MAGICC climate (raw)
+[09:17:36] OK     ladrillo vvH MAGICC climate (raw)
+[09:17:36] === arms done; tables, figures, benchmark ===
+[09:17:36] START  vv model comparison
+[09:17:37] OK     vv model comparison
+[09:17:37] START  ladrillo model comparison
+[09:17:38] OK     ladrillo model comparison
+[09:17:38] START  memo figures
+[09:17:39] OK     memo figures
+[09:17:39] START  hindcast (FIG 1)
+[09:17:40] OK     hindcast (FIG 1)
+[09:17:40] START  vv comparison figures
+[09:17:42] OK     vv comparison figures
+[09:17:42] START  vv trajectories
+[09:17:43] OK     vv trajectories
+[09:17:43] START  vv gsic ladrillo-only
+[09:17:44] OK     vv gsic ladrillo-only
+[09:17:44] START  climate swap
+[09:17:45] OK     climate swap
+[09:17:45] START  responsiveness
+[09:17:46] OK     responsiveness
+[09:17:46] START  paper: hindcast
+[09:17:47] OK     paper: hindcast
+[09:17:47] START  paper: vv comparison
+[09:17:49] OK     paper: vv comparison
+[09:17:49] START  paper: vv trajectories
+[09:17:50] OK     paper: vv trajectories
+[09:17:50] START  paper: vv gsic
+[09:17:51] OK     paper: vv gsic
+[09:17:51] START  paper: responsiveness
+[09:17:51] OK     paper: responsiveness
+[09:17:51] START  regrowth attribution
+[09:17:52] OK     regrowth attribution
+[09:17:52] START  philosophy arms (diff arms; LWS cancels)
+[09:17:52] OK     philosophy arms (diff arms; LWS cancels)
+[09:17:52] START  benchmark (refresh)
+[09:17:54] OK     benchmark (refresh)
+[09:17:54] ALLDONE

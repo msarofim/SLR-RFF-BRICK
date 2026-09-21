@@ -18,7 +18,7 @@
 ##   set_forcing!(m, gmst, ohc); run(m)
 ## ============================================================================
 
-using Mimi, MimiBRICK, Random
+using Mimi, MimiBRICK, Random, CSV, DataFrames
 
 include(joinpath(@__DIR__, "glaciers_mengel_component.jl"))
 include(joinpath(@__DIR__, "glaciers_nu_component.jl"))
@@ -49,8 +49,24 @@ const LWS_SEED  = 2026      # locks the :seeded realization (matches the obs-dri
 # LWS_MODE; the BRICK 2.0 comparison arms apply the same mode through set_lws! so the two models carry
 # an IDENTICAL land-water series (before 09-18 their two seeded realizations differed by up to ~0.3 cm).
 # Runs before 2026-09-18 (L24 arms of 09-14, the shipped memo figures) are :seeded -- see CHANGELOG.
-const LWS_MODE  = :central
-const LWS_MODES = (:seeded, :central, :zero, :random)
+# THE DEFAULT MODE FOR PROJECTIONS (Marcus 2026-09-21: "If we have LWS observations we should use them: we
+# are trying to make the best SLR model, not the model that is easiest to compare to BRICK"): :observed.
+# The Frederikse 2020 + GRACE/GRACE-FO land-water series (outputs/recalib_targets_ext.csv, the same
+# column the hindcast total carries) is fed to the land-water component from its first year, and the
+# constant LWS_MEAN rate continues it after the last REAL observation. Both projection arms (Ladrillo
+# and the BRICK 2.0 comparison) take it through set_lws!, so the comparison stays like-for-like on an
+# observational input. ⚠ HINDCAST-SIDE drivers pin lws=:central explicitly (the calibrator, the posterior
+# predictive, the IC residuals, the port gates): the objective was calibrated with the component zero
+# before 2018, and land water reaches the Antarctic hindcast through BRICK's sea-level feedback (a 0.3 cm
+# change moved the L24 log-posterior by 1e-4, CHANGELOG 09-21c), so the hindcast products stay byte-stable
+# under the convention they were fitted with. Projection runs before 2026-09-21 are :central (09-18 → 09-21)
+# or :seeded (before 09-18) -- see CHANGELOG; never mix.
+const LWS_MODE  = :observed
+const LWS_MODES = (:seeded, :central, :zero, :random, :observed)
+## The observed series' provenance, as constants so a target update cannot silently change the splice.
+const LWS_OBS_CSV            = joinpath(@__DIR__, "..", "outputs", "recalib_targets_ext.csv")
+const LWS_OBS_COL            = :lws            # cm, rel. 1995-2005 (the hindcast target's own frame)
+const LWS_OBS_LAST_REAL_YEAR = 2023            # GRACE-FO mascons end 2023; the target HOLDS 2023 flat to 2026
 
 """
     set_lws!(m, lws=LWS_MODE; lws_seed=LWS_SEED)
@@ -61,11 +77,50 @@ treatment `lws`; `:random` leaves get_model's unseeded draw in place. Returns `m
 function set_lws!(m, lws::Symbol=LWS_MODE; lws_seed::Int=LWS_SEED)
     lws in LWS_MODES || error("set_lws!: lws must be one of $(LWS_MODES) (got :$lws)")
     lws === :random && return m
-    n = length(Mimi.dim_keys(m, :time))
+    yrs = Int.(Mimi.dim_keys(m, :time)); n = length(yrs)
+    if lws === :observed
+        first_year, lws0_m, v = lws_observed_increments(yrs)
+        update_param!(m, :landwater_storage, :first_projection_year, first_year)
+        update_param!(m, :landwater_storage, :lws₀, lws0_m)
+        update_param!(m, :landwater_storage, :lws_random_sample, v)
+        return m
+    end
     v = lws === :seeded  ? LWS_MEAN .+ LWS_SD .* randn(MersenneTwister(lws_seed), n) :
         lws === :central ? fill(LWS_MEAN, n) : zeros(n)
     update_param!(m, :landwater_storage, :lws_random_sample, v)
     return m
+end
+
+"""
+    lws_observed_increments(yrs) -> (first_year, lws0_m, increments_m)
+
+The observed land-water series as the land-water component consumes it: the component is 0 before
+`first_year`, equals `lws0_m` (m) at `first_year`, and adds `increments_m[t]` each year after. Observed
+years (LWS_OBS_COL of LWS_OBS_CSV, cm → m) through LWS_OBS_LAST_REAL_YEAR; LWS_MEAN per year after that.
+GATES: the observed column must be finite over its span; the target's post-real years must be the held
+2023 value (the signature this constant encodes -- a target update that extends the record fires it).
+"""
+function lws_observed_increments(yrs::Vector{Int})
+    tg = CSV.read(LWS_OBS_CSV, DataFrame)
+    obs = Dict(Int(r.year) => Float64(r[LWS_OBS_COL]) for r in eachrow(tg) if !ismissing(r[LWS_OBS_COL]))
+    oyrs = sort(collect(keys(obs)))
+    first_year = oyrs[1]
+    all(y -> haskey(obs, y) && isfinite(obs[y]), first_year:LWS_OBS_LAST_REAL_YEAR) ||
+        error("lws_observed_increments: observed LWS not finite over $(first_year)-$(LWS_OBS_LAST_REAL_YEAR)")
+    held = [y for y in (LWS_OBS_LAST_REAL_YEAR+1):oyrs[end] if obs[y] != obs[LWS_OBS_LAST_REAL_YEAR]]
+    isempty(held) || error("lws_observed_increments: the target carries values after LWS_OBS_LAST_REAL_YEAR=" *
+        "$(LWS_OBS_LAST_REAL_YEAR) that are NOT the held $(LWS_OBS_LAST_REAL_YEAR) value ($(held)); the record " *
+        "was extended -- move the constant, deliberately")
+    first_year in yrs || error("lws_observed_increments: model years $(yrs[1])-$(yrs[end]) do not contain $(first_year)")
+    v = zeros(length(yrs))
+    for (i, y) in enumerate(yrs)
+        if y > first_year && y <= LWS_OBS_LAST_REAL_YEAR
+            v[i] = (obs[y] - obs[y-1]) / 100.0
+        elseif y > LWS_OBS_LAST_REAL_YEAR
+            v[i] = LWS_MEAN
+        end
+    end
+    return first_year, obs[first_year] / 100.0, v
 end
 
 """
@@ -87,8 +142,10 @@ function build_brick_mengel(; ssp::String="ssp245", y0::Int=1850, y1::Int=2100,
         update_param!(m, :landwater_storage, :lws_random_sample, fill(LWS_MEAN, n))
     elseif lws === :zero
         update_param!(m, :landwater_storage, :lws_random_sample, zeros(n))
+    elseif lws === :observed
+        set_lws!(m, :observed)          # the observed series + LWS_MEAN after it (2026-09-21)
     elseif lws !== :random   # :random keeps get_model's unseeded draw (legacy)
-        error("build_brick_mengel: lws must be :seeded, :central, :zero, or :random (got :$lws)")
+        error("build_brick_mengel: lws must be one of $(LWS_MODES) (got :$lws)")
     end
     return m
 end
@@ -147,8 +204,10 @@ function build_brick_nu(; ssp::String="ssp245", y0::Int=1850, y1::Int=2026,
         update_param!(m, :landwater_storage, :lws_random_sample, fill(LWS_MEAN, n))
     elseif lws === :zero
         update_param!(m, :landwater_storage, :lws_random_sample, zeros(n))
+    elseif lws === :observed
+        set_lws!(m, :observed)          # the observed series + LWS_MEAN after it (2026-09-21)
     elseif lws !== :random
-        error("build_brick_nu: lws must be :seeded, :central, :zero, or :random (got :$lws)")
+        error("build_brick_nu: lws must be one of $(LWS_MODES) (got :$lws)")
     end
     return m
 end
@@ -203,8 +262,10 @@ function build_brick_nu3(; ssp::String="ssp245", y0::Int=1850, y1::Int=2026,
         update_param!(m, :landwater_storage, :lws_random_sample, fill(LWS_MEAN, n))
     elseif lws === :zero
         update_param!(m, :landwater_storage, :lws_random_sample, zeros(n))
+    elseif lws === :observed
+        set_lws!(m, :observed)          # the observed series + LWS_MEAN after it (2026-09-21)
     elseif lws !== :random
-        error("build_brick_nu3: lws must be :seeded, :central, :zero, or :random (got :$lws)")
+        error("build_brick_nu3: lws must be one of $(LWS_MODES) (got :$lws)")
     end
     return m
 end

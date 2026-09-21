@@ -126,7 +126,8 @@ const UNFITTED = [k for (k, _, _) in SERIES if !(k in FITTED)]
 isempty(UNFITTED) ||
     println("NOTE: no calibrated error model for $(join(UNFITTED, ", ")) — reported " *
             "OUT-OF-SAMPLE, parameter band only, predictive band NaN")
-bf   = ladrillo_setup(ssp="ssp245", y0=Y0, y1=Y1, forcing_tag=FORCING, ref=FIT_REF,
+## lws=:central PINNED (2026-09-21): the objective was calibrated with land water zero before 2018 (:central since 09-18); projections default to :observed (brick_mengel.jl LWS_MODE) and must not move the hindcast side.
+bf   = ladrillo_setup(ssp="ssp245", y0=Y0, y1=Y1, forcing_tag=FORCING, ref=FIT_REF, lws=:central,
                       gis_variant = VARIANT)
 imy  = [ladrillo_yi(bf, y) for y in FY]
 ny   = length(FY)

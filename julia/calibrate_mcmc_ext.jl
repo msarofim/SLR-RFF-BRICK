@@ -1434,9 +1434,10 @@ println("D2 discrepancy: ON" *
 
 # ---- model base (medoid + glacier init), forcing once -- extC 3-reservoir build ----
 medoid = CSV.read(joinpath(REPO,"outputs/recalib_central_row.csv"), DataFrame)[1,:]
-m = GIS_BASINS ? build_brick_nu3_gis3(ssp="ssp245", y0=Y0, y1=Y1) :
-    GIS_AB     ? build_brick_nu3_gis(ssp="ssp245", y0=Y0, y1=Y1) :
-                 build_brick_nu3(ssp="ssp245", y0=Y0, y1=Y1)
+## lws=:central PINNED (2026-09-21): the objective was calibrated with land water zero before 2018 (:central since 09-18); projections default to :observed (brick_mengel.jl LWS_MODE) and must not move the hindcast side.
+m = GIS_BASINS ? build_brick_nu3_gis3(ssp="ssp245", y0=Y0, y1=Y1, lws=:central) :
+    GIS_AB     ? build_brick_nu3_gis(ssp="ssp245", y0=Y0, y1=Y1, lws=:central) :
+                 build_brick_nu3(ssp="ssp245", y0=Y0, y1=Y1, lws=:central)
 ## L27: parameters not sampled are HELD at their paleo medians in the calibration model (set once)
 CUT_FASTDYN && (update_param!(m, :antarctic_icesheet, :λ, PALEO_MED["antarctic_lambda"]);
                 update_param!(m, :antarctic_icesheet, :temperature_threshold, PALEO_MED["antarctic_temp_threshold"]))

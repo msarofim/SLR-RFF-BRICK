@@ -39,16 +39,34 @@ CSV_SUFFIX = ".csv"
 PREFER_PARQUET = os.environ.get("SLR_DRAWS_PARQUET", "1") not in ("0", "no", "false")
 
 
+_warned = set()
+
 def draws_path(path):
     """Resolve a LOGICAL draws path to the file that actually exists.
 
-    Prefers the Parquet twin of a `.csv` path. Anything else -- an explicit
-    `.parquet`, a frozen `.csv.gz`, a missing file -- is returned unchanged, so
-    the caller's own existence check still reports on the name it asked for.
+    Prefers the Parquet twin of a `.csv` path -- UNLESS the CSV is NEWER than the twin, in which
+    case the twin is a stale snapshot of an arm that has since been re-run, and the CSV is
+    returned with a one-line warning. ⚠ Found 2026-09-21: the ten BRICK 2.0 FaIR-climate joint
+    arms were re-run on 09-18 (LWS :central) and 09-21 (LWS :observed) and wrote fresh CSVs,
+    but their 09-01 Parquet twins kept shadowing them, so every comparison table and figure
+    read the 09-01 draws (:seeded LWS, <= 0.44 cm off) -- a silent-stale-retrieval trap of
+    exactly the kind `intersect_is_a_silent_default` warns about. Refresh twins with
+    python/refresh_draws_parquet.py. Anything else -- an explicit `.parquet`, a frozen
+    `.csv.gz`, a missing file -- is returned unchanged, so the caller's own existence check
+    still reports on the name it asked for.
     """
     if PREFER_PARQUET and path.endswith(CSV_SUFFIX):
         pq = path[: -len(CSV_SUFFIX)] + PARQUET_SUFFIX
         if os.path.exists(pq):
+            if os.path.exists(path) and os.path.getmtime(path) > os.path.getmtime(pq) + 1.0:
+                if pq not in _warned:
+                    _warned.add(pq)
+                    import sys, time
+                    fmt = lambda t: time.strftime("%Y-%m-%d %H:%M", time.localtime(t))
+                    print(f"[draws_io] STALE PARQUET TWIN ignored: {os.path.basename(pq)} "
+                          f"({fmt(os.path.getmtime(pq))}) is older than its CSV ({fmt(os.path.getmtime(path))}); "
+                          f"reading the CSV. Refresh with python/refresh_draws_parquet.py", file=sys.stderr)
+                return path
             return pq
     return path
 

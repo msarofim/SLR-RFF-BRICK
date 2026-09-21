@@ -7,9 +7,9 @@ SPLICE-IDENTITY,first_divergence_year,2015.0,measured
 OHC-OFFSET,max_cm,1.1368683772161603e-13,CANCELS
 CALIB-MOVE,glaciers_max_cm,0.0,measured
 CALIB-MOVE,gis_max_cm,0.0,measured
-CALIB-MOVE,ais_max_cm,0.259788059895838,measured
+CALIB-MOVE,ais_max_cm,0.25978865404646667,measured
 CALIB-MOVE,te_max_cm,2.0530021921166974,measured
 CALIB-MOVE,lws_max_cm,0.0,measured
-CALIB-MOVE,total_max_cm,2.068450291158733,measured
+CALIB-MOVE,total_max_cm,2.068450498038146,measured
 SUM,fixed_max_cm,2.2737367544323206e-13,PASS
 SUM,joint_max_cm,2.2737367544323206e-13,PASS
