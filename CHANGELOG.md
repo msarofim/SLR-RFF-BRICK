@@ -1,3 +1,72 @@
+## 2026-09-20f — THE ONE-ROUND DOCX SWAP TO L27: `deliverables/GMD.Ladrillo.v1_review-2026-09-20b_L27.docx`
+
+Every table, figure and posterior-dependent number in the GMD draft moved from L24 to L27 in ONE tracked-change
+round (handoff 09-20b §1.2). Base = the 09-20 docx (Marcus's copy, with r4 LWS + r5 Table A2 still pending);
+output validated (`validate.py --original --author Claude`: PASS — XSD clean, no untracked text change) and the
+pandoc reject-all view is byte-identical to the base's. Tooling: `deliverables/redline/apply_edits_r6_l27.py`
+(reads every number from the L27 output that produced it and asserts the L24 value it replaces), `run_r6.sh`
+(unpack → merge_runs → apply → zip → validate, re-runnable), and `redline.py` round-6 helpers: `edit_table`
+(tracked cell edits + tracked row deletions), `replace_image` (tracked figure swap: old drawing in `<w:del>`, new
+one in `<w:ins>` with its own rel/media, cy rescaled to the new aspect), `` `mono` `` in `_inline_runs`,
+`start_ids_above`. Round 6 carries its own revision date (2026-09-20) — the validator identifies an existing
+change by author+date+text, and a new "14" cell had collided with the pending r5 one.
+
+**What moved (accepted view):**
+- **FIGs 1–6** → the `--paper` renders `figures/paper/*_L27*.png` (the base had memo renders of L24, four of them
+  09-18 vintage). FIG 1 alt text now says L27.
+- **Table 4** (RMSE ratio Ladrillo/BRICK by window, from `scope_ladrillo_vs_brick20_scorecard_L27.csv`):
+  AIS 0.026/0.062/0.099/**1.077**/0.059 · Greenland 0.100/0.251/0.293/0.713/0.279 · Glaciers 0.205/0.114/1.804/
+  0.212/0.205 · TE 0.808/0.819/1.003/1.329/0.871 · Total **1.986**/0.563/0.215/0.677/0.546 (L24: AIS
+  0.003/…/0.676/0.019, Total 4.138/1.369/0.519/0.892/1.172). Two L24 sentences no longer held and were rewritten
+  from the table: Ladrillo is now behind BRICK on AIS 1993–2026 (both within 0.1 cm of the record) and is closer on
+  the TOTAL in 1920–1949 (its own errors begin to offset there: +0.22 of 0.77 cm; 1900–1919 +1.23 of 1.37).
+- **Table 5**: iid 42/27, 23.2/−1252.1, +2521/+2458; AR(1) ρ≤0.99 50/35, 238.0/180.9, **+84/+21**; 0.95 +141/+78;
+  0.90 +208/+145. Paragraph: gain +57 = nearly 4× the AIC charge for Δk 15, BIC positive at every bound (the
+  "level on BIC" sentence is gone); glaciers +30, Greenland +24, Antarctica +4.
+- **Hindcast text**: cumulative 1900–04→2020–24 Ladrillo +20.41 (obs +21.00; L24 +19.84); 2022–24 level +7.88
+  (+0.07 vs obs; L24 +0.36); 2006–2025 rate 0.363 cm/yr (L24 0.374); TE rate 1.23× obs (L24 1.27×), α within 4%
+  of the obs-implied coefficient (`diag_te_rate_attribution.py --tag=L27`: model/obs 0.960–0.998), TE excess 0.7 cm
+  (L24 0.8). All reproduce the L24 sentences to the printed digit when run on `postpred_L24`.
+- **Methods**: 50 parameters = 14 AIS + 9 GIS + 16 glacier + 11; α's flat prior [0.05, 0.30] and posterior 0.167
+  [0.148, 0.186]; only TE carries δ(t) (0.21 [0.01, 0.40], second 0.069); `ais_precip_u` reparameterisation
+  sentence; NEW paragraph "The fast-dynamics parameters are propagated, not sampled" (λ/T_crit/γ held at paleo
+  medians in calibration, joint (λ, T_crit) paleo draw attached in projection, r = +0.45, 4× fewer collapse-corner
+  draws, ssp126 AIS p95 2.5× lower on the fixed arm); the ledger set-asides integrated out + `u_unch` in the upper
+  half of Parkes & Marzeion (33 mm, 5–95% 21–41) — both were owed since L26. Convergence: 42/50 pass, 8 fail all
+  AIS (T_on R̂ 1.31, c 1.08), Greenland converges, projected SLR R̂ 1.001/1.002, ESS ~1240.
+- **Projections**: responsiveness glaciers 1.3× (L24 1.4×), Greenland 3×; High 71/82/62 @2100, 422/414/570 @2300,
+  AIS 244/248/382, on MAGICC's climate −15/−22 → 406/392; λ paragraph rewritten (not sampled; ensemble mean 0.0104
+  sd 0.0036; AIS ssp585/2300 widths 314 vs 405); Low vvVL 59/46/81, widths 67/137/182 (Ladrillo narrower than
+  BRICK on every component — asserted in the script, not carried); regrowth 0.11 vvLN / 0.10 vvML on FaIR, 1.95 on
+  MAGICC's climate, MAGICC 8.58, climate term 1.84, structure share 78 % ("about ¾" still holds).
+- **Table A1** (ACCEPTED in the base, so edited cell by cell): 152 tracked cell edits + 8 tracked row deletions
+  (`gic_delta`, `gic_u_pre`, `gic_s_r5`, `antarctic_temp_threshold`, `antarctic_lambda`, `antarctic_gamma`,
+  `d2_gsic_1/2`), `ais_precip0_LOG` → `ais_precip_u`; every L27 md row verified present with its three numbers.
+  **Table A2** (pending r5): its 5 rows tracked-deleted (del nested in ins), the 3 L27 rows inserted, caption
+  swapped to the 14-parameter one.
+- **Six comments** mark the numbers with NO L27 re-run (separate sensitivity arms last run on L24): Greenland
+  amplification-held (1–9 cm), the tap's 35.1 cm, the Antarctic-amp leverage (58/24, 17/42 cm), RGI 19's
+  80–3200 yr, the runtime, and the Conclusions' "up to 60 cm by 2300" (provenance not found in current outputs —
+  joint-arm AIS medians differ from BRICK by −31 cm ssp245 / −27 cm vvHL at 2300; flagged for Marcus).
+
+**Bugs found on the way.** (1) `diag_component_error_cancellation.py` had `TAG = "L24"` as a LITERAL — a
+`--tag=L27` call silently reported L24 numbers (caught because Ladrillo's 1900–19 bias came out identical to the
+draft). Now reads `--tag=`, output `_<TAG>.csv`; the old file renamed `_L24`. (2) `plot_vv_gsic_wr_vs_ladrillo.py`
+wrote an UNTAGGED filename, so the L27 `--paper` run had overwritten the L24 render (the two modified PNGs in
+`git status`): filename now carries the tag (`vv_gsic_ladrillo_<TAG>_2300.png`), `--paper` writes the caption
+sidecar like the others; L24 renders restored from git and renamed; the L24 memo's references updated.
+(3) The Table 4 in the 09-20 docx was the 09-10 scorecard (AIS 1993–2026 0.676, full 0.019) while the current
+`postpred_L24` gives 0.679 / 0.018 — a stale-by-two-digits L24 table that the swap retires.
+
+**Also this entry:** `run_l27_vv_magiccclim.sh` landed (14 arms OK, memo figures + climate swap exit 0):
+`figures/ladrillo_L27_fig1-3`, `figures/vv_climate_swap_L27_{2100,2150,2300}.png`, `outputs/vv_climate_swap_L27.csv`;
+the L27 cells/gates/paths of every arm committed (19e317d had not included them). `verify_magicc_regrowth_attribution
+--tag=L27` re-run with all seven arms (pooled structure 88 %).
+
+**NOT done / for Marcus:** the docx is a REVIEW copy — accept/reject in Word; the L27r precision question (handoff
+09-20b §3) is unchanged; the runoff-onset-location-follows-L statement is still not in the paper (no clean number
+in hand); Table A2's generated caption reads "1 retain" (generator grammar; `ladrillo_table_a2.py`).
+
 ## 2026-09-20e — L27 SHIPPED as the paper's posterior (50 parameters): hindcast unchanged vs L26; IC ΔBIC turns positive; the IC optimiser fixed
 
 Chains finished 17:39 (4 h 05 under load ~10; acceptance 0.237–0.238 on all four); `run_l27_postprocess.sh` ran

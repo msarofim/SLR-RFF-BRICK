@@ -1,6 +1,6 @@
 # Ladrillo benchmark — `L27`
 
-*benchmark v1.0, 2026-09-20, repo `5a27c0b`. Champion arm: **L26**.*
+*benchmark v1.0, 2026-09-20, repo `3b5bbce`. Champion arm: **L26**.*
 
 Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (stock MimiBRICK v2.0.0, own posterior), **literature** (FACTS + MAGICC-SLR, frozen).
 

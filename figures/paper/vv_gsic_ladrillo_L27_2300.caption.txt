@@ -1,0 +1,1 @@
+Ladrillo L27 3-reservoir ν glaciers (L27 chains, `fixed` arm), posterior-parameter spread on mean forcing. FaIR 2.2.4 (calib 1.6.0) van Vuuren scenario GMST; one build, one calibration throughout (driver commit 6cc34b6), each scenario on its own CMIP7 land-use, irrigation and volcanic/solar forcing.

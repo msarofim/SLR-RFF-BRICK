@@ -208,3 +208,170 @@ def set_table_widths(x, anchor_text, grid, tcw):
         return f'<w:tcW w:w="{v}" w:type="dxa"/>'
     t = re.sub(r'<w:tcW [^>]*/>', tc, t)
     return x[:ts] + t + x[te:]
+
+
+# ---------- round-6 additions (2026-09-20, the L24 -> L27 swap) ----------
+## Revision ids: every earlier round restarted the counter at 9000 and Word renumbered on save;
+## the base for r6 carries ids up to 9041, so r6 starts above them. Duplicate ids are tolerated
+## by Word but not by a reader that keys on them.
+def start_ids_above(x):
+    ids = [int(v) for v in re.findall(r'<w:(?:ins|del) w:id="(\d+)"', x)]
+    _id[0] = max([9000] + ids) + 50
+
+MONO_RPR = '<w:rPr><w:rStyle w:val="VerbatimChar"/></w:rPr>'   # the draft's monospace (pandoc's)
+
+def _inline_runs(text, ins=True):
+    """'**bold** `mono` rest' -> runs. Overrides the round-1 version: adds `code` -> VerbatimChar,
+    the style the draft uses for parameter names, so a whole-paragraph replacement keeps them."""
+    parts = re.split(r"(\*\*.*?\*\*|`[^`]*`)", text)
+    out = ""
+    for p in parts:
+        if not p:
+            continue
+        if p.startswith("**") and p.endswith("**"):
+            rpr, s = "<w:rPr><w:b/></w:rPr>", p[2:-2]
+        elif p.startswith("`") and p.endswith("`"):
+            rpr, s = MONO_RPR, p[1:-1]
+        else:
+            rpr, s = "", p
+        out += mk_ins(esc(s), rpr) if ins else mk_run(esc(s), rpr)
+    return out
+
+def revert_pending(x, anchor, nth=0):
+    """REJECT Claude's own pending changes inside the paragraph containing `anchor`: drop the
+    <w:ins> runs, unwrap the <w:del> runs back to live text. Used before a whole-paragraph
+    replacement of a paragraph an earlier round already edited, so the reject-all view stays the
+    original text and Marcus sees ONE replacement rather than a deletion of an insertion."""
+    ps, pe = find_para(x, anchor, nth)
+    p = x[ps:pe]
+    p = re.sub(r"<w:ins w:id=\"\d+\" w:author=\"%s\"[^>]*>.*?</w:ins>" % AUTHOR, "", p, flags=re.S)
+    def undel(m):
+        inner = m.group(1)
+        inner = re.sub(r"<w:delText( [^>]*)?>", lambda mm: "<w:t%s>" % (mm.group(1) or ""), inner)
+        return inner.replace("</w:delText>", "</w:t>")
+    p = re.sub(r"<w:del w:id=\"\d+\" w:author=\"%s\"[^>]*>(.*?)</w:del>" % AUTHOR, undel, p, flags=re.S)
+    # a paragraph-mark insertion (an inserted paragraph): the caller removes such paragraphs whole
+    return x[:ps] + p + x[pe:]
+
+def remove_pending_para(x, anchor, nth=0):
+    """Remove a paragraph that is entirely Claude's pending insertion (paragraph mark included)."""
+    ps, pe = find_para(x, anchor, nth)
+    p = x[ps:pe]
+    assert re.search(r"<w:pPr>.*?<w:rPr>.*?<w:ins ", p, re.S), "not an inserted paragraph: %r" % anchor
+    return x[:ps] + x[pe:]
+
+# ---- tables ----
+TR_RE = re.compile(r"<w:tr\b.*?</w:tr>", re.S)
+TC_RE = re.compile(r"<w:tc>.*?</w:tc>|<w:tc [^>]*>.*?</w:tc>", re.S)
+
+def find_table(x, anchor, nth=0):
+    """(start, end) of the nth <w:tbl> whose XML contains `anchor`."""
+    a = esc(anchor); hits = []
+    for m in re.finditer(r"<w:tbl>.*?</w:tbl>", x, re.S):
+        if a in m.group(0):
+            hits.append((m.start(), m.end()))
+    if len(hits) <= nth:
+        raise KeyError(f"table containing {anchor!r} not found (hits={len(hits)})")
+    return hits[nth]
+
+def cell_text(tc):
+    return "".join(html.unescape(t) for t in re.findall(r"<w:t(?: [^>]*)?>(.*?)</w:t>", tc, re.S))
+
+def _replace_cell_xml(tc, new):
+    """Tracked: every text run of the cell deleted, `new` inserted (first run's rPr kept)."""
+    runs = [m for m in R_RE.finditer(tc) if "<w:t" in m.group(0)]
+    if not runs:
+        # empty cell: insert before the last </w:p>
+        j = tc.rfind("</w:p>")
+        return tc[:j] + mk_ins(esc(new)) + tc[j:]
+    rpr = run_parts(runs[0].group(0))[0]
+    out = tc[:runs[0].start()]
+    for m in runs:
+        r = m.group(0)
+        r = re.sub(r"<w:t(?: [^>]*)?>", '<w:delText xml:space="preserve">', r).replace("</w:t>", "</w:delText>")
+        out += f'<w:del w:id="{nid()}" w:author="{AUTHOR}" w:date="{DATE}">{r}</w:del>'
+    if new != "":
+        out += mk_ins(esc(new), rpr)
+    out += tc[runs[-1].end():]
+    return out
+
+def edit_table(x, anchor, edits, delete_rows=(), nth=0):
+    """Tracked cell edits + tracked row deletions on the table containing `anchor`.
+    edits: {(row, col): new_text}; delete_rows: row indices (0 = header). Cells whose text
+    already equals new_text are left untouched, so calling twice is idempotent."""
+    ts, te = find_table(x, anchor, nth)
+    t = x[ts:te]
+    rows = [m for m in TR_RE.finditer(t)]
+    out = t[:rows[0].start()]
+    for ri, rm in enumerate(rows):
+        r = rm.group(0)
+        if ri in delete_rows:
+            mark = f'<w:del w:id="{nid()}" w:author="{AUTHOR}" w:date="{DATE}"/>'
+            if "<w:trPr>" in r:
+                r = r.replace("</w:trPr>", mark + "</w:trPr>", 1)
+            else:
+                r = re.sub(r"^(<w:tr\b[^>]*>)", lambda m: m.group(1) + f"<w:trPr>{mark}</w:trPr>", r, count=1)
+            r = TC_RE.sub(lambda m: _replace_cell_xml(m.group(0), "") if "<w:t" in m.group(0) else m.group(0), r)
+        else:
+            cells = [m for m in TC_RE.finditer(r)]
+            rr = r[:cells[0].start()] if cells else r
+            for ci, cm in enumerate(cells):
+                tc = cm.group(0)
+                if (ri, ci) in edits and cell_text(tc) != edits[(ri, ci)]:
+                    tc = _replace_cell_xml(tc, edits[(ri, ci)])
+                rr += tc
+            if cells:
+                rr += r[cells[-1].end():]
+            r = rr
+        out += r
+    out += t[rows[-1].end():]
+    return x[:ts] + out + x[te:]
+
+def table_texts(x, anchor, nth=0):
+    """[[cell text, ...], ...] of the table containing `anchor` (accepted view)."""
+    ts, te = find_table(x, anchor, nth)
+    rows = []
+    for rm in TR_RE.finditer(x[ts:te]):
+        r = re.sub(r"<w:del\b.*?</w:del>", "", rm.group(0), flags=re.S)
+        rows.append([cell_text(c.group(0)) for c in TC_RE.finditer(r)])
+    return rows
+
+# ---- images ----
+def replace_image(x, unpacked, old_descr_png, new_png, new_alt, new_pic_descr):
+    """Tracked figure swap. The run holding the drawing whose pic:cNvPr descr == old_descr_png is
+    wrapped in <w:del>; a copy pointing at `new_png` (added to word/media + document.xml.rels) is
+    inserted after it in <w:ins>. The extent keeps cx and rescales cy to the new image's aspect,
+    so a different aspect ratio does not distort. Reject-all restores the old picture."""
+    from PIL import Image
+    import shutil
+    unpacked = Path(unpacked)
+    rels_p = unpacked / "word/_rels/document.xml.rels"
+    rels = rels_p.read_text()
+    media = unpacked / "word/media"
+    n = 1 + max([0] + [int(m) for m in re.findall(r"image(\d+)\.png", rels)])
+    target = f"media/image{n}.png"
+    shutil.copy(new_png, media / f"image{n}.png")
+    rid = 1 + max(int(v) for v in re.findall(r'Id="rId(\d+)"', rels))
+    rels = rels.replace("</Relationships>",
+        f'<Relationship Id="rId{rid}" Type="http://schemas.openxmlformats.org/officeDocument/2006/'
+        f'relationships/image" Target="{target}"/></Relationships>')
+    rels_p.write_text(rels)
+    runs = [m for m in re.finditer(r"<w:r>(?:(?!</w:r>).)*<w:drawing>.*?</w:drawing></w:r>", x, re.S)
+            if f'descr="{esc(old_descr_png)}"' in m.group(0)]
+    assert len(runs) == 1, f"drawing {old_descr_png!r}: {len(runs)} hits"
+    m = runs[0]; old = m.group(0)
+    w, h = Image.open(new_png).size
+    cx = int(re.search(r'<wp:extent cx="(\d+)"', old).group(1))
+    cy = int(round(cx * h / w))
+    new = old
+    new = re.sub(r'<wp:extent cx="(\d+)" cy="\d+"/>', lambda mm: f'<wp:extent cx="{mm.group(1)}" cy="{cy}"/>', new)
+    new = re.sub(r'<a:ext cx="(\d+)" cy="\d+"/>', lambda mm: f'<a:ext cx="{mm.group(1)}" cy="{cy}"/>', new)
+    new = re.sub(r'r:embed="rId\d+"', f'r:embed="rId{rid}"', new)
+    ids = [int(v) for v in re.findall(r'<wp:docPr id="(\d+)"', x)]
+    new = re.sub(r'<wp:docPr id="\d+" name="[^"]*" descr="[^"]*"',
+                 f'<wp:docPr id="{max(ids) + 100 + n}" name="Picture" descr="{esc(new_alt)}"', new)
+    new = re.sub(r'(<pic:cNvPr id="\d+" name="[^"]*") descr="[^"]*"', lambda mm: f'{mm.group(1)} descr="{esc(new_pic_descr)}"', new)
+    new = re.sub(r' wp14:anchorId="[0-9A-F]+" wp14:editId="[0-9A-F]+"', "", new)
+    out = (f'<w:del w:id="{nid()}" w:author="{AUTHOR}" w:date="{DATE}">{old}</w:del>'
+           f'<w:ins w:id="{nid()}" w:author="{AUTHOR}" w:date="{DATE}">{new}</w:ins>')
+    return x[:m.start()] + out + x[m.end():]

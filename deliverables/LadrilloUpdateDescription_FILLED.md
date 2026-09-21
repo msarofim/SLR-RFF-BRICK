@@ -182,7 +182,7 @@ On glaciers, Ladrillo and MAGICC-SLR share the Nauels 2017 transient, so differe
 
 **FIG 5.** Component trajectories across the van Vuuren scenarios, joint band, Ladrillo relative to BRICK 2.0.
 
-![Glacier response on the declining scenarios](../figures/vv_gsic_ladrillo_2300.png)
+![Glacier response on the declining scenarios](../figures/vv_gsic_ladrillo_L24_2300.png)
 
 **FIG 6.** Ladrillo glacier contribution to 2300 across the seven van Vuuren scenarios: GMST forcing (a), cumulative glacier melt (b), and the melt rate on the peak-and-decline pathways (c). Regrowth appears when temperature declines below the reservoir equilibrium.
 

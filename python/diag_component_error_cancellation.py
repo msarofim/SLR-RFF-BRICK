@@ -35,11 +35,13 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from provenance import stamp
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TAG  = "L24"
+## --tag= picks the Ladrillo postpred; it was a literal "L24" until 09-20, so a --tag=L27 call
+## silently reported L24 numbers. The tag travels into the output filename.
+TAG  = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
 TGT  = os.path.join(REPO, "outputs", "recalib_targets_ext.csv")
 LAD  = os.path.join(REPO, "outputs", f"postpred_{TAG}_components_timeseries.csv")
 BRK  = os.path.join(REPO, "outputs", "postpred_oldbrick_components_timeseries.csv")
-OUT_CSV = os.path.join(REPO, "outputs", "diag_component_error_cancellation.csv")
+OUT_CSV = os.path.join(REPO, "outputs", f"diag_component_error_cancellation_{TAG}.csv")
 
 LAD_COL = {"ais": "ais_p50", "gsic": "glaciers_p50", "gis": "gis_p50", "steric": "te_p50"}
 BRK_COL = {"ais": "ais_p50", "gsic": "gsic_p50", "gis": "gis_p50", "steric": "te_p50"}

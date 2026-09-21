@@ -69,13 +69,16 @@ ARM = "fixed"                    # see the like-for-like note in the docstring
 WR_CSV = "outputs/vv_gsic_2300.csv"
 LAD_PATHS = "outputs/scope_slr_fairunc_paths_{m}_%s_{stem}.csv" % FORCING
 LAD_GATES = "outputs/scope_slr_fairunc_gates_{m}_%s_{stem}.csv" % FORCING
-OUTPNG = "figures/vv_gsic_wr_vs_ladrillo_2300.png"
+## The tag travels in the filename (2026-09-20): the paper renders of L24 and L27 sat under ONE
+## name and the L27 run silently overwrote the L24 file -- exactly the vintage mixing the
+## "never mix L24/L26/L27" rule forbids. Every other paper figure already carries its tag.
+OUTPNG = "figures/vv_gsic_wr_vs_ladrillo_%s_2300.png" % LADRILLO_TAG
 ## --ladrillo-only (Marcus, 2026-09-11): the deliverable describes Ladrillo, and BRICK's
 ## Wigley-Raper problem is already made in the text, so the memo figure drops the WR panel and
 ## the WR lines. The four-panel contrast is kept under the original filename.
 LADRILLO_ONLY = "--ladrillo-only" in sys.argv
 if LADRILLO_ONLY:
-    OUTPNG = "figures/vv_gsic_ladrillo_2300.png"
+    OUTPNG = "figures/vv_gsic_ladrillo_%s_2300.png" % LADRILLO_TAG
 
 MARKERS = [
     ("Very Low",      "vvVL", "#00a9cf", True),
@@ -326,24 +329,26 @@ ax[3].legend(handles=[Line2D([], [], color=COL[s], label=s) for s in DECLINE]
              bbox_to_anchor=(1.0, 0.80), ncol=3)
 
 _PAPER = "--paper" in sys.argv
+## CAPTION SCOPE: whose posterior, which arm, which forcing. The like-for-like argument and
+## the frame-mapping discussion are arguments and live in the text.
+_CAPTION = ((("Ladrillo %s 3-reservoir ν glaciers (%s chains, `%s` arm), posterior-parameter spread "
+              "on mean forcing.\n") if LADRILLO_ONLY else
+             ("BRICK 2.0 Wigley-Raper posterior (parameters_subsample_brick.csv, 1000 draws) vs "
+              "Ladrillo %s 3-reservoir ν glaciers (%s chains, `%s` arm); both are posterior-parameter "
+              "spread on mean forcing.\n"))
+            % (LADRILLO_TAG, LADRILLO_TAG, ARM)
+            + "FaIR 2.2.4 (calib 1.6.0) van Vuuren scenario GMST; one build, one calibration "
+              "throughout (driver commit %s), each scenario on its own CMIP7 land-use, irrigation and "
+              "volcanic/solar forcing." % _COMMIT)
 if _PAPER:
     import os as _os
     _os.makedirs("figures/paper", exist_ok=True)
     OUTPNG = _os.path.join("figures/paper", _os.path.basename(OUTPNG))
+    ## the provenance travels as a sidecar, as ladrillo_figs.paper_finish() does for the others
+    with open(_os.path.splitext(OUTPNG)[0] + ".caption.txt", "w") as _fh:
+        _fh.write(_CAPTION.replace("\n", " ").strip() + "\n")
 else:
-    fig.text(0.5, 0.004,
-             ## CAPTION SCOPE: whose posterior, which arm, which forcing. The like-for-like
-             ## argument and the frame-mapping discussion are arguments and live in the text.
-             (("Ladrillo %s 3-reservoir ν glaciers (%s chains, `%s` arm), posterior-parameter spread "
-               "on mean forcing.\n") if LADRILLO_ONLY else
-              ("BRICK 2.0 Wigley-Raper posterior (parameters_subsample_brick.csv, 1000 draws) vs "
-               "Ladrillo %s 3-reservoir ν glaciers (%s chains, `%s` arm); both are posterior-parameter "
-               "spread on mean forcing.\n"))
-             % (LADRILLO_TAG, LADRILLO_TAG, ARM)
-             + "FaIR 2.2.4 (calib 1.6.0) van Vuuren scenario GMST; one build, one calibration "
-               "throughout (driver commit %s), each scenario on its own CMIP7 land-use, irrigation and "
-               "volcanic/solar forcing." % _COMMIT,
-             fontsize=6.6, ha="center", color="0.35")
+    fig.text(0.5, 0.004, _CAPTION, fontsize=6.6, ha="center", color="0.35")
 fig.savefig(OUTPNG, dpi=150, bbox_inches="tight")
 print("wrote " + OUTPNG)
 
