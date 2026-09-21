@@ -11,7 +11,7 @@
 ## per-draw driver rebuild.
 ##
 ##   julia --project=julia_v2 julia/diag_runtime_ladrillo_vs_brick20.jl [ndraw=300] [--tag=L24]
-## Writes outputs/diag_runtime_ladrillo_vs_brick20.csv (one row per model x span x mode).
+## Writes outputs/diag_runtime_ladrillo_vs_brick20_<tag>.csv (one row per model x span x mode).
 ## ============================================================================
 using CSV, DataFrames, Dates, Mimi, MimiBRICK, Printf, Random, Statistics
 include(joinpath(@__DIR__, "ladrillo_projection.jl"))
@@ -26,7 +26,7 @@ const POSTERIOR = joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_b
 const BRICK_POSTERIOR = joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick.csv")
 const FORCING = "ssp245harm"
 const BRICK_SEED = 2026
-const OUT = joinpath(LADRILLO_REPO, "outputs/diag_runtime_ladrillo_vs_brick20.csv")
+const OUT = joinpath(LADRILLO_REPO, "outputs/diag_runtime_ladrillo_vs_brick20_$(POST_TAG).csv")   # tagged since 09-21 (the L24/L27 files before that were renamed by hand)
 const SPANS = [(1850, 2026), (1850, 2300)]
 
 lc(p, c) = (d = CSV.read(p, DataFrame); Dict(Int(d[i, "year"]) => Float64(d[i, c]) for i in 1:nrow(d)))

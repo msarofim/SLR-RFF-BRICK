@@ -1,3 +1,40 @@
+## 2026-09-21e — Marcus's r8 review answered: the amplification leverage re-run on L27 (and it is a THRESHOLD effect), the runtime re-timed twice, the "up to 31 cm" confirmed; draft r9
+
+**Marcus's pass on r8 (11:14, tracking off):** every earlier round accepted; wording edits to the LWS paragraph, the
+discrepancy paragraph (the parenthetical on the dropped glacier δ removed), the High/Low/regrowth paragraphs, Table A2's
+caption; the Conclusions' "up to 60 cm" replaced by **31 cm** from my comment. Three comments left, each answered with a
+re-run and a tracked edit in **`deliverables/GMD.Ladrillo.v1_review-2026-09-21c_L27.docx`** (r9; `run_r9.sh` +
+`apply_edits_r9_l27_comments.py`; validate PASS; reject-all == r8 as on disk; accepted view differs in exactly three
+sentences; replies rooted on the original comment threads).
+
+- **"Do we need to rerun?" (the per-σ Antarctic-amplification leverage, 58 / 24 cm).** New `julia/diag_ais_amp_leverage.jl
+  --tag=` (fixed-driver arm, 2000 thinned draws, SSP2-4.5 + SSP5-8.5, 2100 + 2300; `outputs/diag_ais_amp_leverage_<tag>.csv`
+  + per-draw `_draws_`). Two definitions written: (a) the REGRESSION of AIS@2300 on `ais_gmst_amp` across the posterior × σ —
+  **this is what the draft's 58 / 24 were** (L24 reproduces to 59.2 / 24.9 per posterior sd; per prior sd 61.5 / 25.8);
+  (b) the PERTURBATION, every draw re-run at amp ± 0.180 with all else held. **L27 (a): 57 cm on SSP2-4.5 (21 % of the 270 cm
+  total), 23 cm on SSP5-8.5 (4.5 % of 510) — essentially unchanged from L24.** ⚠ My 09-20f comment guessed "~¾" from the
+  revert-to-1.196 arm's 42 → 32; wrong — the revert arm is a different quantity (one fixed value vs the posterior's spread).
+  **(b) says WHY the scenarios differ:** the per-draw median is 18 cm on SSP2-4.5 and 17 on SSP5-8.5 — the SAME smooth
+  response — but on SSP2-4.5 the response is BIMODAL: +1σ pushes **30 %** of the draws across the DAIS thresholds (> 40 cm,
+  up to ~190), −1σ pulls **43 %** back (mean +46 / −59 vs median +18 / −27); on SSP5-8.5 10 % move that far and the response
+  is symmetric (mean +20 / −19). The regression's 57 is the mixture; the draft's "because SSP5-8.5 is already past the
+  thresholds" clause is now measured. Text swapped to the L27 numbers; a one-sentence threshold formulation offered in the
+  reply, wording Marcus's.
+- **"Retime for L27."** `diag_runtime_ladrillo_vs_brick20.jl --tag=L27` run a second time (11:24; the 07:06 run of 09-21c kept
+  as `_L27_rep1_0706.csv`). Medians over 300 draws, 1850–2300: apply+run **6.26 vs 5.06 ms** (run 1: 6.20 / 4.96), model
+  evaluation alone 0.72 vs 0.62; ratio **1.24×**. Text: "1.2× … 6.3 against 5.1 … 0.72 against 0.62" (the draft's L24 figures
+  were within 0.1 ms). ⚠ The script had ALWAYS written the untagged `diag_runtime_ladrillo_vs_brick20.csv` — the `_L24` /
+  `_L27` files were hand-renamed (09-21c's "tagged output" was the file, not the script); now writes `_<tag>.csv`.
+- **"I don't know what version yielded 60 cm."** Joint-arm Antarctic median, Ladrillo L27 − BRICK 2.0 at 2300 (both on the
+  observed LWS): SSP2-4.5 **−31**, High-to-Low **−27**, Medium −15, Medium-to-Low −5, High −4, Low-Negative −3, SSP5-8.5 +2,
+  Very Low −1, Low 0, SSP1-2.6 0 (fixed arm: −29 / −24 at the top). "Up to 31 cm" holds; "the peak-and-decline scenarios"
+  (plural) does not — only High-to-Low is close — so the clause now reads "the High-to-Low peak-and-decline scenario"
+  (tracked; Marcus's call). The 60 is in no current output on either arm; not traced further.
+
+Also committed: the seven `scope_slr_fairunc_draws_vv*_spliced_oldbrick.csv` from 09-21d's observed-LWS BRICK re-run
+(the cells were committed, the draws had been left modified; AIS moves ≤ 0.01 cm through the sea-level feedback). Memory:
+`ais_amp_leverage_is_a_threshold` (→ `INDEX_ais.md`); `gmd_draft_swapped_to_l27` updated to r9.
+
 ## 2026-09-21d — PROJECTIONS CARRY THE OBSERVED LAND-WATER SERIES (Marcus's ruling); a stale-Parquet trap that had frozen every BRICK 2.0 comparison number at the 09-01 run
 
 **Ruling (Marcus 2026-09-21):** "If we have LWS observations we should use them: we are trying to make the best SLR model,
