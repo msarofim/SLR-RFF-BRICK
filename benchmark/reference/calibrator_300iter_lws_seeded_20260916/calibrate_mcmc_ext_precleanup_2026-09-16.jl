@@ -1,8 +1,7 @@
 ## ============================================================================
-## CANONICAL RUN = run_mcmc_L24.sh (--overdisperse --adcov=adapted_cov_L11tune3_seed2026_named.csv
-##   --amp-mu=1.09 --amp-sigma=0.180; --gis-ordered --gis-basins2 are accepted no-ops since the
-##   2026-09-16 cleanup made them the defaults). scripts/gate_calibrator_identity.sh proves any
-##   edit to this file still reproduces the L24 objective byte-for-byte (300 iter, seed 2026).
+## CANONICAL RUN = run_mcmc_L24.sh (flags --gis-ordered --gis-basins2 --overdisperse
+##   --adcov=adapted_cov_L11tune3_seed2026.csv --amp-mu=1.09 --amp-sigma=0.180).
+## The defaults below do NOT reproduce L24 — always launch via the run script.
 ## Postprocess with run_l24_postprocess.sh (postprocess_mcmc_ext.jl --tag=L24 --accept-slr,
 ## gated by diag_slr_convergence_by_chain_ladrillo.jl).
 ## ============================================================================
@@ -81,7 +80,7 @@
 ## where threaded BLAS pays for itself, so the threads were never buying anything here.
 ## ============================================================================
 
-using CSV, DataFrames, Dates, Mimi, MimiBRICK, Statistics, LinearAlgebra, Distributions, Random, Printf
+using CSV, DataFrames, Mimi, MimiBRICK, Statistics, LinearAlgebra, Distributions, Random, Printf
 using RobustAdaptiveMetropolisSampler
 include(joinpath(@__DIR__, "brick_mengel.jl"))
 
@@ -94,7 +93,7 @@ const TARGETS = joinpath(REPO, "outputs/recalib_targets_ext.csv")
 # so the ONLY difference from the production run is A6. Everything else (A2/A4/A5, the
 # Dangendorf/STAR targets) is identical -> isolates A6's effect on the SLR headline. Output
 # infix becomes "extA6eq" so its chains do NOT match the production "chain_ext_seed*" glob.
-## (--amp-equilibrium, the A6 sensitivity arm that pinned amp at 1.19546, removed 2026-09-16.)
+const AMP_EQ = "--amp-equilibrium" in ARGS
 # 2026-07-22 (CMIP6 secant update): optional A6-prior overrides, so a new amplification
 # prior can be run WITHOUT touching the phase-2 defaults. --amp-mu=/--amp-sigma= set the
 # prior; --tag= renames the output infix so new chains do NOT match the phase-2
@@ -132,29 +131,23 @@ const STERIC_CAP_ARG = _argval("--steric-marg-cap=")
 # non-closure. Dropping the total removes the cause; the other two supply R19
 # with constraints of its own. Each has a restore flag, and all three together
 # reproduce the L10 configuration bit-identically.
-# The three restore flags (--keep-total, --no-r19-rate, --rung-sig-legacy) were removed
-# 2026-09-16: the change set is the production objective since L11 and no shipped result
-# depends on the L10 configuration. `--keep-total` in particular is gone because the total
-# is NOT a likelihood term in any Ladrillo vintage (see the document, "Deliberately removed").
-## The two-stream model-discrepancy term is always on; --no-d2 and --d2-streams= were
-## removed 2026-09-16 (both were attribution-only arms, never a shipped configuration).
-## The Greenland slow channel is always sampled as (log r_s, w); the native (alpha_s, beta_s)
-## arm (--gis-native) was removed 2026-09-16.
+const DROP_TOTAL    = !("--keep-total" in ARGS)
+const R19_RATE_ON   = !("--no-r19-rate" in ARGS)
+const RUNG_SIG_LEGACY = "--rung-sig-legacy" in ARGS
+const D2_ON = !("--no-d2" in ARGS)
+const GIS_REPARAM = !("--gis-native" in ARGS)
 const TAG = TAG_OVR !== nothing ? TAG_OVR :
-            "D1"                                              # output infix (legacy default)
+            (AMP_EQ ? "extA6eq" : (DROP_TOTAL ? "D1" : "ext"))   # output infix
 years = collect(Y0:Y1); ib = [findfirst(==(y),years) for y in B0:B1]; idx(y)=findfirst(==(y),years)
 N_ITER = length(ARGS)>=1 ? parse(Int,ARGS[1]) : 2000
 SEED   = length(ARGS)>=2 ? parse(Int,ARGS[2]) : 2026
 
 # ---- AR(1) heteroscedastic log-likelihood (Ruckert et al. 2017; MimiBRICK form) ----
-function hetero_logl_ar1(res::Vector{Float64}, σ::Float64, ρ::Float64, ϵ::Vector{Float64}, L::Float64=OBS_CORR_LEN)
+function hetero_logl_ar1(res::Vector{Float64}, σ::Float64, ρ::Float64, ϵ::Vector{Float64})
     n = length(res)
     σp = σ^2/(1-ρ^2)
     H  = abs.(collect(1:n)' .- collect(1:n))
-    ## --obs-corr-len (L26): the band is a correlated error with e-folding length L yr (fixed, or
-    ## sampled as one shared log10 L under --obs-corr-len=sample); L = 0 reproduces the L24 diagonal.
-    Σ  = L > 0 ? σp .* ρ.^H .+ (ϵ * ϵ') .* exp.(-H ./ L) :
-                 σp .* ρ.^H .+ Diagonal(ϵ.^2)
+    Σ  = σp .* ρ.^H .+ Diagonal(ϵ.^2)
     return logpdf(MvNormal(Symmetric(Σ)), res)
 end
 
@@ -189,10 +182,6 @@ const AMP_G = 1.8            # aggregate convention (d0 gates/patho frame; kept 
 # every product; regchar sits below the obs range. Priors = center near HadCRUT5 with
 # σ from the dataset spread; hard bounds = the cross-dataset ranges.
 # Fixed-basis modes (regchar/obsfit) retained for A/B arms.
-## The per-block glacier amplification is SAMPLED (gic_amp_b). `--amp-basis=regchar|obsfit`
-## pins it at a fixed basis and is a TEST-ONLY knob: validate_glaciers_nu3.jl (the port gate,
-## run_ladrillo_tests.sh [2/10]) compares the Julia objective against the python reference at
-## the fixed amps. No shipped vintage runs fixed-amp.
 const AMP_BASIS = something(_argval("--amp-basis="), "sampled")
 AMP_BASIS in ("sampled", "regchar", "obsfit") || error("--amp-basis must be sampled|regchar|obsfit")
 const SAMPLED_AMP = AMP_BASIS == "sampled"
@@ -259,7 +248,7 @@ end
 # HERE, inside the model's own inputs, exactly as the glacier block drivers are.
 # Do not promote it to a required input -- that drop-in property is what
 # distinguishes Ladrillo from MAGICC-SLR.
-const GIS_AB = true          # the A+B two-channel Greenland is the only Greenland (--stock-gis removed 2026-09-16)
+const GIS_AB = !("--stock-gis" in ARGS)
 # --gis-zone=<south|all|central|north>. A FLAG, not a source edit, for the same
 # reason --adcov is: the arm becomes runnable, reviewable in the run script, and
 # recorded in the log, instead of living as an uncommitted one-character diff.
@@ -310,10 +299,8 @@ const GIS_V0_M = 7.42             # Greenland volume, m SLE — STRUCTURAL, not 
 # Mouginot sector groups in the slot (julia/greenland_3basin_component.jl, gated by
 # julia/test_greenland_3basin_nesting.jl) and adds ONE rate scale per basin. The
 # geometry — the volume shares k_b — is FIXED, never sampled.
-## Two basins (active + high) is the DEFAULT since 2026-09-16; `--gis-basins2` is accepted as a
-## no-op so run_mcmc_L24.sh keeps reproducing L24. The whole-sheet and three-basin arms are gone.
-const GIS_BASINS2 = true
-const GIS_BASINS = true
+const GIS_BASINS2 = "--gis-basins2" in ARGS
+const GIS_BASINS = ("--gis-basins" in ARGS) || GIS_BASINS2
 GIS_BASINS && !GIS_AB && error("--gis-basins requires the A+B Greenland module (drop --stock-gis)")
 # ---- --gis-basins2: the TWO-basin configuration (Marcus 2026-08-20) -----------
 # NO NEW COMPONENT. `greenland_3basin` at k_mid = 0 IS a two-basin model, and it is
@@ -345,7 +332,7 @@ GIS_BASINS && !GIS_AB && error("--gis-basins requires the A+B Greenland module (
 GIS_BASINS2 && !GIS_BASINS && error("--gis-basins2 implies the basin component")
 # The term itself is separable from the state, so step 2 of the handoff's order of
 # work (basins in, term OFF, confirm the total is unchanged) is reachable as a run.
-const GISB_TERM = true       # the Mouginot sector-share term is part of the objective (--no-gis-shares removed 2026-09-16)
+const GISB_TERM = GIS_BASINS && !("--no-gis-shares" in ARGS)
 # THE VOLUME SHARES ACTUALLY USED. Both tables are DERIVED from GIS3_VOL_M in
 # greenland_3basin_component.jl, never typed as literals here: the two-basin k is
 # (south + mid, 0, high) = (0.628571, 0, 0.371429), and a literal would silently stop
@@ -571,8 +558,9 @@ end
 # -- no window edge and no decay function is chosen. Column built by
 # python/prep_recalib_targets_ext.py (CLOSURE_SIG_COL); see the constant block there for
 # the flagged AR(1) double-counting caveat. --no-closure-sigma reverts to the old σ.
+const CLOSURE_SIGMA_OFF = "--no-closure-sigma" in ARGS
 const CLOSURE_SIG_COL = :dang_closure_sig
-closure_sigma(ri) = !hasproperty(tg, CLOSURE_SIG_COL) ?
+closure_sigma(ri) = (CLOSURE_SIGMA_OFF || !hasproperty(tg, CLOSURE_SIG_COL)) ?
     zeros(length(ri)) : coalesce.(Float64.(tg[ri, CLOSURE_SIG_COL]), 0.0)
 
 # per-series valid years: target value present (non-missing, non-NaN) AND >=1900
@@ -640,7 +628,7 @@ end
 let ri = [rowof(y) for y in S.dang.years], cs = closure_sigma(ri)
     base = sqrt.(S.dang.ϵ.^2 .- cs.^2)
     @printf("total-target σ: budget-closure inflation %s | 1900 %.3f→%.3f (%.2fx), 1950 %.3f→%.3f (%.2fx), 2000 %.3f→%.3f (%.2fx), %d %.3f→%.3f (%.2fx)\n",
-            "ON (Frederikse ensemble, per year)",
+            CLOSURE_SIGMA_OFF ? "OFF (--no-closure-sigma)" : "ON (Frederikse ensemble, per year)",
             (vcat([[base[i], S.dang.ϵ[i], S.dang.ϵ[i]/base[i]]
                    for i in [findfirst(==(y), S.dang.years) for y in (1900, 1950, 2000)]]...))...,
             S.dang.years[end], base[end], S.dang.ϵ[end], S.dang.ϵ[end]/base[end])
@@ -706,7 +694,11 @@ const D2_BASIS_SD = 0.5      # cm, prior sd on each coefficient (residuals are 0
 # other stream's coefficients from FREE and from D2_IDX, and `d2()` is already
 # keyed on haskey(D2_IDX, st), so the other stream reverts to no-discrepancy
 # exactly.
-const D2_STREAMS  = "--no-d2-gsic" in ARGS ? ["steric"] : ["gsic", "steric"]   # NO_D2_GSIC is defined later; same flag
+const D2_STREAMS  = let a = _argval("--d2-streams=")
+    a === nothing ? ["gsic", "steric"] : split(a, ",")
+end
+issubset(D2_STREAMS, ["gsic", "steric"]) ||
+    error("--d2-streams= takes gsic and/or steric, got $(D2_STREAMS)")
 
 """Orthonormal (unit-RMS) discrepancy basis for one stream: shifted Legendre-like
 powers of scaled time, Gram-Schmidt'd against `protect` and against each other,
@@ -802,66 +794,12 @@ end
 # ---- free physical params (name, comp, sym, prior μ, σ, lo, hi, islog) -- UNCHANGED
 pri = CSV.read(joinpath(REPO,"outputs/param_priors.csv"), DataFrame)
 prow(n)=pri[findfirst(==(n),pri.param),:]
-## ---------------------------------------------------------------------------
-## L26 STRUCTURE FLAGS (2026-09-19, Marcus: "scientifically justifiable fit, structure and priors;
-## minimise parameters"). All default OFF so the L24 identity gate is untouched.
-##   --paleo-priors   the eight non-geometry DAIS parameters take the DAISfastdyn paleo-ensemble
-##                    marginals (mean, sd, min, max; outputs/paleo_dais_marginals.csv = MimiBRICK's own
-##                    prior construction) instead of outputs/param_priors.csv, which is BRICK 2.0's
-##                    POSTERIOR mean/sd truncated at +-2 sd (found 09-19); thermal_alpha takes
-##                    MimiBRICK's Uniform(0.05, 0.3).
-##   --no-delta       gic_delta (the M15 early-segment target ramp) is not sampled; the ramp is 0.
-##   --no-d2-gsic     the two glacier discrepancy coefficients are not sampled (steric's stay).
-##   --obs-corr-len=L the published per-year bands enter the likelihood as a CORRELATED error,
-##                    (eps_i eps_j) exp(-|i-j|/L) yr, instead of a diagonal (L = 0 = L24). A
-##                    reconstruction band is a level-like uncertainty; treating it as independent
-##                    per-year noise is what forced a target correction (delta / u_unch) to exist.
-##   --precip-reparam sample u = log P0 + kappa_DAIS * Tbar instead of log P0 (the r = +0.96 ridge);
-##                    log P0 is derived per draw, the joint paleo prior is evaluated on it.
-##   (--toff-lo=, --delta-sigma= are separate flags, above/below.)
-const PALEO_PRIORS   = "--paleo-priors" in ARGS
-const NO_DELTA       = "--no-delta" in ARGS
-const NO_D2_GSIC     = "--no-d2-gsic" in ARGS
-const OBS_CORR_SAMPLED = _argval("--obs-corr-len=") == "sample"     # one shared L, sampled as log10 L
-const OBS_CORR_LEN   = let v = _argval("--obs-corr-len="); (v === nothing || v == "sample") ? 0.0 : parse(Float64, v) end
-const PRECIP_REPARAM = "--precip-reparam" in ARGS
-## L27 flags (2026-09-20, note_2026-09-20_ais_reduction_and_L26_vs_L24.md §2, options A/C/D):
-##   --cut-fastdyn  lambda and T_crit are NOT sampled: their likelihood is exactly flat (the threshold is never
-##                  crossed in the hindcast; --profile 09-20). The model holds their paleo MEDIANS during the
-##                  calibration; projections attach JOINT paleo draws per posterior draw (ladrillo_projection.jl,
-##                  outputs/paleo_fastdyn_draws.csv) — "propagated, not estimated", made literal.
-##   --fix-gamma    gamma fixed at its paleo median (likelihood +-0.1 log-units across its prior; no projection leverage).
-##   --no-ledger    gic_u_pre and gic_s_r5 are not sampled; the Leclercq ledger term is MARGINALISED over their
-##                  priors instead (uniform[0,25] mm ~ N(12.5, 7.2), N(2.5, 2.0) mm): the 1850-1900 melt is scored
-##                  against N(M19_MU - 15 mm, sqrt(M19_SIGMA^2 + 7.2^2 + 2.0^2) mm).
-const CUT_FASTDYN = "--cut-fastdyn" in ARGS
-const FIX_GAMMA   = "--fix-gamma" in ARGS
-const NO_LEDGER   = "--no-ledger" in ARGS
-const PALEO_MED   = let d = CSV.read(joinpath(REPO, "outputs/paleo_dais_marginals.csv"), DataFrame)
-    Dict(String(r.param) => Float64(r.p50) for r in eachrow(d)) end
-any((CUT_FASTDYN, FIX_GAMMA, NO_LEDGER)) &&
-    println("L27 flags: cut-fastdyn=$CUT_FASTDYN (lambda $(PALEO_MED["antarctic_lambda"]), T_crit $(PALEO_MED["antarctic_temp_threshold"]) held at paleo medians) " *
-            "fix-gamma=$FIX_GAMMA (gamma $(PALEO_MED["antarctic_gamma"])) no-ledger=$NO_LEDGER (ledger marginalised)")
-const PALEO_DAIS = PALEO_PRIORS ? CSV.read(joinpath(REPO, "outputs/paleo_dais_marginals.csv"), DataFrame) : nothing
-const PALEO_SET  = Set(["anto_alpha","anto_beta","antarctic_gamma","antarctic_alpha","antarctic_nu",
-                        "antarctic_kappa","antarctic_lambda","antarctic_temp_threshold"])
-function P(n,c,s;islog=false)
-    if PALEO_PRIORS && n in PALEO_SET
-        r = PALEO_DAIS[findfirst(==(n), PALEO_DAIS.param), :]
-        return (name=n,comp=c,sym=s,μ=Float64(r.mean),σ=Float64(r.sd),lo=Float64(r.lo),hi=Float64(r.hi),islog=islog)
-    elseif PALEO_PRIORS && n == "thermal_alpha"
-        return (name=n,comp=c,sym=s,μ=0.16,σ=1.0e3,lo=0.05,hi=0.30,islog=islog)   # MimiBRICK Uniform(0.05, 0.3)
-    end
-    r=prow(n); (name=n,comp=c,sym=s,μ=r.mean,σ=r.std,lo=r.lo,hi=r.hi,islog=islog)
-end
-any((PALEO_PRIORS, NO_DELTA, NO_D2_GSIC, OBS_CORR_LEN > 0, PRECIP_REPARAM)) &&
-    println("L26 structure flags: paleo-priors=$PALEO_PRIORS no-delta=$NO_DELTA no-d2-gsic=$NO_D2_GSIC " *
-            "obs-corr-len=$OBS_CORR_LEN precip-reparam=$PRECIP_REPARAM")
+P(n,c,s;islog=false)=(r=prow(n); (name=n,comp=c,sym=s,μ=r.mean,σ=r.std,lo=r.lo,hi=r.hi,islog=islog))
 FREE = NamedTuple[]
 push!(FREE, (name="ais_ocean_temperature₀",comp=:antarctic_icesheet,sym=:ais_ocean_temperature₀,μ=0.72,σ=0.50,lo=0.50,hi=2.00,islog=false))
 push!(FREE, P("antarctic_alpha",:antarctic_icesheet,:ais_α))
 push!(FREE, P("antarctic_nu",:antarctic_icesheet,:ais_ν))
-CUT_FASTDYN || push!(FREE, P("antarctic_temp_threshold",:antarctic_icesheet,:temperature_threshold))
+push!(FREE, P("antarctic_temp_threshold",:antarctic_icesheet,:temperature_threshold))
 push!(FREE, P("anto_alpha",:antarctic_ocean,:anto_α)); push!(FREE, P("anto_beta",:antarctic_ocean,:anto_β))
 if GIS_AB
     # ---- Greenland A+B: 7 sampled params (gis_g fixed at 0, gis_v0 structural) ----
@@ -900,12 +838,19 @@ if GIS_AB
                  μ=0.0028487, σ=0.020, lo=0.0, hi=0.5, islog=false))
     push!(FREE, (name="gis_beta_f", comp=GISC, sym=:gis_beta_f,
                  μ=0.0073684, σ=0.050, lo=1e-6, hi=0.5, islog=false))
-    push!(FREE, (name="gis_slow_ell", comp=:likelihood_only, sym=:none,
-                 μ=GIS_ELL_MU, σ=GIS_ELL_SD,
-                 lo=GIS_ELL_MU - 4*GIS_ELL_SD, hi=GIS_ELL_MU + 4*GIS_ELL_SD,
-                 islog=false))
-    push!(FREE, (name="gis_slow_w", comp=:likelihood_only, sym=:none,
-                 μ=GIS_W_MU, σ=1e3, lo=0.0, hi=1.0, islog=false))
+    if GIS_REPARAM
+        push!(FREE, (name="gis_slow_ell", comp=:likelihood_only, sym=:none,
+                     μ=GIS_ELL_MU, σ=GIS_ELL_SD,
+                     lo=GIS_ELL_MU - 4*GIS_ELL_SD, hi=GIS_ELL_MU + 4*GIS_ELL_SD,
+                     islog=false))
+        push!(FREE, (name="gis_slow_w", comp=:likelihood_only, sym=:none,
+                     μ=GIS_W_MU, σ=1e3, lo=0.0, hi=1.0, islog=false))
+    else
+        push!(FREE, (name="gis_alpha_s", comp=GISC, sym=:gis_alpha_s,
+                     μ=0.0070727, σ=0.020, lo=0.0, hi=0.2, islog=false))
+        push!(FREE, (name="gis_beta_s", comp=GISC, sym=:gis_beta_s,
+                     μ=0.0010000, σ=0.020, lo=1e-6, hi=0.2, islog=false))
+    end
     # The regional amplification, SAMPLED (Marcus 2026-08-12), not pinned at the
     # prior centre. Same treatment as the glacier blocks' gic_amp_b and the same
     # reasoning as the 4.2 beta_f ruling: the likelihood cannot see it, but it is
@@ -990,11 +935,6 @@ G=:glaciers_small_icecaps
 #   gic_u_unch — F_unch U (mm scope, flat[14.5,41.8] via σ=1e3); gic_delta — M15 bias
 #   (mm/yr, N(0,0.30), 1900-1960); gic_u_pre + gic_s_r5 — the Option-D ledger
 #   (memo_2026-08-09_d_ledger_target_spec.md).
-## --toff-lo=<K>: the lower bound of the three flat gic_T_off priors (default -3.0). Added
-## 2026-09-19 for the SLOWG bound test: L24's gic_T_off_SLOWP has p05 = -2.85 against the -3 bound
-## (10 % of draws within a tenth of the posterior width of it), so the bound is doing work.
-const TOFF_LO = let v = _argval("--toff-lo="); v === nothing ? -3.0 : parse(Float64, v) end
-TOFF_LO != -3.0 && println("gic_T_off lower bound OVERRIDDEN: $TOFF_LO (default -3.0)")
 for b in BLOCKS
     r = bcrow(b)
     a_lo = max(1.5*Float64(r.S2020_data), Float64(r.a0) - 3.5*Float64(r.a0_sig), 0.01)
@@ -1004,7 +944,7 @@ for b in BLOCKS
     push!(FREE, (name="gic_b_$b", comp=G, sym=Symbol("gic_b_$b"),
                  μ=Float64(r["b_fit_$(FIT_BASIS)"]), σ=10.0, lo=0.05, hi=3.0, islog=false))
     push!(FREE, (name="gic_T_off_$b", comp=G, sym=Symbol("gic_T_off_$b"),
-                 μ=Float64(r["T_off_fit_$(FIT_BASIS)"]), σ=10.0, lo=TOFF_LO, hi=1.0, islog=false))
+                 μ=Float64(r["T_off_fit_$(FIT_BASIS)"]), σ=10.0, lo=-3.0, hi=1.0, islog=false))
     # κ bounds: sampled mode spans the anchor-center range over the amp prior bounds ±1
     klo, khi = if SAMPLED_AMP
         c1 = k10c(b, AMP_PRIOR[b][3]); c2 = k10c(b, AMP_PRIOR[b][4])
@@ -1024,15 +964,11 @@ if SAMPLED_AMP
 end
 push!(FREE, (name="gic_u_unch", comp=:likelihood_only, sym=:none,
              μ=28.15, σ=1.0e3, lo=14.5, hi=41.8, islog=false))
-## --delta-sigma=<mm/yr>: prior sd of gic_delta (default 0.30). 2026-09-19 test: 0.001 pins the
-## early-segment target correction at ~0 to see what the other glacier parameters do without it.
-const DELTA_SIGMA = let v = _argval("--delta-sigma="); v === nothing ? 0.30 : parse(Float64, v) end
-DELTA_SIGMA != 0.30 && println("gic_delta prior sd OVERRIDDEN: $DELTA_SIGMA (default 0.30)")
-NO_DELTA || push!(FREE, (name="gic_delta", comp=:likelihood_only, sym=:none,
-             μ=0.0, σ=DELTA_SIGMA, lo=-1.2, hi=1.2, islog=false))
-NO_LEDGER || push!(FREE, (name="gic_u_pre", comp=:likelihood_only, sym=:none,
+push!(FREE, (name="gic_delta", comp=:likelihood_only, sym=:none,
+             μ=0.0, σ=0.30, lo=-1.2, hi=1.2, islog=false))
+push!(FREE, (name="gic_u_pre", comp=:likelihood_only, sym=:none,
              μ=12.5, σ=1.0e3, lo=0.0, hi=25.0, islog=false))
-NO_LEDGER || push!(FREE, (name="gic_s_r5", comp=:likelihood_only, sym=:none,
+push!(FREE, (name="gic_s_r5", comp=:likelihood_only, sym=:none,
              μ=2.5, σ=2.0, lo=0.0, hi=8.0, islog=false))
 # name-based derived/likelihood-only index sets (the positional KAPPA_IDX trap is gone)
 const KAPPA_IDX3 = Dict(b => findfirst(k -> k.name == "gic_log10_kappa_$b", FREE) for b in BLOCKS)
@@ -1040,21 +976,18 @@ const A_IDX3     = Dict(b => findfirst(k -> k.name == "gic_a_$b", FREE) for b in
 const B_IDX3     = Dict(b => findfirst(k -> k.name == "gic_b_$b", FREE) for b in BLOCKS)
 const TOFF_IDX3  = Dict(b => findfirst(k -> k.name == "gic_T_off_$b", FREE) for b in BLOCKS)
 const UUNCH_IDX  = findfirst(k -> k.name == "gic_u_unch", FREE)
-for st in D2_STREAMS, k in 1:D2_BASIS_N
-    push!(FREE, (name="d2_$(st)_$(k)", comp=:likelihood_only, sym=:none,
-                 μ=0.0, σ=D2_BASIS_SD, lo=-5*D2_BASIS_SD, hi=5*D2_BASIS_SD,
-                 islog=false))
+if D2_ON
+    for st in D2_STREAMS, k in 1:D2_BASIS_N
+        push!(FREE, (name="d2_$(st)_$(k)", comp=:likelihood_only, sym=:none,
+                     μ=0.0, σ=D2_BASIS_SD, lo=-5*D2_BASIS_SD, hi=5*D2_BASIS_SD,
+                     islog=false))
+    end
 end
-const D2_IDX = Dict(st => [findfirst(k -> k.name == "d2_$(st)_$(i)", FREE) for i in 1:D2_BASIS_N]
-                    for st in D2_STREAMS)
-## --obs-corr-len=sample: ONE band-correlation length shared by the four series, sampled as log10 L,
-## flat on [log10 5, log10 100] yr (a reconstruction band cannot be shorter-correlated than its
-## decadal smoothing nor longer than the record). Likelihood-only.
-OBS_CORR_SAMPLED && push!(FREE, (name="obs_corr_log10L", comp=:likelihood_only, sym=:none,
-                                 μ=log10(20.0), σ=1.0e3, lo=log10(5.0), hi=log10(100.0), islog=false))
-const OBSL_IDX = findfirst(k -> k.name == "obs_corr_log10L", FREE)
-const GIS_ELL_IDX = findfirst(k -> k.name == "gis_slow_ell", FREE)
-const GIS_W_IDX   = findfirst(k -> k.name == "gis_slow_w", FREE)
+const D2_IDX = D2_ON ?
+    Dict(st => [findfirst(k -> k.name == "d2_$(st)_$(i)", FREE) for i in 1:D2_BASIS_N]
+         for st in D2_STREAMS) : Dict{String,Vector{Int}}()
+const GIS_ELL_IDX = GIS_REPARAM ? findfirst(k -> k.name == "gis_slow_ell", FREE) : nothing
+const GIS_W_IDX   = GIS_REPARAM ? findfirst(k -> k.name == "gis_slow_w", FREE) : nothing
 const GIS_ALPHA_F_IDX = findfirst(k -> k.name == "gis_alpha_f", FREE)
 const GIS_BETA_F_IDX  = findfirst(k -> k.name == "gis_beta_f", FREE)
 ## ---------------------------------------------------------------------------
@@ -1086,9 +1019,11 @@ const GIS_BETA_F_IDX  = findfirst(k -> k.name == "gis_beta_f", FREE)
 ## (diag_gis_ordering_projection_cost.py).
 ##
 ## OFF by default: L11 and every earlier vintage must stay bit-reproducible.
-## ON by default since 2026-09-16 (`--gis-ordered` accepted as a no-op): L12+ vintages all carry
-## the ordering wedge and L11 is reproduced from its frozen calibrator, not from this file.
-const GIS_ORDERED = true
+const GIS_ORDERED = "--gis-ordered" in ARGS
+if GIS_ORDERED && !GIS_REPARAM
+    error("--gis-ordered needs the (ell, w) reparameterisation; the " *
+          "native-coordinate branch would need its own wedge.")
+end
 const DELTA_IDX  = findfirst(k -> k.name == "gic_delta", FREE)
 const UPRE_IDX   = findfirst(k -> k.name == "gic_u_pre", FREE)
 const SR5_IDX    = findfirst(k -> k.name == "gic_s_r5", FREE)
@@ -1102,7 +1037,7 @@ const GISB_IDX3 = GIS_BASINS ?
     Dict(b => findfirst(k -> k.name == "gis_s_$b", FREE) for b in GISB_FREE_BASINS) :
     Dict{Symbol,Int}()
 const SETP_SKIP  = Set(vcat(collect(values(KAPPA_IDX3)),
-                            filter(!isnothing, [UUNCH_IDX, DELTA_IDX, UPRE_IDX, SR5_IDX, OBSL_IDX]),
+                            [UUNCH_IDX, DELTA_IDX, UPRE_IDX, SR5_IDX],
                             collect(values(AMPB_IDX3)),
                             # D2's delta(t) coefficients are likelihood_only: they
                             # correct the MODEL SERIES, not a Mimi parameter, so
@@ -1110,7 +1045,7 @@ const SETP_SKIP  = Set(vcat(collect(values(KAPPA_IDX3)),
                             reduce(vcat, values(D2_IDX); init=Int[]),
                             # (ell, w) are DERIVED: they set gis_alpha_s/gis_beta_s
                             # in logposterior, they are not Mimi parameters.
-                            [GIS_ELL_IDX, GIS_W_IDX],
+                            GIS_REPARAM ? [GIS_ELL_IDX, GIS_W_IDX] : Int[],
                             GISAMP_IDX === nothing ? Int[] : [GISAMP_IDX],
                             collect(values(GISB_IDX3))))
 # sampled mode: the κ prior is amp-dependent (center k10c(amp)) — exclude κ from the
@@ -1127,7 +1062,7 @@ const RUNG_CORR = 0.6
 # is the tightening: principled from order statistics, not chosen to get a
 # result. --rung-sig-legacy restores the half-range convention.
 const RUNG_D2_N8 = 2.847
-const RUNG_SIG_SCALE = 2.0 / RUNG_D2_N8
+const RUNG_SIG_SCALE = RUNG_SIG_LEGACY ? 1.0 : 2.0 / RUNG_D2_N8
 const RUNG_Y  = Dict(b => [Float64(bcrow(b)["com$(replace(string(L), "." => "p"))"])
                            for L in GMIP_LEVELS] for b in BLOCKS)
 const RUNG_CI = Dict(b => begin
@@ -1181,9 +1116,9 @@ const GLAMBIE_SHARE_SD  = 0.05
 const GLAMBIE_TOT_FLOOR = 1e-9        # a vanishing modern rate makes the share undefined
 # Restores the pre-2026-08-14 two-absolute-term form, so the shipped L10 likelihood stays
 # exactly reproducible (same purpose as --no-closure-sigma).
-## (--glambie-absolute, the pre-2026-08-14 two-absolute-rate form, removed 2026-09-16.)
+const GLAMBIE_ABS = "--glambie-absolute" in ARGS
 @printf("GlaMBIE term: %s | FAST share of (SLOWP+FAST) %.4f ± %.4f | blocks %s, %d-%d\n",
-        "PARTITION",
+        GLAMBIE_ABS ? "ABSOLUTE rates (pre-2026-08-14, --glambie-absolute)" : "PARTITION (default)",
         GLAMBIE_FAST_SHARE, GLAMBIE_SHARE_SD, join(HIND_BLOCKS, "+"), 2000, 2024)
 
 # ---- phase-2 A2: free the DAIS fast-dynamics params under their EXISTING paleo marginals
@@ -1193,8 +1128,8 @@ const GLAMBIE_TOT_FLOOR = 1e-9        # a vanishing modern rate makes the share 
 # uncertainty. They are observationally unidentified over the historical window (T_ant never
 # crosses temperature_threshold), so their marginals will simply sample the prior. That is
 # the point: propagate real fast-dynamics uncertainty. temperature_threshold was ALREADY free.
-CUT_FASTDYN || push!(FREE, P("antarctic_lambda",:antarctic_icesheet,:λ))
-FIX_GAMMA   || push!(FREE, P("antarctic_gamma",:antarctic_icesheet,:ais_γ))
+push!(FREE, P("antarctic_lambda",:antarctic_icesheet,:λ))
+push!(FREE, P("antarctic_gamma",:antarctic_icesheet,:ais_γ))
 push!(FREE, P("antarctic_kappa",:antarctic_icesheet,:ais_κ))
 
 # ---- phase-2 A6: GMST->Antarctic temperature map as a sampled amplification ----
@@ -1257,8 +1192,8 @@ push!(FREE, P("antarctic_kappa",:antarctic_icesheet,:ais_κ))
 # here: it changes the prior's FORM, not one constant, and is a separate decision.
 # Production: N(1.09, 0.180). --amp-equilibrium: pin at 1.19546 (the old hard-coded map).
 # --amp-sigma= still overrides, and reproduces the 0.10 arm exactly for a controlled A/B.
-const AMP_MU    = AMP_MU_OVR    !== nothing ? parse(Float64, AMP_MU_OVR)    : 1.09
-const AMP_SIGMA = AMP_SIGMA_OVR !== nothing ? parse(Float64, AMP_SIGMA_OVR) : 0.180
+const AMP_MU    = AMP_MU_OVR    !== nothing ? parse(Float64, AMP_MU_OVR)    : (AMP_EQ ? 1.0/0.8365 : 1.09)
+const AMP_SIGMA = AMP_SIGMA_OVR !== nothing ? parse(Float64, AMP_SIGMA_OVR) : (AMP_EQ ? 0.002 : 0.180)
 # Bounds are μ±3σ so the prior is NEVER truncated. ⚠ THIS REPLACES THE HARD-CODED (0.70,
 # 1.25), which was built around μ = 0.95 and would clip the new prior at +1.6σ -- a
 # mechanical consequence of moving the centre, not a separate choice. The override branch
@@ -1312,25 +1247,6 @@ const GEO_IDX   = (length(FREE)-length(GEO_SYMS)+1):length(FREE)
 const GEO_PRIOR = MvNormal(zeros(length(GEO_SYMS)), Matrix(GEO_C))
 const TON_IDX   = GEO_IDX[findfirst(==("ais_runoff_Ton"), GEO_NAMES)]   # derived: h0 = -T_on*c
 const C_IDX     = GEO_IDX[findfirst(==("ais_c"), GEO_NAMES)]
-## --precip-reparam (L26): sample u = log P0 + kappa_DAIS * TBAR_ANT in the precip slot. DAIS
-## precipitation is P0 exp(kappa T_ant), so the hindcast identifies log P0 + kappa * <T_ant>, not the
-## pair (posterior r = +0.96 in L24). TBAR_ANT = AIS_TANT0 + AMP_MU * mean(GMST over the fit window),
-## a documented constant (any constant decorrelates; this one centres it). log P0 = u - kappa TBAR_ANT
-## is derived per draw: the joint paleo prior, the paleo bounds and the model all see the derived value.
-const PRECIP_IDX = GEO_IDX[findfirst(==("ais_precip0_LOG"), GEO_NAMES)]
-const KAPPA_DAIS_IDX = findfirst(k -> k.name == "antarctic_kappa", FREE)
-const TBAR_ANT = AIS_TANT0 + AMP_MU * mean(gmst[[findfirst(==(y), years) for y in 1900:Y1]])
-const PRECIP_LO, PRECIP_HI = FREE[PRECIP_IDX].lo, FREE[PRECIP_IDX].hi     # paleo bounds on log P0
-if PRECIP_REPARAM
-    let f = FREE[PRECIP_IDX], κμ = FREE[KAPPA_DAIS_IDX].μ
-        FREE[PRECIP_IDX] = (name="ais_precip_u", comp=f.comp, sym=f.sym,
-                            μ=f.μ + κμ * TBAR_ANT, σ=f.σ, lo=-1e9, hi=1e9, islog=false)
-    end
-    @printf("precip reparam: u = log P0 + kappa * TBAR_ANT, TBAR_ANT = %.3f (DAIS scale); log P0 bounds [%.3f, %.3f] enforced on the derived value\n",
-            TBAR_ANT, PRECIP_LO, PRECIP_HI)
-end
-"""log P0 for a theta vector: the sampled value, or the derived one under --precip-reparam."""
-precip_log(θ) = PRECIP_REPARAM ? θ[PRECIP_IDX] - θ[KAPPA_DAIS_IDX] * TBAR_ANT : θ[PRECIP_IDX]
 
 # ---- phase-2 A5: SMB likelihood term on the model's own β_total vs Rignot 2019 ----------
 # The posterior pinned SMB - discharge to -145±15 Gt/yr (34:1 tighter than either flux)
@@ -1403,10 +1319,16 @@ const M19_I1850, M19_I1900 = idx(1850), idx(1900)
         M19_MU_M, M19_SIGMA_M)
 
 const NP = length(FREE)
-const SERIES = [:ais,:gsic,:gis,:steric]      # the total is NOT a likelihood term
+# ALL_SERIES is the FIXED five-stream layout every historical chain/covariance was
+# written in; the OLD*_NAMES tables below describe those layouts and must NOT
+# follow the live SERIES, or --drop-total would silently shorten them and break
+# the by-name proposal embedding.
+const ALL_SERIES = [:ais,:gsic,:gis,:steric,:dang]
+const SERIES = DROP_TOTAL ? [:ais,:gsic,:gis,:steric] : ALL_SERIES
 const NN = 2*length(SERIES); const NK = NP + NN
 # position of the steric noise pair within θ: σ at NP+2i-1, ρ at NP+2i (matching the
 # σn = θ[NP+1:2:NK] / ρn = θ[NP+2:2:NK] strides). Derived from SERIES, never hardcoded:
+# --drop-total shortens SERIES and a literal index would then point at the wrong stream.
 const STERIC_NI = findfirst(==(:steric), SERIES)
 isnothing(STERIC_NI) && isfinite(STERIC_MARG_CAP) &&
     error("--steric-marg-cap= given but :steric is not in SERIES")
@@ -1416,10 +1338,10 @@ const pn0 = vcat([k.name for k in FREE], vcat([["sd_$s","rho_$s"] for s in SERIE
 println("MCMC: $NP physical (incl $(length(GEO_IDX)) DAIS-geometry under a joint paleo prior) " *
         "+ $NN AR(1)-noise = $NK free params  (point terms DROPPED)")
 @printf("R19 change set: total %s | GlaMBIE R19 rate %s (%.4f +/- %.4f mm/yr) | rung sigma x%.3f\n",
-        "DROPPED",
-        "ON",
+        DROP_TOTAL ? "DROPPED" : "kept (--keep-total)",
+        R19_RATE_ON ? "ON" : "OFF (--no-r19-rate)",
         R19_RATE_MU, R19_RATE_SD, RUNG_SIG_SCALE)
-println("Greenland slow channel: (log r_s, w) at Tbar = " *
+GIS_REPARAM && println("Greenland slow channel: (log r_s, w) at Tbar = " *
         "$(round(GIS_TBAR, digits=4)) K | ell ~ N($(round(GIS_ELL_MU, digits=4)), " *
         "$GIS_ELL_SD) | w flat on [0,1], centred $(round(GIS_W_MU, digits=4))")
 println("Greenland channel ordering: " * (GIS_ORDERED ?
@@ -1427,20 +1349,16 @@ println("Greenland channel ordering: " * (GIS_ORDERED ?
         "WEDGE in (ell, w); the labels are otherwise carried only by Mouginot" :
         "FREE (default) -- channels are exchangeable in the likelihood, so the " *
         "fast/slow labels rest entirely on the Mouginot share prior"))
-println("D2 discrepancy: ON" *
+println("D2 discrepancy: " * (D2_ON ? "ON" : "OFF (--no-d2)") *
         " | $D2_BASIS_N dof per stream on " * join(D2_STREAMS, "+") *
         " | prior sd $D2_BASIS_SD cm | orthogonal to the constant" *
-        ", to DELTA_RAMP on gsic, and to S(t) on steric")
+        (D2_ON ? ", to DELTA_RAMP on gsic, and to S(t) on steric" : ""))
 
 # ---- model base (medoid + glacier init), forcing once -- extC 3-reservoir build ----
 medoid = CSV.read(joinpath(REPO,"outputs/recalib_central_row.csv"), DataFrame)[1,:]
 m = GIS_BASINS ? build_brick_nu3_gis3(ssp="ssp245", y0=Y0, y1=Y1) :
     GIS_AB     ? build_brick_nu3_gis(ssp="ssp245", y0=Y0, y1=Y1) :
                  build_brick_nu3(ssp="ssp245", y0=Y0, y1=Y1)
-## L27: parameters not sampled are HELD at their paleo medians in the calibration model (set once)
-CUT_FASTDYN && (update_param!(m, :antarctic_icesheet, :λ, PALEO_MED["antarctic_lambda"]);
-                update_param!(m, :antarctic_icesheet, :temperature_threshold, PALEO_MED["antarctic_temp_threshold"]))
-FIX_GAMMA   && update_param!(m, :antarctic_icesheet, :ais_γ, PALEO_MED["antarctic_gamma"])
 gic3_init = (; (Symbol(b) => (a=Float64(bcrow(b).a0),
                               b=Float64(bcrow(b)["b_fit_$(FIT_BASIS)"]),
                               T_off=Float64(bcrow(b)["T_off_fit_$(FIT_BASIS)"]),
@@ -1484,7 +1402,6 @@ reref(v)=100 .* (v .- sum(v[ib])/length(ib))
 
 function logposterior(θ)
     @inbounds for k in 1:NP; (θ[k]<FREE[k].lo || θ[k]>FREE[k].hi) && return -Inf; end
-    PRECIP_REPARAM && (precip_log(θ) < PRECIP_LO || precip_log(θ) > PRECIP_HI) && return -Inf
     σn = θ[NP+1:2:NK]; ρn = θ[NP+2:2:NK]
     (any(σn .<= 0) || any(ρn .< 0) || any(ρn .>= 0.99)) && return -Inf
     # L22: the MARGINAL, not σ. Evaluated here with the other hard rejections and BEFORE
@@ -1501,10 +1418,8 @@ function logposterior(θ)
     end
     @inbounds for k in 1:NP
         (k == AMP_IDX || k == TON_IDX || k in SETP_SKIP) && continue   # derived/likelihood-only
-        (PRECIP_REPARAM && k == PRECIP_IDX) && continue                # derived: log P0 below
         setp!(FREE[k], θ[k])
     end
-    PRECIP_REPARAM && update_param!(m, :antarctic_icesheet, :ais_precipitation₀, precip_log(θ))
     # extC: per-block κ sampled as log10 -- the component gets the linear value
     for b in BLOCKS
         update_param!(m, G, Symbol("gic_kappa_$b"), 10.0^θ[KAPPA_IDX3[b]])
@@ -1519,7 +1434,8 @@ function logposterior(θ)
     end
     # A4: runoff line -- reconstruct h0 from the identified direction
     update_param!(m, :antarctic_icesheet, :ais_runoffline_snowheight₀, -θ[TON_IDX] * θ[C_IDX])
-    let r_s = exp(θ[GIS_ELL_IDX]), w_s = θ[GIS_W_IDX]   # (ell, w) -> the native rate pair
+    if GIS_REPARAM                     # (ell, w) -> the component's native rate pair
+        r_s = exp(θ[GIS_ELL_IDX]); w_s = θ[GIS_W_IDX]
         update_param!(m, _GIS_SLOT, :gis_alpha_s, w_s * r_s / GIS_TBAR)
         update_param!(m, _GIS_SLOT, :gis_beta_s, (1 - w_s) * r_s)
     end
@@ -1543,25 +1459,28 @@ function logposterior(θ)
     # D2: delta(t) is added to the MODEL (it is a model-discrepancy term), so the
     # per-year band sigma and the AR(1) noise are untouched — spec section 3
     # sub-choice 2 requires delta to be added to, not to replace, diag(eps^2).
-    d2 = (st, v) -> haskey(D2_IDX, st) ? v .+ D2_BASIS[st] * [θ[j] for j in D2_IDX[st]] : v
-    Lc = OBS_CORR_SAMPLED ? 10.0^θ[OBSL_IDX] : OBS_CORR_LEN
+    d2 = (st, v) -> (!D2_ON || !haskey(D2_IDX, st)) ? v :
+                    v .+ D2_BASIS[st] * [θ[j] for j in D2_IDX[st]]
     for (i,(s,full)) in enumerate(zip([S.ais,S.gsic,S.gis,S.steric], [ais,gsic_flow,gis,te]))
         if i == 2
             ll += hetero_logl_ar1(d2("gsic", full[s.myi]) .-
-                                  (s.obs .+ (NO_DELTA ? 0.0 : θ[DELTA_IDX]) .* DELTA_RAMP),
-                                  σn[i], ρn[i], s.ϵ, Lc)
+                                  (s.obs .+ θ[DELTA_IDX] .* DELTA_RAMP),
+                                  σn[i], ρn[i], s.ϵ)
         elseif i == 4
             ll += hetero_logl_ar1(d2("steric", full[s.myi]) .- s.obs,
-                                  σn[i], ρn[i], s.ϵ, Lc)
+                                  σn[i], ρn[i], s.ϵ)
         else
-            ll += hetero_logl_ar1(full[s.myi] .- s.obs, σn[i], ρn[i], s.ϵ, Lc)
+            ll += hetero_logl_ar1(full[s.myi] .- s.obs, σn[i], ρn[i], s.ϵ)
         end
     end
-    # total: the "dang" target IS Dangendorf 2024 GMSL spliced with NOAA STAR (M3 rework
-    # 2026-07-20; prep_recalib_targets_ext.py). It is read for the banner and the closure
-    # diagnostics only -- the total is NOT scored (SERIES excludes it).
-    # (The total is deliberately NOT scored -- see the SERIES constant; S.dang is read only
-    # for the fit-window banner and the closure-sigma diagnostics.)
+    # total: modeled ice+steric at "dang" years + observed LWS. NB the "dang"-labeled
+    # target is the FREDERIKSE 2020 total (label fix 2026-07-20) spliced with NOAA STAR
+    # altimetry -- rename pending the M3 total-term rework.
+    # D1: with --drop-total this term and its noise pair are gone; σn/ρn then have
+    # only 4 entries, so the guard is load-bearing, not cosmetic.
+    DROP_TOTAL ||
+        (ll += hetero_logl_ar1(tot_full[S.dang.myi] .+ lws_dang .- S.dang.obs,
+                               σn[5], ρn[5], S.dang.ϵ))
     # A5: SMB anchor -- model β_total (1979-2008 mean, Gt/yr) vs area-scaled Rignot 2019
     smb_gt = mean(m[:antarctic_icesheet, :β_total][SMB_IDX]) * M3ICE_TO_GT
     ll += logpdf(Normal(SMB_TARGET_GT, SMB_SIGMA_GT), smb_gt)
@@ -1570,15 +1489,9 @@ function logposterior(θ)
                  sum(θ[A_IDX3[b]] for b in BLOCKS) - Float64(gsic_all_raw[INV_YEAR_IDX]))
     # Option-D ledger (replaces the pre-D A2b): datum N(20,9)mm untouched; model side =
     # S_hind(1900) + U_pre + S_r5 (memo_2026-08-09_d_ledger_target_spec.md)
-    if NO_LEDGER
-        ## the two set-asides integrated out under their priors (see the L27 flag comment above)
-        S_1850_1900 = Float64(gsic_hind_raw[M19_I1900]) - Float64(gsic_hind_raw[M19_I1850])
-        ll += logpdf(Normal(M19_MU_M - 0.015, sqrt(M19_SIGMA_M^2 + 0.0072^2 + 0.0020^2)), S_1850_1900)
-    else
-        S_ledger_m = (Float64(gsic_hind_raw[M19_I1900]) - Float64(gsic_hind_raw[M19_I1850])) +
-                     (θ[UPRE_IDX] + θ[SR5_IDX]) / 1000.0
-        ll += logpdf(Normal(M19_MU_M, M19_SIGMA_M), S_ledger_m)
-    end
+    S_ledger_m = (Float64(gsic_hind_raw[M19_I1900]) - Float64(gsic_hind_raw[M19_I1850])) +
+                 (θ[UPRE_IDX] + θ[SR5_IDX]) / 1000.0
+    ll += logpdf(Normal(M19_MU_M, M19_SIGMA_M), S_ledger_m)
     # per-block GlacierMIP3 rung likelihood (data-basis committed %, corr 0.6, band σ);
     # sampled mode: the frame conversion uses the SAMPLED amp
     for b in BLOCKS
@@ -1597,11 +1510,16 @@ function logposterior(θ)
                      Float64(m[G, :gsic_slowp][GLAMBIE_I0])) / GLAMBIE_SPAN,
         rf = 1000.0*(Float64(m[G, :gsic_fast][GLAMBIE_I1]) -
                      Float64(m[G, :gsic_fast][GLAMBIE_I0])) / GLAMBIE_SPAN
-        tot = rs + rf
-        # A vanishing modern rate makes the share undefined; skip the term there rather
-        # than dividing through, exactly as the Mouginot share term does.
-        if abs(tot) > GLAMBIE_TOT_FLOOR
-            ll += logpdf(Normal(GLAMBIE_FAST_SHARE, GLAMBIE_SHARE_SD), rf / tot)
+        if GLAMBIE_ABS
+            ll += logpdf(Normal(GLAMBIE_RATE["SLOWP"], GLAMBIE_SD["SLOWP"]), rs)
+            ll += logpdf(Normal(GLAMBIE_RATE["FAST"],  GLAMBIE_SD["FAST"]),  rf)
+        else
+            tot = rs + rf
+            # A vanishing modern rate makes the share undefined; skip the term there rather
+            # than dividing through, exactly as the Mouginot share term does.
+            if abs(tot) > GLAMBIE_TOT_FLOOR
+                ll += logpdf(Normal(GLAMBIE_FAST_SHARE, GLAMBIE_SHARE_SD), rf / tot)
+            end
         end
     end
     # GlaMBIE R19 modern rate. R19 is excluded from HIND_BLOCKS (no gsic component
@@ -1617,9 +1535,11 @@ function logposterior(θ)
     # and the 1.5x inflate was a partial compensation for exactly that. Summing
     # the per-year errors instead gives 0.11615, which SUPERSEDES the inflate
     # rather than compounding with it (python/ladrillo_data.py glambie_block_stats).
-    r19rate = 1000.0*(Float64(m[G, :gsic_r19][GLAMBIE_I1]) -
-                      Float64(m[G, :gsic_r19][GLAMBIE_I0])) / GLAMBIE_SPAN
-    ll += logpdf(Normal(R19_RATE_MU, R19_RATE_SD), r19rate)
+    if R19_RATE_ON
+        r19rate = 1000.0*(Float64(m[G, :gsic_r19][GLAMBIE_I1]) -
+                          Float64(m[G, :gsic_r19][GLAMBIE_I0])) / GLAMBIE_SPAN
+        ll += logpdf(Normal(R19_RATE_MU, R19_RATE_SD), r19rate)
+    end
     # Mouginot 2019 SMB/discharge partition — the constraint that makes the A+B
     # two-channel split identifiable. Ported verbatim from model_surface_share()
     # in python/gis_offline_cell.py: the FAST channel's share of the EXTRA loss
@@ -1687,7 +1607,7 @@ function logposterior(θ)
             lp += logpdf(Normal(k10c(b, θ[AMPB_IDX3[b]]), K10_SIG), θ[KAPPA_IDX3[b]])
         end
     end
-    lp += logpdf(GEO_PRIOR, ((PRECIP_REPARAM ? (g = θ[GEO_IDX]; g[findfirst(==(PRECIP_IDX), GEO_IDX)] = precip_log(θ); g) : θ[GEO_IDX]) .- GEO_MU) ./ GEO_SD)
+    lp += logpdf(GEO_PRIOR, (θ[GEO_IDX] .- GEO_MU) ./ GEO_SD)
     for i in 1:length(SERIES); lp += logpdf(truncated(Normal(0,5),0,Inf), σn[i]); end
     return ll + lp
 end
@@ -1714,9 +1634,8 @@ for k in 1:NP
         if nm == "ais_runoff_Ton"                        # medoid T_on = -h0/c
             push!(θ0, -Float64(medoid["antarctic_runoff_height0"]) / Float64(medoid["antarctic_c"]))
         else
-            v = Float64(medoid[GEO_MEDOID_COL[nm == "ais_precip_u" ? "ais_precip0_LOG" : nm]])      # medoid stores precip₀ LINEAR
-            push!(θ0, nm == "ais_precip0_LOG" ? log(v) :
-                      nm == "ais_precip_u"    ? log(v) + FREE[KAPPA_DAIS_IDX].μ * TBAR_ANT : v)  # ...but θ/model are log-space
+            v = Float64(medoid[GEO_MEDOID_COL[nm]])      # medoid stores precip₀ LINEAR
+            push!(θ0, nm == "ais_precip0_LOG" ? log(v) : v)  # ...but θ/model are log-space
         end
     elseif nm in FD_MEDOID
         push!(θ0, Float64(medoid[nm]))
@@ -1816,34 +1735,234 @@ for k in GEO_IDX; prop[k] = GEO_PROP_SCALE * Float64(FREE[k].σ); end
 # d2_* columns either.
 # Whether the proposal covariance was CHOSEN or INHERITED. Read once, so the banner
 # at `println(adcov_msg)` can say which.
-# ---- proposal covariance seed: an EXPLICIT, SELF-DESCRIBING file ---------------------
-# --adcov=<file> is REQUIRED. The file's header must be parameter names (the calibrator
-# writes adapted_cov_<tag>_seed<seed>.csv that way); rows are embedded BY NAME, so a file
-# from any vintage seeds the parameters it shares and leaves the rest on the diagonal.
-# HISTORY (2026-09-16 cleanup): this replaced a 300-line preference ladder plus six
-# hand-transcribed vintage name tables (OLD35/38/39/52/54, L10, L11) that mapped the
-# x1..xN placeholder headers of pre-2026-08-19 files. That machinery was where the L13
-# "frozen ais_c" (a shifted row) and the L23/L24 "nobody chose the covariance" defects
-# lived. The one file L24 needs, adapted_cov_L11tune3_seed2026.csv, was converted by
-# header replacement to adapted_cov_L11tune3_seed2026_named.csv and reproduces the L24
-# chain byte-for-byte (scripts/gate_calibrator_identity.sh). The pre-cleanup calibrator
-# is kept verbatim at benchmark/reference/calibrator_300iter/.
 const ADCOV_OVERRIDE = _argval("--adcov=")
-## Default = the canonical L24 seed, and the banner SAYS whether it was chosen or defaulted.
-## (A default that is the canonical file and is announced is not the 2026-09-01 defect; that
-## was a silent preference ladder handing a run a covariance nobody had picked.)
-const ADCOV_DEFAULT = "adapted_cov_L11tune3_seed2026_named.csv"
-const ADCOV = let a = something(ADCOV_OVERRIDE, ADCOV_DEFAULT)
-    cands_ov = [a, joinpath(REPO, a), joinpath(REPO, "outputs/mcmc", a)]
-    k = findfirst(isfile, cands_ov)
-    isnothing(k) && error("--adcov=$a: no such file (tried " * join(cands_ov, ", ") * ")")
-    cands_ov[k]
+const ADCOV = let l11c = joinpath(REPO,"outputs/mcmc/adapted_cov_L11tune3_seed2026.csv"),
+                  l11b = joinpath(REPO,"outputs/mcmc/adapted_cov_L11tune2_seed2026.csv"),
+                  l11a = joinpath(REPO,"outputs/mcmc/adapted_cov_L11tune_seed2026.csv"),
+                  l10b = joinpath(REPO,"outputs/mcmc/adapted_cov_L10tune2_seed2026.csv"),
+                  l10 = joinpath(REPO,"outputs/mcmc/adapted_cov_L10tune_seed2026.csv"),
+                  c1s = joinpath(REPO,"outputs/mcmc/adapted_cov_extC1_seed2026.csv"),
+                  c1 = joinpath(REPO,"outputs/mcmc/adapted_cov_extC1.csv"),
+                  b3c = joinpath(REPO,"outputs/mcmc/adapted_cov_extB3c_seed2026.csv"),
+                  b2 = joinpath(REPO,"outputs/mcmc/adapted_cov_extB2_seed2026.csv"),
+                  e = joinpath(REPO,"outputs/mcmc/adapted_cov_ext.csv"),
+                  b = joinpath(REPO,"outputs/mcmc/adapted_cov.csv")
+    # PRODUCTION: prefer the extC1-tuned full-rank cov (52x52, used as-is when NK
+    # matches). Falls back to extB3c (38-param, name-mapped, fresh glacier diagonal)
+    # for the first tuning run itself; a dimension mismatch is caught by the
+    # dispatch below (visible WARNING -> diagonal), never silently misused.
+    # L10tune2 is the 55-param (gis_amp sampled) tuning run and matches NK exactly,
+    # so it is used AS-IS. L10tune is the 54-param first tuning run, name-mapped via
+    # OLD54_NAMES. Both beat the extC covariance for a Ladrillo 1.0 run.
+    # Preference order, most-preferred first. The Ladrillo-only covariances are
+    # offered only when the A+B Greenland module is on; the rest are the pre-Ladrillo
+    # fallbacks. Falls through to the 2018-baseline `b` if none exist.
+    cands = String[]
+    GIS_AB && append!(cands, [l11c, l11b, l11a, l10b, l10])
+    append!(cands, [c1s, c1, b3c, b2, e])
+    # --adcov=<name-or-path> overrides the preference list entirely. Added for the
+    # L13 reseed: the list is ordered for the L11/L12 line and would keep handing an
+    # L13-layout run the L11tune3 covariance, when the covariance actually wanted is
+    # the CANONICAL L12 production one. An explicit flag also puts the choice in the
+    # run script, where it is reviewable, instead of in a preference ordering.
+    ov = ADCOV_OVERRIDE
+    if !isnothing(ov)
+        # Accept an absolute path, a path relative to the repo root (what the
+        # run_*.sh scripts define, e.g. outputs/mcmc/adapted_cov_L13tune_seed2026.csv),
+        # a path relative to the cwd, or a bare filename in outputs/mcmc/.
+        a = ov
+        cands_ov = [a, joinpath(REPO, a), joinpath(REPO, "outputs/mcmc", a)]
+        k = findfirst(isfile, cands_ov)
+        isnothing(k) && error("--adcov=$a: no such file (tried " *
+                              join(cands_ov, ", ") * ")")
+        cands_ov[k]
+    else
+        i = findfirst(isfile, cands)
+        isnothing(i) ? b : cands[i]
+    end
 end
 cov0 = Matrix(Diagonal(prop.^2))
+# Column order of the 35-param v-next chains/covs (18 physical + 7 geometry with the OLD
+# ais_runoff_h0 coordinate + 10 AR(1) noise). Embedding is BY NAME: carried-over params
+# keep the ridge-tuned proposal shape; the four new params (λ, γ, κ, amp) and the
+# reparameterized T_on get the diagonal (h0's old row is deliberately NOT mapped -- its
+# scale/meaning is wrong for T_on).
+const OLD35_NAMES = vcat(
+    ["ais_ocean_temperature₀","antarctic_alpha","antarctic_nu","antarctic_temp_threshold",
+     "anto_alpha","anto_beta","greenland_a","greenland_b","greenland_alpha","greenland_beta",
+     "greenland_v0","thermal_alpha","gic_a","gic_b","gic_T_lia","gic_f","gic_tau_fast","gic_tau_slow",
+     "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG","ais_runoff_h0","ais_c"],
+    vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
+# extB2-vintage 39-param chain/cov order (29 physical + 10 noise), for name-mapping the
+# tuned proposal shape into the extB3 parameter set. The gic_* rows are deliberately NOT
+# mapped: the extB3 glacier block is a different structure AND frame, so the old glacier
+# proposal scales/correlations are meaningless — those rows keep the fresh diagonal.
+const OLD39_NAMES = vcat(
+    ["ais_ocean_temperature₀","antarctic_alpha","antarctic_nu","antarctic_temp_threshold",
+     "anto_alpha","anto_beta","greenland_a","greenland_b","greenland_alpha","greenland_beta",
+     "greenland_v0","thermal_alpha","gic_a","gic_b","gic_T_lia","gic_f","gic_tau_fast","gic_tau_slow",
+     "antarctic_lambda","antarctic_gamma","antarctic_kappa","ais_gmst_amp",
+     "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG","ais_runoff_Ton","ais_c"],
+    vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
+# extB3-vintage 38-param chain/cov order (28 physical + 10 noise) — the verified header of
+# chain_extB3*_seed2026_n500000.csv. Used to name-map the extB3c tuned proposal shape into
+# the extC set; the single-reservoir gic_* rows are skipped (different structure).
+const OLD38_NAMES = vcat(
+    ["ais_ocean_temperature₀","antarctic_alpha","antarctic_nu","antarctic_temp_threshold",
+     "anto_alpha","anto_beta","greenland_a","greenland_b","greenland_alpha","greenland_beta",
+     "greenland_v0","thermal_alpha","gic_a","gic_b","gic_T_off","gic_log10_kappa","gic_nu",
+     "antarctic_lambda","antarctic_gamma","antarctic_kappa","ais_gmst_amp",
+     "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG","ais_runoff_Ton","ais_c"],
+    vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
+# extC-vintage 52-param chain/cov order (42 physical + 10 noise) — the verified
+# header of chain_extC_seed2026_n2000000.csv. Used to name-map the extC1 tuned
+# proposal shape into the Ladrillo 1.0 set, where the five stock-SIMPLE Greenland
+# rows disappear and seven gis_* rows arrive on a fresh diagonal. The glacier rows
+# ARE mapped here (unlike the older vintages): extC and Ladrillo 1.0 share the same
+# three-reservoir glacier structure and frame, so those proposal scales still mean
+# what they meant.
+const OLD52_NAMES = vcat(
+    ["ais_ocean_temperature₀","antarctic_alpha","antarctic_nu","antarctic_temp_threshold",
+     "anto_alpha","anto_beta","greenland_a","greenland_b","greenland_alpha","greenland_beta",
+     "greenland_v0","thermal_alpha",
+     "gic_a_R19","gic_b_R19","gic_T_off_R19","gic_log10_kappa_R19",
+     "gic_a_SLOWP","gic_b_SLOWP","gic_T_off_SLOWP","gic_log10_kappa_SLOWP",
+     "gic_a_FAST","gic_b_FAST","gic_T_off_FAST","gic_log10_kappa_FAST",
+     "gic_amp_R19","gic_amp_SLOWP","gic_amp_FAST",
+     "gic_u_unch","gic_delta","gic_u_pre","gic_s_r5",
+     "antarctic_lambda","antarctic_gamma","antarctic_kappa","ais_gmst_amp",
+     "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG",
+     "ais_runoff_Ton","ais_c"],
+    vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
 
-function embed_cov!(cov0, old, old_names)
+# L10tune-vintage 54-param order (44 physical + 10 noise) — the header of
+# chain_L10tune_seed2026_n2000000.csv, the first Ladrillo 1.0 tuning run. It is
+# the 55-param production set minus gis_amp, so 54 of 55 rows map and only the
+# new amp row takes a fresh diagonal. This is a much better seed than the extC
+# covariance: every Greenland row is already Ladrillo-shaped.
+const OLD54_NAMES = vcat(
+    ["ais_ocean_temperature₀","antarctic_alpha","antarctic_nu","antarctic_temp_threshold",
+     "anto_alpha","anto_beta",
+     "gis_c1","gis_c0","gis_f","gis_alpha_f","gis_beta_f","gis_alpha_s","gis_beta_s",
+     "thermal_alpha",
+     "gic_a_R19","gic_b_R19","gic_T_off_R19","gic_log10_kappa_R19",
+     "gic_a_SLOWP","gic_b_SLOWP","gic_T_off_SLOWP","gic_log10_kappa_SLOWP",
+     "gic_a_FAST","gic_b_FAST","gic_T_off_FAST","gic_log10_kappa_FAST",
+     "gic_amp_R19","gic_amp_SLOWP","gic_amp_FAST",
+     "gic_u_unch","gic_delta","gic_u_pre","gic_s_r5",
+     "antarctic_lambda","antarctic_gamma","antarctic_kappa","ais_gmst_amp",
+     "ais_mu","ais_bedheight0","ais_slope","ais_iceflow0","ais_precip0_LOG",
+     "ais_runoff_Ton","ais_c"],
+    vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
+
+# The SHIPPED Ladrillo 1.0 layout: whatever FREE currently is, plus the full
+# five-stream noise block. Built from FREE rather than typed out so it cannot
+# drift, and it is what `pn0` equals when --drop-total is OFF. With --drop-total
+# ON, NK=53 no longer matches the 55x55 L10-tuned covariance, and this table is
+# what lets the by-name embedding carry the tuned shape across: sd_dang/rho_dang
+# simply find no target in pn0 and are skipped.
+# The L11tune layout: the current FREE set with the Greenland pair in its NATIVE
+# coordinates, i.e. what the first tuning run sampled. Lets that covariance be
+# name-mapped once the reparameterisation is on.
+# THE SAME TRAP AS ALL_SERIES ABOVE, one layer out. These tables describe the
+# layout of FILES ON DISK, so they must NOT follow the live FREE either: with
+# --gis-basins the three gis_s_* rows do not exist in ANY pre-existing covariance,
+# and letting them lengthen L11_NAMES from 57 to 60 makes the `size(old,1) ==
+# length(L11_NAMES)` dispatch below MISS the L12 covariance entirely. That fails
+# safe (visible warning -> fresh diagonal) rather than catastrophically, but it
+# throws away the tuned proposal shape and would be read as "the covariance is
+# incompatible" when in fact 57 of its 60 rows map perfectly. Filter them out.
+const GISB_PNAMES = ["gis_s_$b" for b in GIS3_BASINS]   # all three; only some are sampled
+prelayout(fr) = [k for k in fr if !(k.name in GISB_PNAMES)]
+
+const L11A_NAMES = vcat(
+    [k.name == "gis_slow_ell" ? "gis_alpha_s" :
+     k.name == "gis_slow_w"   ? "gis_beta_s"  : k.name for k in prelayout(FREE)],
+    vcat([["sd_$s","rho_$s"] for s in SERIES]...))
+
+const L10_NAMES = vcat([k.name for k in prelayout(FREE)],
+                       vcat([["sd_$s","rho_$s"] for s in ALL_SERIES]...))
+
+# The L11 PRODUCTION layout: both D2 streams, D1 noise block. Built independently
+# of the live D2_STREAMS so a one-stream run can still name-map the L11 covariance.
+#
+# SIZE COLLISION, and it is why this exists. L10_NAMES and the L11 layout are BOTH
+# 57 long — L10 = 53 physical + 2 gis-native + 10 five-stream noise; L11 = 53
+# physical + 2 gis-reparam + 4 D2 + 8 four-stream noise. So `size(old,1) ==
+# length(L10_NAMES)` MATCHES AN L11 COVARIANCE, and a --d2-streams= run (NK=55)
+# silently mapped adapted_cov_L11tune3 through L10's names: d2 coefficients landed
+# on noise parameters, the Greenland pair on the wrong coordinates, and the chain
+# accepted EXACTLY 0 of 2000 proposals. Caught 2026-08-16 by the acceptance being
+# 0.0 rather than merely low. The shipped L11 production run is NOT affected — at
+# NK=57 the `size(old,1) == NK` branch fires first and uses the matrix as-is,
+# which is correct — so this is a latent trap the new flag exposed, not a defect
+# in any published result. Dispatch on the file's VINTAGE, never on its size.
+#
+# IT MUST BE THE FILE'S PHYSICAL ROW ORDER, AND FOR A YEAR IT WAS NOT. The first
+# version of this constant was built as `[non-d2 physical...] ++ [d2...] ++ noise`
+# -- i.e. it PULLED the d2 block out of its FREE position and re-appended it after
+# the AIS geometry block. The d2 params are pushed into FREE right after gic_s_r5
+# and BEFORE antarctic_lambda, so on disk they are rows 35-38 while that literal
+# put them at 45-48. The name SET still matched, so `embed_cov!` mapped 57 of 57
+# rows and logged "dropped <nothing>" -- while shifting every row from 35 to 49 by
+# four. Live `ais_c` was handed `ais_slope`'s variance, 8.005e-07 instead of 0.6065,
+# which is a proposal that cannot move a parameter whose posterior spans ~95 units.
+# That is the whole of the L13 "frozen ais_c": it was never an adaptation collapse,
+# it was born dead at the seed (measured 2026-08-19d; see notes/handoff_2026-08-19c).
+# RAM's update is multiplicative and rank-one along L*u, so a coordinate whose row
+# of L is ~0 contributes ~0 to every proposal and can never be re-inflated -- the
+# seed is the only chance the coordinate gets.
+#
+# So this is now a FROZEN LITERAL transcribed from the header of
+# chain_L11tune3_seed2026_n1000000.csv (which is written in pn0 order, i.e. exactly
+# the order RAM wrote the covariance in). It deliberately does NOT derive from the
+# live FREE/SERIES: the file is a historical artefact and its layout cannot change,
+# whereas FREE moves with every flag. Derived-from-live is what broke it.
+const L11_NAMES = [
+    "ais_ocean_temperature₀", "antarctic_alpha", "antarctic_nu", "antarctic_temp_threshold",
+    "anto_alpha", "anto_beta", "gis_c1", "gis_c0",
+    "gis_f", "gis_alpha_f", "gis_beta_f", "gis_slow_ell",
+    "gis_slow_w", "gis_amp", "thermal_alpha", "gic_a_R19",
+    "gic_b_R19", "gic_T_off_R19", "gic_log10_kappa_R19", "gic_a_SLOWP",
+    "gic_b_SLOWP", "gic_T_off_SLOWP", "gic_log10_kappa_SLOWP", "gic_a_FAST",
+    "gic_b_FAST", "gic_T_off_FAST", "gic_log10_kappa_FAST", "gic_amp_R19",
+    "gic_amp_SLOWP", "gic_amp_FAST", "gic_u_unch", "gic_delta",
+    "gic_u_pre", "gic_s_r5", "d2_gsic_1", "d2_gsic_2",
+    "d2_steric_1", "d2_steric_2", "antarctic_lambda", "antarctic_gamma",
+    "antarctic_kappa", "ais_gmst_amp", "ais_mu", "ais_bedheight0",
+    "ais_slope", "ais_iceflow0", "ais_precip0_LOG", "ais_runoff_Ton",
+    "ais_c", "sd_ais", "rho_ais", "sd_gsic",
+    "rho_gsic", "sd_gis", "rho_gis", "sd_steric",
+    "rho_steric"]
+# The literal is checked against the live derivation as a SET (order is the whole
+# point of the literal, so it is the one thing that must not be re-derived). A live
+# config that cannot reproduce the L11 name set has no business reading an L11 file.
+let live = Set(vcat([k.name for k in prelayout(FREE)],
+                    ["d2_$(st)_$(k)" for st in ["gsic","steric"] for k in 1:D2_BASIS_N],
+                    vcat([["sd_$s","rho_$s"] for s in SERIES]...)))
+    Set(L11_NAMES) ⊆ live || @warn "L11_NAMES has names absent from the live layout; " *
+        "the L11-vintage branch will leave those rows on the fresh diagonal: " *
+        join(setdiff(Set(L11_NAMES), live), ", ")
+end
+"""Covariance files whose rows are in the L11 production ordering."""
+# The L12 line adds NO parameters (--gis-ordered is a log-prior wedge), so every L12
+# covariance is byte-for-byte in this same 57-row order -- verified 2026-08-19 by
+# comparing the chain headers, which are written in pn0 order: all six L11/L12 chains
+# compare equal to chain_L11tune3's. Listing them lets an L13-layout run reseed from
+# the CANONICAL posterior's proposal instead of the two-vintages-older L11tune3.
+const L11_VINTAGE_ADCOV = ["adapted_cov_L11tune2_seed2026.csv",
+                           "adapted_cov_L11tune3_seed2026.csv",
+                           "adapted_cov_L11_seed2026.csv",
+                           "adapted_cov_L12tune_seed2026.csv",
+                           "adapted_cov_L12_seed2026.csv",
+                           "adapted_cov_L12_seed2027.csv",
+                           "adapted_cov_L12_seed2028.csv",
+                           "adapted_cov_L12_seed2029.csv"]
+
+function embed_cov!(cov0, old, old_names; skip_gic::Bool=false)
     oi = Int[]; ni = Int[]
     for (i, nm) in enumerate(old_names)
+        skip_gic && startswith(nm, "gic_") && continue
         j = findfirst(==(nm), pn0)
         isnothing(j) && continue                          # dropped/renamed params
         push!(oi, i); push!(ni, j)
@@ -1852,27 +1971,103 @@ function embed_cov!(cov0, old, old_names)
     return length(oi)
 end
 # The seeding message is CAPTURED, not just printed: the run log is overwritten by
-# ProgressMeter within seconds, and "which rows seeded this proposal" is the single most
-# important fact about a seeded proposal. It is written to seed_diag_*.txt below.
-adf = CSV.read(ADCOV, DataFrame)
-all(nm -> occursin(r"^x\d+$", nm), names(adf)) &&
-    error("$(basename(ADCOV)) has a placeholder x1..xN header; convert it to a NAMED file " *
-          "by header replacement (see adapted_cov_L11tune3_seed2026_named.csv, 2026-09-16) " *
-          "-- positional reading is exactly the trap this calibrator no longer allows")
-size(adf, 1) == size(adf, 2) || error("$(basename(ADCOV)) is not square")
-let old = Matrix(adf)
-    nmap = embed_cov!(cov0, old, names(adf))
-    dropped = setdiff(names(adf), pn0)
-    fresh = setdiff(pn0, names(adf))
-    global adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
-            "$(basename(ADCOV)) using the FILE'S OWN header" *
-            (isempty(dropped) ? "" : "; dropped " * join(dropped, ", ")) *
-            (isempty(fresh) ? "" : "; fresh diagonal for " * join(fresh, ", ")) * ")")
+# ProgressMeter within seconds, and "which name list did this run map through" is the
+# single most important fact about a seeded proposal. It is written to seed_diag_*.txt
+# alongside the geometry gate below.
+adcov_msg = "(no adapted covariance found; diagonal proposal)"
+if isfile(ADCOV)
+    adf = CSV.read(ADCOV, DataFrame)
+    old = Matrix(adf)
+    # SELF-DESCRIBING FILES FIRST. Files written before 2026-08-19 used
+    # DataFrame(covout, :auto) and carry the placeholder header x1..xN, so their
+    # row order is recoverable only from a vintage table (the ladder below, and
+    # the source of the L11_NAMES order bug). Files written from now on carry pn0
+    # as the header, so they name their own rows and need no vintage entry ever.
+    adcov_named = !all(nm -> occursin(r"^x\d+$", nm), names(adf))
+    # SIZE IS NOT IDENTITY. adapted_cov_L11tune is 57x57 and NK is 57, but its
+    # Greenland rows are (alpha_s, beta_s) while ours are (ell, w) — taking it
+    # as-is would apply an alpha_s proposal scale of ~0.005 to an ell of ~-4.2.
+    # That is the positional-index trap; match on NAMES whenever they can differ.
+    if adcov_named
+        nmap = embed_cov!(cov0, old, names(adf))
+        dropped = setdiff(names(adf), pn0)
+        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+                "$(basename(ADCOV)) using the FILE'S OWN header" *
+                (isempty(dropped) ? "" : "; dropped " * join(dropped, ", ")) * ")")
+    elseif size(old,1) == NK &&
+       !(GIS_REPARAM && basename(ADCOV) == "adapted_cov_L11tune_seed2026.csv")
+        cov0 = old
+        adcov_msg = ("(seeding proposal from adapted covariance $(basename(ADCOV)))")
+    elseif basename(ADCOV) == "adapted_cov_L11tune_seed2026.csv" &&
+           size(old,1) == length(L11A_NAMES)
+        # native-coordinate Greenland rows are deliberately NOT mapped onto
+        # (ell, w): the scales and meanings differ, so they keep a fresh diagonal.
+        nmap = embed_cov!(cov0, old, L11A_NAMES)
+        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+                "$(basename(ADCOV)); fresh diagonal for gis_slow_ell, gis_slow_w)")
+    elseif basename(ADCOV) in L11_VINTAGE_ADCOV && size(old,1) == length(L11_NAMES)
+        # MUST precede the L10 branch: the two layouts are the same length (see
+        # the L11_NAMES comment), so size alone cannot tell them apart.
+        nmap = embed_cov!(cov0, old, L11_NAMES)
+        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+                "$(basename(ADCOV)) as L11 layout; dropped " *
+                join(setdiff(L11_NAMES, pn0), ", ") * ")")
+    elseif size(old,1) == length(L10_NAMES)
+        basename(ADCOV) in L11_VINTAGE_ADCOV &&
+            error("$(basename(ADCOV)) is an L11-vintage covariance but did not match " *
+                  "L11_NAMES ($(size(old,1)) vs $(length(L11_NAMES))); refusing to " *
+                  "read it under L10 names — that is the size collision, and it " *
+                  "produces a zero-acceptance chain rather than an obvious failure")
+        nmap = embed_cov!(cov0, old, L10_NAMES)
+        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+                "$(basename(ADCOV)); dropped " *
+                join(setdiff(L10_NAMES, pn0), ", ") * ")")
+    elseif size(old,1) == length(OLD54_NAMES)
+        nmap = embed_cov!(cov0, old, OLD54_NAMES)
+        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+                "$(basename(ADCOV)); fresh diagonal for " *
+                join(setdiff(pn0[1:NP], OLD54_NAMES), ", ") * ")")
+    elseif size(old,1) == length(OLD52_NAMES)
+        nmap = embed_cov!(cov0, old, OLD52_NAMES)
+        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+                "$(basename(ADCOV)); fresh diagonal for " *
+                join(setdiff(pn0[1:NP], OLD52_NAMES), ", ") * ")")
+    elseif size(old,1) == length(OLD38_NAMES)
+        nmap = embed_cov!(cov0, old, OLD38_NAMES; skip_gic=true)
+        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+                "$(basename(ADCOV)); fresh diagonal for the extC glacier/ledger block " *
+                join([nm for nm in pn0[1:NP] if startswith(nm,"gic_")], ", ") * ")")
+    elseif size(old,1) == length(OLD39_NAMES)
+        nmap = embed_cov!(cov0, old, OLD39_NAMES; skip_gic=true)
+        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+                "$(basename(ADCOV)); fresh diagonal for the extB3 glacier block " *
+                join([nm for nm in pn0[1:NP] if startswith(nm,"gic_")], ", ") * ")")
+    elseif size(old,1) == length(OLD35_NAMES)
+        nmap = embed_cov!(cov0, old, OLD35_NAMES; skip_gic=true)
+        adcov_msg = ("(seeding proposal: name-mapped $nmap of $(size(old,1)) rows of " *
+                "$(basename(ADCOV)); diagonal for " *
+                join(setdiff(pn0[1:NP], OLD35_NAMES), ", ") * ")")
+    else
+        adcov_msg = ("(WARNING: $(basename(ADCOV)) is $(size(old,1))x$(size(old,1)), incompatible " *
+                "with NK=$NK -- falling back to the diagonal proposal)")
+    end
 end
 println(adcov_msg)
-println(isnothing(ADCOV_OVERRIDE) ?
-        "--adcov not passed: proposal covariance DEFAULTED to the canonical L24 seed ($(basename(ADCOV)))." :
-        "--adcov: proposal covariance CHOSEN explicitly ($(basename(ADCOV))).")
+# SAY WHICH, LOUDLY. L23/L23b/L24 were launched without --adcov and fell through to the
+# list head (adapted_cov_L11tune3) where L21/L22 passed adapted_cov_L14tune. The AIS-block
+# proposal is 2.7-5.3x tighter under L11tune3 and gis_s_high lands on its floor, so a 2x2
+# meant to isolate ONE change carried a second moved axis for a week. The line above named
+# the file the whole time; what it did not say is that NOBODY CHOSE it. A default that
+# reads like a decision is the defect.
+if isnothing(ADCOV_OVERRIDE)
+    println("!! NO --adcov PASSED: the proposal covariance above came from the built-in " *
+            "PREFERENCE ORDER, not from this run's command line. That order is tuned for " *
+            "the L11/L12 line and does not track the current vintage. If this run is meant " *
+            "to be comparable with another, pass --adcov=<file> explicitly -- a covariance " *
+            "is a second axis, and it does NOT show up in the chain's column set.")
+else
+    println("--adcov: proposal covariance CHOSEN explicitly ($(basename(ADCOV))).")
+end
 isposdef(cov0) || error("seed proposal covariance is not positive definite")
 
 # ---- GEOMETRY SEED GATE (Marcus 2026-08-19; handoff_2026-08-19c §1.1) -------------
@@ -1928,14 +2123,7 @@ let sd = sqrt.(diag(cov0)), bad = String[], rep = IOBuffer()
         @printf(rep, "  %-18s %-12.4g floor %-10.4g %s\n", nm, sd[j], flr, ok ? "ok" : "TOO SMALL")
     end
     mkpath(joinpath(REPO,"outputs/mcmc"))
-    ## The seed_diag is the PRODUCTION chain's record of what seeded its proposal. A --dump-priors
-    ## utility run under the same tag (the postprocess's appendix-table step) used to overwrite it
-    ## with its own, adcov-less banner -- L27's said "DEFAULTED to the L24 seed" for a chain that had
-    ## been seeded from adapted_cov_L26_named.csv (found 2026-09-20). A run that never samples writes
-    ## no seed_diag.
-    if !("--dump-priors" in ARGS)
-        write(joinpath(REPO,"outputs/mcmc/seed_diag_$(TAG)_seed$(SEED).txt"), take!(rep))
-    end
+    write(joinpath(REPO,"outputs/mcmc/seed_diag_$(TAG)_seed$(SEED).txt"), take!(rep))
     isempty(bad) || error("proposal seed is degenerate in the gated block: " *
         join(bad, "; ") * ". These parameters would be FROZEN for the whole run while " *
         "global acceptance looks healthy. Check that the vintage name list used to read " *
@@ -2003,6 +2191,7 @@ if OVERDISPERSE
     end
     # A6 sensitivity: the starts file holds phase-2 amp draws (~0.94); pin the start at the
     # equilibrium value so the chain begins on the pinned prior, not +100σ off it.
+    AMP_EQ && (θ0[AMP_IDX] = AMP_MU)
     # the starts file is a pre-cap posterior draw, so it needs the same repair θ0 got
     repair_steric_start!(θ0)
     lp0 = logposterior(θ0)
@@ -2034,45 +2223,6 @@ end
 # theta0 (whose gis_* entries ARE the offline g=0 fit) and checks the four numbers the
 # offline cell reports for that same parameter vector. A wiring error shows up as a
 # gross miss, not a rounding difference, so the tolerances are deliberately loose.
-## ---------------------------------------------------------------------------
-## --dump-priors (2026-09-19, for the GMD paper's prior/posterior appendix table).
-## Writes outputs/ladrillo_priors_<TAG>.csv: one row per sampled parameter in theta order,
-## with the prior AS THE CALIBRATOR SCORES IT -- read off FREE, PRIOR_SKIP, GEO_*, K10_SIG
-## and the noise block of logposterior, never transcribed by hand. Run with the SAME flags
-## as the production chain (run_mcmc_L24.sh: --amp-mu/--amp-sigma etc.), then exit.
-## A sigma >= 10 is the calibrator's own convention for "no Gaussian information" (the
-## bounds alone), so those rows are labelled flat.
-if "--dump-priors" in ARGS
-    rows = DataFrame(index=Int[], name=String[], comp=String[], mu=Float64[], sigma=Float64[],
-                     lo=Float64[], hi=Float64[], prior_form=String[], note=String[])
-    for (k, f) in enumerate(FREE)
-        form, note = if k in GEO_IDX
-            ("joint paleo MvNormal (standardised, corr from paleo_geo_prior_ton.csv); marginal N(mu, sigma) on [lo, hi]",
-             "DAIS geometry; ais_precip0_LOG is log-space; ais_runoff_Ton = -h0/c, h0 reconstructed per draw")
-        elseif k in PRIOR_SKIP
-            b = first(bb for bb in BLOCKS if KAPPA_IDX3[bb] == k)
-            (@sprintf("N(k10c(gic_amp_%s), %.3f) on [lo, hi] -- centre is a log-linear function of the sampled amp", b, K10_SIG),
-             @sprintf("tau50-as-prior; at the amp prior mean the centre is %.3f", k10c(b, AMP_PRIOR[b][1])))
-        elseif f.σ >= 10.0
-            ("flat on [lo, hi]", "sigma = $(f.σ) in the code = bounds-only; mu is the start point")
-        else
-            ("N(mu, sigma) on [lo, hi]", "")
-        end
-        push!(rows, (k, f.name, String(f.comp), f.μ, f.σ, f.lo, f.hi, form, note))
-    end
-    for (i, s) in enumerate(SERIES)
-        push!(rows, (NP + 2i - 1, "sd_$s", "noise", 0.0, 5.0, 0.0, Inf, "half-normal N+(0, 5) cm", "AR(1) innovation sd of the $s residual"))
-        push!(rows, (NP + 2i,     "rho_$s", "noise", NaN, NaN, 0.0, 0.99, "flat on [0, 0.99)", "AR(1) lag-1 autocorrelation of the $s residual; 0.99 is a hard bound"))
-    end
-    rows.provenance .= "calibrate_mcmc_ext.jl --dump-priors | tag $TAG | ARGS: " * join(ARGS, " ") *
-        " | amp prior N($AMP_MU, $AMP_SIGMA) | GIS_ORDERED=$GIS_ORDERED (wedge: alpha_s <= alpha_f AND beta_s <= beta_f, a hard constraint on top of these marginals)" *
-        " | D2 sd $D2_BASIS_SD cm | K10_SIG $K10_SIG | $(Dates.now())"
-    out = joinpath(REPO, "outputs/ladrillo_priors_$(TAG).csv")
-    CSV.write(out, rows)
-    println("wrote $(relpath(out, REPO)): $(nrow(rows)) rows ($NP physical + $NN noise)")
-    exit(0)
-end
-
 if "--gis-check" in ARGS
     GIS_AB || error("--gis-check requires the A+B module (drop --stock-gis)")
     # Run at the EXACT offline g=0 vector, not at theta0. Two of the seven prior
@@ -2093,7 +2243,7 @@ if "--gis-check" in ARGS
     end
     # THE SLOW CHANNEL NEEDS THE (ell, w) MAP, and this is the second half of the
     # 2026-08-19 --gis-check repair. GIS_OFFLINE_G0 is keyed on the NATIVE names
-    # gis_alpha_s / gis_beta_s, which do not exist in FREE under the (ell, w) reparameterisation — so
+    # gis_alpha_s / gis_beta_s, which do not exist in FREE under GIS_REPARAM — so
     # both overrides were silently skipped and θchk kept whatever slow channel θ0
     # carried. Under --gis-ordered θ0's slow channel is deliberately overwritten
     # with the L11 ORD-half medians (see the GIS_ORDERED block above), giving
@@ -2101,7 +2251,8 @@ if "--gis-check" in ARGS
     # the whole of the four-gate failure. WITHOUT --gis-ordered it passed only
     # because θ0's MAP happened to sit near the offline slow channel, so the
     # defect was masked in exactly the configuration nobody ships.
-    let a_s = GIS_OFFLINE_G0["gis_alpha_s"], b_s = GIS_OFFLINE_G0["gis_beta_s"]
+    if GIS_REPARAM
+        a_s, b_s = GIS_OFFLINE_G0["gis_alpha_s"], GIS_OFFLINE_G0["gis_beta_s"]
         r_s = a_s * GIS_TBAR + b_s
         θchk[GIS_ELL_IDX] = log(r_s)
         θchk[GIS_W_IDX]   = a_s * GIS_TBAR / r_s
@@ -2120,10 +2271,10 @@ if "--gis-check" in ARGS
     end
     # NO SILENT SKIPS. Every offline key must reach a parameter, or the diagnostic
     # is comparing a vector that is not the reference vector — which is precisely
-    # how this went unnoticed. Under the (ell, w) reparameterisation the native slow pair is consumed
+    # how this went unnoticed. Under GIS_REPARAM the native slow pair is consumed
     # by the map above rather than matched by name.
     let want = Set(keys(GIS_OFFLINE_G0)),
-        got = Set(vcat(applied, ["gis_alpha_s", "gis_beta_s"]))
+        got = Set(GIS_REPARAM ? vcat(applied, ["gis_alpha_s", "gis_beta_s"]) : applied)
         missed = setdiff(want, got)
         isempty(missed) || error("--gis-check: $(length(missed)) offline reference " *
             "value(s) matched no free parameter and were SILENTLY DROPPED: " *
@@ -2233,55 +2384,6 @@ end
 # (e.g. weight_brick_conditional_fair.jl) WITHOUT running the chain. Run-as-script behaviour unchanged.
 if abspath(PROGRAM_FILE) == @__FILE__
 Random.seed!(SEED)
-## ---------------------------------------------------------------------------
-## --profile=<param>[,<param>...] (2026-09-19): a 1-D profile of the log-posterior and of each
-## series' likelihood term through the L24 posterior MEDIAN, along one parameter at a time, at
-## offsets of {0, ±0.5, ±1, ±2, ±4, ±8} posterior sd. Every other parameter is held at its median
-## (a conditional slice, not a marginal). Answers "which term pins this parameter, and how hard".
-## Writes outputs/profile_<TAG>_<param>.csv and exits.
-if _argval("--profile=") !== nothing
-    prof_names = split(_argval("--profile="), ",")
-    psub = CSV.read(joinpath(REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_$(TAG).csv"), DataFrame)
-    θmed = Float64[median(psub[!, nm]) for nm in pn0]
-    θsd  = Float64[std(psub[!, nm]) for nm in pn0]
-    function series_terms(θ)
-        lpt = logposterior(θ)           # applies θ and runs m; the model now holds this state
-        isfinite(lpt) || return (lpt, fill(NaN, 4))
-        σn = θ[NP+1:2:NK]; ρn = θ[NP+2:2:NK]
-        Funch = FUNCH_UNIT .* θ[UUNCH_IDX]
-        ais = reref(m[:antarctic_icesheet, :ais_sea_level])
-        gsic_flow = reref(m[G, :gsic_hind] .+ Funch)
-        gis = reref(m[:greenland_icesheet, :greenland_sea_level]); te = reref(m[:thermal_expansion, :te_sea_level])
-        d2 = (st, v) -> haskey(D2_IDX, st) ? v .+ D2_BASIS[st] * [θ[j] for j in D2_IDX[st]] : v
-        t = zeros(4)
-        for (i, (sr, full)) in enumerate(zip([S.ais, S.gsic, S.gis, S.steric], [ais, gsic_flow, gis, te]))
-            t[i] = i == 2 ? hetero_logl_ar1(d2("gsic", full[sr.myi]) .- (sr.obs .+ (NO_DELTA ? 0.0 : θ[DELTA_IDX]) .* DELTA_RAMP), σn[i], ρn[i], sr.ϵ) :
-                   i == 4 ? hetero_logl_ar1(d2("steric", full[sr.myi]) .- sr.obs, σn[i], ρn[i], sr.ϵ) :
-                            hetero_logl_ar1(full[sr.myi] .- sr.obs, σn[i], ρn[i], sr.ϵ)
-        end
-        return (lpt, t)
-    end
-    lp0, t0 = series_terms(copy(θmed))
-    @printf("profile base: log-posterior at the %s posterior median = %.2f (ais %.2f gsic %.2f gis %.2f steric %.2f)\n", TAG, lp0, t0...)
-    for nm in prof_names
-        k = findfirst(==(String(nm)), pn0); k === nothing && error("--profile: unknown parameter $nm")
-        rows = DataFrame(param=String[], offset_sd=Float64[], value=Float64[], logpost=Float64[], dlogpost=Float64[],
-                         d_ais=Float64[], d_gsic=Float64[], d_gis=Float64[], d_steric=Float64[], d_rest=Float64[])
-        for z in (-8.0, -4.0, -2.0, -1.0, -0.5, 0.0, 0.5, 1.0, 2.0, 4.0, 8.0)
-            θ = copy(θmed); θ[k] = θmed[k] + z * θsd[k]
-            lpz, tz = series_terms(θ)
-            d = tz .- t0; drest = (lpz - lp0) - sum(d)
-            push!(rows, (String(nm), z, θ[k], lpz, lpz - lp0, d..., drest))
-            @printf("  %-22s %+5.1f sd  value %10.4f  dlogpost %10.2f | ais %9.2f gsic %9.2f gis %9.2f steric %9.2f rest %9.2f\n",
-                    nm, z, θ[k], lpz - lp0, d..., drest)
-        end
-        rows.provenance .= "calibrate_mcmc_ext.jl --profile | tag $TAG | conditional slice through the posterior median of " *
-            "parameters_subsample_brick_mengel_$(TAG).csv | offsets in posterior sd ($(round(θsd[k], sigdigits=4))) | rest = prior + point terms + wedge | ARGS " * join(ARGS, " ")
-        CSV.write(joinpath(REPO, "outputs/profile_$(TAG)_$(nm).csv"), rows)
-    end
-    println("profile done"); exit(0)
-end
-
 @time chain, accept, covout, lp = RAM_sample(logposterior, θ0, cov0, N_ITER; opt_α=0.234, output_log_probability_x=true)
 mkpath(joinpath(REPO,"outputs/mcmc"))
 # Header = pn0, NOT :auto. A nameless covariance can only be re-read through a

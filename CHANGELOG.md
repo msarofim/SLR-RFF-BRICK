@@ -1,3 +1,39 @@
+## 2026-09-21c — the low-hanging list done: the identity gate was RED since 09-18 (the LWS ruling), now re-frozen with proof; seed_diag clobber fixed; runtime on L27; three more tag literals; postprocess and paper-arms templates by tag
+
+**The calibrator identity gate (`scripts/gate_calibrator_identity.sh`) had been FAILING since 2026-09-18 and nobody had run
+it.** Found while checking the seed_diag fix. Bisected on `julia/` alone (every commit's gate lines printed — an earlier
+pass that read only the last line had mis-assigned it): PASS through d5c591f, FAIL from **4617723 = `LWS_MODE :seeded →
+:central`** (Marcus's 09-18 ruling). The L24 objective changes by **1.1e-4 log-units at θ₀** (chain row 0: 219.64136 vs
+219.64125): the land-water series enters the Antarctic component through BRICK's sea-level feedback, so a 0.3-cm change in
+LWS moves the AIS hindcast at the 1e-4 level, enough to flip accept/reject decisions inside 300 iterations. **Proof that
+this is the ONLY change:** the current calibrator (all L26/L27 flags default-off + today's seed_diag edit) with
+`LWS_MODE = :seeded` reproduces the 09-16 reference **byte-for-byte** (07:25). Re-frozen: the 09-16 reference archived
+as `benchmark/reference/calibrator_300iter_lws_seeded_20260916/`, the new one written from the current code under
+:central with a README saying why; mutation-tested at re-freeze (`--amp-sigma=0.181` → 2 FAILs); gate PASS after.
+⚠ The L26/L27 calibrations were run under :central; L24's under :seeded — a 1e-4 objective difference, stated here,
+immaterial to any number. ⚠ Lesson for the gate discipline: a gate that nobody runs is a gate that is green by
+assumption; it now says so in its header ("run after EVERY calibrator or brick_mengel.jl edit").
+
+**seed_diag clobber fixed** (`calibrate_mcmc_ext.jl`): a `--dump-priors` run writes no `seed_diag_*.txt`. L27's production
+record restored: the clobbered file renamed `seed_diag_L27prior_seed2026.txt` (what it is), and
+`seed_diag_L27_seed2026.txt` rebuilt from the chain's own log with a header saying so (name-mapped 50 of 55 rows of
+`adapted_cov_L26_named.csv`; logpost(θ₀) 792.92).
+
+**Runtime on L27** (`diag_runtime_ladrillo_vs_brick20.jl --tag=L27`, tagged output, quiet machine): 1850–2300 apply+run
+**6.40 ms/draw vs BRICK 2.0 5.07 (1.26×)**, run-only 0.76 vs 0.65; hindcast span 1.25×. The draft's "1.2× … 6.2 against
+5.0 … 0.78 against 0.65" is L24 and within noise of this; not changed in the docx (one comment stays).
+
+**Tag literals retired:** `diag_lws_convention_asymmetry`, `diag_epoch_window_asymmetry` (its printed-panel gate is now
+keyed by tag — only L24 has a printed pair; other tags print the computed pair and skip), `diag_gsic_blocks_vs_emulandice`,
+`diag_runtime_ladrillo_vs_brick20.jl`. Old outputs renamed `_L24`; the L24 re-runs are numerically identical except
+`diag_lws_convention_asymmetry`'s BRICK column (≤ 0.003 cm — the BRICK postpred was regenerated on 09-18). L27 outputs
+written for all three. Remaining literals are archival L12/L14/L21 scope_*/plot_protect_* scripts — left.
+
+**Templates:** `run_postprocess.sh` (from `run_l27_postprocess.sh`; `TAG= CTRL= SEEDS= FLAGS=`, bash-3.2 safe, the prior
+dump uses the tag's own FLAGS) and `run_paper_arms_L27.sh` now ends with the paper's TABLE sources by tag (scorecard =
+Table 4, compensating error, TE attribution, regrowth attribution, response times) — the 09-20 swap had run them by hand.
+Suite: `run_ladrillo_tests.sh` re-run after the calibrator edit — **ALL Ladrillo MODEL TESTS PASS** (`outputs/log_suite_20260921.txt`).
+
 ## 2026-09-21b — L27 PROMOTED TO CHAMPION (all six modules); the L27-vs-L24 observation plot
 
 `bench_ladrillo.py --tag=L27 --freeze` → `benchmark/reference/L27/`; `--promote --why=…` (Marcus 2026-09-21: "Promote

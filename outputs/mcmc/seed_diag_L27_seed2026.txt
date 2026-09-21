@@ -1,0 +1,5 @@
+RECONSTRUCTED 2026-09-21 from log_L27_seed2026.txt: the original seed_diag of the L27 production chain was overwritten on 2026-09-20 by the postprocess's --dump-priors utility run (its banner is kept as seed_diag_L27prior_seed2026.txt; calibrator fixed the same day so a --dump-priors run writes no seed_diag). The production chain's own banner lines, verbatim from its log:
+(seeding proposal: name-mapped 50 of 55 rows of adapted_cov_L26_named.csv using the FILE'S OWN header; dropped antarctic_temp_threshold, gic_u_pre, gic_s_r5, antarctic_lambda, antarctic_gamma)
+--adcov: proposal covariance CHOSEN explicitly (adapted_cov_L26_named.csv).
+over-dispersed starts file: outputs/mcmc/overdispersed_starts_L27.csv
+over-dispersed start (seed 2026, row 1): logpost(θ0) = 792.92  [MAP start = -1133.42]

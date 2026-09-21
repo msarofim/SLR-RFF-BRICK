@@ -9,6 +9,12 @@
 ## cleanup does not. MUTATION-TESTED at creation: --amp-sigma=0.181 → chain differs (as it must).
 ##
 ##   bash scripts/gate_calibrator_identity.sh            # ~40 s; exit 0 = identical
+##
+## RE-FROZEN 2026-09-21 under LWS_MODE = :central (the 09-18 land-water ruling enters the objective through
+## the Antarctic sea-level feedback, ~1e-4 log-units, enough to flip accept/reject inside 300 iterations); the
+## 09-16 :seeded reference is archived beside it and is reproduced byte-for-byte by the current calibrator with
+## LWS_MODE = :seeded (proof run 09-21). See benchmark/reference/calibrator_300iter/README.md. ⚠ The gate had
+## been RED since 09-18 without anyone running it: run it after EVERY calibrator or brick_mengel.jl edit.
 set -uo pipefail
 cd "$(dirname "$0")/.."
 REF=benchmark/reference/calibrator_300iter

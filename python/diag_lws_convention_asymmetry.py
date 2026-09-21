@@ -50,8 +50,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from provenance import stamp
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TAG  = "L24"
-OUT_CSV = os.path.join(REPO, "outputs", "diag_lws_convention_asymmetry.csv")
+## --tag= (default L24, the vintage this was first run on); a literal tag here reported L24 under any name (09-20).
+TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
+OUT_CSV = os.path.join(REPO, "outputs", f"diag_lws_convention_asymmetry_{TAG}.csv")
 BRK = os.path.join(REPO, "outputs", "postpred_oldbrick_components_timeseries.csv")
 LAD = os.path.join(REPO, "outputs", f"postpred_{TAG}_components_timeseries.csv")
 TGT = os.path.join(REPO, "outputs", "recalib_targets_ext.csv")

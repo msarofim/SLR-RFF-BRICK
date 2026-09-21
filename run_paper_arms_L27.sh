@@ -48,4 +48,10 @@ step "paper: vv trajectories"    python python/plot_future_components.py --tag=$
 step "paper: vv gsic"            python python/plot_vv_gsic_wr_vs_ladrillo.py --tag=$T --ladrillo-only --paper
 step "paper: responsiveness"     python python/plot_vv_responsiveness.py --tag=$T --paper
 step "benchmark (refresh)"       python python/bench_ladrillo.py --tag=$T
+## The paper's TABLE sources (added 2026-09-21 -- the 09-20 swap had to run these by hand):
+step "Table 4: hindcast scorecard" python python/scope_ladrillo_vs_brick20_scorecard.py --tag=$T
+step "compensating-error diag"     python python/diag_component_error_cancellation.py --tag=$T
+step "TE rate attribution"         python python/diag_te_rate_attribution.py --tag=$T
+step "regrowth attribution"        python python/verify_magicc_regrowth_attribution.py --tag=$T
+step "glacier response times"      python python/diag_glacier_response_times.py --tag=$T
 say "=== DONE. figures/*${T}* and figures/paper/*${T}*; Table 4 = ladrillo_model_comparison_${T}.csv; next: IC arms (scripts/run_ic_arms.sh $T), Table A1/A2 on $T ==="

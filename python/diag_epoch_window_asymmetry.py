@@ -28,9 +28,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from provenance import stamp
 
 REPO    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT_CSV = os.path.join(REPO, "outputs", "diag_epoch_window_asymmetry.csv")
 TGT_CSV = os.path.join(REPO, "outputs", "recalib_targets_ext.csv")
-TAG     = "L24"                       # the tag the shipped panel numbers were printed at
+## --tag= (default L24, the vintage this was first run on); a literal tag here reported L24 under any name (09-20).
+TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
+OUT_CSV = os.path.join(REPO, "outputs", f"diag_epoch_window_asymmetry_{TAG}.csv")
 LAD_CSV = os.path.join(REPO, "outputs", f"postpred_{TAG}_components_timeseries.csv")
 
 HALF_WIDTH = 2                        # the panel's epoch mean is +/- HALF_WIDTH years
@@ -38,8 +39,11 @@ EPOCHS     = [1950, 2000, 2024]
 RAGGED_EPOCH = 2024                   # the only one at the ragged end of the obs
 TGT_COL = {"glaciers": "gsic", "gis": "gis", "ais": "ais", "te": "steric", "total": "dang"}
 
-# The panel's own printed pair at RAGGED_EPOCH, as the gate that we reproduce it.
-PANEL_OBS_TOTAL, PANEL_LAD_TOTAL, PANEL_TOL = 7.81, 8.55, 0.006
+# The panel's own printed pair at RAGGED_EPOCH, as the gate that we reproduce it. The pair is a
+# property of the PANEL THAT WAS PRINTED (the 09-09 L24 hindcast figure), so it is keyed by tag: on
+# a tag with no printed pair the gate cannot fire and says so instead of failing on L24's numbers.
+PANEL_PAIRS = {"L24": (7.81, 8.55)}
+PANEL_TOL = 0.006
 
 
 def main():
@@ -55,12 +59,17 @@ def main():
     w = range(RAGGED_EPOCH - HALF_WIDTH, RAGGED_EPOCH + HALF_WIDTH + 1)
     yrs = [y for y in w if np.isfinite(O.get(y, np.nan))]
     o_m, l_m = O.loc[yrs].mean(), L.loc[min(w):max(w)].mean()
-    print(f"\n[GATE PANEL] reproduce the printed pair at @{RAGGED_EPOCH}: "
-          f"obs {o_m:.3f} vs {PANEL_OBS_TOTAL}, Ladrillo {l_m:.3f} vs {PANEL_LAD_TOTAL}")
-    if abs(o_m - PANEL_OBS_TOTAL) > PANEL_TOL or abs(l_m - PANEL_LAD_TOTAL) > PANEL_TOL:
-        raise SystemExit("[GATE PANEL] FAILED -- this is not the panel's arithmetic; "
-                         "every number below would be about a different quantity")
-    print("             PASSED. What follows is the panel's own headline number.")
+    if TAG in PANEL_PAIRS:
+        PANEL_OBS_TOTAL, PANEL_LAD_TOTAL = PANEL_PAIRS[TAG]
+        print(f"\n[GATE PANEL] reproduce the printed pair at @{RAGGED_EPOCH}: "
+              f"obs {o_m:.3f} vs {PANEL_OBS_TOTAL}, Ladrillo {l_m:.3f} vs {PANEL_LAD_TOTAL}")
+        if abs(o_m - PANEL_OBS_TOTAL) > PANEL_TOL or abs(l_m - PANEL_LAD_TOTAL) > PANEL_TOL:
+            raise SystemExit("[GATE PANEL] FAILED -- this is not the panel's arithmetic; "
+                             "every number below would be about a different quantity")
+        print("             PASSED. What follows is the panel's own headline number.")
+    else:
+        print(f"\n[GATE PANEL] no printed pair recorded for tag {TAG} (only {sorted(PANEL_PAIRS)}); "
+              f"the panel gate does not apply -- computed pair at @{RAGGED_EPOCH}: obs {o_m:.3f}, Ladrillo {l_m:.3f}")
 
     rows = []
     print(f"\n[1] EVERY COMPONENT AT @{RAGGED_EPOCH} -- model over "
