@@ -19,7 +19,6 @@ using CSV, DataFrames, Statistics, Printf, MCMCDiagnosticTools
 include(joinpath(@__DIR__, "ladrillo_projection.jl"))
 
 const REPO       = LADRILLO_REPO
-const SEEDS      = [2026, 2027, 2028, 2029]
 const NITER      = 2000000
 const NBURN      = 1000000                # discard the FIRST HALF
 ## Default tracks the canonical posterior (LADRILLO_POSTERIOR_CSV), derived from
@@ -31,6 +30,14 @@ const CHAIN_TAG  = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
         replace(replace(basename(LADRILLO_POSTERIOR_CSV),
                         "parameters_subsample_brick_mengel_" => ""), ".csv" => "") :
         ARGS[i][7:end]
+end
+## The seeds are READ OFF the chain files of this tag (2026-09-20): a replicate refit runs on the
+## 3026-3029 seed bank (same start rows, different RNG stream -- calibrate_mcmc_ext.jl), and a
+## literal [2026..2029] here would look for chains that do not exist. Canonical seeds when no
+## chain file is found, so the error message below still names the expected path.
+const SEEDS      = let dir = joinpath(REPO, "outputs/mcmc"), rx = Regex("^chain_" * CHAIN_TAG * "_seed(\\d+)_n" * string(NITER) * "\\.csv\$")
+    found = sort([parse(Int, m.captures[1]) for m in (match(rx, f) for f in readdir(dir)) if m !== nothing])
+    isempty(found) ? [2026, 2027, 2028, 2029] : found
 end
 const N_TARGET   = let p = findfirst(a -> !startswith(a, "--"), ARGS)
     p === nothing ? 400 : parse(Int, ARGS[p])

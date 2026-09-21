@@ -35,16 +35,22 @@ import subprocess
 import pandas as pd
 import gis_targets as _gt  # tap tag from the Julia GIS_TAP_CELL, never a literal
 
+import sys
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(REPO)
-BASE = f"outputs/ssps_components_2300_{_gt.tap_tag('L24')}.csv"
+## --tag= (default L24, the vintage this was first run on 09-13); the tag travels into the output name.
+## The three arm files are produced by project_ssps_components_ladrillo.jl: --tag=<TAG> --no-tap;
+## LADRILLO_GIS_SHAPE=gis_amp_shape_const --tag=<TAG>; --tag=<TAG>aisamp1p196 on a posterior copy with
+## ais_gmst_amp overwritten to 1.196 (see the docstring).
+TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
+BASE = f"outputs/ssps_components_2300_{_gt.tap_tag(TAG)}.csv"
 ARMS = {
-    "no_threshold_channel": ("gis", "outputs/ssps_components_2300_L24.csv"),
-    "constant_greenland_amp": ("gis", f"outputs/ssps_components_2300_{_gt.tap_tag('L24')}_shapeconst.csv"),
-    "ais_amp_fixed_1p196": ("ais", f"outputs/ssps_components_2300_{_gt.tap_tag('L24aisamp1p196')}.csv"),
+    "no_threshold_channel": ("gis", f"outputs/ssps_components_2300_{TAG}.csv"),
+    "constant_greenland_amp": ("gis", f"outputs/ssps_components_2300_{_gt.tap_tag(TAG)}_shapeconst.csv"),
+    "ais_amp_fixed_1p196": ("ais", f"outputs/ssps_components_2300_{_gt.tap_tag(TAG + 'aisamp1p196')}.csv"),
 }
 YEARS = (2100, 2150, 2300)
-OUT = "outputs/diag_brick_philosophy_arms.csv"
+OUT = f"outputs/diag_brick_philosophy_arms_{TAG}.csv"
 
 
 def med(d, comp, ssp, year):
@@ -54,7 +60,7 @@ def med(d, comp, ssp, year):
 def main():
     base = pd.read_csv(BASE)
     commit = subprocess.run(["git", "-C", REPO, "rev-parse", "--short", "HEAD"], capture_output=True, text=True).stdout.strip()
-    prov = (f"diag_brick_philosophy_arms.py | seed n/a (reads project_ssps_components outputs; their seed is "
+    prov = (f"diag_brick_philosophy_arms.py | tag {TAG} | seed n/a (reads project_ssps_components outputs; their seed is "
             f"recorded in the posterior subsample) | base {BASE} | fixed FaIR-mean forcing, 2000 draws, medians "
             f"rel 1995-2014, cm | commit {commit}")
     rows = []

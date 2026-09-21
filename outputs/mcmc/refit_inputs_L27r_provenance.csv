@@ -1,0 +1,3 @@
+file,source_chain,rows,pivot,quantiles,provenance
+overdispersed_starts_L27r.csv,chain_L27_seed2026_n2000000.csv,"[1993954, 1541594, 1953840, 1011616]",ais_iceflow0,"[0.02, 0.35, 0.65, 0.98]",build_refit_inputs.py | tag L27 | seed n/a (no RNG in this driver) | chain chain_L27_seed2026_n2000000.csv | cov adapted_cov_L27.csv | commit af30268-dirty | 2nd-half draws at ais_iceflow0 quantiles; cov header by chain column order
+adapted_cov_L27_named.csv,chain_L27_seed2026_n2000000.csv,-,-,-,build_refit_inputs.py | tag L27 | seed n/a (no RNG in this driver) | chain chain_L27_seed2026_n2000000.csv | cov adapted_cov_L27.csv | commit af30268-dirty | 2nd-half draws at ais_iceflow0 quantiles; cov header by chain column order

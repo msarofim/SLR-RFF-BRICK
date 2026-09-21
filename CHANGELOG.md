@@ -1,3 +1,48 @@
+## 2026-09-20g — overnight L27r + L27b launched; the L24-basis sensitivity arms re-run on L27 and folded into the docx; three more tag literals retired
+
+**Overnight (Mac, sequential; `run_overnight_L27r_L27b.sh`, log `outputs/log_overnight_L27r_L27b.txt`, launched
+20:58, PIDs in the log):** Torch verdict said out loud — free but "ask first", and Marcus asked for the Mac; two
+4-chain runs back to back fit the night (~4 h each at load ~2.5, chains at 99 % CPU, 630 MB each).
+- **L27r** = L27's objective, seed bank 3026–3029 (the replicate bank, `calibrate_mcmc_ext.jl`), starts = L27's own
+  seed-2026 2nd-half draws at the ais_iceflow0 quantiles (`overdispersed_starts_L27r.csv`), proposal = L27's pooled
+  covariance with a named header (`adapted_cov_L27_named.csv`; "name-mapped 50 of 50" in every seed_diag). Both
+  built by the new `python/build_refit_inputs.py --tag=L27 --seed=2026 --out=L27r` (7 s; provenance sidecar).
+  Measures the between-refit precision of the AIS geometry and projection medians (handoff 09-20b §3).
+- **L27b** = L27 without `--no-ledger` (52 params; L27's starts file, which is L26 draws and carries the ledger
+  columns; L26's named covariance, a superset by name). Separates "option D couples to the AIS block" from drift.
+- Each: arm verification → noise-mode gate → `diag_slr_convergence_by_chain_ladrillo.jl` (now READS its seeds off
+  the tag's chain files instead of a literal [2026..2029]) → postprocess `--accept-slr` → posterior predictive →
+  fixed-climate SSP components (tap). Then **`python/diag_refit_precision.py --tags=L26,L27,L27r,L27b --ref=L26`**:
+  the Antarctic block per chain in L26-sd units, the full-window hindcast RMSE, and the fixed-climate AIS/total
+  medians at 2100/2300, plus the L27-vs-L27r spread. Dry-run on L26/L27 reproduces 09-20e to the digit
+  (antarctic_α −0.51, anto_α +0.48, anto_β +0.53, slope −0.44, c +0.36; AIS ssp245 15.5 → 12.6 / 191 → 178;
+  ssp126 AIS p95 167 → 65). Nothing on the chain-consuming side was edited after launch.
+
+**The L24-basis sensitivity arms, re-run on L27 (21:10–21:30) and put into the review docx (same file,
+`GMD.Ladrillo.v1_review-2026-09-20b_L27.docx`, regenerated from the base by `run_r6.sh`; validate PASS, reject-all
+== base):** `diag_brick_philosophy_arms.py --tag=` (was L24-literal; L24 re-run reproduces the draft's 1/9 cm and
+17/42 cm): constant Greenland amplification **+0.9 (SSP1-2.6) … +8.2 cm (SSP5-8.5) at 2300** (L24 1.0 … 9.0);
+AIS amp reverted to 1.196 **+15 / +32 cm on the SSP2-4.5 total at 2100 / 2300, +6 / +13 on SSP5-8.5** (L24
+17 / 42, 9 / 19 — the L27 geometry is less threshold-sensitive at SSP2-4.5's warming). Tap contribution on the
+JOINT arm (the docx's 35.1 cm basis; new no-tap joint arms `scope_slr_fairunc_*_ssp{126,245,585}_spliced_L27.csv`):
+**+36.5 cm on the SSP5-8.5 total at 2300, +0.3 at SSP2-4.5, exactly 0 at SSP1-2.6; Greenland's 585/245 ratio
+without it 2.4** (fixed arm 41.3 on both vintages — the tap is set by the GMST path). `diag_glacier_response_times.py
+--tag=` (renamed from `_L24.py`, was L24-literal): RGI 19 τ₅₀ at 1.5 K **60–3241 yr** (L24 82–3215) → "60–3200";
+SLOWG 203 yr, R19 501 yr at 1.5 K (document's ~275 / ~465 still "BACKED" within the script's own tolerance,
+SLOWG 26 % apart — state the level). Comments remaining in the docx: the per-σ AIS-amp leverage (58/24 cm; not the
+same computation — the revert arm suggests ~¾ of it), the runtime, the "up to 60 cm". `ladrillo_table_a2.py`
+caption grammar fixed ("1 retains … its"); md regenerated.
+
+**Tag-literal audit (the bug class 09-20f found twice):** 15 python scripts carry a literal vintage with no `--tag`
+parsing. Retired today: `diag_component_error_cancellation`, `diag_brick_philosophy_arms`,
+`diag_glacier_response_times`. Still literal, paper-adjacent: `diag_lws_convention_asymmetry.py` (L24),
+`diag_epoch_window_asymmetry.py` (L24), `diag_gsic_blocks_vs_emulandice.py` (L24, memo FIG 12). Archival (L12/L14/
+L21 scope_* and plot_protect_*): left. ⚠ Found, not yet fixed (the calibrator is running): the postprocess's
+"prior dump" step (`calibrate_mcmc_ext.jl 100 2026 --tag=L27 --dump-priors`, no `--adcov`) OVERWRITES
+`seed_diag_L27_seed2026.txt`, so the production chain's seeding record now reads "DEFAULTED to the L24 seed" —
+the true record ("name-mapped 50 of 55 rows of adapted_cov_L26_named.csv") survives only in `log_L27_seed2026.txt`.
+Fix after the overnight run: no seed_diag under `--dump-priors`, or dump priors under a `<tag>prior` tag.
+
 ## 2026-09-20f — THE ONE-ROUND DOCX SWAP TO L27: `deliverables/GMD.Ladrillo.v1_review-2026-09-20b_L27.docx`
 
 Every table, figure and posterior-dependent number in the GMD draft moved from L24 to L27 in ONE tracked-change

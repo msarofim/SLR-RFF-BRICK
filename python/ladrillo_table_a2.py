@@ -36,7 +36,7 @@ cap = (f"**Table A2.** The directions in Antarctic parameter space that the obse
        f"standard deviation (the paleo-ensemble joint prior for the seven geometry parameters; Table A1's priors for the rest), "
        f"listed where the posterior variance along the component is below {int(IDENT_MAX*100)}% of the prior variance. "
        f"Loadings below {LOAD_MIN} are omitted; the sign is chosen so that the leading loading is positive. "
-       f"Of the {len(d)} components, {nprop} retain more than {int(PROP_MIN*100)}% of their prior variance (led by {prop_desc}) "
+       f"Of the {len(d)} components, {nprop} {'retains' if nprop == 1 else 'retain'} more than {int(PROP_MIN*100)}% of {'its' if nprop == 1 else 'their'} prior variance (led by {prop_desc}) "
        f"and {npart} are partly identified; the 1900–2026 record therefore constrains {len(ident)} combinations of the "
        f"Antarctic parameters, not the parameters individually. R̂ is the split-R̂ of the component score across the four chains.")
 lines = [cap, "", "| component | identified combination (loadings) | posterior variance, % of prior | R̂ |", "|---|---|---|---|"]

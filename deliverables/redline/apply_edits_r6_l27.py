@@ -12,10 +12,9 @@ still pending in the base; the Table A2 block is REBUILT (its pending rows remov
 fresh), so the reject-all view is unchanged. Table A1 was ACCEPTED by Marcus, so it is edited cell by
 cell (tracked) with the eight dropped parameters as tracked row deletions.
 
-Numbers NOT re-run on L27 and therefore left as they stand (each carries a comment in the draft):
-the Greenland amplification / tap sensitivities (P "1 cm to 9 cm", "35.1 cm"), the Antarctic
-amplification sensitivity ("58 cm ... 24 cm ... 17 / 42 cm"), the RGI-19 response-time range
-("80-3200 yr"), the runtime ("6.2 against 5.0 ms"), and the Conclusions' "up to 60 cm by 2300".
+The sensitivity arms were re-run on L27 the same evening (section 7): the Greenland amplification-held
+and tap arms, the AIS-amp revert to 1.196, the RGI-19 response-time range. Still NOT re-run (comments):
+the per-sigma Antarctic-amp leverage, the runtime, and the Conclusions' "up to 60 cm by 2300".
 """
 import os, re, sys, html
 import pandas as pd
@@ -460,16 +459,45 @@ chk(has("17-parameter"), "A2 caption is the L24 one")
 x = replace_para_text(x, "The directions in Antarctic parameter space that the observations identify", "**Table A2.** " + a2_cap)
 
 # ------------------------------------------------------------------------------------------
-# 7. COMMENTS on the numbers that were NOT re-run on L27
+# 7. THE SENSITIVITY ARMS RE-RUN ON L27 (21:10-21:30; diag_brick_philosophy_arms.py --tag=L27, the
+#    joint no-tap arms scope_slr_fairunc_cells_ssp*_spliced_L27.csv, diag_glacier_response_times.py)
 # ------------------------------------------------------------------------------------------
-NOTE = ("Not re-run on the L27 posterior (round 6 swapped every table, figure and number that has an L27 output; this one is a "
-        "separate sensitivity arm last run on L24). ")
-x = add_comment(x, "holding it constant instead would increase Greenland melt", NOTE + "Greenland moved ≤ 1.3 cm at any cell between the two posteriors, so the range should hold to the stated precision.")
-x = add_comment(x, "It contributes 35.1 cm to the SSP5-8.5 total at 2300", NOTE + "Tap parameters are unchanged; the contribution is set by the GMST path, not the posterior.")
-x = add_comment(x, "a one-sigma change moves Antarctic sea level at 2300 by about 58 cm", NOTE + "Amplification's posterior is unchanged (median 1.08); the Antarctic medians moved 1–8 cm along the geometry ridge, so the leverage numbers may shift by a similar amount.")
-x = add_comment(x, "80–3200 yr across the posterior", NOTE + "RGI 19's κ posterior is unchanged to two digits (log10 κ −2.78, 5–95% −3.00 to −2.56), so the range stands.")
-x = add_comment(x, "yields changes of up to 60 cm by 2300", NOTE + "On the L27 joint arm the Antarctic median differs from BRICK 2.0's by −31 cm at SSP2-4.5 and −27 cm at High-to-Low in 2300; the '60 cm' provenance was not found in the current outputs — please check which arm it came from.")
-x = add_comment(x, "6.2 against 5.0 ms on a laptop", NOTE + "Timing is per draw and dominated by parameter handling; 50 rather than 58 parameters can only make it faster.")
+PA = pd.read_csv(OUT / "diag_brick_philosophy_arms_L27.csv")
+def pa(arm, ssp, yr, col="delta_component_cm"):
+    return float(PA[(PA.arm == arm) & (PA.ssp == ssp) & (PA.year == yr)][col].iloc[0])
+g126, g585 = pa("constant_greenland_amp", "SSP1-2.6", 2300), pa("constant_greenland_amp", "SSP5-8.5", 2300)
+x = replace_text(x, "increase Greenland melt by an additional 1 cm (SSP1-2.6, 2300) to 9 cm (SSP5-8.5, 2300)",
+                 "increase Greenland melt by an additional %.0f cm (SSP1-2.6, 2300) to %.0f cm (SSP5-8.5, 2300)" % (g126, g585))
+def tapcell(ssp, comp, yr, tapped):
+    f = OUT / ("scope_slr_fairunc_cells_%s_spliced_L27%s.csv" % (ssp, "_tap4p69K_V5p64m_tau800" if tapped else ""))
+    d = pd.read_csv(f)
+    return float(d[(d.arm == "joint") & (d.component == comp) & (d.horizon == yr)].med_cm.iloc[0])
+tap585 = tapcell("ssp585", "total", 2300, True) - tapcell("ssp585", "total", 2300, False)
+tap245 = tapcell("ssp245", "total", 2300, True) - tapcell("ssp245", "total", 2300, False)
+tap126 = tapcell("ssp126", "total", 2300, True) - tapcell("ssp126", "total", 2300, False)
+chk(abs(tap126) < 0.005, "tap contributes exactly nothing at SSP1-2.6 (%.3f)" % tap126)
+ratio_notap = tapcell("ssp585", "gis", 2300, False) / tapcell("ssp245", "gis", 2300, False)
+x = replace_text(x, "It contributes 35.1 cm to the SSP5-8.5 total at 2300 and nothing at SSP1-2.6 (exactly zero) or SSP2-4.5 (+0.04 cm). Without it, Greenland's SSP5-8.5 to SSP2-4.5 ratio at 2300 is 2.6,",
+                 "It contributes %.1f cm to the SSP5-8.5 total at 2300 and nothing at SSP1-2.6 (exactly zero) or SSP2-4.5 (%+.1f cm). Without it, Greenland's SSP5-8.5 to SSP2-4.5 ratio at 2300 is %.1f," % (tap585, tap245, ratio_notap))
+a21, a23 = pa("ais_amp_fixed_1p196", "SSP2-4.5", 2100, "delta_total_cm"), pa("ais_amp_fixed_1p196", "SSP2-4.5", 2300, "delta_total_cm")
+b21, b23 = pa("ais_amp_fixed_1p196", "SSP5-8.5", 2100, "delta_total_cm"), pa("ais_amp_fixed_1p196", "SSP5-8.5", 2300, "delta_total_cm")
+x = replace_text(x, "adds 17 cm to the SSP2-4.5 total at 2100 and 42 cm at 2300 (9 and 22 cm on SSP5-8.5)",
+                 "adds %.0f cm to the SSP2-4.5 total at 2100 and %.0f cm at 2300 (%.0f and %.0f cm on SSP5-8.5)" % (a21, a23, b21, b23))
+RT = pd.read_csv(OUT / "diag_glacier_response_times_L27.csv")
+r19 = RT[(RT.block == "R19") & (RT.level_K == 1.5)].iloc[0]
+lo, hi = int(round(r19.p05_yr, -1)), int(round(r19.p95_yr, -2))
+x = replace_text(x, "80–3200 yr across the posterior", "%d–%d yr across the posterior" % (lo, hi))
+
+# ------------------------------------------------------------------------------------------
+# 8. COMMENTS on what is still NOT re-run on L27
+# ------------------------------------------------------------------------------------------
+NOTE = "Not re-run on the L27 posterior. "
+x = add_comment(x, "a one-sigma change moves Antarctic sea level at 2300 by about 58 cm",
+                NOTE + "The revert-to-1.196 arm in the next sentence WAS re-run (42 → 31 cm at SSP2-4.5/2300; 19 → 12 at SSP5-8.5), so these per-sigma leverages should shrink by a similar factor (~3/4); the per-sigma computation itself was not repeated.")
+x = add_comment(x, "yields changes of up to 60 cm by 2300",
+                "Provenance of the 60 cm not found in the current outputs. On the L27 joint arm the Antarctic median differs from BRICK 2.0's by −31 cm at SSP2-4.5 and −27 cm at High-to-Low in 2300 (−33 / −30 on L24) — which arm did the 60 come from?")
+x = add_comment(x, "6.2 against 5.0 ms on a laptop",
+                NOTE + "Timing is per draw and dominated by parameter handling; 50 rather than 58 parameters can only make it faster. Re-time on a quiet machine before submission.")
 
 save(x)
 print("r6 applied: %d table-4 cells, %d table-5 cells, %d A1 cells + %d A1 rows deleted, 6 figures" % (len(edits), len(e5), len(e_a1), len(del_rows)))
