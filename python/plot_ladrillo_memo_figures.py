@@ -62,10 +62,16 @@ FIGDIR = os.path.join(REPO, "figures")
 HINDCAST_BASELINE = "cm, rel. 1995-2005"
 PROJECTION_BASELINE = "cm, rel. 1995-2014"
 
-SSPS = ["ssp126", "ssp245", "ssp585"]
-LABEL = {"ssp126": "SSP1-2.6", "ssp245": "SSP2-4.5", "ssp585": "SSP5-8.5"}
-SSP_COLOR = {"ssp126": "#1b7837", "ssp245": "#2166ac", "ssp585": "#b2182b"}
-LADRILLO_COLOR = "#2166ac"
+## ⚠ DERIVED FROM ladrillo_figs, NEVER RE-DECLARED. This file used to hard-code the SSP triple
+## and the source palette, and ladrillo_figs.py's own header records what that cost: two live
+## scripts DISAGREED about which colour meant "Ladrillo". The 2026-09-22 colourblind sweep found
+## the same drift again -- this file still carried the green/blue/red SSP triple whose green/red
+## pair is OKLab dE 2.7 under deuteranopia -- so the duplicates are now derived, and a palette fix
+## in ladrillo_figs reaches every figure at once.
+SSPS = [k for k, _lab, _c in lf.SSP_SET]
+LABEL = {k: lab for k, lab, _c in lf.SSP_SET}
+SSP_COLOR = {k: c for k, _lab, c in lf.SSP_SET}
+LADRILLO_COLOR = lf.SRC_COLOR["Ladrillo"]
 # One place names the posterior vintage the whole figure set is drawn from: it
 # drives every input path, every OUTPUT filename, and the vintage stamp in each
 # figure's title, so a run on one vintage cannot overwrite or be mistaken for another.
@@ -152,8 +158,7 @@ VINTAGE = TAG_DESC[LADRILLO_TAG] + (
 ## ⭐ 09-11b (Marcus): the 2100-comparison panel (old Fig 9b) duplicated the SSP comparison
 ## figure's Total panel (FIG 7) and is dropped; `--with-2100-panel` restores it.
 WITH_2100_PANEL = "--with-2100-panel" in sys.argv
-SOURCE_COLOR = {"Ladrillo": "#2166ac", "BRICK 2.0": "#7f7f7f",
-                "MAGICC-SLR": "#d62728", "FACTS": "#ff9900"}
+SOURCE_COLOR = dict(lf.SRC_COLOR)   # derived, never re-declared -- see the SSP note above
 COMPONENT_TITLE = {"ais": "Antarctic ice sheet", "glaciers": "Glaciers",
                    "gis": "Greenland ice sheet", "te": "Thermal expansion",
                    "lws": "Land-water storage", "total": "Total"}

@@ -58,6 +58,7 @@ from matplotlib.lines import Line2D
 import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import gis_targets  # noqa: E402
+import ladrillo_figs as lf  # noqa: E402  (VV_SET: the scenario palette has ONE definition)
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(REPO)
@@ -80,15 +81,11 @@ LADRILLO_ONLY = "--ladrillo-only" in sys.argv
 if LADRILLO_ONLY:
     OUTPNG = "figures/vv_gsic_ladrillo_%s_2300.png" % LADRILLO_TAG
 
-MARKERS = [
-    ("Very Low",      "vvVL", "#00a9cf", True),
-    ("Low-to-Neg",    "vvLN", "#1f78b4", True),
-    ("Low",           "vvL",  "#003466", False),
-    ("Medium-to-Low", "vvML", "#f69320", True),
-    ("Medium",        "vvM",  "#c8a000", False),
-    ("High-to-Low",   "vvHL", "#df0000", True),
-    ("High",          "vvH",  "#7a0002", False),
-]
+## ⚠ DERIVED FROM ladrillo_figs.VV_SET, NEVER RE-DECLARED. This list was a verbatim copy of it
+## (reordered to label-first), which is the drift ladrillo_figs.py's own header warns about: the
+## 2026-09-22 colourblind sweep had to check BOTH copies to establish that they still agreed.
+## lf.VV_SET rows are (key, label, colour, decline); MARKERS is (label, key, colour, decline).
+MARKERS = [(lab, k, c, d) for k, lab, c, d in lf.VV_SET]
 LABELS = [m[0] for m in MARKERS]
 KEY = {m[0]: m[1] for m in MARKERS}
 COL = {m[0]: m[2] for m in MARKERS}

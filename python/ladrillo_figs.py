@@ -149,9 +149,23 @@ def band_is_comparable(basis):
 ## One table per set: (key, label, colour). The van Vuuren table additionally carries the
 ## peak-and-decline flag, so a commitment panel is built from the FLAG and can never fall
 ## out of step with the scenario list. ⚠ Never hand-type a subset of either.
-SSP_SET = [("ssp126", "SSP1-2.6", "#1b7837"),
-           ("ssp245", "SSP2-4.5", "#2166ac"),
-           ("ssp585", "SSP5-8.5", "#b2182b")]
+## ⚠ THE SSP TRIPLE WAS COLOURBLIND-UNSAFE UNTIL 2026-09-22 AND THE REPLACEMENT IS MEASURED,
+## NOT EYEBALLED. The old green/blue/red (#1b7837 / #2166ac / #b2182b) fails twice under
+## `python python/validate_palette.py` (OKLab dE x100; normal floor 15, CVD target 8):
+##     #1b7837 / #b2182b   deuteranopia  2.7   <- green and red are ONE COLOUR for ~6% of men
+##     #1b7837 / #2166ac   tritanopia    5.5
+## The replacement reuses three colours THIS REPO ALREADY USES for scenarios (they are VV_SET's
+## "Low" / "Medium-to-Low" / "High-to-Low"), so the SSP and van Vuuren figures now speak one
+## palette instead of two. All three pairs PASS:
+##     #003466 / #f69320   normal 50.1  protan 41.8  deutan 50.5  tritan 58.5
+##     #003466 / #df0000   normal 39.6  protan 19.5  deutan 34.2  tritan 46.8
+##     #f69320 / #df0000   normal 22.6  protan 27.4  deutan 17.9  tritan 12.9
+## ⚠ #f69320 carries only 2.30:1 contrast on white, below the 3:1 mark floor, so it must keep a
+## legend entry or a direct label -- never let it be the ONLY cue. (#e17a00 is the nearest colour
+## that clears 3:1, an OKLab shift of 7.1, if a future figure needs it to stand alone.)
+SSP_SET = [("ssp126", "SSP1-2.6", "#003466"),
+           ("ssp245", "SSP2-4.5", "#f69320"),
+           ("ssp585", "SSP5-8.5", "#df0000")]
 VV_SET = [("vvVL", "Very Low",      "#00a9cf", True),
           ("vvLN", "Low-to-Neg",    "#1f78b4", True),
           ("vvL",  "Low",           "#003466", False),

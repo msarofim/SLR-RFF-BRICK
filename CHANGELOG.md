@@ -1,3 +1,134 @@
+## 2026-09-22j — WOULD A DYNAMICS CONSTRAINT HELP? MEASURED ON TWO AXES: **NO** — the level channel is ~4× (IND) to ~15× (AR1) MORE discriminating along the degeneracy direction, and the dynamics channel points the SAME WAY, not a corrective one
+
+Marcus: *"Consider whether adding a dynamics constraint could help with making a good model."* Two new fixed-parameter
+diagnostics, **no refits**, both run from `julia/_frozen_*` copies. The answer is negative and the premise it was built on
+turned out to be wrong, which is the more useful half of the entry.
+
+**⚠⚠ THE PREMISE WAS WRONG, AND IT WAS MINE.** The case for a dynamics channel rested on reading
+`diag_ais_objective_shape_sensitivity_L30.csv` as saying the level channel is blind to discharge SHAPE: at ρ 0.966 a
+constant offset scores q 2.5343 and a late divergence 2.5308, **ratio 1.001**. Two corrections:
+1. **That indifference is a function of ρ, and ρ_ais is SAMPLED.** The same ratio is 1.74 at ρ 0.90 and 2.03 at ρ 0.60 —
+   and ρ_ais went **0.893 (L27) → 0.966 (L28/L30)** when the target became the IMBIE level. The blindness is not a fixed
+   property of the objective; it is where the refit put ρ.
+2. **⭐ More importantly, it does not transfer to a PHYSICALLY REALISABLE move.** Those are abstract unit shapes normalised
+   to 0.1 cm at the final year. A real move along the DAIS discharge ridge changes the whole 1900–2025 trajectory, and the
+   level channel sees that clearly. **Never price a degeneracy on abstract shapes when the parameters that would produce it
+   can be perturbed directly.**
+
+**THE TEST THAT REPLACED IT** (`julia/diag_ais_isocumulative_channels.jl`, NEW). Hold the 1979–2023 CUMULATIVE fixed and
+vary only the SHAPE of discharge, so any preference a channel expresses cannot be the cumulative re-read with a sign flip —
+which, by [[ais_net_dynamics_tradeoff_identity]], is exactly what an arm-to-arm comparison cannot rule out. Two independent
+axes, `ais_iceflow0` solved by secant against each:
+- `--axis=alpha` — `antarctic_alpha`, the flux law's partition between a temperature-INDEPENDENT `(1−α)` and a
+  temperature-TRACKING `α·r(t)²`; raising it converts flat discharge into accelerating discharge.
+- `--axis=anto` — `anto_alpha`/`anto_beta`, the slope and offset of the ocean-temperature response. A different mechanism.
+
+⚠ `ISO_TOL` is **derived from the sampled spread** (0.05 sd of cum_1979_2023, measured at run time = 0.0016 cm), not
+hand-picked. L27, n = 100 draws; 500/500 cells converged on `alpha`, 498/500 on `anto`.
+
+| axis `alpha` (α×) | 2018–23 dyn anom | d LEVEL | d DYN ind | d DYN ar1 | d DYN win |
+|---|---|---|---|---|---|
+| 0.50 | −63.4 | −2.56 ± 0.37 | −3.46 ± 0.17 | −0.94 ± 0.05 | −3.20 ± 0.14 |
+| 0.75 | −92.0 | **+0.28 ± 0.17** | −1.02 ± 0.12 | −0.28 ± 0.03 | −1.00 ± 0.09 |
+| 1.00 (control) | −119.1 | 0 | 0 | 0 | 0 |
+| 1.30 | −150.4 | −4.12 ± 0.37 | −0.47 ± 0.24 | −0.12 ± 0.06 | −0.22 ± 0.20 |
+| 1.60 | −180.8 | **−12.27 ± 1.29** | −2.79 ± 0.74 | −0.73 ± 0.20 | −2.01 ± 0.61 |
+
+| total discrimination across the contour | LEVEL | DYN ind | DYN ar1 | DYN win |
+|---|---|---|---|---|
+| axis `alpha` | **12.55** | 3.46 | 0.94 | 3.20 |
+| axis `anto` | **16.48** | 4.15 | 1.05 | 3.59 |
+
+**⭐⭐ THREE FINDINGS, both axes agreeing.**
+1. **The level channel is NOT degenerate along this direction** — it ranges 12.6–16.5 log-units and rejects the
+   accelerating end hard and asymmetrically (α×1.6 costs 12.3; α×0.5 costs only 2.6). Consistent with
+   [[ais_ramp_rejected_by_the_pause]]: the 2018–25 window penalises overshoot.
+2. **The dynamics channel is the WEAKER of the two everywhere on the contour** — a factor **3.6–4.0× (IND)** and
+   **13.4–15.7× (AR1)** less discriminating. σ_dyn (76 Gt/yr typically, 150 over 2020–23) is why, the same reason D1 priced
+   at ≤3 log-units against the ramp direction.
+3. **⭐ DECISIVE: both channels have the SAME optimum, and it is AWAY from IMBIE.** Both peak at α×0.75–1.00 and both
+   penalise α×1.30 and α×1.60 — the cells that bracket IMBIE's own −167.2 Gt/yr. **A dynamics constraint would not pull
+   Ladrillo toward the observed accelerating discharge; it pulls the same way the level channel already pulls, only more
+   weakly.** The mechanism is the identity again: at fixed cumulative, steepening 2018–23 requires the earlier decades to be
+   weaker, and the dynamics channel scores all 45 years.
+
+⇒ This is a **third independent confirmation** that DAIS has no direction reaching IMBIE's acceleration
+([[dais_structure_not_warranted_by_imbie2026]] found it from the ρ-cap side, 09-22e from the ramp side).
+
+**THE ARM-LEVEL COMPANION** (`julia/diag_ais_channel_separation.jl`, NEW; L27/L28/L29/L30, n = 100 each, both channels on a
+COMMON setting — ⚠ each arm's own (sd_ais, ρ_ais) applied to EVERY arm in turn, because a log-likelihood LEVEL is not
+comparable across arms that sampled different σ).
+
+| arm | ρ_ais | cum 79–23 cm | baseline discharge | 2018–23 dyn anom |
+|---|---|---|---|---|
+| IMBIE 2026 | — | ~1.33 | — | **−167.2** |
+| L27 | 0.893 | 0.948 ± 0.008 | −1918.5 ± 11.8 | **−119.1 ± 4.6** |
+| L28 | 0.966 | 1.224 ± 0.011 | −1928.8 ± 10.7 | −74.6 ± 4.4 |
+| L29 | 0.885 | 1.300 ± 0.007 | −1952.5 ± 10.6 | −73.4 ± 4.2 |
+| L30 | 0.967 | 1.214 ± 0.010 | −1945.5 ± 11.1 | −102.0 ± 5.7 |
+
+⭐ **The identity is visible straight down these columns**: as the cumulative rises 0.948 → 1.300 cm, the dynamics anomaly
+degrades −119 → −73. L27 is best on dynamics and worst on cumulative; L29 the reverse. Level channel: L28 − L27 = **+7.4 ±
+0.4** (robust across all four σ/ρ settings). Dynamics channel: L27 − L28 = **+3.1 ± 0.5** (IND), +0.8 ± 0.1 (AR1). The
+channels disagree — but ⚠ **that comparison alone cannot distinguish "independent information" from "the cumulative with a
+sign flip"**, which is precisely why the iso-cumulative test above exists.
+
+⛔ **AND THE ρ-CAP ROUTE IS DEAD TOO.** L29 (same IMBIE target, ρ capped at 0.90) is **indistinguishable from L28** on every
+channel — DYN ind 0.0 ± 0.6, LEV 0.3 ± 0.4 — and its projections go FURTHER from L27, not back toward it
+(SSP1-2.6 2300 AIS p95: L27 65.8, L28 44.9, **L29 28.7**, L30 53.3 cm, fixed-climate arm). ⚠ Read that p95 spread with
+[[ais_amp_leverage_is_a_threshold]] in hand — it is a tipped-share crossing 5 %, not a smooth sensitivity.
+
+**Tried and abandoned.** Re-pricing D1 as a *fit* gain (that is 09-22g and it is settled at ≤3 log-units); the ρ-cap route
+(L29 already ran it and it does not restore anything); an arm-to-arm channel comparison as the *primary* evidence (it cannot
+separate the two hypotheses — kept only as the companion above).
+
+**⚠ SCOPE.** Two axes, one arm (L27), one noise-model family. Nothing was refitted and **no change to the objective is
+proposed** — what Ladrillo is fitted to is methodological and Marcus's. The finding bounds the *value* of a dynamics
+channel; it does not prove no reformulation could help.
+
+**⚠ A BUG WAS FOUND AND FIXED IN THE NEW SCRIPT BEFORE THE PRODUCTION RUN.** `ndrop += 1` inside the draw loop created a
+NEW LOCAL under Julia's soft-scope rule, so non-converged iso-cumulative cells would have been reported as **0 dropped**
+regardless — a silent gate. Julia's own warning caught it; it now assigns to the global, and the `anto` axis duly reports
+498/500.
+
+Artifacts: `outputs/diag_ais_channel_separation{,_summary}.csv`, `outputs/diag_ais_isocumulative_channels_L27_{alpha,anto}.csv`,
+logs `outputs/log_diag_ais_*`. Memory: `ais_dynamics_channel_is_the_weaker_one`.
+
+## 2026-09-22k — COLOURBLIND SWEEP: the paper's failing palette is **VV_SET, not the SSP triple**, and the SSP fix is landed
+
+⚠ **THE HANDOFF POINTED AT THE WRONG PALETTE, AND THE PRIORITY IS THE REVERSE OF WHAT IT ASSUMED.** It flagged
+`#1b7837` green / `#b2182b` red (OKLab ΔE **2.7** under deuteranopia). That pair is real, but the paper's six live figures
+are all drawn from `SRC_COLOR` and `VV_SET` — the SSP triple appears only in the MEMO path. The paper's actual defect is in
+`VV_SET`, and it is worse.
+
+Measured with `python/validate_palette.py` (the Python Viénot-1999/OKLab validator written 09-22h; no `node` on this machine):
+
+| palette | verdict |
+|---|---|
+| `SRC_COLOR` (4 models) | all 6 pairs **PASS**; `#ff9900` FACTS contrast 2.14:1 — already carries distinct markers + linestyles |
+| `SSP_SET` (3) | **2 FAIL** — green/red deutan 2.7, green/blue tritan 5.5 |
+| `VV_SET` (7) | **3 FAIL** — worst `#f69320` ML / `#c8a000` M at ΔE **8.4 in NORMAL vision** (floor 15) and **1.4 protan** |
+
+⭐ **The failures LOCALISE.** The four colours that recur repo-wide (`#00a9cf`, `#003466`, `#f69320`, `#df0000` — they look
+like the IPCC AR6 scenario palette, though **no provenance comment exists in-repo and that identification is recollection,
+not a receipt**) are mutually safe: all 6 pairs PASS. The three in-fill colours invented to stretch them over seven van
+Vuuren markers (`#1f78b4`, `#c8a000`, `#7a0002`) are also mutually safe. **Every failure is an anchor-vs-infill collision.**
+
+**LANDED (no decision needed):** `SSP_SET` → `#003466` / `#f69320` / `#df0000`, three colours the repo already uses for
+scenarios, so the SSP and van Vuuren figures now speak one palette. All three pairs PASS. And the duplicated palettes in
+`plot_ladrillo_memo_figures.py` (`SSP_COLOR`, `LADRILLO_COLOR`, `SOURCE_COLOR`) and `plot_vv_gsic_wr_vs_ladrillo.py`
+(`MARKERS`) are now **derived from `ladrillo_figs`** — the sweep had to check every copy to establish they still agreed,
+which is the drift `ladrillo_figs.py`'s own header was written to prevent. **No figure has been regenerated yet.**
+
+**OPEN — Marcus's, because it is reader-facing:** `VV_SET`'s seven markers. Measured constraints:
+- A **sequential ramp cannot fix it**. Usable OKLab L* under a ≥3:1 contrast cap spans 70.7; six adjacent gaps over that is
+  **11.8 per gap against a floor of 15**, before CVD is considered. Best ramp tested (magma, full range) reaches normal 15.9
+  / CVD 10.1 but min contrast **1.05:1**. ⇒ the handoff's suggested fix is not available.
+- A **categorical set CAN** clear the floors at n = 7 (greedy maximin: normal 20.5, CVD 18.5) — but returns magenta, black,
+  olive, navy, lime. It throws away the scenario reading entirely.
+⇒ the options are (A) re-choose the three in-fill colours, (B) 4 anchors + a second channel (marker or panel — ⚠ linestyle
+is already taken by MODEL in both failing figures), or (C) direct labelling, the recipe
+`figures/diag_imbie2026_dynamics_null_L30.png` already uses.
 ## 2026-09-22i — WHY CALIBRATING TO IMBIE MADE THE IMBIE DYNAMICS FIT WORSE: it is an IDENTITY, not a pathology. net ≡ smb + dyn, the module's SMB cannot produce the +141 Gt/yr snowfall anomaly, so every Gt/yr gained on the NET is transferred ONE-FOR-ONE into the DYNAMICS error
 
 Marcus: *"I am surprised that calibrating to updated data actually makes the fit worse to that updated data."* The compressed
