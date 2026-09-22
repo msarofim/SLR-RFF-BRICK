@@ -1,3 +1,57 @@
+## 2026-09-22g — D1 TESTED (no refit): the two-channel likelihood is WELL POSED and does NOT rescue the ramp — the dynamics channel wants one but carries ≲2 log-units against the level channel's −11.85. The IMBIE partition is an IDENTITY, which is what defuses the 2020–23 snowfall hazard
+
+Marcus asked for D1 to be tested, flagging that the 2020–23 snowfall might be "so anomalous as to break any fit", with no citable
+evidence that 2024 returned to trend. Both halves are answered, and D1's verdict is measured **without a refit** (scoping §10).
+
+**Two facts about the IMBIE partition fix D1's design; neither was in 09-22f.** (1) ⭐ **`smb + dyn == mb` to 4e-8 Gt/yr** — SMB and
+dynamics are not two independent observations but one TOTAL plus one PARTITION, so **scoring both channels double-counts**. D1's
+correct form is **level (as now) + ONE dynamics channel**, never level + dynamics + SMB. (2) ⭐⭐ **In 2020–23 it is the TOTAL's σ
+that explodes, not SMB's**: median published σ ≤2019 → 2020–23 is 62.4 → **160.4** (total), 73.9 → **160.8** (dynamics), and
+39.9 → **27.1** (SMB; 9.9 in 2022). IMBIE knows the snowfall in those years and does not know the total.
+
+⇒ **The concern is right about the DATA and does not bind on the DESIGN.** On IMBIE's published σ the 2018–23 SMB anomaly of
++144.3 Gt/yr is **+11.3σ** and 2020–23's +240.7 is **+17.9σ** (+2.9σ / +3.9σ on the record's own interannual sd of 122.9); a naive
+SMB channel would have been dominated by 2022 alone (+492.4 ± 9.9). But the identity in (1) means D1 never scores that channel, and
+the excursion enters only through the total, **already down-weighted 2.6× by the record's own bars**. No claim about 2024 is needed.
+
+**The dynamics channel has no pause**: IMBIE dynamics anomaly by window (Gt/yr) 1979–2008 −81.5, 1992–2002 −72.5, 2003–10 −156.8,
+2011–17 −178.8, 2018–23 **−248.7** — accelerating straight through the window where the TOTAL pauses.
+
+**The measurement** (`julia/diag_ais_dynamics_channel_profile.jl`, new; 5 L30 draws, model dynamics = `ice_flux +
+disintegration_rate`, anomalised on the same 1979–2008 reference as the obs). Three noise models reported side by side because the
+choice is Marcus's and is NOT resolved here — IND (independent per year on IMBIE's published σ_dyn), AR1 (ρ 0.8), WIN (5 window
+means, σ/√n). Dynamics-channel log-likelihood GAIN from the ramp, against the level channel's verdict:
+
+| ramp cell | IND | AR1 | WIN | LEVEL (ρ .966) | **NET (IND)** |
+|---|---|---|---|---|---|
+| 0.45 K / 1e-4 | +1.34 | +0.22 | +1.28 | +0.50 | **+1.84** |
+| 0.60 K / 3e-4 | **+1.77** | +0.49 | +1.75 | −3.26 | −1.49 |
+| 0.75 K / 6e-4 | +0.25 | +0.28 | +1.07 | −11.85 | −11.60 |
+
+Dynamics misfit by window (model − obs, Gt/yr; positive = the model loses too little): no ramp −1.9 / −8.5 / +33.9 / +32.5 /
+**+75.6**; at 0.60 K/3e-4 +6.2 / −5.5 / +9.6 / **−12.1** / **+8.0** — i.e. the ramp nearly closes both late windows.
+
+⭐⭐ **Verdict: D1 is well posed and does not change the answer.** The dynamics channel genuinely wants a ramp, but its TOTAL
+leverage is **≲ 2 log-units under the most generous noise model** against −11.85, and the verdict is robust across the noise-model
+choice (+0.22 … +1.77), so it does not rest on that unresolved choice. **The reason is the record, not the objective**: IMBIE's
+published σ_dyn is 76 Gt/yr typically and 150 over 2020–23 — the partition is too uncertain to constrain hard. D1 moves the optimum
+from "no ramp" to **a small early ramp (+1.84 at 0.45 K/1e-4)**, which is where L30's posterior already sat with its slope on the
+prior floor. ⚠ Two caveats both SHRINK the dynamics channel further, so the verdict is safe: IMBIE's dynamics anomaly is a
+reconciled smoothed product (serially correlated errors, so IND overstates the information), and the cumulative-total and
+dynamics-anomaly errors are correlated (published marginals without the cross-covariance double-count in the ramp's favour).
+
+**Recommendation unchanged: A (ship the null)** — now on a second, independent channel, which makes the negative result stronger.
+A D1 refit is not indicated for ≲ 2 log-units of leverage that would re-open every other component's balance in the joint fit.
+
+⚠ **Diagnostic bug caught by the suspicious-uniformity rule, recorded because it nearly produced a false negative.** The first run
+read `ice_flux` alone and the ramp moved the dynamics anomaly by 0.2 Gt/yr (32.5 → 32.7). The ramp lands in the FAST-DYNAMICS term
+(`disintegration_rate += ramp_rate`), so model dynamics is `ice_flux + disintegration_rate`. ⚠ Relatedly,
+`diag_ais_flux_split_vs_imbie.jl`'s `net_gt` is `β_total + ice_flux` and omits `disintegration_rate` and `ISO` — immaterial for the
+no-ramp historical window (the paleo binary does not tip in 1979–2023), but NOT the model's net mass balance in a ramp arm or in
+projections where it tips.
+
+Champion and paper posterior stay **L27**. No chains run.
+
 ## 2026-09-22f — THE OBJECTIVE IS NOT BLIND: it has ~96 % POWER on the ramp axis, and it declines because of the 2018–25 PAUSE, which is SMB the model structurally cannot represent. Options after L30 priced (scoping §9); no refit
 
 The 09-22e entry left the ruling as "a rate/window term vs L31", resting on a claim that had not been measured — that the
