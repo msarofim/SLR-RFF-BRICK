@@ -1,3 +1,30 @@
+## 2026-09-22a — L29 LANDED: rho_ais capped at 0.90 BOUND and the physics did not move — DAIS has no direction that produces the acceleration; the SSP1-2.6 p95 "halving" is the tipped share crossing 5 %
+
+**Run** (`run_L29.sh` from a frozen copy, 19:57 → 01:05; chains acceptance 0.238; noise gate PASS with the added rho check; SLR
+R̂ 1.003, `--accept-slr`; postprocess 00:10–00:49; postpred, components tap/no-tap, joint bands ×3, flux split, IMBIE diagnostics,
+model comparison, benchmark, prior/posterior table, refit precision — `outputs/log_L29.txt`, 0 failures; no paper arms). Arm
+verification: the cap banner in all four chain logs; seed 2029's start repaired 0.916 → 0.855 (marginal held).
+
+**The cap bound**: `rho_ais` 0.966 (L28) → **0.885** (p05–p95 0.838–0.899, max < 0.90 every chain), at a cost of ~2–7 log-units on
+the second-half log-post (L28 819.6–821.7 → 812.6–819.6; Gaussian estimate ~5). **Nothing physical moved**: every Antarctic parameter
+within 0.1 L28-sd (`ais_c` −0.3), `sd_ais` 0.0139 → 0.0138, per-chain moves inside ±0.5 L28-sd (`diag_refit_precision_L27_L28_L29`);
+the SMB parameters' spread widened (precip_u ×1.8, runoff_Ton ×2.2) without moving. **The fit did the level again, by a little**
+(model-only p50, `diag_imbie2026_vs_targets_windows_L29`, `diag_ais_flux_split_vs_imbie_L29`): 1979–2023 cumulative 1.226 → 1.300 cm
+(IMBIE 1.328, z −0.76 → −0.21); 2011–17 rate 0.0391 → **0.0418** (IMBIE 0.0556, z −2.10 → −1.79 — ON the pre-registered 0.042
+line); 2018–23 overshoot +0.88 → +1.12σ; early century unchanged (1900–78 net −50.6 → −46.9 Gt/yr vs target −20; bench 1920–49 bias
+−1.86 → −1.82 sd); bench AIS hindcast 1.53 → 1.45σ. **The acceleration-window discharge anomaly is −52.0 Gt/yr — L28's −51.6, IMBIE
+−106**; the extra modern rate came from SMB (−23 → −33; IMBIE −14). Projections: medians ≈ L28 (SSP2-4.5 AIS 2100 8.1 → 8.5 cm, 2300
+166 → 168; SSP5-8.5 36.1 → 36.6). ⚠ **SSP1-2.6 p95 30.3 → 17.0 (2100), 50.4 → 30.5 (2300) is the TIPPED SHARE crossing 5 %**, not a
+sensitivity change — new `julia/diag_ais_tipped_share.jl` (per-draw AIS@2100 > 15 cm): L27 8.85 → L28 7.60 → **L29 5.25 %**, p83/p90
+unchanged; SSP2-4.5 41.6 → 40.4 %. (`outputs/diag_ais_tipped_share_L27_L28_L29.csv` + `_draws_`.)
+
+**Verdict** (scoping note §5): neither pre-registered branch — the sensitivity parameters did not rise, the fit did not degrade. With
+ρ unable to price the acceleration, DAIS shifted LEVEL (SMB, `ais_c`) and left the SHAPE exactly where L28 had it, because no
+direction in its parameter space produces the acceleration. The binding term is the linear discharge response, now measured from
+both sides (ρ free absorbs it; ρ capped can neither absorb nor fit it). L29 is a DIAGNOSTIC arm, not a candidate posterior (a
+truncated noise prior is not a shippable modelling choice). The live question is the steepening build (§4 candidate 1, Marcus's
+call); the paper-posterior ruling (L27 / L28 / post-structure) is unchanged by L29. champions.json and the draft UNTOUCHED.
+
 ## 2026-09-21i — `--rho-max=` built and gate-tested; `run_L29.sh` (L28 + rho_ais ≤ 0.90) prepared, NOT launched
 
 **The flag** (`julia/calibrate_mcmc_ext.jl`): `--rho-max=<series>:<val>[,<series>:<val>]` is a PER-SERIES hard upper bound on the

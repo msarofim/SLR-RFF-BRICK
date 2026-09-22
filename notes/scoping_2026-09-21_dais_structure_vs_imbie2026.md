@@ -119,3 +119,46 @@ candidates, now ordered by what the data say:
 bound is the literal 0.99 at `calibrate_mcmc_ext.jl:1490`). If the physics can carry the shape, the sensitivity parameters
 move up and the early-century misfit grows; if they cannot, the fit degrades everywhere — either way it names the binding
 term. The 1900–78 σ ×3 and geometry-prior arms are second-order now: the early record is a 1.4σ constraint, not the cap.
+
+## 5. L29 landed (09-22 01:05) — the ρ-cap test, answered: the cap bound and the physics did not move
+
+**Setup.** `run_L29.sh` = L28 + `--rho-max=ais:0.90` (CHANGELOG 09-21i), everything else identical; chains 19:57–00:07 (acceptance
+0.238, noise gate PASS, SLR R̂ 1.003, `--accept-slr`); postprocess, postpred, components, stage-2 diagnostics 00:10–01:05.
+
+**The cap was active.** `rho_ais` median **0.885** (p05–p95 0.838–0.899, max < 0.90 in every chain) — the posterior sits pinned
+against the new bound as L28's sat against 0.99 (0.966, p05 0.911). It cost the objective **~2–7 log-units** on the second-half
+log-post median (L28 819.6–821.7 → L29 812.6–819.6; the Gaussian estimate from L28's ρ sd 0.025 and Δρ 0.08 is ~5).
+
+**And nothing physical moved.** Every Antarctic parameter within **0.1 L28-sd** of L28 (anto_α 0.287 → 0.286, ice-flow₀ 1.064 →
+1.063, antarctic_α 0.302 → 0.307, T_oc,0 1.026 → 1.026, amp 1.041 → 1.027) except `ais_c` (80.2 → 74.6, −0.3 sd); `sd_ais`
+0.0139 → 0.0138. `diag_refit_precision` puts every L29 per-chain move inside ±0.5 L28-sd, i.e. inside the between-chain noise
+of a same-objective refit. The SMB parameters' SPREAD widened (precip_u sd ×1.8, runoff_Ton ×2.2) — the cap loosened them
+without moving their centres.
+
+**What the fit did instead — the level again, by a little.** Model-only (per-draw, no noise) AIS p50, L28 → L29 vs IMBIE:
+1979–2023 cumulative 1.226 → **1.300 cm** (IMBIE 1.328; z −0.76 → −0.21); 2011–17 rate 0.0391 → **0.0418 cm/yr** (IMBIE 0.0556;
+z −2.10 → −1.79 — on the §3 line of 0.042, not over it); 1992–2020 z −1.84 → −1.34; 2018–23 overshoot +0.88 → +1.12σ; early
+century essentially unchanged (1900–78 net −50.6 → −46.9 Gt/yr vs target −20; bench 1920–49 bias −1.86 → −1.82 sd). Benchmark
+AIS hindcast RMSE 1.53 → 1.45σ, modern-rate z −1.03 → −0.56. **The discharge anomaly over the acceleration window (1992–2002 →
+2011–17) is −52.0 Gt/yr — L28's −51.6, IMBIE −106.** The 0.003 cm/yr of modern rate the cap bought came from SMB (anomaly −23 →
+−33 Gt/yr; IMBIE −14 — the model now over-steepens SMB, inside SMB's own window-mean se of ~45).
+
+**Projections.** Medians ≈ L28: fixed-climate AIS SSP2-4.5 2100 8.1 → 8.5 cm, 2300 166 → 168; SSP5-8.5 36.1 → 36.6, 272 → 278;
+SSP1-2.6 5.2 → 5.7. ⚠ The SSP1-2.6 **p95 fell 30.3 → 17.0 (2100), 50.4 → 30.5 (2300)** with the marginals unmoved — that is the
+tipped SHARE crossing 5 %, not a sensitivity change: `diag_ais_tipped_share.jl` (new; per-draw AIS@2100 > 15 cm) gives L27 8.85 %
+→ L28 7.60 % → **L29 5.25 %**; p83/p90 unchanged (6.5/7.2 → 6.9/7.5). SSP2-4.5's share 41.6 → 40.4 %. A 2.3-point move on 2000
+draws is ~4 binomial se — real, small, and a step function on the p95 ([[ais_amp_leverage_is_a_threshold]]).
+
+**Reading against the pre-registered pair.** Neither branch as written: the sensitivity parameters did NOT rise (branch a), and
+the fit did NOT degrade everywhere (branch b) — it improved slightly on every IMBIE window while the noise term paid the cap.
+What that says is sharper than either: **forbidding ρ from pricing the acceleration made the residual more expensive, and DAIS
+answered with a LEVEL shift (SMB, `ais_c`), not a SHAPE, because there is no direction in its parameter space that produces the
+acceleration** — the acceleration-window discharge anomaly is byte-for-byte where L28 left it. The binding term is the linear
+discharge response, not the noise model. §4's verdict stands and is now measured from two sides: L28 (ρ free) absorbed the
+shape as persistence; L29 (ρ capped) could not absorb it and could not fit it either.
+
+**What follows.** (1) L29 is a diagnostic arm, NOT a candidate posterior — a truncated noise prior is not a modelling choice one
+would ship, and it moves nothing the paper reports. (2) The steepening build is now the live question (§4's candidate 1: a free
+exponent on the ocean-temperature ratio, nesting DAIS at 2; Marcus's call — a curvature, not a claim). (3) The 1900–78 σ ×3 and
+geometry-prior arms remain second-order: the early record barely moved under the cap. (4) Which posterior the paper ships is
+unchanged by L29: L27 (old target, consistent draft) vs L28 (new target, level not shape) vs post-structure.
