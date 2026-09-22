@@ -77,8 +77,14 @@ VARIANT in (:ab, :basins, :basins2) || error("chains read as :$VARIANT — this 
     "(greenland_ab / greenland_3basin) diagnostic; use " *
     "diag_slr_convergence_by_chain_extc.jl for stock-SIMPLE chains")
 
+## L30: the CHAINS decide whether the ramp is live, exactly as they decide the Greenland variant
+## (ladrillo_apply_draw! refuses a ramp draw on a stock model, which is how this was caught).
+const AIS_RAMP = ladrillo_has_ramp(chain_header(SEEDS[1]))
+all(sd -> ladrillo_has_ramp(chain_header(sd)) == AIS_RAMP, SEEDS) ||
+    error("the chains disagree on whether they carry the L30 ramp columns — mixing them in one R-hat " *
+          "would compare different models, not chains")
 bf = ladrillo_setup(ssp=SSP, y0=Y0, y1=Y1, gis_variant = VARIANT,
-                    gis_shape = GIS_SHAPE)
+                    gis_shape = GIS_SHAPE, ais_ramp = AIS_RAMP)
 
 @printf("Ladrillo 1.0 SLR convergence-by-chain diagnostic\n")
 @printf("  tag %s | window %d-%d | %s | rebaseline %d-%d | Greenland :%s\n",

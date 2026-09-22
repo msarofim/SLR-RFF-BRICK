@@ -1,4 +1,10 @@
 #!/bin/bash
+## L30 STAGE 2 RERUN (2026-09-22): postprocess + diagnostics ONLY — the four chains are already on disk. The
+## first pipeline run died at its FIRST step (diag_slr_convergence_by_chain_ladrillo.jl built a stock AIS slot and
+## ladrillo_apply_draw!'s both-ways ramp guard refused the draw — the guard working as designed), and postprocess
+## then declined to write a subsample without the convergence deliverable, so every later step failed on the missing
+## posterior. Fixed by passing ais_ramp through the convergence diag and scope_slr_fair_uncertainty.
+## Original header follows.
 ## L30 (2026-09-22): L28's objective PLUS the ADDITIONAL DISCHARGE RESPONSE (--ais-ramp). CONTROL = L28, ONE axis:
 ## the ramp (two new sampled parameters, 52 in all). Everything else IDENTICAL to run_L28.sh / run_L29.sh — the
 ## IMBIE-2026 target (md5 asserted), BASEFLAGS + --no-ledger, seeds 2026-2029, starts = overdispersed_starts_L27r.csv,
@@ -22,7 +28,7 @@ set -uo pipefail
 cd /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK
 export OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
 T=L30
-LOG=outputs/log_${T}.txt; : > "$LOG"
+LOG=outputs/log_${T}_stage2.txt; : > "$LOG"
 [[ "$(md5 -q outputs/recalib_targets_ext.csv)" == "eb768cd96463a3b84721e2bb9a20f009" ]] || { echo "target file is not the IMBIE-2026 build"; exit 2; }
 J="julia --project=julia_v2"
 NITER=2000000
@@ -108,7 +114,7 @@ stage2(){ # TAG — run_L28_stage2.sh's diagnostics, minus the paper arms
   step "AIS tipped share (L28 / L29 / L30)" $J julia/diag_ais_tipped_share.jl --tags=L28,L29,L30 --ssps=ssp126,ssp245 --gap=15
 }
 
-## ---- L30 ----------------------------------------------------------------------------------------------------
-run_chains $T "2026 2027 2028 2029" outputs/mcmc/overdispersed_starts_L27r.csv adapted_cov_L27_named.csv "$ARMFLAGS"
-if noise_gate $T "2026 2027 2028 2029"; then postprocess $T; stage2 $T; else say "$T noise-mode gate FAILED — not postprocessing (investigate, do not --force)"; fi
+## ---- L30 stage 2 (chains already on disk) ------------------------------------------------------------------
+say "L30 stage 2 rerun (no chains) ; commit $(git rev-parse --short HEAD) ; load $(uptime | sed 's/.*load averages*: //')"
+if noise_gate $T "2026 2027 2028 2029"; then postprocess $T; stage2 $T; else say "$T noise-mode gate FAILED — not postprocessing"; fi
 say "ALLDONE"

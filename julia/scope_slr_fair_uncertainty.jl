@@ -180,6 +180,7 @@ chain_path(sd) = joinpath(REPO, "outputs/mcmc", "chain_$(CHAIN_TAG)_seed$(sd)_n$
 hdr(sd) = String.(propertynames(CSV.read(chain_path(sd), DataFrame; limit = 0)))
 for sd in SEEDS; isfile(chain_path(sd)) || error("missing chain $(chain_path(sd))"); end
 const VARIANT = ladrillo_gis_variant(hdr(SEEDS[1]))
+const AIS_RAMP = ladrillo_has_ramp(hdr(SEEDS[1]))   # L30: the chains decide
 
 ## ---------------------------------------------------------------------------
 ## --tap  (2026-08-30). RUN THE TAPPED GREENLAND ARM.
@@ -377,7 +378,7 @@ end
 
 """Run `idx` (draw indices) on a Ladrillo built at `g`/`o`; write into `out`."""
 function run_into!(out, idx, g, o)
-    bf = ladrillo_setup(ssp = BUILD_SSP, y0 = Y0, y1 = Y1, gis_variant = VARIANT, gmst = g, ohc = o)
+    bf = ladrillo_setup(ssp = BUILD_SSP, y0 = Y0, y1 = Y1, gis_variant = VARIANT, gmst = g, ohc = o, ais_ramp = AIS_RAMP)
     # BOTH arms get the same treatment: `fixed` taps on the MEAN path (so it still
     # reproduces the shipped tapped panel) and `joint` taps on each config's OWN path.
     TAP_ON && ladrillo_set_tap!(bf)
