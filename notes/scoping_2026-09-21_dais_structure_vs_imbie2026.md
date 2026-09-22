@@ -309,3 +309,32 @@ that line (L29's dynamics anomaly is −48 of IMBIE's −107 by 2011–17), not 
 finding is therefore "DAIS + a ramp from ~0.7 K matches the record's dynamics through 2018–23 (−167 vs IMBIE's −177 rel
 1979–2008)"; an equally consistent reading is a steeper LINE from ~0.15 K, which the L28 refit did not take because the
 1900–78 level forbids it. §6's algebra (the exponent is inert; n ≈ 20) is unaffected.
+
+## 8. The evidence behind the 09-22 ruling, and what L30 is (and is not) claiming
+
+**Marcus's three questions, answered before the build.**
+
+1. **How strong is the evidence for increased discharge instability since 2000?** Strong for a steady, warming-tracking
+   ACCELERATION; nil for an INSTABILITY in the self-sustaining sense; weak for a STEP at 2000. IMBIE 2026 (§1): the dynamics
+   anomaly is WAIS-only (−34 → −192 Gt/yr, 1979–91 → 2018–23), 84 % of the loss, and LINEAR in GMST on 11-yr means
+   (−232 Gt/yr K⁻¹, residual sd 22, no window residual above 14) — a forced-response signature, not a decoupled one.
+   ⚠ **§6's "kink at ~0.5 K" was a product mix** (Frederikse NET loss on the early leg, IMBIE DYNAMICS on the late one); see the
+   §6/§7 erratum. The "2000" in §7 is where DAIS's own fixed linear response starts to fall short, not a date in the record.
+   External lines (Mouginot 2014 Amundsen discharge +77 %; Rignot 2019 PNAS; Rignot 2014 grounding-line retreat; Joughin 2014
+   on Thwaites — a MODEL statement on a centuries timescale; against: Jenkins 2018 / Holland 2019 on decadal wind-driven
+   Amundsen forcing) are recalled, NOT verified here — cite from the papers, not from this line.
+2. **Has AIS stabilised recently?** Net loss halved (−200 → −104 Gt/yr) and the record attributes the whole slowdown to SMB
+   (+144 Gt/yr, record EAIS snowfall) while dynamics kept accelerating (−179 → −249). NBC's coverage of Otosaka et al. quotes
+   the authors to the same effect — weather, not trend, with the acceleration resumed after 2023. The sweep's arms reproduce
+   exactly that: on 0.75 K / 6e-4 tracks IMBIE's 2018–23 DYNAMICS (−167 vs −177 rel 1979–2008) and its +2.7σ there is the
+   missing SMB pulse. A 6-yr SMB event at ~3σ of the interannual sd is the AR(1) term's job, not the physics'.
+3. **Replace or coexist?** COEXIST, ruled by Marcus. Replace buys one observationally identified term but discards the LIG
+   constraint above 1.2 K and moves the paper's tail (SSP5-8.5 2300 279 → 146) on the strength of REMOVING a prior; coexist is
+   nested (slope 0 = stock, bit for bit), keeps the paleo constraint, changes nothing historically, and its double-count is
+   bounded (the ramp is ~12 % of λ at the paleo threshold, ~50 % at 8 K excess). A REPLACE arm stays available as L30b.
+
+**What L30 claims.** That DAIS's discharge response to warming is steeper than one linear map allows, and that an additional
+response above an onset is a form the data can identify. It does NOT claim a marine ice-sheet instability is under way: the
+term is named "the additional discharge response" everywhere in the code and the outputs for that reason. If the refit puts the
+onset firmly inside the observed range with a tight slope, that is a fitted curvature; calling it an instability would be a
+mechanism claim the fit cannot make.
