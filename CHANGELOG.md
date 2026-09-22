@@ -1,3 +1,40 @@
+## 2026-09-22d — THE ADDITIONAL DISCHARGE RESPONSE BUILT AND LAUNCHED (L30 = L28 + `--ais-ramp`): a term linear in T_ant above an onset sampled in GLOBAL warming, COEXISTING with the paleo binary; both gates green; chains up 07:14
+
+**Marcus's ruling (09-22):** add the additional discharge response and see how it works; coexist with the paleo binary (the
+"instability" reading is NOT asserted — the term is an additional response, not a claimed mechanism). Evidence reviewed first:
+IMBIE 2026's dynamics anomaly keeps accelerating through 2018–23 while the net loss halves on record EAIS snowfall, and the
+NBC/Otosaka coverage (Sci Data 13:1301) states the 2020–23 pause was weather and that the acceleration resumed after 2023 —
+consistent with scoping §1's SMB attribution and with the sweep's dynamics tracking (§7).
+
+**Component** (`julia/antarctic_icesheet_magdep_component.jl`): `ramp = ais_ramp_slope · max(T_ant − ais_ramp_threshold, 0) ·
+24.78e15/57`, added to the fast-dynamics rate and floored JOINTLY against the ice the binary term left; `ais_ramp_slope == 0.0`
+is a LITERAL skip. New reported variable `ramp_rate`.
+
+**Calibrator** (`--ais-ramp`): two sampled parameters — `ais_ramp_gon` (onset in GLOBAL warming, flat [0.30, 1.20] K; the upper
+bound is above the driver's 2011–17 mean 1.03 K so "no onset in range" is reachable) and `ais_ramp_log10s` (flat, s ∈
+0.5–20·10⁻⁴ m SLE yr⁻¹ K⁻¹). The threshold is DERIVED per draw through that draw's amp (`T_ramp = AIS_TANT0 + amp·G_on`), the
+same derivation the projection kernel uses. The AIS slot is swapped to the magdep component with fastdyn n = 0, so the paleo
+binary keeps its stock meaning and the two terms coexist. The ramp pair is the ONE exemption from the starts-file
+cover-the-parameter-set guard (no ancestor exists) and its start is **over-dispersed by start row** — (0.45, 1.5e-4),
+(0.60, 3e-4), (0.75, 6e-4), (0.95, 12e-4) — so R̂ on the new dimensions measures mixing, not the start.
+
+**Projection kernel**: `ladrillo_ramp_posterior(path)` decides from the posterior's own columns; `ladrillo_setup(…; ais_ramp=)`
+builds the slot; `ladrillo_apply_draw!` derives threshold and slope and checks BOTH ways (a ramp row on a stock model and a
+stock row on a ramp model both error). `posterior_predictive_ladrillo`, `project_ssps_components_ladrillo`,
+`diag_ais_flux_split_vs_imbie` and `diag_ais_tipped_share` read the flag off the posterior.
+
+**Gates.** `scripts/gate_calibrator_identity.sh` PASS with the flag absent (byte-identical L24 chain + covariance), re-run after
+the over-dispersed-start edit. New `scripts/gate_ais_ramp_inert.jl`: at slope 0 the magdep slot is BIT-IDENTICAL to stock on 25
+L29 draws (AIS and total, 1850–2300, 19/25 draws tipping the binary) and the MUTATION at s = 6e-4 moves AIS by 48.3 cm — a gate
+with power, sized off the arm it guards. `julia/test_ladrillo_projection.jl` ALL TESTS PASS.
+
+**Launched** 07:14 from a frozen copy (`run_L30.sh`, commit 41f488b, load 3.6; Torch verdict said out loud: Mac — 4 single-threaded
+chains, ~4 h, same recipe as L28/L29, no wall-clock gain from Torch for a job this size). ⚠ `julia/calibrate_mcmc_ext.jl` and
+`julia/ladrillo_projection.jl` are READ BY THE RUNNING JOB — do not edit either until ALLDONE. Arm verification greps the ramp
+banner, the over-dispersed start line and the fresh covariance rows; the noise gate FAILS if either ramp column is frozen in a
+chain's second half. Pre-registered success line: 2011–17 rate, 1992–2002 rate AND the 1979–2023 cumulative each within 1σ of
+IMBIE **and** `rho_ais` < 0.95 (the shape carried by the physics, not by persistence).
+
 ## 2026-09-22c — ONSET SWEEP RAN (fixed parameters, 295 L29 draws, 90 s): a linear ramp above +0.60–0.75 K global reproduces ALL FOUR pre-pause IMBIE windows at once (Σz² 0.1 vs stock 4.9; dyn-accel −109 vs IMBIE −106); the ramp adds +6 / +30 cm (SSP2-4.5 2100 / 2300) and REPLACING the paleo binary with it cuts SSP5-8.5 2300 279 → 146
 
 **Script** `julia/scope_ais_onset_sweep.jl` (new; run from `_frozen_` copy): the magdep fast-dynamics term as a ramp, rate =
