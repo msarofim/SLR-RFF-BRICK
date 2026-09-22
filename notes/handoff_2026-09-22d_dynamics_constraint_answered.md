@@ -7,8 +7,16 @@ and **09-22k** (the palette sweep). Commit `a5662a9` on `ladrillo-dev`, pushed. 
 carries two limits), `INDEX_ais_imbie.md` updated.
 
 ## 0. STATE AT HANDOFF
-- **Champion and paper posterior remain L27.** Nothing was refitted; `champions.json` and the draft are untouched.
-- **Nothing is running.** Every result below is a fixed-parameter diagnostic.
+- **Champion and paper posterior remain L27.** `champions.json` and the draft are untouched.
+- ⭐⭐ **L31 IS RUNNING** (launched 09-22 18:36, ~4 h, 4 chains, PIDs in `outputs/log_L31.txt`). **L31 = L28 +
+  `--ais-fit-from=1979`, one axis, control L28** — Marcus's "try option 5". Driver `run_L31.sh`, log
+  `outputs/log_L31.txt`, commit `30395f3`. ⚠ **Its success criteria are PRE-REGISTERED in the script header** —
+  primary is the 2018–23 dynamics anomaly moving from L28's −74.6 Gt/yr toward IMBIE's −167.2 (**win ≤ −110, no
+  effect above −90, −90…−110 reported as ambiguous**). Do not restate them more favourably after the fact.
+- ⛔⛔ **L31's LOGPOST IS NOT COMPARABLE to L28's or L27's** — dropping 79 years removes 79 likelihood terms
+  (logpost(θ₀) −1220.7 full span vs **−554.95** on 1979+; that ~666 is BOOKKEEPING). Compare on hindcast
+  statistics and the channels, never on `log_post`.
+- Everything below §0 is a fixed-parameter diagnostic; nothing else is running.
 - The calibration target is unchanged (`recalib_targets_ext.csv`, md5 `eb768cd9…`).
 - The three stale `outputs/*_L24.*` modifications from an earlier session are still in the tree; still not mine to resolve.
 - **Marcus ruled on the VV palette this session: DIRECT-LABEL the lines** (§3 below). **LANDED and both figures
