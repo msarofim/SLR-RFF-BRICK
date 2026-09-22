@@ -106,6 +106,26 @@ _argval(pfx) = (i = findfirst(a -> startswith(a, pfx), ARGS);
 const AMP_MU_OVR    = _argval("--amp-mu=")
 const AMP_SIGMA_OVR = _argval("--amp-sigma=")
 const TAG_OVR       = _argval("--tag=")
+## --ais-fit-from=<year> (L31, 2026-09-22): the FIRST year of the ANTARCTIC LEVEL term only.
+## Default 1900 = every arm through L30, so omitting the flag is byte-identical to before.
+##
+## WHY IT EXISTS. IMBIE 2026's net == smb + dyn is an IDENTITY and this module's SMB cannot produce
+## the +141 Gt/yr 2018-23 snowfall excursion, so fitting the Antarctic LEVEL and fitting IMBIE's
+## DYNAMICS partition are mutually exclusive ([[ais_net_dynamics_tradeoff_identity]]). Attributing
+## the level term's objection per year (diag_ais_isocumulative_channels.jl, both axes) showed the
+## barrier to a steeper, IMBIE-like discharge falls 3.2-4.5x when the pre-1979 years are dropped.
+##
+## ⚠ THE 1979 BOUNDARY IS A PROPERTY OF THE TARGET, NOT A TUNING KNOB. prep_recalib_targets_ext.py
+## splices Frederikse 2020 for 1900-1978 onto IMBIE over IMBIE_JOIN_WIN (1979-1988); from 1979 the
+## AIS column IS the IMBIE reconciled record. So --ais-fit-from=1979 fits the Antarctic to ONE
+## dataset instead of two spliced ones -- that is the argument for it, and it is the honest way to
+## describe it. It is NOT a window-rate term (which would double-count, since the level target
+## equals IMBIE from 1992 on); it narrows the SPAN of the existing term and adds nothing.
+##
+## ⚠ THE COST IS REAL: 1900-1978 is what disciplines long-run Antarctic mass balance, and L28's
+## 1900-78 loss already runs 2x its target. An arm using this MUST report its 1900-1978 hindcast
+## even though it no longer fits it -- that window becomes out-of-sample, not irrelevant.
+const AIS_FIT_FROM = let v = _argval("--ais-fit-from="); v === nothing ? 1900 : parse(Int, v) end
 # --steric-marg-cap=modern|<cm> (L22, 2026-08-29): a HARD BOUND on the steric AR(1)
 # MARGINAL sd, σ/sqrt(1-ρ²) -- NOT on σ. THE DISTINCTION IS THE WHOLE POINT. L21 fits
 # σ = 0.0716 with ρ = 0.9634, and σ alone *looks* comparable to the modern observational
@@ -578,18 +598,18 @@ closure_sigma(ri) = !hasproperty(tg, CLOSURE_SIG_COL) ?
     zeros(length(ri)) : coalesce.(Float64.(tg[ri, CLOSURE_SIG_COL]), 0.0)
 
 # per-series valid years: target value present (non-missing, non-NaN) AND >=1900
-function series_years(col)
+function series_years(col; y0::Int=1900)
     ys = Int[]
     for i in 1:nrow(tg)
         v = tg[i,col]
-        (tg.year[i] >= 1900 && !ismissing(v) && !isnan(Float64(v))) && push!(ys, Int(tg.year[i]))
+        (tg.year[i] >= y0 && !ismissing(v) && !isnan(Float64(v))) && push!(ys, Int(tg.year[i]))
     end
     return sort(ys)
 end
 rowof(y) = findfirst(==(y), tg.year)
 # build a series record: fit years, model-output indices, obs vector, obs-σ vector
-function make_series(col, lo, hi; isdang=false)
-    fy = series_years(col)
+function make_series(col, lo, hi; isdang=false, y0::Int=1900)
+    fy = series_years(col; y0=y0)
     @assert fy == collect(fy[1]:fy[end]) "series $col has a year gap (AR(1) assumes unit spacing)"
     ri = [rowof(y) for y in fy]
     ob = Float64.(tg[ri, col])
@@ -602,15 +622,21 @@ function make_series(col, lo, hi; isdang=false)
     end
     return (years=fy, myi=[idx(y) for y in fy], obs=ob, ϵ=ev)
 end
-S = (ais    = make_series(:ais,:ais_lo,:ais_hi),
+S = (ais    = make_series(:ais,:ais_lo,:ais_hi; y0=AIS_FIT_FROM),
      gsic   = make_series(:gsic,:gsic_lo,:gsic_hi),
      gis    = make_series(:gis,:gis_lo,:gis_hi),
      steric = make_series(:steric,:steric_lo,:steric_hi),
      dang   = make_series(:dang,:dang_lo,:dang_hi; isdang=true))
 # LWS to add into the modeled total, aligned to the dang fit years
 lws_dang = Float64.(tg.lws[[rowof(y) for y in S.dang.years]])
-println("Extended fit windows: ais 1900-$(S.ais.years[end]), gis 1900-$(S.gis.years[end]), ",
-        "gsic 1900-$(S.gsic.years[end]), steric 1900-$(S.steric.years[end]), total 1900-$(S.dang.years[end])")
+## ⚠ EVERY START YEAR IS READ BACK OFF THE SERIES, never re-typed. This line said "ais 1900-" as a
+## literal until 2026-09-22, which would have printed 1900 for an --ais-fit-from=1979 arm and put a
+## false fit window in the chain log (~/.claude/CLAUDE.md: labels derive from named constants).
+println("Extended fit windows: ais $(S.ais.years[1])-$(S.ais.years[end]), gis $(S.gis.years[1])-$(S.gis.years[end]), ",
+        "gsic $(S.gsic.years[1])-$(S.gsic.years[end]), steric $(S.steric.years[1])-$(S.steric.years[end]), ",
+        "total $(S.dang.years[1])-$(S.dang.years[end])")
+AIS_FIT_FROM == 1900 || println("  ⚠ AIS LEVEL TERM RESTRICTED: --ais-fit-from=$AIS_FIT_FROM ",
+        "($(length(S.ais.years)) yr fitted; $(AIS_FIT_FROM - 1900) pre-$AIS_FIT_FROM years are now OUT-OF-SAMPLE, not absent)")
 
 # ---- L22: the steric AR(1) marginal cap, DERIVED FROM THE TARGET'S OWN ε ------------
 # THE THRESHOLD COMES FROM AN OBSERVATION, not from the code's own agreement
