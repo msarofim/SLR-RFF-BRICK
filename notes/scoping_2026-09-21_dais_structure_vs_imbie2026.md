@@ -162,3 +162,72 @@ would ship, and it moves nothing the paper reports. (2) The steepening build is 
 exponent on the ocean-temperature ratio, nesting DAIS at 2; Marcus's call — a curvature, not a claim). (3) The 1900–78 σ ×3 and
 geometry-prior arms remain second-order: the early record barely moved under the cap. (4) Which posterior the paper ships is
 unchanged by L29: L27 (old target, consistent draft) vs L28 (new target, level not shape) vs post-structure.
+
+## 6. The steepening build, scoped BEFORE building (09-22 morning): a power on the ocean-temperature ratio is INERT on the historical range, and the record's shape is a KINK, not a curvature
+
+**The question.** §4 candidate 1: replace the literal `^2` in DAIS's discharge speed
+(`antarctic_icesheet_magdep_component.jl:210`: speed = iceflow₀·[(1−α) + α·r²]·depth^γ/…, with
+r = (T_oc − T_f)/(T_oc,0 − T_f) and T_oc = anto_α·GMST + anto_β from ANTO, whose logistic term is 1 + e^(−9) ≈ 1 at every
+posterior draw) by a sampled exponent n, nesting DAIS at n = 2, prior on [1, 4]. Would the refit be able to meet the
+pre-registered success line (2011–17 rate within 1σ of 0.056 without the early century worsening past −1.8σ)? Answered
+by algebra before spending 4 h.
+
+**What the exponent can do is fixed by r's RANGE, and r barely moves.** At the L29 posterior (anto_α 0.286, anto_β 0.83,
+T_oc,0 1.026, T_f −1.8): r = 0.931 + 0.1016·GMST, so r(0.45 K) = 0.976 and r(1.0 K) = 1.032 — a 5.7 % span across the
+window the record doubles over. The SHAPE of the discharge anomaly α·[rⁿ − r(0)ⁿ] in GMST is therefore near-linear for
+any modest n whatever α does (α and iceflow₀ scale the magnitude only). Measured on the record's own statistic
+(loss per unit GMST, i.e. the secant slope; IMBIE 0.45 → 1.02 K = **2.02×**, 0.17 → 0.45 K = **0.87×**):
+
+| form | 0.45 → 1.02 K secant ratio | 0.17 → 0.45 K | speed factor (1−α)+α·rⁿ at 2 K / 4 K (α 0.307; stock 1.09 / 1.24) |
+|---|---|---|---|
+| n = 2 (stock) | 1.03 | 1.02 | 1.09 / 1.24 |
+| n = 4 (prior top) | 1.10 | 1.05 | 1.20 / 1.67 |
+| n = 8 | 1.25 | 1.11 | 1.53 / 3.80 |
+| **n = 20.4 (the doubling)** | **2.02** | **1.38** | **4.63 / 113** |
+| ANTO at its prior CORNER (anto_α 1, anto_β 0), n = 5.6 | 2.02 | 1.43 | 2.31 / 18.2 |
+
+So: **(i) a prior on [1, 4] has no power** — the best it can produce is 1.10× against a required 2.02×; the refit would
+return "n ≈ 4 against the bound, physics unmoved, ρ back on ITS bound" and the success line would be unreachable by
+construction (the L29 no-power-mutation lesson, `mutation_test_gates`, applied to a prior). **(ii) The n that does
+produce the doubling (~20 at the fitted ANTO; ~6 only if ANTO runs to the corner of its prior, T_oc = GMST − 1.8 °C)
+is not "a curvature, not a claim"** — it is e^(n·0.109·GMST), an exponential in GMST with e-folding ~0.45 K, whose
+extrapolation to 2–4 K multiplies the discharge speed by 5–100× (the mass-conservation floor and the disintegration
+cap would bind; projections would be the FORM, exactly as the ssp585 2300 band is the λ prior — `ais_spread_is_lambda_prior`).
+**(iii) Even at the doubling, the shape is wrong on the early side**: any power law that doubles 0.45 → 1.02 K also
+raises 0.17 → 0.45 K by ~1.4×, where IMBIE+Frederikse give 0.87× — the record is FLAT in loss-per-K to ~0.5 K and then
+doubles. That is a kink, an onset near 0.5 K of global warming, not a smooth convexity.
+
+⚠ The early-century leg of that shape rests on the 1900–78 target (−20 Gt/yr over 0.17 K, a ratio on a small base;
+the 1935 level's σ is 0.22 cm and the constraint is 1.4σ). Its mean is what makes the record flat-then-steep; its width
+is what §3's "1900–78 σ ×3" arm would test. Even discarding it entirely, (i) and (ii) stand on 0.45 → 1.02 K alone.
+
+**Where this leaves the candidates.**
+1. ~~Free exponent on r, prior [1, 4]~~ — dead on the algebra. Not worth 4 h.
+2. **Free exponent with a prior that reaches ~20** (log-uniform on [1, 30], say) — CAN fit the modern doubling, but
+   (a) mis-shapes the early century by +1.4×, (b) puts the projection tail in the exponent's prior, (c) trades off
+   against anto_α/anto_β (n ≈ 6 at the ANTO corner) so it is not one axis. A steepening THIS sharp is a threshold by
+   another name.
+3. **An onset inside the observed range** — the form the record's shape actually asks for, and the machinery already
+   exists: the magdep component's fast-dynamics term, −λ·g·const with g = (excess/ref)^n_fd above T_crit (n_fd = 0 is
+   the stock binary; n_fd = 1 is a linear ramp above onset). L27+ holds λ and T_crit at their paleo medians
+   (`--cut-fastdyn`; T_crit's paleo prior fires at +2.84 °C T_ant [2.25, 3.55] — `ais_lambda_rests_on_lig`), i.e.
+   far above the observed ~1.1 K of T_ant anomaly. The build would be: sample T_crit under a prior that ADMITS the
+   observed range (a second component against the paleo prior, or a replacement of it), λ under its paleo prior,
+   n_fd fixed at 1 (a ramp) — and the modern rate then identifies (T_crit, λ) jointly. ⚠ This is the reading Marcus
+   flagged: "a marine instability under way since ~2000", with the fast-dynamics term LIVE in every projection from
+   the start year. Its projection consequence is the whole point and is not a side effect.
+4. The 1900–78 σ ×3 arm — now a TEST of the kink's early leg, not a second-order option: if the early loss/K is really
+   unconstrained, a smooth steepening needs to fit 0.45 → 1.02 K only; but per (i)–(ii) that still needs n ≈ 20.
+
+**A cheap test before any refit (minutes, no sampler, no model change for candidate 3).** Fixed-parameter forward runs
+on the L29 posterior medians, sweeping (T_crit, λ) with n_fd = 1 (and, for candidate 2, n on a modified component with
+default 2), reporting: 2011–17 rate, 1992–2002 rate, 1900–78 net, the acceleration-window discharge anomaly, and AIS
+at 2100/2300 on SSP1-2.6 / 2-4.5 / 5-8.5. It answers "is 0.056 reachable at all, and at what projection cost" before a
+4-h chain is spent, and would also give the start row and the prior range a refit needs. `scope_ais_fastdyn_shape.jl`
+already propagates the magdep term over a posterior and gates [INERT]/[AFFINE]; the sweep is that script with T_crit
+moved into the observed range and the hindcast windows added.
+
+**Recommendation.** Do not build candidate 1 as scoped. Run the fixed-parameter sweep (candidate 3's parameters exist;
+candidate 2 needs the one-line exponent parameter with default 2, gate-checked). Then decide between 2 and 3 on what
+the sweep shows — and on whether the paper wants to make the onset claim at all, which is a scientific ruling, not a
+fit statistic. Nothing launched; nothing in the component changed.

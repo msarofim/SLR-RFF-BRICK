@@ -1,3 +1,27 @@
+## 2026-09-22b — The steepening build SCOPED, not built: a free exponent on DAIS's ocean-temperature ratio is INERT on the historical range (prior [1, 4] gives ≤1.10× against IMBIE's 2.02×), and the record's shape is a KINK near 0.5 K, not a curvature
+
+**Question** (Marcus's next-step #1): scope §4's candidate 1 — a sampled exponent n on r = (T_oc − T_f)/(T_oc,0 − T_f) in the
+discharge speed (nests DAIS at n = 2, prior [1, 4]) — before spending a 4-h refit. **Answered by algebra**
+(`notes/scoping_2026-09-21_dais_structure_vs_imbie2026.md` §6). At the L29 posterior ANTO map, r = 0.931 + 0.1016·GMST: a 5.7 %
+span across the window the record doubles over, so α·[rⁿ − r(0)ⁿ] is near-linear in GMST for any modest n. On the record's own
+statistic (loss per K, secant; IMBIE 0.45 → 1.02 K = 2.02×): n = 2 gives 1.03×, n = 4 (the prior top) 1.10×, n = 8 1.25×; the
+doubling needs **n ≈ 20** (≈ 6 only if ANTO runs to its prior corner anto_α = 1, anto_β = 0), i.e. e^(n·0.109·GMST), an exponential
+with e-folding ~0.45 K whose 2 K / 4 K speed factor is 4.6× / 113× (stock 1.09 / 1.24). And any power that doubles 0.45 → 1.02 K
+raises 0.17 → 0.45 K by ~1.4× where the record gives 0.87×: the observed shape is FLAT in loss-per-K to ~0.5 K, then doubles — an
+onset, not a smooth convexity (⚠ its early leg rests on the 1900–78 target, −20 Gt/yr over 0.17 K; the 0.45 → 1.02 K finding stands
+without it).
+
+**Consequences.** (1) Candidate 1 as scoped is dead on arrival — a no-power refit (the L29 mutation lesson applied to a PRIOR).
+(2) A prior that reaches n ≈ 20 can fit the modern doubling but mis-shapes the early century, is not one axis (trades against
+ANTO), and puts the projection tail in the exponent's prior — a threshold by another name. (3) The form the shape asks for is an
+onset inside the observed range: the magdep component's fast-dynamics term (λ·(excess/ref)^n_fd above T_crit) already exists;
+the build would sample T_crit under a prior admitting the observed range against the paleo prior's +2.84 °C [2.25, 3.55]
+(`ais_lambda_rests_on_lig`) — the "instability under way" reading Marcus flagged. (4) The 1900–78 σ ×3 arm becomes the test of
+the kink's early leg. **Recommended before any refit**: a fixed-parameter sweep on the L29 medians over (T_crit, λ, n_fd = 1) — and
+n on a nesting exponent parameter if candidate 2 stays live — reporting the hindcast windows and AIS@2100/2300 on three SSPs
+(minutes; `scope_ais_fastdyn_shape.jl` is the base). **Nothing built, nothing launched, no component changed.** Ruling owed:
+which candidate, if any, and whether the paper makes the onset claim at all.
+
 ## 2026-09-22a — L29 LANDED: rho_ais capped at 0.90 BOUND and the physics did not move — DAIS has no direction that produces the acceleration; the SSP1-2.6 p95 "halving" is the tipped share crossing 5 %
 
 **Run** (`run_L29.sh` from a frozen copy, 19:57 → 01:05; chains acceptance 0.238; noise gate PASS with the added rho check; SLR
