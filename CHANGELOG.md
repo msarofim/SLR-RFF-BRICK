@@ -1,3 +1,58 @@
+## 2026-09-22i — WHY CALIBRATING TO IMBIE MADE THE IMBIE DYNAMICS FIT WORSE: it is an IDENTITY, not a pathology. net ≡ smb + dyn, the module's SMB cannot produce the +141 Gt/yr snowfall anomaly, so every Gt/yr gained on the NET is transferred ONE-FOR-ONE into the DYNAMICS error
+
+Marcus: *"I am surprised that calibrating to updated data actually makes the fit worse to that updated data."* The compressed
+version of 09-22h overstated it and this entry states it exactly, with the mechanism measured.
+
+**It is not "fitting data makes the fit to that data worse".** The refit improved what it was fitted to — the LEVEL
+(1979–2023 cumulative z **−2.64 → −0.77**). What degraded is the **dynamics partition**, a DIFFERENT observation in the same
+dataset that was never in the likelihood.
+
+**⭐⭐ THE IDENTITY.** Over 2018–23, anomalies relative to 1979–2008 (Gt/yr):
+
+| | dynamics | SMB | net |
+|---|---|---|---|
+| IMBIE 2026 | **−167.2** | **+141.0** | −26.2 |
+| L27 misfit | +50.6 | −114.3 | −63.7 |
+| L28 misfit | +95.8 | −161.2 | −65.4 |
+| L30 misfit | +89.4 | −141.7 | −52.3 |
+
+IMBIE requires discharge to FALL by 167 while snowfall RISES by 141, leaving a net that moves only −26. Since
+**net ≡ smb + dyn**, `dyn_misfit = net_misfit − smb_misfit`. The module's SMB responds to temperature on multidecadal
+timescales but produces 2018–23 window anomalies of only **−20 … +27 Gt/yr** across these posteriors against the record's
+**+141**, so `smb_misfit` is pinned between **−114 and −161 and cannot approach zero**. Therefore:
+- fit the **net** exactly ⇒ the dynamics anomaly is understated by **≥ 114 Gt/yr**;
+- fit the **dynamics** exactly ⇒ the net must lose **114 Gt/yr MORE** than observed.
+
+⭐ **The two posteriors sit at different points on one constraint line; neither is "better calibrated".** ⚠ This CORRECTS the
+reading in 09-22h, which presented L27's closer dynamics as a property of L27 — it is a consequence of L27 being further from
+the net. ⚠ L28 is worse than L27 on BOTH in this window (net −65.4, dyn +95.8), so the L27→L28 move is not a clean slide along
+the line: L28 bought the CUMULATIVE, and its own SMB anomaly fell to −20.1, which cost it twice.
+
+**The parameter-space mechanism, measured.** Extra discharge in L30 relative to L27 (Gt/yr, negative = more loss):
+1979–2008 **−31.0**, 2003–10 −15.3, 2011–17 −6.5, 2018–23 **+7.8**. ⭐ **The refit added discharge EARLY and REMOVED it LATE
+— it flattened the discharge trend** to reproduce a net that flattens, which is the exact opposite of what the dynamics
+record did. ⚠ **This REFUTES the leading hypothesis stated in handoff 09-22c §1b** (that the refit bought the higher
+cumulative loss by cutting accumulation): over 1979–2023 **96.4 %** of L30's extra net loss came from MORE DISCHARGE and only
+3.6 % from less accumulation. The SMB route was not taken; the trend-flattening route was.
+
+**Why the objective allows it** — this closes the loop with 09-22f: the shape-sensitivity measurement showed the level term is
+only ~2× more sensitive to a level offset than to a smooth late ramp. When it needs more cumulative loss it therefore cannot
+strongly distinguish "more discharge throughout" from "accelerating discharge", and the 2018–23 pause actively penalises the
+accelerating option. So it takes the flat one.
+
+**⇒ The paper insert was CORRECTED** (`deliverables/GMD_imbie2026_null_INSERT.md`): the result paragraph now states the
+identity and the bound, and the `[MCS]` note flags that what is demonstrated is **the six-year snowfall excursion lying
+outside the module's representable behaviour — NOT that DAIS's discharge law is wrong.** Those are different claims and only
+the first follows from these numbers. Two rows added to Table X (the 2018–23 SMB and dynamics anomalies) so the constraint is
+checkable by a reader.
+
+**Also this session**: `python/validate_palette.py` — the `dataviz` skill's validator reimplemented in Python (Viénot 1999
+dichromat simulation + OKLab ΔE + WCAG contrast; there is no `node` on this machine). Exits 1 on failure so it can gate a
+figure build. It confirms `#1b7837`/`#b2182b` at ΔE **2.7** under deuteranopia. Handoff
+`notes/handoff_2026-09-22c_null_shipped_figures_and_L27vL30.md`.
+
+Champion and paper posterior **L27**. No chains run.
+
 ## 2026-09-22h — SHIPPING THE NULL (Marcus: "A"). ⚠ The 09-22f/g log-likelihood numbers were run at 3–5 draws and are SUPERSEDED by n=100 with standard errors — the verdict holds, the values moved by up to 1.5 log-units and one intermediate value flipped sign. Paper insert + appendix figure drafted
 
 Marcus chose **option A**: ship the null, keep L27. This entry (1) re-measures everything at a draw count where it is stable,

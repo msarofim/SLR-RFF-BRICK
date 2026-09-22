@@ -78,20 +78,32 @@ deuteranopia — effectively one colour. Worth a pass over the existing figure s
 > published uncertainty in every window (Figure X(B)); its largest departure, +48 Gt yr⁻¹ over 2018–23,
 > is 0.4 of IMBIE's own uncertainty for that window. It nonetheless underpredicts the cumulative
 > Antarctic *level* over 1979–2023 by 2.6σ of IMBIE's bar. Refitting to that level closes the level gap
-> to 0.8σ but moves the dynamics misfit from +48 to +86 Gt yr⁻¹, because the level series contains the
-> 2018–23 surface-mass-balance excursion, which the module's surface mass balance — with an interannual
-> spread of 4.8 Gt yr⁻¹ against the record's 123 — cannot represent. The additional discharge response
-> is not taken by the likelihood: its slope is pushed to the lower edge of its prior and its onset is
-> unidentified across the prior range, and the projections are unchanged (Antarctic contribution at
-> 2300 under SSP2-4.5, 165.8 cm against 165.7 cm without the response). Adding a dynamics channel to
-> the likelihood does not change this: the channel does favour a response, by +2.8 ± 0.4 log-likelihood
-> units at 3 × 10⁻⁴, but the level channel penalises the same response by −3.5 ± 0.6 and the larger
-> response by −10.6 ± 0.7.
+> to 0.8σ and moves the dynamics misfit from +48 to +86 Gt yr⁻¹.
 >
-> `[MCS — the interpretive sentence goes here: what this licenses us to claim about DAIS's structural`
-> `adequacy, and how much of the Antarctic acceleration we are content not to reproduce.]`
-
----
+> **These two are not independent, and the trade between them is an identity.** Over 2018–23, relative
+> to a 1979–2008 reference, the record's dynamics anomaly is −167 Gt yr⁻¹ and its surface-mass-balance
+> anomaly is +141, leaving a net of only −26. Because the net is the sum of the two by construction, a
+> model's dynamics error equals its net error minus its surface-mass-balance error. The module's surface
+> mass balance responds to temperature on multidecadal timescales but produces window anomalies between
+> −20 and +27 Gt yr⁻¹ across these posteriors, against the record's +141, so its surface-mass-balance
+> error cannot be brought near zero. Its dynamics error is therefore bounded below by its net error plus
+> about 114 Gt yr⁻¹: a calibration that matched the net exactly would necessarily understate the
+> dynamics anomaly by that amount, and one that matched the dynamics would have to lose 114 Gt yr⁻¹ more
+> than observed in the net. The two posteriors sit at different points on that constraint rather than
+> one being better calibrated than the other, and the refit reaches its point by adding discharge early
+> and removing it late (−31 Gt yr⁻¹ over 1979–2008, +8 over 2018–23), flattening the discharge trend to
+> reproduce a net that flattens.
+>
+> The additional discharge response is not taken by the likelihood: its slope is pushed to the lower
+> edge of its prior and its onset is unidentified across the prior range, and the projections are
+> unchanged (Antarctic contribution at 2300 under SSP2-4.5, 165.8 cm against 165.7 cm without the
+> response). Adding a dynamics channel to the likelihood does not change this: the channel does favour a
+> response, by +2.8 ± 0.4 log-likelihood units at 3 × 10⁻⁴, but the level channel penalises the same
+> response by −3.5 ± 0.6 and the larger response by −10.6 ± 0.7.
+>
+> `[MCS — the interpretive sentence goes here. Note that the identity above makes this a statement`
+> `about the SIX-YEAR SNOWFALL EXCURSION being outside the module's representable behaviour, not about`
+> `DAIS's discharge law being wrong; those are different claims and only the first is demonstrated.]`
 
 ## 5. Table X — the verifiable numbers
 
@@ -109,6 +121,11 @@ referenced 1979–2008 for model and observations alike.
 | Dynamics misfit (Gt yr⁻¹) | 2011–2017 | 0 by construction (σ 80) | **+13.4** | +39.8 |
 | Dynamics misfit (Gt yr⁻¹) | 2018–2023 | 0 by construction (σ 130) | **+48.1** | +85.8 |
 | SMB interannual spread (Gt yr⁻¹) | 1979–2025 | 122.9 | 4.8 | 4.8 |
+| SMB anomaly (Gt yr⁻¹) | 2018–2023 | **+141.0** | +26.7 | −0.7 |
+| Dynamics anomaly (Gt yr⁻¹) | 2018–2023 | −167.2 | −116.6 | −77.8 |
+
+⚠ The last three rows are the constraint: net = SMB + dynamics identically, so with the model's SMB
+anomaly unable to reach +141 the dynamics error is bounded below by the net error plus ~114 Gt yr⁻¹.
 
 **Δ log-likelihood from the additional discharge response** (mean ± SE over 100 draws; positive =
 the channel prefers the response):
