@@ -114,6 +114,7 @@ const OBS_SIGMA = Dict(tcol => [obs_sigma(tcol, y) for y in FY] for (_, tcol, _)
 ## ---------------------------------------------------------------------------
 post = ladrillo_posterior(path=POSTERIOR, cols=:all, nthin=NTHIN)  # :all — the ledger columns are needed here
 const VARIANT = ladrillo_posterior_variant(POSTERIOR)
+const AIS_RAMP = ladrillo_ramp_posterior(POSTERIOR)   # L30: the posterior decides, not a flag
 ## WHICH SERIES THE POSTERIOR WAS ACTUALLY FIT TO, read off the posterior itself
 ## rather than assumed: a series is fitted iff its sd_*/rho_* error-model columns
 ## are present. The total stream has been out-of-sample since L11 (D1), so it is
@@ -128,7 +129,7 @@ isempty(UNFITTED) ||
             "OUT-OF-SAMPLE, parameter band only, predictive band NaN")
 ## lws=:central PINNED (2026-09-21): the objective was calibrated with land water zero before 2018 (:central since 09-18); projections default to :observed (brick_mengel.jl LWS_MODE) and must not move the hindcast side.
 bf   = ladrillo_setup(ssp="ssp245", y0=Y0, y1=Y1, forcing_tag=FORCING, ref=FIT_REF, lws=:central,
-                      gis_variant = VARIANT)
+                      gis_variant = VARIANT, ais_ramp = AIS_RAMP)
 imy  = [ladrillo_yi(bf, y) for y in FY]
 ny   = length(FY)
 

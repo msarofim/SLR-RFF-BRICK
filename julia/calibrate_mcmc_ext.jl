@@ -85,6 +85,7 @@
 using CSV, DataFrames, Dates, Mimi, MimiBRICK, Statistics, LinearAlgebra, Distributions, Random, Printf
 using RobustAdaptiveMetropolisSampler
 include(joinpath(@__DIR__, "brick_mengel.jl"))
+include(joinpath(@__DIR__, "antarctic_icesheet_magdep_component.jl"))   # --ais-ramp (L30)
 
 const REPO = abspath(joinpath(@__DIR__, ".."))
 const OBS  = joinpath(REPO, "data/observations")
@@ -836,6 +837,26 @@ const PRECIP_REPARAM = "--precip-reparam" in ARGS
 ##                  priors instead (uniform[0,25] mm ~ N(12.5, 7.2), N(2.5, 2.0) mm): the 1850-1900 melt is scored
 ##                  against N(M19_MU - 15 mm, sqrt(M19_SIGMA^2 + 7.2^2 + 2.0^2) mm).
 const CUT_FASTDYN = "--cut-fastdyn" in ARGS
+## --ais-ramp (2026-09-22, L30): an ADDITIONAL DISCHARGE RESPONSE, linear in T_ant above an onset that is sampled in
+## GLOBAL warming (ais_ramp_gon, K, flat on [RAMP_GON_LO, RAMP_GON_HI]) with a log10 slope (ais_ramp_log10s, m SLE/yr
+## per degC of excess, flat on [RAMP_LS_LO, RAMP_LS_HI]). The threshold is DERIVED per draw through amp,
+## T_ramp = AIS_TANT0 + amp * G_on, so "onset at +0.7 K global" means the same thing on every draw. The term is
+## added to the magdep component (antarctic_icesheet_magdep, n = 0 = stock) and COEXISTS with the paleo binary
+## (Marcus 09-22: coexist primary; replace = a later arm). Flag absent = byte-identical (identity gate 09-22d).
+## Motivation and the fixed-parameter sweep that sized the prior: scoping 2026-09-21 §6-7, scope_ais_onset_sweep.jl
+## (on 0.60-0.75 K / s 3-6e-4 reproduces all four pre-pause IMBIE windows; earlier onsets spoil the flat leg).
+const AIS_RAMP = "--ais-ramp" in ARGS
+const RAMP_GON_LO, RAMP_GON_HI = 0.30, 1.20          # K global; 1.20 > the driver's 2011-17 mean 1.03, so "no onset in range" is reachable
+const RAMP_LS_LO,  RAMP_LS_HI  = log10(0.5e-4), log10(20e-4)   # m SLE/yr/K; the sweep's identified 3-6e-4 sits mid-range
+## OVER-DISPERSED ramp starts, one per start row (seeds 2026-2029 -> rows 1-4). The ramp pair has no ancestor
+## in any starts file, so a single shared start would make four chains agree on the new dimensions BY
+## CONSTRUCTION and the agreement would look like a posterior ([[mid_mode_wins_but_start_determined]]: chains
+## that never leave their start band). These four cells span the sweep's identified region (0.60-0.75 K,
+## 3-6e-4) and both sides of it, so R-hat on the ramp measures mixing rather than the start.
+const RAMP_STARTS = [(0.45, log10(1.5e-4)), (0.60, log10(3.0e-4)), (0.75, log10(6.0e-4)), (0.95, log10(12.0e-4))]
+const RAMP_GON_START, RAMP_LS_START = RAMP_STARTS[3]            # the sweep's best cell; the default when not --overdisperse
+AIS_RAMP && @printf("L30 flag: ais-ramp=true  G_on flat [%.2f, %.2f] K global, log10 s flat [%.3f, %.3f] (s %.1e-%.1e m/yr/K); T_ramp = TANT0 + amp*G_on per draw; coexists with the paleo binary\n",
+                    RAMP_GON_LO, RAMP_GON_HI, RAMP_LS_LO, RAMP_LS_HI, 10^RAMP_LS_LO, 10^RAMP_LS_HI)
 const FIX_GAMMA   = "--fix-gamma" in ARGS
 const NO_LEDGER   = "--no-ledger" in ARGS
 const PALEO_MED   = let d = CSV.read(joinpath(REPO, "outputs/paleo_dais_marginals.csv"), DataFrame)
@@ -1272,6 +1293,14 @@ push!(FREE, (name="ais_gmst_amp",comp=:antarctic_icesheet,sym=:ais_temperature_c
 @printf("A6 prior: amp ~ N(%.3f, %.3f) on [%.3f, %.3f]   TAG=%s\n",
         AMP_MU, AMP_SIGMA, AMP_LO, AMP_HI, TAG)
 const AMP_IDX = length(FREE)                   # DERIVED param: sym above is never set directly
+## --ais-ramp: two sampled params, both DERIVED into the component (sym is a placeholder, never set directly);
+## sigma 1e3 = flat on [lo, hi] (the thermal_alpha idiom). Pushed BEFORE the geometry block, which must stay LAST.
+if AIS_RAMP
+    push!(FREE, (name="ais_ramp_gon",    comp=:antarctic_icesheet, sym=:ais_ramp_threshold, μ=RAMP_GON_START, σ=1.0e3, lo=RAMP_GON_LO, hi=RAMP_GON_HI, islog=false))
+    push!(FREE, (name="ais_ramp_log10s", comp=:antarctic_icesheet, sym=:ais_ramp_slope,     μ=RAMP_LS_START,  σ=1.0e3, lo=RAMP_LS_LO,  hi=RAMP_LS_HI,  islog=false))
+end
+const RAMP_GON_IDX = AIS_RAMP ? length(FREE) - 1 : 0
+const RAMP_LS_IDX  = AIS_RAMP ? length(FREE)     : 0
 
 # ---- v-next Strategy B: FREE the 7 DAIS geometry params under a JOINT paleo prior ----
 # These were previously FIXED at the prior medoid, which discards both their spread and
@@ -1470,6 +1499,21 @@ m = GIS_BASINS ? build_brick_nu3_gis3(ssp="ssp245", y0=Y0, y1=Y1, lws=:central) 
 CUT_FASTDYN && (update_param!(m, :antarctic_icesheet, :λ, PALEO_MED["antarctic_lambda"]);
                 update_param!(m, :antarctic_icesheet, :temperature_threshold, PALEO_MED["antarctic_temp_threshold"]))
 FIX_GAMMA   && update_param!(m, :antarctic_icesheet, :ais_γ, PALEO_MED["antarctic_gamma"])
+## --ais-ramp: the AIS slot becomes the magdep component (n = 0 = stock, bit for bit) carrying the ramp; the slot
+## NAME is kept by replace!, so every update_param!(m, :antarctic_icesheet, ...) below is unchanged. Held values
+## (lambda / T_crit / gamma under --cut-fastdyn / --fix-gamma) are re-applied AFTER the replace so they cannot be
+## lost to the swap.
+if AIS_RAMP
+    replace!(m, :antarctic_icesheet => antarctic_icesheet_magdep)
+    update_param!(m, :antarctic_icesheet, :ais_fastdyn_exponent, 0.0)
+    update_param!(m, :antarctic_icesheet, :ais_fastdyn_ref_excess, 1.0)
+    update_param!(m, :antarctic_icesheet, :ais_fastdyn_gmax, Inf)
+    update_param!(m, :antarctic_icesheet, :ais_ramp_slope, 0.0)
+    update_param!(m, :antarctic_icesheet, :ais_ramp_threshold, 0.0)
+    CUT_FASTDYN && (update_param!(m, :antarctic_icesheet, :λ, PALEO_MED["antarctic_lambda"]);
+                    update_param!(m, :antarctic_icesheet, :temperature_threshold, PALEO_MED["antarctic_temp_threshold"]))
+    FIX_GAMMA   && update_param!(m, :antarctic_icesheet, :ais_γ, PALEO_MED["antarctic_gamma"])
+end
 gic3_init = (; (Symbol(b) => (a=Float64(bcrow(b).a0),
                               b=Float64(bcrow(b)["b_fit_$(FIT_BASIS)"]),
                               T_off=Float64(bcrow(b)["T_off_fit_$(FIT_BASIS)"]),
@@ -1531,6 +1575,7 @@ function logposterior(θ)
     @inbounds for k in 1:NP
         (k == AMP_IDX || k == TON_IDX || k in SETP_SKIP) && continue   # derived/likelihood-only
         (PRECIP_REPARAM && k == PRECIP_IDX) && continue                # derived: log P0 below
+        (AIS_RAMP && (k == RAMP_GON_IDX || k == RAMP_LS_IDX)) && continue   # derived: ramp below
         setp!(FREE[k], θ[k])
     end
     PRECIP_REPARAM && update_param!(m, :antarctic_icesheet, :ais_precipitation₀, precip_log(θ))
@@ -1555,6 +1600,11 @@ function logposterior(θ)
     # A6: temperature map -- amp with the T_ant(GMST=0) anchor preserved
     update_param!(m, :antarctic_icesheet, :ais_temperature_coefficient, 1.0 / θ[AMP_IDX])
     update_param!(m, :antarctic_icesheet, :ais_temperature_intercept, -AIS_TANT0 / θ[AMP_IDX])
+    # --ais-ramp: onset in global warming -> T_ant scale through THIS draw's amp; slope from log10
+    if AIS_RAMP
+        update_param!(m, :antarctic_icesheet, :ais_ramp_threshold, AIS_TANT0 + θ[AMP_IDX] * θ[RAMP_GON_IDX])
+        update_param!(m, :antarctic_icesheet, :ais_ramp_slope, 10.0^θ[RAMP_LS_IDX])
+    end
     run(m)
     # F_unch: the target's uncharted content, held on the model side of every comparison
     # (never in the Mimi graph — the AIS sea-level feedback sees only real reservoir melt)
@@ -2043,13 +2093,25 @@ if OVERDISPERSE
     # (2) build overdispersed_starts.csv from it (draws at ais_iceflow0 quantiles
     # 0.02/0.35/0.65/0.98 -- NOT random jitter, which gives non-finite logpost) and
     # adapted_cov_ext.csv; (3) this production run.
-    missing_cols = [nm for nm in pn0 if !hasproperty(st, Symbol(nm))]
+    ## --ais-ramp: the two ramp parameters have NO ancestor in any starts file (they are new in L30), so they are
+    ## the ONE exemption from the cover-the-parameter-set guard: they keep the declared start (RAMP_*_START, the
+    ## sweep's best cell) on every chain, which is announced below. The guard is otherwise untouched — an exemption
+    ## that silently covered any missing column is exactly the defect it exists to catch.
+    const RAMP_START_NAMES = AIS_RAMP ? ("ais_ramp_gon", "ais_ramp_log10s") : ()
+    missing_cols = [nm for nm in pn0 if !hasproperty(st, Symbol(nm)) && !(nm in RAMP_START_NAMES)]
     isempty(missing_cols) || error("--overdisperse: $SF is missing $(length(missing_cols)) " *
         "column(s): $(join(missing_cols, ", ")). It predates the current parameter set — " *
         "rebuild it from a phase-2 tuning run (two-stage launch; see calibrate header + handoff §9).")
     θmap = copy(θ0)
     for (k, nm) in enumerate(pn0)
+        hasproperty(st, Symbol(nm)) || continue      # ramp params only (guarded above): keep the declared start
         θ0[k] = Float64(st[si, Symbol(nm)])
+    end
+    if AIS_RAMP
+        g0, l0 = RAMP_STARTS[min(si, length(RAMP_STARTS))]
+        θ0[RAMP_GON_IDX] = g0; θ0[RAMP_LS_IDX] = l0
+        @printf("--ais-ramp: %s start OVER-DISPERSED by start row — row %d gives G_on %.2f K, log10 s %.3f (s %.2e); NOT in %s\n",
+                join(RAMP_START_NAMES, " and "), si, g0, l0, 10^l0, basename(SF))
     end
     # A6 sensitivity: the starts file holds phase-2 amp draws (~0.94); pin the start at the
     # equilibrium value so the chain begins on the pinned prior, not +100σ off it.

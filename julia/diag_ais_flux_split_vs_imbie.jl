@@ -17,7 +17,7 @@ const PATH = joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_
 const WINS = [(1979, 1991), (1992, 2002), (2003, 2010), (2011, 2017), (2018, 2023), (1979, 2008), (1992, 2020)]
 
 post = ladrillo_posterior(path=PATH, cols=:all, nthin=NTHIN)
-bf = ladrillo_setup(ssp="ssp245", y0=Y0, y1=Y1, forcing_tag=FORCING, ref=REF, lws=:central, gis_variant=ladrillo_posterior_variant(PATH))
+bf = ladrillo_setup(ssp="ssp245", y0=Y0, y1=Y1, forcing_tag=FORCING, ref=REF, lws=:central, gis_variant=ladrillo_posterior_variant(PATH), ais_ramp=ladrillo_ramp_posterior(PATH))
 yrs = collect(Y0:Y1); yi(y) = findfirst(==(y), yrs)
 prov = "$SCRIPT | tag $TAG ($(nrow(post)) thinned draws) | hindcast $Y0-$Y1, forcing $FORCING, LWS central | SMB = beta_total, discharge = ice_flux (m^3 ice/yr x $M3ICE_TO_GT = Gt/yr; ice-mass sign) | AIS level cm rel $(REF) | $(now())"
 n = nrow(post); ny = length(yrs)

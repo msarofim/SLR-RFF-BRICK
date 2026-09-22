@@ -79,6 +79,7 @@
 
 using CSV, DataFrames, Mimi, MimiBRICK, Statistics, Random
 include(joinpath(@__DIR__, "brick_mengel.jl"))
+include(joinpath(@__DIR__, "antarctic_icesheet_magdep_component.jl"))   # L30: the --ais-ramp slot
 
 const LADRILLO_REPO = abspath(joinpath(@__DIR__, ".."))
 const LADRILLO_OBS  = joinpath(LADRILLO_REPO, "data/observations")
@@ -394,6 +395,18 @@ end
 ##                    draw, assigned by a FIXED-seed RNG so a given posterior file always gets the same rows.
 ##   gamma          : the paleo median (outputs/paleo_dais_marginals.csv p50) — the calibration's own value.
 ## No-op on a posterior that carries the columns, so every loader may call it unconditionally.
+## L30 (2026-09-22): a posterior calibrated with --ais-ramp carries the ADDITIONAL DISCHARGE RESPONSE as
+## (ais_ramp_gon, ais_ramp_log10s) — the onset in GLOBAL warming and the log10 slope. The kernel derives the
+## component's own parameters per draw: T_ramp = LADRILLO_AIS_TANT0 + amp * G_on (the SAME derivation the
+## calibrator uses, so projection and calibration cannot disagree) and slope = 10^log10s. A posterior WITHOUT
+## these columns projects with the stock AIS slot, exactly as before.
+const LADRILLO_RAMP_COLS = ["ais_ramp_gon", "ais_ramp_log10s"]
+ladrillo_has_ramp(cols) = all(c -> c in cols, LADRILLO_RAMP_COLS)
+"""True when the posterior FILE carries the L30 ramp columns. Drivers must call this BEFORE `ladrillo_setup`,
+because `ais_ramp=` decides which AIS component the model is built with (the same contract as `gis_variant=`)."""
+ladrillo_ramp_posterior(path::AbstractString=LADRILLO_POSTERIOR_CSV) =
+    ladrillo_has_ramp(String.(propertynames(CSV.read(path, DataFrame; limit=0))))
+
 const LADRILLO_PROPAGATED_PAIR = ["antarctic_lambda", "antarctic_temp_threshold"]
 const LADRILLO_FIXED_PALEO     = ["antarctic_gamma"]
 const LADRILLO_PALEO_DRAWS     = joinpath(LADRILLO_REPO, "outputs/paleo_fastdyn_draws.csv")
@@ -464,6 +477,8 @@ function ladrillo_used_cols(variant::Symbol, header)
         (need = vcat(setdiff(need, [LADRILLO_PRECIP_NATIVE_COL]), [LADRILLO_PRECIP_REPARAM_COL]))
     # L27+: propagated / fixed parameters are attached after reading, so do not demand them from the file
     need = [c for c in need if c in header || !(c in LADRILLO_PROPAGATED_PAIR || c in LADRILLO_FIXED_PALEO)]
+    # L30: the ramp columns are read when the file HAS them (a pre-L30 posterior simply has no ramp)
+    ladrillo_has_ramp(header) && (need = vcat(need, LADRILLO_RAMP_COLS))
     return unique(need)
 end
 
@@ -537,6 +552,7 @@ struct Ladrillo
     gis_shape::Vector{Float64}               # S(warming level) per year; ALL ONES when the law is off
     gis_shape_anchor::Float64                # mean(S_t * gmst_rb_t) over the splice anchor window
     gis_shape_on::Bool                       # whether amp(GMST) is applied at all
+    ais_ramp::Bool                           # L30: the AIS slot is antarctic_icesheet_magdep carrying the additional discharge response
 end
 
 """
@@ -616,7 +632,7 @@ function ladrillo_setup(; ssp::String="ssp245", y0::Int=1850, y1::Int=2300,
                       ohc::Union{Nothing,Vector{<:Real}}=nothing,
                       lws::Symbol=LWS_MODE, gis_ab::Bool=false,
                       gis_variant::Union{Nothing,Symbol}=nothing,
-                      gis_shape::Bool=true)
+                      gis_shape::Bool=true, ais_ramp::Bool=false)
     years = collect(y0:y1)
     yi(y) = findfirst(==(y), years)
 
@@ -718,12 +734,24 @@ function ladrillo_setup(; ssp::String="ssp245", y0::Int=1850, y1::Int=2300,
     gis_variant in (:basins, :basins2) &&
         update_gis3_shares!(m; k = ladrillo_basin_k(gis_variant))
 
+    ## L30: swap the AIS slot for the magdep component and leave the ramp OFF here — slope and threshold are
+    ## set per draw in `ladrillo_apply_draw!`. `replace!` keeps the slot NAME, so nothing else changes, and
+    ## fastdyn n = 0 keeps the paleo binary term exactly as stock (the two terms COEXIST; gate_ais_ramp_inert.jl).
+    if ais_ramp
+        replace!(m, _AIS => antarctic_icesheet_magdep)
+        update_param!(m, _AIS, :ais_fastdyn_exponent, 0.0)
+        update_param!(m, _AIS, :ais_fastdyn_ref_excess, 1.0)
+        update_param!(m, _AIS, :ais_fastdyn_gmax, Inf)
+        update_param!(m, _AIS, :ais_ramp_slope, 0.0)
+        update_param!(m, _AIS, :ais_ramp_threshold, 0.0)
+    end
+
     return Ladrillo(m, ssp, years, [yi(y) for y in ref[1]:ref[2]],
                   Float64.(gmst), gmst_rb, obs_driver, obs_anchor,
                   mean(gmst_rb[[yi(y) for y in anchor]]),
                   years .<= last_obs, nu, _funch_unit(years),
                   gis_variant, gis_obs, gis_anchor, gis_mask,
-                  gis_shape_v, gis_shape_anchor, gis_shape)
+                  gis_shape_v, gis_shape_anchor, gis_shape, ais_ramp)
 end
 
 """
@@ -826,6 +854,18 @@ function ladrillo_apply_draw!(bf::Ladrillo, row)
     amp = Float64(row["ais_gmst_amp"])
     update_param!(m, _AIS, :ais_temperature_coefficient, 1.0 / amp)
     update_param!(m, _AIS, :ais_temperature_intercept, -LADRILLO_AIS_TANT0 / amp)
+    ## L30 ramp. Checked BOTH ways, like the Greenland variant: a ramp row on a stock model would leave the
+    ## term at whatever the slot was built with (silently no ramp), and a ramp model on a stock row would
+    ## project someone else's onset.
+    row_has_ramp = all(c -> _hascol(row, c), LADRILLO_RAMP_COLS)
+    row_has_ramp == bf.ais_ramp || error("ladrillo_apply_draw!: the draw " *
+        (row_has_ramp ? "carries the L30 ramp columns but this Ladrillo was built without ais_ramp=true" :
+                        "has no ramp columns but this Ladrillo was built with ais_ramp=true") *
+        " — build with ais_ramp=ladrillo_ramp_posterior(<posterior path>)")
+    if bf.ais_ramp
+        update_param!(m, _AIS, :ais_ramp_threshold, LADRILLO_AIS_TANT0 + amp * Float64(row["ais_ramp_gon"]))
+        update_param!(m, _AIS, :ais_ramp_slope, 10.0^Float64(row["ais_ramp_log10s"]))
+    end
     return bf
 end
 

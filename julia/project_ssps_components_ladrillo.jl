@@ -133,6 +133,7 @@ const HORIZONS = (2100, 2150, 2300)
 const COMPONENTS = [:glaciers, :gis, :ais, :te, :lws, :total]
 
 const VARIANT = ladrillo_posterior_variant(POSTERIOR)
+const AIS_RAMP = ladrillo_ramp_posterior(POSTERIOR)   # L30: the posterior decides, not a flag
 post = ladrillo_posterior(path=POSTERIOR, nthin=NTHIN)
 @printf("Ladrillo SSP components | posterior %s (%d draws) | Greenland :%s | base %d-%d | horizon %d\n",
         basename(POSTERIOR), nrow(post), VARIANT,
@@ -183,7 +184,7 @@ else
 end
 
 for cell in CELLS, (ssp, label) in SSPS
-    bf = ladrillo_setup(ssp=ssp, y0=Y0, y1=Y1, gis_variant = VARIANT)
+    bf = ladrillo_setup(ssp=ssp, y0=Y0, y1=Y1, gis_variant = VARIANT, ais_ramp = AIS_RAMP)
     ## THE SET ARM IS EXPLICITLY FIRST-ORDER / HIGH-BASIN. Its cells were priced that
     ## way, and `ladrillo_set_tap!` now DEFAULTS to the shipped cascade — so omitting
     ## these two keywords would silently re-run a first-order admissible set as

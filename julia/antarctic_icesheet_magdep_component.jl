@@ -46,6 +46,18 @@
 ##
 ## Swap in with `Mimi.replace!(m, :antarctic_icesheet => antarctic_icesheet_magdep)`,
 ## the same idiom `brick_mengel.jl` uses for the glacier and Greenland slots.
+##
+## RAMP (2026-09-22, L30 arc). A SECOND, additive above-threshold term: an ADDITIONAL
+## DISCHARGE RESPONSE linear in the excess over its own onset,
+##     ramp = ais_ramp_slope * max(T_ant - ais_ramp_threshold, 0) * 24.78e15/57   (m^3/yr)
+## with the slope in m SLE/yr per degC of excess. It COEXISTS with the stock/magdep
+## fast-dynamics term (the paleo binary at ~+2.8 degC T_ant keeps its LIG meaning); the
+## two are summed and floored jointly. `ais_ramp_slope = 0.0` skips the term by a literal
+## branch, so slope 0 is bit-identical to the pre-ramp component (calibrator identity
+## gate, CHANGELOG 09-22d). Motivation: IMBIE 2026's dynamics anomaly is steeper in GMST
+## than DAIS's linear discharge from ~0.6-0.75 K of global warming on (scoping
+## 2026-09-21 §7, `scope_ais_onset_sweep.jl`); the calibrator samples the onset in
+## GLOBAL warming and the log10 slope and derives the threshold through amp.
 ## ============================================================================
 using Mimi
 
@@ -83,6 +95,9 @@ using Mimi
     ais_fastdyn_exponent        = Parameter()             # n: exponent on the normalised above-threshold excess. 0 = stock binary flux.
     ais_fastdyn_ref_excess      = Parameter()             # Excess (°C) at which the magnitude factor is 1, i.e. where λ keeps its stock meaning.
     ais_fastdyn_gmax            = Parameter()             # Cap on the magnitude factor. Inf = uncapped (the default; capping is reported, never silent).
+    ## RAMP -- the additional discharge response. slope 0 = term absent (literal skip).
+    ais_ramp_slope              = Parameter()             # m SLE yr⁻¹ per °C of excess over ais_ramp_threshold; 0.0 = off.
+    ais_ramp_threshold          = Parameter()             # Onset (°C, DAIS Antarctic-surface scale, i.e. T_ant = amp*GMST + TANT0).
     include_ais_DSL             = Parameter{Bool}()       # Check for whether 'Δ_sea_level' represents contribution from all components including AIS (true) or all other components excluding AIS (false).
     global_surface_temperature  = Parameter(index=[time]) # Global mean surface temperature anomaly relative to pre-industrial (°C).
     antarctic_ocean_temperature = Parameter(index=[time]) # High-latitude ocean subsurface temperaturea (°C).
@@ -110,6 +125,7 @@ using Mimi
     disintegration_factor        = Variable(index=[time]) # g, the magnitude factor actually applied (1.0 throughout when n = 0)
     disintegration_floored       = Variable(index=[time]) # 1.0 in any year the mass-conservation floor bound, else 0.0
     disintegration_volume        = Variable(index=[time]) # Volume of disintegrated ice during this time step [m SLE]
+    ramp_rate                    = Variable(index=[time]) # RAMP: the additional discharge response actually applied (m^3/yr, negative), 0 when off
     ais_sea_level                = Variable(index=[time]) # the volume of the antarctic ice sheet in SLE equivilent (m)
 
     # --------------------
@@ -259,6 +275,21 @@ using Mimi
                 v.disintegration_factor[t] = 0.0
                 v.disintegration_floored[t] = 0.0
                 v.disintegration_rate[t] = 0.0
+            end
+
+            ## RAMP -- the additional discharge response, summed with the term above and
+            ## floored jointly against the ice the term above left. `slope == 0.0` is a
+            ## LITERAL skip so the pre-ramp component is reproduced bit for bit.
+            if p.ais_ramp_slope == 0.0
+                v.ramp_rate[t] = 0.0
+            else
+                rw = p.ais_ramp_slope * max(v.antartic_surface_temperature[t] - p.ais_ramp_threshold, 0.0) * 24.78e15 / 57.0
+                ravail = max(max(v.ais_volume[t-1], 0.0) + v.disintegration_rate[t], 0.0)
+                if rw > ravail
+                    v.disintegration_floored[t] = 1.0
+                end
+                v.ramp_rate[t] = -min(rw, ravail)
+                v.disintegration_rate[t] += v.ramp_rate[t]
             end
 
             # Calculate total disintegration

@@ -27,7 +27,7 @@ for tag in TAGS
     prov = "$SCRIPT | tag $tag ($(basename(path)), $(nrow(post)) evenly thinned draws) | fixed-driver arm (fair_mean_gmst, " *
            "$Y0-$Y1, LWS $(LWS_MODE)) | gap = AIS@2100 > $GAP_CM cm | cm relative to $(LADRILLO_REF) | $(now())"
     for ssp in SSPS
-        bf = ladrillo_setup(ssp=ssp, y0=Y0, y1=Y1, gis_variant=ladrillo_posterior_variant(path)); ladrillo_set_tap!(bf)
+        bf = ladrillo_setup(ssp=ssp, y0=Y0, y1=Y1, gis_variant=ladrillo_posterior_variant(path), ais_ramp=ladrillo_ramp_posterior(path)); ladrillo_set_tap!(bf)
         yrs = collect(Y0:Y1); yi = Dict(h => findfirst(==(h), yrs) for h in HORIZONS)
         a21 = Float64[]; a23 = Float64[]
         for (i, r) in enumerate(eachrow(post))
