@@ -475,6 +475,63 @@ def check_component_sum(byc, scen, model, year=2300, tol_cm=1e-6):
 ## caption text that would have been drawn, so the stamp is one directory away, not lost.
 PAPER = "--paper" in sys.argv
 
+def direct_label(ax, entries, pad_frac=0.02, fontsize=7.5, min_gap_frac=0.042,
+                 collapsed_text="all scenarios"):
+    """Label each series at its right-hand end instead of in a legend.
+
+    WHY THIS EXISTS (2026-09-22, Marcus's ruling). The seven van Vuuren markers cannot be made
+    mutually distinguishable by COLOUR at the accessibility floors, and the arithmetic is not close:
+    sRGB colours with >= 3:1 contrast on white span an OKLab L* range of 70.7, so six adjacent gaps
+    on any sequential ramp give ~11.8 dE per gap against a floor of 15 -- before colour-vision
+    deficiency is considered at all. A categorical set that DOES clear the floors returns
+    magenta/black/olive/lime and destroys the scenario reading. Direct labelling sidesteps the whole
+    problem: with the name at the end of its own line there is no legend lookup, so colour carries no
+    identifying load and need only be pleasant. `figures/diag_imbie2026_dynamics_null_L30.png` is the
+    in-repo precedent.
+
+    ⚠ NOT a substitute for a readable palette where a legend IS used -- see SSP_SET's header.
+
+    `entries` is an iterable of (y, text, colour) in DATA coordinates. Labels are pushed apart to at
+    least `min_gap_frac` of the y-range so two near-coincident series stay legible, and the x-limit is
+    extended by `pad_frac` of the x-range to make room. Returns the placed y values.
+    """
+    ent = sorted(((float(y), t, c) for y, t, c in entries if y == y), key=lambda e: e[0])
+    if not ent:
+        return []
+    y0, y1 = ax.get_ylim()
+    gap = min_gap_frac * (y1 - y0)
+    ## ⚠ COINCIDENT SERIES GET ONE LABEL, NOT N STACKED ONES. Land-water storage is identical
+    ## across every scenario by construction (it is the one component exempt from the climate
+    ## driver), so labelling all seven produced a column of leader lines pointing at a single
+    ## line -- visual noise asserting a distinction that does not exist. If the whole set fits
+    ## inside one gap, say so once.
+    if len(ent) > 1 and (ent[-1][0] - ent[0][0]) < gap:
+        ym = sum(e[0] for e in ent) / len(ent)
+        x0, x1 = ax.get_xlim()
+        ax.set_xlim(x0, x1 + pad_frac * (x1 - x0))
+        ax.annotate(collapsed_text, xy=(x1, ym), xytext=(x1 + 0.012 * (x1 - x0), ym),
+                    fontsize=fontsize, color="0.35", va="center", ha="left",
+                    annotation_clip=False)
+        return [ym]
+    ys = [e[0] for e in ent]
+    ## one upward sweep then one downward, which is enough to separate any number of labels
+    ## while keeping the ORDER of the series -- reordering them would be worse than overlapping.
+    for i in range(1, len(ys)):
+        ys[i] = max(ys[i], ys[i - 1] + gap)
+    for i in range(len(ys) - 2, -1, -1):
+        ys[i] = min(ys[i], ys[i + 1] - gap)
+    x0, x1 = ax.get_xlim()
+    ax.set_xlim(x0, x1 + pad_frac * (x1 - x0))
+    for (yd, text, col), yl in zip(ent, ys):
+        ax.annotate(text, xy=(x1, yd), xytext=(x1 + 0.012 * (x1 - x0), yl),
+                    fontsize=fontsize, color=col, va="center", ha="left",
+                    annotation_clip=False,
+                    arrowprops=None if abs(yl - yd) < 0.25 * gap else
+                    dict(arrowstyle="-", color=col, lw=0.5, alpha=0.55,
+                         shrinkA=0, shrinkB=0))
+    return ys
+
+
 def paper_path(out):
     """figures/<name>.png -> figures/paper/<name>.png under --paper, unchanged otherwise."""
     if not PAPER:

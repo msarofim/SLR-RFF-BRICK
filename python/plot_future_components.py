@@ -54,6 +54,9 @@ if ARM not in ("joint", "fixed"):
     raise SystemExit("--arm must be 'joint' or 'fixed', not %r" % ARM)
 DESC = lf.tag_desc(TAG)
 SCENS = lf.scen_set(SET)
+## Above this many scenarios the panel switches from a colour legend to DIRECT LABELS.
+## 3 keeps the SSP triple on a legend and puts the 7 van Vuuren markers on end-labels.
+DIRECT_LABEL_ABOVE = 3
 SETNAME = {"ssp": "CMIP6 SSPs", "vv": "van Vuuren CMIP7 scenarios"}[SET]
 OUT = lf.paper_path(os.path.join(lf.REPO, "figures",
                    "future_components_%s_%s_%s.png" % (SET, TAG, ARM)))
@@ -120,10 +123,14 @@ for k, lab, _c, _d in SCENS:
 # --- figure ----------------------------------------------------------------
 fig, axes = plt.subplots(2, 3, figsize=(15.5, 8.6))
 for ax, comp in zip(axes.ravel(), lf.COMPONENTS):
+    ends = []
     for k, lab, col, _d in SCENS:
         d = LAD[k][comp]
         d = d[(d.index >= X0)]
         ax.plot(d.index.values, d.med_cm.values, color=col, lw=1.9, ls="-")
+        ## the label's y is taken from the SERIES ACTUALLY DRAWN, never re-looked-up by year:
+        ## a reindex on a year the file does not carry returns NaN and the label silently vanishes
+        ends.append((d.med_cm.values[-1], lab, col))
         if k in BAND_SCENS:
             ax.fill_between(d.index.values, d.p05_cm.values, d.p95_cm.values,
                             color=col, alpha=0.13, lw=0)
@@ -134,11 +141,20 @@ for ax, comp in zip(axes.ravel(), lf.COMPONENTS):
     ax.axhline(0, color="0.85", lw=0.8)
     ax.set_xlim(X0, X1)
     ax.set_title(lf.COMP_TITLE[comp], fontsize=10, fontweight="bold", loc="left")
+    ## ⚠ DIRECT LABELS, NOT A COLOUR LEGEND, WHENEVER THE SET IS BIGGER THAN THE PALETTE CAN
+    ## CARRY (Marcus's ruling 2026-09-22). At seven van Vuuren markers no colour set clears the
+    ## accessibility floors while still reading as a scenario ordering -- see
+    ## ladrillo_figs.direct_label's header for the arithmetic. Naming each line at its own end
+    ## removes the legend lookup, so the colours carry no identifying load. The three SSPs are
+    ## under the threshold and keep the legend, which stays readable.
+    if len(SCENS) > DIRECT_LABEL_ABOVE:
+        lf.direct_label(ax, ends)
     ax.set_ylabel("cm SLE (rel. 1995–2014)", fontsize=8)
     ax.tick_params(labelsize=8)
 axes[1, 0].set_xlabel("year")
 
-handles = [Line2D([], [], color=c, lw=2, label=l) for _k, l, c, _d in SCENS]
+handles = ([] if len(SCENS) > DIRECT_LABEL_ABOVE
+           else [Line2D([], [], color=c, lw=2, label=l) for _k, l, c, _d in SCENS])
 handles += [Line2D([], [], color="0.3", ls="-", lw=2, label=DESC["model"]),
             Line2D([], [], color="0.3", ls="--", lw=1.5, label="BRICK 2.0"),
             Line2D([], [], color="0.3", alpha=0.2, lw=8,

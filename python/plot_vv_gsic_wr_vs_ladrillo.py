@@ -229,9 +229,16 @@ else:
     ax = {i: _axs[i] for i in range(4)}
 
 # ---- (a) GMST forcing ----
+## ⚠ DIRECT LABELS, NOT A COLOUR LEGEND (Marcus's ruling 2026-09-22). Seven scenarios cannot be
+## made mutually distinguishable by colour at the accessibility floors -- this figure's own palette
+## had #f69320 (Medium-to-Low) and #c8a000 (Medium) at OKLab dE 8.4 in NORMAL vision and 1.4 under
+## protanopia. Naming each line at its end removes the legend lookup entirely. See
+## ladrillo_figs.direct_label for the arithmetic; the label y is taken from the DRAWN series.
+_ends0 = []
 for s in LABELS:
     d = wr(s)
-    ax[0].plot(d.year.values, d.gmst.values, color=COL[s], lw=1.8, label=s)
+    ax[0].plot(d.year.values, d.gmst.values, color=COL[s], lw=1.8)
+    _ends0.append((d.gmst.values[-1], s, COL[s]))
 ax[0].set_ylabel("GMST (°C rel. PI)")
 ax[0].set_title(("Glacier melt to 2300 — %s, seven van Vuuren CMIP7 scenarios" % LAD_NAME)
                 if LADRILLO_ONLY else
@@ -241,7 +248,7 @@ ax[0].set_title(("Glacier melt to 2300 — %s, seven van Vuuren CMIP7 scenarios"
 ## melt rate (c)") -- (b) and (c) carried theirs, (a) did not (found 2026-09-11).
 ax[0].text(0.012, 0.93, "(a)  GMST forcing", transform=ax[0].transAxes, fontsize=9.5,
            fontweight="bold", va="top")
-ax[0].legend(ncol=4, fontsize=7.5, frameon=False, loc="upper left", bbox_to_anchor=(0.0, 0.88))
+lf.direct_label(ax[0], _ends0)
 _pk = {s: (wr(s).set_index("year").gmst.loc[2015:2300].idxmax(),
            wr(s).set_index("year").gmst.loc[2015:2300].max()) for s in DECLINE}
 ax[0].annotate("%d peak-and-decline pathways\n(peaks %.2f–%.2f °C, %d–%d)"
@@ -265,9 +272,11 @@ if ax[1] is not None:
                % WR_NAME, transform=ax[1].transAxes, fontsize=9.5, fontweight="bold", va="top")
 
 # ---- (c) Ladrillo ----
+_ends2 = []
 for s in LABELS:
     d = lad(s)
     ax[2].plot(d.index.values, d.med_cm.values, color=COL[s], lw=1.9)
+    _ends2.append((d.med_cm.values[-1], s, COL[s]))
     if s == SPREAD_LO:
         ax[2].fill_between(d.index.values, d.p05_cm.values, d.p95_cm.values,
                            color=COL[s], alpha=0.15, lw=0)
@@ -296,30 +305,35 @@ for a in [x for x in (ax[1], ax[2]) if x is not None]:
     a.set_ylim(0, ymax)
     a.axvline(2100, color="0.6", lw=0.8, ls=":")
     a.set_ylabel("cumulative glacier\nmelt (cm SLE, rel 1995–2014)")
+## ⚠ AFTER set_ylim: direct_label derives its minimum label gap from the y-RANGE, so calling it
+## before the limits are final spaces the labels against the wrong axis.
+lf.direct_label(ax[2], _ends2)
 
 # ---- (d) melt rate on the four decline pathways ----
 ## THE COMMITMENT PANEL, built from the DECLINE flag in MARKERS rather than a typed list,
 ## so it cannot fall out of step with panel (a).
+_ends3 = []
 for s in DECLINE:
     if not LADRILLO_ONLY:
         d = wr(s)
         ax[3].plot(d.year.values, np.gradient(d.gsic_med.values, d.year.values) * 100,
                    color=COL[s], lw=1.8, ls="-")
     e = lad(s)
-    ax[3].plot(e.index.values, np.gradient(e.med_cm.values, e.index.values) * 100,
-               color=COL[s], lw=1.8, ls="-" if LADRILLO_ONLY else "--")
+    _r = np.gradient(e.med_cm.values, e.index.values) * 100
+    ax[3].plot(e.index.values, _r, color=COL[s], lw=1.8, ls="-" if LADRILLO_ONLY else "--")
+    _ends3.append((_r[-1], s, COL[s]))
 ax[3].axhline(0, color="0.6", lw=0.8)
 ax[3].axvline(2100, color="0.6", lw=0.8, ls=":")
 ax[3].set_ylabel("melt rate\n(cm / century)")
 ax[3].set_xlabel("year")
 ax[3].set_xlim(X0, X1)
+lf.direct_label(ax[3], _ends3)
 ax[3].text(0.012, 0.93, (("(c)  melt rate on the %d peak-and-decline pathways — falls toward zero "
                           "as the reservoirs equilibrate") if LADRILLO_ONLY else
                          ("(d)  melt rate on the %d peak-and-decline pathways — WR solid stays "
                           "high, Ladrillo dashed falls toward zero")) % len(DECLINE),
            transform=ax[3].transAxes, fontsize=9.5, fontweight="bold", va="top")
-ax[3].legend(handles=[Line2D([], [], color=COL[s], label=s) for s in DECLINE]
-             + ([] if LADRILLO_ONLY else
+ax[3].legend(handles=([] if LADRILLO_ONLY else
                 [Line2D([], [], color="0.3", ls="-", label="Wigley–Raper"),
                  Line2D([], [], color="0.3", ls="--", label="Ladrillo %s" % LADRILLO_TAG)]),
              fontsize=8, frameon=False, loc="upper right",
