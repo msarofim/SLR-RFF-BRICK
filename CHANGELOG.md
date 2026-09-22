@@ -1,3 +1,55 @@
+## 2026-09-22f — THE OBJECTIVE IS NOT BLIND: it has ~96 % POWER on the ramp axis, and it declines because of the 2018–25 PAUSE, which is SMB the model structurally cannot represent. Options after L30 priced (scoping §9); no refit
+
+The 09-22e entry left the ruling as "a rate/window term vs L31", resting on a claim that had not been measured — that the
+shipped objective scores the wrong thing. Three diagnostics, minutes each on existing machinery, **reprice that ruling**.
+
+**1. POWER** (`julia/diag_ais_ramp_objective_power.jl`, new; 3 L30 draws, 200 noise realizations, **seed 20260922** stamped in
+both artifacts). Builds a SYNTHETIC Antarctic record from the model WITH a known ramp, draws noise from the objective's OWN
+fitted covariance at ρ 0.966, and profiles the same candidate grid against it. Detection = best ramp beats no-ramp by ≥ 2
+log-units. Truth 6e-4 @ 0.75 K: **detected 95.7 %** at ρ 0.966, median recovered cell **exactly 6.0e-4 @ 0.75 K**, median gain
++7.8; noiseless ceiling +8.23. Truth 3e-4 @ 0.60 K: **84.5 %**, again the exact cell. Joint over (cell, ρ): the ramp wins
+100.0 % / 99.7 %. ⭐ **If the sweep's ramp were really there, this objective would find it.** L30's refusal is a MEASUREMENT.
+(Standing rule: measure a test's POWER before believing its null.) ⚠ Other parameters fixed ⇒ an UPPER BOUND on a refit's power;
+the ρ profile is a profile likelihood (ρ_ais's prior not carried).
+
+**2. WHERE it declines** (`julia/diag_ais_ramp_penalty_attribution.jl`, new; exact per-year split of `res' Σ⁻¹ res` as
+`q_i = res_i·(Σ⁻¹res)_i`, binned on the IMBIE windows). For 0.75 K / 6e-4 at ρ 0.966 the −11.85 total is carried by
+**2018–25 (−7.74)** and 2011–17 (−2.13); pre-1979 contributes −0.55. At ρ 0.60 the trade is explicit: **2011–17 +4.63**
+(the ramp does buy the acceleration) against **2018–25 −9.86**. Model − obs at 2025: no-ramp **−0.062 cm**, ramp **+0.272 cm**.
+⚠ This −11.85 is the 0.75 K cell; 09-22e's −33.8 is the **0.45 K** cell at the same slope — different cells, not a discrepancy.
+
+**3. AMPLITUDE, not shape weighting** (`julia/diag_ais_objective_shape_sensitivity.jl`, new; no model runs, no RNG). Penalty
+`q = d'Σ⁻¹d` for unit shapes scaled to 0.1 cm at 2025, ρ 0.966: onset-2000 ramp **1.32**, constant offset **2.53**, the ramp's
+ACTUAL late shape (divergence from 2018) **2.53**, idealised step at 2018 **29.61**. Across SMOOTH shapes the sensitivity spans
+only ~2×; the 12× applies to a discontinuity a monotone ramp never produces. Quantitative pre-check: 2.53·(0.334/0.1)² ≈ 28 ⇒
+≈ −14 log-units before the cross-term credit for correcting the pre-existing low bias, against −7.74 measured. **That closes.**
+⚠ **Memory `objective_scores_levels_not_rates` is REVISED, not withdrawn**: its operational conclusions hold and are now
+measured (a smooth drift costs 0.5× a level offset of the same size), but "the objective scores the LEVEL series" is too strong —
+an AR(1) residual at ρ → 1 whitens toward first differences, so it is neither a pure level nor a pure rate scorer. Accurate
+summary: **amplitude² of the discrepancy, with a mild high-frequency emphasis.**
+
+**4. ⭐⭐ ROOT CAUSE — the ramp is rejected by SNOWFALL, not by the dynamics record.** From the model's own flux split
+(`diag_ais_flux_split_vs_imbie_L30.csv`), 1979–2025: the model's SMB has an interannual year-on-year sd of **4.83 Gt/yr**
+against the observed **123** (~25× too quiet), and across the pause it moves the WRONG WAY — model net −150 → −169 Gt/yr (more
+loss), observed −200 → −104 (less loss, on +144 Gt/yr of record EAIS snowfall, scoping §8). The additional discharge response was
+asked to fit NET mass balance over a window whose observed behaviour is an SMB anomaly the model **cannot represent**, and paid
+amplitude² for the divergence — while Antarctic DYNAMICS kept accelerating through it (−179 → −249).
+
+**Options priced** (scoping §9.5, full detail there). **A. Ship the null** — cost 0, and now a positive measured statement
+rather than a gap; recommended for the paper. **B. L31 (ramp + ρ-cap 0.90)** — ~4 h Mac (**Torch verdict said out loud: not
+warranted**, L30 ran 2 h 48 at load ~3); §9.2 predicts it cell-by-cell (0.45 K/1e-4 gains +2.14 at ρ 0.90 while 0.75 K/6e-4 still
+loses −9.95) ⇒ a small early identified ramp, for the record only. **C. A rate/window term — NOT recommended as scoped**: the AIS
+level target EQUALS IMBIE to machine precision on every window from 1992 on (`ais[2002] − ais[1991]` = 0.242471…, identical to
+`imbie_cm`), so a supplementary term double-counts; the null is informative; and restricting it to PRE-PAUSE windows excludes the
+very datum that rejects the ramp. **D. ⭐ The SMB route** — D1, a two-channel AIS likelihood scoring model discharge against
+IMBIE dynamics and model SMB against IMBIE SMB (the model already produces both), is the defensible version of "fit the
+acceleration"; D2 (an SMB anomaly term) is a larger build. Both are Marcus's call and need scoping of their own. **E. L30b
+replace arm** — a prior question wearing a structure question's clothes (§7).
+
+**Champion and paper posterior stay L27** (Marcus, 09-22). Nothing promoted; no chains run this entry.
+⚠ `diag_imbie2026_vs_targets_windows_*.csv` carries a STALE provenance string for the AIS column ("Frederikse 2020 <= 2018,
+GRACE-FO after") — the AIS target has been IMBIE from 1979 on since L28.
+
 ## 2026-09-22e — L30 LANDED: the likelihood did NOT take the additional discharge response — slope pushed to ~1e-4 against its prior floor, onset unidentified, ρ_ais still 0.966, hindcast and projections identical to L28. The likelihood profile says why: under the SHIPPED OBJECTIVE the ramp's optimum IS ~1e-4, and the sweep's 3–6e-4 is preferred only on window-RATE scoring
 
 **Run** (`run_L30.sh` frozen copy, 07:14 → 10:02 chains; acceptance 0.247; noise gate PASS; stage 2 re-run 10:46 → 11:34 after
