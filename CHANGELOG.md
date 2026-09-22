@@ -1,3 +1,50 @@
+## 2026-09-22h — SHIPPING THE NULL (Marcus: "A"). ⚠ The 09-22f/g log-likelihood numbers were run at 3–5 draws and are SUPERSEDED by n=100 with standard errors — the verdict holds, the values moved by up to 1.5 log-units and one intermediate value flipped sign. Paper insert + appendix figure drafted
+
+Marcus chose **option A**: ship the null, keep L27. This entry (1) re-measures everything at a draw count where it is stable,
+(2) adds the shipped posterior's own numbers, which the 09-22f/g entries never had, and (3) drafts the insert material.
+
+**⚠ SUPERSEDED NUMBERS — correct these wherever they are quoted.** 09-22f/g reported the level- and dynamics-channel
+log-likelihoods from **3–5 posterior draws**. They are not stable at that size. At **n = 100**, mean ± SE over draws:
+
+| response | dynamics channel (IND) | dynamics (AR1 ρ.8) | level channel (ρ .966) | NET (IND) |
+|---|---|---|---|---|
+| 1e-4 above 0.45 K | +1.73 ± 0.19 | +0.32 | **+0.12 ± 0.30** (was +0.50) | +1.85 |
+| 3e-4 above 0.60 K | **+2.83 ± 0.44** (was +1.77) | +0.71 | **−3.52 ± 0.60** (was −3.26) | −0.69 |
+| 6e-4 above 0.75 K | **+1.83 ± 0.58** (was +0.25) | +0.62 | **−10.62 ± 0.73** (was −11.85) | −8.79 |
+
+The 2018–25 share of the level penalty for 6e-4 is **−7.39** (was −7.74). ⚠ At an intermediate n = 25 the 3e-4 NET came out
+**+0.28**, i.e. the opposite sign to both n = 5 (−1.49) and n = 100 (−0.69) — the sign of that cell is inside the sampling noise
+and **must not be quoted**. **The VERDICT is unchanged and robust**: the large response is rejected by ≈ 9–10 log-units, the
+intermediate one is ≈ 0 to −3, and only the small early response is mildly positive. ⚠ **Lesson: a log-likelihood difference
+averaged over posterior draws needs its SE measured, not assumed** — these were quoted to two decimals off 3 draws.
+
+**⭐ NEW AND MATERIAL: the SHIPPED posterior tracks the dynamics record; refitting to the IMBIE LEVEL is what breaks it.**
+Dynamics-anomaly misfit against IMBIE (Gt yr⁻¹, model − obs, 1979–2008 reference, n = 100):
+
+| | 1979–91 | 1992–2002 | 2003–10 | 2011–17 | 2018–23 |
+|---|---|---|---|---|---|
+| **L27 (shipped)** | +3.3 | −8.3 | +21.8 | **+13.4** | **+48.1** |
+| L30 (refit to the IMBIE level) | −4.0 | −8.5 | +38.7 | +39.8 | +85.8 |
+
+L27's worst departure (+48.1 in 2018–23) is **0.4 of IMBIE's own window σ of 130**. ⚠ But L27 is WORSE on the LEVEL:
+1979–2023 cumulative z **−2.64** (0.951 cm vs IMBIE 1.328) against L28/L30's −0.76/−0.77. **The two channels disagree about
+which posterior is better, and that is the diagnosis restated**: the level contains the SMB excursion, so fitting it improves the
+level and degrades the dynamics. This is the strongest single argument for shipping L27 and it was not available before today.
+
+**Deliverables.** `deliverables/GMD_imbie2026_null_INSERT.md` — placement against the existing "Deliberately removed: IMBIE, and
+the total" paragraph, a technical caption, two methods paragraphs, a result paragraph with the numbers, Table X, and the Otosaka
+reference stub (⚠ author list NOT verified — take from the paper). Framing sentences are marked `[MCS]` and left blank per the
+standing split. Figure `figures/diag_imbie2026_dynamics_null_L30.png` (`python/plot_imbie2026_dynamics_null.py`): panel A the
+record's own decomposition, panel B the model's dynamics misfit with both baselines and two response arms.
+
+⚠ **Accessibility defect in the EXISTING figure set, measured not eyeballed**: the paper pairs `#1b7837` green with `#b2182b` red,
+which is OKLab ΔE **2.7** under deuteranopia — effectively one colour (blue/green is 5.5 under tritanopia). Blue/red/grey are all
+mutually ≥ 12.8 and the new figure uses only those, with linestyle carrying the two baselines so identity is never colour-alone.
+The existing figures are untouched; flagged for Marcus.
+
+Champion and paper posterior **L27**. No chains run. Superseded CSVs were regenerated in place at n = 100 (deterministic given the
+draws and the 20260920 paleo seed, so the 3–5 draw versions are reproducible from the same scripts, not quarantined).
+
 ## 2026-09-22g — D1 TESTED (no refit): the two-channel likelihood is WELL POSED and does NOT rescue the ramp — the dynamics channel wants one but carries ≲2 log-units against the level channel's −11.85. The IMBIE partition is an IDENTITY, which is what defuses the 2020–23 snowfall hazard
 
 Marcus asked for D1 to be tested, flagging that the 2020–23 snowfall might be "so anomalous as to break any fit", with no citable
