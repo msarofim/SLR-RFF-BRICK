@@ -299,3 +299,13 @@ arm; start at (0.75, 6e-4). Identity gate: default n_fd = 0 with the paleo pair 
 Success line (pre-registered): 2011–17 within 1σ AND 1992–2002 within 1σ AND the cumulative within 1σ AND ρ_ais off its
 bound (< 0.95) — the level re-bought and the shape carried by the ramp, not the noise. ~4 h Mac. The coexistence question
 (keep the paleo term too) would be a second arm, L30b, needing a two-term component.
+
+**§6/§7 erratum (09-22, on Marcus's question about the evidence).** §6's "kink near 0.5 K" over-read the secant ratios: the
+0.17 → 0.45 K leg is the Frederikse-based 1900–78 NET loss and the 0.45 → 1.02 K leg is IMBIE's DYNAMICS anomaly — two
+products and two quantities. On IMBIE 1979–2023 alone, §1's regression stands: the dynamics anomaly is LINEAR in GMST
+(−232 Gt/yr K⁻¹, residual sd 22, no window residual above 14, zero-crossing near +0.15 K) — there is no kink at ~2000 in
+the record itself. What §7's sweep located at 0.60–0.75 K is where DAIS's OWN fixed linear response starts to fall short of
+that line (L29's dynamics anomaly is −48 of IMBIE's −107 by 2011–17), not a feature of the observations. The sweep's
+finding is therefore "DAIS + a ramp from ~0.7 K matches the record's dynamics through 2018–23 (−167 vs IMBIE's −177 rel
+1979–2008)"; an equally consistent reading is a steeper LINE from ~0.15 K, which the L28 refit did not take because the
+1900–78 level forbids it. §6's algebra (the exponent is inert; n ≈ 20) is unaffected.
