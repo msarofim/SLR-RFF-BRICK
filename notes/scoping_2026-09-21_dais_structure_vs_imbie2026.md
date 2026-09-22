@@ -231,3 +231,71 @@ moved into the observed range and the hindcast windows added.
 candidate 2 needs the one-line exponent parameter with default 2, gate-checked). Then decide between 2 and 3 on what
 the sweep shows — and on whether the paper wants to make the onset claim at all, which is a scientific ruling, not a
 fit statistic. Nothing launched; nothing in the component changed.
+
+## 7. The onset sweep RAN (09-22 morning, `scope_ais_onset_sweep.jl`, 295 L29 draws, fixed parameters, ~90 s): a linear ramp above an onset at +0.6–0.75 K global reproduces every pre-pause IMBIE window at once
+
+**What ran.** The magdep fast-dynamics term as a LINEAR RAMP — rate = −s·max(T_ant − T_crit, 0), n_fd = 1, ref 1 K, s in
+m SLE yr⁻¹ K⁻¹ — with the onset swept in GLOBAL warming and mapped per draw through its own amp (T_crit = TANT0 + amp·G_on).
+Grid G_on ∈ {0.30, 0.45, 0.60, 0.75} K (the ssp245harm driver crosses these in 1961 / 1982 / 1997 / 2001) × s ∈ {0.75, 1.5,
+3, 6, 12}·10⁻⁴. The ramp REPLACES the paleo (λ, T_crit) pair (the component holds one term); `stock` keeps the pair, `none`
+zeroes it. Every other parameter at its L29 draw value: no refit, so the ramp sits ON TOP of L29's fitted level. Hindcast
+1850–2026 on ssp245harm as the calibrator sees it; projections on fixed FaIR-mean SSP1-2.6 / 2-4.5 / 5-8.5 to 2300.
+Receipts `outputs/scope_ais_onset_sweep_{hindcast,hindcast_draws,proj}_L29.csv`, log `outputs/log_scope_ais_onset_sweep_L29.txt`.
+`stock` reproduces L29 (2011–17 0.0411 vs the posterior's 0.0418; dyn-accel −48 vs −52; cum 1.30).
+
+**Hindcast** (p50 window rate z-scores against IMBIE's own window σ; Σz² over the four pre-pause windows; dyn accel =
+acceleration-window dynamics anomaly, Gt/yr, IMBIE −106):
+
+| arm | 79–91 | 92–02 | 03–10 | 11–17 | 18–23 (pause) | Σz² (4) | cum 79–23 z | dyn accel |
+|---|---|---|---|---|---|---|---|---|
+| stock (= L29) | +0.20 | +0.02 | −0.96 | −1.99 | +1.13 | 4.9 | −0.23 | −48 |
+| on 0.45 K, s 3e-4 | +0.34 | +0.67 | +0.66 | +0.09 | +2.45 | 1.0 | +2.27 | −98 |
+| on 0.60 K, s 3e-4 | +0.20 | +0.22 | +0.04 | −0.47 | +2.18 | **0.3** | +1.44 | −91 |
+| **on 0.75 K, s 6e-4** | +0.20 | +0.04 | −0.17 | −0.08 | +2.68 | **0.1** | +1.74 | **−109** |
+| on 0.75 K, s 1.2e-3 | +0.20 | +0.06 | +0.63 | +1.83 | +4.26 | 3.8 | +3.76 | −170 |
+
+- **Reachable, and with the right shape.** An onset at +0.60–0.75 K global with s = 3–6·10⁻⁴ m yr⁻¹ K⁻¹ puts all four
+  pre-pause windows inside ±0.5σ simultaneously — 1979–91 and 1992–2002 untouched (the flat leg), 2003–10 and 2011–17 lifted
+  onto IMBIE — and the acceleration-window dynamics anomaly at −109 against IMBIE's −106. Earlier onsets (0.30–0.45 K) spoil
+  the flat leg (92–02 to +0.7σ) before they reach the modern rate: the record's kink really is at ~0.6–0.75 K, i.e. ~2000.
+- **The success line is met on the modern windows without touching the early century** (1900–78 net −48 Gt/yr in every arm —
+  the ramp is zero there by construction).
+- **What it costs, as a fixed-parameter sweep:** the 1979–2023 cumulative overshoots (+1.4 to +1.7σ) because the ramp is added
+  on top of L29's level; a refit would re-buy the level through SMB / `ais_c` as L28 and L29 did (expected, NOT verified here).
+  The 2018–23 pause worsens (+1.1 → +2.2–2.7σ; σ 0.015 cm/yr): a monotone ramp cannot pause, and the pause is an SMB event
+  the AR(1) term already carries.
+
+**Projections (fixed climate, p50 cm; `stock` = the paleo binary at +2.8 °C T_ant; `none` = no fast-dynamics term):**
+
+| arm | 126@2100 | 245@2100 | 585@2100 | 126@2300 | 245@2300 | 585@2300 |
+|---|---|---|---|---|---|---|
+| stock (= L29) | 5.7 | 8.2 | 36.9 | 17.7 | 166.6 | 278.9 |
+| none | 5.6 | 6.4 | 8.2 | 17.6 | 27.8 | 79.1 |
+| on 0.60 K, s 3e-4 | 8.3 | 9.7 | 12.7 | 26.4 | 43.9 | 113.1 |
+| on 0.75 K, s 6e-4 | 10.3 | 12.3 | 16.4 | 33.0 | 58.2 | 146.1 |
+
+- **The ramp itself is moderate**: on 0.75 / 6e-4 adds +4.7 / +5.9 / +8.2 cm at 2100 and +15 / +30 / +67 at 2300 over `none`
+  (SSP1-2.6 / 2-4.5 / 5-8.5). Its slope in global terms is s·amp ≈ 6·10⁻⁴ m yr⁻¹ per K above 0.75 K — 0.06 cm/yr per K —
+  against the paleo binary's λ ≈ 1 cm/yr once tipped. A linear ramp identified on 0.75–1.05 K extrapolates linearly, which is
+  the mildest possible extrapolation; it is still an extrapolation.
+- **The large moves at high forcing are the REMOVAL of the paleo term, not the ramp**: SSP2-4.5 2300 167 → 58 and SSP5-8.5
+  2300 279 → 146 are `stock` → `none` (−139, −200) partly refilled by the ramp (+30, +67). The λ prior IS that band
+  (`ais_spread_is_lambda_prior`); replacing it with an observationally identified term is the whole change.
+  ⚠ **Whether the two terms COEXIST is a methodological choice the sweep did not make**: the component holds one threshold
+  term. Kept alongside (a ramp in range PLUS the paleo binary at +2.8 °C), SSP5-8.5 2300 would sit near stock + ramp ≈ 350 cm
+  (additive estimate, not run); replaced, 146. Low-forcing cells go UP either way (SSP1-2.6 2100 5.7 → 10.3, 2300 18 → 33).
+- No draw hit the mass-conservation floor in any arm (floor years 0.0 everywhere).
+
+**What the sweep does NOT establish.** It is one term added at fixed parameters: (i) whether a refit keeps the shape once the
+level is re-bought (the L28/L29 lesson is that the likelihood buys level first — but here the ramp gives it a shape direction it
+did not have); (ii) the (G_on, s) posterior width — the grid says the identifiable region is narrow in G_on (0.6–0.75) and about
+a factor 2 in s at fixed G_on, with the two trading off (0.60/3e-4 ≈ 0.75/6e-4); (iii) any noise-model interaction
+(ρ_ais would presumably fall off its bound once the shape is carried by physics — a prediction the refit can test).
+
+**Recommendation for the refit, if Marcus makes the onset claim.** L30 = L28's recipe + the magdep component with n_fd = 1,
+ref 1 K, sampling G_on (prior uniform on [0.3, 1.0] K global; T_crit derived per draw through amp — the identified coordinate)
+and log s (log-uniform on [0.5, 20]·10⁻⁴ m yr⁻¹ K⁻¹), the paleo binary term DROPPED (the replacement form) as the primary
+arm; start at (0.75, 6e-4). Identity gate: default n_fd = 0 with the paleo pair must reproduce the gate chain byte-for-byte.
+Success line (pre-registered): 2011–17 within 1σ AND 1992–2002 within 1σ AND the cumulative within 1σ AND ρ_ais off its
+bound (< 0.95) — the level re-bought and the shape carried by the ramp, not the noise. ~4 h Mac. The coexistence question
+(keep the paleo term too) would be a second arm, L30b, needing a two-term component.

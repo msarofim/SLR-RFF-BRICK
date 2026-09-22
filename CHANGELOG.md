@@ -1,3 +1,29 @@
+## 2026-09-22c — ONSET SWEEP RAN (fixed parameters, 295 L29 draws, 90 s): a linear ramp above +0.60–0.75 K global reproduces ALL FOUR pre-pause IMBIE windows at once (Σz² 0.1 vs stock 4.9; dyn-accel −109 vs IMBIE −106); the ramp adds +6 / +30 cm (SSP2-4.5 2100 / 2300) and REPLACING the paleo binary with it cuts SSP5-8.5 2300 279 → 146
+
+**Script** `julia/scope_ais_onset_sweep.jl` (new; run from `_frozen_` copy): the magdep fast-dynamics term as a ramp, rate =
+−s·max(T_ant − T_crit, 0), onset swept in GLOBAL warming and mapped per draw through its own amp (T_crit = TANT0 + amp·G_on);
+grid G_on {0.30, 0.45, 0.60, 0.75} K × s {0.75…12}·10⁻⁴ m yr⁻¹ K⁻¹; `stock` (paleo pair, binary) and `none` (λ 0) arms;
+hindcast 1850–2026 ssp245harm as the calibrator sees it, projections on three fixed-climate SSPs to 2300. `stock` reproduces L29
+(2011–17 0.0411 vs 0.0418). Receipts `outputs/scope_ais_onset_sweep_{hindcast,hindcast_draws,proj}_L29.csv`; scoping **§7**.
+
+**Hindcast.** on 0.75 K / 6e-4: window z +0.20 / +0.04 / −0.17 / −0.08 (79–91 / 92–02 / 03–10 / 11–17) — stock +0.20 / +0.02 /
+−0.96 / −1.99; on 0.60 / 3e-4 Σz² 0.3. Earlier onsets (0.30–0.45 K) spoil the flat leg before reaching the modern rate: the
+kink is at ~0.6–0.75 K, crossed by the driver in 1997–2001. The early century is untouched by construction (1900–78 −48 in
+every arm). Costs as a fixed-parameter sweep: cumulative +1.4–1.7σ (the level a refit would re-buy through SMB / `ais_c`;
+expected, not verified) and the 2018–23 pause +2.2–2.7σ (a monotone ramp cannot pause). No draw hit the mass floor.
+
+**Projections (p50 cm, 126 / 245 / 585).** stock 5.7 / 8.2 / 36.9 @2100, 17.7 / 166.6 / 278.9 @2300; none 5.6 / 6.4 / 8.2, 17.6 /
+27.8 / 79.1; on 0.75 / 6e-4 10.3 / 12.3 / 16.4, 33.0 / 58.2 / 146.1. The ramp's own contribution is moderate (+4.7 / +5.9 / +8.2 @2100,
++15 / +30 / +67 @2300; slope 0.06 cm/yr per K above 0.75 K vs the paleo binary's ~1 cm/yr once tipped); the big high-forcing
+DROP is the paleo term's removal (the λ prior IS that band). ⚠ Whether the ramp REPLACES the paleo term or COEXISTS with it
+is a methodological choice the sweep did not make (one term per component; coexisting ≈ 350 cm SSP5-8.5 2300, additive
+estimate). Low-forcing cells go UP either way.
+
+**Not established:** whether a refit keeps the shape once the level is re-bought; the (G_on, s) width (narrow in G_on, ~2× in s,
+trading off); the noise-model interaction (ρ_ais should leave its bound — a testable prediction). Refit recipe for L30 (if the
+onset claim is made) in §7: sample G_on ∈ U[0.3, 1.0] K and log s, paleo binary dropped, start (0.75, 6e-4), identity gate on
+n_fd = 0, pre-registered success line = 2011–17, 1992–2002 AND cumulative within 1σ AND ρ_ais < 0.95. **Nothing launched.**
+
 ## 2026-09-22b — The steepening build SCOPED, not built: a free exponent on DAIS's ocean-temperature ratio is INERT on the historical range (prior [1, 4] gives ≤1.10× against IMBIE's 2.02×), and the record's shape is a KINK near 0.5 K, not a curvature
 
 **Question** (Marcus's next-step #1): scope §4's candidate 1 — a sampled exponent n on r = (T_oc − T_f)/(T_oc,0 − T_f) in the
