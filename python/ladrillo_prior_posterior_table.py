@@ -53,7 +53,10 @@ BLOCKS = [
         "antarctic_temp_threshold", "anto_alpha", "anto_beta", "antarctic_lambda",
         "antarctic_gamma", "antarctic_kappa",
         "ais_mu", "ais_bedheight0", "ais_slope", "ais_iceflow0", "ais_precip0_LOG", "ais_precip_u",
-        "ais_runoff_Ton", "ais_c"]),
+        "ais_runoff_Ton", "ais_c",
+        # L30 (--ais-ramp): present only in a ramp posterior; the BLOCKS gate below ignores names the
+        # prior file does not carry, so this line is inert for every pre-L30 tag.
+        "ais_ramp_gon", "ais_ramp_log10s"]),
     ("Thermal expansion", ["thermal_alpha"]),
     ("Model-discrepancy coefficients", ["d2_gsic_1", "d2_gsic_2", "d2_steric_1", "d2_steric_2"]),
     ("Observation-error model (AR(1) per target series)", [
@@ -90,6 +93,10 @@ DESC = {
     "gis_s_high": ("log₁₀ rate scale of the high basin (NO+NE) relative to the active basin", "log₁₀(–)"),
     "gis_amp": ("Southern-Greenland/global warming ratio", "–"),
     "ais_gmst_amp": ("Antarctic/global warming ratio", "–"),
+    # L30 (--ais-ramp): the additional discharge response. The onset is SAMPLED in global warming and the
+    # threshold derived per draw through that draw's amp, so the table reports the sampled coordinate.
+    "ais_ramp_gon": ("Onset of the additional discharge response, in global warming", "°C"),
+    "ais_ramp_log10s": ("log10 slope of the additional discharge response, per °C of Antarctic excess", "log10(m SLE yr⁻¹ °C⁻¹)"),
     "ais_ocean_temperature₀": ("Initial high-latitude ocean subsurface temperature T_oc,0", "°C"),
     "antarctic_alpha": ("Partition of ocean subsurface temperature into ice flux, α_DAIS", "–"),
     "antarctic_nu": ("Runoff-decrease-with-height to precipitation constant ν", "m⁻¹ᐟ² yr⁻¹ᐟ²"),
@@ -165,6 +172,9 @@ def main():
     assert not missing, f"no description/units for {missing}"
     blocks = [(h, [n for n in ps if n in names]) for h, ps in BLOCKS]     # tag-aware: L26 drops 3, renames 1
     listed = [n for _, ps in blocks for n in ps]
+    # A name listed in BLOCKS but absent from this tag's prior file is dropped (the L30 ramp pair on a
+    # pre-L30 tag); a name in the prior file but NOT in BLOCKS still fails, which is the direction that matters.
+    listed = [n for n in listed if n in names]
     assert sorted(listed) == sorted(names), f"BLOCKS does not cover every parameter exactly once: {sorted(set(names)-set(listed))}"
     for r in pri.itertuples():
         v = post[r.name].to_numpy()

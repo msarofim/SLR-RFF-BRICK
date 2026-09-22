@@ -1,3 +1,50 @@
+## 2026-09-22e — L30 LANDED: the likelihood did NOT take the additional discharge response — slope pushed to ~1e-4 against its prior floor, onset unidentified, ρ_ais still 0.966, hindcast and projections identical to L28. The likelihood profile says why: under the SHIPPED OBJECTIVE the ramp's optimum IS ~1e-4, and the sweep's 3–6e-4 is preferred only on window-RATE scoring
+
+**Run** (`run_L30.sh` frozen copy, 07:14 → 10:02 chains; acceptance 0.247; noise gate PASS; stage 2 re-run 10:46 → 11:34 after
+the pipeline fix below). **Pre-registered success line FAILS**: 2011–17 rate z **−2.14** (needed within 1σ; L28 −2.10, L29 −1.79)
+and `rho_ais` **0.966** (needed < 0.95); 1992–2002 (−0.22) and the cumulative (−0.77) pass, both already true of L28.
+
+**The posterior barely used the term.** `ais_ramp_log10s` p50 −3.92…−4.08 (s ≈ 0.8–1.2·10⁻⁴ m SLE yr⁻¹ K⁻¹) with p05 on the
+prior floor; `ais_ramp_gon` spans essentially its whole prior in all four chains (medians 0.50 / 0.74 / 0.74 / 1.04 — still
+reflecting their over-dispersed starts, which is what those starts were for). Everything else is L28: dynamics anomaly over the
+acceleration window **−53.6 Gt/yr** (L28 −52.4, IMBIE −106); AIS 2300 SSP2-4.5 **165.8** (L28 165.7), SSP5-8.5 276.0 (271.1);
+SSP1-2.6 2100 5.7 (5.2). ⚠ **L30's log-posterior (801–805) is NOT comparable to L28's (820–822)**: two flat priors each
+subtract log(10³√2π) ≈ 7.8, so −15.6 of the gap is bookkeeping and the likelihood is unchanged — the same
+pinned-vs-free non-comparability the mode lineage records for pins.
+
+**Why — measured, not assumed** (`julia/diag_ais_ramp_likelihood_profile.jl`, new; 20 L30 draws, ramp overridden on a grid, the
+calibrator's own AIS term `hetero_logl_ar1(model − obs, sd_ais, ρ, ε, L=100)` on the IMBIE target 1900–2026). AIS log-likelihood
+GAIN over the no-ramp control:
+
+| ρ | s 0.5e-4 | 1e-4 | 2e-4 | 3e-4 | 6e-4 |
+|---|---|---|---|---|---|
+| **0.966** (L30's own), G_on 0.45 | +0.12 | −0.30 | −2.73 | −7.29 | −33.8 |
+| 0.90 (the L29 cap), G_on 0.45 | +0.92 | **+1.17** | −0.38 | −4.62 | −33.6 |
+| 0.80, G_on 0.45 | +1.85 | **+2.91** | +2.63 | −0.84 | −30.4 |
+| 0.60, G_on 0.45 | +2.70 | +4.50 | **+5.43** | +2.79 | −26.6 |
+
+At the posterior's own ρ **every ramp setting loses**; lowering ρ does make a ramp worth taking (the L28 mechanism, confirmed
+from a third side), but the gain is ≤ 5.4 log-units even at ρ = 0.60 and the preferred slope is **1–2·10⁻⁴ at the EARLIEST
+onset**, not the sweep's 3–6·10⁻⁴ at 0.60–0.75 K. **So L30's chains did exactly what the objective asks.** The sweep and the
+objective disagree about what "fits" means: the sweep scored window RATES against IMBIE's window σ; the objective scores the
+LEVEL series under an AR(1) (ρ ≈ 0.97) plus a 100-yr-correlated observational ε, which makes a smooth level drift nearly free
+and a level OVERSHOOT expensive (at G_on 0.75 / 6e-4 the 1979–2023 cumulative goes 1.16 → 1.44 against IMBIE's 1.33).
+
+**Pipeline fixes.** The first stage-2 run died at its FIRST step — `diag_slr_convergence_by_chain_ladrillo.jl` built a stock AIS
+slot and `ladrillo_apply_draw!`'s both-ways ramp guard refused the draw (the guard working as designed); postprocess then
+declined to write a subsample without the convergence deliverable and every later step failed on the missing posterior. Fixed by
+passing `ais_ramp` through that diagnostic and `scope_slr_fair_uncertainty.jl`; `run_L30_stage2.sh` added for chain-preserving
+re-runs. ⚠ **`tr … | grep -q` under `set -o pipefail` reports FAILURE on a MATCH** (grep exits early, `tr` takes SIGPIPE) — it
+printed false "ramp NOT announced" alarms for seeds 2027/2029 whose banners were both present; the arm verification now counts
+matches instead. `ladrillo_prior_posterior_table.py` gained the two ramp rows and its BLOCKS gate now ignores names a tag's prior
+file does not carry (still failing on the direction that matters: a parameter present but undescribed).
+
+**What this does NOT settle.** Whether a ρ-capped ramp arm (L31 = L30 + `--rho-max=ais:0.90`) is worth 4 h: the profile predicts
+it lands at s ≈ 1–1.5·10⁻⁴ with an early onset and buys ~1 log-unit — a small, identified term, not the sweep's. The larger
+question the profile raises is **methodological and Marcus's**: the objective scores levels, so IMBIE's acceleration is worth
+almost nothing to it. Honouring the reconciled record's SHAPE would mean putting a rate/window term in the likelihood, which is a
+change to what Ladrillo is fitted to — not a parameter choice.
+
 ## 2026-09-22d — THE ADDITIONAL DISCHARGE RESPONSE BUILT AND LAUNCHED (L30 = L28 + `--ais-ramp`): a term linear in T_ant above an onset sampled in GLOBAL warming, COEXISTING with the paleo binary; both gates green; chains up 07:14
 
 **Marcus's ruling (09-22):** add the additional discharge response and see how it works; coexist with the paleo binary (the

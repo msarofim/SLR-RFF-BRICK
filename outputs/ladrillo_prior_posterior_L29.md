@@ -61,4 +61,4 @@
 | `sd_steric` | AR(1) innovation sd, thermal expansion | cm | half-normal N⁺(0, 5) | 0.101 | 0.089 | 0.115 |
 | `rho_steric` | AR(1) autocorrelation, thermal expansion | – | flat [0, 0.99] | 0.941 | 0.855 | 0.983 |
 
-<!-- ladrillo_prior_posterior_table.py | tag L29 | priors from calibrate_mcmc_ext.jl --dump-priors (tag L29) | posterior parameters_subsample_brick_mengel_L29.csv n=10000 | quantiles 5/50/95 over all draws | commit a539557 | 2026-09-22 01:04 -->
+<!-- ladrillo_prior_posterior_table.py | tag L29 | priors from calibrate_mcmc_ext.jl --dump-priors (tag L29) | posterior parameters_subsample_brick_mengel_L29.csv n=10000 | quantiles 5/50/95 over all draws | commit d9b24a4 | 2026-09-22 11:39 -->
