@@ -70,6 +70,10 @@ const FIT_Y0, FIT_Y1 = 1979, 2023
 const WINS      = [(1979, 1991), (1992, 2002), (2003, 2010), (2011, 2017), (2018, 2023)]
 const AR1_RHO   = 0.8
 const TREND_WIN = (2018, 2023)
+## WHERE the LEVEL channel objects, binned. The split at 1979 matters: before it the AIS target is
+## reconstruction, from 1992 on it equals IMBIE to machine precision. A penalty that sits in the
+## pre-1979 bins is a SOFT constraint; one that sits in 1992+ is the direct record refusing.
+const LEV_WINS = [(1900, 1978), (1979, 1991), (1992, 2002), (2003, 2010), (2011, 2017), (2018, 2025)]
 const CUM_Y0, CUM_Y1 = 1978, 2023          # cum_1979_2023 = series[2023] - series[1978]
 
 ## The degeneracy axis. ALPHA_MULT multiplies the draw's own antarctic_alpha; ais_iceflow0 is then
@@ -120,6 +124,10 @@ ll(res, Σ) = logpdf(MvNormal(Symmetric(Matrix(Σ))), res)
 pp = CSV.read(joinpath(LADRILLO_REPO, "outputs/ladrillo_prior_posterior_$TAG.csv"), DataFrame)
 gp(n) = Float64(pp[findfirst(==(n), pp.name), :p50])
 const SD_AIS, RHO_AIS = gp("sd_ais"), gp("rho_ais")
+## the SAME covariance hetero_logl_ar1 builds, inverted once for the attribution
+const LEV_SIGMA_INV = let n = length(ly), H = abs.(collect(1:n)' .- collect(1:n))
+    inv(Symmetric(SD_AIS^2/(1-RHO_AIS^2) .* RHO_AIS .^ H .+ (lev_eps*lev_eps') .* exp.(-H ./ OBS_CORR_LEN)))
+end
 
 post = ladrillo_posterior(path = PATH, cols = :all, nthin = NDRAW)
 ladrillo_attach_propagated!(post)
@@ -151,8 +159,13 @@ function evaluate!(r, a0, f0, am, fm)
         k = findall(y -> a <= y <= b, dy)
         zs += ((mean(anom[k]) - mean(ann.anom[k])) / (mean(ann.sig[k]) / sqrt(length(k))))^2
     end
+    ## EXACT per-year split of the level channel's quadratic form, q_i = res_i*(S^-1 res)_i, so the
+    ## penalty can be attributed to a period rather than guessed at. Sums to res'S^-1 res by construction.
+    lres = ser[lmi] .- lev_obs
+    qy   = lres .* (LEV_SIGMA_INV * lres)
     return (cum = ser[ci1] - ser[ci0],
-            lev = hetero_logl_ar1(ser[lmi] .- lev_obs, SD_AIS, RHO_AIS, lev_eps),
+            lev = hetero_logl_ar1(lres, SD_AIS, RHO_AIS, lev_eps),
+            qbin = [sum(qy[findall(y -> a <= y <= b, ly)]) for (a, b) in LEV_WINS],
             ind = ll(dres, Σ_ind), ar1 = ll(dres, Σ_ar1), win = -0.5 * zs,
             tr  = mean(anom[findall(y -> TREND_WIN[1] <= y <= TREND_WIN[2], dy)]))
 end
@@ -188,14 +201,19 @@ for (di, r) in enumerate(eachrow(post))
         end
         if !ok; global ndrop += 1; continue; end
         e, fm = res
-        append!(rows, DataFrame(draw = di, alpha_mult = am, f0_mult = fm,
+        row = DataFrame(draw = di, alpha_mult = am, f0_mult = fm,
                                 alpha = a0 * am, iceflow0 = f0 * fm,
                                 cum_1979_2023 = e.cum, cum_base = base[di].cum,
                                 dis_trend_anom = e.tr, dis_trend_anom_base = base[di].tr,
                                 ll_lev = e.lev, ll_dyn_ind = e.ind,
                                 ll_dyn_ar1 = e.ar1, ll_dyn_win = e.win,
                                 d_lev = e.lev - base[di].lev, d_ind = e.ind - base[di].ind,
-                                d_ar1 = e.ar1 - base[di].ar1, d_win = e.win - base[di].win))
+                                d_ar1 = e.ar1 - base[di].ar1, d_win = e.win - base[di].win)
+        ## assigned AFTER construction: a Pair splat is not a DataFrame keyword argument
+        for (i, (a, b)) in enumerate(LEV_WINS)
+            row[!, "qlev_$(a)_$(b)"] = [e.qbin[i] - base[di].qbin[i]]
+        end
+        append!(rows, row)
     end
     di % 10 == 0 && (@printf("  %d/%d draws (%d cells dropped)\n", di, nrow(post), ndrop); flush(stdout))
 end
@@ -227,6 +245,24 @@ for am in ALPHA_MULT
 end
 @printf("\n  IMBIE's own %d-%d dynamics anomaly = %.1f Gt/yr\n", TREND_WIN[1], TREND_WIN[2],
         mean(ann[(ann.year .>= TREND_WIN[1]) .& (ann.year .<= TREND_WIN[2]), :anom]))
+## WHERE the level channel's objection sits. Delta-q vs the draw's own control, per period
+## (positive = MORE penalty). loglik = -0.5*q, so a bin's contribution to d LEVEL is -0.5 of its entry.
+## ⚠ THE 1979 SPLIT IS THE WHOLE POINT: the AIS target is a reconstruction before it and equals IMBIE
+## to machine precision from 1992 on. A penalty concentrated pre-1979 means the record is NOT what is
+## refusing; one concentrated in 1992+ means it is.
+println("\n  WHERE THE LEVEL CHANNEL OBJECTS -- delta q vs control by period (positive = more penalty)")
+@printf("  %-10s", "alpha x"); for (a, b) in LEV_WINS; @printf("%14s", "$(a)-$(b)"); end
+@printf("%14s\n", "TOTAL")
+for am in ALPHA_MULT
+    g = rows[rows.alpha_mult .== am, :]
+    isempty(g) && continue
+    @printf("  %-10.2f", am); tot = 0.0
+    for (a, b) in LEV_WINS
+        v = mean(g[!, "qlev_$(a)_$(b)"]); tot += v; @printf("%14.2f", v)
+    end
+    @printf("%14.2f\n", tot)
+end
+
 println("\n  RANGE ACROSS THE CONTOUR (max - min of the means): the channel's TOTAL discrimination")
 for (c, h) in ["d_lev" => "LEVEL", "d_ind" => "DYN ind", "d_ar1" => "DYN ar1", "d_win" => "DYN win"]
     m = [mean(rows[rows.alpha_mult .== am, c]) for am in ALPHA_MULT if any(rows.alpha_mult .== am)]
