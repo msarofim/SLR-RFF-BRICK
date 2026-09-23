@@ -1,3 +1,71 @@
+## 2026-09-23d — ⚠⚠ **THE WHOLE-MODEL BENCHMARK CORRECTS ME: L32 does NOT "strictly dominate" L27.** It is the INTERMEDIATE arm — better than L28/L29 everywhere on the AIS and better than L27 in the SATELLITE era, but WORSE on the full-period AIS (0.88σ vs 0.70σ), and IDENTICAL on the other four components
+
+Marcus: *"Benchmark the inputs for L32 so we can do the whole-model comparison."* Done (`run_L32_bench.sh`), and the
+result **overturns the claim I made in 09-23b and repeated when comparing L32 to L27.**
+
+**⛔⛔ THE CORRECTION. I said "L32 strictly dominates L27". THAT IS WRONG.** It rested on TWO Antarctic summary
+statistics — the 1979–2023 cumulative level z (−1.45 vs −2.63) and the 2018–23 dynamics anomaly (−133.1 vs −119.1).
+`bench_ladrillo.py` scores the FULL 1900–2025 record, and on the full-period Antarctic hindcast **L27\* is better:
+0.70σ vs L32's 0.88σ.** ⭐ **Two favourable summary statistics are not a domination claim. A domination claim needs the
+scorer that covers the whole record.**
+
+**⭐ THE LIKE-FOR-LIKE TABLE** (RMSE in units of each component's own target 1σ, full period; `L27*` = the frozen
+`benchmark/reference/L27/` champion **re-scored inside this same run on the live IMBIE target**, which is the only
+valid ruler — `outputs/bench_ladrillo_L27.md` predates the target rebuild and must not be used):
+
+| component | L27\* | **L32** | L28 | verdict vs champion |
+|---|---|---|---|---|
+| **AIS** | **0.70** | **0.88** | 1.53 | **WORSE** |
+| glaciers | 0.69 | 0.69 | 0.68 | SAME |
+| Greenland | 1.07 | 1.07 | 1.09 | SAME |
+| thermal exp. | 1.51 | 1.51 | 1.52 | SAME |
+| **TOTAL** | 0.26 | **0.22** | 0.20 | SAME |
+
+⭐ **The non-Antarctic components are IDENTICAL to the champion's to two decimals** — which CONFIRMS the transitive
+inference I flagged as unverified on 09-23c: the change stayed Antarctic. That part of my reading held.
+⭐ **L27\* reads 0.70σ in the L28, L29 AND L32 bench files** — the frozen reference re-scores identically every time,
+which is the internal consistency check that makes the comparison trustworthy.
+
+**⭐⭐ WHERE L32 ACTUALLY WINS AND LOSES — the windows, which the full-period number hides:**
+
+| AIS window | n | L27\* | **L32** | L28 |
+|---|---|---|---|---|
+| 1920–1949 | 30 | **0.08**, cov90 100 % | 1.07, cov90 100 % | 1.89, cov90 0 % |
+| 1950–1992 | 43 | **0.37**, cov90 70 % | 0.47, cov90 **93 %** | 0.62, cov90 91 % |
+| **1993–2026** | 33 | 1.27, cov90 **3 %** | **1.01**, cov90 **27 %** | **0.67**, cov90 52 % |
+| 1993–2026 rate z | — | **−2.42** (0.66× obs) | **−1.79** (0.75× obs) | −1.03 |
+
+⇒ **L32 is the INTERMEDIATE arm, and that is the honest summary.** It beats L28/L29 on the full-period AIS by a wide
+margin (0.88 vs 1.53/1.45), beats L27 in the satellite era (1.01 vs 1.27) with **9× the coverage there** (27 % vs 3 %)
+and a much better rate (z −1.79 vs −2.42), and loses to L27 over 1920–1949 (1.07 vs 0.08), which — at 30 of 126 years,
+plus 43 more where L27 also leads — carries the length-weighted full-period number.
+⚠ **L27's 1920–49 advantage is partly HOME FIELD and the size is flattered**: the current target's pre-1979 segment is
+Frederikse offset-matched onto IMBIE, and Frederikse is what L27 was fitted to. ⚠ **But unlike L31, L32 DID fit that
+period** (full 1900–2025 span) — it chose to fit it worse in exchange for the satellite era. So the advantage is real,
+just smaller than 0.08-vs-1.07 makes it look.
+
+**Aggregate cell tallies are nearly indistinguishable**, so no arm is transformed: L32 128 PASS / 112 WARN / 19 FAIL /
+15 WORSE / 55 BETTER; L28 129 / 113 / 17 / 18 / 53; L29 130 / 111 / 17 / 15 / 55.
+
+**⇒ WHAT THIS MEANS FOR THE DECISION.** The choice is no longer "L32 is better, ship it". It is a **stated trade**:
+L32 buys the satellite era, the rate, the dynamics anomaly and the level z, and pays for it in the pre-satellite
+reconstruction and the full-period AIS RMSE. Which half matters more is **a judgement about what the Antarctic module
+is FOR** — hindcasting the reconstruction era, or tracking the observed modern record — and that is Marcus's, not a
+number. **`champions.json` untouched; L27 remains champion and the paper's posterior.**
+
+**⚠ TWO PROCESS NOTES.**
+1. **`run_L32_bench.sh`'s INPUT CHECK reported three false MISSINGs.** I wrote the expected filenames from the L31
+   error message's un-suffixed form; the real products carry `_tap4p69K_V5p64m_tau800`. The files existed all along.
+   ⭐ **The check still did its job** — it caught the ONE genuine gap (`ladrillo_model_comparison_L32.csv`) that the
+   step's own exit code did not surface. A verification list is worth having even when its patterns are imperfect, but
+   the patterns must be taken from a real product listing, not from an error message.
+2. **The model comparison needs the UNTAPPED SSP deliverable** (`ssps_components_2300_L32.csv`, produced by
+   `project_ssps_components_ladrillo.jl 2000 --tag=L32 --no-tap`), a step `run_L28_stage2.sh` has and I omitted. Its
+   error message names the exact command, which is why it cost two minutes rather than an hour.
+
+Artifacts: `outputs/bench_ladrillo_L32.{md,csv}`, `outputs/ladrillo_model_comparison_L32.csv`,
+`outputs/scope_slr_fairunc_{cells,draws,gates,paths}_ssp{126,245,585}_spliced_L32_tap*.csv`,
+`outputs/ssps_components_2300_L32.csv`, `outputs/log_L32_bench.txt`.
 ## 2026-09-23c — ⭐⭐ **THE SENSITIVITY TEST PASSES: L32's RESULT IS NOT AN IMBIE-2026 ARTIFACT.** A 34 % LOWER floor (L33) reproduces it — dynamics anomaly **−126.2**, off the trade-off line by **−37.1** vs L32's −38.9
 
 **L33 = L28 + `--sd-ais-floor=smb2021`, one axis vs L32: THE FLOOR'S VALUE.** Launched 09-23 11:39 under heavy
