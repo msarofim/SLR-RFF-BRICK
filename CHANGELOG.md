@@ -1,3 +1,67 @@
+## 2026-09-23e — **L32 CLEARS BRICK 2.0 AT EVERY ρ BOUND (ΔBIC +15.4 … +139.1)**, and on L27-vs-L32 **THE TWO LIKELIHOOD ARMS DISAGREE** — which is the same structural question appearing a third time, not noise
+
+Marcus: *"How does L32 compare to BRICK 2.0? And how does it compare to L27 on AIC and BIC basis?"*
+Tools: the repo's own `julia/ic_hindcast_residuals.jl` + `python/ic_ladrillo_vs_brick20.py`, run for L32 at all three ρ
+bounds; L27's set already existed. Joint of the four fitted series (`fit4`).
+
+**① L32 vs BRICK 2.0 — decisive on RMSE and on every information criterion.** Full-period hindcast, RMSE in units of
+each component's own target 1σ: **AIS 0.88 vs 8.82 (10×), glaciers 0.69 vs 3.37, Greenland 1.07 vs 3.84, thermal exp.
+1.51 vs 1.73, TOTAL 0.22 vs 0.48.** BRICK's only win is thermal-expansion COVERAGE (91 % vs 40 %) — a wider band, on a
+worse RMSE.
+
+Δ = BRICK − Ladrillo, **positive favours Ladrillo**, Δk = −15 throughout:
+
+| arm | ρ bound | **L32 ΔBIC** | L27 ΔBIC | L32 ΔAIC | L27 ΔAIC |
+|---|---|---|---|---|---|
+| ar1_prof (strict, headline) | ≤ 0.99 | **+15.4** | +20.8 | +78.7 | +84.1 |
+| ar1_prof | ≤ 0.95 | **+69.8** | +78.0 | +133.0 | +141.2 |
+| ar1_prof | ≤ 0.90 | **+139.1** | +144.6 | +202.4 | +207.9 |
+| obs_iid (lenient) | — | **+2330.5** | +2457.5 | +2393.8 | +2520.8 |
+
+⭐ **L32 satisfies `champions.json`'s standing criterion — "BIC vs BRICK 2.0 positive at every rho bound" — at every
+bound and on both arms**, at a slightly thinner margin than L27 (+15.4 vs +20.8 at the tightest bound, which is still
+conventionally "very strong"). The extra 15 parameters are not what buys Ladrillo's fit, for L32 as for L27.
+⚠ The tool's own standing caveat applies unchanged: **Ladrillo was calibrated to these targets and BRICK 2.0 was not**
+(CW11-era). AIC corrects a model's optimism about its OWN fitted data, not for a comparator fitted to different data.
+
+**② ⭐⭐ L27 vs L32 on AIC/BIC: THE PENALTY CANCELS, AND THE TWO ARMS DISAGREE.**
+Both arms have **identical k** (50 in `ar1_prof`, 42 in `obs_iid`), so ΔAIC = ΔBIC = **−2ΔlnL** exactly — **the
+information criteria add NOTHING beyond the likelihood ratio for this pair, and AIC and BIC cannot differ.** What they
+report is:
+
+| arm | ρ bound | ln L̂ L27 | ln L̂ L32 | ΔlnL (L32−L27) | ΔAIC = ΔBIC | favours |
+|---|---|---|---|---|---|---|
+| **ar1_prof** | ≤ 0.99 | 238.0 | **248.0** | **+10.0** | **−20.0** | **L32** |
+| ar1_prof | ≤ 0.95 | 233.8 | 241.4 | +7.6 | −15.2 | L32 |
+| ar1_prof | ≤ 0.90 | 225.9 | 231.5 | +5.6 | −11.3 | L32 |
+| **obs_iid** | — | **23.2** | 11.5 | **−11.7** | **+23.4** | **L27** |
+
+⭐⭐ **THE DISAGREEMENT IS THE FINDING, AND IT IS THE THIRD APPEARANCE OF ONE AXIS.** Every scorer that treats residuals
+as INDEPENDENT prefers L27 — `obs_iid` (+23.4) and the benchmark's unweighted full-period AIS RMSE (0.70σ vs 0.88σ).
+Every scorer that ALLOWS AUTOCORRELATED STRUCTURAL ERROR prefers L32 — `ar1_prof` at all three bounds. And the
+preference scales with how much autocorrelation is permitted: L32's margin falls **+10.0 → +7.6 → +5.6** as the bound
+tightens 0.99 → 0.95 → 0.90. **That is exactly the axis the floor was built on** — whether the Antarctic residual
+contains irreducible persistent structure the smooth trajectory should not be charged for.
+
+**⚠⚠ AND THE BIAS RUNS THE OTHER WAY, WHICH MATTERS FOR THE READING.** The IC scores both posteriors on ONE common
+target set — **the CURRENT IMBIE one. L32 was calibrated to it; L27 was NOT** (its Frederikse-era AIS target is gone).
+AIC corrects a model's optimism about its own fitted data, so here it **UNDER-penalises L32** — the mirror of the BRICK
+caveat, pointing the other way. Therefore:
+- **L32's ar1_prof advantage (+10.0) is the size the in-sample bias alone could plausibly produce — it must NOT be read
+  as clean evidence for L32.**
+- **L27's obs_iid advantage (+11.7) survives DESPITE the bias running against it, which makes it the stronger of the
+  two results.**
+⇒ ⛔ **On an AIC/BIC basis, L27 vs L32 is NOT resolved in L32's favour, and arguably leans L27.** Anyone quoting the
+−20.0 must quote the +23.4 and this caveat beside it.
+
+**⚠ ONE MORE THING THE IC DOES NOT DO.** `ic_ladrillo_vs_brick20.py` **PROFILES** sd and ρ per series per draw for both
+models rather than using the fitted values, so **L32's bounded `sd_ais` never enters the IC**. The comparison is of the
+two posteriors' PHYSICAL TRAJECTORIES under a common noise model — clean for that purpose, but it neither credits nor
+penalises the floor that makes L32 what it is. **An IC comparison cannot adjudicate a noise-model change when it
+re-fits the noise model.**
+
+Artifacts: `outputs/ic_ladrillo_vs_brick20_L32{,_rho0.95,_rho0.9}.{csv,md}`,
+`outputs/ic_hindcast_residuals_ladrillo_L32.csv`, `outputs/log_ic_L32.txt`.
 ## 2026-09-23d — ⚠⚠ **THE WHOLE-MODEL BENCHMARK CORRECTS ME: L32 does NOT "strictly dominate" L27.** It is the INTERMEDIATE arm — better than L28/L29 everywhere on the AIS and better than L27 in the SATELLITE era, but WORSE on the full-period AIS (0.88σ vs 0.70σ), and IDENTICAL on the other four components
 
 Marcus: *"Benchmark the inputs for L32 so we can do the whole-model comparison."* Done (`run_L32_bench.sh`), and the
