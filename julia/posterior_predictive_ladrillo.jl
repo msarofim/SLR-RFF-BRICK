@@ -124,6 +124,32 @@ const AIS_RAMP = ladrillo_ramp_posterior(POSTERIOR)   # L30: the posterior decid
 const FITTED = Set(k for (k, _, sfx) in SERIES
                    if ("sd_$sfx" in names(post)) && ("rho_$sfx" in names(post)))
 const UNFITTED = [k for (k, _, _) in SERIES if !(k in FITTED)]
+
+## ⚠ FITTED IS PER-SERIES AND THAT IS NOT ALWAYS ENOUGH. Since L31 (2026-09-22) the Antarctic
+## level term can be restricted to a later start with calibrate_mcmc_ext.jl's --ais-fit-from=<year>,
+## so "ais" can be fitted from 1979 while its 1900 and 1950 rows are OUT-OF-SAMPLE. A per-series
+## flag reports those rows as in-sample, which is FALSE and exactly the label-vs-behaviour drift
+## ~/.claude/CLAUDE.md warns about -- it shipped that way for one L31 run before being caught.
+##
+## The span is RECOVERED FROM THE ARM'S OWN ARTIFACT, never passed as a flag a caller can forget:
+## calibrate_mcmc_ext.jl --dump-priors records its full ARGS in the provenance column of
+## outputs/ladrillo_priors_<TAG>.csv. If that file is absent we CANNOT know the span, so we say so
+## loudly rather than defaulting silently to 1900 and mislabelling a restricted arm.
+const AIS_FIT_FROM = let f = joinpath(LADRILLO_REPO, "outputs/ladrillo_priors_$(POST_TAG).csv")
+    if !isfile(f)
+        println("⚠⚠ $(basename(f)) NOT FOUND — cannot recover this arm's AIS fit span. " *
+                "`in_sample` for ais assumes 1900; if this arm used --ais-fit-from, that label is WRONG. " *
+                "Run calibrate_mcmc_ext.jl --dump-priors --tag=$(POST_TAG) first.")
+        1900
+    else
+        prov = string(CSV.read(f, DataFrame).provenance[1])
+        m = match(r"--ais-fit-from=(\d{4})", prov)
+        y = m === nothing ? 1900 : parse(Int, m.captures[1])
+        y == 1900 || println("AIS LEVEL TERM RESTRICTED in this arm: fitted from $y " *
+                             "(recovered from $(basename(f)) provenance) — pre-$y ais rows are OUT-OF-SAMPLE")
+        y
+    end
+end
 isempty(UNFITTED) ||
     println("NOTE: no calibrated error model for $(join(UNFITTED, ", ")) — reported " *
             "OUT-OF-SAMPLE, parameter band only, predictive band NaN")
@@ -225,10 +251,13 @@ function report(key, tcol, y)
     isnan(o) && return
     p05, p50, p95 = qv(model[key][:, j], 0.05), qv(model[key][:, j], 0.50), qv(model[key][:, j], 0.95)
     inb = p05 <= o <= p95
+    ## in_sample is per-series AND per-year: a restricted Antarctic term makes its early rows
+    ## out-of-sample even though the series as a whole is fitted.
+    insamp = (key in FITTED) && !(key === :ais && y < AIS_FIT_FROM)
     @printf("  %-9s %d  obs %7.2f  p50 %7.2f  bias %+6.2f  %s%s\n",
             key, y, o, p50, p50 - o, inb ? "in 90%" : "OUT",
-            key in FITTED ? "" : "  [OUT-OF-SAMPLE]")
-    push!(bias, (string(key), y, o, p50, p50 - o, inb, key in FITTED))
+            insamp ? "" : "  [OUT-OF-SAMPLE]")
+    push!(bias, (string(key), y, o, p50, p50 - o, inb, insamp))
 end
 
 println("\nComponent bias (model p50 - obs, cm; glaciers vs the delta-corrected target)")

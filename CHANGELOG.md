@@ -1,3 +1,71 @@
+## 2026-09-22m — OPTION 5 IS A **NULL** ON ITS PRE-REGISTERED CRITERION: restricting the AIS level term to 1979+ (L31) did NOT make the refit take a steeper, IMBIE-like discharge, and it cost 2.4–2.5× on the pre-1979 hindcast
+
+Marcus: *"try option 5"*. **L31 = L28 + `--ais-fit-from=1979`, one axis, control L28.** 4 chains × 2M, 2 h 45 m,
+`run_L31.sh`, commit `30395f3`. Span gate PASS on all four seeds (`ais 1979-2025`, 47 yr fitted, 79 out-of-sample);
+noise-mode gate PASS; 0 errors/NaN/Inf; chains overlap (across-chain spread 0.07–0.36× within-chain sd).
+
+**⭐ THE VERDICT, against the thresholds written into `run_L31.sh` BEFORE the numbers existed.**
+
+| criterion | pre-registered threshold | result | verdict |
+|---|---|---|---|
+| **PRIMARY** 2018–23 dynamics anomaly | win ≤ −110; no effect > −90 | **−75.4 ± 4.7** (L28 −74.6 ± 4.4; IMBIE −167.2) | ⛔ **NO EFFECT** |
+| SECOND ρ_ais off 0.966 | — | 0.9662 → **0.9548** | marginal (−0.011) |
+| COST pre-1979 hindcast | report either way | bias **−0.524 → −1.235 cm** @1900, **−0.210 → −0.527** @1950 | ⛔ **2.4–2.5× WORSE** |
+| GUARD non-AIS within ~0.02σ | — | gis −0.308→−0.296, te +0.191→+0.185, glaciers −0.288→−0.280 @1950 | ✅ holds |
+
+L31 − L28 on the dynamics channel is **0.1 ± 0.7** (IND) — indistinguishable from the control. And the damage
+propagated past Antarctica at the early end: **TOTAL @1950 fell OUT of its 90 % band** (L28 was inside) and glaciers
+@1900 likewise, even though their biases barely moved.
+
+**⭐⭐ THE MECHANISM: given the freedom, the refit spent it on MORE BASELINE DISCHARGE, NOT MORE TREND.**
+
+| | L27 | L28 | **L31** | (L31−L28)/prior sd |
+|---|---|---|---|---|
+| `antarctic_alpha` (temperature-TRACKING share of the flux law) | 0.3425 | 0.3015 | **0.2518** | **−0.22** |
+| `ais_iceflow0` (pure multiplier) | 1.201 | 1.064 | 1.160 | +0.28 |
+| `ais_c` | 92.67 | 80.19 | 89.68 | +0.36 |
+| cum 1979–2023 (cm) | 0.948 | 1.224 | **1.257** | — |
+| baseline discharge (Gt/yr) | −1918.5 | −1928.8 | **−1944.2** | — |
+
+`antarctic_alpha` went **DOWN**, i.e. **FLATTER** — the α×0.75 direction of the iso-cumulative sweep, the opposite of
+the α×1.3–1.6 cells that reach IMBIE's −167.2 — while the constant terms went up. **L31 slid FURTHER ALONG the
+identity line (cum 1.224 → 1.257) rather than off it.**
+
+**⭐⭐ WHY, AND IT IS THE CAVEAT I ALMOST UNDER-WEIGHTED.** 09-22l measured the barrier falling **3.2–4.5×** on the
+restricted span — but it also measured that the **DENSEST** part of the objection is **1992–2002 at 2.4–3.6× average
+per-year density**, and that segment is direct IMBIE and **SURVIVES the restriction**. The pre-1979 years carried 78 %
+of the penalty MASS but only 1.09–1.24× density, i.e. mostly LENGTH. So the residual barrier after restriction is
+**≈1.3–2.7 log-units, not zero**, and the refit declined a still-negative trade. ⇒ **the pre-1979 data were never the
+barrier; they were the BULK.** The lesson generalises: **a penalty's SHARE tells you what dominates the total, its
+DENSITY tells you what is actually objecting — and only the second predicts what removing a segment will do.**
+
+⛔ **L31's logpost is NOT comparable to L28's or L27's** — 79 fewer likelihood terms (logpost(θ₀) −1220.7 full span vs
+−554.95 on 1979+; ~666 of pure bookkeeping). Arms were compared on hindcast statistics and the channels only.
+
+**⇒ FOURTH independent confirmation that DAIS has no direction reaching IMBIE's acceleration** — after the ρ-cap arm
+(L29), the ramp arm (L30), and the two-axis iso-cumulative probe (09-22j). Options 2/3/4/5 are now all tested and all
+negative. **What remains untested is option 6 (give the SMB interannual variability), which attacks the identity's
+actual root** — this module's SMB has interannual sd 4.83 Gt/yr against an observed 123.
+
+**RECOMMENDATION UNCHANGED: stay on L27 and ship the null.** L31 is not a candidate — it is worse than L28 on the
+pre-1979 hindcast, no better on the dynamics, and has no van Vuuren projections or paper figures.
+
+**⚠ A REGRESSION I INTRODUCED AND THEN FIXED.** `posterior_predictive_ladrillo.jl`'s `in_sample` column is computed
+per-SERIES (`key in FITTED`), so with a restricted Antarctic term it labelled the 1900 and 1950 `ais` rows
+**in-sample when they are not** — it shipped that way for one L31 run. Now per-YEAR, with the span **recovered from
+the arm's own artifact** (the `--ais-fit-from=` in `ladrillo_priors_<TAG>.csv`'s provenance) rather than a flag a
+caller can forget, and it says so LOUDLY if that file is missing instead of silently assuming 1900. Mutation-tested
+both ways: L31 → 1900/1950 `False`, 2000+ `True`; L28 → no message, every row `True`, bias −0.523758 unchanged.
+
+**Tried and abandoned this session**: `run_L31.sh` inherited L28's minimal postprocess, so `bench_ladrillo.py --tag=L31`
+cannot run (missing `ladrillo_model_comparison_L31.csv` and the three `scope_slr_fairunc_draws_ssp*_L31.csv`). Not
+generated — the primary criterion was already a null, so a full benchmark would price an arm that is not a candidate.
+The prior/posterior table needed `--dump-priors` run separately (50 params, all gates PASS).
+
+Artifacts: `outputs/log_L31.txt`, `outputs/mcmc/chain_L31_seed{2026..2029}_n2000000.csv`,
+`outputs/postpred_L31_*.csv`, `outputs/ladrillo_prior_posterior_L31.{csv,md}`,
+`outputs/diag_ais_channel_separation{,_summary}.csv` (now L27/L28/L31).
+Memory: `ais_dynamics_channel_is_the_weaker_one` (extended).
 ## 2026-09-22j — WOULD A DYNAMICS CONSTRAINT HELP? MEASURED ON TWO AXES: **NO** — the level channel is ~4× (IND) to ~15× (AR1) MORE discriminating along the degeneracy direction, and the dynamics channel points the SAME WAY, not a corrective one
 
 Marcus: *"Consider whether adding a dynamics constraint could help with making a good model."* Two new fixed-parameter
