@@ -1,3 +1,62 @@
+## 2026-09-23c — ⭐⭐ **THE SENSITIVITY TEST PASSES: L32's RESULT IS NOT AN IMBIE-2026 ARTIFACT.** A 34 % LOWER floor (L33) reproduces it — dynamics anomaly **−126.2**, off the trade-off line by **−37.1** vs L32's −38.9
+
+**L33 = L28 + `--sd-ais-floor=smb2021`, one axis vs L32: THE FLOOR'S VALUE.** Launched 09-23 11:39 under heavy
+contention (load 47.5, ETA read at 5 min was 6–7 h), finished 15:14. Floor gate PASS on all four seeds (`smb2021`,
+scale 0.656), noise gate PASS, no real errors.
+
+**⚠ THE FRAMING IS INVERTED FROM L31/L32 AND WAS WRITTEN THAT WAY BEFORE THE RUN**: this arm tries to BREAK a result,
+so "no change" is the GOOD outcome and the burden is on ROBUSTNESS.
+
+**THE FLOOR, RE-DERIVED AGAINST THE EARLIER RELEASE.** IMBIE 2021 has no SMB partition, so the only cross-vintage
+handle is the TOTAL: year-on-year sd over the shared 1992–2020 window is **36.0 Gt/yr vs 2026's 54.8**, ratio **0.656**.
+⚠ **Applying that ratio to the SMB is an ASSUMPTION** — that the vintage difference in the total transfers to its SMB
+component — and the calibrator prints it at the gate. Result: 118.0 × 0.656 = 77.4 Gt/yr = **0.02139 cm**, a **34 %
+lower** floor, which is L27's own fitted `sd_ais` (0.02162) to 1 % and still 1.5× above L28's (0.01394). The most
+conservative defensible floor, hence the right falsifier. ⚠ `--sd-ais-floor=smb` still returns 0.03259 unchanged
+(regression check), so L32's basis was not disturbed.
+
+**⭐⭐ THE VERDICT: ROBUST.**
+
+| arm | floor (cm) | cum 79–23 | level z | 2018–23 dyn | **off the line** |
+|---|---|---|---|---|---|
+| IMBIE 2026 | — | 1.316 ± 0.140 | — | **−167.2** | — |
+| L27 | — | 0.948 | −2.63 | −119.1 | — |
+| L28 | — | 1.224 | **−0.66** | −74.6 | — |
+| **L32** | 0.03259 | 1.113 | −1.45 | **−133.1** | **−38.9** |
+| **L33** | **0.02139** | 1.147 | **−1.21** | **−126.2** | **−37.1** |
+
+A **34 % cut in the floor** moves the dynamics anomaly by only **6.9 Gt/yr** (−133.1 → −126.2, still clearing the
+pre-registered −110 by 3.4 SE) and the offset from the trade-off line by **1.8** (−38.9 → −37.1). **⭐ The escape from
+the identity trade-off is NOT sensitive to the floor's value.** L33 also has a BETTER level than L32 (−1.21 vs −1.45),
+so it is the better compromise of the two; **both strictly dominate L27.**
+
+**⭐ THE FLOOR BINDS IN BOTH ARMS**, so this is a clean one-axis contrast and not a comparison against a slack
+constraint (the pre-registered REPORT item): L32 p05 **0.03261** vs floor 0.03259, 72.0 % of draws within 2 %;
+L33 p05 **0.02142** vs floor 0.02139, 47.7 % within 2 %.
+
+**The mechanism is unchanged**, which is the real robustness evidence — the same parameter moves, at a much weaker
+constraint: `antarctic_alpha` **L28 0.3015 → L32 0.3779 → L33 0.3742**; `anto_alpha` 0.2867 → 0.3916 → 0.3810.
+
+**Costs, on the same ruler as L32** — all pass:
+- **COST A** hindcast bias @1900 **L28 −0.524\* → L33 −0.253** (into the 90 % band; L32 −0.154); @1950 −0.210\* → −0.187;
+  @2018 −0.207\* → −0.287\* (worse, as in L32). `*` = outside the band.
+- **COST B** p05–p95 **0.96–1.05× L28** in five of six cells, the exception being SSP1-2.6 2300 at 1.32× — L32's pattern
+  exactly. Medians track L32 to ≲1 cm everywhere (SSP2-4.5 2100: L32 13.03, L33 13.74; 2300: 178.14 vs 176.76).
+- **GUARD** non-Antarctic components ≤ **0.010 cm** from L28 (glaciers ≤0.000, gis ≤0.010, te ≤0.008).
+
+**⭐ AND IT IS THE BEST-SAMPLED ARM YET**: R-hat **0.99857**, ESS **1575.4** (vs L27 1238.5, L28 1288.5, L32 1267.6),
+8/50 marginals — matching L27 and better than L28's 10.
+
+⚠ **SCOPE, unchanged.** One axis (the floor's value), one vintage-scaling assumption, nothing about van Vuuren.
+**`champions.json` untouched; L27 remains champion and the paper's posterior.** The operational gap for L32/L33 is the
+same as before: 0 of 7 van Vuuren runs, 0 of 14 paper figures, no MAGICC swap, no benchmark inputs, no frozen snapshot.
+⛔ L33's logpost (~811) is NOT comparable to L32's (~790) or L28's (~620s) — different bounds and σ scales.
+⚠ **A grep of mine reported "1 error" per chain; it was `Inf` matching "inflation".** A case-insensitive `Inf` in an
+error scan is a false-positive generator — match `NaN|[^a-z]Inf[^a-z]` or check the hit before believing it.
+
+Artifacts: `outputs/log_L33.txt`, `outputs/mcmc/chain_L33_seed{2026..2029}_n2000000.csv`, `outputs/postpred_L33_*.csv`,
+`outputs/ladrillo_prior_posterior_L33.{csv,md}`, `outputs/diag_ais_flux_split_vs_imbie{,_draws}_L33.csv`,
+`outputs/ssps_components_2300_L33_*_ws.csv`, `outputs/diag_ais_channel_separation{,_summary}.csv` (L27/L28/L32/L33).
 ## 2026-09-23b — ⭐⭐⭐ **OPTION 6 WORKS. L32 IS THE FIRST ARM TO MOVE OFF THE IDENTITY TRADE-OFF**, and it DOMINATES L27 on both channels: dynamics anomaly **−133.1** (best of any arm) at level z **−1.45** (vs L27's −2.63)
 
 **L32 = L28 + `--sd-ais-floor=smb`, one axis, control L28.** 4 chains × 2M, launched 09-23 06:19, done 10:36.

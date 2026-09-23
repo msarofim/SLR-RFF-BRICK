@@ -1490,11 +1490,20 @@ const AIS_NI    = findfirst(==(:ais), SERIES)
 ## whether the discharge steepened.
 const SMB_FLOOR_SRC = joinpath(REPO, "data/observations/raw/imbie2026/imbie3_antarctica_Gt_partitioned.csv")
 const SMB_FLOOR_Y0, SMB_FLOOR_Y1 = 1979, 2019   # EXCLUDES 2020-23 so the floor is not set by the excursion
+const VINTAGE_Y0, VINTAGE_Y1     = 1992, 2020   # the window IMBIE 2021 and 2026 share
 const GT_PER_CM_GMSL = 3620.0                   # 362 Gt per mm; ocean area 3.62e14 m^2
 const SD_AIS_FLOOR = let v = _argval("--sd-ais-floor=")
     if v === nothing
         0.0
-    elseif v == "smb"
+    elseif v == "smb" || v == "smb2021"
+        ## `smb2021` is the SENSITIVITY arm (L33): the SAME derivation, RESCALED to the earlier IMBIE
+        ## release, to test whether L32's result is an artifact of the 2026 reprocessing. IMBIE 2021
+        ## carries no SMB partition, so the only cross-vintage handle is the TOTAL: over the shared
+        ## 1992-2020 window its year-on-year sd is 36.0 Gt/yr against 2026's 54.8, a ratio of 0.656.
+        ## ⚠ APPLYING THAT RATIO TO THE SMB IS AN ASSUMPTION -- that the vintage difference in the
+        ## total transfers to its surface-mass-balance component -- and it is stated, not hidden.
+        ## It yields 77.4 Gt/yr = 0.02139 cm, which is L27's own fitted sd_ais (0.02162) to 1 %% and
+        ## still 1.5x above L28's (0.01394), so it is the most conservative defensible floor.
         raw = CSV.read(SMB_FLOOR_SRC, DataFrame; comment = "#")
         yr  = [parse(Int, first(string(d), 4)) for d in raw[!, "Date"]]
         col = "Surface mass balance anomaly (Gt/yr)"
@@ -1502,12 +1511,27 @@ const SD_AIS_FLOOR = let v = _argval("--sd-ais-floor=")
         sort!(ann, :year)
         w = ann[(ann.year .>= SMB_FLOOR_Y0) .& (ann.year .<= SMB_FLOOR_Y1), :smb]
         step_gt = std(diff(w))
-        f = step_gt / GT_PER_CM_GMSL
+        scale = 1.0
+        if v == "smb2021"
+            tot(df, yv, cv) = (g = combine(groupby(DataFrame(year = yv, x = df[!, cv]), :year),
+                                           :x => mean => :x); sort!(g, :year); g)
+            a26 = tot(raw, yr, "Mass balance (Gt/yr)")
+            r21 = CSV.read(joinpath(REPO, "data/observations/raw/imbie_antarctica_2021_Gt.csv"), DataFrame)
+            a21 = tot(r21, floor.(Int, r21.Year), "Mass balance (Gt/yr)")
+            ov  = sort(collect(intersect(Set(a26.year), Set(a21.year), Set(VINTAGE_Y0:VINTAGE_Y1))))
+            g26 = std(diff([a26[a26.year .== y, :x][1] for y in ov]))
+            g21 = std(diff([a21[a21.year .== y, :x][1] for y in ov]))
+            scale = g21 / g26
+            println("  VINTAGE RESCALE (sensitivity): IMBIE 2021 vs 2026 TOTAL yoy sd over ",
+                    ov[1], "-", ov[end], ": ", round(g21, digits = 1), " / ", round(g26, digits = 1),
+                    " = ", round(scale, digits = 3), "  [ASSUMES the total's vintage ratio transfers to SMB]")
+        end
+        f = step_gt * scale / GT_PER_CM_GMSL
         ## ⚠ @printf needs a LITERAL format string -- a concatenated one is an ArgumentError at load.
-        println("sd_ais FLOOR DERIVED FROM OBSERVATION: IMBIE 2026 SMB anomaly ",
+        println("sd_ais FLOOR DERIVED FROM OBSERVATION (", v, "): IMBIE 2026 SMB anomaly ",
                 SMB_FLOOR_Y0, "-", SMB_FLOOR_Y1, " (n=", length(w), "), year-on-year sd ",
-                round(step_gt, digits = 1), " Gt/yr / ", GT_PER_CM_GMSL, " Gt per cm = ",
-                round(f, digits = 5), " cm")
+                round(step_gt, digits = 1), " Gt/yr x scale ", round(scale, digits = 3), " / ",
+                GT_PER_CM_GMSL, " Gt per cm = ", round(f, digits = 5), " cm")
         f
     else
         f = parse(Float64, v)
