@@ -8,7 +8,20 @@ carries two limits), `INDEX_ais_imbie.md` updated.
 
 ## 0. STATE AT HANDOFF
 - **Champion and paper posterior remain L27.** `champions.json` and the draft are untouched.
-- ⭐⭐ **L31 IS RUNNING** (launched 09-22 18:36, ~4 h, 4 chains, PIDs in `outputs/log_L31.txt`). **L31 = L28 +
+- ⭐⭐ **L32 IS RUNNING** (launched 09-23 06:19, PIDs 40423-40426, log `outputs/log_L32.txt`, driver `run_L32.sh`,
+  commit `ae8b9b8`). **L32 = L28 + `--sd-ais-floor=smb`, one axis, control L28** — Marcus's option 6. Criteria
+  PRE-REGISTERED in the script header, on the SAME ruler as L31 (win ≤ −110 on the 2018–23 dynamics anomaly).
+  ⚠ **ETA ~4 h 30 m, not 2 h 45 m — CONTENTION, not a slow run**: a 13-process R job
+  (`calibration/diag_rep_dc_product_ladder.R`) joined at 06:26, taking demand to 17 runnable on 10 cores; load 68.69,
+  chains at 25–45 % CPU. Acceptance unaffected (0.242). **Marcus's ruling: let it run.** Nothing paused or killed.
+  ⚠⚠ **The mechanism is NOT selective** — σp ×5.5 loosens the Antarctic constraint on EVERYTHING, so a win MUST be
+  reported with the widened posterior (COST B) or it is not a win. ⚠ `sd_ais` on its bound is NOT a finding (76.6 % in
+  pre-flight, true by construction). ⛔ L32's logpost is NOT comparable to L28's (bound + different σ scale).
+- ✅ **L31 IS DONE AND IS A NULL** — see CHANGELOG 09-22m. 2018–23 dynamics anomaly **−75.4 ± 4.7** vs L28's −74.6
+  (threshold was ≤ −110) ⇒ NO EFFECT; and it cost **2.4–2.5×** on the pre-1979 hindcast. `antarctic_alpha` went DOWN
+  (0.302 → 0.252), i.e. flatter. **The pre-1979 data were never the barrier; they were the bulk** — the densest
+  objection (1992–2002, 2.4–3.6× density) is direct IMBIE and survives the restriction.
+- **09-22d earlier state: L31 WAS RUNNING** (launched 09-22 18:36, ~4 h, 4 chains, PIDs in `outputs/log_L31.txt`). **L31 = L28 +
   `--ais-fit-from=1979`, one axis, control L28** — Marcus's "try option 5". Driver `run_L31.sh`, log
   `outputs/log_L31.txt`, commit `30395f3`. ⚠ **Its success criteria are PRE-REGISTERED in the script header** —
   primary is the 2018–23 dynamics anomaly moving from L28's −74.6 Gt/yr toward IMBIE's −167.2 (**win ≤ −110, no

@@ -1,3 +1,77 @@
+## 2026-09-23a — THE SMB INTERANNUAL VARIABILITY IS REAL, FOUR DECADES OLD, AND **WEATHER NOT FORCING**; option 6's only implementable form is an observation-derived FLOOR on the Antarctic noise term (L32, running)
+
+Marcus, before authorising option 6: *"do we have evidence of inter-annual variability beyond 2020-23?"* Measured first.
+**Answer: yes, abundantly.** These findings stand independently of how L32 turns out.
+
+**⭐ THE VARIABILITY IS NOT THE EXCURSION.** IMBIE 2026 Antarctic SMB anomaly, annual means, 1979–2023 (n = 45):
+
+| period | n | sd | yoy sd |
+|---|---|---|---|
+| 1979–1989 | 11 | 111.8 | 115.7 |
+| 1990–1999 | 10 | 92.8 | 131.8 |
+| 2000–2009 | 10 | 83.1 | 115.4 |
+| 2010–2019 | 10 | 79.5 | 107.0 |
+| 2020–2023 | 4 | 185.5 | 271.8 |
+| **1979–2019 (ex-excursion)** | **41** | **92.8** | **116.5** |
+| full record | 45 | 122.9 | 134.7 |
+
+**Dropping 2020–23 entirely barely moves it** (122.9 → 92.8 sd; 134.7 → 116.5 yoy). Every decade independently shows
+sd 79–112 and yoy 107–132. **Eight years exceed |z| 1.5** against the 1979–2019 distribution — 1981, 1987, 1994, 2005,
+2007, 2016, 2022, 2023 — so the ±100–200 Gt/yr swing is a permanent feature, not a one-off. 2022 is a genuine z +5.35
+(anomaly +492.4) and 2023 +2.89. All three regions carry it ex-2020s: **East 105.4, West 63.9, Peninsula 50.6** yoy.
+Lag-1 autocorrelation of the annual anomaly is **0.37** — modestly red, not white.
+
+⚠ **VINTAGE CAVEAT, and it cuts against the magnitude.** IMBIE 2021 has no SMB partition, so the only cross-vintage
+check is the TOTAL: over the shared 1992–2020 window, **IMBIE 2021 yoy sd 35.3 vs IMBIE 2026's 53.8** — the 2026
+reprocessing shows **1.5× more** interannual variability. The existence of the variability is robust; its size is
+partly vintage-dependent. ⛔ An earlier note of mine said "both releases show ~100 Gt/yr"; that was wrong — the totals
+are 35 and 54.
+⚠ **corr(SMB, dynamics) = −0.742 is largely CONSTRUCTION, not physics** — the partition is an identity
+(`smb + dyn == mb` to 4e-8), so one component is derived and its errors enter the other with the opposite sign.
+
+**⭐⭐ AND IT IS WEATHER, WHICH KILLS THE FORCED VERSION OF OPTION 6.** Predictors of the annual SMB anomaly:
+
+| predictor | corr | |
+|---|---|---|
+| GMST level | 0.206 | **R² = 4.3 %** |
+| GMST annual change | 0.010 | |
+| GMST, linearly detrended | 0.171 | |
+| own lag-1 | 0.369 | |
+
+Nothing in this model's state predicts it ⇒ **a forced SMB term is not available**; only a stochastic one is.
+
+**⇒ THE IMPLEMENTABLE FORM, AND WHY IT IS A MISSPECIFICATION FIX RATHER THAN NOISE-WIDENING.** At 3620 Gt per cm GMSL
+(362 Gt/mm), 118.0 Gt/yr is **0.03259 cm/yr** of irreducible level innovation nothing in the model can produce — its
+own SMB yoy sd is **3.06 (L27) / 5.81 (L28) / 4.22 (L31)** Gt/yr, i.e. **20–38× too quiet**. Yet the likelihood puts
+`sd_ais` at **0.0139 cm (L28) / 0.0214 (L27)** — 1.5–2.3× BELOW the floor physics implies, with 0.03259 sitting ~2×
+outside L28's posterior **p95 of 0.0171**. And `sd_ais`'s prior is effectively unconstrained (half-normal N⁺(0,5) **cm**
+against a posterior of 0.014), so **the likelihood CHOSE a value the SMB record says is too small.** The smooth
+trajectory is being credited with explaining interannual variability it physically cannot explain.
+
+⚠⚠ **A CORRECTION TO MY OWN 09-22m FRAMING.** I described option 6 as fixing SMB that is "25× too quiet". That
+overstates what it can buy: the likelihood's FREE AR(1) noise term is already standing in for the missing variability
+at 0.43–0.67× of the implied innovation. The real gap is **1.5–2.3×, not ~25×.** The 25× is a property of the MODEL's
+SMB, not of the likelihood, and the two must not be conflated.
+
+**L32 = L28 + `--sd-ais-floor=smb`, one axis, control L28** (`run_L32.sh`, commit `ae8b9b8`, launched 09-23 06:19).
+The threshold is **derived from the IMBIE file at run time, printed, and recorded in the priors artifact** — never typed
+(`threshold_from_obs_or_law`). Criteria pre-registered on the SAME ruler as L31 (win ≤ −110 on the 2018–23 dynamics
+anomaly). ⚠⚠ **The mechanism is NOT selective**: σp grows (0.0326/0.0139)² = **5.5×**, a bigger barrier cut than option
+5's 3.2–4.5×, but it loosens the Antarctic constraint on EVERYTHING — so a win must be reported together with the
+widened posterior or it is not a win. ⚠ `sd_ais` on its bound is **not** a finding; it is true by construction.
+
+**MUTATION-TESTED, INCLUDING THAT THE GATE BINDS RATHER THAN MERELY PASSES** (`mutation_test_gates`):
+no flag → no message, logpost(θ₀) −1220.7; `=smb` → floor 0.03259 derived and printed; **`=10.0` → logpost(θ₀) = −Inf
+and the calibrator refuses to start.** 30k pre-flight: **acceptance 0.246** (L31's 0.237, so the hard boundary does not
+cripple the sampler) and the floor **binds** — p05 0.03261, **76.6 %** of draws within 2 % of it.
+⭐ **The pre-flight also caught a launch-killer**: all four of L27's overdispersed starts have `sd_ais` 0.019–0.021,
+BELOW the floor, so every chain would have refused to start. `overdispersed_starts_L27r_sdfloor.csv` shifts `sd_ais` to
+floor×1.05 keeping the original spread (0.002132) with **every other column byte-identical**.
+
+⚠ **CONTENTION, NOT A SLOW RUN** (`eta_in_days_is_not_a_slow_run`). Load was 3.44 at launch; at 06:26 a **13-process R
+job** (`calibration/diag_rep_dc_product_ladder.R`) joined, taking demand to 17 runnable on 10 cores (4P + 6E). Load
+**68.69**, chains at 25–45 % CPU, ETA 2 h 45 m → **4 h 30 m**. Acceptance is unaffected (0.242). **Marcus's ruling: let
+it run.** Nothing was paused or killed.
 ## 2026-09-22m — OPTION 5 IS A **NULL** ON ITS PRE-REGISTERED CRITERION: restricting the AIS level term to 1979+ (L31) did NOT make the refit take a steeper, IMBIE-like discharge, and it cost 2.4–2.5× on the pre-1979 hindcast
 
 Marcus: *"try option 5"*. **L31 = L28 + `--ais-fit-from=1979`, one axis, control L28.** 4 chains × 2M, 2 h 45 m,
