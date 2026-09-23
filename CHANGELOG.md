@@ -1,3 +1,78 @@
+## 2026-09-23b — ⭐⭐⭐ **OPTION 6 WORKS. L32 IS THE FIRST ARM TO MOVE OFF THE IDENTITY TRADE-OFF**, and it DOMINATES L27 on both channels: dynamics anomaly **−133.1** (best of any arm) at level z **−1.45** (vs L27's −2.63)
+
+**L32 = L28 + `--sd-ais-floor=smb`, one axis, control L28.** 4 chains × 2M, launched 09-23 06:19, done 10:36.
+Floor gate PASS on all four seeds (0.03259 cm derived from the IMBIE record per chain), noise-mode gate PASS,
+0 errors/NaN/Inf. **All four pre-registered criteria met, and two of them went the OPPOSITE way to my prediction.**
+
+**⭐ THE VERDICT, against thresholds written into `run_L32.sh` BEFORE the numbers existed.**
+
+| criterion | pre-registered threshold | result | verdict |
+|---|---|---|---|
+| **PRIMARY** 2018–23 dynamics anomaly | **win ≤ −110**; no effect > −90 | **−133.1 ± 4.9** (L28 −74.6; IMBIE −167.2) | ✅ **WIN**, by 4.7 SE |
+| COST A Antarctic hindcast | report either way | bias @1900 **−0.524 → −0.154** and @1950 **−0.210 → −0.144**, both INTO the 90 % band | ✅ **IMPROVED** |
+| COST B posterior width | report; a win that is only "wider" is not a win | p05–p95 **1.01–1.03×** L28 in 4 of 6 cells (0.96× at SSP5-8.5 2100); widening confined to SSP1-2.6 (1.21× @2100, 1.34× @2300) | ✅ **NOT a width artifact** |
+| GUARD non-Antarctic | ~0.02σ of L28 | glaciers +0.004, gis +0.008, te −0.005 cm | ✅ holds |
+
+**⭐⭐ IT MOVED OFF THE TRADE-OFF LINE, WHICH NOTHING ELSE DID.** Fitting dyn = f(cum) through L27/L28/L31 gives
+dyn = 149·cum − 260.1; at L32's cumulative of 1.113 cm that line predicts **−94.2**, and L32 sits at **−133.1** —
+**38.9 Gt/yr below it.** Every previous arm slid ALONG the line ([[ais_net_dynamics_tradeoff_identity]]); L32 left it.
+
+| arm | cum 79–23 (cm) | level z | 2018–23 dyn anomaly | dyn channel vs L27 |
+|---|---|---|---|---|
+| IMBIE 2026 | 1.316 ± 0.140 | — | **−167.2** | — |
+| L27 (shipped) | 0.948 | **−2.63** | −119.1 | 0 |
+| L28 | 1.224 | **−0.66** | −74.6 | −3.1 ± 0.5 |
+| L31 | 1.257 | −0.42 | −75.4 | −3.2 ± 0.6 |
+| **L32** | **1.113** | **−1.45** | **−133.1** | **−0.2 ± 0.4** |
+
+⭐ **L32 STRICTLY DOMINATES L27**: better dynamics (−133.1 vs −119.1) AND better level (−1.45 vs −2.63).
+⚠ **It does NOT dominate L28** — it is 0.8σ WORSE on the level (−1.45 vs −0.66). L32 buys a large dynamics gain for a
+moderate level loss; whether that trade is worth taking is a judgement, not a measurement. **State it that way.**
+On the dynamics channel L32 is indistinguishable from L27 (**−0.2 ± 0.4**) and beats L28/L31 by **+3.3 / +3.4**.
+
+**⭐ THE MECHANISM, and the parameters confirm it.** Freed from having to explain interannual wiggles nothing in it can
+produce, the refit took **MORE temperature-tracking discharge** — exactly the direction the iso-cumulative sweep said
+reaches IMBIE:
+
+| | L27 | L28 | L31 | **L32** |
+|---|---|---|---|---|
+| `sd_ais` | 0.02162 | 0.01394 | 0.02143 | **0.03294** (on its floor) |
+| `antarctic_alpha` (temperature-TRACKING share) | 0.3425 | 0.3015 | 0.2518 | **0.3779** ← highest of any arm |
+| `anto_alpha` | 0.3821 | 0.2867 | 0.3076 | **0.3916** ← highest |
+| `ais_c` | 92.67 | 80.19 | 89.68 | 97.2 |
+
+L31 moved `antarctic_alpha` DOWN (flatter) and failed; **L32 moved it UP, past even L27, and succeeded.** The two arms
+are the cleanest possible contrast: same target, same control, opposite parameter response, opposite outcome.
+
+**⭐ AND IT IS THE BEST-CONVERGED ARM**, which was not expected of an arm with a bound parameter:
+
+| arm | R-hat @2100 | ESS | marginals not converged |
+|---|---|---|---|
+| L27 | 1.00079 | 1238.5 | 8 / 50 |
+| L28 | 1.00299 | 1288.5 | 10 / 50 |
+| L31 | 0.99967 | 1451.4 | 14 / 52 |
+| **L32** | **1.00011** | 1267.6 | **7 / 50** |
+
+**⚠ WHAT I GOT WRONG, TWICE, AND IT IS THE LESSON.** (1) I predicted COST A would be a cost — "a 5.5× looser constraint
+should fit WORSE in the mean". It fitted BETTER, because the tighter σ was not buying fit, it was buying a *wrong*
+trajectory that had to thread interannual noise. (2) I predicted the width would inflate and warned a win might be
+"only wider"; widths are within 1–3 % in four of six cells. ⇒ ⭐ **A misspecified noise term does not merely
+under-disperse the posterior — it BIASES the mean, because the mean is made to do the noise's job.** Loosening it
+correctly can improve fit and leave width alone.
+
+**⛔ L32 IS NOT YET A CANDIDATE POSTERIOR, and the gap is operational, not scientific.** Missing: van Vuuren runs
+(0 of 7 — the paper's figures are van Vuuren), all 14 paper figures, the MAGICC-climate swap set,
+`ladrillo_model_comparison_L32.csv` and the three `scope_slr_fairunc_draws_ssp*_L32.csv` that `bench_ladrillo.py`
+requires, and a frozen `benchmark/reference/L32/` snapshot. **`champions.json` untouched; L27 remains the champion and
+the paper's posterior.** Promoting L32 would also require rewriting the draft's *"Deliberately removed: IMBIE"*
+paragraph and discarding the null insert's out-of-sample framing — the same cost noted for L28 on 09-22.
+⛔ **L32's logpost (~790) is NOT comparable to L28's (~620s)** — a bound plus a different σ scale, not fit.
+⚠ `sd_ais` sitting on its floor (0.03294 vs the 0.03259 bound) is **by construction**, not a finding.
+
+Artifacts: `outputs/log_L32.txt`, `outputs/mcmc/chain_L32_seed{2026..2029}_n2000000.csv`, `outputs/postpred_L32_*.csv`,
+`outputs/ladrillo_prior_posterior_L32.{csv,md}`, `outputs/diag_ais_flux_split_vs_imbie{,_draws}_L32.csv`,
+`outputs/ssps_components_2300_L32_*_ws.csv`, `outputs/diag_ais_channel_separation{,_summary}.csv` (L27/L28/L31/L32).
+Memory: `ais_smb_variability_is_weather` (extended), `ais_dynamics_channel_is_the_weaker_one` (scope corrected).
 ## 2026-09-23a — THE SMB INTERANNUAL VARIABILITY IS REAL, FOUR DECADES OLD, AND **WEATHER NOT FORCING**; option 6's only implementable form is an observation-derived FLOOR on the Antarctic noise term (L32, running)
 
 Marcus, before authorising option 6: *"do we have evidence of inter-annual variability beyond 2020-23?"* Measured first.
