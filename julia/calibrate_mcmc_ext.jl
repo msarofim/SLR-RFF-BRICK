@@ -1464,6 +1464,58 @@ const NN = 2*length(SERIES); const NK = NP + NN
 # position of the steric noise pair within θ: σ at NP+2i-1, ρ at NP+2i (matching the
 # σn = θ[NP+1:2:NK] / ρn = θ[NP+2:2:NK] strides). Derived from SERIES, never hardcoded:
 const STERIC_NI = findfirst(==(:steric), SERIES)
+const AIS_NI    = findfirst(==(:ais), SERIES)
+
+## --sd-ais-floor=smb|<cm> (L32, 2026-09-22): a FLOOR on the Antarctic AR(1) innovation sd,
+## enforced like STERIC_MARG_CAP. Default Inf-free (no floor) = every arm through L31.
+##
+## ⭐ WHY. The fitted sd_ais is INCONSISTENT WITH THE OBSERVED SURFACE-MASS-BALANCE RECORD.
+## IMBIE 2026's Antarctic SMB anomaly has a year-on-year sd of 116.5 Gt/yr over 1979-2019 —
+## EXCLUDING the 2020-23 excursion entirely, and every decade independently shows 107-132 —
+## which at 3620 Gt per cm GMSL is an irreducible 0.0322 cm/yr of level innovation that NOTHING
+## in this model can produce (its own SMB year-on-year sd is 3-6 Gt/yr, and GMST explains only
+## R^2 = 4.3% of the observed anomaly, so it is WEATHER, not forcing). Yet the likelihood puts
+## sd_ais at 0.0139 cm (L28) / 0.0214 (L27) — a factor 1.5-2.3 BELOW the floor physics implies,
+## and 0.0322 sits about 2x outside L28's posterior p95 of 0.0171. The smooth trajectory is being
+## credited with explaining interannual variability it cannot explain, and paying amplitude^2 for
+## the mismatch. That is a misspecified noise model, not a fit.
+##
+## ⚠ THE THRESHOLD IS DERIVED FROM THE OBSERVATION AT RUN TIME, NEVER TYPED (threshold_from_obs_or_law).
+## `=smb` reads the IMBIE file and computes it, prints it, and records it in the priors artifact.
+## A literal `=<cm>` is accepted for sensitivity tests and is labelled as such.
+##
+## ⚠ THE COST IS NOT SELECTIVE. A larger sd_ais loosens the Antarctic constraint on EVERYTHING,
+## not just on a steeper discharge: it must widen the posterior and may let projections drift.
+## An arm using this MUST report its Antarctic hindcast and its projection spread, not only
+## whether the discharge steepened.
+const SMB_FLOOR_SRC = joinpath(REPO, "data/observations/raw/imbie2026/imbie3_antarctica_Gt_partitioned.csv")
+const SMB_FLOOR_Y0, SMB_FLOOR_Y1 = 1979, 2019   # EXCLUDES 2020-23 so the floor is not set by the excursion
+const GT_PER_CM_GMSL = 3620.0                   # 362 Gt per mm; ocean area 3.62e14 m^2
+const SD_AIS_FLOOR = let v = _argval("--sd-ais-floor=")
+    if v === nothing
+        0.0
+    elseif v == "smb"
+        raw = CSV.read(SMB_FLOOR_SRC, DataFrame; comment = "#")
+        yr  = [parse(Int, first(string(d), 4)) for d in raw[!, "Date"]]
+        col = "Surface mass balance anomaly (Gt/yr)"
+        ann = combine(groupby(DataFrame(year = yr, smb = raw[!, col]), :year), :smb => mean => :smb)
+        sort!(ann, :year)
+        w = ann[(ann.year .>= SMB_FLOOR_Y0) .& (ann.year .<= SMB_FLOOR_Y1), :smb]
+        step_gt = std(diff(w))
+        f = step_gt / GT_PER_CM_GMSL
+        ## ⚠ @printf needs a LITERAL format string -- a concatenated one is an ArgumentError at load.
+        println("sd_ais FLOOR DERIVED FROM OBSERVATION: IMBIE 2026 SMB anomaly ",
+                SMB_FLOOR_Y0, "-", SMB_FLOOR_Y1, " (n=", length(w), "), year-on-year sd ",
+                round(step_gt, digits = 1), " Gt/yr / ", GT_PER_CM_GMSL, " Gt per cm = ",
+                round(f, digits = 5), " cm")
+        f
+    else
+        f = parse(Float64, v)
+        println("sd_ais FLOOR SET BY HAND: ", round(f, digits = 5),
+                " cm (a SENSITIVITY setting, not observation-derived)")
+        f
+    end
+end
 isnothing(STERIC_NI) && isfinite(STERIC_MARG_CAP) &&
     error("--steric-marg-cap= given but :steric is not in SERIES")
 # --rho-max=<series>:<val>[,<series>:<val>] (2026-09-21, the L28 rho-cap arm): a PER-SERIES hard
@@ -1590,6 +1642,9 @@ function logposterior(θ)
     # run(m), so a proposal outside the bound costs no model evaluation.
     (isfinite(STERIC_MARG_CAP) &&
      σn[STERIC_NI]/sqrt(1 - ρn[STERIC_NI]^2) > STERIC_MARG_CAP) && return -Inf
+    # L32: the Antarctic innovation may not fall below what observed SMB weather already
+    # supplies. Same place, same reason: rejected before any model evaluation.
+    (SD_AIS_FLOOR > 0 && σn[AIS_NI] < SD_AIS_FLOOR) && return -Inf
     # the channel-ordering wedge (see GIS_ORDERED above). Evaluated HERE, with
     # the other hard rejections and BEFORE run(m), so a rejected proposal costs
     # no model evaluation.
@@ -2200,7 +2255,10 @@ if "--dump-priors" in ARGS
         push!(rows, (k, f.name, String(f.comp), f.μ, f.σ, f.lo, f.hi, form, note))
     end
     for (i, s) in enumerate(SERIES)
-        push!(rows, (NP + 2i - 1, "sd_$s", "noise", 0.0, 5.0, 0.0, Inf, "half-normal N+(0, 5) cm", "AR(1) innovation sd of the $s residual"))
+        _lo = (s === :ais && SD_AIS_FLOOR > 0) ? SD_AIS_FLOOR : 0.0
+        _pf = (s === :ais && SD_AIS_FLOOR > 0) ?
+              @sprintf("half-normal N+(0, 5) cm, FLOORED at %.5f", SD_AIS_FLOOR) : "half-normal N+(0, 5) cm"
+        push!(rows, (NP + 2i - 1, "sd_$s", "noise", 0.0, 5.0, _lo, Inf, _pf, "AR(1) innovation sd of the $s residual"))
         push!(rows, (NP + 2i,     "rho_$s", "noise", NaN, NaN, 0.0, RHO_MAX[i], "flat on [0, $(RHO_MAX[i]))",
                      "AR(1) lag-1 autocorrelation of the $s residual; $(RHO_MAX[i]) is a hard bound" *
                      (RHO_MAX[i] < RHO_MAX_DEFAULT ? " (--rho-max=, default $RHO_MAX_DEFAULT)" : "")))
