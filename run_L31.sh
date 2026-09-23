@@ -59,9 +59,14 @@ NITER=2000000
 BASEFLAGS="--gis-ordered --gis-basins2 --amp-mu=1.09 --amp-sigma=0.180 --paleo-priors --no-delta --no-d2-gsic --obs-corr-len=100 --toff-lo=-4 --precip-reparam --cut-fastdyn --fix-gamma"
 AISFLAG="--ais-fit-from=1979"
 say(){ echo "[$(date '+%m-%d %H:%M:%S')] $*" | tee -a "$LOG"; }
+## ⚠ GATE ADDED 2026-09-23, AFTER THIS ARM HAD ALREADY RUN — it did NOT affect the run it records.
+## The inherited step() printed "FAILED ... — continuing" and the driver then said ALLDONE
+## regardless, so a run with dead stages was indistinguishable from a clean one (flagged by another
+## session on run_L32_bench.sh). Failures are now counted and ALLDONE is earned.
+FAILED_STEPS=0
 step(){ local nm="$1"; shift
   say "START  $nm"
-  if "$@" >> "$LOG" 2>&1; then say "OK     $nm"; else say "FAILED $nm (rc=$?) — continuing"; fi
+  if "$@" >> "$LOG" 2>&1; then say "OK     $nm"; else say "FAILED $nm (rc=$?) — continuing"; FAILED_STEPS=$((FAILED_STEPS+1)); fi
 }
 
 run_chains(){ # TAG SEEDS STARTS ADCOV FLAGS
@@ -116,4 +121,5 @@ postprocess(){ # TAG
 ## ---- L31 ----------------------------------------------------------------------------------------------------
 run_chains L31 "2026 2027 2028 2029" outputs/mcmc/overdispersed_starts_L27r.csv adapted_cov_L27_named.csv "$BASEFLAGS --no-ledger $AISFLAG"
 if noise_gate L31 "2026 2027 2028 2029"; then postprocess L31; else say "L31 noise-mode gate FAILED — not postprocessing (investigate, do not --force)"; fi
-say "ALLDONE"
+(( FAILED_STEPS == 0 )) && say "ALLDONE — 0 failed step(s)" \
+  || { say "INCOMPLETE — $FAILED_STEPS failed step(s); do not read the outputs as final."; exit 1; }

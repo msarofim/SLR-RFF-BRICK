@@ -41,9 +41,14 @@ BASEFLAGS="--gis-ordered --gis-basins2 --amp-mu=1.09 --amp-sigma=0.180 --paleo-p
 ARMFLAG="--sd-ais-floor=smb2021"
 STARTS=outputs/mcmc/overdispersed_starts_L27r_sdfloor.csv
 say(){ echo "[$(date '+%m-%d %H:%M:%S')] $*" | tee -a "$LOG"; }
+## ⚠ GATE ADDED 2026-09-23, AFTER THIS ARM HAD ALREADY RUN — it did NOT affect the run it records.
+## The inherited step() printed "FAILED ... — continuing" and the driver then said ALLDONE
+## regardless, so a run with dead stages was indistinguishable from a clean one (flagged by another
+## session on run_L32_bench.sh). Failures are now counted and ALLDONE is earned.
+FAILED_STEPS=0
 step(){ local nm="$1"; shift
   say "START  $nm"
-  if "$@" >> "$LOG" 2>&1; then say "OK     $nm"; else say "FAILED $nm (rc=$?) — continuing"; fi
+  if "$@" >> "$LOG" 2>&1; then say "OK     $nm"; else say "FAILED $nm (rc=$?) — continuing"; FAILED_STEPS=$((FAILED_STEPS+1)); fi
 }
 run_chains(){ local T="$1" SEEDS="$2" ST="$3" ADCOV="$4" FLAGS="$5"
   [[ -f "$ST" ]] || { say "MISSING $ST"; return 1; }
@@ -88,4 +93,5 @@ postprocess(){ local T="$1"
   step "$T prior/posterior table" python python/ladrillo_prior_posterior_table.py --tag=$T; }
 run_chains L33 "2026 2027 2028 2029" "$STARTS" adapted_cov_L27_named.csv "$BASEFLAGS --no-ledger $ARMFLAG"
 if noise_gate L33 "2026 2027 2028 2029"; then postprocess L33; else say "L33 noise-mode gate FAILED — not postprocessing"; fi
-say "ALLDONE"
+(( FAILED_STEPS == 0 )) && say "ALLDONE — 0 failed step(s)" \
+  || { say "INCOMPLETE — $FAILED_STEPS failed step(s); do not read the outputs as final."; exit 1; }

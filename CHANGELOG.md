@@ -1,3 +1,49 @@
+## 2026-09-23f — ⛔ **A DRIVER THAT SAYS "ALLDONE" AFTER FAILED STEPS, PLUS A CHECK THAT CAN NEVER PASS, IS A SILENT-SUCCESS MACHINE.** Both flagged by another session; both fixed and mutation-tested
+
+Another session read `outputs/log_L32_bench.txt` cold and flagged two things. **Both are correct**, and together they
+are worse than either alone.
+
+**① `step()` swallowed failures and `ALLDONE` printed anyway.** `model comparison` and `benchmark` both exited rc=1 at
+16:08:07, `step()` logged "FAILED … — continuing", and the driver then printed **ALLDONE**. ⚠ **This is an INHERITED
+repo pattern, not something I introduced** — `run_L28.sh`, `run_L29.sh`, `run_L30.sh` all have it, and my
+`run_L31/L32/L33/L32_bench` copied it. A run with two dead stages was indistinguishable from a clean one.
+
+**② The INPUT CHECK could never pass.** It looked for `scope_slr_fairunc_draws_ssp126_spliced_L32.csv`; the pipeline
+writes `…_spliced_L32_tap4p69K_V5p64m_tau800.csv`. I took the names from the L31 **error message** rather than from a
+product listing. ⭐ **A check that cannot pass is worse than no check — it trains the reader to ignore the one line
+that would have caught ①.** I had noticed the false MISSINGs and called them cosmetic (09-23d); that was the wrong
+call, and the other session's framing is the right one: it would have reported MISSING forever, on every future run.
+
+**③ "Something produced them out of band" — that was ME, and the log does not say so.** After the rc=1 I diagnosed the
+cause, ran `project_ssps_components_ladrillo.jl 2000 --tag=L32 --no-tap` (16:08:46), then the model comparison and
+benchmark by hand (16:10:50–16:10:51); the artifacts landed 16:10:42–16:10:58. I reported it in session. But the
+recovery commands were appended to the log with `>>` WITHOUT the `[timestamp] START/OK` framing, so a later reader
+sees failed steps, ALLDONE, and artifacts newer than the driver — **ambiguous provenance**. ⇒ **manual recovery must
+be logged in the same form as a step, or it is indistinguishable from an out-of-band write.**
+
+**THE FIX** (`run_L32_bench.sh`, and the gate back-ported to `run_L31/L32/L33.sh` with a dated note that it was added
+AFTER those runs and did not affect them):
+- `step()` now increments `FAILED_STEPS`; the missing `--no-tap` stage that caused ① is added;
+- the input check uses **globs** (`…_spliced_${T}*.csv`) and increments `MISSING_INPUTS`;
+- **ALLDONE is earned**: `ALLDONE — 0 failed step(s), 0 missing input(s)` only when both counters are zero, otherwise
+  `INCOMPLETE — … DO NOT read the bench as final.` and **exit 1**.
+
+**⭐ MUTATION-TESTED, all three branches** (`mutation_test_gates` — a gate that passes is not a gate that works):
+
+| case | expected | observed |
+|---|---|---|
+| real state, 0 failures | ALLDONE, rc 0 | **ALLDONE — 0 failed, 0 missing; rc=0** |
+| inject 2 failed steps | INCOMPLETE, rc 1 | **INCOMPLETE — 2 failed, 0 missing; rc=1** |
+| hide `ladrillo_model_comparison_L32.csv` | detected | **MISSING … INCOMPLETE — 0 failed, 1 missing; rc=1** (file restored) |
+
+**⚠ NONE OF THE L32 BENCHMARK NUMBERS CHANGE.** The artifacts were produced correctly and verified independently —
+`L27*` reads 0.70σ in the L28, L29 and L32 bench files alike, which is the cross-file consistency check. The defect
+was in **how a reader learns whether a run succeeded**, not in the outputs. CHANGELOG 09-23d stands.
+
+**How to apply.** (1) ⛔ **A terminal "ALLDONE" must be conditional on a failure counter, or it is decoration.**
+(2) ⭐ **Take verification patterns from `ls` of a real product, never from an error message** — the error message
+names what was *sought*, which is exactly the thing that may be wrong. (3) ⚠ **Log manual recovery in the driver's own
+step format**, or the artifact timeline becomes unreadable to anyone but the person who typed it.
 ## 2026-09-23e — **L32 CLEARS BRICK 2.0 AT EVERY ρ BOUND (ΔBIC +15.4 … +139.1)**, and on L27-vs-L32 **THE TWO LIKELIHOOD ARMS DISAGREE** — which is the same structural question appearing a third time, not noise
 
 Marcus: *"How does L32 compare to BRICK 2.0? And how does it compare to L27 on AIC and BIC basis?"*

@@ -37,8 +37,13 @@ T=L32
 LOG=outputs/log_L32_bench.txt; : > "$LOG"
 J="julia --project=julia_v2"
 say(){ echo "[$(date '+%m-%d %H:%M:%S')] $*" | tee -a "$LOG"; }
+## ⛔ FAILURES ARE COUNTED, NOT JUST PRINTED. The repo's inherited step() printed "FAILED ... —
+## continuing" and the driver then said ALLDONE regardless, so a run with two dead stages looked
+## exactly like a clean one (flagged by another session, 09-23: "both FAILED at 16:08:07 and the
+## driver still printed ALLDONE"). ALLDONE now means ALL DONE.
+FAILED_STEPS=0
 step(){ local nm="$1"; shift; say "START  $nm"
-  if "$@" >> "$LOG" 2>&1; then say "OK     $nm"; else say "FAILED $nm (rc=$?)"; fi; }
+  if "$@" >> "$LOG" 2>&1; then say "OK     $nm"; else say "FAILED $nm (rc=$?)"; FAILED_STEPS=$((FAILED_STEPS+1)); fi; }
 
 ## preconditions, asserted rather than assumed
 grep -qa "OK     L32 ssp components" outputs/log_L32.txt || { say "run_L32.sh did not complete; STOP"; exit 1; }
@@ -49,18 +54,38 @@ say "$T benchmark inputs | commit $(git rev-parse --short HEAD) | load $(uptime 
 for s in ssp126 ssp245 ssp585; do
   step "fair-uncertainty joint band $s" $J julia/scope_slr_fair_uncertainty.jl --tag=$T --ssp=$s --tap
 done
+## ⚠ REQUIRED BY ladrillo_model_comparison.py AND EASY TO MISS: it needs the UNTAPPED SSP
+## deliverable (outputs/ssps_components_2300_<TAG>.csv). run_L28_stage2.sh has this step; the first
+## version of this script omitted it and the model comparison died with rc=1.
+step "ssp components (no-tap)" $J julia/project_ssps_components_ladrillo.jl 2000 --tag=$T --no-tap
 source ~/climate-env/bin/activate
 step "model comparison" python python/ladrillo_model_comparison.py --tag=$T
 step "benchmark"        python python/bench_ladrillo.py --tag=$T
 step "IMBIE 2026 vs targets/hindcast" python python/diag_imbie2026_vs_targets.py --tag=$T
 
-## the four inputs bench_ladrillo.py named, verified to EXIST rather than inferred from exit codes
+## ⛔ THE PATTERNS ARE GLOBS, BECAUSE THE PRODUCTS CARRY A TAP SUFFIX.
+## The first version of this check spelled the draws files WITHOUT `_tap4p69K_V5p64m_tau800`,
+## taken from an error message rather than a product listing, so it reported MISSING for three
+## files that existed — and would have done so forever, on every future run, regardless of success
+## (flagged by another session, 09-23). A check that cannot pass is worse than no check: it trains
+## the reader to ignore it. Verified by MUTATION below.
 say "INPUT CHECK:"
-for f in outputs/ladrillo_model_comparison_$T.csv \
-         outputs/scope_slr_fairunc_draws_ssp126_spliced_$T.csv \
-         outputs/scope_slr_fairunc_draws_ssp245_spliced_$T.csv \
-         outputs/scope_slr_fairunc_draws_ssp585_spliced_$T.csv \
-         outputs/bench_ladrillo_$T.md; do
-  [[ -s "$f" ]] && say "  OK      $f" || say "  MISSING $f"
+MISSING_INPUTS=0
+check(){ local pat="$1"; local hit
+  hit=$(ls -1 $pat 2>/dev/null | head -1)
+  if [[ -n "$hit" && -s "$hit" ]]; then say "  OK      $hit"
+  else say "  MISSING $pat"; MISSING_INPUTS=$((MISSING_INPUTS+1)); fi; }
+check "outputs/ladrillo_model_comparison_$T.csv"
+for s in ssp126 ssp245 ssp585; do
+  check "outputs/scope_slr_fairunc_draws_${s}_spliced_${T}*.csv"
 done
-say "ALLDONE"
+check "outputs/bench_ladrillo_$T.md"
+
+## ⭐ ALLDONE IS EARNED, NOT PRINTED. Exit non-zero so a caller (or a later reader of the log)
+## cannot mistake a partial run for a complete one.
+if (( FAILED_STEPS == 0 && MISSING_INPUTS == 0 )); then
+  say "ALLDONE — $FAILED_STEPS failed step(s), $MISSING_INPUTS missing input(s)"
+else
+  say "INCOMPLETE — $FAILED_STEPS failed step(s), $MISSING_INPUTS missing input(s). DO NOT read the bench as final."
+  exit 1
+fi
