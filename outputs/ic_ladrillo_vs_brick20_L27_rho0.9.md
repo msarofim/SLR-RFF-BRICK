@@ -6,41 +6,41 @@ AR(1) arm: rho bounded at 0.9.
 
 | arm | model | k | ln L (max over draws) | ln L (posterior-median series) | AIC | AICc | BIC |
 |---|---|---|---|---|---|---|---|
-| obs_iid | Ladrillo L27 | 42 | 23.2 | -588.9 | 37.5 | 45.4 | 214.7 |
-| obs_iid | BRICK 2.0 | 27 | -1252.1 | -3957.3 | 2558.3 | 2561.5 | 2672.2 |
-| ar1_prof | Ladrillo L27 | 50 | 225.9 | 209.5 | -351.8 | -340.5 | -140.8 |
-| ar1_prof | BRICK 2.0 | 35 | 106.9 | -28.7 | -143.9 | -138.4 | 3.8 |
+| obs_iid | Ladrillo L27 | 42 | -66.1 | -667.8 | 216.2 | 224.0 | 393.3 |
+| obs_iid | BRICK 2.0 | 27 | -1200.4 | -4165.3 | 2454.7 | 2457.9 | 2568.6 |
+| ar1_prof | Ladrillo L27 | 50 | 230.9 | 212.9 | -361.8 | -350.5 | -150.9 |
+| ar1_prof | BRICK 2.0 | 35 | 115.3 | -18.5 | -160.6 | -155.2 | -13.0 |
 
 ## The test
 
-- **obs_iid**: Δln L (Ladrillo − BRICK 2.0) = **1275.4** for Δk = 15. ΔAIC (BRICK − Ladrillo) = **2520.8**, ΔBIC = **2457.5**. The likelihood gain is worth 1275 parameters under AIC and 410 under BIC (ln N = 6.22); Ladrillo has 15 more.
-- **ar1_prof**: Δln L (Ladrillo − BRICK 2.0) = **119.0** for Δk = 15. ΔAIC (BRICK − Ladrillo) = **207.9**, ΔBIC = **144.6**. The likelihood gain is worth 119 parameters under AIC and 38 under BIC (ln N = 6.22); Ladrillo has 15 more.
+- **obs_iid**: Δln L (Ladrillo − BRICK 2.0) = **1134.3** for Δk = 15. ΔAIC (BRICK − Ladrillo) = **2238.6**, ΔBIC = **2175.3**. The likelihood gain is worth 1134 parameters under AIC and 365 under BIC (ln N = 6.22); Ladrillo has 15 more.
+- **ar1_prof**: Δln L (Ladrillo − BRICK 2.0) = **115.6** for Δk = 15. ΔAIC (BRICK − Ladrillo) = **201.2**, ΔBIC = **137.9**. The likelihood gain is worth 116 parameters under AIC and 37 under BIC (ln N = 6.22); Ladrillo has 15 more.
 
 ## Per-series ln L at each model's JOINT maximising draw (ar1_prof, rho ≤ 0.9) and the profiled noise there
 
 | series | Ladrillo L27 ln L | sd | ρ | BRICK 2.0 ln L | sd | ρ | Δln L |
 |---|---|---|---|---|---|---|---|
-| ais | 112.8 | 0.023 | 0.900 | 110.0 | 0.028 | 0.900 | 2.9 |
-| gsic | 4.5 | 0.018 | 0.900 | -64.4 | 0.241 | 0.900 | 68.9 |
-| gis | 107.2 | 0.022 | 0.900 | 60.6 | 0.088 | 0.900 | 46.5 |
-| steric | 1.4 | 0.111 | 0.900 | 0.7 | 0.112 | 0.900 | 0.7 |
+| ais | 117.9 | 0.032 | 0.900 | 121.8 | 0.014 | 0.900 | -4.0 |
+| gsic | 4.5 | 0.018 | 0.900 | -65.7 | 0.246 | 0.900 | 70.2 |
+| gis | 107.2 | 0.022 | 0.900 | 57.6 | 0.093 | 0.900 | 49.6 |
+| steric | 1.4 | 0.111 | 0.900 | 1.5 | 0.111 | 0.900 | -0.1 |
 
 ## Per-window decomposition (obs_iid, at each model's own maximising draw)
 
 | window | Ladrillo L27 | BRICK 2.0 | Δln L |
 |---|---|---|---|
-| 1900-2026 | 23.2 | -1252.1 | 1275.4 |
-| 1900-1919 | -78.1 | -228.0 | 150.0 |
-| 1920-1949 | -74.7 | -241.3 | 166.5 |
-| 1950-1992 | 50.7 | -479.7 | 530.4 |
-| 1993-2026 | 125.3 | -303.1 | 428.4 |
+| 1900-2026 | -66.1 | -1200.4 | 1134.3 |
+| 1900-1919 | -81.8 | -226.1 | 144.3 |
+| 1920-1949 | -70.8 | -230.7 | 159.9 |
+| 1950-1992 | 47.3 | -456.8 | 504.1 |
+| 1993-2026 | 39.3 | -286.8 | 326.1 |
 
 ## The total (out-of-sample for BOTH — not in either likelihood; reference only)
 
 | arm | Ladrillo L27 ln L (max) | at fit4 max-draw | BRICK 2.0 ln L (max) | at fit4 max-draw |
 |---|---|---|---|---|
-| obs_iid | -162.0 | -173.4 | -165.3 | -218.7 |
-| ar1_prof | -162.0 | -165.0 | -165.3 | -189.5 |
+| obs_iid | -162.0 | -171.0 | -165.3 | -218.7 |
+| ar1_prof | -162.0 | -165.0 | -165.3 | -186.8 |
 
 ## Reading, and what this does NOT show
 

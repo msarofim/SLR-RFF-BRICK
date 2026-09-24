@@ -1,3 +1,63 @@
+## 2026-09-23g — ⛔⛔ **CORRECTION: my 09-23e L27-vs-L32 IC NUMBERS WERE ON MISMATCHED TARGETS. The "arms disagree" finding is GONE** — corrected, BOTH arms now favour L32, and that turns out to be an IN-SAMPLE ARTIFACT that makes the IC useless for this pair. ⭐ The BENCHMARK, which has the same asymmetry and still favours L27, is the trustworthy result
+
+**How it was caught.** A routine `git status` showed `outputs/ic_hindcast_obs_sigma.csv` MODIFIED with genuinely
+different numbers (ais_obs@1900 **−0.634078 → −0.768152**), because my L32 IC run regenerated it. Chasing that gave the
+dates: **L27's IC was written 09-20 18:05/18:53; the target was rebuilt onto IMBIE 09-21 13:12** — 19 h later. So
+09-23e compared L27's likelihood **on the retired Frederikse-era target** against L32's **on IMBIE**. Different data;
+not a comparison at all.
+
+**Fixed**: L27's residuals + all three ρ bounds re-run on the current target (09-23 17:51/18:05). ⭐ **Consistency
+proven, not assumed** — re-scoring L32 against the regenerated obs/BRICK files reproduced its stored values
+**bit-identically across 182 rows (max |Δ| = 0.000e+00)**, so both arms are genuinely on one ruler.
+
+**① vs BRICK 2.0, CORRECTED** (Δ = BRICK − Ladrillo, positive favours Ladrillo, Δk = −15):
+
+| arm / bound | L27 ΔBIC **(was)** | **L32 ΔBIC** |
+|---|---|---|
+| ar1_prof ≤ 0.99 | **+9.1** (was +20.8) | **+15.4** |
+| ar1_prof ≤ 0.95 | +68.0 (was +78.0) | +69.8 |
+| ar1_prof ≤ 0.90 | +137.9 (was +144.6) | +139.1 |
+| obs_iid | +2175.3 (was +2457.5) | +2330.5 |
+
+⇒ **L32 now beats L27 against BRICK at EVERY bound** (the ordering I reported was the wrong way round).
+⚠⚠ **AND `champions.json` CARRIES A STALE NUMBER**: its L27 rationale says *"BIC vs BRICK 2.0 positive at every rho
+bound (+21 at 0.99, dk 15)"*. On the current target it is **+9.1, not +21.** Still positive, so the criterion holds —
+but the recorded figure is on the retired target and should be restamped. **Not fixed here; `champions.json` is
+Marcus's.**
+
+**② ⛔ L27 vs L32, CORRECTED — AND THE "ARMS DISAGREE" FINDING DOES NOT SURVIVE:**
+
+| arm / bound | ΔlnL (L32−L27) **corrected** | was | ΔAIC = ΔBIC | favours |
+|---|---|---|---|---|
+| ar1_prof ≤ 0.99 | **+3.1** | +10.0 | −6.3 | L32 |
+| ar1_prof ≤ 0.95 | **+0.9** | +7.6 | −1.8 | L32 |
+| ar1_prof ≤ 0.90 | **+0.6** | +5.6 | −1.2 | L32 |
+| **obs_iid** | **+77.6** | **−11.7** | **−155.2** | **L32** ← SIGN FLIPPED |
+
+⛔ **RETRACTED: "every iid-like scorer prefers L27, every autocorrelation-allowing scorer prefers L32."** That was an
+artifact of the target mismatch. **Both arms now favour L32**, and the ar1_prof margins shrink to +3.1 / +0.9 / +0.6 —
+within noise at the two tighter bounds.
+
+**⭐⭐ BUT THE CORRECTED NUMBERS DO NOT MEAN L32 IS BETTER — THEY MEAN THE IC CANNOT ANSWER THIS QUESTION.**
+L27's `obs_iid` ln L̂ fell **23.2 → −66.1**, an **89-unit** drop, purely from being scored on data it was never fitted
+to. **L32 WAS fitted to this target; L27 was NOT.** The only common target available IS one arm's training data, so the
+whole comparison is dominated by that asymmetry. obs_iid's +77.6 is what in-sample advantage alone produces.
+⇒ ⛔ **The IC is uninformative for L27 vs L32 and must not be quoted either way.** Combined with 09-23e's standing
+point (identical k ⇒ ΔAIC = ΔBIC = −2ΔlnL, and the IC re-profiles the noise it is meant to judge), **three independent
+reasons now say an information criterion cannot adjudicate this pair.**
+
+**⭐⭐⭐ WHICH MAKES THE BENCHMARK THE STRONGEST RESULT IN THE WHOLE COMPARISON.** `bench_ladrillo.py` carries the SAME
+in-sample asymmetry — it scores RMSE against the live IMBIE target that L32 was fitted to and L27 was not — **and L27\*
+STILL WINS the full-period Antarctic hindcast, 0.70σ vs 0.88σ.** A win against the asymmetry is worth far more than a
+win with it. ⇒ **09-23d's reading stands and is reinforced: L32 is the intermediate arm, and on the one like-for-like
+whole-record scorer L27 is ahead on the Antarctic while the other four components are identical.**
+
+**How to apply.** (1) ⛔⛔ **Before comparing two stored likelihoods, check the mtime of every SHARED INPUT against the
+last change to the data** — not just the outputs' own dates. Two valid files can be mutually invalid. (2) ⭐ **A `git
+status` on a regenerated shared input is a provenance alarm**; this was caught by a modified `ic_hindcast_obs_sigma.csv`
+noticed during an unrelated status check. (3) ⭐ **When an in-sample asymmetry favours arm A, a metric that favours arm
+B is the informative one.** (4) ⚠ **Re-scoring to prove consistency is cheap and I should have done it before 09-23e,
+not after** — 182 rows, bit-identical, two minutes.
 ## 2026-09-23f — ⛔ **A DRIVER THAT SAYS "ALLDONE" AFTER FAILED STEPS, PLUS A CHECK THAT CAN NEVER PASS, IS A SILENT-SUCCESS MACHINE.** Both flagged by another session; both fixed and mutation-tested
 
 Another session read `outputs/log_L32_bench.txt` cold and flagged two things. **Both are correct**, and together they
