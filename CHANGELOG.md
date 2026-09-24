@@ -1,3 +1,50 @@
+## 2026-09-23i — **§5c's ROOT CAUSE IS IN THE CODE, NOT THE PROSE: the calibration target had NO PROVENANCE STAMP, and the one line that tried to write one was a NO-OP.** Stamped, mutation-tested, and the rebuild proven byte-identical
+
+The handoff's §5c flagged a reproducibility inconsistency: `LadrilloUpdateDescription_FILLED.md` says
+*"IMBIE was dropped from the Antarctic likelihood"* while `prep_recalib_targets_ext.py` has defaulted to
+`AIS_SOURCE = "imbie2026"` since 09-21 (`c247e06`), so **anyone rebuilding from the current repo gets IMBIE in the
+likelihood and does not reproduce L27.** Historically true, presently false.
+
+⭐ **But the prose is the symptom.** `outputs/recalib_targets_ext.csv` — the file the whole calibration is fitted to —
+carries **no provenance of any kind**: a bare `year,ais,ais_lo,…` header and nothing else. Nothing in it says which
+AIS source built it, so the only statement of record WAS the prose, and prose has no gate.
+
+⛔ **And the single line that tried to record it wrote nothing:** `src.attrs["ais_source"] = AIS_SOURCE`, on a
+DataFrame then written with `to_csv`. **pandas `to_csv` silently drops `.attrs`.** Verified rather than assumed
+(pandas 2.3.3: round-trip `.attrs` is `{}`), and confirmed against the shipped artifact — `grep -c ais_source` on
+`recalib_targets_ext_sources.csv` returns **0**. A provenance stamp that has never once reached a file, in the exact
+class of [[seed_recorded_in_the_artifact]]: **setting it and RECORDING it are different disciplines, and the second
+is the one that fails silently.**
+
+**Fixed, three parts:**
+1. **A loud banner before anything is written**, naming the target AND which posterior it reproduces —
+   `frederikse` → *"L27 and earlier (the SHIPPED champion and the GMD draft's posterior)"*; `imbie2026` →
+   *"L28-L33 (the IMBIE-2026 arms) — **NOT the shipped champion**"*, with the flag to pass for the other one.
+2. **A real provenance sidecar**, `outputs/recalib_targets_ext_provenance.txt`: build time, argv, commit, **the md5
+   of the file it describes**, `ais_source`, what it reproduces, the full AIS composition (which series over which
+   span, joined over which window), span, baseline, LWS tag, units. A SIDECAR, not a comment header, so **no existing
+   Python or Julia reader of the CSV has to change.**
+3. The dead `attrs` line replaced by a real `ais_source` column in the sources sidecar (its only reader,
+   `plot_postpred_components_ext.py`, indexes by name, so an added column is inert).
+
+**⭐ VERIFIED, not asserted — the test that mattered is byte-identity**, because every arm driver gates on
+`md5 == eb768cd9…` and a target that moved under the patch would break all nine of them:
+
+| check | result |
+|---|---|
+| rebuild with no flags → live target | **byte-identical** (`eb768cd96463a3b84721e2bb9a20f009`) |
+| **mutation test:** rebuild `--ais-frederikse` | banner and stamp both FLIP to L27 ✅ |
+| that build vs `outputs/quarantine/20260921_ais_target_frederikse/` | **byte-identical** (`070f74abe11080da7b77a80b67c54033`) |
+| live target restored afterwards | `eb768cd9…` ✅ |
+
+⭐⭐ **The third row is a result in its own right: `--ais-frederikse` STILL reproduces L27's exact calibration target
+today**, two days and several input changes after `c247e06` claimed it. That is the precondition for any new arm built
+on L27's target — see below.
+
+⚠ **The PROSE half of §5c is NOT fixed — it is Marcus's text.** The sentence is historically accurate about L27 and
+misleading about the repo's present default; proposed wording is in the session notes. **`LadrilloUpdateDescription_FILLED.md`
+also still says "posterior L24" while the champion is L27** — flagged, untouched.
+
 ## 2026-09-23h — ⛔ **THE HELD-OUT TEST PROPOSED IN 09-23g's HANDOFF (§5d) CANNOT BE BUILT FROM EITHER CANDIDATE.** Both named datasets are already inside the two arms' fitted targets — the regional breakdown EXACTLY so. Checked before spending the run, not after
 
 09-23g's handoff closed by naming the one route that could settle L27-vs-L32 on evidence rather than judgement: score

@@ -1,0 +1,12 @@
+built            2026-09-23 21:47:21
+argv             /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/python/prep_recalib_targets_ext.py
+commit           4e89025
+file             recalib_targets_ext.csv
+md5              eb768cd96463a3b84721e2bb9a20f009
+ais_source       imbie2026
+reproduces       L28-L33 (the IMBIE-2026 arms) -- NOT the shipped champion
+ais_composition  IMBIE 2026 1979-2023; Frederikse 1900-1978 join-matched over (1979, 1988); GRACE 2024-2026 offset-matched over (2003, 2023)
+span             1900-2026
+baseline         1995-2005
+lws_grace_tag    L14
+units            cm SLE

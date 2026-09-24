@@ -66,6 +66,19 @@ _ap.add_argument("--ais-frederikse", action="store_true",
 _ARGS = _ap.parse_args()
 AIS_SOURCE = "frederikse" if _ARGS.ais_frederikse else "imbie2026"
 
+# ⚠⚠ WHICH POSTERIOR DOES THIS TARGET REPRODUCE? The default CHANGED on 2026-09-21 (commit c247e06),
+# and the shipped posterior did NOT change with it. A rebuild with no flags therefore does NOT
+# reproduce the shipped champion. Say so out loud, at the top, before anything is written.
+AIS_SOURCE_REPRODUCES = {
+    "frederikse": "L27 and earlier (the SHIPPED champion and the GMD draft's posterior)",
+    "imbie2026":  "L28-L33 (the IMBIE-2026 arms) -- NOT the shipped champion",
+}
+print("=" * 100)
+print(f"  AIS CALIBRATION TARGET = {AIS_SOURCE.upper()}"
+      f"{'  (pass --ais-frederikse for the shipped L27 target)' if AIS_SOURCE != 'frederikse' else ''}")
+print(f"  reproduces: {AIS_SOURCE_REPRODUCES[AIS_SOURCE]}")
+print("=" * 100)
+
 REPO = os.path.expanduser("~/Documents/2026/CodeProjects/SLR-RFF-BRICK")
 RAW  = os.path.join(REPO, "data/observations/raw")
 OBS  = os.path.join(REPO, "data/observations")
@@ -509,7 +522,10 @@ for tgt in ["ais", "gis", "gsic", "steric", "dang"]:
     src[tgt + "_fred"]   = fred[tgt].reindex(years).values                  # Frederikse (components) / Dangendorf (total)
     src[tgt + "_modern"] = splices[tgt][0].reindex(years).values            # offset-matched modern, full range
 src["ais_imbie2026"] = imbie26[0].reindex(years).values if imbie26 is not None else np.nan
-src.attrs["ais_source"] = AIS_SOURCE
+# ⛔ WAS `src.attrs["ais_source"] = AIS_SOURCE` -- a NO-OP: pandas `to_csv` DROPS `.attrs`, so the one
+# line that recorded which AIS source built the target wrote NOTHING (verified 2026-09-23, pandas 2.3.3;
+# `grep -c ais_source` on the written sidecar returned 0). The stamp now goes to a real file, below.
+src["ais_source"] = AIS_SOURCE
 src.reset_index().to_csv(OUT_SRC, index=False)
 print(f"Wrote {OUT_SRC}  (Frederikse vs modern-extension columns, separated)")
 
@@ -550,3 +566,37 @@ fig.suptitle("Extended recalibration targets: Frederikse spliced with modern rec
 fig.tight_layout()
 fig.savefig(OUT_PNG, dpi=130)
 print(f"Wrote {OUT_PNG}")
+
+# ============================================================ provenance stamp (2026-09-23)
+# The target CSV carried NO provenance of any kind: nothing in it said which AIS source built it,
+# which is why a prose claim in the write-up ("IMBIE was dropped from the Antarctic likelihood")
+# could go stale against the code without anything catching it. The stamp is a SIDECAR rather than
+# a comment header, so no existing Python/Julia reader of the CSV has to change.
+import sys, datetime as dt, hashlib, subprocess
+with open(OUT_CSV, "rb") as _fh:
+    _md5 = hashlib.md5(_fh.read()).hexdigest()
+try:
+    _commit = subprocess.run(["git", "-C", REPO, "rev-parse", "--short", "HEAD"],
+                             capture_output=True, text=True, check=True).stdout.strip()
+except Exception:
+    _commit = "unknown"
+OUT_PROV = os.path.join(REPO, "outputs/recalib_targets_ext_provenance.txt")
+with open(OUT_PROV, "w") as _f:
+    _f.write(
+        f"built            {dt.datetime.now():%Y-%m-%d %H:%M:%S}\n"
+        f"argv             {' '.join(sys.argv)}\n"
+        f"commit           {_commit}\n"
+        f"file             {os.path.basename(OUT_CSV)}\n"
+        f"md5              {_md5}\n"
+        f"ais_source       {AIS_SOURCE}\n"
+        f"reproduces       {AIS_SOURCE_REPRODUCES[AIS_SOURCE]}\n"
+        f"ais_composition  " + (
+            f"IMBIE 2026 {IMBIE26_Y0}-{IMBIE26_Y1}; Frederikse {FIT_Y0}-{IMBIE26_Y0 - 1} join-matched over "
+            f"{IMBIE_JOIN_WIN}; GRACE {IMBIE26_Y1 + 1}-{EXT_Y1} offset-matched over {IMBIE_GRACE_OVERLAP}\n"
+            if AIS_SOURCE == "imbie2026" else
+            f"Frederikse {FIT_Y0}-2018; GRACE {SPLICE_FROM['ais']}-{EXT_Y1} offset-matched over {OVERLAP['ais']}\n") +
+        f"span             {FIT_Y0}-{EXT_Y1}\n"
+        f"baseline         {BASE_Y0}-{BASE_Y1}\n"
+        f"lws_grace_tag    {LWS_GRACE_TAG}\n"
+        f"units            cm SLE\n")
+print(f"Wrote {OUT_PROV}  (ais_source={AIS_SOURCE}, md5={_md5})")
