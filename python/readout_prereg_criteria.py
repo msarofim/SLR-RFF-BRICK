@@ -188,10 +188,11 @@ def main():
             emit(f"| {'**' + w + '**' if w == HINDCAST_WINDOW else w} | {cv:.2f} | {rv:.2f} | "
                  f"{'-' if tv is None else f'{tv:.2f}'} | best = **{best}** |")
         emit()
-        emit(f"⚠ `{DECOMP_THIRD_ARM}` is scored here out of its OWN bench file, which is a "
-             f"different run of the ruler; treat its column as indicative and re-score it in one "
-             f"run before quoting a {TAG}-vs-{DECOMP_THIRD_ARM} difference as a result.")
-        emit()
+        if len(h3):
+            emit(f"⚠ `{DECOMP_THIRD_ARM}` is scored here out of its OWN bench file, which is a "
+                 f"different run of the ruler; treat its column as indicative and re-score it in "
+                 f"one run before quoting a {TAG}-vs-{DECOMP_THIRD_ARM} difference as a result.")
+            emit()
         emit(f"**What this block can and cannot say.** If `{TAG}` picks up the satellite era "
              f"while keeping the full period, the noise fix alone bought `{DECOMP_THIRD_ARM}`'s "
              f"win and the target swap was not needed. If it does not, the win was the target. "

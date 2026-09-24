@@ -1,7 +1,7 @@
 proposal seed for tag=L24 seed=2026
-  ADCOV = /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/mcmc/adapted_cov_L11tune3_seed2026.csv
+  ADCOV = /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/mcmc/adapted_cov_L11tune3_seed2026_named.csv
   NK = 58
-  (seeding proposal: name-mapped 57 of 57 rows of adapted_cov_L11tune3_seed2026.csv as L11 layout; dropped )
+  (seeding proposal: name-mapped 57 of 57 rows of adapted_cov_L11tune3_seed2026_named.csv using the FILE'S OWN header; fresh diagonal for gis_s_high)
 AIS geometry block + sampled basin scales (sqrt of the covariance diagonal):
   ais_mu             0.05204      floor 0.003      ok
   ais_bedheight0     0.5672       floor 0.03       ok
