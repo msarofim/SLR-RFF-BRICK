@@ -1,3 +1,67 @@
+## 2026-09-24d — Marcus's memo edits synced back to source, and a TEST OF THE COVER EMAIL'S MECHANISM: the 2018–23 SMB anomaly is **NOT** the main driver of L32's full-period loss
+
+### The memo: his .docx edits pulled into the .md, sync PROVEN not asserted
+`L27_vs_L32_proscons_for_TonyWong.mcs.docx` came back edited directly (no tracked changes, no
+comments — `w:ins`/`w:del` count 0, `comments.xml` empty). **14 edits, all cuts plus two rewrites**,
+all now in the `.md` per `marcus_edits_docx_directly`. GATE: rebuilt the `.docx` from the synced
+`.md` and diffed the extracted text with an independent reader — **identical apart from three
+trailing spaces.**
+
+The cuts are editorially coherent: all project-management content gone from **both** arms
+symmetrically (L27's "Shipped: 7/7 runs, 14/14 figures"; L32's "Zero deliverables" and "costs the
+IMBIE-null framing") — our sunk cost is not evidence and Tony should not be handed a thumb on the
+scale; the method commentary gone (per `drafted_text_no_fix_history`); §2a's seven-arm frontier table
+gone; emphatic framing softened throughout.
+
+### ⭐⭐ THE REVIEW FINDING: the cover email's mechanism is only ~a quarter of the story
+The draft email to Tony says the full-period degradation happens *"in part because the SMB snowfall
+over 2018-2023 is pretty anomalous, so in order to match that, other things go askew."* **Tested by
+diffing the two target builds directly** (committed `070f74ab` = Frederikse vs working `eb768cd9` =
+IMBIE, `ais` column, both re-referenced 1995–2005):
+
+| window | IMBIE build − Frederikse build, mean | rate diff (cm/yr) |
+|---|---|---|
+| 1900–1978 | **−0.1341 (exactly constant, sd 6e-17)** | — |
+| 1979–1992 | −0.109 | +0.0088 |
+| 1993–2005 | −0.007 | +0.0077 |
+| 2006–2017 | **+0.148** | +0.0102 |
+| 2018–2023 | +0.214 | +0.0184 |
+
+⭐ **76 % of the cumulative target divergence accumulates BEFORE 2018** (+0.352 cm over 1979→2017
+against +0.109 cm over 2018→2023). The IMBIE build runs faster than Frederikse in **every** window,
+and the largest level offset (+0.217 cm) is reached at **2017**, one year before the anomalous window
+opens. ⇒ The dominant driver is that **two reconstructions of the same 45 years disagree
+throughout**, not a 6-year snowfall anomaly. The email's "in part" hedge keeps it from being wrong,
+but it understates the cause and offers Tony a weaker story than the true one.
+
+⭐ **And the 1920–49 collapse (L27 0.08 σ → L32 1.07 σ) cannot come from the target data there**: over
+1900–1978 the two builds are **identical up to a constant −0.1341 cm** (= 0.80 of the memo's 0.1674 cm
+ruler), from the IMBIE build's join-match over (1979, 1988). So the early-record loss is
+**parameter re-tuning to chase the faster satellite-era rate**, not new early-record data — and L32 is
+13× worse there than an arm that never saw IMBIE at all, *judged on IMBIE's own ruler*.
+
+### ⚠ A ruler artefact NOT to quote, and a third unstated difference between the arms
+`diag_imbie2026_vs_targets_windows_L32.csv` reports `z_target_vs_imbie` of **19–27 σ** for windows
+past 2018. **Artefact.** The Frederikse build's AIS σ **collapses from 0.1023 cm at 2018 to exactly
+0.0100 cm at 2019** and stays there through 2024 — a 10.2× cliff at the GRACE-FO splice, the
+`IMBIE_SIG_FLOOR` clip (`prep_recalib_targets_ext.py:149,267`). Same lesson as 09-24c's ruler bug: a
+step that large on unchanged data is the ruler, not the data. The **IMBIE** build has no cliff
+(0.079 → 0.121 cm smoothly across 2017–2025), so the floor bites **only in the champion's own target**.
+
+**Not a fit contamination** — `ϵband` (`calibrate_mcmc_ext.jl:586`) floors the likelihood's per-year σ
+at 0.05 cm, so the 0.01 cm never reaches the objective. **But it leaves a real asymmetry the memo does
+not state:** over 2019–2026 L27's fitted target carries σ = 0.05 cm (the floor) while L32's carries
+0.085–0.121 cm — so **L27's target weights its GRACE tail ~2× more tightly than L32's does**, in
+exactly the window the decision turns on. The memo's §1 claims the arms "differ only in what the
+Antarctic likelihood is fitted to, and in one noise-model setting." **That is three differences, not
+two.** Flagged, not changed — Marcus's call.
+
+### Also
+- §7's heading "Closed, and open" now lists nothing open (the ⚠ method paragraph was the last item).
+- With §2a cut, the memo no longer says L32 is the *only* arm off the net/dynamics constraint line,
+  while §3 still sets that identity up as unbreakable — §3 poses a trade and nothing resolves it.
+- The memo now carries no author and no date (byline cut); the provenance footer has neither.
+
 ## 2026-09-24c — ⭐⭐ **L34 CLOSED (the noise fix alone does nothing), a BENCHMARK RULER BUG FOUND AND FIXED, L33 BENCHMARKED, and all seven arms put on ONE ruler for the first time**
 
 ### The headline: the missing cell is filled, and it is a null
