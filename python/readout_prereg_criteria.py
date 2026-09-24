@@ -37,6 +37,15 @@ COSTB_YEARS       = [2100, 2300]
 COSTB_SSPS        = ["ssp126", "ssp245", "ssp585"]
 GUARD_NAME        = "non-Antarctic components unchanged"
 GUARD_TOL_SIGMA   = 0.02     # "within ~0.02 sigma of the champion"
+# COST B must quote the SAME champion the PRIMARY's ruler does -- the FROZEN snapshot, not the
+# live outputs/ file. Measured 2026-09-24: outputs/ladrillo_model_comparison_L27.csv has DRIFTED
+# from benchmark/reference/L27/model_comparison.csv (sha256_16 95614fc2058ea20c vs the manifest's
+# c01da3f107437e1d). lws moved 0.47 cm and total 0.48 cm -- the 09-21 LWS_MODE :central ->
+# :observed switch. The Ladrillo AIS medians ALSO moved, all 9 of them in the SAME direction
+# (+0.0043 to +0.0080 cm, growing with horizon). The cause is NOT established; the magnitude is
+# <= 0.0096% of band width, which is immaterial for a width ratio but is not a reason to quote
+# the wrong file. Frozen first, live only as a fallback, and the fallback says so.
+FROZEN_REF_TMPL   = "benchmark/reference/{ref}/model_comparison.csv"
 HINDCAST_WINDOW   = "full"   # the PRIMARY is the FULL period, not a sub-window
 DECOMP_NAME       = ("AIS sub-window decomposition -- DESCRIPTIVE, NOT A CRITERION. "
                      "Added 2026-09-24 08:30, BEFORE any candidate number existed.")
@@ -251,8 +260,17 @@ def main():
     # ---- COST B --------------------------------------------------------------------------------
     emit(f"## COST B -- {COSTB_NAME}")
     emit()
-    mc, mr = f"{OUT}/ladrillo_model_comparison_{TAG}.csv", f"{OUT}/ladrillo_model_comparison_{REF}.csv"
+    mc = f"{OUT}/ladrillo_model_comparison_{TAG}.csv"
+    frozen_mr = FROZEN_REF_TMPL.format(ref=REF)
+    if os.path.exists(frozen_mr):
+        mr, mr_kind = frozen_mr, "FROZEN snapshot (same champion the PRIMARY ruler uses)"
+    else:
+        mr, mr_kind = f"{OUT}/ladrillo_model_comparison_{REF}.csv", \
+            "*** live outputs/ file -- the frozen snapshot is MISSING, so this may be a " \
+            "DIFFERENT vintage of the champion than the PRIMARY ruler ***"
     if need(mc) and need(mr):
+        emit(f"Champion source: `{mr}` -- {mr_kind}.")
+        emit()
         def band(p):
             d = pd.read_csv(p)
             d = d[(d.source.str.lower() == "ladrillo") & (d.component == "ais")]
@@ -271,7 +289,13 @@ def main():
                  f"Written {datetime.datetime.fromtimestamp(os.path.getmtime(mc)):%Y-%m-%d %H:%M} "
                  f"(`{TAG}`) and "
                  f"{datetime.datetime.fromtimestamp(os.path.getmtime(mr)):%Y-%m-%d %H:%M} "
-                 f"(`{REF}`) -- separate runs; the AIS component does not carry the LWS mode.")
+                 f"(`{REF}`) -- separate runs.")
+            emit()
+            emit("⚠ The AIS component is NOT fully insulated from a re-run: between the frozen "
+                 "L27 snapshot and the live outputs/ file, all 9 Ladrillo AIS medians moved in "
+                 "the SAME direction (+0.004 to +0.008 cm, growing with horizon). Cause not "
+                 "established; <= 0.01% of band width, so immaterial to a width ratio. Quoted "
+                 "here so the uniformity is on the record rather than rediscovered.")
             emit()
         emit(f"| scenario | year | {TAG} med | {REF} med | {TAG} p05-p95 | {REF} p05-p95 | ratio |")
         emit("|---|---|---|---|---|---|---|")
