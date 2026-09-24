@@ -1,8 +1,17 @@
 # Ladrillo benchmark — `L27`
 
-*benchmark v1.0, 2026-09-21, repo `31ace68`. Champion arm: **L27** (the candidate IS the champion — no delta column).*
+*benchmark v1.0, 2026-09-24, repo `d176403`. Champion arm: **L27** (the candidate IS the champion — no delta column).*
 
 Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (stock MimiBRICK v2.0.0, own posterior), **literature** (FACTS + MAGICC-SLR, frozen).
+
+**Hindcast ruler:** obs from the **target**, `outputs/recalib_targets_ext.csv` (md5 `eb768cd96463`). Sigma denominators are from the frozen `_fixed` copy in every run, so sigma stays comparable across bench files.
+
+> ⚠ **THE CANDIDATE WAS FITTED TO A DIFFERENT OBSERVATIONAL SERIES THAN IT IS SCORED ON HERE**, so it is OUT-OF-SAMPLE on these components and any arm fitted to the scoring target is IN-SAMPLE. This asymmetry is not corrected for; read it at the gate.
+>
+> | component | max \|cand−target\| (cm) | mean offset (cm) |
+> |---|---|---|
+> | ais | 0.2699 | +0.0704 |
+> | glaciers | 0.0381 | -0.0007 |
 
 ## Caveats that travel with every verdict
 
@@ -29,22 +38,22 @@ Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (s
 
 | module | target 1σ (cm) | window | arm | RMSE (cm) | RMSE (σ) | note |
 |---|---|---|---|---|---|---|
-| AIS | 0.1674 | full | L27 | 0.0931 | 0.56 | bias -0.0771 cm = -0.46 sd; cov90 83%; n=126 |
-| AIS | 0.1674 | full | BRICK 2.0 | 1.5740 | 9.40 | bias -1.1500 cm = -6.87 sd; cov90 25%; n=126 |
-| AIS | 0.1674 | 1920-1949 | L27 | 0.1222 | 0.73 | bias -0.1221 cm = -0.73 sd; cov90 100%; n=30 |
-| AIS | 0.1674 | 1920-1949 | BRICK 2.0 | 1.9565 | 11.68 | bias -1.9306 cm = -11.53 sd; cov90 0%; n=30 |
-| AIS | 0.1674 | 1950-1992 | L27 | 0.0800 | 0.48 | bias -0.0706 cm = -0.42 sd; cov90 98%; n=43 |
-| AIS | 0.1674 | 1950-1992 | BRICK 2.0 | 0.8044 | 4.80 | bias -0.7067 cm = -4.22 sd; cov90 0%; n=43 |
-| AIS | 0.1674 | 1993-2026 | L27 | 0.0876 | 0.52 | bias -0.0472 cm = -0.28 sd; cov90 39%; n=33 |
-| AIS | 0.1674 | 1993-2026 | BRICK 2.0 | 0.0814 | 0.49 | bias +0.0424 cm = +0.25 sd; cov90 97%; n=33 |
-| glaciers | 0.4593 | full | L27 | 0.3175 | 0.69 | bias +0.0615 cm = +0.13 sd; cov90 69%; n=124 |
-| glaciers | 0.4593 | full | BRICK 2.0 | 1.5475 | 3.37 | bias +0.9400 cm = +2.05 sd; cov90 42%; n=124 |
+| AIS | 0.1674 | full | L27 | 0.1178 | 0.70 | bias -0.0067 cm = -0.04 sd; cov90 64%; n=126 |
+| AIS | 0.1674 | full | BRICK 2.0 | 1.4766 | 8.82 | bias -1.0797 cm = -6.45 sd; cov90 32%; n=126 |
+| AIS | 0.1674 | 1920-1949 | L27 | 0.0129 | 0.08 | bias +0.0120 cm = +0.07 sd; cov90 100%; n=30 |
+| AIS | 0.1674 | 1920-1949 | BRICK 2.0 | 1.8243 | 10.90 | bias -1.7965 cm = -10.73 sd; cov90 0%; n=30 |
+| AIS | 0.1674 | 1950-1992 | L27 | 0.0622 | 0.37 | bias +0.0554 cm = +0.33 sd; cov90 70%; n=43 |
+| AIS | 0.1674 | 1950-1992 | BRICK 2.0 | 0.6899 | 4.12 | bias -0.5807 cm = -3.47 sd; cov90 16%; n=43 |
+| AIS | 0.1674 | 1993-2026 | L27 | 0.2127 | 1.27 | bias -0.1459 cm = -0.87 sd; cov90 3%; n=33 |
+| AIS | 0.1674 | 1993-2026 | BRICK 2.0 | 0.0958 | 0.57 | bias -0.0564 cm = -0.34 sd; cov90 100%; n=33 |
+| glaciers | 0.4593 | full | L27 | 0.3176 | 0.69 | bias +0.0609 cm = +0.13 sd; cov90 69%; n=124 |
+| glaciers | 0.4593 | full | BRICK 2.0 | 1.5473 | 3.37 | bias +0.9394 cm = +2.05 sd; cov90 42%; n=124 |
 | glaciers | 0.4593 | 1920-1949 | L27 | 0.1817 | 0.40 | bias +0.0017 cm = +0.00 sd; cov90 100%; n=30 |
 | glaciers | 0.4593 | 1920-1949 | BRICK 2.0 | 1.5932 | 3.47 | bias +1.4701 cm = +3.20 sd; cov90 0%; n=30 |
 | glaciers | 0.4593 | 1950-1992 | L27 | 0.2289 | 0.50 | bias -0.1153 cm = -0.25 sd; cov90 56%; n=43 |
 | glaciers | 0.4593 | 1950-1992 | BRICK 2.0 | 0.1269 | 0.28 | bias +0.0552 cm = +0.12 sd; cov90 95%; n=43 |
-| glaciers | 0.4593 | 1993-2026 | L27 | 0.0455 | 0.10 | bias -0.0205 cm = -0.04 sd; cov90 39%; n=31 |
-| glaciers | 0.4593 | 1993-2026 | BRICK 2.0 | 0.2143 | 0.47 | bias +0.1441 cm = +0.31 sd; cov90 35%; n=31 |
+| glaciers | 0.4593 | 1993-2026 | L27 | 0.0483 | 0.11 | bias -0.0232 cm = -0.05 sd; cov90 39%; n=31 |
+| glaciers | 0.4593 | 1993-2026 | BRICK 2.0 | 0.2088 | 0.45 | bias +0.1414 cm = +0.31 sd; cov90 35%; n=31 |
 | Greenland | 0.1832 | full | L27 | 0.1959 | 1.07 | bias -0.1422 cm = -0.78 sd; cov90 35%; n=126 |
 | Greenland | 0.1832 | full | BRICK 2.0 | 0.7030 | 3.84 | bias -0.5958 cm = -3.25 sd; cov90 19%; n=126 |
 | Greenland | 0.1832 | 1920-1949 | L27 | 0.1994 | 1.09 | bias -0.1521 cm = -0.83 sd; cov90 60%; n=30 |

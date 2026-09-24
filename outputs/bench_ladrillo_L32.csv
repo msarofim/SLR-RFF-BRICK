@@ -11,18 +11,18 @@ H,ais,,,hindcast/1950-1992,BRICK 2.0,0.6899485978891496,cm,4.120468460969681,bia
 H,ais,,,hindcast/1993-2026,L32,0.1691991807159266,cm,1.0104809110343278,bias -0.1136 cm = -0.68 sd; cov90 27%; n=33,PASS
 H,ais,,,hindcast/1993-2026,L27*,0.21269491517724576,cm,1.2702434536105394,bias -0.1459 cm = -0.87 sd; cov90 3%; n=33,PASS
 H,ais,,,hindcast/1993-2026,BRICK 2.0,0.09580751152850316,cm,0.5721757110384218,bias -0.0564 cm = -0.34 sd; cov90 100%; n=33,PASS
-H,glaciers,,,hindcast/full,L32,0.31832193470539016,cm,0.6930772517598567,bias +0.0609 cm = +0.13 sd; cov90 69%; n=124,PASS
-H,glaciers,,,hindcast/full,L27*,0.3174627205905463,cm,0.691206498624543,bias +0.0615 cm = +0.13 sd; cov90 69%; n=124,PASS
-H,glaciers,,,hindcast/full,BRICK 2.0,1.5474937255553283,cm,3.369333311624119,bias +0.9400 cm = +2.05 sd; cov90 42%; n=124,WARN
-H,glaciers,,,hindcast/1920-1949,L32,0.18318134604779424,cm,0.39883781182084754,bias -0.0006 cm = -0.00 sd; cov90 100%; n=30,PASS
-H,glaciers,,,hindcast/1920-1949,L27*,0.18170613484030151,cm,0.39562585807848083,bias +0.0017 cm = +0.00 sd; cov90 100%; n=30,PASS
-H,glaciers,,,hindcast/1920-1949,BRICK 2.0,1.5931687653849735,cm,3.4687808445390305,bias +1.4701 cm = +3.20 sd; cov90 0%; n=30,FAIL
-H,glaciers,,,hindcast/1950-1992,L32,0.23038529057797014,cm,0.5016142044608268,bias -0.1162 cm = -0.25 sd; cov90 56%; n=43,PASS
-H,glaciers,,,hindcast/1950-1992,L27*,0.22890217470524404,cm,0.49838504001740963,bias -0.1153 cm = -0.25 sd; cov90 56%; n=43,PASS
-H,glaciers,,,hindcast/1950-1992,BRICK 2.0,0.1269048162459891,cm,0.27630782453073094,bias +0.0552 cm = +0.12 sd; cov90 95%; n=43,PASS
-H,glaciers,,,hindcast/1993-2026,L32,0.045271978168666994,cm,0.09856995321391103,bias -0.0199 cm = -0.04 sd; cov90 39%; n=31,PASS
-H,glaciers,,,hindcast/1993-2026,L27*,0.04550191453570076,cm,0.0990705899843268,bias -0.0205 cm = -0.04 sd; cov90 39%; n=31,PASS
-H,glaciers,,,hindcast/1993-2026,BRICK 2.0,0.21428384839489736,cm,0.46655679219691054,bias +0.1441 cm = +0.31 sd; cov90 35%; n=31,PASS
+H,glaciers,,,hindcast/full,L32,0.3184199021946697,cm,0.6932905548057009,bias +0.0603 cm = +0.13 sd; cov90 69%; n=124,PASS
+H,glaciers,,,hindcast/full,L27*,0.317564327532296,cm,0.6914277257919789,bias +0.0609 cm = +0.13 sd; cov90 69%; n=124,PASS
+H,glaciers,,,hindcast/full,BRICK 2.0,1.547304984121353,cm,3.368922367921877,bias +0.9394 cm = +2.05 sd; cov90 42%; n=124,WARN
+H,glaciers,,,hindcast/1920-1949,L32,0.18318134604747302,cm,0.39883781182014816,bias -0.0006 cm = -0.00 sd; cov90 100%; n=30,PASS
+H,glaciers,,,hindcast/1920-1949,L27*,0.18170613483998693,cm,0.3956258580777959,bias +0.0017 cm = +0.00 sd; cov90 100%; n=30,PASS
+H,glaciers,,,hindcast/1920-1949,BRICK 2.0,1.5931687653853328,cm,3.4687808445398125,bias +1.4701 cm = +3.20 sd; cov90 0%; n=30,FAIL
+H,glaciers,,,hindcast/1950-1992,L32,0.23038529057772314,cm,0.501614204460289,bias -0.1162 cm = -0.25 sd; cov90 56%; n=43,PASS
+H,glaciers,,,hindcast/1950-1992,L27*,0.22890217470499724,cm,0.4983850400168723,bias -0.1153 cm = -0.25 sd; cov90 56%; n=43,PASS
+H,glaciers,,,hindcast/1950-1992,BRICK 2.0,0.12690481624651156,cm,0.27630782453186853,bias +0.0552 cm = +0.12 sd; cov90 95%; n=43,PASS
+H,glaciers,,,hindcast/1993-2026,L32,0.04794863922969163,cm,0.10439780448587731,bias -0.0226 cm = -0.05 sd; cov90 39%; n=31,PASS
+H,glaciers,,,hindcast/1993-2026,L27*,0.04825470808029989,cm,0.10506420329381747,bias -0.0232 cm = -0.05 sd; cov90 39%; n=31,PASS
+H,glaciers,,,hindcast/1993-2026,BRICK 2.0,0.20876086964986165,cm,0.45453169900413337,bias +0.1414 cm = +0.31 sd; cov90 35%; n=31,PASS
 H,gis,,,hindcast/full,L32,0.19519921883131483,cm,1.065627757828882,bias -0.1408 cm = -0.77 sd; cov90 35%; n=126,PASS
 H,gis,,,hindcast/full,L27*,0.19594511825854183,cm,1.0696997573940474,bias -0.1422 cm = -0.78 sd; cov90 35%; n=126,PASS
 H,gis,,,hindcast/full,BRICK 2.0,0.703015155566193,cm,3.8378865880253317,bias -0.5958 cm = -3.25 sd; cov90 19%; n=126,FAIL
@@ -67,14 +67,14 @@ H,ais,,,rmse_ratio/1950-1992,L32 vs L27*,1.261257601683515,ratio,,<1 means the c
 H,ais,,,rmse_ratio/1950-1992,L32 vs BRICK 2.0,0.11370873291496414,ratio,,<1 means the candidate is closer to the observations,BETTER
 H,ais,,,rmse_ratio/1993-2026,L32 vs L27*,0.7955017663441897,ratio,,<1 means the candidate is closer to the observations,BETTER
 H,ais,,,rmse_ratio/1993-2026,L32 vs BRICK 2.0,1.7660325168302602,ratio,,<1 means the candidate is closer to the observations,WORSE
-H,glaciers,,,rmse_ratio/full,L32 vs L27*,1.0027065039739014,ratio,,<1 means the candidate is closer to the observations,SAME
-H,glaciers,,,rmse_ratio/full,L32 vs BRICK 2.0,0.20570159959204892,ratio,,<1 means the candidate is closer to the observations,BETTER
-H,glaciers,,,rmse_ratio/1920-1949,L32 vs L27*,1.0081186648364364,ratio,,<1 means the candidate is closer to the observations,SAME
-H,glaciers,,,rmse_ratio/1920-1949,L32 vs BRICK 2.0,0.11497924766528439,ratio,,<1 means the candidate is closer to the observations,BETTER
-H,glaciers,,,rmse_ratio/1950-1992,L32 vs L27*,1.0064792563663316,ratio,,<1 means the candidate is closer to the observations,SAME
-H,glaciers,,,rmse_ratio/1950-1992,L32 vs BRICK 2.0,1.81541802268085,ratio,,<1 means the candidate is closer to the observations,WORSE
-H,glaciers,,,rmse_ratio/1993-2026,L32 vs L27*,0.994946666104492,ratio,,<1 means the candidate is closer to the observations,SAME
-H,glaciers,,,rmse_ratio/1993-2026,L32 vs BRICK 2.0,0.21127107109461934,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,glaciers,,,rmse_ratio/full,L32 vs L27*,1.0026941774884544,ratio,,<1 means the candidate is closer to the observations,SAME
+H,glaciers,,,rmse_ratio/full,L32 vs BRICK 2.0,0.20579000614768037,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,glaciers,,,rmse_ratio/1920-1949,L32 vs L27*,1.008118664836414,ratio,,<1 means the candidate is closer to the observations,SAME
+H,glaciers,,,rmse_ratio/1920-1949,L32 vs BRICK 2.0,0.11497924766505685,ratio,,<1 means the candidate is closer to the observations,BETTER
+H,glaciers,,,rmse_ratio/1950-1992,L32 vs L27*,1.0064792563663376,ratio,,<1 means the candidate is closer to the observations,SAME
+H,glaciers,,,rmse_ratio/1950-1992,L32 vs BRICK 2.0,1.8154180226714296,ratio,,<1 means the candidate is closer to the observations,WORSE
+H,glaciers,,,rmse_ratio/1993-2026,L32 vs L27*,0.9936572230403106,ratio,,<1 means the candidate is closer to the observations,SAME
+H,glaciers,,,rmse_ratio/1993-2026,L32 vs BRICK 2.0,0.2296821205531101,ratio,,<1 means the candidate is closer to the observations,BETTER
 H,gis,,,rmse_ratio/full,L32 vs L27*,0.9961933247745278,ratio,,<1 means the candidate is closer to the observations,SAME
 H,gis,,,rmse_ratio/full,L32 vs BRICK 2.0,0.2776600437213984,ratio,,<1 means the candidate is closer to the observations,BETTER
 H,gis,,,rmse_ratio/1920-1949,L32 vs L27*,0.9962126016657507,ratio,,<1 means the candidate is closer to the observations,SAME
@@ -688,7 +688,7 @@ V,glaciers,,,hindcast,L32,,,,worst cell: hindcast/full  = 0.318 cm,PASS
 V,glaciers,,,rate/accel,L32,,,,worst cell: rate/1993-2026  = 0.0668 cm/yr,UNRESOLVED
 V,glaciers,,,projection,L32,,,,worst cell: median_vs_lit ssp126@2100 = 0.782 x lit median,WARN
 V,glaciers,,,separation,L32,,,,worst cell: separation ssp585/ssp126@2100 = 1.59 x,PASS
-V,glaciers,,,vs champion (hindcast),L32,1.0030627728202903,mean RMSE ratio,,"0 windows BETTER, 0 WORSE, 4 SAME",SAME
+V,glaciers,,,vs champion (hindcast),L32,1.002737330432879,mean RMSE ratio,,"0 windows BETTER, 0 WORSE, 4 SAME",SAME
 V,gis,,,hindcast,L32,,,,worst cell: hindcast/1950-1992  = 0.266 cm,WARN
 V,gis,,,rate/accel,L32,,,,worst cell: rate/1993-2026  = 0.0588 cm/yr,UNRESOLVED
 V,gis,,,projection,L32,,,,worst cell: spread_vs_lit ssp126@2100 = 0.404 x lit spread,FAIL

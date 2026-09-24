@@ -1,8 +1,16 @@
 # Ladrillo benchmark — `L28`
 
-*benchmark v1.0, 2026-09-21, repo `5cfd506`. Champion arm: **L27**.*
+*benchmark v1.0, 2026-09-24, repo `d176403`. Champion arm: **L27**.*
 
 Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (stock MimiBRICK v2.0.0, own posterior), **literature** (FACTS + MAGICC-SLR, frozen).
+
+**Hindcast ruler:** obs from the **target**, `outputs/recalib_targets_ext.csv` (md5 `eb768cd96463`). Sigma denominators are from the frozen `_fixed` copy in every run, so sigma stays comparable across bench files.
+
+> ⚠ **THE CANDIDATE WAS FITTED TO A DIFFERENT OBSERVATIONAL SERIES THAN IT IS SCORED ON HERE**, so it is OUT-OF-SAMPLE on these components and any arm fitted to the scoring target is IN-SAMPLE. This asymmetry is not corrected for; read it at the gate.
+>
+> | component | max \|cand−target\| (cm) | mean offset (cm) |
+> |---|---|---|
+> | glaciers | 0.0381 | -0.0007 |
 
 ## Caveats that travel with every verdict
 
@@ -41,18 +49,18 @@ Arms: **candidate** (live `outputs/`), **champion\*** (frozen), **BRICK 2.0** (s
 | AIS | 0.1674 | 1993-2026 | L28 | 0.1115 | 0.67 | bias -0.0668 cm = -0.40 sd; cov90 52%; n=33 |
 | AIS | 0.1674 | 1993-2026 | L27* | 0.2127 | 1.27 | bias -0.1459 cm = -0.87 sd; cov90 3%; n=33 |
 | AIS | 0.1674 | 1993-2026 | BRICK 2.0 | 0.0958 | 0.57 | bias -0.0564 cm = -0.34 sd; cov90 100%; n=33 |
-| glaciers | 0.4593 | full | L28 | 0.3120 | 0.68 | bias +0.0549 cm = +0.12 sd; cov90 70%; n=124 |
-| glaciers | 0.4593 | full | L27* | 0.3175 | 0.69 | bias +0.0615 cm = +0.13 sd; cov90 69%; n=124 |
-| glaciers | 0.4593 | full | BRICK 2.0 | 1.5475 | 3.37 | bias +0.9400 cm = +2.05 sd; cov90 42%; n=124 |
+| glaciers | 0.4593 | full | L28 | 0.3121 | 0.68 | bias +0.0543 cm = +0.12 sd; cov90 70%; n=124 |
+| glaciers | 0.4593 | full | L27* | 0.3176 | 0.69 | bias +0.0609 cm = +0.13 sd; cov90 69%; n=124 |
+| glaciers | 0.4593 | full | BRICK 2.0 | 1.5473 | 3.37 | bias +0.9394 cm = +2.05 sd; cov90 42%; n=124 |
 | glaciers | 0.4593 | 1920-1949 | L28 | 0.1784 | 0.39 | bias -0.0102 cm = -0.02 sd; cov90 100%; n=30 |
 | glaciers | 0.4593 | 1920-1949 | L27* | 0.1817 | 0.40 | bias +0.0017 cm = +0.00 sd; cov90 100%; n=30 |
 | glaciers | 0.4593 | 1920-1949 | BRICK 2.0 | 1.5932 | 3.47 | bias +1.4701 cm = +3.20 sd; cov90 0%; n=30 |
 | glaciers | 0.4593 | 1950-1992 | L28 | 0.2323 | 0.51 | bias -0.1172 cm = -0.26 sd; cov90 56%; n=43 |
 | glaciers | 0.4593 | 1950-1992 | L27* | 0.2289 | 0.50 | bias -0.1153 cm = -0.25 sd; cov90 56%; n=43 |
 | glaciers | 0.4593 | 1950-1992 | BRICK 2.0 | 0.1269 | 0.28 | bias +0.0552 cm = +0.12 sd; cov90 95%; n=43 |
-| glaciers | 0.4593 | 1993-2026 | L28 | 0.0465 | 0.10 | bias -0.0212 cm = -0.05 sd; cov90 42%; n=31 |
-| glaciers | 0.4593 | 1993-2026 | L27* | 0.0455 | 0.10 | bias -0.0205 cm = -0.04 sd; cov90 39%; n=31 |
-| glaciers | 0.4593 | 1993-2026 | BRICK 2.0 | 0.2143 | 0.47 | bias +0.1441 cm = +0.31 sd; cov90 35%; n=31 |
+| glaciers | 0.4593 | 1993-2026 | L28 | 0.0493 | 0.11 | bias -0.0239 cm = -0.05 sd; cov90 42%; n=31 |
+| glaciers | 0.4593 | 1993-2026 | L27* | 0.0483 | 0.11 | bias -0.0232 cm = -0.05 sd; cov90 39%; n=31 |
+| glaciers | 0.4593 | 1993-2026 | BRICK 2.0 | 0.2088 | 0.45 | bias +0.1414 cm = +0.31 sd; cov90 35%; n=31 |
 | Greenland | 0.1832 | full | L28 | 0.1998 | 1.09 | bias -0.1482 cm = -0.81 sd; cov90 34%; n=126 |
 | Greenland | 0.1832 | full | L27* | 0.1959 | 1.07 | bias -0.1422 cm = -0.78 sd; cov90 35%; n=126 |
 | Greenland | 0.1832 | full | BRICK 2.0 | 0.7030 | 3.84 | bias -0.5958 cm = -3.25 sd; cov90 19%; n=126 |
