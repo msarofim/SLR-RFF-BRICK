@@ -94,13 +94,57 @@ say "provenance stamp: $(grep -E '^(ais_source|reproduces)' outputs/recalib_targ
 J="julia --project=julia_v2"
 NITER=2000000
 BASEFLAGS="--gis-ordered --gis-basins2 --amp-mu=1.09 --amp-sigma=0.180 --paleo-priors --no-delta --no-d2-gsic --obs-corr-len=100 --toff-lo=-4 --precip-reparam --cut-fastdyn --fix-gamma"
-ARMFLAG="--sd-ais-floor=smb --ais-fit-from=1979"
+AIS_FROM=1979                      # the ONE axis vs L32; every gate label below derives from it
+FLOOR_KIND=smb                     # the other arm flag, shared with L32 (value checked, not assumed)
+ARMFLAG="--sd-ais-floor=$FLOOR_KIND --ais-fit-from=$AIS_FROM"
+FLOOR_EXPECT=0.03259               # L32's floor, cm. ASSERTED, not assumed: one axis means one difference.
 STARTS=outputs/mcmc/overdispersed_starts_L27r_sdfloor.csv
 
 FAILED_STEPS=0
 step(){ local nm="$1"; shift
   say "START  $nm"
   if "$@" >> "$LOG" 2>&1; then say "OK     $nm"; else say "FAILED $nm (rc=$?) — continuing"; FAILED_STEPS=$((FAILED_STEPS+1)); fi
+}
+
+verify_arm(){ # TAG SEEDS
+  ## ⚠ BOTH arm flags are read BACK OFF THE RUN, never inferred from the flag string. A dropped
+  ## --sd-ais-floor gives a second L31; a dropped --ais-fit-from gives a second L32. Either would be
+  ## a duplicate arm wearing a new label, which is the whole hazard this 2x2 exists to avoid.
+  ##
+  ## ⛔⛔ THE GATE MUST NOT BE A PIPELINE, AND IT MUST RECORD WHAT IT SAW. 2026-09-24: the original
+  ## form `tr '\r' '\n' < log | grep -aq PATTERN` under `set -o pipefail` reported FAILED on 2 of 4
+  ## seeds whose logs DID contain both lines (the driver's own display lines, printed one second
+  ## earlier from the same file, show them) -- and the identical command on the identical unchanged
+  ## bytes has since passed 600/600, with and without CPU contention. ⚠ THE ROOT CAUSE WAS NEVER
+  ## REPRODUCED. A SIGPIPE/pipefail race was the hypothesis and it is REFUTED (0/300 both ways).
+  ## What is established is only that a pipeline's exit status was not a reliable predicate here,
+  ## and that the gate DISCARDED ITS EVIDENCE so nothing could be diagnosed afterwards. It cost L35
+  ## a postprocess on a run that was correct. So now: materialise the cleaned log ONCE, grep the
+  ## FILE, COUNT matches rather than test them, and PRINT the counts and values into the log.
+  local T="$1" SEEDS="$2" NBAD=0
+  say "$T chains done. ARM VERIFICATION (counts recorded, not just a verdict):"
+  for SEED in $SEEDS; do
+    local L="outputs/mcmc/log_${T}_seed${SEED}.txt"
+    local C="outputs/mcmc/_verify_${T}_seed${SEED}.txt"
+    if ! tr '\r' '\n' < "$L" > "$C"; then
+      say "  *** seed$SEED: could not read $L ***"; NBAD=$((NBAD+1)); continue
+    fi
+    local NF NS NW FV
+    NF=$(grep -ac 'FLOOR DERIVED FROM OBSERVATION' "$C")
+    NS=$(grep -ac "AIS LEVEL TERM RESTRICTED: --ais-fit-from=$AIS_FROM" "$C")
+    NW=$(grep -ac "ais $AIS_FROM-" "$C")
+    FV=$(grep -ah 'FLOOR DERIVED' "$C" | sed 's/.*= //' | tr -d ' ')
+    say "  seed$SEED: floor_lines=$NF span_lines=$NS window_lines=$NW floor=${FV:-NONE} (expect 1/1/1 and ${FLOOR_EXPECT}cm)"
+    say "    $(grep -ah 'Extended fit windows' "$C" | cut -c1-118)"
+    [[ "$NF" == "1" ]] || { say "    *** FLOOR GATE FAILED seed $SEED: $NF floor lines, expected 1 ***"; NBAD=$((NBAD+1)); }
+    [[ "$NS" == "1" && "$NW" == "1" ]] \
+      || { say "    *** SPAN GATE FAILED seed $SEED: $NS restriction / $NW window lines, expected 1/1 ***"; NBAD=$((NBAD+1)); }
+    [[ "$FV" == "${FLOOR_EXPECT}cm" ]] \
+      || { say "    *** FLOOR VALUE GATE FAILED seed $SEED: $FV, expected ${FLOOR_EXPECT}cm (= L32's) ***"; NBAD=$((NBAD+1)); }
+    rm -f "$C"
+  done
+  (( NBAD == 0 )) || { say "*** ARM VERIFICATION FAILED ($NBAD) — this is not $T; do not postprocess ***"; return 1; }
+  say "  arm verification PASSED on all seeds: floored at $FLOOR_EXPECT cm AND restricted to $AIS_FROM+"
 }
 
 run_chains(){ # TAG SEEDS STARTS ADCOV FLAGS
@@ -117,23 +161,7 @@ run_chains(){ # TAG SEEDS STARTS ADCOV FLAGS
   done
   say "  chain PIDs: ${PIDS[*]}"
   wait "${PIDS[@]}"
-  say "$T chains done. ARM VERIFICATION:"
-  ## ⚠ BOTH arm flags are read BACK OFF THE RUN, never inferred from the flag string. A dropped
-  ## --sd-ais-floor gives a second L31; a dropped --ais-fit-from gives a second L32. Either would
-  ## be a duplicate arm wearing a new label, which is the whole hazard this 2x2 exists to avoid.
-  local NBAD=0
-  for SEED in $SEEDS; do
-    say "  seed$SEED: $(tr '\r' '\n' < outputs/mcmc/log_${T}_seed${SEED}.txt | grep -a -m1 'L26 structure flags') | $(tr '\r' '\n' < outputs/mcmc/log_${T}_seed${SEED}.txt | grep -a -m1 'seeding proposal' | cut -c1-90)"
-    say "    floor:  $(tr '\r' '\n' < outputs/mcmc/log_${T}_seed${SEED}.txt | grep -a -m1 'sd_ais FLOOR' | cut -c1-120)"
-    say "    window: $(tr '\r' '\n' < outputs/mcmc/log_${T}_seed${SEED}.txt | grep -a -m1 'Extended fit windows' | cut -c1-120)"
-    say "    restr:  $(tr '\r' '\n' < outputs/mcmc/log_${T}_seed${SEED}.txt | grep -a -m1 'AIS LEVEL TERM RESTRICTED' | cut -c1-140)"
-    tr '\r' '\n' < "outputs/mcmc/log_${T}_seed${SEED}.txt" | grep -aq 'FLOOR DERIVED FROM OBSERVATION' \
-      || { say "    *** FLOOR GATE FAILED on seed $SEED: sd_ais is NOT floored from the observation ***"; NBAD=$((NBAD+1)); }
-    tr '\r' '\n' < "outputs/mcmc/log_${T}_seed${SEED}.txt" | grep -aq 'ais 1979-' \
-      || { say "    *** SPAN GATE FAILED on seed $SEED: the AIS term is NOT restricted to 1979+ ***"; NBAD=$((NBAD+1)); }
-  done
-  (( NBAD == 0 )) || { say "*** ARM VERIFICATION FAILED ($NBAD) — this is not L35; do not postprocess ***"; return 1; }
-  say "  arm verification PASSED on all seeds: floored AND restricted to 1979+"
+  verify_arm "$T" "$SEEDS" || return 1
 }
 
 noise_gate(){ # TAG SEEDS
@@ -167,7 +195,23 @@ postprocess(){ # TAG
 }
 
 ## ---- L35 ---------------------------------------------------------------------------------------
-if run_chains L35 "2026 2027 2028 2029" "$STARTS" adapted_cov_L27_named.csv "$BASEFLAGS --no-ledger $ARMFLAG"; then
+## ⭐ --postprocess-only re-enters at the gate, for when the CHAINS are sound and something
+## downstream refused. The 2,000,001-row chains are ~2 GB each and cost ~2 h 40 m; a gate defect
+## must never be paid for with a re-run (2026-09-24: it nearly was).
+MODE="${1:-full}"
+if [[ "$MODE" == "--postprocess-only" ]]; then
+  say "MODE: --postprocess-only — chains NOT re-run; verifying the EXISTING logs and chains"
+  for SEED in 2026 2027 2028 2029; do
+    F=outputs/mcmc/chain_L35_seed${SEED}_n2000000.csv
+    [[ -s "$F" ]] || { say "*** missing $F — cannot postprocess ***"; exit 2; }
+    say "  seed$SEED chain: $(wc -l < "$F") rows, $(stat -f %z "$F") B"
+  done
+  OK=0; verify_arm L35 "2026 2027 2028 2029" && OK=1
+  if (( OK )); then
+    if noise_gate L35 "2026 2027 2028 2029"; then postprocess L35
+    else say "L35 noise-mode gate FAILED — not postprocessing"; FAILED_STEPS=$((FAILED_STEPS+1)); fi
+  else say "L35 arm verification FAILED — not postprocessing"; FAILED_STEPS=$((FAILED_STEPS+1)); fi
+elif run_chains L35 "2026 2027 2028 2029" "$STARTS" adapted_cov_L27_named.csv "$BASEFLAGS --no-ledger $ARMFLAG"; then
   if noise_gate L35 "2026 2027 2028 2029"; then postprocess L35
   else say "L35 noise-mode gate FAILED — not postprocessing (investigate, do not --force)"; FAILED_STEPS=$((FAILED_STEPS+1)); fi
 else
