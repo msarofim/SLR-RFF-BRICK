@@ -50,7 +50,19 @@
 ## NOTHING IS REFITTED. Every draw runs at its own posterior parameters.
 ##
 ##   julia --project=julia_v2 julia/diag_ais_channel_separation.jl [--arms=L27,L28,L29,L30] [ndraw]
-## Writes outputs/diag_ais_channel_separation.csv (per draw) and _summary.csv (per arm).
+##
+## ⚠ THE OUTPUT PATHS CARRY THE ARM LIST, AND THE UNTAGGED PATH IS RETIRED. Writes
+## outputs/diag_ais_channel_separation_<ARMS>.csv (per draw) and _<ARMS>_summary.csv (per arm),
+## where <ARMS> is the joined --arms list -- so a run over L27,L34 CANNOT overwrite a run over
+## L27,L28,L32,L33. Both names derive from OUT_STEM below, per the repo convention that labels
+## and filenames come from named constants.
+##
+## ⚠ outputs/diag_ais_channel_separation{,_summary}.csv -- NO TAG -- are FROZEN PROVENANCE for the
+## 2026-09-23 L27/L28/L32/L33 run whose dynamics anomalies (-133.1 L32, -126.2 L33) CHANGELOG cites
+## as the floor-insensitivity record. Byte-identical copies sit at
+## ..._20260923_L27L28L32L33.csv. This script asserts it will never write those names again: a
+## 2026-09-24 L27,L34 run had already overwritten them in place before the tag existed, and that
+## content was recovered to ..._L27L34.csv.
 ## ============================================================================
 using CSV, DataFrames, Mimi, MimiBRICK, Statistics, Printf, Dates, LinearAlgebra, Distributions
 
@@ -61,6 +73,25 @@ const SCRIPT = "diag_ais_channel_separation.jl"
 const ARMS   = (i = findfirst(a -> startswith(a, "--arms="), ARGS);
                 i === nothing ? ["L27", "L28", "L29", "L30"] : String.(split(ARGS[i][8:end], ",")))
 const NDRAW  = (p = filter(a -> !startswith(a, "--"), ARGS); length(p) >= 1 ? parse(Int, p[1]) : 100)
+
+## ---- the output paths, tagged with the arm list ----------------------------------------------
+## EVERY reference to these files -- the CSV.write calls and the closing read-out -- derives from
+## OUT_STEM, so the tag cannot drift out of step with the arms actually run.
+const ARM_TAG      = join(ARMS)                                    # L27,L34 -> "L27L34"
+const OUT_STEM     = "diag_ais_channel_separation_$ARM_TAG"
+const OUT_DRAWS    = joinpath(LADRILLO_REPO, "outputs", "$OUT_STEM.csv")
+const OUT_SUMMARY  = joinpath(LADRILLO_REPO, "outputs", "$(OUT_STEM)_summary.csv")
+const UNTAGGED_STEM = "diag_ais_channel_separation"                 # retired; frozen provenance
+@assert(!isempty(ARMS) && all(a -> !isempty(strip(a)), ARMS),
+        "--arms is empty or has an empty entry ($(repr(ARMS))): refusing to run, because an " *
+        "empty tag would land on the retired untagged path")
+## ⚠ MUTATION-TESTED, and the OBVIOUS form of this gate has NO POWER: with an empty tag the stem
+## is "..._" -- NOT equal to UNTAGGED_STEM -- so `OUT_STEM != UNTAGGED_STEM` can never fire. The
+## gate that bites is that the stem must NAME EVERY ARM; forcing ARM_TAG = "" trips it.
+@assert(OUT_STEM != UNTAGGED_STEM && all(a -> occursin(a, OUT_STEM), ARMS),
+        "output stem $OUT_STEM does not carry every arm in $(join(ARMS, ",")): refusing to run, " *
+        "because an untagged or partly-tagged name can silently overwrite another arm set " *
+        "(the retired $UNTAGGED_STEM{,_summary}.csv are frozen 2026-09-23 provenance)")
 
 ## The calibration's own frame, copied from calibrate_mcmc_ext.jl.
 const Y0, Y1, B0, B1 = 1850, 2026, 1995, 2005
@@ -112,6 +143,8 @@ Hd    = abs.(collect(1:nY)' .- collect(1:nY))
 ll(res, Σ) = logpdf(MvNormal(Symmetric(Matrix(Σ))), res)
 
 @printf("%s | arms %s | %d draw(s)/arm\n", SCRIPT, join(ARMS, ","), NDRAW)
+@printf("  WRITES   : %s\n             %s\n",
+        relpath(OUT_DRAWS, LADRILLO_REPO), relpath(OUT_SUMMARY, LADRILLO_REPO))
 @printf("  LEVEL    : %s `ais` %d-%d (%d yr), eps mean %.4f cm, L=%.0f\n",
         basename(TARGETS), ly[1], ly[end], length(ly), mean(lev_eps), OBS_CORR_LEN)
 @printf("  DYNAMICS : IMBIE 2026 dynamics anomaly %d-%d (%d yr), common ref %d-%d (obs ref mean %.1f Gt/yr)\n",
@@ -189,7 +222,7 @@ rows.provenance .= "$SCRIPT | arms $(join(ARMS, ",")) | $NDRAW draw(s)/arm, DETE
     "$(dy[1])-$(dy[end]), common ref $REF_Y0-$REF_Y1 | IND = published per-year sigma_dyn; AR1 = rho $AR1_RHO; " *
     "WIN = $(length(WINS)) window means, sigma/sqrt(n) | noise model NOT adopted | forcing $FORCING | " *
     "no refit, every draw at its own posterior parameters | $(now())"
-CSV.write(joinpath(LADRILLO_REPO, "outputs/diag_ais_channel_separation.csv"), rows)
+CSV.write(OUT_DRAWS, rows)
 
 ## ---- report -----------------------------------------------------------------------------------
 se(v) = std(v) / sqrt(length(v))
@@ -206,7 +239,7 @@ for arm in ARMS
     append!(summ, DataFrame(d))
 end
 summ.provenance .= rows.provenance[1]
-CSV.write(joinpath(LADRILLO_REPO, "outputs/diag_ais_channel_separation_summary.csv"), summ)
+CSV.write(OUT_SUMMARY, summ)
 
 println("\n" * "="^100)
 @printf("DISCHARGE, by arm (Gt/yr, ice-mass sign; anomaly vs %d-%d). IMBIE %d-%d anomaly = %.1f\n",
@@ -250,4 +283,4 @@ if length(ARMS) >= 2
         end
     end
 end
-println("\nwrote outputs/diag_ais_channel_separation{,_summary}.csv")
+@printf("\nwrote %s\n      %s\n", relpath(OUT_DRAWS, LADRILLO_REPO), relpath(OUT_SUMMARY, LADRILLO_REPO))

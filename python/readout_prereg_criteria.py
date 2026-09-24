@@ -10,7 +10,9 @@ whichever direction the numbers fall.
 
 SCOPE. PRIMARY, COST A, COST B and GUARD are read from files. MECHANISM is NOT -- it needs
   julia --project=julia_v2 julia/diag_ais_channel_separation.jl 1000 --arms=REF,TAG
-which must run with the IMBIE target live, and is reported separately.
+which must run with the IMBIE target live, writes
+outputs/diag_ais_channel_separation_<REF><TAG>{,_summary}.csv (the arm-list tag is part of the
+name), and is reported separately.
 
 *** THE LIKE-FOR-LIKE GATE IS THE POINT OF THIS SCRIPT, NOT A DECORATION. ***
 COST A compares two postpred bias files written on DIFFERENT DAYS. If the target was rebuilt
@@ -327,6 +329,9 @@ def main():
     emit("```")
     emit(f"julia --project=julia_v2 julia/diag_ais_channel_separation.jl 1000 --arms={REF},{TAG}")
     emit("```")
+    emit()
+    emit(f"which writes `{OUT}/diag_ais_channel_separation_{REF}{TAG}{{,_summary}}.csv` -- the arm-list "
+         f"tag is part of the name, so this run cannot overwrite another arm set's rows.")
     emit()
     emit(f"and compare `dis_trend_anom` against {REF}'s and IMBIE's. ⚠ The LEVEL channel in that "
          f"script is evaluated at a COMMON (sigma, rho); read the arm-to-arm difference under BOTH "

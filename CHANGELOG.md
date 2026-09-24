@@ -1,3 +1,76 @@
+## 2026-09-24c — `diag_ais_channel_separation.jl` writes an ARM-TAGGED path; the untagged pair is retired to frozen provenance (and had ALREADY been overwritten)
+
+The script wrote `outputs/diag_ais_channel_separation{,_summary}.csv` with **no tag**, alone among the
+per-arm diagnostics — `diag_ais_flux_split_vs_imbie_L31.csv`, `diag_imbie2026_vs_targets_L32.csv` and
+`bench_ladrillo_L32.md` all carry a `_<TAG>` infix. Every run therefore landed on the same two names
+regardless of `--arms`.
+
+⚠ **THIS WAS NOT A NEAR MISS. IT HAD ALREADY FIRED.** The 09-24 `--arms=L27,L34` run (n=1000,
+`outputs/log_diag_channel_sep_L27_L34.txt`, 09:36) **did overwrite in place** the 09-23 L27/L28/L32/L33
+rows that entry 09-23 cites as the floor-insensitivity record (dynamics anomalies **−133.1** L32,
+**−126.2** L33). The record survived only because it had been committed at `4ccdb83` and hand-copied to
+`..._20260923_L27L28L32L33.csv`; the *working tree* at the cited path held L34 content under a name that
+says L32/L33.
+
+**Both output paths now derive from one named constant**, per the repo rule that filenames come from named
+constants:
+
+```julia
+const ARM_TAG     = join(ARMS)                    # --arms=L27,L34 -> "L27L34"
+const OUT_STEM    = "diag_ais_channel_separation_$ARM_TAG"
+const OUT_DRAWS   = .../outputs/$OUT_STEM.csv
+const OUT_SUMMARY = .../outputs/$(OUT_STEM)_summary.csv
+```
+
+The closing read-out and the startup banner print `relpath(OUT_DRAWS, ...)` rather than a hand-written
+string, so the announced name cannot drift from the written one.
+
+**The untagged pair is LEFT IN PLACE, holding the 09-23 rows, and the script refuses to write it again.**
+Not renamed: entries 09-22, 09-23 and earlier name that path and were correct when written, and rewriting
+them would falsify the record. Old entries are therefore *not* edited — the untagged path simply stops
+being a live output and becomes the frozen 09-23 artifact those entries point at.
+
+⭐ **THE OBVIOUS GUARD HAS NO POWER, AND THE MUTATION TEST IS WHAT SAID SO.** `@assert OUT_STEM !=
+UNTAGGED_STEM` looks like it guards the untagged path. It cannot fire: an empty tag yields
+`diag_ais_channel_separation_` — trailing underscore — which is not equal to the untagged stem, so the
+script sailed past the assert and printed `WRITES: outputs/diag_ais_channel_separation_.csv`. The gate that
+bites is **the stem must name every arm**:
+
+```julia
+@assert(OUT_STEM != UNTAGGED_STEM && all(a -> occursin(a, OUT_STEM), ARMS), ...)
+```
+
+Mutation-tested three ways, each expected to FAIL and each observed to fail with its own message:
+`--arms=` (empty entry) → refused; forced `ARM_TAG = ""` → refused; forced `ARM_TAG = ARMS[1]` (tag drops
+L28) → refused. The first version of the empty-`--arms` guard *also* "failed" the mutation test — but on a
+Julia parse error, because a trailing `\` is left-division, not a line continuation. A gate that refuses for
+the wrong reason is not a gate; both asserts are now the parenthesized macro-call form.
+
+**Recovery of the clobbered outputs.** The L34 content was copied to
+`outputs/diag_ais_channel_separation_L27L34{,_summary}.csv` (`cmp`-verified against the originals) *before*
+the untagged pair was restored from `HEAD`, which is now `cmp`-identical to the hand-preserved
+`..._20260923_L27L28L32L33.csv`. Nothing was discarded: every file now sits at a name that describes its
+contents.
+
+**Reader updated.** `python/readout_prereg_criteria.py` emits the MECHANISM command but reads no product
+from it; its docstring and emitted block now name the tagged file the run will produce. No other reader
+exists — the grep over `*.jl *.py *.sh *.md` found only CHANGELOG history, that script, and prose mentions.
+
+**Verified** with `julia --project=julia_v2 julia/diag_ais_channel_separation.jl 20 --arms=L27,L28` against
+the IMBIE target (`outputs/recalib_targets_ext.csv` md5 **eb768cd96463a3b84721e2bb9a20f009**, checked before
+and after): wrote `..._L27L28{,_summary}.csv`, and the untagged pair was **md5-unchanged and `git status`
+clean** across the run. Run in an isolated worktree with the IMBIE target copied in and restored afterwards,
+so the nine drivers that gate on that md5 never saw a swap.
+
+⚠ **TWO RESIDUAL HAZARDS, NOT FIXED HERE.** (1) `julia/_frozen_diag_ais_channel_separation.jl` is untracked,
+byte-identical to the pre-change live script, and still writes the untagged names — a frozen copy records
+what ran, so it was left alone, but running it again would re-clobber. (2) The IMBIE build of
+`recalib_targets_ext.csv` is an **uncommitted working-tree modification**; the committed build on
+`ladrillo-dev` is `ais_source = frederikse` (md5 `070f74ab…`). Nine drivers gate on the IMBIE md5, so a
+fresh clone cannot currently reproduce any of them.
+
+`champions.json` untouched.
+
 ## 2026-09-24b — The null insert's Otosaka reference is VERIFIED (Crossref), full 58-author list filled
 
 `deliverables/GMD_imbie2026_null_INSERT.md` §6 carried a **placeholder title**, **no article DOI**, and an explicit
