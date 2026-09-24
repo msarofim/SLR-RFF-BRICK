@@ -145,7 +145,21 @@ and is reported, not adopted — the verdict does not depend on it.
 
 ## 6. Reference to add
 
-Otosaka, I. N., et al.: *(IMBIE 2026 reconciled ice-sheet mass balance)*, Sci. Data, 13, 1301,
-Polar Data Centre DOI 10.5285/128c5e33. ⚠ **Author list and exact title must be taken from the paper
-itself — they are not verified here.** The existing bibliography already carries IMBIE Team (2018),
-Nature 558, 219–222, which stays.
+Otosaka, I. N., Shepherd, A., Amory, C., Horwath, M., Ivins, E. R., King, M. D., Nowicki, S.,
+Payne, A. J., Rignot, E., Sørensen, L. S., Schlegel, N. J., Simon, K. M., Smith, B. E., Sutterley, T. C.,
+van den Broeke, M. R., Velicogna, I., A, G., Agosta, C., Ditmar, P., Döhne, T., Engdahl, M. E.,
+Fettweis, X., Forsberg, R., Gardner, A. S., Gilbert, L., Goelzer, H., Gourmelen, N., Groh, A.,
+Hansen, N., Harig, C., Helm, V., Khan, S. A., Kittel, C., Langen, P. L., Larsen, M., Loomis, B. D.,
+McMillan, M., Medley, B., Melini, D., Mottram, R. H., Muir, A., Nilsson, J., Noël, B., Pattle, M. E.,
+Roca i Aparici, M., Sasgen, I., Save, H. V., Scheuchl, B., Schrama, E. J. O., Schröder, L., Seo, K. W.,
+Simonsen, S. B., Slater, T., Spada, G., Vishwakarma, B. D., Wever, N., Wiese, D. N., and Wouters, B.:
+Mass balance of the Greenland and Antarctic ice sheets from the 1970s to 2023, Sci. Data, 13, 1301,
+https://doi.org/10.1038/s41597-026-08088-0, 2026.
+
+Data citation: NERC EDS UK Polar Data Centre, https://doi.org/10.5285/128c5e33-5224-4197-82f0-19dcc95b80a0,
+Open Government Licence v3.0.
+
+⭐ **Verified against Crossref 2026-09-24** (58 authors, published 2026-09-16); the full list is given
+because Copernicus house style lists all authors. ⚠ **House-style choice, Marcus's:** if the target
+bibliography abbreviates at N authors, this collapses to "Otosaka, I. N., et al.". The existing
+bibliography already carries IMBIE Team (2018), Nature 558, 219–222, which stays.
