@@ -1,3 +1,96 @@
+## 2026-09-24c — ⭐⭐ **L34 CLOSED (the noise fix alone does nothing), a BENCHMARK RULER BUG FOUND AND FIXED, L33 BENCHMARKED, and all seven arms put on ONE ruler for the first time**
+
+### The headline: the missing cell is filled, and it is a null
+**L34 = L27's target + the SMB floor.** PRIMARY (pre-registered 09-24a, thresholds fixed before any
+number existed): full-period AIS **0.73 σ** vs `L27*` **0.70** ⇒ **AMBIGUOUS** (the 0.70–0.80 band,
+which the pre-registration requires be reported AS ambiguous, not rounded). GUARD passed (≤ 0.010 σ).
+MECHANISM: dynamics anomaly **−117.19 ± 1.58** against L27's **−116.18 ± 1.48** ⇒ **indistinguishable
+from zero**; IMBIE is −167.2.
+
+⭐⭐ **The 2×2 is a strong INTERACTION, not two additive effects.** Filling the missing cell:
+
+| | free `sd_ais` | floored | **floor effect** |
+|---|---|---|---|
+| **Frederikse** | L27 −116.7 | **L34 −118.0** | **−1.4** |
+| **IMBIE-2026** | L28 −71.4 | L32 −133.3 | **−61.9** |
+| **target effect** | **+45.2** | **−15.3** | |
+
+The floor does essentially nothing on Frederikse and is enormous on IMBIE; the target swap changes
+SIGN depending on whether the floor is on. ⇒ **L32's gains came from the TARGET, not the noise
+specification, and the champion cannot be improved without the target swap.** §5a's hoped-for escape
+(improve L27 without changing the paper's basis) **does not exist**. Confirmed on two independent
+routes (flux-split and `diag_ais_channel_separation.jl`), agreeing to ±3 Gt/yr.
+
+### ⛔⛔ THE RULER BUG — and the WIN that was an artefact
+`bench_ladrillo.py` block [H] took `obs` from the **CANDIDATE's own postpred** `<component>_obs`
+column. The arm under test supplied the ruler for itself, for the frozen `L27*` snapshot and for
+BRICK 2.0. Worse, `fixed("targets")` resolves to the FROZEN **Frederikse** copy under
+`benchmark/reference/_fixed/`, so **the live target was never read by that block at all** —
+`run_L34_bench.sh`'s md5 gate was gating a file the scoring never opened, and its header's "THE
+TARGET MUST BE THE IMBIE BUILD WHEN THIS RUNS" described a mechanism that did not exist.
+
+Harmless while every arm shared one target; not harmless after 09-21. **L32 got the intended
+out-of-sample comparison BY ACCIDENT.** L34 was scored IN-SAMPLE, `L27*` read **0.56** instead of
+0.70, and the read-out printed **"PRIMARY VERDICT: WIN"** — an artefact, quarantined to
+`outputs/quarantine/20260924_bench_obs_from_candidate/` with a full README.
+
+**Caught by two frozen arms moving by the SAME additive −0.0704 cm.** A common offset on arms that
+cannot change is a ruler change, not a data change. ⭐ This also CORRECTS a standing diagnosis:
+`run_L34_bench.sh`'s header blamed the BRICK 1.5740-vs-1.4766 discrepancy on the 09-21 target
+rebuild — wrong cause; it is this bug.
+
+**Fixed** (`d176403`): obs from the target file, named and md5-stamped in every report;
+`--obs-source=candidate` preserves the old behaviour so historical files stay re-derivable; σ
+denominators still from the frozen copy so σ stays comparable across files; and a **divergence
+banner** naming, per component, when the candidate's own obs disagree with the scoring target — the
+in-sample asymmetry made explicit. Verified: `--selftest` passes; legacy mode reproduces the
+quarantined bench IDENTICALLY; **L32 re-scored in target mode is byte-identical to its legacy file**,
+proving by measurement that the L27-vs-L32 reading is unaffected. Re-scoring all arms moved **only
+L27** (0.56 → 0.70) — the one Frederikse-fitted arm with a bench file.
+
+### L33 benchmarked — it does not displace L32
+Full period **1.11 σ** vs L32's 0.88; satellite era **0.96** vs 1.01. Not dominated, but a poor
+exchange rate: **0.23 σ of full period for 0.05 σ of satellite era, ≈ 4.6 : 1**, where L27 → L32
+trades at 0.69 : 1. ⚠ **This SUPERSEDES the 09-23c reading that L33 "is the better compromise of the
+two"** — that rested on its better cumulative level (z −1.21 vs −1.45), and the whole-record scorer
+reverses it. Second time in this arc a favourable summary statistic failed to predict the
+full-period hindcast ([[ais_smb_variability_is_weather]]'s lesson, again).
+
+### ⭐ All seven arms on one ruler — a single trade-off axis with a four-point frontier
+
+| arm | full | 1920–49 | 1950–92 | 1993–2026 | TOTAL |
+|---|---|---|---|---|---|
+| L27 | **0.70** | 0.08 | 0.37 | 1.27 | 0.26 |
+| L34 | 0.73 | 0.07 | 0.34 | 1.32 | 0.26 |
+| L32 | 0.88 | 1.07 | 0.47 | 1.01 | 0.22 |
+| L33 | 1.11 | 1.43 | 0.60 | 0.96 | 0.22 |
+| L29 | 1.45 | 1.85 | 0.64 | **0.52** | 0.21 |
+| L28 | 1.53 | 1.89 | 0.62 | 0.67 | 0.20 |
+| L30 | 1.53 | 1.93 | 0.64 | 0.73 | 0.20 |
+
+**Pareto frontier: L27, L32, L33, L29.** Dominated: **L34** (worse than L27 on both axes — which is
+the cleanest statement of today's null), **L28** and **L30** (both worse than L29 on both).
+
+### Deliverable
+`deliverables/L27_vs_L32_proscons_for_TonyWong.{md,docx}` — number-dense, `[MCS]` placeholder for
+Marcus's framing and the ask, **no recommendation embedded**. §6 gives what the evidence CANNOT
+settle equal prominence: the IC cannot adjudicate the pair (identical k; the only common target IS
+L32's training data; the IC profiles σ/ρ so L32's bounded `sd_ais` never enters), and no held-out
+test can be built. Built by `build_tony_memo_docx.sh` — pandoc only, refuses to overwrite a .docx
+newer than its .md, and its independent-reader gate is MUTATION-TESTED (a different valid 5840-word
+.docx passes a word-count check and is caught only by the title assertion).
+
+### Also
+- §5b CLOSED: the Otosaka reference is verified against Crossref, full 58-author list (09-24b).
+- The 09-23 L27/L28/L32/L33 channel separation was PRESERVED before L34's run overwrote the
+  untagged path; the tagging fix landed separately (`04e030e`).
+- ⚠ **The COMMITTED `outputs/recalib_targets_ext.csv` is the FREDERIKSE build (`070f74ab`) while the
+  code default is `imbie2026`** — a fresh clone and a rebuild disagree. Flagged, untouched, Marcus's.
+- ⚠ GUARD has near-zero power on this arm by construction (L34 changes only the Antarctic noise
+  term); its PASS is not evidence and was not presented as any.
+
+Commits `464b7d4` → `8184651`. **`champions.json` UNTOUCHED; L27 remains champion; nothing promoted.**
+
 ## 2026-09-24c — `diag_ais_channel_separation.jl` writes an ARM-TAGGED path; the untagged pair is retired to frozen provenance (and had ALREADY been overwritten)
 
 The script wrote `outputs/diag_ais_channel_separation{,_summary}.csv` with **no tag**, alone among the

@@ -42,6 +42,27 @@ AIS RMSE in units of the AIS target's own 1σ (0.1674 cm); lower is better.
 **Neither arm dominates.** L27 wins the full period and the two pre-satellite windows; L32 wins
 every modern-record statistic. That is the whole decision.
 
+### 2a. Where the two sit among all seven arms
+
+Every arm built in this arc, on the same ruler. AIS RMSE (σ):
+
+| arm | what it is | full | 1920–49 | 1950–92 | **1993–2026** |
+|---|---|---|---|---|---|
+| **L27** | Frederikse target, free `sd_ais` — **champion** | **0.70** | 0.08 | 0.37 | 1.27 |
+| L34 | Frederikse target + SMB floor | 0.73 | 0.07 | 0.34 | 1.32 |
+| **L32** | IMBIE target + SMB floor — **candidate** | 0.88 | 1.07 | 0.47 | 1.01 |
+| L33 | IMBIE target + floor cut 34 % | 1.11 | 1.43 | 0.60 | 0.96 |
+| L29 | IMBIE target, ρ capped at 0.90 | 1.45 | 1.85 | 0.64 | **0.52** |
+| L28 | IMBIE target, free `sd_ais` | 1.53 | 1.89 | 0.62 | 0.67 |
+| L30 | IMBIE target + discharge ramp | 1.53 | 1.93 | 0.64 | 0.73 |
+
+**The arms lie on a single trade-off axis** between the reconstruction era and the satellite era,
+and four of the seven are on its Pareto frontier: **L27, L32, L33, L29**. Three are dominated —
+**L34** (worse than L27 on both), and **L28 and L30** (both worse than L29 on both).
+
+L27 and L32 are the two frontier points that are *balanced*; L29 buys the modern record at
+1.45 σ of full period, and L33 sits in a flat stretch where the exchange rate is poor (§7).
+
 ## 3. Why the trade exists — it is an identity, not a tuning failure
 
 IMBIE's own partition is exact: `net ≡ SMB + dynamics`. Ladrillo's SMB cannot produce the
@@ -121,10 +142,16 @@ anomaly **−117.2 ± 1.6** against L27's −116.2 ± 1.5 — indistinguishable.
 IMBIE. **L32's gains come from the target, not the noise specification**, and the champion cannot
 be improved without the target swap.
 
-**Open — L33 has never been benchmarked.** Same target and mechanism as L32 with a 34 % smaller
-floor, and a **better** cumulative level (z −1.21 vs −1.45) for a slightly smaller dynamics gain
-(−126.2 vs −133.1). If the IMBIE-side arm is adopted, L33 may be the better representative of it
-and the comparison has not been run. Cost: ~15 minutes.
+**Closed today — L33 does not displace L32 as the IMBIE-side arm.** L33 (same target and
+mechanism, floor cut 34 %) was benchmarked 2026-09-24: full period **1.11 σ** against L32's 0.88,
+satellite era **0.96** against 1.01. It is not *dominated* — it does buy a little more of the
+modern record — but the exchange rate is poor: **0.23 σ of full period surrendered for 0.05 σ of
+satellite era, ≈ 4.6 : 1**, where the L27 → L32 step trades at 0.69 : 1.
+
+⚠ **Worth noting for method, not just for the answer.** L33 has the *better* cumulative level
+(z −1.21 vs L32's −1.45), which on that statistic alone made it look like the better compromise.
+The whole-record scorer reverses that. This is the second time in this arc that a favourable
+summary statistic has failed to predict the full-period hindcast.
 
 ## 8. Specific questions for Tony
 
