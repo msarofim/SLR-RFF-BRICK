@@ -1,3 +1,51 @@
+## 2026-09-23h — ⛔ **THE HELD-OUT TEST PROPOSED IN 09-23g's HANDOFF (§5d) CANNOT BE BUILT FROM EITHER CANDIDATE.** Both named datasets are already inside the two arms' fitted targets — the regional breakdown EXACTLY so. Checked before spending the run, not after
+
+09-23g's handoff closed by naming the one route that could settle L27-vs-L32 on evidence rather than judgement: score
+both posteriors on Antarctic data **neither** was fitted to, using either **(a)** the IMBIE regional breakdowns
+(East / West / Peninsula) or **(b)** **GRACE-only 2002–2026**. Both candidates were checked against the code that
+builds the target (`python/prep_recalib_targets_ext.py`). **Neither is held out.**
+
+**(a) The regional breakdown carries ZERO information beyond the continental series.** IMBIE's three Antarctic regions
+are an EXACT partition of the continental record it publishes — summed December cumulative anomalies, 1979–2023:
+
+| | 2023 cumulative (Gt) | max abs. difference over the record |
+|---|---|---|
+| continental file | −4779.5 | — |
+| West + East + Peninsula | −4779.5 | **0.00 Gt** |
+
+Not "close": identically zero at every year. The regional files are a decomposition of the same numbers, and the
+continental sum **is L32's training data**. Separately, Ladrillo's Antarctic module has no regional degrees of freedom,
+so there is nothing in it a regional score could even address. ⇒ **route (a) is dead twice over.**
+
+**(b) GRACE is SPLICED INTO the fitted AIS target of BOTH arms, and sets the splice offset in both.**
+`SPLICE_FROM["ais"] = 2019`, `EXT_Y1 = 2026`:
+
+| arm | AIS target composition | GRACE years IN-SAMPLE | GRACE window setting the splice offset |
+|---|---|---|---|
+| **L27** | Frederikse 1900–2018 + **GRACE 2019–2026** | **8** | `OVERLAP["ais"] = (2003, 2018)` |
+| **L32** | Frederikse 1900–1978 (join-shifted) + IMBIE 1979–2023 + **GRACE 2024–2026** | **3** | `IMBIE_GRACE_OVERLAP = (2003, 2023)` |
+
+And over **2002–2018 the contamination runs the OTHER WAY**: those years are Frederikse for L27 (which never saw the
+mascon numbers) but **IMBIE 2026 for L32 — and IMBIE reconciles gravimetry, i.e. GRACE, as one of its three
+techniques.** So a GRACE score is not neutral; it is **biased toward L32** over the bulk of the window.
+
+⭐ **That does leave GRACE as a ONE-SIDED test, and it is worth saying so precisely:** because the bias favours L32,
+**an L27 win on GRACE would be informative** (it would be the same "wins against the in-sample asymmetry" argument as
+the benchmark, on an estimator with a different error structure), **while an L32 win would be uninformative.** A test
+that can only confirm the incumbent is a weak instrument, but it is not a worthless one. **Not run — Marcus's call,
+and the asymmetry has to be stated at the gate if it is.**
+
+⭐⭐ **The transferable lesson: "neither model was fitted to it" is a claim about the TARGET-BUILDING CODE, not about
+the dataset's name.** A product can be held out by provenance and in-sample by splice; a "different" series can be an
+exact partition of the training data. Both candidates here LOOKED independent — a separate release, a separate
+instrument — and read the splice table / summed the columns is what settled it. Cost: minutes. The run it would have
+justified: hours, with an answer that could not have meant anything.
+
+⇒ **§5d is CLOSED as proposed. The L27-vs-L32 decision remains where 09-23g left it: a judgement, and Marcus's.**
+The one remaining candidate for a genuinely unseen target is the **IMBIE 2021 vintage LEVEL** (`imbie_antarctica_2021_*.csv`,
+already in the repo, used so far only for L33's noise floor) — out-of-sample for both arms by provenance, though it
+re-reduces largely the same observations, so it tests REPROCESSING sensitivity rather than independence. Offered, not run.
+
 ## 2026-09-23g — ⛔⛔ **CORRECTION: my 09-23e L27-vs-L32 IC NUMBERS WERE ON MISMATCHED TARGETS. The "arms disagree" finding is GONE** — corrected, BOTH arms now favour L32, and that turns out to be an IN-SAMPLE ARTIFACT that makes the IC useless for this pair. ⭐ The BENCHMARK, which has the same asymmetry and still favours L27, is the trustworthy result
 
 **How it was caught.** A routine `git status` showed `outputs/ic_hindcast_obs_sigma.csv` MODIFIED with genuinely
