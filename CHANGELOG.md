@@ -1,3 +1,100 @@
+## 2026-09-24f — ⭐⭐ **STEP 2: the held-out arm ALREADY EXISTED (it is L31), it FAILS the pre-1979 test — and the read-out turned up the reason the FLOORED cell must still be run**
+
+The 09-24c handoff's next job was to launch **"L35 = the IMBIE target build + `--ais-fit-from=1979`"**.
+Taken literally that arm **is L31**, run 2026-09-22 (`run_L31.sh`: *"L31 = L28 PLUS
+`--ais-fit-from=1979`. CONTROL = L28, ONE AXIS"*), and its posterior predictive has been on disk
+since. **The free-`sd_ais` cell of step 2 therefore cost no chain time at all.** Pre-flight confirmed
+from all four chain logs, read back off the series rather than re-typed
+(`calibrate_mcmc_ext.jl:635–639`): *"ais 1979-2025 … ⚠ AIS LEVEL TERM RESTRICTED … 79 pre-1979 years
+are now OUT-OF-SAMPLE, not absent"*. And `SERIES` excludes the total (`:1462`), so pre-1979 AIS is
+not constrained through the total-SLR term either — the test is clean.
+
+`python/diag_ais_heldout_pre1979.py`. **Scoring only: no refit, no target rebuild, no RNG.** The read
+was **committed before any arm number was computed** (`b1eeec1`), so "pre-registered" is provable.
+
+### ① ⛔ The level trap, and why the PRIMARY is the SHAPE
+
+Pre-1979 the two target builds carry the **same Frederikse data** and differ by **exactly a constant,
+−0.134074 cm** (sd 6.2e-17). That constant is **not data**: both builds are re-referenced to their own
+1995–2005 mean, the builds differ over 1995–2005, and the offset is that difference. Charging an
+IMBIE-trained arm 0.134 cm for not reproducing Frederikse's baseline convention would score a
+**re-referencing artefact as prediction error** — the same ruler class as 09-24b's obs-from-candidate
+and 09-24d's σ cliff. So the primary is the **SHAPE error** (residual sd after removing the window
+mean), which is **identical under both builds**; the script *gates* on that identity.
+
+**BOUND from an observation, not from the code under test:** the Frederikse target's **own published
+1σ band over 1900–1978 = 0.2337 cm**. ⚠ Explicitly **NOT** the bench's σ̄ = 0.1674, a whole-record
+mean dragged down by the 0.01 cm post-2018 cliff years. Both are printed; neither stands in for the other.
+
+**REPRODUCTION GATE:** the published post-ruler-fix full-period figures come back exactly — `L27*`
+**0.7035** vs 0.70, L32 **0.8812** vs 0.88. **Mutation-tested, four ways, all four fire:** σ taken
+from the live build instead of the frozen one (L27 → 0.7819, caught); a wrong md5 (caught); a
+perturbed pre-1979 year breaking the pure-constant identity (caught, sd 1.1e-3); a wrong published
+value (caught).
+
+### ② The held-out window, all six arms on one ruler
+
+| arm | trained on | `sd_ais` | AIS fit | **shape (cm)** | /σ₁₉₀₀₋₇₈ | /σ̄ | bias vs IMBIE | cov90 |
+|---|---|---|---|---|---|---|---|---|
+| L27 | frederikse | free | 1900– | 0.0241 | 0.10 | 0.14 | +0.035 | 100 % |
+| L28 | imbie2026 | free | 1900– | 0.1501 | 0.64 | 0.90 | −0.276 | 34 % |
+| **L31** | **imbie2026** | **free** | **1979–** | **0.3241** | **1.39** | **1.94** | **−0.686** | **3 %** |
+| L32 | imbie2026 | floor | 1900– | 0.0501 | 0.21 | 0.30 | −0.141 | 100 % |
+| L33 | imbie2026 | floor21 | 1900– | 0.0713 | 0.31 | 0.43 | −0.197 | 100 % |
+| L34 | frederikse | floor | 1900– | 0.0305 | 0.13 | 0.18 | +0.034 | 100 % |
+
+**PRIMARY: L31 = 0.3241 cm = 1.39 × the published band ⇒ FAIL.**
+
+⚠⚠ **And by pre-registration a FAIL is AMBIGUOUS**, one-sided in the OPPOSITE direction from the
+GRACE test: the held-out data **IS** the product under doubt, so this cannot separate *"the model is
+wrong"* from *"Frederikse is wrong."* **A pass would have been informative; this is not.**
+
+**POWER, measured before the verdict was read:** (P1) L31's pre-1979 90 % band half-width is 0.5143
+cm = **2.20× the bound**, so a coverage pass would have been cheap — which is why the point-error
+carries the verdict, and coverage is in fact only 3 %. (P2) L31 vs in-sample L28, same target, same
+free `sd_ais`, **one axis**: **+115.9 %**, far outside the bench's 2 % dead band ⇒ the held-out years
+**do** do work here and the null is not structurally guaranteed.
+
+### ③ ⭐⭐ The unplanned finding: the NOISE FLOOR is what carries the pre-1979 hindcast — on this target only
+
+At the **same target and the same full fit span**, the floor cuts the pre-1979 shape error
+**L28 → L32 = 0.1501 → 0.0501 cm, a factor 3.0.** On the **Frederikse** target the same floor moves it
+the **other way** (L27 0.0241 → L34 0.0305). That is the **same target-dependent interaction** the L34
+cell found on the dynamics channel ([[ais_noise_floor_is_target_dependent]]: −1.4 Gt/yr on Frederikse
+vs −61.9 on IMBIE).
+
+⇒ ⛔ **L31's FAIL may NOT be read as L32's.** L31 carries free `sd_ais` and the memo's arm does not,
+and the floor is measured to be worth a factor 3 pre-1979 on exactly this target. Inferring the
+floored cell from its neighbour is precisely the error the L34 cell was built to catch, and it would
+be the second time in this arc. **The missing cell is real and it is launched:**
+
+| | full fit 1900– | fitted 1979+ only |
+|---|---|---|
+| free `sd_ais` | L28 | L31 |
+| floored `sd_ais` | **L32** (the memo's arm) | **L35 ← launched** |
+
+### ④ L35 launched, criteria pre-registered in the runner
+
+`run_L35.sh` = **L32 + `--ais-fit-from=1979`. CONTROL = L32, ONE AXIS.** PRIMARY = the same held-out
+shape statistic on the same observation-derived bound: **PASS ≤ 0.2337 cm**, **FAIL ≥ 0.3241 cm** (no
+better than free-`sd` L31), **0.2337–0.3241 is PARTIAL and must be reported as PARTIAL.** Plus an
+INTERACTION *measurement* (L31→L35 against the full-span L28→L32 = −0.1000 cm), the usual non-Antarctic
+GUARD, and the in-sample 1979–2025 COST. ⚠ NOT criteria: `sd_ais` on its bound (true by construction);
+`log_post` (79 fewer likelihood terms ≈ 666 units of pure bookkeeping, per L31's header).
+
+**Arm verification is gated per chain on BOTH flags and mutation-tested before launch** — a 1-iteration
+run with each flag dropped in turn: dropping the floor kills the floor gate only, dropping the span
+flag kills the span gate only, both present passes both. A dropped floor would have produced a second
+L31 and a dropped span flag a second L32, each wearing a new label — the exact hazard this 2×2 exists
+to avoid. No target swap is needed or performed (L35 trains on the already-live IMBIE build), so
+unlike `run_L34.sh` there is no window in which another arm's gate would fail.
+
+**TORCH CONSIDERED AND NOT WARRANTED** (standing rule): every arm L27–L34 ran on this Mac and the
+Julia/Mimi/MimiBRICK stack is not provisioned on Torch. Launched at load 1.49 with no other chains
+running.
+
+**`champions.json` UNTOUCHED; L27 remains champion.** The Tony memo is unchanged and still waits.
+
 ## 2026-09-24e — ⭐⭐ **STEP 1: the full-period ranking IS σ-sensitive, L27's win is EARNED pre-1979, and the inflation factor CANNOT be measured from the two products' discrepancy**
 
 Marcus's question: if IMBIE-2026 is the better product over 1979–2023, does that guide an approach?
