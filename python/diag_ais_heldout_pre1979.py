@@ -89,7 +89,13 @@ ARMS = {
     "L32": ("imbie2026",  "floor",   "1900-2025"),
     "L33": ("imbie2026",  "floor21", "1900-2025"),
     "L34": ("frederikse", "floor",   "1900-2025"),
+    "L35": ("imbie2026",  "floor",   "1979-2025"),   # <- the missing cell, out-of-sample pre-1979
 }
+
+# ⭐ L35's PRE-REGISTERED BANDS, from run_L35.sh, committed BEFORE the arm was scored. The read-out
+# applies them mechanically so the verdict cannot be moved after the number lands, and PARTIAL is a
+# REPORTABLE OUTCOME, not a value to round to whichever side is convenient.
+L35_PASS_CM, L35_FAIL_CM = 0.2337, 0.3241      # 1.00 sigma_1900-78 ; L31's own shape error
 
 def md5(p):
     with open(p, "rb") as fh:
@@ -224,6 +230,33 @@ def main():
                                  "a FAILURE is AMBIGUOUS -- the held-out data IS the product under"
                                  " doubt, so this cannot separate 'the model is wrong' from"
                                  " 'Frederikse is wrong'."))
+        if "L35" in R:
+            v35 = R["L35"]["shape_cm"]
+            band = ("PASS" if v35 <= L35_PASS_CM else
+                    "FAIL" if v35 >= L35_FAIL_CM else "PARTIAL")
+            print(f"\n  L35 (the missing cell: IMBIE + floor + 1979+ only)")
+            print(f"    held-out {HELDOUT[0]}-{HELDOUT[1]} SHAPE = {v35:.4f} cm = "
+                  f"{R['L35']['shape_over_sigma_heldout']:.2f} x the published band")
+            print(f"    pre-registered bands: PASS <= {L35_PASS_CM} | "
+                  f"PARTIAL {L35_PASS_CM}-{L35_FAIL_CM} | FAIL >= {L35_FAIL_CM}  ==>  {band}")
+            if band == "PARTIAL":
+                print("    ⚠ PARTIAL IS THE RESULT. It is reported as PARTIAL and is not rounded to "
+                      "either side.")
+            print("    ASYMMETRY: " + ("a PASS is INFORMATIVE -- the two products are reconcilable."
+                                       if band == "PASS" else
+                                       "a FAIL/PARTIAL is AMBIGUOUS -- the held-out data IS the "
+                                       "product under doubt."))
+            if "L31" in R and "L28" in R and "L32" in R:
+                full = R["L32"]["shape_cm"] - R["L28"]["shape_cm"]     # floor effect, full span
+                restr = v35 - R["L31"]["shape_cm"]                     # floor effect, 1979+ only
+                print(f"    INTERACTION (a measurement, not a pass/fail): the floor's effect on the "
+                      f"pre-1979 hindcast is {full:+.4f} cm at the full span (L28->L32) and "
+                      f"{restr:+.4f} cm at 1979+ (L31->L35).")
+                rel = abs(restr - full) / abs(full) if full else float("inf")
+                print("    " + (f"differ by {rel:.0%} of the full-span effect ⇒ the floor and the fit "
+                                "span INTERACT; neither cell may be inferred from the other."
+                                if rel > 0.02 else
+                                "within the bench's 2% dead band ⇒ the two effects are ADDITIVE here."))
         for other in ("L27", "L32"):
             if other in R:
                 print(f"  ORDERING vs {other}: L31 {R['L31']['shape_over_sigma_bar']:.2f} vs "
