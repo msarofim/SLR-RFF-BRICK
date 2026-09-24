@@ -1,3 +1,31 @@
+## 2026-09-24b — The null insert's Otosaka reference is VERIFIED (Crossref), full 58-author list filled
+
+`deliverables/GMD_imbie2026_null_INSERT.md` §6 carried a **placeholder title**, **no article DOI**, and an explicit
+⚠ that the author list *"must be taken from the paper itself — not verified here."* That was the last open item on
+the insert other than Marcus's own `[MCS]` sentences.
+
+Resolved against the Crossref record for `10.1038/s41597-026-08088-0`:
+
+| field | verified value |
+|---|---|
+| title | *Mass balance of the Greenland and Antarctic ice sheets from the 1970s to 2023* |
+| journal | Sci. Data **13**, 1301 |
+| published | **2026-09-16** |
+| authors | **58**, first author Inès N. Otosaka |
+
+⭐ The title matches `data/observations/raw/imbie2026/README.md` **exactly** — the README's citation was right all
+along; only the insert's copy was a placeholder.
+
+**Full 58-author list written out**, because Copernicus house style lists all authors. The `et al.` collapse is left
+as a flagged choice for Marcus if the target bibliography abbreviates — it is a house-style question, not a fact
+question, and the facts are now in the file either way. Data DOI expanded from the truncated `10.5285/128c5e33` to
+the full Polar Data Centre handle.
+
+⚠ **The insert's ARGUMENT is untouched.** Marcus ruled 09-23 that line 92's identity-trade-off claim does not need
+revising given his answer on the hindcast-vs-modern-record question; this entry is bibliography only.
+
+Commit `464b7d4`.
+
 ## 2026-09-24a — ⭐⭐ **L34 LAUNCHED: the MISSING CELL of the 2×2 — L27's own target with the SMB noise floor.** Pre-flight passed on all three checks; both target gates mutation-tested; PRIMARY criterion pre-registered before launch
 
 Marcus, 09-23, on being shown that L32 wins the satellite era but loses the full-period AIS to L27:
