@@ -1,3 +1,56 @@
+## 2026-09-24e — ⭐⭐ **STEP 1: the full-period ranking IS σ-sensitive, L27's win is EARNED pre-1979, and the inflation factor CANNOT be measured from the two products' discrepancy**
+
+Marcus's question: if IMBIE-2026 is the better product over 1979–2023, does that guide an approach?
+It converts into a statement about **σ on the unconstrained pre-1979 segment** — 62 % of the
+full-period scoring window (79 of 127 yr), where L27's win is almost entirely earned. Run as a
+**scoring-only** sensitivity (`python/diag_ais_prescore_sigma_sensitivity.py`): the bench's scalar
+denominator (`bench_ladrillo.py:682,1309`) generalised to per-year, `σ_y(F) = F·σ̄` before 1979.
+**No refit; the standing ruler is untouched.**
+
+**GATE: at F = 1 the statistic reproduces the published one-ruler numbers exactly** — `L27*` 0.7035
+vs 0.70, L32 0.8812 vs 0.88. Mutation-tested: a wrong published value is caught; **a wrong
+`SPLICE_START` is NOT** (at F=1 the denominator is uniform so the splice year never enters). That
+blind spot is documented at the gate and the splice year rests on 09-24d's divergence diagnostic.
+
+### ① The ranking is σ-sensitive, and the win is earned pre-1979
+
+| F | `L27*` | L32 | |
+|---|---|---|---|
+| 1.00 | 0.703 | 0.881 | published |
+| 1.41 | 0.689 | 0.726 | |
+| **1.52** | 0.687 | 0.695 | **enters the bench's own 2 % dead band ⇒ indistinguishable** |
+| **1.60** | 0.686 | 0.686 | **break-even** |
+| 3.00 | 0.677 | 0.574 | |
+
+Relaxing to F = 3 improves **L32 by 35 %** against **L27 by 4 %** ⇒ direct confirmation that L27's
+full-period advantage lives where no satellite constraint exists. ⭐ **F ≈ 1.5 is a modest
+inflation** (0.167 → 0.251 cm on a 79-yr unconstrained segment), so the flip is not exotic. ⭐ And
+*indistinguishable* arrives before either arm "wins" — the bench's 2 % dead band exists precisely
+because two arms inside it are not separated by the metric.
+
+### ② ⛔ But no verdict is available, and that is the substantive finding
+The obvious estimator — `RMS((IMBIE − Frederikse)/σ_Frederikse)` over 1979–2017 (satellite-
+constrained, before the 2019 σ cliff) — gives **1.56, sitting AT the 1.60 break-even.** It settles
+nothing in either direction, and it has almost no degrees of freedom: **lag-1 ρ = 0.968 over 39 yr
+⇒ N_eff = 0.6**, 1-sd bar **±1.39** (range 0.17–2.95). ⭐⭐ **The difference between two
+systematically offset reconstructions is ONE SLOW CURVE, not N samples.**
+
+⚠⚠ **Its stability is a trap, not reassurance.** The factor reads **1.56 / 1.60 / 1.57 / 1.56**
+across four choices of checkable window — which looks like robustness and is **re-measurement of the
+same curve.**
+
+⭐ The verdict is now **gated on N_eff ≥ 2** and refuses to print below it. ⛔ **RETRACTED within the
+session:** the first pass printed *"NOT reachable from measured evidence"* off the point estimate
+alone — a threshold comparison with no error bar. Do not re-quote it.
+
+### ③ Consequence — the decision is relocated, not settled
+Step 1 **does not clear L27 and does not crown L32.** L27's full-period win rests on a pre-1979 σ
+that this comparison cannot justify in either direction. Indicated next move: **`--ais-fit-from=1979`**
+(`calibrate_mcmc_ext.jl:128`, which already warns that pre-1979 becomes out-of-sample rather than
+absent) — it needs **no choice of σ**, and it is one-sided in the **opposite** direction from the
+GRACE test: a pass is informative, a failure is ambiguous because the held-out data is the product
+under doubt. **`champions.json` UNTOUCHED; L27 remains champion.**
+
 ## 2026-09-24d — Marcus's memo edits synced back to source, and a TEST OF THE COVER EMAIL'S MECHANISM: the 2018–23 SMB anomaly is **NOT** the main driver of L32's full-period loss
 
 ### The memo: his .docx edits pulled into the .md, sync PROVEN not asserted
