@@ -1,3 +1,66 @@
+## 2026-09-24a — ⭐⭐ **L34 LAUNCHED: the MISSING CELL of the 2×2 — L27's own target with the SMB noise floor.** Pre-flight passed on all three checks; both target gates mutation-tested; PRIMARY criterion pre-registered before launch
+
+Marcus, 09-23, on being shown that L32 wins the satellite era but loses the full-period AIS to L27:
+*"What about fixing the noise specification on L27?"* That names a cell nobody had run:
+
+| | free `sd_ais` | floored `sd_ais` |
+|---|---|---|
+| **Frederikse target** (L27's) | **L27** — champion | **L34** ← this arm |
+| **IMBIE-2026 target** | L28 | L32 / L33 |
+
+⭐ **L32 changed TWO things at once** — the AIS target AND the noise model. **L34 isolates the noise fix on the
+champion's own target**, which is the only way to learn which of the two produced L32's dynamics win and which
+produced its full-period loss.
+
+⭐ **And it is not tidiness.** 09-23b measured that a misspecified noise term does not merely under-disperse the
+posterior — **it BIASES THE MEAN**, because the mean is made to do the noise's job (L32's AIS hindcast bias at 1900
+went −0.524 → −0.154 when the floor went on, the OPPOSITE of my prediction). **L27 carries the same
+misspecification**: its fitted `sd_ais` is **0.02162 cm** against the SMB-derived floor of **0.03259** — a factor
+**1.51 below**. So the champion's mean may be biased too, and the floor may improve *the very statistic L27 currently
+wins on*.
+
+**⭐ PRE-FLIGHT (30k, one chain, on L27's target) — passed on all three, and the binding check is the one that
+mattered** ([[ais_smb_variability_is_weather]]: check the floor BINDS or you are reading a slack constraint):
+
+| check | result |
+|---|---|
+| floor value | **0.03259 cm**, byte-for-byte L32's ⇒ confirms the derivation is INDEPENDENT of which level target is live |
+| **floor BINDS** | **YES** — p05 **0.03262** vs floor 0.03259, min exactly on it, **64.2 %** of draws within 2 % (L32 72 %, L33 48 %) |
+| sampler not crippled by the bound | acceptance **0.238** (L31 0.237, L32 0.246) |
+
+**⭐ SUCCESS CRITERIA, PRE-REGISTERED (Marcus chose the primary BEFORE any number existed):**
+- **PRIMARY — full-period AIS RMSE** in the whole-model benchmark, scored on the live IMBIE target in ONE run against
+  the frozen `L27*` column. **WIN ≤ 0.70 σ. LOSS ≥ 0.80 σ. 0.70–0.80 AMBIGUOUS and must be said so.**
+- MECHANISM: 2018–23 dynamics anomaly vs L27's −119.1. Confirms the floor fired; does NOT decide promotion.
+- COST A: AIS hindcast bias @1900/1950/2018/2025 — report either way (I predicted L32's wrong).
+- COST B: SSP AIS p05–p95 @2100/2300. A win that is only a wider posterior is no win.
+- GUARD: the four non-Antarctic components within ~0.02 σ of L27.
+- ⚠ NOT a criterion: `sd_ais` on its bound — true by construction.
+
+**⛔⛔ THE OPERATIONAL HAZARD IS THE SHARED TARGET FILE, AND IT IS GATED RATHER THAN COMMENTED.** L34 needs the
+FREDERIKSE target live while **nine** other drivers gate on the IMBIE md5 — the exact class that produced retraction 2
+on 09-23g. `run_L34.sh` therefore rebuilds the Frederikse target, **gates on md5 `070f74ab…`**, and **restores the
+IMBIE build through an `EXIT INT TERM` trap, verified by md5.** ⭐ **Both gates MUTATION-TESTED:** a deliberately wrong
+expected md5 exits 2 **and still restores**; a SIGTERM mid-run restores.
+⚠⚠ **And the trap's REAL limit was measured, not assumed:** bash defers a signal trap until the running foreground
+command returns — a TERM sent at 06:06:26 did not restore until the stand-in `sleep` ended at 06:07:14. **So kill the
+CHAINS by PID, never the driver**, and if the target is ever left swapped, all nine IMBIE drivers refuse to start
+(loud, not silent).
+
+⚠ **The floor is an IMBIE-derived statistic, so L34 is NOT a "pure Frederikse" arm** and must never be written up as
+one. It is a VARIABILITY channel, not a LEVEL one — different information from the level series L28/L32 fit — but
+IMBIE information does enter. Same import as L32; only the level target differs.
+
+⚠ **A missing log line was chased rather than waved off.** The per-chain `sd_ais FLOOR` line did not appear in the
+chain logs, which would mean an UNFLOORED arm labelled L34 — i.e. a second L27, and three hours wasted. Re-running the
+driver's EXACT flag string for 1 iteration printed the floor line: the chain logs' omission is **stdout block
+buffering** (the progress bar is unbuffered stderr, the `println` is buffered stdout). The end-of-run per-chain FLOOR
+GATE reads the value back regardless.
+
+**Launched 09-24 06:11 at load 2.17, commit `f7d101b`, 4 chains × 2e6, seeds 2026–2029, PIDs 22573–22576; ETA ~2 h 45.
+TORCH CONSIDERED AND NOT WARRANTED** — the Julia/Mimi/MimiBRICK stack is not provisioned there, as for every arm
+L27–L33. ⛔ L34's logpost is comparable to NEITHER L27's (bound + σ scale) NOR L32's (different target).
+
 ## 2026-09-23i — **§5c's ROOT CAUSE IS IN THE CODE, NOT THE PROSE: the calibration target had NO PROVENANCE STAMP, and the one line that tried to write one was a NO-OP.** Stamped, mutation-tested, and the rebuild proven byte-identical
 
 The handoff's §5c flagged a reproducibility inconsistency: `LadrilloUpdateDescription_FILLED.md` says
