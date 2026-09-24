@@ -1,0 +1,27 @@
+[09-24 13:24:58] target gate PASSED: eb768cd96463a3b84721e2bb9a20f009 (IMBIE-2026 build)
+[09-24 13:24:58] provenance stamp: ais_source       imbie2026 reproduces       L28-L33 (the IMBIE-2026 arms) -- NOT the shipped champion 
+[09-24 13:24:58] L35: 4 chains x 2000000 (seeds 2026 2027 2028 2029) — --gis-ordered --gis-basins2 --amp-mu=1.09 --amp-sigma=0.180 --paleo-priors --no-delta --no-d2-gsic --obs-corr-len=100 --toff-lo=-4 --precip-reparam --cut-fastdyn --fix-gamma --no-ledger --sd-ais-floor=smb --ais-fit-from=1979 ; adcov=adapted_cov_L27_named.csv starts=outputs/mcmc/overdispersed_starts_L27r_sdfloor.csv ; commit e57daa8 ; load 1.91 1.87 2.35
+[09-24 13:24:58]   chain PIDs: 58067 58068 58069 58070
+[09-24 16:03:03] L35 chains done. ARM VERIFICATION:
+[09-24 16:03:04]   seed2026: L26 structure flags: paleo-priors=true no-delta=true no-d2-gsic=true obs-corr-len=100.0 precip-reparam=true | (seeding proposal: name-mapped 50 of 50 rows of adapted_cov_L27_named.csv using the FILE'S
+[09-24 16:03:05]     floor:  sd_ais FLOOR DERIVED FROM OBSERVATION (smb): IMBIE 2026 SMB anomaly 1979-2019 (n=41), year-on-year sd 118.0 Gt/yr x scal
+[09-24 16:03:05]     window: Extended fit windows: ais 1979-2025, gis 1900-2025, gsic 1900-2023, steric 1900-2025, total 1900-2024
+[09-24 16:03:06]     restr:    ⚠ AIS LEVEL TERM RESTRICTED: --ais-fit-from=1979 (47 yr fitted; 79 pre-1979 years are now OUT-OF-SAMPLE, not absent)
+[09-24 16:03:07]     *** SPAN GATE FAILED on seed 2026: the AIS term is NOT restricted to 1979+ ***
+[09-24 16:03:07]   seed2027: L26 structure flags: paleo-priors=true no-delta=true no-d2-gsic=true obs-corr-len=100.0 precip-reparam=true | (seeding proposal: name-mapped 50 of 50 rows of adapted_cov_L27_named.csv using the FILE'S
+[09-24 16:03:08]     floor:  sd_ais FLOOR DERIVED FROM OBSERVATION (smb): IMBIE 2026 SMB anomaly 1979-2019 (n=41), year-on-year sd 118.0 Gt/yr x scal
+[09-24 16:03:09]     window: Extended fit windows: ais 1979-2025, gis 1900-2025, gsic 1900-2023, steric 1900-2025, total 1900-2024
+[09-24 16:03:10]     restr:    ⚠ AIS LEVEL TERM RESTRICTED: --ais-fit-from=1979 (47 yr fitted; 79 pre-1979 years are now OUT-OF-SAMPLE, not absent)
+[09-24 16:03:10]     *** FLOOR GATE FAILED on seed 2027: sd_ais is NOT floored from the observation ***
+[09-24 16:03:10]     *** SPAN GATE FAILED on seed 2027: the AIS term is NOT restricted to 1979+ ***
+[09-24 16:03:11]   seed2028: L26 structure flags: paleo-priors=true no-delta=true no-d2-gsic=true obs-corr-len=100.0 precip-reparam=true | (seeding proposal: name-mapped 50 of 50 rows of adapted_cov_L27_named.csv using the FILE'S
+[09-24 16:03:12]     floor:  sd_ais FLOOR DERIVED FROM OBSERVATION (smb): IMBIE 2026 SMB anomaly 1979-2019 (n=41), year-on-year sd 118.0 Gt/yr x scal
+[09-24 16:03:12]     window: Extended fit windows: ais 1979-2025, gis 1900-2025, gsic 1900-2023, steric 1900-2025, total 1900-2024
+[09-24 16:03:13]     restr:    ⚠ AIS LEVEL TERM RESTRICTED: --ais-fit-from=1979 (47 yr fitted; 79 pre-1979 years are now OUT-OF-SAMPLE, not absent)
+[09-24 16:03:14]   seed2029: L26 structure flags: paleo-priors=true no-delta=true no-d2-gsic=true obs-corr-len=100.0 precip-reparam=true | (seeding proposal: name-mapped 50 of 50 rows of adapted_cov_L27_named.csv using the FILE'S
+[09-24 16:03:15]     floor:  sd_ais FLOOR DERIVED FROM OBSERVATION (smb): IMBIE 2026 SMB anomaly 1979-2019 (n=41), year-on-year sd 118.0 Gt/yr x scal
+[09-24 16:03:15]     window: Extended fit windows: ais 1979-2025, gis 1900-2025, gsic 1900-2023, steric 1900-2025, total 1900-2024
+[09-24 16:03:15]     restr:    ⚠ AIS LEVEL TERM RESTRICTED: --ais-fit-from=1979 (47 yr fitted; 79 pre-1979 years are now OUT-OF-SAMPLE, not absent)
+[09-24 16:03:16] *** ARM VERIFICATION FAILED (3) — this is not L35; do not postprocess ***
+[09-24 16:03:16] L35 chains/arm verification FAILED — not postprocessing
+[09-24 16:03:16] INCOMPLETE — 1 failed step(s); do not read the outputs as final.

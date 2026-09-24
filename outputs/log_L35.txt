@@ -1,0 +1,240 @@
+[09-24 16:15:19] target gate PASSED: eb768cd96463a3b84721e2bb9a20f009 (IMBIE-2026 build)
+[09-24 16:15:19] provenance stamp: ais_source       imbie2026 reproduces       L28-L33 (the IMBIE-2026 arms) -- NOT the shipped champion 
+[09-24 16:15:19] MODE: --postprocess-only — chains NOT re-run; verifying the EXISTING logs and chains
+[09-24 16:15:21]   seed2026 chain:  2000001 rows, 2006670246 B
+[09-24 16:15:22]   seed2027 chain:  2000001 rows, 2008827454 B
+[09-24 16:15:24]   seed2028 chain:  2000001 rows, 2008703074 B
+[09-24 16:15:25]   seed2029 chain:  2000001 rows, 2006780189 B
+[09-24 16:15:25] L35 chains done. ARM VERIFICATION (counts recorded, not just a verdict):
+[09-24 16:15:26]   seed2026: floor_lines=1 span_lines=1 window_lines=1 floor=0.03259cm (expect 1/1/1 and 0.03259cm)
+[09-24 16:15:26]     Extended fit windows: ais 1979-2025, gis 1900-2025, gsic 1900-2023, steric 1900-2025, total 1900-2024
+[09-24 16:15:26]   seed2027: floor_lines=1 span_lines=1 window_lines=1 floor=0.03259cm (expect 1/1/1 and 0.03259cm)
+[09-24 16:15:26]     Extended fit windows: ais 1979-2025, gis 1900-2025, gsic 1900-2023, steric 1900-2025, total 1900-2024
+[09-24 16:15:27]   seed2028: floor_lines=1 span_lines=1 window_lines=1 floor=0.03259cm (expect 1/1/1 and 0.03259cm)
+[09-24 16:15:27]     Extended fit windows: ais 1979-2025, gis 1900-2025, gsic 1900-2023, steric 1900-2025, total 1900-2024
+[09-24 16:15:28]   seed2029: floor_lines=1 span_lines=1 window_lines=1 floor=0.03259cm (expect 1/1/1 and 0.03259cm)
+[09-24 16:15:28]     Extended fit windows: ais 1979-2025, gis 1900-2025, gsic 1900-2023, steric 1900-2025, total 1900-2024
+[09-24 16:15:28]   arm verification PASSED on all seeds: floored at 0.03259 cm AND restricted to 1979+
+  seed2026: sd_gis median 0.0256  sd_ais 0.0337  log_post 616.5  OK
+  seed2027: sd_gis median 0.0256  sd_ais 0.0337  log_post 615.9  OK
+  seed2028: sd_gis median 0.0255  sd_ais 0.0337  log_post 616.1  OK
+  seed2029: sd_gis median 0.0254  sd_ais 0.0337  log_post 616.3  OK
+NOISE-MODE GATE L35: PASS
+[09-24 16:15:44] START  L35 slr convergence diag
+Ladrillo 1.0 SLR convergence-by-chain diagnostic
+  tag L35 | window 1850-2150 | ssp245 | rebaseline 1995-2014 | Greenland :basins2
+  burn = first 1000000 of 2000000, thinned to 400 draws per chain
+  amp law ON (S anchored at dT_eff = 0.940 K) — certifies the SHIPPED model
+
+ladrillo_attach_propagated!: lambda/T_crit attached as JOINT paleo draws (seed 20260920, 400 rows of paleo_fastdyn_draws.csv)
+ladrillo_attach_propagated!: gamma held at the paleo median 2.8344574
+  seed2026: 400 draws (thin 2500, rows 1000001..1997501)  43s
+ladrillo_attach_propagated!: lambda/T_crit attached as JOINT paleo draws (seed 20260920, 400 rows of paleo_fastdyn_draws.csv)
+ladrillo_attach_propagated!: gamma held at the paleo median 2.8344574
+  seed2027: 400 draws (thin 2500, rows 1000001..1997501)  41s
+ladrillo_attach_propagated!: lambda/T_crit attached as JOINT paleo draws (seed 20260920, 400 rows of paleo_fastdyn_draws.csv)
+ladrillo_attach_propagated!: gamma held at the paleo median 2.8344574
+  seed2028: 400 draws (thin 2500, rows 1000001..1997501)  43s
+ladrillo_attach_propagated!: lambda/T_crit attached as JOINT paleo draws (seed 20260920, 400 rows of paleo_fastdyn_draws.csv)
+ladrillo_attach_propagated!: gamma held at the paleo median 2.8344574
+  seed2029: 400 draws (thin 2500, rows 1000001..1997501)  43s
+  total 170s
+
+SLR @2100 (cm, rel. 1995-2014)
+  chain           q05      q50      q95     mean       sd
+  seed2026      42.63    51.85    95.63    60.65    18.73
+  seed2027      43.09    55.00    96.26    61.24    18.56
+  seed2028      42.72    51.16    92.39    59.77    18.26
+  seed2029      43.22    51.53    93.56    59.92    17.50
+  POOLED        42.90    52.19    95.19    60.40    18.26
+
+SLR @2150 (cm, rel. 1995-2014)
+  chain           q05      q50      q95     mean       sd
+  seed2026      64.11   110.77   179.55   111.99    38.68
+  seed2027      65.39   113.43   182.85   114.98    38.31
+  seed2028      64.50   109.32   173.86   111.45    38.33
+  seed2029      65.18   111.46   177.23   110.85    38.36
+  POOLED        64.80   111.80   179.15   112.32    38.42
+
+==============================================================================
+CROSS-CHAIN CONVERGENCE OF PROJECTED SLR  (4 chains x 400 thinned draws)
+==============================================================================
+  quantity          R-hat        ESS  sd(medians)  mean(sd_wc)      ratio
+  SLR@2100          0.999     1395.7        1.769       18.262      0.097
+  SLR@2150          1.000     1312.9        1.708       38.419      0.044
+
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/mcmc/slr_convergence_L35.csv
+
+VERDICT: projected SLR IS converged across chains (R-hat < 1.05 at all horizons)
+[09-24 16:18:49] OK     L35 slr convergence diag
+[09-24 16:18:49] START  L35 postprocess (subsample; DO NOT KILL)
+Combining 4 chains:
+  chain_L35_seed2026_n2000000.csv  (1000000 post-burn)
+  chain_L35_seed2027_n2000000.csv  (1000000 post-burn)
+  chain_L35_seed2028_n2000000.csv  (1000000 post-burn)
+  chain_L35_seed2029_n2000000.csv  (1000000 post-burn)
+
+4 chains × 1000000 draws. Convergence (target R̂<1.05, ESS>400):
+  antarctic_alpha          R̂=1.024 ESS=167.9 τ=23826  <-- check
+  ais_slope                R̂=1.021 ESS=244.7 τ=16346  <-- check
+  ais_iceflow0             R̂=1.015 ESS=280.2 τ=14277  <-- check
+  ais_precip_u             R̂=1.010 ESS=292.6 τ=13669  <-- check
+  ais_runoff_Ton           R̂=1.016 ESS=141.9 τ=28195  <-- check
+  5 params NOT converged.
+
+--accept-slr: deliverable-level convergence from slr_convergence_L35.csv:
+  SLR@2100  R̂=0.999  ESS=1395.7
+  SLR@2150  R̂=1.000  ESS=1312.9
+ACCEPTED ON DELIVERABLE: parameter marginals not converged (compensating
+AIS-geometry ridge), but projected SLR R̂<1.05 at all horizons -> writing
+canonical outputs (accepted-on-deliverable criterion, Marcus 2026-07-19).
+
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/data/MimiBRICK/parameters_subsample_brick_mengel_L35.csv  (10000-member subsample of 4000000 pooled draws)
+Wrote adapted_cov_L35.csv (empirical posterior cov) -> seeds the next ext run.
+
+Key-param medians  (ext vs 2018-baseline):
+  ais_ocean_temperature₀   ext 0.979   base 0.981   Δ -0.00199
+  anto_alpha               ext 0.356   base 0.405   Δ -0.0485
+  thermal_alpha            ext 0.167   base 0.164   Δ +0.00252
+
+** 5 marginals not converged; ACCEPTED ON DELIVERABLE (--accept-slr). **
+[09-24 16:32:44] OK     L35 postprocess (subsample; DO NOT KILL)
+[09-24 16:32:44] START  L35 priors dump
+forcing: fair_mean_{gmst,ohc}_ssp245harm.csv
+glacier drivers: t_glac_blocks.csv 1850-2024 + amp_b x GMST splice | basis=sampled | amp R19 0.72 / SLOWP 2.50 / FAST 1.45
+greenland driver: t_gis_zones.csv[south] 1850-2024 + amp 1.92 x GMST splice | gis_g FIXED 0.0 | Mouginot share 0.735+/-0.050
+greenland basins: 2 basins, active{SW+CW+CE+SE+NW} / high{NO+NE} (--gis-basins2, k_mid = 0) on the SHARED south driver | k FIXED south 0.628571 / mid 0.000000 / high 0.371429 | rate scales sampled for high (south PINNED at 1: the common mode is exactly degenerate with the shape rates) | sector shares term ON
+    2002-2011 target: south scored at 0.799 +/- 0.050 (high 0.201 follows by sum-to-one)
+    2012-2018 target: south scored at 0.816 +/- 0.050 (high 0.183 follows by sum-to-one)
+Extended fit windows: ais 1979-2025, gis 1900-2025, gsic 1900-2023, steric 1900-2025, total 1900-2024
+  ⚠ AIS LEVEL TERM RESTRICTED: --ais-fit-from=1979 (47 yr fitted; 79 pre-1979 years are now OUT-OF-SAMPLE, not absent)
+steric AR(1) noise: UNCAPPED (L14/L21 behaviour; --steric-marg-cap= to bound it)
+total-target σ: budget-closure inflation ON (Frederikse ensemble, per year) | 1900 2.518→3.461 (1.37x), 1950 1.860→2.322 (1.25x), 2000 0.936→1.043 (1.11x), 2024 0.448→0.990 (2.21x)
+gsic target: r19-seam adjusted (net removal at 2023: 0.381 mm)
+L27 flags: cut-fastdyn=true (lambda 0.009913323, T_crit -15.66716 held at paleo medians) fix-gamma=true (gamma 2.8344574) no-ledger=true (ledger marginalised)
+L26 structure flags: paleo-priors=true no-delta=true no-d2-gsic=true obs-corr-len=100.0 precip-reparam=true
+gic_T_off lower bound OVERRIDDEN: -4.0 (default -3.0)
+GlaMBIE term: PARTITION | FAST share of (SLOWP+FAST) 0.6876 ± 0.0500 | blocks SLOWP+FAST, 2000-2024
+A6 prior: amp ~ N(1.090, 0.180) on [0.550, 1.630]   TAG=L35
+precip reparam: u = log P0 + kappa * TBAR_ANT, TBAR_ANT = -17.992 (DAIS scale); log P0 bounds [-3.649, 0.405] enforced on the derived value
+A2 inventory: sum(a_b) - S_all(2000) ~ N(0.290, 0.060) m SLE  (scope: RGI 1-18 minus 5, plus 19)
+A2b 19th-c flow: S(1900) - S(1850) ~ N(0.020, 0.009) m SLE (Leclercq-family span)
+sd_ais FLOOR DERIVED FROM OBSERVATION (smb): IMBIE 2026 SMB anomaly 1979-2019 (n=41), year-on-year sd 118.0 Gt/yr x scale 1.0 / 3620.0 Gt per cm = 0.03259 cm
+AR(1) rho bound: DEFAULT 0.99 on every series (--rho-max=<series>:<val> to cap one)
+MCMC: 42 physical (incl 7 DAIS-geometry under a joint paleo prior) + 8 AR(1)-noise = 50 free params  (point terms DROPPED)
+R19 change set: total DROPPED | GlaMBIE R19 rate ON (0.0493 +/- 0.1162 mm/yr) | rung sigma x0.702
+Greenland slow channel: (log r_s, w) at Tbar = 1.9631 K | ell ~ N(-4.2074, 1.0) | w flat on [0,1], centred 0.9328
+Greenland channel ordering: IMPOSED (--gis-ordered) -- alpha_s <= alpha_f AND beta_s <= beta_f, a WEDGE in (ell, w); the labels are otherwise carried only by Mouginot
+D2 discrepancy: ON | 2 dof per stream on steric | prior sd 0.5 cm | orthogonal to the constant, to DELTA_RAMP on gsic, and to S(t) on steric
+(seeding proposal: name-mapped 48 of 57 rows of adapted_cov_L11tune3_seed2026_named.csv using the FILE'S OWN header; dropped antarctic_temp_threshold, gic_delta, gic_u_pre, gic_s_r5, d2_gsic_1, d2_gsic_2, antarctic_lambda, antarctic_gamma, ais_precip0_LOG; fresh diagonal for gis_s_high, ais_precip_u)
+--adcov not passed: proposal covariance DEFAULTED to the canonical L24 seed (adapted_cov_L11tune3_seed2026_named.csv).
+proposal seed, AIS geometry block + sampled basin scales (sqrt of the covariance diagonal):
+  ais_mu             0.05204      floor 0.003      ok
+  ais_bedheight0     0.5672       floor 0.03       ok
+  ais_slope          8.005e-07    floor 1e-08      ok
+  ais_iceflow0       0.003187     floor 0.0003     ok
+  ais_runoff_Ton     0.01388      floor 0.0005     ok
+  ais_c              0.6065       floor 0.05       ok
+  gis_s_high         0.05         floor 0.001      ok
+logpost(θ0) = -554.95  (start = MAP; common across seeds -> R̂ is ANTI-CONSERVATIVE)
+wrote outputs/ladrillo_priors_L35.csv: 50 rows (42 physical + 8 noise)
+[09-24 16:33:08] OK     L35 priors dump
+[09-24 16:33:08] START  L35 posterior predictive
+ladrillo_attach_propagated!: lambda/T_crit attached as JOINT paleo draws (seed 20260920, 2000 rows of paleo_fastdyn_draws.csv)
+ladrillo_attach_propagated!: gamma held at the paleo median 2.8344574
+AIS LEVEL TERM RESTRICTED in this arm: fitted from 1979 (recovered from ladrillo_priors_L35.csv provenance) — pre-1979 ais rows are OUT-OF-SAMPLE
+NOTE: no calibrated error model for total — reported OUT-OF-SAMPLE, parameter band only, predictive band NaN
+Ladrillo posterior predictive | parameters_subsample_brick_mengel_L35.csv | 2000 draws | 1900-2026 | base 1995-2005 | forcing ssp245harm
+........
+  2000 draws in 13s
+
+Component bias (model p50 - obs, cm; glaciers vs the delta-corrected target)
+ @1900:
+  ais       1900  obs   -0.77  p50   -1.85  bias  -1.08  in 90%  [OUT-OF-SAMPLE]
+  glaciers  1900  obs   -7.28  p50   -6.41  bias  +0.86  in 90%
+  gis       1900  obs   -4.13  p50   -4.09  bias  +0.04  in 90%
+  te        1900  obs   -3.61  p50   -3.63  bias  -0.02  in 90%
+  total     1900  obs  -13.94  p50  -14.72  bias  -0.78  in 90%  [OUT-OF-SAMPLE]
+ @1950:
+  ais       1950  obs   -0.50  p50   -1.02  bias  -0.52  OUT  [OUT-OF-SAMPLE]
+  glaciers  1950  obs   -2.64  p50   -2.93  bias  -0.29  in 90%
+  gis       1950  obs   -1.36  p50   -1.65  bias  -0.29  OUT
+  te        1950  obs   -2.82  p50   -2.63  bias  +0.18  in 90%
+  total     1950  obs   -5.99  p50   -6.83  bias  -0.84  OUT  [OUT-OF-SAMPLE]
+ @2000:
+  ais       2000  obs    0.00  p50   -0.00  bias  -0.01  OUT
+  glaciers  2000  obs   -0.01  p50    0.00  bias  +0.01  OUT
+  gis       2000  obs   -0.04  p50   -0.03  bias  +0.01  OUT
+  te        2000  obs   -0.24  p50   -0.01  bias  +0.23  OUT
+  total     2000  obs   -0.29  p50   -0.27  bias  +0.02  OUT  [OUT-OF-SAMPLE]
+ @2018:
+  ais       2018  obs    0.86  p50    0.58  bias  -0.28  OUT
+  glaciers  2018  obs    1.21  p50    1.21  bias  +0.00  in 90%
+  gis       2018  obs    1.27  p50    1.11  bias  -0.17  OUT
+  te        2018  obs    2.07  p50    2.69  bias  +0.61  OUT
+  total     2018  obs    5.97  p50    6.17  bias  +0.21  in 90%  [OUT-OF-SAMPLE]
+ @series end:
+  ais       2025  obs    0.91  p50    0.85  bias  -0.06  in 90%
+  glaciers  2023  obs    1.63  p50    1.56  bias  -0.07  in 90%
+  gis       2025  obs    1.65  p50    1.49  bias  -0.16  OUT
+  te        2025  obs    3.23  p50    3.98  bias  +0.74  OUT
+  total     2024  obs    8.23  p50    8.38  bias  +0.16  in 90%  [OUT-OF-SAMPLE]
+ AIS plateau (does the fit track the GRACE-FO pause?):
+  ais       2019  obs    0.91  p50    0.62  bias  -0.29  OUT
+  ais       2020  obs    0.94  p50    0.66  bias  -0.29  OUT
+  ais       2022  obs    0.96  p50    0.73  bias  -0.23  OUT
+  ais       2024  obs    0.91  p50    0.81  bias  -0.10  in 90%
+  ais       2025  obs    0.91  p50    0.85  bias  -0.06  in 90%
+
+90% coverage over the fit window (share of obs years inside the band)
+  parameter = posterior parameter spread only; predictive = + the calibrated AR(1)+obs error model
+  ais       126 years   parameter  65.9%   predictive  97.6%   mean bias -0.44 cm
+  glaciers  124 years   parameter  70.2%   predictive 100.0%   mean bias +0.05 cm
+  gis       126 years   parameter  34.9%   predictive  90.5%   mean bias -0.14 cm
+  te        126 years   parameter  40.5%   predictive  98.4%   mean bias +0.26 cm
+  total     125 years   parameter  76.0%   predictive   NaN%   mean bias -0.27 cm   [OUT-OF-SAMPLE: no fitted error model]
+
+wrote outputs/postpred_L35_components_timeseries.csv, outputs/postpred_L35_bias.csv, outputs/postpred_L35_coverage.csv
+[09-24 16:33:35] OK     L35 posterior predictive
+[09-24 16:33:35] START  L35 ssp components (tap, fixed climate)
+ladrillo_attach_propagated!: lambda/T_crit attached as JOINT paleo draws (seed 20260920, 2000 rows of paleo_fastdyn_draws.csv)
+ladrillo_attach_propagated!: gamma held at the paleo median 2.8344574
+Ladrillo SSP components | posterior parameters_subsample_brick_mengel_L35.csv (2000 draws) | Greenland :basins2 | base 1995-2014 | horizon 2300
+  amp law ON: S anchored at dT_eff = 0.940 K, 30-yr window
+........
+SSP1-2.6  2000 draws in 14s
+  @2100 GMST +1.90 | glac   8.3  gis   6.4  ais    4.9  te  16.0  lws  2.8 | TOTAL   38.5 [ 36.3,   41.1] cm  (finite 2000/2000)
+  @2150 GMST +1.78 | glac  10.2  gis   8.6  ais    7.6  te  20.0  lws  4.3 | TOTAL   50.9 [ 47.8,   54.8] cm  (finite 2000/2000)
+  @2300 GMST +1.81 | glac  12.9  gis  12.1  ais   15.3  te  26.1  lws  8.8 | TOTAL   75.8 [ 70.1,   82.7] cm  (finite 2000/2000)
+........
+SSP2-4.5  2000 draws in 12s
+  @2100 GMST +2.70 | glac   9.9  gis   7.5  ais   12.6  te  20.2  lws  2.8 | TOTAL   53.5 [ 45.1,   75.9] cm  (finite 2000/2000)
+  @2150 GMST +2.97 | glac  13.8  gis  11.5  ais   52.0  te  29.7  lws  4.3 | TOTAL  111.4 [ 69.5,  145.1] cm  (finite 2000/2000)
+  @2300 GMST +3.18 | glac  18.8  gis  19.0  ais  172.9  te  46.5  lws  8.8 | TOTAL  266.7 [128.9,  343.0] cm  (finite 2000/2000)
+........[ Info: update_gis3_tap!: this driver peaks at 1.97 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+[ Info: update_gis3_tap!: this driver peaks at 3.202 K, below the onset 4.69 K — the tap will not fire on this scenario. Expected for cool scenarios.
+
+SSP5-8.5  2000 draws in 12s
+  @2100 GMST +4.31 | glac  13.1  gis  10.1  ais   37.2  te  28.2  lws  2.8 | TOTAL   91.5 [ 78.6,  106.8] cm  (finite 2000/2000)
+  @2150 GMST +6.01 | glac  20.6  gis  22.6  ais   91.5  te  52.4  lws  4.3 | TOTAL  191.4 [167.9,  221.3] cm  (finite 2000/2000)
+  @2300 GMST +7.50 | glac  26.9  gis  86.1  ais  270.6  te 106.0  lws  8.8 | TOTAL  496.3 [429.8,  580.8] cm  (finite 2000/2000)
+
+wrote outputs/ssps_components_2300_L35_tap4p69K_V5p64m_tau800_n2_ws.csv
+[09-24 16:34:29] OK     L35 ssp components (tap, fixed climate)
+[09-24 16:34:29] START  L35 DAIS flux split vs IMBIE
+ladrillo_attach_propagated!: lambda/T_crit attached as JOINT paleo draws (seed 20260920, 1000 rows of paleo_fastdyn_draws.csv)
+ladrillo_attach_propagated!: gamma held at the paleo median 2.8344574
+1979-1991: SMB 1828 [1633, 2027]  discharge -1922 [-2119, -1729]  net -92  | dis anomaly vs 1979-2008 18 | level rate 0.0214 cm/yr [0.0127, 0.0308]
+1992-2002: SMB 1836 [1640, 2029]  discharge -1941 [-2134, -1748]  net -103  | dis anomaly vs 1979-2008 1 | level rate 0.0241 cm/yr [0.0166, 0.0310]
+2003-2010: SMB 1860 [1660, 2045]  discharge -1986 [-2175, -1784]  net -131  | dis anomaly vs 1979-2008 -43 | level rate 0.0312 cm/yr [0.0233, 0.0384]
+2011-2017: SMB 1871 [1670, 2059]  discharge -2011 [-2200, -1810]  net -145  | dis anomaly vs 1979-2008 -67 | level rate 0.0344 cm/yr [0.0244, 0.0435]
+2018-2023: SMB 1883 [1678, 2073]  discharge -2036 [-2243, -1830]  net -160  | dis anomaly vs 1979-2008 -95 | level rate 0.0384 cm/yr [0.0251, 0.0508]
+1979-2008: SMB 1836 [1641, 2028]  discharge -1942 [-2135, -1748]  net -103  | dis anomaly vs 1979-2008 0 | level rate 0.0243 cm/yr [0.0173, 0.0311]
+1992-2020: SMB 1856 [1656, 2043]  discharge -1980 [-2170, -1781]  net -127  | dis anomaly vs 1979-2008 -37 | level rate 0.0301 cm/yr [0.0230, 0.0362]
+acceleration (2011-17 rate minus 1992-2002 rate), cm/yr: median 0.0105, p95 0.0218, max 0.0356
+wrote outputs/diag_ais_flux_split_vs_imbie_L35.csv and _draws_L35.csv
+[09-24 16:34:50] OK     L35 DAIS flux split vs IMBIE
+[09-24 16:34:50] START  L35 prior/posterior table
+wrote outputs/ladrillo_prior_posterior_L35.csv and outputs/ladrillo_prior_posterior_L35.md (50 parameters; all gates PASS)
+[09-24 16:34:50] OK     L35 prior/posterior table
+[09-24 16:34:50] ALLDONE — 0 failed step(s)

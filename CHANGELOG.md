@@ -1,3 +1,77 @@
+## 2026-09-24g — ⭐⭐ **L35 IS *PARTIAL* (1.18 σ), AND THE ADDITIVE GUESS WOULD HAVE CALLED IT A PASS.** The gate that refused it was BROKEN; the arm was always sound
+
+L35 = **L32 + `--ais-fit-from=1979`. CONTROL = L32, ONE AXIS.** Chains 13:24→16:03, postprocess
+re-entered via a new `--postprocess-only` path; **ALLDONE, 0 failed steps.**
+
+### ① ⛔ THE GATE FAILED ON A CORRECT RUN — and the root cause was NOT reproduced
+
+The driver refused to postprocess: `SPAN GATE FAILED` on seed 2026, both gates on 2027. The `say`
+lines printed **one second earlier from the same file** show both lines present. The identical
+command on the identical unchanged bytes has since passed **600/600**.
+
+⚠⚠ **The SIGPIPE/pipefail hypothesis is REFUTED** — `grep -q` exiting at the first match and killing
+`tr`, whose 141 becomes the pipeline's status, is a real mechanism but **0/300 without contention and
+0/300 with four busy loops replicating the 16:03 load**. No mechanism is claimed. What is established
+is only that the pipeline's exit status was not a reliable predicate, and that **the gate discarded
+its evidence**, so nothing could be diagnosed afterwards.
+
+**The arm was verified correct three independent ways before anything was changed:** all four cleaned
+logs carry exactly one floor / restriction / window line with floor **0.03259 cm = L32's exactly**;
+`sd_ais` min is **exactly 0.03259** in every chain (floor active and binding); and the `log_post`
+fingerprint puts L35 **+616.5** with the 1979+ group (L31 +623.1), ~175 units below the full-span arms
+(L28 +820.5, L32 +790.2).
+
+⭐ **THE REAL LESSON IS THE FIXTURE.** The pre-launch mutation test passed because it used
+**1-iteration logs of a few KB**; the failure mode cannot arise at that size. **A gate can be
+mutation-tested and still be broken if the fixture is not the size of production.** The rebuilt gate
+greps a **file** (never a pipe), **counts** matches instead of testing them, asserts the floor VALUE
+equals L32's, and **prints the counts into the log**. Two of those are new capability — the old gate
+could not catch a wrong floor value (= two axes, not one) or a duplicated setup block. Re-mutation-
+tested on the **real 12 MB logs**: control 40/40 PASS; four mutations each FAIL with the right message.
+`--postprocess-only` was added so a gate defect is never again paid for with 2 GB × 4 chains.
+
+### ② THE RESULT — **PARTIAL**, reported as PARTIAL
+
+| arm | target | `sd_ais` | AIS fit | **shape (cm)** | /σ₁₉₀₀₋₇₈ | cov90 |
+|---|---|---|---|---|---|---|
+| L27 | frederikse | free | 1900– | 0.0241 | 0.10 | 100 % |
+| L28 | imbie2026 | free | 1900– | 0.1501 | 0.64 | 34 % |
+| **L31** | imbie2026 | free | **1979–** | **0.3241** | **1.39** | 3 % |
+| L32 | imbie2026 | floor | 1900– | 0.0501 | 0.21 | 100 % |
+| **L35** | imbie2026 | floor | **1979–** | **0.2752** | **1.18** | 67 % |
+
+**PRIMARY: 0.2752 cm = 1.18 × the published band ⇒ PARTIAL** (bands pre-registered in `run_L35.sh`
+and wired into the read-out **before the arm was scored**, commit `569cc2f`: PASS ≤ 0.2337,
+FAIL ≥ 0.3241). ⚠ **It is reported as PARTIAL and is not rounded to either side.**
+⚠⚠ **And PARTIAL is AMBIGUOUS** by the same one-sided argument as L31's FAIL — the held-out data IS
+the product under doubt.
+
+- **GUARD: PASS.** Glaciers −0.0164, Greenland −0.0088, thermal −0.0079 σ vs L32 — all inside ~0.02 σ.
+  The change stayed Antarctic.
+- **COST: none; it is a small GAIN.** The in-sample 1979–2025 AIS fit **improves** on L32,
+  0.86 → **0.80 σ̄** (L28 0.57, L31 0.73). L35 gives up the pre-1979 window and fits the satellite era
+  slightly *better*, so the PARTIAL was not bought by degrading what it still fits.
+
+### ③ ⭐⭐⭐ THE HEADLINE: THE ADDITIVE INFERENCE WOULD HAVE CROSSED A BAND BOUNDARY
+
+The floor's effect on the pre-1979 hindcast is **−0.1000 cm at the full span** (L28→L32) but only
+**−0.0489 cm at 1979+** (L31→L35) — **51 % apart**, far outside the bench's 2 % dead band.
+
+> If the two axes were additive, L35 = 0.3241 − 0.1000 = **0.2241 cm ⇒ PASS**.
+> The measured cell is **0.2752 cm ⇒ PARTIAL**.
+
+⇒ **Inferring this cell from its neighbours would have produced the WRONG pre-registered verdict** —
+not a near-miss, a crossed boundary. This is the **third** channel on which the floor and the target/span
+interact, after L34's dynamics anomaly and 09-24f's full-span hindcast ⇒ [[ais_noise_floor_is_target_dependent]].
+
+### ④ WHERE THE DECISION STANDS
+
+**Step 2 does not settle L27-vs-L32 either.** Neither held-out arm reproduces Frederikse's 1900–1978
+inside that record's own published band (L31 **1.39 σ** FAIL, L35 **1.18 σ** PARTIAL), and both
+verdicts are ambiguous by construction. Like step 1, step 2 **relocates** the question rather than
+answering it. **`champions.json` UNTOUCHED; L27 remains champion; the Tony memo unchanged and still
+waiting.**
+
 ## 2026-09-24f — ⭐⭐ **STEP 2: the held-out arm ALREADY EXISTED (it is L31), it FAILS the pre-1979 test — and the read-out turned up the reason the FLOORED cell must still be run**
 
 The 09-24c handoff's next job was to launch **"L35 = the IMBIE target build + `--ais-fit-from=1979`"**.

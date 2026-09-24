@@ -1,0 +1,32 @@
+[09-24 16:15:19] target gate PASSED: eb768cd96463a3b84721e2bb9a20f009 (IMBIE-2026 build)
+[09-24 16:15:19] provenance stamp: ais_source       imbie2026 reproduces       L28-L33 (the IMBIE-2026 arms) -- NOT the shipped champion 
+[09-24 16:15:19] MODE: --postprocess-only — chains NOT re-run; verifying the EXISTING logs and chains
+[09-24 16:15:21]   seed2026 chain:  2000001 rows, 2006670246 B
+[09-24 16:15:22]   seed2027 chain:  2000001 rows, 2008827454 B
+[09-24 16:15:24]   seed2028 chain:  2000001 rows, 2008703074 B
+[09-24 16:15:25]   seed2029 chain:  2000001 rows, 2006780189 B
+[09-24 16:15:25] L35 chains done. ARM VERIFICATION (counts recorded, not just a verdict):
+[09-24 16:15:26]   seed2026: floor_lines=1 span_lines=1 window_lines=1 floor=0.03259cm (expect 1/1/1 and 0.03259cm)
+[09-24 16:15:26]     Extended fit windows: ais 1979-2025, gis 1900-2025, gsic 1900-2023, steric 1900-2025, total 1900-2024
+[09-24 16:15:26]   seed2027: floor_lines=1 span_lines=1 window_lines=1 floor=0.03259cm (expect 1/1/1 and 0.03259cm)
+[09-24 16:15:26]     Extended fit windows: ais 1979-2025, gis 1900-2025, gsic 1900-2023, steric 1900-2025, total 1900-2024
+[09-24 16:15:27]   seed2028: floor_lines=1 span_lines=1 window_lines=1 floor=0.03259cm (expect 1/1/1 and 0.03259cm)
+[09-24 16:15:27]     Extended fit windows: ais 1979-2025, gis 1900-2025, gsic 1900-2023, steric 1900-2025, total 1900-2024
+[09-24 16:15:28]   seed2029: floor_lines=1 span_lines=1 window_lines=1 floor=0.03259cm (expect 1/1/1 and 0.03259cm)
+[09-24 16:15:28]     Extended fit windows: ais 1979-2025, gis 1900-2025, gsic 1900-2023, steric 1900-2025, total 1900-2024
+[09-24 16:15:28]   arm verification PASSED on all seeds: floored at 0.03259 cm AND restricted to 1979+
+[09-24 16:15:44] START  L35 slr convergence diag
+[09-24 16:18:49] OK     L35 slr convergence diag
+[09-24 16:18:49] START  L35 postprocess (subsample; DO NOT KILL)
+[09-24 16:32:44] OK     L35 postprocess (subsample; DO NOT KILL)
+[09-24 16:32:44] START  L35 priors dump
+[09-24 16:33:08] OK     L35 priors dump
+[09-24 16:33:08] START  L35 posterior predictive
+[09-24 16:33:35] OK     L35 posterior predictive
+[09-24 16:33:35] START  L35 ssp components (tap, fixed climate)
+[09-24 16:34:29] OK     L35 ssp components (tap, fixed climate)
+[09-24 16:34:29] START  L35 DAIS flux split vs IMBIE
+[09-24 16:34:50] OK     L35 DAIS flux split vs IMBIE
+[09-24 16:34:50] START  L35 prior/posterior table
+[09-24 16:34:50] OK     L35 prior/posterior table
+[09-24 16:34:50] ALLDONE — 0 failed step(s)
