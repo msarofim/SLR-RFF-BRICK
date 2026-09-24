@@ -70,6 +70,35 @@ EXTRA_CSV = os.path.join(BENCH, "literature_extra.csv")
 # Every label, filename and console line below derives from these names, so a
 # window or horizon cannot be changed without its label following it.
 BENCH_VERSION = "1.0"
+# ⛔⛔ WHERE THE HINDCAST OBSERVATIONS COME FROM — fixed 2026-09-24 after the L34 incident.
+#
+# Block [H] USED to take `obs` from the CANDIDATE's own postpred `<component>_obs` column, and
+# fell back to the target only when that column was absent (it never is, for ais/gsic/gis/steric).
+# So the arm under test supplied the ruler — for itself, for the frozen champion snapshot, and
+# for BRICK 2.0. The live target file was NEVER READ by this block at all, and `fixed("targets")`
+# resolves to the FROZEN Frederikse copy in benchmark/reference/_fixed/, not to outputs/.
+#
+# That was harmless while every Ladrillo arm shared one target. It stopped being harmless on
+# 09-21, when the AIS target moved to IMBIE 2026: from then on an arm's bench file was silently
+# scored on WHICHEVER target that arm had been fitted to. L32 (IMBIE-fitted) got the intended
+# out-of-sample comparison BY ACCIDENT; L34 (Frederikse-fitted) was scored IN-SAMPLE, against a
+# champion column that consequently read 0.56 where the pre-registration expected 0.70.
+#
+# ⭐ A ruler supplied by the object being measured is not a ruler. The default is now the TARGET
+# FILE, named explicitly, hashed into the report. `--obs-source=candidate` reproduces the old
+# behaviour so historical bench files stay re-derivable — it is NOT a supported way to score a
+# new arm.
+#
+# ⚠ AND THE CHOICE OF TARGET IS NOT NEUTRAL. L27/L34 are in-sample on Frederikse; L28–L33 are
+# in-sample on IMBIE 2026. No single AIS ruler is fair to both families, so a comparison across
+# those families must be reported under BOTH targets, with the asymmetry stated. The report
+# stamps which target was used precisely so this can never again be implicit.
+OBS_SOURCE_DEFAULT = "target"                                # {target, candidate}
+OBS_TARGET_DEFAULT = "outputs/recalib_targets_ext.csv"       # the LIVE target, not the frozen copy
+OBS_SOURCE = OBS_SOURCE_DEFAULT                              # set from argv in main()
+OBS_TARGET = OBS_TARGET_DEFAULT                              # set from argv in main()
+OBS_DIVERGENCE = []                                          # filled by block_hindcast
+
 REF_WINDOW = (1995, 2005)          # hindcast re-reference, shared by both arms
 PROJ_REF_WINDOW = (1995, 2014)     # AR6 projection re-reference
 WINDOWS = [("full", None), ("1920-1949", (1920, 1949)),
@@ -355,6 +384,22 @@ def freeze_fixed(lit_from=None):
         json.dump(man, f, indent=2)
 
 
+def _md5(path):
+    try:
+        h = hashlib.md5()
+        with open(path, "rb") as f:
+            for blk in iter(lambda: f.read(1 << 20), b""):
+                h.update(blk)
+        return h.hexdigest()
+    except OSError:
+        return "MISSING"
+
+
+def _obs_target_path():
+    """The target file the hindcast observations are read from (absolute)."""
+    return OBS_TARGET if os.path.isabs(OBS_TARGET) else os.path.join(REPO, OBS_TARGET)
+
+
 def fixed(key):
     p = os.path.join(FIXED, FIXED_FILES[key][1])
     return p if os.path.exists(p) else os.path.join(REPO, FIXED_FILES[key][0])
@@ -590,7 +635,9 @@ def block_hindcast(rows, cand_tag, champ_tag, cand_p, champ_p, sigma):
     a = pd.read_csv(cand_p["postpred"]).set_index("year")
     c = pd.read_csv(champ_p["postpred"]).set_index("year") if champ_p else None
     b = pd.read_csv(fixed("brick20_hindcast")).set_index("year")
-    tg = pd.read_csv(fixed("targets")).set_index("year")
+    # The SIGMA denominators still come from the frozen copy, deliberately: they must not move
+    # between bench files or no sigma is comparable to any other. Only the OBS source is chosen.
+    tg = pd.read_csv(_obs_target_path()).set_index("year")
     base = tg.loc[REF_WINDOW[0]:REF_WINDOW[1], ["ais", "gsic", "gis", "steric"]].mean()
     if base.abs().max() > 1e-3:
         raise SystemExit(f"targets are not zeroed on {REF_WINDOW}: {base.to_dict()} -- "
@@ -600,7 +647,22 @@ def block_hindcast(rows, cand_tag, champ_tag, cand_p, champ_p, sigma):
     for key, label, lst, bst, tcol in COMPONENTS:
         if lst is None:
             continue
-        obs = (a[f"{lst}_obs"] if f"{lst}_obs" in a else tg[tcol].reindex(a.index)).reindex(yrs)
+        cand_obs = a[f"{lst}_obs"].reindex(yrs) if f"{lst}_obs" in a else None
+        tgt_obs = tg[tcol].reindex(a.index).reindex(yrs) if tcol in tg else None
+        if OBS_SOURCE == "candidate":
+            obs = cand_obs if cand_obs is not None else tgt_obs
+        else:
+            obs = tgt_obs if tgt_obs is not None else cand_obs
+        if obs is None:
+            continue
+        # ⭐ REPORT the disagreement rather than silently preferring one. A large divergence means
+        # the candidate was fitted to a DIFFERENT observational series than it is being scored on
+        # — i.e. this arm is out-of-sample here and the in-sample arms are not. That is exactly
+        # the asymmetry that must be stated at the gate, so it goes in the report.
+        if cand_obs is not None and tgt_obs is not None:
+            d = float((cand_obs - tgt_obs).abs().max())
+            if d > 1e-6:
+                OBS_DIVERGENCE.append((key, d, float((cand_obs - tgt_obs).mean())))
         arms = [(cand_tag, a, lst, "p05"), ("BRICK 2.0", b, bst, "p5")]
         if c is not None and champ_tag != cand_tag:
             arms.insert(1, (f"{champ_tag}*", c, lst, "p05"))
@@ -1090,6 +1152,23 @@ def write_report(path, df, cand_tag, champ_tag, sigma, meta):
     w("Arms: **candidate** (live `outputs/`), **champion\\*** (frozen), "
       "**BRICK 2.0** (stock MimiBRICK v2.0.0, own posterior), **literature** "
       "(FACTS + MAGICC-SLR, frozen).\n")
+    w(f"**Hindcast ruler:** obs from the **{meta['obs_source']}**"
+      + (f", `{meta['obs_target']}` (md5 `{meta['obs_target_md5'][:12]}`)"
+         if meta["obs_source"] == "target" else
+         " — the arm under test supplies its own observations; LEGACY MODE, for reproducing "
+         "pre-2026-09-24 bench files only")
+      + ". Sigma denominators are from the frozen `_fixed` copy in every run, so sigma stays "
+        "comparable across bench files.\n")
+    if meta["obs_divergence"]:
+        w("> ⚠ **THE CANDIDATE WAS FITTED TO A DIFFERENT OBSERVATIONAL SERIES THAN IT IS SCORED "
+          "ON HERE**, so it is OUT-OF-SAMPLE on these components and any arm fitted to the "
+          "scoring target is IN-SAMPLE. This asymmetry is not corrected for; read it at the gate.")
+        w(">")
+        w("> | component | max \\|cand−target\\| (cm) | mean offset (cm) |")
+        w("> |---|---|---|")
+        for k, mx, mn in meta["obs_divergence"]:
+            w(f"> | {k} | {mx:.4f} | {mn:+.4f} |")
+        w("")
     w("## Caveats that travel with every verdict\n")
     for c in CAVEATS:
         w(f"* {c}")
@@ -1171,6 +1250,14 @@ def main():
     tag = next((a[len("--tag="):] for a in args if a.startswith("--tag=")), None)
     if tag is None:
         raise SystemExit(__doc__)
+    global OBS_SOURCE, OBS_TARGET
+    OBS_SOURCE = next((a[len("--obs-source="):] for a in args
+                       if a.startswith("--obs-source=")), OBS_SOURCE_DEFAULT)
+    if OBS_SOURCE not in ("target", "candidate"):
+        raise SystemExit(f"--obs-source must be 'target' or 'candidate', got {OBS_SOURCE!r}")
+    OBS_TARGET = next((a[len("--obs-targets="):] for a in args
+                       if a.startswith("--obs-targets=")), OBS_TARGET_DEFAULT)
+    OBS_DIVERGENCE.clear()
     if "--freeze-fixed" in args:
         print("freezing the fixed comparator arms:")
         freeze_fixed(lit_from=live_paths(tag)["comparison"])
@@ -1230,7 +1317,10 @@ def main():
 
     df = pd.DataFrame(rows)
     import datetime
-    meta = {"date": datetime.date.today().isoformat(), "git": _git_head()}
+    meta = {"date": datetime.date.today().isoformat(), "git": _git_head(),
+            "obs_source": OBS_SOURCE, "obs_target": OBS_TARGET,
+            "obs_target_md5": _md5(_obs_target_path()),
+            "obs_divergence": list(OBS_DIVERGENCE)}
     out_csv = os.path.join(REPO, "outputs", f"bench_ladrillo_{tag}.csv")
     out_md = os.path.join(REPO, "outputs", f"bench_ladrillo_{tag}.md")
     df.to_csv(out_csv, index=False)
