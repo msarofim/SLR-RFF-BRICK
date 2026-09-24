@@ -193,3 +193,48 @@ regenerates — check every shared input's mtime against the last DATA change be
 stored likelihoods. `diag_ais_flux_split_vs_imbie.jl` reads `ice_flux` only and omits `ISO` —
 immaterial for non-ramp arms (L34 is non-ramp), WRONG in a ramp arm. A case-insensitive `Inf` in an
 error scan matches "inflation". Three pre-existing `outputs/*_L24.*` modifications remain in the tree.
+
+---
+
+## 7. MEMORY CLEANUP (09-24, after the handoff was first written)
+
+An audit of the 773-file tree found **one dominant failure mode and no others**: a correction
+written into a file's BODY that never reached its `description:` — the field recall actually reads.
+No duplicate files, no stale relative dates, no `name:`/filename mismatches, and **no index line
+contradicting its target** (the indexes were the best-maintained text in the tree; the leaf files
+were stale).
+
+**Corrected, all at the point of the claim:**
+- ⛔ **`l27_paper_posterior.md`** — the worst case, and the most-read file in the tree
+  (`INDEX_slr_post` routes straight to it). It carried the retracted **ΔBIC +20.8 / +21** in BOTH
+  its description and its body with **no banner at all**. Restamped to **+9.1** at Δk **−15**.
+  ⛔ **ΔAIC +84.1 was NOT recomputed** — the corrected read uses the opposite Δk sign and no
+  corrected ΔAIC exists anywhere in the tree. It is marked NOT REVALIDATED rather than guessed.
+- ⛔ **`ic_cannot_adjudicate_a_noise_change.md`** — the retraction had **failed to propagate inside
+  the file that documents the retraction**: its ① table still listed L27's pre-correction column
+  (+20.8 / +78.0 / +144.6 / +2457.5) against its own banner. Column marked STALE; §② marked at the
+  point of the claim, because a grep lands mid-file and not on a banner 40 lines up.
+- ⛔ **`ais_smb_variability_is_weather.md`** — *"BOTH strictly dominate L27"* was unstruck and now
+  doubly wrong: the 09-23d correction addressed only L32 and never reached that sentence, and
+  09-24's benchmark puts L33 at 1.11 σ against L27's 0.70. Both dominance claims struck in place.
+- **Nine `description:` fields restamped** (`amp_prior_decided_l14`, four `ccx_hilda30*_adopted`,
+  `ccx_hilda31s/31p_adopted`, `l26_candidate_posterior`, `l21_champion_calib160`). ⚠ Seven of these
+  had bodies bannered at **09-24 10:49 by a different session** whose pass left every description
+  untouched. The worst instructed *"Arc CLOSED; do not reopen without new evidence"* about a
+  decision **reversed 2026-09-01**.
+
+**The rule gained the clause this proves it needs** (`retraction_in_place_does_not_propagate`):
+**when you banner a body, rewrite the `description:` in the same edit** — three places, one edit
+(description, the claim where it is made, every index line quoting it). ⭐ And **prefer a
+DATE-BOUNDED description** (*"CANONICAL 09-13 to 09-17, since then RETIRED"*) over a present-tense
+one: `ccx_hilda31s2_adopted` already used that pattern and was the only adoption file needing no
+correction.
+
+Verified after: every occurrence of *"strictly dominate"*, *"ΔBIC +20.8"* and *"ΔBIC +21"* now sits
+behind a retraction marker (0 unmarked); all nine descriptions carry a status marker; all 13 edited
+files still parse with `name:` matching filename.
+
+⚠ **`INDEX_diag.md` is at 17,291 B of an 18,432 hard ceiling** (over soft). A split is approaching
+but NOT forced, and the natural split line is not obvious — what remains after two prior splits is
+one coherent enumerated family. **Flagged, not done.** The new gate finding was filed there as
+family member **#14** and the section caption moved `THIRTEEN → FOURTEEN` with it.
