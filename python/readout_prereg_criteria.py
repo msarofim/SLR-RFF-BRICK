@@ -38,6 +38,9 @@ COSTB_SSPS        = ["ssp126", "ssp245", "ssp585"]
 GUARD_NAME        = "non-Antarctic components unchanged"
 GUARD_TOL_SIGMA   = 0.02     # "within ~0.02 sigma of the champion"
 HINDCAST_WINDOW   = "full"   # the PRIMARY is the FULL period, not a sub-window
+DECOMP_NAME       = ("AIS sub-window decomposition -- DESCRIPTIVE, NOT A CRITERION. "
+                     "Added 2026-09-24 08:30, BEFORE any candidate number existed.")
+DECOMP_THIRD_ARM  = "L32"    # the arm that changed BOTH the target and the noise model
 AIS_LABEL         = "AIS"
 NOT_A_CRITERION   = "sd_ais sitting on its bound -- TRUE BY CONSTRUCTION, never evidence"
 
@@ -145,6 +148,55 @@ def main():
     else:
         fails += 1
     emit()
+
+    # ---- DECOMPOSITION: explicitly NOT a criterion ---------------------------------------------
+    # WHY THIS IS HERE. L32 changed TWO things at once -- the AIS target AND the noise model --
+    # and won the satellite era (1993-2026: 1.01 vs L27's 1.27) while losing the full period
+    # (0.88 vs 0.70). L34 isolates the noise fix on the champion's own target, so the SUB-WINDOW
+    # rows are what actually answer "which of the two changes bought which result". The PRIMARY
+    # is the full period and nothing here displaces it.
+    #
+    # *** THIS BLOCK IS DESCRIPTIVE AND MUST NEVER BE READ AS A CRITERION. *** It was written
+    # before any candidate number existed, which is the only thing that makes it honest; a
+    # sub-window promoted to a decider AFTER the full period disappoints is the classic move
+    # this whole read-out exists to prevent.
+    if os.path.exists(bench):
+        emit(f"## {DECOMP_NAME}")
+        emit()
+        h = parse_bench(bench)
+        # Suppress the third column when the candidate IS that arm -- a self-comparison is not a
+        # decomposition, and printing it invites reading noise as signal.
+        third = f"{OUT}/bench_ladrillo_{DECOMP_THIRD_ARM}.md"
+        h3 = (parse_bench(third) if (os.path.exists(third) and TAG != DECOMP_THIRD_ARM)
+              else pd.DataFrame(columns=h.columns))
+        wins = [w for w in h.window.unique() if w != HINDCAST_WINDOW]
+        emit(f"| window | {TAG} | {REF_COL} | {DECOMP_THIRD_ARM} (both changes) | reading |")
+        emit("|---|---|---|---|---|")
+        for w in [HINDCAST_WINDOW] + sorted(wins):
+            def g(df, arm):
+                r = df[(df.module == AIS_LABEL) & (df.window == w) & (df.arm == arm)]
+                return float(r.rmse_sd.iloc[0]) if len(r) else None
+            cv, rv = g(h, TAG), g(h, REF_COL)
+            tv = g(h3, DECOMP_THIRD_ARM)
+            if cv is None or rv is None:
+                emit(f"| {w} | - | - | - | (rows absent) |"); continue
+            # who is closest to the observations in this window
+            cands = {TAG: cv, REF: rv}
+            if tv is not None:
+                cands[DECOMP_THIRD_ARM] = tv
+            best = min(cands, key=cands.get)
+            emit(f"| {'**' + w + '**' if w == HINDCAST_WINDOW else w} | {cv:.2f} | {rv:.2f} | "
+                 f"{'-' if tv is None else f'{tv:.2f}'} | best = **{best}** |")
+        emit()
+        emit(f"⚠ `{DECOMP_THIRD_ARM}` is scored here out of its OWN bench file, which is a "
+             f"different run of the ruler; treat its column as indicative and re-score it in one "
+             f"run before quoting a {TAG}-vs-{DECOMP_THIRD_ARM} difference as a result.")
+        emit()
+        emit(f"**What this block can and cannot say.** If `{TAG}` picks up the satellite era "
+             f"while keeping the full period, the noise fix alone bought `{DECOMP_THIRD_ARM}`'s "
+             f"win and the target swap was not needed. If it does not, the win was the target. "
+             f"Either way this is a DESCRIPTION of the decomposition, not a promotion criterion.")
+        emit()
 
     # ---- COST A, with the like-for-like gate ---------------------------------------------------
     emit(f"## COST A -- {COSTA_NAME}")
