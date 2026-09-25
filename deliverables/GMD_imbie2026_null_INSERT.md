@@ -1,6 +1,7 @@
 # IMBIE 2026 out-of-sample test — insert material for the GMD draft
 
-**Basis:** Ladrillo v1.0, posterior **L27** (the shipped posterior); structural test arms L28/L29/L30.
+**Basis:** Ladrillo v1.0, posterior **L27** — the shipped posterior, and (Marcus, 2026-09-24) the paper's
+posterior, decided after the IMBIE-2026 arc closed. Structural/noise test arms L28/L29/L30/L32/L34.
 FaIR 2.2.4 (calib 1.6.0). Antarctic fluxes in Gt yr⁻¹, ice-mass sign (negative = loss); sea level in
 cm SLE relative to 1995–2005. Every model number is a mean over **100 posterior draws**; ± is the
 standard error over draws. Commit: see CHANGELOG 09-22h.
@@ -26,27 +27,41 @@ status the draft already gives Dangendorf 2024 for the total. Suggested structur
 
 ---
 
-## 2. Figure and caption
+## 2. Figures and captions
 
-**File:** `figures/diag_imbie2026_dynamics_null_L30.png` (script
-`python/plot_imbie2026_dynamics_null.py`).
+### Figure X — the shipped posterior against the new record
 
-> **Figure X.** Antarctic mass balance against the IMBIE 2026 reconciled record (Otosaka et al.,
-> *Sci. Data* 13:1301), as means over the record's own assessment windows; ice-mass sign, so negative
-> is loss. **(A)** The record's own decomposition. The total mass balance slows between 2011–17 and
-> 2018–23 (−200 to −104 Gt yr⁻¹) while the dynamics anomaly continues to accelerate (−179 to
-> −249 Gt yr⁻¹); the difference is a +144 Gt yr⁻¹ surface-mass-balance anomaly. Error bars are IMBIE's
-> published window uncertainties; thin lines are annual values. **(B)** Ladrillo's dynamics anomaly
-> misfit against the same record, referenced over 1979–2008 for model and observations alike. The
-> shipped posterior (solid grey) tracks the record to within 48 Gt yr⁻¹ in 2018–23, against IMBIE's own
-> window uncertainty of 130 Gt yr⁻¹ for that window. Refitting the model to the IMBIE *level* series
-> (dashed grey) moves it further from the dynamics record, not closer. Coloured lines add an
-> additional discharge response of the stated slope above the stated global-warming onset; the inset
-> gives the change in log-likelihood on each channel. Model curves are means over 100 posterior draws.
+**File:** `figures/diag_imbie2026_vs_targets_L27.png` (script `python/diag_imbie2026_vs_targets.py`,
+regenerated 2026-09-24 via `regen_imbie_fig_L27.sh`). ⚠ That runner exists because the script reads the
+SHARED `outputs/recalib_targets_ext.csv` and hardcodes a "Frederikse 2020 ≤ 2018, GRACE-FO after" label
+in its own provenance string; it swaps in L27's own training target under an md5 gate and restores the
+IMBIE build by exit trap, so the label and the file cannot disagree.
 
-*Accessibility note (not for the caption):* this figure uses only `#2166ac` / `#b2182b` / `#7f7f7f`.
-The paper's other figures pair `#1b7837` green with `#b2182b` red, which is OKLab ΔE **2.7** under
-deuteranopia — effectively one colour. Worth a pass over the existing figure set. `[MCS]`
+> **Figure X.** The IMBIE 2026 reconciled record (Otosaka et al., *Sci. Data* 13:1301) against Ladrillo's
+> ice-sheet calibration targets and the shipped posterior. Sea-level sign throughout (positive = rise),
+> levels in cm SLE relative to 1995–2005. **Top:** cumulative Antarctic (left) and Greenland (right)
+> contributions — IMBIE 2026 with its ±1σ band, the calibration target actually used (Frederikse 2020
+> through 2018, GRACE-FO mascons after), the posterior median with its 5–95 % band, and BRICK 2.0 for
+> reference. IMBIE is not an Antarctic likelihood term, so this comparison is out-of-sample by
+> construction. **Bottom:** annual rates, with IMBIE's own surface-mass-balance and dynamics anomalies
+> stacked. The dotted vertical marks the 2018 end of the Frederikse record.
+
+### Figure Y — the structural extension is not taken
+
+**File:** `figures/diag_imbie2026_dynamics_null_L30.png` (script `python/plot_imbie2026_dynamics_null.py`).
+⚠ This figure is the **ramp** test specifically and is correct as it stands; its channel-profile input
+exists only for L27 and L30, and the later arms are not ramp arms, so it is neither re-tagged nor rebuilt.
+
+*Accessibility note (not for the caption).* Checked with the repo's own `python/validate_palette.py`
+(Viénot–Brettel–Mollon dichromat simulation, OKLab ΔE×100; normal floor 15, CVD target 8):
+
+- **Figure X passes on every pair.** Its four marks `#1b7837` / `#762a83` / `#5aae61` / `#9970ab` give a
+  worst-case **deutan ΔE 15.8**, roughly twice the target. ⚠ One WARN, easily met: the SMB green
+  `#5aae61` is **2.74:1** on white, under the 3:1 mark floor — it is a *labelled* legend entry, which is
+  the mitigation the tool asks for, so no change is needed unless the bars are ever shown unlabelled.
+- ⛔ **The paper's existing `#1b7837` green with `#b2182b` red still FAILS at deutan ΔE 2.7** — effectively
+  one colour for a deuteranope. That pair is used elsewhere in the figure set and is **unaddressed**. A
+  pass over the existing figures is still owed. `[MCS]`
 
 ---
 
@@ -105,27 +120,90 @@ deuteranopia — effectively one colour. Worth a pass over the existing figure s
 > `about the SIX-YEAR SNOWFALL EXCURSION being outside the module's representable behaviour, not about`
 > `DAIS's discharge law being wrong; those are different claims and only the first is demonstrated.]`
 
+---
+
+## 4b. The Antarctic innovation variance — what the record says about our error model `[NEW 09-24]`
+
+*This is the one place the new record changes something about the shipped posterior rather than merely
+checking it. Numbers and structure are mine; the framing sentence is yours.*
+
+> **The record's interannual variability and the model's error term.** The reconciled record's
+> surface-mass-balance anomaly varies from year to year with a standard deviation of first differences
+> of 118 Gt yr⁻¹ over 1979–2019, and that variability is old and broadly distributed — every decade
+> since the 1980s shows 107–132 Gt yr⁻¹, and global mean surface temperature explains 4 % of its
+> variance, so it is weather rather than a forced signal the module could be made to reproduce.
+> Expressed as a sea-level innovation this implies a lower bound of 0.033 cm yr⁻¹ on the Antarctic
+> AR(1) innovation standard deviation. The shipped posterior fits **0.0216 cm** (5–95 %:
+> 0.0188–0.0249), a factor **1.5 below that bound and outside its own 95th percentile** — the
+> likelihood chose an Antarctic error term smaller than the observed record permits.
+>
+> **What imposing the bound does, and does not, do.** Refitting with the innovation standard deviation
+> floored at the implied value, and nothing else changed, leaves the shipped configuration essentially
+> where it was: the floored variant sits at 0.73 σ against 0.70 σ on the full-record Antarctic scorer
+> and 1.32 σ against 1.27 σ over the altimetry era, i.e. marginally worse on both. The same floor
+> applied on top of a refit to the IMBIE level series is worth a factor of three on the
+> pre-satellite hindcast. **The correction therefore matters for a posterior calibrated to the
+> reconciled record and not for the one calibrated to the reconstruction**, which is why the shipped
+> posterior is reported without it.
+>
+> `[MCS — the framing sentence goes here. Two things are demonstrated and a third is not:`
+> `(i) the fitted innovation term is smaller than the record allows, and (ii) correcting it does not`
+> `improve the shipped posterior on our own target. What is NOT demonstrated is that the error term`
+> `is harmless — a misspecified innovation variance biases the posterior mean, it does not only`
+> `under-disperse it, which we observed directly on the IMBIE-target arms. Whether that is worth a`
+> `caveat sentence or a limitations bullet is a judgement.]`
+
+**Table Y — the innovation term against the record.**
+
+| | implied by the record | shipped (L27) | floored, our target (L34) | floored, IMBIE target (L32) |
+|---|---|---|---|---|
+| `sd_ais` (cm) | **0.03259** | **0.02160** (p05 0.0188, p95 0.0249) | 0.03305 (on the floor) | 0.03294 (on the floor) |
+| ratio to the implied bound | 1.00 | **0.66** | 1.01 | 1.01 |
+| full-record AIS (σ) | — | **0.70** | 0.73 | 0.88 |
+| altimetry-era AIS (σ) | — | **1.27** | 1.32 | 1.01 |
+
+⚠ The implied bound is derived from IMBIE's SMB anomaly first differences over 1979–2019 (n = 41,
+118.0 Gt yr⁻¹, 3620 Gt per cm SLE). **The total → SMB transfer is an assumption**, stated here rather
+than buried: it was re-derived against the 2021 IMBIE vintage as a sensitivity and the conclusion did
+not move. `[MCS — whether the sensitivity is worth reporting is yours.]`
+
+⛔ **Not claimed, and the draft should not imply it:** that the module's surface mass balance *should*
+reproduce 118 Gt yr⁻¹ of interannual variability. It cannot — the module's own SMB window anomalies
+span roughly ±25 Gt yr⁻¹ — and the identity in §4 is why that is a statement about representable
+behaviour, not about the discharge law.
+
 ## 5. Table X — the verifiable numbers
 
 **Table X.** Ladrillo against the IMBIE 2026 Antarctic record. Model values are means over 100
-posterior draws. *Level* rows are cumulative sea-level contribution in cm SLE with z against IMBIE's
-published window uncertainty; *dynamics* rows are the mass-balance anomaly misfit in Gt yr⁻¹,
-referenced 1979–2008 for model and observations alike.
+posterior draws. *Level* rows are cumulative sea-level contribution in cm SLE; z combines the model's own spread with
+IMBIE's published window uncertainty in quadrature (`diag_imbie2026_vs_targets.py`). ⚠ The L27 column
+was **regenerated 2026-09-24** and reproduced its 09-22 values exactly; the L30 column is the 09-22 run
+and was not re-run, because L30's postpred has not changed. *Dynamics* rows are the mass-balance anomaly in Gt yr⁻¹,
+referenced 1979–2008 for model and observations alike (`diag_ais_channel_separation.jl`, 100 draws).
+⚠ **The comparison column is L30, the arm Figure Y shows** — the refit to the IMBIE *level* series.
+The table and that figure must describe the same arm, so it is deliberately NOT one of the later
+noise-model arms; those appear only in §4b, where they answer a different question and are labelled
+as such. `[MCS — one consequence you should know about: a refit that ALSO floors the innovation term
+(L32) moves the 2018–23 dynamics anomaly to −133.1 ± 4.9, i.e. CLOSER to the record's −167.2, not
+further. That would complicate the "refitting the level moves the dynamics away" sentence in §4. It
+sits outside the scope you set for this material, so it is flagged here and not built in.]`
 
-| Quantity | Window | IMBIE 2026 | **Ladrillo v1.0 (L27, shipped)** | refitted to IMBIE level (L30) |
+| Quantity | Window | IMBIE 2026 | **Ladrillo v1.0 (L27, the paper's posterior)** | refitted to the IMBIE level (L30) |
 |---|---|---|---|---|
 | Level, cumulative (cm SLE) | 1979–2023 | 1.328 ± 0.143 | 0.951 (z −2.64) | 1.216 (z −0.77) |
 | Level, cumulative (cm SLE) | 2011–2017 | 0.389 ± 0.051 | 0.215 (z −3.27) | 0.267 (z −2.14) |
 | Level, cumulative (cm SLE) | 2018–2023 | 0.174 ± 0.091 | 0.218 (z +0.48) | 0.262 (z +0.94) |
-| Dynamics misfit (Gt yr⁻¹) | 2003–2010 | 0 by construction (σ 79) | +21.8 | +38.7 |
-| Dynamics misfit (Gt yr⁻¹) | 2011–2017 | 0 by construction (σ 80) | **+13.4** | +39.8 |
-| Dynamics misfit (Gt yr⁻¹) | 2018–2023 | 0 by construction (σ 130) | **+48.1** | +85.8 |
-| SMB interannual spread (Gt yr⁻¹) | 1979–2025 | 122.9 | 4.8 | 4.8 |
-| SMB anomaly (Gt yr⁻¹) | 2018–2023 | **+141.0** | +26.7 | −0.7 |
-| Dynamics anomaly (Gt yr⁻¹) | 2018–2023 | −167.2 | −116.6 | −77.8 |
+| **SMB anomaly** (Gt yr⁻¹) | 2018–2023 | **+141.0** | +26.7 | −0.7 |
+| **Dynamics anomaly** (Gt yr⁻¹) | 2018–2023 | **−167.2** | −119.1 ± 4.6 | −77.8 |
+| SMB interannual sd (Gt yr⁻¹) | 1979–2019 | 118.0 | ~5 | ~5 |
 
-⚠ The last three rows are the constraint: net = SMB + dynamics identically, so with the model's SMB
-anomaly unable to reach +141 the dynamics error is bounded below by the net error plus ~114 Gt yr⁻¹.
+⚠ **The two bold rows are the constraint**, and they are named rather than referred to by position:
+net ≡ SMB + dynamics identically, so with the module's SMB anomaly unable to reach +141 Gt yr⁻¹ its
+dynamics error is bounded below by its net error plus ≈114 Gt yr⁻¹. The cumulative-level rows use the
+`diag_imbie2026_vs_targets.py` route (z includes the model's own spread); the anomaly rows use
+`diag_ais_channel_separation.jl` (100 draws, ± SE). The same 1979–2023 cumulative on the second route
+is 0.948 ± 0.008 for L27, against 0.951 on the first — the two routes agree to 0.003 cm, inside the
+draw SE, which is the check that they measure the same thing. **The fitted `sd_ais` values are in Table Y, not repeated here.**
 
 **Δ log-likelihood from the additional discharge response** (mean ± SE over 100 draws; positive =
 the channel prefers the response):

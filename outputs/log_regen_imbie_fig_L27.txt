@@ -1,0 +1,137 @@
+[09-24 20:05:50] building L27's Frederikse target ...
+====================================================================================================
+  AIS CALIBRATION TARGET = FREDERIKSE
+  reproduces: L27 and earlier (the SHIPPED champion and the GMD draft's posterior)
+====================================================================================================
+
+closure sigma EXTENDED on the 2009-2018 trend +0.02164 cm/yr (z=+6.08): 0.7749 cm at 2018 -> 0.9262 cm at 2026 (floored at the last ensemble value)
+GSIC splice scope: GlaMBIE global - r5 (r19 kept); 2000-2023 cumulative +1.57 cm (global would be +1.81)
+comp   overlap      offset_cm  from end_yr  increment to end (cm)
+ais    (2003, 2018)     0.065  2019   2025  +0.070
+gis    (2003, 2018)     0.096  2019   2025  +0.377
+gsic   (2003, 2018)     0.096  2019   2023  +0.463
+steric (2005, 2018)    -0.829  2019   2025  +1.159
+dang   (2003, 2018)     0.037  2022   2024  +1.260
+
+LWS: 5 year(s) of REAL GRACE data wired in (2019-2023); held flat 2024-2026 at 0.6013 cm; band half-width 0.3317 cm carried from 2018 (FLAGGED)
+
+Total-target sigma inflated by Frederikse's own budget-closure spread (ensemble 1900-2018, trend-extended after):
+  1900  closure sd 2.375 cm   sigma 2.518 -> 3.461 cm  (1.37x)
+  1950  closure sd 1.389 cm   sigma 1.860 -> 2.322 cm  (1.25x)
+  1980  closure sd 0.776 cm   sigma 1.333 -> 1.543 cm  (1.16x)
+  2000  closure sd 0.460 cm   sigma 0.936 -> 1.043 cm  (1.11x)
+  2018  closure sd 0.775 cm   sigma 0.479 -> 0.911 cm  (1.90x)
+  2024  closure sd 0.883 cm   sigma 0.448 -> 0.990 cm  (2.21x)
+
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/recalib_targets_ext.csv  (127 yrs 1900-2026)
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/recalib_targets_ext_sources.csv  (Frederikse vs modern-extension columns, separated)
+
+IMBIE cross-check (cm SLE, spliced to same overlap) vs GRACE splice:
+  ais 2015:  GRACE +0.562   IMBIE +0.518   diff +0.044
+  ais 2018:  GRACE +nan   IMBIE +0.597   diff +nan
+  ais 2020:  GRACE +0.745   IMBIE +0.683   diff +0.062
+  gis 2015:  GRACE +1.088   IMBIE +1.049   diff +0.038
+  gis 2018:  GRACE +nan   IMBIE +1.167   diff +nan
+  gis 2020:  GRACE +1.433   IMBIE +1.379   diff +0.054
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/recalib_targets_ext_splice_diagnostic.png
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/recalib_targets_ext_provenance.txt  (ais_source=frederikse, md5=070f74abe11080da7b77a80b67c54033)
+[09-24 20:05:52] target gate PASSED: 070f74abe11080da7b77a80b67c54033 (= L27's own training target, byte-identical)
+[09-24 20:05:52] regenerating the L27 vs IMBIE-2026 comparison ...
+diag_imbie2026_vs_targets.py | tag L27 | IMBIE 2026 (Otosaka et al. Sci Data 13:1301; PDC 10.5285/128c5e33) annual means of monthly rates | targets recalib_targets_ext.csv (Frederikse 2020 <= 2018, GRACE-FO after) | target bar = Frederikse ensemble spread of the difference (+ 0.05/0.03 cm/yr GRACE sigma in quadrature past 2018) | model postpred_L27 / postpred_oldbrick | cm SLE, +=rise, rel 1995-2005 | commit 163b562 
+
+WINDOWS (cm over the window; z uses BOTH bars; model sd = (p95-p05)/3.29):
+component   y0   y1  imbie_cm  imbie_sd  target_cm  target_sd  z_target_vs_imbie  ladrillo_cm  z_ladrillo_vs_imbie  brick20_cm  z_brick20_vs_imbie
+      AIS 1979 2023     1.328     0.143      0.912      0.183             -1.789        0.951               -2.640       1.587               1.737
+      AIS 1979 2008     0.652     0.095      0.423      0.115             -1.537        0.465               -1.830       0.949               2.391
+      AIS 1979 1991     0.171     0.048      0.071      0.055             -1.372        0.143               -0.458       0.417               2.358
+      AIS 1992 2002     0.242     0.066      0.169      0.092             -0.653        0.169               -1.089       0.317               0.960
+      AIS 1992 2020     1.127     0.106      0.885      0.153             -1.299        0.697               -3.941       1.036              -0.621
+      AIS 2003 2010     0.352     0.054      0.264      0.053             -1.165        0.206               -2.600       0.291              -0.684
+      AIS 2011 2017     0.389     0.051      0.289      0.045             -1.469        0.215               -3.271       0.293              -1.464
+      AIS 2018 2023     0.174     0.091      0.121      0.112             -0.370        0.218                0.478       0.269               0.841
+      AIS 2020 2023     0.065     0.085      0.010      0.100             -0.425        0.148                0.959       0.179               1.162
+      GIS 1972 2023     1.721     0.130      1.960      0.174              1.096        2.163                3.398       2.812               7.404
+      GIS 1972 1991     0.129     0.082      0.221      0.120              0.633        0.497                3.667       0.996               7.938
+      GIS 1992 2002     0.189     0.070      0.214      0.094              0.216        0.339                2.083       0.573               5.073
+      GIS 1992 2020     1.449     0.096      1.598      0.110              1.018        1.487                0.354       1.629               1.229
+      GIS 2003 2010     0.554     0.043      0.616      0.035              1.112        0.509               -0.891       0.454              -1.454
+      GIS 2011 2017     0.475     0.042      0.593      0.023              2.475        0.471               -0.076       0.416              -0.841
+      GIS 2018 2023     0.374     0.040      0.315      0.067             -0.753        0.346               -0.608       0.373              -0.004
+
+RATES (cm/yr):
+component   y0   y1  imbie_rate_cm_yr  target_rate_cm_yr  ladrillo_rate_cm_yr  brick20_rate_cm_yr
+      AIS 1979 2023            0.0295             0.0203               0.0211              0.0353
+      AIS 1979 2008            0.0217             0.0141               0.0155              0.0316
+      AIS 1979 1991            0.0131             0.0054               0.0110              0.0321
+      AIS 1992 2002            0.0220             0.0153               0.0154              0.0288
+      AIS 1992 2020            0.0389             0.0305               0.0240              0.0357
+      AIS 2003 2010            0.0439             0.0329               0.0257              0.0364
+      AIS 2011 2017            0.0556             0.0413               0.0307              0.0418
+      AIS 2018 2023            0.0290             0.0201               0.0363              0.0449
+      AIS 2020 2023            0.0163             0.0024               0.0369              0.0448
+      GIS 1972 2023            0.0331             0.0377               0.0416              0.0541
+      GIS 1972 1991            0.0064             0.0110               0.0249              0.0498
+      GIS 1992 2002            0.0172             0.0195               0.0308              0.0521
+      GIS 1992 2020            0.0500             0.0551               0.0513              0.0562
+      GIS 2003 2010            0.0692             0.0770               0.0636              0.0568
+      GIS 2011 2017            0.0679             0.0848               0.0673              0.0594
+      GIS 2018 2023            0.0623             0.0525               0.0576              0.0622
+
+ANCHOR WINDOWS (ice-mass sign; z_indep / z_corr = IMBIE per-year sigmas treated as independent / fully correlated):
+                                                                anchor  ours_mu  ours_sd  imbie_value  imbie_sd_indep  imbie_sd_corr  imbie_smb_anom  imbie_dyn_anom  z_indep  z_corr
+               AIS net balance 1979-2008 (Gt/yr, ice mass): our TARGET  -50.991   13.843      -78.202          11.348         59.407           3.314         -81.515    1.520   0.446
+      AIS net balance 1979-2008 (Gt/yr, ice mass): Ladrillo L27 median  -56.115      NaN      -78.202          11.348         59.407           3.314         -81.515    1.946   0.372
+         AIS net balance 1979-2008 (Gt/yr, ice mass): BRICK 2.0 median -114.479      NaN      -78.202          11.348         59.407           3.314         -81.515   -3.197  -0.611
+GISB Mouginot surface share of the extra loss 2000-2018 over 1972-1990    0.735    0.050        0.602           0.102          0.437        -119.603         -79.002   -1.172  -0.302
+
+wrote figures/diag_imbie2026_vs_targets_L27.png and outputs/diag_imbie2026_vs_targets{,_windows,_anchors}_L27.csv
+[09-24 20:05:53] z screen (CLIFF_YEAR=2019, BAR=5): a cliff claim needs AIS *and* a window ending after the cliff
+  AIS max |z| = 3.94
+  SUPPRESS as the sigma cliff (AIS, window ends >= 2019, |z|>5.0): NONE
+  LARGE but NOT the cliff -- inspect, do not dismiss: 
+component   y0   y1  z_target_vs_imbie  z_ladrillo_vs_imbie  z_brick20_vs_imbie
+      GIS 1972 2023               1.10                 3.40                7.40
+      GIS 1972 1991               0.63                 3.67                7.94
+      GIS 1992 2002               0.22                 2.08                5.07
+[09-24 20:05:53] wrote figures/diag_imbie2026_vs_targets_L27.png
+[09-24 20:05:53] provenance: diag_imbie2026_vs_targets.py | tag L27 | IMBIE 2026 (Otosaka et al. Sci Data 13:1301; PDC 10.5285/128c5e33) annual means of monthly rates | targets re
+[09-24 20:05:53] DONE
+[09-24 20:05:53] RESTORING the shared target to the IMBIE build ...
+====================================================================================================
+  AIS CALIBRATION TARGET = IMBIE2026  (pass --ais-frederikse for the shipped L27 target)
+  reproduces: L28-L33 (the IMBIE-2026 arms) -- NOT the shipped champion
+====================================================================================================
+AIS target = IMBIE 2026 1979-2023 (rel 1995-2005); Frederikse 1900-1978 offset -0.134 cm over (1979, 1988) (join sigma 0.067 cm); IMBIE 1992-2020 rate 0.0389 cm/yr vs Frederikse+GRACE 0.0310 (to 2018)
+
+closure sigma EXTENDED on the 2009-2018 trend +0.02164 cm/yr (z=+6.08): 0.7749 cm at 2018 -> 0.9262 cm at 2026 (floored at the last ensemble value)
+GSIC splice scope: GlaMBIE global - r5 (r19 kept); 2000-2023 cumulative +1.57 cm (global would be +1.81)
+comp   overlap      offset_cm  from end_yr  increment to end (cm)
+ais    (2003, 2023)     0.211  2024   2025  -0.059
+gis    (2003, 2018)     0.096  2019   2025  +0.377
+gsic   (2003, 2018)     0.096  2019   2023  +0.463
+steric (2005, 2018)    -0.829  2019   2025  +1.159
+dang   (2003, 2018)     0.037  2022   2024  +1.260
+
+LWS: 5 year(s) of REAL GRACE data wired in (2019-2023); held flat 2024-2026 at 0.6013 cm; band half-width 0.3317 cm carried from 2018 (FLAGGED)
+
+Total-target sigma inflated by Frederikse's own budget-closure spread (ensemble 1900-2018, trend-extended after):
+  1900  closure sd 2.375 cm   sigma 2.518 -> 3.461 cm  (1.37x)
+  1950  closure sd 1.389 cm   sigma 1.860 -> 2.322 cm  (1.25x)
+  1980  closure sd 0.776 cm   sigma 1.333 -> 1.543 cm  (1.16x)
+  2000  closure sd 0.460 cm   sigma 0.936 -> 1.043 cm  (1.11x)
+  2018  closure sd 0.775 cm   sigma 0.479 -> 0.911 cm  (1.90x)
+  2024  closure sd 0.883 cm   sigma 0.448 -> 0.990 cm  (2.21x)
+
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/recalib_targets_ext.csv  (127 yrs 1900-2026)
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/recalib_targets_ext_sources.csv  (Frederikse vs modern-extension columns, separated)
+
+IMBIE cross-check (cm SLE, spliced to same overlap) vs GRACE splice:
+  ais 2015:  GRACE +0.708   IMBIE +0.518   diff +0.190
+  ais 2018:  GRACE +nan   IMBIE +0.597   diff +nan
+  ais 2020:  GRACE +0.891   IMBIE +0.683   diff +0.208
+  gis 2015:  GRACE +1.088   IMBIE +1.049   diff +0.038
+  gis 2018:  GRACE +nan   IMBIE +1.167   diff +nan
+  gis 2020:  GRACE +1.433   IMBIE +1.379   diff +0.054
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/recalib_targets_ext_splice_diagnostic.png
+Wrote /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/recalib_targets_ext_provenance.txt  (ais_source=imbie2026, md5=eb768cd96463a3b84721e2bb9a20f009)
+[09-24 20:05:54]   restored OK (eb768cd96463a3b84721e2bb9a20f009)
