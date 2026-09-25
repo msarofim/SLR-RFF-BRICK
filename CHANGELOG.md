@@ -1,3 +1,65 @@
+## 2026-09-24h — **RULING: L27 is the paper's posterior.** The IMBIE material gets the innovation-variance finding; the figure re-run is byte-identical
+
+**Marcus, 2026-09-24, closing the arc:** *"let's stick with L27 as the model for the paper."* Three
+tests — the whole-model benchmark, the σ-sensitivity, the held-out pre-1979 pair — each relocated the
+question rather than settling it, and a fourth was the wrong move. **`champions.json` was never
+changed and needs no change.** ⇒ [[l27_ships_imbie_is_out_of_sample]]
+
+**Scoping, also his:** the draft carries IMBIE-2026 **as an out-of-sample comparison** plus **the
+`sd_ais` noise-floor finding**, and deliberately **omits** the L27-vs-L32 trade, step 1 and step 2.
+Recorded so the omission is not later mistaken for an oversight.
+
+### ① The figure re-run is a VERIFICATION, not an update
+
+`regen_imbie_fig_L27.sh` exists because `diag_imbie2026_vs_targets.py:86` reads the **shared**
+`outputs/recalib_targets_ext.csv` while hardcoding a *"Frederikse 2020 ≤ 2018, GRACE-FO after"* label
+into its own provenance string. With the IMBIE build live, a bare run would have stamped a
+**Frederikse label onto an IMBIE-built target** — label-vs-behaviour drift inside the very line meant
+to prevent it. The runner swaps in L27's own target under an md5 gate and restores the IMBIE build by
+exit trap (verified both ways).
+
+⭐ **The output came back BYTE-IDENTICAL to the 09-21 file (md5 `25b2730e`).** ⚠ **My stated reason
+for re-running it was wrong**: I expected the 09-22 `ladrillo_figs.py` change to have moved the house
+style. It did not touch this figure at all. The re-run therefore bought a re-verified provenance
+stamp and nothing else — the draft's figure was already current. AIS numbers unchanged (1979–2023
+z −2.64, 2011–17 z −3.27, 2018–23 z +0.48).
+
+⚠ The z screen in that runner **first mislabelled genuine misfits as a ruler artefact** — it flagged
+GIS rows whose large z is **BRICK 2.0's**, in windows *ending before 2018*, which the AIS σ cliff
+cannot explain. Tightened: a cliff verdict now requires **AIS and a window ending ≥ 2019**, and
+everything else prints as *"large, inspect — do not dismiss."* AIS max |z| is 3.94; nothing suppressed.
+
+### ② § 4b — the innovation variance, the one substantive addition
+
+IMBIE's SMB anomaly has a first-difference sd of **118.0 Gt yr⁻¹** over 1979–2019 (n = 41) ⇒ a floor
+of **0.03259 cm** on the Antarctic AR(1) innovation sd. **L27 fits 0.02160** (p05 0.0188, **p95
+0.0249**) — a factor **1.51 below the bound and outside its own 95th percentile**: the likelihood
+chose an error term the record forbids.
+
+⭐ **And the honest companion, which is why this does not change the shipped posterior:** imposing the
+floor on **our** target (**L34**) gives **0.73 σ vs L27's 0.70** full-record and **1.32 vs 1.27**
+altimetry-era — marginally *worse* on both. The same floor on the IMBIE target is worth a factor 3 on
+the pre-satellite hindcast. **The correction matters for a posterior calibrated to the reconciled
+record, not for ours** ⇒ [[ais_noise_floor_is_target_dependent]].
+
+### ③ ⛔ A correction I made and then reverted
+
+I swapped Table X's comparison column from L30 to L32 on the grounds that L30 is dominated. **That was
+wrong and is reverted.** Table X sits beside Figure Y, which *is* the L30 ramp arm, and the two must
+describe the same arm. Worse, L32 would **contradict § 4's own sentence**: it moves the 2018–23
+dynamics anomaly to **−133.1 ± 4.9**, i.e. **CLOSER** to the record's −167.2, not further. The
+consequence is flagged for Marcus in the file rather than built in, since it is outside the scope he set.
+
+### ④ Accessibility — measured with the repo's own tool, and my own number was wrong
+
+I computed a deuteranopia ΔE with a quick Viénot matrix and got **28.5** for the paper's
+`#1b7837`/`#b2182b` pair, against the insert's standing **2.7**. My implementation was **wrong** (its
+lightness term grew under simulation, which is the tell). The repo's own
+`python/validate_palette.py` gives **deutan ΔE 2.7, FAIL** — **the insert's number stands** and mine
+is discarded. ⭐ **Figure X passes every pair** (worst deutan **15.8**, ~2× the target); one WARN, the
+SMB green `#5aae61` at **2.74:1** on white, satisfied by its legend label. **The paper's existing
+green/red pair still FAILS and is unaddressed.**
+
 ## 2026-09-24g — ⭐⭐ **L35 IS *PARTIAL* (1.18 σ), AND THE ADDITIVE GUESS WOULD HAVE CALLED IT A PASS.** The gate that refused it was BROKEN; the arm was always sound
 
 L35 = **L32 + `--ais-fit-from=1979`. CONTROL = L32, ONE AXIS.** Chains 13:24→16:03, postprocess

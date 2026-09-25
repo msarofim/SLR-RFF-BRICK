@@ -32,7 +32,9 @@ status the draft already gives Dangendorf 2024 for the total. Suggested structur
 ### Figure X — the shipped posterior against the new record
 
 **File:** `figures/diag_imbie2026_vs_targets_L27.png` (script `python/diag_imbie2026_vs_targets.py`,
-regenerated 2026-09-24 via `regen_imbie_fig_L27.sh`). ⚠ That runner exists because the script reads the
+re-run 2026-09-24 via `regen_imbie_fig_L27.sh`). ⭐ **The re-run reproduced the existing file
+BYTE-IDENTICALLY** (md5 `25b2730e`), so the figure in the draft is already current and needs no
+replacement — the run is a verification, not an update. ⚠ That runner exists because the script reads the
 SHARED `outputs/recalib_targets_ext.csv` and hardcodes a "Frederikse 2020 ≤ 2018, GRACE-FO after" label
 in its own provenance string; it swaps in L27's own training target under an md5 gate and restores the
 IMBIE build by exit trap, so the label and the file cannot disagree.
@@ -176,9 +178,8 @@ behaviour, not about the discharge law.
 
 **Table X.** Ladrillo against the IMBIE 2026 Antarctic record. Model values are means over 100
 posterior draws. *Level* rows are cumulative sea-level contribution in cm SLE; z combines the model's own spread with
-IMBIE's published window uncertainty in quadrature (`diag_imbie2026_vs_targets.py`). ⚠ The L27 column
-was **regenerated 2026-09-24** and reproduced its 09-22 values exactly; the L30 column is the 09-22 run
-and was not re-run, because L30's postpred has not changed. *Dynamics* rows are the mass-balance anomaly in Gt yr⁻¹,
+IMBIE's published window uncertainty in quadrature (`diag_imbie2026_vs_targets.py`). ⚠ The L27 column was **re-run 2026-09-24 and came back byte-identical**; the L30 column is the 09-22
+run and was not re-run, because L30's postpred has not changed. *Dynamics* rows are the mass-balance anomaly in Gt yr⁻¹,
 referenced 1979–2008 for model and observations alike (`diag_ais_channel_separation.jl`, 100 draws).
 ⚠ **The comparison column is L30, the arm Figure Y shows** — the refit to the IMBIE *level* series.
 The table and that figure must describe the same arm, so it is deliberately NOT one of the later
