@@ -64,20 +64,57 @@ const SSPS     = ["ssp245", "ssp585"]
 const Y0, Y1   = 1850, 2300
 const HORIZONS = [2100, 2150, 2300]
 const COMPONENT = :ais
-## The seventeen sampled AIS parameters, grouped as in diag_ais_block_convergence.jl
-## so the two tables join on `param` and read in the same order.
-const AIS_PARAMS = ["ais_mu", "ais_bedheight0", "ais_slope", "ais_iceflow0",
-                    "ais_precip0_LOG", "ais_runoff_Ton", "ais_c",
+## The AIS block, grouped as in diag_ais_block_convergence.jl so the two tables join on
+## `param` and read in the same order.
+##
+## ⚠⚠ THE SET IS DERIVED FROM THE CHAIN, NOT TYPED. This list was the seventeen L14-era
+## parameters and was hard-coded, so on 2026-09-26 the diagnostic REFUSED to run on L27 --
+## correctly and loudly ("missing: antarctic_temp_threshold, antarctic_lambda,
+## antarctic_gamma, ais_precip0_LOG"), because L27's flags (--cut-fastdyn, --fix-gamma,
+## --precip-reparam) remove the fast-dynamics channel and reparameterise precipitation.
+## A typed list makes a vintage difference an ERROR instead of a fact about the arm. So the
+## CANDIDATES below are the superset (ordering only) and the parameters actually used are
+## the intersection with the chain's OWN header, PRINTED and stamped into the output.
+##
+## ⛔ WHAT MUST NOT HAPPEN is a silent ranking over a different set than the reader assumes,
+## so: the used set is printed, the absent ones are named with the flag that removes them,
+## and the count is written into every row's `provenance`.
+const AIS_CANDIDATES = ["ais_mu", "ais_bedheight0", "ais_slope", "ais_iceflow0",
+                    "ais_precip0_LOG", "ais_precip_u", "ais_runoff_Ton", "ais_c",
                     "antarctic_alpha", "antarctic_nu", "antarctic_lambda",
                     "antarctic_gamma", "antarctic_kappa", "antarctic_temp_threshold",
                     "ais_ocean_temperature₀", "anto_alpha", "anto_beta",
                     "ais_gmst_amp"]
+## why each candidate can be absent, so the log explains itself rather than just listing gaps
+const ABSENT_REASON = Dict("antarctic_lambda" => "--cut-fastdyn",
+                           "antarctic_temp_threshold" => "--cut-fastdyn",
+                           "antarctic_gamma" => "--fix-gamma",
+                           "ais_precip0_LOG" => "--precip-reparam (replaced by ais_precip_u)",
+                           "ais_precip_u" => "no --precip-reparam (this vintage uses ais_precip0_LOG)")
+const MIN_AIS_PARAMS = 8   # below this the chain is not an AIS-sampling vintage at all
 const DECILE = 0.10
 const OUT = joinpath(REPO, "outputs", "diag_ais_block_propagation_$(TAG).csv")
 
 chain_path(sd) = joinpath(REPO, "outputs/mcmc", "chain_$(TAG)_seed$(sd)_n$(NITER).csv")
 hdr(sd) = String.(propertynames(CSV.read(chain_path(sd), DataFrame; limit = 0)))
 for sd in SEEDS; isfile(chain_path(sd)) || error("missing chain $(chain_path(sd))"); end
+
+## the set this run actually uses = candidates ∩ the chain's own header (order preserved)
+## ⚠⚠ TWO DIFFERENT SETS, AND CONFLATING THEM WOULD SILENTLY DROP THE ANSWER.
+##   AIS_READ  = what to SELECT from the chain CSV  (the chain's own header)
+##   AIS_PARAMS = what to RANK                      (the draws AFTER propagation)
+## Under --cut-fastdyn the calibrator does NOT sample antarctic_lambda / temp_threshold, but
+## `ladrillo_attach_propagated!` attaches them at PROJECTION time as joint paleo draws
+## ("propagated, not estimated", calibrate_mcmc_ext.jl:857-860). They therefore DRIVE the
+## projection while being absent from the chain. Ranking on the header would omit exactly the
+## parameter most likely to dominate -- and would have reported its absence as if it were a
+## zero effect. The rank set is taken from the post-attachment draws below.
+const CHAIN_HDR = hdr(first(SEEDS))
+const AIS_READ  = [p for p in AIS_CANDIDATES if p in CHAIN_HDR]
+length(AIS_READ) >= MIN_AIS_PARAMS || error(
+    "only $(length(AIS_READ)) AIS parameters found in chain_$(TAG) (need >= $MIN_AIS_PARAMS); " *
+    "this does not look like an AIS-sampling vintage")
+flush(stdout)
 const VARIANT = ladrillo_gis_variant(hdr(SEEDS[1]))
 
 """Spearman rank correlation. Ties are averaged, which matters because a chain that
@@ -101,11 +138,15 @@ function read_draws(sd)
     ## Same slow-channel handling as diag_iceflow0_propagation.jl: read the Greenland
     ## coordinates the FILE carries, then map to native before applying. Selecting the
     ## native names on an L11+ chain throws "column gis_alpha_s not found".
-    need = vcat(ladrillo_used_cols(VARIANT), AIS_PARAMS) |> unique
     h = hdr(sd)
-    rd = ladrillo_gis_needs_native(h) ?
-        vcat(setdiff(need, LADRILLO_GIS_SLOW_NATIVE_COLS),
-             LADRILLO_GIS_SLOW_REPARAM_COLS) |> unique : need
+    ## ⚠⚠ USE THE HEADER-AWARE OVERLOAD. `ladrillo_used_cols(VARIANT)` returns the RAW column
+    ## list; `ladrillo_used_cols(VARIANT, header)` is the one that knows about vintages -- the
+    ## precip reparameterisation, the propagated/fixed paleo parameters that L27+ attaches AFTER
+    ## reading rather than sampling, and the L30 ramp columns. Calling the one-argument form made
+    ## this diagnostic demand `antarctic_lambda` etc. from an L27 chain and refuse to run
+    ## (2026-09-26). The manual Greenland-slow remap that used to live here is deleted because the
+    ## overload already does it -- two copies of that rule is how they drift apart.
+    rd = vcat(ladrillo_used_cols(VARIANT, h), AIS_READ) |> unique
     miss = setdiff(rd, h)
     isempty(miss) || error("chain_$(TAG)_seed$(sd) is missing: " * join(miss, ", ") *
                            " — this diagnostic cannot read that vintage")
@@ -119,7 +160,7 @@ end
 out = DataFrame(scenario = String[], horizon = Int[], param = String[],
                 pearson_r = Float64[], r2 = Float64[], spearman_rho = Float64[],
                 decile_contrast_cm = Float64[], spread_p05_p95_cm = Float64[],
-                contrast_frac_spread = Float64[])
+                contrast_frac_spread = Float64[], provenance = String[])
 
 @printf("AIS block propagation | tag %s | %d draws/chain x %d chains | component %s\n",
         TAG, N_TARGET, length(SEEDS), String(COMPONENT))
@@ -132,6 +173,34 @@ flush(stdout)
 ## inside the scenario loop doubled the cost for identical draws.
 const DRAWS = [(@printf("  reading chain seed%d ...\n", sd); flush(stdout); read_draws(sd))
                for sd in SEEDS]
+
+## the RANK set = candidates present in the ATTACHED draws (superset of AIS_READ)
+const DRAW_COLS  = String.(propertynames(first(DRAWS)))
+const AIS_PARAMS = [p for p in AIS_CANDIDATES if p in DRAW_COLS]
+const AIS_PROPAG = [p for p in AIS_PARAMS if !(p in AIS_READ)]
+const AIS_ABSENT = [p for p in AIS_CANDIDATES if !(p in DRAW_COLS)]
+@printf("  RANKED (%d): %s\n", length(AIS_PARAMS), join(AIS_PARAMS, ", "))
+if !isempty(AIS_PROPAG)
+    @printf("  of which PROPAGATED at projection time, not sampled (%d): %s\n",
+            length(AIS_PROPAG), join(AIS_PROPAG, ", "))
+    println("  ⭐ these are EXACT prior draws, so a high contrast on one of them means the band " *
+            "is SAMPLED, not inferred -- which is the finding, not an artefact.")
+end
+if !isempty(AIS_ABSENT)
+    @printf("  absent from this vintage entirely (%d): %s\n", length(AIS_ABSENT),
+            join([haskey(ABSENT_REASON, p) ? "$p [$(ABSENT_REASON[p])]" : p for p in AIS_ABSENT], ", "))
+end
+flush(stdout)
+
+## ⚠ the USED SET travels with the numbers: a ranking read out of this CSV months from now
+## must not be assumed to cover parameters the arm never sampled.
+const PROV = "diag_ais_block_propagation.jl | tag " * TAG * " | " * string(N_TARGET) *
+             " draws/chain x " * string(length(SEEDS)) * " chains | AIS params used " *
+             string(length(AIS_PARAMS)) * "/" * string(length(AIS_CANDIDATES)) * ": " *
+             join(AIS_PARAMS, " ") * " | propagated-not-sampled: " *
+             (isempty(AIS_PROPAG) ? "none" : join(AIS_PROPAG, " ")) * " | absent: " *
+             (isempty(AIS_ABSENT) ? "none" : join(AIS_ABSENT, " ")) * " | decile " *
+             string(DECILE) * " | cm"
 
 for ssp in SSPS
     bf = ladrillo_setup(ssp = ssp, y0 = Y0, y1 = Y1, gis_variant = VARIANT)
@@ -177,7 +246,7 @@ for ssp in SSPS
         for t in rows
             @printf("%-26s %9.3f %8.4f %9.3f %12.2f %10.3f\n",
                     t.param, t.r, t.r^2, t.rho, t.contrast, t.frac)
-            push!(out, (ssp, y, t.param, t.r, t.r^2, t.rho, t.contrast, spread, t.frac))
+            push!(out, (ssp, y, t.param, t.r, t.r^2, t.rho, t.contrast, spread, t.frac, PROV))
         end
     end
 end

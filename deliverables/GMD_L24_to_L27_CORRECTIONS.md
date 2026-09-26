@@ -97,16 +97,37 @@ is 329.8, a near-coincidence that makes this look like a misattribution. It is n
    **fixed** arm for both (L27 fixed 242.9, BRICK fixed 329.8) — never one of each. That exact mix-up
    is what the 09-03 audit caught in Fig 9.
 
-2. ⛔⛔ **The mechanism does not survive.** **L27 does not sample `antarctic_lambda` at all** — its flags
-   include **`--cut-fastdyn`**, which removes the fast-dynamics channel (`antarctic_lambda`,
-   `antarctic_temp_threshold`, and with `--fix-gamma`, `antarctic_gamma`). So *"dominated by the prior
-   for antarctic_lambda"*, the *"mean 0.0105, sd 0.0033 in Ladrillo"* parenthetical, and the causal
-   *"which is why the two spreads are alike"* all describe a channel the shipped model does not have.
+2. ⭐⭐ **THE MECHANISM SURVIVES — and the sentence is MORE true at L27, not less.**
+   ⚠⚠ **I got this wrong in my first pass and corrected it the same session.** I read
+   `--cut-fastdyn` in L27's flags, saw `antarctic_lambda` absent from the sampled set, and
+   concluded the fast-dynamics channel was gone. **It is not.** The calibrator says so in its own
+   words (`calibrate_mcmc_ext.jl:857-860`):
 
-   ⚠ **What DOES dominate L27's 2300 Antarctic spread is NOT measured, and I have not guessed.** The
-   existing finding ([[ais_spread_is_lambda_prior]]: R² 0.78, decile contrast 0.92) is on **L14**, which
-   had the channel. `julia/diag_ais_block_propagation.jl` would answer it for L27. **Say the word and I
-   will run it** — until then the sentence has no receipt and should not be rewritten from the old one.
+   > `--cut-fastdyn` — *lambda and T_crit are NOT sampled: their likelihood is exactly flat (the
+   > threshold is never crossed in the hindcast). The model holds their paleo MEDIANS during the
+   > calibration; **projections attach JOINT paleo draws per posterior draw** … "propagated, not
+   > estimated", made literal.*
+
+   Confirmed at runtime: every chain read prints
+   `ladrillo_attach_propagated!: lambda/T_crit attached as JOINT paleo draws (seed 20260920,
+   paleo_fastdyn_draws.csv)`. So lambda still drives L27's projections — it is now **exactly** a
+   prior draw rather than a posterior that happened to sit on its prior.
+
+   ⇒ **Do NOT delete this sentence.** Only the parenthetical moves:
+
+   | | draft (L24, sampled) | **L27 (propagated)** |
+   |---|---|---|
+   | Ladrillo `antarctic_lambda` | mean 0.0105, sd 0.0033 | **mean 0.01038, sd 0.00359** |
+   | BRICK 2.0 | 0.0104, 0.0036 | 0.0104, 0.0036 (unchanged) |
+
+   Source: `outputs/paleo_fastdyn_draws.csv` (20,000 draws), the ensemble L27 propagates from.
+   ⭐ **The two now agree to the digit**, because both draw lambda from the same fast-dynamics
+   ensemble — which makes the draft's own *"which is why the two Antarctic spreads are alike"*
+   **more** defensible at L27, not less. `[MCS — you may even want to strengthen it.]`
+
+   ⚠ **What is still NOT receipted** is the word *"dominated"*. The R² 0.78 / decile-contrast 0.92
+   measurement behind it is on **L14** ([[ais_spread_is_lambda_prior]]), which **sampled** lambda.
+   Re-measuring it on L27 is in progress (§6).
 
 ## ⚠ 5. Table A1 (priors/posterior appendix) is built on L24
 
