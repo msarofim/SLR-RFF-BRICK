@@ -125,9 +125,28 @@ is 329.8, a near-coincidence that makes this look like a misattribution. It is n
    ensemble — which makes the draft's own *"which is why the two Antarctic spreads are alike"*
    **more** defensible at L27, not less. `[MCS — you may even want to strengthen it.]`
 
-   ⚠ **What is still NOT receipted** is the word *"dominated"*. The R² 0.78 / decile-contrast 0.92
-   measurement behind it is on **L14** ([[ais_spread_is_lambda_prior]]), which **sampled** lambda.
-   Re-measuring it on L27 is in progress (§6).
+   ⭐⭐ **AND "DOMINATED" IS NOW RECEIPTED ON L27.** The measurement behind that word was on **L14**
+   ([[ais_spread_is_lambda_prior]]: R² 0.78, contrast 0.92), which *sampled* lambda. Re-measured on
+   L27 (`julia/diag_ais_block_propagation.jl 500 --tag=L27`, 2,000 draws,
+   `outputs/diag_ais_block_propagation_L27.csv`):
+
+   | ssp585 @2300 | R² | decile contrast / spread |
+   |---|---|---|
+   | **`antarctic_lambda`** | **0.708** | **0.897** |
+   | `antarctic_temp_threshold` | 0.049 | 0.345 |
+   | `ais_gmst_amp` | 0.080 | 0.326 |
+
+   **The word stands**, and at L27 it is *stronger* in kind: lambda is now an exact prior draw, so
+   *"the band is sampled, not inferred"* is literal rather than inferred from a posterior sitting on
+   its prior.
+
+   ⚠ **Two caveats to carry if you quote these.** (a) The attribution is measured on the
+   **fixed-climate** arm (spread 242.85 cm), which is the right arm for isolating *parameter*
+   uncertainty — but the band widths quoted in the sentence (313.8 / 405.2) are **joint** arm. Do not
+   mix them in one clause. (b) ⛔ **The ranking INVERTS by scenario**, so an AIS sensitivity quoted
+   without its scenario is meaningless: at **ssp245 @2300** the order is `ais_gmst_amp` **0.68**,
+   `antarctic_temp_threshold` **−0.48**, `antarctic_lambda` **0.47**. The sentence is an ssp585
+   statement and should say so.
 
 ## ⚠ 5. Table A1 (priors/posterior appendix) is built on L24
 

@@ -430,7 +430,12 @@ def main():
 
     # ---- figure -----------------------------------------------------------------
     fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
-    colors = {"ssp126": "#1b7837", "ssp245": "#2166ac", "ssp585": "#b2182b"}
+    ## ⚠ DERIVED from ladrillo_figs.SSP_SET, never re-declared. This dict was a LOCAL COPY of the
+    ## old green/blue/red triple, which the 2026-09-22 palette fix did not reach: #1b7837/#b2182b
+    ## is deuteranopia dE 2.7 (one colour) and #1b7837/#2166ac is tritanopia 5.5, both FAIL under
+    ## python/validate_palette.py. The replacement passes all three pairs. A local copy of a shared
+    ## palette is how a fix fails to propagate, so this takes the shared one.
+    colors = {k: c for k, _lab, c in lf.SSP_SET}
     for ax, est in zip(axes, ("secant", "slope")):
         for sc in SCENARIOS:
             b = binned[(binned.estimator == est) & (binned.scenario == sc)]

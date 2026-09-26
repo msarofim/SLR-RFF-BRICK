@@ -51,7 +51,12 @@ FIGSTEM = "gis_basin_mock"
 import gis_targets  # noqa: E402
 LIT_2300_M, TARGET_SET = gis_targets.from_argv(sys.argv)
 TARGET_WORD = gis_targets.SET_WORD[TARGET_SET]
-SSP_COLOR = {"SSP1-2.6": "#1b7837", "SSP2-4.5": "#2166ac", "SSP5-8.5": "#b2182b"}
+## ⚠ DERIVED from ladrillo_figs.SSP_SET, never re-declared. This dict was a LOCAL COPY of the
+## old green/blue/red triple, which the 2026-09-22 palette fix did not reach: #1b7837/#b2182b
+## is deuteranopia dE 2.7 (one colour) and #1b7837/#2166ac is tritanopia 5.5, both FAIL under
+## python/validate_palette.py. The replacement passes all three pairs. A local copy of a shared
+## palette is how a fix fails to propagate, so this takes the shared one.
+SSP_COLOR = {lab: c for _k, lab, c in lf.SSP_SET}
 PLOT_Y0 = 2000                    # left-panel time window start
 COUNT_CMAP = "Blues"
 LOSS_AXIS = "Greenland loss (m SLE rel. 1995-2014)"

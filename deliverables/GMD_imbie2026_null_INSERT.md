@@ -61,9 +61,15 @@ exists only for L27 and L30, and the later arms are not ramp arms, so it is neit
   worst-case **deutan ΔE 15.8**, roughly twice the target. ⚠ One WARN, easily met: the SMB green
   `#5aae61` is **2.74:1** on white, under the 3:1 mark floor — it is a *labelled* legend entry, which is
   the mitigation the tool asks for, so no change is needed unless the bars are ever shown unlabelled.
-- ⛔ **The paper's existing `#1b7837` green with `#b2182b` red still FAILS at deutan ΔE 2.7** — effectively
-  one colour for a deuteranope. That pair is used elsewhere in the figure set and is **unaddressed**. A
-  pass over the existing figures is still owed. `[MCS]`
+- ⭐ **The "green/red is unaddressed" warning is RETIRED — it was already fixed and I had been
+  repeating it stale.** `ladrillo_figs.py` replaced the SSP triple on 2026-09-22 with
+  `#003466` / `#f69320` / `#df0000`, which **passes all three pairs** (worst deutan 17.9), and the
+  paper's figure scripts derive their colours from that shared `SSP_SET` rather than declaring their
+  own. **The paper figure set is clean.** The old `#1b7837`/`#b2182b` pair (deutan ΔE **2.7**, FAIL)
+  survived only as **local copies** in three *diagnostic* scripts that the fix never reached
+  (`diag_gis_amp_cmip6.py`, `plot_gis_basin_mock.py`, `plot_gis_rate_power_scan.py`); none of them
+  produces a paper figure, and all three now derive from `SSP_SET`. ⚠ `#f69320` carries 2.30:1 on
+  white, under the 3:1 mark floor, so it must keep a legend entry — never be the only cue.
 
 ---
 

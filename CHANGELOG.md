@@ -1,3 +1,64 @@
+## 2026-09-26 — **The draft's L24-vintage passages, audited and receipted**; Table A1 rebuilt at L27; the `antarctic_lambda` sentence SURVIVES
+
+The paper ships **L27** (ruling 09-24) but several methods passages were still **L24's**, one naming
+"L24" in the text. `deliverables/GMD_L24_to_L27_CORRECTIONS.md` is the audit. **Nothing in the draft
+`.docx` was touched** — it is untracked, has no markdown source, and Marcus edits it directly.
+
+⛔ **FIRST, A CORRECTION TO MY OWN EARLIER REPORTING.** I twice told Marcus *"the 7 van Vuuren runs and
+14 paper figures are still owed."* **They are not.** That debt belonged to L32/L34 as candidate arms;
+the memo's own cut line reads *"Shipped: 7/7 van Vuuren runs, 14/14 paper figures"* for **L27**, and 91
+L27 vv outputs sit in `outputs/`. The ruling retired the debt with the candidates.
+
+### ① Stale numbers (sources named per item)
+
+- **58 parameters → 50**; 17/9/19/13 → **14/9/16/11**. ⭐ The grouping is reconstructed and
+  **validated**: the same mapping reproduces the draft's own published 17/9/19/13 = 58 on L24 exactly.
+  *"Two discrepancy bases"* → **one** (`--no-d2-gsic`). `ais_precip0_LOG` → **`ais_precip_u`**.
+- ⚠ **The convergence paragraph is L24's throughout and says "L24" in the text.** L27: **42 of 50**
+  pass (not 39 of 58), **8** fail (not 19), and **all 8 are Antarctic** — Greenland's slow channel now
+  passes. `ais_iceflow0` R̂ 1.26 → **1.031**, `antarctic_alpha` 1.28 → **1.047**, SLR R̂
+  1.008/1.011 → **1.001/1.002**, ESS ~1050 → **1238.5/1249.4**. ⭐ The correction runs in the draft's
+  favour. Source: the run's own `log_l27_postprocess_driver.txt`.
+
+### ② ⭐⭐ The `antarctic_lambda` sentence: I nearly had it deleted, and it survives
+
+My first pass read `--cut-fastdyn` in L27's flags, saw `antarctic_lambda` absent from the sampled set,
+and concluded the fast-dynamics channel was gone. **Wrong.** `calibrate_mcmc_ext.jl:857-860`:
+*"projections attach JOINT paleo draws per posterior draw … **'propagated, not estimated', made
+literal**"*, and every chain read prints `ladrillo_attach_propagated!`. Lambda still drives L27's
+projections — as an **exact prior draw**.
+
+Re-measured on L27 (`diag_ais_block_propagation.jl 500 --tag=L27`): ssp585@2300 lambda **R² 0.708,
+decile contrast 0.897** of the spread (L14 was 0.78 / 0.92). **"Dominated" is receipted**, and is
+*stronger in kind*: "sampled, not inferred" is now literal. Only the parenthetical moves —
+mean **0.01038**, sd **0.00359** — which matches BRICK 2.0's to the digit, both drawing from the same
+ensemble. ⚠ The band number is stale: **329 → 313.8 cm** (joint arm). ⛔ Carry the scenario: at
+**ssp245** the order inverts to `ais_gmst_amp` 0.68, `antarctic_temp_threshold` −0.48, lambda 0.47.
+⇒ this is the exact failure `verify_the_quantity_not_the_word` records — **check before relaying.**
+
+### ③ The diagnostic could not read an L27 chain, and why
+
+`diag_ais_block_propagation.jl` **refused to run** on L27 (loudly, naming the missing parameters — a
+good gate). Two causes, both fixed: it called the **one-argument** `ladrillo_used_cols(VARIANT)`
+instead of the **header-aware** overload that already knew about vintages; and `AIS_PARAMS` was a typed
+L14-era list. ⭐⭐ **The fix needed TWO sets, and conflating them would have hidden the answer**:
+what to **SELECT** from the chain (its header) versus what to **RANK** (the draws *after*
+propagation). Lambda is absent from the first and present in the second — ranking on the header would
+have omitted the dominant parameter and reported its absence as a zero effect. Used / propagated /
+absent sets are printed and stamped into every output row.
+
+### ④ Table A1 rebuilt at L27; the accessibility warning RETIRED
+
+`build_tableA1_docx.sh` converts the table the postprocess already emits (50 rows, priors as scored,
+never transcribed) — pandoc only, **never ElementTree**, gated by a preserve-first check, an
+**independent reader** (textutil), and a row count that must survive conversion. Mutation-tested three
+ways. The L24 `.docx` is kept as provenance.
+
+⭐ **And a second stale warning of mine retired**: *"the paper's green/red pair is unaddressed"* was
+fixed on **09-22** — the house `SSP_SET` is `#003466`/`#f69320`/`#df0000`, all pairs PASS, and the
+paper's figure scripts derive from it. **The paper figure set is clean.** The failing pair survived
+only as local copies in three *diagnostic* scripts, now pointed at the shared palette.
+
 ## 2026-09-24h — **RULING: L27 is the paper's posterior.** The IMBIE material gets the innovation-variance finding; the figure re-run is byte-identical
 
 **Marcus, 2026-09-24, closing the arc:** *"let's stick with L27 as the model for the paper."* Three
