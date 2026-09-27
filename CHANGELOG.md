@@ -1,3 +1,49 @@
+## 2026-09-27 — **Manuscript v2**: the L27 fixes applied, the IMBIE-2026 material added, and **Greenland turns out to matter**
+
+`deliverables/GMD.Ladrillo.v2_L27.docx`, built reproducibly by `python/build_gmd_v2_L27.py` from v1.
+**v1 is untouched.** The `.docx` is left untracked like its siblings — Marcus edits these directly, and
+a tracked copy invites exactly the rebuild that destroys his prose. **The edit list is the artifact.**
+
+### ① The six L27 corrections (each sourced in `GMD_L24_to_L27_CORRECTIONS.md`)
+
+58 → **50** parameters (17/9/19/13 → **14/9/16/11**); two discrepancy bases → **one**;
+`ais_precip0_LOG` → **`ais_precip_u`**; convergence **42 of 50** pass / **8** fail, all Antarctic,
+R̂ 1.26 → **1.03** and 1.28 → **1.05**, *"**L24** is therefore accepted"* → **"Ladrillo 1.0"**,
+deliverable R̂ **1.001/1.002**, ESS **~1240**; lambda moments → **0.0104 / 0.0036** with the propagation
+stated, and the 2300 band **329 → 314 cm** (joint arm, both models).
+
+### ② ⭐⭐ THE GREENLAND ANSWER — it has implications, and they are not small
+
+Marcus asked whether the new Greenland data mattered, having focused on AIS. **It does, three ways**
+⇒ [[gis_imbie2026_early_bias]]:
+
+1. ⭐ **It is the CLEANER out-of-sample test.** No vintage of the GIS target has ever contained IMBIE
+   (`prep_recalib_targets_ext.py`: *"not fed to the fit"*; the calibrator DROPS the IMBIE point terms).
+   The Antarctic comparison is out-of-sample only because **L27** predates the IMBIE target build.
+2. ⚠ **Modern rates are excellent, the pre-1992 level is not.** 2003–23 within **8 %** in every window
+   (0.92 / 0.99 / 0.93×), but **1972–91 loses 0.50 cm against the record's 0.13 (+3.67 σ)** — **83 %**
+   of the +0.441 cm full-period gap. About **three quarters of the early gap is the MODEL missing its
+   own target** (+0.276), not the target disagreeing with IMBIE (+0.092). It is the known acceleration
+   deficit over a longer baseline. ⛔ **Quote the LEVEL, never the rate ratio** — the 1972–91 observed
+   rate is 0.0064 ± 0.0041 cm/yr, a near-zero denominator with a ±64 % bar, and "3.9×" is **not** the
+   same estimator as the 0.65× already on record.
+3. ⛔⛔ **They CANCEL.** Greenland **+0.441**, Antarctica **−0.376**, net **+0.065 cm** — opposite sign,
+   opposite period. **A total-sea-level check sees neither.**
+
+Four paragraphs added after *"Deliberately removed: IMBIE, and the total."*: the out-of-sample check,
+the Greenland record, the cancellation caution, and the innovation variance. **Measurement only — no
+interpretive sentence was added**, per the standing split.
+
+### ③ ⛔ The build script's own gate caught a defect in the build script
+
+The first version coalesced runs with `re.sub(r"</w:t></w:r><w:r><w:t>", "")` to make phrases
+contiguous. That regex merges runs of **DIFFERENT** formatting: it swallowed the `VerbatimChar` run
+around `ais_precip0_LOG` into the plain run after it, which would have **silently destroyed the
+monospace styling of every parameter name it touched**. The edit-match gate refused before it could.
+⭐ **The step was also unnecessary** — all six edits and the anchor match the RAW `document.xml`. Removed.
+Verified after: **39 VerbatimChar runs in, 39 out**; XSD passes; +4 paragraphs; an independent reader
+(textutil) confirms 6 new strings present and 6 stale ones gone; and the gate **refuses a double-apply**.
+
 ## 2026-09-26 — **The draft's L24-vintage passages, audited and receipted**; Table A1 rebuilt at L27; the `antarctic_lambda` sentence SURVIVES
 
 The paper ships **L27** (ruling 09-24) but several methods passages were still **L24's**, one naming
