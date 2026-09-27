@@ -144,6 +144,12 @@ C_IMBIE = "#762a83"
 ## diag_imbie2026_vs_targets.py, and one meaning per colour across the figure set is worth more
 ## than 0.2 dE. ⛔ Do not silence the warning by switching to a red: #b2182b is IGCC on the total
 ## panel of THIS figure, and red would then mean two different products in one image.
+## ⚠ OFF BY DEFAULT (Marcus, 2026-09-27: "we can leave the new IMBIE out of the big observation
+## panel"). The series is correct and gated, but on these axes it is not worth its ink: the record
+## covers ~35-40 % of the x-axis and the discrepancy it exists to show is 5 % of panel height on
+## Greenland and 9 % on Antarctica, so it mostly re-draws the target. The quantitative comparison
+## belongs in diag_imbie2026_vs_targets.py's own figure and in the table. Pass --imbie to switch on.
+SHOW_IMBIE = "--imbie" in sys.argv
 IMBIE_CSV = os.path.join(lf.REPO, "outputs", "diag_imbie2026_vs_targets_%s.csv" % TAG)
 IMBIE_PANELS = {"ais": "AIS", "gis": "GIS"}   # figure component -> the diag file's component label
 
@@ -238,7 +244,7 @@ print("[IGCC] GMSL ensemble re-referenced to %d-%d over %d years (%d-%d), mm -> 
 ## that conversion here would be a second copy of the rule, which is how two copies drift apart.
 ## ⭐ The imbie_* columns are TAG-INDEPENDENT and that is CHECKED below, not assumed, so the figure
 ## does not inherit the candidate arm through its observation series.
-if os.path.exists(IMBIE_CSV):
+if SHOW_IMBIE and os.path.exists(IMBIE_CSV):
     _im = pd.read_csv(IMBIE_CSV)
     _prov = str(_im["provenance"].iloc[0])
     if "IMBIE 2026" not in _prov:
@@ -263,6 +269,9 @@ if os.path.exists(IMBIE_CSV):
                              "a baseline with the rest of the figure" % (c, BASE0, BASE1, _w.mean()))
         print("[IMBIE] %s %d-%d, %d yr, already cm SLE on the %d-%d reference"
               % (c.upper(), int(d.index.min()), int(d.index.max()), len(d), BASE0, BASE1))
+elif not SHOW_IMBIE:
+    IMBIE = {}
+    print("[IMBIE] not drawn (default). Pass --imbie to add the 2026 record to the ice-sheet panels.")
 else:
     IMBIE = {}
     print("[IMBIE] %s not found — the ice-sheet panels will be drawn WITHOUT the 2026 record. "
