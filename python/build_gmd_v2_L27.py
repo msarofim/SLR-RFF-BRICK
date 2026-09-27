@@ -19,7 +19,7 @@ a silent no-op -- a stale draft would otherwise produce a "new version" that cha
 
   python3 python/build_gmd_v2_L27.py [--in v1.docx] [--out v2.docx]
 """
-import argparse, os, re, shutil, subprocess, sys, tempfile, zipfile
+import argparse, glob, os, re, shutil, subprocess, sys, tempfile, zipfile
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEL  = os.path.join(REPO, "deliverables")
@@ -39,6 +39,9 @@ EDITS = [
   " 1.05), directions that are weakly identified and compensate for each other; several fail on effective sample size rather than on R̂. Ladrillo 1.0 is therefore accepted on the deliverable-level criterion: projected sea level converges (R̂ = 1.001 at 2100 and 1.002 at 2150 on SSP2-4.5, with an effective sample size of about 1240 on the 1,600 thinned draws used for the diagnostic)."),
  ("the reparameterised precipitation parameter (--precip-reparam)",
   "<w:t>ais_precip0_LOG</w:t>", "<w:t>ais_precip_u</w:t>"),
+ ("FIG 1 caption: the vintage, and the new IMBIE series on the two ice-sheet panels",
+  "Ladrillo L24 (solid, with its 5\u201395% band) and BRICK 2.0 (dashed) are both run starting in 1850, plotted from 1900, and driven by the same ssp245harm forcing.",
+  "Ladrillo 1.0 (solid, with its 5\u201395% band) and BRICK 2.0 (dashed) are both run starting in 1850, plotted from 1900, and driven by the same ssp245harm forcing. The two ice-sheet panels also show the IMBIE 2026 reconciled record with its \u00b11\u03c3 band, from 1979 for Antarctica and 1972 for Greenland; it is not a calibration target for either."),
  ("lambda moments (now PROPAGATED paleo draws) + the 2300 band width, joint arm both models",
   "(mean 0.0105, sd 0.0033 in Ladrillo; 0.0104, 0.0036 in BRICK 2.0), which is why the two Antarctic spreads are alike (5–95% widths of 329 and 405 cm at SSP5-8.5 in 2300).",
   "(mean 0.0104, sd 0.0036 in Ladrillo; 0.0104, 0.0036 in BRICK 2.0 — in Ladrillo these parameters are not estimated but propagated, one joint paleo draw per posterior draw, so the two models now draw them from the same ensemble), which is why the two Antarctic spreads are alike (5–95% widths of 314 and 405 cm at SSP5-8.5 in 2300)."),
@@ -138,6 +141,26 @@ def main():
     print(f"  inserted {len(NEW_PARAS)} paragraphs after: {ANCHOR}")
 
     open(dx, "w", encoding="utf8").write(x)
+
+    # ---- FIG 1 is still the L24 RENDER, not just an L24 caption ---------------------------------
+    # ⚠ The audit that caught the L24 prose checked TEXT only. word/media/image1.png is
+    # hindcast_components_L24.png byte-for-byte. Swapping it is the other half of the vintage fix,
+    # and it is done by MD5 so the script cannot replace the wrong image if the draft is reordered.
+    import hashlib
+    fig = os.path.join(REPO, "figures", "hindcast_components_L27.png")
+    if not os.path.exists(fig):
+        sys.exit("*** missing %s -- run python/plot_hindcast_components.py --tag=L27" % fig)
+    want = hashlib.md5(open(os.path.join(REPO, "figures",
+                                         "hindcast_components_L24.png"), "rb").read()).hexdigest()
+    swapped = None
+    for m in sorted(glob.glob(os.path.join(tmp, "word/media/*"))):
+        if hashlib.md5(open(m, "rb").read()).hexdigest() == want:
+            shutil.copyfile(fig, m); swapped = os.path.basename(m); break
+    if swapped is None:
+        sys.exit("*** FIG 1 image not found in word/media by MD5: the embedded figure is not "
+                 "hindcast_components_L24.png. REFUSING to guess which image to replace.")
+    print(f"  FIG 1 image swapped ({swapped}): hindcast_components_L24.png -> _L27.png "
+          f"(now carries the IMBIE 2026 series)")
     if os.path.exists(a.out): os.remove(a.out)
     subprocess.run(["zip", "-Xqr", a.out, "."], cwd=tmp, check=True)
     shutil.rmtree(tmp)
@@ -149,9 +172,11 @@ def main():
     words = len(txt.split())
     if words < 3000: sys.exit(f"*** independent reader got {words} words; expected >3000. STOP")
     must_have = ["50 parameters are sampled", "42 of the 50 parameters pass", "ais_precip_u",
-                 "314 and 405 cm", "IMBIE 2026 as an out-of-sample check", "innovation variance"]
+                 "314 and 405 cm", "IMBIE 2026 as an out-of-sample check", "innovation variance",
+                 "Ladrillo 1.0 (solid, with its 5\u201395% band)",
+                 "IMBIE 2026 reconciled record with its \u00b11\u03c3 band"]
     must_be_gone = ["58 parameters are sampled", "39 of the 58", "L24 is therefore accepted",
-                    "ais_precip0_LOG", "329 and 405", "1.008 at 2100"]
+                    "ais_precip0_LOG", "329 and 405", "1.008 at 2100", "Ladrillo L24 (solid"]
     bad = [s for s in must_have if s not in txt] + [f"STILL PRESENT: {s}" for s in must_be_gone if s in txt]
     if bad: sys.exit("*** independent reader disagrees:\n  " + "\n  ".join(bad))
     print(f"  independent reader: {words} words, {len(must_have)} new strings present, "

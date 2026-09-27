@@ -43,7 +43,7 @@ adjustment), not the raw `gsic` target column. They differ by ~1.5 cm at 1900 an
 2020; plotting raw makes Ladrillo look biased at 1900 when it is not. The band half-widths
 come from the target file and are re-centred on the corrected line so the two agree.
 """
-import os
+import glob, os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -130,6 +130,22 @@ OBS_LINE = {"glaciers": "glaciers_obs_delta_corrected"}   # see the GLACIER OBS 
 C_LAD, C_BRK = lf.SRC_COLOR["Ladrillo"], lf.SRC_COLOR["BRICK 2.0"]
 C_MAG = lf.SRC_COLOR["MAGICC-SLR"]
 C_OBS, C_IGCC = "#333333", "#b2182b"
+## ⭐ IMBIE 2026 (Otosaka et al. 2026) on the two ICE-SHEET panels, for the same reason IGCC is on
+## the total: an INDEPENDENT product that is not in the fit, so agreement is evidence and not
+## circularity. It is a stronger claim here than for the total — the calibrator DROPS the IMBIE
+## point terms and no vintage of the Greenland target has ever contained IMBIE, so both panels are
+## genuinely out-of-sample (Antarctica for L27 specifically, which predates the IMBIE target build).
+## Antarctica starts 1979 and Greenland 1972; nothing is drawn before those years.
+C_IMBIE = "#762a83"
+## ⚠ COLOUR IS NOT THE ONLY CUE, DELIBERATELY. #762a83 against Ladrillo's #2166ac is deuteranopia
+## dE 7.8 under python/validate_palette.py — above the hard floor of 6 but below the target of 8,
+## which that tool reports as "needs secondary encoding". So this series carries a DOTTED linestyle
+## and round markers as well. The colour is kept because it already means "IMBIE 2026" in
+## diag_imbie2026_vs_targets.py, and one meaning per colour across the figure set is worth more
+## than 0.2 dE. ⛔ Do not silence the warning by switching to a red: #b2182b is IGCC on the total
+## panel of THIS figure, and red would then mean two different products in one image.
+IMBIE_CSV = os.path.join(lf.REPO, "outputs", "diag_imbie2026_vs_targets_%s.csv" % TAG)
+IMBIE_PANELS = {"ais": "AIS", "gis": "GIS"}   # figure component -> the diag file's component label
 
 for f in (LAD_CSV, BRK_CSV, TGT_CSV, IGCC_CSV, MAG_CSV, IGCC_EEI):
     if not os.path.exists(f):
@@ -216,6 +232,43 @@ IGCC_SIG = _ig["std"] / 10.0
 print("[IGCC] GMSL ensemble re-referenced to %d-%d over %d years (%d-%d), mm -> cm"
       % (BASE0, BASE1, len(_igw), int(_ig.index.min()), int(_ig.index.max())))
 
+## --- IMBIE 2026, the ice-sheet panels ------------------------------------------------------------
+## ⚠ READ FROM THE DIAGNOSTIC'S OUTPUT, AND SAY SO. diag_imbie2026_vs_targets.py is this repo's one
+## converter from IMBIE's published Gt/mm files to cm SLE on the 1995-2005 reference; re-implementing
+## that conversion here would be a second copy of the rule, which is how two copies drift apart.
+## ⭐ The imbie_* columns are TAG-INDEPENDENT and that is CHECKED below, not assumed, so the figure
+## does not inherit the candidate arm through its observation series.
+if os.path.exists(IMBIE_CSV):
+    _im = pd.read_csv(IMBIE_CSV)
+    _prov = str(_im["provenance"].iloc[0])
+    if "IMBIE 2026" not in _prov:
+        raise SystemExit("[IMBIE] %s does not carry an IMBIE 2026 provenance stamp" % IMBIE_CSV)
+    _other = [f for f in glob.glob(os.path.join(lf.REPO, "outputs",
+              "diag_imbie2026_vs_targets_L*.csv")) if f != IMBIE_CSV and "_windows" not in f
+              and "_anchors" not in f]
+    if _other:
+        _a = _im[["year", "component", "imbie_level_cm", "imbie_level_sd"]]
+        _b = pd.read_csv(_other[0])[["year", "component", "imbie_level_cm", "imbie_level_sd"]]
+        if not _a.equals(_b):
+            raise SystemExit("[IMBIE] the imbie_* columns differ between %s and %s — they are "
+                             "supposed to be tag-independent; the observation series must not "
+                             "depend on which arm was scored" % (os.path.basename(IMBIE_CSV),
+                                                                 os.path.basename(_other[0])))
+        print("[IMBIE] tag-independence CHECKED against %s" % os.path.basename(_other[0]))
+    IMBIE = {c: _im[_im.component == lab].set_index("year") for c, lab in IMBIE_PANELS.items()}
+    for c, d in IMBIE.items():
+        _w = d.loc[BASE0:BASE1, "imbie_level_cm"]
+        if abs(_w.mean()) > 1e-6:
+            raise SystemExit("[IMBIE] %s is not zeroed on %d-%d (mean %+.4f cm); it would not share "
+                             "a baseline with the rest of the figure" % (c, BASE0, BASE1, _w.mean()))
+        print("[IMBIE] %s %d-%d, %d yr, already cm SLE on the %d-%d reference"
+              % (c.upper(), int(d.index.min()), int(d.index.max()), len(d), BASE0, BASE1))
+else:
+    IMBIE = {}
+    print("[IMBIE] %s not found — the ice-sheet panels will be drawn WITHOUT the 2026 record. "
+          "Run: python python/diag_imbie2026_vs_targets.py --tag=%s" % (IMBIE_CSV, TAG))
+
+
 ## The deep-scope band: alpha_obs x deep heat anomaly, both from observations only.
 _eei = pd.read_csv(IGCC_EEI)
 _eei["year"] = np.floor(_eei["time"]).astype(int)
@@ -257,6 +310,17 @@ for ax, comp in zip(axes.ravel(), lf.COMPONENTS):
         ax.text(0.03, 0.90, "hatched: the most the ocean below 2000 m could add\n"
                 "(observation is 0–2000 m; both models are full-depth)",
                 transform=ax.transAxes, fontsize=7.4, color="0.35", va="top")
+
+    if comp in IMBIE:
+        d = IMBIE[comp]
+        m = (d.index >= X0) & (d.index <= X1)
+        ## the published +/-1 sigma IS an anomaly band here: the series was re-referenced per year
+        ## by the converter, so unlike IGCC's level sigma it does not cancel and is drawn.
+        ax.fill_between(d.index[m], (d["imbie_level_cm"] - d["imbie_level_sd"])[m],
+                        (d["imbie_level_cm"] + d["imbie_level_sd"])[m],
+                        color=C_IMBIE, alpha=0.15, lw=0, zorder=2)
+        ax.plot(d.index[m], d["imbie_level_cm"][m], color=C_IMBIE, lw=1.5, ls=(0, (1.6, 1.4)),
+                marker="o", markersize=2.1, markevery=5, zorder=6)
 
     if comp == "total":
         ## No shading: IGCC's published sigma is a LEVEL uncertainty that cancels on
@@ -312,7 +376,14 @@ handles = [Line2D([], [], color=C_LAD, lw=2, label="%s (median)" % DESC["model"]
            Patch(facecolor="#e08214", edgecolor="#b35806", hatch="////", alpha=0.45,
                  label="TE: most the >2000 m ocean could add (upper bound)"),
            Line2D([], [], color=C_IGCC, lw=1.4, ls=(0, (4, 2)),
-                  label="IGCC 2025-indicators GMSL (not a calibration target)")]
+                  label="IGCC 2025-indicators GMSL (not a calibration target)")] + (
+          ## ⛔ A DRAWN SERIES MUST BE IN THE LEGEND. This entry was missing on the first build and
+          ## the ice-sheet panels carried an unexplained purple line — which is also the "secondary
+          ## encoding" the palette check requires, so its absence broke the accessibility argument
+          ## for keeping this colour. Conditional on the data being present, so the legend can never
+          ## advertise a series the figure did not draw.
+          [Line2D([], [], color=C_IMBIE, lw=1.5, ls=(0, (1.6, 1.4)), marker="o", markersize=3,
+                  label="IMBIE 2026 ice sheets, ±1σ (not a calibration target)")] if IMBIE else [])
 fig.legend(handles=handles, ncol=2, fontsize=8.5, frameon=False, loc="upper center",
            bbox_to_anchor=(0.5, 0.978))
 if not lf.PAPER:
