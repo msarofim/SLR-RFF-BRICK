@@ -150,6 +150,16 @@ C_IMBIE = "#762a83"
 ## Greenland and 9 % on Antarctica, so it mostly re-draws the target. The quantitative comparison
 ## belongs in diag_imbie2026_vs_targets.py's own figure and in the table. Pass --imbie to switch on.
 SHOW_IMBIE = "--imbie" in sys.argv
+## ⚠ FIG 1 IS A HINDCAST FIGURE, AND TWO SERIES WERE NOT EARNING THEIR INK (Marcus, 2026-09-28).
+##   MAGICC-SLR sat on the Greenland panel alone, from 1991, i.e. ~28 % of the x-axis, and needed an
+##   in-panel note APOLOGISING for the rest ("zero before, so no earlier hindcast exists"). It is a
+##   PROJECTION comparator; it keeps its place in Tables 1-2 and the projection figures.
+##   IGCC's GMSL line sat on the busiest panel as a second total, and no sentence in the paper drew
+##   on it. ⛔ Removing the LINE does NOT remove IGCC from the paper: its DEEP-OCEAN HEAT still
+##   supplies the >2000 m band on the TE panel, which stays -- that band is the visual evidence for
+##   the paragraph explaining Ladrillo's TE overshoot, and dropping it would orphan the argument.
+SHOW_MAGICC = "--magicc" in sys.argv
+SHOW_IGCC_GMSL = "--igcc-gmsl" in sys.argv
 IMBIE_CSV = os.path.join(lf.REPO, "outputs", "diag_imbie2026_vs_targets_%s.csv" % TAG)
 IMBIE_PANELS = {"ais": "AIS", "gis": "GIS"}   # figure component -> the diag file's component label
 
@@ -331,7 +341,7 @@ for ax, comp in zip(axes.ravel(), lf.COMPONENTS):
         ax.plot(d.index[m], d["imbie_level_cm"][m], color=C_IMBIE, lw=1.5, ls=(0, (1.6, 1.4)),
                 marker="o", markersize=2.1, markevery=5, zorder=6)
 
-    if comp == "total":
+    if comp == "total" and SHOW_IGCC_GMSL:
         ## No shading: IGCC's published sigma is a LEVEL uncertainty that cancels on
         ## re-referencing, so the only honest band was one the legend had to disclaim (09-11b).
         m = (IGCC_MEAN.index >= X0) & (IGCC_MEAN.index <= X1)
@@ -354,7 +364,7 @@ for ax, comp in zip(axes.ravel(), lf.COMPONENTS):
         ax.fill_between(BRK.index, BRK["%s_p5" % c], BRK["%s_p95" % c],
                         color=C_BRK, alpha=0.16, lw=0)
         ax.plot(BRK.index, BRK["%s_p50" % c], color=C_BRK, lw=1.6, ls="--", zorder=5)
-    if comp in MAG_PANELS and not CMP:
+    if comp in MAG_PANELS and not CMP and SHOW_MAGICC:
         m = MAG[MAG_COL[comp]].dropna()
         ax.fill_between(m.index, m["p05"], m["p95"], color=C_MAG, alpha=0.14, lw=0)
         ax.plot(m.index, m["med"], color=C_MAG, lw=1.6, ls=(0, (2, 1.2)), zorder=5)
@@ -378,14 +388,20 @@ handles = [Line2D([], [], color=C_LAD, lw=2, label="%s (median)" % DESC["model"]
            Patch(facecolor=C_LAD, alpha=0.10, label="%s 5–95%% (predictive, +AR(1)+obs err)" % (TAG if CMP else "Ladrillo"))] + ([
            Line2D([], [], color=C_CMP, lw=1.7, ls="--", label="%s (median)" % CMP_DESC["model"]),
            Patch(facecolor=C_CMP, alpha=0.18, label="%s 5–95%% (parameters)" % CMP)] if CMP else [
-           Line2D([], [], color=C_BRK, lw=1.6, ls="--", label="BRICK 2.0 (median)"),
-           Line2D([], [], color=C_MAG, lw=1.6, ls=(0, (2, 1.2)),
-                  label="MAGICC-SLR (median, 5–95%%; Greenland only, from %d)" % MAG_START["gis"])]) + [
+           ## ⛔ BRICK's entry is conditional on `not CMP`, MAGICC's on SHOW_MAGICC -- and they must
+           ## stay SEPARATE. Hanging `if SHOW_MAGICC` on the whole else-branch (as the first version
+           ## of this edit did) silently dropped BRICK from the legend while its dashed line was
+           ## still drawn on every panel: a legend that omits a drawn series, which is the exact
+           ## defect this file already carries a warning about two entries below.
+           Line2D([], [], color=C_BRK, lw=1.6, ls="--", label="BRICK 2.0 (median)")]
+          + ([Line2D([], [], color=C_MAG, lw=1.6, ls=(0, (2, 1.2)),
+                     label="MAGICC-SLR (median, 5–95%%; Greenland only, from %d)" % MAG_START["gis"])]
+             if SHOW_MAGICC else [])) + [
            Line2D([], [], color=C_OBS, lw=1.6, label="observational target (±1.645σ)"),
            Patch(facecolor="#e08214", edgecolor="#b35806", hatch="////", alpha=0.45,
                  label="TE: most the >2000 m ocean could add (upper bound)"),
-           Line2D([], [], color=C_IGCC, lw=1.4, ls=(0, (4, 2)),
-                  label="IGCC 2025-indicators GMSL (not a calibration target)")] + (
+          ] + ([Line2D([], [], color=C_IGCC, lw=1.4, ls=(0, (4, 2)),
+                  label="IGCC 2025-indicators GMSL (not a calibration target)")] if SHOW_IGCC_GMSL else []) + (
           ## ⛔ A DRAWN SERIES MUST BE IN THE LEGEND. This entry was missing on the first build and
           ## the ice-sheet panels carried an unexplained purple line — which is also the "secondary
           ## encoding" the palette check requires, so its absence broke the accessibility argument
@@ -399,7 +415,9 @@ if not lf.PAPER:
     fig.suptitle(("Historical sea-level rise 1900–2026 by component — %s vs %s vs observations   [%s]"
                   % (DESC["model"], CMP_DESC["model"], lf.commit_stamp())) if CMP else
                  ("Historical sea-level rise 1900–2026 by component — %s vs observations vs "
-                  "BRICK 2.0 (and MAGICC-SLR at Greenland)   [%s]" % (DESC["model"], lf.commit_stamp())),
+                  "BRICK 2.0%s   [%s]"
+                  % (DESC["model"], " (and MAGICC-SLR at Greenland)" if SHOW_MAGICC else "",
+                     lf.commit_stamp())),
                  fontsize=12.5, fontweight="bold", y=0.999)
 ## CAPTION SCOPE: say what the figure DOES, plus the provenance labels every output carries.
 ## Anything argued in the document's text belongs there, not here -- the baseline distinction,
@@ -415,8 +433,8 @@ _cap = (
     "Both models are run from 1850, plotted from @@X0@@, on the same ssp245harm forcing.  "
     + ("The dashed line is the %s posterior (%s), the solid line %s; parameter band only for the "
        "comparison vintage.  " % (CMP, CMP_DESC["model"], TAG) if CMP else
-       "MAGICC-SLR (v7.5.3 + Nauels 2025) is drawn on the Greenland panel from 1991, on its own "
-       "climate.  ")
+       ("MAGICC-SLR (v7.5.3 + Nauels 2025) is drawn on the Greenland panel from 1991, on its own "
+        "climate.  " if SHOW_MAGICC else ""))
     + "Thermal expansion: the hatched band above the observation is the most the ocean "
     "below 2000 m could add (IGCC deep-ocean heat × the observed upper-ocean expansion "
     "coefficient), drawn over 1971–2024.")

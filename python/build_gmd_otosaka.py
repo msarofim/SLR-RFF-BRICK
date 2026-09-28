@@ -46,51 +46,33 @@ def ins_para(lead, body, style="BodyText"):
     return f'<w:p><w:pPr><w:pStyle w:val="{style}"/>{pm}</w:pPr>{runs}</w:p>'
 
 PARAS = [
+ # ⭐ SIMPLIFIED 2026-09-28 (Marcus). The first draft ran to four paragraphs and ~470 words, most of
+ # it numbers. This keeps what the reader cannot reconstruct -- that the record is out-of-sample for
+ # both sheets, where each one departs, that the departures oppose and so cancel in the total, and
+ # that the record sets a floor the posterior sits below -- and drops the supporting arithmetic,
+ # which lives in the CHANGELOG and in deliverables/obs_consistency_vs_imbie2026.md.
  ("IMBIE 2026 as an out-of-sample check.",
-  " Because IMBIE is not a likelihood term for either ice sheet, the 2026 reconciled record "
-  "(Otosaka et al., 2026), which extends Antarctica to 1979 and Greenland to 1972, is an "
-  "out-of-sample comparison for both. For Antarctica the posterior reproduces the record’s "
-  "dynamics anomaly within its published uncertainty in every window — its largest departure, "
-  "+48 Gt yr⁻¹ over 2018–23, is 0.4 of IMBIE’s own uncertainty for that window — "
-  "while underpredicting the cumulative 1979–2023 level by 2.6σ. The two are not "
-  "independent: net mass balance is the sum of surface mass balance and dynamics by construction, "
-  "and because the module’s surface mass balance cannot reproduce the record’s "
-  "+141 Gt yr⁻¹ 2018–23 snowfall anomaly, a calibration that matched the net exactly "
-  "would necessarily understate the dynamics anomaly by about 114 Gt yr⁻¹."),
- ("The Greenland record, which is new below 1992.",
-  " The Greenland comparison is the cleaner of the two, since no vintage of the Greenland target has "
-  "contained IMBIE. From 2003 onward the modelled rate is within 8 % of the record in every "
-  "assessment window (0.92, 0.99 and 0.93 times observed over 2003–10, 2011–17 and "
-  "2018–23). Over 1972–1991 the model loses 0.50 cm SLE against the record’s 0.13 "
-  "(+3.7σ), and 83 % of the full-period 1972–2023 discrepancy of +0.44 cm accumulates in "
-  "those two decades; about a quarter of the early gap is the calibration target itself running high "
-  "against the record (+0.09 cm) and the remainder is the model departing from its own target. The "
-  "pattern is an acceleration deficit measured over a longer baseline than the satellite era allows: "
-  "the record’s Greenland loss rate rises by a factor of 10.5 between 1972–91 and "
-  "2011–17 while the model’s rises by 2.7. The ratio itself is not a stable statistic — "
-  "the observed 1972–91 rate is 0.0064 ± 0.0041 cm yr⁻¹ — so the level "
-  "comparison, not the rate ratio, carries the result."),
- ("The two ice sheets depart in opposite directions.",
-  " Greenland is +0.44 cm over 1972–2023 and Antarctica −0.38 cm over 1979–2023, "
-  "summing to +0.07 cm, so neither departure is visible in a comparison made on total sea level "
-  "alone. The same opposition appears between the observational products themselves: relative to "
-  "IMBIE, the Frederikse-based target used here is low on Antarctica by 0.41 cm and high on Greenland "
-  "by 0.24 cm, each about two of IMBIE’s standard deviations. We do not treat the sea-level "
-  "budget as adjudicating between the two products: over 1972–2021 the component sum already "
-  "closes against the independent total to within 0.5σ, and substituting IMBIE for the "
-  "Frederikse ice sheets changes the residual by a tenth of its own uncertainty, with a sign that "
-  "depends on the window chosen."),
- ("The Antarctic innovation variance.",
-  " The record also constrains the error model. Its Antarctic surface-mass-balance anomaly varies "
-  "from year to year with a standard deviation of first differences of 118 Gt yr⁻¹ over "
-  "1979–2019, a variability present in every decade since the 1980s and of which global mean "
-  "surface temperature explains 4 %, so it is weather rather than a forced signal the module could "
-  "reproduce. Expressed as a sea-level innovation this implies a lower bound of 0.033 cm "
-  "yr⁻¹ on the Antarctic AR(1) innovation standard deviation; the posterior fits 0.0216 cm "
-  "(5–95 %: 0.0188–0.0249), a factor 1.5 below that bound and outside its own 95th "
-  "percentile. Refitting with that standard deviation floored at the implied value, and nothing else "
-  "changed, leaves the configuration marginally worse on both the full-record and altimetry-era "
-  "Antarctic scorers (0.73 against 0.70 and 1.32 against 1.27 σ), so the correction is reported "
+  " IMBIE is not a likelihood term for either ice sheet, so the 2026 reconciled record (Otosaka et "
+  "al., 2026) — which extends Antarctica to 1979 and Greenland to 1972 — is an out-of-sample "
+  "comparison for both. Antarctica reproduces the record’s dynamics anomaly within its published "
+  "uncertainty in every window while underpredicting the cumulative 1979–2023 level by "
+  "2.6σ; the two are linked by construction, since net mass balance is the sum of surface mass "
+  "balance and dynamics and the module cannot reproduce the record’s 2018–23 snowfall "
+  "anomaly. Greenland tracks the record to within 8 % in every window from 2003 onward, but over "
+  "1972–1991 loses 0.50 cm SLE against the record’s 0.13, which is most of the "
+  "full-period discrepancy and reflects an acceleration deficit the satellite era alone is too "
+  "short to expose."),
+ ("The two departures oppose each other.",
+  " Greenland is +0.44 cm too high over 1972–2023 and Antarctica −0.38 cm too low over "
+  "1979–2023, so they nearly cancel and neither is visible in a comparison made on total sea "
+  "level. The observational products disagree the same way: relative to IMBIE the Frederikse-based "
+  "target used here is low on Antarctica and high on Greenland, each by about two of IMBIE’s "
+  "standard deviations. We do not read the sea-level budget as adjudicating between them — the "
+  "component sum already closes against the independent total to within 0.5σ, and substituting "
+  "one product for the other moves the residual by a tenth of its own uncertainty. The record does "
+  "constrain the error model: its Antarctic surface-mass-balance variability implies a floor on the "
+  "Antarctic innovation standard deviation that the posterior sits a factor 1.5 below. Imposing "
+  "that floor leaves the calibration marginally worse on both Antarctic scorers, so it is reported "
   "rather than adopted."),
 ]
 
@@ -125,6 +107,9 @@ def main():
     ap.add_argument("--out", dest="out",
                     default=os.path.join(DEL, "GMD.Ladrillo.v1_review-2026-09-28_L27_otosaka.docx"))
     a = ap.parse_args()
+    # ⚠ zip runs with cwd=tmp, so a relative --out would be written INSIDE the temp dir and then
+    # deleted with it. Resolve both paths before anything uses them.
+    a.src, a.out = os.path.abspath(a.src), os.path.abspath(a.out)
     tmp = tempfile.mkdtemp()
     with zipfile.ZipFile(a.src) as z:
         z.extractall(tmp)
@@ -146,6 +131,39 @@ def main():
     k = x.rindex("<w:p ", 0, x.index(REF_BEFORE))
     x = x[:k] + ins_para("", REF, style="BodyText") + x[k:]
     print("  inserted the Otosaka reference before the Rignot entry (alphabetical)")
+
+    # ---- Table 3: strip the Consolas (VerbatimChar) styling, UNTRACKED (Marcus 2026-09-28) ------
+    # ⭐ WHY ONLY TABLE 3, AND ONLY SOME RUNS. Consolas there was doing four different jobs. The nine
+    # DOIs and the release tag go to body font: the paper's own 36 reference entries set DOIs as
+    # plain text and Table 3 was the ONLY place in the document that did otherwise. The N(mu, sigma)
+    # expression goes too -- every other one of the ~30 in the paper, including all of Table 6's
+    # prior column, is plain text, so the monospaced one was the outlier. ⛔ The .nc FILENAME KEEPS
+    # its monospace: it is a literal a reader must type exactly, which is the one job monospace is
+    # actually for, and the same reason Table 6's parameter names keep it.
+    KEEP_MONO = ".nc"          # substring test; the DAISfastdyn file is the only such run
+    tbls = re.findall(r"<w:tbl>.*?</w:tbl>", x, re.S)
+    if len(tbls) < 3:
+        sys.exit(f"*** expected at least 3 tables, found {len(tbls)}")
+    t3 = tbls[2]
+    if "data source" not in re.sub(r"<[^>]+>", "", t3)[:200]:
+        sys.exit("*** table 3 is not the calibration-inputs table; the table order changed")
+    new_t3, stripped, kept = t3, 0, 0
+    for run in re.findall(r"<w:r[ >].*?</w:r>", t3, re.S):
+        if 'w:val="VerbatimChar"' not in run:
+            continue
+        txt = "".join(re.findall(r"<w:t[^>]*>(.*?)</w:t>", run, re.S))
+        if KEEP_MONO in txt:
+            kept += 1
+            continue
+        # drop ONLY the rStyle reference; every other property of the run is left alone
+        fixed = re.sub(r'<w:rStyle w:val="VerbatimChar"/>', "", run)
+        fixed = re.sub(r"<w:rPr>\s*</w:rPr>", "", fixed)
+        new_t3 = new_t3.replace(run, fixed, 1)
+        stripped += 1
+    x = x.replace(t3, new_t3, 1)
+    print(f"  Table 3: {stripped} runs un-monospaced, {kept} kept (the .nc filename)")
+    if stripped < 9:
+        sys.exit(f"*** only {stripped} runs stripped; expected the 9 DOIs plus the tag and the math")
 
     open(dx, "w", encoding="utf8").write(x)
     if os.path.exists(a.out):
@@ -175,8 +193,8 @@ def main():
         sys.exit("*** the comments were lost")
     txt = subprocess.run(["textutil", "-convert", "txt", "-stdout", a.out],
                          capture_output=True, text=True).stdout
-    for s in ["IMBIE 2026 as an out-of-sample check", "The Greenland record, which is new below 1992",
-              "Otosaka, I. N., Shepherd, A.", "innovation variance"]:
+    for s in ["IMBIE 2026 as an out-of-sample check", "The two departures oppose each other",
+              "Otosaka, I. N., Shepherd, A.", "innovation standard deviation"]:
         if s not in txt:
             sys.exit(f"*** independent reader cannot find: {s}")
     print(f"  gates: all {len(media)} figures byte-identical, w:del {n_del0} unchanged, w:ins {n_ins0} -> "

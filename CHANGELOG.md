@@ -1,3 +1,48 @@
+## 2026-09-28b — Table 3 de-monospaced, FIG 1 trimmed, the IMBIE paragraphs halved
+
+`deliverables/GMD.Ladrillo.v1_review-2026-09-28b_L27_otosaka.docx` (the 09-28 build it replaces is
+deleted). All three changes from Marcus.
+
+### ① Table 3: Consolas → body font, for 11 of 12 runs
+
+⭐ **The paper decided this itself.** Its **36 reference entries set DOIs as plain text** and Table 3
+was the **only** place in the document that set one in Consolas; likewise **every other N(μ, σ) in the
+paper** — ~30 of them, including all of Table 6's prior column — is plain text, so the monospaced one
+was the outlier. So the **nine DOIs, the release tag and the N(μ, σ) expression** lose the style.
+⛔ **The `.nc` FILENAME KEEPS IT**, and so do Table 6's 50 parameter names: a literal a reader must
+type exactly is the one job monospace is actually for. Untracked, as asked.
+
+### ② FIG 1: MAGICC-SLR and the IGCC GMSL line removed; the >2000 m band KEPT
+
+- **MAGICC-SLR out.** It occupied the Greenland panel alone, from 1991 — ~28 % of the x-axis — and
+  needed an in-panel note *apologising* for the rest. It is a **projection** comparator and keeps its
+  place in Tables 1–2 and the projection figures.
+- **IGCC's GMSL line out.** A second total on the busiest panel, and **no sentence in the paper drew
+  on it.** ⛔ This does **not** remove IGCC from the paper — its **deep-ocean heat still supplies the
+  >2000 m band**, so the citation stays.
+- ⭐ **The >2000 m hatched band STAYS, and that is the one I would not remove.** It is the visual
+  evidence for the paragraph explaining Ladrillo's thermal-expansion overshoot; dropping it orphans
+  a standing argument. Extraneous is not the same as unexplained.
+
+Both are `--magicc` / `--igcc-gmsl` opt-ins rather than deletions, and the **title and caption now
+DERIVE from the toggle** instead of asserting MAGICC is present.
+
+⛔ **A regression I introduced and caught in the render:** hanging `if SHOW_MAGICC` on the whole
+`else`-branch of the legend silently dropped **BRICK 2.0** from the legend while its dashed line was
+still drawn on every panel — a legend omitting a drawn series, the exact defect this file already
+carries a warning about. Fixed; BRICK's entry is conditional on `not CMP`, MAGICC's on `SHOW_MAGICC`.
+
+### ③ The IMBIE paragraphs: four → two, ~470 → ~280 words
+
+Kept: that the record is out-of-sample for **both** sheets, where each departs, that the departures
+**oppose and cancel** in the total, and that the record sets a floor the posterior sits below. Dropped:
+the supporting arithmetic, which lives in the CHANGELOG and
+`deliverables/obs_consistency_vs_imbie2026.md`. Still tracked insertions.
+
+**Gates:** all 10 figures byte-identical · `w:del` 7 unchanged · comments 3,615 chars kept · Table 6's
+50 monospaced parameter names untouched · XSD passes. ⚠ Fixed en route: `--out` was resolved relative
+to the temp dir, so a relative path was written inside it and deleted with it.
+
 ## 2026-09-28 — **The Otosaka update, built on the CURRENT review draft** — and my v2 was built on an obsolete base
 
 `deliverables/GMD.Ladrillo.v1_review-2026-09-28_L27_otosaka.docx`, from
