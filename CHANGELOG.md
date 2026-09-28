@@ -1,3 +1,44 @@
+## 2026-09-28 — **The Otosaka update, built on the CURRENT review draft** — and my v2 was built on an obsolete base
+
+`deliverables/GMD.Ladrillo.v1_review-2026-09-28_L27_otosaka.docx`, from
+`python/build_gmd_otosaka.py`. Base = `GMD.Ladrillo.v1_review-2026-09-21c_L27.docx`.
+
+### ⛔ First, the error: v2 was redundant
+
+I built `GMD.Ladrillo.v2_L27.docx` from `GMD.Ladrillo.v1.docx`. **That is not the live draft.** The
+review draft is **9,701 words to v1's 5,840**, carries Marcus's comments and live tracked changes, and
+**already contained every L27 correction v2 applied** — 50 parameters, 42 of 50 converged,
+`ais_precip_u`, 314 cm, no *"L24 is therefore accepted"*, no *"Ladrillo L24 (solid"*. Its
+`antarctic_lambda` sentence is also **better written than mine** (it says the parameter *"is not
+sampled but attached to each posterior draw, jointly with the threshold temperature"*). ⇒ **nothing
+from v2 was merged**; the only thing the review draft lacked was the IMBIE material — it contained no
+"IMBIE 2026" and no "Otosaka" anywhere. **Check the base before editing a document, not after.**
+
+### ⛔⛔ The figures were ALREADY being fixed, as tracked changes — and I nearly rewrote them
+
+`image3/5/7/9` (the L24 renders) sit inside `<w:del>`; `image4/6/8/10` are their replacements;
+`image1/2` are inside `<w:ins>`. **Marcus is mid-review of exactly the L24→L27 figure swap.** Rewriting
+the media — which is what my v2 script does — would have destroyed that review state. The new script
+**gates on the figure BYTES** and refuses if any image changes. ⚠ The first version of that gate fired
+on a clean run because `zip -r` adds a `word/media/` **directory entry** and I was counting entries
+rather than comparing bytes.
+
+### What was added
+
+Four paragraphs after *"Deliberately removed: IMBIE, and the total."* — the out-of-sample check, the
+Greenland record, the opposite-direction departures (now carrying the observational-product
+disagreement and the **no-power budget** result, ⇒ [[obs_budget_cannot_rank_imbie]]), and the
+innovation variance — plus the **Otosaka et al. (2026)** reference in alphabetical position.
+
+⭐ **Every addition is a TRACKED INSERTION attributed to "Claude"**, matching the convention already in
+the file. Untracked edits in a document under review are invisible in the accepted view, which is how
+a reviewer loses track of what changed. **Validated with `--author "Claude"`: no untracked edit.**
+
+**Gates:** all 10 figures byte-identical · `w:del` 7 unchanged · `w:ins` 6 → 20 · Marcus's 3,615 chars
+of comments preserved verbatim · XSD passes · an independent reader finds every new string. The script
+also **refuses to run twice** (it exits if the base already contains "Otosaka"), and refuses a base
+that is not the L27-corrected review draft.
+
 ## 2026-09-27 — **Manuscript v2**: the L27 fixes applied, the IMBIE-2026 material added, and **Greenland turns out to matter**
 
 `deliverables/GMD.Ladrillo.v2_L27.docx`, built reproducibly by `python/build_gmd_v2_L27.py` from v1.
