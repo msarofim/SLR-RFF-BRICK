@@ -39,6 +39,8 @@ of comments preserved verbatim · XSD passes · an independent reader finds ever
 also **refuses to run twice** (it exits if the base already contains "Otosaka"), and refuses a base
 that is not the L27-corrected review draft.
 
+> ⚠ **SUPERSEDED 2026-09-28 — `GMD.Ladrillo.v2_L27.docx` and `python/build_gmd_v2_L27.py` are DELETED (Marcus).** They were built on `GMD.Ladrillo.v1.docx`, which is not the live draft: the review line already carried every L27 correction below, and v2's figure-swap would have destroyed tracked changes Marcus was mid-review of. The live path is `python/build_gmd_otosaka.py` onto the review draft. **This entry is kept as the record of what was tried and why it was wrong.**
+
 ## 2026-09-27 — **Manuscript v2**: the L27 fixes applied, the IMBIE-2026 material added, and **Greenland turns out to matter**
 
 `deliverables/GMD.Ladrillo.v2_L27.docx`, built reproducibly by `python/build_gmd_v2_L27.py` from v1.
