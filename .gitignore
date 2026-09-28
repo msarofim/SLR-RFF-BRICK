@@ -38,6 +38,14 @@ julia/*.jl.mem
 # or original sources documented in data/README.md)
 # ===========================================================================
 data/RFF-SP-emissions/
+
+# The provenance manifest is the point of pinning: keep it tracked even though
+# the 2.4 GB of draws it describes stays ignored (FaIRtoFrEDI/scripts/pin_inputs.py).
+!data/RFF-SP-emissions/
+!data/RFF-SP-emissions/csv/
+!data/RFF-SP-emissions/csv/INPUTS.manifest.json
+data/RFF-SP-emissions/csv/*.csv
+data/RFF-SP-emissions/*.zip
 data/RFF-SP-socioeconomics/
 # MimiBRICK release artifacts are large (~1 GB) — fetch from MimiBRICK
 # release page on first run; only the posterior subsample CSV is needed
