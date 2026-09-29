@@ -18,6 +18,18 @@ the file (w:author="Claude"), so the new text appears as markup rather than sile
 of the accepted prose. Untracked edits in a document under review are invisible in the accepted view
 -- which is exactly how a reviewer loses track of what changed.
 
+⛔⛔ TWO GUARDS, added 2026-09-29 after this script DESTROYED A REVIEW. On 09-28 its first output
+(…09-28_L27_otosaka.docx) went to Marcus, who accepted changes and deleted comments in it. The
+follow-up edits were then made by re-running this script FROM THE ORIGINAL BASE (09-21c) -- the
+"refuses to run on its own output" gate below leaves no other path -- and the reviewed file was
+`rm -f`'d. His whole pass was lost, unrecoverably. Now:
+  1. STALE BASE: refuses if any other GMD.Ladrillo*.docx beside --in is NEWER than --in. The
+     newest draft is where the review lives; building from anything older discards it.
+  2. NO OVERWRITE, NO DELETE: refuses if --out exists. This script never removes a document.
+There is deliberately NO override flag. If the newest draft already has the Otosaka material,
+the answer is an INCREMENTAL edit to that file, or asking Marcus -- not a rebuild.
+(memory: rebuild_from_base_erases_review)
+
   python3 python/build_gmd_otosaka.py [--in <review.docx>] [--out <new.docx>]
 """
 import argparse, os, re, shutil, subprocess, sys, tempfile, zipfile
@@ -100,6 +112,44 @@ def refuse_if_wrong_base(x):
                      "L27 fixes would also be needed and this script does not apply them.")
     print("  base gate: review draft, already L27-corrected, no IMBIE content yet")
 
+DRAFT_GLOB = "GMD.Ladrillo*.docx"   # the manuscript line; Table A1 etc. are separate files
+
+def draft_state(path):
+    """Last-save stamp and markup counts, so a refusal says what the newer file holds.
+    ⚠ A BUILT file inherits core.xml from its base, so "saved by Marcus at …" on a build output is
+    the BASE's stamp, not a save of that file. The guard itself decides on mtime, which is honest."""
+    try:
+        with zipfile.ZipFile(path) as z:
+            core = z.read("docProps/core.xml").decode("utf8")
+            d = z.read("word/document.xml").decode("utf8")
+            c = (z.read("word/comments.xml").decode("utf8")
+                 if "word/comments.xml" in z.namelist() else "")
+        by = re.search(r"lastModifiedBy>([^<]*)<", core)
+        at = re.search(r"dcterms:modified[^>]*>([^<]*)<", core)
+        return (f"saved by {by.group(1) if by else '?'} at {at.group(1) if at else '?'}; "
+                f"{d.count('<w:ins ')} ins / {d.count('<w:del ')} del / "
+                f"{c.count('<w:comment ')} comments")
+    except Exception as e:                       # an unreadable newer draft still blocks
+        return f"unreadable ({e})"
+
+def refuse_stale_base(src):
+    """GUARD 1: the base must be the newest manuscript draft in its folder."""
+    import glob, datetime
+    folder = os.path.dirname(src)
+    newer = [p for p in glob.glob(os.path.join(folder, DRAFT_GLOB))
+             if os.path.abspath(p) != src
+             and not os.path.basename(p).startswith("~$")      # Word lock files
+             and os.path.getmtime(p) > os.path.getmtime(src)]
+    if newer:
+        stamp = lambda p: datetime.datetime.fromtimestamp(os.path.getmtime(p)).strftime("%Y-%m-%d %H:%M")
+        lines = "\n".join(f"      {os.path.basename(p)}  (mtime {stamp(p)}; {draft_state(p)})"
+                          for p in sorted(newer, key=os.path.getmtime, reverse=True))
+        sys.exit(f"*** STALE BASE. --in {os.path.basename(src)} (mtime {stamp(src)}) is older than:\n"
+                 f"{lines}\n"
+                 "    Marcus may have reviewed a newer draft; building from this base would discard it\n"
+                 "    (it did, on 2026-09-28). Edit the NEWEST draft incrementally, or ask. No override.")
+    print("  stale-base gate: --in is the newest GMD.Ladrillo draft in its folder")
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--in",  dest="src",
@@ -110,6 +160,11 @@ def main():
     # ⚠ zip runs with cwd=tmp, so a relative --out would be written INSIDE the temp dir and then
     # deleted with it. Resolve both paths before anything uses them.
     a.src, a.out = os.path.abspath(a.src), os.path.abspath(a.out)
+    # GUARD 2: never overwrite, never delete -- the file at --out may be one Marcus has edited.
+    if os.path.exists(a.out):
+        sys.exit(f"*** --out {os.path.basename(a.out)} already exists; this script never overwrites "
+                 "or deletes a draft. Choose a new name.")
+    refuse_stale_base(a.src)
     tmp = tempfile.mkdtemp()
     with zipfile.ZipFile(a.src) as z:
         z.extractall(tmp)
@@ -166,8 +221,6 @@ def main():
         sys.exit(f"*** only {stripped} runs stripped; expected the 9 DOIs plus the tag and the math")
 
     open(dx, "w", encoding="utf8").write(x)
-    if os.path.exists(a.out):
-        os.remove(a.out)
     subprocess.run(["zip", "-Xqr", a.out, "."], cwd=tmp, check=True)
     shutil.rmtree(tmp)
 

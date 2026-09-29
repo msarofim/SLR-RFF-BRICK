@@ -1,3 +1,26 @@
+## 2026-09-29c — `build_gmd_otosaka.py` can no longer rebuild over a review
+
+**Why:** on 09-28 Marcus reviewed the first Otosaka build. He accepted changes, deleted comments, and
+possibly edited more. The follow-up changes were made by re-running this script **from the original
+base (`09-21c`)**, because its "refuses on its own output" gate left no other path. The session
+then ran `rm -f` on the reviewed file. His whole pass was lost, and it is **unrecoverable**: no Time
+Machine, no iCloud sync, no Word AutoRecovery, no other copy. Evidence from the old session's reads
+of that file suggests one untracked edit in the Antarctic-amplification paragraph; nothing else is
+knowable.
+
+**Guards (no override flag, by design):**
+1. **Stale base:** refuses if any other `GMD.Ladrillo*.docx` beside `--in` is newer than `--in`, and
+   reports that file's mtime, core.xml stamp and ins/del/comment counts. Word `~$` lock files are
+   ignored.
+2. **No overwrite, no delete:** refuses if `--out` exists. The `os.remove` is gone.
+
+**Mutation-tested on scratch copies:** T0 control builds OK, and its `document.xml` is
+**byte-identical** to the shipped 09-28b, so the guards change nothing about the output. T1, the
+09-28 incident, **refuses**, while the **pre-guard script on the same setup goes through**. T2
+(`--out` exists) refuses and leaves the file byte-identical. T3 (a newer `~$` lock file) builds OK.
+On the real `deliverables/`, default arguments now refuse, with the listing and the live draft
+unchanged.
+
 ## 2026-09-29b — L35's raw chains pruned (7.5 GB)
 
 Marcus: *"prune L35's chains, it's only a diagnostic."* The four 2M-draw chain CSVs were sent to Finder's
