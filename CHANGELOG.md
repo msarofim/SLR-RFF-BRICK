@@ -1,3 +1,12 @@
+## 2026-09-29b — L35's raw chains pruned (7.5 GB)
+
+Marcus: *"prune L35's chains, it's only a diagnostic."* The four 2M-draw chain CSVs went to the macOS
+Trash (recoverable until it is emptied) rather than being `rm`'d. Sizes and md5s are recorded in
+`outputs/mcmc/PRUNED_L35_chains.md`. **Kept:** the thinned subsample
+(`data/MimiBRICK/parameters_subsample_brick_mengel_L35.csv`), the adapted covariances and seed
+diagnostics (tracked), the convergence CSV, the logs, and every derived `outputs/*_L35*` product.
+Nothing downstream reads the raw chains.
+
 ## 2026-09-29 — Region 19: GlaMBIE and IMBIE share NO input, only a small domain overlap
 
 Closes the one open item in the 09-29 handoff (§6.3). Full write-up:
