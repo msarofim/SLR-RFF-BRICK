@@ -365,9 +365,13 @@ for tgt, fn in [("ais", "grace_antarctica_mass.txt"), ("gis", "grace_greenland_m
 # RGI regions 1-18-minus-5 PLUS region 19. Region 5 (Greenland periphery) lives in the GIS
 # target (Frederikse GrIS = Kjeldsen/Mouginot + r5; GRACE mascon Greenland includes it), so
 # the GlaMBIE GLOBAL series must have r5 SUBTRACTED or the splice double-counts it against
-# GIS. Region 19 is RETAINED (deliberate zero everywhere else in the chain; inventory
-# convention V = 0.290 m SLE). NB the Frederikse 1900-2018 glacier segment lacks r19 flow
-# (documented zero in his Methods) -- small known bias (~0.05 mm/yr modern, less earlier).
+# GIS. Region 19 is RETAINED (inventory convention V = 0.290 m SLE). NB the Frederikse
+# 1900-2018 glacier segment lacks r19 flow (documented zero in his Methods) -- small known
+# bias (~0.05 mm/yr modern, less earlier). ⚠ r19 is a zero in Frederikse's GLACIER column
+# only, NOT "everywhere else": every gravimetric AIS source (his GRACE era, the GRACE-FO
+# splice, IMBIE 2026's gravimetry) includes the connected Antarctic periphery, by a fraction
+# no product reports. Ceiling on the resulting double count = all of GlaMBIE r19 over the
+# gravimetry years, 0.075 cm 2002-2021 -- deliverables/obs_consistency_vs_imbie2026.md §5.
 # Error: r5's sigma quadrature-ADDED to the global sigma (conservative; r5 ~35 vs global
 # ~100 Gt/yr, so the change is minor).
 gl = pd.read_csv(os.path.join(RAW, "glambie_global_glacier_mass.csv"))

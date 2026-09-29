@@ -1,3 +1,24 @@
+## 2026-09-29 — Region 19: GlaMBIE and IMBIE share NO input, only a small domain overlap
+
+Closes the one open item in the 09-29 handoff (§6.3). Full write-up:
+`deliverables/obs_consistency_vs_imbie2026.md` §5.
+
+- **No shared input data.** GlaMBIE's r19 inputs (read from `glambie_data.zip`) are altimetry,
+  DEM differencing, glaciological and combined products, **with no gravimetry**. IMBIE 2026 names two
+  of them (Hugonnet 2021, Jakob & Gourmelen 2023) only to **decline** an Antarctic GIC correction
+  (Otosaka et al. 2026, Methods).
+- **Domain overlap, yes, in BOTH arms.** IMBIE's gravimetry includes the connected periphery and its
+  altimetry does not. The Frederikse/GRACE-FO target has the same property, which was already recorded
+  in the 08-05 memo §2c. **Not a new hole in the calibration target.** The per-technique weights are
+  not published, so the included fraction cannot be recovered.
+- **Ceiling: 0.075 cm** (all of GlaMBIE r19, 2002–2021, sub-Antarctic islands included). That is
+  ≤ 0.065σ of the budget residual bars, so "the budget closes / cannot rank" stands. ⚠ But it is the
+  **same size as the withdrawn "improvement"** (0.057–0.180 cm), and its sign flips with the window.
+  Weakens the test further, as predicted; never rescues it.
+- The draft's budget sentence is **unaffected**. No manuscript edit.
+- `prep_recalib_targets_ext.py`: **comment only.** It had called r19 a "deliberate zero everywhere
+  else in the chain", which is true of Frederikse's glacier column alone. No code or output changed.
+
 ## 2026-09-28b — Table 3 de-monospaced, FIG 1 trimmed, the IMBIE paragraphs halved
 
 `deliverables/GMD.Ladrillo.v1_review-2026-09-28b_L27_otosaka.docx` (the 09-28 build it replaces is
