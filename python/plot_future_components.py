@@ -25,7 +25,8 @@ julia/scope_slr_fairunc_oldbrick.jl was given `paths` output (same commit).
 scope_slr_fairunc_paths_* schema, same 2014 splice pivot, same 1995-2014 re-reference, same
 PAIR_SEED draw->config permutation. So on `--arm=joint` the two bands are the same object
 and their WIDTHS are comparable -- which is the one thing the older four-source comparison
-could not offer. ⚠ They are thinned differently (Ladrillo 8000 draws, BRICK 2.0 1000), so
+could not offer. ⚠ They are thinned differently (L27: Ladrillo 2000 draws, BRICK 2.0 1000 -- read from the
+cells files at run time), so
 fine width differences carry the coarser arm's Monte-Carlo noise.
 """
 import os
@@ -37,6 +38,7 @@ import ladrillo_figs as lf  # noqa: E402
 import textwrap
 
 import numpy as np
+import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
@@ -107,10 +109,26 @@ else:
           % (len(_actual), len(_commits), dict(_actual)))
 
 # --- data ------------------------------------------------------------------
+## ⚠ DRAW COUNTS ARE READ, NOT TYPED (09-29). The caption said "Ladrillo is thinned to 8000
+## draws" as a literal while every L27 vv cell carried n_draws = 2000. The paths files hold no
+## count, so it comes from each run's sibling `cells` file and must be one value per model.
+def _n_draws(scen, model):
+    p = lf.paths_csv(scen, model, TAG, "spliced").replace("_paths_", "_cells_")
+    if not os.path.exists(p):
+        raise SystemExit("[DRAWS] no cells file beside the trajectory: %s" % os.path.relpath(p, lf.REPO))
+    v = pd.read_csv(p)["n_draws"].unique()
+    if len(v) != 1:
+        raise SystemExit("[DRAWS] %s carries several draw counts %s" % (os.path.relpath(p, lf.REPO), v))
+    return int(v[0])
+
+
+N_DRAWS = {}
 LAD, BRK = {}, {}
 for k, lab, _c, _d in SCENS:
     LAD[k] = lf.load_paths(k, "ladrillo", TAG, ARM)
     BRK[k] = lf.load_paths(k, "brick20", TAG, ARM)
+    for _m in ("ladrillo", "brick20"):
+        N_DRAWS.setdefault(_m, set()).add(_n_draws(k, _m))
     for name, byc in (("Ladrillo", LAD[k]), ("BRICK 2.0", BRK[k])):
         s, t = lf.check_component_sum(byc, k, name)
         ## Reported, never asserted: the sum of per-component MEDIANS is not the median of
@@ -170,13 +188,19 @@ if not lf.PAPER:
 ## line, and `bbox_inches="tight"` then expands the CANVAS to fit it -- the first render of
 ## this figure came out 5462x1306 px (4.2:1) instead of the 15.5x8.6 in it asks for, with
 ## the panels squashed into a strip. Wrap first, then save.
+for _m, _v in N_DRAWS.items():
+    if len(_v) != 1:
+        raise SystemExit("[DRAWS] %s draw count differs across scenarios: %s" % (_m, sorted(_v)))
+_NLAD, _NBRK = N_DRAWS["ladrillo"].pop(), N_DRAWS["brick20"].pop()
+print("[DRAWS] Ladrillo %d, BRICK 2.0 %d (from the cells files)" % (_NLAD, _NBRK))
 _cap = (
     ## CAPTION SCOPE: the arm, the baseline, the draw counts -- what the figure DOES.
     ## Why the widths are comparable, and what the thinning implies, are arguments -> the text.
     ## CAPTION STYLE (Marcus 2026-09-11b): vintage, arm, baseline, draw counts; nothing implied.
-    "%s — %s.  Arm: %s, the same for both models.  %s.  Ladrillo is thinned to 8000 draws, "
-    "BRICK 2.0 to 1000.%s"
-    % (DESC["model"], DESC["calib"], ARM_DESC, lf.PROJ_BASELINE.capitalize(), CHECK_NOTE))
+    "%s — %s.  Arm: %s, the same for both models.  %s.  Ladrillo is thinned to %d draws, "
+    "BRICK 2.0 to %d.%s"
+    % (DESC["model"], DESC["calib"], ARM_DESC, lf.PROJ_BASELINE.capitalize(),
+       _NLAD, _NBRK, CHECK_NOTE))
 if not lf.PAPER:
     fig.tight_layout(rect=[0, 0.10, 1, 0.935])
     fig.text(0.5, 0.085, "\n".join(textwrap.wrap(_cap, 185)),
