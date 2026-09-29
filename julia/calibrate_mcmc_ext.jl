@@ -1,10 +1,13 @@
 ## ============================================================================
-## CANONICAL RUN = run_mcmc_L24.sh (--overdisperse --adcov=adapted_cov_L11tune3_seed2026_named.csv
-##   --amp-mu=1.09 --amp-sigma=0.180; --gis-ordered --gis-basins2 are accepted no-ops since the
-##   2026-09-16 cleanup made them the defaults). scripts/gate_calibrator_identity.sh proves any
-##   edit to this file still reproduces the L24 objective byte-for-byte (300 iter, seed 2026).
-## Postprocess with run_l24_postprocess.sh (postprocess_mcmc_ext.jl --tag=L24 --accept-slr,
-## gated by diag_slr_convergence_by_chain_ladrillo.jl).
+## CANONICAL RUN = run_mcmc_L27.sh (the paper's posterior, champion since 2026-09-21; 50 params):
+##   --gis-ordered --gis-basins2 --amp-mu=1.09 --amp-sigma=0.180 --paleo-priors --no-delta
+##   --no-d2-gsic --obs-corr-len=100 --toff-lo=-4 --precip-reparam --cut-fastdyn --fix-gamma
+##   --no-ledger, on the Frederikse+GRACE AIS target (prep_recalib_targets_ext.py --ais-frederikse;
+##   the committed outputs/recalib_targets_ext.csv at HEAD). Postprocess with run_l27_postprocess.sh
+##   (postprocess_mcmc_ext.jl --tag=L27 --accept-slr, gated by diag_slr_convergence_by_chain_ladrillo.jl).
+## REGRESSION FIXTURE (not the canonical run): scripts/gate_calibrator_identity.sh proves any edit
+##   to this file still reproduces the L24 objective (run_mcmc_L24.sh flags) byte-for-byte
+##   (300 iter, seed 2026). It does NOT certify the L27 flag set.
 ## ============================================================================
 ## calibrate_mcmc_ext.jl  —  BRICK-Mengel MCMC on the EXTENDED (post-2018) targets
 ##
@@ -78,7 +81,7 @@
 ## slowdown, with each process burning ~200% CPU of which about half is OpenBLAS spin-wait.
 ## Pinning to 1 thread puts each chain on its own P-core and recovers the full single-chain
 ## rate (stage-1 solo chain was 2h25m; four pinned chains finish in ~2h20m TOTAL).
-## The RAM sampler's per-iteration work is a 55x55 Cholesky update -- far below the size
+## The RAM sampler's per-iteration work is a 55x55 Cholesky update (50x50 at L27) -- far below the size
 ## where threaded BLAS pays for itself, so the threads were never buying anything here.
 ## ============================================================================
 
@@ -117,7 +120,8 @@ const TAG_OVR       = _argval("--tag=")
 ##
 ## ⚠ THE 1979 BOUNDARY IS A PROPERTY OF THE TARGET, NOT A TUNING KNOB. prep_recalib_targets_ext.py
 ## splices Frederikse 2020 for 1900-1978 onto IMBIE over IMBIE_JOIN_WIN (1979-1988); from 1979 the
-## AIS column IS the IMBIE reconciled record. So --ais-fit-from=1979 fits the Antarctic to ONE
+## AIS column IS the IMBIE reconciled record. (That is the IMBIE-2026 build, used by L28+; L27's
+## target is the --ais-frederikse build, Frederikse 1900-2018 + GRACE, with no IMBIE splice.) So --ais-fit-from=1979 fits the Antarctic to ONE
 ## dataset instead of two spliced ones -- that is the argument for it, and it is the honest way to
 ## describe it. It is NOT a window-rate term (which would double-count, since the level target
 ## equals IMBIE from 1992 on); it narrows the SPAN of the existing term and adds nothing.

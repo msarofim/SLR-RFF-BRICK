@@ -24,7 +24,8 @@
 ##               RCMIP-native run_fair_ssps.py) — mean forcing, so the reported
 ##               spread is POSTERIOR-PARAMETER spread, not climate spread
 ##   baseline  : 1995-2014 (AR6; ~ FACTS baseyear 2005)
-##   LWS       : seeded realization (build_brick_nu3 default, LWS_SEED)
+##   LWS       : OBSERVED series through 2023, then 0.30 mm/yr (brick_mengel.jl LWS_MODE =
+##               :observed, since 2026-09-21; :central 09-18 -> 09-21, seeded before that)
 ##   F_unch    : excluded — hindcast-target construct (see ladrillo_projection.jl)
 ##
 ## Bands are 5-95% and 17-83% (AR6 "likely") over FINITE draws; the AIS

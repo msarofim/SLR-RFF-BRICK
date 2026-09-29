@@ -18,7 +18,7 @@
 ##                       not sampled (one parameter fewer); L = 20 / 50 are the single-chain sensitivities (L26a/c).
 ##   --toff-lo=-4        the glacier equilibrium-offset bound (L24's -3 clipped 23 % of SLOWG's posterior)
 ##   --precip-reparam    u = log P0 + kappa * Tbar sampled in the precip slot (the r = +0.96 ridge)
-## 55 parameters (L24: 58). Starts: outputs/mcmc/overdispersed_starts_L26.csv (L26d 2nd-half draws at
+## 50 parameters (L26: 55, L24: 58). Starts: outputs/mcmc/overdispersed_starts_L26.csv (L26d 2nd-half draws at
 ## ais_iceflow0 quantiles 0.02/0.35/0.65/0.98); proposal seed: L26d's adapted covariance (named header).
 set -e
 cd "$(dirname "$0")"

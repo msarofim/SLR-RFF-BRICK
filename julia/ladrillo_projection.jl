@@ -84,6 +84,9 @@ include(joinpath(@__DIR__, "antarctic_icesheet_magdep_component.jl"))   # L30: t
 const LADRILLO_REPO = abspath(joinpath(@__DIR__, ".."))
 const LADRILLO_OBS  = joinpath(LADRILLO_REPO, "data/observations")
 
+## ⚠ 2026-09-29: this DEFAULT is still L24, but the champion and the GMD paper's posterior is L27
+## (champions.json, since 2026-09-21): pass --tag=L27 or the L27 csv explicitly. Switching this
+## default changes what ~25 no-flag callers load and the filenames they write -- pending Marcus.
 """Canonical Ladrillo posterior subsample: **L24**, canonical since 2026-09-02.
 Two-basin Greenland (`:basins2` — carries `gis_s_high`, NOT `gis_s_mid`) with the
 above-threshold discharge channel, which is PRIOR-SPECIFIED projection-side

@@ -1,3 +1,30 @@
+## 2026-09-29f — Stale docs brought to L27 before Tony reads the repo (docs and comments only)
+
+A read-only audit found the newcomer-facing docs still describing **L24** (or L14) as current.
+Every claim was checked before editing: `benchmark/champions.json` gives L27 on all six modules
+since 09-21; `parameters_subsample_brick_mengel_L27.csv` is 10 000 × 50 and tracked;
+`brick_mengel.jl:64` is `LWS_MODE = :observed`; `run_mcmc_L27.sh` carries the flag string.
+- `LADRILLO.md`: the status block is now L27, with L24 kept as the previous champion. The pickup
+  pointer now says "newest handoff". The champion history, the SLR certificate (re-cut at L27:
+  R̂ 1.001/1.002, ESS 1239/1249), and a new L27 paragraph at the head of §2 are updated; the L14
+  detail below it keeps its label. The GMD draft is named as the live paper, `TAG=L27` is used in
+  Reproduce (those outputs exist), and the L24 overshoot rows are labelled "not re-run on L27".
+- `calibrate_mcmc_ext.jl` header: the canonical run is now `run_mcmc_L27.sh`. The identity gate is
+  restated as an **L24 regression fixture that does not certify L27**. The IMBIE-splice comment is
+  scoped to the IMBIE build (L28+).
+- `project_ssps_components_ladrillo.jl` header: LWS is `:observed`, not seeded.
+- `run_mcmc_L27.sh`: "55 parameters" (L26's text) is now 50.
+- `README.md`: the FaIR label is now "FaIR 2.2.4 (calib 1.4.5)", and a pointer to Ladrillo/L27 is
+  added.
+
+**Deliberately NOT changed (Marcus's call):**
+- `ladrillo_projection.jl`'s `LADRILLO_POSTERIOR_CSV` still points at L24. Switching it changes
+  what about 25 no-flag callers load, and the filenames they write. Only a warning comment was
+  added; the docstring stays L24 because it is true of the code.
+- `python/plot_ladrillo_memo_figures.py` and `ladrillo_model_comparison.py` default to `--tag=L24`.
+- README's QR-code URL names the tag `v1.0-poster-agu-chapman`, which does not exist (only `v2.0-…`
+  does). If that URL is printed on the poster, the fix is to create the tag, not to edit the README.
+
 ## 2026-09-29e — FIG 1: the observation band and BRICK 2.0's band were the same grey
 
 Both were drawn as light-grey fills at alpha 0.16 (#333333 and #7f7f7f). On white they rendered

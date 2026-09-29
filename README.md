@@ -4,9 +4,9 @@ Probabilistic sea-level rise from RFF-SP × FaIR × MimiBRICK.
 
 This repository contains the reproducible pipeline coupling Resources for the
 Future's RFF-SP probabilistic socio-economic / emissions ensemble (Rennert
-et al. 2022) with the FaIR v2.2.4 reduced-complexity climate model (using
-the FaIR-calibrate v1.4.5 release — an updated release of the v1.4.1
-calibration documented in Smith et al. 2024) and MimiBRICK with the
+et al. 2022) with the reduced-complexity climate model FaIR 2.2.4 (calib 1.4.5 —
+an updated release of the v1.4.1 calibration documented in Smith et al. 2024;
+the legacy basis of these shipped results) and MimiBRICK with the
 post-PR#93 joint posterior (Wong 2026), importance-weighted against
 observed historical GMSL via the Wong (2026) AR(1) likelihood. Outputs
 include probabilistic projections of GMST and GMSL through 2300,
@@ -17,6 +17,11 @@ The headline final ensemble is the **LHS-10k conditional-BRICK design**:
 10,000 Latin-Hypercube-sampled (RFF, FaIR cfg, BRICK posterior) triplets,
 Wong-weighted to give an effective sample size of 3,815 (38%) under the
 v1.4.5 FaIR + post-PR#93 BRICK calibration.
+
+**Ladrillo (the GMD model-description paper).** Branch `ladrillo-dev` also holds
+Ladrillo, a MimiBRICK v2.0.0 derivative with replaced glacier and Greenland
+components, run on FaIR 2.2.4 (calib 1.6.0). Its posterior is **L27** (50
+parameters; `run_mcmc_L27.sh`). Start at [LADRILLO.md](LADRILLO.md).
 
 A direct intellectual companion is **Darnell et al. 2025** (*Nat Clim Change*
 15:1205–1211, [doi:10.1038/s41558-025-02457-0](https://doi.org/10.1038/s41558-025-02457-0)),
