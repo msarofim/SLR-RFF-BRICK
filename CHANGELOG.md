@@ -1,7 +1,8 @@
 ## 2026-09-29b — L35's raw chains pruned (7.5 GB)
 
-Marcus: *"prune L35's chains, it's only a diagnostic."* The four 2M-draw chain CSVs went to the macOS
-Trash (recoverable until it is emptied) rather than being `rm`'d. Sizes and md5s are recorded in
+Marcus: *"prune L35's chains, it's only a diagnostic."* The four 2M-draw chain CSVs were sent to Finder's
+delete intending the Trash — ⚠ **CORRECTION: they did NOT land there** (`stat` of `~/.Trash` and
+the volume trash finds nothing), so they are **permanently deleted**, not recoverable as first reported. Sizes and md5s are recorded in
 `outputs/mcmc/PRUNED_L35_chains.md`. **Kept:** the thinned subsample
 (`data/MimiBRICK/parameters_subsample_brick_mengel_L35.csv`), the adapted covariances and seed
 diagnostics (tracked), the convergence CSV, the logs, and every derived `outputs/*_L35*` product.

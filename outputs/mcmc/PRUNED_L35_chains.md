@@ -2,7 +2,9 @@
 
 L35 was a diagnostic arm in the closed L27-vs-L32 arc (held-out pre-1979 test: PARTIAL 1.18σ, AMBIGUOUS
 by pre-registration; memory `ais_heldout_pre1979_fails_ambiguously`). Never a candidate. The four raw
-4×2M chains were moved to the macOS Trash; everything derived from them is KEPT:
+4×2M chains were DELETED. ⚠ They were sent to Finder's delete (osascript) intending the Trash, but a
+`stat` of `~/.Trash` and the volume trash afterwards found **nothing** — they are gone, not recoverable.
+Everything derived from them is KEPT:
 
 - `data/MimiBRICK/parameters_subsample_brick_mengel_L35.csv` (thinned posterior)
 - `outputs/mcmc/{adapted_cov,seed_diag}_L35*` (tracked), `slr_convergence_L35.csv`, `log_L35_seed*.txt`
