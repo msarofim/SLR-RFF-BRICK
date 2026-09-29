@@ -1,3 +1,58 @@
+## 2026-09-29d — GMD review round: 48 tracked edits, 17 comments, FIG 1 re-rendered
+
+`deliverables/GMD.Ladrillo.v1_review-2026-09-29_L27.docx`, built on Marcus's 09-29 11:12 save of
+`…09-28b_L27_otosaka.docx`. That save had every tracked change resolved and 6 comments open. The
+base file is untouched. Three read-only agents traced ~90 numerical claims to L27 outputs; every
+edit is tracked under "Claude" (validated with `--author`), and pandoc's accepted view was checked
+independently.
+
+**FIG 1** (Marcus's comments #1, #2): re-rendered with `--paper`. MAGICC-SLR and the IGCC GMSL line
+were already opt-in; the **>2000 m band is now opt-in too** (`--deep-band`). BRICK 2.0's 5–95% band
+was drawn but missing from the legend, and is now in it. ⛔ **The plot script read the working-tree
+target, which is the IMBIE build**: a fresh render would have drawn the wrong Antarctic observation
+(−0.768 vs −0.634 at 1900). Added `--targets=`, and rendered on `git show HEAD:` (md5 070f74ab,
+Frederikse). The script now prints the target's path, md5 and AIS@1900 on every run.
+
+**Corrections made (tracked):**
+- Greenland timescales 50/170 yr were **L24's**. L27 is 109 yr (62–191) SMB and 289 yr (142–663)
+  discharge, active basin, recomputed from the subsample.
+- BRICK 2.0's TE prior is Uniform(0.05, 0.3), the same as Ladrillo's. The quoted N(0.16, 0.029) is
+  its posterior.
+- The Greenland amplification prior width comes from three observational products, not the CMIP6
+  spread (text and Table 3).
+- The tap is whole-sheet, not on the high basin. γ is 2.83. "Four Antarctic changes … the three" is
+  now five and four.
+- Run time: ~7 ms per iteration and ~4 h, not 1–2 ms and 3 h. The test suite does not contain the
+  byte-identity or hindcast checks the text claimed.
+- 0.002 W/m² was misattributed and is deleted.
+- The Rignot ±505 is the pre-term diagnostic, not L27.
+- Two refits became one: L27b is not the same objective.
+- R19's GlaMBIE rate is weak because of our serially-correlated σ, not gravimetry: GlaMBIE r19 has no
+  gravimetry input.
+- The IMBIE-paragraph snowfall explanation had the wrong sign. The deficit accrues 1979–2017 and
+  mirrors the target.
+- Glacier ratio 1.3x, not 1.4x.
+- FACTS TE is proportional to OHC, not two-layer (matches Table 2 and the FACTS code).
+- FACTS land-water storage is also drawn at 2300.
+- FIG 5 regrowth is ~0.1 cm on vvLN and vvML, fixed arm.
+- The FittedISMIP 47 → 112 cm is two settings, not a trajectory.
+- MP25's 2300 is an extrapolation.
+- The discrepancy basis is orthogonal to a constant AND the OHC shape (the text had each half in a
+  different place).
+- Comment #3: glaciers 1950–92 are not within 0.1 cm (0.23 vs 0.13).
+- Comment #4: the band sentence and the unsupported "within 4% in every era" are deleted.
+
+**Left as comments** (judgment calls): the 7.9–31.9× literature range (endpoint division; matched
+median 6.40×), mixed arms in the Greenland paragraphs, the amp-leverage definition (OLS 57 cm vs
++1σ median 17.9), the Greenland warming dates, the Leclercq envelope vs the --no-ledger score, the
+IGCC rate (0.399 OLS vs 0.367 endpoint), the duplicate sampler text, stale FIG 4/5 media, and a
+reference audit.
+
+⭐ **Table 5 is CORRECT and was not touched.** Memory had recorded ΔBIC +20.8 as "retracted" in
+favour of +9.1. That was backwards for the paper. +9.1 is L27 rescored on the IMBIE target, built
+so L27 and L32 would share one ruler. The paper compares L27 with BRICK 2.0 on L27's own Frederikse
+target: `3b5bbce`, 09-20 19:29, before the 09-21 13:12 rebuild. Re-derived independently to 0.01.
+
 ## 2026-09-29c — `build_gmd_otosaka.py` can no longer rebuild over a review
 
 **Why:** on 09-28 Marcus reviewed the first Otosaka build. He accepted changes, deleted comments, and

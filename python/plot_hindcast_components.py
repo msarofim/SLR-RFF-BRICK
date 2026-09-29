@@ -71,7 +71,13 @@ OUT = lf.paper_path(os.path.join(lf.REPO, "figures", "hindcast_components_%s%s.p
 
 LAD_CSV = os.path.join(lf.REPO, "outputs", "postpred_%s_components_timeseries.csv" % TAG)
 BRK_CSV = os.path.join(lf.REPO, "outputs", "postpred_oldbrick_components_timeseries.csv")
-TGT_CSV = os.path.join(lf.REPO, "outputs", "recalib_targets_ext.csv")
+## --targets=<path> (2026-09-29): the component targets to DRAW. The default is the working-tree
+## file, which since 2026-09-21 is the IMBIE-2026 build (for L28+ diagnostics). L27 and earlier were
+## fitted to the Frederikse + GRACE build, i.e. `git show HEAD:outputs/recalib_targets_ext.csv`, so a
+## paper render of L27 must pass that file or its Antarctic observation line is the WRONG TARGET
+## (at 1900: -0.768 IMBIE vs -0.634 Frederikse). The path and md5 are printed on every run.
+TGT_CSV = next((a[len("--targets="):] for a in sys.argv[1:] if a.startswith("--targets=")),
+               os.path.join(lf.REPO, "outputs", "recalib_targets_ext.csv"))
 ## ⭐ IGCC 2025-indicators release (Forster et al. 2026), ingested and provenance-gated by
 ## `python/ingest_igcc2026_gmsl.py` -- read the INGESTED file, not the raw drop, so the
 ## Table 11 check stands between the download and every figure that uses it.
@@ -160,6 +166,10 @@ SHOW_IMBIE = "--imbie" in sys.argv
 ##   the paragraph explaining Ladrillo's TE overshoot, and dropping it would orphan the argument.
 SHOW_MAGICC = "--magicc" in sys.argv
 SHOW_IGCC_GMSL = "--igcc-gmsl" in sys.argv
+## ⚠ THE >2000 m BAND IS NOW OPT-IN TOO (Marcus, 2026-09-29, GMD comment): "the >2000m addition is
+##   too difficult to understand from the chart: I think the text description is sufficient." The
+##   paragraph above therefore no longer relies on it. Kept behind --deep-band, not deleted.
+SHOW_DEEP_BAND = "--deep-band" in sys.argv
 IMBIE_CSV = os.path.join(lf.REPO, "outputs", "diag_imbie2026_vs_targets_%s.csv" % TAG)
 IMBIE_PANELS = {"ais": "AIS", "gis": "GIS"}   # figure component -> the diag file's component label
 
@@ -174,6 +184,9 @@ if CMP and not os.path.exists(CMP_CSV):
 LADC = pd.read_csv(CMP_CSV).set_index("year") if CMP else None
 C_CMP = "#7b3294"                                  # a purple no other source on this figure uses
 TGT = pd.read_csv(TGT_CSV).set_index("year")
+import hashlib
+print("[targets] %s  md5 %s  ais@1900 %+.3f" % (TGT_CSV, hashlib.md5(open(TGT_CSV, "rb").read()).hexdigest()[:8],
+                                              TGT.loc[1900, "ais"]))
 ## MAGICC: long table -> one wide frame per component, columns med/p05/p95, NaN before start.
 _mg = pd.read_csv(MAG_CSV)
 assert (_mg.unit == "cm rel %d-%d" % (BASE0, BASE1)).all(), \
@@ -321,7 +334,7 @@ for ax, comp in zip(axes.ravel(), lf.COMPONENTS):
         obs = corr
     ax.fill_between(obs.index, lo, hi, color=C_OBS, alpha=0.16, lw=0, zorder=1)
     ax.plot(obs.index, obs.values, color=C_OBS, lw=1.6, zorder=4)
-    if comp == "te":
+    if comp == "te" and SHOW_DEEP_BAND:
         yrs = [t for t in DEEP_BOUND.index if t in obs.index and np.isfinite(obs.loc[t])]
         ax.fill_between(yrs, obs.loc[yrs].values, obs.loc[yrs].values + DEEP_BOUND.loc[yrs].values,
                         facecolor="#e08214", edgecolor="#b35806", hatch="////", lw=0, alpha=0.45,
@@ -393,14 +406,16 @@ handles = [Line2D([], [], color=C_LAD, lw=2, label="%s (median)" % DESC["model"]
            ## of this edit did) silently dropped BRICK from the legend while its dashed line was
            ## still drawn on every panel: a legend that omits a drawn series, which is the exact
            ## defect this file already carries a warning about two entries below.
-           Line2D([], [], color=C_BRK, lw=1.6, ls="--", label="BRICK 2.0 (median)")]
+           Line2D([], [], color=C_BRK, lw=1.6, ls="--", label="BRICK 2.0 (median)"),
+           ## drawn on every model panel (fill_between below) but absent from the legend until 09-29
+           Patch(facecolor=C_BRK, alpha=0.16, label="BRICK 2.0 5–95%")]
           + ([Line2D([], [], color=C_MAG, lw=1.6, ls=(0, (2, 1.2)),
                      label="MAGICC-SLR (median, 5–95%%; Greenland only, from %d)" % MAG_START["gis"])]
              if SHOW_MAGICC else [])) + [
            Line2D([], [], color=C_OBS, lw=1.6, label="observational target (±1.645σ)"),
-           Patch(facecolor="#e08214", edgecolor="#b35806", hatch="////", alpha=0.45,
-                 label="TE: most the >2000 m ocean could add (upper bound)"),
-          ] + ([Line2D([], [], color=C_IGCC, lw=1.4, ls=(0, (4, 2)),
+          ] + ([Patch(facecolor="#e08214", edgecolor="#b35806", hatch="////", alpha=0.45,
+                      label="TE: most the >2000 m ocean could add (upper bound)")]
+               if SHOW_DEEP_BAND else []) + ([Line2D([], [], color=C_IGCC, lw=1.4, ls=(0, (4, 2)),
                   label="IGCC 2025-indicators GMSL (not a calibration target)")] if SHOW_IGCC_GMSL else []) + (
           ## ⛔ A DRAWN SERIES MUST BE IN THE LEGEND. This entry was missing on the first build and
           ## the ice-sheet panels carried an unexplained purple line — which is also the "secondary
@@ -435,9 +450,9 @@ _cap = (
        "comparison vintage.  " % (CMP, CMP_DESC["model"], TAG) if CMP else
        ("MAGICC-SLR (v7.5.3 + Nauels 2025) is drawn on the Greenland panel from 1991, on its own "
         "climate.  " if SHOW_MAGICC else ""))
-    + "Thermal expansion: the hatched band above the observation is the most the ocean "
-    "below 2000 m could add (IGCC deep-ocean heat × the observed upper-ocean expansion "
-    "coefficient), drawn over 1971–2024.")
+    + ("Thermal expansion: the hatched band above the observation is the most the ocean "
+       "below 2000 m could add (IGCC deep-ocean heat × the observed upper-ocean expansion "
+       "coefficient), drawn over 1971–2024." if SHOW_DEEP_BAND else ""))
 _cap = _cap.replace("@@X0@@", str(X0))          # derived from the constant, not retyped
 assert "@@" not in _cap, "caption sentinel left unsubstituted"
 if not lf.PAPER:
