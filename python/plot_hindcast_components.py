@@ -136,6 +136,7 @@ OBS_LINE = {"glaciers": "glaciers_obs_delta_corrected"}   # see the GLACIER OBS 
 C_LAD, C_BRK = lf.SRC_COLOR["Ladrillo"], lf.SRC_COLOR["BRICK 2.0"]
 C_MAG = lf.SRC_COLOR["MAGICC-SLR"]
 C_OBS, C_IGCC = "#333333", "#b2182b"
+OBS_HATCH = "\\\\\\"                 # back-slash hatch: the optional >2000 m band uses "////"
 ## ⭐ IMBIE 2026 (Otosaka et al. 2026) on the two ICE-SHEET panels, for the same reason IGCC is on
 ## the total: an INDEPENDENT product that is not in the fit, so agreement is evidence and not
 ## circularity. It is a stronger claim here than for the total — the calibrator DROPS the IMBIE
@@ -332,7 +333,12 @@ for ax, comp in zip(axes.ravel(), lf.COMPONENTS):
         corr = LAD[OBS_LINE[comp]]
         lo, hi = corr + (lo - obs), corr + (hi - obs)
         obs = corr
-    ax.fill_between(obs.index, lo, hi, color=C_OBS, alpha=0.16, lw=0, zorder=1)
+    ## ⚠ HATCHED, NOT FILLED (09-29). The obs band was a #333333 fill at alpha 0.16 and BRICK 2.0's
+    ## band a #7f7f7f fill at alpha 0.16: on white both render as the same light grey, so where they
+    ## overlap (glaciers pre-1940, the Antarctic panel) the reader could not tell which band was
+    ## which, and the legend listed the obs as a LINE only. Texture, not a second grey, separates them.
+    ax.fill_between(obs.index, lo, hi, facecolor="none", edgecolor=C_OBS, hatch=OBS_HATCH,
+                    lw=0, alpha=0.40, zorder=1)
     ax.plot(obs.index, obs.values, color=C_OBS, lw=1.6, zorder=4)
     if comp == "te" and SHOW_DEEP_BAND:
         yrs = [t for t in DEEP_BOUND.index if t in obs.index and np.isfinite(obs.loc[t])]
@@ -412,7 +418,9 @@ handles = [Line2D([], [], color=C_LAD, lw=2, label="%s (median)" % DESC["model"]
           + ([Line2D([], [], color=C_MAG, lw=1.6, ls=(0, (2, 1.2)),
                      label="MAGICC-SLR (median, 5–95%%; Greenland only, from %d)" % MAG_START["gis"])]
              if SHOW_MAGICC else [])) + [
-           Line2D([], [], color=C_OBS, lw=1.6, label="observational target (±1.645σ)"),
+           Line2D([], [], color=C_OBS, lw=1.6, label="observational target"),
+           Patch(facecolor="none", edgecolor=C_OBS, hatch=OBS_HATCH, lw=0, alpha=0.40,
+                 label="observational target ±1.645σ"),
           ] + ([Patch(facecolor="#e08214", edgecolor="#b35806", hatch="////", alpha=0.45,
                       label="TE: most the >2000 m ocean could add (upper bound)")]
                if SHOW_DEEP_BAND else []) + ([Line2D([], [], color=C_IGCC, lw=1.4, ls=(0, (4, 2)),
@@ -424,7 +432,9 @@ handles = [Line2D([], [], color=C_LAD, lw=2, label="%s (median)" % DESC["model"]
           ## advertise a series the figure did not draw.
           [Line2D([], [], color=C_IMBIE, lw=1.5, ls=(0, (1.6, 1.4)), marker="o", markersize=3,
                   label="IMBIE 2026 ice sheets, ±1σ (not a calibration target)")] if IMBIE else [])
-fig.legend(handles=handles, ncol=2, fontsize=8.5, frameon=False, loc="upper center",
+## two rows whatever the count: at ncol=2 the 8-entry legend (obs band added 09-29) ran into the
+## top-left panel title
+fig.legend(handles=handles, ncol=-(-len(handles) // 2), fontsize=8.5, frameon=False, loc="upper center",
            bbox_to_anchor=(0.5, 0.978))
 if not lf.PAPER:
     fig.suptitle(("Historical sea-level rise 1900–2026 by component — %s vs %s vs observations   [%s]"
@@ -446,6 +456,7 @@ _cap = (
     "(AIS, GIS), GlaMBIE 2025 (glaciers), NOAA 0–2000 m thermosteric (TE); total = Dangendorf "
     "2024 extended by NOAA STAR altimetry, and both totals carry the observed land-water storage.  "
     "Both models are run from 1850, plotted from @@X0@@, on the same ssp245harm forcing.  "
+    "Observations are the black line, their ±1.645σ range hatched.  "
     + ("The dashed line is the %s posterior (%s), the solid line %s; parameter band only for the "
        "comparison vintage.  " % (CMP, CMP_DESC["model"], TAG) if CMP else
        ("MAGICC-SLR (v7.5.3 + Nauels 2025) is drawn on the Greenland panel from 1991, on its own "

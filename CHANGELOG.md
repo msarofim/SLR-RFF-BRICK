@@ -1,3 +1,20 @@
+## 2026-09-29e — FIG 1: the observation band and BRICK 2.0's band were the same grey
+
+Both were drawn as light-grey fills at alpha 0.16 (#333333 and #7f7f7f). On white they rendered
+identically, so where they overlap (glaciers before 1940, and most of the Antarctic panel) a reader
+could not tell which band belonged to which source. The legend listed the observations as a line
+only. The observation band is now **hatched** (`OBS_HATCH`, back-slash; the opt-in >2000 m band keeps
+"////") and has its own legend entry. The legend is now always two rows, because at `ncol=2` the
+seven entries ran into the Glaciers title. The sidecar caption adds one sentence on the hatching.
+
+Rendered on `git show HEAD:outputs/recalib_targets_ext.csv` (md5 070f74ab, Frederikse, AIS@1900
+−0.634). Two renders were byte-identical (png md5 88eb00f4). **Not yet in the manuscript**: Marcus
+has the live file open. The manuscript's FIG 1 caption says nothing about the obs band; adding a
+clause would be his call.
+
+Tried first and not kept: an obs legend label reading "(median)". The target line is not
+necessarily a median of anything, so the label reverted to "observational target".
+
 ## 2026-09-29d — GMD review round: 48 tracked edits, 17 comments, FIG 1 re-rendered
 
 `deliverables/GMD.Ladrillo.v1_review-2026-09-29_L27.docx`, built on Marcus's 09-29 11:12 save of
