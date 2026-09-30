@@ -1,3 +1,48 @@
+## 2026-09-30d — Greenland matched 2300 targets are still calib 1.4.5: consumers mapped, re-derivation MEASURED, PROPOSED (not applied)
+
+**Premise, verified byte-for-byte.** The canonical `gis_matched_targets_2300.csv` and
+`scope_gis_cool_band_targets.csv` rebuild exactly from the pre-migration forcing
+(`839a176^`). The `_calib160` pair rebuilds exactly from today's forcing.
+Proposal and full tables: `notes/proposal_2026-09-30_gis_matched_targets_calib160.md`.
+Nothing canonical was changed: the target's calibration vintage is Marcus's decision.
+
+- **Two model vintages.**
+  - L27 projections (the paper) are on calib 1.6.0; L14 (the 08-21..23 design arc) and
+    every shipped consumer output are on 1.4.5.
+  - The shipped record is internally consistent. Any re-run since 08-28, however, scores
+    a 1.6.0 model against 1.4.5 targets: silently in most consumers, and refused by the
+    gates of `basin_mock`, `basin_zonespace` and `ridge_vs_ssp_bands`.
+- **Consumers.**
+  - 13 read `MATCHED_*` directly and 9 read them via `from_argv`.
+  - Hard-coded copies sit in `diag_gis_2150_band_veto.py:93-94` (including a 1.4.5 MODEL
+    base, 49.9 cm), `diag_gis_cell_vs_priority_ladder.jl:67` and `diag_gis_stepback_rate_crit.py:110`.
+  - `bench_ladrillo` and the calibrator do not read them.
+- **Measured (three APFS sandboxes).**
+  - A (shipped) reproduced 15 consumer outputs byte-for-byte.
+  - The SSP5-8.5 WINNER cell: 1.009× p50 / pctile 51 → 1.085× / 58.
+  - The shipped cell (Julia ladder): 0.973 → 1.026× p50.
+  - L27: 0.872 → 0.988× p50.
+  - Separation, shipped cell: 0.82 → 0.85 of target.
+  - amp_above_275 cell-B flux ratio: 0.97 → 0.83. The mismatched B run gives 1.07, the
+    opposite side of 1.
+  - All in-band flips are hot-edge cells at 130–145 cm; no pass/fail verdict on the
+    shipped cell changes.
+- **GMD draft.** The 5.7 in the draft is the like-for-like value for L27. The repo's
+  canonical target still says 6.40.
+- **Pre-existing, independent of the migration:**
+  - the `reservoir_rate_rank` repro gate is stale (135/86 vs 178/114);
+  - both `plot_gis_*` scripts crash on `NameError 'lf'`;
+  - `residual_band`, `scorecard_logo` and the Julia ladder do not reproduce their shipped
+    CSVs;
+  - `_verify()` never checks `MATCHED_2300_P50_M`;
+  - the SSP1-2.6 P50 literal (the r2300 anchor median, 11.1) is not the CSV's `matched_p50` (13.8).
+- **Tried and corrected mid-session.** The first sandbox diff compared
+  `scope_gis_reservoir_offline.csv`, which the scan does not write (it writes `…_tolspread`).
+  The three untouched clones came out byte-identical, and that looked like "no effect".
+  The suspicious uniformity was caught and the diff redone on files selected by mtime.
+- New: `scripts/measure_gis_target_retarget.sh` and `scripts/compare_gis_target_retarget.py`
+  (re-run the measurement; A must reproduce the shipped outputs before anything is read).
+
 ## 2026-09-30c — GMD draft round: `…v1_review-2026-09-30_L27.docx` (69 tracked insertions / 65 deletions, 11 comments)
 
 Built on Marcus's 09-30 11:41 save of `…09-29_L27.docx` (md5 `1691933e`; untouched). His edits there
