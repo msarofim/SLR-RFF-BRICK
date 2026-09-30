@@ -1,18 +1,18 @@
 diag_gis_k_vs_residual — the cool-arm kill of k, re-run on the residual basis, L14, 10000 draws
 
        k      SSP1-2.6 shipped    SSP2-4.5 shipped         SSP1-2.6 residual         SSP2-4.5 residual
-     0.5        2.3 OUT             7.1 OUT           -57.4-74.8     IN        -34.8-53.1     IN    
-    0.75        7.2 IN             14.0 IN            -51.1-58.2     IN        -25.9-31.0     IN    
-       1       10.1 IN             18.3 IN            -45.8-46.7     IN        -18.0-14.7     IN    
-     1.5       13.9 IN             24.3 OUT           -37.2-30.0     IN        -10.0--4.9     OUT   
-       2       16.7 OUT            28.8 OUT           -30.2-17.0     IN        -29.6-6.1      IN    
-       3       20.3 OUT            34.9 OUT           -19.5--1.5     OUT       -59.1-23.7     IN    
-       5       24.0 OUT            41.5 OUT           -22.4--6.7     OUT       -94.2-45.9     IN    
-       8       26.4 OUT            46.0 OUT           -37.0-2.6      IN       -120.3-63.2     IN    
-      12       27.8 OUT            48.8 OUT           -46.1-8.5      IN       -136.8-74.2     IN    
-      14       28.2 OUT            49.6 OUT           -49.1-10.5     IN       -141.8-77.6     IN    
-    22.6       29.2 OUT            50.5 OUT           -54.0-13.3     IN       -135.9-69.8     IN    
-      50       24.6 OUT            31.6 OUT           -59.8-32.1     IN        -35.8-4.7      IN    
+     0.5        2.7 OUT             7.3 OUT           -57.4-74.8     IN        -34.8-53.1     IN    
+    0.75        7.7 IN             14.2 IN            -51.1-58.2     IN        -25.9-31.0     IN    
+       1       10.7 IN             18.6 IN            -45.8-46.7     IN        -18.0-14.7     IN    
+     1.5       14.7 IN             24.6 OUT           -37.2-30.0     IN        -10.0--4.9     OUT   
+       2       17.6 OUT            29.1 OUT           -30.2-17.0     IN        -29.6-6.1      IN    
+       3       21.4 OUT            35.2 OUT           -19.5--1.5     OUT       -59.1-23.7     IN    
+       5       25.3 OUT            41.9 OUT           -22.4--6.7     OUT       -94.2-45.9     IN    
+       8       27.8 OUT            46.4 OUT           -37.0-2.6      IN       -120.3-63.2     IN    
+      12       29.4 OUT            49.2 OUT           -46.1-8.5      IN       -136.8-74.2     IN    
+      14       29.8 OUT            50.1 OUT           -49.1-10.5     IN       -141.8-77.6     IN    
+    22.6       30.9 OUT            50.9 OUT           -54.0-13.3     IN       -135.9-69.8     IN    
+      50       25.2 OUT            31.7 OUT           -59.8-32.1     IN        -35.8-4.7      IN    
 
 === THE COOL-ARM CEILING ON k ===
 

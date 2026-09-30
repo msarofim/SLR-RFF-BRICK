@@ -14,7 +14,7 @@ WHAT IS DIFFERENT FROM EVERY PRIOR ATTEMPT (2026-08-21k) — read this first
   2. THE DECISIVE ONE. EVERY PRIOR PRICING TARGETED THE RAW LITERATURE BAND (173-313 cm at ssp585),
      which needs ~1.5-2.5 m REALISED by 2300 and therefore FORCES tau short. That
      is why the tap came out front-loaded and 3.5x too high at 2150. The matched
-     band is 42.9-145.0 cm and the base already sits at 49.9, so only ~0.49 m is
+     band is 42.9-145.0 cm (calib 1.4.5; 37.2-129.7 on calib 1.6.0) and the base already sits at 49.9, so only ~0.49 m is
      needed -- small V and long tau became simultaneously admissible only after the
      2026-08-21g re-target.
   3. THE SHAPE SCORECARD DID NOT EXIST. The tap was scored on 2300 LEVELS plus a

@@ -56,7 +56,17 @@ sys.path.insert(0, os.path.join(REPO, "python"))
 
 GIS_DIR = os.path.join(REPO, "data/cmip6_gis")
 RUNS = os.path.join(REPO, "outputs/protect_greenland_gis_runs.csv")
-OURS_FMT = os.path.join(REPO, "data/observations/fair_mean_gmst_{ssp}.csv")
+import gis_targets  # noqa: E402  -- LIT bands, and THE definition of our forcing
+OURS_FMT = gis_targets.OURS_GMST_FMT
+# The FaIR calibration the forcing files in data/observations/ were generated at
+# (FaIR 2.2.4 calib 1.6.0 since 839a176, 2026-08-28). This script writes the CANONICAL
+# target paths, which gis_targets reads as its DEFAULT calibration, so the two must
+# agree; when the forcing is regenerated at a new calibration, change this label AND
+# add that calibration to gis_targets.CALIBS.
+FORCING_CALIB = "1.6.0"
+if FORCING_CALIB != gis_targets.DEFAULT_CALIB:
+    sys.exit(f"FORCING_CALIB {FORCING_CALIB} != gis_targets.DEFAULT_CALIB "
+             f"{gis_targets.DEFAULT_CALIB}: the canonical target path is the default's")
 # The ssp585 arms were built 2026-08-21d/e and are the authority; this script READS
 # them rather than re-deriving the kernel a fourth time ([[audit_live_paths]]). They
 # also carry UKESM1-0-LL and CNRM-ESM2-1, which are NOT in data/cmip6_gis, so
@@ -76,9 +86,11 @@ INTEG_LO, INTEG_HI = 2015, 2300      # the PROTECT series start end-2015
 FAMILIES = ("r2300", "x2300")
 # The two bands under test, and the ssp585 one as the VERIFIED control.
 SSPS = [("ssp126", "SSP1-2.6"), ("ssp245", "SSP2-4.5"), ("ssp585", "SSP5-8.5")]
-# Mirrors scope_gis_leq_ridge_vs_literature.LIT_2300_M -- imported, not retyped.
-import scope_gis_leq_ridge_vs_literature as ridge  # noqa: E402
-LIT_2300_M, LIT_2300_NOTE = ridge.LIT_2300_M, ridge.LIT_2300_NOTE
+# From gis_targets (the one place the bands live) -- NOT via
+# scope_gis_leq_ridge_vs_literature, whose import-time from_argv() hands out a
+# MATCHED set and so would refuse whenever the forcing has moved, i.e. exactly when
+# this script needs to run.
+LIT_2300_M, LIT_2300_NOTE = gis_targets.LIT_2300_M, gis_targets.LIT_2300_NOTE
 ALIAS = {"CESM2-Leo": "CESM2", "UKESM1-0-LL-Robin": "UKESM1-0-LL"}
 DROP = {"ACCESS1.3"}                 # CMIP5, dropped from BOTH sides (r2300 ssp585)
 QUANTS = (0.05, 0.17, 0.50, 0.83, 0.95)
@@ -118,6 +130,18 @@ def gcm_path(model, ssp, family):
     return full, note
 
 
+def provenance(ssp):
+    """Model version, forcing file + md5, and commit -- what a bare CSV cannot say."""
+    import hashlib
+    import subprocess
+    f = OURS_FMT.format(ssp=ssp)
+    md5 = hashlib.md5(open(f, "rb").read()).hexdigest()
+    rev = subprocess.run(["git", "-C", REPO, "describe", "--always", "--dirty"],
+                         capture_output=True, text=True).stdout.strip() or "unknown"
+    return (f"FaIR 2.2.4 calib {FORCING_CALIB}; ours = {os.path.relpath(f, REPO)} "
+            f"md5 {md5}; commit {rev}; scope_gis_cool_band_forcing.py")
+
+
 def main():
     runs = pd.read_csv(RUNS)
     L = runs[runs.long & runs.y2300.notna()].copy()
@@ -132,8 +156,10 @@ def main():
 
     rows, trows = [], []
     for ssp, lab in SSPS:
-        ours = pd.read_csv(OURS_FMT.format(ssp=ssp)).set_index("year").gmst_C.loc[Y0:Y1]
-        ours_s = ours.rolling(SMOOTH, center=True, min_periods=1).mean()
+        ours, ours_s = gis_targets.ours_gmst_11yr(ssp)
+        assert (gis_targets.OURS_Y0, gis_targets.OURS_Y1, gis_targets.OURS_SMOOTH,
+                gis_targets.INTEG_LO, gis_targets.INTEG_HI) == (Y0, Y1, SMOOTH,
+                                                                INTEG_LO, INTEG_HI)
         sub = L[L.ssp == lab]
         print(f"=== {lab} | LIT_2300_M {LIT_2300_M[lab][0]:.3f}-{LIT_2300_M[lab][1]:.3f} m "
               f"[{LIT_2300_NOTE[lab]}] ===")
@@ -201,7 +227,8 @@ def main():
                           "lit_lo_m": LIT_2300_M[lab][0], "lit_hi_m": LIT_2300_M[lab][1],
                           "lit_note": LIT_2300_NOTE[lab],
                           "basis": (f"GSAT C vs {BASE_LO}-{BASE_HI}, {SMOOTH}-yr; SLR cm rel 2015; "
-                                    f"r2300 held at {HOLD_LO}-{HOLD_HI}")})
+                                    f"r2300 held at {HOLD_LO}-{HOLD_HI}"),
+                          "calib": FORCING_CALIB, "provenance": provenance(ssp)})
 
     pd.DataFrame(rows).to_csv(OUT_F, index=False)
     t = pd.DataFrame(trows)

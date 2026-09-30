@@ -9,14 +9,14 @@ anchors: 5 (scenario x forcing family) from scope_gis_cool_band_targets.csv
 
 MATCHED targets at OUR forcing, predictor = GSAT integral 2015-2300 (K.yr)
   scenario    ours int     MATCHED p05-p95 cm     p50      T-arm p05-p95     LIT p05-p95 cm  shift
-  SSP1-2.6         495        4.8-25.5           13.8      4.8-28.5           5.8-16.3       1.37x  EXTRAPOLATED
-  SSP2-4.5         790       10.6-21.5           15.4     11.0-24.8           9.8-21.8       1.02x
-  SSP5-8.5        1626       42.9-145.0          98.5     58.6-172.2        173.2-312.7      0.39x
+  SSP1-2.6         510        5.2-21.6           12.7      5.2-23.0           5.8-16.3       1.21x  EXTRAPOLATED
+  SSP2-4.5         786       10.5-21.2           15.3     11.1-25.2           9.8-21.8       1.00x
+  SSP5-8.5        1539       37.2-129.7          86.9     53.4-162.5        173.2-312.7      0.34x
 
   ADOPTED band (what the scorecards import) and the rule that set it:
-  SSP1-2.6       6.2-15.9    cm  vs LIT    5.8-16.3    [UNION of bracketing anchors (our predictor is below the anchor hull by 10%)]
-  SSP2-4.5      10.6-21.5    cm  vs LIT    9.8-21.8    [PCHIP interpolation at our forcing (inside the anchor hull)]
-  SSP5-8.5      42.9-145.0   cm  vs LIT  173.2-312.7   [PCHIP interpolation at our forcing (inside the anchor hull)]
+  SSP1-2.6       6.2-15.9    cm  vs LIT    5.8-16.3    [UNION of bracketing anchors (our predictor is below the anchor hull by 7%)]
+  SSP2-4.5      10.5-21.2    cm  vs LIT    9.8-21.8    [PCHIP interpolation at our forcing (inside the anchor hull)]
+  SSP5-8.5      37.2-129.7   cm  vs LIT  173.2-312.7   [PCHIP interpolation at our forcing (inside the anchor hull)]
 
   CAVEAT, carried with every number above: every anchor past 2100 is NORCE-CISM.
   ONE ice sheet model -- the spread is CLIMATE forcing, not ice-sheet structure.

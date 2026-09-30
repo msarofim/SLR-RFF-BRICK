@@ -1,0 +1,63 @@
+scope_gis_gamma_offline — r = r0(T)*(1 + gamma*L_b/(k_b*V0)), L14, 10000 draws, k fixed at 1
+
+GATE NESTING — gamma = 0.0 is BIT-IDENTICAL on all three gamma_on settings (exact, not a tolerance)
+
+PRE-CHECK — a rate accelerator can only move L toward L_eq, so its ceiling is 1/phi:
+    SSP5-8.5 r2300 : phi(2300) = 0.905  ->  gamma can lift 2300 by at most x1.105
+    SSP5-8.5 x2300 : phi(2300) = 0.920  ->  gamma can lift 2300 by at most x1.087
+    SSP1-2.6 r2300 : phi(2300) = 0.839  ->  gamma can lift 2300 by at most x1.192
+    SSP1-2.6 x2300 : phi(2300) = 0.807  ->  gamma can lift 2300 by at most x1.239
+    SSP2-4.5 r2300 : phi(2300) = 0.860  ->  gamma can lift 2300 by at most x1.163
+    OURS SSP1-2.6   : phi(2300) = 0.835  ->  at most x1.197
+    OURS SSP2-4.5   : phi(2300) = 0.850  ->  at most x1.177
+    OURS SSP5-8.5   : phi(2300) = 0.889  ->  at most x1.125
+
+  our ssp585 @2300 = 49.9 cm; the matched band's p50 is 98.5 cm (1.97x)
+  the ceiling on our ssp585 is x1.125 => gamma is 1.8x SHORT of the p50 even at gamma -> infinity.
+  It is NOT short of the band FLOOR (42.9 cm), which the base already clears.
+
+   on   gamma   rate s    hind |    585   cool    all |    2100   d2100    2300  x base   phi | |dr| calib
+----------------------------------------------------------------------------------------------------------
+ both     0.0   1.0152 -0.0000 |  0.497  0.262  0.374 |   13.92  +0.000   49.94   1.000 0.889 |   0.00e+00
+ both     0.5   1.0108 +0.0000 |  0.495  0.263  0.374 |   13.97  +0.048   50.11   1.003 0.891 |   1.30e-02
+ both     1.0   1.0063 +0.0000 |  0.494  0.264  0.373 |   14.01  +0.096   50.29   1.007 0.894 |   2.60e-02
+ both     2.0   0.9976 -0.0000 |  0.491  0.267  0.373 |   14.11  +0.190   50.61   1.013 0.898 |   5.18e-02
+ both     5.0   0.9722 -0.0000 |  0.485  0.276  0.373 |   14.38  +0.460   51.44   1.030 0.910 |   1.28e-01
+ both    10.0   0.9331 -0.0000 |  0.480  0.288  0.377 |   14.80  +0.884   52.47   1.051 0.925 |   2.50e-01
+ both    20.0   0.8655 -0.0000 |  0.481  0.310  0.388 |   15.52  +1.602   53.84   1.078 0.946 |   4.80e-01
+ both    50.0   0.7182 -0.0000 |  0.499  0.357  0.420 |   17.10  +3.184   55.78   1.117 0.974 |   1.08e+00
+ both   100.0   0.5702 -0.0000 |  0.523  0.404  0.455 |   18.64  +4.720   56.98   1.141 0.988 |   1.87e+00
+ slow     0.5   1.0132 -0.0000 |  0.496  0.263  0.374 |   13.94  +0.022   50.08   1.003 0.891 |   1.31e-02
+ slow     1.0   1.0112 +0.0000 |  0.494  0.264  0.373 |   13.96  +0.044   50.22   1.006 0.892 |   2.61e-02
+ slow     2.0   1.0073 -0.0000 |  0.491  0.266  0.373 |   14.00  +0.085   50.48   1.011 0.896 |   5.21e-02
+ slow     5.0   0.9963 -0.0000 |  0.485  0.272  0.372 |   14.13  +0.215   51.11   1.023 0.904 |   1.29e-01
+ slow    10.0   0.9782 -0.0000 |  0.478  0.282  0.373 |   14.32  +0.406   51.85   1.038 0.915 |   2.56e-01
+ slow    20.0   0.9462 -0.0000 |  0.474  0.299  0.379 |   14.67  +0.754   52.81   1.057 0.929 |   5.04e-01
+ slow    50.0   0.8694 +0.0000 |  0.477  0.333  0.397 |   15.45  +1.528   54.07   1.083 0.949 |   1.20e+00
+ slow   100.0   0.7796 +0.0000 |  0.486  0.363  0.416 |   16.22  +2.302   54.71   1.095 0.957 |   2.27e+00
+ fast     0.5   1.0126 -0.0000 |  0.497  0.262  0.374 |   13.94  +0.025   49.98   1.001 0.890 |   1.30e-02
+ fast     1.0   1.0102 -0.0000 |  0.497  0.262  0.374 |   13.97  +0.052   50.02   1.002 0.890 |   2.61e-02
+ fast     2.0   1.0051 -0.0000 |  0.497  0.263  0.375 |   14.02  +0.104   50.09   1.003 0.891 |   5.20e-02
+ fast     5.0   0.9905 -0.0000 |  0.497  0.265  0.375 |   14.17  +0.247   50.20   1.005 0.894 |   1.29e-01
+ fast    10.0   0.9674 -0.0000 |  0.498  0.267  0.377 |   14.37  +0.452   50.37   1.009 0.897 |   2.55e-01
+ fast    20.0   0.9251 -0.0000 |  0.502  0.270  0.381 |   14.70  +0.778   50.45   1.010 0.899 |   4.97e-01
+ fast    50.0   0.8255 -0.0000 |  0.514  0.272  0.388 |   15.26  +1.340   50.24   1.006 0.894 |   1.17e+00
+ fast   100.0   0.7107 -0.0000 |  0.527  0.267  0.392 |   15.65  +1.728   49.55   0.992 0.882 |   2.14e+00
+
+  (2100/2300 are OUR ssp585 deliverable, cm; d2100 vs gamma=0; |dr| calib = max fractional rate change inside (1900, 2025))
+
+=== VERDICT ===
+
+  HINDCAST: worst residual 0.0000 cm over the whole grid (held; the rate is re-solved per draw at every gamma)
+  2100:     moves by at most 4.720 cm (MOVES)
+  SHAPE:    best rms_all 0.372 at gamma=5 (slow) vs 0.374 at gamma=0 -> 1.006x better
+            best rms_ssp585 0.474 at gamma=20 (slow) vs 0.497 -> 1.050x better
+  LEVEL:    our ssp585 @2300 reaches at most x1.141 of the gamma=0 value (49.9 -> 57.0 cm)
+            of which only x1.113 is EXTRA ICE LOSS -- the rest is the 1995-2014
+            subtrahend shrinking as the bisection lowers r0 (0.05855 -> 0.05175 m). The raw ratio is what the pre-check ceiling
+            x1.125 bounds, and it is INSIDE it. Quoting the rebased x1.141 would overstate gamma.
+            the matched band's p50 is 98.5 cm, which needs x1.97 -- NOT REACHABLE by any gamma.
+  LIKELIHOOD: the feedback changes the calibration-window rate by up to 1.3e-02-2.3e+00 (fractional) over the grid
+            => gamma is NOT automatically likelihood-inert the way the tap is; at the gammas that do anything it is a real prior-vs-refit question. MEASURED, not assumed.
+
+wrote outputs/scope_gis_gamma_offline.csv

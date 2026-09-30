@@ -1,0 +1,55 @@
+scope_gis_reservoir_offline — first-order reservoir at MILLENNIAL tau, L14, 10000 draws, k=1, inventory ceiling 2.73 m (NO+NE high basin)
+
+=== THE 2100 TOLERANCE (0.5 x sampled p05-p95 width) ===
+  scenario     sampled p05-p95 @2100  deliverable   ratio   tolerance   vs legacy
+  SSP1-2.6                     1.597        1.430   1.117       0.798        8.0x
+  SSP2-4.5                     2.238        2.138   1.046       1.119       11.2x
+  SSP5-8.5                     4.323        4.784   0.904       2.162       21.6x
+  The legacy 0.10 cm was 2.3% of ssp585's own sampled spread -- a PLAUSIBILITY gate held to an IDENTITY gate's
+  tightness. Identity gates (G-INERT, the base reproduction, byte-diffs) stay exact; this one
+  is now scaled to what the model can actually resolve.
+
+G-INERT — max |reservoir ramp| over (1900, 2025), over ALL 36 (onset,tau) x every driver: 0.000e+00
+  EXACTLY zero => the hindcast, the bisection and the base rate solution are UNCHANGED,
+  so the reservoir is prior-propagatable like the tap and gis_amp -- and unlike gamma.
+
+BASELINE (no reservoir): rms_ssp585 0.497  rms_cool 0.262  rms_all 0.374
+  our 2300: SSP1-2.6 10.7  SSP2-4.5 18.6  SSP5-8.5 47.7   (matched bands 6-16, 10-21, 37-130)
+
+=== GRID — 6x6x6 = 216 cells; inventory ceiling 2.73 m (NO+NE high basin), 216 within it ===
+
+  keeps 2100 (0.5 x sampled p05-p95 width)   199/216
+  all three 2300 matched bands         195/216
+  improves the 5-arm shape             186/216
+  ALL OF THE ABOVE                     178/216
+
+  BEST BY 5-ARM SHAPE among passing cells:
+    V=1.5 m  onset=4.69 K  tau=800 yr
+      rms_all 0.302 vs 0.374 baseline (1.241x better);  rms_ssp585 0.353 vs 0.497 (1.409x)
+      our 2300: SSP1-2.6 10.7  SSP2-4.5 18.6  SSP5-8.5 77.5
+      2150 on the ssp585 arms: r2300 39.1 (band 15-49, IN)  x2300 57.1 (band 45-53, out)
+
+  TAU OF THE PASSING CELLS: [100, 200, 400, 800, 1600, 3200]   (the tap's own grid stops at 400)
+  V   OF THE PASSING CELLS: [0.25, 0.5, 0.75, 1.0, 1.5, 2.0]
+  ONSET OF THE PASSING CELLS: [3.2, 4.0, 4.69, 5.5, 6.5, 7.5]
+
+  106/178 passing cells have tau > 400 yr, i.e. lie OUTSIDE the grid every
+  previous tap pricing ever scanned.
+
+=== 2150, THE HORIZON THE TAP SCORED 0/25 ON ===
+
+  cells clearing everything AND both ssp585 2150 bands: 114/178
+  best: V=1 m  onset=4.69 K  tau=800 yr
+    rms_all 0.307 (1.22x baseline), rms_ssp585 0.365 (1.36x), rms_cool 0.262 (baseline 0.262)
+    our 2300 cm: SSP1-2.6 10.7  SSP2-4.5 18.6  SSP5-8.5 67.6;  d2100 ssp585 +0.0000 cm
+    2150: r2300 35.4 (band 15-49)   x2300 53.1 (band 45-53.2)
+
+  DECOMPOSITION — what actually opened the door:
+    inside the OLD tau grid (<=400): 20 cells clear everything, best rms_all 0.312
+    in the NEW tau range   (>400) : 94 cells, best rms_all 0.307
+    => extending tau past 400 buys 1.016x. It is NOT what opened the door.
+    THE RE-TARGET IS. The best cell adds 19.9 cm at 2300 (49.9 -> 67.6); against the RAW literature
+       floor of 173 cm that is 2.6x SHORT, which is exactly why no small-V
+       reservoir was ever admissible before 2026-08-21g.
+
+wrote outputs/scope_gis_reservoir_offline_tolspread.csv

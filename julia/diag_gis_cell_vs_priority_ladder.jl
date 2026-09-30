@@ -60,11 +60,36 @@ const ACCEL_WIN    = (1993, 2024)
 ## PRIORITY 2 / 4. The horizons with independent ice-model evidence.
 const HORIZONS = (2100, 2150, 2300)
 const SSPS = [("ssp126", "SSP1-2.6"), ("ssp245", "SSP2-4.5"), ("ssp585", "SSP5-8.5")]
-## PRIORITY 2 target for our own ssp585 (gis_targets.MATCHED_2300_{M,P50_M}).
+## PRIORITY 2 target for our own ssp585, READ from the canonical matched-target table
+## (the one python/gis_targets.py verifies its literals against) -- never retyped: the
+## retyped (42.9, 98.5, 145.0) stayed calib 1.4.5 for a month after the forcing moved
+## to 1.6.0 (notes/proposal_2026-09-30_gis_matched_targets_calib160.md). The table's
+## `calib` must be the calibration this script's forcing is, or it refuses.
 ## ⚠ NOT the r2300 arm's own band median (72.3 cm) — that is a DIFFERENT predictor
 ## and quoting it moves any verdict here by 1.36x. See memory
 ## `gis_matched_band_predictor`.
-const MATCHED_2300 = (lo = 42.9, p50 = 98.5, hi = 145.0)
+const GIS_TARGET_CALIB = "1.6.0"     # = gis_targets.DEFAULT_CALIB (Marcus 2026-09-30)
+const MATCHED_CSV = joinpath(REPO, "outputs/gis_matched_targets_2300.csv")
+const MATCHED_2300 = let t = CSV.read(MATCHED_CSV, DataFrame)
+    r = t[t.label .== "SSP5-8.5", :]
+    nrow(r) == 1 || error("no unique SSP5-8.5 row in $MATCHED_CSV")
+    string(r.calib[1]) == GIS_TARGET_CALIB ||
+        error("$MATCHED_CSV is calib $(r.calib[1]), this script scores calib $GIS_TARGET_CALIB")
+    ## IDENTITY gate: the forcing ladrillo_setup will read must be the forcing the table
+    ## was derived at, compared on the table's own predictor (the 2015-2300 integral of
+    ## the 11-yr centred GMST, gis_targets.ours_integral) -- as gis_targets.check_forcing.
+    g = CSV.read(joinpath(LADRILLO_OBS, "fair_mean_gmst_ssp585.csv"), DataFrame)
+    g = g[(g.year .>= 1850) .& (g.year .<= 2300), :]
+    n = nrow(g)
+    s11 = [mean(g.gmst_C[max(1, i - 5):min(n, i + 5)]) for i in 1:n]
+    have = sum(s11[(g.year .>= 2015) .& (g.year .<= 2300)])
+    want = Float64(r.pred_int_ours_Kyr[1])
+    abs(have - want) <= 1e-9 * abs(want) ||
+        error("fair_mean_gmst_ssp585.csv integral $(round(have, digits=1)) K.yr is not the " *
+              "$(round(want, digits=1)) the calib $GIS_TARGET_CALIB targets were derived at")
+    (lo = Float64(r.band_lo_cm[1]), p50 = Float64(r.matched_p50_cm[1]),
+     hi = Float64(r.band_hi_cm[1]))
+end
 ## PRIORITY 1, the volume constraint: CLIMBER-X's total Greenland ice volume.
 const VOLUME_BAND_M = (7.30, 7.68)
 ## PRIORITY 3. The 2250-2300 rate window and the PROTECT r2300 run-level band, from

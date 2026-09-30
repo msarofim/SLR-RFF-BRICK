@@ -5,16 +5,16 @@
       not satisfy; reported so its width is visible, not as the target.
 
       pair                              literature         forcing-matched
-      SSP5-8.5/SSP2-4.5                 7.94-31.9x              2.00-13.7x
-      SSP5-8.5/SSP1-2.6                10.63-53.9x              2.70-23.4x
+      SSP5-8.5/SSP2-4.5                 7.94-31.9x              1.75-12.4x
+      SSP5-8.5/SSP1-2.6                10.63-53.9x              2.34-20.9x
 
   [B] MATCHED p50 RATIO — the like-for-like CENTRAL target.
       MATCHED_2300_P50_M is PCHIP'd to OUR OWN 2015-2300 forcing integral,
       so this is the separation the physics implies for OUR scenarios.
 
       pair                     p50 ratio   from p50 cm
-      SSP5-8.5/SSP2-4.5            6.40x   98.5 / 15.4
-      SSP5-8.5/SSP1-2.6            8.87x   98.5 / 11.1
+      SSP5-8.5/SSP2-4.5            5.68x   86.9 / 15.3
+      SSP5-8.5/SSP1-2.6            7.83x   86.9 / 11.1
 
   [C] GCM-PAIRED RATIOS — a real ratio distribution, shared-model term
       cancelled. At each GCM's OWN scenario contrast, so this is a SHAPE
@@ -32,17 +32,17 @@
 === WHERE EACH ARM SITS (Greenland median @2300, cm) ===
 
   arm                                  126     245     585 SSP5-8.5/SSP2-4.5 SSP5-8.5/SSP1-2.6
-  original BRICK (:stock SIMPLE)      19.1    25.7    48.8      1.90x (0.30)      2.56x (0.29)
-  Ladrillo L14, untapped              10.0    18.3    49.7      2.72x (0.42)      4.99x (0.56)
-  Ladrillo L14 + V=5.64 (SHIPPED)     10.0    18.3    95.5      5.22x (0.82)      9.58x (1.08)
-  Ladrillo L14 + V=6.00 cascade       10.0    18.3    98.4      5.38x (0.84)      9.88x (1.11)
+  original BRICK (:stock SIMPLE)      19.4    25.4    45.1      1.78x (0.31)      2.32x (0.30)
+  Ladrillo L14, untapped              10.6    18.5    47.9      2.59x (0.46)      4.51x (0.58)
+  Ladrillo L14 + V=5.64 (SHIPPED)     10.6    18.5    89.2      4.82x (0.85)      8.41x (1.07)
+  Ladrillo L14 + V=6.00 cascade       10.6    18.5    91.8      4.96x (0.87)      8.65x (1.11)
   (parenthesis = ratio / the matched p50 ratio [B])
 
   PER-SCENARIO vs the matched p50 — which arm carries the ratio error
   arm                                   SSP1-2.6      SSP2-4.5      SSP5-8.5
-  original BRICK (:stock SIMPLE)           1.72x         1.67x         0.50x
-  Ladrillo L14, untapped                   0.90x         1.19x         0.50x
-  Ladrillo L14 + V=5.64 (SHIPPED)          0.90x         1.19x         0.97x
-  Ladrillo L14 + V=6.00 cascade            0.90x         1.19x         1.00x
+  original BRICK (:stock SIMPLE)           1.75x         1.66x         0.52x
+  Ladrillo L14, untapped                   0.96x         1.21x         0.55x
+  Ladrillo L14 + V=5.64 (SHIPPED)          0.96x         1.21x         1.03x
+  Ladrillo L14 + V=6.00 cascade            0.96x         1.21x         1.06x
 
 wrote outputs/diag_gis_separation_target.csv

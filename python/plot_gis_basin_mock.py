@@ -49,6 +49,9 @@ FIGSTEM = "gis_basin_mock"
 ## selects the set and the FIGURE FILENAME carries it, so a matched-set figure
 ## cannot be mistaken for the published literature-set one.
 import gis_targets  # noqa: E402
+## FROZEN AT CALIB 1.4.5 (Marcus 2026-09-30). Renders the frozen calib-1.4.5 output of scope_gis_basin_mock_vs_literature. Its outputs are a calib-1.4.5
+## record; run as a script on any other forcing, gis_targets refuses with this reason.
+gis_targets.frozen(__name__, "1.4.5", "Renders the frozen calib-1.4.5 output of scope_gis_basin_mock_vs_literature.")
 LIT_2300_M, TARGET_SET = gis_targets.from_argv(sys.argv)
 TARGET_WORD = gis_targets.SET_WORD[TARGET_SET]
 ## ⚠ DERIVED from ladrillo_figs.SSP_SET, never re-declared. This dict was a LOCAL COPY of the

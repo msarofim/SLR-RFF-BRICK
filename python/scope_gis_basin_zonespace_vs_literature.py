@@ -104,6 +104,9 @@ HIND, HIND_DRIVER = mock.HIND, mock.HIND_DRIVER
 ## NOT been re-run under the matched set (see the 2026-08-21g handoff §5) -- the
 ## banner below is what makes that visible the moment anyone does.
 import gis_targets  # noqa: E402
+## FROZEN AT CALIB 1.4.5 (Marcus 2026-09-30). L12/L14 design-arc scan whose GMT frame check is recorded on 1.4.5 forcing. Its outputs are a calib-1.4.5
+## record; run as a script on any other forcing, gis_targets refuses with this reason.
+gis_targets.frozen(__name__, "1.4.5", "L12/L14 design-arc scan whose GMT frame check is recorded on 1.4.5 forcing.")
 LIT_2300_M, TARGET_SET = gis_targets.from_argv(sys.argv)
 TARGET_WORD = gis_targets.SET_WORD[TARGET_SET]
 RIDGE_CSV = mock.RIDGE_CSV

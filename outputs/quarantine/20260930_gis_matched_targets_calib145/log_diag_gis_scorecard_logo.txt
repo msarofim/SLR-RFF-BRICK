@@ -1,0 +1,44 @@
+diag_gis_scorecard_logo — leave-one-GCM-out across the whole scorecard, L14, 10000 draws
+
+solving the model on the 12-point k grid (band-independent, done once) ...
+GATE — baseline matched-band rebuild vs the shipped gis_targets: max |diff| 0.0294 cm
+  reproduces to < 0.05 cm => the drops are the only thing moving.
+
+
+dropped GCM              135    86   2150  +rate_r  +rate_x  best psi  k*585  k*cool   arms lost
+(none) FULL ENSEMBLE     135    86    526        7        0     0.125      3    0.75   -
+ACCESS1.3                135    86    526        7        0     0.125      3    0.75   -   [NULL CONTROL]
+CESM2                      0     0      0        0        0        --      3    0.75   -
+CESM2-Leo                135    86    526        7        0     0.125      3    0.75   -
+CESM2-WACCM              134    82    504        4        0     0.094      2       1   SSP1-2.6 x2300
+CNRM-ESM2-1              138    86    526        7        0     0.125      3    0.75   -
+IPSL-CM6A-LR             137    78    493        4        0     0.094      3    0.75   -
+MPI-ESM1-2-HR             33     0      0        0        0        --      3       1   -
+UKESM1-0-LL-Robin        129    86    526        7        0     0.125      2    0.75   -
+
+=== WHAT SURVIVES A SINGLE CLIMATE MODEL ===
+
+  baseline (full ensemble): 135/86 = 135/86, 2150 526, +r2300 rate 7, +x2300 rate 0, k*(585)=3 vs k*(cool)=0.75
+
+  verdict                                         range over the 7 drops   robust?
+  the 86/216 admissible set                               0-86 (base 86)   NO  0.00-1.00x
+  the 1080-cell 2150 set                                0-526 (base 526)   NO  0.00-1.00x
+  cells clearing the r2300 RATE band                        0-7 (base 7)   NO  0.00-1.00x
+  cells clearing the x2300 RATE band                        0-0 (base 0)   YES  n/a
+
+  the k TENSION (ssp585 wants k*, cool wants k*):
+    k*(ssp585) over the drops: [2.0, 3.0]   baseline 3
+    k*(cool)   over the drops: [0.75, 1.0]   baseline 0.75
+    ssp585 still wants a LARGER k than cool in 8/8 drops => the tension is ROBUST.
+
+  NULL CONTROL — ACCESS1.3 is already excluded by A.protect_band, so its drop must be an
+  exact no-op: IDENTICAL to baseline, the drop machinery is exact
+
+  WHY each drop bites (the reservoir is inert below its onset, so a COOL band that
+  stops containing the base model cannot be repaired by any cell):
+    CESM2                  SSP2-4.5 base 18.3 outside 10.1-12.3 (UNREPAIRABLE: reservoir inert here)
+    MPI-ESM1-2-HR          SSP5-8.5 base 49.9 outside 77.6-145.4 (reservoir can add)
+
+  psi of the winning cell: baseline 0.125, over the drops [0.094, 0.125]
+
+wrote outputs/diag_gis_scorecard_logo.csv

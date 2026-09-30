@@ -315,7 +315,7 @@ def main():
             lo, hi = (mid, hi) if rate_at(mid) <= r_bnd[2] else (lo, mid)
         V_max = lo
     ## THE p50 IS THE **MATCHED** ONE, gis_targets.MATCHED_2300_P50_M, not the r2300
-    ## arm's own band median. They are 98.5 vs 72.3 cm and quoting the wrong one would
+    ## arm's own band median. They are 98.5 (calib 1.4.5; 86.9 on 1.6.0) vs 72.3 cm and quoting the wrong one would
     ## move this verdict by 1.36x. "Lands on the p50" is PREDICTOR-DEPENDENT -- memory
     ## `gis_matched_band_predictor` -- and the cell was chosen against the MATCHED one.
     p50 = 100 * gis_targets.MATCHED_2300_P50_M["SSP5-8.5"]

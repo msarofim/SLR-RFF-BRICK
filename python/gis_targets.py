@@ -17,7 +17,9 @@ TWO SETS, DELIBERATELY BOTH KEPT, AND NAMED SO THEY CANNOT BE CONFUSED
                   Retained for provenance and for reproducing every pre-2026-08-21g
                   scorecard. NOT a like-for-like target for our scenarios.
 
-  MATCHED_2300_M  what the PROTECT-Greenland physics ensemble implies AT OUR OWN
+  MATCHED_2300_M  (one set per FaIR calibration -- MATCHED_2300_M_BY_CALIB; the
+                  module attribute is the ACTIVE one, default calib 1.6.0)
+                  what the PROTECT-Greenland physics ensemble implies AT OUR OWN
                   FORCING. Derived in build_gis_matched_targets.py, checked against
                   its CSV at import. THIS is the like-for-like target.
 
@@ -27,7 +29,8 @@ TWO SETS, DELIBERATELY BOTH KEPT, AND NAMED SO THEY CANNOT BE CONFUSED
 WHAT ACTUALLY CHANGED, so this is not oversold
   ssp126 and ssp245 barely move -- their bands were already forcing-matched
   (integral ratios 1.10x and 1.00x against ours). ONLY ssp585 moves, and it moves a
-  lot: 173-313 cm -> 43-145 cm, a factor 0.39. Every "ssp585 SHORT by 3.5-6.3x"
+  lot: 173-313 cm -> 43-145 cm, a factor 0.39 (on calib 1.4.5 forcing; on calib
+  1.6.0, 2026-09-30, it is 37-130 cm). Every "ssp585 SHORT by 3.5-6.3x"
   in this repo before 2026-08-21g inherits the mismatch; no cool-scenario verdict
   does, so the k <= 1.25 kill from the pre-flight survives re-targeting.
 
@@ -40,7 +43,6 @@ import os
 import re
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MATCHED_CSV = os.path.join(REPO, "outputs/gis_matched_targets_2300.csv")
 
 # --- SET 1: the raw literature bands, m SLE. UNCHANGED, kept for provenance. ---
 # TC 19:6887 (2025) doi 10.5194/tc-19-6887-2025; TC 20:309 (2026) doi 10.5194/tc-20-309-2026
@@ -51,54 +53,199 @@ LIT_2300_NOTE = {"SSP1-2.6": "stabilised+ext (ext = 0.092)",
                  "SSP5-8.5": "CONTINUED-WARMING (the apples-to-apples arm)"}
 # The forcing each band was produced at, MEASURED 2026-08-21g by
 # scope_gis_cool_band_forcing.py. GSAT at 2300, 11-yr, C vs 1850-1900, n-weighted
-# over the family's own GCMs; integral is 2015-2300 in K.yr. "ours" is
-# data/observations/fair_mean_gmst_<ssp>.csv on the same convention.
+# over the family's own GCMs; integral is 2015-2300 in K.yr. "OURS" is
+# data/observations/fair_mean_gmst_<ssp>.csv on the same convention, at FaIR 2.2.4
+# calib 1.6.0 (re-measured 2026-09-30; on 1.4.5 it was 1.73/3.14/7.80 K, int
+# 495/790/1626, and the ssp126/ssp585 ratios 1.10x/1.61x).
 LIT_2300_FORCING = {
-    "SSP1-2.6": "r2300 1.96 K (int 544) + x2300 2.48 K (int 651) vs OURS 1.73 K "
-                "(int 495) -- integral ratio 1.10x, MATCHED",
-    "SSP2-4.5": "r2300 2.99 K (int 790) vs OURS 3.14 K (int 790) -- integral ratio "
+    "SSP1-2.6": "r2300 1.96 K (int 544) + x2300 2.48 K (int 651) vs OURS 1.80 K "
+                "(int 510) -- integral ratio 1.07x, MATCHED",
+    "SSP2-4.5": "r2300 2.99 K (int 790) vs OURS 3.16 K (int 786) -- integral ratio "
                 "1.00x, MATCHED",
-    "SSP5-8.5": "x2300 13.80 K (int 2614) vs OURS 7.80 K (int 1626) -- integral "
-                "ratio 1.61x, MISMATCHED; this band scores a hotter world than ours",
+    "SSP5-8.5": "x2300 13.80 K (int 2614) vs OURS 7.48 K (int 1539) -- integral "
+                "ratio 1.70x, MISMATCHED; this band scores a hotter world than ours",
 }
 
-# --- SET 2: forcing-matched at OUR forcing, m SLE. -----------------------------
-# Derived: build_gis_matched_targets.py -> outputs/gis_matched_targets_2300.csv.
+# --- SET 2: forcing-matched at OUR forcing, m SLE -- ONE SET PER FaIR CALIBRATION.
+# Derived: scope_gis_cool_band_forcing.py -> build_gis_matched_targets.py.
 # PCHIP through log(SLR@2300) vs the 2015-2300 GSAT INTEGRAL, over 5 anchors
 # (ssp126 r/x2300, ssp245 r2300, ssp585 r/x2300) spanning 1.96-13.80 K, evaluated
 # at our own scenario's integral. Outside the anchor hull the band is the UNION of
 # the bracketing anchors instead -- see MATCHED_2300_RULE.
-MATCHED_2300_M = {"SSP1-2.6": (0.062, 0.159), "SSP2-4.5": (0.106, 0.215),
-                  "SSP5-8.5": (0.429, 1.450)}
-MATCHED_2300_RULE = {
-    "SSP1-2.6": "UNION of the bracketing anchors -- our integral is 10% BELOW the "
-                "anchor hull, so this band is if anything GENEROUS",
-    "SSP2-4.5": "PCHIP interpolation at our forcing (inside the anchor hull)",
-    "SSP5-8.5": "PCHIP interpolation at our forcing (inside the anchor hull)",
-}
-MATCHED_2300_P50_M = {"SSP1-2.6": 0.111, "SSP2-4.5": 0.154, "SSP5-8.5": 0.985}
+#
+# WHY KEYED BY CALIBRATION (2026-09-30). The PROTECT anchors do not move, but OUR
+# predictor does: the 08-28 move to FaIR 2.2.4 calib 1.6.0 took our ssp585 integral
+# from 1626 to 1539 K.yr and the ssp585 band from 42.9-145.0 to 37.2-129.7 cm. A
+# target is only like-for-like with a model run on the SAME forcing, and for a month
+# the only target in this module was the 1.4.5 one while every re-run read 1.6.0
+# forcing -- measured to flip a verdict to the wrong side of 1 (notes/proposal_
+# 2026-09-30_gis_matched_targets_calib160.md). So the calibration is an explicit
+# axis, the default is 1.6.0 (Marcus 2026-09-30: every paper and future calculation
+# is calib 1.6.0), and the matched set is only handed out after check_forcing() has
+# confirmed that the forcing on disk IS the forcing that set was derived at.
+CALIBS = ("1.6.0", "1.4.5")
+DEFAULT_CALIB = "1.6.0"
+CALIB_SUFFIX = {"1.6.0": "", "1.4.5": "_calib145"}   # output-name label, non-default only
+QUARANTINE_145 = "outputs/quarantine/20260930_gis_matched_targets_calib145"
+MATCHED_CSV_BY_CALIB = {
+    "1.6.0": os.path.join(REPO, "outputs/gis_matched_targets_2300.csv"),
+    "1.4.5": os.path.join(REPO, QUARANTINE_145, "gis_matched_targets_2300.csv")}
+ANCHOR_CSV_BY_CALIB = {
+    "1.6.0": os.path.join(REPO, "outputs/scope_gis_cool_band_targets.csv"),
+    "1.4.5": os.path.join(REPO, QUARANTINE_145, "scope_gis_cool_band_targets.csv")}
+MATCHED_2300_M_BY_CALIB = {
+    "1.6.0": {"SSP1-2.6": (0.062, 0.159), "SSP2-4.5": (0.105, 0.212),
+              "SSP5-8.5": (0.372, 1.297)},
+    "1.4.5": {"SSP1-2.6": (0.062, 0.159), "SSP2-4.5": (0.106, 0.215),
+              "SSP5-8.5": (0.429, 1.450)}}
+# p50. Inside the anchor hull it is the PCHIP matched p50; for a UNION-rule scenario
+# (SSP1-2.6, below the hull) it is the r2300 ANCHOR's own p50 -- the CSV's
+# extrapolated matched_p50_cm (12.7 cm on 1.6.0) is NOT used. That is the definition
+# the literal has always carried; _verify() now checks it rather than assuming it.
+P50_UNION_FAMILY = "r2300"
+MATCHED_2300_P50_M_BY_CALIB = {
+    "1.6.0": {"SSP1-2.6": 0.111, "SSP2-4.5": 0.153, "SSP5-8.5": 0.869},
+    "1.4.5": {"SSP1-2.6": 0.111, "SSP2-4.5": 0.154, "SSP5-8.5": 0.985}}
+_RULE_INSIDE = "PCHIP interpolation at our forcing (inside the anchor hull)"
+MATCHED_2300_RULE_BY_CALIB = {
+    c: {"SSP1-2.6": f"UNION of the bracketing anchors -- our integral is {pct}% BELOW "
+                    "the anchor hull, so this band is if anything GENEROUS",
+        "SSP2-4.5": _RULE_INSIDE, "SSP5-8.5": _RULE_INSIDE}
+    for c, pct in (("1.6.0", 7), ("1.4.5", 10))}
 MATCHED_SOURCE = ("PROTECT-Greenland (Goelzer 2025) doi 10.11582/2025.lf9m2wd0, "
                   "NORCE-CISM long runs, control-drift-corrected, rel 2015")
 MATCHED_CAVEAT = ("every anchor past 2100 is NORCE-CISM -- ONE ice sheet model, so "
                   "the p05-p95 is CLIMATE-forcing spread, NOT structural spread")
 
-TARGET_SETS = {"lit": LIT_2300_M, "matched": MATCHED_2300_M}
 DEFAULT_SET = "matched"
 # Every printed label and every output filename derives from this, so a scorecard
 # cannot print "literature band" while scoring the matched set, and a matched-set
 # run cannot overwrite the artefact a lit-set verdict rests on.
 SET_WORD = {"lit": "literature", "matched": "forcing-matched"}
 SET_SUFFIX = {"lit": "_lit", "matched": "_matched"}
-# Tolerance on the import-time check of the literals against the derivation CSV.
+# Tolerance on the import-time check of the literals against the derivation CSV
+# (the literals are rounded to 1 mm).
 VERIFY_TOL_M = 5e-4
+
+# --- OUR FORCING, on the convention the targets were derived with ---------------
+# scope_gis_cool_band_forcing.py computes `gmst_int_ours_Kyr` through
+# ours_gmst_11yr(), so the check below and the derivation share one code path.
+OURS_GMST_FMT = os.path.join(REPO, "data/observations/fair_mean_gmst_{ssp}.csv")
+OURS_Y0, OURS_Y1, OURS_SMOOTH = 1850, 2300, 11
+INTEG_LO, INTEG_HI = 2015, 2300
+SSP_OF = {"SSP1-2.6": "ssp126", "SSP2-4.5": "ssp245", "SSP5-8.5": "ssp585"}
+# check_forcing() is an IDENTITY gate: the same arithmetic on the same file must give
+# the same integral, so the tolerance is float round-off, not a plausibility band.
+# The smallest real difference it has to see is ssp245 1.4.5 vs 1.6.0, 3.7 K.yr in
+# 790 (0.5%) -- five orders above this.
+FORCING_TOL_REL = 1e-9
+
+_active = DEFAULT_CALIB
+_forcing_ok = set()
+_frozen_reason = {}
+
+
+def ours_gmst_11yr(ssp):
+    """(raw, 11-yr centred) GMST for one of OUR scenarios, Y0-Y1, from the forcing
+    file on disk. The single definition of 'our forcing' for the matched targets."""
+    import pandas as pd
+    ours = pd.read_csv(OURS_GMST_FMT.format(ssp=ssp)).set_index("year").gmst_C
+    ours = ours.loc[OURS_Y0:OURS_Y1]
+    return ours, ours.rolling(OURS_SMOOTH, center=True, min_periods=1).mean()
+
+
+def ours_integral(ssp):
+    """2015-2300 integral of OUR 11-yr GMST, K.yr -- the matched targets' predictor."""
+    return float(ours_gmst_11yr(ssp)[1].loc[INTEG_LO:INTEG_HI].sum())
+
+
+def check_forcing(calib=None):
+    """Refuse unless the forcing on disk is the forcing `calib`'s targets were derived
+    at, compared on the predictor itself (the 2015-2300 integral recorded in that
+    calibration's target CSV). A matched target scored against a model driven by a
+    DIFFERENT forcing is the 2026-09-30 failure; this makes it impossible, not silent."""
+    import csv
+    calib = calib or _active
+    if calib in _forcing_ok:
+        return
+    path = MATCHED_CSV_BY_CALIB[calib]
+    if not os.path.exists(path):
+        raise SystemExit(f"gis_targets: no calib {calib} target table at "
+                         f"{os.path.relpath(path, REPO)}")
+    with open(path) as fh:
+        recorded = {r["label"]: float(r["pred_int_ours_Kyr"]) for r in csv.DictReader(fh)}
+    bad = []
+    for lab, want in recorded.items():
+        have = ours_integral(SSP_OF[lab])
+        if abs(have - want) > FORCING_TOL_REL * abs(want):
+            bad.append(f"{lab}: on disk {have:.1f} K.yr, calib {calib} target derived at "
+                       f"{want:.1f}")
+    if bad:
+        why = _frozen_reason.get(calib)
+        raise SystemExit(
+            f"gis_targets: the forcing on disk (data/observations/fair_mean_gmst_<ssp>.csv) "
+            f"is NOT the forcing the calib {calib} matched targets were derived at --\n  "
+            + "\n  ".join(bad) + "\n"
+            + (f"This script is FROZEN at calib {calib}: {why}\nIts outputs are a calib "
+               f"{calib} record and it cannot be re-run on today's forcing."
+               if why else
+               "Re-derive the targets (python/scope_gis_cool_band_forcing.py, then "
+               "python/build_gis_matched_targets.py) and update MATCHED_2300_M_BY_CALIB."))
+    _forcing_ok.add(calib)
+
+
+def pin(calib, check=True):
+    """Score against `calib`'s matched targets for the rest of this process."""
+    global _active
+    if calib not in CALIBS:
+        raise SystemExit(f"gis_targets: unknown calibration {calib!r}; have {CALIBS}")
+    _active = calib
+    if check:
+        check_forcing(calib)
+    return calib
+
+
+def frozen(module_name, calib, reason):
+    """Declare a consumer FROZEN at an older calibration. Pins (and checks the forcing)
+    ONLY when the module runs as a script: several frozen modules are imported as
+    helper libraries by live consumers, which must keep their own calibration."""
+    _frozen_reason[calib] = reason
+    if module_name == "__main__":
+        pin(calib)
+
+
+def active_calib():
+    return _active
+
+
+def _matched():
+    check_forcing(_active)
+    return MATCHED_2300_M_BY_CALIB[_active]
+
+
+# Back-compatible module attributes (PEP 562): `gis_targets.MATCHED_2300_M` and
+# friends resolve to the ACTIVE calibration, and only after check_forcing().
+_LAZY = {"MATCHED_2300_M": MATCHED_2300_M_BY_CALIB,
+         "MATCHED_2300_P50_M": MATCHED_2300_P50_M_BY_CALIB,
+         "MATCHED_2300_RULE": MATCHED_2300_RULE_BY_CALIB,
+         "MATCHED_CSV": MATCHED_CSV_BY_CALIB}
+
+
+def __getattr__(name):
+    if name in _LAZY:
+        check_forcing(_active)
+        return _LAZY[name][_active]
+    if name == "TARGET_SETS":
+        return {"lit": LIT_2300_M, "matched": _matched()}
+    raise AttributeError(f"module 'gis_targets' has no attribute {name!r}")
 
 
 def get(name=None):
     """Return (bands, set_name). `name` defaults to DEFAULT_SET."""
     name = (name or DEFAULT_SET).lower()
-    if name not in TARGET_SETS:
-        raise SystemExit(f"unknown target set {name!r}; have {sorted(TARGET_SETS)}")
-    return TARGET_SETS[name], name
+    if name not in ("lit", "matched"):
+        raise SystemExit(f"unknown target set {name!r}; have ['lit', 'matched']")
+    return (LIT_2300_M if name == "lit" else _matched()), name
 
 
 def from_argv(argv, default=None):
@@ -115,13 +262,13 @@ def out_path(path, name=None):
     overwrite the artefact a lit-set verdict rests on, and vice versa."""
     _, name = get(name)
     root, ext = os.path.splitext(path)
-    return root + SET_SUFFIX[name] + ext
+    return root + SET_SUFFIX[name] + ("" if name == "lit" else CALIB_SUFFIX[_active]) + ext
 
 
 def note(lab, name=None):
     """The per-band annotation appropriate to the set in use."""
     _, name = get(name)
-    return LIT_2300_NOTE[lab] if name == "lit" else MATCHED_2300_RULE[lab]
+    return LIT_2300_NOTE[lab] if name == "lit" else MATCHED_2300_RULE_BY_CALIB[_active][lab]
 
 
 def banner(name=None):
@@ -131,11 +278,13 @@ def banner(name=None):
     head = (f"TARGET SET = {name.upper()} "
             + ("(raw literature, each band at ITS OWN forcing -- NOT like-for-like)"
                if name == "lit" else
-               "(forcing-matched to OUR scenarios; " + MATCHED_SOURCE + ")"))
+               f"(forcing-matched to OUR scenarios at FaIR 2.2.4 calib {_active}"
+               + ("" if _active == DEFAULT_CALIB else " -- FROZEN, NOT the default "
+                  + DEFAULT_CALIB) + "; " + MATCHED_SOURCE + ")"))
     lines = [head]
     for lab in ("SSP1-2.6", "SSP2-4.5", "SSP5-8.5"):
         lo, hi = bands[lab]
-        note = LIT_2300_NOTE[lab] if name == "lit" else MATCHED_2300_RULE[lab]
+        note = LIT_2300_NOTE[lab] if name == "lit" else MATCHED_2300_RULE_BY_CALIB[_active][lab]
         lines.append(f"  {lab:9} {lo * 100:6.1f}-{hi * 100:<6.1f} cm   [{note}]")
     if name == "lit":
         lines.append("  FORCING OF EACH BAND (measured 2026-08-21g):")
@@ -147,7 +296,7 @@ def banner(name=None):
 
 def ratio_band(bands=None):
     """The ssp585/ssp245 2300 separation implied by a target set, (lo, hi)."""
-    bands = bands or MATCHED_2300_M
+    bands = bands or _matched()
     return (bands["SSP5-8.5"][0] / bands["SSP2-4.5"][1],
             bands["SSP5-8.5"][1] / bands["SSP2-4.5"][0])
 
@@ -230,23 +379,48 @@ def ssps_csv(tag, tapped=True, shape_tag="", cell=None):
 
 
 def _verify():
-    """Re-derive the MATCHED literals from the derivation CSV and refuse to import
-    if they have drifted. The literals are here so a scorecard cannot silently
-    depend on a regenerated file; the check is here so they cannot silently rot."""
-    if not os.path.exists(MATCHED_CSV):
-        return "matched-target CSV absent -- literals UNVERIFIED this import"
+    """Re-derive the MATCHED literals of EVERY calibration from its own derivation CSV
+    and refuse to import if any has drifted -- band endpoints AND p50. The literals
+    are here so a scorecard cannot silently depend on a regenerated file; the check
+    is here so they cannot silently rot. (Before 2026-09-30 the p50s were never
+    checked.) Forcing is NOT checked here -- tap_cell() users import this module
+    too -- but lazily, the first time a matched target is handed out."""
     import csv
-    with open(MATCHED_CSV) as fh:
-        for row in csv.DictReader(fh):
-            lab = row["label"]
+    status = []
+    for calib in CALIBS:
+        path, anchors = MATCHED_CSV_BY_CALIB[calib], ANCHOR_CSV_BY_CALIB[calib]
+        if not os.path.exists(path):
+            status.append(f"calib {calib}: CSV absent -- literals UNVERIFIED")
+            continue
+        with open(anchors) as fh:
+            anchor_p50 = {(r["label"], r["family"]): float(r["slr2300_p50_cm"]) / 100
+                          for r in csv.DictReader(fh)}
+        with open(path) as fh:
+            rows = list(csv.DictReader(fh))
+        for row in rows:
+            lab, name = row["label"], os.path.relpath(path, REPO)
+            if row.get("calib", calib) != calib:
+                raise SystemExit(f"gis_targets: {name} is labelled calib {row['calib']}, "
+                                 f"but it is the calib {calib} table")
             lo, hi = float(row["band_lo_cm"]) / 100, float(row["band_hi_cm"]) / 100
-            have = MATCHED_2300_M[lab]
+            have = MATCHED_2300_M_BY_CALIB[calib][lab]
             if abs(lo - have[0]) > VERIFY_TOL_M or abs(hi - have[1]) > VERIFY_TOL_M:
                 raise SystemExit(
-                    f"gis_targets: MATCHED_2300_M[{lab!r}] = {have} disagrees with "
-                    f"{os.path.basename(MATCHED_CSV)} ({lo:.4f}, {hi:.4f}). Re-run "
+                    f"gis_targets: MATCHED_2300_M_BY_CALIB[{calib!r}][{lab!r}] = {have} "
+                    f"disagrees with {name} ({lo:.4f}, {hi:.4f}). Re-run "
                     f"build_gis_matched_targets.py and update the literal.")
-    return "matched-target literals VERIFIED against the derivation CSV"
+            union = row["extrapolated"] == "True"
+            p50 = (anchor_p50[(lab, P50_UNION_FAMILY)] if union
+                   else float(row["matched_p50_cm"]) / 100)
+            have = MATCHED_2300_P50_M_BY_CALIB[calib][lab]
+            if abs(p50 - have) > VERIFY_TOL_M:
+                raise SystemExit(
+                    f"gis_targets: MATCHED_2300_P50_M_BY_CALIB[{calib!r}][{lab!r}] = {have} "
+                    f"disagrees with {name} ({p50:.4f}, "
+                    + (f"the {P50_UNION_FAMILY} anchor p50 -- UNION rule)" if union
+                       else "matched_p50_cm)"))
+        status.append(f"calib {calib}: VERIFIED")
+    return "matched-target literals (band + p50): " + "; ".join(status)
 
 
 VERIFY_STATUS = _verify()
@@ -254,7 +428,17 @@ VERIFY_STATUS = _verify()
 if __name__ == "__main__":
     import sys
     print(_verify() + "\n")
-    for s in TARGET_SETS:
-        print(banner(s))
-        r = ratio_band(TARGET_SETS[s])
-        print(f"  implied ssp585/ssp245 ratio band: {r[0]:.2f}-{r[1]:.2f}x\n")
+    print(banner("lit"))
+    r = ratio_band(LIT_2300_M)
+    print(f"  implied ssp585/ssp245 ratio band: {r[0]:.2f}-{r[1]:.2f}x\n")
+    for c in CALIBS:
+        try:
+            pin(c)
+        except SystemExit as e:
+            print(f"calib {c}: not usable on today's forcing --\n{e}\n")
+            continue
+        print(banner("matched"))
+        r = ratio_band()
+        p = MATCHED_2300_P50_M_BY_CALIB[c]
+        print(f"  implied ssp585/ssp245 ratio band: {r[0]:.2f}-{r[1]:.2f}x; "
+              f"p50 ratio {p['SSP5-8.5'] / p['SSP2-4.5']:.2f}x\n")

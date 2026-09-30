@@ -110,7 +110,8 @@ EVAL_YEARS = [2100, 2300]          # levels evaluated in addition to the path pe
 #   to 13.80 K at 2300 against our ssp585's 7.80 K -- so the "LOW by 3.8-6.9x"
 #   this file prints against it is partly a comparison at two different forcings.
 #   The forcing-matched band for our own ssp585 is gis_targets.MATCHED_2300_M
-#   ["SSP5-8.5"] = 0.429-1.450 m, against which the untapped base (0.500 m) is IN.
+#   ["SSP5-8.5"] = 0.429-1.450 m on calib 1.4.5 (0.372-1.297 m on calib 1.6.0), against
+#   which the untapped base (0.500 m) is IN.
 #
 #   The "stabilised" ssp585 band transcribed here (0.282-1.230 m) is INDEPENDENTLY
 #   CORROBORATED by the 2026-08-21g extraction: the PROTECT r2300 ssp585 family

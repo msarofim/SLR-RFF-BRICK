@@ -1,0 +1,63 @@
+PROTECT-Greenland long runs by scenario x forcing family (n=89), and the GSAT each family was forced by.
+GSAT: 11-yr centred, C vs 1850-1900, n-weighted over the family's own GCMs.
+OURS: data/observations/fair_mean_gmst_<ssp>.csv, same smoothing and baseline.
+
+=== SSP1-2.6 | LIT_2300_M 0.058-0.163 m [stabilised+ext (ext = 0.092)] ===
+  r2300: n=10, weights CESM2:5, MPI-ESM1-2-HR:5
+      CESM2                (CESM2         ) HELD at 2.33 K from 2101
+      MPI-ESM1-2-HR        (MPI-ESM1-2-HR ) HELD at 1.58 K from 2101
+           2100     2150     2200     2300
+           1.96     1.96     1.96     1.96   forcing (K)
+           1.85     1.72     1.71     1.73   OURS (K)
+          +0.11    +0.24    +0.24    +0.22   THEIRS - OURS
+      integral 2015-2300: theirs      544 K.yr | ours      495 K.yr | ratio  1.10x
+      their SLR@2300 cm: p05    6.2  p17    6.7  p50   11.1  p83   15.2  p95   15.9
+
+  x2300: n=6, weights CESM2-WACCM:6
+      CESM2-WACCM          (CESM2-WACCM   ) extension to 2299, held to 2300 (flat, 2.51 K)
+           2100     2150     2200     2300
+           2.48     2.22     2.32     2.48   forcing (K)
+           1.85     1.72     1.71     1.73   OURS (K)
+          +0.64    +0.51    +0.61    +0.74   THEIRS - OURS
+      integral 2015-2300: theirs      651 K.yr | ours      495 K.yr | ratio  1.32x
+      their SLR@2300 cm: p05    9.5  p17    9.6  p50    9.8  p83   10.2  p95   10.4
+
+=== SSP2-4.5 | LIT_2300_M 0.098-0.218 m [stabilised (no continued-warming run reported)] ===
+  r2300: n=15, weights CESM2:10, MPI-ESM1-2-HR:5
+      CESM2                (CESM2         ) HELD at 3.28 K from 2101
+      MPI-ESM1-2-HR        (MPI-ESM1-2-HR ) HELD at 2.41 K from 2101
+           2100     2150     2200     2300
+           3.06     2.99     2.99     2.99   forcing (K)
+           2.75     3.00     3.15     3.14   OURS (K)
+          +0.31    -0.01    -0.16    -0.15   THEIRS - OURS
+      integral 2015-2300: theirs      790 K.yr | ours      790 K.yr | ratio  1.00x
+      their SLR@2300 cm: p05   10.6  p17   11.2  p50   15.4  p83   20.8  p95   21.5
+
+  x2300: no long runs at SSP2-4.5
+=== SSP5-8.5 | LIT_2300_M 1.732-3.127 m [CONTINUED-WARMING (the apples-to-apples arm)] ===
+  r2300: n=35 (5 dropped), weights CESM2-Leo:10, UKESM1-0-LL-Robin:10, CNRM-ESM2-1:5, IPSL-CM6A-LR:5, MPI-ESM1-2-HR:5
+      protect_r2300_forcing_gmst.csv: CESM2-Leo:10|UKESM1-0-LL-Robin:10|CNRM-ESM2-1:5|IPSL-CM6A-LR:5|MPI-ESM1-2-HR:5 | spliced arm 5.61 K at 2300
+           2100     2150     2200     2300
+           5.88     5.58     5.58     5.58   forcing (K)
+           4.70     6.40     7.31     7.80   OURS (K)
+          +1.18    -0.83    -1.73    -2.22   THEIRS - OURS
+      integral 2015-2300: theirs     1406 K.yr | ours     1626 K.yr | ratio  0.86x
+      their SLR@2300 cm: p05   29.8  p17   55.5  p50   71.5  p83  103.3  p95  108.7
+
+  x2300: n=18, weights IPSL-CM6A-LR:12, CESM2-WACCM:6
+      protect_x2300_forcing_gmst.csv: IPSL-CM6A-LR:12|CESM2-WACCM:6 | spliced arm 13.63 K at 2300
+           2100     2150     2200     2300
+           6.68     9.94    12.18    13.80   forcing (K)
+           4.70     6.40     7.31     7.80   OURS (K)
+          +1.98    +3.54    +4.88    +6.00   THEIRS - OURS
+      integral 2015-2300: theirs     2614 K.yr | ours     1626 K.yr | ratio  1.61x
+      their SLR@2300 cm: p05  217.9  p17  218.7  p50  233.6  p83  296.9  p95  301.1
+
+=== VERDICT ON THE FALSIFIER ===
+  SSP1-2.6  r2300:  1.96 K vs ours  1.73 K -> MATCHED
+  SSP1-2.6  x2300:  2.48 K vs ours  1.73 K -> THEIRS HOTTER by 0.74 K (1.43x)
+  SSP2-4.5  r2300:  2.99 K vs ours  3.14 K -> MATCHED
+  SSP5-8.5  r2300:  5.58 K vs ours  7.80 K -> THEIRS COOLER by 2.22 K (0.72x)
+  SSP5-8.5  x2300: 13.80 K vs ours  7.80 K -> THEIRS HOTTER by 6.00 K (1.77x)
+
+wrote outputs/scope_gis_cool_band_forcing.csv, outputs/scope_gis_cool_band_targets.csv

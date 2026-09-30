@@ -156,6 +156,13 @@ def main():
         rec["lit_hi_cm"] = 100.0 * float(t.loc[t.label == lab, "lit_hi_m"].iloc[0])
         rec["source"] = SOURCE
         rec["predictor"] = PRED_LABEL[PRED_PRIMARY]
+        ## The calibration and provenance of OUR forcing travel with the target, so
+        ## gis_targets can refuse a model run on any other forcing.
+        src = t[t.label == lab]
+        if src.calib.nunique() != 1:
+            sys.exit(f"{lab}: anchors carry mixed calibrations {sorted(src.calib.unique())}")
+        rec["calib"] = src.calib.iloc[0]
+        rec["provenance"] = src.provenance.iloc[0] + "; build_gis_matched_targets.py"
         rows.append(rec)
 
     m = pd.DataFrame(rows)

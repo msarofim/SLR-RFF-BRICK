@@ -1,3 +1,94 @@
+## 2026-09-30e — Calib 1.6.0 is the target default; the matched set is keyed by calibration and gated on the forcing (APPLIED)
+
+Marcus, 2026-09-30:
+- go with the recommended option;
+- label the three gated consumers 1.4.5;
+- all paper calculations, and all future ones, are calib 1.6.0;
+- don't worry about old Ladrillo versions (L14).
+
+**`python/gis_targets.py`**
+- `MATCHED_2300_{M,P50_M,RULE}_BY_CALIB` holds both sets, with `DEFAULT_CALIB = "1.6.0"`.
+- The module attributes `MATCHED_2300_M` etc. now resolve lazily (PEP 562) to the active
+  calibration, and only after `check_forcing()`. That check is an identity gate: the
+  2015-2300 integral of today's `fair_mean_gmst_<ssp>.csv` must equal the
+  `pred_int_ours_Kyr` recorded in that calibration's target table (rel tol 1e-9).
+- `pin()` switches calibration. `frozen(__name__, calib, reason)` pins only when the
+  module runs as a script, because `scope_gis_reservoir_rate_rank` is imported as a
+  library by live consumers.
+- `out_path()` labels non-default output names `_calib145`, and `banner()` names the
+  calibration.
+- `_verify()` checks BOTH sets, and now the p50s too. They were never checked before.
+  The SSP1-2.6 p50 is checked as the r2300 anchor median (11.1 cm), the definition the
+  literal has always had. The extrapolated matched p50 (12.7) is not used.
+- Mutation tests, all refused:
+  - a P50 literal changed;
+  - the SSP1-2.6 P50 set to 12.7;
+  - calib 1.4.5 requested on today's forcing.
+- Helper import leaves the calibration at 1.6.0.
+
+**Targets**
+- The calib 1.4.5 tables and logs were `git mv`'d to
+  `outputs/quarantine/20260930_gis_matched_targets_calib145/`, with a README.
+  `gis_targets` still reads them as the 1.4.5 set.
+- The canonical `gis_matched_targets_2300.csv`, `scope_gis_cool_band_targets.csv` and
+  `…_forcing.csv` are rebuilt on 1.6.0 and now carry `calib` + `provenance` (forcing
+  file md5, commit). Every shared column is identical to the removed `_calib160`
+  duplicates.
+- The builders take `LIT_2300_M` and our forcing from `gis_targets` (one code path with
+  the gate). `scope_gis_cool_band_forcing` no longer imports the ridge scan, whose
+  import-time `from_argv()` would refuse exactly when the forcing moves.
+
+**Re-run on 1.6.0** (1.4.5 outputs and logs quarantined first; list in `.rerun_map.txt`).
+All 15 exit 0 and 14 are byte-identical to sandbox C of the 09-30d measurement. The Julia
+ladder differs by 2e-4 because it now reads the unrounded table:
+- `scope_gis_{leq_ridge,rate_power}_vs_literature`
+- `scope_gis_3basin_partition`, `scope_gis_tap_l13`
+- `scope_gis_reservoir_offline` (tolspread), `scope_gis_gamma_offline`, `scope_gis_onset_rescan`
+- the Julia priority ladder
+- `diag_gis_{matched_band_score,amp_above_275,cascade_rate_crit,k_vs_residual,residual_band,scorecard_logo,separation_target}`
+
+**FROZEN at calib 1.4.5.** Not re-run; each refuses on today's forcing with its reason.
+- The three gated consumers: `basin_mock`, `basin_zonespace`, `ridge_vs_ssp_bands`.
+  The last one's matched output was renamed `…_matched_calib145.csv`.
+- Four more, which would have produced mixed-vintage outputs:
+  - `plot_gis_basin_mock` renders the frozen basin_mock output.
+  - `diag_gis_npv_tau_sensitivity` reads the 1.4.5 L14 projection.
+  - `diag_gis_2150_band_veto` reads the 1.4.5 wide-V scan and carries the 1.4.5 base.
+    Its p50 now comes from the 1.4.5 set explicitly.
+  - `scope_gis_reservoir_rate_rank`'s repro gate fails even on 1.4.5.
+
+**Hard-coded copies**
+- The Julia ladder reads the table. It asserts the table's `calib` and recomputes the
+  forcing integral (identity gate); both mutations are refused.
+- The stepback label is derived from the table.
+- Prose quoting 1.4.5 numbers is labelled "calib 1.4.5".
+- The `LIT_2300_FORCING` banner text now carries our 1.6.0 forcing:
+  - ssp126: 1.80 K / 510
+  - ssp245: 3.16 K / 786
+  - ssp585: 7.48 K / 1539, ratio 1.70x
+
+**Pre-migration forcing renamed `_pre160`.**
+- Covers `fair_mean_{gmst,ohc}.csv` and `…_ssp{119,370,460}.csv`. None of them is on the
+  paper pipeline.
+- Scripts asking for the old names now fail loudly instead of silently running on old
+  forcing; `data/observations/README_forcing_calibration.md` lists them.
+- No 1.6.0 SSP1-1.9 / 3-7.0 / 4-6.0 exists yet.
+
+**Paper audit.** A read-only subagent traced every Table/Figure/number group in
+`GMD…review-2026-09-30_L27.docx`. All are computed on calib 1.6.0: L27 calibration
+(`ssp245harm`), hindcasts, Tables 4/5, the SSP and vv arms, FACTS, and the 5.7. The
+MAGICC arms are on MAGICC's own climate by design.
+
+Three inputs predate the migration. They are FLAGGED, not changed, because they are
+methodological:
+1. The Greenland tap cell (onset 4.69 K / V 5.64 m / τ 800 yr) was chosen on 1.4.5, and
+   the 4.69 K was SSP5-8.5's 2100 GMT on 1.4.5 (4.31 K on 1.6.0). On 1.6.0 the shipped
+   cell is 1.026× the p50 and L27 is 0.988×, both in band.
+2. The held ICs `te_s₀`, `ais_sea_level₀` come from `recalib_central_row.csv`
+   (06-13, pre-migration).
+3. The MCMC start `calib_full_joint_params.csv` was built on pre-migration
+   `fair_mean_gmst.csv`. It affects mixing only.
+
 ## 2026-09-30d — Greenland matched 2300 targets are still calib 1.4.5: consumers mapped, re-derivation MEASURED, PROPOSED (not applied)
 
 **Premise, verified byte-for-byte.** The canonical `gis_matched_targets_2300.csv` and

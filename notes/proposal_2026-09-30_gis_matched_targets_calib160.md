@@ -1,4 +1,13 @@
-# PROPOSAL (not applied) — re-derive the Greenland matched 2300 targets on calib 1.6.0
+# PROPOSAL — re-derive the Greenland matched 2300 targets on calib 1.6.0
+
+> **APPLIED 2026-09-30 (Marcus: the recommended option).**
+> - The three gated consumers are labelled calib 1.4.5.
+> - Every paper and future calculation is calib 1.6.0.
+> - Old Ladrillo versions (L12/L14) are not re-projected.
+>
+> What was done is in CHANGELOG 2026-09-30e and
+> `outputs/quarantine/20260930_gis_matched_targets_calib145/README.md`. The text below
+> is the proposal as written.
 
 2026-09-30 · branch `ladrillo-dev` · **awaiting Marcus**. Changing the calibration
 version of a target is a methodological choice, so nothing canonical has been touched.

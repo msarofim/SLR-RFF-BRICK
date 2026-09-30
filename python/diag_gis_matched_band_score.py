@@ -13,7 +13,8 @@ WHY (handoff_2026-08-23b_weighted_verdict.md sec 1 and sec 7 item 1)
   1. WHICH BAND. The "~100 cm (70-230)" figure in memory `protect_matched_forcing`
      is the 2026-08-21d TWO-ANCHOR QUOTE -- the r2300 and x2300 plateau p50s read
      off as a range. It was SUPERSEDED on 2026-08-21g by the DERIVED band in
-     python/gis_targets.py (42.9-145.0 cm, p50 98.5), built by PCHIP through five
+     python/gis_targets.py (42.9-145.0 cm, p50 98.5 on calib 1.4.5; 37.2-129.7, p50 86.9
+     on calib 1.6.0), built by PCHIP through five
      anchors against the GSAT INTEGRAL. Scoring against the superseded quote would
      be scoring against a looser, older object. This file scores against the
      derived set and reports the legacy bracket only as provenance.

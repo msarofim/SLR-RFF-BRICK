@@ -42,6 +42,9 @@ os.chdir(REPO)
 
 import scope_gis_shape_all_scenarios as A  # noqa: E402
 import gis_targets  # noqa: E402
+## FROZEN AT CALIB 1.4.5 (Marcus 2026-09-30). Its repro gate is pinned to the 1.4.5-era shipped scan (135/86) and fails even on 1.4.5 forcing. Its outputs are a calib-1.4.5
+## record; run as a script on any other forcing, gis_targets refuses with this reason.
+gis_targets.frozen(__name__, "1.4.5", "Its repro gate is pinned to the 1.4.5-era shipped scan (135/86) and fails even on 1.4.5 forcing.")
 from scope_gis_ridge_vs_protect import basin2_series, rebase_cm  # noqa: E402
 from scope_gis_leq_ridge_vs_literature import gis_tbar  # noqa: E402
 from scope_gis_2300_relaxation import (  # noqa: E402

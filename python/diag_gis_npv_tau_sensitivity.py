@@ -59,6 +59,10 @@ import pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "python"))
+import gis_targets  # noqa: E402
+## FROZEN AT CALIB 1.4.5 (Marcus 2026-09-30). Reads the L14 projection (ssps_components_2300_L14.csv), which is calib 1.4.5 and is not re-projected. Its outputs are a calib-1.4.5
+## record; run as a script on any other forcing, gis_targets refuses with this reason.
+gis_targets.frozen(__name__, "1.4.5", "Reads the L14 projection (ssps_components_2300_L14.csv), which is calib 1.4.5 and is not re-projected.")
 
 ## THE reservoir, imported rather than restated, so this file cannot drift from
 ## the object the scan actually scored (scope_gis_reservoir_offline.py, 86/216).
@@ -371,7 +375,6 @@ def main():
 
     # --- 5. the counterweight: is the onset move admissible at all? -----------
     print("=== 5. THE ONSET MOVE IS THE BIGGEST KNOB -- AND IT BREAKS THE COOL BAND ===")
-    import gis_targets  # noqa: E402
     print(f"  {'ssp':<10}{'base gis@2300':>15}{'matched top':>13}{'headroom':>11}"
           f"{'  add @onset 2.0 K (cell A / cell B)':>38}")
     for s in SSPS:

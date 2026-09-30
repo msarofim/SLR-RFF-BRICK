@@ -1,0 +1,10 @@
+dropped,why,n135,n86,n2150,n_rate_r,n_rate_all,best_psi,k_ssp585,k_cool,arms_lost
+(none) FULL ENSEMBLE,-,135,86,526,7,0,0.125,3.0,0.75,-
+ACCESS1.3,-,135,86,526,7,0,0.125,3.0,0.75,-
+CESM2,SSP2-4.5 base 18.3 outside 10.1-12.3 (UNREPAIRABLE: reservoir inert here),0,0,0,0,0,,3.0,0.75,-
+CESM2-Leo,-,135,86,526,7,0,0.125,3.0,0.75,-
+CESM2-WACCM,-,134,82,504,4,0,0.09375,2.0,1.0,SSP1-2.6 x2300
+CNRM-ESM2-1,-,138,86,526,7,0,0.125,3.0,0.75,-
+IPSL-CM6A-LR,-,137,78,493,4,0,0.09375,3.0,0.75,-
+MPI-ESM1-2-HR,SSP5-8.5 base 49.9 outside 77.6-145.4 (reservoir can add),33,0,0,0,0,,3.0,1.0,-
+UKESM1-0-LL-Robin,-,129,86,526,7,0,0.125,2.0,0.75,-

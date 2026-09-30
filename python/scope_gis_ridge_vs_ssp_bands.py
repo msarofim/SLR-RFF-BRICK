@@ -86,6 +86,9 @@ from scope_gis_leq_ridge_vs_literature import (  # noqa: E402
 ## `--targets=lit` reproduces every pre-retarget verdict; the OUTPUT FILENAME
 ## carries the set so neither can overwrite the other's artefact.
 import gis_targets  # noqa: E402
+## FROZEN AT CALIB 1.4.5 (Marcus 2026-09-30). Gated against the L14 projection (ssps_components_2300_L14.csv), which is calib 1.4.5 and is not re-projected. Its outputs are a calib-1.4.5
+## record; run as a script on any other forcing, gis_targets refuses with this reason.
+gis_targets.frozen(__name__, "1.4.5", "Gated against the L14 projection (ssps_components_2300_L14.csv), which is calib 1.4.5 and is not re-projected.")
 from scope_gis_2300_relaxation import (  # noqa: E402
     YEARS, gis_shape_table, gmst_rebased, regional_driver,
 )

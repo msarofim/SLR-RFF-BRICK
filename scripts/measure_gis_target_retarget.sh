@@ -9,6 +9,9 @@
 #      + calib 1.4.5 targets                    = what was shipped 08-21..08-23
 #   B  calib 1.6.0 forcing + calib 1.4.5 targets = what any re-run since 08-28 gives
 #   C  calib 1.6.0 forcing + calib 1.6.0 targets = the proposal
+# ⚠ HISTORICAL (applied 2026-09-30): this measures the state at commit dded135, BEFORE the
+# targets became calibration-keyed. Its C-sandbox patch expects the old single-set
+# literals, so run it from `git worktree add <dir> dded135`, not from a later checkout.
 # A must reproduce the shipped outputs byte-for-byte or the comparison means nothing;
 # compare_gis_target_retarget.py REAL A checks that.
 #

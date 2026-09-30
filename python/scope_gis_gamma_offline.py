@@ -20,7 +20,8 @@ THE QUANTITATIVE PRE-CHECK, RUN FIRST AND REPORTED WHATEVER IT SAYS
   its ceiling at any horizon is 1/phi, where phi = L/L_eq is the equilibration
   fraction ALREADY reached. Measured at k=1: phi(2300) is 0.84-0.92 across the
   arms, so the CEILING on any gamma is x1.09-1.20, and x1.13 on our own ssp585.
-  Against a matched band whose p50 (98.5 cm) is ~2x our 50.0 cm, that is ~8x short.
+  Against a matched band whose p50 (98.5 cm, calib 1.4.5) is ~2x our 50.0 cm, that is ~8x short.
+  (Calib 1.6.0, 2026-09-30: p50 86.9 cm needs x1.82 -- still NOT reachable.)
   (Note the memory's "99% equilibrated by 2300", phi = 0.987-0.991, is the L12
   SINGLE-BASIN figure; L14 two-basin is materially lower. Re-derived, not quoted --
   handoff 2026-08-21d §6 rules out transferring L12 absolute levels.)

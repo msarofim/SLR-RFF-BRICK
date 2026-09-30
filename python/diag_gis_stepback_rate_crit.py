@@ -39,6 +39,7 @@ import numpy as np, pandas as pd
 REPO=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0,os.path.join(REPO,"python")); os.chdir(REPO)
 import scope_gis_shape_all_scenarios as A
+import gis_targets  # the matched p50 is read, never retyped
 from scope_gis_ridge_vs_protect import basin2_series, rebase_cm
 from scope_gis_leq_ridge_vs_literature import gis_tbar
 from scope_gis_2300_relaxation import DRIVER_BASE, YEARS, gis_shape_table, regional_driver
@@ -107,7 +108,7 @@ row=lambda nm,vals,extra: print(f"{nm:{w}}"+"".join(f"{v:11.1f}" for v in vals)+
 pr=[]
 for ssp,lab,fam,_ in A.ARMS:
     q=A.protect_band(ann,lab,fam).groupby("year").gis_cm.median(); pr.append((q[2300]-q[2250])/50*100)
-row("PROTECT (target)",pr,"matched p50 98.5")
+row("PROTECT (target)",pr,f"matched p50 {100*gis_targets.MATCHED_2300_P50_M['SSP5-8.5']:.1f} (calib {gis_targets.active_calib()})")
 for nm,V,on,tau,ns in CELLS:
     vals=[]
     for ssp,lab,fam,_ in A.ARMS:

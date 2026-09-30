@@ -1,0 +1,8 @@
+dropped,n_raw,n_resid,arms_below_min
+(none) FULL,750,752.0,-
+CESM2,0,,SSP1-2.6 r2300;SSP2-4.5 r2300
+CESM2-Leo,750,759.0,-
+CNRM-ESM2-1,750,762.0,-
+IPSL-CM6A-LR,750,763.0,-
+MPI-ESM1-2-HR,126,,SSP1-2.6 r2300;SSP2-4.5 r2300
+UKESM1-0-LL-Robin,739,741.0,-

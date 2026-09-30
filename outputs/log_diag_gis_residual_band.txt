@@ -14,11 +14,11 @@ diag_gis_residual_band — the residual band end-to-end, L14, 10000 draws
 === THE RESIDUAL BAND AT OUR OWN FORCING (2300, cm) ===
 
   scenario     n   base               SHIPPED     RESID add minmax         RESID add t-PI        widths sh/mm/t
-  SSP1-2.6     2   10.1       6.2-15.9            7.7-12.6            -35.7-56.8             10/5/93
-  SSP2-4.5     2   18.3      10.6-21.5           16.0-17.4              0.3-33.1             11/1/33
-  SSP5-8.5     5   49.9      42.9-145.0          47.6-110.5            18.5-150.9           102/63/132
+  SSP1-2.6     2   10.7       6.2-15.9            8.3-13.3            -35.1-57.4             10/5/93
+  SSP2-4.5     2   18.6      10.5-21.2           16.2-17.7              0.5-33.3             11/1/33
+  SSP5-8.5     5   47.7      37.2-129.7          45.4-108.3            16.2-148.7            92/63/132
 
-  ** THE minmax BAND EXCLUDES OUR OWN BASE ON SSP2-4.5 ** (top 17.4 vs base 18.3),
+  ** THE minmax BAND EXCLUDES OUR OWN BASE ON SSP2-4.5 ** (top 17.7 vs base 18.6),
   and the reservoir can only ADD — so under minmax NO cell can pass, on any drop. That is not a
   model failure, it is 2 GCMs agreeing to 1.5 cm being read as a 1.5 cm uncertainty.
 
@@ -27,18 +27,18 @@ diag_gis_residual_band — the residual band end-to-end, L14, 10000 draws
   cells clearing the three 2300 bands + the 2100 tolerance, of 1080
 
   dropped GCM             RAW band   RESIDUAL band
-  (none) FULL                  750             752
+  (none) FULL                  985            1005
   CESM2                          0       UNDEFINED   SSP1-2.6 r2300 down to 1 GCM
-  CESM2-Leo                    750             759
-  CNRM-ESM2-1                  750             762
-  IPSL-CM6A-LR                 750             763
-  MPI-ESM1-2-HR                126       UNDEFINED   SSP1-2.6 r2300 down to 1 GCM
-  UKESM1-0-LL-Robin            739             741
+  CESM2-Leo                    987            1015
+  CNRM-ESM2-1                  986            1016
+  IPSL-CM6A-LR                 987            1016
+  MPI-ESM1-2-HR                233       UNDEFINED   SSP1-2.6 r2300 down to 1 GCM
+  UKESM1-0-LL-Robin            974             988
 
 === DID BANDING ON THE RESIDUAL FIX THE FRAGILITY? ===
 
-  RAW matched band       baseline  750   over the 6 DEFINED drops    0- 750   zeroed: 1/6
-  RESIDUAL band          baseline  752   over the 4 DEFINED drops  741- 763   zeroed: 0/4   (2 undefined)
+  RAW matched band       baseline  985   over the 6 DEFINED drops    0- 987   zeroed: 1/6
+  RESIDUAL band          baseline 1005   over the 4 DEFINED drops  988-1016   zeroed: 0/4   (2 undefined)
 
   ** THE COOL ARMS HAVE 2 GCMs, SO NO DROP IS DEFINED FOR THEM. ** Only the ssp585 arm
   (n=5) can carry a leave-one-out at all. The RAW band appears to survive cool-arm drops

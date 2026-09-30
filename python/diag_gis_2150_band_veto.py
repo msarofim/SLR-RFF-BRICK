@@ -58,6 +58,10 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "python"))
 
 import scope_gis_shape_all_scenarios as A  # noqa: E402
+import gis_targets  # noqa: E402
+## FROZEN AT CALIB 1.4.5 (Marcus 2026-09-30). Reads the calib-1.4.5 --wide-v reservoir scan and carries the 1.4.5 no-reservoir base (49.9 cm). Its outputs are a calib-1.4.5
+## record; run as a script on any other forcing, gis_targets refuses with this reason.
+gis_targets.frozen(__name__, "1.4.5", "Reads the calib-1.4.5 --wide-v reservoir scan and carries the 1.4.5 no-reservoir base (49.9 cm).")
 from scope_gis_ridge_vs_protect import basin2_series, rebase_cm  # noqa: E402
 from scope_gis_leq_ridge_vs_literature import gis_tbar  # noqa: E402
 from scope_gis_2300_relaxation import (  # noqa: E402
@@ -90,8 +94,11 @@ BASE_GATE_TOL_CM = 1e-6           # vs the base implied by the --wide-v CSV
 PSI_GREVE = (0.179, 0.341)        # Greve@3001 per-cell requirement
 PSI_RATE = (0.273, 0.282)         # the 2250-2300 rate criterion
 ## The 2300 side of the pre-check, from gis_targets / the scorecard's own baseline.
-P50_2300_CM = 98.5                # matched p50, ssp585 (MATCHED_2300_P50_M)
-BASE_OURS_2300_CM = 49.9          # the no-reservoir base, scope_gis_reservoir_offline
+## BOTH are calib 1.4.5 and must stay a pair: the p50 comes from gis_targets' 1.4.5 set
+## (not the default), because the base beside it is a 1.4.5 model value.
+FROZEN_CALIB = "1.4.5"
+P50_2300_CM = 100 * gis_targets.MATCHED_2300_P50_M_BY_CALIB[FROZEN_CALIB]["SSP5-8.5"]
+BASE_OURS_2300_CM = 49.9          # the no-reservoir base, scope_gis_reservoir_offline (1.4.5)
 RAMP_W_K = 1.0                    # mirrors scope_gis_reservoir_offline.RAMP_W_K
 ONSET_PRECHECK_K = 4.69           # the pre-check is run at the shipped onset
 N_STAGES = (1, 2, 3)              # 1 = the first-order exponential scanned so far
