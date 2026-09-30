@@ -1,3 +1,45 @@
+## 2026-09-30d — GMD round 09-30b: references completed, HadCRUT5 in Table 3 (`…v1_review-2026-09-30b_L27.docx`)
+
+Built incrementally on `…09-30_L27.docx` (unchanged since delivery, md5 `b26e312a`). Marcus asked for:
+- Wong, Bakker & Keller;
+- the Table 3 dataset DOIs moved into references;
+- references for FACTS, GlacierMIP, PISM, Mimi and the SLEIP emulators;
+- HadCRUT5 added to Table 3.
+This round's tracked changes carry their own timestamp (T18:00), so they stay distinct from 09-30's (T00:00).
+
+**Added:**
+- Wong et al. 2017a for the DAIS paleo file. BRICK v0.2 becomes 2017b at all three citations: GMD orders
+  same-author, same-year entries by the next co-author, and Keller comes before Ruckert.
+- Six dataset entries: GlaMBIE 2024, Wiese et al. 2024 (GRACE; the DOI record's year, while PO.DAAC lists
+  a 2023 release), Dangendorf 2024, Smith et al. 2026 (the IGCC release), Schuster et al. 2025
+  (GlacierMIP3 data), WGMS 2023 (GTN-G regions).
+- FACTS modules as Kopp et al. (2023) cites them: Levermann 2020, DeConto 2021, Bamber 2019, Church 2013,
+  Edwards 2021, Fox-Kemper 2021.
+- GlacierMIP2 (Marzeion 2020), ISMIP6 Antarctica (Seroussi 2020), PISM (Golledge 2019, the PISM runs
+  SLEIP uses), Mimi (all-versions Zenodo DOI; 1.6 has none).
+- Emulators as SLEIP cites them: Ramme, Perrette & Mengel, Weeks, Couplet.
+- A HadCRUT5 row in Table 3: HadCRUT.5.0.2.0 analysis ensemble mean; no DOI is published.
+- Style fixes in Table 3's label column that 09-30 missed.
+
+The DataCite/Crossref receipts are in `deliverables/redline/r0930b/refs_*.md`. The two IPCC chapters'
+author lists come from the Kopp and SLEIP reference lists, because Crossref has none.
+
+**Not added:** Nauels 2017b (it would force a/b labels on Nauels 2017); AR5 Chapter 4 for Table 2
+footnote 8 (no verified author list).
+
+**Reply #4:** the text pointed to the calib160 path that the 09-30 regeneration deleted. It now points to
+the canonical file (`6581b1e`); 5.69 is confirmed there.
+
+**Checks:** `validate.py --author Claude` PASS. Pandoc reject-all equals 09-30 except one blank row where
+the tracked HadCRUT5 row sits (pandoc keeps it; Word removes it). python-docx opens the file; the root
+element, styles and settings are byte-identical.
+
+⚠ **Two traps, both caught by the validator:**
+- Editing the text of an earlier insertion by the same author made that insertion unrecognisable. The fix
+  is to split it and nest a `<w:del>` inside it (`revise_own_ins`).
+- Reusing the earlier round's timestamp let the validator match new paragraph marks to old ones, which
+  merged reference paragraphs in its view. Every round now needs its own timestamp.
+
 ## 2026-09-30e — Calib 1.6.0 is the target default; the matched set is keyed by calibration and gated on the forcing (APPLIED)
 
 Marcus, 2026-09-30:
