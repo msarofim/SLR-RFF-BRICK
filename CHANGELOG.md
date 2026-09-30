@@ -1,3 +1,60 @@
+## 2026-09-30 — L27 is the default everywhere; Table 5 re-run with EQUAL draws; the target is Frederikse again
+
+Marcus: *"Definitely update everything so that L27 is the default. The poster has been presented and is
+done… Re-run table 5 with consistent draws."*
+
+**Target.** The working-tree `outputs/recalib_targets_ext.csv` had carried the uncommitted IMBIE-2026
+build since 09-21, so any driver reading the default got the wrong Antarctic observation for L27.
+`prep_recalib_targets_ext.py` now builds Frederikse + GRACE by default (IMBIE needs `--ais-imbie2026`).
+A bare run reproduces the committed target byte-for-byte (md5 `070f74ab`). The last IMBIE build is kept
+as `outputs/recalib_targets_ext_imbie2026*` (md5 `eb768cd9`).
+
+**Table 5 (IC vs BRICK 2.0).**
+1. *Control first.* The 09-23 IMBIE-target IC outputs were moved to
+   `outputs/quarantine/20260930_ic_on_imbie2026_target/` (README there). They are valid only for
+   L27-vs-L32 (ΔBIC +9.1). The old pipeline (2,000 Ladrillo / 10,000 BRICK draws) was then re-run on
+   the restored target, and all SEVEN 09-20 output files (`3b5bbce`) came back **byte-identical**.
+2. *Equal draws.* `ic_hindcast_residuals.jl` now defaults to ALL 10,000 draws of each posterior. Its
+   exact p50 gate is kept on the embedded postpred draw set (every 5th row) and passes at 0.0. The
+   scorer refuses unequal counts without `--allow-unequal-draws`; its table had claimed "the same draw
+   count" at 2,000 vs 10,000.
+
+| ρ bound | Ladrillo AR(1) ln L max | ΔlnL | ΔAIC | ΔBIC |
+|---|---|---|---|---|
+| 0.99 | 238.0 → **240.4** | 57.1 → **59.5** | 84.1 → **88.9** | 20.8 → **25.7** |
+| 0.95 | 233.8 → **235.8** | 85.6 → **87.6** | 141.2 → **145.2** | 78.0 → **81.9** |
+| 0.90 | 225.9 → **227.0** | 119.0 → **120.1** | 207.9 → **210.2** | 144.6 → **146.9** |
+
+The obs_iid row is unchanged (ΔBIC 2457.5). Its best Ladrillo draw, #3446, is inside the every-5th
+subset, which was checked rather than assumed. The AR(1) best moved to #8992, outside the subset. BRICK
+2.0's rows are unchanged because it already used all 10,000 draws. **Direction: the published margins
+were conservative, and every ρ row moves toward Ladrillo by 1.1–2.4 ln L.**
+⚠ The 09-29 prep note estimated ΔBIC 33–39 at equal counts by *subsampling BRICK to 2,000*. That is
+also equal-draw, but at a lower N; 10,000/10,000 is the tighter bound and the canonical one.
+
+**Defaults.** The kernel's `LADRILLO_POSTERIOR_CSV` is now L27 (L24 is kept as
+`LADRILLO_POSTERIOR_L24_CSV`), and ~40 drivers' `--tag` defaults are now L27. Vintage-pinned analyses
+with untagged output names were deliberately left pinned. Test [4] of `test_ladrillo_projection.jl`
+FAILED on the switch: its one-argument column contract demanded `ais_precip0_LOG`, while L27 spells it
+`ais_precip_u`, which the kernel reads correctly. With Marcus's approval it now uses the kernel's
+header-aware `ladrillo_used_cols(variant, header)`. That is mutation-tested: dropping `ais_precip_u` or
+`antarctic_alpha` fails it. **Suite 10/10.** Bare `plot_hindcast_components.py --paper` and
+`plot_future_components.py --set=vv --paper` reproduce the committed paper PNGs byte-for-byte.
+
+**Identity gate → L27.** `gate_calibrator_identity.sh` now requires every field except `accept_rate`
+to equal the first 300 rows of the PRODUCTION L27 chain (md5 `13587007`), a reference from the shipped
+run rather than from the code under test. PASS. ⚠ The first mutation test came back GREEN: appending
+`--amp-sigma=0.181` does nothing, because the calibrator reads the first occurrence and the log showed
+0.180. With the hook changed to edit the flag string, the mutation fails at `log_post`, row 1. The L24
+gate is kept as `gate_calibrator_identity_L24.sh` on its Frederikse reference and still reproduces it
+byte-for-byte.
+
+**Poster.** README pointers removed (Marcus: the poster is done). The licence line still names the
+poster files, which remain CC-BY.
+
+⚠ Process slip, twice this session: a `pgrep -f` wait loop matched its own command line (CLAUDE.md
+`pgrep_wait_loop_matches_itself`). Both were caught by `ps` and replaced with `kill -0 <pid>` loops.
+
 ## 2026-09-29f — Stale docs brought to L27 before Tony reads the repo (docs and comments only)
 
 A read-only audit found the newcomer-facing docs still describing **L24** (or L14) as current.
