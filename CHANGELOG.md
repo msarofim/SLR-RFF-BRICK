@@ -1,3 +1,48 @@
+## 2026-09-30c — GMD draft round: `…v1_review-2026-09-30_L27.docx` (69 tracked insertions / 65 deletions, 11 comments)
+
+Built on Marcus's 09-30 11:41 save of `…09-29_L27.docx` (md5 `1691933e`; untouched). His edits there
+were untracked:
+- the Greenland dates;
+- the 46 cm mean;
+- the Rignot footnote wording;
+- deletion of the duplicate sampler paragraph;
+- two wording fixes.
+Every change of mine is tracked under "Claude". `validate.py --author Claude` PASS; pandoc reject-all
+== base text; python-docx opens the file; root element, styles and settings are byte-identical.
+Scripts: `deliverables/redline/r0930/`, applied as normalise → edits_a → edits_b → edits_c →
+edits_d → comments_0930. ⚠ The first build piped a failing `edits_b.py` into `tail`, which hid the exit
+code. It was rebuilt from scratch with `pipefail`.
+
+- **Table 5 and its paragraph**: equal-draw numbers (see 09-30).
+- **Marcus's replies acted on**:
+  - Greenland dates (#0/#1).
+  - The Greenland amplification sentence moved to the joint arm, 0.7–7.6 cm (#2/#3).
+  - Amplification leverage now per-draw means throughout, 17% / 20 cm / 4% (#5/#6).
+  - Pre-observational melt as N(0.5, 1.2) cm with a plain explanation (#7/#8).
+  - The Rignot footnote (#9/#10).
+  - The SLEIP-rate sentence deleted (#11/#12).
+  - Figures (#13/#14).
+- **The 7.9–31.9 comment (#4)**: replaced by 5.7 on calib 1.6.0 forcing, NOT the 6.40 proposed on
+  09-29, which was calib 1.4.5.
+- **Session fixes**:
+  - IMBIE σ now 2.9 and 1.8.
+  - "within about 8 %".
+  - 1.24–1.29×.
+  - Licence MIT + CC-BY-4.0.
+  - The glacier list gains "equilibrium curve".
+- **References**:
+  - Added (Crossref-verified): Parkes and Marzeion 2018, Gelman and Rubin 1992 (pages from citing records
+    only), Shaffer 2014, Morice et al. 2021.
+  - Listed-but-uncited references are now cited: Eyring, Leach, Goelzer, Greve and Chambers.
+  - Name-only mentions get citations: IMBIE Team, GlaMBIE Team, Mengel, Nauels 2017.
+  - Copernicus "et al." and punctuation; GMD order (National Academies, Smith 2026, van Vuuren).
+  - Placeholder note deleted.
+  - Left for Marcus (in reply #17): Wong, Bakker and Keller 2017 for the DAIS paleo file (it would force
+    2017a/b), the dataset DOIs as "[data set]" entries, the FACTS modules / GlacierMIP2 / PISM / Mimi
+    references, the CSIRO 2015 update, and HadCRUT5 in Table 3.
+- **Figures**: FIG 1, 4, 5 swapped (tracked). FIG 1 caption gains the hatched obs band; FIG 4 caption
+  says what the shading is. FIG 2, 3, 6 were already current.
+
 ## 2026-09-30b — GMD round 09-30: the numbers behind Marcus's comment replies
 
 These are the inputs to `deliverables/GMD.Ladrillo.v1_review-2026-09-30_L27.docx`, built on Marcus's 09-30
