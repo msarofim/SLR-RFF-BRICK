@@ -61,21 +61,27 @@ import matplotlib.pyplot as plt
 
 import argparse
 _ap = argparse.ArgumentParser()
+_ap.add_argument("--ais-imbie2026", action="store_true",
+                 help="the IMBIE-2026 AIS build (L28-L35 arms, a closed arc) instead of the L27 target")
 _ap.add_argument("--ais-frederikse", action="store_true",
-                 help="pre-2026-09-21 AIS target (Frederikse to 2018 + GRACE from 2019) instead of IMBIE 2026")
+                 help="accepted no-op since 2026-09-30: Frederikse to 2018 + GRACE from 2019 is the DEFAULT")
 _ARGS = _ap.parse_args()
-AIS_SOURCE = "frederikse" if _ARGS.ais_frederikse else "imbie2026"
+if _ARGS.ais_imbie2026 and _ARGS.ais_frederikse:
+    _ap.error("--ais-imbie2026 and --ais-frederikse are contradictory")
+AIS_SOURCE = "imbie2026" if _ARGS.ais_imbie2026 else "frederikse"
 
-# ⚠⚠ WHICH POSTERIOR DOES THIS TARGET REPRODUCE? The default CHANGED on 2026-09-21 (commit c247e06),
-# and the shipped posterior did NOT change with it. A rebuild with no flags therefore does NOT
-# reproduce the shipped champion. Say so out loud, at the top, before anything is written.
+# ⚠⚠ WHICH POSTERIOR DOES THIS TARGET REPRODUCE? The default was IMBIE 2026 from 2026-09-21
+# (commit c247e06) to 2026-09-30, while the shipped posterior stayed on Frederikse -- so a bare
+# rebuild did NOT reproduce the champion. Marcus 2026-09-30: L27 is the default everywhere, so the
+# default is back on Frederikse; the IMBIE build needs --ais-imbie2026 (its last output is kept as
+# outputs/recalib_targets_ext_imbie2026*). Say which, out loud, before anything is written.
 AIS_SOURCE_REPRODUCES = {
     "frederikse": "L27 and earlier (the SHIPPED champion and the GMD draft's posterior)",
     "imbie2026":  "L28-L33 (the IMBIE-2026 arms) -- NOT the shipped champion",
 }
 print("=" * 100)
 print(f"  AIS CALIBRATION TARGET = {AIS_SOURCE.upper()}"
-      f"{'  (pass --ais-frederikse for the shipped L27 target)' if AIS_SOURCE != 'frederikse' else ''}")
+      f"{'  (NOT the shipped L27 target -- that is the default, no flag)' if AIS_SOURCE != 'frederikse' else ''}")
 print(f"  reproduces: {AIS_SOURCE_REPRODUCES[AIS_SOURCE]}")
 print("=" * 100)
 

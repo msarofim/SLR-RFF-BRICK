@@ -30,26 +30,14 @@ at the multi-century horizon.
 
 ## Deliverables
 
-This repository backs two artifacts:
+This repository backs these artifacts:
 
 - **Substack post**, "Certainties and Uncertainties" (Sarofim, 2026-05-20):
   <https://thesaraphreport.substack.com/p/certainties-and-uncertainties>.
   The post's methods discussion is drawn from [METHODS.md](METHODS.md); final
   figures live under `outputs/substack/`.
-- **AGU Chapman SLR conference poster** — 46″ × 46″, by Marcus C. Sarofim,
-  James E. Neumann, and Megan Sheahan. Current layout mockup at
-  `outputs/poster/layout_mockup.{png,pdf}`; abstract at [ABSTRACT.md](ABSTRACT.md);
-  IEc-graphics handoff checklist at [notes/poster_iec_handoff.md](notes/poster_iec_handoff.md).
-  The current commit reflects the **near-final** scientific layout. IEc
-  graphics is applying final visual polish ahead of the conference; the
-  print-ready PDF (and the `v1.0-poster-agu-chapman` tag) will land in the
-  repo once that's complete (expected ≈ 2026-06-01). In the meantime, the
-  science, figure data, and references in this repo are stable; the pending
-  changes are graphics-only.
-
-  **QR-code target for the printed poster:**
-  <https://github.com/msarofim/SLR-RFF-BRICK/tree/v1.0-poster-agu-chapman>
-  (the tag is created when the poster is delivered).
+- **Ladrillo GMD model-description paper** (in preparation, branch `ladrillo-dev`) —
+  see [LADRILLO.md](LADRILLO.md).
 
 ## Acknowledgements
 
@@ -67,8 +55,8 @@ conda env create -f environment.yml
 conda activate slr-rff-brick
 ```
 
-The final figures are committed as PNGs/PDFs under `outputs/substack/` and
-`outputs/poster/` — open them directly. To regenerate them:
+The final figures are committed as PNGs/PDFs under `outputs/substack/` —
+open them directly. To regenerate them:
 
 **Tier 1 — these figures regenerate from CSVs already in the repo** (no
 external download):
@@ -78,7 +66,6 @@ python python/scripts/substack/pulse_hawkins_sutton.py
 python python/scripts/substack/pulse_responses_clean.py
 python python/scripts/substack/updated_hawkins_sutton_slr.py
 python python/scripts/substack/pulse_convergence.py
-python python/scripts/poster/layout_mockup.py
 ```
 
 **Tier 2 — these figures need the Zenodo data download** (GMST cube and/or
@@ -93,7 +80,6 @@ python python/scripts/substack/exceedance_table.py
 python python/scripts/substack/exceedance_crossing_year.py
 python python/scripts/substack/median_crossing_year.py
 python python/scripts/substack/updated_hawkins_sutton.py
-python python/scripts/poster/slr_band.py
 ```
 
 The committed CSVs in `outputs/plots/` and `outputs/substack/` carry
@@ -106,7 +92,7 @@ the per-trajectory ensemble directly.
 
 | Tier | What you get | Extra setup | Compute |
 |---|---|---|---|
-| **1. Variance / pulse figures** | Regenerate the variance-decomposition + pulse-marginal substack/poster figures from committed CSVs | — | laptop, ~2 min |
+| **1. Variance / pulse figures** | Regenerate the variance-decomposition + pulse-marginal substack figures from committed CSVs | — | laptop, ~2 min |
 | **2. Cube + ensemble figures** | Tier 1 + all GMST-cube-based and SLR-band figures regenerated from raw ensembles | `bash scripts/download_data.sh` (~6 GB Zenodo) | laptop, ~10 min |
 | **3. Re-run BRICK from cubes** | Regenerate the LHS-10k weighted ensembles from FaIR cubes; H-S decompositions; pulse marginals | Tier 2 + MimiBRICK posterior CSV + Julia env | NYU Torch HPC, ~10 min wall |
 | **4. Re-run FaIR from emissions** | Regenerate the FaIR cubes from RFF-SP emissions | Tier 3 + RFF-SP 7-Zip (~1.4 GB, Zenodo 6016583) | NYU Torch HPC, ~few hours |
@@ -138,8 +124,7 @@ SLR-RFF-BRICK/
 ├── outputs/
 │   ├── README.md          inventory; what's tracked vs Zenodo
 │   ├── plots/             H-S decomp CSVs + obs-vs-model CSVs + final panel PNGs
-│   ├── substack/          figure-input summary CSVs + final substack figures
-│   └── poster/            final poster panel figures + layout mockup
+│   └── substack/          figure-input summary CSVs + final substack figures
 ├── notes/                 working handoff notes (decision history, methods drafts)
 ├── docs/                  supplementary technical docs
 └── BRICK_notes.md         project-specific BRICK notes
@@ -160,7 +145,7 @@ ssh torch "cd /scratch/$USER/SLR-RFF-BRICK && sbatch slurm/submit_lhs10k_brick_p
 
 # 4. Pull weighted CSVs back, regenerate figures
 rsync -avz torch:/scratch/$USER/SLR-RFF-BRICK/outputs/brick_lhs10k_*_weighted.csv outputs/
-python python/scripts/poster/slr_band.py
+# then the Tier 2 figure scripts above
 ```
 
 ## Tier 4 quickstart (re-run FaIR from RFF-SP emissions)
