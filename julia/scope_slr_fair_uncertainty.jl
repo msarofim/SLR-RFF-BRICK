@@ -70,6 +70,10 @@
 using CSV, DataFrames, Statistics, Printf, Mimi, Random
 
 include(joinpath(@__DIR__, "ladrillo_projection.jl"))
+## A NON-DEFAULT Greenland amp shape (LADRILLO_GIS_SHAPE) is carried in every output filename and in
+## the provenance column (2026-09-30). Without it a shape-constant run overwrote the canonical outputs.
+## The default shape adds nothing, so default outputs are byte-identical to before.
+const SHAPE_SFX = LADRILLO_GIS_SHAPE_STEM == "gis_amp_shape" ? "" : "_" * LADRILLO_GIS_SHAPE_STEM
 
 const REPO   = LADRILLO_REPO
 const SEEDS  = [2026, 2027, 2028, 2029]
@@ -568,7 +572,7 @@ for (arm, R) in (("fixed", FIXED), ("joint", JOINT))
     push!(rowsg, ("SUM", "$(arm)_max_cm", w, w < SUM_TOL_CM ? "PASS" : "FAIL"))
     @assert w < SUM_TOL_CM "[SUM] the components do not sum to the total for arm $arm"
 end
-CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_gates_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SMOKE ? "_SMOKE" : "").csv"), rowsg)
+CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_gates_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SHAPE_SFX)$(SMOKE ? "_SMOKE" : "").csv"), rowsg)
 
 ## ==========================================================================
 ## THE CELLS
@@ -603,8 +607,9 @@ for c in COMPONENTS
 end
 cells.provenance .= "scope_slr_fair_uncertainty.jl | Ladrillo $TAG | ssp $SSP | forcing $FORCING | climate $CLIMATE | " *
     "lws $(LWS_MODE) (mean $(LWS_MEAN) m/yr$(LWS_MODE === :seeded ? ", seed $LWS_SEED" : "")) | tap $(TAP_ON) | " *
-    "run $Y0-$Y1 reref $(LADRILLO_REF[1])-$(LADRILLO_REF[2]) | julia $(VERSION)"
-CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_cells_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SMOKE ? "_SMOKE" : "").csv"), cells)
+    "run $Y0-$Y1 reref $(LADRILLO_REF[1])-$(LADRILLO_REF[2]) | julia $(VERSION)" *
+    (isempty(SHAPE_SFX) ? "" : " | gis amp shape $(LADRILLO_GIS_SHAPE_STEM) (NON-DEFAULT)")
+CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_cells_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SHAPE_SFX)$(SMOKE ? "_SMOKE" : "").csv"), cells)
 
 ## ==========================================================================
 ## THE COMPARISON that motivated it
@@ -628,7 +633,7 @@ let dr = DataFrame(draw = Int[], config = String[], component = String[],
     for c in COMPONENTS, H in HORIZONS, (arm, A) in (("fixed", FIXED[c]), ("joint", JOINT[c])), k in 1:NDRAW
         push!(dr, (k, CFG_OF_DRAW[k], String(c), H, arm, A[k, yidx(H)]))
     end
-    CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_draws_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SMOKE ? "_SMOKE" : "").csv"), dr)
+    CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_draws_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SHAPE_SFX)$(SMOKE ? "_SMOKE" : "").csv"), dr)
 end
 
 paths = DataFrame(year = Int[], component = String[], arm = String[],
@@ -638,6 +643,6 @@ for c in COMPONENTS, (arm, A) in (("fixed", FIXED[c]), ("joint", JOINT[c])), (i,
     v = A[:, i]
     push!(paths, (y, String(c), arm, median(v), quantile(v, 0.05), quantile(v, 0.95)))
 end
-CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_paths_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SMOKE ? "_SMOKE" : "").csv"), paths)
+CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_paths_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SHAPE_SFX)$(SMOKE ? "_SMOKE" : "").csv"), paths)
 @printf("\nwrote outputs/scope_slr_fairunc_{cells,draws,paths,gates}_%s_%s%s_%s%s%s.csv\n",
         SSP, FORCING, CLIM_TAG, TAG, TAP_TAG, SMOKE ? "_SMOKE" : "")

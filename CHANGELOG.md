@@ -1,3 +1,34 @@
+## 2026-09-30b — GMD round 09-30: the numbers behind Marcus's comment replies
+
+These are the inputs to `deliverables/GMD.Ladrillo.v1_review-2026-09-30_L27.docx`, built on Marcus's 09-30
+11:41 save.
+- **Greenland amplification on the JOINT arm** (Marcus: use the joint arm, as in the paragraph on the
+  above-threshold channel). Holding the amplification constant adds **0.7 cm (SSP1-2.6) / 2.7 (SSP2-4.5) /
+  7.6 (SSP5-8.5)** at 2300, as paired per-draw medians of the Greenland component. The fixed arm gives
+  0.9 / 3.2 / 8.3. Source: `outputs/diag_gis_amp_shape_joint_L27.csv` (new
+  `python/diag_gis_amp_shape_joint.py`). ⛔ `scope_slr_fair_uncertainty.jl` read `LADRILLO_GIS_SHAPE`
+  but wrote the SAME filenames, so a shape-constant run would have overwritten the canonical joint arm.
+  A non-default shape is now carried in the filename and the provenance. Control: a default SSP1-2.6
+  re-run left every canonical output byte-identical, and the shipped SSP5-8.5 draws re-ran byte-identical.
+- **Greenland 2300 separation target on calib 1.6.0 forcing.** The matched p50 ratio SSP5-8.5/SSP2-4.5 is
+  **5.69** (86.9/15.3 cm), against **6.40** on the 08-21 calib 1.4.5 forcing. The same two scripts
+  (`scope_gis_cool_band_forcing.py`, `build_gis_matched_targets.py`) were re-run on today's
+  `fair_mean_gmst_*` and written to `outputs/gis_matched_targets_2300_calib160.csv` and
+  `outputs/scope_gis_cool_band_targets_calib160.csv`. ⚠ The CANONICAL `gis_matched_targets_2300.csv` and
+  the `gis_targets.py` literals checked against it at import time are still on calib 1.4.5, and other
+  Greenland gates read them. Regenerating them is a separate job. Ladrillo's own 2.4 is unchanged (2.36
+  fixed, 2.35 joint).
+- Checked for Marcus's replies (receipts are in the reply bubbles):
+  - Greenland driver dates: warming 1920→1930, plateau to ~1960, cooling to a low ~1990.
+  - Amplification leverage: per-draw MEANS are 45.8 cm (17%) and 19.9 cm (4%); 23/21% had been the
+    regression figures.
+  - Pre-observational melt is scored against N(0.5, 1.17) cm.
+  - Rignot: 2098 ± 133 is correct. The ×0.888 scaling uses a 12.295e6 km² area whose source is not
+    found; the paper has 12.353, a 0.07σ difference.
+  - The SLEIP-rate sentence mixed windows (2006–2025 vs 2006–2024), so it was deleted.
+- **All six paper figures re-render byte-identically** from the current code. FIG 1, 4 and 5 were stale
+  in the docx and are swapped as tracked changes.
+
 ## 2026-09-30 — L27 is the default everywhere; Table 5 re-run with EQUAL draws; the target is Frederikse again
 
 Marcus: *"Definitely update everything so that L27 is the default. The poster has been presented and is
