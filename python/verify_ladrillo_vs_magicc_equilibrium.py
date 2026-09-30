@@ -16,7 +16,7 @@ real tabulated data, not an approximation of MAGICC's law.
 Both curves re-referenced to 1995-2014 (the standing PROJ_BASELINE), matching how every other
 Ladrillo committed-melt number in this repo is reported.
 
-  python3 python/verify_ladrillo_vs_magicc_equilibrium.py [--tag=L24]
+  python3 python/verify_ladrillo_vs_magicc_equilibrium.py [--tag=L27]
 """
 import json
 import os
@@ -30,7 +30,7 @@ from scope_glacier_regrowth import (BLOCKS, build_drivers, load_nu, load_posteri
                                      seq_of, REPO, NDRAW)
 import ladrillo_figs as lf
 
-TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
+TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 MAGICC_GMST_CSV = os.path.join(REPO, "data/comparison/magicc_gmst_vv.csv")
 DRAWNSET = os.path.expanduser(
     "~/Documents/2026/CodeProjects/MAGICC/slr-refresh/data/processed/magicc-drawnsets/"

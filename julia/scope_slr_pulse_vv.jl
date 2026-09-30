@@ -45,7 +45,7 @@
 ## and [TAP-CROSSING] COUNTS the draws that differ rather than leaving it to be assumed.
 ##
 ##   julia --project=julia_v2 julia/scope_slr_pulse_vv.jl [n_per_chain] --marker=H --specie=CO2
-##        [--tag=L24] [--tap] [--maxrows=N] [--forcing=spliced|raw] [--chain-tag=L24]
+##        [--tag=L27] [--tap] [--maxrows=N] [--forcing=spliced|raw] [--chain-tag=L24]
 ##
 ## Writes outputs/pulse_ladrillo_{cells,draws,paths,gates}_vv<M>_<SPECIE>_<TAG><TAP_TAG>.csv
 ## ============================================================================

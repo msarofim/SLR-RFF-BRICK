@@ -9,7 +9,7 @@ Writes outputs/ladrillo_table_a2_<tag>.md
 """
 import os, sys, pandas as pd, numpy as np
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TAG = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
+TAG = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 IDENT_MAX, PROP_MIN, LOAD_MIN = 0.20, 0.80, 0.30
 NAME = {"ais_mu": "µ", "ais_bedheight0": "b₀", "ais_slope": "slope", "ais_iceflow0": "f₀", "ais_precip0_LOG": "ln P₀",
         "ais_runoff_Ton": "T_on", "ais_c": "c", "ais_gmst_amp": "amp", "antarctic_alpha": "α_DAIS", "antarctic_nu": "ν",

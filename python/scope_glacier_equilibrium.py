@@ -3,7 +3,7 @@
 scope_glacier_equilibrium.py — SCOPE Ladrillo's glacier EQUILIBRIUM curve.
 SCOPING ONLY: this changes no model file and wires nothing in.
 
-  python3 python/scope_glacier_equilibrium.py [--tag=L21] [--draws=400]
+  python3 python/scope_glacier_equilibrium.py [--tag=L27] [--draws=400]
 Writes outputs/scope_glacier_equilibrium_<TAG>{,_ladder}.csv
 
 THE QUESTION, inherited from scope_glacier_regrowth.py's §5 verdict and named as the next

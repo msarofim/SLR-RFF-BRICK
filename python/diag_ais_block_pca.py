@@ -13,7 +13,7 @@ prior (outputs/paleo_geo_prior_ton.csv) for the geometry block and the tag's own
 import sys, os, datetime
 import numpy as np, pandas as pd
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TAG = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--tag=")), "L26")
+TAG = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 TBAR = -17.992322907746065          # LADRILLO_TBAR_ANT (ladrillo_projection.jl); only used for a --precip-reparam chain
 GEO = ["ais_mu", "ais_bedheight0", "ais_slope", "ais_iceflow0", "ais_precip0_LOG", "ais_runoff_Ton", "ais_c"]
 FD = ["ais_gmst_amp", "antarctic_alpha", "antarctic_nu", "antarctic_temp_threshold", "anto_alpha", "anto_beta",

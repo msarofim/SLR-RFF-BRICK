@@ -65,7 +65,7 @@ HORIZONS = [2100, 2150, 2300]
 ## hardcoded-vintage-in-front-of-a-tag-argument failure the L14->L21 sweep already found in
 ## 14 places. The tap suffix stays fixed because the tap cell is fixed; only the tag moves.
 _TAG = next((a[len("--tag="):] for a in __import__("sys").argv[1:]
-             if a.startswith("--tag=")), "L23")
+             if a.startswith("--tag=")), "L27")
 ARM_TAG = _lf.joint_stem(_TAG)
 ## ⚠ THE DRAW COUNT IS NOT A CONSTANT ACROSS SCENARIOS, and hardcoding one is how this
 ## check would have passed on a mismatch. The shipped FaIR-climate arm runs 8000 draws for
@@ -131,7 +131,7 @@ def cells(scen, forcing, climate):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--tag", default="L23",
+    ap.add_argument("--tag", default="L27",
                     help="calibration vintage; sets ARM_TAG (parsed at import too)")
     ap.add_argument("--forcing", default="spliced", choices=["spliced", "raw"],
                     help="which injection convention to DECOMPOSE (default spliced, the "

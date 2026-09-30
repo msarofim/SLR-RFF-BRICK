@@ -9,7 +9,7 @@
 ## Basis
 ##   posterior : data/MimiBRICK/parameters_subsample_brick_mengel_<TAG>.csv,
 ##               --tag=, default = the canonical posterior (LADRILLO_POSTERIOR_CSV,
-##               currently L24). The file stores the Greenland slow channel as
+##               currently L27). The file stores the Greenland slow channel as
 ##               (gis_slow_ell, gis_slow_w) — the loader derives the native pair.
 ##               The Greenland variant is read off the file, not assumed. CAVEAT
 ##               carried from both acceptances: the 2150 and 2300 columns rest on
@@ -33,10 +33,10 @@
 ## scenario and carried in the output.
 ##
 ##   [LADRILLO_GIS_SHAPE=<stem>] julia --project=julia_v2 julia/project_ssps_components_ladrillo.jl \
-##       [n_draws] [--tag=L24] [--no-tap] [--tap-set[=csv]]
+##       [n_draws] [--tag=L27] [--no-tap] [--tap-set[=csv]]
 ##
 ## --tag selects the posterior AND the output filename together (default = the
-## canonical posterior, LADRILLO_POSTERIOR_CSV, currently L24). --no-tap runs the
+## canonical posterior, LADRILLO_POSTERIOR_CSV, currently L27). --no-tap runs the
 ## base arm without the above-threshold discharge channel; --tap-set runs the whole
 ## admissible cell set (optionally from a named csv). LADRILLO_GIS_SHAPE (env) swaps
 ## the Greenland amp-shape table for the pre-registered sensitivity arms.
@@ -52,7 +52,7 @@ const NTHIN    = let p = filter(a -> !startswith(a, "--"), ARGS)
 end
 ## POSTERIOR TAG drives BOTH the input posterior and the output filename, so a
 ## run on one vintage cannot write a file labelled with another. The default
-## tracks the CANONICAL posterior (L24 since 2026-09-02), so it
+## tracks the CANONICAL posterior (L27 since 2026-09-30; L24 2026-09-02 -> 09-30), so it
 ## is derived from LADRILLO_POSTERIOR_CSV rather than written out again — the
 ## two cannot drift. Passing --tag=X asserts the file exists rather than
 ## silently falling back, and older vintages stay reachable that way.

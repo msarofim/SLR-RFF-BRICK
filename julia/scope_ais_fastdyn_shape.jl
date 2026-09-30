@@ -47,7 +47,7 @@ const SEEDS  = [2026, 2027, 2028, 2029]
 const NITER  = 2000000
 const NBURN  = 1000000
 const TAG    = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
-    i === nothing ? "L14" : ARGS[i][7:end]
+    i === nothing ? "L27" : ARGS[i][7:end]
 end
 const MAXROWS = let i = findfirst(a -> startswith(a, "--maxrows="), ARGS)
     i === nothing ? nothing : parse(Int, ARGS[i][11:end])

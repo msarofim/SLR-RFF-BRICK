@@ -34,7 +34,7 @@
 ##   BRICK 2.0  Random.seed!(2026) immediately before get_model (the LWS lock);
 ##              BRICK's own LWS is not used (0 before 2019 by calibration design).
 ##
-##   julia --project=julia_v2 julia/ic_hindcast_residuals.jl [ndraw_ladrillo=2000] [ndraw_brick=all] [--tag=L24]
+##   julia --project=julia_v2 julia/ic_hindcast_residuals.jl [ndraw_ladrillo=all] [ndraw_brick=all] [--tag=L27]
 ## Writes:
 ##   outputs/ic_hindcast_residuals_ladrillo_<TAG>.csv   draw, sd_*/rho_*, <series>_<year>
 ##   outputs/ic_hindcast_residuals_brick20.csv          same layout (BRICK's own noise cols)
@@ -48,15 +48,16 @@ const Y0, Y1     = 1850, 2026
 const FIT_REF    = (1995, 2005)
 const FORCING    = "ssp245harm"
 const FIT_START  = 1900
-## DRAW COUNTS. Ladrillo defaults to 2000 = the postpred's NTHIN, thinned the same way, so
-## its residual medians reproduce postpred_<TAG>_components_timeseries.csv EXACTLY (gated
-## below). BRICK 2.0 defaults to ALL 10,000 because ITS postpred ran all 10,000, and only the
-## same draw set reproduces its p50 exactly. The counts therefore differ (2000 vs 10,000):
-## a max-over-draws log-likelihood is a lower bound that rises with draws, so the asymmetry
-## favours BRICK 2.0 -- the conservative direction for the comparison this feeds.
+## DRAW COUNTS — EQUAL BY DEFAULT since 2026-09-30 (Marcus: "re-run table 5 with consistent draws").
+## Both default to ALL rows of their 10,000-row posteriors. Until 09-30 Ladrillo defaulted to 2000 (the
+## postpred's NTHIN) and BRICK 2.0 to all 10,000; a max-over-draws ln L is a lower bound that rises with
+## the number of draws, so that asymmetry favoured BRICK 2.0 (at rho<=0.99, BRICK's AR(1) max over 2,000
+## -draw subsets was a median 6 ln L below its 10,000-draw max). The exactness gate below survives the
+## change: it is taken on the rows that ARE the postpred's draw set, which every-row thinning contains.
 const NDRAW_L, NDRAW_B = let p = filter(a -> !startswith(a, "--"), ARGS)
-    (length(p) >= 1 ? parse(Int, p[1]) : 2000, length(p) >= 2 ? parse(Int, p[2]) : typemax(Int))
+    (length(p) >= 1 ? parse(Int, p[1]) : typemax(Int), length(p) >= 2 ? parse(Int, p[2]) : typemax(Int))
 end
+const POSTPRED_NTHIN = 2000       # posterior_predictive_ladrillo.jl's draw count (its NTHIN default)
 const DEFAULT_TAG = replace(replace(basename(LADRILLO_POSTERIOR_CSV),
                                     "parameters_subsample_brick_mengel_" => ""), ".csv" => "")
 const POST_TAG = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
@@ -123,10 +124,10 @@ end
 ## ---------------------------------------------------------------------------
 ## Ladrillo
 ## ---------------------------------------------------------------------------
-post = ladrillo_posterior(path=POSTERIOR, cols=:all, nthin=NDRAW_L)
-const VARIANT = ladrillo_posterior_variant(POSTERIOR)
 nfull = nrow(CSV.read(POSTERIOR, DataFrame; select=[1]))
-ldraws = collect(1:cld(nfull, NDRAW_L):nfull)[1:nrow(post)]      # the rows _ladrillo_thin keeps
+post = ladrillo_posterior(path=POSTERIOR, cols=:all, nthin=min(NDRAW_L, nfull))
+const VARIANT = ladrillo_posterior_variant(POSTERIOR)
+ldraws = collect(1:cld(nfull, min(NDRAW_L, nfull)):nfull)[1:nrow(post)]      # the rows _ladrillo_thin keeps
 ## lws=:central PINNED (2026-09-21): the objective was calibrated with land water zero before 2018 (:central since 09-18); projections default to :observed (brick_mengel.jl LWS_MODE) and must not move the hindcast side.
 bf  = ladrillo_setup(ssp="ssp245", y0=Y0, y1=Y1, forcing_tag=FORCING, ref=FIT_REF, gis_variant=VARIANT, lws=:central)
 imy = [ladrillo_yi(bf, y) for y in FY]
@@ -209,7 +210,14 @@ println("wrote $(relpath(OUT_B, LADRILLO_REPO))")
 ## ---------------------------------------------------------------------------
 ppL = CSV.read(joinpath(LADRILLO_REPO, "outputs/postpred_$(POST_TAG)_components_timeseries.csv"), DataFrame)
 ppB = CSV.read(joinpath(LADRILLO_REPO, "outputs/postpred_oldbrick_components_timeseries.csv"), DataFrame)
-medL = Dict(k => [median(resL[k][:, j]) + OBS[k][j] for j in 1:ny] for (k, _) in SERIES)
+## the postpred's own draw set, located among ours: exact gate whenever ours CONTAINS it
+ppset = collect(1:cld(nfull, POSTPRED_NTHIN):nfull)[1:POSTPRED_NTHIN]
+gidxL = let pos = Dict(d => i for (i, d) in enumerate(ldraws)); [get(pos, d, 0) for d in ppset] end
+exactL = all(>(0), gidxL)
+exactL || (gidxL = collect(1:nrow(post)))
+@printf("  [gate] Ladrillo gated on %d rows (%s)\n", length(gidxL),
+        exactL ? "exactly the postpred's draw set" : "NOT the postpred's draw set -- tolerance gate")
+medL = Dict(k => [median(resL[k][gidxL, j]) + OBS[k][j] for j in 1:ny] for (k, _) in SERIES)
 medB = Dict(k => [median(resB[k][:, j]) + OBS[k][j] for j in 1:ny] for (k, _) in SERIES)
 lmap = Dict(:ais => "ais", :gsic => "glaciers", :gis => "gis", :steric => "te", :total => "total")
 bmap = Dict(:ais => "ais", :gsic => "gsic", :gis => "gis", :steric => "te", :total => "total")
@@ -218,7 +226,7 @@ for (k, _) in SERIES
     fin = findall(j -> isfinite(OBS[k][j]), 1:ny)
     dL = maximum(abs.(medL[k][fin] .- Float64.(ppL[fin, "$(lmap[k])_p50"])))
     dB = maximum(abs.(medB[k][fin] .- Float64.(ppB[fin, "$(bmap[k])_p50"])))
-    tolL = nrow(post) == 2000 ? 1e-9 : 0.25 * minimum(filter(isfinite, SIGMA[k]))
+    tolL = exactL ? 1e-9 : 0.25 * minimum(filter(isfinite, SIGMA[k]))
     tolB = nrow(bpost) == nrow(bpost_full) ? 1e-9 : 0.25 * minimum(filter(isfinite, SIGMA[k]))
     passL = dL < tolL; passB = dB < tolB
     @printf("  [gate] %-6s median vs postpred p50: Ladrillo max|Δ| %.2e vs tol %.0e (%s)  BRICK 2.0 %.2e vs tol %.0e (%s)\n",

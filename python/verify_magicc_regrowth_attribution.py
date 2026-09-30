@@ -2,7 +2,7 @@
 """verify_magicc_regrowth_attribution.py -- split the MAGICC-vs-Ladrillo GLACIER REGROWTH
 gap into a MODULE-STRUCTURE part and a CLIMATE-DRIVER part.
 
-  python3 python/verify_magicc_regrowth_attribution.py [--tag=L24] [--forcing=spliced]
+  python3 python/verify_magicc_regrowth_attribution.py [--tag=L27] [--forcing=spliced]
 
 Writes outputs/verify_magicc_regrowth_attribution_<TAG>.csv
 SCOPING/VERIFICATION ONLY: reads shipped arm files, runs no model.
@@ -110,7 +110,7 @@ def magicc_path(marker):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--tag", default="L24")
+    ap.add_argument("--tag", default="L27")
     ap.add_argument("--forcing", default="spliced", choices=["spliced", "raw"])
     a = ap.parse_args()
 

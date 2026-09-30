@@ -11,7 +11,7 @@ against shipped output files that still carry the old law. That failure is the s
 signal, not a bug in the gate -- do not loosen it to make it pass.
 SCOPING ONLY: this changes no model file and wires nothing in.
 
-  python3 python/scope_glacier_regrowth.py [--tag=L21] [--draws=400]
+  python3 python/scope_glacier_regrowth.py [--tag=L27] [--draws=400]
 Writes outputs/scope_glacier_regrowth_<TAG>{,_headroom}.csv
 
 THE QUESTION (Marcus, 2026-08-31, off the four-source van Vuuren figure): MAGICC appears to
@@ -69,7 +69,7 @@ def _arg(flag, default):
     return next((a[len(flag):] for a in sys.argv[1:] if a.startswith(flag)), default)
 
 
-TAG = _arg("--tag=", "L21")
+TAG = _arg("--tag=", "L27")
 NDRAW = int(_arg("--draws=", "400"))
 ARM = "joint"
 

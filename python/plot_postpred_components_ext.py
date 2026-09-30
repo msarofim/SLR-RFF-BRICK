@@ -40,7 +40,7 @@ REPO = os.path.expanduser("~/Documents/2026/CodeProjects/SLR-RFF-BRICK")
 ## that legacy file for provenance.
 ## ⚠ THE OUTPUT NAME CARRIES THE TAG, so regenerating on L21 cannot overwrite the legacy
 ## figure -- the rule scope_ais_ton_band_hindcast.jl broke at the cost of a measurement.
-TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L21")
+TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 _src = ("outputs/postpred_ext_components_timeseries.csv" if TAG == "ext"
         else f"outputs/postpred_{TAG}_components_timeseries.csv")
 d    = pd.read_csv(os.path.join(REPO, _src))
@@ -113,6 +113,19 @@ PROV = {
                 chains="4x2M, 10k draws",
                 conv="convergence disclosed under the --accept-slr gate (19 marginals "
                      "unconverged; projected SLR R-hat 1.008 at 2100, 1.011 at 2150)",
+                glacier="THREE-reservoir Mengel-form glacier (blocks R19 / SLOWP / FAST, "
+                        "one relaxation κ each), FLOORED equilibrium with bounded "
+                        "regrowth at R = 1",
+                gis="TWO-basin Greenland (active = SW+CW+CE+SE+NW, high = NO+NE), each "
+                    "basin carrying the A+B fast/slow channels",
+                gpanel="Glaciers (3-block: R19/SLOWP/FAST)", gispanel="Greenland (2-basin)"),
+    ## L27 = the paper's posterior (50 params), champion since 2026-09-21; default tag since 09-30.
+    ## Convergence from outputs/mcmc/slr_convergence_L27.csv (R-hat 1.0008 / 1.0017) and
+    ## benchmark/champions.json (8/50 marginals fail, AIS ridge only). Same glacier/Greenland structure as L24.
+    "L27": dict(model="Ladrillo L27", calib="calib 1.6.0 + CMIP7",
+                chains="4x2M, 10k draws",
+                conv="convergence disclosed under the --accept-slr gate (8 of 50 marginals "
+                     "unconverged, AIS ridge only; projected SLR R-hat 1.001 at 2100, 1.002 at 2150)",
                 glacier="THREE-reservoir Mengel-form glacier (blocks R19 / SLOWP / FAST, "
                         "one relaxation κ each), FLOORED equilibrium with bounded "
                         "regrowth at R = 1",

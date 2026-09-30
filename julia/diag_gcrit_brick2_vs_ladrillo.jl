@@ -29,7 +29,7 @@ const REPO = abspath(joinpath(@__DIR__, ".."))
 argval(flag, dflt) = let i = findfirst(a -> startswith(a, flag), ARGS)
     i === nothing ? dflt : ARGS[i][(length(flag) + 1):end]
 end
-const CHAIN_TAG = argval("--chain-tag=", "L24")
+const CHAIN_TAG = argval("--chain-tag=", "L27")
 const SEEDS = [2026, 2027, 2028, 2029]
 const NITER, NBURN = 2000000, 1000000
 const N_PER_CHAIN = 500          # scope_slr_pulse_vv.jl's N_TARGET default => 2000 total

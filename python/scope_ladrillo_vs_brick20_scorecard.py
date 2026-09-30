@@ -45,7 +45,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # --tag= (default L10) picks the Ladrillo arm and travels into the output name,
 # so a scorecard file always says which posterior vintage it scored.
 LADRILLO_TAG = next((a[len("--tag="):] for a in sys.argv[1:]
-                     if a.startswith("--tag=")), "L10")
+                     if a.startswith("--tag=")), "L27")
 OUT = os.path.join(REPO,
                    f"outputs/scope_ladrillo_vs_brick20_scorecard_{LADRILLO_TAG}.csv")
 

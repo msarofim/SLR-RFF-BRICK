@@ -10,7 +10,7 @@
 ## Also times run(m) ALONE (no parameter update) to separate the Mimi model from the
 ## per-draw driver rebuild.
 ##
-##   julia --project=julia_v2 julia/diag_runtime_ladrillo_vs_brick20.jl [ndraw=300] [--tag=L24]
+##   julia --project=julia_v2 julia/diag_runtime_ladrillo_vs_brick20.jl [ndraw=300] [--tag=L27]
 ## Writes outputs/diag_runtime_ladrillo_vs_brick20_<tag>.csv (one row per model x span x mode).
 ## ============================================================================
 using CSV, DataFrames, Dates, Mimi, MimiBRICK, Printf, Random, Statistics

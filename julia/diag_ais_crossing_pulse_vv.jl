@@ -34,7 +34,7 @@
 ## driver used, and [CONFIG-IDENTITY] PROVES the reconstruction against the config column
 ## the driver recorded per draw rather than assuming it.
 ##
-##   julia --project=julia_v2 julia/diag_ais_crossing_pulse_vv.jl [--tag=L24] [--marker=M]
+##   julia --project=julia_v2 julia/diag_ais_crossing_pulse_vv.jl [--tag=L27] [--marker=M]
 ## Writes outputs/diag_ais_crossing_pulse_vv_<TAG>.csv (+ _draws_<TAG>.csv)
 ## ============================================================================
 using CSV, DataFrames, Statistics, Printf, Random
@@ -50,7 +50,7 @@ argval(flag, dflt) = let i = findfirst(a -> startswith(a, flag), ARGS)
     i === nothing ? dflt : ARGS[i][(length(flag) + 1):end]
 end
 
-const TAG       = argval("--tag=", "L24")
+const TAG       = argval("--tag=", "L27")
 const CHAIN_TAG = argval("--chain-tag=", TAG)
 const FORCING   = argval("--forcing=", "spliced")
 const N_TARGET  = 500

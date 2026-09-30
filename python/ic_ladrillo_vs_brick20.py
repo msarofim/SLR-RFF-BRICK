@@ -49,7 +49,7 @@ THE TOTAL is reported separately: out-of-sample for BOTH (Ladrillo never scores
 it -- DROP_TOTAL; BRICK 2.0 was fit to CW11, not Dangendorf), and its residual
 carries the Frederikse/NOAA non-closure both models inherit.
 
-  python3 python/ic_ladrillo_vs_brick20.py [--tag=L24]
+  python3 python/ic_ladrillo_vs_brick20.py [--tag=L27]
 Writes:
   outputs/ic_ladrillo_vs_brick20_<TAG>.csv        one row per (arm, model, statistic)
   outputs/ic_ladrillo_vs_brick20_<TAG>_perdraw.csv  ln L per draw, per arm, per series
@@ -64,7 +64,7 @@ import pandas as pd
 from scipy.optimize import minimize
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TAG = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
+TAG = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 IN_L = os.path.join(REPO, f"outputs/ic_hindcast_residuals_ladrillo_{TAG}.csv")
 IN_B = os.path.join(REPO, "outputs/ic_hindcast_residuals_brick20.csv")
 IN_S = os.path.join(REPO, "outputs/ic_hindcast_obs_sigma.csv")
@@ -264,6 +264,16 @@ def summarise(ll, k, n, draws):
 
 def main():
     years, obs, eps, R, draws, prov = load()
+    ## ⛔ EQUAL DRAW COUNTS (Marcus 2026-09-30). ln L max-over-draws is a lower bound that rises with the
+    ## number of draws, so unequal counts tilt the table toward the larger set. Until 09-30 the residual
+    ## driver's defaults were 2000 Ladrillo / 10,000 BRICK 2.0 and this file's own table text claimed
+    ## "the same draw count". Refuse unequal counts unless asked for explicitly (reproducing an old run).
+    global NDRAWS, EQUAL_DRAWS
+    NDRAWS = {m: len(draws[m]) for m in MODELS}
+    EQUAL_DRAWS = len(set(NDRAWS.values())) == 1
+    if not EQUAL_DRAWS and "--allow-unequal-draws" not in sys.argv:
+        raise SystemExit(f"unequal draw counts {NDRAWS}: re-run julia/ic_hindcast_residuals.jl with equal counts, "
+                         "or pass --allow-unequal-draws to reproduce a pre-2026-09-30 run")
     workers = max(1, (os.cpu_count() or 2) - 1)
     nfin = {s: int((np.isfinite(eps[s]) & np.isfinite(R["ladrillo"][s]).all(axis=0)
                     & np.isfinite(R["brick20"][s]).all(axis=0)).sum()) for s in SERIES}
@@ -352,7 +362,8 @@ def main():
              f"N = {N_FIT} observation-years ({', '.join(f'{s} {nfin[s]}' for s in FIT_SERIES)}); one target set, one forcing, "
              f"one baseline. Parameter counts are EVERY sampled parameter of each posterior "
              f"(file: {K_TOTAL_IN_FILE}); k below is what each arm charges.", "",
-             f"AR(1) arm: rho bounded at {RHO_MAX}.", "",
+             f"AR(1) arm: rho bounded at {RHO_MAX}.  Draws: {NDRAWS['ladrillo']} Ladrillo, {NDRAWS['brick20']} BRICK 2.0"
+             f"{'' if EQUAL_DRAWS else ' (UNEQUAL -- see below)'}.", "",
              "| arm | model | k | ln L (max over draws) | ln L (posterior-median series) | AIC | AICc | BIC |",
              "|---|---|---|---|---|---|---|---|"]
     for arm in ("obs_iid", "ar1_prof"):
@@ -394,7 +405,9 @@ def main():
                                                 for m in MODELS) + " |")
     lines += ["", "## Reading, and what this does NOT show", "",
               "- ln L (max over draws) is a LOWER bound on each model's true maximum for this likelihood: neither posterior was "
-              "optimised for it. Both bounds are from the same draw count.",
+              "optimised for it. " + (f"Both bounds are over {NDRAWS['ladrillo']} draws." if EQUAL_DRAWS else
+              f"⚠ UNEQUAL draw counts ({NDRAWS['ladrillo']} Ladrillo, {NDRAWS['brick20']} BRICK 2.0): a max over more "
+              "draws is a tighter bound, so this table favours the model with more draws."),
               "- DIC / p_V are in the CSV only: p_V = var(D)/2 is an effective parameter count only when the likelihood is "
               "the one the posterior was fitted under, which holds for neither arm here (and for BRICK 2.0 on no arm).",
               f"- In ar1_prof the profiled rho sits AT the {RHO_MAX} bound wherever the residual is a smooth bias (every BRICK 2.0 "

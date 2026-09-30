@@ -4,7 +4,7 @@ markers, with Ladrillo and BRICK 2.0 shown BOTH on the shared FaIR driver and on
 climate — so the reader sees how much of each model-vs-MAGICC gap is the climate and how much
 survives the swap (Marcus, 9/11b comment [8]).
 
-  python3 python/plot_vv_climate_swap.py [--tag=L24] [--year=2300|2100|2150|all]
+  python3 python/plot_vv_climate_swap.py [--tag=L27] [--year=2300|2100|2150|all]
 Reads  outputs/vv_model_comparison_<TAG>.csv                       Ladrillo/BRICK on FaIR, MAGICC-SLR
        outputs/scope_slr_fairunc_cells_<m>_spliced_magiccclim_<TAG>_<tap>.csv   Ladrillo on MAGICC's climate
        outputs/scope_slr_fairunc_cells_<m>_spliced_oldbrick_magiccclim.csv      BRICK 2.0 on MAGICC's climate
@@ -32,7 +32,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 from matplotlib.lines import Line2D  # noqa: E402
 
-TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
+TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 _y = next((a[len("--year="):] for a in sys.argv[1:] if a.startswith("--year=")), "2300")
 HORIZONS = [2100, 2150, 2300]
 YEARS = HORIZONS if _y == "all" else [int(_y)]

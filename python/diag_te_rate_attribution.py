@@ -45,7 +45,7 @@ import pandas as pd
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # ⚠ TAG-AWARE since 2026-09-02. It was hardcoded to L14, so re-running it after any refit
 # silently re-reported the L14 arm under whatever vintage you thought you were looking at.
-TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
+TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 
 # ⚠ TAG IN THE FILENAME. This wrote one untagged path while the script became tag-aware, so
 # the file silently held whichever vintage ran LAST -- the same class as the hardcoded L14.

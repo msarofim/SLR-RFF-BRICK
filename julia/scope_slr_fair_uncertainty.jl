@@ -39,7 +39,7 @@
 ## posterior fitted jointly with the driver. It is the right band to COMPARE
 ## against ensembles that carry climate uncertainty; it is not a recalibration.
 ##
-##   julia --project=julia_v2 julia/scope_slr_fair_uncertainty.jl [n_per_chain] [--tag=L24] [--maxrows=N]
+##   julia --project=julia_v2 julia/scope_slr_fair_uncertainty.jl [n_per_chain] [--tag=L27] [--maxrows=N]
 ##        [--ssp=ssp585] [--forcing=spliced|raw] [--climate=fair|magicc] [--ton-band=LOW|MID|HIGH]
 ##        [--chain-tag=L24] [--tap] [--build-ssp=ssp245]
 ##
@@ -76,7 +76,7 @@ const SEEDS  = [2026, 2027, 2028, 2029]
 const NITER  = 2000000
 const NBURN  = 1000000
 const TAG    = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
-    i === nothing ? "L14" : ARGS[i][7:end]   # run scripts pass --tag explicitly; the bare default is not the canonical posterior
+    i === nothing ? "L27" : ARGS[i][7:end]   # run scripts pass --tag explicitly; the bare default follows the canonical posterior (L27, 2026-09-30)
 end
 const MAXROWS = let i = findfirst(a -> startswith(a, "--maxrows="), ARGS)
     i === nothing ? nothing : parse(Int, ARGS[i][11:end])

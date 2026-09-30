@@ -37,7 +37,7 @@ from provenance import stamp
 
 REPO     = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ## --tag= (default L24, the vintage the document quoted); a literal tag here reported L24 under any name.
-TAG      = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
+TAG      = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 CONSTS   = os.path.join(REPO, "outputs", "extc_block_constants.csv")
 POST     = os.path.join(REPO, "data", "MimiBRICK",
                         f"parameters_subsample_brick_mengel_{TAG}.csv")

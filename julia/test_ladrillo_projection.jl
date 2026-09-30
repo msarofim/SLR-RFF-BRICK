@@ -118,7 +118,10 @@ end
 ## ---------------------------------------------------------------------------
 println("\n[4] posterior contract")
 post_all = ladrillo_posterior(cols=:all)
-missing_cols = setdiff(ladrillo_used_cols(VARIANT), names(post_all))
+## HEADER-AWARE contract (2026-09-30, Marcus): a reparameterised posterior spells the kernel's columns its own way
+## (ais_precip_u for ais_precip0_LOG, gis_slow_ell/w for the native slow pair). The one-argument form demanded the
+## native spelling and failed on L27 the day L27 became the default, though the kernel reads it correctly.
+missing_cols = setdiff(ladrillo_used_cols(VARIANT, names(post_all)), names(post_all))
 detail = isempty(missing_cols) ? "$(nrow(post_all)) draws x $(ncol(post_all)) cols" :
                                  string("missing ", join(missing_cols, ", "))
 check("all kernel columns present in the subsample", isempty(missing_cols), detail)

@@ -15,7 +15,7 @@ markers. The split survives on the paired-statistic argument above, which is a d
 and better reason. A rationale that has been overtaken should be replaced, not quietly
 inherited -- it is the same failure mode as the stale WIDTH_SRCS constant.
 
-  python3 python/vv_model_comparison.py [--tag=L21] [--no-tap]
+  python3 python/vv_model_comparison.py [--tag=L27] [--no-tap]
 Writes outputs/vv_model_comparison_<TAG>{,_width,_gmst}.csv
 
 ALL FOUR SOURCES ARE NOW RUN ON THE MARKERS (stated in the console banner too, so it
@@ -89,7 +89,7 @@ import pandas as pd
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 LADRILLO_TAG = next((a[len("--tag="):] for a in sys.argv[1:]
-                     if a.startswith("--tag=")), "L21")
+                     if a.startswith("--tag=")), "L27")
 TAPPED = "--no-tap" not in sys.argv[1:]
 ARM_TAG = "" if TAPPED else "_notap"
 OUT = os.path.join(REPO, f"outputs/vv_model_comparison_{LADRILLO_TAG}{ARM_TAG}.csv")

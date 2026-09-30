@@ -49,7 +49,7 @@ import numpy as np
 import pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L14")
+TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 OUT = os.path.join(REPO, "outputs", f"scope_ais_amp_law_form_{TAG}.csv")
 PAI = os.path.join(REPO, "outputs", "diag_pai_cmip6_time.csv")
 DECK = os.path.join(REPO, "outputs", "diag_pai_deck_summary.md")

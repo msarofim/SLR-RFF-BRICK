@@ -53,7 +53,7 @@ import numpy as np
 import pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L14")
+TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 OUT = os.path.join(REPO, "outputs", f"scope_gsic_region_matched_{TAG}.csv")
 SPLIT = os.path.join(REPO, "outputs", f"diag_gsic_scope_matched_{TAG}.csv")
 LIT = os.path.join(REPO, "benchmark", "reference", "_fixed", "literature_rows.csv")

@@ -158,7 +158,7 @@ def prior_text(r):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--tag", default="L24")
+    ap.add_argument("--tag", default="L27")
     a = ap.parse_args()
     pri = pd.read_csv(os.path.join(REPO, f"outputs/ladrillo_priors_{a.tag}.csv"))
     post_path = os.path.join(REPO, f"data/MimiBRICK/parameters_subsample_brick_mengel_{a.tag}.csv")

@@ -55,7 +55,7 @@ import numpy as np
 import pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L14")
+TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 OUT = os.path.join(REPO, "outputs", f"scope_ais_amp_price_{TAG}.csv")
 POST = os.path.join(REPO, "data", "MimiBRICK",
                     f"parameters_subsample_brick_mengel_{TAG}.csv")

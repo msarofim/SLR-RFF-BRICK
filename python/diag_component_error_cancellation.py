@@ -37,7 +37,7 @@ from provenance import stamp
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ## --tag= picks the Ladrillo postpred; it was a literal "L24" until 09-20, so a --tag=L27 call
 ## silently reported L24 numbers. The tag travels into the output filename.
-TAG  = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
+TAG  = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 TGT  = os.path.join(REPO, "outputs", "recalib_targets_ext.csv")
 LAD  = os.path.join(REPO, "outputs", f"postpred_{TAG}_components_timeseries.csv")
 BRK  = os.path.join(REPO, "outputs", "postpred_oldbrick_components_timeseries.csv")

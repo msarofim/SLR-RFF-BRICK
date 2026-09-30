@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Future SLR trajectories to 2300, per component and total: Ladrillo vs BRICK 2.0.
 
-  python3 python/plot_future_components.py --set=ssp [--tag=L21] [--arm=joint]
-  python3 python/plot_future_components.py --set=vv  [--tag=L21] [--arm=joint]
+  python3 python/plot_future_components.py --set=ssp [--tag=L27] [--arm=joint]
+  python3 python/plot_future_components.py --set=vv  [--tag=L27] [--arm=joint]
 
 Writes figures/future_components_<set>_<TAG>_<arm>.png
 
@@ -50,7 +50,7 @@ def _arg(flag, default):
 
 
 SET = _arg("--set=", "ssp")
-TAG = _arg("--tag=", "L21")
+TAG = _arg("--tag=", "L27")
 ARM = _arg("--arm=", "joint")
 if ARM not in ("joint", "fixed"):
     raise SystemExit("--arm must be 'joint' or 'fixed', not %r" % ARM)

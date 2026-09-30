@@ -3,7 +3,7 @@
 model and per horizon — "how responsive is each component in each model" (Marcus, 9/11
 comment [9]; may inform the pulse analysis).
 
-  python3 python/plot_vv_responsiveness.py [--tag=L24]
+  python3 python/plot_vv_responsiveness.py [--tag=L27]
 Reads  outputs/vv_model_comparison_<TAG>.csv        (the four-source table; no new runs)
        data/observations/fair_mean_gmst_<marker>.csv (FaIR driver GMST, mean config, per marker)
        data/comparison/magicc_gmst_vv.csv           (MAGICC's own GMST per marker)
@@ -43,7 +43,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 from matplotlib.lines import Line2D  # noqa: E402
 
-TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
+TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 DESC = lf.tag_desc(TAG)
 CMP_CSV = os.path.join(lf.REPO, "outputs", "vv_model_comparison_%s.csv" % TAG)
 FAIR_GMST = os.path.join(lf.REPO, "data/observations", "fair_mean_gmst_%s.csv")   # per marker

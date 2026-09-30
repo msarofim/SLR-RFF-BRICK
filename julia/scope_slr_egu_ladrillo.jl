@@ -28,7 +28,7 @@
 ##
 ##   julia --project=julia_v2 julia/scope_slr_egu_ladrillo.jl [n_per_chain] \
 ##        --base=<gmst cube> --policy=<gmst cube> --arm=noegu50 [--forcing=spliced|raw] [--tap]
-##        [--tag=L24] [--maxrows=N] [--mean-tag=ssp245harm]
+##        [--tag=L27] [--maxrows=N] [--mean-tag=ssp245harm]
 ##   (the OHC cubes are the gmst paths with "gmst" -> "ohc")
 ##
 ## Writes outputs/egu_ladrillo_{cells,draws,gates}_<arm>_<forcing>_<TAG><TAP><SMOKE>.csv
@@ -46,7 +46,7 @@ argval(flag, dflt) = let i = findfirst(a -> startswith(a, flag), ARGS)
     i === nothing ? dflt : ARGS[i][(length(flag) + 1):end]
 end
 
-const TAG      = argval("--tag=", "L24")
+const TAG      = argval("--tag=", "L27")
 const ARM      = argval("--arm=", "")
 const BASE_G   = argval("--base=", "")
 const POL_G    = argval("--policy=", "")

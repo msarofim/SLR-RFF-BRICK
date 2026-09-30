@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Sea-level rise by component at one horizon — Ladrillo vs BRICK 2.0 vs FACTS vs MAGICC-SLR.
 
-  python3 python/plot_model_comparison_components.py [--tag=L21] [--year=2100|2150|2300|all]
+  python3 python/plot_model_comparison_components.py [--tag=L27] [--year=2100|2150|2300|all]
 
 Writes figures/model_comparison_components_<TAG>_<year>.png, one per horizon.
 
@@ -66,7 +66,7 @@ def _arg(flag, default):
     return next((a[len(flag):] for a in sys.argv[1:] if a.startswith(flag)), default)
 
 
-TAG = _arg("--tag=", "L21")
+TAG = _arg("--tag=", "L27")
 DESC = lf.tag_desc(TAG)
 HORIZONS = [2100, 2150, 2300]
 _y = _arg("--year=", "all")

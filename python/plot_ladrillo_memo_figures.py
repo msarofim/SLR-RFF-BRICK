@@ -38,7 +38,7 @@ Inputs  outputs/postpred_<TAG>_components_timeseries.csv
         outputs/ssps_components_2300_<TAG>.csv
         outputs/ladrillo_model_comparison_<TAG>{,_spread}.csv
         outputs/ssps_gsic_2300.csv
-  python3 python/plot_ladrillo_memo_figures.py [--tag=L24] [--no-tap] [--with-2100-panel]
+  python3 python/plot_ladrillo_memo_figures.py [--tag=L27] [--no-tap] [--with-2100-panel]
 """
 import os
 import sys
@@ -76,7 +76,7 @@ LADRILLO_COLOR = lf.SRC_COLOR["Ladrillo"]
 # drives every input path, every OUTPUT filename, and the vintage stamp in each
 # figure's title, so a run on one vintage cannot overwrite or be mistaken for another.
 LADRILLO_TAG = next((a[len("--tag="):] for a in sys.argv[1:]
-                     if a.startswith("--tag=")), "L24")
+                     if a.startswith("--tag=")), "L27")
 ## WHICH ARM. The above-threshold discharge channel is part of the Greenland module
 ## (2026-08-23), so these figures are drawn WITH it unless --no-tap is passed. Resolved through
 ## gis_targets.ssps_csv, which rebuilds the cell-encoded filename from the same Julia

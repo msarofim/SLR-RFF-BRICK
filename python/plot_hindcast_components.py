@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Historical SLR 1900-2026 by component and total: Ladrillo vs observations vs BRICK 2.0.
 
-  python3 python/plot_hindcast_components.py [--tag=L24]
+  python3 python/plot_hindcast_components.py [--tag=L27]
 Writes figures/hindcast_components_<TAG>.png
 
 THE HINDCAST MEMBER OF THE SUITE. Same 2x3 grid, same component order, same palette and the
@@ -58,7 +58,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 from matplotlib.lines import Line2D  # noqa: E402
 from matplotlib.patches import Patch  # noqa: E402
 
-TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
+TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 DESC = lf.tag_desc(TAG)
 ## --compare=<TAG2> (2026-09-21, Marcus: "a version of the observation plot just for me with L24 and
 ## L27"): a SECOND Ladrillo posterior drawn beside the first (median + parameter band, distinct

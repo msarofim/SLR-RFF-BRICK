@@ -21,7 +21,7 @@
 ##
 ## POSTERIOR
 ##   The canonical posterior subsample (see LADRILLO_POSTERIOR_CSV below, currently
-##   L24). Its columns = the 52 stock-layout columns below with the five stock-SIMPLE
+##   L27 since 2026-09-30; its column set is described at the constant). An L24-era subsample's columns = the 52 stock-layout columns below with the five stock-SIMPLE
 ##   Greenland columns replaced by the Ladrillo gis_* ones (sampled channel
 ##   parameters + gis_amp + the basin rate scale), PLUS the four d2_* basis columns
 ##   and MINUS sd_dang/rho_dang (dropped by D1). Its ancestor
@@ -84,18 +84,24 @@ include(joinpath(@__DIR__, "antarctic_icesheet_magdep_component.jl"))   # L30: t
 const LADRILLO_REPO = abspath(joinpath(@__DIR__, ".."))
 const LADRILLO_OBS  = joinpath(LADRILLO_REPO, "data/observations")
 
-## ⚠ 2026-09-29: this DEFAULT is still L24, but the champion and the GMD paper's posterior is L27
-## (champions.json, since 2026-09-21): pass --tag=L27 or the L27 csv explicitly. Switching this
-## default changes what ~25 no-flag callers load and the filenames they write -- pending Marcus.
-"""Canonical Ladrillo posterior subsample: **L24**, canonical since 2026-09-02.
-Two-basin Greenland (`:basins2` — carries `gis_s_high`, NOT `gis_s_mid`) with the
-above-threshold discharge channel, which is PRIOR-SPECIFIED projection-side
-(`ladrillo_set_tap!` / `GIS_TAP_CELL`), not sampled. The slow channel is sampled as
-`(gis_slow_ell, gis_slow_w)` and converted to native `(gis_alpha_s, gis_beta_s)` by
-`ladrillo_native_greenland!`. Run script `run_mcmc_L24.sh`, postprocess
-`run_l24_postprocess.sh`. For PROJECTIONS, not parameter-level inference: 20
-marginals are unconverged along the compensating AIS-geometry ridge."""
+## ⚠ DEFAULT MOVED L24 -> L27 on 2026-09-30 (Marcus: "L27 is the default"). L27 had been champion
+## and the GMD paper's posterior since 09-21 while this constant still said L24, so every no-flag
+## caller (~25 drivers, the ic/postpred/projection drivers among them) loaded the retired vintage
+## and wrote *_L24* filenames. Callers that must stay on L24 name LADRILLO_POSTERIOR_L24_CSV.
+"""Canonical Ladrillo posterior subsample: **L27**, champion on all six modules since 2026-09-21
+and the GMD paper's posterior. 10,000 draws x 50 columns: λ, T_crit and γ are NOT columns (held at
+paleo medians / attached as joint paleo draws by `ladrillo_attach_propagated!`), nor are three of
+the four ledger columns (`gic_u_unch` is kept). Two-basin Greenland (`:basins2`) with the
+above-threshold discharge channel PRIOR-SPECIFIED projection-side (`ladrillo_set_tap!` /
+`GIS_TAP_CELL`). Run script `run_mcmc_L27.sh`, postprocess `run_l27_postprocess.sh`. For
+PROJECTIONS, not parameter-level inference: 8 of 50 marginals are unconverged, all on the
+AIS-geometry ridge (benchmark/champions.json)."""
 const LADRILLO_POSTERIOR_CSV =
+    joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_L27.csv")
+"""The L24 posterior (canonical 2026-09-02 to 2026-09-21, 58 columns incl. λ/T_crit/γ and the full
+ledger); kept for the L24-vintage numbers that still carry that label and for the calibrator
+identity gate's history."""
+const LADRILLO_POSTERIOR_L24_CSV =
     joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_L24.csv")
 """The L14 posterior (two-basin, canonical 2026-08-20 to 2026-09-02, no threshold channel); kept as the fixture for tests and validators that still read it."""
 const LADRILLO_POSTERIOR_L14_CSV =

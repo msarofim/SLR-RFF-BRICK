@@ -70,7 +70,7 @@ const SEEDS  = [2026, 2027, 2028, 2029]
 const NITER  = 2000000
 const NBURN  = 1000000
 const TAG    = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
-    i === nothing ? "L14" : ARGS[i][7:end]
+    i === nothing ? "L27" : ARGS[i][7:end]
 end
 const N_TARGET = let p = findfirst(a -> !startswith(a, "--"), ARGS)
     p === nothing ? 500 : parse(Int, ARGS[p])

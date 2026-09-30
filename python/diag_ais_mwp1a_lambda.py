@@ -41,7 +41,7 @@ import numpy as np
 import pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TAG = next((a[6:] for a in sys.argv[1:] if a.startswith("--tag=")), "L14")
+TAG = next((a[6:] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 LADDER_CSV = os.path.join(REPO, "outputs", f"scope_ais_three_tests_ladder_{TAG}.csv")
 PALEO_CSV = os.path.join(REPO, "data/dais_paleo/daisfastdyn_lambda_tcrit.csv")
 PRIORS_CSV = os.path.join(REPO, "outputs/param_priors.csv")

@@ -41,7 +41,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FACTS = os.path.expanduser("~/Documents/2026/CodeProjects/facts/experiments")
 IN_DIR = os.path.join(REPO, "outputs", "diag_emu_blocks")
 ## --tag= (default L24, the vintage this was first run on); a literal tag here reported L24 under any name (09-20).
-TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
+TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 OUT_CSV = os.path.join(REPO, "outputs", f"diag_gsic_blocks_vs_emulandice_{TAG}.csv")
 OUT_PNG = os.path.join(REPO, "figures", f"gsic_blocks_vs_emulandice_{TAG}.png")   # FIG 12 of the L24 document
 SCENS_DEFAULT = ["ssp126", "ssp245", "ssp585", "vvVL", "vvH"]

@@ -42,7 +42,7 @@ os.chdir(REPO)
 ## The three arm files are produced by project_ssps_components_ladrillo.jl: --tag=<TAG> --no-tap;
 ## LADRILLO_GIS_SHAPE=gis_amp_shape_const --tag=<TAG>; --tag=<TAG>aisamp1p196 on a posterior copy with
 ## ais_gmst_amp overwritten to 1.196 (see the docstring).
-TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
+TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 BASE = f"outputs/ssps_components_2300_{_gt.tap_tag(TAG)}.csv"
 ARMS = {
     "no_threshold_channel": ("gis", f"outputs/ssps_components_2300_{TAG}.csv"),

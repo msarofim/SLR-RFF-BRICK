@@ -4,7 +4,7 @@
 
 using CSV, DataFrames, Mimi, MimiBRICK, Statistics, Printf
 include(joinpath("/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/julia", "ladrillo_projection.jl"))
-TAG = length(ARGS) >= 1 ? ARGS[1] : "L26"
+TAG = length(ARGS) >= 1 ? ARGS[1] : "L27"
 path = joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_$TAG.csv")
 post = ladrillo_posterior(path=path, cols=:all, nthin=2000)
 out = DataFrame(draw=Int[], ais2100=Float64[], ais2300=Float64[], gis2300=Float64[], tot2300=Float64[])

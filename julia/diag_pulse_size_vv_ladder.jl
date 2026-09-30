@@ -31,7 +31,7 @@
 ## than trusting that this file reproduces it.
 ##
 ##   julia --project=julia_v2 julia/diag_pulse_size_vv_ladder.jl [n_per_chain] [--marker=M]
-##        [--specie=CO2] [--tag=L24] [--tap] [--maxrows=N]
+##        [--specie=CO2] [--tag=L27] [--tap] [--maxrows=N]
 ## Writes outputs/pulse_ladder_{cells,draws,gates}_vv<M>_<SPECIE>_<TAG><TAP_TAG>.csv
 ## ============================================================================
 using CSV, DataFrames, Statistics, Printf, Mimi, Random

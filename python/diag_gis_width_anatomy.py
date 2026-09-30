@@ -59,7 +59,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from draws_io import read_draws  # noqa: E402
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L14")
+TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 OUT = os.path.join(REPO, "outputs", f"diag_gis_width_anatomy_{TAG}.csv")
 DRAWS = os.path.join(REPO, "outputs", "scope_slr_fairunc_draws_{ssp}_spliced_" + TAG + ".csv")
 LIT = os.path.join(REPO, "benchmark/reference/_fixed/literature_rows.csv")

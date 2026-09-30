@@ -47,7 +47,7 @@ import numpy as np
 import pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TAG = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--tag=")), "L14")
+TAG = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 SRC = os.path.join(REPO, "outputs", "recalib_targets_ext.csv")
 
 # ---- every label in this file derives from these -------------------------

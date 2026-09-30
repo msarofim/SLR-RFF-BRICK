@@ -42,7 +42,7 @@ ROW's band qualifies is decided per row by its own `band_basis` via
 ladrillo_figs.band_is_comparable -- never by a source-name list, which is exactly the
 constant that went stale here and suppressed three of four bands on the figure.
 
-  python3 python/ladrillo_model_comparison.py [--tag=L24] [--no-tap]
+  python3 python/ladrillo_model_comparison.py [--tag=L27] [--no-tap]
 Writes outputs/ladrillo_model_comparison_<TAG>{,_spread}.csv
 """
 import os
@@ -63,7 +63,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # mistaken for another. Every tag is suffixed symmetrically -- there is no
 # bare-name default that silently means one vintage.
 LADRILLO_TAG = next((a[len("--tag="):] for a in sys.argv[1:]
-                     if a.startswith("--tag=")), "L24")
+                     if a.startswith("--tag=")), "L27")
 ## WHICH ARM. The above-threshold discharge channel is part of the Greenland module
 ## (2026-08-23), so the deliverable WITH that channel is what this comparison reports
 ## unless --no-tap is passed. Resolved through

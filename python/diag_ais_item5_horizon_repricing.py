@@ -26,7 +26,7 @@ import os
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TAG = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--tag=")), "L14")
+TAG = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 PROP = os.path.join(REPO, "outputs", f"diag_ais_block_propagation_{TAG}.csv")
 SCOPE = os.path.join(REPO, "outputs", f"scope_ais_lambda_prior_{TAG}.csv")
 OUT_R = os.path.join(REPO, "outputs", f"diag_ais_item5_ranking_{TAG}.csv")

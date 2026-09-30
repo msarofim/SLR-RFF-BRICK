@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Glacier melt to 2300 under the seven van Vuuren CMIP7 scenarios: BRICK 2.0 (Wigley-Raper) vs Ladrillo L24.
 
-  python3 python/plot_vv_gsic_wr_vs_ladrillo.py [--tag=L24] [--ladrillo-only]
+  python3 python/plot_vv_gsic_wr_vs_ladrillo.py [--tag=L27] [--ladrillo-only]
 
 The two models we actually ship, on one forcing set. Sibling of
 plot_ssps_gsic_wr_vs_mengel.py, which draws the SSPs and still carries the plain-Mengel arms.
@@ -64,7 +64,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(REPO)
 
 LADRILLO_TAG = next((a[len("--tag="):] for a in sys.argv[1:]
-                     if a.startswith("--tag=")), "L24")
+                     if a.startswith("--tag=")), "L27")
 FORCING = "spliced"
 ARM = "fixed"                    # see the like-for-like note in the docstring
 WR_CSV = "outputs/vv_gsic_2300.csv"

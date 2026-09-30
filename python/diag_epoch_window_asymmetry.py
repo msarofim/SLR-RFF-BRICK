@@ -30,7 +30,7 @@ from provenance import stamp
 REPO    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TGT_CSV = os.path.join(REPO, "outputs", "recalib_targets_ext.csv")
 ## --tag= (default L24, the vintage this was first run on); a literal tag here reported L24 under any name (09-20).
-TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
+TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 OUT_CSV = os.path.join(REPO, "outputs", f"diag_epoch_window_asymmetry_{TAG}.csv")
 LAD_CSV = os.path.join(REPO, "outputs", f"postpred_{TAG}_components_timeseries.csv")
 

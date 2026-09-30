@@ -11,7 +11,7 @@ all three arms, so the numbers are like-for-like. ⚠ MAGICC is on its OWN clima
 BRICK 2.0 share the ssp245harm FaIR driver -- a two-variable comparison, as everywhere MAGICC
 appears.
 
-  python3 python/diag_magicc_gis_hindcast.py [--tag=L24]
+  python3 python/diag_magicc_gis_hindcast.py [--tag=L27]
 Writes outputs/diag_magicc_gis_hindcast_<TAG>.csv and prints the table.
 """
 import os
@@ -25,7 +25,7 @@ import scope_ladrillo_vs_brick20_scorecard as sc   # noqa: E402  (score(), REF, 
 from provenance import stamp                        # noqa: E402
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L24")
+TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
 MAG_CSV = os.path.join(REPO, "data/comparison/magicc_nauels_components_hist.csv")
 OUT = os.path.join(REPO, "outputs", "diag_magicc_gis_hindcast_%s.csv" % TAG)
 WINDOWS = [("1993-2026 (scorecard)", (1993, 2026)), ("1991-2026 (MAGICC live span)", (1991, 2026))]

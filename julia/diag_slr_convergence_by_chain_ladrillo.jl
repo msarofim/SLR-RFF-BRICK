@@ -12,7 +12,7 @@
 ##        postprocess_mcmc_ext.jl --tag=<tag> --accept-slr.
 ##
 ##   julia --project=julia_v2 julia/diag_slr_convergence_by_chain_ladrillo.jl \
-##         [n_per_chain] [--tag=L24] [--no-shape]
+##         [n_per_chain] [--tag=L27] [--no-shape]
 ## ============================================================================
 using CSV, DataFrames, Statistics, Printf, MCMCDiagnosticTools
 

@@ -14,8 +14,11 @@ L27 = L26 (paleo DAIS priors, no δ, no glacier d2, published bands as a correla
 L = 100 yr, T_off ≥ −4, κ–P₀ reparameterisation) minus the three likelihood-flat fast-dynamics
 parameters (λ/T_crit held at paleo medians with joint paleo draws attached at projection time;
 γ fixed) and the two ledger set-asides. Calibrated on the **Frederikse + GRACE** Antarctic target
-(`prep_recalib_targets_ext.py --ais-frederikse`; ⚠ the working-tree target file may be the
-IMBIE-2026 build, which reproduces L28–L33, not L27 — use `git show HEAD:outputs/recalib_targets_ext.csv`).
+(`prep_recalib_targets_ext.py` — the default since 2026-09-30, md5 `070f74ab`; the IMBIE-2026 build,
+which reproduces L28–L35, needs `--ais-imbie2026` and is kept as `outputs/recalib_targets_ext_imbie2026*`).
+**L27 is the default everywhere since 2026-09-30**: the kernel's `LADRILLO_POSTERIOR_CSV` and every
+driver's `--tag`. The calibrator identity gate (`scripts/gate_calibrator_identity.sh`) certifies L27
+against its production chain.
 Projections use the **observed** land-water series (`LWS_MODE = :observed`, 0.30 mm/yr after
 2023, since 2026-09-21); hindcast-side drivers pin `:central`.
 

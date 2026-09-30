@@ -1,7 +1,7 @@
 ## ============================================================================
 ## posterior_predictive_ladrillo.jl — Ladrillo hindcast vs observations
 ##
-## Forward-runs the canonical Ladrillo posterior (currently L24) over the calibration
+## Forward-runs the canonical Ladrillo posterior (currently L27) over the calibration
 ## window and compares component bands to the observational targets they were
 ## fit to. This is the observation-comparison deliverable for the sharing memo.
 ##
@@ -28,10 +28,10 @@
 ##                       to GlaMBIE 2019+, r19 removed
 ##   total               Frederikse 2020 spliced to NOAA STAR altimetry
 ##
-##   julia --project=julia_v2 julia/posterior_predictive_ladrillo.jl [n_draws] [--tag=L24]
+##   julia --project=julia_v2 julia/posterior_predictive_ladrillo.jl [n_draws] [--tag=L27]
 ##
 ## --tag selects the posterior AND every output filename together (default = the
-## canonical posterior, LADRILLO_POSTERIOR_CSV, currently L24),
+## canonical posterior, LADRILLO_POSTERIOR_CSV, currently L27),
 ## so a run on one posterior cannot write files labelled with another.
 ## ============================================================================
 
