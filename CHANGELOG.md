@@ -1,3 +1,29 @@
+## 2026-10-01d — GMD round 10-01c: BRICK naming + MimiBRICK citation (`…v1_review-2026-10-01c_L27.docx`, md5 `e0be5ca7`; 20 tracked edits + 1 reply)
+
+Applied INCREMENTALLY to the 10-01b output (md5 `286a6181`), which Marcus had not touched (mtime precedes the 10-01b
+commit; `core.xml` unchanged). This round's `w:date` is 2026-10-01T22:00:00Z. Build: `deliverables/redline/r1001c/build.sh
+<fresh workdir> <out>` (edits_l, comments_l). It asserts the base md5 and now refuses when a newer `GMD.Ladrillo*.docx`
+sits beside the base, when the output exists, or when the workdir exists (guard checked: a rerun after 10-01c refuses).
+validate.py `--author Claude` PASSES.
+
+**Marcus 10-01:** *"Use the 'BRICK' for family and 'BRICK 2.0' for the specific model convention. Let's see if we can
+pass the BRICK github through peer review, since it isn't the Ladrillo code that is the main point of this paper."*
+
+- **Naming.** Of 31 bare "BRICK" uses, 18 meant the comparison arm and became "BRICK 2.0" (tracked insertion of
+  " 2.0"; one "native" deleted). They are in the abstract, the SLEIP niche, the extended constraints, the scenario
+  sensitivities, the Antarctic likelihood, TE constants, LWS, the swapped components, the hindcast errors, the RMSE, the
+  TE/OHC sentence and the projection-arm list. "BRICK" stays where the sentence holds for the family: the title, the
+  abstract lede, "derivative of", design philosophy, Wigley–Raper glaciers, the DAIS structure, the modular approach.
+  Two claims were checked only against v2.0.0 code, so they now name BRICK 2.0: the 1.196 amplification (the
+  `get_model` default) and OHC-proportional thermal expansion. The family is defined once, in a parenthesis at "As a
+  derivative of BRICK" (Wong et al., 2017b, 2022). Post-edit scan: 17 bare BRICK, all family, software names or
+  reference titles.
+- **MimiBRICK citation: GitHub through review, no Zenodo request.** In Code availability, it is now pinned to "tag
+  v2.0.0, commit 11b2dff". The tag→commit mapping was checked via the GitHub API on 10-01. That paragraph is itself
+  10-01b's pending insertion (the back matter move), so the earlier insertion was split, not nested. A reply on
+  Marcus's Zenodo comment records the decision. The fallback is the Software Heritage ID, which needs no action from
+  anyone. NOT verified: the GMD code-policy wording on third-party code (the policy page refused the connection).
+
 ## 2026-10-01c — GMD round 10-01b: Marcus's 10-01 instructions (`…v1_review-2026-10-01b_L27.docx`, md5 `286a6181`; 68 tracked edits + FIG 1)
 
 The base is Marcus's 10-01 file, which is UNTOUCHED (md5 `9062e357`; Word had it open, so a new file was written, not
