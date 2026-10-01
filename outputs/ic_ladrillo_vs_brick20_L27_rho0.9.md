@@ -1,6 +1,6 @@
 # Information-criterion test: Ladrillo L27 vs BRICK 2.0 hindcast (tag L27)
 
-Common data: the four fitted component series (ais, gsic, gis, steric), 1900-2026 where observed, N = 502 observation-years (ais 126, gsic 124, gis 126, steric 126); one target set, one forcing, one baseline. Parameter counts are EVERY sampled parameter of each posterior (file: {'ladrillo': 50, 'brick20': 35}); k below is what each arm charges.
+Common data: the four fitted component series (ais, gsic, gis, steric), 1900-2025 where observed, N = 502 observation-years (ais 126, gsic 124, gis 126, steric 126); one target set, one forcing, one baseline. Parameter counts are EVERY sampled parameter of each posterior (file: {'ladrillo': 50, 'brick20': 35}); k below is what each arm charges.
 
 AR(1) arm: rho bounded at 0.9.  Draws: 10000 Ladrillo, 10000 BRICK 2.0.
 
@@ -29,11 +29,11 @@ AR(1) arm: rho bounded at 0.9.  Draws: 10000 Ladrillo, 10000 BRICK 2.0.
 
 | window | Ladrillo L27 | BRICK 2.0 | Δln L |
 |---|---|---|---|
-| 1900-2026 | 23.2 | -1252.1 | 1275.4 |
+| 1900-2025 | 23.2 | -1252.1 | 1275.4 |
 | 1900-1919 | -78.1 | -228.0 | 150.0 |
 | 1920-1949 | -74.7 | -241.3 | 166.5 |
 | 1950-1992 | 50.7 | -479.7 | 530.4 |
-| 1993-2026 | 125.3 | -303.1 | 428.4 |
+| 1993-2025 | 125.3 | -303.1 | 428.4 |
 
 ## The total (out-of-sample for BOTH — not in either likelihood; reference only)
 

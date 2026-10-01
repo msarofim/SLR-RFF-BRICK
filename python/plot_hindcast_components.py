@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Historical SLR 1900-2026 by component and total: Ladrillo vs observations vs BRICK 2.0.
+"""Historical SLR 1900-2025 by component and total: Ladrillo vs observations vs BRICK 2.0.
 
   python3 python/plot_hindcast_components.py [--tag=L27]
 Writes figures/hindcast_components_<TAG>.png
@@ -116,7 +116,7 @@ MAG_CSV = os.path.join(lf.REPO, "data/comparison/magicc_nauels_components_hist.c
 MAG_PANELS = ("gis",)
 
 BASE0, BASE1 = 1995, 2005          # the CALIBRATION window; see the docstring
-X0, X1 = 1900, 2026
+X0, X1 = 1900, 2025   # 2025 = last year with AIS/GIS/TE observations (Marcus 2026-10-01)
 ## ⚠ X0 is the PLOT span, and BOTH arms are integrated from 1850 -- neither "starts" here.
 ## The caption used to say "BRICK 2.0 starts 1920", which was false: 1920 was the year its
 ## driver happened to SAVE from, and it silently set the scorecard's evaluation window too.

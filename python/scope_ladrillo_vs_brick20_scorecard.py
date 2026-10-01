@@ -76,7 +76,7 @@ COMPONENTS = [("AIS", "ais", "ais", "ais"),
 ## posterior against our extended targets, so part of its bias is target vintage and that
 ## favours Ladrillo -- most of all in the earliest, sparsest-obs window. Report per window.
 WINDOWS = [("full", None), ("1900-1919", (1900, 1919)), ("1920-1949", (1920, 1949)),
-           ("1950-1992", (1950, 1992)), ("1993-2026", (1993, 2026))]
+           ("1950-1992", (1950, 1992)), ("1993-2025", (1993, 2025))]
 
 
 def load():

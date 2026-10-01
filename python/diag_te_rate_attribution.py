@@ -4,7 +4,7 @@ diag_te_rate_attribution.py — THE TE RATE MISS: is it the coefficient, the dri
                               the TARGET'S DEPTH SCOPE?
 
 THE FINDING UNDER TEST. `bench_ladrillo.py` reports the only observational FAIL anywhere in
-the model: over 1993-2026 thermal expansion runs **1.19x the steric target at z = +4.19**.
+the model: over 1993-2026 (now 1993-2025, 2026-10-01) thermal expansion runs **1.19x the steric target at z = +4.19**.
 And **BRICK 2.0 misses it almost identically (1.17x, z = +3.74)**. Two independent
 calibrations of the SAME MimiBRICK component under the SAME FaIR mean OHC ⇒ it cannot be the
 Ladrillo calibration. It is the driver, the coefficient, or the target.
@@ -67,7 +67,7 @@ IGCC_EEI = os.path.join(REPO, "data/observations/raw/igcc2024/ClimateIndicator-d
 NOAA_STERIC = os.path.join(REPO, "data/observations/raw/noaa_thermosteric_w0-2000m_yearly.dat")
 BUILDER = os.path.join(REPO, "python", "build_ohc_spliced_igcc.py")
 
-WIN = (1993, 2026)                 # the benchmark's rate window
+WIN = (1993, 2025)                 # the rate window: the last year with TE/AIS/GIS observations (2026-10-01)
 WIN_IGCC = (1993, 2024)            # IGCC's own coverage
 SPLICE_YEAR = 2019                 # prep_recalib_targets_ext.py SPLICE_FROM["steric"]
 OVERLAP = (2005, 2018)             # where Frederikse and NOAA 0-2000m both exist
@@ -90,33 +90,48 @@ def rate(years, vals, w):
     return float(np.linalg.lstsq(A, yy, rcond=None)[0][1]), int(m.sum())
 
 
+def common_win(w, *series):
+    """Clip window `w` to the years where EVERY (years, vals) series is finite, so a RATIO of two
+    rates compares the same span. Before 2026-10-01 each series was masked separately: the model
+    and FaIR ran to 2026 while the steric target and Cheng stopped in 2025 and IGCC in 2024."""
+    lo, hi = w
+    for y, v in series:
+        y = np.asarray(y, float); v = np.asarray(v, float)
+        ok = y[(y >= w[0]) & (y <= w[1]) & np.isfinite(v)]
+        lo, hi = max(lo, int(ok.min())), min(hi, int(ok.max()))
+    return (lo, hi)
+
+
 print("=" * 100)
 print("TE RATE ATTRIBUTION — coefficient, driver, or the target's depth scope?")
 print("=" * 100)
 
 t = pd.read_csv(TARGETS)
-r_tgt, n = rate(t.year, t.steric, WIN)
 a = pd.read_csv(POSTPRED)
-r_mod, _ = rate(a.year, a.te_p50, WIN)
 b = pd.read_csv(OLDBRICK)
-r_b20, _ = rate(b.year, b.te_p50, WIN)
 f = pd.read_csv(FAIR_OHC)
-r_fair, _ = rate(f.year, f.ohc_1e22J, WIN)
+W_A = common_win(WIN, (t.year, t.steric), (a.year, a.te_p50), (b.year, b.te_p50), (f.year, f.ohc_1e22J))
+r_tgt, n = rate(t.year, t.steric, W_A)
+r_mod, _ = rate(a.year, a.te_p50, W_A)
+r_b20, _ = rate(b.year, b.te_p50, W_A)
+r_fair, _ = rate(f.year, f.ohc_1e22J, W_A)
 
-print(f"\n[A] THE MISS, restated  ({WIN[0]}-{WIN[1]}, n={n})")
+print(f"\n[A] THE MISS, restated  ({W_A[0]}-{W_A[1]}, n={n})")
 print(f"    steric target      {r_tgt:.5f} cm/yr")
 print(f"    Ladrillo {TAG} TE    {r_mod:.5f} cm/yr   = {r_mod/r_tgt:.3f}x")
 print(f"    BRICK 2.0 TE       {r_b20:.5f} cm/yr   = {r_b20/r_tgt:.3f}x   <= the SHARED miss")
-emit(block="A", key="model_over_target", value=r_mod / r_tgt, note=f"BRICK 2.0 {r_b20/r_tgt:.3f}x")
+emit(block="A", key="model_over_target", value=r_mod / r_tgt, note=f"BRICK 2.0 {r_b20/r_tgt:.3f}x; {W_A[0]}-{W_A[1]}")
 
 print(f"\n[B] THE DRIVER — FaIR's OHC against the observational products")
 print(f"    FaIR mean OHC (FULL-DEPTH)  {r_fair:.4f} 1e22 J/yr")
 for name, rel in OHC_OBS.items():
     d = pd.read_csv(os.path.join(REPO, rel), comment="#")
     col = [c for c in d.columns if c != "year"][0]
-    r, nn = rate(d.year, d[col], WIN)
-    print(f"    {name:24s} {r:.4f} 1e22 J/yr  n={nn}   FaIR/obs = {r_fair/r:.3f}")
-    emit(block="B", key=f"fair_over_{name}", value=r_fair / r, note=f"obs {r:.4f} 1e22 J/yr")
+    w = common_win(WIN, (f.year, f.ohc_1e22J), (d.year, d[col]))
+    r, nn = rate(d.year, d[col], w)
+    rf, _ = rate(f.year, f.ohc_1e22J, w)
+    print(f"    {name:24s} {r:.4f} 1e22 J/yr  n={nn} ({w[0]}-{w[1]})  FaIR/obs = {rf/r:.3f}")
+    emit(block="B", key=f"fair_over_{name}", value=rf / r, note=f"obs {r:.4f} 1e22 J/yr; {w[0]}-{w[1]}")
 
 print(f"\n[C] THE COEFFICIENT — alpha = rate(TE) / rate(OHC), model vs observations")
 alpha_mod = r_mod / r_fair
@@ -124,13 +139,15 @@ print(f"    alpha model                     {alpha_mod:.5f} cm per 1e22 J")
 for name, rel in OHC_OBS.items():
     d = pd.read_csv(os.path.join(REPO, rel), comment="#")
     col = [c for c in d.columns if c != "year"][0]
-    r, _ = rate(d.year, d[col], WIN)
-    a_obs = r_tgt / r
+    w = common_win(WIN, (t.year, t.steric), (d.year, d[col]), (a.year, a.te_p50), (f.year, f.ohc_1e22J))
+    r, _ = rate(d.year, d[col], w)
+    a_obs = rate(t.year, t.steric, w)[0] / r
+    a_mod = rate(a.year, a.te_p50, w)[0] / rate(f.year, f.ohc_1e22J, w)[0]
     print(f"    alpha implied by obs ({name.split()[0]:12s}) {a_obs:.5f}   "
-          f"model/obs = {alpha_mod/a_obs:.3f}")
-    emit(block="C", key=f"alpha_model_over_{name}", value=alpha_mod / a_obs,
-         note=f"alpha model {alpha_mod:.5f}, obs-implied {a_obs:.5f}")
-    alpha_ratios.append(alpha_mod / a_obs)
+          f"model/obs = {a_mod/a_obs:.3f}  ({w[0]}-{w[1]})")
+    emit(block="C", key=f"alpha_model_over_{name}", value=a_mod / a_obs,
+         note=f"alpha model {a_mod:.5f}, obs-implied {a_obs:.5f}; {w[0]}-{w[1]}")
+    alpha_ratios.append(a_mod / a_obs)
 # ⚠ THIS VERDICT IS DERIVED, NOT WRITTEN. It said "alpha is BELOW 1 in both arms ... partially
 # OFFSETS the driver" as a hardcoded string, which was true for L14 (0.927/0.964) and became
 # FALSE at L21 without the sentence changing: alpha rose 0.10571 -> 0.11252 cm per 1e22 J across

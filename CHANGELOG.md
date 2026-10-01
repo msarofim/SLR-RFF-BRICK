@@ -1,3 +1,88 @@
+## 2026-10-01c — GMD round 10-01b: Marcus's 10-01 instructions (`…v1_review-2026-10-01b_L27.docx`, md5 `286a6181`; 68 tracked edits + FIG 1)
+
+The base is Marcus's 10-01 file, which is UNTOUCHED (md5 `9062e357`; Word had it open, so a new file was written, not
+an overwrite). It still carries the 47 pending 10-01 edits. This round has its own `w:date`, 2026-10-01T20:00:00Z.
+Build: `deliverables/redline/r1001b/build.sh <workdir> <out>` runs edits_i (38), edits_j (30), edits_k (FIG 1) and
+comments_j (5 replies + 1 note). validate.py `--author Claude` PASSES. Reject-all equals the base apart from pandoc's
+known blank rows for tracked-inserted tables.
+
+**Marcus 10-01:** *"Update to Möller and to 2025. … Delete the 'BRICK runs slightly high' and 'ties by construction'
+statements. Update 'profile per series' and expand on '1,600 thinned draws.' It is designed to run off any model that
+produces annual timeseries of both GMST and OHC. Fix headings and section numberings. Move the appendix to the right
+location. Fix the leftovers. Add the equations for the Greenland channels and AR(1) likelihoods, the fixed value
+table and verification subsection, and a pointer to a manual to-be-written."*
+
+- **2026 → 2025 was NOT label-only for thermal expansion (BUG FIXED).** `diag_te_rate_attribution.py` masked each
+  series separately over 1993–2026. The model TE, BRICK TE and FaIR OHC ran to 2026, while the target and Cheng
+  stopped in 2025 and IGCC in 2024, so every ratio compared different spans.
+  - Fixed: `WIN = (1993, 2025)`, plus `common_win()` so each ratio uses the years all of its series share.
+  - L27: Ladrillo 1.234 → **1.223**, BRICK 1.172 → **1.162**, FaIR/Cheng 1.285 → **1.274**, FaIR/IGCC
+    1.236 → **1.215** (1993–2024), α/obs 0.960 / 1.006.
+  - The paper's 1.10 × 1.10 = 1.21 decomposition now agrees with FaIR/IGCC. Before, it was 1.24, the inconsistency
+    the 09-30 review flagged.
+  - Pre-fix CSVs (L14/L21/L24/L27/L28): `outputs/quarantine/20261001_te_rate_window_mismatch/` (README).
+- **Label-only, VERIFIED by re-running:**
+  - Table 4 scorecard: every value identical.
+  - Table 5 IC at ρ ≤ 0.99/0.95/0.90: every numeric cell identical (max |Δ| = 0.0); only the `stat` label changes, `ll_max_window_1900-2026` → `…2025`. ⚠ The upstream residual file's provenance (`ic_hindcast_residuals.jl`) still says "run 1850-2026 scored 1900-2026". That is literally true of the RUN, so it was not re-run (130 MB, Julia).
+  - FIG 1 re-rendered with `X1 = 2025`.
+  - Also changed: the fit-window sentence ("runs to 2025, so its last TWO years …"; splice 2023.5), fn 15, the LWS
+    paragraph and the Table A2 caption.
+- **Rignot 0.888 (Marcus: how did we get it? refit to 0.884?).**
+  - 12.295 × 10⁶ km² is **Bedmap2's grounded-ice area** (Fretwell et al. 2013, Table 7, "area excluding ice
+    shelves"). It entered on 07-19 (roadmap A5) with no citation.
+  - Rignot's own Table 1 total is 12,353 and includes the islands.
+  - New receipt `python/diag_smb_area_reweight.py` → `outputs/diag_smb_area_reweight_L27.csv` (importance weights
+    on the SMB term):
+    - 0.884 moves posterior SMB by **−9.0 Gt/yr (−0.075 posterior sd), ESS 994/1000**.
+    - Excluding the islands too (0.896, 1810 Gt/yr) gives −53 Gt/yr (−0.44 sd), ESS 830.
+  - Footnote 17 now names Bedmap2 and states the 0.884 alternative and its effect.
+  - **No refit, recommended.** The posterior SMB sd (121) equals the term's σ (118), so the term alone sets the SMB
+    scale and the shift passes straight through at 0.075 sd.
+- **New text (methods only; Marcus drafts main text):**
+  - Greenland Eqs. (3)–(11).
+  - Likelihood Eqs. (12)–(14).
+  - §3.3 Verification. It is built from the test inventory and claims only what exists; it says explicitly that no
+    end-to-end reverted-vs-BRICK 2.0 test exists.
+  - Table A3, fixed values. Two references (Fretwell 2013; Morlighem 2017 for V₀ = 7.42 m) were added and checked
+    against Crossref/OpenAlex.
+  - Glacier equations numbered (1)–(2).
+  - Equations stay in the draft's existing plain-text SourceCode style, with lines ≤ 76 characters so they do not
+    wrap at Consolas 11 pt.
+- **Two findings from transcribing the equations, now stated or flagged:**
+  - (a) `gis_amp` does not enter the calibration likelihood. The post-2024 driver splice is built ONCE at the
+    prior centre 1.92 (`calibrate_mcmc_ext.jl:565-569`), and `gis_amp` is `likelihood_only, sym=:none` (:966-977,
+    whose comment says so). Its posterior is its prior, and it is propagated into the projections. This is stated
+    in the text. (A first draft gave the T_{t−1} lag as the reason; that is secondary, and was corrected before the
+    build.)
+  - (b) In calibration, land water enters only through DAIS's sea-level feedback, via the stylised `:central` series,
+    not the observed one. Flagged in a comment; Marcus to decide whether to add a clause.
+- **Sectioning:** numbered 1–5 to three levels, in sentence case, with Heading1–3 styles applied as tracked
+  property changes.
+  - New "3 Calibration and verification" groups 3.1 data, 3.2 code and calibration, and 3.3 verification.
+  - Back matter MOVED after the Appendix (GMD submission page: Conclusions → Appendices → Code availability → … →
+    References). The move was done as a tracked delete plus an accepted-view insert, because Table A1 is far larger
+    than the back matter. Comment markers travel with the copy.
+- **Other edits:**
+  - Profiled noise: the body was accurate, but the Table 5 caption said the posterior's own (σ, ρ) were used. They
+    are re-fitted per draw per series (`ic_ladrillo_vs_brick20.py:35-36`).
+  - The "1,600 thinned draws" sentence now explains the projection-diagnostic subsample: 400 per chain, every
+    2,500th post-burn-in iteration, ESS 1,240 / 1,250. Parameter-level R̂ uses all 4,000,000 post-burn-in
+    iterations.
+  - "couples to any …" replaced with Marcus's wording.
+  - Leftovers fixed: "same cubes…", "can't", "1.3x"/"3x", "8 %", "2000m", "premier", "four times fewer",
+    "projections years", Table A1 ±1e9 → unbounded.
+  - Möller fixed and a manual pointer added (both inside the moved copy).
+- **Zenodo (Marcus asked):** none exists for MimiBRICK v2.0.0 code. The JOSS archive 10.5281/zenodo.7011156 is
+  v1.1.0; 10.5281/zenodo.20592337 is v2.0.0 OUTPUT. Software Heritage holds the v2.0.0 tag (commit 11b2dff). Mimi
+  1.6.0 has no Zenodo record. Recorded as a reply on Marcus's Zenodo comment. Recommend Tony mint a v2.0.0 release.
+- **Receipt for the footnote:** `python/diag_smb_area_reweight.py` (byte-identical on a second run).
+- **Test suite** re-run on the current code: **10/10 PASS**, all mutations caught (`outputs/log_suite_20261001.txt`).
+- **Tried and abandoned:**
+  - Rendering a PDF for a visual check: no LibreOffice on this machine, and Word was open with Marcus's file. The
+    check was done on the XML and on the pandoc accepted view instead. pandoc drops tracked insertions inside
+    SourceCode paragraphs, a viewer artifact; the XML was confirmed directly.
+  - Running the three IC arms in parallel each spawned a full worker pool (load average 45). They finished, but run
+    them sequentially next time.
 ## 2026-10-01b — Receipts for two of the 10-01 comments; two loose ends resolved, one narrowed (no draft edits)
 
 The 10-01 docx is unchanged (md5 `9062e357`; Marcus has not opened it yet). Work that did not need him:

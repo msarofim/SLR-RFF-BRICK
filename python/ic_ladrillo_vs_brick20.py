@@ -20,7 +20,7 @@ in notes/note_2026-08-14_ladrillo_vs_brick20_scorecard.md and is not this script
 
 INPUTS (julia/ic_hindcast_residuals.jl): per-draw residuals (model - obs, cm) of
 NDRAW evenly-thinned posterior draws of each model, on ONE common target set
-(recalib_targets_ext.csv + the r19-seam-adjusted glacier target), 1900-2026,
+(recalib_targets_ext.csv + the r19-seam-adjusted glacier target), 1900-2025,
 re-referenced 1995-2005, forcing ssp245harm. The per-draw medians reproduce the
 two postpred p50 series (gated in the Julia driver), so these residuals are the
 residuals behind Table 4.
@@ -75,8 +75,8 @@ FIT_SERIES = ("ais", "gsic", "gis", "steric")     # the common in-likelihood set
 OOS_SERIES = ("total",)                           # out-of-sample for both
 SERIES = FIT_SERIES + OOS_SERIES
 # Table 4's windows, for the per-window decomposition of the iid arm
-WINDOWS = {"1900-2026": (1900, 2026), "1900-1919": (1900, 1919), "1920-1949": (1920, 1949),
-           "1950-1992": (1950, 1992), "1993-2026": (1993, 2026)}
+WINDOWS = {"1900-2025": (1900, 2025), "1900-1919": (1900, 1919), "1920-1949": (1920, 1949),
+           "1950-1992": (1950, 1992), "1993-2025": (1993, 2025)}
 
 # ---- PARAMETER COUNTS, the whole point ---------------------------------------
 # Every SAMPLED parameter of each posterior, counted from the posterior file
@@ -358,7 +358,7 @@ def main():
     def g(arm, m, s, stat):
         return float(out[(out.arm == arm) & (out.model == m) & (out.series == s) & (out.stat == stat)].value.iloc[0])
     lines = [f"# Information-criterion test: {LABEL['ladrillo']} vs {LABEL['brick20']} hindcast (tag {TAG})", "",
-             f"Common data: the four fitted component series ({', '.join(FIT_SERIES)}), 1900-2026 where observed, "
+             f"Common data: the four fitted component series ({', '.join(FIT_SERIES)}), 1900-2025 where observed, "
              f"N = {N_FIT} observation-years ({', '.join(f'{s} {nfin[s]}' for s in FIT_SERIES)}); one target set, one forcing, "
              f"one baseline. Parameter counts are EVERY sampled parameter of each posterior "
              f"(file: {K_TOTAL_IN_FILE}); k below is what each arm charges.", "",
