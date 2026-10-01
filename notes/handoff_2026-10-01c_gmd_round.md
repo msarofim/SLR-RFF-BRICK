@@ -24,6 +24,13 @@ Follows `handoff_2026-10-01b_gmd_round.md`. CHANGELOG entry 10-01d. Branch `ladr
 - **MimiBRICK goes through review as a GitHub citation.** It is pinned to tag v2.0.0, commit 11b2dff, and there is no
   ask to Tony. A reply on Marcus's Zenodo comment records the decision. The fallback is the Software Heritage ID.
 
+## 1b. Pending build (10-01f)
+
+`redline/r1001f/build.sh <fresh wd> deliverables/GMD.Ladrillo.v1_review-2026-10-01f_L27.docx` applies Sect. 3.3's
+reverted-model result to MARCUS'S OWN SAVE of 10-01e (he was accepting changes in Word, 12:29). It refuses while
+Word's lock file exists. Dry run on the 12:29 snapshot: 2 edits, validate PASS. Suite is 12/12
+(`outputs/log_suite_20261001c.txt`); step 12 = `test_ladrillo_reverts_to_brick20.jl`.
+
 ## 2. Open, for Marcus
 
 1. Accept or reject the 10-01, 10-01b and 10-01c rounds.

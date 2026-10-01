@@ -1,3 +1,37 @@
+## 2026-10-01g — The assembled model reverts to BRICK 2.0 bit for bit (suite step 12); GMD round 10-01f prepared
+
+**Marcus 10-01:** *"build the test"* (closing Sect. 3.3's disclosed gap: "The suite does not run the complete model
+with the new components reverted against BRICK 2.0").
+
+- **New `julia/test_ladrillo_reverts_to_brick20.jl`, suite step 12.** The setup:
+  - Ladrillo's own build (`ladrillo_setup`: forcing, regional drivers, medoid initialisation, land water), with the
+    glacier slot `replace!`d back to `MimiBRICK.glaciers_small_icecaps` and Greenland built `:stock`.
+  - The shared-temperature connection and `gsic_teq` are restored. `replace!` drops both, so they are put back
+    exactly as `get_model` sets them.
+  - A BRICK 2.0 posterior draw is applied with the BRICK 2.0 arm's own `update_brick_params!`.
+
+  **Result: it EQUALS (`==`, no tolerance) stock `MimiBRICK.get_model`, built as `scope_slr_fairunc_oldbrick.jl`
+  builds it.** This holds for every component (AIS, glaciers, Greenland, TE, LWS) and `global_sea_level`, 20 draws ×
+  {ssp245, ssp585}, 1850–2300: max |diff| 0.0 m.
+  - Liveness: the totals move 382 / 502 cm.
+  - Covered: the assembly, the reversibility of the slot replacement, the shared Antarctic / Antarctic-ocean / TE /
+    LWS / sum code and wiring (incl. DAIS's sea-level feedback), and that no setup value leaks past a full draw.
+  - NOT covered: `ladrillo_apply_draw!`'s mapping of Ladrillo-only parameters (sampled amplification, precip
+    reparameterisation, propagated λ/T_crit). They have no BRICK 2.0 counterpart; test_ladrillo_projection.jl
+    covers them.
+  - **All-exactly-zero is a bug signal**, so the gate was MUTATION-TESTED. Each of these is detected:
+    - a one-ulp `te_α` change on the Ladrillo side (5.6e-17 m);
+    - the land-water frame fix on one side only (1.6e-2 m, and DAIS moves, so the feedback path is live);
+    - leaving Ladrillo's glacier component in place.
+  - The test map came from a read-only subagent survey of both builds (file:line).
+- **Suite is now 12 steps:** `outputs/log_suite_20261001c.txt`.
+- **GMD round 10-01f prepared, NOT built.** Marcus had 10-01e open in Word: opened 12:20, saved 12:29, about 160
+  of Claude's insertions accepted, including both 10-01e edits.
+  - `redline/r1001f` applies to HIS save, after merge_runs + normalise. Edits: "ten-step" → "twelve-step", and the
+    gap sentence becomes the positive result.
+  - Dry run on a snapshot of the 12:29 save: 2 edits, validate PASS.
+  - `build.sh` refuses while Word's lock file exists.
+
 ## 2026-10-01f — Land water: the DAIS feedback measured, the v1.0 frame step guarded, GMD round 10-01e (`…v1_review-2026-10-01e_L27.docx`, md5 `9df3dc41`)
 
 **Marcus 10-01:** *"add the half-sentence and fix the stale comment. Make it so that if and when we update the model,
