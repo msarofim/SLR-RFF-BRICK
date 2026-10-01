@@ -45,6 +45,10 @@
 #                                       2150 moved by less than a spread-scaled
 #                                       bound, the cell actually fires, both
 #                                       mutations caught
+#  11. julia/test_lws_frame_guard.jl   the v1.0 land-water frame step: shipped default
+#                                       intact, the fix removes the step, and the guard
+#                                       refuses a model update (L36+, or a new default
+#                                       posterior) until the fix is on; mutation-tested
 #
 # WHY 8-10 ARE HERE AS OF 2026-08-23. They gate the Greenland that SHIPS -- two
 # basins, the reparameterised slow channel, the tap cell -- and until now they were
@@ -74,13 +78,13 @@ NDRAW="${1:-100}"
 JULIA="julia --project=julia_v2"
 
 echo "=============================================================="
-echo "[1/10] python/test_ladrillo_data.py"
+echo "[1/11] python/test_ladrillo_data.py"
 echo "=============================================================="
 (cd python && "$PYTHON" test_ladrillo_data.py)
 
 echo
 echo "=============================================================="
-echo "[2/10] julia/validate_glaciers_nu3.jl (both amp bases)"
+echo "[2/11] julia/validate_glaciers_nu3.jl (both amp bases)"
 echo "=============================================================="
 for basis in regchar obsfit; do
     echo "--- amp basis: $basis ---"
@@ -89,53 +93,59 @@ done
 
 echo
 echo "=============================================================="
-echo "[3/10] julia/test_ladrillo_projection.jl ($NDRAW draws)"
+echo "[3/11] julia/test_ladrillo_projection.jl ($NDRAW draws)"
 echo "=============================================================="
 $JULIA julia/test_ladrillo_projection.jl "$NDRAW"
 
 echo
 echo "=============================================================="
-echo "[4/10] julia/validate_greenland_ab.jl"
+echo "[4/11] julia/validate_greenland_ab.jl"
 echo "=============================================================="
 "$PYTHON" python/emit_gis_port_reference.py
 $JULIA julia/validate_greenland_ab.jl
 
 echo
 echo "=============================================================="
-echo "[5/10] julia/calibrate_mcmc_ext.jl --gis-check (calibrator wiring)"
+echo "[5/11] julia/calibrate_mcmc_ext.jl --gis-check (calibrator wiring)"
 echo "=============================================================="
 $JULIA julia/calibrate_mcmc_ext.jl 1 2026 --tag=gischeck --gis-check \
     | sed -n '/--gis-check/,$p'
 
 echo
 echo "=============================================================="
-echo "[6/10] julia/validate_gis_projection_ab.jl (projection kernel)"
+echo "[6/11] julia/validate_gis_projection_ab.jl (projection kernel)"
 echo "=============================================================="
 $JULIA julia/validate_gis_projection_ab.jl
 
 echo
 echo "=============================================================="
-echo "[7/10] julia/test_ladrillo_basins2_variant.jl (2-basin variant)"
+echo "[7/11] julia/test_ladrillo_basins2_variant.jl (2-basin variant)"
 echo "=============================================================="
 $JULIA julia/test_ladrillo_basins2_variant.jl
 
 echo
 echo "=============================================================="
-echo "[8/10] julia/test_greenland_3basin_nesting.jl (partition + 2-basin k)"
+echo "[8/11] julia/test_greenland_3basin_nesting.jl (partition + 2-basin k)"
 echo "=============================================================="
 $JULIA julia/test_greenland_3basin_nesting.jl
 
 echo
 echo "=============================================================="
-echo "[9/10] julia/test_gis_ordering_wedge.jl (channel-ordering prior)"
+echo "[9/11] julia/test_gis_ordering_wedge.jl (channel-ordering prior)"
 echo "=============================================================="
 $JULIA julia/test_gis_ordering_wedge.jl
 
 echo
 echo "=============================================================="
-echo "[10/10] julia/test_gis_tap_wiring.jl (the SHIPPED tap cell)"
+echo "[10/11] julia/test_gis_tap_wiring.jl (the SHIPPED tap cell)"
 echo "=============================================================="
 $JULIA julia/test_gis_tap_wiring.jl
+
+echo
+echo "=============================================================="
+echo "[11/11] julia/test_lws_frame_guard.jl (land-water frame step + update guard)"
+echo "=============================================================="
+$JULIA julia/test_lws_frame_guard.jl
 
 echo
 echo "ALL Ladrillo MODEL TESTS PASS"

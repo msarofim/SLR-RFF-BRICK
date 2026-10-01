@@ -6,7 +6,8 @@ Follows `handoff_2026-10-01b_gmd_round.md`. CHANGELOG entry 10-01d. Branch `ladr
 
 | | |
 |---|---|
-| **NEWEST** | `deliverables/GMD.Ladrillo.v1_review-2026-10-01d_L27.docx` (md5 `12470007`; round 10-01d = Fig. calls, acronyms, Oxford spelling, 69 edits at T23:00, build `r1001d/build.sh`) |
+| **NEWEST** | `deliverables/GMD.Ladrillo.v1_review-2026-10-01e_L27.docx` (md5 `9df3dc41`; 10-01e = land-water clause + Marcus's abstract sentence, T23:30, `r1001e/build.sh`) |
+| before that | `deliverables/GMD.Ladrillo.v1_review-2026-10-01d_L27.docx` (md5 `12470007`; round 10-01d = Fig. calls, acronyms, Oxford spelling, 69 edits at T23:00, build `r1001d/build.sh`) |
 | previous | `…10-01c_L27.docx` (md5 `e0be5ca7`), untouched |
 | base | `…10-01b_L27.docx` (md5 `286a6181`), untouched by Marcus when this round was built |
 | state | 47 pending 10-01 edits (T00:00) + 10-01b's 68 + FIG 1 (T20:00) + this round's 20 ins / 1 del (T22:00) + 12 comments |
@@ -26,8 +27,10 @@ Follows `handoff_2026-10-01b_gmd_round.md`. CHANGELOG entry 10-01d. Branch `ladr
 ## 2. Open, for Marcus
 
 1. Accept or reject the 10-01, 10-01b and 10-01c rounds.
-2. Land water in CALIBRATION: there is a comment proposing a clause, and the text does not state it yet.
+2. Land water in CALIBRATION: DONE in 10-01e (measured ≤0.014 cm). ⚠ The v1.0 projection code keeps a 1.565 cm
+   land-water frame step in 1900; `lws_frame_guard` forces the fix (LWS_OBS_ANCHOR = :zero_at_first_year) at the
+   next model update (CHANGELOG 10-01f, suite step 11).
 3. Wellcome grant number.
-4. From the 09-30 review lists: "presumably" (SLEIP), "can't" in the abstract, and the abstract has no number
-   (numbers were proposed in chat on 10-01). FIG, acronyms and spelling were DONE in 10-01d.
+4. From the 09-30 review lists: "presumably" (SLEIP) and "can't" in the abstract (style, not a GMD rule; awaiting
+   Marcus). Abstract numbers DONE in 10-01e; FIG, acronyms and spelling DONE in 10-01d.
 5. Ladrillo's own Zenodo DOI and repository URL (placeholders), at submission.

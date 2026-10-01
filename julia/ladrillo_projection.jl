@@ -98,6 +98,8 @@ PROJECTIONS, not parameter-level inference: 8 of 50 marginals are unconverged, a
 AIS-geometry ridge (benchmark/champions.json)."""
 const LADRILLO_POSTERIOR_CSV =
     joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_L27.csv")
+# Changing the default posterior is a model update: it must also fix the v1.0 land-water frame step.
+lws_frame_guard(LADRILLO_POSTERIOR_CSV; default=true)
 """The L24 posterior (canonical 2026-09-02 to 2026-09-21, 58 columns incl. λ/T_crit/γ and the full
 ledger); kept for the L24-vintage numbers that still carry that label and for the calibrator
 identity gate's history."""
@@ -503,6 +505,7 @@ many draws.
 """
 function ladrillo_posterior(; path::AbstractString=LADRILLO_POSTERIOR_CSV,
                           cols::Symbol=:used, nthin::Union{Nothing,Int}=nothing)
+    lws_frame_guard(path)   # a posterior newer than v1.0 needs the land-water frame fix
     if cols === :all
         df = CSV.read(path, DataFrame)
         return ladrillo_native_greenland!(nthin === nothing ? df : _ladrillo_thin(df, nthin))

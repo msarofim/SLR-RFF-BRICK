@@ -67,6 +67,43 @@ const LWS_MODES = (:seeded, :central, :zero, :random, :observed)
 const LWS_OBS_CSV            = joinpath(@__DIR__, "..", "outputs", "recalib_targets_ext.csv")
 const LWS_OBS_COL            = :lws            # cm, rel. 1995-2005 (the hindcast target's own frame)
 const LWS_OBS_LAST_REAL_YEAR = 2023            # GRACE-FO mascons end 2023; the target HOLDS 2023 flat to 2026
+## ⚠ THE FRAME STEP (found 2026-10-01, CHANGELOG 10-01f). The observed series is in the hindcast target's
+## 1995-2005 frame, but every other component is 0 in 1850, so under :observed the land-water component
+## steps from 0 to obs[first_year] (+1.565 cm) in 1900 and DAIS's sea-level feedback sees that step.
+## Measured on all 2,000 L27 projection draws: <= 0.012 cm of Antarctic contribution at any year to 2300.
+## Reported totals are re-baselined, so nothing else moves. Ladrillo v1.0 (the L27 paper arms) SHIPS WITH
+## THE STEP so its outputs stay reproducible. :zero_at_first_year is the fix (component starts at 0 and
+## carries the observed increments). lws_frame_guard() makes the NEXT MODEL UPDATE flip it: it refuses a
+## default posterior other than the shipped one, or any posterior newer than LWS_V1_NEWEST_TAG, while this
+## is still :v1_step. Flipping it moves every :observed projection's DAIS by <= ~0.01 cm; re-run the arms.
+const LWS_OBS_ANCHOR    = :v1_step           # :v1_step (shipped v1.0) | :zero_at_first_year (the fix)
+const LWS_OBS_ANCHORS   = (:v1_step, :zero_at_first_year)
+const LWS_V1_POSTERIOR  = "parameters_subsample_brick_mengel_L27.csv"   # the v1.0 paper posterior
+const LWS_V1_NEWEST_TAG = 35                 # L28-L35 exist as closed experiments (10-01); L36+ is an update
+
+"""
+    lws_frame_guard(posterior_csv_or_tag; default=false, anchor=LWS_OBS_ANCHOR) -> true
+
+Refuse to project a model UPDATE with the v1.0 land-water frame step still in place. With `anchor ===
+:v1_step` it errors when (a) `default=true` and the argument is not the shipped v1.0 posterior, or (b) its
+tag `L<n>` (a posterior file name or a bare run tag) has n > LWS_V1_NEWEST_TAG. Called by the kernel's
+default posterior, `ladrillo_posterior`, and the projection drivers scope_slr_fair_uncertainty.jl and
+scope_slr_pulse_vv.jl (they read chains by tag, not through `ladrillo_posterior`). The
+remedy is one line: LWS_OBS_ANCHOR = :zero_at_first_year.
+"""
+function lws_frame_guard(posterior_csv::AbstractString; default::Bool=false, anchor::Symbol=LWS_OBS_ANCHOR)
+    anchor in LWS_OBS_ANCHORS || error("lws_frame_guard: anchor must be one of $(LWS_OBS_ANCHORS) (got :$anchor)")
+    anchor === :zero_at_first_year && return true
+    b = basename(posterior_csv)
+    fix = "set LWS_OBS_ANCHOR = :zero_at_first_year in julia/brick_mengel.jl (the land-water frame step, " *
+          "CHANGELOG 2026-10-01f) and re-run the projection arms"
+    default && b != LWS_V1_POSTERIOR &&
+        error("lws_frame_guard: the default posterior is $b, not the v1.0 $LWS_V1_POSTERIOR. A model update must $fix.")
+    m = match(r"(?:^|_)L(\d+)", b)          # a posterior file name or a bare run tag ("L36", "L36b")
+    m !== nothing && parse(Int, m.captures[1]) > LWS_V1_NEWEST_TAG &&
+        error("lws_frame_guard: $b is newer than L$(LWS_V1_NEWEST_TAG), so it is a model update; $fix.")
+    return true
+end
 
 """
     set_lws!(m, lws=LWS_MODE; lws_seed=LWS_SEED)
@@ -74,12 +111,12 @@ const LWS_OBS_LAST_REAL_YEAR = 2023            # GRACE-FO mascons end 2023; the 
 Set MimiBRICK's `lws_random_sample` on an already-built model `m` (n = its year count) to the
 treatment `lws`; `:random` leaves get_model's unseeded draw in place. Returns `m`.
 """
-function set_lws!(m, lws::Symbol=LWS_MODE; lws_seed::Int=LWS_SEED)
+function set_lws!(m, lws::Symbol=LWS_MODE; lws_seed::Int=LWS_SEED, lws_anchor::Symbol=LWS_OBS_ANCHOR)
     lws in LWS_MODES || error("set_lws!: lws must be one of $(LWS_MODES) (got :$lws)")
     lws === :random && return m
     yrs = Int.(Mimi.dim_keys(m, :time)); n = length(yrs)
     if lws === :observed
-        first_year, lws0_m, v = lws_observed_increments(yrs)
+        first_year, lws0_m, v = lws_observed_increments(yrs; anchor=lws_anchor)
         update_param!(m, :landwater_storage, :first_projection_year, first_year)
         update_param!(m, :landwater_storage, :lws₀, lws0_m)
         update_param!(m, :landwater_storage, :lws_random_sample, v)
@@ -99,8 +136,10 @@ The observed land-water series as the land-water component consumes it: the comp
 years (LWS_OBS_COL of LWS_OBS_CSV, cm → m) through LWS_OBS_LAST_REAL_YEAR; LWS_MEAN per year after that.
 GATES: the observed column must be finite over its span; the target's post-real years must be the held
 2023 value (the signature this constant encodes -- a target update that extends the record fires it).
+`anchor=:v1_step` returns `lws0_m = obs[first_year]` (the v1.0 frame step); `:zero_at_first_year` returns 0.
 """
-function lws_observed_increments(yrs::Vector{Int})
+function lws_observed_increments(yrs::Vector{Int}; anchor::Symbol=LWS_OBS_ANCHOR)
+    anchor in LWS_OBS_ANCHORS || error("lws_observed_increments: anchor must be one of $(LWS_OBS_ANCHORS) (got :$anchor)")
     tg = CSV.read(LWS_OBS_CSV, DataFrame)
     obs = Dict(Int(r.year) => Float64(r[LWS_OBS_COL]) for r in eachrow(tg) if !ismissing(r[LWS_OBS_COL]))
     oyrs = sort(collect(keys(obs)))
@@ -120,7 +159,7 @@ function lws_observed_increments(yrs::Vector{Int})
             v[i] = LWS_MEAN
         end
     end
-    return first_year, obs[first_year] / 100.0, v
+    return first_year, (anchor === :v1_step ? obs[first_year] / 100.0 : 0.0), v
 end
 
 """

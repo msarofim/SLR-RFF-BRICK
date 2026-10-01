@@ -179,6 +179,7 @@ end
 const CHAIN_TAG = let i = findfirst(a -> startswith(a, "--chain-tag="), ARGS)
     i === nothing ? TAG : ARGS[i][13:end]
 end
+lws_frame_guard(TAG); lws_frame_guard(CHAIN_TAG)   # a tag newer than v1.0 needs the land-water frame fix
 
 chain_path(sd) = joinpath(REPO, "outputs/mcmc", "chain_$(CHAIN_TAG)_seed$(sd)_n$(NITER).csv")
 hdr(sd) = String.(propertynames(CSV.read(chain_path(sd), DataFrame; limit = 0)))

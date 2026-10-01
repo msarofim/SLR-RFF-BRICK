@@ -72,6 +72,7 @@ const N_TARGET = let p = findfirst(a -> !startswith(a, "--"), ARGS)
     p === nothing ? 500 : parse(Int, ARGS[p])
 end
 const CHAIN_TAG = argval("--chain-tag=", TAG)
+lws_frame_guard(TAG); lws_frame_guard(CHAIN_TAG)   # a tag newer than v1.0 needs the land-water frame fix
 
 ## ---- --climate: WHOSE temperature drives Ladrillo on this arm ---------------------------
 ##  `fair`   the shared FaIR 2.2.4 calib 1.6.0 cubes -- the default and every shipped arm.

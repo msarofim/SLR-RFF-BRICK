@@ -1,7 +1,8 @@
 #!/bin/bash
 ## THE PAPER'S PROJECTION ARMS ON A NEW POSTERIOR TAG (handoff 2026-09-20 §1.3), then every figure the GMD
-## draft carries, in memo AND --paper mode. Template: run_paper_arms_lws_central_20260918.sh (LWS_MODE=:central
-## is the kernel default since 4617723; nothing here changes it).
+## draft carries, in memo AND --paper mode. Template: run_paper_arms_lws_central_20260918.sh. The kernel
+## default is LWS_MODE=:observed (since 2026-09-21; it was :central from 4617723 until then), with the v1.0
+## land-water frame step (LWS_OBS_ANCHOR=:v1_step, CHANGELOG 2026-10-01f); nothing here changes either.
 ##   Ladrillo (scope_slr_fair_uncertainty.jl, ~4 min each):  7 vv markers (FaIR climate, tapped)
 ##                                                          + ssp126/245/585 x {spliced, raw} MAGICC climate
 ##   The 3 SSP FaIR-climate joint bands are written by run_l27_postprocess.sh and are NOT re-run here.

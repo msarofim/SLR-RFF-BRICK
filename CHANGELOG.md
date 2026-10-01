@@ -1,3 +1,48 @@
+## 2026-10-01f — Land water: the DAIS feedback measured, the v1.0 frame step guarded, GMD round 10-01e (`…v1_review-2026-10-01e_L27.docx`, md5 `9df3dc41`)
+
+**Marcus 10-01:** *"add the half-sentence and fix the stale comment. Make it so that if and when we update the model,
+the projection code gets fixed."*
+
+- **Measured: does land water matter to the calibration? No.** DAIS reads global sea level, lagged one year, in
+  three places: grounding-line water depth, the sea-edge distance, and the ISO rate term. In calibration, land water
+  is MimiBRICK's stylized series (0 through 2018, then 0.30 mm/yr; `lws=:central`). The scored components exclude
+  it, so it reaches the fit ONLY through that feedback.
+  - Run: all 2,000 L27 projection draws, each paired with its FaIR config.
+  - Observed instead of stylized moves Antarctica by ≤ 0.014 cm (95th pct of the per-draw max, 1900–2025) and
+    ≤ 0.012 cm to 2300. That is 0.08σ of the hindcast target and ~1e-4 of the projection spread.
+  - Switching the whole feedback off removes 0.67 cm at 2100 and 6.2 cm (3.7–10.9) at 2300 under High.
+  - Analytic pre-check: d ln(flux)/dSL ≈ (1+γ)/depth ≈ 1.1 %/m, at a 355 m grounding-line depth.
+  - Controls: the observed arm reproduces the shipped vvH/vvVL Antarctic draws exactly, and a repeat run is
+    byte-identical. Scripts and records (seeds, draw indices) are in the session scratchpad (`dais_slfb/`), not
+    committed.
+- **BUG, kept in v1.0 and guarded: the land-water frame step.** Under `LWS_MODE=:observed`, `lws_observed_increments`
+  sets the component to obs[first_year] in 1900. That value is in the target's 1995–2005 frame, while every other
+  component is 0 in 1850, so DAIS sees a +1.565 cm sea-level step in 1900.
+  - Effect: ≤ 0.012 cm on Antarctica; re-baselined totals are otherwise unchanged.
+  - Not fixed in place, because the v1.0 paper arms (L27) must stay reproducible. Nothing is quarantined, because no
+    output changes.
+  - New `LWS_OBS_ANCHOR` (`:v1_step` shipped, `:zero_at_first_year` = the fix), threaded through `set_lws!`.
+  - New `lws_frame_guard()` refuses, while the anchor is `:v1_step`:
+    - a default posterior other than L27 (checked when `ladrillo_projection.jl` loads);
+    - any posterior or run tag newer than L35 (`ladrillo_posterior`, `scope_slr_fair_uncertainty.jl`,
+      `scope_slr_pulse_vv.jl`).
+  - So the next model update must flip the constant, which is one line.
+  - New suite step 11, `julia/test_lws_frame_guard.jl`, checks that:
+    - the shipped default still steps by exactly obs[1900] = 1.5646 cm;
+    - the fix gives no step and differs from v1 by exactly that constant from 1900 on;
+    - the guard passes L24/L27/L32/L35 and refuses L36, L36b, and L32-as-default.
+  - MUTATION-TESTED in scratch copies: disabling the guard fails 3 checks; ignoring the anchor fails 2.
+- **Stale comment fixed:** `run_paper_arms_L27.sh` said `:central` was the kernel default. It is `:observed` (since
+  09-21), with the v1.0 frame step.
+- **GMD round 10-01e** (incremental on the untouched 10-01d; `w:date` T23:30; `redline/r1001e`; validate PASS):
+  - The land-water clause in the LWS paragraph. A reply on the land-water comment gives the numbers.
+  - Marcus's abstract sentence, with numbers checked against `scope_ladrillo_vs_brick20_scorecard_L27.csv` (full
+    window: 0.059 / 0.205 / 0.279 / 0.871 → 94 / 79 / 72 / 13 %) and Table 5 (ΔAIC +89, ΔBIC +26 at ρ ≤ 0.99; k
+    50 vs 35).
+  - Edits to his wording: the comparator and window are named, RMSE/AIC/BIC are spelled out (GMD requires
+    abbreviations to be defined in the abstract), the signs are explained, and "demonstrate" became "indicating".
+- Suite: `outputs/log_suite_20261001b.txt`.
+
 ## 2026-10-01e — GMD round 10-01d: Fig. calls, acronyms, Oxford spelling (`…v1_review-2026-10-01d_L27.docx`, md5 `12470007`; 69 tracked edits)
 
 Applied incrementally to the untouched 10-01c output (md5 `e0be5ca7`). `w:date` 2026-10-01T23:00:00Z. Build:
