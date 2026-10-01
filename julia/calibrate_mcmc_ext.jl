@@ -5,9 +5,9 @@
 ##   --no-ledger, on the Frederikse+GRACE AIS target (prep_recalib_targets_ext.py --ais-frederikse;
 ##   the committed outputs/recalib_targets_ext.csv at HEAD). Postprocess with run_l27_postprocess.sh
 ##   (postprocess_mcmc_ext.jl --tag=L27 --accept-slr, gated by diag_slr_convergence_by_chain_ladrillo.jl).
-## REGRESSION FIXTURE (not the canonical run): scripts/gate_calibrator_identity.sh proves any edit
-##   to this file still reproduces the L24 objective (run_mcmc_L24.sh flags) byte-for-byte
-##   (300 iter, seed 2026). It does NOT certify the L27 flag set.
+## IDENTITY GATE: scripts/gate_calibrator_identity.sh runs this file with run_mcmc_L27.sh's flags for
+##   300 iterations (seed 2026) and requires the first 300 rows of the PRODUCTION L27 chain exactly
+##   (since 2026-09-30; it certified L24 before that). Mutation-tested.
 ## ============================================================================
 ## calibrate_mcmc_ext.jl  —  BRICK-Mengel MCMC on the EXTENDED (post-2018) targets
 ##
