@@ -1,3 +1,39 @@
+## 2026-10-01b — Receipts for two of the 10-01 comments; two loose ends resolved, one narrowed (no draft edits)
+
+The 10-01 docx is unchanged (md5 `9062e357`; Marcus has not opened it yet). Work that did not need him:
+- **Greenland timescales now have a receipt.** New `python/diag_gis_timescales.py` →
+  `outputs/diag_gis_timescales_L27.csv`. τ_fast = 1/(α_f·T̄ + β_f), τ_slow = exp(−ℓ), active basin (s = 1),
+  T̄ = 1.9631 K (derived from `t_gis_zones.csv`, asserted against the calibrator's anchor). Results: **109.3 yr
+  (62.2–191.2)** SMB and **289.3 yr (141.9–663.1)** discharge, matching 09-29's CHANGELOG numbers exactly. The
+  script has no RNG, and two runs gave byte-identical output (md5 `7031cb02`).
+- **FACTS 47 / 112 cm now has a receipt.** The 09-12c scratch run was not kept, so it was re-run as
+  `facts/experiments/global.shared.vvHL2300.n200.crate0`. It is a copy of the shipped vvHL2300 arm with ONE
+  hand edit, GrIS1f `crateyear_end: 0`, and is not a canonical arm. It ran in about 1 min in Docker.
+  - New `python/diag_facts_gis_extrap_receipt.py` → `outputs/diag_facts_gis_extrap_receipt_vvHL2300.csv`.
+  - At 2300: **default 46.5 cm (28.5–67.9), fit-through-2300 111.6 cm (19.1–299.6)**, cm relative to FACTS's 2005
+    base year. The 09-12c numbers reproduce exactly.
+  - The script asserts that the two arms are identical through 2100 (paired, seed 1234). Two runs gave
+    byte-identical output (md5 `9cb05c76`).
+  - ⚠ The GMST fall is **1.51 K** as the per-sample peak→2300 median, not 09-12c's "1.6 K", which used a different
+    statistic that was not recorded. The draft quotes no number, so the text is unaffected.
+- **Rignot area, 12.295 vs 12.353, is now narrowed.** Rignot et al. (2019) Table 1 (via PMC6347714) gives a Total of
+  12,353 × 10³ km², and it INCLUDES Islands (163.0; SMB 77.0 ± 4.5). The regional areas sum to 12,352 and the SMB
+  sums to 2098.
+  - The code's 12.295 matches no combination of the table's rows; its source is still unknown.
+  - Footnote 17's wording, "the grounded area of the published estimate", therefore describes 12.353, which gives
+    ×0.884 → **1854.6 ± 117.6 Gt/yr (−0.07σ)**.
+  - Excluding the islands (DAIS has none) gives 2021 Gt/yr over 12.189 → ×0.896 → **1810.6 Gt/yr (−0.45σ)**.
+  - This is a methodological choice and is left to Marcus; no refit was done.
+- **`diag_te_rate_attribution` α 0.109 vs 0.167 is RESOLVED: it is a units difference.** Row C reports α as
+  rate(TE)/rate(OHC) in cm per 10²² J. Dividing by 10²²/(A·C·ρ²) with BRICK's A = 3.619e14, C = 3991.87 and
+  ρ = 1027 (0.6563 cm per 10²² J per unit α) gives 0.10940 → **0.1667 kg m⁻³ °C⁻¹**, which is the paper's 0.167.
+  The obs-implied 0.10961 and 0.11398 become 0.1670 and 0.1737, consistent with the draft's "within 4%".
+- **`nasa_gmsl_annual.csv` = NOAA STAR is confirmed** by `download_obs.py`'s own label. **The file was NOT renamed.**
+  It has 9 readers, including `prep_recalib_targets_ext.py`, whose md5 (`070f74ab`) is pinned. A rename has to
+  rebuild that target and verify its byte-identity first.
+- **Memory budgets:** no index is over its hard ceiling. `INDEX_conv` is at 17,294 B (1.1 KB of headroom); ten
+  others are over their soft targets. Deferred until after the GMD work.
+
 ## 2026-10-01 — GMD pre-share pass: `…v1_review-2026-10-01_L27.docx` (47 tracked edits, 4 new comments)
 
 This pass was built on Marcus's 09-30 16:40 save of `…09-30b` (all changes accepted; md5 `2b718f21`, untouched).
