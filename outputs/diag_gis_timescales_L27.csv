@@ -1,0 +1,3 @@
+channel,tbar_K,units,p05,p50,p95,provenance
+fast_smb,1.9631,yr,62.19008801300358,109.2855371083939,191.1555834767394,diag_gis_timescales.py | tag L27 | posterior parameters_subsample_brick_mengel_L27.csv md5 8b0be65d n=10000 | Tbar 1.9631 K = south zone mean 2015-2024 from t_gis_zones.csv md5 b74b7599 | active basin (s=1) | per-draw quantiles | no RNG | commit 0e4ae5e
+slow_discharge,1.9631,yr,141.90894647829313,289.2945608855793,663.1243961087471,diag_gis_timescales.py | tag L27 | posterior parameters_subsample_brick_mengel_L27.csv md5 8b0be65d n=10000 | Tbar 1.9631 K = south zone mean 2015-2024 from t_gis_zones.csv md5 b74b7599 | active basin (s=1) | per-draw quantiles | no RNG | commit 0e4ae5e
