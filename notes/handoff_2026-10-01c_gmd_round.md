@@ -6,7 +6,8 @@ Follows `handoff_2026-10-01b_gmd_round.md`. CHANGELOG entry 10-01d. Branch `ladr
 
 | | |
 |---|---|
-| **NEWEST** | `deliverables/GMD.Ladrillo.v1_review-2026-10-01c_L27.docx` (md5 `e0be5ca7`) |
+| **NEWEST** | `deliverables/GMD.Ladrillo.v1_review-2026-10-01d_L27.docx` (md5 `12470007`; round 10-01d = Fig. calls, acronyms, Oxford spelling, 69 edits at T23:00, build `r1001d/build.sh`) |
+| previous | `…10-01c_L27.docx` (md5 `e0be5ca7`), untouched |
 | base | `…10-01b_L27.docx` (md5 `286a6181`), untouched by Marcus when this round was built |
 | state | 47 pending 10-01 edits (T00:00) + 10-01b's 68 + FIG 1 (T20:00) + this round's 20 ins / 1 del (T22:00) + 12 comments |
 | build | `deliverables/redline/r1001c/build.sh <fresh workdir> <out.docx>`: edits_l, comments_l, validate (PASS) |
@@ -27,6 +28,6 @@ Follows `handoff_2026-10-01b_gmd_round.md`. CHANGELOG entry 10-01d. Branch `ladr
 1. Accept or reject the 10-01, 10-01b and 10-01c rounds.
 2. Land water in CALIBRATION: there is a comment proposing a clause, and the text does not state it yet.
 3. Wellcome grant number.
-4. From the 09-30 review lists: "presumably" (SLEIP); "FIG" vs "Fig."; undefined acronyms (BRICK is now cited at
-   its definition but not expanded); US/UK spelling; the abstract has no number.
+4. From the 09-30 review lists: "presumably" (SLEIP), "can't" in the abstract, and the abstract has no number
+   (numbers were proposed in chat on 10-01). FIG, acronyms and spelling were DONE in 10-01d.
 5. Ladrillo's own Zenodo DOI and repository URL (placeholders), at submission.

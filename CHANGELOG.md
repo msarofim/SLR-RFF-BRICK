@@ -1,3 +1,37 @@
+## 2026-10-01e — GMD round 10-01d: Fig. calls, acronyms, Oxford spelling (`…v1_review-2026-10-01d_L27.docx`, md5 `12470007`; 69 tracked edits)
+
+Applied incrementally to the untouched 10-01c output (md5 `e0be5ca7`). `w:date` 2026-10-01T23:00:00Z. Build:
+`deliverables/redline/r1001d/build.sh <fresh workdir> <out>` (edits_m), with the same guards as r1001c. validate
+`--author Claude` PASSES.
+
+**Marcus 10-01:** *"fix FIG, the undefined acronym, make UK spelling consistent if that is what GMD expects."*
+
+GMD's submission page (read 10-01) says "Fig." in running text and "Figure" at a sentence start; "Table" is never
+abbreviated. Abbreviations are defined in the abstract and again at first use in the text. "All standard varieties of
+English are accepted ... the variety should be consistent", and "Oxford spelling using -z- variants ... is often
+utilized". So GMD does NOT require British spelling. The round applies **Oxford** (British with -ize), the British
+variety GMD names. Flipping -ize to -ise is a small follow-up if Marcus prefers.
+
+- **Fig.: 17 calls.** 11 are in running text: `FIG n` → `Fig. n`, plus "see Figure 1" → "Fig. 1". At the sentence
+  starts, the calls become "Figure 1" and "Figures 2 and 3". The six caption labels become "Figure n.". 0 "FIG" left.
+- **Acronyms (36 edits).**
+  - Abstract: BRICK, SNEASY, FaIR and SLEIP.
+  - Body, at first use: BRICK, ISMIP6, SICOPOLIS, GlacierMIP3, IMBIE, GlaMBIE, GRACE, CMIP6, FaIR, SNEASY, FACTS,
+    MAGICC, AR6, AR5, SLE, RGI, GMST, OHC, SMB, SSP, DAIS, GRACE-FO, JPL, GMSL, IGCC, AR(1), CMIP7, RCMIP, RMSE,
+    AIC/BIC, ScenarioMIP and FrEDI.
+  - Table cells: Table 1's caption gets GMST, and Table 2's definition list gets OHC, GSAT, SMB, DAIS and ODE.
+  - Spelled out (single use): TE, GIA and AIS.
+  - Expansions were CHECKED against a source. **DAIS is the "DCESS (Danish Center for Earth System Science)
+    Antarctic Ice Sheet" model** (Shaffer 2014, GMD 7:1803), not "Danish Antarctic Ice Sheet". The other sources:
+    SICOPOLIS from its GitHub README, FrEDI from the package DESCRIPTION ("Evaluating", not "Estimating"), BRICK
+    from the MimiBRICK.jl source, SNEASY from MimiBRICK, and FaIR from the fair package.
+  - Left alone: LARMIP and PISM (footnote labels with citations; LARMIP's expansion was unchecked), and model names
+    cited in place (SURFER, MP25, FRISIA, ProFSea, MESSAGE-GLOBIOM).
+- **Spelling: 16 body edits.** realized, centred, normalized, orthogonalized, modelled, idealized, standardized,
+  towards, modelling and behaviour. Already consistent: centre, catalogue, grey, judgement, licence, favours,
+  harmonized. Reference titles were not touched (e.g., "flood defense", "expert judgment").
+- Not done, still open: "can't" in the abstract, and the double parenthesis in §2 "(OHC) (for example, …)".
+
 ## 2026-10-01d — GMD round 10-01c: BRICK naming + MimiBRICK citation (`…v1_review-2026-10-01c_L27.docx`, md5 `e0be5ca7`; 20 tracked edits + 1 reply)
 
 Applied INCREMENTALLY to the 10-01b output (md5 `286a6181`), which Marcus had not touched (mtime precedes the 10-01b
