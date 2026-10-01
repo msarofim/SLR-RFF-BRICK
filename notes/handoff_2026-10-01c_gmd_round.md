@@ -30,13 +30,12 @@ Follows `handoff_2026-10-01b_gmd_round.md`. CHANGELOG entry 10-01d. Branch `ladr
 `b93c8039`) + Sect. 3.3's reverted-model result (T23:45). Build: `redline/r1001f/build.sh`. Suite is 12/12
 (`outputs/log_suite_20261001c.txt`). ⚠ Future rounds: copy `r1001f/trackedit.py`, which has the fixed `_in_tracked`.
 
-## 2. Open, for Marcus
+## 2. Open, for Marcus (checked against his 13:05 save, 10-01)
 
-1. Accept or reject the 10-01, 10-01b and 10-01c rounds.
-2. Land water in CALIBRATION: DONE in 10-01e (measured ≤0.014 cm). ⚠ The v1.0 projection code keeps a 1.565 cm
-   land-water frame step in 1900; `lws_frame_guard` forces the fix (LWS_OBS_ANCHOR = :zero_at_first_year) at the
-   next model update (CHANGELOG 10-01f, suite step 11).
-3. Wellcome grant number.
-4. From the 09-30 review lists: "presumably" (SLEIP) and "can't" in the abstract (style, not a GMD rule; awaiting
-   Marcus). Abstract numbers DONE in 10-01e; FIG, acronyms and spelling DONE in 10-01d.
-5. Ladrillo's own Zenodo DOI and repository URL (placeholders), at submission.
+1. Accept or reject the remaining tracked changes (in 10-01f).
+2. Ladrillo's own Zenodo DOI and repository URL (placeholders; his Zenodo comment is the only comment left), at submission.
+3. ⚠ The SLEIP/FACTS sentence lost "presumably" and now ASSERTS that SLEIP's 2300 FACTS values are the extrapolations.
+   Fine if confirmed with Kopp/Kumar; otherwise it is an unreceipted claim (09-30 review).
+
+DONE by Marcus in his save: "cannot" in the abstract, the Wellcome grant (227149/Z/23/Z), the "presumably" edit, all
+Claude comment bubbles cleared. ⚠ Before listing anything as open, READ his latest save; do not carry a list forward.
