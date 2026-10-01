@@ -31,6 +31,14 @@ with the new components reverted against BRICK 2.0").
     gap sentence becomes the positive result.
   - Dry run on a snapshot of the 12:29 save: 2 edits, validate PASS.
   - `build.sh` refuses while Word's lock file exists.
+- **10-01f BUILT 13:xx** from Marcus's closed 13:05 save of 10-01e (md5 `b93c8039`; he had accepted most of Sect. 3.3
+  and reworded it to "code inherited from MimiBRICK v2.0.0"). Output `…10-01f_L27.docx` md5 `1aa8491a`, 2 edits,
+  validate PASS.
+  - **Script bug found on the way, fixed in `r1001f/trackedit.py`.** `_in_tracked` treated a SELF-CLOSING
+    paragraph-mark revision (`<w:ins …/>` in a pPr, which Word writes once part of a paragraph is accepted) as an
+    open insertion, so it hid every plain run after it.
+  - Failure direction: the edit is REFUSED ("occurs 0 times"), never misplaced, so earlier rounds can have lost
+    nothing to it. They would have errored instead.
 
 ## 2026-10-01f — Land water: the DAIS feedback measured, the v1.0 frame step guarded, GMD round 10-01e (`…v1_review-2026-10-01e_L27.docx`, md5 `9df3dc41`)
 

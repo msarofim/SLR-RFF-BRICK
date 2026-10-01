@@ -80,7 +80,13 @@ class Doc:
 def _in_tracked(x, pos):
     """True if `pos` sits inside an open <w:ins>/<w:del> (so a plain-run search must skip it)."""
     pre = x[max(0, pos - 3000):pos]
-    return pre.rfind("<w:ins ") > pre.rfind("</w:ins>") or pre.rfind("<w:del ") > pre.rfind("</w:del>")
+    # 10-01f: ignore SELF-CLOSING marks (<w:ins .../> in a pPr/rPr = a tracked paragraph mark, which Word
+    # writes once a user accepts part of a paragraph); they open no region. The old rfind form took one for
+    # an open insertion and hid every run after it.
+    def last_open(tag):
+        ms = [m.start() for m in re.finditer(r'<w:%s (?:[^>/]|/(?!>))*>' % tag, pre)]
+        return ms[-1] if ms else -1
+    return last_open("ins") > pre.rfind("</w:ins>") or last_open("del") > pre.rfind("</w:del>")
 
 
 def _para_bounds(x, pos):
