@@ -19,10 +19,19 @@ export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK:-4}
 export OPENBLAS_NUM_THREADS=${SLURM_CPUS_PER_TASK:-4}
 cd /scratch/ms17839/FaIRtoFrEDI
 META=fair_outputs/metadata_v145/lhs10ks_metadata_v145.csv
+# ⚠ --forcing-file IS NOT OPTIONAL HERE, and was MISSING until 2026-10-02.
+# lhs_climate_v145_meta.py defaults to calibration_v145/volcanic_solar.csv --
+# the TIME-VARYING series. Every tag below says `flat2015`, and the r1 cubes
+# this realization reproduces were built by FaIRtoFrEDI/slurm_v5_lhs10ks_*.sh
+# WITH the flat file. Omitting the flag therefore produced cubes whose filename
+# asserted a forcing basis the run did not use, and the H-S noise isolation the
+# flat file exists for would have been silently absent. No r2 cube was ever
+# completed, so nothing shipped on it; this is the latent bug closed.
+FORCING=calibration_v145/volcanic_solar_flat2015.csv
 case ${SLURM_ARRAY_TASK_ID} in
-  0) ARGS="--output-tag lhs10ks_baseline_flat2015_r2 --metadata-csv $META --pulse-year 2030" ;;
-  1) ARGS="--output-tag lhs10ks_pulse_co2_pos_001gt_flat2015_r2 --metadata-csv $META --pulse-specie 'CO2 FFI' --pulse-size 0.01 --pulse-year 2030" ;;
-  2) ARGS="--output-tag lhs10ks_pulse_ch4_pos_1tg_flat2015_r2 --metadata-csv $META --pulse-specie CH4 --pulse-size 1.0 --pulse-year 2030" ;;
+  0) ARGS="--output-tag lhs10ks_baseline_flat2015_r2 --metadata-csv $META --forcing-file $FORCING --pulse-year 2030" ;;
+  1) ARGS="--output-tag lhs10ks_pulse_co2_pos_001gt_flat2015_r2 --metadata-csv $META --forcing-file $FORCING --pulse-specie 'CO2 FFI' --pulse-size 0.01 --pulse-year 2030" ;;
+  2) ARGS="--output-tag lhs10ks_pulse_ch4_pos_1tg_flat2015_r2 --metadata-csv $META --forcing-file $FORCING --pulse-specie CH4 --pulse-size 1.0 --pulse-year 2030" ;;
   *) echo "bad array idx"; exit 1 ;;
 esac
 echo "task ${SLURM_ARRAY_TASK_ID}: $ARGS  host=$(hostname) start=$(date)"
