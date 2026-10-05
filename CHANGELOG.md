@@ -1,3 +1,35 @@
+## 2026-10-05 — FaIR's "ocean heat content" is Earth's TOTAL heat accumulation; the TE overshoot's second factor is land + ice + air heat, not FaIR over-uptake
+
+**Frank Errickson (via Marcus 10-05):** FaIR's ocean heat is the time integral of the TOA imbalance, so it includes land
+and atmosphere heat. **Confirmed in FaIR 2.2.4's code** (`fair/fair.py:1596-1609`): `ocean_heat_content_change` =
+cumsum(`toa_imbalance`) × timestep × 4πR² (the WHOLE Earth's surface) × seconds/yr. FaIR has no non-ocean heat reservoir,
+so every joule is labelled "ocean".
+
+New `python/diag_fair_ohc_vs_earth_heat.py` → `outputs/diag_fair_ohc_vs_earth_heat.csv`. It is run twice, byte-identical
+(md5 `58b08866`).
+- **The decomposition:** FaIR's rate excess over IGCC's 0–2000 m ocean = [full-depth/0–2000] × [total/full-depth] ×
+  [FaIR/IGCC total].
+- **Common span required.** IGCC's land/cryosphere/atmosphere/total END IN 2020 while its ocean layers run to 2024. Spans
+  are checked, not masked (cf. 10-01's window bug).
+
+| window | FaIR / 0–2000 m | below 2000 m | land + ice + air | FaIR / IGCC total |
+|---|---|---|---|---|
+| 1993–2020 | 1.236 | 1.107 | 1.097 | **1.018** |
+| 1971–2020 | 1.152 | 1.093 | 1.094 | 0.964 |
+| 2006–2020 | 1.284 | 1.102 | 1.101 | 1.058 |
+
+The non-ocean share of IGCC's total is 8.6–9.2%: land 4.2–4.7%, cryosphere 2.9–3.4%, atmosphere 1.0–1.7%.
+
+**⛔ RETRACTS the draft's Sect. 4.1 attribution** (P298): "The remaining 1.10× is FaIR's full-depth heat uptake exceeding
+IGCC's full-depth estimate." The remaining ~1.10× is heat that FaIR books as ocean but which goes to land, ice and the
+atmosphere. Against IGCC's total Earth heat inventory, FaIR is within 2% over 1993–2020.
+- Also affected:
+  - P156 calls the driver "FaIR's full-depth ocean heat content";
+  - Sect. 4.1's "the cause is FaIR's ocean heat";
+  - the "α within 4% of the value the 0–2000 m observations imply" comparison, whose driver/target scopes differ —
+    NOT re-derived yet.
+- Draft not edited: Tony has the current version; awaiting Marcus.
+
 ## 2026-10-01g — The assembled model reverts to BRICK 2.0 bit for bit (suite step 12); GMD round 10-01f prepared
 
 **Marcus 10-01:** *"build the test"* (closing Sect. 3.3's disclosed gap: "The suite does not run the complete model
