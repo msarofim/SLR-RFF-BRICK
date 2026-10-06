@@ -1,3 +1,23 @@
+## 2026-10-05b — The TE misfit is TIMING, not scale; wording fixes queued for Tony's returned draft
+
+**Marcus 10-05:** "Ladrillo does not match observed TE because FaIR's OHC is too large... shouldn't there be a way to
+transform FaIR's OHC into the observed OHC?"
+- **A constant transform is a no-op.** OHC enters only `thermal_expansion.ocean_heat_interior`, and TE is linear in it.
+  - 200 L27 draws with OHC × 0.8 and α ÷ 0.8 reproduce the shipped TE to 2e-15 relative (scratchpad
+    `ohc08/ohc_scale_equiv.jl`, not committed).
+  - α/0.8 = 0.150–0.243 stays inside U(0.05, 0.30), so a refit would return L27 with α relabelled.
+- **The misfit is the SHAPE.** New `python/diag_te_driver_timing.py` → `outputs/diag_te_driver_timing.csv`; run twice,
+  byte-identical (md5 `fb12cbd4`).
+  - Era rates relative to each series' own 1993–2024 rate (1900–49 / 1950–92): target 0.24 / 0.37, observed 0–2000 m
+    OHC 0.21 / 0.31, FaIR 0.13 / 0.29.
+  - A WLS fit over 1900–2024 gives model/target 0.56 / 0.83 / 1.05 for FaIR (identical × 0.82) versus 0.89 / 0.85 /
+    1.03 for the observed driver.
+  - The deep and non-ocean factors are ~constant 1971–2020, so they cannot explain it.
+  - ⚠ The offline 1.05 ≠ Ladrillo's bare-module 1.22 (no AR(1), no discrepancy term here) — hypothesis, not checked.
+- **v1.1 direction, NOT built:** calibrate on an observed OHC driver and splice FaIR's future anomaly. The future
+  0–2000 m share is an unobserved methodological choice.
+- **Queued draft wording (8 items, receipts named):** `notes/handoff_2026-10-01c_gmd_round.md` §1c.
+
 ## 2026-10-05 — FaIR's "ocean heat content" is Earth's TOTAL heat accumulation; the TE overshoot's second factor is land + ice + air heat, not FaIR over-uptake
 
 **Frank Errickson (via Marcus 10-05):** FaIR's ocean heat is the time integral of the TOA imbalance, so it includes land

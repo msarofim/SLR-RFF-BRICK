@@ -30,6 +30,30 @@ Follows `handoff_2026-10-01b_gmd_round.md`. CHANGELOG entry 10-01d. Branch `ladr
 `b93c8039`) + Sect. 3.3's reverted-model result (T23:45). Build: `redline/r1001f/build.sh`. Suite is 12/12
 (`outputs/log_suite_20261001c.txt`). ⚠ Future rounds: copy `r1001f/trackedit.py`, which has the fixed `_in_tracked`.
 
+## 1c. ⭐ QUEUED for when Tony returns the draft (Marcus 10-05: "fix the wording when we get the draft back")
+
+Sent to Tony: `deliverables/GMD.Ladrillo.v1_forTonyreview.docx` (no tracked changes, 1 comment). Apply these to TONY'S
+returned file (never to an older build). Every number has a committed receipt.
+1. **Sect. 4.1, P298 — RETRACTED attribution.** "The remaining 1.10× is FaIR's full-depth heat uptake exceeding IGCC's
+   full-depth estimate" → the remaining ~1.10× is heat FaIR books as ocean but that goes to land, ice and air (~9 % of
+   Earth's uptake); against IGCC's TOTAL, FaIR is within 2 % over 1993–2020. Window becomes 1993–2020 (IGCC's non-ocean
+   terms end 2020). Receipt `outputs/diag_fair_ohc_vs_earth_heat.csv` (1.107 × 1.097 × 1.018).
+2. **P156** "the driver is FaIR's full-depth ocean heat content" → FaIR's time-integrated top-of-atmosphere imbalance,
+   i.e. Earth's total heat uptake (~91 % ocean). Code receipt: `fair/fair.py:1596-1609` (FaIR 2.2.4).
+3. **Sect. 4.1 opening, "the cause is FaIR's ocean heat"** → the overshoot is a TIMING mismatch: FaIR's heat uptake is
+   back-loaded (1900–49 rate 0.13 of its 1993–2024 rate vs the steric target's 0.24 and observed OHC's 0.21), so one α
+   cannot fit both eras; a constant rescaling is absorbed by α. Receipt `outputs/diag_te_driver_timing.csv`. Frank's scope
+   point is on top of that. ⚠ The offline WLS fit gives 1.05 recent, Ladrillo's bare module 1.22 — do NOT quote the
+   offline numbers as Ladrillo's.
+4. **α comparison** ("within 4 % of the value the 0–2000 m observations imply") — scopes differ (α multiplies total heat);
+   RE-DERIVE on matched scopes before keeping the sentence.
+5. Label P141 (0.7–7.6 cm) and P142 (tap +36.5 cm, ratios 4.4/2.4) "(joint arm)".
+6. Sect. 2 methods caveat on what "ensemble mean" is (Tony's question): per-year mean of 841 configs, GMST and OHC
+   separately; drives calibration + fixed arm; joint-arm future is each config's own simulation after 2014.
+7. Marcus's calls: Lin et al. 2026 (Nat. Geosci., ISMIP6 emulator) 2100 Antarctic comparison + fast-dynamics attribution;
+   disclose the 2002–2021 Antarctic rate deficit (compute PER-DRAW rates for two windows first); thank Frank Errickson.
+8. v1.1 direction to STATE, not build now: calibrate TE on an observed OHC driver + splice FaIR's future anomaly.
+
 ## 2. Open, for Marcus (checked against his 13:05 save, 10-01)
 
 1. Accept or reject the remaining tracked changes (in 10-01f).
