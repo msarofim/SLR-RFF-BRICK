@@ -1,3 +1,38 @@
+## 2026-10-07b — Clean-repo decisions settled; van Vuuren arms re-run on the CMIP7 basis
+
+**Marcus settled the four open decisions** in `notes/handoff_2026-10-07_clean_l27_repo.md` §2:
+1. **vv basis: rerun everything on CMIP7**, including FACTS; the paper's numbers update.
+2. **Raw chains: switch the joint arm and Table A2 to the 10k subsample**; chains go to Zenodo for archive only.
+3. **Dangendorf v2 can be redistributed** (ship it with citation).
+4. **`regen_imbie_fig_L27.sh` is folded into the figures script** as a direct `diag_imbie2026_vs_targets.py` call.
+
+**Receipts behind decision 1:**
+- **FACTS ran on the Smith basis.** Rebuilding `facts/experiments/global.shared.vvM.n200/input/shared_vvM_gsat.nc`
+  with `build_shared_climate_nc.py`'s own splice and subsample reproduces it from the QUARANTINED Smith cubes at
+  max|Δ| = 0.0 K, and misses the current CMIP7 cubes by up to 0.12 K.
+- **The Smith vv arms were mixed-basis against Ladrillo's own SSP arms, not only against FACTS.** Before 2014 every
+  spliced arm runs on the marker's mean GMST. On Smith that history sits up to **0.074 K** off `ssp245harm` (the
+  calibration driver); its 1995–2014 mean is 0.750 °C vs 0.803 °C for the SSP arms. On CMIP7 the gap is 0.015 K.
+- After 2014, the spliced path moves **+0.055 K @2100 and +0.067 K @2300** (median over 841 configs, the same for every marker).
+- The **MAGICC-climate SPLICED arms are affected too**: they use the FaIR vv mean (`MEAN_G`) before 2014 and as the
+  splice anchor. The MAGICC RAW arms are not affected.
+- New gate `python/gate_vv_cmip7_basis.py` (an ORDERING test: the live vv history must sit closer to the calibration
+  driver than the Smith copy does). PASS 7/7 on the live data; **mutation test FAILS 7/7** when pointed at the
+  quarantine copy.
+
+**Decision 2 is provably a no-op for projections.**
+- `scope_slr_fair_uncertainty.jl` takes 500 post-burn draws per chain at stride 2,000. The subsample
+  (`postprocess_mcmc_ext.jl`) pools the post-burn halves at stride 400.
+- Verified on all four chains: the joint arm's 500 draws are **bit-identical in all 50 columns, in the same order**,
+  to rows `k*2500 + 5j` of the subsample. So `subsample[1:5:end]` IS the joint arm's input.
+- Table A2 (stride 200, 20k draws) is not a subset and will move slightly; quantify it at port time.
+
+- A first identity test reported a mismatch of 27 units. The cause was in the test: pandas `usecols` returns columns
+  in FILE order, not list order. With the columns aligned, the draws are identical.
+
+**Runner:** `run_vv_cmip7_rerun_20261007.sh arms|downstream`, with FACTS run in between.
+- Quarantine is snapshot-then-prune into `outputs/quarantine/20261007_vv_smith_history_arms/`.
+
 ## 2026-10-07 — Tony's first review pass read; fresh-clone test; clean L27 repository planned
 
 **Tony's pass** (`deliverables/GMD.Ladrillo.v1_forTonyreview_TW1.docx`: 53 comments, ~256 tracked edits, through
