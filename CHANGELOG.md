@@ -1,3 +1,35 @@
+## 2026-10-07 — Tony's first review pass read; fresh-clone test; clean L27 repository planned
+
+**Tony's pass** (`deliverables/GMD.Ladrillo.v1_forTonyreview_TW1.docx`: 53 comments, ~256 tracked edits, through
+Sect. 3) needs **no model update**.
+- **Four edits change technical meaning and must be corrected:**
+  - P145: implies a fixed 1.92 Greenland amplification is propagated. In fact `gis_amp` is prior-only and each draw
+    uses its own.
+  - P142: calls ISMIP6/SICOPOLIS "additional constraints". The tap is a prior specification, not a likelihood term.
+  - P156: his ΔOHC wording conflicts with the queued Errickson fix.
+  - P214: he deleted the "Antarctic changes cannot be attributed by parameter" caveat. That is fine only if Results
+    makes no attribution claim.
+- **Answers to his questions:**
+  - ρ < 0.99 is strict.
+  - Of the 8 parameters failing convergence, only 3 fail on R̂ (ais_slope 1.063, ais_c 1.079, ais_runoff_Ton 1.313);
+    all 8 fail ESS < 400 (19.5–244). So R̂ < 1.1 alone changes nothing.
+  - The TE discrepancy basis is monomials in time rescaled to [−1, 1] over the steric fit years, Gram–Schmidt against
+    {1, FaIR heat-uptake shape} with an unweighted inner product (1/ε² was tested and rejected), unit RMS.
+  - d2_steric_1 median 0.210 cm, 95 % [−0.039, 0.431]; d2_steric_2 median 0.069, 95 % [−0.077, 0.228]. Both 95 %
+    intervals span 0.
+  - L27 compute: 4 parallel chains × 2M iterations on an Apple M4 (10 cores, 16 GB), 14,379–14,678 s each (~4 h).
+- **Fresh shallow clone of `ladrillo-dev` from GitHub:** public, 23 s, 1.6 GB.
+  - Suite steps 1–5 PASS (81 checks, including the 100-draw projection test).
+  - Step 6 aborts on a gitignored legacy posterior (extC). Steps 7–12 also need gitignored fixtures: L10–L14, extC,
+    BRICK 2.0's `parameters_subsample_brick.csv`, and the 2.4 GB `chain_L13`.
+  - FaIRtoFrEDI (the FaIR forcing builders) is PRIVATE.
+- **Marcus's ruling:** build a clean, L27-only, submission-ready repo — a Julia package with SLOWG/FASTG names that
+  runs FaIR + Ladrillo (+ BRICK 2.0), ships FACTS/MAGICC outputs as data, keeps the v1.0 land-water step, and goes to
+  a private GitHub repo first.
+- Dependency manifest and the 4 open decisions: `notes/handoff_2026-10-07_clean_l27_repo.md`.
+- ⚠ The paper's van Vuuren arms ran on the Smith-history forcing basis, corrected 10-02 (`vv_arm_was_smith_history`),
+  so the clean repo cannot reproduce them from current code without a decision.
+
 ## 2026-10-05b — The TE misfit is TIMING, not scale; wording fixes queued for Tony's returned draft
 
 **Marcus 10-05:** "Ladrillo does not match observed TE because FaIR's OHC is too large... shouldn't there be a way to
