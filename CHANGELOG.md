@@ -1,3 +1,35 @@
+## 2026-10-07c — van Vuuren CMIP7 rerun complete (arms + FACTS + downstream); paper-number diff for Marcus
+
+**Status: all three phases done, every gate passing.**
+- Arms: 29 steps, 0 failed.
+- FACTS (facts 43bf0204): 14 experiments OK. [DRIVER] 20/20 and [EXTEND] 10/10 identities; [SSP-ROWS] 4,599 non-vv rows
+  identical.
+- Downstream: 16 steps, 0 failed. The quarantine snapshot was pruned to the 129 files that moved; README written.
+
+**FACTS driver died mid-run.** Its shell died with the session after 4 of 14 experiments, and the in-flight
+`docker run` was orphaned to launchd. `facts/run_vv_cmip7_rerun_20261007_resume.sh` waited on the orphan by PID, re-ran
+vvM so its exit code was captured, then finished the run. The quarantine and [CONFIG] steps were not repeated.
+
+**What moved** (`notes/vv_cmip7_paper_number_diff_2026-10-07.md`, `outputs/vv_cmip7_paper_number_diff_20261007.csv`):
+- Every moving model moves in the warmer direction. MAGICC-SLR is unchanged at max|Δ| = 0.0, which is the control.
+- Total medians: Ladrillo +0.3 to +6.8 cm, BRICK 2.0 +0.5 to +10.3 cm, FACTS ≤ +2.8 cm.
+- 31 quoted quantities in §4.2–4.3, the Fig. 5–6 captions and the Conclusions were checked. 18 change at the text's
+  rounding: 13 by 1–4 cm, the two Very Low widths by +24 and +26 cm, and three regrowth/gap numbers by ~0.01. Every
+  ordering and attribution in the prose survives.
+- ⚠ The Very Low 2300 total 5–95% width moves 137 → 161 cm (Ladrillo) and 182 → 208 cm (BRICK 2.0). This is the DAIS
+  fast-dynamics tail at a near-threshold scenario: AIS draws above 100 cm go from 112 to 136 of 2,000, while the median
+  moves 0.5 cm.
+- ⚠ The FACTS DeConto 2021 / Bamber 2019 p95 jumps (up to +616 cm) are a quantile falling into the gap of a bimodal
+  distribution at n = 200, not a distribution shift.
+
+**Misattribution avoided.** The downstream refresh also changed:
+- `bench_ladrillo_L27` hindcast AIS. Cause: the 09-30 AIS-target revert (bc50130); the benchmark was never re-run after
+  it. Not this rerun.
+- Table 4: provenance column only.
+- The SSP memo figures: colour palette only.
+I first reported Table 4 and the benchmark as unchanged after reading the step log. Checking the quarantine contents
+showed otherwise, and both are now documented in the quarantine README §3.
+
 ## 2026-10-07b — Clean-repo decisions settled; van Vuuren arms re-run on the CMIP7 basis
 
 **Marcus settled the four open decisions** in `notes/handoff_2026-10-07_clean_l27_repo.md` §2:
