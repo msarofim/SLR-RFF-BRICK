@@ -1,3 +1,60 @@
+## 2026-10-08j — The vv emissions a-vs-b test (Medium-to-Low): the history choice is immaterial, but ⛔ the LIVE vv arms carry a post-2100 CO₂ splice artifact (ML: −2,098 GtCO₂)
+
+**Asked (Marcus):** run the FaIR a-vs-b test on ML before choosing how to move the vv arms to the published Zenodo
+v1.1.1 emissions. Scripts, regeneration recipe and full output: `python/diag_vv_zenodo_ab/`.
+- **Setup:** FaIR 2.2.4 (calib 1.6.0), 841 configs, ML's own forcing file, stochastic off (no RNG).
+- **Arms:**
+  - `a`: the Zenodo file whole, its own history included;
+  - `b`: the CMIP7 1.6.0 history plus the Zenodo future, scaled per species at 2023.5 (the production builder with
+    its 25% gate disabled);
+  - `live`: the production vvML file.
+- **[IDENTITY]:** the scratch driver reproduces the shipped vvML GMST and OHC cubes BYTE-IDENTICALLY from `live`, and
+  the `a` and `b` cubes differ from them, so the gate can fail.
+
+**a vs b (the question asked): immaterial.**
+- GMST, paired median: −0.009 K at 2030 and 2050, −0.007 K at 2100, −0.002 K at 2300 (0.4% of the 5–95% width at
+  2100). Largest −0.0093 K, at 2020.
+- Total ERF: largest −0.022 W/m², at 2015.
+- The mechanism is the ozone-depleting gases, which are 5–25% lower in Zenodo's history: halogen ERF −0.024 W/m² at
+  2030, ozone +0.004.
+- The 1850–1900 reference is unchanged (−0.12699 vs −0.12708 K). Arm `a` runs 0.009 K cooler over 2015–2024
+  (1.1812 vs 1.1906 K), slightly further from IGCC.
+- So `b` keeps the calibration's own history and the hindcast fit for nothing; `a` needs no join.
+
+**b vs live (what switching does):**
+- 21st century, the ML revision:
+  - ERF −0.18 W/m² at 2050 and −0.15 at 2100, matching the 09-17 measurement of −3.7% at 2100;
+  - GMST −0.055 K at 2050 and −0.10 K at 2100.
+- After 2100: ERF +0.37 W/m² at 2150 and **+1.41 at 2300**; GMST +0.13 K at 2150, +0.33 at 2200, **+0.73 K
+  [+0.51, +1.18] at 2300**; OHC +65e22 J at 2300.
+
+**⛔ That post-2100 move is a SPLICE ARTIFACT in the live arm, not the scenario.**
+- The `harmonized` tail (`build_vanvuuren_extended_splice.py`) is ADDITIVE for CO₂: tail = ours(2100) +
+  [ext(t) − ext(2100)]. That is exact only if the prerelease and the published file agree at 2100, which was verified
+  for H only.
+- For ML they do not: CO₂ FFI + AFOLU at 2100 is −9.23 GtCO₂/yr in the prerelease and +1.26 in the published file.
+  The whole published tail is therefore shifted by −10.49 GtCO₂/yr for 200 years.
+- Consequences in the live ML arm:
+  - −2,098 GtCO₂ of extra cumulative removal over 2101–2300;
+  - −23.5 GtCO₂/yr at 2150 (published: −13.0);
+  - −10.5 GtCO₂/yr at 2300 (published: net zero);
+  - CO₂ ERF at 2300 of −0.28 W/m², i.e. CO₂ BELOW pre-industrial.
+  - Quantitative check: +1,842 GtCO₂ more cumulative emission in `b` over 2024–2300 gives +80 ppm and +1.42 W/m² of
+    CO₂ ERF. That is a long-run airborne fraction of about 0.34, which is plausible.
+- **Scope, extra cumulative CO₂ over 2101–2300 (live − published):** ML −2,098, L −167, LN −112, H +27, HL +6, M +6,
+  VL 0 Gt.
+- **Affected consumers:** the vv FaIR cubes, and so the GMD paper's Ladrillo, BRICK 2.0 and FACTS vv arms; MAGICC-SLR's
+  vv runs (`MAGICC/slr-refresh/build_vv_scenarios.py` reads the same splice); the vv pulse builder and
+  `pulse_calib_compare.py`; `run_fair_vanvuuren_ext_erf.py`. NOT the NCC Comment figure, which is on the `zenodo`
+  variant.
+- **Corrects memory `vv_ext_real_to_2500`:** "ML-ext reaches −23.5 GtCO₂/yr at 2150 where the paper says ~−11, a
+  published-materials inconsistency". It was OUR splice; the published ML is −13.0.
+- How it survived: the 09-17 discovery that ML was revised before publication moved the NCC figure to the `zenodo`
+  variant, but nobody checked what the additive `harmonized` tail did to a revised marker.
+
+**Not done (Marcus's call):** no quarantine and no rerun yet. Switching the vv arms to the published emissions, by
+either `a` or `b`, removes the artifact.
+
 ## 2026-10-08i — Ladrillo.jl is on GitHub, PRIVATE: `msarofim/Ladrillo.jl`
 
 Done from `notes/handoff_2026-10-08b_ladrillo_github.md`. The details are in Ladrillo's CHANGELOG, 2026-10-08h and i.
