@@ -17,8 +17,10 @@
 | where | quantity | printed | v1.0 file | **v1.1** | which round |
 |---|---|---|---|---|---|
 | Intro | glacier responsiveness, Ladrillo / BRICK 2.0 (High − Very Low, 2300) | 1.3× | 1.41 | **1.4×** | 10-07 (missed by the 10-07 diff); glaciers are bit-identical in v1.1 |
-| 2.2.2 | Greenland tap's contribution to the SSP5-8.5 total, 2300 | 36.5 | 36.46 | **34.7** | v1.1 |
-| 2.2.2 | … at SSP2-4.5 | 0.3 | 0.265 | **0.0** | v1.1 ⚠ §3.3 |
+| 2.2.2 | Greenland tap's contribution to the SSP5-8.5 total, 2300 (difference of the total medians) | 36.5 | 36.46 | ~~34.7~~ | ⛔ superseded: RULED 10-08, quote the paired statistics, §3.3 |
+| 2.2.2 | … at SSP2-4.5 | 0.3 | 0.265 | ~~0.0~~ | ⛔ superseded, §3.3 |
+| 2.2.2 | **tap, paired (RULED 10-08):** share of draws in which it fires, SSP5-8.5 / SSP2-4.5 / SSP1-2.6, 2300 | — | 96.2 / 11.7 / 0.25 % | **96.2 / 11.7 / 0.25 %** (1,924 / 234 / 5 of 2,000) | new statistic; identical in v1.0 |
+| 2.2.2 | **tap, paired:** mean contribution to the total, same three, 2300 | — | 35.0 / 1.5 / 0.00 | **35.0 / 1.5 / 0.00 cm** | new statistic; v1.0 → v1.1 moves ≤ 0.0003 cm |
 | 2.2.3 | Antarctic amplification leverage, +1σ, SSP2-4.5 AIS 2300 (fixed arm) | 46 | 45.77 | **45** | v1.1 (17% unchanged; SSP5-8.5 20 cm / 4% unchanged) |
 | 2.2.3 | reverting to 1.196: SSP2-4.5 total 2100 / 2300 | 15 / 32 | 15.13 / 31.76 | **14 / 34** | v1.1 |
 | 2.2.3 | … SSP5-8.5 2100 / 2300 | 6 / 13 | 6.38 / 12.54 | **7 / 12** | v1.1 |
@@ -74,12 +76,21 @@
    - Fix B's share is ≤ 0.05 cm everywhere. BRICK 2.0, which only has fix B, moves ≤ 0.03 cm in every row above.
 2. **The paper's version label.** The title, the Conclusions' first sentence and Code availability say "Ladrillo
    v1.0". The package is now 1.1.0, with `v1.0.0` tagged. Your call.
-3. **The SSP2-4.5 tap contribution (2.2.2).**
-   - "0.3 cm" was a difference between two medians of the TOTAL; v1.1 gives exactly 0.0.
-   - The tap's Greenland effect at SSP2-4.5 is unchanged at the median (+0.06 cm, 17.892 vs 17.829). The total-median
-     difference moved because a few tap-affected draws sit near the median of the total.
-   - SSP5-8.5 (34.7) is large enough to be robust to this.
-   - How to phrase the SSP2-4.5 case is yours.
+3. **The tap contribution (2.2.2). ✅ RULED 10-08 (decision 4): quote the PAIRED statistics** — the share of draws
+   in which the tap fires and its paired mean contribution (tapped − untapped, same draws and FaIR configs, joint arm).
+   - Producer: `python/diag_tap_paired_contribution.py` → `outputs/diag_tap_paired_contribution_L27.csv` (both
+     versions, 2100/2150/2300, Greenland and total, bootstrap se, seed in the provenance). The three rows above are in
+     the machine-readable diff as `tap [RULED 10-08] …`.
+   - **2300, total:** SSP5-8.5 fires in 96.2% (1,924 of 2,000), paired mean +35.0 cm (se 0.4), +36.4 cm in the draws
+     where it fires. SSP2-4.5 fires in 11.7% (234), paired mean +1.5 cm (se 0.14), +12.6 cm where it fires. SSP1-2.6
+     fires in 0.25% (5), paired mean 0.00 cm.
+   - **Why this statistic, measured:** v1.0 → v1.1 the paired means move by at most 0.0003 cm (Greenland's by exactly 0). The difference of the total
+     medians moved 36.46 → 34.69 (bootstrap se 1.4–1.5) and 0.26 → 0.00 (se 0.15–0.31), with the tap unchanged.
+     Greenland is bit-identical between the versions; the paired TOTAL differs only through the Antarctic sea-level
+     feedback.
+   - "Fires" is exact, not a tolerance: the tap's ramp is clamped at zero below onset, so a draw that never passes it
+     gets exactly zero. The script asserts that no draw moves its total with Greenland unmoved.
+   - The prose is yours; these are the numbers for it.
 4. **Refit precision 1.3 → 1.8 cm** (L27 vs L27r, fixed panels, the max over 5 cells).
    - Both panels now use the same paleo rows by position, as they did in v1.0. So this is the refit difference plus
      sampling noise of a 2,000-draw median, now drawn over different paleo pairings.
@@ -90,8 +101,10 @@
    - That holds for the calibration, which uses the paleo medians and never crosses the threshold.
    - It does not hold for every propagated draw: 4 of the 10,000 (T_crit −16.4 to −16.9 °C) start fast dynamics in
      2021–2026, adding up to 1.6 cm of Antarctic sea level by 2026.
-   - Every quoted hindcast number is unchanged. Whether to say so, or to condition the paleo draws on "not crossed
-     before the record ends", is your call. Nothing has been done about it.
+   - Every quoted hindcast number is unchanged.
+   - ✅ **RULED 10-08 (decision 2): no change to the paper's method or numbers.** None of the 4 draws is among the 2,000
+     projection rows. Any short qualifier in 2.2.3 is your prose. Conditioning is offered to package users who take all
+     10,000 draws as an opt-in option in Ladrillo.jl **v1.2** (`posterior(; drop_record_crossings=true)`), not in v1.1.
 6. **Wording that describes v1.0 mechanics:**
    - **Sect. 2.2.5 / Table A3, land water:** the series now starts at 0. The draft never mentioned the step; its
      "< 0.02 cm" is the calibration-side swap and still stands.

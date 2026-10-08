@@ -79,6 +79,11 @@ def refit_hind(ver):
 def resp(comp, H, src_cells, ver):
     return cells(src_cells("vvH"), comp, H, ver) - cells(src_cells("vvVL"), comp, H, ver)
 def ais_gap(scen, ver): return cells(BRK(scen), "ais", 2300, ver) - cells(LAD(scen), "ais", 2300, ver)
+TAPP = "diag_tap_paired_contribution_L27.csv"     # python/diag_tap_paired_contribution.py; carries both versions
+def tapp(scen, stat, ver, H=2300, comp="total"):
+    d = pd.read_csv(os.path.join(REPO, "outputs", TAPP), float_precision="round_trip")
+    r = d[(d.version == ver) & (d.scenario == scen) & (d.horizon == H) & (d.component == comp)]
+    assert len(r) == 1, (scen, stat, ver, H, comp, len(r)); return float(r[stat].iloc[0])
 
 ## ---- the quoted numbers -------------------------------------------------------------------------------------------
 ## (where, quantity, printed, fmt, function(ver), exposure)  exposure: A+B Ladrillo AIS/total; B BRICK 2.0 AIS/total;
@@ -93,12 +98,25 @@ ROWS = [
  ("Intro", "AIS responsiveness BRICK 2.0 (vvH-vvVL, 2300)", "(=TE)", "1dp", lambda v: resp("ais", 2300, BRK, v), "B"),
  ("Intro", "AIS responsiveness Ladrillo (vvH-vvVL, 2100)", "(< BRICK)", "1dp", lambda v: resp("ais", 2100, LAD, v), "A+B"),
  ("Intro", "AIS responsiveness BRICK 2.0 (vvH-vvVL, 2100)", "(< BRICK)", "1dp", lambda v: resp("ais", 2100, BRK, v), "B"),
- ("2.2.2", "tap contribution SSP5-8.5 total 2300 (tapped - untapped, joint)", "36.5", "1dp",
+ ("2.2.2", "tap contribution SSP5-8.5 total 2300 (difference of the total medians, joint) [superseded 10-08]", "36.5", "1dp",
   lambda v: cells(LAD("ssp585"), "total", 2300, v) - cells(LADNT("ssp585"), "total", 2300, v), "A+B"),
- ("2.2.2", "tap contribution SSP2-4.5 total 2300", "0.3", "1dp",
+ ("2.2.2", "tap contribution SSP2-4.5 total 2300 [superseded 10-08]", "0.3", "1dp",
   lambda v: cells(LAD("ssp245"), "total", 2300, v) - cells(LADNT("ssp245"), "total", 2300, v), "A+B"),
- ("2.2.2", "tap contribution SSP1-2.6 total 2300", "0", "2dp",
+ ("2.2.2", "tap contribution SSP1-2.6 total 2300 [superseded 10-08]", "0", "2dp",
   lambda v: cells(LAD("ssp126"), "total", 2300, v) - cells(LADNT("ssp126"), "total", 2300, v), "A+B"),
+ ## RULED 10-08 (decision 4): 2.2.2 quotes the PAIRED statistics below instead of the difference of medians above.
+ ("2.2.2", "tap [RULED 10-08] share of draws in which it fires, SSP5-8.5 2300 (%)", "(new)", "2dp",
+  lambda v: 100 * tapp("ssp585", "fires_share", v), "A+B"),
+ ("2.2.2", "tap [RULED 10-08] paired mean contribution, SSP5-8.5 total 2300", "(new)", "1dp",
+  lambda v: tapp("ssp585", "paired_mean_cm", v), "A+B"),
+ ("2.2.2", "tap [RULED 10-08] share of draws in which it fires, SSP2-4.5 2300 (%)", "(new)", "2dp",
+  lambda v: 100 * tapp("ssp245", "fires_share", v), "A+B"),
+ ("2.2.2", "tap [RULED 10-08] paired mean contribution, SSP2-4.5 total 2300", "(new)", "1dp",
+  lambda v: tapp("ssp245", "paired_mean_cm", v), "A+B"),
+ ("2.2.2", "tap [RULED 10-08] share of draws in which it fires, SSP1-2.6 2300 (%)", "(new)", "2dp",
+  lambda v: 100 * tapp("ssp126", "fires_share", v), "A+B"),
+ ("2.2.2", "tap [RULED 10-08] paired mean contribution, SSP1-2.6 total 2300", "(new)", "2dp",
+  lambda v: tapp("ssp126", "paired_mean_cm", v), "A+B"),
  ("2.2.3", "amp leverage, +1 prior sd, mean, SSP2-4.5 AIS 2300 (fixed)", "46", "int", lambda v: lev("ssp245", v), "A+B"),
  ("2.2.3", "  as % of the SSP2-4.5 total", "17", "int", lambda v: lev("ssp245", v, True), "A+B"),
  ("2.2.3", "amp leverage, SSP5-8.5 AIS 2300 (fixed)", "20", "int", lambda v: lev("ssp585", v), "A+B"),

@@ -1,3 +1,39 @@
+## 2026-10-08d — Decisions 2 and 4 ruled: the tap is quoted as paired statistics; no conditioning in the paper
+
+**Marcus 10-08:** "Implement the two recommendations for the tap and the conditioning" (handoff 10-08 §1).
+
+**Decision 4, the tap (2.2.2): quote the PAIRED statistics.**
+- New `python/diag_tap_paired_contribution.py` → `outputs/diag_tap_paired_contribution_L27.csv`.
+  - Tapped − untapped per draw, joint arm, both versions, 2100/2150/2300, Greenland and total.
+  - Pairing is asserted row by row (draw and config).
+  - Bootstrap se over draws, 2,000 replicates, `default_rng(20261008)`, stamped in the provenance.
+- "Fires" is an exact test: the ramp is clamped at zero below onset, so a draw that never passes it gets exactly zero.
+  The script asserts that no total moves while Greenland is unmoved.
+- **2300, total:**
+
+  | scenario | fires in | paired mean (se) | mean where it fires | difference of the total medians (se) |
+  |---|---|---|---|---|
+  | SSP5-8.5 | 96.2% (1,924 of 2,000) | +35.0 cm (0.37) | +36.4 cm | 34.69 (1.37) |
+  | SSP2-4.5 | 11.7% (234) | +1.47 cm (0.14) | +12.6 cm | 0.00 (0.15) |
+  | SSP1-2.6 | 0.25% (5) | 0.00 cm | +0.05 cm | 0 |
+
+- **This is the receipt for the recommendation:**
+  - v1.0 → v1.1 the paired means move by at most 0.0003 cm, and Greenland's by exactly 0.
+  - The difference of the total medians moved 36.46 → 34.69 and 0.26 → 0.00 with the tap unchanged. Its own
+    bootstrap se is 1.4–1.5 cm at SSP5-8.5, so a 1.8 cm move is about one se of resampling.
+- The 10-08c table rounded SSP2-4.5 to 11% and SSP1-2.6 to 0.3%; they are 11.70% and 0.25% (5 draws).
+- `v11_paper_number_diff.py` gains six `tap [RULED 10-08]` rows; the three median-difference rows are marked
+  superseded. The 47 rows already there are unchanged in value (checked against HEAD).
+- The note (`notes/ladrillo_v11_paper_number_diff_2026-10-08.md` §1, §3.3) carries the numbers for the docx pass. The
+  prose is Marcus's; the docx is untouched.
+
+**Decision 2, conditioning: no change to the paper's method or numbers.**
+- None of the 4 crossing draws (rows 4182, 4588, 4618, 9713) is among the 2,000 projection rows. Table 5 takes the
+  maximum likelihood.
+- Any qualifier in 2.2.3 is Marcus's prose.
+- The option for package users who take all 10,000 draws goes into Ladrillo.jl v1.2: see that repo's CHANGELOG
+  2026-10-08c.
+
 ## 2026-10-08c — Rulings: the paper says "Ladrillo v1.1"; the benchmark champion is re-frozen on v1.1
 
 **Marcus 10-08:** "1 and 3: yes."
