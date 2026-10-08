@@ -102,9 +102,19 @@
    - It does not hold for every propagated draw: 4 of the 10,000 (T_crit −16.4 to −16.9 °C) start fast dynamics in
      2021–2026, adding up to 1.6 cm of Antarctic sea level by 2026.
    - Every quoted hindcast number is unchanged.
-   - ✅ **RULED 10-08 (decision 2): no change to the paper's method or numbers.** None of the 4 draws is among the 2,000
-     projection rows. Any short qualifier in 2.2.3 is your prose. Conditioning is offered to package users who take all
-     10,000 draws as an opt-in option in Ladrillo.jl **v1.2** (`posterior(; drop_record_crossings=true)`), not in v1.1.
+   - ✅ **RULED 10-08 (decision 2): no change to the paper's method or numbers.** Any short qualifier in 2.2.3 is your
+     prose. Conditioning is offered to package users as an opt-in option in Ladrillo.jl **v1.2**
+     (`posterior(; drop_record_crossings=true)`), not in v1.1.
+   - ⚠ **PREMISE CORRECTED after the ruling (CHANGELOG 10-08e).** "None of the 4 is among the 2,000 projection rows" is
+     true on the MEAN climate only. In the JOINT arm, the reported band, each draw runs on its own FaIR config.
+     - There, **3 of the 2,000 SSP draws fire by 2025** (in 2021–2023) and 7–8 by 2026; **2 of the van Vuuren draws**
+       fire by 2025 and 5 by 2026.
+     - Conditioning on the record end (2025) would move **medians by ≤ 0.23 cm** and **p95 by ≤ 3.8 cm** (Very Low AIS
+       2300). Every move is ≤ 0.38 bootstrap se.
+     - **One quoted number changes at the text's rounding:** the Very Low total 2300 width, 163.1 → 162.3.
+     - Conditioning on 2026 instead moves it 163 → 159 (max 0.73 se).
+     - Producer: `python/diag_record_crossing_effect.py` → `outputs/diag_record_crossing_effect_L27.csv`.
+     - ⛔ **A qualifier must NOT say "none in the reported projections":** that is false for the joint arm.
 6. **Wording that describes v1.0 mechanics:**
    - **Sect. 2.2.5 / Table A3, land water:** the series now starts at 0. The draft never mentioned the step; its
      "< 0.02 cm" is the calibration-side swap and still stands.

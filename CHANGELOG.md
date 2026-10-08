@@ -1,3 +1,36 @@
+## 2026-10-08e — Decision 2's premise was the mean climate only: the joint arm holds record-crossing draws
+
+**Finding (after the ruling):** the handoff argued decision 2 on "none of the 4 crossing draws is among the 2,000
+projection rows". That was measured on the MEAN climate. In the joint arm each draw runs on its own spliced FaIR config.
+- `fastdyn_onset_year` is the model's own trigger. It matches model runs on all 2,000 SSP2-4.5 and vvH joint draws: 0
+  mismatches (Ladrillo.jl CHANGELOG 2026-10-08c).
+- Using it, in the joint arm:
+  - **SSPs: 3 of the 2,000 projection draws fire by 2025** (draws 229, 610, 1260 = file rows 1141, 3046, 6296; onsets
+    2023, 2022, 2021), and 7–8 by 2026.
+  - **van Vuuren markers: 2 fire by 2025** (draws 187 and 610), and 5 by 2026.
+  - On the mean climate, none.
+- Across all 10,000 draws paired the same way: 20 (SSP) and 8 (vv) fire by 2025, against 3 on the mean climate.
+- Input: `outputs/record_crossings_projection_draws.csv` (Ladrillo.jl `scripts/record_crossings.jl` @ 6edd284). Its
+  pairing is asserted equal to the research draws files, config by config.
+
+**What conditioning would do to the reported joint cells** (`python/diag_record_crossing_effect.py` →
+`outputs/diag_record_crossing_effect_L27.csv`):
+- [REPRO] passes exactly on all 180 cells (10 scenarios × AIS/total × 3 horizons × median/p05/p95).
+  - Julia's quantile/median are reimplemented arithmetic for arithmetic.
+  - **Tried and fixed:** numpy's "linear" quantile is the same definition but missed by 1 ulp on the SSP1-2.6 AIS 2150
+    p95, so the gate failed until the arithmetic matched.
+- **Record end 2025:**
+  - medians move by ≤ 0.23 cm, p05 by ≤ 0.04 cm, p95 by ≤ 3.8 cm (Very Low AIS 2300, 143.9 → 140.1);
+  - every move is ≤ 0.38 bootstrap se.
+- **2026:** ≤ 0.67 / 0.09 / 7.3 cm, ≤ 0.73 se.
+- **Quoted numbers:**
+  - one changes at the text's rounding: the Very Low total 2300 width, 163.1 → 162.3 (159.3 on 2026);
+  - the High AIS width (268), the High totals (73 / 428), the High AIS (250) and the Conclusions' 30 cm do not.
+- **Sign check:** all 60 medians move DOWN. That is by construction: 136 of the 138 dropped draw-cells sit above their
+  cell's median (median percentile rank 0.925), because an early onset makes an upper-tail draw.
+- **For Marcus:** the ruling stands until he says otherwise. The paper-number note §3.5 carries the correction. Any
+  2.2.3 qualifier must not say "none in the reported projections".
+
 ## 2026-10-08d — Decisions 2 and 4 ruled: the tap is quoted as paired statistics; no conditioning in the paper
 
 **Marcus 10-08:** "Implement the two recommendations for the tap and the conditioning" (handoff 10-08 §1).
