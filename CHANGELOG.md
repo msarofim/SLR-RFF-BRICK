@@ -8,7 +8,7 @@ Decision 2 (Marcus 10-07): switch Table A2 from the raw chains to the 10k subsam
 - **Regression:** chain mode, re-run from a scratch copy, reproduces the committed `diag_ais_block_pca_L27.csv` at
   max|Δ| = 0.0 over all 19 numeric columns, and its loadings strings are equal.
 
-**The move** (unrounded comparison in the session scratchpad, `compare_a2.py`):
+**The move** (unrounded: `python/diag_table_a2_subsample_move.py`):
 - Identified rows (PC 12–14): the post/prior ratio moves at most 0.05 percentage points of prior variance.
   - The between-chain standard error along the same fixed PCs is 0.81, 0.11 and 0.18 pp, so every move is within 0.5 se.
   - The loadings agree to |cos| = 1.0000.
