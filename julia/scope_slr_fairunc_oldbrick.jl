@@ -61,7 +61,7 @@ const CLIM_TAG = CLIMATE == "fair" ? "" : "_magiccclim"
 ## ratio drifts 11.3x -> 7.7x over 2020-2300, so a fitted factor would hide a real difference).
 const ZJ_TO_1E22J = 0.1
 const MAGICC_WIDE = joinpath(homedir(), "Documents/2026/CodeProjects/FaIRtoFrEDI",
-                             "magicc_comparison/processed/vv_wide_20260831")
+                             "magicc_comparison/processed/vv_wide_20261008")   # 2026-10-08: MAGICC re-run on the published Zenodo vv emissions
 const MAGICC_N = 600                            # the AR6 drawnset this run used
 const Y0, Y1       = 1850, 2300
 const BASE0, BASE1 = 1995, 2014                 # AR6 SLR reference, = LADRILLO_REF

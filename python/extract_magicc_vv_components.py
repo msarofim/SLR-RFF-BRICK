@@ -36,7 +36,7 @@ import extract_magicc_components as emc   # the conventions, imported not restat
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SOURCE = os.path.expanduser(
     "~/Documents/2026/CodeProjects/MAGICC/slr-refresh/data/processed/"
-    "VVandSSPs_Nauels2025_withOCH_2026_08_31_073153.csv")
+    "VVandSSPs_Nauels2025_withOCH_2026_10_08_165103.csv")   # the 2026-10-08 re-run on the published Zenodo emissions (SLR CHANGELOG 2026-10-08j); the 08-31 run is in MAGICC/slr-refresh/data/quarantine/20261008_vv_harmonized_tail/
 FROZEN = os.path.join(REPO, "data/comparison/magicc_nauels_components.csv")
 OUT = os.path.join(REPO, "data/comparison/magicc_nauels_components_vv.csv")
 

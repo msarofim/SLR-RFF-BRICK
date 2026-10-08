@@ -141,7 +141,7 @@ const CLIM_TAG = CLIMATE == "fair" ? "" : "_magiccclim"
 ## to close the gap would be closing a real model difference as well as the unit.
 const ZJ_TO_1E22J = 0.1
 const MAGICC_WIDE = joinpath(homedir(), "Documents/2026/CodeProjects/FaIRtoFrEDI",
-                             "magicc_comparison/processed/vv_wide_20260831")
+                             "magicc_comparison/processed/vv_wide_20261008")   # 2026-10-08: MAGICC re-run on the published Zenodo vv emissions
 const MAGICC_N = 600                       # the AR6 drawnset this run used
 const SPLICE_YEAR = 2014            # build_protect_x2300_forcing.py's convention
 const HORIZONS = [2100, 2150, 2300]
