@@ -116,7 +116,10 @@ def _n_draws(scen, model):
     p = lf.paths_csv(scen, model, TAG, "spliced").replace("_paths_", "_cells_")
     if not os.path.exists(p):
         raise SystemExit("[DRAWS] no cells file beside the trajectory: %s" % os.path.relpath(p, lf.REPO))
-    v = pd.read_csv(p)["n_draws"].unique()
+    ## the plotted ARM's count: the joint arm's record conditioning (2026-10-08) drops the draws
+    ## that fire by the record end, so it can carry fewer draws than the fixed arm beside it in the same file
+    d = pd.read_csv(p)
+    v = (d[d.arm == ARM] if "arm" in d.columns else d)["n_draws"].unique()
     if len(v) != 1:
         raise SystemExit("[DRAWS] %s carries several draw counts %s" % (os.path.relpath(p, lf.REPO), v))
     return int(v[0])

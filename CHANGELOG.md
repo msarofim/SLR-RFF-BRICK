@@ -1,3 +1,75 @@
+## 2026-10-08k — RERUN: van Vuuren on the published emissions (variant b) + record conditioning of the Ladrillo joint arms
+
+**Marcus 10-08: "go with b and any pending fixes that can be done simultaneously".** His rulings:
+- conditioning "own-config, drop";
+- MAGICC-SLR re-run;
+- the pulse arc gets its FaIR cubes only; its downstream waits.
+
+Plan and rulings: `notes/handoff_2026-10-08c_vv_zenodo_rerun.md`. Runner: `run_vv_zenodo_rerun_20261008.sh` (regress | cubes | arms | downstream).
+
+**What ran, with gates:**
+- **Emissions** (FaIRtoFrEDI 202eb74): `DEFAULT_VARIANT="zenodo"`.
+  - The 25% scale gate keeps its band, with three MEASURED exceptions: CCl4 ×1.257, CFC-115 ×0.181, Halon-2402 ×0.
+  - ML is byte-identical to the a-vs-b arm b. `spliced_ext_zenodo` == the raw Zenodo file (≤ 2.2e-16) on all 7.
+- **regress:** the edited driver with `--no-record-conditioning` reproduces the shipped ssp585 cells, draws and paths
+  EXACTLY ([V1-REGRESSION] comparator, 1-ulp power check). [TRIGGER-PORT]: the model's own onset == the ported formula
+  on 2,000 / 2,000 draws.
+- **cubes:** 28 base + 112 pulse cubes rebuilt.
+  - [VV-ZENODO-BASIS]: all 14 base cubes are identical to their predecessors through 2023 and move after; vvML is
+    byte-identical to arm b; the power check passes. [VV-BASIS] still passes; it is blind to this change.
+- **MAGICC-SLR's own vv run:** 600 members × 10 scenarios on `spliced_ext_zenodo`, `…_2026_10_08_165103.csv`.
+  - [CONTROL]: 5,418 SSP cells, max 6.1e-3 cm against tol 1e-2.
+  - The wide files are in `vv_wide_20261008` ([CONTROL] ssp245 1.8e-15 K).
+  - `build_magicc_wide_vv.py` came from branch `magicc-comparison`.
+- **arms** (3 streams):
+  - 16 Ladrillo FaIR, 14 MAGICC-climate, 14 BRICK 2.0 runs, and vv glaciers; 0 failures.
+  - Dropped draws: SSP 229, 610, 1260; vv 187, 610.
+  - [CONDITIONED-PREDICTED]: 54 / 54 SSP joint cells bit-identical to the 10-08e prediction, the dropped sets match,
+    and the power check against the 2026 cutoff passes.
+- **FACTS** (facts d52b9ed4): 15 experiments, including the stale `vvHL2300.crate0` (still Smith-basis, missed on
+  10-07). [CONFIG], [DRIVER], [EXTEND] and [SSP-ROWS] (4,599 rows identical) pass; the 112 cm receipt is re-run.
+- **downstream:** first pass 5 FAILED. Fixed and re-run:
+  - `ladrillo_figs.GATE_VERDICTS_OK` gains "ON", "OFF" and "onset_year": records, not checks.
+  - `vv_model_comparison.gate_pairing` is keyed by DRAW, not position; a BRICK 2.0 draw may be absent from Ladrillo ONLY
+    if Ladrillo's gates list it as REJECTED. Mutation-tested 3 ways.
+  - `plot_future_components` reads the plotted arm's draw count.
+- **Quarantines:** `outputs/quarantine/20261008_vv_harmonized_tail_cubes/` and
+  `20261008_vv_zenodo_conditioning_arms/` (199 moved files kept, complete). FaIRtoFrEDI, MAGICC and FACTS each have a
+  `…_vv_harmonized_tail` quarantine.
+- **Ladrillo.jl** (57cbf3c, 2a1a34b):
+  - The vv forcing rebuilds from PUBLIC inputs: 41 / 43 files, all 28 vv included. Only `ssp245harm` needs the AR6
+    file.
+  - `project_joint.jl` conditions by default. Gates 2–4 identical: Ladrillo 3 SSP × 71,946 + 7 vv × 71,964 values (the
+    same draws dropped), BRICK 2.0, panel, postpred, hindcast. runtests 92 / 92.
+
+**What moved** (`outputs/vvz_paper_number_diff_20261008.csv`):
+- **Medium-to-Low is the material case.** Old → new:
+  - Ladrillo total 46 → 42 (2100) and 66 → 76 (2300);
+  - BRICK 2.0 58 → 47 and 101 → 102;
+  - MAGICC-SLR 45.4 → 41.1 and 55.6 → 68.2;
+  - FACTS (wf1f, cm rel 2005) 48 → 46 and 137 → 144.
+  - The 21st century is cooler (the prerelease ML was revised down); the tail is warmer (the offset is gone).
+- **⚠ BRICK 2.0's vvML 2100 median drop is a BIMODALITY artefact, not a bug.**
+  - Paired per draw, AIS 2100 moves by a median of −0.4 cm and a mean of −4.6 cm.
+  - 27.5% of draws drop by more than 5 cm and none rise: draws that crossed BRICK 2.0's DAIS threshold before 2100 on
+    the warmer prerelease no longer do.
+  - The high-mode share falls from 47.5% to 36.2%, and the median sits at the gap, so AIS 2100 goes 15.4 → 6.4 cm.
+  - Quote the paired mean or the mode share, not this median.
+- **L:** +2 cm at 2300 in every model. Other markers and SSPs move ≤ 0.8 cm in Ladrillo and BRICK 2.0.
+- **Quoted widths:** Very Low total 2300 width, Ladrillo 163 → 166 and BRICK 2.0 208 → 214. "up to 30 cm" holds.
+  FACTS's 46 / 112 cm hold.
+
+**OPEN (Marcus):**
+1. **The climate swap.** [ARM-MATCH] in `plot_vv_climate_swap.py` correctly refuses a conditioned FaIR arm (1,998
+   draws) against an unconditioned MAGICC-climate arm (2,000), so `figures/*climate_swap*` is NOT regenerated.
+   - Dropping the FaIR-rejected draw ids from the MAGICC arm moves its vvH 2300 median by ≤ 0.1 cm.
+   - On their own MAGICC member, 1 draw per marker fires by 2025.
+   - Options: compare on the common draw set; condition the MAGICC arms on their own climate; or relax the gate.
+2. **The paper's version label** for conditioned numbers ("Ladrillo v1.1" today).
+3. **The pulse arc** downstream of the rebuilt FaIR pulse cubes is stale.
+4. **Known stale readers** of the moved MAGICC `vv_wide_20260831`: `python/scope_magicc_climate_history_gap.py`
+   (diagnostic).
+
 ## 2026-10-08j — The vv emissions a-vs-b test (Medium-to-Low): the history choice is immaterial, but ⛔ the LIVE vv arms carry a post-2100 CO₂ splice artifact (ML: −2,098 GtCO₂)
 
 **Asked (Marcus):** run the FaIR a-vs-b test on ML before choosing how to move the vv arms to the published Zenodo

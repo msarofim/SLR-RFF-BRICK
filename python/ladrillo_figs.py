@@ -120,7 +120,9 @@ BASIS_PARAM_ONLY = ("fixed",)
 ## ⚠ CANCELS is here because it is that gate's PASS state. DOES-NOT-CANCEL is deliberately
 ## ABSENT and must stay absent -- adding it would be loosening a gate to make a run go
 ## through, which is the one thing this set must never be used for.
-GATE_VERDICTS_OK = ["PASS", "SKIPPED", "measured", "CANCELS"]
+## "ON"/"OFF" record the record-conditioning setting and "onset_year" lists a draw the conditioning REJECTED
+## (scope_slr_fair_uncertainty.jl, 2026-10-08): records, not checks, so they cannot invalidate a run.
+GATE_VERDICTS_OK = ["PASS", "SKIPPED", "measured", "CANCELS", "ON", "OFF", "onset_year"]
 
 
 def band_is_comparable(basis):

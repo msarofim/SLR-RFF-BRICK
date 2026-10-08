@@ -224,7 +224,9 @@ def gate_ladrillo(marker):
                          f"a gate that is absent is not a gate that passed.")
     ctrl = g[g.gate == "CONTROL"].verdict.iloc[0]
     npair = g[(g.gate == "PAIRING") & (g.key == "configs_used")].value.iloc[0]
-    return dict(marker=marker, control=ctrl, configs_used=int(npair))
+    ## the joint draws the record conditioning REJECTED (2026-10-08): their absence from the Ladrillo arm is by design
+    rej = sorted(int(k.split("_")[1]) for k in g[g.gate == "REJECTED"].key)
+    return dict(marker=marker, control=ctrl, configs_used=int(npair), rejected=rej)
 
 
 def load_joint(path, marker, source):
@@ -242,8 +244,8 @@ def load_joint(path, marker, source):
         q = np.percentile(g.value_cm.values, QUANTILES)
         bands[(comp, int(hz))] = dict(zip(["p05", "p17", "med", "p83", "p95"], q),
                                       n=len(g))
-    seq = (d[(d.component == COMPONENTS[0]) & (d.horizon == HORIZONS[0])]
-           .sort_values("draw").config.tolist())
+    s0 = d[(d.component == COMPONENTS[0]) & (d.horizon == HORIZONS[0])].sort_values("draw")
+    seq = dict(zip(s0.draw.astype(int), s0.config))       # draw -> config, keyed by DRAW, not position
     return bands, seq
 
 
@@ -322,21 +324,30 @@ def gate_comparator_coverage(bank, source, horizons):
     return lines
 
 
-def gate_pairing(seq_lad, seq_brk, marker):
+def gate_pairing(seq_lad, seq_brk, marker, rejected=()):
     """LIKE-FOR-LIKE IS PROVED, NOT ASSERTED. Both drivers permute draw->config with the
-    same PAIR_SEED=2026, so the two config sequences must agree over the shorter one. If
-    they do not, the two models saw DIFFERENT forcing subsets and no width ratio between
-    them means anything."""
-    n = min(len(seq_lad), len(seq_brk))
-    if n == 0:
-        raise SystemExit(f"[GATE] {marker}: one of the two arms has no draws to pair.")
-    if seq_lad[:n] != seq_brk[:n]:
-        k = next(i for i in range(n) if seq_lad[i] != seq_brk[i])
+    same PAIR_SEED=2026, so every draw present in BOTH arms must carry the same config. If
+    one does not, the two models saw DIFFERENT forcing subsets and no width ratio between
+    them means anything.
+    ⚠ KEYED BY DRAW, NOT BY POSITION (2026-10-08). The Ladrillo joint arm now DROPS the draws
+    the record conditioning rejects, so a positional comparison shifts by one at the first
+    rejected draw. A BRICK 2.0 draw may be absent from the Ladrillo arm ONLY if Ladrillo's own
+    gates file lists it as REJECTED; any other gap is a failure."""
+    common = sorted(set(seq_lad) & set(seq_brk))
+    if not common:
+        raise SystemExit(f"[GATE] {marker}: the two arms share no draws to pair.")
+    bad = [k for k in common if seq_lad[k] != seq_brk[k]]
+    if bad:
+        k = bad[0]
         raise SystemExit(
             f"[GATE] {marker}: the two models' draw->config permutations DIVERGE at draw "
-            f"{k + 1} ({seq_lad[k]} vs {seq_brk[k]}). They did not see the same forcing "
+            f"{k} ({seq_lad[k]} vs {seq_brk[k]}). They did not see the same forcing "
             f"subset, so no width ratio between them is like-for-like.")
-    return n
+    unexplained = sorted(set(seq_brk) - set(seq_lad) - set(rejected))
+    if unexplained:
+        raise SystemExit(f"[GATE] {marker}: BRICK 2.0 draws {unexplained[:5]} are absent from the "
+                         f"Ladrillo arm and are NOT record-conditioning rejections.")
+    return len(common)
 
 
 def gmst_context(marker):
@@ -423,7 +434,7 @@ def main():
         LAD[m], sl = load_joint(_path(LAD_DRAWS.format(m=m, f=FORCING, stem=STEM)),
                                 m, SRC_LAD)
         BRK[m], sb = load_joint(_path(BRK_DRAWS.format(m=m, f=FORCING)), m, SRC_BRK)
-        SEQ[m] = gate_pairing(sl, sb, m)
+        SEQ[m] = gate_pairing(sl, sb, m, gates[m]["rejected"])
         print(f"[GATE] {MLABEL[m]:14s} {m:5s}  Ladrillo gates all pass "
               f"(CONTROL {gates[m]['control']}, {gates[m]['configs_used']} configs); "
               f"draw->config permutations agree over {SEQ[m]} draws "

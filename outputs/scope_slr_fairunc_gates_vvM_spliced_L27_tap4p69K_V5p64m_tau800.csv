@@ -1,6 +1,12 @@
 gate,key,value,verdict
+TRIGGER-PORT,draws_differing,0.0,PASS
+RECORD-CONDITIONING,record_end,2025.0,measured
+RECORD-CONDITIONING,joint_draws_firing_by_record_end,2.0,measured
+RECORD-CONDITIONING,joint_draws_dropped,2.0,ON
+REJECTED,draw_187_cfg_cfg_516134,2024.0,onset_year
+REJECTED,draw_610_cfg_cfg_1137882,2022.0,onset_year
 PAIRING,configs_used,841.0,PASS
-PAIRING,median_dgmst_bias_degC,0.006251774999999515,PASS
+PAIRING,median_dgmst_bias_degC,0.006602349999999646,PASS
 CONTROL,skipped_no_shipped_panel,NaN,SKIPPED
 SPLICE-IDENTITY,max_cm_through_1998,0.0,PASS
 SPLICE-IDENTITY,first_divergence_year,2015.0,measured
