@@ -67,17 +67,23 @@ const LWS_MODES = (:seeded, :central, :zero, :random, :observed)
 const LWS_OBS_CSV            = joinpath(@__DIR__, "..", "outputs", "recalib_targets_ext.csv")
 const LWS_OBS_COL            = :lws            # cm, rel. 1995-2005 (the hindcast target's own frame)
 const LWS_OBS_LAST_REAL_YEAR = 2023            # GRACE-FO mascons end 2023; the target HOLDS 2023 flat to 2026
-## ⚠ THE FRAME STEP (found 2026-10-01, CHANGELOG 10-01f). The observed series is in the hindcast target's
-## 1995-2005 frame, but every other component is 0 in 1850, so under :observed the land-water component
-## steps from 0 to obs[first_year] (+1.565 cm) in 1900 and DAIS's sea-level feedback sees that step.
-## Measured on all 2,000 L27 projection draws: <= 0.012 cm of Antarctic contribution at any year to 2300.
-## Reported totals are re-baselined, so nothing else moves. Ladrillo v1.0 (the L27 paper arms) SHIPS WITH
-## THE STEP so its outputs stay reproducible. :zero_at_first_year is the fix (component starts at 0 and
-## carries the observed increments). lws_frame_guard() makes the NEXT MODEL UPDATE flip it: it refuses a
-## default posterior other than the shipped one, or any posterior newer than LWS_V1_NEWEST_TAG, while this
-## is still :v1_step. Flipping it moves every :observed projection's DAIS by <= ~0.01 cm; re-run the arms.
-const LWS_OBS_ANCHOR    = :v1_step           # :v1_step (shipped v1.0) | :zero_at_first_year (the fix)
+## THE FRAME STEP (found 2026-10-01, CHANGELOG 10-01f; FIXED in Ladrillo v1.1, Marcus 2026-10-08). The observed
+## series is in the hindcast target's 1995-2005 frame, but every other component is 0 in 1850. Ladrillo v1.0 (the
+## submitted L27 paper arms) started the land-water component at obs[first_year] (+1.565 cm) in 1900, and DAIS's
+## sea-level feedback saw that step. v1.1 starts it at 0 and carries the observed increments (:zero_at_first_year).
+## Effect of the fix, MEASURED 2026-10-08 (CHANGELOG 10-08): every component except Antarctica, land water and the
+## total is bit-identical; land water rebased to 1995-2014 moves only before 1900 (by exactly the step); Antarctica
+## moves by about -1e-4 of its own contribution (linear in the step: doubling it doubles the change), at most
+## 0.014 cm at 2100 and 0.049 cm at 2300 under SSP5-8.5 (10,000 draws). The earlier "<= 0.012 cm to 2300" was the
+## TRANSIENT observed-vs-stylized swap, not this permanent offset.
+## LADRILLO_LWS_OBS_ANCHOR=v1_step in the environment reproduces v1.0; every output then carries LWS_ANCHOR_SFX.
+const LWS_OBS_ANCHOR    = Symbol(get(ENV, "LADRILLO_LWS_OBS_ANCHOR", "zero_at_first_year"))
 const LWS_OBS_ANCHORS   = (:v1_step, :zero_at_first_year)
+LWS_OBS_ANCHOR in LWS_OBS_ANCHORS ||
+    error("LADRILLO_LWS_OBS_ANCHOR must be one of $(LWS_OBS_ANCHORS), got :$(LWS_OBS_ANCHOR)")
+"""Output-filename suffix for a NON-DEFAULT land-water anchor, so a v1.0-regression run cannot overwrite the canonical
+(v1.1) outputs. Empty on the default."""
+const LWS_ANCHOR_SFX    = LWS_OBS_ANCHOR === :zero_at_first_year ? "" : "_lws$(LWS_OBS_ANCHOR)"
 const LWS_V1_POSTERIOR  = "parameters_subsample_brick_mengel_L27.csv"   # the v1.0 paper posterior
 const LWS_V1_NEWEST_TAG = 35                 # L28-L35 exist as closed experiments (10-01); L36+ is an update
 

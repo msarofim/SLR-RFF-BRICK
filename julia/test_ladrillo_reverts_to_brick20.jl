@@ -116,11 +116,14 @@ let ssp = "ssp245", row = POST20[ROWS[1], :]
     s, w = compare(A, B)
     check("(a) one-ulp change in te_α on the Ladrillo side is detected", !s, @sprintf("(max |diff| %.1e m)", w))
 
-    B2 = reverted_ladrillo(ssp; lws_anchor=:zero_at_first_year)
+    ## the land-water anchor that is NOT the default on the Ladrillo side only (v1.1 flipped the default to
+    ## :zero_at_first_year, 2026-10-08; a hard-coded :zero_at_first_year would then equal both sides and test nothing)
+    other_anchor = only(a for a in LWS_OBS_ANCHORS if a !== LWS_OBS_ANCHOR)
+    B2 = reverted_ladrillo(ssp; lws_anchor=other_anchor)
     run_pair!(A, B2, row)
     ais_moved = A[:antarctic_icesheet, :ais_sea_level] != B2[:antarctic_icesheet, :ais_sea_level]
     s2, w2 = compare(A, B2)
-    check("(b) land-water frame fix on one side is detected", !s2, @sprintf("(max |diff| %.1e m)", w2))
+    check("(b) land-water anchor :$(other_anchor) on one side is detected", !s2, @sprintf("(max |diff| %.1e m)", w2))
     check("(b) ... and it reaches DAIS through the sea-level feedback", ais_moved)
 
     B3 = reverted_ladrillo(ssp; revert_glaciers=false)

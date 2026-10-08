@@ -389,8 +389,8 @@ This is the INVERSE of the calibrator's forward map (`calibrate_mcmc_ext.jl`,
 the `GIS_REPARAM` branch), and it is the only place the projection stack knows
 it. No-op on a posterior that already carries the native pair, so it is safe to
 call unconditionally and safe to call twice."""
-function ladrillo_native_greenland!(df)
-    ladrillo_attach_propagated!(df)            # L27+: lambda/T_crit/gamma when the posterior does not sample them
+function ladrillo_native_greenland!(df; whole_file::Bool=false)
+    ladrillo_attach_propagated!(df; whole_file)   # L27+: lambda/T_crit/gamma when the posterior does not sample them
     ladrillo_gis_needs_native(String.(names(df))) || return df
     r_s = exp.(Float64.(df.gis_slow_ell)); w_s = Float64.(df.gis_slow_w)
     df.gis_alpha_s = w_s .* r_s ./ LADRILLO_GIS_TBAR
@@ -423,15 +423,39 @@ const LADRILLO_FIXED_PALEO     = ["antarctic_gamma"]
 const LADRILLO_PALEO_DRAWS     = joinpath(LADRILLO_REPO, "outputs/paleo_fastdyn_draws.csv")
 const LADRILLO_PALEO_MEDIANS   = joinpath(LADRILLO_REPO, "outputs/paleo_dais_marginals.csv")
 const LADRILLO_PALEO_SEED      = 20260920
-function ladrillo_attach_propagated!(df)
+## WHICH ROWS (Ladrillo v1.1, Marcus 2026-10-08). The paleo rows are drawn for whatever table this function is handed,
+## with the RNG re-seeded every call. v1.0 handed it SUBSETS: the joint arm one chain's 500 draws at a time (so its
+## four chains reused the same 500 paleo rows) and the SSP panel its own 2,000. v1.1 (:single) assigns ONCE over the
+## whole posterior file, so a subset keeps the rows its draws have in the full table: `ladrillo_posterior` attaches
+## before it thins, and the projection drivers read through it. LADRILLO_PALEO_ASSIGNMENT=v1 in the environment
+## restores the v1.0 rule (outputs then carry PALEO_SFX). A caller that attaches to a subset under :single is not
+## refused (two dozen diagnostics do), but the log says which rule it got.
+## ⚠ Lambda / T_crit are NOT inert in the hindcast: 4 of the 10,000 draws (single assignment) have a T_crit low
+## enough (-16.4 to -16.9) that fast dynamics fires in 2021-2026, adding up to 1.6 cm of Antarctic sea level by 2026
+## (CHANGELOG 2026-10-08). The calibrator holds them at the paleo medians, which never cross.
+const LADRILLO_PALEO_ASSIGNMENT  = Symbol(get(ENV, "LADRILLO_PALEO_ASSIGNMENT", "single"))
+const LADRILLO_PALEO_ASSIGNMENTS = (:single, :v1)
+LADRILLO_PALEO_ASSIGNMENT in LADRILLO_PALEO_ASSIGNMENTS ||
+    error("LADRILLO_PALEO_ASSIGNMENT must be one of $(LADRILLO_PALEO_ASSIGNMENTS), got :$(LADRILLO_PALEO_ASSIGNMENT)")
+"""Output-filename suffix for a NON-DEFAULT paleo assignment (empty on the default)."""
+const PALEO_SFX = LADRILLO_PALEO_ASSIGNMENT === :single ? "" : "_paleo$(LADRILLO_PALEO_ASSIGNMENT)"
+"""Both v1.1 settings' suffix: empty on the defaults, so canonical filenames are unchanged."""
+const LADRILLO_V11_SFX = PALEO_SFX * LWS_ANCHOR_SFX
+"""The two v1.1 settings, for provenance columns."""
+const LADRILLO_V11_PROV = "paleo assignment :$(LADRILLO_PALEO_ASSIGNMENT) (seed $LADRILLO_PALEO_SEED) | " *
+                          "land-water anchor :$(LWS_OBS_ANCHOR)"
+function ladrillo_attach_propagated!(df; whole_file::Bool=false)
     hdr = String.(names(df))
     if !all(c -> c in hdr, LADRILLO_PROPAGATED_PAIR)
         pd = CSV.read(LADRILLO_PALEO_DRAWS, DataFrame)
         idx = rand(MersenneTwister(LADRILLO_PALEO_SEED), 1:nrow(pd), nrow(df))
         df.antarctic_lambda = Float64.(pd.antarctic_lambda[idx])
         df.antarctic_temp_threshold = Float64.(pd.antarctic_temp_threshold[idx])
+        rule = whole_file ? "over the WHOLE posterior file" :
+               LADRILLO_PALEO_ASSIGNMENT === :v1 ? "over this subset (the v1.0 rule, selected)" :
+               "over THIS SUBSET only -- the v1.0 rule, NOT the v1.1 single assignment (read via ladrillo_posterior)"
         println("ladrillo_attach_propagated!: lambda/T_crit attached as JOINT paleo draws " *
-                "(seed $LADRILLO_PALEO_SEED, $(nrow(df)) rows of $(basename(LADRILLO_PALEO_DRAWS)))")
+                "(seed $LADRILLO_PALEO_SEED, $(nrow(df)) rows of $(basename(LADRILLO_PALEO_DRAWS)), $rule)")
     end
     if !("antarctic_gamma" in hdr)
         pm = CSV.read(LADRILLO_PALEO_MEDIANS, DataFrame)
@@ -498,7 +522,9 @@ const _GLACIER_SYMS = Dict(nm => Symbol(nm) for nm in LADRILLO_GLACIER_COLS)
 """
     ladrillo_posterior(; path=LADRILLO_POSTERIOR_CSV, cols=:used, nthin=nothing)
 
-Read the Ladrillo posterior subsample. `cols=:used` reads only the columns the
+Read the Ladrillo posterior subsample. Under the v1.1 paleo rule (LADRILLO_PALEO_ASSIGNMENT = :single) the
+paleo (lambda, T_crit) rows are assigned over the whole file BEFORE `nthin` thins it, so a thinned draw keeps
+its row; under :v1 they are assigned over the thinned table (the v1.0 rule). `cols=:used` reads only the columns the
 kernel needs (the default — the ledger and AR(1)-noise columns are not model
 inputs); `cols=:all` reads the file as-is. `nthin` evenly thins to at most that
 many draws.
@@ -508,7 +534,9 @@ function ladrillo_posterior(; path::AbstractString=LADRILLO_POSTERIOR_CSV,
     lws_frame_guard(path)   # a posterior newer than v1.0 needs the land-water frame fix
     if cols === :all
         df = CSV.read(path, DataFrame)
-        return ladrillo_native_greenland!(nthin === nothing ? df : _ladrillo_thin(df, nthin))
+        LADRILLO_PALEO_ASSIGNMENT === :single && ladrillo_native_greenland!(df; whole_file=true)   # attach, THEN thin
+        df = nthin === nothing ? df : _ladrillo_thin(df, nthin)
+        return LADRILLO_PALEO_ASSIGNMENT === :single ? df : ladrillo_native_greenland!(df)
     else
         # CSV.jl's `select=` silently returns only the columns it FINDS, so a
         # posterior missing a required column used to load fine and fail later
@@ -524,8 +552,9 @@ function ladrillo_posterior(; path::AbstractString=LADRILLO_POSTERIOR_CSV,
             "$(length(missing_cols)) required column(s): $(join(missing_cols, ", "))")
         df = CSV.read(path, DataFrame; select=want)
     end
+    LADRILLO_PALEO_ASSIGNMENT === :single && ladrillo_native_greenland!(df; whole_file=true)       # attach, THEN thin
     nthin === nothing || (df = _ladrillo_thin(df, nthin))
-    return ladrillo_native_greenland!(df)
+    return LADRILLO_PALEO_ASSIGNMENT === :single ? df : ladrillo_native_greenland!(df)
 end
 
 """Evenly thin to at most `n` rows."""

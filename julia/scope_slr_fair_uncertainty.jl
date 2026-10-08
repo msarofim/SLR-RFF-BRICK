@@ -41,7 +41,7 @@
 ##
 ##   julia --project=julia_v2 julia/scope_slr_fair_uncertainty.jl [n_per_chain] [--tag=L27] [--maxrows=N]
 ##        [--ssp=ssp585] [--forcing=spliced|raw] [--climate=fair|magicc] [--ton-band=LOW|MID|HIGH]
-##        [--chain-tag=L24] [--tap] [--build-ssp=ssp245]
+##        [--chain-tag=L24] [--tap] [--build-ssp=ssp245] [--source=subsample|chains]
 ##
 ## n_per_chain  post-burn draws taken per chain (positional; default 500).
 ## --tag        posterior tag: names the outputs and the [CONTROL] comparison file.
@@ -51,6 +51,13 @@
 ## --climate    fair (default) or magicc as the climate ensemble.
 ## --tap        turn the above-threshold discharge channel ON (default OFF here, see below).
 ## --build-ssp  the scenario the Ladrillo model is BUILT on (default ssp245).
+## --source     subsample (DEFAULT since Ladrillo v1.1, 2026-10-08): the draws are rows of the tag's 10k posterior
+##              subsample, per chain c rows 2500(c-1) + 1 : 2500/n_per_chain : 2500c -- for n_per_chain = 500
+##              EXACTLY the raw-chain draws (subsample[1:5:end] == the chains' every-2,000th post-burn draw,
+##              decision 2 of 2026-10-07). That is what lets the v1.1 paleo rule hold: lambda / T_crit are
+##              assigned ONCE over the 10,000 rows (ladrillo_posterior) and each draw keeps its row.
+##              chains: the raw 2 GB chains, as v1.0 read them; needed for --ton-band and --maxrows. The paleo
+##              assignment is only DEFINED on the 10k file, so chains requires LADRILLO_PALEO_ASSIGNMENT=v1.
 ## --chain-tag  READ the chains from a different tag than the one outputs are named for.
 ##              Everything else (output names, the [CONTROL] comparison against
 ##              ssps_components_2300_<TAG>.csv) still keys off --tag, so a derived arm
@@ -180,12 +187,28 @@ const CHAIN_TAG = let i = findfirst(a -> startswith(a, "--chain-tag="), ARGS)
     i === nothing ? TAG : ARGS[i][13:end]
 end
 lws_frame_guard(TAG); lws_frame_guard(CHAIN_TAG)   # a tag newer than v1.0 needs the land-water frame fix
+const SOURCE = let i = findfirst(a -> startswith(a, "--source="), ARGS)
+    i === nothing ? "subsample" : ARGS[i][10:end]
+end
+@assert SOURCE in ("subsample", "chains") "--source must be subsample or chains"
+SOURCE == "subsample" && (TON_BAND != "" || SMOKE) &&
+    error("--ton-band and --maxrows filter the RAW chains; pass --source=chains (with LADRILLO_PALEO_ASSIGNMENT=v1)")
+SOURCE == "chains" && LADRILLO_PALEO_ASSIGNMENT === :single &&
+    error("--source=chains: the v1.1 single paleo assignment is defined on the 10k subsample, not on raw chains. " *
+          "Use --source=subsample, or set LADRILLO_PALEO_ASSIGNMENT=v1 (outputs then carry '$(PALEO_SFX)')")
+const SUB_PATH = joinpath(REPO, "data/MimiBRICK", "parameters_subsample_brick_mengel_$(CHAIN_TAG).csv")
+const SUB_PER_CHAIN = 2500                 # rows per chain in the 10k subsample, in chain order
 
 chain_path(sd) = joinpath(REPO, "outputs/mcmc", "chain_$(CHAIN_TAG)_seed$(sd)_n$(NITER).csv")
 hdr(sd) = String.(propertynames(CSV.read(chain_path(sd), DataFrame; limit = 0)))
-for sd in SEEDS; isfile(chain_path(sd)) || error("missing chain $(chain_path(sd))"); end
-const VARIANT = ladrillo_gis_variant(hdr(SEEDS[1]))
-const AIS_RAMP = ladrillo_has_ramp(hdr(SEEDS[1]))   # L30: the chains decide
+if SOURCE == "chains"
+    for sd in SEEDS; isfile(chain_path(sd)) || error("missing chain $(chain_path(sd))"); end
+else
+    isfile(SUB_PATH) || error("missing posterior subsample $(SUB_PATH)")
+end
+const SRC_HDR = SOURCE == "chains" ? hdr(SEEDS[1]) : String.(propertynames(CSV.read(SUB_PATH, DataFrame; limit = 0)))
+const VARIANT = ladrillo_gis_variant(SRC_HDR)
+const AIS_RAMP = ladrillo_has_ramp(SRC_HDR)   # L30: the posterior decides
 
 ## ---------------------------------------------------------------------------
 ## --tap  (2026-08-30). RUN THE TAPPED GREENLAND ARM.
@@ -256,8 +279,25 @@ const CLIMATE_LABEL = Dict("fair" => "FaIR 2.2.4 calib 1.6.0, 841 configs",
         SMOKE ? "  ** SMOKE (--maxrows=$(MAXROWS)) **" : "", N_TARGET, length(SEEDS), SSP, FORCING)
 @printf("  climate source: %s\n", CLIMATE_LABEL[CLIMATE])
 flush(stdout)
-const DRAWS = [(@printf("  reading chain seed%d ...\n", sd); flush(stdout); read_draws(sd))
-               for sd in SEEDS]
+## --source=subsample: rows of the 10k file. :single assigns the paleo rows over all 10,000 BEFORE the rows are taken
+## (ladrillo_posterior); :v1 takes the rows and assigns per chain, exactly as the raw-chain read did.
+function subsample_draws()
+    SUB_PER_CHAIN % N_TARGET == 0 || error("--source=subsample needs n_per_chain dividing $(SUB_PER_CHAIN), got $(N_TARGET)")
+    stride = SUB_PER_CHAIN ÷ N_TARGET
+    rows(k) = (k - 1) * SUB_PER_CHAIN .+ (1:stride:SUB_PER_CHAIN)
+    if LADRILLO_PALEO_ASSIGNMENT === :single
+        full = ladrillo_posterior(path = SUB_PATH)
+        nrow(full) == length(SEEDS) * SUB_PER_CHAIN || error("$(SUB_PATH): $(nrow(full)) rows, expected $(length(SEEDS) * SUB_PER_CHAIN)")
+        return [full[rows(k), :] for k in eachindex(SEEDS)]
+    else
+        raw = CSV.read(SUB_PATH, DataFrame; select = ladrillo_used_cols(VARIANT, SRC_HDR))
+        nrow(raw) == length(SEEDS) * SUB_PER_CHAIN || error("$(SUB_PATH): $(nrow(raw)) rows, expected $(length(SEEDS) * SUB_PER_CHAIN)")
+        return [ladrillo_native_greenland!(raw[rows(k), :]) for k in eachindex(SEEDS)]
+    end
+end
+const DRAWS = SOURCE == "subsample" ?
+    (@printf("  reading the 10k subsample %s ...\n", basename(SUB_PATH)); flush(stdout); subsample_draws()) :
+    [(@printf("  reading chain seed%d ...\n", sd); flush(stdout); read_draws(sd)) for sd in SEEDS]
 const NDRAW = sum(nrow.(DRAWS))
 ## flatten to one row list so a draw index means one thing everywhere
 const ROWS = [r for d in DRAWS for r in eachrow(d)]
@@ -452,7 +492,13 @@ end
 ## record an explicit SKIPPED row where one is not. The fixed-arm code path is
 ## scenario-independent; it is verified by the SSP runs, and a van Vuuren run
 ## inherits that verification rather than re-establishing it.
-const SHIPPED = CSV.read(joinpath(REPO, "outputs", "ssps_components_2300_$(SHIPPED_TAG).csv"), DataFrame)
+## The panel of the SAME configuration: a non-default Greenland shape reads the shape panel (its name convention,
+## project_ssps_components_ladrillo.jl SHAPE_TAG), not the default one (2026-10-08; before, a shape arm's [CONTROL]
+## compared against the default-shape panel and reported the shape itself as a Greenland CHECK).
+const PANEL_SHAPE_TAG = LADRILLO_GIS_SHAPE_STEM == "gis_amp_shape" ? "" :
+    "_" * replace(LADRILLO_GIS_SHAPE_STEM, "gis_amp_shape_" => "shape")
+const SHIPPED = CSV.read(joinpath(REPO, "outputs",
+    "ssps_components_2300_$(SHIPPED_TAG)$(PANEL_SHAPE_TAG)$(LADRILLO_V11_SFX).csv"), DataFrame)
 const SSP_LABEL = Dict("ssp126" => "SSP1-2.6", "ssp245" => "SSP2-4.5", "ssp585" => "SSP5-8.5")
 const HAS_SHIPPED_PANEL = haskey(SSP_LABEL, SSP)
 if !HAS_SHIPPED_PANEL
@@ -483,6 +529,17 @@ let ncontrol = 0
     end
     ncontrol == 0 && error("[CONTROL] $(SSP) has a shipped panel but ZERO cells matched -- vacuous, not passing.")
     @printf("  [CONTROL] %d cells compared\n", ncontrol)
+    ## [CONTROL-EXACT] (Ladrillo v1.1, 2026-10-08). Under the single paleo assignment the fixed arm and the panel run the
+    ## SAME 2,000 draws (rows 1:5:10000) with the SAME paleo rows on the SAME FaIR mean climate (the fixed arm is
+    ## FaIR's mean whatever --climate is), so every cell must agree EXACTLY. Under v1.0 they could not: the arm
+    ## assigned paleo per chain and the panel over its 2,000, which left AIS 0.14-1.31 cm apart (the CHECK rows).
+    if LADRILLO_PALEO_ASSIGNMENT === :single && SOURCE == "subsample" && N_TARGET * length(SEEDS) == 2000
+        nbad = count(r -> r.gate == "CONTROL" && r.value != 0.0, eachrow(rowsg))
+        push!(rowsg, ("CONTROL-EXACT", "cells_not_identical", Float64(nbad), nbad == 0 ? "PASS" : "FAIL"))
+        @printf("  [CONTROL-EXACT] %d of %d cells differ from the panel -> %s\n", nbad, ncontrol, nbad == 0 ? "PASS" : "FAIL")
+        nbad == 0 || error("[CONTROL-EXACT] the fixed arm does not reproduce the panel exactly under the single " *
+                           "assignment: a paleo-row, land-water or forcing mismatch between the two drivers")
+    end
 end
 end
 
@@ -573,7 +630,7 @@ for (arm, R) in (("fixed", FIXED), ("joint", JOINT))
     push!(rowsg, ("SUM", "$(arm)_max_cm", w, w < SUM_TOL_CM ? "PASS" : "FAIL"))
     @assert w < SUM_TOL_CM "[SUM] the components do not sum to the total for arm $arm"
 end
-CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_gates_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SHAPE_SFX)$(SMOKE ? "_SMOKE" : "").csv"), rowsg)
+CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_gates_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SHAPE_SFX)$(LADRILLO_V11_SFX)$(SMOKE ? "_SMOKE" : "").csv"), rowsg)
 
 ## ==========================================================================
 ## THE CELLS
@@ -608,9 +665,10 @@ for c in COMPONENTS
 end
 cells.provenance .= "scope_slr_fair_uncertainty.jl | Ladrillo $TAG | ssp $SSP | forcing $FORCING | climate $CLIMATE | " *
     "lws $(LWS_MODE) (mean $(LWS_MEAN) m/yr$(LWS_MODE === :seeded ? ", seed $LWS_SEED" : "")) | tap $(TAP_ON) | " *
-    "run $Y0-$Y1 reref $(LADRILLO_REF[1])-$(LADRILLO_REF[2]) | julia $(VERSION)" *
+    "run $Y0-$Y1 reref $(LADRILLO_REF[1])-$(LADRILLO_REF[2]) | draws from $(SOURCE == "subsample" ? basename(SUB_PATH) : "raw chains") | " *
+    "$(LADRILLO_V11_PROV) | julia $(VERSION)" *
     (isempty(SHAPE_SFX) ? "" : " | gis amp shape $(LADRILLO_GIS_SHAPE_STEM) (NON-DEFAULT)")
-CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_cells_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SHAPE_SFX)$(SMOKE ? "_SMOKE" : "").csv"), cells)
+CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_cells_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SHAPE_SFX)$(LADRILLO_V11_SFX)$(SMOKE ? "_SMOKE" : "").csv"), cells)
 
 ## ==========================================================================
 ## THE COMPARISON that motivated it
@@ -634,7 +692,7 @@ let dr = DataFrame(draw = Int[], config = String[], component = String[],
     for c in COMPONENTS, H in HORIZONS, (arm, A) in (("fixed", FIXED[c]), ("joint", JOINT[c])), k in 1:NDRAW
         push!(dr, (k, CFG_OF_DRAW[k], String(c), H, arm, A[k, yidx(H)]))
     end
-    CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_draws_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SHAPE_SFX)$(SMOKE ? "_SMOKE" : "").csv"), dr)
+    CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_draws_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SHAPE_SFX)$(LADRILLO_V11_SFX)$(SMOKE ? "_SMOKE" : "").csv"), dr)
 end
 
 paths = DataFrame(year = Int[], component = String[], arm = String[],
@@ -644,6 +702,6 @@ for c in COMPONENTS, (arm, A) in (("fixed", FIXED[c]), ("joint", JOINT[c])), (i,
     v = A[:, i]
     push!(paths, (y, String(c), arm, median(v), quantile(v, 0.05), quantile(v, 0.95)))
 end
-CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_paths_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SHAPE_SFX)$(SMOKE ? "_SMOKE" : "").csv"), paths)
+CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_paths_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SHAPE_SFX)$(LADRILLO_V11_SFX)$(SMOKE ? "_SMOKE" : "").csv"), paths)
 @printf("\nwrote outputs/scope_slr_fairunc_{cells,draws,paths,gates}_%s_%s%s_%s%s%s.csv\n",
         SSP, FORCING, CLIM_TAG, TAG, TAP_TAG, SMOKE ? "_SMOKE" : "")

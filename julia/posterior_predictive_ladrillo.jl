@@ -64,9 +64,9 @@ isfile(POSTERIOR) || error("no posterior for --tag=$POST_TAG at $POSTERIOR")
 POST_TAG != DEFAULT_TAG || POSTERIOR == LADRILLO_POSTERIOR_CSV ||
     error("the default tag '$DEFAULT_TAG' resolved to $POSTERIOR, which is not " *
           "LADRILLO_POSTERIOR_CSV ($LADRILLO_POSTERIOR_CSV)")
-const OUT_BANDS  = joinpath(LADRILLO_REPO, "outputs/postpred_$(POST_TAG)_components_timeseries.csv")
-const OUT_BIAS   = joinpath(LADRILLO_REPO, "outputs/postpred_$(POST_TAG)_bias.csv")
-const OUT_COVER  = joinpath(LADRILLO_REPO, "outputs/postpred_$(POST_TAG)_coverage.csv")
+const OUT_BANDS  = joinpath(LADRILLO_REPO, "outputs/postpred_$(POST_TAG)_components_timeseries$(PALEO_SFX).csv")
+const OUT_BIAS   = joinpath(LADRILLO_REPO, "outputs/postpred_$(POST_TAG)_bias$(PALEO_SFX).csv")
+const OUT_COVER  = joinpath(LADRILLO_REPO, "outputs/postpred_$(POST_TAG)_coverage$(PALEO_SFX).csv")
 const DELTA_END  = 1960                    # delta ramp is zero from this year on
 
 ## (kernel component, target column in recalib_targets_ext.csv, AR(1) noise-parameter
@@ -235,7 +235,7 @@ bands[!, "glaciers_obs_delta_corrected"] =
 bands[!, "provenance"] = fill(
     "posterior_predictive_ladrillo.jl | tag $POST_TAG | AR(1) obs-noise MersenneTwister" *
     "(NOISE_SEED=$NOISE_SEED) | posterior $(basename(POSTERIOR)) NTHIN=$NTHIN, forcing $FORCING | " *
-    "targets recalib_targets_ext.csv | cm", nrow(bands))
+    "targets recalib_targets_ext.csv | paleo assignment :$(LADRILLO_PALEO_ASSIGNMENT) | cm", nrow(bands))
 CSV.write(OUT_BANDS, bands)
 
 ## ---------------------------------------------------------------------------

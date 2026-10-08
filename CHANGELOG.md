@@ -1,3 +1,75 @@
+## 2026-10-08 — Ladrillo v1.1: code (paleo single assignment + land-water frame fix), gates, and three findings
+
+**Rulings (Marcus 10-08, handoff 10-07c §2):**
+- The GMD paper moves to v1.1 now.
+- The research drivers produce the numbers, and the package is re-certified against them.
+- Ladrillo is tagged v1.0.0, then becomes 1.1.0.
+- Table A2 moves to the 10k subsample.
+
+**Code** (v1.0 stays reachable through two environment variables; non-default settings are carried in every output
+name, `LADRILLO_V11_SFX`, so a v1.0 run cannot overwrite a canonical file):
+- `brick_mengel.jl`: `LWS_OBS_ANCHOR` defaults to `:zero_at_first_year` (`LADRILLO_LWS_OBS_ANCHOR=v1_step` restores
+  v1.0). Adds `LWS_ANCHOR_SFX`.
+- `ladrillo_projection.jl`: `LADRILLO_PALEO_ASSIGNMENT` defaults to `:single` (`=v1` restores v1.0).
+  - `ladrillo_posterior` attaches the paleo rows over the whole file before it thins.
+  - A subset attach is still allowed (two dozen diagnostics do it), but it is logged as the v1.0 rule.
+- `scope_slr_fair_uncertainty.jl`:
+  - `--source=subsample` is the new default: per chain c, rows 2500(c−1)+1 : 5 : 2500c, the raw-chain draws exactly.
+    `--source=chains` needs the v1 paleo rule.
+  - **[CONTROL-EXACT]:** under the single assignment the fixed arm and the panel share draws, paleo rows and climate,
+    so every cell must match exactly. Under v1.0 Antarctica differed by 0.14–1.31 cm.
+  - A shape arm now reads the shape-matched panel.
+- `project_ssps_components_ladrillo.jl`, `scope_slr_fairunc_oldbrick.jl`, `posterior_predictive_ladrillo.jl`: the
+  suffix in their names, the settings in their provenance.
+- Tests 11 and 12 updated for the flipped default; every check is kept:
+  - test 11 asserts the v1.1 default and runs the guard checks in v1.0 mode;
+  - test 12's mutation (b) uses whichever anchor is NOT the default, since a hard-coded `:zero_at_first_year` would now
+    be on both sides.
+  - Both pass.
+- New: `run_ladrillo_v11_rerun_20261008.sh` (regress / arms / downstream) and `python/gate_v11_regression.py`.
+
+**Gates passed before any canonical output was touched:**
+- Research v1.0-mode self-regression: the edited kernel under the v1.0 settings reproduces the 4 frozen v1.0
+  identity dumps by sha256.
+- Gate 1 at v1.1: the research and package single-assignment kernels are bit-identical on 4 cases, two independent
+  implementations.
+- Package with its v1.0 options: bit-identical to the v1.0 research kernel.
+
+**Finding 1: the land-water fix moves Antarctica by up to 0.049 cm, not ≤ 0.012 cm.**
+- Measured on 10,000 draws, SSP5-8.5 (Ladrillo `test/identity/fix_effects.jl`).
+- Ordering gate holds exactly: glaciers, Greenland and TE identical; land water rebased to 1995–2014 moves only
+  before 1900, by exactly the step (1.5646 cm); total = land water + Antarctica.
+- Antarctica: ΔAIS/AIS ≈ −1e-4 (median −1.9e-4 at 2100, −9.6e-5 at 2300). The analytic pre-check is 1.1 %/m ×
+  1.565 cm = 1.7e-4.
+- **Linearity test:** doubling the step doubles ΔAIS (ratio 2.000 at p05/median/p95).
+- Max |ΔAIS| = 0.014 cm at 2100 and 0.049 cm at 2300.
+- The 10-01 "≤ 0.012 cm to 2300" was the observed-vs-stylized swap: a TRANSIENT difference, 1.565 cm in 1900 decaying
+  to ~0 by 2000. The frame step is a PERMANENT offset acting on the large 2100–2300 discharge.
+- The GMD draft never quoted the step's size: its "< 0.02 cm" is the calibration-side swap and stands.
+
+**Finding 2: λ / T_crit are NOT inert in the hindcast.**
+- 4 of the 10,000 draws (single assignment) have T_crit −16.37 to −16.93 °C, low enough that fast dynamics fires in
+  2021–2026. That adds up to 1.6 cm of Antarctic sea level by 2026.
+- Test: each draw re-run with T_crit = +∞. Under v1.0's block assignment, 1 of the 1,000 identity-gate hindcast draws
+  fired.
+- The handoff's "< 1e-9" compared MEDIANS, which one draw cannot move.
+- Consequences:
+  - The posterior predictive can move by a hair under fix A.
+  - Table 5's residuals already assigned over all 10,000 draws and must not move (gated).
+  - The draft's "likelihood-flat over the 1900–2025 record" holds for the calibration (paleo medians, never crossed),
+    not for every propagated draw.
+  - **Methodological, for Marcus:** whether propagated paleo draws should be conditioned on not having crossed by the
+    end of the record.
+
+**Finding 3: the vv MAGICC-raw arms' FIXED-arm rows were still on the Smith-basis FaIR mean.**
+- Every arm's fixed arm runs `fair_mean_gmst_<scenario>` (`scope_slr_fair_uncertainty.jl:361/444`), whatever
+  `--climate` is.
+- The 10-07 rerun skipped the 7 vv MAGICC-raw arms as "not reading the FaIR files". Their joint rows (MAGICC's own
+  climate) were unaffected.
+- The v1.1 rerun regenerates them.
+- Also noted: the v1.0 no-tap SSP joint arms' [CONTROL] land-water row (0.354 cm) is an ORDERING artifact. The arm ran
+  at 08:54 against the 09-20 `:central` panel, which was regenerated at 08:55. The v1.1 run builds panels first.
+
 ## 2026-10-07d — Table A2 on the 10k subsample: the move is quantified, and it is inside sampling noise
 
 Decision 2 (Marcus 10-07): switch Table A2 from the raw chains to the 10k subsample, after quantifying the move.

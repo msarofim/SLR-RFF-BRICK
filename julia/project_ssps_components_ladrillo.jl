@@ -128,7 +128,9 @@ POST_TAG != DEFAULT_TAG || POSTERIOR == LADRILLO_POSTERIOR_CSV ||
 ## pre-existing filenames and are bit-identical.
 const SHAPE_TAG = LADRILLO_GIS_SHAPE_STEM == "gis_amp_shape" ? "" :
     "_" * replace(LADRILLO_GIS_SHAPE_STEM, "gis_amp_shape_" => "shape")
-const OUT      = joinpath(LADRILLO_REPO, "outputs/ssps_components_2300_$(TAG)$(SHAPE_TAG).csv")
+## Ladrillo v1.1 (2026-10-08): a NON-DEFAULT paleo assignment or land-water anchor (the v1.0 settings, selected by
+## environment) is carried in the name, so a v1.0-regression run cannot overwrite the canonical panel.
+const OUT      = joinpath(LADRILLO_REPO, "outputs/ssps_components_2300_$(TAG)$(SHAPE_TAG)$(LADRILLO_V11_SFX).csv")
 const SSPS     = [("ssp126", "SSP1-2.6"), ("ssp245", "SSP2-4.5"), ("ssp585", "SSP5-8.5")]
 const HORIZONS = (2100, 2150, 2300)
 const COMPONENTS = [:glaciers, :gis, :ais, :te, :lws, :total]
@@ -136,9 +138,9 @@ const COMPONENTS = [:glaciers, :gis, :ais, :te, :lws, :total]
 const VARIANT = ladrillo_posterior_variant(POSTERIOR)
 const AIS_RAMP = ladrillo_ramp_posterior(POSTERIOR)   # L30: the posterior decides, not a flag
 post = ladrillo_posterior(path=POSTERIOR, nthin=NTHIN)
-@printf("Ladrillo SSP components | posterior %s (%d draws) | Greenland :%s | base %d-%d | horizon %d\n",
+@printf("Ladrillo SSP components | posterior %s (%d draws) | Greenland :%s | base %d-%d | horizon %d | %s\n",
         basename(POSTERIOR), nrow(post), VARIANT,
-        LADRILLO_REF[1], LADRILLO_REF[2], Y1)
+        LADRILLO_REF[1], LADRILLO_REF[2], Y1, LADRILLO_V11_PROV)
 VARIANT !== :stock && @printf("  amp law ON: S anchored at dT_eff = %.3f K, %d-yr window\n",
                            LADRILLO_GIS_SHAPE_ANCHOR_DT, LADRILLO_GIS_SHAPE_WIN)
 
@@ -262,7 +264,7 @@ if TAP_SET
                     maximum(meds) - minimum(meds), sh.p05[1], sh.p95[1],
                     sh.p95[1] - sh.p05[1], count(m)))
     end
-    ENVOUT = replace(OUT, "_tapset$(SHAPE_TAG).csv" => "_tapset$(SHAPE_TAG)_envelope.csv")
+    ENVOUT = replace(OUT, "_tapset$(SHAPE_TAG)$(LADRILLO_V11_SFX).csv" => "_tapset$(SHAPE_TAG)$(LADRILLO_V11_SFX)_envelope.csv")
     CSV.write(ENVOUT, env)
     println("wrote ", relpath(ENVOUT, LADRILLO_REPO))
     println("\n=== CELL-CHOICE BAND vs SAMPLED SPREAD (cm) — reported separately ===")

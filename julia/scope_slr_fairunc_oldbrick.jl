@@ -279,11 +279,11 @@ for c in COMPS, (j,H) in enumerate(HORIZONS)
                 c, H, arm, median(v), quantile(v,0.05), quantile(v,0.95), sp, sp/sf)
     end
 end
-CSV.write(joinpath(REPO,"outputs","scope_slr_fairunc_draws_$(SSP)_spliced_oldbrick$(CLIM_TAG).csv"), draws)
+CSV.write(joinpath(REPO,"outputs","scope_slr_fairunc_draws_$(SSP)_spliced_oldbrick$(CLIM_TAG)$(LWS_ANCHOR_SFX).csv"), draws)
 cells.provenance .= "scope_slr_fairunc_oldbrick.jl | BRICK 2.0 stock MimiBRICK v2.0.0 get_model(ssp245), Random.seed!($SEED) before get_model | " *
     "posterior $(basename(POST)) | ssp $SSP | climate $CLIMATE | lws $(LWS_MODE) (mean $(LWS_MEAN) m/yr" *
-    "$(LWS_MODE === :seeded ? ", seed $LWS_SEED" : "")) | run $Y0-$Y1 reref $BASE0-$BASE1 | julia $(VERSION)"
-CSV.write(joinpath(REPO,"outputs","scope_slr_fairunc_cells_$(SSP)_spliced_oldbrick$(CLIM_TAG).csv"), cells)
+    "$(LWS_MODE === :seeded ? ", seed $LWS_SEED" : ""), land-water anchor :$(LWS_OBS_ANCHOR)) | run $Y0-$Y1 reref $BASE0-$BASE1 | julia $(VERSION)"
+CSV.write(joinpath(REPO,"outputs","scope_slr_fairunc_cells_$(SSP)_spliced_oldbrick$(CLIM_TAG)$(LWS_ANCHOR_SFX).csv"), cells)
 
 ## ---- paths: the SAME schema scope_slr_fair_uncertainty.jl writes, so a figure reads
 ## both models through one code path. Starts at 1990 for the same reason it does there.
@@ -294,5 +294,5 @@ for c in COMPS, (arm, A) in (("fixed",FIXED[c]), ("joint",JOINT[c])), (i,y) in e
     v = A[:, i]
     push!(paths, (y, String(c), arm, median(v), quantile(v,0.05), quantile(v,0.95)))
 end
-CSV.write(joinpath(REPO,"outputs","scope_slr_fairunc_paths_$(SSP)_spliced_oldbrick$(CLIM_TAG).csv"), paths)
-@printf("\nwrote outputs/scope_slr_fairunc_{draws,cells,paths}_%s_spliced_oldbrick%s.csv\n", SSP, CLIM_TAG)
+CSV.write(joinpath(REPO,"outputs","scope_slr_fairunc_paths_$(SSP)_spliced_oldbrick$(CLIM_TAG)$(LWS_ANCHOR_SFX).csv"), paths)
+@printf("\nwrote outputs/scope_slr_fairunc_{draws,cells,paths}_%s_spliced_oldbrick%s%s.csv\n", SSP, CLIM_TAG, LWS_ANCHOR_SFX)
