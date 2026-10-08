@@ -1,3 +1,16 @@
+## 2026-10-08i — Ladrillo.jl is on GitHub, PRIVATE: `msarofim/Ladrillo.jl`
+
+Done from `notes/handoff_2026-10-08b_ladrillo_github.md`. The details are in Ladrillo's CHANGELOG, 2026-10-08h and i.
+- Name confirmed by Marcus. `main` and tags `v1.0.0` (a2bb3b0) and `v1.1.0` (78b03c6) pushed; CITATION and README carry
+  the URL. **Marcus makes it public and adds Tony.**
+- The fresh-clone test FROM GITHUB (empty Julia depot) found a real failure: 90 pass / 1 FAIL. The data-MANIFEST check
+  required the BRICK 2.0 posterior, which is fetched, not shipped. Fixed at Ladrillo ab55bd2 (skip when absent; a wrong
+  file still fails; three states mutation-tested). Re-cloned: 90 pass + 2 skipped, exact.
+- ⚠ Correction to the 10-08b handoff §3.4: a reviewer can NOT rebuild the SSP and calibration forcing through
+  `build_forcing.py` without the non-public inputs. It checks all 15 inputs whatever stages are requested, and the
+  ssp245harm builder needs the AR6 file unconditionally. The list of what must change before the repo is public is
+  in Ladrillo's CHANGELOG 10-08h.
+
 ## 2026-10-08h — The public MimiBRICK v2.0.0 posterior is NOT the one the paper's BRICK 2.0 arm uses
 
 **Asked (Marcus 10-08):** find a public URL for the BRICK 2.0 posterior, so Ladrillo.jl can fetch rather than ship it.
