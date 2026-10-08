@@ -120,6 +120,15 @@
      - So the record end is the likelihood's own cutoff, and the effect above IS the likelihood-weighted result.
      - All five joint-arm pairs stay rejected under every more lenient noise model tried.
      - Output: `outputs/record_likelihood_weights.csv`.
+   - ✅ **RULED 10-08 (Marcus):**
+     - The conditioning rerun is DEFERRED, to ride with the next substantive rerun; no rerun for it alone.
+     - Add a ONE-SENTENCE qualifier to 2.2.3 at the next full docx edit. Facts it must carry: about 0.1–0.15% of the
+       reported joint-arm draws (3 of 2,000 SSP, 2 of 2,000 vv) start fast dynamics by 2025, which the record rules
+       out. Conditioning moves medians < 0.3 cm and p95 < 4 cm, ≤ 0.4 bootstrap se.
+     - Candidate for Marcus to rewrite: *"In about 0.1% of the propagated draws the attached threshold is low enough that
+       fast dynamics begins before 2025, which the observed record rules out; conditioning on the record moves the
+       reported medians by less than 0.3 cm and the 95th percentiles by less than 4 cm, within their sampling
+       uncertainty."*
 6. **Wording that describes v1.0 mechanics:**
    - **Sect. 2.2.5 / Table A3, land water:** the series now starts at 0. The draft never mentioned the step; its
      "< 0.02 cm" is the calibration-side swap and still stands.

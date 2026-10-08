@@ -1,3 +1,14 @@
+## 2026-10-08g — Rulings: the conditioning rerun is deferred; a one-sentence qualifier goes in at the next full edit
+
+**Marcus 10-08:** "Save the conditioning rerun until we have something more substantive to do, and add a one sentence
+qualifier into the paper when we have the opportunity to do a full edit."
+- **No rerun now.** When the next substantive rerun happens, the joint arms should take the record-conditioned draws.
+  The likelihood weights (10-08f) reduce to dropping the onsets through 2025.
+- **The qualifier is queued for the docx pass,** with its facts and a candidate sentence:
+  `notes/ladrillo_v11_paper_number_diff_2026-10-08.md` §3.5.
+  - It must not say "none in the reported projections".
+  - The Very Low width 163 → 162 applies only if the rerun is done.
+
 ## 2026-10-08f — Likelihood-weighting test: the record itself rejects every fast-dynamics onset through 2025
 
 **Asked (Marcus 10-08):** score the crossing draws under the calibration likelihood instead of cutting at the record
