@@ -166,9 +166,16 @@ step "compensating-error diag"     "$lg" python python/diag_component_error_canc
 step "TE rate attribution"         "$lg" python python/diag_te_rate_attribution.py --tag=$T
 step "glacier response times"      "$lg" python python/diag_glacier_response_times.py --tag=$T
 step "Table A2 (10k subsample)"    "$lg" python python/ladrillo_table_a2.py --tag=$T --source=subsample
+## added 2026-10-08 after the paper-number map (CHANGELOG 10-08b): producers of quoted numbers the first list missed
+step "posterior predictive L27r (refit precision)" "$lg" $J julia/posterior_predictive_ladrillo.jl --tag=${T}r
+step "posterior predictive L27b (refit precision)" "$lg" $J julia/posterior_predictive_ladrillo.jl --tag=${T}b
+step "IMBIE 2026 vs targets (Sect. 3.1)"           "$lg" python python/diag_imbie2026_vs_targets.py --tag=$T
+step "refit precision (Sect. 3.2; reads raw chains)" "$lg" python python/diag_refit_precision.py --tags=L26,${T},${T}r,${T}b --ref=L26
 ## the benchmark is REFRESHED against its frozen v1.0 champion (benchmark/reference/L27), not re-frozen: re-freezing
 ## the champion on v1.1 is Marcus's call (handoff 10-08)
 step "benchmark (refresh vs the frozen v1.0 champion)" "$lg" python python/bench_ladrillo.py --tag=$T
+
+step "paper-number diff v1.0 -> v1.1" "$lg" python python/v11_paper_number_diff.py
 
 ## --- prune the snapshot to what moved ----------------------------------------------------------------
 moved=0; same=0
