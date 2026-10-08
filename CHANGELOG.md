@@ -1,3 +1,47 @@
+## 2026-10-08b — Ladrillo v1.1 rerun complete: every gate passes; paper-number diff for Marcus
+
+**Run** (`run_ladrillo_v11_rerun_20261008.sh`, 0 failed steps in each phase):
+- `regress`: 5 arms run under the v1.0 settings. [V1-REGRESSION] PASS: 16 shipped files reproduced exactly (cells,
+  draws, paths and gates for ssp585 and vvH FaIR, vvH MAGICC, BRICK 2.0 vvH, and the tapped panel), each with a 1-ulp
+  power check.
+- `arms`: 6 panels, then 63 arms in three streams, then the hindcast products (~23 min on a nearly idle machine).
+  - [CONTROL-EXACT] PASS on all 15 SSP arms: every fixed arm equals its panel exactly. Under v1.0 the same cells
+    differed by 0.14–1.31 cm, which is the gate's power.
+  - [TABLE5-INPUT]: the 3 residual files are byte-identical.
+- `downstream`: all figures and tables, Table A2 on the subsample, posterior predictives for L27r/L27b, IMBIE,
+  refit precision, and the paper-number diff.
+- Quarantine `outputs/quarantine/20261008_ladrillo_v10_superseded/` (README): 250 v1.0 files, SUPERSEDED not bugged.
+- The full 12-step suite (`run_ladrillo_tests.sh`) passes on the v1.1 code.
+
+**Checks on what moved:**
+- **Panel ordering:** v1.0 → v1.1 the panel's glaciers, Greenland and TE are identical in every row. Land water moves
+  by ≤ 2.8e-14 cm (re-referencing). Antarctica and the total move.
+- **The Ladrillo joint medians moved as resampling noise, not a bias:**
+  - signs are mixed: Antarctica 10 up and 20 down, total 16 up and 14 down;
+  - median |z| is 0.26–0.31 bootstrap se, max 1.64, none above 2;
+  - source: `python/diag_v11_paleo_change_vs_noise.py` → `outputs/diag_v11_paleo_change_vs_noise.csv`.
+- **The posterior predictive moved only in its 2026 95th percentiles,** by ≤ 0.001 cm. The Table 4 scorecard,
+  `diag_component_error_cancellation` and `diag_glacier_response_times` changed in their provenance text only.
+- **Benchmark:** 1 of 526 verdicts changed (SSP1-2.6 2300 total spread vs the literature, WARN → PASS). The frozen
+  champion is still v1.0; re-freezing is Marcus's call.
+
+**Paper** (`notes/ladrillo_v11_paper_number_diff_2026-10-08.md`, `outputs/v11_paper_number_diff_20261008.csv`):
+- **Changes from v1.1 itself:**
+  - tap contribution 36.5 → 34.7 cm (SSP2-4.5 0.3 → 0.0, a median-of-total artifact);
+  - amplification leverage 46 → 45;
+  - 1.196 reversion 15/32/6/13 → 14/34/7/12;
+  - refit precision 1.3 → 1.8 cm;
+  - High Ladrillo total 2300 428, AIS 250, AIS width 268;
+  - climate-swap decrease 17–22;
+  - Very Low width 163;
+  - "up to 31 cm" → 30.
+- Every ordering survives.
+- **Unchanged:** the hindcast numbers, Table 4, Table 5, IMBIE and the cumulative rise.
+- **Tony's copy still prints the pre-CMIP7 vv numbers;** the note gives printed → v1.0 file → v1.1 so both rounds go
+  in one pass.
+- **Mapping found one stale 10-07 number:** the Introduction's glacier responsiveness "1.3×" is 1.41 on the CMIP7
+  basis (glacier-only, so v1.1 does not change it).
+
 ## 2026-10-08 — Ladrillo v1.1: code (paleo single assignment + land-water frame fix), gates, and three findings
 
 **Rulings (Marcus 10-08, handoff 10-07c §2):**
