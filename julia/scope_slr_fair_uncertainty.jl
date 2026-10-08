@@ -421,8 +421,9 @@ const BUILD_SSP = let i = findfirst(a -> startswith(a, "--build-ssp="), ARGS)
     i === nothing ? "ssp245" : ARGS[i][13:end]
 end
 
-"""Run `idx` (draw indices) on a Ladrillo built at `g`/`o`; write into `out`."""
-function run_into!(out, idx, g, o)
+"""Run `idx` (draw indices) on a Ladrillo built at `g`/`o`; write into `out`. With `onset`, also record each draw's
+Antarctic fast-dynamics onset year read off the MODEL's own state (`typemax(Int)` if it never fires)."""
+function run_into!(out, idx, g, o; onset = nothing)
     bf = ladrillo_setup(ssp = BUILD_SSP, y0 = Y0, y1 = Y1, gis_variant = VARIANT, gmst = g, ohc = o, ais_ramp = AIS_RAMP)
     # BOTH arms get the same treatment: `fixed` taps on the MEAN path (so it still
     # reproduces the shipped tapped panel) and `joint` taps on each config's OWN path.
@@ -431,6 +432,13 @@ function run_into!(out, idx, g, o)
         ladrillo_run_draw!(bf, ROWS[k])
         for c in COMPONENTS
             out[c][k, :] = coalesce.(ladrillo_series(bf, c), NaN)
+        end
+        if onset !== nothing
+            # MimiBRICK antarctic_icesheet: fast dynamics while antartic_surface_temperature[t] > temperature_threshold,
+            # evaluated from the second time step on (the first sets initial conditions). Spelling is the component's.
+            tant = bf.m[_AIS, :antartic_surface_temperature]; thr = bf.m[_AIS, :temperature_threshold]
+            j = findfirst(t -> t >= 2 && !ismissing(tant[t]) && tant[t] > thr, eachindex(tant))
+            onset[k] = j === nothing ? typemax(Int) : bf.years[j]
         end
     end
     bf
@@ -446,12 +454,13 @@ run_into!(FIXED, 1:NDRAW, MEAN_G, MEAN_O)
 ## arm `joint`: one FaIR config per draw. Grouped by config so `ladrillo_setup`
 ## (0.54 s warm) is paid once per config, not once per draw.
 const JOINT = alloc()
+const MODEL_ONSET = fill(typemax(Int), NDRAW)     # read off each joint run; see RECORD CONDITIONING below
 let groups = Dict{String, Vector{Int}}()
     for k in 1:NDRAW; push!(get!(groups, CFG_OF_DRAW[k], Int[]), k); end
     @printf("  running arm `joint` (%d configs, %d draws) ...\n", length(groups), NDRAW); flush(stdout)
     n = 0
     for (c, idx) in groups
-        run_into!(JOINT, idx, gmst_of(c), ohc_of(c))
+        run_into!(JOINT, idx, gmst_of(c), ohc_of(c); onset = MODEL_ONSET)
         n += 1
         n % 100 == 0 && (@printf("    %d/%d configs\n", n, length(groups)); flush(stdout))
     end
@@ -463,6 +472,54 @@ yidx(y) = findfirst(==(y), YEARS)
 ## ==========================================================================
 @printf("\n%s\nGATES\n%s\n", repeat("=", 92), repeat("=", 92))
 rowsg = DataFrame(gate = String[], key = String[], value = Float64[], verdict = String[])
+
+## ---- RECORD CONDITIONING (Marcus 2026-10-08: "own-config, drop"; CHANGELOG 2026-10-08e/f/g) -------------------
+## L27 is calibrated with the paleo pair (lambda, T_crit) at its medians, which never fire over the record; the pair is
+## PROPAGATED, unconditioned. In the JOINT arm a few draws, on their OWN FaIR config, cross T_crit before the Antarctic
+## record ends, at a rate the record does not show. The calibration likelihood rejects every onset through the record
+## end (Delta log L -46 to -1703) and keeps every later onset with weight exactly 1 (10-08f), so the likelihood-weighted
+## posterior IS rejection at the record end: the joint arm DROPS every draw whose onset on the GMST it actually ran
+## with is <= RECORD_END, and leaves every other draw unchanged. FaIR-climate joint arms only (the ruling's scope).
+## The FIXED arm keeps all draws: it is the mean climate, on which no projection row crosses, and [CONTROL-EXACT]
+## must still compare it with the panel. Model-check gates below still run on all NDRAW joint draws.
+## --no-record-conditioning restores the v1.1 joint arm and writes "_uncond"-suffixed names.
+const RECORD_END = let tg = CSV.read(joinpath(REPO, "outputs/recalib_targets_ext.csv"), DataFrame)
+    maximum(Int(tg.year[i]) for i in 1:nrow(tg) if !ismissing(tg.ais[i]) && !isnan(Float64(tg.ais[i])))
+end
+const RECORD_CONDITION = CLIMATE == "fair" && !("--no-record-conditioning" in ARGS)
+const UNCOND_SFX = (CLIMATE == "fair" && !RECORD_CONDITION) ? "_uncond" : ""
+"""The trigger ported (Ladrillo.jl `fastdyn_onset_year`): T_ant(t) = (GMST(t-1) - intercept) / coefficient with
+coefficient = 1/amp and intercept = -LADRILLO_AIS_TANT0/amp, as ladrillo_run_draw! sets them; fires while T_ant > T_crit,
+never in the first year."""
+function formula_onset(row, g)
+    length(g) == length(YEARS) || error("formula_onset: gmst has $(length(g)) values for $(length(YEARS)) years")
+    a = Float64(row["ais_gmst_amp"]); tc = Float64(row["antarctic_temp_threshold"])
+    coeff, icept = 1.0 / a, -LADRILLO_AIS_TANT0 / a
+    for j in 2:length(YEARS)
+        (Float64(g[j-1]) - icept) / coeff > tc && return YEARS[j]
+    end
+    typemax(Int)
+end
+const JKEEP = RECORD_CONDITION ? findall(>(RECORD_END), MODEL_ONSET) : collect(1:NDRAW)
+const JSTAT = Dict(c => JOINT[c][JKEEP, :] for c in COMPONENTS)    # the joint arm every STATISTIC is computed on
+let fo = [formula_onset(ROWS[k], gmst_of(CFG_OF_DRAW[k])) for k in 1:NDRAW],
+    nmis = count(fo .!= MODEL_ONSET), drop = setdiff(1:NDRAW, JKEEP)
+    ## [TRIGGER-PORT] two implementations of the trigger must agree on EVERY draw, not only on the dropped ones.
+    @printf("  [TRIGGER-PORT] model onset vs ported formula: %d of %d draws differ -> %s\n",
+            nmis, NDRAW, nmis == 0 ? "PASS" : "FAIL")
+    push!(rowsg, ("TRIGGER-PORT", "draws_differing", Float64(nmis), nmis == 0 ? "PASS" : "FAIL"))
+    nmis == 0 || error("[TRIGGER-PORT] the model's fast-dynamics onset and the ported formula disagree")
+    ncross = count(<=(RECORD_END), MODEL_ONSET)
+    @printf("  [RECORD-CONDITIONING] record end %d | joint draws firing by then: %d | dropped: %d | %s\n",
+            RECORD_END, ncross, length(drop), RECORD_CONDITION ? "ON" : "OFF (--no-record-conditioning or not FaIR)")
+    push!(rowsg, ("RECORD-CONDITIONING", "record_end", Float64(RECORD_END), "measured"))
+    push!(rowsg, ("RECORD-CONDITIONING", "joint_draws_firing_by_record_end", Float64(ncross), "measured"))
+    push!(rowsg, ("RECORD-CONDITIONING", "joint_draws_dropped", Float64(length(drop)), RECORD_CONDITION ? "ON" : "OFF"))
+    for k in drop
+        push!(rowsg, ("REJECTED", "draw_$(k)_cfg_$(CFG_OF_DRAW[k])", Float64(MODEL_ONSET[k]), "onset_year"))
+        @printf("    dropped draw %d (config %s): fast dynamics on from %d\n", k, CFG_OF_DRAW[k], MODEL_ONSET[k])
+    end
+end
 
 ## [PAIRING] the assignment must be balanced and must not bias the forcing sample.
 let used = length(unique(CFG_OF_DRAW)),
@@ -630,7 +687,7 @@ for (arm, R) in (("fixed", FIXED), ("joint", JOINT))
     push!(rowsg, ("SUM", "$(arm)_max_cm", w, w < SUM_TOL_CM ? "PASS" : "FAIL"))
     @assert w < SUM_TOL_CM "[SUM] the components do not sum to the total for arm $arm"
 end
-CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_gates_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SHAPE_SFX)$(LADRILLO_V11_SFX)$(SMOKE ? "_SMOKE" : "").csv"), rowsg)
+CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_gates_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SHAPE_SFX)$(LADRILLO_V11_SFX)$(UNCOND_SFX)$(SMOKE ? "_SMOKE" : "").csv"), rowsg)
 
 ## ==========================================================================
 ## THE CELLS
@@ -652,7 +709,7 @@ cells = DataFrame(ssp = String[], component = String[], horizon = Int[], arm = S
 for c in COMPONENTS
     for H in HORIZONS
         f = FIXED[c][:, yidx(H)]; sf = quantile(f, 0.95) - quantile(f, 0.05)
-        for (arm, A) in (("fixed", FIXED[c]), ("joint", JOINT[c]))
+        for (arm, A) in (("fixed", FIXED[c]), ("joint", JSTAT[c]))
             v = A[:, yidx(H)]; sp = quantile(v, 0.95) - quantile(v, 0.05)
             push!(cells, (SSP, String(c), H, arm, length(v), median(v), mean(v),
                           quantile(v, 0.05), quantile(v, 0.95), sp, sp / sf,
@@ -666,9 +723,11 @@ end
 cells.provenance .= "scope_slr_fair_uncertainty.jl | Ladrillo $TAG | ssp $SSP | forcing $FORCING | climate $CLIMATE | " *
     "lws $(LWS_MODE) (mean $(LWS_MEAN) m/yr$(LWS_MODE === :seeded ? ", seed $LWS_SEED" : "")) | tap $(TAP_ON) | " *
     "run $Y0-$Y1 reref $(LADRILLO_REF[1])-$(LADRILLO_REF[2]) | draws from $(SOURCE == "subsample" ? basename(SUB_PATH) : "raw chains") | " *
-    "$(LADRILLO_V11_PROV) | julia $(VERSION)" *
+    "$(LADRILLO_V11_PROV) | record conditioning: " *
+    (RECORD_CONDITION ? "joint draws with fast-dynamics onset <= $(RECORD_END) on their own config DROPPED " *
+                        "($(NDRAW - length(JKEEP)) of $(NDRAW))" : "OFF") * " | julia $(VERSION)" *
     (isempty(SHAPE_SFX) ? "" : " | gis amp shape $(LADRILLO_GIS_SHAPE_STEM) (NON-DEFAULT)")
-CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_cells_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SHAPE_SFX)$(LADRILLO_V11_SFX)$(SMOKE ? "_SMOKE" : "").csv"), cells)
+CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_cells_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SHAPE_SFX)$(LADRILLO_V11_SFX)$(UNCOND_SFX)$(SMOKE ? "_SMOKE" : "").csv"), cells)
 
 ## ==========================================================================
 ## THE COMPARISON that motivated it
@@ -677,7 +736,7 @@ CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_cells_$(SSP)_$(FORCING)$(
 let iH = yidx(2300), cw = COULON_BAND[2] - COULON_BAND[1]
     @printf("  Coulon ssp585 AIS@2300: median %.0f, band %.0f-%.0f = %.0f cm wide\n",
             COULON_MED, COULON_BAND[1], COULON_BAND[2], cw)
-    for (arm, A) in (("fixed", FIXED[:ais]), ("joint", JOINT[:ais]))
+    for (arm, A) in (("fixed", FIXED[:ais]), ("joint", JSTAT[:ais]))
         v = A[:, iH]; sp = quantile(v, 0.95) - quantile(v, 0.05)
         @printf("  %-6s median %7.2f = %.2fx theirs;  band [%7.2f, %7.2f] = %6.2f cm = %.2fx their width\n",
                 arm, median(v), median(v) / COULON_MED, quantile(v, 0.05), quantile(v, 0.95),
@@ -689,19 +748,20 @@ end
 ## statistic can be recomputed without paying the run again.
 let dr = DataFrame(draw = Int[], config = String[], component = String[],
                    horizon = Int[], arm = String[], value_cm = Float64[])
-    for c in COMPONENTS, H in HORIZONS, (arm, A) in (("fixed", FIXED[c]), ("joint", JOINT[c])), k in 1:NDRAW
+    for c in COMPONENTS, H in HORIZONS, (arm, A) in (("fixed", FIXED[c]), ("joint", JOINT[c])),
+        k in (arm == "joint" ? JKEEP : 1:NDRAW)          # rejected joint draws are not written: conditioning DELETES them
         push!(dr, (k, CFG_OF_DRAW[k], String(c), H, arm, A[k, yidx(H)]))
     end
-    CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_draws_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SHAPE_SFX)$(LADRILLO_V11_SFX)$(SMOKE ? "_SMOKE" : "").csv"), dr)
+    CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_draws_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SHAPE_SFX)$(LADRILLO_V11_SFX)$(UNCOND_SFX)$(SMOKE ? "_SMOKE" : "").csv"), dr)
 end
 
 paths = DataFrame(year = Int[], component = String[], arm = String[],
                   med_cm = Float64[], p05_cm = Float64[], p95_cm = Float64[])
-for c in COMPONENTS, (arm, A) in (("fixed", FIXED[c]), ("joint", JOINT[c])), (i, y) in enumerate(YEARS)
+for c in COMPONENTS, (arm, A) in (("fixed", FIXED[c]), ("joint", JSTAT[c])), (i, y) in enumerate(YEARS)
     y < 1990 && continue
     v = A[:, i]
     push!(paths, (y, String(c), arm, median(v), quantile(v, 0.05), quantile(v, 0.95)))
 end
-CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_paths_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SHAPE_SFX)$(LADRILLO_V11_SFX)$(SMOKE ? "_SMOKE" : "").csv"), paths)
+CSV.write(joinpath(REPO, "outputs", "scope_slr_fairunc_paths_$(SSP)_$(FORCING)$(CLIM_TAG)_$(TAG)$(TAP_TAG)$(SHAPE_SFX)$(LADRILLO_V11_SFX)$(UNCOND_SFX)$(SMOKE ? "_SMOKE" : "").csv"), paths)
 @printf("\nwrote outputs/scope_slr_fairunc_{cells,draws,paths,gates}_%s_%s%s_%s%s%s.csv\n",
         SSP, FORCING, CLIM_TAG, TAG, TAP_TAG, SMOKE ? "_SMOKE" : "")
