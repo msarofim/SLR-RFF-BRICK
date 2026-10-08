@@ -115,6 +115,11 @@
      - Conditioning on 2026 instead moves it 163 → 159 (max 0.73 se).
      - Producer: `python/diag_record_crossing_effect.py` → `outputs/diag_record_crossing_effect_L27.csv`.
      - ⛔ **A qualifier must NOT say "none in the reported projections":** that is false for the joint arm.
+   - ✅ **LIKELIHOOD-WEIGHTING TEST (CHANGELOG 10-08f):** scored under the calibration likelihood, every draw whose fast
+     dynamics switches on by 2025 gets weight ≤ 1e-20, and every 2026 onset gets weight exactly 1.
+     - So the record end is the likelihood's own cutoff, and the effect above IS the likelihood-weighted result.
+     - All five joint-arm pairs stay rejected under every more lenient noise model tried.
+     - Output: `outputs/record_likelihood_weights.csv`.
 6. **Wording that describes v1.0 mechanics:**
    - **Sect. 2.2.5 / Table A3, land water:** the series now starts at 0. The draft never mentioned the step; its
      "< 0.02 cm" is the calibration-side swap and still stands.

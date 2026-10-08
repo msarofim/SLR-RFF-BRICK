@@ -1,3 +1,35 @@
+## 2026-10-08f — Likelihood-weighting test: the record itself rejects every fast-dynamics onset through 2025
+
+**Asked (Marcus 10-08):** score the crossing draws under the calibration likelihood instead of cutting at the record
+end. Full method, gates and table: Ladrillo.jl CHANGELOG 2026-10-08d. Output: `outputs/record_likelihood_weights.csv`
+(`scripts/record_likelihood_weights.jl` @ c9b0366).
+
+**The weight:**
+- L27 was sampled with λ and T_crit at their paleo medians, which never fire over the record. The record-conditioned
+  posterior is therefore reached exactly by importance weights.
+- w = L_ais(the draw's own λ and T_crit) / L_ais(fast dynamics off), from the calibrator's own Antarctic term:
+  AR(1) with the draw's `sd_ais` and `rho_ais`, plus the band as a correlated error with L = 100.
+- Gates:
+  - the on-residuals equal the Table 5 residual file on all 10,000 draws;
+  - all 9,996 non-firing draws have w = 1 exactly.
+
+**Result:**
+- **Every onset through 2025 is rejected.** Calibration climate: Δ log L −46 (row 4588, +0.20 cm in 2025 only), −397
+  and −802. Joint arm: −609 to −1703 (+1.1 to 2.3 cm by 2025).
+- **Every 2026 onset gets w = 1 exactly,** because the record has no 2026 year.
+- So the likelihood's own cutoff is the record end. That settles the 2025-versus-2026 edge: the 3 / 2 joint-arm draws
+  dropped at `last_year = 2025` (10-08e) are exactly the ones the likelihood removes. 10-08e's effect on the reported
+  numbers IS the likelihood-weighted result:
+  - medians ≤ 0.23 cm, p95 ≤ 3.8 cm, all ≤ 0.38 se;
+  - the Very Low total 2300 width 163.1 → 162.3.
+- **Pre-check:** row 4588's 0.20 cm one-year jump is 8.6 innovation sd, so Δ log L ≈ −37. The measured −46 agrees.
+
+**Noise-model sensitivity:** the band collapses to its 0.05 cm floor at the 2019 GRACE-FO splice. Under a diagonal,
+widened, or tripled band:
+- only row 4588 is model-dependent (w up to 0.35), and it is not a projection row;
+- all five joint-arm pairs stay rejected (w ≤ 2e-14 under the most lenient model).
+- The paper's joint arm is the same under all four models.
+
 ## 2026-10-08e — Decision 2's premise was the mean climate only: the joint arm holds record-crossing draws
 
 **Finding (after the ruling):** the handoff argued decision 2 on "none of the 4 crossing draws is among the 2,000
