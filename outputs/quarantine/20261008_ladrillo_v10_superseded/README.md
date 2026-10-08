@@ -43,6 +43,8 @@ These are the v1.0 bytes of every file the v1.1 rerun changed: 250 files in tota
 - **Provenance-only moves:** `diag_component_error_cancellation`, `diag_glacier_response_times` and the Table 4
   scorecard changed ONLY in their provenance text (date and commit). Their numbers are identical.
 - **Figures:** the 17 regenerated figures, including the paper's Figs 2–4 and 6 (`figures/paper/`).
+- **`benchmark/reference/L27/`:** the frozen v1.0 champion, copied here 2026-10-08 before Marcus's ruling re-froze the
+  champion on v1.1 (CHANGELOG 10-08c). It had been frozen 09-21 06:55, before even the 09-21 observed-land-water rerun.
 - **Note on the vv MAGICC-raw arms:** the 7 `*_vv*_raw_magiccclim_*` files carried FIXED-arm rows still on the
   Smith-basis FaIR mean, because the 10-07 CMIP7 rerun skipped them. Their joint rows were on MAGICC's own climate.
   The v1.1 rerun fixes both.

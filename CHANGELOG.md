@@ -1,3 +1,28 @@
+## 2026-10-08c — Rulings: the paper says "Ladrillo v1.1"; the benchmark champion is re-frozen on v1.1
+
+**Marcus 10-08:** "1 and 3: yes."
+- (1) The paper's version label becomes **Ladrillo v1.1** (title, Conclusions, Code availability). This goes into the
+  docx pass; the docx is untouched.
+- (3) Re-freeze the benchmark champion on v1.1.
+  - The v1.0 reference (`benchmark/reference/L27/`, frozen 09-21 06:55) was copied first to
+    `outputs/quarantine/20261008_ladrillo_v10_superseded/benchmark/reference/L27/`.
+  - That reference predated even the 09-21 switch to observed land water. It was stale relative to the shipped v1.0
+    arms.
+  - Then `bench_ladrillo.py --tag=L27 --freeze` (manifest `frozen_git_head` 2884b17), and the benchmark was re-scored.
+- Decisions 2 and 4 are deferred to the next session, which will ask with recommendations (handoff 10-08). Evidence
+  gathered for them:
+  - **(2) The 4 threshold-crossing draws** are rows 4182, 4588, 4618 and 9713 of the 10k file.
+    - **None is among the 2,000 projection rows** (1:5:10000), so no reported projection contains one.
+    - Their 2021–2026 Antarctic rates are 0.098–0.304 cm/yr, against 0.035–0.040 for the same draws without fast
+      dynamics: 2.5–8×.
+  - **(4) The Greenland tap, paired per draw** (tapped − untapped, same draws and configs, 2300):
+
+    | scenario | fires in | Greenland: paired median / mean (cm) | difference of the GIS medians (cm) | total: paired median / mean (cm) | difference of the total medians (cm) |
+    |---|---|---|---|---|---|
+    | SSP5-8.5 | 96% of draws | 38.8 / 34.6 | 37.5 | 39.2 / 35.0 | 34.7 (the statistic the draft quotes, 36.5 in v1.0) |
+    | SSP2-4.5 | 11% | 0 / 1.46 | 0.06 | 0 / 1.47 | 0.0 |
+    | SSP1-2.6 | 0.3% | 0 / 0.00 | 0 | 0 / 0.00 | 0 |
+
 ## 2026-10-08b — Ladrillo v1.1 rerun complete: every gate passes; paper-number diff for Marcus
 
 **Run** (`run_ladrillo_v11_rerun_20261008.sh`, 0 failed steps in each phase):
