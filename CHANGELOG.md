@@ -1,3 +1,37 @@
+## 2026-10-08h — The public MimiBRICK v2.0.0 posterior is NOT the one the paper's BRICK 2.0 arm uses
+
+**Asked (Marcus 10-08):** find a public URL for the BRICK 2.0 posterior, so Ladrillo.jl can fetch rather than ship it.
+
+**Found:** MimiBRICK v2.0.0's README points to Zenodo 10.5281/zenodo.20592337 ("Model output supporting MimiBRICK
+v2.0.0", 2026-06-08, CC-BY-4.0). Its `parameters_subsample_brick.csv` was downloaded to a session scratchpad with
+Marcus's OK (7,011,352 B, md5 `6487623e…` matching Zenodo's listing, sha256 `fecabef3…`).
+
+**It is a different calibration from ours** (`data/MimiBRICK/parameters_subsample_brick.csv`, 6,621,725 B, sha256
+`78247db8…`, Tony's post-PR#93 subsample installed 2026-05-22, memory `brick_post_pr93`):
+- Same 35 columns and 10,000 draws, but 0 of 350,000 cells and 0 rows match.
+- Most marginals agree within 0.4 of our sd. The outliers:
+  - `thermal_alpha`: median 0.054 vs 0.158, sd ratio 0.18;
+  - `antarctic_precip0`: −0.74 vs 0.80, stored in log space; ours is linear and `apply_brick20!` takes the log;
+  - `sd_gmsl` / `rho_gmsl`.
+- The three earlier versions of the record (17966962 v1.2.1, 6626335 v1.1.0, 6461560 v1.0) do not match ours either.
+- **Like-for-like on our FaIR forcing** (MimiBRICK v2.0.0 code, ssp245harm hindcast, 1,000 draws each, its precip
+  exponentiated so the same code path applies):
+
+  | | TE hindcast RMSE 1900–2025 | SSP2-4.5 TE 2100 / 2300 | AIS 2100 / 2300 |
+  |---|---|---|---|
+  | ours | 0.52 cm | 19.4 / 44.7 cm | 27.4 / 206 cm |
+  | Zenodo | 1.97 cm | 6.6 / 15.2 cm | 25.6 / 193 cm |
+
+  Glaciers and Greenland agree to within ~15% on RMSE.
+- **So it is not a drop-in substitute.** The likely cause is that it was calibrated on a different ocean-heat driver.
+  That is a hypothesis, not tested; Tony would know.
+- **The paper's BRICK 2.0 numbers rest on OUR file**, which has no public URL. Ladrillo.jl's
+  `tools/fetch_brick20_posterior.sh` documents this and still waits for one (Ladrillo CHANGELOG 2026-10-08e).
+
+**For Marcus / Tony:** either publish our file (e.g. a Zenodo record or a GitHub release asset; sha256 above), or move
+the BRICK 2.0 arm to the public v2.0.0 posterior. The second changes the BRICK 2.0 TE numbers ~3× and would be a
+substantive rerun, which could ride with the deferred conditioning rerun.
+
 ## 2026-10-08g — Rulings: the conditioning rerun is deferred; a one-sentence qualifier goes in at the next full edit
 
 **Marcus 10-08:** "Save the conditioning rerun until we have something more substantive to do, and add a one sentence
