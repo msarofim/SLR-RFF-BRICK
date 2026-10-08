@@ -1,4 +1,14 @@
-# Handoff 2026-10-08c: van Vuuren on the PUBLISHED emissions + record conditioning (rerun in progress)
+# Handoff 2026-10-08c: van Vuuren on the PUBLISHED emissions + record conditioning
+
+> ✅ **DONE 2026-10-08 18:40.** Every step of §3 ran and every gate passed; the results are in CHANGELOG 2026-10-08k.
+> SLR e567ea7 and Ladrillo 2a1a34b are pushed. FaIRtoFrEDI 202eb74/f22572a and facts d52b9ed4 are local: FaIRtoFrEDI's
+> branch also carries another session's unpushed pulse commits, and facts' origin is the public FACTS org.
+> **Open for Marcus:**
+>
+> 1. the climate-swap [ARM-MATCH] (the figure is not regenerated; ≤ 0.1 cm);
+> 2. the version label;
+> 3. the pulse arc's downstream;
+> 4. the docx pass, now three vv rounds.
 
 Follows `handoff_2026-10-08b_ladrillo_github.md` (done: private repo `msarofim/Ladrillo.jl`, fresh-clone fix).
 
