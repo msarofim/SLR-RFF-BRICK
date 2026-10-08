@@ -6,30 +6,54 @@ units, with the prior variance along each PC (identification) and a split R-hat 
 ridge?"  Answer: the unmixed direction is the PRIOR-DOMINATED one, not an identified ridge.
 
   python3 python/diag_ais_block_pca.py --tag=L26
+  python3 python/diag_ais_block_pca.py --tag=L27 --source=subsample
 Reads outputs/mcmc/chain_<tag>_seed{2026..2029}_n2000000.csv (2nd half, thinned 1:200), the paleo joint
 prior (outputs/paleo_geo_prior_ton.csv) for the geometry block and the tag's own dumped priors
 (outputs/ladrillo_priors_<tag>.csv) for the other ten parameters. Writes outputs/diag_ais_block_pca_<tag>.csv (+ provenance).
+--source=subsample (2026-10-07, decision 2 of the clean-repo build) reads the shipped 10k posterior subsample
+data/MimiBRICK/parameters_subsample_brick_mengel_<tag>.csv instead (2nd halves, every 400th iteration, in chain
+order: rows 1-2500 are chain 1, ...) and writes outputs/diag_ais_block_pca_<tag>_sub10k.csv.
 """
 import sys, os, datetime
 import numpy as np, pandas as pd
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAG = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
+SOURCE = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--source=")), "chains")
+assert SOURCE in ("chains", "subsample"), f"--source must be chains or subsample, got {SOURCE}"
+SEEDS = [2026, 2027, 2028, 2029]
+CHAIN_STRIDE = 200                 # --source=chains: 2nd half of each chain, every CHAIN_STRIDE-th iteration
+SUB_PER_CHAIN = 2500               # --source=subsample: rows per chain, in chain order
+SUB_FILE = os.path.join(REPO, f"data/MimiBRICK/parameters_subsample_brick_mengel_{TAG}.csv")
+SUFFIX = "" if SOURCE == "chains" else "_sub10k"
+SRC_DESC = (f"chains 2nd half thinned 1:{CHAIN_STRIDE}" if SOURCE == "chains" else
+            f"10k subsample {os.path.relpath(SUB_FILE, REPO)} ({len(SEEDS)} chains x {SUB_PER_CHAIN}, in chain order)")
 TBAR = -17.992322907746065          # LADRILLO_TBAR_ANT (ladrillo_projection.jl); only used for a --precip-reparam chain
 GEO = ["ais_mu", "ais_bedheight0", "ais_slope", "ais_iceflow0", "ais_precip0_LOG", "ais_runoff_Ton", "ais_c"]
 FD = ["ais_gmst_amp", "antarctic_alpha", "antarctic_nu", "antarctic_temp_threshold", "anto_alpha", "anto_beta",
       "antarctic_lambda", "antarctic_gamma", "antarctic_kappa", "ais_ocean_temperature₀"]
 ## tag-aware (2026-09-20, L27): parameters the tag does NOT sample (L27 holds lambda / T_crit / gamma at their
 ## paleo medians) are dropped from the block, read from the first chain's header -- never typed per tag.
-_hdr0 = open(os.path.join(REPO, f"outputs/mcmc/chain_{TAG}_seed2026_n2000000.csv")).readline().rstrip("\n").split(",")
+_hdr0 = open(os.path.join(REPO, f"outputs/mcmc/chain_{TAG}_seed2026_n2000000.csv") if SOURCE == "chains"
+             else SUB_FILE).readline().rstrip("\n").split(",")
 FD = [c for c in FD if c in _hdr0]
 USE = GEO + FD
 NP = len(USE)
+def _blocks():
+    if SOURCE == "chains":
+        for s in SEEDS:
+            f = os.path.join(REPO, f"outputs/mcmc/chain_{TAG}_seed{s}_n2000000.csv")
+            hdr = open(f).readline().rstrip("\n").split(",")
+            cols = [c for c in USE if c in hdr] + (["ais_precip_u"] if "ais_precip_u" in hdr else [])
+            d = pd.read_csv(f, usecols=cols); yield d.iloc[len(d) // 2::CHAIN_STRIDE].copy()
+    else:
+        hdr = _hdr0
+        cols = [c for c in USE if c in hdr] + (["ais_precip_u"] if "ais_precip_u" in hdr else [])
+        d = pd.read_csv(SUB_FILE, usecols=cols)
+        assert len(d) == len(SEEDS) * SUB_PER_CHAIN, f"{SUB_FILE}: {len(d)} rows, expected {len(SEEDS) * SUB_PER_CHAIN}"
+        for k in range(len(SEEDS)):
+            yield d.iloc[k * SUB_PER_CHAIN:(k + 1) * SUB_PER_CHAIN].copy()
 chains = []
-for s in [2026, 2027, 2028, 2029]:
-    f = os.path.join(REPO, f"outputs/mcmc/chain_{TAG}_seed{s}_n2000000.csv")
-    hdr = open(f).readline().rstrip("\n").split(",")
-    cols = [c for c in USE if c in hdr] + (["ais_precip_u"] if "ais_precip_u" in hdr else [])
-    d = pd.read_csv(f, usecols=cols); d = d.iloc[len(d) // 2::200].copy()
+for d in _blocks():
     if "ais_precip_u" in d:
         d["ais_precip0_LOG"] = d.ais_precip_u - d.antarctic_kappa * TBAR
     chains.append(d[USE])
@@ -50,7 +74,7 @@ Z = [(c.values - mu) / u for c in chains]
 Cpost = np.cov(np.vstack(Z).T); Cpri = S / np.outer(u, u)
 w, V = np.linalg.eigh(Cpost); o = np.argsort(w)[::-1]; w, V = w[o], V[:, o]
 out = []
-print(f"Antarctic block PCA, {TAG}, coordinates in prior-sd units; 4 chains x {len(Z[0])} draws")
+print(f"Antarctic block PCA, {TAG}, {SRC_DESC}, coordinates in prior-sd units; {len(Z)} chains x {len(Z[0])} draws")
 print(f"{'PC':>3} {'post var':>9} {'prior var':>9} {'post/prior':>10} {'R-hat':>6}  loadings |>0.3|")
 for k in range(NP):
     v = V[:, k]; pv = v @ Cpri @ v
@@ -61,7 +85,7 @@ for k in range(NP):
     out.append(dict(pc=k + 1, post_var=w[k], prior_var=pv, ratio=w[k] / pv, rhat=rhat, loadings=load,
                     **{f"v_{USE[i]}": v[i] for i in range(NP)}))
 df = pd.DataFrame(out)
-df["provenance"] = (f"diag_ais_block_pca.py | tag {TAG} | chains 2nd half thinned 1:200 | prior: paleo joint (geometry), "
+df["provenance"] = (f"diag_ais_block_pca.py | tag {TAG} | {SRC_DESC} | prior: paleo joint (geometry), "
                     f"this tag's own priors for the rest (outputs/ladrillo_priors_{TAG}.csv) | split R-hat over 4 chains | {datetime.date.today()}")
-df.to_csv(os.path.join(REPO, f"outputs/diag_ais_block_pca_{TAG}.csv"), index=False)
+df.to_csv(os.path.join(REPO, f"outputs/diag_ais_block_pca_{TAG}{SUFFIX}.csv"), index=False)
 print("cumulative variance first 3/5/8 PCs:", np.round(np.cumsum(w) / w.sum(), 2)[[2, 4, 7]])

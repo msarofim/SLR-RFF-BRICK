@@ -5,17 +5,21 @@ from outputs/diag_ais_block_pca_<tag>.csv (python/diag_ais_block_pca.py). A prin
 "identified" when its posterior variance is below IDENT_MAX of its prior variance; the number of
 prior-propagated components (ratio above PROP_MIN) is stated in the caption.
   python3 python/ladrillo_table_a2.py --tag=L24
-Writes outputs/ladrillo_table_a2_<tag>.md
+Writes outputs/ladrillo_table_a2_<tag>.md. --source=subsample reads diag_ais_block_pca_<tag>_sub10k.csv (the 10k
+posterior subsample; see diag_ais_block_pca.py) and writes ladrillo_table_a2_<tag>_sub10k.md.
 """
 import os, sys, pandas as pd, numpy as np
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAG = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
+SOURCE = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--source=")), "chains")
+assert SOURCE in ("chains", "subsample"), f"--source must be chains or subsample, got {SOURCE}"
+SUFFIX = "" if SOURCE == "chains" else "_sub10k"
 IDENT_MAX, PROP_MIN, LOAD_MIN = 0.20, 0.80, 0.30
 NAME = {"ais_mu": "µ", "ais_bedheight0": "b₀", "ais_slope": "slope", "ais_iceflow0": "f₀", "ais_precip0_LOG": "ln P₀",
         "ais_runoff_Ton": "T_on", "ais_c": "c", "ais_gmst_amp": "amp", "antarctic_alpha": "α_DAIS", "antarctic_nu": "ν",
         "antarctic_temp_threshold": "T_crit", "anto_alpha": "a_ANTO", "anto_beta": "b_ANTO", "antarctic_lambda": "λ",
         "antarctic_gamma": "γ", "antarctic_kappa": "κ_DAIS", "ais_ocean_temperature₀": "T_oc,0"}
-d = pd.read_csv(os.path.join(REPO, f"outputs/diag_ais_block_pca_{TAG}.csv"))
+d = pd.read_csv(os.path.join(REPO, f"outputs/diag_ais_block_pca_{TAG}{SUFFIX}.csv"))
 vcols = [c for c in d.columns if c.startswith("v_")]
 ident = d[d.ratio < IDENT_MAX].sort_values("ratio")
 nprop = int((d.ratio > PROP_MIN).sum()); npart = len(d) - nprop - len(ident)
@@ -42,6 +46,6 @@ cap = (f"**Table A2.** The directions in Antarctic parameter space that the obse
 lines = [cap, "", "| component | identified combination (loadings) | posterior variance, % of prior | R̂ |", "|---|---|---|---|"]
 for pc, combo, pct, rh in rows:
     lines.append(f"| {pc} | {combo} | {pct:.1f} | {rh:.3f} |")
-out = os.path.join(REPO, f"outputs/ladrillo_table_a2_{TAG}.md")
-open(out, "w").write("\n".join(lines) + f"\n\n<!-- ladrillo_table_a2.py | tag {TAG} | from diag_ais_block_pca_{TAG}.csv | IDENT_MAX {IDENT_MAX} PROP_MIN {PROP_MIN} LOAD_MIN {LOAD_MIN} -->\n")
+out = os.path.join(REPO, f"outputs/ladrillo_table_a2_{TAG}{SUFFIX}.md")
+open(out, "w").write("\n".join(lines) + f"\n\n<!-- ladrillo_table_a2.py | tag {TAG} | from diag_ais_block_pca_{TAG}{SUFFIX}.csv | IDENT_MAX {IDENT_MAX} PROP_MIN {PROP_MIN} LOAD_MIN {LOAD_MIN} -->\n")
 print("\n".join(lines)); print("wrote", os.path.relpath(out, REPO))

@@ -1,3 +1,27 @@
+## 2026-10-07d — Table A2 on the 10k subsample: the move is quantified, and it is inside sampling noise
+
+Decision 2 (Marcus 10-07): switch Table A2 from the raw chains to the 10k subsample, after quantifying the move.
+- `python/diag_ais_block_pca.py --source=subsample` reads `data/MimiBRICK/parameters_subsample_brick_mengel_L27.csv`
+  (stride 400, 4 × 2,500 rows in chain order). It writes `outputs/diag_ais_block_pca_L27_sub10k.csv`. The default
+  `--source=chains` path is unchanged.
+- `python/ladrillo_table_a2.py --source=subsample` writes `outputs/ladrillo_table_a2_L27_sub10k.md`.
+- **Regression:** chain mode, re-run from a scratch copy, reproduces the committed `diag_ais_block_pca_L27.csv` at
+  max|Δ| = 0.0 over all 19 numeric columns, and its loadings strings are equal.
+
+**The move** (unrounded comparison in the session scratchpad, `compare_a2.py`):
+- Identified rows (PC 12–14): the post/prior ratio moves at most 0.05 percentage points of prior variance.
+  - The between-chain standard error along the same fixed PCs is 0.81, 0.11 and 0.18 pp, so every move is within 0.5 se.
+  - The loadings agree to |cos| = 1.0000.
+- At the table's rounding, two cells change, both on a rounding boundary:
+  - PC 14 slope loading −0.54 → −0.53;
+  - PC 12 R̂ 1.018 → 1.017 (1.0175 vs 1.0166).
+- The caption is unchanged: 3 identified, 10 partly identified, 1 retains > 80 % (led by amp, c).
+- The prior-dominated rows move up to 0.017 in ratio. PC 1 R̂ is 1.166 on the chains and 1.173 on the subsample: the
+  known unmixed prior direction.
+
+**Adoption:** not applied to the GMD docx, which Tony holds. The table swap rides with whichever round carries the vv
+number changes (handoff 10-07c §2.4).
+
 ## 2026-10-07c — van Vuuren CMIP7 rerun complete (arms + FACTS + downstream); paper-number diff for Marcus
 
 **Status: all three phases done, every gate passing.**
