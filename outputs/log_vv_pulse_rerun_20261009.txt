@@ -1,0 +1,296 @@
+[10-09 06:08:23] quarantined 443 files -> /Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK/outputs/quarantine/20261009_vv_pulse_smith_harmonized
+[10-09 06:08:24] quarantined 136 files -> /Users/MarcusMarcus/Documents/2026/CodeProjects/FaIRtoFrEDI/magicc_comparison/processed/quarantine/20261009_vv_pulse_smith_harmonized
+[10-09 06:08:30] quarantined 42 files -> /Users/MarcusMarcus/Documents/2026/CodeProjects/MAGICC/slr-refresh/data/quarantine/20261009_vv_pulse_smith_harmonized
+[10-09 06:08:30] quarantined 609 files -> /Users/MarcusMarcus/Documents/2026/CodeProjects/facts/quarantine/20261009_vv_pulse_smith_harmonized
+[10-09 06:08:47] START  scenario vvVL co2
+[10-09 06:08:47] START  FACTS pulse climate (21 arms, n200)
+[10-09 06:08:50] OK     scenario vvVL co2
+[10-09 06:08:50] START  MAGICC vvVL co2 (n600)
+[10-09 06:08:50] OK     FACTS pulse climate (21 arms, n200)
+[10-09 06:08:50] START  FACTS configs
+[10-09 06:08:50] OK     FACTS configs
+[10-09 06:08:50] START  FACTS 21 experiments (Docker)
+[10-09 06:19:00] OK     MAGICC vvVL co2 (n600)
+[10-09 06:19:00] START  extract vvVL co2
+[10-09 06:19:07] OK     extract vvVL co2
+[10-09 06:19:07] START  scenario vvVL ch4
+[10-09 06:19:10] OK     scenario vvVL ch4
+[10-09 06:19:10] START  MAGICC vvVL ch4 (n600)
+[10-09 06:27:41] OK     MAGICC vvVL ch4 (n600)
+[10-09 06:27:41] START  extract vvVL ch4
+[10-09 06:27:47] OK     extract vvVL ch4
+[10-09 06:27:47] START  scenario vvL co2
+[10-09 06:27:50] OK     scenario vvL co2
+[10-09 06:27:50] START  MAGICC vvL co2 (n600)
+[10-09 06:30:08] START  Ladrillo L27 vvVL CO2 (FaIR, conditioned)
+[10-09 06:30:08] START  Ladrillo L27 vvVL CH4 (FaIR, conditioned)
+[10-09 06:32:22] OK     FACTS 21 experiments (Docker)
+[10-09 06:32:22] START  FACTS extract
+[10-09 06:32:24] OK     FACTS extract
+[10-09 06:32:24] facts phase done, 0 failures
+[10-09 06:32:24] START  BRICK 2.0 vvVL CO2 (FaIR)
+[10-09 06:33:48] OK     Ladrillo L27 vvVL CO2 (FaIR, conditioned)
+[10-09 06:33:48] START  Ladrillo L27 vvL CO2 (FaIR, conditioned)
+[10-09 06:33:50] OK     Ladrillo L27 vvVL CH4 (FaIR, conditioned)
+[10-09 06:33:50] START  Ladrillo L27 vvL CH4 (FaIR, conditioned)
+[10-09 06:34:49] OK     BRICK 2.0 vvVL CO2 (FaIR)
+[10-09 06:34:49] START  BRICK 2.0 vvVL CH4 (FaIR)
+[10-09 06:36:55] OK     BRICK 2.0 vvVL CH4 (FaIR)
+[10-09 06:36:55] START  BRICK 2.0 vvL CO2 (FaIR)
+[10-09 06:36:58] OK     Ladrillo L27 vvL CO2 (FaIR, conditioned)
+[10-09 06:36:58] START  Ladrillo L27 vvLN CO2 (FaIR, conditioned)
+[10-09 06:37:00] OK     Ladrillo L27 vvL CH4 (FaIR, conditioned)
+[10-09 06:37:00] START  Ladrillo L27 vvLN CH4 (FaIR, conditioned)
+[10-09 06:37:01] OK     MAGICC vvL co2 (n600)
+[10-09 06:37:01] START  extract vvL co2
+[10-09 06:37:09] OK     extract vvL co2
+[10-09 06:37:09] START  scenario vvL ch4
+[10-09 06:37:12] OK     scenario vvL ch4
+[10-09 06:37:12] START  MAGICC vvL ch4 (n600)
+[10-09 06:38:37] OK     BRICK 2.0 vvL CO2 (FaIR)
+[10-09 06:38:37] START  BRICK 2.0 vvL CH4 (FaIR)
+[10-09 06:39:46] OK     Ladrillo L27 vvLN CO2 (FaIR, conditioned)
+[10-09 06:39:46] START  Ladrillo L27 vvML CO2 (FaIR, conditioned)
+[10-09 06:39:50] OK     Ladrillo L27 vvLN CH4 (FaIR, conditioned)
+[10-09 06:39:50] START  Ladrillo L27 vvML CH4 (FaIR, conditioned)
+[10-09 06:40:57] OK     BRICK 2.0 vvL CH4 (FaIR)
+[10-09 06:40:57] START  BRICK 2.0 vvLN CO2 (FaIR)
+[10-09 06:43:15] OK     Ladrillo L27 vvML CO2 (FaIR, conditioned)
+[10-09 06:43:15] START  Ladrillo L27 vvM CO2 (FaIR, conditioned)
+[10-09 06:43:19] OK     Ladrillo L27 vvML CH4 (FaIR, conditioned)
+[10-09 06:43:19] START  Ladrillo L27 vvM CH4 (FaIR, conditioned)
+[10-09 06:43:21] OK     BRICK 2.0 vvLN CO2 (FaIR)
+[10-09 06:43:21] START  BRICK 2.0 vvLN CH4 (FaIR)
+[10-09 06:45:40] OK     BRICK 2.0 vvLN CH4 (FaIR)
+[10-09 06:45:40] START  BRICK 2.0 vvML CO2 (FaIR)
+[10-09 06:46:26] OK     Ladrillo L27 vvM CO2 (FaIR, conditioned)
+[10-09 06:46:26] START  Ladrillo L27 vvHL CO2 (FaIR, conditioned)
+[10-09 06:46:27] OK     Ladrillo L27 vvM CH4 (FaIR, conditioned)
+[10-09 06:46:27] START  Ladrillo L27 vvHL CH4 (FaIR, conditioned)
+[10-09 06:46:29] OK     MAGICC vvL ch4 (n600)
+[10-09 06:46:29] START  extract vvL ch4
+[10-09 06:46:37] OK     extract vvL ch4
+[10-09 06:46:37] START  scenario vvLN co2
+[10-09 06:46:40] OK     scenario vvLN co2
+[10-09 06:46:40] START  MAGICC vvLN co2 (n600)
+[10-09 06:47:20] OK     BRICK 2.0 vvML CO2 (FaIR)
+[10-09 06:47:20] START  BRICK 2.0 vvML CH4 (FaIR)
+[10-09 06:49:34] OK     Ladrillo L27 vvHL CO2 (FaIR, conditioned)
+[10-09 06:49:34] START  Ladrillo L27 vvH CO2 (FaIR, conditioned)
+[10-09 06:49:35] OK     Ladrillo L27 vvHL CH4 (FaIR, conditioned)
+[10-09 06:49:35] START  Ladrillo L27 vvH CH4 (FaIR, conditioned)
+[10-09 06:49:42] OK     BRICK 2.0 vvML CH4 (FaIR)
+[10-09 06:49:42] START  BRICK 2.0 vvM CO2 (FaIR)
+[10-09 06:52:05] OK     BRICK 2.0 vvM CO2 (FaIR)
+[10-09 06:52:05] START  BRICK 2.0 vvM CH4 (FaIR)
+[10-09 06:53:08] OK     Ladrillo L27 vvH CH4 (FaIR, conditioned)
+[10-09 06:53:09] OK     Ladrillo L27 vvH CO2 (FaIR, conditioned)
+[10-09 06:53:09] ladrillo phase done, 0 failures
+[10-09 06:54:20] OK     BRICK 2.0 vvM CH4 (FaIR)
+[10-09 06:54:20] START  BRICK 2.0 vvHL CO2 (FaIR)
+[10-09 06:55:59] OK     MAGICC vvLN co2 (n600)
+[10-09 06:55:59] START  extract vvLN co2
+[10-09 06:56:04] OK     BRICK 2.0 vvHL CO2 (FaIR)
+[10-09 06:56:04] START  BRICK 2.0 vvHL CH4 (FaIR)
+[10-09 06:56:07] OK     extract vvLN co2
+[10-09 06:56:07] START  scenario vvLN ch4
+[10-09 06:56:10] OK     scenario vvLN ch4
+[10-09 06:56:10] START  MAGICC vvLN ch4 (n600)
+[10-09 06:57:48] OK     BRICK 2.0 vvHL CH4 (FaIR)
+[10-09 06:57:48] START  BRICK 2.0 vvH CO2 (FaIR)
+[10-09 06:59:49] OK     BRICK 2.0 vvH CO2 (FaIR)
+[10-09 06:59:49] START  BRICK 2.0 vvH CH4 (FaIR)
+[10-09 07:01:51] OK     BRICK 2.0 vvH CH4 (FaIR)
+[10-09 07:01:51] brick phase done, 0 failures
+[10-09 07:04:07] OK     MAGICC vvLN ch4 (n600)
+[10-09 07:04:07] START  extract vvLN ch4
+[10-09 07:04:13] OK     extract vvLN ch4
+[10-09 07:04:13] START  scenario vvML co2
+[10-09 07:04:15] OK     scenario vvML co2
+[10-09 07:04:15] START  MAGICC vvML co2 (n600)
+[10-09 07:11:26] OK     MAGICC vvML co2 (n600)
+[10-09 07:11:26] START  extract vvML co2
+[10-09 07:11:32] OK     extract vvML co2
+[10-09 07:11:32] START  scenario vvML ch4
+[10-09 07:11:34] OK     scenario vvML ch4
+[10-09 07:11:34] START  MAGICC vvML ch4 (n600)
+[10-09 07:18:53] OK     MAGICC vvML ch4 (n600)
+[10-09 07:18:53] START  extract vvML ch4
+[10-09 07:18:59] OK     extract vvML ch4
+[10-09 07:18:59] START  scenario vvM co2
+[10-09 07:19:01] OK     scenario vvM co2
+[10-09 07:19:01] START  MAGICC vvM co2 (n600)
+[10-09 07:26:01] OK     MAGICC vvM co2 (n600)
+[10-09 07:26:01] START  extract vvM co2
+[10-09 07:26:07] OK     extract vvM co2
+[10-09 07:26:07] START  scenario vvM ch4
+[10-09 07:26:09] OK     scenario vvM ch4
+[10-09 07:26:09] START  MAGICC vvM ch4 (n600)
+[10-09 07:33:09] OK     MAGICC vvM ch4 (n600)
+[10-09 07:33:09] START  extract vvM ch4
+[10-09 07:33:14] OK     extract vvM ch4
+[10-09 07:33:14] START  scenario vvHL co2
+[10-09 07:33:16] OK     scenario vvHL co2
+[10-09 07:33:16] START  MAGICC vvHL co2 (n600)
+[10-09 07:40:11] OK     MAGICC vvHL co2 (n600)
+[10-09 07:40:11] START  extract vvHL co2
+[10-09 07:40:17] OK     extract vvHL co2
+[10-09 07:40:17] START  scenario vvHL ch4
+[10-09 07:40:19] OK     scenario vvHL ch4
+[10-09 07:40:19] START  MAGICC vvHL ch4 (n600)
+[10-09 07:47:18] OK     MAGICC vvHL ch4 (n600)
+[10-09 07:47:18] START  extract vvHL ch4
+[10-09 07:47:24] OK     extract vvHL ch4
+[10-09 07:47:24] START  scenario vvH co2
+[10-09 07:47:26] OK     scenario vvH co2
+[10-09 07:47:26] START  MAGICC vvH co2 (n600)
+[10-09 07:54:25] OK     MAGICC vvH co2 (n600)
+[10-09 07:54:25] START  extract vvH co2
+[10-09 07:54:30] OK     extract vvH co2
+[10-09 07:54:30] START  scenario vvH ch4
+[10-09 07:54:32] OK     scenario vvH ch4
+[10-09 07:54:32] START  MAGICC vvH ch4 (n600)
+[10-09 08:01:33] OK     MAGICC vvH ch4 (n600)
+[10-09 08:01:33] START  extract vvH ch4
+[10-09 08:01:39] OK     extract vvH ch4
+[10-09 08:01:39] START  MAGICC pulse wide CO2
+[10-09 08:02:12] OK     MAGICC pulse wide CO2
+[10-09 08:02:12] START  MAGICC pulse wide CH4
+[10-09 08:02:45] OK     MAGICC pulse wide CH4
+[10-09 08:02:45] magicc phase done, 0 failures
+[10-09 08:04:08] START  BRICK 2.0 vvVL CO2 MAGICC climate (spliced)
+[10-09 08:04:08] START  Ladrillo L27 vvVL CO2 MAGICC climate (spliced)
+[10-09 08:05:06] OK     BRICK 2.0 vvVL CO2 MAGICC climate (spliced)
+[10-09 08:05:06] START  Ladrillo L27 vvVL CH4 MAGICC climate (spliced)
+[10-09 08:05:28] OK     Ladrillo L27 vvVL CO2 MAGICC climate (spliced)
+[10-09 08:05:28] START  BRICK 2.0 vvVL CH4 MAGICC climate (spliced)
+[10-09 08:06:30] OK     BRICK 2.0 vvVL CH4 MAGICC climate (spliced)
+[10-09 08:06:30] START  Ladrillo L27 vvL CO2 MAGICC climate (spliced)
+[10-09 08:06:31] OK     Ladrillo L27 vvVL CH4 MAGICC climate (spliced)
+[10-09 08:06:31] START  BRICK 2.0 vvL CO2 MAGICC climate (spliced)
+[10-09 08:07:30] OK     BRICK 2.0 vvL CO2 MAGICC climate (spliced)
+[10-09 08:07:30] START  Ladrillo L27 vvL CH4 MAGICC climate (spliced)
+[10-09 08:07:55] OK     Ladrillo L27 vvL CO2 MAGICC climate (spliced)
+[10-09 08:07:55] START  BRICK 2.0 vvL CH4 MAGICC climate (spliced)
+[10-09 08:08:54] OK     BRICK 2.0 vvL CH4 MAGICC climate (spliced)
+[10-09 08:08:54] START  Ladrillo L27 vvLN CO2 MAGICC climate (spliced)
+[10-09 08:08:55] OK     Ladrillo L27 vvL CH4 MAGICC climate (spliced)
+[10-09 08:08:55] START  BRICK 2.0 vvLN CO2 MAGICC climate (spliced)
+[10-09 08:09:51] OK     BRICK 2.0 vvLN CO2 MAGICC climate (spliced)
+[10-09 08:09:51] START  Ladrillo L27 vvLN CH4 MAGICC climate (spliced)
+[10-09 08:10:16] OK     Ladrillo L27 vvLN CO2 MAGICC climate (spliced)
+[10-09 08:10:16] START  BRICK 2.0 vvLN CH4 MAGICC climate (spliced)
+[10-09 08:11:11] OK     BRICK 2.0 vvLN CH4 MAGICC climate (spliced)
+[10-09 08:11:11] START  Ladrillo L27 vvML CO2 MAGICC climate (spliced)
+[10-09 08:11:11] OK     Ladrillo L27 vvLN CH4 MAGICC climate (spliced)
+[10-09 08:11:11] START  BRICK 2.0 vvML CO2 MAGICC climate (spliced)
+[10-09 08:12:05] OK     BRICK 2.0 vvML CO2 MAGICC climate (spliced)
+[10-09 08:12:05] START  Ladrillo L27 vvML CH4 MAGICC climate (spliced)
+[10-09 08:12:29] OK     Ladrillo L27 vvML CO2 MAGICC climate (spliced)
+[10-09 08:12:29] START  BRICK 2.0 vvML CH4 MAGICC climate (spliced)
+[10-09 08:13:24] OK     BRICK 2.0 vvML CH4 MAGICC climate (spliced)
+[10-09 08:13:24] START  Ladrillo L27 vvM CO2 MAGICC climate (spliced)
+[10-09 08:13:24] OK     Ladrillo L27 vvML CH4 MAGICC climate (spliced)
+[10-09 08:13:24] START  BRICK 2.0 vvM CO2 MAGICC climate (spliced)
+[10-09 08:14:19] OK     BRICK 2.0 vvM CO2 MAGICC climate (spliced)
+[10-09 08:14:19] START  Ladrillo L27 vvM CH4 MAGICC climate (spliced)
+[10-09 08:14:42] OK     Ladrillo L27 vvM CO2 MAGICC climate (spliced)
+[10-09 08:14:42] START  BRICK 2.0 vvM CH4 MAGICC climate (spliced)
+[10-09 08:15:37] OK     BRICK 2.0 vvM CH4 MAGICC climate (spliced)
+[10-09 08:15:37] START  Ladrillo L27 vvHL CO2 MAGICC climate (spliced)
+[10-09 08:15:37] OK     Ladrillo L27 vvM CH4 MAGICC climate (spliced)
+[10-09 08:15:37] START  BRICK 2.0 vvHL CO2 MAGICC climate (spliced)
+[10-09 08:16:32] OK     BRICK 2.0 vvHL CO2 MAGICC climate (spliced)
+[10-09 08:16:32] START  Ladrillo L27 vvHL CH4 MAGICC climate (spliced)
+[10-09 08:16:56] OK     Ladrillo L27 vvHL CO2 MAGICC climate (spliced)
+[10-09 08:16:56] START  BRICK 2.0 vvHL CH4 MAGICC climate (spliced)
+[10-09 08:17:51] OK     Ladrillo L27 vvHL CH4 MAGICC climate (spliced)
+[10-09 08:17:51] START  Ladrillo L27 vvH CO2 MAGICC climate (spliced)
+[10-09 08:17:51] OK     BRICK 2.0 vvHL CH4 MAGICC climate (spliced)
+[10-09 08:17:51] START  BRICK 2.0 vvH CO2 MAGICC climate (spliced)
+[10-09 08:18:47] OK     BRICK 2.0 vvH CO2 MAGICC climate (spliced)
+[10-09 08:18:47] START  Ladrillo L27 vvH CH4 MAGICC climate (spliced)
+[10-09 08:19:10] OK     Ladrillo L27 vvH CO2 MAGICC climate (spliced)
+[10-09 08:19:10] START  BRICK 2.0 vvH CH4 MAGICC climate (spliced)
+[10-09 08:20:06] OK     BRICK 2.0 vvH CH4 MAGICC climate (spliced)
+[10-09 08:20:06] START  Ladrillo L27 vvVL CO2 MAGICC climate (raw)
+[10-09 08:20:06] OK     Ladrillo L27 vvH CH4 MAGICC climate (spliced)
+[10-09 08:20:06] START  BRICK 2.0 vvVL CO2 MAGICC climate (raw)
+[10-09 08:21:01] OK     BRICK 2.0 vvVL CO2 MAGICC climate (raw)
+[10-09 08:21:01] START  Ladrillo L27 vvVL CH4 MAGICC climate (raw)
+[10-09 08:21:24] OK     Ladrillo L27 vvVL CO2 MAGICC climate (raw)
+[10-09 08:21:24] START  BRICK 2.0 vvVL CH4 MAGICC climate (raw)
+[10-09 08:22:19] OK     Ladrillo L27 vvVL CH4 MAGICC climate (raw)
+[10-09 08:22:19] START  Ladrillo L27 vvL CO2 MAGICC climate (raw)
+[10-09 08:22:19] OK     BRICK 2.0 vvVL CH4 MAGICC climate (raw)
+[10-09 08:22:19] START  BRICK 2.0 vvL CO2 MAGICC climate (raw)
+[10-09 08:23:14] OK     BRICK 2.0 vvL CO2 MAGICC climate (raw)
+[10-09 08:23:14] START  Ladrillo L27 vvL CH4 MAGICC climate (raw)
+[10-09 08:23:38] OK     Ladrillo L27 vvL CO2 MAGICC climate (raw)
+[10-09 08:23:38] START  BRICK 2.0 vvL CH4 MAGICC climate (raw)
+[10-09 08:24:33] OK     Ladrillo L27 vvL CH4 MAGICC climate (raw)
+[10-09 08:24:33] START  Ladrillo L27 vvLN CO2 MAGICC climate (raw)
+[10-09 08:24:33] OK     BRICK 2.0 vvL CH4 MAGICC climate (raw)
+[10-09 08:24:33] START  BRICK 2.0 vvLN CO2 MAGICC climate (raw)
+[10-09 08:25:28] OK     BRICK 2.0 vvLN CO2 MAGICC climate (raw)
+[10-09 08:25:28] START  Ladrillo L27 vvLN CH4 MAGICC climate (raw)
+[10-09 08:25:51] OK     Ladrillo L27 vvLN CO2 MAGICC climate (raw)
+[10-09 08:25:51] START  BRICK 2.0 vvLN CH4 MAGICC climate (raw)
+[10-09 08:26:46] OK     BRICK 2.0 vvLN CH4 MAGICC climate (raw)
+[10-09 08:26:46] START  Ladrillo L27 vvML CO2 MAGICC climate (raw)
+[10-09 08:26:47] OK     Ladrillo L27 vvLN CH4 MAGICC climate (raw)
+[10-09 08:26:47] START  BRICK 2.0 vvML CO2 MAGICC climate (raw)
+[10-09 08:27:42] OK     BRICK 2.0 vvML CO2 MAGICC climate (raw)
+[10-09 08:27:42] START  Ladrillo L27 vvML CH4 MAGICC climate (raw)
+[10-09 08:28:05] OK     Ladrillo L27 vvML CO2 MAGICC climate (raw)
+[10-09 08:28:05] START  BRICK 2.0 vvML CH4 MAGICC climate (raw)
+[10-09 08:29:00] OK     BRICK 2.0 vvML CH4 MAGICC climate (raw)
+[10-09 08:29:00] START  Ladrillo L27 vvM CO2 MAGICC climate (raw)
+[10-09 08:29:00] OK     Ladrillo L27 vvML CH4 MAGICC climate (raw)
+[10-09 08:29:00] START  BRICK 2.0 vvM CO2 MAGICC climate (raw)
+[10-09 08:29:55] OK     BRICK 2.0 vvM CO2 MAGICC climate (raw)
+[10-09 08:29:55] START  Ladrillo L27 vvM CH4 MAGICC climate (raw)
+[10-09 08:30:18] OK     Ladrillo L27 vvM CO2 MAGICC climate (raw)
+[10-09 08:30:18] START  BRICK 2.0 vvM CH4 MAGICC climate (raw)
+[10-09 08:31:14] OK     BRICK 2.0 vvM CH4 MAGICC climate (raw)
+[10-09 08:31:14] START  Ladrillo L27 vvHL CO2 MAGICC climate (raw)
+[10-09 08:31:14] OK     Ladrillo L27 vvM CH4 MAGICC climate (raw)
+[10-09 08:31:14] START  BRICK 2.0 vvHL CO2 MAGICC climate (raw)
+[10-09 08:32:09] OK     BRICK 2.0 vvHL CO2 MAGICC climate (raw)
+[10-09 08:32:09] START  Ladrillo L27 vvHL CH4 MAGICC climate (raw)
+[10-09 08:32:33] OK     Ladrillo L27 vvHL CO2 MAGICC climate (raw)
+[10-09 08:32:33] START  BRICK 2.0 vvHL CH4 MAGICC climate (raw)
+[10-09 08:33:28] OK     Ladrillo L27 vvHL CH4 MAGICC climate (raw)
+[10-09 08:33:28] START  Ladrillo L27 vvH CO2 MAGICC climate (raw)
+[10-09 08:33:29] OK     BRICK 2.0 vvHL CH4 MAGICC climate (raw)
+[10-09 08:33:29] START  BRICK 2.0 vvH CO2 MAGICC climate (raw)
+[10-09 08:34:23] OK     BRICK 2.0 vvH CO2 MAGICC climate (raw)
+[10-09 08:34:23] START  Ladrillo L27 vvH CH4 MAGICC climate (raw)
+[10-09 08:34:47] OK     Ladrillo L27 vvH CO2 MAGICC climate (raw)
+[10-09 08:34:47] START  BRICK 2.0 vvH CH4 MAGICC climate (raw)
+[10-09 08:35:42] OK     Ladrillo L27 vvH CH4 MAGICC climate (raw)
+[10-09 08:35:43] OK     BRICK 2.0 vvH CH4 MAGICC climate (raw)
+[10-09 08:35:43] magiccclim phase done, 0 failures
+[10-09 08:36:10] START  cross-model table
+[10-09 08:36:12] OK     cross-model table
+[10-09 08:36:12] START  scenario dependence 2300
+[10-09 08:36:21] OK     scenario dependence 2300
+[10-09 08:36:21] START  module vs climate ladrillo CO2
+[10-09 08:36:22] OK     module vs climate ladrillo CO2
+[10-09 08:36:22] START  module vs climate ladrillo CH4
+[10-09 08:36:22] OK     module vs climate ladrillo CH4
+[10-09 08:36:22] START  module vs climate brick2 CO2
+[10-09 08:36:23] OK     module vs climate brick2 CO2
+[10-09 08:36:23] START  module vs climate brick2 CH4
+[10-09 08:36:23] OK     module vs climate brick2 CH4
+[10-09 08:36:23] START  pulse duration
+[10-09 08:36:24] OK     pulse duration
+[10-09 08:36:24] START  pulse duration figures
+[10-09 08:36:27] OK     pulse duration figures
+[10-09 08:36:27] START  iGMST ordering
+[10-09 08:36:30] OK     iGMST ordering
+[10-09 08:36:30] START  TE/OHC mechanism
+[10-09 08:36:33] OK     TE/OHC mechanism
+[10-09 08:36:33] START  doc tables
+[10-09 08:36:33] FAILED doc tables (rc=1)
+[10-09 08:36:33] downstream phase done, 1 failures

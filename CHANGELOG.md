@@ -1,3 +1,85 @@
+## 2026-10-09 — The van Vuuren PULSE ARC re-run on the 10-08 cubes and Ladrillo L27 (v1.2): done; what moved
+
+**Marcus 10-09** (handoff `notes/handoff_2026-10-09_pulse_arc_rerun.md` §1):
+- the posterior is L27 = "Ladrillo v1.2";
+- record conditioning on the Ladrillo FaIR pulse arm (own config, drop);
+- the MAGICC-climate Ladrillo arm runs 2,000 draws paired with the FaIR arm;
+- a FACTS discrete re-pick that is non-causal is treated as BLIND.
+
+**Why.** Every live pulse product dated 09-04..09-07 and sat on the Smith-history + harmonized-tail vv cubes. Neither
+the 10-02 nor the 10-08 rebuild re-ran anything downstream: `run_vv_cmip7_rerun_20261007.sh` claimed to cover every
+`fair_*_vv*` reader and missed the whole arc. Setup (quarantine `20261009_vv_pulse_smith_harmonized` in four repos,
+the L27 port of `scope_slr_pulse_vv.jl` and its new gates) is f2819c8.
+
+**Runs** (`run_vv_pulse_rerun_20261009{,_ladrillo}.sh`, all from frozen copies):
+- MAGICC stage 4 (14 at n600): 0 failures. [SUB-PREINDUSTRIAL] fails only vvLN @2300 (99.5 %, NOT REPORTABLE, as
+  before). **vvML is now clean at 2300** (it was 372/600 degraded). The wide build passes [BASELINE-SHARED] and
+  [PREPULSE-EXACT] exactly.
+- FACTS stage 5 (21): 0 failures. deconto21 is ruled BLIND at vvVL (member 23 re-picks under either pulse);
+  [NONCAUSAL-OMITTED] is 4.8e-7 cm against a 4-ulp tolerance (FTF 617e00c).
+  - ⚠ `outputs/log_vvp_facts.txt` is the runner's PRE-rule pass (06:32: it prints wf3f vvVL CO2 2300 = 0.111 cm and no
+    [NONCAUSAL-OMITTED] line).
+  - The canonical FACTS cells and gates (06:40) carry the rule: 0.0194 cm, and the gate rows are in
+    `pulse_facts_gates_vv_2030_n200.csv`.
+  - That log is therefore NOT committed. Read the gates CSV.
+- BRICK 2.0 stage 3 (14): 0 failures.
+- Ladrillo FaIR arms (14): 0 failures, 16 / 16 gate lines PASS in every log. [LEVEL-MATCH] holds on every marker:
+  35,964 cells bit-identical to the level vv arm, including vvH after the production run overwrote the test output.
+  2 draws dropped per marker.
+- magiccclim (28 Ladrillo + 28 BRICK 2.0, spliced + raw): 0 failures, 08:04 → 08:35. The Ladrillo arm is on the
+  common draw set (1,998).
+- downstream (11 steps): 10 OK. ⛔ **`build_pulse_doc_tables.py` FAILED** on [SAME-STATISTIC] at **1.02×** its bound:
+  - MAGICC vvVL CO2, 25 ulps (3.4e-15 relative) against a √600-ulp bound;
+  - all three cells above 0.5× are MAGICC; the other 67 cells are ≤ 1 ulp.
+  - The bound is a one-sigma random-walk scale used as a hard maximum over 70 cells, so this is summation-order noise.
+    A wrong draw set or denominator would show at ≥ 1e-4.
+  - **Left unedited** (standing rule: never edit a gate to make it pass); options are in the note §8a. The doc tables
+    and the L27 section are therefore NOT built.
+  - Separately, `diag_igmst_ordering_vv.py` [SHIPPED-EXCHANGE] is 0 / 3, which is EXPECTED: its typed 09-07 constants
+    are what this re-run supersedes.
+
+**What moved** (`notes/pulse_rerun_diff_2026-10-09.md`; every number is in
+`FaIRtoFrEDI/magicc_comparison/processed/pulse_rerun_diff_20261009.csv`, made by `diag_pulse_rerun_diff_20261009.py`;
+its [OLD-REPRODUCES-SHIPPED] reproduces 0.913 / 0.637 / 1.024 and the 25 % / 16 % totals from the old files).
+⚠ Ladrillo moved on TWO axes (the cubes and L24 → L27); the other models on the inputs only.
+- **Per Gt:** Ladrillo's median over markers is ×0.92 / ×0.89 (CO2 2100 / 2300). BRICK 2.0 is ×1.13 / ×1.19.
+  - BRICK 2.0's rise is all Antarctic threshold premium (p_fired up, smooth term flat), and every one of its 28 total
+    and ais cells is within 2 se (median z +0.66).
+  - MAGICC is ×0.97 / ×0.98; FACTS moved ≤ 1 %.
+  - "@2100 the three agree" holds. MAGICC's warm-marker excess at 2300 grows to 2.9–3.3× (vvH).
+- **Tail share:** the THRESHOLD/SMOOTH classification survives. CO2 @2100: Ladrillo 0.440–0.602, BRICK 2.0
+  0.572–0.771, MAGICC 0.114–0.163, FACTS 0.074–0.097.
+- **Duration:** CO2 t50 2203–2210 (was 2201–2210), CH4 2175–2181 (was 2175–2183). CH4 level-t90 MAGICC 2119 vs SLR
+  2071–2079 (was 2137 vs 2072–2074).
+- **CH4:CO2e exchange rate**, per-marker / median, 5 headline markers:
+  - MAGICC 0.640 / 0.667, Ladrillo 0.893 / 0.780, BRICK 2.0 0.943 / 0.902 (shipped 0.618 / 0.637, 0.820 / 0.913,
+    1.088 / 1.024);
+  - spread 1.76× → **1.47×** per-marker (1.61× → 1.35× median); the ordering survives;
+  - Ladrillo's median is still mixed-marker and moved the opposite way to its per-marker rate;
+  - the gap closed by the climate swap, per-marker: 107 % → 74 % (Ladrillo), 71 % → 85 % (BRICK 2.0).
+- **H/VL @2300 CO2:** Ladrillo 1.01× → 0.74×, BRICK 2.0 0.86× → 0.69×, MAGICC 3.55× → 3.45×, FACTS unchanged. The split
+  widens.
+- **Climate share @2300 CO2** (MC median [95 %]):
+  - Ladrillo total 25 [12, 35] → **22 [8, 41]**, ais 29 → **18 [5, 45]**, gis 10 → **14 [6, 33]**;
+  - BRICK 2.0 total 16 [1, 32] → **11 [−1, 25]** (⚠ now spans 0), ais 24 → **13 [1, 34]**, gis 2 → 2 [0, 5];
+  - MODULE-DOMINATED stands for both. On CH4 the total and ais shares still have no power; te overshoots
+    (217 % / 216 %).
+- **iGMST:** 1.3155 [1.2896, 1.3423] (was 1.3241 [1.2980, 1.3509]). Neither 1.433 nor 1.0 is inside: same verdict,
+  run as is.
+
+**Open for Marcus** (note §8):
+- (a) the [SAME-STATISTIC] fix; recommended: compute both tables from one shared function;
+- (b) vvML is now reportable on MAGICC, so whether `HEADLINE_MARKERS` should go from 5 to 6 (methodological; iGMST
+  would stop being pre-registered);
+- (c) update the [SHIPPED-EXCHANGE] constants once he accepts;
+- (d) where the L27 doc section goes.
+
+**Lesson, for memory:** a runner that claims to "re-run every reader" needs an INVENTORY gate. 10-07's claim had none,
+and the arc stayed two cube generations stale through two rebuilds.
+
+**Also 10-09:** Ladrillo.jl was re-tested from a GitHub clone at v1.2.0 (90 + 2 skipped, exact), stale labels were
+fixed (bfaefd7), and it was shared with Tony, private (Ladrillo CHANGELOG 2026-10-09).
+
 ## 2026-10-08m — The climate swap on the COMMON draw set; ⛔ the committed 10-08k swap was MIXED-VINTAGE
 
 **Marcus 10-08**, on 10-08k OPEN item 1: "common draw set". The swap holds the draws fixed and moves only the climate.

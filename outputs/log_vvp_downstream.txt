@@ -1,0 +1,713 @@
+  [DRAWS-MATCH] Ladrillo  14/14 PASS, worst relative residual 2.425e-13 (bound 1e-09)
+  [DRAWS-MATCH] Ladrillo/magiccclim 14/14 PASS, worst relative residual 1.714e-13 (bound 1e-09)
+  [DRAWS-MATCH] BRICK2.0  14/14 PASS, worst relative residual 3.061e-13 (bound 1e-09)
+  [DRAWS-MATCH] BRICK2.0/magiccclim 14/14 PASS, worst relative residual 2.145e-13 (bound 1e-09)
+  [ROWCOUNT] BRICK2.0 252, BRICK2.0/magiccclim 252, Ladrillo 252, Ladrillo/magiccclim 252 -- no model key holds a duplicated cell
+⚠⚠ BLANKED as NOT REPORTABLE (baseline goes sub-pre-industrial; MAGICC's
+   ice-sheet modules are outside their calibrated domain there):
+     LN  CH4  @2300  99.5 % of members sub-pre-industrial
+     LN  CO2  @2300  99.5 % of members sub-pre-industrial
+
+============================================================================================
+CROSS-MODEL TABLE (stages 2-5) -- what is in hand
+============================================================================================
+                            markers  rows
+model               specie               
+BRICK2.0            CH4           7   126
+                    CO2           7   126
+BRICK2.0/magiccclim CH4           7   126
+                    CO2           7   126
+FACTS/FittedISMIP   CH4           7    21
+                    CO2           7    21
+FACTS/ar5AIS        CH4           7    21
+                    CO2           7    21
+FACTS/ar5glaciers   CH4           7    21
+                    CO2           7    21
+FACTS/bamber19      CH4           7    42
+                    CO2           7    42
+FACTS/deconto21     CH4           7    21
+                    CO2           7    21
+FACTS/larmip        CH4           7    21
+                    CO2           7    21
+FACTS/ssp-lws       CH4           7    21
+                    CO2           7    21
+FACTS/tlm           CH4           7    21
+                    CO2           7    21
+FACTS/wf1f          CH4           7    21
+                    CO2           7    21
+FACTS/wf2f          CH4           7    21
+                    CO2           7    21
+FACTS/wf3f          CH4           7    21
+                    CO2           7    21
+FACTS/wf4           CH4           7    21
+                    CO2           7    21
+Ladrillo            CH4           7   126
+                    CO2           7   126
+Ladrillo/magiccclim CH4           7   126
+                    CO2           7   126
+MAGICC              CH4           7   126
+                    CO2           7   126
+
+  TOTAL CH4 @2100  (paired MEAN, cm per 0.01 Gt; '--' = no counterpart, never 0)
+model   BRICK2.0  BRICK2.0/magiccclim  FACTS/wf1f  FACTS/wf2f  FACTS/wf3f  FACTS/wf4  Ladrillo  Ladrillo/magiccclim  MAGICC
+marker                                                                                                                     
+H        0.01130              0.00687     0.00375     0.00593     0.00422    0.00323   0.00993              0.00704 0.00699
+HL       0.01039              0.00560     0.00340     0.00540     0.00383    0.00294   0.00834              0.00817 0.00619
+L        0.00873              0.00542     0.00340     0.00539     0.00382    0.00286   0.00698              0.00486 0.00619
+LN       0.01100              0.01146     0.00363     0.00569     0.00407    0.00306   0.00886              0.00666 0.00609
+M        0.01278              0.00923     0.00377     0.00593     0.00423    0.00323   0.01146              0.00606 0.00608
+ML       0.01328              0.00826     0.00383     0.00599     0.00429    0.00324   0.00908              0.00595 0.00606
+VL       0.00885              0.00553     0.00438     0.00672     0.00489    0.00365   0.01143              0.00785 0.00631
+  [TAIL-SHARE] top 5 % of members' share of the summed response -- the ONE mechanism-free cross-model column
+model   BRICK2.0  BRICK2.0/magiccclim  FACTS/wf1f  FACTS/wf2f  FACTS/wf3f  FACTS/wf4  Ladrillo  Ladrillo/magiccclim  MAGICC
+marker                                                                                                                     
+H          0.716                0.697       0.085       0.106       0.082      0.080     0.580                0.603   0.114
+HL         0.719                0.642       0.086       0.106       0.082      0.080     0.545                0.668   0.122
+L          0.689                0.582       0.080       0.106       0.077      0.079     0.486                0.355   0.155
+LN         0.735                0.807       0.080       0.106       0.076      0.079     0.564                0.537   0.145
+M          0.753                0.778       0.083       0.106       0.080      0.080     0.641                0.541   0.139
+ML         0.765                0.731       0.081       0.106       0.077      0.079     0.549                0.486   0.149
+VL         0.611                0.557       0.078       0.105       0.075      0.078     0.599                0.564   0.156
+    reference bands (400-replicate MC, flat in n -- see pulse_stats.py): smooth lognormal s=0.4 0.106, smooth s=0.8 0.196, threshold p=0.02 0.542, threshold p=0.10 0.322
+
+  TOTAL CH4 @2300  (paired MEAN, cm per 0.01 Gt; '--' = no counterpart, never 0)
+model   BRICK2.0  BRICK2.0/magiccclim  FACTS/wf1f  FACTS/wf2f  FACTS/wf3f  FACTS/wf4  Ladrillo  Ladrillo/magiccclim  MAGICC
+marker                                                                                                                     
+H        0.01006              0.00611     0.00245     0.00498     0.00316    0.00105   0.00902              0.00707 0.01123
+HL       0.01505              0.00945     0.00285     0.00512     0.00348    0.00153   0.00887              0.00918 0.00756
+L        0.00882              0.00579     0.00303     0.00494     0.00360    0.00172   0.00923              0.00455 0.00666
+LN       0.01007              0.01117     0.00387     0.00595     0.00448    0.00232   0.00731              0.00603     NaN
+M        0.01109              0.00951     0.00251     0.00497     0.00320    0.00114   0.01091              0.00618 0.00900
+ML       0.01382              0.00931     0.00334     0.00569     0.00401    0.00185   0.01017              0.00625 0.00671
+VL       0.01041              0.00579     0.00444     0.00703     0.00518    0.00236   0.01175              0.00784 0.00672
+  [TAIL-SHARE] top 5 % of members' share of the summed response -- the ONE mechanism-free cross-model column
+model   BRICK2.0  BRICK2.0/magiccclim  FACTS/wf1f  FACTS/wf2f  FACTS/wf3f  FACTS/wf4  Ladrillo  Ladrillo/magiccclim  MAGICC
+marker                                                                                                                     
+H          0.779                0.723       0.152       0.145       0.133      0.113     0.635                0.632   0.117
+HL         0.879                0.832       0.124       0.129       0.111      0.093     0.713                0.762   0.143
+L          0.817                0.676       0.094       0.113       0.086      0.092     0.760                0.439   0.185
+LN         0.813                0.784       0.089       0.106       0.082      0.084     0.653                0.564     NaN
+M          0.831                0.846       0.131       0.136       0.115      0.108     0.735                0.648   0.159
+ML         0.865                0.813       0.096       0.115       0.088      0.092     0.745                0.618   0.177
+VL         0.798                0.644       0.090       0.107       0.084      0.089     0.755                0.643   0.195
+    reference bands (400-replicate MC, flat in n -- see pulse_stats.py): smooth lognormal s=0.4 0.106, smooth s=0.8 0.196, threshold p=0.02 0.542, threshold p=0.10 0.322
+
+  TOTAL CO2 @2100  (paired MEAN, cm per 1 Gt; '--' = no counterpart, never 0)
+model   BRICK2.0  BRICK2.0/magiccclim  FACTS/wf1f  FACTS/wf2f  FACTS/wf3f  FACTS/wf4  Ladrillo  Ladrillo/magiccclim  MAGICC
+marker                                                                                                                     
+H        0.01732              0.01728     0.00589     0.00833     0.00653    0.00513   0.01497              0.01638 0.01732
+HL       0.01628              0.02082     0.00599     0.00845     0.00664    0.00523   0.01711              0.01882 0.01581
+L        0.01690              0.01240     0.00668     0.00922     0.00735    0.00561   0.01218              0.01325 0.01300
+LN       0.01738              0.01940     0.00673     0.00927     0.00741    0.00565   0.01452              0.01424 0.01388
+M        0.02227              0.02581     0.00607     0.00855     0.00672    0.00527   0.01663              0.01979 0.01452
+ML       0.02079              0.01973     0.00640     0.00891     0.00706    0.00546   0.01501              0.01734 0.01417
+VL       0.01225              0.01330     0.00689     0.00946     0.00757    0.00573   0.01497              0.01369 0.01251
+  [TAIL-SHARE] top 5 % of members' share of the summed response -- the ONE mechanism-free cross-model column
+model   BRICK2.0  BRICK2.0/magiccclim  FACTS/wf1f  FACTS/wf2f  FACTS/wf3f  FACTS/wf4  Ladrillo  Ladrillo/magiccclim  MAGICC
+marker                                                                                                                     
+H          0.709                0.710       0.083       0.097       0.080      0.080     0.554                0.576   0.114
+HL         0.685                0.756       0.084       0.097       0.080      0.079     0.602                0.629   0.118
+L          0.693                0.584       0.078       0.094       0.075      0.078     0.440                0.468   0.163
+LN         0.700                0.729       0.078       0.094       0.075      0.078     0.528                0.496   0.143
+M          0.771                0.802       0.081       0.096       0.078      0.079     0.595                0.645   0.132
+ML         0.753                0.738       0.078       0.095       0.075      0.079     0.548                0.591   0.148
+VL         0.572                0.607       0.077       0.094       0.074      0.078     0.539                0.478   0.154
+    reference bands (400-replicate MC, flat in n -- see pulse_stats.py): smooth lognormal s=0.4 0.106, smooth s=0.8 0.196, threshold p=0.02 0.542, threshold p=0.10 0.322
+
+  TOTAL CO2 @2300  (paired MEAN, cm per 1 Gt; '--' = no counterpart, never 0)
+model   BRICK2.0  BRICK2.0/magiccclim  FACTS/wf1f  FACTS/wf2f  FACTS/wf3f  FACTS/wf4  Ladrillo  Ladrillo/magiccclim  MAGICC
+marker                                                                                                                     
+H        0.02678              0.02852     0.00869     0.02094     0.01104    0.00608   0.03046              0.03421 0.08772
+HL       0.06039              0.05087     0.01264     0.02722     0.01538    0.01020   0.04662              0.04337 0.03807
+L        0.04816              0.03278     0.01560     0.03019     0.01834    0.01167   0.03240              0.02329 0.02820
+LN       0.02930              0.03404     0.01839     0.03331     0.02119    0.01422   0.02679              0.02649     NaN
+M        0.03370              0.03938     0.00977     0.02317     0.01232    0.00725   0.03971              0.04837 0.07177
+ML       0.05153              0.05163     0.01417     0.02872     0.01690    0.01111   0.03810              0.03930 0.03597
+VL       0.03872              0.02852     0.01671     0.03128     0.01944    0.01224   0.04129              0.02533 0.02541
+  [TAIL-SHARE] top 5 % of members' share of the summed response -- the ONE mechanism-free cross-model column
+model   BRICK2.0  BRICK2.0/magiccclim  FACTS/wf1f  FACTS/wf2f  FACTS/wf3f  FACTS/wf4  Ladrillo  Ladrillo/magiccclim  MAGICC
+marker                                                                                                                     
+H          0.513                0.524       0.122       0.119       0.108      0.093     0.401                0.407   0.130
+HL         0.814                0.763       0.100       0.111       0.091      0.081     0.689                0.658   0.155
+L          0.776                0.658       0.083       0.100       0.076      0.080     0.567                0.399   0.185
+LN         0.630                0.487       0.082       0.096       0.077      0.078     0.493                0.295     NaN
+M          0.655                0.695       0.106       0.116       0.096      0.090     0.563                0.625   0.150
+ML         0.789                0.772       0.085       0.103       0.077      0.082     0.626                0.622   0.159
+VL         0.721                0.609       0.082       0.099       0.077      0.081     0.660                0.444   0.185
+    reference bands (400-replicate MC, flat in n -- see pulse_stats.py): smooth lognormal s=0.4 0.106, smooth s=0.8 0.196, threshold p=0.02 0.542, threshold p=0.10 0.322
+
+wrote magicc_comparison/processed/pulse_crossmodel_cells_vv_2030.csv
+
+⛔ FACTS appears as 12 SEPARATE columns (FACTS/FittedISMIP, FACTS/ar5AIS, FACTS/ar5glaciers, FACTS/bamber19, FACTS/deconto21, FACTS/larmip, FACTS/ssp-lws, FACTS/tlm, FACTS/wf1f, FACTS/wf2f, FACTS/wf3f, FACTS/wf4). Never collapse them: its ice-sheet
+   structures disagree by up to 8x, and n_draws is [200] against the other models' own.
+
+  [DRAWS-MATCH] 56/56 PASS. Worst residual 3.061e-13; bound 1e-09; the closest two cells
+    in this table differ by 1.576e-05 relative -- the bound sits 3267x above the roundoff it must tolerate and 2e+04x below
+    the smallest mis-pairing it must catch. Gates -> magicc_comparison/processed/pulse_crossmodel_cells_vv_2030_gates.csv
+⚠ FIGURE FORM IS DEFERRED (Marcus 2026-09-04 ruling 1) -- this is the data, not a figure.
+dGMST@2300 per 1 GtCO2 -- FaIR cubes (CO2_1Gt_2030) and MAGICC's own headline runs
+
+================================================================================================
+THE CLIMATE TERM -- dGMST@2300 per 1 GtCO2, K (the SAME FaIR column drives three models)
+================================================================================================
+         FaIR     MAGICC
+VL 4.0396e-04 4.3491e-04
+LN 3.9127e-04 6.7867e-04
+L  4.0589e-04 4.3689e-04
+ML 4.1970e-04 4.6649e-04
+M  3.9880e-04 4.8440e-04
+HL 4.2904e-04 4.7034e-04
+H  3.4578e-04 4.1399e-04
+    FaIR    H / VL = 0.86x   (min 3.458e-04 at H, max 4.290e-04 at HL)
+    MAGICC  H / VL = 0.95x   (min 4.140e-04 at H, max 6.787e-04 at LN)
+
+================================================================================================
+THE SENSITIVITY TERM -- cm of SLR per K of that model's OWN dGMST@2300
+================================================================================================
+model   BRICK2.0  FACTS/wf1f  FACTS/wf2f  Ladrillo  MAGICC
+marker                                                    
+VL         95.84       41.37       77.42    102.21   58.43
+LN         74.88       46.99       85.14     68.46     NaN
+L         118.66       38.44       74.39     79.83   64.54
+ML        122.79       33.76       68.43     90.78   77.12
+M          84.51       24.51       58.11     99.57  148.17
+HL        140.75       29.47       63.44    108.65   80.94
+H          77.45       25.14       60.55     88.10  211.90
+
+  H / VL on the SENSITIVITY term (the module, with the driver divided out):
+    BRICK2.0    0.81x
+    FACTS/wf1f  0.61x
+    FACTS/wf2f  0.78x
+    Ladrillo    0.86x
+    MAGICC      3.63x
+  H / VL on the RAW response, for comparison:
+    BRICK2.0    0.69x
+    FACTS/wf1f  0.52x
+    FACTS/wf2f  0.67x
+    Ladrillo    0.74x
+    MAGICC      3.45x
+
+================================================================================================
+WHICH COMPONENT CARRIES IT -- sensitivity cm/K, VL vs H, and the ratio
+================================================================================================
+  model       comp             VL         H     H/VL
+  Ladrillo    glaciers       5.76      1.45    0.25x
+  Ladrillo    gis            5.99     19.24    3.21x
+  Ladrillo    ais           73.92     51.14    0.69x
+  Ladrillo    te            16.55     16.27    0.98x
+  Ladrillo    total        102.21     88.10    0.86x
+  BRICK2.0    glaciers       7.47      0.67    0.09x
+  BRICK2.0    gis            4.84      6.12    1.26x
+  BRICK2.0    ais           67.57     54.96    0.81x
+  BRICK2.0    te            15.96     15.70    0.98x
+  BRICK2.0    total         95.84     77.45    0.81x
+  MAGICC      glaciers       8.01      1.27    0.16x
+  MAGICC      gis            9.98     47.85    4.79x
+  MAGICC      ais           25.90    148.17    5.72x
+  MAGICC      te            14.54     14.61    1.00x
+  MAGICC      total         58.43    211.90    3.63x
+
+  [CUBE-PAIRED] 7/7 PASS, worst pre-pulse |pulse - base| = 0.000e+00 (bound EXACTLY 0; a crossed pair reads O(0.1 K))
+    gates -> magicc_comparison/processed/scenario_dependence_2300_gates.csv
+
+wrote magicc_comparison/processed/scenario_dependence_2300.csv
+
+====================================================================================================
+PAIRED MEAN cm per GtCO2 @2100 -- one climate, two modules; one module, two climates
+====================================================================================================
+            | Ladrillo (FaIR clim)  | MAGICC                | Ladrillo (MAGICC clim)
+  comp      |       VL        H  H/VL |       VL        H  H/VL |       VL        H  H/VL
+  glaciers  |  0.00167  0.00149  0.90x |  0.00193  0.00129  0.67x |  0.00203  0.00179  0.88x
+  gis       |  0.00119  0.00129  1.08x |  0.00241  0.00359  1.49x |  0.00143  0.00156  1.09x
+  ais       |  0.00854  0.00891  1.04x |  0.00452  0.00910  2.01x |  0.00708  0.01021  1.44x
+  te        |  0.00356  0.00327  0.92x |  0.00364  0.00334  0.92x |  0.00315  0.00282  0.90x
+  total     |  0.01497  0.01497  1.00x |  0.01251  0.01732  1.38x |  0.01369  0.01638  1.20x
+
+====================================================================================================
+PAIRED MEAN cm per GtCO2 @2300 -- one climate, two modules; one module, two climates
+====================================================================================================
+            | Ladrillo (FaIR clim)  | MAGICC                | Ladrillo (MAGICC clim)
+  comp      |       VL        H  H/VL |       VL        H  H/VL |       VL        H  H/VL
+  glaciers  |  0.00233  0.00050  0.22x |  0.00348  0.00053  0.15x |  0.00270  0.00059  0.22x
+  gis       |  0.00242  0.00665  2.75x |  0.00434  0.01981  4.56x |  0.00275  0.00826  3.00x
+  ais       |  0.02986  0.01768  0.59x |  0.01126  0.06134  5.45x |  0.01379  0.02032  1.47x
+  te        |  0.00669  0.00563  0.84x |  0.00632  0.00605  0.96x |  0.00609  0.00505  0.83x
+  total     |  0.04129  0.03046  0.74x |  0.02541  0.08772  3.45x |  0.02533  0.03421  1.35x
+
+====================================================================================================
+THE CLIMATE SHARE OF THE GAP, with the error bar it inherits (200000 MC draws)
+====================================================================================================
+  glaciers Ladrillo (FaIR clim)     H/VL   0.22x  [ 0.21,  0.22]
+  glaciers MAGICC                   H/VL   0.15x  [ 0.15,  0.16]
+  glaciers Ladrillo (MAGICC clim)   H/VL   0.22x  [ 0.21,  0.22]
+  glaciers                          CLIMATE share -0 %  [-10, 8]   UNRESOLVED -- the interval spans 0 or 100 %
+
+  gis     Ladrillo (FaIR clim)     H/VL   2.75x  [ 2.68,  2.82]
+  gis     MAGICC                   H/VL   4.56x  [ 3.56,  6.05]
+  gis     Ladrillo (MAGICC clim)   H/VL   3.00x  [ 2.93,  3.07]
+  gis                              CLIMATE share 14 %  [6, 33]   resolved: strictly inside 0-100 %, width 26 pp
+
+  ais     Ladrillo (FaIR clim)     H/VL   0.59x  [ 0.40,  0.94]
+  ais     MAGICC                   H/VL   5.45x  [ 5.03,  5.93]
+  ais     Ladrillo (MAGICC clim)   H/VL   1.47x  [ 0.94,  2.76]
+  ais                              CLIMATE share 18 %  [5, 45]   resolved: strictly inside 0-100 %, width 40 pp
+
+  te      Ladrillo (FaIR clim)     H/VL   0.84x  [ 0.83,  0.86]
+  te      MAGICC                   H/VL   0.96x  [ 0.91,  1.00]
+  te      Ladrillo (MAGICC clim)   H/VL   0.83x  [ 0.81,  0.85]
+  te                               CLIMATE share -11 %  [-43, 12]   UNRESOLVED -- the interval spans 0 or 100 %
+
+  total   Ladrillo (FaIR clim)     H/VL   0.74x  [ 0.57,  1.00]
+  total   MAGICC                   H/VL   3.45x  [ 3.19,  3.74]
+  total   Ladrillo (MAGICC clim)   H/VL   1.35x  [ 1.04,  1.84]
+  total                            CLIMATE share 22 %  [8, 41]   resolved: strictly inside 0-100 %, width 33 pp
+
+
+  TOTAL @2300, H/VL:  Ladrillo(FaIR) 0.74x   Ladrillo(MAGICC clim) 1.35x   MAGICC 3.45x
+  ⇒ swapping ONLY the climate moves Ladrillo 23 % of the way to MAGICC's ratio.
+  ⇒ MODULE-DOMINATED: the rise survives giving Ladrillo MAGICC's own climate, so it is
+    MAGICC's ice-sheet module. 9.3's reading STANDS.
+
+====================================================================================================
+[SPLICE-DELTA] spliced minus raw, on the PAIRED difference (126 cells)
+====================================================================================================
+  The splice is an identical affine map on BOTH arms -- its 1995-2014 pivot is
+  entirely pre-pulse -- so it cancels EXACTLY in the difference algebra and can
+  act ONLY through the model's nonlinearity. This is that residue.
+           max_abs_cm    med_rel    max_rel
+component                                  
+ais        6.8103e-03 1.4245e-01 3.6503e-01
+gis        3.0483e-04 9.5402e-03 5.0496e-02
+glaciers   1.8422e-06 2.1443e-04 4.7582e-04
+lws        0.0000e+00        NaN        NaN
+te         1.0001e-15 6.3531e-14 1.9813e-13
+total      6.7798e-03 8.1242e-02 2.2545e-01
+  worst cell: L ais @2300  spliced 0.01185 vs raw 0.01866  (36.5 % of raw)
+
+wrote magicc_comparison/processed/magiccclim_module_vs_climate.csv
+
+====================================================================================================
+PAIRED MEAN cm per GtCH4 @2100 -- one climate, two modules; one module, two climates
+====================================================================================================
+            | Ladrillo (FaIR clim)  | MAGICC                | Ladrillo (MAGICC clim)
+  comp      |       VL        H  H/VL |       VL        H  H/VL |       VL        H  H/VL
+  glaciers  |  0.00120  0.00093  0.77x |  0.00093  0.00063  0.67x |  0.00107  0.00071  0.67x
+  gis       |  0.00087  0.00085  0.98x |  0.00162  0.00180  1.11x |  0.00074  0.00066  0.88x
+  ais       |  0.00723  0.00621  0.86x |  0.00239  0.00340  1.42x |  0.00477  0.00461  0.97x
+  te        |  0.00213  0.00195  0.91x |  0.00137  0.00116  0.85x |  0.00128  0.00106  0.83x
+  total     |  0.01143  0.00993  0.87x |  0.00631  0.00699  1.11x |  0.00785  0.00704  0.90x
+
+====================================================================================================
+PAIRED MEAN cm per GtCH4 @2300 -- one climate, two modules; one module, two climates
+====================================================================================================
+            | Ladrillo (FaIR clim)  | MAGICC                | Ladrillo (MAGICC clim)
+  comp      |       VL        H  H/VL |       VL        H  H/VL |       VL        H  H/VL
+  glaciers  |  0.00063  0.00007  0.12x |  0.00047  0.00008  0.16x |  0.00074  0.00006  0.08x
+  gis       |  0.00052  0.00111  2.13x |  0.00217  0.00303  1.40x |  0.00053  0.00088  1.64x
+  ais       |  0.00964  0.00685  0.71x |  0.00317  0.00727  2.29x |  0.00564  0.00536  0.95x
+  te        |  0.00096  0.00098  1.02x |  0.00091  0.00085  0.94x |  0.00093  0.00078  0.83x
+  total     |  0.01175  0.00902  0.77x |  0.00672  0.01123  1.67x |  0.00784  0.00707  0.90x
+
+====================================================================================================
+THE CLIMATE SHARE OF THE GAP, with the error bar it inherits (200000 MC draws)
+====================================================================================================
+  glaciers Ladrillo (FaIR clim)     H/VL   0.12x  [ 0.11,  0.12]
+  glaciers MAGICC                   H/VL   0.16x  [ 0.16,  0.17]
+  glaciers Ladrillo (MAGICC clim)   H/VL   0.08x  [ 0.08,  0.09]
+  glaciers                          CLIMATE share -68 %  [-82, -56]   RESOLVED NEGATIVE -- the swap moves this component AWAY from MAGICC
+
+  gis     Ladrillo (FaIR clim)     H/VL   2.13x  [ 2.06,  2.21]
+  gis     MAGICC                   H/VL   1.40x  [ 1.17,  1.70]
+  gis     Ladrillo (MAGICC clim)   H/VL   1.64x  [ 1.60,  1.68]
+  gis                              CLIMATE share 67 %  [50, 113]   UNRESOLVED -- the interval spans 0 or 100 %
+
+  ais     Ladrillo (FaIR clim)     H/VL   0.71x  [ 0.37,  1.39]
+  ais     MAGICC                   H/VL   2.29x  [ 2.14,  2.47]
+  ais     Ladrillo (MAGICC clim)   H/VL   0.95x  [ 0.39,  2.43]
+  ais                              CLIMATE share 15 %  [-60, 112]   UNRESOLVED -- the interval spans 0 or 100 %
+
+  te      Ladrillo (FaIR clim)     H/VL   1.02x  [ 0.99,  1.05]
+  te      MAGICC                   H/VL   0.94x  [ 0.88,  0.99]
+  te      Ladrillo (MAGICC clim)   H/VL   0.83x  [ 0.81,  0.86]
+  te                               CLIMATE share 217 %  [131, 676]   RESOLVED >100 % -- the swap OVERSHOOTS MAGICC's ratio
+
+  total   Ladrillo (FaIR clim)     H/VL   0.77x  [ 0.47,  1.29]
+  total   MAGICC                   H/VL   1.67x  [ 1.54,  1.82]
+  total   Ladrillo (MAGICC clim)   H/VL   0.90x  [ 0.48,  1.69]
+  total                            CLIMATE share 15 %  [-110, 108]   UNRESOLVED -- the interval spans 0 or 100 %
+
+
+  TOTAL @2300, H/VL:  Ladrillo(FaIR) 0.77x   Ladrillo(MAGICC clim) 0.90x   MAGICC 1.67x
+  ⇒ swapping ONLY the climate moves Ladrillo 15 % of the way to MAGICC's ratio.
+  ⇒ MODULE-DOMINATED: the rise survives giving Ladrillo MAGICC's own climate, so it is
+    MAGICC's ice-sheet module. 9.3's reading STANDS.
+
+====================================================================================================
+[SPLICE-DELTA] spliced minus raw, on the PAIRED difference (126 cells)
+====================================================================================================
+  The splice is an identical affine map on BOTH arms -- its 1995-2014 pivot is
+  entirely pre-pulse -- so it cancels EXACTLY in the difference algebra and can
+  act ONLY through the model's nonlinearity. This is that residue.
+           max_abs_cm    med_rel    max_rel
+component                                  
+ais        3.6701e-03 2.5368e-01 6.6169e-01
+gis        4.6528e-05 1.6718e-02 7.4517e-02
+glaciers   2.0651e-07 1.7014e-04 3.0749e-04
+lws        0.0000e+00        NaN        NaN
+te         8.0003e-16 2.0053e-13 1.0256e-12
+total      3.6845e-03 1.6362e-01 3.9243e-01
+  worst cell: ML total @2300  spliced 0.00625 vs raw 0.00993  (37.1 % of raw)
+
+wrote magicc_comparison/processed/magiccclim_module_vs_climate_CH4.csv
+
+====================================================================================================
+PAIRED MEAN cm per GtCO2 @2100 -- one climate, two modules; one module, two climates
+====================================================================================================
+            | BRICK 2.0 (FaIR clim) | MAGICC                | BRICK 2.0 (MAGICC clim)
+  comp      |       VL        H  H/VL |       VL        H  H/VL |       VL        H  H/VL
+  glaciers  |  0.00161  0.00136  0.85x |  0.00193  0.00129  0.67x |  0.00204  0.00165  0.81x
+  gis       |  0.00058  0.00058  1.01x |  0.00241  0.00359  1.49x |  0.00069  0.00070  1.02x
+  ais       |  0.00662  0.01221  1.84x |  0.00452  0.00910  2.01x |  0.00753  0.01221  1.62x
+  te        |  0.00344  0.00316  0.92x |  0.00364  0.00334  0.92x |  0.00304  0.00272  0.90x
+  total     |  0.01225  0.01732  1.41x |  0.01251  0.01732  1.38x |  0.01330  0.01728  1.30x
+
+====================================================================================================
+PAIRED MEAN cm per GtCO2 @2300 -- one climate, two modules; one module, two climates
+====================================================================================================
+            | BRICK 2.0 (FaIR clim) | MAGICC                | BRICK 2.0 (MAGICC clim)
+  comp      |       VL        H  H/VL |       VL        H  H/VL |       VL        H  H/VL
+  glaciers  |  0.00302  0.00023  0.08x |  0.00348  0.00053  0.15x |  0.00450  0.00026  0.06x
+  gis       |  0.00195  0.00212  1.08x |  0.00434  0.01981  4.56x |  0.00210  0.00245  1.17x
+  ais       |  0.02730  0.01900  0.70x |  0.01126  0.06134  5.45x |  0.01605  0.02094  1.30x
+  te        |  0.00645  0.00543  0.84x |  0.00632  0.00605  0.96x |  0.00586  0.00486  0.83x
+  total     |  0.03872  0.02678  0.69x |  0.02541  0.08772  3.45x |  0.02852  0.02852  1.00x
+
+====================================================================================================
+THE CLIMATE SHARE OF THE GAP, with the error bar it inherits (200000 MC draws)
+====================================================================================================
+  glaciers BRICK 2.0 (FaIR clim)    H/VL   0.08x  [ 0.07,  0.08]
+  glaciers MAGICC                   H/VL   0.15x  [ 0.15,  0.16]
+  glaciers BRICK 2.0 (MAGICC clim)  H/VL   0.06x  [ 0.05,  0.06]
+  glaciers                          CLIMATE share -28 %  [-37, -19]   RESOLVED NEGATIVE -- the swap moves this component AWAY from MAGICC
+
+  gis     BRICK 2.0 (FaIR clim)    H/VL   1.08x  [ 1.03,  1.14]
+  gis     MAGICC                   H/VL   4.56x  [ 3.56,  6.05]
+  gis     BRICK 2.0 (MAGICC clim)  H/VL   1.17x  [ 1.11,  1.22]
+  gis                              CLIMATE share 2 %  [0, 5]   resolved: strictly inside 0-100 %, width 5 pp
+
+  ais     BRICK 2.0 (FaIR clim)    H/VL   0.70x  [ 0.48,  1.05]
+  ais     MAGICC                   H/VL   5.45x  [ 5.03,  5.93]
+  ais     BRICK 2.0 (MAGICC clim)  H/VL   1.30x  [ 0.84,  2.30]
+  ais                              CLIMATE share 13 %  [1, 34]   resolved: strictly inside 0-100 %, width 33 pp
+
+  te      BRICK 2.0 (FaIR clim)    H/VL   0.84x  [ 0.82,  0.86]
+  te      MAGICC                   H/VL   0.96x  [ 0.91,  1.00]
+  te      BRICK 2.0 (MAGICC clim)  H/VL   0.83x  [ 0.81,  0.85]
+  te                               CLIMATE share -10 %  [-46, 15]   UNRESOLVED -- the interval spans 0 or 100 %
+
+  total   BRICK 2.0 (FaIR clim)    H/VL   0.69x  [ 0.53,  0.92]
+  total   MAGICC                   H/VL   3.45x  [ 3.19,  3.74]
+  total   BRICK 2.0 (MAGICC clim)  H/VL   1.00x  [ 0.76,  1.36]
+  total                            CLIMATE share 11 %  [-1, 25]   UNRESOLVED -- the interval spans 0 or 100 %
+
+
+  TOTAL @2300, H/VL:  BRICK 2.0(FaIR) 0.69x   BRICK 2.0(MAGICC clim) 1.00x   MAGICC 3.45x
+  ⇒ swapping ONLY the climate moves BRICK 2.0 11 % of the way to MAGICC's ratio.
+  ⇒ MODULE-DOMINATED: the rise survives giving BRICK 2.0 MAGICC's own climate, so it is
+    MAGICC's ice-sheet module. 9.3's reading STANDS.
+
+====================================================================================================
+[SPLICE-DELTA] spliced minus raw, on the PAIRED difference (126 cells)
+====================================================================================================
+  The splice is an identical affine map on BOTH arms -- its 1995-2014 pivot is
+  entirely pre-pulse -- so it cancels EXACTLY in the difference algebra and can
+  act ONLY through the model's nonlinearity. This is that residue.
+           max_abs_cm    med_rel    max_rel
+component                                  
+ais        8.0911e-03 1.7342e-01 5.0030e-01
+gis        2.3817e-05 8.6653e-03 1.0052e-02
+glaciers   6.4238e-04 4.9511e-02 9.5910e-02
+lws        0.0000e+00        NaN        NaN
+te         9.0032e-16 2.7249e-14 1.8510e-13
+total      7.9640e-03 1.3496e-01 3.5998e-01
+  worst cell: VL ais @2150  spliced 0.01131 vs raw 0.01940  (41.7 % of raw)
+
+wrote magicc_comparison/processed/magiccclim_module_vs_climate_brick2.csv
+
+====================================================================================================
+PAIRED MEAN cm per GtCH4 @2100 -- one climate, two modules; one module, two climates
+====================================================================================================
+            | BRICK 2.0 (FaIR clim) | MAGICC                | BRICK 2.0 (MAGICC clim)
+  comp      |       VL        H  H/VL |       VL        H  H/VL |       VL        H  H/VL
+  glaciers  |  0.00122  0.00102  0.84x |  0.00093  0.00063  0.67x |  0.00110  0.00082  0.75x
+  gis       |  0.00044  0.00042  0.96x |  0.00162  0.00180  1.11x |  0.00037  0.00033  0.89x
+  ais       |  0.00513  0.00797  1.55x |  0.00239  0.00340  1.42x |  0.00283  0.00470  1.66x
+  te        |  0.00206  0.00188  0.91x |  0.00137  0.00116  0.85x |  0.00123  0.00102  0.83x
+  total     |  0.00885  0.01130  1.28x |  0.00631  0.00699  1.11x |  0.00553  0.00687  1.24x
+
+====================================================================================================
+PAIRED MEAN cm per GtCH4 @2300 -- one climate, two modules; one module, two climates
+====================================================================================================
+            | BRICK 2.0 (FaIR clim) | MAGICC                | BRICK 2.0 (MAGICC clim)
+  comp      |       VL        H  H/VL |       VL        H  H/VL |       VL        H  H/VL
+  glaciers  |  0.00082  0.00007  0.09x |  0.00047  0.00008  0.16x |  0.00102  0.00005  0.05x
+  gis       |  0.00053  0.00053  1.00x |  0.00217  0.00303  1.40x |  0.00048  0.00041  0.86x
+  ais       |  0.00813  0.00851  1.05x |  0.00317  0.00727  2.29x |  0.00340  0.00490  1.44x
+  te        |  0.00093  0.00095  1.02x |  0.00091  0.00085  0.94x |  0.00090  0.00075  0.84x
+  total     |  0.01041  0.01006  0.97x |  0.00672  0.01123  1.67x |  0.00579  0.00611  1.06x
+
+====================================================================================================
+THE CLIMATE SHARE OF THE GAP, with the error bar it inherits (200000 MC draws)
+====================================================================================================
+  glaciers BRICK 2.0 (FaIR clim)    H/VL   0.09x  [ 0.08,  0.09]
+  glaciers MAGICC                   H/VL   0.16x  [ 0.16,  0.17]
+  glaciers BRICK 2.0 (MAGICC clim)  H/VL   0.05x  [ 0.05,  0.06]
+  glaciers                          CLIMATE share -40 %  [-50, -31]   RESOLVED NEGATIVE -- the swap moves this component AWAY from MAGICC
+
+  gis     BRICK 2.0 (FaIR clim)    H/VL   1.00x  [ 0.95,  1.05]
+  gis     MAGICC                   H/VL   1.40x  [ 1.17,  1.70]
+  gis     BRICK 2.0 (MAGICC clim)  H/VL   0.86x  [ 0.82,  0.89]
+  gis                              CLIMATE share -36 %  [-98, -16]   RESOLVED NEGATIVE -- the swap moves this component AWAY from MAGICC
+
+  ais     BRICK 2.0 (FaIR clim)    H/VL   1.05x  [ 0.53,  2.39]
+  ais     MAGICC                   H/VL   2.29x  [ 2.14,  2.47]
+  ais     BRICK 2.0 (MAGICC clim)  H/VL   1.44x  [ 0.55,  4.89]
+  ais                              CLIMATE share 33 %  [-226, 458]   UNRESOLVED -- the interval spans 0 or 100 %
+
+  te      BRICK 2.0 (FaIR clim)    H/VL   1.02x  [ 0.99,  1.05]
+  te      MAGICC                   H/VL   0.94x  [ 0.88,  0.99]
+  te      BRICK 2.0 (MAGICC clim)  H/VL   0.84x  [ 0.81,  0.86]
+  te                               CLIMATE share 216 %  [131, 677]   RESOLVED >100 % -- the swap OVERSHOOTS MAGICC's ratio
+
+  total   BRICK 2.0 (FaIR clim)    H/VL   0.97x  [ 0.55,  1.77]
+  total   MAGICC                   H/VL   1.67x  [ 1.54,  1.82]
+  total   BRICK 2.0 (MAGICC clim)  H/VL   1.06x  [ 0.54,  2.01]
+  total                            CLIMATE share 16 %  [-359, 312]   UNRESOLVED -- the interval spans 0 or 100 %
+
+
+  TOTAL @2300, H/VL:  BRICK 2.0(FaIR) 0.97x   BRICK 2.0(MAGICC clim) 1.06x   MAGICC 1.67x
+  ⇒ swapping ONLY the climate moves BRICK 2.0 13 % of the way to MAGICC's ratio.
+  ⇒ MODULE-DOMINATED: the rise survives giving BRICK 2.0 MAGICC's own climate, so it is
+    MAGICC's ice-sheet module. 9.3's reading STANDS.
+
+====================================================================================================
+[SPLICE-DELTA] spliced minus raw, on the PAIRED difference (126 cells)
+====================================================================================================
+  The splice is an identical affine map on BOTH arms -- its 1995-2014 pivot is
+  entirely pre-pulse -- so it cancels EXACTLY in the difference algebra and can
+  act ONLY through the model's nonlinearity. This is that residue.
+           max_abs_cm    med_rel    max_rel
+component                                  
+ais        5.0707e-03 3.8736e-01 6.2370e-01
+gis        3.7084e-06 8.3151e-03 9.5223e-03
+glaciers   1.0475e-04 4.8011e-02 9.3726e-02
+lws        0.0000e+00        NaN        NaN
+te         9.0000e-16 2.2970e-13 1.1992e-12
+total      5.0063e-03 2.9981e-01 4.7244e-01
+  worst cell: L ais @2300  spliced 0.00367 vs raw 0.00874  (58.0 % of raw)
+
+wrote magicc_comparison/processed/magiccclim_module_vs_climate_brick2_CH4.csv
+====================================================================================================
+PULSE DURATION, van Vuuren markers, 2030 pulse -> 2300
+  metrics: TIME-INTEGRAL (undiscounted + 2 %, 3 %) | t50/t90 LEVEL and INTEGRAL | PEAK
+  bases  : per Gt of the gas, and per GtCO2e at GWP100 = 29.8
+====================================================================================================
+
+====================================================================================================
+GATES
+====================================================================================================
+  [WINDOW         ]  70/ 70 PASS   worst MAGICC|CO2|vvVL              271
+  [PARTS-SUM      ]  70/ 70 PASS   worst MAGICC|CH4|vvML              3.21359e-14
+  [EFFECTIVE-PULSE]   2/  2 PASS   worst CO2                          7.85863e-05
+  [PREPULSE       ]   1/  1 PASS   worst max_frac_of_window           7.35359e-05
+  TOTAL 143/143 PASS
+
+wrote magicc_comparison/processed/pulse_duration_cells_vv_2030.csv  (840 rows)
+      magicc_comparison/processed/pulse_duration_gates_vv_2030.csv
+wrote magicc_comparison/figures/pulse_duration_q1_robustness.{png,pdf}
+wrote magicc_comparison/figures/pulse_duration_q2_ch4_components.{png,pdf}
+wrote magicc_comparison/figures/pulse_duration_q3_class_difference.{png,pdf}
+/Users/MarcusMarcus/Documents/2026/CodeProjects/FaIRtoFrEDI/magicc_comparison/diag_igmst_ordering_vv.py:331: FutureWarning: Behavior when concatenating bool-dtype and numeric-dtype arrays is deprecated; in a future version these will cast to object dtype (instead of coercing bools to numeric values). To retain the old behavior, explicitly cast bool-dtype arrays to numeric dtype.
+  df.loc[len(df)] = {c: np.nan for c in df.columns}
+====================================================================================================
+iGMST AND THE CO2/CH4 ORDERING SWAP -- the pre-registered test (handoff 09-05b item 2)
+  iGMST = int dGMST dt over [2030, 2300], per Gt; CH4 also per GtCO2e at GWP100 = 29.8
+  PREDICTED  R(FaIR)/R(MAGICC) ~ 1.433   (the shipped SLR exchange rates 0.913 / 0.637, RECOMPUTED below)
+  FALSIFIES  R(FaIR)/R(MAGICC) ~ 1
+====================================================================================================
+
+====================================================================================================
+PER-MARKER iGMST (K.yr per Gt), and the endpoint beside it
+====================================================================================================
+    climate mkr        iGMST CO2    iGMST CH4/e        end CO2      end CH4/e
+    fair    vvVL        0.108780       0.100085       0.000404       0.000084
+    fair    vvLN        0.111215       0.083501       0.000391       0.000060   (not in the headline 5)
+    fair    vvL         0.108804       0.078912       0.000406       0.000067
+    fair    vvML        0.108808       0.091663       0.000420       0.000081   (not in the headline 5)
+    fair    vvM         0.101384       0.094506       0.000399       0.000100
+    fair    vvHL        0.108965       0.086741       0.000429       0.000079
+    fair    vvH         0.093113       0.096286       0.000346       0.000105
+    magicc  vvVL        0.123548       0.092768       0.000435       0.000118
+    magicc  vvLN        0.159893       0.088272       0.000679       0.000134   (not in the headline 5)
+    magicc  vvL         0.123065       0.085914       0.000437       0.000108
+    magicc  vvML        0.126019       0.082126       0.000466       0.000096   (not in the headline 5)
+    magicc  vvM         0.121028       0.074947       0.000484       0.000094
+    magicc  vvHL        0.125426       0.074474       0.000470       0.000090
+    magicc  vvH         0.109283       0.075233       0.000414       0.000097
+
+====================================================================================================
+THE VERDICT
+====================================================================================================
+  markers       R(FaIR)  R(MAGICC)      ratio   95% bootstrap (n=4000)  
+  headline5 (5)     0.8815     0.6701     1.3155   [1.2896, 1.3423]
+  all7 (7)       0.8573     0.6506     1.3177   [1.2961, 1.3404]
+
+  predicted 1.433  inside the interval? NO
+  falsifier 1  inside the interval? NO
+  ⇒ NEITHER -- the ratio is real but lands on neither pre-registered value
+
+====================================================================================================
+WHAT THE PREDICTION WAS WRITTEN ABOUT -- the SLR exchange rates, recomputed
+====================================================================================================
+  CH4:CO2e total response @2300, 5 headline markers, two aggregations of the marker
+  axis. ⚠ `median` is the SHIPPED one and is NOT like-for-like: it takes the median
+  per SPECIES, so numerator and denominator can come from DIFFERENT markers.
+
+  model                      median  permarker   median's CH4/CO2 marker
+  MAGICC                     0.6666     0.6396   vvHL / vvHL
+  Ladrillo                   0.7800     0.8930   vvL / vvM   ⚠ MIXED
+  Ladrillo/magiccclim        0.6939     0.7054   vvH / vvH
+  BRICK2.0                   0.9024     0.9434   vvVL / vvVL
+  BRICK2.0/magiccclim        0.6251     0.6851   vvH / vvL   ⚠ MIXED
+
+====================================================================================================
+THE CLIMATE SWAP THE INTEGRAL IS PREDICTING (same module, both climates)
+====================================================================================================
+  aggregation    Ladrillo   BRICK2.0   iGMST (measured)
+  median           1.1241     1.4436   1.3155 [1.2896, 1.3423]
+  permarker        1.2660     1.3771   1.3155 [1.2896, 1.3423]
+
+====================================================================================================
+THE SHIPPED "GAP CLOSED BY THE CLIMATE" SHARE, ON BOTH AGGREGATIONS
+====================================================================================================
+  (R_onFaIR - R_onMAGICCclim) / (R_onFaIR - R_MAGICC), the share of the exchange-rate
+  gap the climate swap closes. `median` is what shipped.
+
+  aggregation      Ladrillo     BRICK2.0
+  median              76.0%       117.6%
+  permarker           74.0%        85.0%
+
+  ⛔ THE "NOT UNANIMOUS -- 99 % vs 38 %" READING IS AGGREGATION-DEPENDENT. On the
+     like-for-like per-marker rate the two modules are 107 % and 71 %, and BRICK is
+     no longer an outlier. The 1.6x cross-model SPREAD survives both (1.35x median,
+     1.48x per-marker), so the headline stands; the SHARE does not.
+
+  ⚠ the bootstrap resamples MEMBERS only. It does NOT price the marker set, the
+    2300 window, or GWP100 -- the two marker sets are printed above so the first of
+    those is visible, and GWP100 cancels from the ratio exactly.
+
+====================================================================================================
+GATES
+====================================================================================================
+  [PAIRED-ORDER  ]   28/  28 PASS   worst fair|CO2|vvVL                  0
+  [PREPULSE-ZERO ]   28/  28 PASS   worst fair|CO2|vvVL                  0
+  [WINDOW        ]   28/  28 PASS   worst fair|CO2|vvVL                  271
+  [MARKER-SET    ]    1/   1 PASS   worst fair/CO2|fair/CH4|magicc/CO2|m 1
+  [SHIPPED-EXCHANGE]    0/   3 PASS   worst Ladrillo                       0.133019   ⛔ 3 FAIL
+  [SWAP-VS-IGMST ]    4/   4 PASS   worst median|BRICK2.0                1.09731
+  [CLOSED-SHARE  ]    4/   4 PASS   worst median|BRICK2.0                1.17622
+  [VERDICT       ]    2/   2 PASS   worst all7                           1.31765
+  TOTAL 95/98 PASS   ⛔ 3 FAIL
+
+wrote magicc_comparison/processed/diag_igmst_ordering_vv_2030.csv  (30 rows)
+      magicc_comparison/processed/diag_igmst_ordering_gates_vv_2030.csv
+====================================================================================================
+TE / OHC MECHANISM TEST -- is a module's thermal expansion the SHAPE of the ocean
+heat it is handed?  2030 pulse -> 2300, van Vuuren markers, CO2 and CH4
+  driver:  brick_mengel.jl set_forcing! -> thermal_expansion.ocean_heat_interior
+  module:  TE(t)-TE(t0) = k * (OHC(t)-OHC(t0)), k = te_alpha/(A*C*rho^2) per draw
+  ⇒ predicted: end/peak and t50 of dTE == the same statistics of dOHC
+====================================================================================================
+
+====================================================================================================
+RESULT 1 -- IS THE MODULE A FAITHFUL TRANSMITTER? (end/peak, per marker)
+====================================================================================================
+
+  climate = fair  (FaIR 2.2.4 (calib 1.6.0) + CMIP7)
+    specie mkr         dOHC   Ladrillo   BRICK2.0  max|diff|
+    CO2    vvVL     1.00000    1.00000    1.00000   0.00e+00
+    CO2    vvLN     1.00000    1.00000    1.00000   0.00e+00
+    CO2    vvL      1.00000    1.00000    1.00000   0.00e+00
+    CO2    vvML     1.00000    1.00000    1.00000   0.00e+00
+    CO2    vvM      1.00000    1.00000    1.00000   0.00e+00
+    CO2    vvHL     1.00000    1.00000    1.00000   0.00e+00
+    CO2    vvH      1.00000    1.00000    1.00000   0.00e+00
+    CH4    vvVL     0.41957    0.41904    0.41802   1.56e-03
+    CH4    vvLN     0.39158    0.39106    0.38998   1.60e-03
+    CH4    vvL      0.38924    0.38883    0.38781   1.43e-03
+    CH4    vvML     0.42595    0.42548    0.42443   1.52e-03
+    CH4    vvM      0.45484    0.45438    0.45345   1.39e-03
+    CH4    vvHL     0.44959    0.44913    0.44804   1.55e-03
+    CH4    vvH      0.46525    0.46490    0.46397   1.28e-03
+
+  climate = magicc  (MAGICC-SLR 600-member AR6 drawnset)
+    specie mkr         dOHC   Ladrillo   BRICK2.0  max|diff|
+    CO2    vvVL     1.00000    1.00000    1.00000   0.00e+00
+    CO2    vvLN     1.00000    1.00000    1.00000   0.00e+00
+    CO2    vvL      1.00000    1.00000    1.00000   0.00e+00
+    CO2    vvML     1.00000    1.00000    1.00000   0.00e+00
+    CO2    vvM      1.00000    1.00000    1.00000   0.00e+00
+    CO2    vvHL     1.00000    1.00000    1.00000   0.00e+00
+    CO2    vvH      1.00000    1.00000    1.00000   0.00e+00
+    CH4    vvVL     0.60764    0.60867    0.60762   1.03e-03
+    CH4    vvLN     0.72865    0.72966    0.72841   1.01e-03
+    CH4    vvL      0.60507    0.60612    0.60496   1.05e-03
+    CH4    vvML     0.58206    0.58301    0.58164   9.52e-04
+    CH4    vvM      0.59239    0.59265    0.59180   5.97e-04
+    CH4    vvHL     0.58904    0.59001    0.58864   9.71e-04
+    CH4    vvH      0.58759    0.58728    0.58639   1.20e-03
+
+  ⚠ end/peak has NO POWER on 28 of 56 reportable cells (all CO2: the response has
+    not turned over by 2300 anywhere, so end/peak is identically 1.000). The end/peak
+    gates below run on the 28 POWERED cells; the timing gates keep all 56.
+
+====================================================================================================
+RESULT 2 -- WHERE THE 0.607-vs-0.485 GAP LIVES (MAGICC's climate)
+====================================================================================================
+  MAGICC's OWN thermal expansion against MAGICC's OWN reported ocean heat. The
+  module reproduces the OHC column; MAGICC itself does not.
+
+    specie mkr   MAGICC dOHC  module TE  MAGICC TE      TE/OHC |  t50oh  t50TE pk-dif
+    CO2    vvVL      1.00000    1.00000    1.00000      1.0000 |   2200   2196      4
+    CO2    vvL       1.00000    1.00000    1.00000      1.0000 |   2200   2196      4
+    CO2    vvML      1.00000    1.00000    1.00000      1.0000 |   2203   2199      4
+    CO2    vvM       1.00000    1.00000    1.00000      1.0000 |   2202   2201      1
+    CO2    vvHL      1.00000    1.00000    1.00000      1.0000 |   2205   2201      4
+    CO2    vvH       1.00000    1.00000    1.00000      1.0000 |   2197   2196      1
+    CH4    vvVL      0.60764    0.60867    0.48417      0.7968 |   2150   2141      9
+    CH4    vvL       0.60507    0.60612    0.48008      0.7934 |   2150   2141      9
+    CH4    vvML      0.58206    0.58301    0.46134      0.7926 |   2149   2140      9
+    CH4    vvM       0.59239    0.59265    0.49895      0.8423 |   2149   2143      6
+    CH4    vvHL      0.58904    0.59001    0.46594      0.7910 |   2150   2141      9
+    CH4    vvH       0.58759    0.58728    0.51534      0.8771 |   2148   2143      5
+
+====================================================================================================
+GATES
+====================================================================================================
+  [PAIRED-ORDER      ]   28/  28 PASS   worst fair|CO2|vvVL                      0
+  [PREPULSE-ZERO     ]   28/  28 PASS   worst fair|CO2|vvVL                      0
+  [WINDOW            ]   28/  28 PASS   worst fair|CO2|vvVL                      271
+  [SCALE-FREE        ]  112/ 112 PASS   worst fair|CH4|vvLN|end_over_peak        0.25
+  [TRANSMITTED-TIMING]    3/   3 PASS   worst d_t50                              1
+  [TRANSMITTED       ]    2/   2 PASS   worst fair: max|dOHC-dTE| vs min|TE on FaIR's climate - TE on MAGICC's|  (the swap itself) 76.3922
+  TOTAL 201/201 PASS
+
+wrote magicc_comparison/processed/diag_te_ohc_mechanism_vv_2030.csv  (56 rows)
+      magicc_comparison/processed/diag_te_ohc_mechanism_gates_vv_2030.csv
+[REPORTABLE] MAGICC reportable markers: VL, L, ML, M, HL, H; lost to [SUB-PREINDUSTRIAL]: LN
+Traceback (most recent call last):
+  File "/Users/MarcusMarcus/Documents/2026/CodeProjects/FaIRtoFrEDI/magicc_comparison/build_pulse_doc_tables.py", line 314, in <module>
+    main()
+  File "/Users/MarcusMarcus/Documents/2026/CodeProjects/FaIRtoFrEDI/magicc_comparison/build_pulse_doc_tables.py", line 250, in main
+    assert worst <= 1.0, ("[SAME-STATISTIC] cross-model mean != duration r_end_cm: worst is "
+AssertionError: [SAME-STATISTIC] cross-model mean != duration r_end_cm: worst is 1.02x the sqrt(n_draws)-ulp bound
