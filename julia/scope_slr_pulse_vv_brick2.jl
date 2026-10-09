@@ -158,7 +158,7 @@ const CLIM_TAG = CLIMATE == "fair" ? "" : "_magiccclim"
 ## scope_slr_fair_uncertainty.jl and scope_slr_pulse_vv.jl.
 const ZJ_TO_1E22J = 0.1
 const MAGICC_WIDE = joinpath(homedir(), "Documents/2026/CodeProjects/FaIRtoFrEDI",
-                             "magicc_comparison/processed/vv_pulse_wide_20260904")
+                             "magicc_comparison/processed/vv_pulse_wide_20261009")
 const MAGICC_N = 600                       # the AR6 drawnset these runs used
 
 ## THE SEVEN MARKERS, in van Vuuren's own order. Named here so an unrecognised marker FAILS

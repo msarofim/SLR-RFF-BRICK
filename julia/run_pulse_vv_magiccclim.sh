@@ -19,6 +19,10 @@
 #   ruling 3). ⚠ The CO2 log names are UNCHANGED for backward compatibility only where they
 #   already exist; new runs carry the specie in the name.
 set -euo pipefail
+## ⛔ SUPERSEDED 2026-10-09 by ./run_vv_pulse_rerun_20261009_ladrillo.sh magiccclim. This runner passed NDRAW=2000 as the
+## driver's n_per_chain, so the arm ran 8,000 draws, NOT paired with the 2,000-draw FaIR arm its comment claims to match,
+## and it pins --tag=L24. The pulse arc is now L27 (v1.2) on the common draw set (Marcus 2026-10-09).
+echo "SUPERSEDED: use ./run_vv_pulse_rerun_20261009_ladrillo.sh magiccclim (see header)" >&2; exit 2
 cd "$(dirname "$0")/.."
 DRIVER=julia/_frozen_scope_slr_pulse_vv_magiccclim.jl
 NDRAW=2000                       # matches the shipped FaIR-climate arm, so the cells compare

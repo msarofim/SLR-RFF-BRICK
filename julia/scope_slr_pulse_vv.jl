@@ -44,10 +44,25 @@
 ## single biggest way this number can be misread, so --tap carries the arm in the filename
 ## and [TAP-CROSSING] COUNTS the draws that differ rather than leaving it to be assumed.
 ##
-##   julia --project=julia_v2 julia/scope_slr_pulse_vv.jl [n_per_chain] --marker=H --specie=CO2
-##        [--tag=L27] [--tap] [--maxrows=N] [--forcing=spliced|raw] [--chain-tag=L24]
+##   julia --project=julia_v2 julia/scope_slr_pulse_vv.jl [n_per_chain] --marker=H --specie=CO2 --pulse-size=1
+##        [--tag=L27] [--tap] [--forcing=spliced|raw] [--climate=fair|magicc] [--source=subsample|chains]
+##        [--no-record-conditioning] [--maxrows=N (chains only)] [--chain-tag=L24]
 ##
-## Writes outputs/pulse_ladrillo_{cells,draws,paths,gates}_vv<M>_<SPECIE>_<TAG><TAP_TAG>.csv
+## Writes outputs/pulse_ladrillo_{cells,draws,paths,gates}_vv<M>_<SPECIE>_<SIZE>_2030_<FORCING>_<TAG><TAP_TAG>[...].csv
+##
+## ⭐ LADRILLO v1.2 SINCE 2026-10-09 (Marcus: the pulse arc re-runs on L27 = "Ladrillo v1.2", record-conditioned).
+##   * DRAWS: `--source=subsample` (default) reads the 10k posterior subsample with the v1.1 SINGLE paleo
+##     assignment, EXACTLY as scope_slr_fair_uncertainty.jl does -- so with the same n_per_chain and PAIR_SEED, draw k
+##     is the SAME posterior row on the SAME config as in the level vv joint arm, and the FaIR pulse arm's BASELINE IS
+##     that arm. [LEVEL-MATCH] checks it draw for draw, bit for bit. `--source=chains` is the pre-10-09 raw-chain read
+##     (L24 and older; refuses the :single assignment, as the level driver does).
+##   * RECORD CONDITIONING (Marcus 10-08 "own-config, drop", extended to the pulse arm 10-09): the FaIR-climate arm
+##     drops every draw whose Antarctic fast dynamics fire by the record end on its OWN config. An onset <= 2025 is
+##     before the 2030 pulse, so the SAME draws drop from both arms ([ONSET-ARMS]). The MAGICC-climate arm is NOT
+##     conditioned on its own climate (the 10-08 ruling's scope); it runs on the COMMON draw set -- the FaIR arm's
+##     draws minus the FaIR arm's REJECTED ones (Marcus 10-08m/10-09) -- read from that arm's gates file, so the FaIR
+##     arm must run first. `--no-record-conditioning` restores the unconditioned arm, suffixed `_uncond`.
+##   * Statistics, cells, draws and paths use the KEPT draws; the identity and pairing gates still see all draws.
 ## ============================================================================
 using CSV, DataFrames, Statistics, Printf, Mimi, Random
 
@@ -62,7 +77,7 @@ argval(flag, dflt) = let i = findfirst(a -> startswith(a, flag), ARGS)
     i === nothing ? dflt : ARGS[i][(length(flag) + 1):end]
 end
 
-const TAG     = argval("--tag=", "L24")
+const TAG     = argval("--tag=", "L27")
 const MARKER  = argval("--marker=", "")
 const SPECIE  = argval("--specie=", "CO2")
 const FORCING = argval("--forcing=", "spliced")
@@ -73,6 +88,16 @@ const N_TARGET = let p = findfirst(a -> !startswith(a, "--"), ARGS)
 end
 const CHAIN_TAG = argval("--chain-tag=", TAG)
 lws_frame_guard(TAG); lws_frame_guard(CHAIN_TAG)   # a tag newer than v1.0 needs the land-water frame fix
+## The draw source, as in scope_slr_fair_uncertainty.jl (same names, same guards, same subsample rows).
+const SOURCE = argval("--source=", "subsample")
+@assert SOURCE in ("subsample", "chains") "--source must be subsample or chains"
+SOURCE == "subsample" && SMOKE &&
+    error("--maxrows filters the RAW chains; pass --source=chains (with LADRILLO_PALEO_ASSIGNMENT=v1)")
+SOURCE == "chains" && LADRILLO_PALEO_ASSIGNMENT === :single &&
+    error("--source=chains: the v1.1 single paleo assignment is defined on the 10k subsample, not on raw chains. " *
+          "Use --source=subsample, or set LADRILLO_PALEO_ASSIGNMENT=v1 (outputs then carry '$(PALEO_SFX)')")
+const SUB_PATH = joinpath(LADRILLO_REPO, "data/MimiBRICK", "parameters_subsample_brick_mengel_$(CHAIN_TAG).csv")
+const SUB_PER_CHAIN = 2500                 # rows per chain in the 10k subsample, in chain order
 
 ## ---- --climate: WHOSE temperature drives Ladrillo on this arm ---------------------------
 ##  `fair`   the shared FaIR 2.2.4 calib 1.6.0 cubes -- the default and every shipped arm.
@@ -94,6 +119,11 @@ const CLIMATE = argval("--climate=", "fair")
 ## run must not overwrite the FaIR-climate arm it is compared against. Empty on the default
 ## arm, so every existing name and every existing consumer is untouched.
 const CLIM_TAG = CLIMATE == "fair" ? "" : "_magiccclim"
+## Record conditioning: ON for the FaIR arm by default; the MAGICC arm takes the FaIR arm's kept draws instead.
+const RECORD_CONDITION = CLIMATE == "fair" && !("--no-record-conditioning" in ARGS)
+const UNCOND_SFX = (CLIMATE == "fair" && !RECORD_CONDITION) ? "_uncond" : ""
+CLIMATE == "magicc" && "--no-record-conditioning" in ARGS &&
+    error("--no-record-conditioning applies to the FaIR arm; the MAGICC arm takes the FaIR arm's draws")
 ## ⚠ MAGICC reports `Heat Content|Ocean` in ZJ = 1e21 J; BRICK/Ladrillo want 1e22 J. 0.1
 ## because ZJ is a DEFINITION -- never from a ratio: the MAGICC/FaIR OHC ratio drifts
 ## 11.3x -> 7.7x between 2020 and 2300 (`magicc_ohc_zj_not_1e22j`), so a factor chosen to close
@@ -101,7 +131,7 @@ const CLIM_TAG = CLIMATE == "fair" ? "" : "_magiccclim"
 ## reason, as scope_slr_fair_uncertainty.jl.
 const ZJ_TO_1E22J = 0.1
 const MAGICC_WIDE = joinpath(homedir(), "Documents/2026/CodeProjects/FaIRtoFrEDI",
-                             "magicc_comparison/processed/vv_pulse_wide_20260904")
+                             "magicc_comparison/processed/vv_pulse_wide_20261009")
 const MAGICC_N = 600                       # the AR6 drawnset these runs used
 
 ## THE SEVEN MARKERS, in van Vuuren's own order. Named here so an unrecognised marker
@@ -185,14 +215,20 @@ end
 
 chain_path(sd) = joinpath(REPO, "outputs/mcmc", "chain_$(CHAIN_TAG)_seed$(sd)_n$(NITER).csv")
 hdr(sd) = String.(propertynames(CSV.read(chain_path(sd), DataFrame; limit = 0)))
-for sd in SEEDS; isfile(chain_path(sd)) || error("missing chain $(chain_path(sd))"); end
+if SOURCE == "chains"
+    for sd in SEEDS; isfile(chain_path(sd)) || error("missing chain $(chain_path(sd))"); end
+else
+    isfile(SUB_PATH) || error("missing posterior subsample $(SUB_PATH)")
+end
 for k in ("gmst", "ohc"), a in ARMS
     isfile(cube(k, a)) || error("missing cube $(cube(k, a))\n  build it with " *
         (CLIMATE == "fair" ?
          "FaIRtoFrEDI/scripts/build_fair_pulse_vv_v160.py --marker=$(MARKER) --specie=$(SPECIE)" :
          "FaIRtoFrEDI/magicc_comparison/build_magicc_pulse_wide_vv.py"))
 end
-const VARIANT = ladrillo_gis_variant(hdr(SEEDS[1]))
+const SRC_HDR = SOURCE == "chains" ? hdr(SEEDS[1]) : String.(propertynames(CSV.read(SUB_PATH, DataFrame; limit = 0)))
+const VARIANT = ladrillo_gis_variant(SRC_HDR)
+const AIS_RAMP = ladrillo_has_ramp(SRC_HDR)   # as the level driver: the posterior decides
 
 ## The tap tag mirrors project_ssps_components_ladrillo.jl and scope_slr_fair_uncertainty.jl
 ## so a tapped run can never overwrite an untapped one. Same rule, same construction.
@@ -200,11 +236,13 @@ const TAP_ON  = "--tap" in ARGS
 const TAP_TAG = TAP_ON ? "_tap$(replace(string(GIS_TAP_CELL.onset_K), "." => "p"))K" *
                          "_V$(replace(string(GIS_TAP_CELL.V_m), "." => "p"))m" *
                          "_tau$(Int(GIS_TAP_CELL.tau_yr))" : ""
-const OUTSTEM = "vv$(MARKER)_$(SPECIE)_$(SPEC.size_tag)_$(PULSE_YEAR)_$(FORCING)_$(TAG)$(TAP_TAG)$(CLIM_TAG)$(SMOKE ? "_SMOKE" : "")"
+## LADRILLO_V11_SFX and UNCOND_SFX are empty on the v1.2 defaults, so a non-default run cannot overwrite a default one.
+const OUTSTEM = "vv$(MARKER)_$(SPECIE)_$(SPEC.size_tag)_$(PULSE_YEAR)_$(FORCING)_$(TAG)$(TAP_TAG)$(LADRILLO_V11_SFX)" *
+                "$(UNCOND_SFX)$(CLIM_TAG)$(SMOKE ? "_SMOKE" : "")"
 
 function read_draws(sd)
-    need = ladrillo_used_cols(VARIANT)
     h = hdr(sd)
+    need = ladrillo_used_cols(VARIANT, h)
     rd = ladrillo_gis_needs_native(h) ?
         vcat(setdiff(need, LADRILLO_GIS_SLOW_NATIVE_COLS),
              LADRILLO_GIS_SLOW_REPARAM_COLS) |> unique : need
@@ -216,7 +254,7 @@ function read_draws(sd)
     d = ladrillo_native_greenland!(df[idx[1:min(N_TARGET, length(idx))], :]); df = nothing; GC.gc(); d
 end
 
-@printf("LADRILLO PULSE ARM | marker vv%s | %s pulse %.0f %s at %d | tag %s%s%s%s\n",
+@printf("LADRILLO PULSE ARM | marker vv%s | %s pulse %g %s at %d | tag %s%s%s%s\n",
         MARKER, SPECIE, SPEC.pulse_Gt, SPEC.unit, PULSE_YEAR, TAG,
         CHAIN_TAG == TAG ? "" : "  (chains from $(CHAIN_TAG))",
         TAP_ON ? "  [TAPPED Greenland]" : "  [untapped Greenland]",
@@ -230,8 +268,25 @@ const CLIMATE_LABEL = Dict(
 CLIMATE == "magicc" && @printf("  ⚠ MAGICC CLIMATE ARM -- the module axis is held, the climate axis moves.\n")
 flush(stdout)
 
-const DRAWS = [(@printf("  reading chain seed%d ...\n", sd); flush(stdout); read_draws(sd))
-               for sd in SEEDS]
+## --source=subsample: rows of the 10k file -- copied from scope_slr_fair_uncertainty.jl `subsample_draws`, and
+## [LEVEL-MATCH] below is what certifies the copy (same rows, same configs, same values, bit for bit).
+function subsample_draws()
+    SUB_PER_CHAIN % N_TARGET == 0 || error("--source=subsample needs n_per_chain dividing $(SUB_PER_CHAIN), got $(N_TARGET)")
+    stride = SUB_PER_CHAIN ÷ N_TARGET
+    rows(k) = (k - 1) * SUB_PER_CHAIN .+ (1:stride:SUB_PER_CHAIN)
+    if LADRILLO_PALEO_ASSIGNMENT === :single
+        full = ladrillo_posterior(path = SUB_PATH)
+        nrow(full) == length(SEEDS) * SUB_PER_CHAIN || error("$(SUB_PATH): $(nrow(full)) rows, expected $(length(SEEDS) * SUB_PER_CHAIN)")
+        return [full[rows(k), :] for k in eachindex(SEEDS)]
+    else
+        raw = CSV.read(SUB_PATH, DataFrame; select = ladrillo_used_cols(VARIANT, SRC_HDR))
+        nrow(raw) == length(SEEDS) * SUB_PER_CHAIN || error("$(SUB_PATH): $(nrow(raw)) rows, expected $(length(SEEDS) * SUB_PER_CHAIN)")
+        return [ladrillo_native_greenland!(raw[rows(k), :]) for k in eachindex(SEEDS)]
+    end
+end
+const DRAWS = SOURCE == "subsample" ?
+    (@printf("  reading the 10k subsample %s ...\n", basename(SUB_PATH)); flush(stdout); subsample_draws()) :
+    [(@printf("  reading chain seed%d ...\n", sd); flush(stdout); read_draws(sd)) for sd in SEEDS]
 const ROWS  = [r for d in DRAWS for r in eachrow(d)]
 const NDRAW = length(ROWS)
 
@@ -302,9 +357,12 @@ const BUILD_SSP = argval("--build-ssp=", "ssp245")   # see scope_slr_fair_uncert
 ## the assumption this whole file exists to avoid making.
 const RAN_CFG = Dict(a => fill("", NDRAW) for a in ARMS)
 const RAN_ROW = Dict(a => fill(-1, NDRAW) for a in ARMS)
+## Each draw's Antarctic fast-dynamics onset year, read off the MODEL's own state in EACH arm (typemax if it never
+## fires) -- the same reading as scope_slr_fair_uncertainty.jl `run_into!(...; onset)`.
+const ONSET = Dict(a => fill(typemax(Int), NDRAW) for a in ARMS)
 
 function run_into!(out, idx, g, o, arm, cfgname)
-    bf = ladrillo_setup(ssp = BUILD_SSP, y0 = Y0, y1 = Y1, gis_variant = VARIANT, gmst = g, ohc = o)
+    bf = ladrillo_setup(ssp = BUILD_SSP, y0 = Y0, y1 = Y1, gis_variant = VARIANT, gmst = g, ohc = o, ais_ramp = AIS_RAMP)
     TAP_ON && ladrillo_set_tap!(bf)
     for k in idx
         ladrillo_run_draw!(bf, ROWS[k])
@@ -313,6 +371,11 @@ function run_into!(out, idx, g, o, arm, cfgname)
         for c in COMPONENTS
             out[c][k, :] = coalesce.(ladrillo_series(bf, c), NaN)
         end
+        # MimiBRICK antarctic_icesheet: fast dynamics while antartic_surface_temperature[t] > temperature_threshold,
+        # from the second time step on. Spelling is the component's.
+        tant = bf.m[_AIS, :antartic_surface_temperature]; thr = bf.m[_AIS, :temperature_threshold]
+        j = findfirst(t -> t >= 2 && !ismissing(tant[t]) && tant[t] > thr, eachindex(tant))
+        ONSET[arm][k] = j === nothing ? typemax(Int) : YEARS[j]
     end
     bf
 end
@@ -343,6 +406,108 @@ const DIFF = Dict(c => RES["pulse"][c] .- RES["base"][c] for c in COMPONENTS)
 @printf("\n%s\nGATES\n%s\n", repeat("=", 92), repeat("=", 92))
 rowsg = DataFrame(gate = String[], key = String[], value = Float64[], verdict = String[])
 push_g!(g, k, v, ok) = push!(rowsg, (g, k, Float64(v), ok ? "PASS" : "FAIL"))
+
+## ---------------------------------------------------------------------------
+## RECORD CONDITIONING (2026-10-09; the level arm's rule, scope_slr_fair_uncertainty.jl RECORD CONDITIONING, 10-08e/f/g)
+## RECORD_END, the trigger formula and the drop rule are COPIED from that driver; [TRIGGER-PORT] re-proves the formula
+## on every draw here, and [LEVEL-MATCH] proves the whole selection reproduces the level arm.
+const RECORD_END = let tg = CSV.read(joinpath(REPO, "outputs/recalib_targets_ext.csv"), DataFrame)
+    maximum(Int(tg.year[i]) for i in 1:nrow(tg) if !ismissing(tg.ais[i]) && !isnan(Float64(tg.ais[i])))
+end
+"""The trigger ported (Ladrillo.jl `fastdyn_onset_year`): T_ant(t) = (GMST(t-1) - intercept) / coefficient with
+coefficient = 1/amp and intercept = -LADRILLO_AIS_TANT0/amp, as ladrillo_run_draw! sets them; fires while T_ant > T_crit,
+never in the first year."""
+function formula_onset(row, g)
+    length(g) == length(YEARS) || error("formula_onset: gmst has $(length(g)) values for $(length(YEARS)) years")
+    a = Float64(row["ais_gmst_amp"]); tc = Float64(row["antarctic_temp_threshold"])
+    coeff, icept = 1.0 / a, -LADRILLO_AIS_TANT0 / a
+    for j in 2:length(YEARS)
+        (Float64(g[j-1]) - icept) / coeff > tc && return YEARS[j]
+    end
+    typemax(Int)
+end
+## [TRIGGER-PORT] the model's own onset and the formula must agree on EVERY draw, in both arms.
+for a in ARMS
+    let fo = [formula_onset(ROWS[k], gmst_of(a, CFG_OF_DRAW[k])) for k in 1:NDRAW], nmis = count(fo .!= ONSET[a])
+        @printf("  [TRIGGER-PORT] %-5s model onset vs ported formula: %d of %d draws differ -> %s\n",
+                a, nmis, NDRAW, nmis == 0 ? "PASS" : "FAIL")
+        push_g!("TRIGGER-PORT", "draws_differing_$(a)", nmis, nmis == 0)
+        nmis == 0 || error("[TRIGGER-PORT] the model's fast-dynamics onset and the ported formula disagree ($(a) arm)")
+    end
+end
+## [ONSET-ARMS] an onset at or before the pulse year cannot depend on the pulse (T_ant reads GMST[t-1], and the arms'
+## GMST first differs after PULSE_YEAR), so both arms must agree on it -- which is what makes "drop the same draws from
+## both arms" a statement about the record, not about the pulse.
+let nmis = count(k -> min(ONSET["base"][k], ONSET["pulse"][k]) <= PULSE_YEAR && ONSET["base"][k] != ONSET["pulse"][k], 1:NDRAW)
+    @printf("  [ONSET-ARMS] draws whose onset <= %d differs between arms: %d -> %s\n", PULSE_YEAR, nmis, nmis == 0 ? "PASS" : "FAIL")
+    push_g!("ONSET-ARMS", "draws_differing", nmis, nmis == 0)
+    nmis == 0 || error("[ONSET-ARMS] a pre-pulse onset differs between the arms")
+end
+## The FaIR arm's gates file -- the MAGICC arm's source for the common draw set.
+const FAIR_GATES = joinpath(REPO, "outputs", "pulse_ladrillo_gates_vv$(MARKER)_$(SPECIE)_$(SPEC.size_tag)_$(PULSE_YEAR)_" *
+                                             "spliced_$(TAG)$(TAP_TAG)$(LADRILLO_V11_SFX).csv")
+gate_ids(g, gate) = sort([parse(Int, split(k, "_")[2]) for k in g.key[g.gate .== gate]])
+gate_val(g, gate, key) = let i = findfirst((g.gate .== gate) .& (g.key .== key)); i === nothing ? NaN : g.value[i] end
+const REJECTED = if CLIMATE == "fair"
+    RECORD_CONDITION ? findall(<=(RECORD_END), ONSET["base"]) : Int[]
+else
+    isfile(FAIR_GATES) || error("[COMMON-DRAWS] missing $(basename(FAIR_GATES)): run the FaIR-climate arm first")
+    let g = CSV.read(FAIR_GATES, DataFrame)
+        any((g.gate .== "RECORD-CONDITIONING") .& (g.key .== "joint_draws_dropped") .& (g.verdict .== "ON")) ||
+            error("[COMMON-DRAWS] $(basename(FAIR_GATES)) is not a record-conditioned FaIR arm")
+        ## the two arms must index the same posterior rows: same draw count, same rows per chain, same source
+        for (key, v) in (("n_draws_total", NDRAW), ("n_per_chain", N_TARGET), ("source_is_subsample", SOURCE == "subsample"))
+            gate_val(g, "DRAW-SOURCE", key) == Float64(v) ||
+                error("[COMMON-DRAWS] FaIR arm $(key) = $(gate_val(g, "DRAW-SOURCE", key)), this arm $(Float64(v))")
+        end
+        gate_ids(g, "REJECTED")
+    end
+end
+const JKEEP = sort(setdiff(1:NDRAW, REJECTED))    # the draws every STATISTIC below is computed on
+const NKEEP = length(JKEEP)
+push_g!("DRAW-SOURCE", "n_draws_total", NDRAW, true)
+push_g!("DRAW-SOURCE", "n_per_chain", N_TARGET, true)
+push_g!("DRAW-SOURCE", "source_is_subsample", SOURCE == "subsample", true)
+let ncross = count(<=(RECORD_END), ONSET["base"])
+    @printf("  [RECORD-CONDITIONING] record end %d | draws firing by then on THIS arm's climate: %d | dropped: %d | %s\n",
+            RECORD_END, ncross, length(REJECTED),
+            CLIMATE == "fair" ? (RECORD_CONDITION ? "ON (own config)" : "OFF (--no-record-conditioning)") :
+                                "COMMON DRAW SET (the FaIR arm's rejected draws)")
+    push!(rowsg, ("RECORD-CONDITIONING", "record_end", Float64(RECORD_END), "measured"))
+    push!(rowsg, ("RECORD-CONDITIONING", "joint_draws_firing_by_record_end", Float64(ncross), "measured"))
+    push!(rowsg, ("RECORD-CONDITIONING", "joint_draws_dropped", Float64(length(REJECTED)),
+                  CLIMATE == "fair" ? (RECORD_CONDITION ? "ON" : "OFF") : "COMMON"))
+    for k in REJECTED
+        push!(rowsg, ("REJECTED", "draw_$(k)_cfg_$(CFG_OF_DRAW[k])", Float64(ONSET["base"][k]),
+                      CLIMATE == "fair" ? "onset_year" : "fair_arm_rejected"))
+        @printf("    dropped draw %d (%s %s): onset on this climate %s\n", k, CLIMATE == "fair" ? "config" : "member",
+                CFG_OF_DRAW[k], ONSET["base"][k] == typemax(Int) ? "never" : string(ONSET["base"][k]))
+    end
+end
+## [LEVEL-MATCH] the FaIR pulse arm's BASELINE must BE the level vv joint arm (scope_slr_fair_uncertainty.jl): the
+## pulsebase cube equals the base cube, the draws, pairing, splice and model are the same, so the kept draw ids, their
+## configs and every per-draw value at the horizons must be EQUAL (==), and the two rejected sets identical. Applicable
+## on the canonical configuration only (FaIR, spliced, tapped, subsample, 500 per chain, conditioned).
+const LEVEL_DRAWS = joinpath(REPO, "outputs", "scope_slr_fairunc_draws_vv$(MARKER)_spliced_$(TAG)$(TAP_TAG)$(LADRILLO_V11_SFX).csv")
+if CLIMATE == "fair" && FORCING == "spliced" && TAP_ON && SOURCE == "subsample" && N_TARGET == 500 && RECORD_CONDITION
+    isfile(LEVEL_DRAWS) || error("[LEVEL-MATCH] missing $(basename(LEVEL_DRAWS)) -- run the level vv arm first")
+    let L = CSV.read(LEVEL_DRAWS, DataFrame), lg = CSV.read(replace(LEVEL_DRAWS, "_draws_" => "_gates_"), DataFrame)
+        L = L[L.arm .== "joint", :]
+        ids_ok = sort(unique(L.draw)) == JKEEP
+        rej_ok = gate_ids(lg, "REJECTED") == REJECTED
+        ncfg = count(r -> r.config != CFG_OF_DRAW[r.draw], eachrow(L))
+        nval = count(r -> RES["base"][Symbol(r.component)][r.draw, yidx(r.horizon)] != r.value_cm, eachrow(L))
+        ok = ids_ok && rej_ok && ncfg == 0 && nval == 0
+        @printf("  [LEVEL-MATCH] vs %s: kept ids %s, rejected %s, %d config and %d value mismatches over %d cells -> %s\n",
+                basename(LEVEL_DRAWS), ids_ok ? "equal" : "DIFFER", rej_ok ? "equal" : "DIFFER", ncfg, nval, nrow(L),
+                ok ? "PASS" : "FAIL")
+        push_g!("LEVEL-MATCH", "value_mismatches", nval, ok)
+        push_g!("LEVEL-MATCH", "config_mismatches", ncfg, ok)
+        ok || error("[LEVEL-MATCH] the baseline arm is not the level vv joint arm")
+    end
+else
+    @printf("  [LEVEL-MATCH] not applicable (needs FaIR, spliced, tapped, subsample, 500 per chain, conditioned)\n")
+end
 
 ## ---------------------------------------------------------------------------
 ## THE IDENTITY GATES. Read this block before changing any bound in it.
@@ -470,7 +635,7 @@ end
 ## the response lumpy -- still positive, but no longer smooth -- and a hard sign gate would
 ## then be measuring the tap, not the pulse.
 for H in HORIZONS
-    v = DIFF[:total][:, yidx(H)]
+    v = DIFF[:total][JKEEP, yidx(H)]
     neg = count(<(0.0), v) / length(v)
     @printf("  [SIGN] %d: median %+.5f cm, %.2f%% of draws negative  %s\n",
             H, median(v), 100neg, median(v) > 0 ? "PASS" : "FAIL")
@@ -485,12 +650,12 @@ end
 ## 0.3% of draws it raises it 40 cm". With --tap OFF this is structurally zero and says so.
 if TAP_ON
     let i23 = yidx(2300), n = 0
-        for k in 1:NDRAW
+        for k in JKEEP
             g = gmst_of("base", CFG_OF_DRAW[k]); gp = gmst_of("pulse", CFG_OF_DRAW[k])
             (maximum(g) < GIS_TAP_CELL.onset_K) && (maximum(gp) >= GIS_TAP_CELL.onset_K) && (n += 1)
         end
-        @printf("  [TAP-CROSSING] %d of %d draws (%.3f%%) cross the %.2f K onset ONLY in the pulsed arm\n",
-                n, NDRAW, 100n / NDRAW, GIS_TAP_CELL.onset_K)
+        @printf("  [TAP-CROSSING] %d of %d kept draws (%.3f%%) cross the %.2f K onset ONLY in the pulsed arm\n",
+                n, NKEEP, 100n / NKEEP, GIS_TAP_CELL.onset_K)
         push_g!("TAP-CROSSING", "n_draws_crossing", n, true)
     end
 else
@@ -560,28 +725,50 @@ let TANT0 = LADRILLO_AIS_TANT0
     gcrit = [(thr[k] - TANT0) / amp[k] for k in 1:NDRAW]
     GS = Dict(a => Dict(c => gmst_of(a, c) for c in CFG) for a in ARMS)
     nabove(sorted, g0) = length(sorted) - searchsortedlast(sorted, g0)
+    ## ⚠ CONDITIONED (2026-10-09). The cross-product must carry the SAME rejection as the paired sample, or the
+    ## Rao-Blackwellised P is the unconditioned one beside conditioned conditional means. FaIR arm: a PAIRING (k, c)
+    ## is rejected when draw k fires by RECORD_END on config c -- the drop rule applied pair by pair, in the
+    ## formula's own arithmetic on the config's pre-record maximum (the test is monotone in GMST, so the maximum
+    ## decides it exactly). [PAIR-REJECT-PORT] checks that rule reproduces REJECTED on the paired draws. MAGICC arm:
+    ## the common draw set is a set of DRAWS, so the cross-product is JKEEP x all members.
+    irec = yidx(RECORD_END) - 1
+    gmax_rec = Dict(c => maximum(GS["base"][c][1:irec]) for c in CFG)
+    rec_fires(k, c) = (gmax_rec[c] + LADRILLO_AIS_TANT0 / amp[k]) / (1.0 / amp[k]) > thr[k]
+    pair_rej(k, c) = CLIMATE == "fair" && RECORD_CONDITION && rec_fires(k, c)
+    if CLIMATE == "fair" && RECORD_CONDITION
+        nmis = count(k -> rec_fires(k, CFG_OF_DRAW[k]) != (k in REJECTED), 1:NDRAW)
+        @printf("  [PAIR-REJECT-PORT] pair rule vs REJECTED on the paired draws: %d of %d differ -> %s\n",
+                nmis, NDRAW, nmis == 0 ? "PASS" : "FAIL")
+        push_g!("PAIR-REJECT-PORT", "draws_differing", nmis, nmis == 0)
+        nmis == 0 || error("[PAIR-REJECT-PORT] the cross-product rejection does not reproduce the paired one")
+    end
+    KSET = CLIMATE == "fair" ? (1:NDRAW) : JKEEP
     P_FULL = Dict{Int, Float64}()
+    NPAIRS = Dict{Int, Int}()
     for H in HORIZONS
         iH = yidx(H)
         sb = Dict(c => sort(GS["base"][c][1:(iH - 1)]) for c in CFG)
         sp = Dict(c => sort(GS["pulse"][c][1:(iH - 1)]) for c in CFG)
-        nfire = 0
-        for c in CFG, k in 1:NDRAW
+        nfire = 0; npair = 0
+        for c in CFG, k in KSET
+            pair_rej(k, c) && continue
+            npair += 1
             nabove(sb[c], gcrit[k]) != nabove(sp[c], gcrit[k]) && (nfire += 1)
         end
-        P_FULL[H] = nfire / (length(CFG) * NDRAW)
+        P_FULL[H] = nfire / npair; NPAIRS[H] = npair
     end
 
     for H in HORIZONS
         iH = yidx(H)
-        nb = [nyr(TB[k], thr[k], iH) for k in 1:NDRAW]; np = [nyr(TP[k], thr[k], iH) for k in 1:NDRAW]
-        sb = [tabove(TB[k], thr[k], iH) for k in 1:NDRAW]; sp = [tabove(TP[k], thr[k], iH) for k in 1:NDRAW]
-        bif = [nb[k] == 0 && np[k] > 0 for k in 1:NDRAW]
-        fired = [nb[k] != np[k] for k in 1:NDRAW]
-        pf = count(fired) / NDRAW
+        ## over the KEPT draws, in JKEEP order -- AIS_FIRED[H][i] belongs to draw JKEEP[i]
+        nb = [nyr(TB[k], thr[k], iH) for k in JKEEP]; np = [nyr(TP[k], thr[k], iH) for k in JKEEP]
+        sb = [tabove(TB[k], thr[k], iH) for k in JKEEP]; sp = [tabove(TP[k], thr[k], iH) for k in JKEEP]
+        bif = [nb[i] == 0 && np[i] > 0 for i in 1:NKEEP]
+        fired = [nb[i] != np[i] for i in 1:NKEEP]
+        pf = count(fired) / NKEEP
         mdn = mean(Float64.(np .- nb)); mds = mean(sp .- sb)
         @printf("  [AIS-CROSSING] %d: fired %d/%d (%.2f%%)  bifurcation %d  int/cont %.4f\n",
-                H, count(fired), NDRAW, 100pf, count(bif), mds == 0 ? NaN : mdn / mds)
+                H, count(fired), NKEEP, 100pf, count(bif), mds == 0 ? NaN : mdn / mds)
         push_g!("AIS-CROSSING", "n_fired_$(H)", count(fired), true)
         push_g!("AIS-CROSSING", "n_bifurcation_$(H)", count(bif), true)
         push_g!("AIS-CROSSING", "p_fired_$(H)", pf, true)
@@ -591,9 +778,9 @@ let TANT0 = LADRILLO_AIS_TANT0
         ## 3 of its OWN binomial standard errors of the exact cross-product value. It is a
         ## check on the PAIRING, since a mis-permuted draw->config map would bias the
         ## paired P while leaving the exact one untouched.
-        let se = sqrt(max(P_FULL[H] * (1 - P_FULL[H]), eps()) / NDRAW), z = abs(pf - P_FULL[H]) / se
-            @printf("      P(fired) paired %.4f  vs exact %.4f over %d pairings  z=%.2f  %s\n",
-                    pf, P_FULL[H], length(CFG) * NDRAW, z, z <= 3 ? "PASS" : "FAIL")
+        let se = sqrt(max(P_FULL[H] * (1 - P_FULL[H]), eps()) / NKEEP), z = abs(pf - P_FULL[H]) / se
+            @printf("      P(fired) paired %.4f  vs exact %.4f over %d kept pairings  z=%.2f  %s\n",
+                    pf, P_FULL[H], NPAIRS[H], z, z <= 3 ? "PASS" : "FAIL")
             push_g!("P-FIRED-CONSISTENT", "p_fired_exact_$(H)", P_FULL[H], z <= 3)
             push_g!("P-FIRED-CONSISTENT", "z_$(H)", z, z <= 3)
         end
@@ -608,7 +795,7 @@ end
 ## pre-1.6.0). A gate whose threshold comes from another model's old vintage cannot reject
 ## anything honestly, so this prints the number with the comparator's vintage named and
 ## leaves the verdict to a reader who can see both.
-let H = 2100, v = DIFF[:total][:, yidx(H)], per = median(v) / SPEC.pulse_Gt
+let H = 2100, v = DIFF[:total][JKEEP, yidx(H)], per = median(v) / SPEC.pulse_Gt
     @printf("  [MAGNITUDE] %d: %.4e cm per %s (median)  -- REPORTED, not gated\n", H, per, SPEC.unit)
     @printf("              context: FACTS PoC FaIR->BRICK 5.08e-03 cm/GtCO2 @2100 -- OLD model AND\n")
     @printf("              old calibration (pre-1.6.0), an order-of-magnitude check only.\n")
@@ -636,7 +823,7 @@ cells = DataFrame(marker = String[], specie = String[], pulse_Gt = Float64[],
                   paired_mean_cm = Float64[], paired_p05_cm = Float64[], paired_p95_cm = Float64[],
                   per_unit_cm = Float64[], se_mean_cm = Float64[], p_fired = Float64[],
                   smooth_term_cm = Float64[], premium_cm = Float64[])
-@printf("\n%s\nPULSE RESPONSE -- vv%s, %.0f %s at %d, cm rel %d-%d%s\n%s\n",
+@printf("\n%s\nPULSE RESPONSE -- vv%s, %g %s at %d, cm rel %d-%d%s\n%s\n",
         repeat("=", 92), MARKER, SPEC.pulse_Gt, SPEC.unit, PULSE_YEAR,
         LADRILLO_REF[1], LADRILLO_REF[2], TAP_ON ? ", TAPPED" : ", untapped", repeat("=", 92))
 @printf("  %-9s %-6s %10s %12s %12s %12s %12s\n",
@@ -644,7 +831,7 @@ cells = DataFrame(marker = String[], specie = String[], pulse_Gt = Float64[],
 for c in COMPONENTS
     for H in HORIZONS
         i = yidx(H)
-        b, p, d = RES["base"][c][:, i], RES["pulse"][c][:, i], DIFF[c][:, i]
+        b, p, d = RES["base"][c][JKEEP, i], RES["pulse"][c][JKEEP, i], DIFF[c][JKEEP, i]
         ## ⭐ THE LEMOINE-TRAEGER PAIR, reported as TWO terms and never as the sum alone.
         ## E[d] = P(smooth)*E[d|smooth] + P(fired)*E[d|fired]. The premium is 67-97% of
         ## E[dAIS] here, so a median headline deletes ~90% of the expected AIS response --
@@ -656,10 +843,10 @@ for c in COMPONENTS
         ## sample -- the Rao-Blackwellised estimator, ~half the variance for no compute.
         fired = AIS_FIRED[H]; sm = .!fired; pf = AIS_PFULL[H]
         e_sm = any(sm) ? mean(d[sm]) : 0.0; e_fi = any(fired) ? mean(d[fired]) : 0.0
-        push!(cells, (MARKER, SPECIE, SPEC.pulse_Gt, String(c), H, NDRAW,
+        push!(cells, (MARKER, SPECIE, SPEC.pulse_Gt, String(c), H, NKEEP,
                       median(b), median(p), median(d), median(p) - median(b),
                       mean(d), quantile(d, 0.05), quantile(d, 0.95),
-                      median(d) / SPEC.pulse_Gt, std(d) / sqrt(NDRAW), pf,
+                      median(d) / SPEC.pulse_Gt, std(d) / sqrt(NKEEP), pf,
                       (1 - pf) * e_sm, pf * e_fi))
         @printf("  %-9s %-6d %10.3f %12.5f %12.5f %12.5f %12.5f\n",
                 c, H, median(b), median(d), median(p) - median(b),
@@ -667,12 +854,30 @@ for c in COMPONENTS
     end
     println()
 end
+## PROVENANCE travels in the file (09-04's cells carried none, which is how a two-generation-stale arc went unnoticed).
+const EMIS_VARIANT = let f = joinpath(homedir(), "Documents/2026/CodeProjects/FaIRtoFrEDI/calibration_v160_prod",
+                                      "emissions_v160_cmip7harm_vv$(MARKER).variant")
+    isfile(f) ? strip(read(f, String)) : "unrecorded"
+end
+const GIT_STAMP = let c = try readchomp(`git -C $(REPO) rev-parse --short HEAD`) catch; "unknown" end,
+    d = try !isempty(readchomp(`git -C $(REPO) status --porcelain --untracked-files=no`)) catch; false end
+    c * (d ? "-dirty" : "")
+end
+const PROV = "scope_slr_pulse_vv.jl | SLR-RFF-BRICK $(GIT_STAMP) | Ladrillo $(TAG) (v1.2) | draws $(SOURCE == "subsample" ? basename(SUB_PATH) : "raw chains $(CHAIN_TAG)"), " *
+             "$(N_TARGET)/chain | $(LADRILLO_V11_PROV) | lws $(LWS_MODE) | climate " *
+             (CLIMATE == "fair" ? "FaIR 2.2.4 (calib 1.6.0) vv$(MARKER) pulse cubes, emissions variant $(EMIS_VARIANT)" :
+                                  "MAGICC-SLR $(MAGICC_N) members, $(basename(MAGICC_WIDE))") *
+             " | forcing $(FORCING) | tap $(TAP_ON) | pair seed $(PAIR_SEED) | record conditioning: " *
+             (CLIMATE == "fair" ? (RECORD_CONDITION ? "own config, dropped $(length(REJECTED)) of $(NDRAW)" : "OFF") :
+                                  "common draw set with the FaIR arm, dropped $(length(REJECTED)) of $(NDRAW)") *
+             " | pulse $(SPEC.pulse_Gt) $(SPEC.unit) at $(PULSE_YEAR) | cm rel $(LADRILLO_REF[1])-$(LADRILLO_REF[2]) | julia $(VERSION)"
+cells.provenance .= PROV
 CSV.write(joinpath(REPO, "outputs", "pulse_ladrillo_cells_$(OUTSTEM).csv"), cells)
 
 ## per-draw differences at the horizons, so any statistic can be recomputed without a re-run
 let dr = DataFrame(draw = Int[], config = String[], component = String[], horizon = Int[],
                    base_cm = Float64[], pulse_cm = Float64[], diff_cm = Float64[])
-    for c in COMPONENTS, H in HORIZONS, k in 1:NDRAW
+    for c in COMPONENTS, H in HORIZONS, k in JKEEP          # rejected draws are not written: conditioning DELETES them
         i = yidx(H)
         push!(dr, (k, CFG_OF_DRAW[k], String(c), H,
                    RES["base"][c][k, i], RES["pulse"][c][k, i], DIFF[c][k, i]))
@@ -692,9 +897,10 @@ paths = DataFrame(year = Int[], component = String[], med_diff_cm = Float64[],
                   p05_diff_cm = Float64[], p95_diff_cm = Float64[])
 for c in COMPONENTS, (i, y) in enumerate(YEARS)
     y < PULSE_YEAR - 5 && continue
-    v = DIFF[c][:, i]
-    push!(paths, (y, String(c), median(v), mean(v), std(v) / sqrt(NDRAW),
+    v = DIFF[c][JKEEP, i]
+    push!(paths, (y, String(c), median(v), mean(v), std(v) / sqrt(NKEEP),
                   quantile(v, 0.05), quantile(v, 0.95)))
 end
+paths.provenance .= PROV
 CSV.write(joinpath(REPO, "outputs", "pulse_ladrillo_paths_$(OUTSTEM).csv"), paths)
 @printf("\nwrote outputs/pulse_ladrillo_{cells,draws,paths,gates}_%s.csv\n", OUTSTEM)
