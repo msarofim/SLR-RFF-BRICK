@@ -102,7 +102,12 @@ CH4 persists, narrower. CO2 still has not peaked by 2300 in any arm (end/peak 1.
 | BRICK 2.0 | 1.024 → **0.902** | 1.088 → **0.943** |
 | cross-model spread (max/min) | 1.61× → **1.35×** | 1.76× → **1.475×** |
 
-- **The ordering MAGICC < Ladrillo < BRICK 2.0 survives on both aggregations.**
+- ⛔ **CORRECTED 10-09c: only "MAGICC is lowest" is resolved.**
+  - 6-marker per-marker means: MAGICC 0.637 ± 0.018, Ladrillo 0.893 ± 0.079, BRICK 2.0 0.936 ± 0.081 (MC se).
+  - These se assume independent CH4 and CO2 arms. Both arms share draws, so the se is likely an upper bound.
+  - **Ladrillo vs BRICK 2.0 is NOT resolved.**
+  - Per marker, Ladrillo's and BRICK 2.0's rates scatter no more than their MC noise (χ² 4.2 / 6.6 on 5 dof), so
+    their per-marker ordering flips mean nothing. MAGICC's scenario dependence is real (χ² 173).
 - The spread narrows by about a sixth.
 - ⚠ Ladrillo's per-species median moved −15 % while its per-marker rate moved +9 %. The median is still a mixed-marker
   statistic (memory `exchange_rate_median_mixes_markers`), so **quote per-marker.**

@@ -1,3 +1,31 @@
+## 2026-10-09c — Which van Vuuren set for the CH4-vs-CO2 pulse paper (5, 6 or 7)? Evaluation; ⛔ the exchange-rate ordering is only partly resolved
+
+**Asked (Marcus 10-09):** one consistent van Vuuren set; the pulse work becomes a new paper on CH4 vs CO2 pulses.
+
+**Evidence:**
+- MAGICC [SUB-PREINDUSTRIAL] is 0.0 % on every marker and horizon, except vvLN @2300, at 99.5 %.
+- FaIR baseline GMST at 2300 (rel 1850-1900, 841 configs):
+  - vvLN median 0.36 K [p05 0.11], with 5 configs below 0;
+  - every other marker ≥ 1.17 K median, 0 below.
+  - vvML is 1.29 K. It had been 0.55 K on the prerelease tail (the 10-08j artifact), which is what excluded it.
+- The magiccclim arms on vvLN run Ladrillo / BRICK 2.0 on MAGICC's sub-pre-industrial climate.
+- MAGICC's vvLN CH4:CO2e rate is −1.217: its CO2 response goes negative.
+
+**Set sensitivity** (per-marker mean exchange rate, MAGICC / Ladrillo / BRICK 2.0):
+- 5 markers: 0.640 / 0.893 / 0.943;
+- 6 markers: 0.637 / 0.893 / 0.936;
+- 7 markers: MAGICC can only contribute 6, so this set is mixed: 0.637 / 0.897 / 0.967.
+
+**⛔ Precision:**
+- Ladrillo's and BRICK 2.0's per-marker rates carry 15-25 % MC se, and their scatter over markers is noise
+  (χ² 4.2 / 6.6 on 5 dof). MAGICC's scenario dependence is real (χ² 173).
+- 6-marker means: 0.637 ± 0.018 / 0.893 ± 0.079 / 0.936 ± 0.081 (independent-arm se, an upper bound because the CH4 and
+  CO2 arms share draws).
+- So only MAGICC-lowest is resolved. The 10-09 note's "ordering survives" is corrected (§4).
+
+**Recommendation to Marcus:** 6 markers, typed once in `pulse_stats.py` for every script, with the reportability rule
+kept as a gate. Not implemented yet.
+
 ## 2026-10-09b — ⛔ [SAME-STATISTIC] was a pandas PARSE error, not summation noise: fixed, the doc tables build; vvML set and stale prose flagged
 
 **Marcus 10-09:** "compute the tables from a shared function."
