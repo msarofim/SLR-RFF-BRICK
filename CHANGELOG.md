@@ -1,3 +1,70 @@
+## 2026-10-09f — FACTS in the pulse TIME PATHS: annual output is feasible and cheap, but most of FACTS's 2300 pulse total is built in by construction
+
+Handoff `notes/handoff_2026-10-09b_pulse_paper_facts.md` §4 asked for decisions before adding FACTS. This entry is the
+**feasibility measurement** behind them. Nothing downstream changed. Receipt: FaIRtoFrEDI
+`magicc_comparison/diag_facts_pyear_step.py` -> `processed/diag_facts_pyear_step_vvM.csv`.
+Test: one paired arm (vvM, pbase + pco2) re-run at `pyear_step: 1`, in `facts/experiments/steptest.vvM.*.2300.annual`
+(untracked; copies of the shipped configs, step 10 -> 1, inputs byte-identical).
+
+**Decision 1 (resolution): option (a) is feasible.**
+- **Cost:** 57 s and 62 s per experiment at step 1, about the same as at step 10 (21 experiments took 23.5 min on 10-09).
+  The full 21 would take ~22 min.
+- **Modules:** every module ran at step 1 except **bamber19**, which FAILED, taking the wf4 total with it. The cause was
+  not diagnosed: the RADICAL sandbox is discarded with the container. bamber19 is blind to the pulse, and wf4 is outside
+  the recommended set anyway.
+- **Reproduction at the 29 shared years:** tlm, ar5glaciers, ar5AIS, larmip, deconto21 and lws are BIT-IDENTICAL.
+  **FittedISMIP (Greenland) is STEP-DEPENDENT**:
+  - it integrates its fitted rate law by forward Euler at the OUTPUT step (`dSLE = rate(T, t) x pyear_step`, then
+    `cumsum`; `FittedISMIP_GrIS_project.py:182-192`);
+  - at step 10 its Greenland LEVEL is **+8.6 % at 2100** (10.04 vs 9.18 cm median), +13 % at 2050 and +6.5 % at 2300;
+  - wf1f total level: +1.9 % at 2100.
+  - ⚠ AR6 / published FACTS run at step 10, so the shipped LEVEL comparator is FACTS as published. It is not wrong;
+    it is the coarser quadrature of the same law.
+- **On the PULSE difference** the quadrature effect is small: Greenland 1.482e-3 (step 1) vs 1.456e-3 cm (step 10) at
+  2100 (1.8 %); wf1f / wf2f totals 0.4 % at 2100 and 0.3 % at 2300.
+- **On duration the GRID dominates:** t50 of the integral, vvM CO2:
+
+  | | step 1 | step 10 |
+  |---|---|---|
+  | wf1f | 2193 | 2200 |
+  | wf2f | 2212 | 2220 |
+  | te/tlm t90 | 2282 | 2290 |
+
+  The decadal metric rounds UP to the next grid year (`first year cum >= f x total`), a bias of up to +9 yr. That is the
+  size of the "agree within a decade" result. ⇒ option (b) cannot test that result; (a) can, at ~22 min.
+
+**⛔ A prior question the handoff did not list: does Marcus's 09-12c rule bind the PULSE arc?**
+- 09-12c (memory `facts_workflows_differ_only_in_ais`; `ladrillo_figs.FACTS_CLIMATE_DRIVEN`) keeps NO FACTS total past
+  2100 in the LEVEL tables:
+  - FittedISMIP extrapolates its 2080-2100 rate;
+  - LARMIP's response functions are 200 yr, zero-padded;
+  - the climate-driven set is {2150: larmip, ar5glaciers, tlm, lws; 2300: ar5glaciers, tlm, lws}.
+- The pulse extractor (09-04) predates the rule and never applied it.
+- **The shipped pulse doc tables print FACTS wf1f / wf2f TOTALS at 2300:** T1, and T2's exchange rate (wf1f **0.817**,
+  wf2f **0.686**).
+- Measured on the shipped decadal cells (6 markers), the share of the 2300 pulse total that is NOT climate-driven
+  under 09-12c:
+
+  | arm | specie | FittedISMIP | LARMIP |
+  |---|---|---|---|
+  | wf1f | CH4 | **62-86 %** | — |
+  | wf1f | CO2 | **41-57 %** | — |
+  | wf2f | CH4 | 38-42 % | 26-37 % |
+  | wf2f | CO2 | 19-24 % | 38-47 % |
+
+  At 2100 FittedISMIP is 24-28 % of wf1f, all of it climate-driven there.
+- The pulse makes the construction legible: FittedISMIP's Greenland pulse difference grows by a CONSTANT increment
+  every decade after 2100. The CH4 pulse's Greenland response keeps growing linearly to 2300, on the 2080-2100 rate
+  difference.
+- ⇒ Under 09-12c, FACTS enters the 2030-2300 time paths only through **te (tlm) and glaciers (ar5glaciers)**, both
+  step-invariant, with totals to 2100. The FACTS 2300 cells in T1/T2 would be blanked or flagged.
+- **Awaiting Marcus.** Claude's recommendation:
+  1. Apply 09-12c to the pulse arc, so the level and pulse tables carry ONE FACTS convention.
+     - FACTS then enters with totals and every component over 2030-2100, te and glaciers to 2300, and LARMIP to 2150.
+     - It drops out of T3 (the 2030-2300 total duration) and T2 at 2300.
+  2. Run the annual re-run (option a), 21 experiments, with bamber19 / wf4 left out of the configs.
+  3. Keep wf1f and wf2f as the pulse-valid workflows.
+
 ## 2026-10-09e — iGMST: the prediction is stripped; the integrated-warming metric and two decompositions are kept
 
 **Marcus 10-09:** "strip the prediction, keep the integrated temperature metric." Model output is deterministic, so
