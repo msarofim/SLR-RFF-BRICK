@@ -32,7 +32,7 @@ only. This note reports the moves; it does not attribute Ladrillo's between the 
 | MAGICC stage 4 (14), FACTS stage 5 (21), BRICK 2.0 stage 3 (14) | 0 failures. vvLN is NOT REPORTABLE at 2300 (99.5 % of baselines sub-pre-industrial), as before. **vvML is now reportable at 2300** (0 % sub-PI; it was 372/600 degraded). |
 | Ladrillo FaIR arms (14) | 0 failures; 16 / 16 gate lines PASS in every log, [LEVEL-MATCH] included (vvH re-checked after the production overwrite). |
 | magiccclim (28 Ladrillo + 28 BRICK 2.0) | 0 failures |
-| downstream (11 steps) | 10 OK. ⛔ **The doc tables did NOT build** (§8a). |
+| downstream (11 steps) | 10 OK; the doc tables first failed on a parser bug and now build (§8a). |
 
 ## 1. Total response per Gt (paired mean ÷ nominal Gt, cm), range over the 7 markers
 
@@ -100,7 +100,7 @@ CH4 persists, narrower. CO2 still has not peaked by 2300 in any arm (end/peak 1.
 | MAGICC-SLR | 0.637 → **0.667** | 0.618 → **0.640** |
 | Ladrillo | 0.913 → **0.780** ⚠ mixed markers (vvL / vvM) | 0.820 → **0.893** |
 | BRICK 2.0 | 1.024 → **0.902** | 1.088 → **0.943** |
-| cross-model spread (max/min) | 1.61× → **1.35×** | 1.76× → **1.47×** |
+| cross-model spread (max/min) | 1.61× → **1.35×** | 1.76× → **1.475×** |
 
 - **The ordering MAGICC < Ladrillo < BRICK 2.0 survives on both aggregations.**
 - The spread narrows by about a sixth.
@@ -155,29 +155,41 @@ against the historical prediction (handoff §5).
 
 ## 8. Open for Marcus
 
-a. **The doc tables did not build.** `build_pulse_doc_tables.py` [SAME-STATISTIC] stops at **1.02×** its bound.
-   - The worst cell is MAGICC vvVL CO2: the two tables differ by **25 ulps (3.4e-15 relative)**, against a bound of
-     √600 ≈ 24.5 ulps.
-   - All three cells above 0.5× the bound are MAGICC. The non-MAGICC cells differ by ≤ 1 ulp.
-   - **This is summation-order noise.** A draw-set or denominator mismatch would show at ≥ 1e-4 relative; MAGICC's
-     emissions quantum, for one, is 7.9e-5.
-   - The bound is a one-sigma random-walk scale used as a hard maximum over 70 cells. The expected maximum of 70 such
-     draws is about 2.5σ.
-   - Per the standing rule, the gate is NOT edited. Options:
-     - (i) re-derive the bound as a maximum over N cells, e.g. 4·√n ulps;
-     - (ii) use the deterministic summation bound, n ulps;
-     - (iii) compute both tables from one shared function so the identity is exact.
-   - Recommendation: **(iii)**. It makes the gate an exact identity again rather than choosing a new tolerance.
+a. ✅ **RESOLVED 10-09 (Marcus: "compute the tables from a shared function"). ⛔ My first diagnosis was WRONG.**
+   - The gate stopped at 1.02× its bound: MAGICC vvVL CO2 differed by 25 ulps. I called that summation-order noise.
+   - **The real cause was pandas' DEFAULT float parser.** The duration CSV holds `0.025410746335901787` exactly, and
+     `pd.read_csv` returns `0.0254107463359017`, 25 ulps away; `float_precision="round_trip"` reads it exactly.
+     The two tables never differed. This is the trap the Ladrillo Table 5 comparator hit on 10-07.
+   - **The shared function is the READER:** `pulse_stats.read_csv_exact`. Every read in `build_pulse_doc_tables.py`
+     now goes through it.
+   - **[SAME-STATISTIC] is back to EXACT** (bound 0): all 68 comparable cells are bit-identical, and 2 vvLN cells are
+     skipped as NaN (not reportable).
+   - **Mutation-tested:** one ulp on Ladrillo vvM CO2 `r_end_cm` FAILS, naming the cell.
+   - The old √n-ulp bound had been introduced after earlier exact-bound failures ("1.1e-16", "24 ulps") that were
+     very likely this same parser.
+   - The doc tables and the assembled L27 section now BUILD. ⚠ The section's PROSE is stale (item d).
 
 b. **vvML is now reportable on MAGICC at 2300.**
-   - The exchange rate and the iGMST test hold the shipped 5 headline markers (`HEADLINE_MARKERS`), so old and new are
-     like for like.
-   - Moving to 6 is a methodological choice: it changes the statistic, and iGMST would no longer be pre-registered.
-   - Both are printed: all-reportable median / per-marker Ladrillo 0.813 / 0.897, MAGICC 0.647 / 0.637, BRICK 2.0
-     0.902 / 0.967.
+   - ⚠ **The scripts already disagree.**
+     - `build_pulse_doc_tables.py` DERIVES its marker set from MAGICC's reportable flags (an edit of 10-09, d147217),
+       so it moved to 6 markers by itself.
+     - `diag_igmst_ordering_vv.py` and this note's §4 hold the typed 5.
+   - Like-for-like numbers on the same set for all three models (per-marker / median):
+
+     | set | MAGICC | Ladrillo | BRICK 2.0 | per-marker spread | gap closed (per-marker), Ladrillo / BRICK 2.0 |
+     |---|---|---|---|---|---|
+     | 5 (shipped set) | 0.640 / 0.667 | 0.893 / 0.780 | 0.943 / 0.902 | 1.475× | 74 % / 85 % |
+     | 6 (+ vvML) | 0.637 / 0.647 | 0.893 / 0.836 | 0.936 / 0.830 | 1.469× | 85 % / 88 % |
+
+   - (The "all-reportable" rows in §4 and in the CSV mix 7 markers for Ladrillo and BRICK 2.0 with 6 for MAGICC, so
+     they are NOT like for like. Use this table.)
 
 c. **[SHIPPED-EXCHANGE] 0 / 3** in `diag_igmst_ordering_vv.py`. This is expected: it checks the recomputation against
    the typed 09-07 constants, which this re-run supersedes. Update the constants (or relabel them "09-07") once you
    accept the new numbers.
 
-d. **Where the L27 doc section goes.** Still open: `LadrilloUpdateDescription_L24.docx` is yours and is not edited.
+d. **Where the L27 doc section goes, and its prose.**
+   - The section ("Ladrillo Compared on a Pulse") was built 09-07 for `LadrilloUpdateDescription_L24.docx`.
+   - Its tables are generated and live. Its PROSE template types ~15 numbers from the 09-07 run, and several moved.
+   - A warning is now in the template's header comment, and it carries into the assembled file.
+   - The .docx is yours and is not edited.

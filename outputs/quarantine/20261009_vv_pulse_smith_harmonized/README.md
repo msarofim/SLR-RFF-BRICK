@@ -39,3 +39,7 @@ summation-order noise; the gate is left unedited pending Marcus). So `pulse_mode
 `pulse_model_differences_L27_section.md` have NO canonical replacement yet; use the copies here only as the OLD basis.
 The old-vs-new diff is in `SLR-RFF-BRICK/notes/pulse_rerun_diff_2026-10-09.md`
 (`FaIRtoFrEDI/magicc_comparison/processed/pulse_rerun_diff_20261009.csv`).
+**Update 10-09b:** the [SAME-STATISTIC] stop was pandas' default float parser misreading the CSV, not summation noise.
+Fixed (`pulse_stats.read_csv_exact`, gate exact again). `pulse_model_differences_tables.md` and
+`pulse_model_differences_L27_section.md` are now regenerated at their canonical paths. ⚠ The section's PROSE is
+still the 09-07 text (flagged in its header).

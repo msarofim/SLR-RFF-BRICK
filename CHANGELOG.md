@@ -1,3 +1,29 @@
+## 2026-10-09b — ⛔ [SAME-STATISTIC] was a pandas PARSE error, not summation noise: fixed, the doc tables build; vvML set and stale prose flagged
+
+**Marcus 10-09:** "compute the tables from a shared function."
+
+**Doing it showed my 10-09 diagnosis was wrong.**
+- The two tables never differed. The duration CSV holds `0.025410746335901787` exactly (`to_csv` writes round-trip),
+  and pandas' DEFAULT `read_csv` parses it as `0.0254107463359017`, 25 ulps off. `float_precision="round_trip"` is
+  exact. This is the Ladrillo Table 5 comparator trap of 10-07e, in a second codebase.
+- The shared function is therefore the READER: `pulse_stats.read_csv_exact`, used for every read in
+  `build_pulse_doc_tables.py`.
+- [SAME-STATISTIC] is back to EXACT (bound 0): 68 cells bit-identical, 2 vvLN cells skipped as NaN. Mutation-tested: a
+  1-ulp mutant FAILS, naming the cell.
+- The √n-ulp bound it replaces had been introduced after exact-bound failures that were very likely the same parser.
+- FaIRtoFrEDI 2026-10-09b has the code.
+- **Built:** `deliverables/pulse_model_differences_tables.md` and `pulse_model_differences_L27_section.md`.
+  - ⚠ The section's PROSE (template `pulse_model_differences_section.md`) still types ~15 numbers from 09-07, and
+    several moved. A warning now heads the template's comment and carries into the assembled file.
+  - The prose was NOT edited. Where the section goes is Marcus's call.
+- **vvML:** `build_pulse_doc_tables.py` derives its marker set from MAGICC's reportable flags (d147217), so it moved to
+  6 markers by itself, while `diag_igmst_ordering_vv.py` holds the typed 5.
+  - Like-for-like per-marker exchange rates M / L / B: 5 markers 0.640 / 0.893 / 0.943 (spread 1.475×); 6 markers
+    0.637 / 0.893 / 0.936 (1.469×).
+  - The 10-09 note's "all-reportable" rows mixed 7 markers (Ladrillo, BRICK 2.0) with 6 (MAGICC) and are not like for
+    like; corrected in the note §8b.
+- **Number fix:** the per-marker spread is **1.475×** (0.94341 / 0.63958), which 10-09 printed as 1.47×.
+
 ## 2026-10-09 — The van Vuuren PULSE ARC re-run on the 10-08 cubes and Ladrillo L27 (v1.2): done; what moved
 
 **Marcus 10-09** (handoff `notes/handoff_2026-10-09_pulse_arc_rerun.md` §1):
@@ -31,6 +57,7 @@ the L27 port of `scope_slr_pulse_vv.jl` and its new gates) is f2819c8.
 - downstream (11 steps): 10 OK. ⛔ **`build_pulse_doc_tables.py` FAILED** on [SAME-STATISTIC] at **1.02×** its bound:
   - MAGICC vvVL CO2, 25 ulps (3.4e-15 relative) against a √600-ulp bound;
   - all three cells above 0.5× are MAGICC; the other 67 cells are ≤ 1 ulp.
+  - ⛔ CORRECTED 10-09b: NOT summation noise; pandas' default float parser misread the CSV (fixed; exact gate).
   - The bound is a one-sigma random-walk scale used as a hard maximum over 70 cells, so this is summation-order noise.
     A wrong draw set or denominator would show at ≥ 1e-4.
   - **Left unedited** (standing rule: never edit a gate to make it pass); options are in the note §8a. The doc tables
@@ -54,7 +81,7 @@ its [OLD-REPRODUCES-SHIPPED] reproduces 0.913 / 0.637 / 1.024 and the 25 % / 16 
 - **CH4:CO2e exchange rate**, per-marker / median, 5 headline markers:
   - MAGICC 0.640 / 0.667, Ladrillo 0.893 / 0.780, BRICK 2.0 0.943 / 0.902 (shipped 0.618 / 0.637, 0.820 / 0.913,
     1.088 / 1.024);
-  - spread 1.76× → **1.47×** per-marker (1.61× → 1.35× median); the ordering survives;
+  - spread 1.76× → **1.475×** per-marker (1.61× → 1.35× median); the ordering survives;
   - Ladrillo's median is still mixed-marker and moved the opposite way to its per-marker rate;
   - the gap closed by the climate swap, per-marker: 107 % → 74 % (Ladrillo), 71 % → 85 % (BRICK 2.0).
 - **H/VL @2300 CO2:** Ladrillo 1.01× → 0.74×, BRICK 2.0 0.86× → 0.69×, MAGICC 3.55× → 3.45×, FACTS unchanged. The split
