@@ -1,3 +1,40 @@
+## 2026-10-08l — The stale MAGICC history-gap reader is repointed; the 08-31 history gap and 2300 GMST table re-measured on the live basis
+
+Closes 10-08k OPEN item 4. `python/scope_magicc_climate_history_gap.py` read `vv_wide_20260831`, which the rerun moved
+to FaIRtoFrEDI `magicc_comparison/processed/quarantine/20261008_vv_harmonized_tail/`.
+
+**Two tests, run from frozen copies before any edit:**
+- **Old vs new wide files:** run on the quarantined 08-31 files and on `vv_wide_20261008`, the outputs are IDENTICAL
+  (every row differs by 0). The MAGICC re-run moved only the future, as the 10-08 [CONTROL] implied.
+- **Old wide files vs the committed 08-31 CSV:** they do NOT reproduce it. Every SSP row matches; every vv row moves.
+  - The cause is the FaIR side. The vv `fair_mean_gmst_*` HISTORY changed on 10-02 (31aa963, the CMIP7-basis rebuild):
+    2014 GMST went 0.993 → 1.043 K.
+  - 10-02 and 10-08 agree exactly through 2023, so this rerun did not touch it.
+  - **The committed vv rows had been stale since 10-02**, not since today.
+
+**Live numbers (08-31 vintage in brackets):**
+- GMST, MAGICC minus driver, markers: **+0.086 K rms** [0.105], **+0.093 K at 2014** [0.143].
+- Driver inside MAGICC's 5-95 % band in 65 of 165 years [41].
+- OHC residual after the 1995-2014 offset: **6.73e22 J rms** [6.94].
+- The 08-31 design reading holds: 0.086 K is 9× the 0.01 K we quote to, so SPLICED and RAW are not interchangeable.
+
+**Label corrected.** [VINTAGE] said the SSP control's history differs from the markers' because of "RCMIP vs CMIP7
+inputs".
+- Both are now on CMIP7 history. The residual is 0.0148 K [0.0737], mixed sign, peak 1946, with no established cause.
+- The label now says so rather than naming a cause.
+
+**Memory `magicc_colder_than_fair_2300` re-measured, with the 08-31 vintage as the identity check.**
+- The 08-31 table is reproduced digit for digit from git `6cc34b6` (cubes) + `df7ecb4` (MAGICC GMST).
+- Live, MAGICC minus the FaIR ensemble median at 2300: VL −0.47, LN −1.02, L −0.38, ML −0.45, M −0.21, HL −0.45,
+  H +0.22 K. vvLN's 5-95 % ranges are still disjoint.
+- **The direction holds: colder on all four declining markers, 0.45-1.02 K** [0.38-0.93].
+- vvML's absolute levels moved ~0.8 K in BOTH models, because both had run on the same splice artifact. Its
+  difference barely moved, −0.52 → −0.45.
+- ⛔ **Corrected:** the memory's "at 2100 the two models agree closely everywhere" compared RANGES.
+  - Per marker, MAGICC minus FaIR `cfg` at 2100 was already −0.26 K at vvVL and vvLN on 08-31.
+  - Live: VL −0.31, LN −0.32, L −0.28, ML −0.21, M −0.13, HL −0.23, H +0.04 K.
+  - Agreement holds at 2050: within 0.03 K on six markers, −0.08 at vvVL.
+
 ## 2026-10-08k — RERUN: van Vuuren on the published emissions (variant b) + record conditioning of the Ladrillo joint arms
 
 **Marcus 10-08: "go with b and any pending fixes that can be done simultaneously".** His rulings:

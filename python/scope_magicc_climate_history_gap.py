@@ -36,8 +36,11 @@ import numpy as np
 import pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+## The 2026-10-08 MAGICC vv run (published Zenodo emissions). The 08-31 files are in
+## FaIRtoFrEDI/magicc_comparison/processed/quarantine/20261008_vv_harmonized_tail/ and give
+## IDENTICAL output here: the re-run moved only the future (CHANGELOG 2026-10-08l).
 WIDE = os.path.expanduser(
-    "~/Documents/2026/CodeProjects/FaIRtoFrEDI/magicc_comparison/processed/vv_wide_20260831")
+    "~/Documents/2026/CodeProjects/FaIRtoFrEDI/magicc_comparison/processed/vv_wide_20261008")
 OBS = os.path.join(REPO, "data/observations")
 OUT = os.path.join(REPO, "outputs/scope_magicc_climate_history_gap.csv")
 LOG = os.path.join(REPO, "outputs/log_scope_magicc_climate_history_gap.txt")
@@ -97,12 +100,14 @@ def main():
     if worst > 0:
         raise SystemExit("[SHARED-HISTORY] the vv markers disagree by %.3e K before 2015" % worst)
     say("[SHARED-HISTORY] ok   the 7 markers share one history exactly (0.000e+00 K)")
-    ## The SSPs are a CONTROL and kept their ORIGINAL RCMIP inputs, so their history
-    ## is NOT the markers' history. Reported, not gated -- it is a property of the
-    ## design, and the number is what stops it being read as a defect later.
+    ## The SSPs are a CONTROL built by a different emissions builder, so their history
+    ## is NOT the markers' history. Reported, not gated. On 08-31 this was 0.0737 K and
+    ## was attributed to RCMIP vs CMIP7 inputs; since the 10-02 CMIP7 rebuild of the
+    ## markers both are on CMIP7 history and the residual (0.0148 K, mixed sign, peak
+    ## 1946) has no established cause -- so the label no longer names one.
     dss = float(np.abs(fair("ssp245", "gmst", "gmst_C").loc[hist_yrs] - ref).max())
     say("[VINTAGE]        the SSP control history differs from the markers' by up to "
-        "%.4f K (RCMIP vs CMIP7 inputs; by design)" % dss)
+        "%.4f K (separate builders; cause not established)" % dss)
     say()
 
     say("GMST gap, MAGICC minus driver (K)")
