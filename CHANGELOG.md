@@ -23,6 +23,15 @@
   CO2 arms share draws).
 - So only MAGICC-lowest is resolved. The 10-09 note's "ordering survives" is corrected (§4).
 
+**Paired se:**
+- **PAIRED (`FaIRtoFrEDI/magicc_comparison/diag_exchange_rate_paired_se.py`):** a joint bootstrap over draw index,
+    with species, markers and both models paired; 4,000 resamples, seed 2026.
+  - Ladrillo 0.893 ± 0.058 [0.780, 1.004]; BRICK 2.0 0.936 ± 0.058 [0.821, 1.050].
+  - **Ladrillo − BRICK 2.0 = −0.043 ± 0.082 [−0.200, +0.115], NOT resolved.** MAGICC is ~4σ below both.
+  - Pairing cuts the se by ~27 %. Per-marker 95 % intervals are ±25 %.
+  - Resolving a 0.043 difference at 2σ would take ~15× the draws; the 10k posterior allows 5×.
+  - [POINT-MATCH] (draws vs the duration table, 1e-12) is mutation-tested: a 1e-9 scale error FAILS.
+
 **Recommendation to Marcus:** 6 markers, typed once in `pulse_stats.py` for every script, with the reportability rule
 kept as a gate. Not implemented yet.
 

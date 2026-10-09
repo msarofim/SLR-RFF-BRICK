@@ -108,6 +108,13 @@ CH4 persists, narrower. CO2 still has not peaked by 2300 in any arm (end/peak 1.
   - **Ladrillo vs BRICK 2.0 is NOT resolved.**
   - Per marker, Ladrillo's and BRICK 2.0's rates scatter no more than their MC noise (χ² 4.2 / 6.6 on 5 dof), so
     their per-marker ordering flips mean nothing. MAGICC's scenario dependence is real (χ² 173).
+  - **PAIRED (10-09c, `FaIRtoFrEDI/magicc_comparison/diag_exchange_rate_paired_se.py`):** a joint bootstrap over draw index,
+    with species, markers and both models paired; 4,000 resamples, seed 2026.
+    - Ladrillo 0.893 ± 0.058 [0.780, 1.004]; BRICK 2.0 0.936 ± 0.058 [0.821, 1.050].
+    - **Ladrillo − BRICK 2.0 = −0.043 ± 0.082 [−0.200, +0.115], NOT resolved.** MAGICC is ~4σ below both.
+    - Pairing cuts the se by ~27 %. Per-marker 95 % intervals are ±25 %.
+    - Resolving a 0.043 difference at 2σ would take ~15× the draws; the 10k posterior allows 5×.
+    - [POINT-MATCH] (draws vs the duration table, 1e-12) is mutation-tested: a 1e-9 scale error FAILS.
 - The spread narrows by about a sixth.
 - ⚠ Ladrillo's per-species median moved −15 % while its per-marker rate moved +9 %. The median is still a mixed-marker
   statistic (memory `exchange_rate_median_mixes_markers`), so **quote per-marker.**
