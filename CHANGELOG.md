@@ -1,3 +1,30 @@
+## 2026-10-09d — ⭐ The six-marker van Vuuren set ADOPTED; the pulse work becomes a CH4-vs-CO2 pulse paper
+
+**Marcus 10-09:**
+- "Adopt the six marker set."
+- For the pulse analysis, "leave it as is for now": no 10k-draw precision run.
+- The paper's aim is to show **which features of the SLR pulse response are consistent across models and which are
+  not**. Showing that one model differs from another is not the goal, though a difference is valuable when it exists.
+- **FACTS is to be added to the pulse analysis.**
+- He asked whether an iGMST prediction is needed at all. The answer is in the session, and the proposal is pending.
+
+**Implemented** (FaIRtoFrEDI 2026-10-09d):
+- `pulse_stats.VV_MARKERS` = vvVL, vvL, vvML, vvM, vvHL, vvH. It is defined once, and the duration table, figures,
+  iGMST, doc tables and paired-se scripts import it.
+- Producers still run all 7 (`VV_MARKERS_ALL`); vvLN's 2100/2150 cells stay valid for a supplement.
+- **[VV-SET]** fails if an analysis marker turns unreportable or an excluded one turns reportable, so the set changes only
+  by decision. Mutation-tested both ways.
+- The doc tables' DERIVED set (which had drifted 5 → 6 by itself) is replaced, and the caption now gives the domain rule.
+- **Downstream re-run:** 11 / 11 OK. [SAME-STATISTIC] 60 / 60 bit-identical. [SHIPPED-EXCHANGE] 0 / 3 is expected, pending
+  the iGMST decision.
+- **iGMST on 6 markers:** R(FaIR) / R(MAGICC) = **1.3118 [1.2883, 1.3359]**. The per-marker climate swap moves Ladrillo's
+  exchange rate 1.320× and BRICK 2.0's 1.394×, so integrated warming carries essentially all of Ladrillo's shift and
+  most of BRICK 2.0's.
+- The paired-se diagnostic is unchanged (it was already on the 6).
+
+**FACTS scoping** (not started): FACTS writes DECADAL output (2020, 2030, …, 2300; 29 points), while the other models
+are annual. Duration and integral statistics need a resolution decision; see the session's options.
+
 ## 2026-10-09c — Which van Vuuren set for the CH4-vs-CO2 pulse paper (5, 6 or 7)? Evaluation; ⛔ the exchange-rate ordering is only partly resolved
 
 **Asked (Marcus 10-09):** one consistent van Vuuren set; the pulse work becomes a new paper on CH4 vs CO2 pulses.
