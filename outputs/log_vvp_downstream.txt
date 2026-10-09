@@ -527,13 +527,11 @@ wrote magicc_comparison/processed/pulse_duration_cells_vv_2030.csv  (720 rows)
 wrote magicc_comparison/figures/pulse_duration_q1_robustness.{png,pdf}
 wrote magicc_comparison/figures/pulse_duration_q2_ch4_components.{png,pdf}
 wrote magicc_comparison/figures/pulse_duration_q3_class_difference.{png,pdf}
-/Users/MarcusMarcus/Documents/2026/CodeProjects/FaIRtoFrEDI/magicc_comparison/diag_igmst_ordering_vv.py:333: FutureWarning: Behavior when concatenating bool-dtype and numeric-dtype arrays is deprecated; in a future version these will cast to object dtype (instead of coercing bools to numeric values). To retain the old behavior, explicitly cast bool-dtype arrays to numeric dtype.
+/Users/MarcusMarcus/Documents/2026/CodeProjects/FaIRtoFrEDI/magicc_comparison/diag_igmst_ordering_vv.py:265: FutureWarning: Behavior when concatenating bool-dtype and numeric-dtype arrays is deprecated; in a future version these will cast to object dtype (instead of coercing bools to numeric values). To retain the old behavior, explicitly cast bool-dtype arrays to numeric dtype.
   df.loc[len(df)] = {c: np.nan for c in df.columns}
 ====================================================================================================
-iGMST AND THE CO2/CH4 ORDERING SWAP -- the pre-registered test (handoff 09-05b item 2)
-  iGMST = int dGMST dt over [2030, 2300], per Gt; CH4 also per GtCO2e at GWP100 = 29.8
-  PREDICTED  R(FaIR)/R(MAGICC) ~ 1.433   (the shipped SLR exchange rates 0.913 / 0.637, RECOMPUTED below)
-  FALSIFIES  R(FaIR)/R(MAGICC) ~ 1
+iGMST -- the integrated warming of a pulse, and its share of the CH4:CO2e exchange-rate change between climates
+  iGMST = int dGMST dt over [2030, 2300], per Gt; CH4 also per GtCO2e at GWP100 = 29.8; markers vvVL,vvL,vvML,vvM,vvHL,vvH
 ====================================================================================================
 
 ====================================================================================================
@@ -554,54 +552,35 @@ PER-MARKER iGMST (K.yr per Gt), and the endpoint beside it
     magicc  vvH         0.109283       0.075233       0.000414       0.000097
 
 ====================================================================================================
-THE VERDICT
+THE iGMST RATIO R(FaIR) / R(MAGICC)
 ====================================================================================================
-  markers       R(FaIR)  R(MAGICC)      ratio   95% bootstrap (n=4000)  
+  markers         R(FaIR)  R(MAGICC)      ratio   95% bootstrap (n=4000)  
   analysis6 (6)     0.8750     0.6670     1.3118   [1.2883, 1.3359]
 
-  predicted 1.433  inside the interval? NO
-  falsifier 1  inside the interval? NO
-  ⇒ NEITHER -- the ratio is real but lands on neither pre-registered value
+====================================================================================================
+THE SLR CH4:CO2e EXCHANGE RATES, total @2300, per-marker mean over 6 markers
+====================================================================================================
+  MAGICC                     0.6372
+  Ladrillo                   0.8934
+  Ladrillo/magiccclim        0.6767
+  BRICK2.0                   0.9362
+  BRICK2.0/magiccclim        0.6717
 
 ====================================================================================================
-WHAT THE PREDICTION WAS WRITTEN ABOUT -- the SLR exchange rates, recomputed
+DECOMPOSITION 1 -- the module swap X = rate(on FaIR) / rate(on MAGICC climate), against the iGMST ratio
 ====================================================================================================
-  CH4:CO2e total response @2300, 6 headline markers, two aggregations of the marker
-  axis. ⚠ `median` is the SHIPPED one and is NOT like-for-like: it takes the median
-  per SPECIES, so numerator and denominator can come from DIFFERENT markers.
-
-  model                      median  permarker   median's CH4/CO2 marker
-  MAGICC                     0.6474     0.6372   vvHL / vvHL
-  Ladrillo                   0.8364     0.8934   vvML / vvM   ⚠ MIXED
-  Ladrillo/magiccclim        0.6080     0.6767   vvH / vvML   ⚠ MIXED
-  BRICK2.0                   0.8304     0.9362   vvM / vvL   ⚠ MIXED
-  BRICK2.0/magiccclim        0.7170     0.6717   vvML / vvM   ⚠ MIXED
+  module              X      iGMST ratio [95%]   share of ln X carried by integrated warming
+  Ladrillo       1.3202     1.3118 [1.2883, 1.3359]   98 %  [91, 104] (iGMST interval only)
+  BRICK2.0       1.3937     1.3118 [1.2883, 1.3359]   82 %  [76, 87] (iGMST interval only)
 
 ====================================================================================================
-THE CLIMATE SWAP THE INTEGRAL IS PREDICTING (same module, both climates)
+DECOMPOSITION 2 -- (R_onFaIR - R_onMAGICCclim) / (R_onFaIR - R_MAGICC)
 ====================================================================================================
-  aggregation    Ladrillo   BRICK2.0   iGMST (measured)
-  median           1.3756     1.1581   1.3118 [1.2883, 1.3359]
-  permarker        1.3202     1.3937   1.3118 [1.2883, 1.3359]
+  Ladrillo     84.6 %   (R 0.8934 -> 0.6767 on MAGICC's climate; MAGICC-SLR 0.6372)
+  BRICK2.0     88.5 %   (R 0.9362 -> 0.6717 on MAGICC's climate; MAGICC-SLR 0.6372)
 
-====================================================================================================
-THE SHIPPED "GAP CLOSED BY THE CLIMATE" SHARE, ON BOTH AGGREGATIONS
-====================================================================================================
-  (R_onFaIR - R_onMAGICCclim) / (R_onFaIR - R_MAGICC), the share of the exchange-rate
-  gap the climate swap closes. `median` is what shipped.
-
-  aggregation      Ladrillo     BRICK2.0
-  median             120.8%        62.0%
-  permarker           84.6%        88.5%
-
-  ⛔ THE "NOT UNANIMOUS -- 99 % vs 38 %" READING IS AGGREGATION-DEPENDENT. On the
-     like-for-like per-marker rate the two modules are 107 % and 71 %, and BRICK is
-     no longer an outlier. The 1.6x cross-model SPREAD survives both (1.29x median,
-     1.47x per-marker), so the headline stands; the SHARE does not.
-
-  ⚠ the bootstrap resamples MEMBERS only. It does NOT price the marker set, the
-    2300 window, or GWP100 -- the two marker sets are printed above so the first of
-    those is visible, and GWP100 cancels from the ratio exactly.
+  ⚠ the bootstrap resamples climate MEMBERS only: it does NOT price the SLR modules' own draws (see
+    diag_exchange_rate_paired_se.py for those), the marker set, the 2300 window, or GWP100 (which cancels).
 
 ====================================================================================================
 GATES
@@ -610,11 +589,10 @@ GATES
   [PREPULSE-ZERO ]   24/  24 PASS   worst fair|CO2|vvVL                  0
   [WINDOW        ]   24/  24 PASS   worst fair|CO2|vvVL                  271
   [MARKER-SET    ]    1/   1 PASS   worst fair/CO2|fair/CH4|magicc/CO2|m 1
-  [SHIPPED-EXCHANGE]    0/   3 PASS   worst BRICK2.0                       0.193638   ⛔ 3 FAIL
-  [SWAP-VS-IGMST ]    4/   4 PASS   worst permarker|BRICK2.0             1.06243
-  [CLOSED-SHARE  ]    4/   4 PASS   worst median|Ladrillo                1.20821
-  [VERDICT       ]    1/   1 PASS   worst analysis6                      1.31181
-  TOTAL 82/85 PASS   ⛔ 3 FAIL
+  [SWAP-VS-IGMST ]    2/   2 PASS   worst Ladrillo                       0.976997
+  [CLOSED-SHARE  ]    2/   2 PASS   worst BRICK2.0                       0.884589
+  [IGMST-RATIO   ]    1/   1 PASS   worst analysis6                      1.31181
+  TOTAL 78/78 PASS
 
 wrote magicc_comparison/processed/diag_igmst_ordering_vv_2030.csv  (25 rows)
       magicc_comparison/processed/diag_igmst_ordering_gates_vv_2030.csv

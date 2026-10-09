@@ -1,3 +1,21 @@
+## 2026-10-09e — iGMST: the prediction is stripped; the integrated-warming metric and two decompositions are kept
+
+**Marcus 10-09:** "strip the prediction, keep the integrated temperature metric." Model output is deterministic, so
+pre-registration buys nothing; a FIXED definition is the protection.
+
+**Removed** from `diag_igmst_ordering_vv.py`: PREDICTED (1.433), FALSIFIES (1.0), the verdict, [SHIPPED-EXCHANGE], and
+the per-species-median aggregation (mixed-marker).
+- Their last values, for the record: on 5 markers, 1.3241 [1.2980, 1.3509] (09-07) and 1.3155 [1.2896, 1.3423] (10-09);
+  neither 1.433 nor 1.0 inside.
+
+**Kept, on the 6-marker set, per-marker statistic:** iGMST ratio R(FaIR) / R(MAGICC) = **1.3118 [1.2883, 1.3359]**.
+- **Decomposition 1:** the share of the module's climate-swap change (ln X) carried by integrated warming. Ladrillo
+  **98 % [91, 104]** (X = 1.320); BRICK 2.0 **82 % [76, 87]** (X = 1.394). The interval prices iGMST only.
+- **Decomposition 2:** the share of the gap to MAGICC-SLR that swapping the climate closes. Ladrillo **84.6 %**, BRICK
+  2.0 **88.5 %**.
+- 78 / 78 gates. The `flatten` power check still collapses the ratio to 0.97 [0.94, 1.00].
+- The downstream log is re-run: 0 failures, no FAIL lines.
+
 ## 2026-10-09d — ⭐ The six-marker van Vuuren set ADOPTED; the pulse work becomes a CH4-vs-CO2 pulse paper
 
 **Marcus 10-09:**
