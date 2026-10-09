@@ -38,3 +38,5 @@ The canonical files in `outputs/`, `figures/` and `benchmark/`. The number-by-nu
 ⚠ **NOT regenerated:** `figures/*climate_swap*` (`plot_vv_climate_swap.py`). Its [ARM-MATCH] gate correctly refuses
 to compare the conditioned FaIR arm (1,998 draws) with the unconditioned MAGICC-climate arm (2,000). The fix is
 Marcus's call; the effect on the quoted swap is ≤ 0.1 cm.
+⛔ **CORRECTED 10-08m:** a MIXED-VINTAGE swap had been written by the 18:22 retry and committed; it is in
+`../20261008_vv_climate_swap_mixed_vintage/`. Marcus chose the common draw set; the canonical swap is regenerated.

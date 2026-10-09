@@ -1,3 +1,46 @@
+## 2026-10-08m — The climate swap on the COMMON draw set; ⛔ the committed 10-08k swap was MIXED-VINTAGE
+
+**Marcus 10-08**, on 10-08k OPEN item 1: "common draw set". The swap holds the draws fixed and moves only the climate.
+So Ladrillo's MAGICC point is recomputed on the draws its record-conditioned FaIR arm keeps: minus 187 and 610, on
+every marker. The shipped MAGICC-climate arm stays unconditioned, as the 10-08 ruling scoped it. BRICK 2.0 is
+conditioned on neither climate and is unchanged.
+
+**⛔ Found first: a mixed-vintage swap had been committed in e567ea7**, although 10-08k, the handoff and the arms
+quarantine README all say it was "NOT regenerated".
+- The 18:22 partial retry (`outputs/log_vvz_downstream_retry.txt`) ran the swap without re-running
+  `vv_model_comparison.py`.
+- It therefore paired the PRE-rerun comparison table (unconditioned, harmonized-tail emissions) with the NEW
+  MAGICC-climate arms.
+- [ARM-MATCH] compared COUNTS, and the stale table still said 2,000, so it passed.
+- The final pass's refusal left the retry's files in place.
+- Measured: their FaIR-side medians equal the quarantined pre-rerun table exactly, and miss the live one by up to
+  10.4 cm (Ladrillo) and 13.7 cm (BRICK 2.0). Worst cell: Ladrillo vvML 2300, whose TE climate term read −1.4 cm
+  instead of −8.6.
+- A sweep of every file the two retries wrote found these four and no others; the final pass overwrote the rest.
+  Nothing reads the swap CSV programmatically.
+- Quarantined: `outputs/quarantine/20261008_vv_climate_swap_mixed_vintage/` (README, SHA256SUMS).
+
+**The fix** (`python/plot_vv_climate_swap.py`), three gates, each mutation-tested on a scratch copy:
+- **[SOURCE-MATCH]:** the comparison table's FaIR cells must equal the driver's cells files, at tol 1e-9 cm (measured
+  5.7e-14). This is the gate that would have caught the bug. Pointed at the stale table, it FAILS.
+- **[RECOMPUTE-IDENTITY]:** the Ladrillo MAGICC cells recomputed from the per-draw file with no drop must equal the
+  driver's own cells (measured 5.7e-14). With a different quantile rule, it FAILS.
+- **[ARM-MATCH]**, now keyed by DRAW ID for Ladrillo: the same ids on both climates, and only the FaIR arm's
+  REJECTED draws removed. With no drop it FAILS; with the wrong draws dropped it FAILS.
+- The unmutated copy passes, and its numeric columns equal the canonical output.
+
+**What the common draw set moves:** Ladrillo's MAGICC point by ≤ 0.16 cm (TE, vvH 2300); the total by ≤ 0.14 cm.
+
+**The corrected swap against the TRUE pre-rerun swap** (the 20261008_vv_zenodo_conditioning_arms copy):
+- Climate terms hold to within ~0.7 cm everywhere, because both arms moved with the emissions.
+- The exception is BRICK 2.0 at vvML:
+  - AIS climate term at 2100 goes −9.4 → −1.5 cm, and at 2300 −13.7 → −6.6;
+  - total at 2300 goes −28.8 → −21.7.
+  - This is the DAIS-bimodality median artefact of 10-08k: a difference of medians across a mode boundary.
+  - Quote BRICK 2.0's vvML AIS climate term with that caveat, or as a paired mean.
+- At 2300 the corrected Ladrillo total climate term is −15 to −30 cm across the seven markers; BRICK 2.0's is −14 to
+  −37.
+
 ## 2026-10-08l — The stale MAGICC history-gap reader is repointed; the 08-31 history gap and 2300 GMST table re-measured on the live basis
 
 Closes 10-08k OPEN item 4. `python/scope_magicc_climate_history_gap.py` read `vv_wide_20260831`, which the rerun moved
@@ -99,6 +142,8 @@ Plan and rulings: `notes/handoff_2026-10-08c_vv_zenodo_rerun.md`. Runner: `run_v
 **OPEN (Marcus):**
 1. **The climate swap.** [ARM-MATCH] in `plot_vv_climate_swap.py` correctly refuses a conditioned FaIR arm (1,998
    draws) against an unconditioned MAGICC-climate arm (2,000), so `figures/*climate_swap*` is NOT regenerated.
+   ⛔ **CORRECTED 10-08m:** it WAS regenerated, wrongly. A partial retry paired the stale pre-rerun comparison
+   table with the new MAGICC arms, and that mixed-vintage swap was committed here. Quarantined; RESOLVED, see 10-08m.
    - Dropping the FaIR-rejected draw ids from the MAGICC arm moves its vvH 2300 median by ≤ 0.1 cm.
    - On their own MAGICC member, 1 draw per marker fires by 2025.
    - Options: compare on the common draw set; condition the MAGICC arms on their own climate; or relax the gate.

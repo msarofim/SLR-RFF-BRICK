@@ -14,8 +14,23 @@ CONVENTIONS (all inherited, none new): cm rel 1995-2014; JOINT arms (posterior x
 ensemble); the SPLICED injection convention for the swapped arms (Marcus 2026-08-31: spliced
 primary, raw as check -- worth 0.00 cm for TE/glaciers/LWS and up to -43 cm for AIS at
 ssp245/2300, memory `ladrillo_on_magicc_climate`). Only the driving climate changes between a
-model's two points: posterior, tap, modules and draw count are identical, and [ARM-MATCH]
-refuses a pair whose draw counts differ. FACTS is not drawn: it has no MAGICC-climate arm.
+model's two points: posterior, tap, modules and DRAWS are identical. FACTS is not drawn: it has
+no MAGICC-climate arm.
+
+COMMON DRAW SET (Marcus 2026-10-08). Ladrillo's FaIR joint arm is record-conditioned: it drops each
+draw whose Antarctic fast dynamics fire by the record end on its OWN FaIR config (187 and 610 on
+every marker). The MAGICC-climate arm is NOT conditioned (the 10-08 ruling's scope). The swap holds
+the draws fixed and moves only the climate, so Ladrillo's MAGICC point is recomputed here from that
+arm's per-draw file on the FaIR arm's kept draws. The shipped MAGICC arm is untouched. BRICK 2.0 is
+conditioned on neither climate and is read as shipped.
+GATES:
+  [SOURCE-MATCH]       the comparison table's FaIR-arm cells equal the driver's cells files. A stale
+                       comparison table paired with fresh MAGICC arms is exactly how the 10-08 retry
+                       wrote a mixed-vintage swap (quarantine 20261008_vv_climate_swap_mixed_vintage).
+  [RECOMPUTE-IDENTITY] recomputing the MAGICC cells from the per-draw file with NO drop reproduces
+                       the driver's own cells, so the common-set statistic is the driver's statistic.
+  [ARM-MATCH]          keyed by DRAW: a model's two points carry the same draw ids, and every draw
+                       removed from the MAGICC point is one the FaIR arm's gates list as REJECTED.
 """
 import os
 import sys
@@ -44,6 +59,16 @@ TAP_STEM = lf.joint_stem("")[1:]          # "tap..." with no leading underscore
 LAD_MAG = os.path.join(lf.REPO, "outputs",
                        "scope_slr_fairunc_cells_%%s_spliced_magiccclim_%s_%s.csv" % (TAG, TAP_STEM))
 BRK_MAG = os.path.join(lf.REPO, "outputs", "scope_slr_fairunc_cells_%s_spliced_oldbrick_magiccclim.csv")
+## The per-draw files and the FaIR arm's gates, for the common draw set and the source checks.
+LAD_FAIR = os.path.join(lf.REPO, "outputs", "scope_slr_fairunc_cells_%%s_spliced_%s_%s.csv" % (TAG, TAP_STEM))
+BRK_FAIR = os.path.join(lf.REPO, "outputs", "scope_slr_fairunc_cells_%s_spliced_oldbrick.csv")
+LAD_FAIR_DRAWS = LAD_FAIR.replace("_cells_", "_draws_")
+LAD_FAIR_GATES = LAD_FAIR.replace("_cells_", "_gates_")
+LAD_MAG_DRAWS = LAD_MAG.replace("_cells_", "_draws_")
+## Identity tolerances, cm. The two sides are the same draws through two code paths (Julia's and
+## numpy's type-7 quantile), so only float noise separates them: measured 5.7e-14 on 10-08. The
+## mixed-vintage swap this guards against was off by 10.4 cm (Ladrillo) and 13.7 cm (BRICK 2.0).
+IDENTITY_TOL_CM = 1e-9
 OUT_CSV = os.path.join(lf.REPO, "outputs", "vv_climate_swap_%s.csv" % TAG)
 
 ## Five arms, two of them "the same model on the other climate". Open marker = MAGICC's climate.
@@ -63,33 +88,102 @@ for src in ("Ladrillo", "BRICK 2.0", "MAGICC-SLR"):
         rows.append(dict(source=src, climate="magicc" if src == "MAGICC-SLR" else "fair",
                          marker=r.marker, component=r.component, year=int(r.year),
                          med=r.med, p05=r.p05, p95=r.p95, n_draws=int(r.n_draws)))
+def need(p, what):
+    if not os.path.exists(p):
+        raise SystemExit("missing %s: %s" % (what, os.path.relpath(p, lf.REPO)))
+    return p
+
+
+def joint_cells(p):
+    c = pd.read_csv(need(p, "cells file"))
+    return c[(c.arm == "joint") & c.horizon.isin(HORIZONS) & c.component.isin(lf.COMPONENTS)]
+
+
+def cells_from_draws(d):
+    """med/p05/p95/n_draws per component x horizon, as the Julia driver computes them (type-7)."""
+    g = d.groupby(["component", "horizon"]).value_cm
+    return pd.DataFrame({"med_cm": g.median(), "p05_cm": g.quantile(0.05), "p95_cm": g.quantile(0.95),
+                         "n_draws": g.size()})
+
+
+def worst(a, b):
+    j = a.join(b, rsuffix="_b", how="outer")
+    if j.isna().any().any() or (j.n_draws != j.n_draws_b).any():
+        return np.inf
+    return max(float((j[q] - j[q + "_b"]).abs().max()) for q in ("med_cm", "p05_cm", "p95_cm"))
+
+
+## [SOURCE-MATCH] the comparison table's FaIR-arm cells must be the driver's current cells.
+cmp_cells = D.rename(columns={"med": "med_cm", "p05": "p05_cm", "p95": "p95_cm", "year": "horizon"})
+src_bad = []
+for src, tmpl in (("Ladrillo", LAD_FAIR), ("BRICK 2.0", BRK_FAIR)):
+    for k, _l, _c, _d in SCENS:
+        a = joint_cells(tmpl % k).set_index(["component", "horizon"])[["med_cm", "p05_cm", "p95_cm", "n_draws"]]
+        b = cmp_cells[(cmp_cells.source == src) & (cmp_cells.marker == k)
+                      & cmp_cells.component.isin(lf.COMPONENTS) & cmp_cells.horizon.isin(HORIZONS)]
+        w = worst(a, b.set_index(["component", "horizon"])[["med_cm", "p05_cm", "p95_cm", "n_draws"]])
+        if not w <= IDENTITY_TOL_CM:
+            src_bad.append("%s %s: %.3g cm" % (src, k, w))
+if src_bad:
+    raise SystemExit("[SOURCE-MATCH] %s does not match the FaIR-arm cells files (stale comparison table?):\n  %s"
+                     % (os.path.relpath(CMP_CSV, lf.REPO), "\n  ".join(src_bad)))
+print("[SOURCE-MATCH] the comparison table's Ladrillo and BRICK 2.0 FaIR cells equal the driver's, "
+      "all %d markers (tol %.0e cm)" % (len(SCENS), IDENTITY_TOL_CM))
+
+ident, match, n_common = [], [], {}
 for src, tmpl in (("Ladrillo", LAD_MAG), ("BRICK 2.0", BRK_MAG)):
     for k, _l, _c, _d in SCENS:
-        p = tmpl % k
-        if not os.path.exists(p):
-            raise SystemExit("missing MAGICC-climate arm for %s %s: %s" % (src, k, os.path.relpath(p, lf.REPO)))
-        c = pd.read_csv(p)
-        c = c[(c.arm == "joint") & (c.horizon.isin(HORIZONS))]
-        for _, r in c.iterrows():
-            rows.append(dict(source=src, climate="magicc", marker=k, component=r.component,
-                             year=int(r.horizon), med=r.med_cm, p05=r.p05_cm, p95=r.p95_cm,
-                             n_draws=int(r.n_draws)))
+        c = joint_cells(tmpl % k)
+        if src == "Ladrillo":
+            ## the common draw set: the MAGICC arm's draws minus the FaIR arm's REJECTED draws
+            d = pd.read_csv(need(LAD_MAG_DRAWS % k, "MAGICC-climate per-draw file"))
+            d = d[(d.arm == "joint") & d.horizon.isin(HORIZONS) & d.component.isin(lf.COMPONENTS)]
+            ## [RECOMPUTE-IDENTITY] no drop -> the driver's own cells
+            w = worst(cells_from_draws(d),
+                      c.set_index(["component", "horizon"])[["med_cm", "p05_cm", "p95_cm", "n_draws"]])
+            ident.append(w)
+            if not w <= IDENTITY_TOL_CM:
+                raise SystemExit("[RECOMPUTE-IDENTITY] %s: cells recomputed from %s differ from the driver's by "
+                                 "%.3g cm" % (k, os.path.basename(LAD_MAG_DRAWS % k), w))
+            gt = pd.read_csv(need(LAD_FAIR_GATES % k, "FaIR-arm gates"))
+            rejected = {int(s.split("_")[1]) for s in gt[gt.gate == "REJECTED"].key}
+            fd = pd.read_csv(need(LAD_FAIR_DRAWS % k, "FaIR-arm per-draw file"), usecols=["draw", "arm"])
+            fair_ids = set(fd[fd.arm == "joint"].draw)
+            mag_ids = set(d.draw)
+            keep = mag_ids - rejected
+            ## [ARM-MATCH] same draw ids on both climates; only REJECTED draws removed, and each one existed
+            if keep != fair_ids or not rejected <= mag_ids:
+                match.append("%s: FaIR %d ids, MAGICC %d, rejected %s, common-set mismatch %d"
+                             % (k, len(fair_ids), len(mag_ids), sorted(rejected), len(keep ^ fair_ids)))
+                continue
+            n_common[k] = (len(keep), sorted(rejected))
+            cc = cells_from_draws(d[d.draw.isin(keep)]).reset_index()
+            for _, r in cc.iterrows():
+                rows.append(dict(source=src, climate="magicc", marker=k, component=r.component,
+                                 year=int(r.horizon), med=r.med_cm, p05=r.p05_cm, p95=r.p95_cm,
+                                 n_draws=int(r.n_draws)))
+        else:
+            for _, r in c.iterrows():
+                rows.append(dict(source=src, climate="magicc", marker=k, component=r.component,
+                                 year=int(r.horizon), med=r.med_cm, p05=r.p05_cm, p95=r.p95_cm,
+                                 n_draws=int(r.n_draws)))
+print("[RECOMPUTE-IDENTITY] Ladrillo MAGICC cells from the per-draw files, no drop: max %.2e cm (tol %.0e)"
+      % (max(ident), IDENTITY_TOL_CM))
 R = pd.DataFrame(rows)
 R = R[R.component.isin(lf.COMPONENTS) & R.year.isin(HORIZONS)]
 
-## [ARM-MATCH] the two points of one model must come from the same number of draws.
-bad = []
-for src in ("Ladrillo", "BRICK 2.0"):
-    a = R[(R.source == src)].groupby(["marker", "climate"]).n_draws.first().unstack()
-    m = a[a.fair != a.magicc]
-    if len(m):
-        bad.append("%s: %s" % (src, m.to_dict("index")))
-if bad:
-    raise SystemExit("[ARM-MATCH] draw counts differ between a model's FaIR and MAGICC arms:\n  "
-                     + "\n  ".join(bad))
-print("[ARM-MATCH] Ladrillo %d draws on both climates, BRICK 2.0 %d on both; MAGICC-SLR %d members."
-      % (R[R.source == "Ladrillo"].n_draws.iloc[0], R[R.source == "BRICK 2.0"].n_draws.iloc[0],
-         R[R.source == "MAGICC-SLR"].n_draws.iloc[0]))
+## [ARM-MATCH] Ladrillo: by draw id (above). BRICK 2.0 is unconditioned on both climates, so its
+## two points must simply carry the same count.
+a = R[(R.source == "BRICK 2.0")].groupby(["marker", "climate"]).n_draws.first().unstack()
+m = a[a.fair != a.magicc]
+if len(m):
+    match.append("BRICK 2.0: %s" % m.to_dict("index"))
+if match:
+    raise SystemExit("[ARM-MATCH] a model's FaIR and MAGICC points do not carry the same draws:\n  "
+                     + "\n  ".join(match))
+print("[ARM-MATCH] Ladrillo on the common draw set, by draw id: %s; BRICK 2.0 %d on both; MAGICC-SLR %d members."
+      % ("; ".join("%s %d (dropped %s)" % (k, n, r) for k, (n, r) in n_common.items()),
+         R[R.source == "BRICK 2.0"].n_draws.iloc[0], R[R.source == "MAGICC-SLR"].n_draws.iloc[0]))
 
 # --- the swap table: for each model/marker/component/horizon, gap on FaIR, gap on MAGICC ---
 piv = R.pivot_table(index=["source", "marker", "component", "year"], columns="climate", values="med")
@@ -105,10 +199,12 @@ for (src, k, comp, y), r in piv.iterrows():
                   climate_term=r.get("magicc", np.nan) - r.get("fair", np.nan)))
 T = pd.DataFrame(T)
 T = stamp(T, os.path.basename(__file__), tag=TAG,
-          inputs={"comparison": CMP_CSV, "ladrillo_magiccclim": LAD_MAG % "<marker>",
+          inputs={"comparison": CMP_CSV, "ladrillo_magiccclim": LAD_MAG_DRAWS % "<marker>",
+                  "ladrillo_fair_gates": LAD_FAIR_GATES % "<marker>",
                   "brick_magiccclim": BRK_MAG % "<marker>"},
-          extra="cm rel 1995-2014, joint arms, spliced injection; gap_on_X = model median on "
-                "climate X minus MAGICC-SLR's median; climate_term = med_magiccclim - med_fair")
+          extra="cm rel 1995-2014, joint arms, spliced injection; Ladrillo on the COMMON draw set (its "
+                "MAGICC point drops the FaIR arm's record-conditioning REJECTED draws); gap_on_X = model "
+                "median on climate X minus MAGICC-SLR's median; climate_term = med_magiccclim - med_fair")
 T.to_csv(OUT_CSV, index=False)
 print("wrote %s (%d rows)" % (os.path.relpath(OUT_CSV, lf.REPO), len(T)))
 
@@ -168,7 +264,8 @@ for YEAR in YEARS:
                  % (YEAR, lf.commit_stamp()), fontsize=12, fontweight="bold", y=0.999)
     fig.tight_layout(rect=[0, 0.10, 1, 0.925])
     cap = ("%s — %s.  Cm, rel. 1995–2014; joint arms (posterior × climate ensemble), medians "
-           "with 5–95%%.  Open symbols: the same posterior, threshold channel and draws, driven by MAGICC's "
+           "with 5–95%%.  Open symbols: the same posterior, threshold channel and draws (Ladrillo: the "
+           "draws its record-conditioned FaIR arm keeps), driven by MAGICC's "
            "600-member emissions-driven climate instead of the FaIR 2.2.4 calib 1.6.0 + CMIP7 "
            "driver (spliced injection).  MAGICC-SLR is v7.5.3 + Nauels 2025.  FACTS has no "
            "MAGICC-climate arm and is not drawn." % (DESC["model"], DESC["calib"]))
