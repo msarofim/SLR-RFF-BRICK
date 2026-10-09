@@ -56,8 +56,8 @@ attribution of the difference, never in the model row.
 | MAGICC-SLR | 0.0143 [0.0125, 0.0173] | 0.0370 [0.0254, 0.0877] | 0.6192 [0.6063, 0.6991] | 0.7143 [0.6665, 1.1234] |
 | Ladrillo L27 (v1.2) | 0.0150 [0.0122, 0.0171] | 0.0389 [0.0305, 0.0466] | 0.9505 [0.6983, 1.1460] | 0.9697 [0.8871, 1.1754] |
 | BRICK 2.0 | 0.0171 [0.0122, 0.0223] | 0.0434 [0.0268, 0.0604] | 1.0846 [0.8726, 1.3283] | 1.0749 [0.8821, 1.5049] |
-| FACTS wf1f (AR5 ice sheets) | 0.0062 [0.0059, 0.0069] | 0.0134 [0.0087, 0.0167] | 0.3759 [0.3401, 0.4381] | 0.2938 [0.2452, 0.4439] |
-| FACTS wf2f (LARMIP AIS) | 0.0087 [0.0083, 0.0095] | 0.0280 [0.0209, 0.0313] | 0.5931 [0.5389, 0.6722] | 0.5050 [0.4939, 0.7030] |
+| FACTS wf1f (AR5 ice sheets) | 0.0063 [0.0059, 0.0069] | n/a (09-12c) | 0.3889 [0.3531, 0.4504] | n/a (09-12c) |
+| FACTS wf2f (LARMIP AIS) | 0.0087 [0.0084, 0.0094] | n/a (09-12c) | 0.6061 [0.5524, 0.6845] | n/a (09-12c) |
 | *decomposition, not a fourth model:* | | | | |
 |   Ladrillo on MAGICC's climate | 0.0169 [0.0133, 0.0198] | 0.0368 [0.0233, 0.0484] | 0.6550 [0.4864, 0.8174] | 0.6661 [0.4547, 0.9180] |
 |   BRICK 2.0 on MAGICC's climate | 0.0185 [0.0124, 0.0258] | 0.0361 [0.0285, 0.0516] | 0.6237 [0.5421, 0.9228] | 0.7709 [0.5786, 0.9507] |
@@ -76,8 +76,8 @@ response.
 | MAGICC-SLR | **0.637** | 0.647 | 3 of 3 | 3 of 3 |
 | Ladrillo L27 (v1.2) | **0.893** | 0.836 | 2 of 3 | 2 of 3 |
 | BRICK 2.0 | **0.936** | 0.830 | 1 of 3 | 1 of 3 |
-| FACTS wf1f (AR5 ice sheets) | **0.817** | 0.735 | — | — |
-| FACTS wf2f (LARMIP AIS) | **0.686** | 0.606 | — | — |
+| FACTS wf1f (AR5 ice sheets) | n/a (09-12c) | n/a (09-12c) | — | — |
+| FACTS wf2f (LARMIP AIS) | n/a (09-12c) | n/a (09-12c) | — | — |
 | *decomposition, not a fourth model:* | | | | |
 |   Ladrillo on MAGICC's climate | **0.677** | 0.608 | — | — |
 |   BRICK 2.0 on MAGICC's climate | **0.672** | 0.717 | — | — |
@@ -114,8 +114,8 @@ add is small and, notably, of opposite sign in the two of them.
 | MAGICC-SLR | 2203-2228 | 2282-2288 | 1.000 | 2176-2194 | 2276-2280 | 1.000 |
 | Ladrillo L27 (v1.2) | 2202-2211 | 2283-2285 | 1.000 | 2173-2185 | 2274-2277 | 0.933 |
 | BRICK 2.0 | 2195-2218 | 2281-2285 | 1.000 | 2171-2192 | 2274-2279 | 0.917 |
-| FACTS wf1f (AR5 ice sheets) | n/a | n/a | n/a | n/a | n/a | n/a |
-| FACTS wf2f (LARMIP AIS) | n/a | n/a | n/a | n/a | n/a | n/a |
+| FACTS wf1f (AR5 ice sheets) | n/a (09-12c) | n/a (09-12c) | n/a (09-12c) | n/a (09-12c) | n/a (09-12c) | n/a (09-12c) |
+| FACTS wf2f (LARMIP AIS) | n/a (09-12c) | n/a (09-12c) | n/a (09-12c) | n/a (09-12c) | n/a (09-12c) | n/a (09-12c) |
 | *decomposition, not a fourth model:* | | | | | | |
 |   Ladrillo on MAGICC's climate | 2200-2211 | 2282-2285 | 1.000 | 2169-2180 | 2275-2277 | 0.947 |
 |   BRICK 2.0 on MAGICC's climate | 2196-2210 | 2280-2283 | 1.000 | 2171-2198 | 2274-2280 | 0.916 |
@@ -167,14 +167,14 @@ a module difference; thermal expansion is not.
 
 ### Thermal expansion across the class boundary
 
-| marker | MAGICC's ocean heat | Ladrillo / BRICK 2.0 thermal expansion | MAGICC's own thermal expansion |
-|---|---|---|---|
-| vvVL | 0.6076 | 0.6087 / 0.6076 | **0.4842** |
-| vvL | 0.6051 | 0.6061 / 0.6050 | **0.4801** |
-| vvML | 0.5821 | 0.5830 / 0.5816 | **0.4613** |
-| vvM | 0.5924 | 0.5927 / 0.5918 | **0.4990** |
-| vvHL | 0.5890 | 0.5900 / 0.5886 | **0.4659** |
-| vvH | 0.5876 | 0.5873 / 0.5864 | **0.5153** |
+| marker | MAGICC's ocean heat | Ladrillo / BRICK 2.0 thermal expansion | MAGICC's own thermal expansion | FACTS's ocean heat (FaIR, its 200 configs) | FACTS (tlm) thermal expansion |
+|---|---|---|---|---|---|
+| vvVL | 0.6076 | 0.6087 / 0.6076 | **0.4842** | 0.4165 | 0.4164 |
+| vvL | 0.6051 | 0.6061 / 0.6050 | **0.4801** | 0.3865 | 0.3864 |
+| vvML | 0.5821 | 0.5830 / 0.5816 | **0.4613** | 0.4228 | 0.4226 |
+| vvM | 0.5924 | 0.5927 / 0.5918 | **0.4990** | 0.4518 | 0.4515 |
+| vvHL | 0.5890 | 0.5900 / 0.5886 | **0.4659** | 0.4462 | 0.4460 |
+| vvH | 0.5876 | 0.5873 / 0.5864 | **0.5153** | 0.4616 | 0.4616 |
 
 FIG 12. Thermal expansion response shape on FaIR's climate, on MAGICC's climate, and MAGICC's own.
 

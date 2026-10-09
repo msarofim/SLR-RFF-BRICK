@@ -1,3 +1,77 @@
+## 2026-10-09g — FACTS added to the pulse arc on Marcus's three rulings: annual output on one basis, 09-12c binds, wf1f + wf2f
+
+**Rulings (Marcus 10-09)**, on the 10-09f feasibility measurement:
+1. 09-12c BINDS the pulse arc. FACTS enters only where it is climate-driven:
+   - totals and every component to 2100;
+   - LARMIP to 2150;
+   - thermal expansion (tlm) and glaciers (ar5glaciers) to 2300.
+2. Re-run FACTS at ANNUAL output, on ONE basis: every FACTS pulse number comes from the step-1 runs.
+3. wf1f and wf2f are FACTS's pulse response, never averaged.
+
+**Run.** The 21 pulse experiments were re-run at `pyear_step: 1` (`facts/experiments/global.shared.<m>.<arm>.2300.step1.n200`).
+- 21/21 OK, 0 failed tasks, 19.7 min, beside four R workers from another session.
+- Inputs are byte-identical to the step-10 arms except for a `PyearStep` attribute ([STEP-TWIN], 63/63 files).
+- bamber19 and its workflow wf4 are not run: bamber19 fails at step 1, and it is blind to a pulse anyway.
+- The config generator drops the module AND its workflow, so no phantom wf4 total without ice sheets can appear.
+- Every tracked config regenerates byte-identically.
+
+**Extraction** (`extract_pulse_vv_facts.py`):
+- 420 cells, 311 gate checks.
+- 09-12c is applied through the IMPORTED `ladrillo_figs.FACTS_CLIMATE_DRIVEN`. Outside it, every pulse statistic is NaN,
+  and the reason is a `climate_driven` column, carried through the cross-model table.
+- ⚠ **The per-year cutoff is my reading of a horizon rule:** a module is valid through the last horizon at which the
+  rule keeps it. That gives FittedISMIP / ar5AIS / deconto21 2100, LARMIP 2150, and the totals 2100.
+  - LARMIP's 2150 is conservative. For a 2030 pulse its 200-yr kernel drops none of the pulse's own forcing until 2229.
+- New per-year paths for wf1f / wf2f, in MAGICC's schema plus `climate_driven`:
+  - [PATHS-MATCH]: 350 cells reproduced EXACTLY;
+  - [PARTS-SUM]: 28 paths, worst 0.02 of the f32 bound, checked on RAW module means. The NaN-masked version let a
+    blind part pass as NaN; caught by the `blindout` mutation.
+- Five mutation modes each trip their gate: partsmap, pathshift, nudge, blindout, unblind.
+- deconto21 is blind in 12 of 14 cells. The vvVL non-causal re-pick recurs at step 1 and is handled as before.
+
+**What step 1 changed in the FACTS 2100 cells** (6 markers; every other module exactly 0.00 %):
+
+| species | FittedISMIP | wf1f | wf2f |
+|---|---|---|---|
+| CO2 | −0.9 to +1.8 % | ±0.4 % | ±0.3 % |
+| CH4 | **+10 to +15 %** | +2.8 to +4.0 % | +1.8 to +2.5 % |
+
+- CH4's warming peaks within about a decade of the pulse, and the step-10 Euler sum samples the pulse year (where
+  warming is near zero) for that whole decade. The CH4 Greenland response was therefore under-counted.
+
+**Downstream**, the same chain as 10-09: 11/11 OK.
+- Duration 159/159, including [CLIMATE-DRIVEN] 12/12 and [FACTS-SHARED] 12/12. The new mode `factstwin` trips
+  [FACTS-SHARED] 12/12.
+- iGMST 78/78.
+- TE/OHC 258/258. ⭐ FACTS is a third, structurally independent TE module: `tlm` is `ohc * expcoef`, linear like
+  MimiBRICK. Its reference is the OHC of the 200 configs FACTS read (`facts200`). Its transmission gap is 475x below
+  the climate-swap reference, and `ohcshape` trips it.
+- [SAME-STATISTIC] 60/60 exact. Placeholders 5/5.
+- Non-FACTS regression against the quarantined copies: every non-FACTS row of the duration, mechanism, cross-model
+  and scenario-dependence tables is identical. The check catches a 1-ulp mutant.
+
+**Readings for the paper** (the prose is Marcus's):
+- **Thermal expansion is CONSISTENT across all four TE implementations on the FaIR climate.**
+  - CH4 t50: FACTS 2135-2141, the same as Ladrillo and BRICK 2.0. CO2 t50: 2196-2203.
+  - CH4 end/peak: 0.434 vs 0.437 / 0.436.
+  - On CH4 end/peak, FACTS transmits its ocean heat to 2.6e-4; the worst of the five arms is BRICK 2.0 at 1.6e-3 (T5). Timing
+    agrees to ≤ 1 yr everywhere.
+- **Glaciers are NOT consistent.**
+  - FACTS's AR5 glaciers decay more slowly: CH4 end/peak median 0.65, vs Ladrillo 0.42, BRICK 2.0 0.53, MAGICC 0.39.
+  - FACTS peaks later: 2114-2201, vs 2066-2112.
+- **FACTS at 2100** (T1, cm per Gt):
+  - CO2: wf1f 0.0063, wf2f 0.0087, against 0.0143-0.0171 for the three primaries;
+  - CH4: 0.389 / 0.606, against 0.62-1.08.
+- **No FACTS 2300 total, exchange rate or 2030-2300 duration exists under 09-12c** (T1-T4 print `n/a (09-12c)`).
+  - The shipped T2 FACTS rates (0.817 / 0.686) and the old FACTS/wf1f H/VL "0.52x" are RETRACTED.
+
+**Quarantine:** `FaIRtoFrEDI/magicc_comparison/processed/quarantine/20261009_facts_pulse_decadal_unfiltered/` (README).
+- The step-10 FACTS experiments stay in place as "FACTS as published".
+
+**Flagged, NOT edited (Marcus's prose):** `deliverables/pulse_model_differences_section.md` says wf1f and wf2f
+"disagreement with each other at 2300 is about a factor of two". Under 09-12c there is no FACTS 2300 total. It also
+says the SEJ modules return zero "for every member", which the 10-09 vvVL re-pick qualifies.
+
 ## 2026-10-09f — FACTS in the pulse TIME PATHS: annual output is feasible and cheap, but most of FACTS's 2300 pulse total is built in by construction
 
 Handoff `notes/handoff_2026-10-09b_pulse_paper_facts.md` §4 asked for decisions before adding FACTS. This entry is the
@@ -22,6 +96,8 @@ Test: one paired arm (vvM, pbase + pco2) re-run at `pyear_step: 1`, in `facts/ex
     it is the coarser quadrature of the same law.
 - **On the PULSE difference** the quadrature effect is small: Greenland 1.482e-3 (step 1) vs 1.456e-3 cm (step 10) at
   2100 (1.8 %); wf1f / wf2f totals 0.4 % at 2100 and 0.3 % at 2300.
+  - ⛔ **CORRECTED 10-09g: true for CO2 only.** The vvM CO2 arm was the only pair tested. On all 6 markers, CH4's
+    FittedISMIP pulse at 2100 is **10-15 % LOW at step 10**, which makes wf1f / wf2f totals 2.8-4.0 % / 1.8-2.5 % low.
 - **On duration the GRID dominates:** t50 of the integral, vvM CO2:
 
   | | step 1 | step 10 |
