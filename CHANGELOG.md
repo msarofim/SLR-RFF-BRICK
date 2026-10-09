@@ -148,9 +148,10 @@ Plan and rulings: `notes/handoff_2026-10-08c_vv_zenodo_rerun.md`. Runner: `run_v
    - On their own MAGICC member, 1 draw per marker fires by 2025.
    - Options: compare on the common draw set; condition the MAGICC arms on their own climate; or relax the gate.
 2. **The paper's version label** for conditioned numbers ("Ladrillo v1.1" today).
+   ✅ **RESOLVED 10-08 (Marcus): "Ladrillo v1.2"**, tag `v1.2.0` (Ladrillo CHANGELOG 10-08l).
 3. **The pulse arc** downstream of the rebuilt FaIR pulse cubes is stale.
 4. **Known stale readers** of the moved MAGICC `vv_wide_20260831`: `python/scope_magicc_climate_history_gap.py`
-   (diagnostic).
+   (diagnostic). ✅ **RESOLVED 10-08l.**
 
 ## 2026-10-08j — The vv emissions a-vs-b test (Medium-to-Low): the history choice is immaterial, but ⛔ the LIVE vv arms carry a post-2100 CO₂ splice artifact (ML: −2,098 GtCO₂)
 

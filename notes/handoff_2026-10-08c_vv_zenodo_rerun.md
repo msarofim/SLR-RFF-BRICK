@@ -9,6 +9,15 @@
 > 2. the version label;
 > 3. the pulse arc's downstream;
 > 4. the docx pass, now three vv rounds.
+>
+> **UPDATE 2026-10-08 evening** (CHANGELOG 10-08l and 10-08m; Ladrillo 10-08l):
+> - item 1: the swap is on the COMMON draw set (Marcus).
+>   - ⛔ The swap committed in e567ea7 was NOT "not regenerated". A partial retry wrote it from MIXED VINTAGES; it is
+>     quarantined and replaced.
+> - item 2: the paper reports **Ladrillo v1.2**, tag `v1.2.0` (Marcus).
+> - The stale MAGICC history-gap reader is fixed.
+> - Items 3 and 4 remain open.
+> - FaIRtoFrEDI is held unpushed (Marcus).
 
 Follows `handoff_2026-10-08b_ladrillo_github.md` (done: private repo `msarofim/Ladrillo.jl`, fresh-clone fix).
 
