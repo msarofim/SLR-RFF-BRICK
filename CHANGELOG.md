@@ -1,3 +1,34 @@
+## 2026-10-11 — `_frozen_diag_ais_channel_separation.jl` deleted: the last writer of the untagged channel-separation path is gone
+
+Entry **09-24c** retired `outputs/diag_ais_channel_separation{,_summary}.csv` to frozen provenance and made the
+live script refuse to write it, but flagged one residual it did not fix: `julia/_frozen_diag_ais_channel_separation.jl`
+was untracked, byte-identical to the pre-change script, and **still carried the two untagged `CSV.write` calls**.
+Running it would have re-clobbered the 09-23 L27/L28/L32/L33 record (dynamics anomalies −133.1 L32, −126.2 L33).
+
+Deleted. Verified recoverable first: md5 `15fbd831cd84bd75b22237561abe2cae`, **byte-identical to
+`d176403:julia/diag_ais_channel_separation.jl`**, so the content is in git and the deletion loses nothing — it was
+a scratch run-copy, not a result.
+
+`grep -rl 'CSV.write(joinpath(LADRILLO_REPO, "outputs/diag_ais_channel_separation'` over `julia/` now returns
+**no matches**: no writer of the untagged path remains anywhere. The **other 15 `julia/_frozen_*.jl` copies are
+untouched** — only this one was a live clobber hazard.
+
+State confirmed on re-check, 105 commits after 09-24c: the tagged constants (`ARM_TAG` → `OUT_STEM` →
+`OUT_DRAWS`/`OUT_SUMMARY`) and the mutation-tested arm-coverage assert are both still in the live script, the
+untagged pair still holds `L27,L28,L32,L33` and is clean vs `HEAD`, and all six files in that family are still
+dated Sep 24 — nothing has overwritten anything since.
+
+⚠ **THE OTHER 09-24c RESIDUAL RESOLVED THE OPPOSITE WAY AND IS STILL WORTH A LOOK — NOT ADDRESSED HERE.**
+09-24c flagged that the IMBIE build of `recalib_targets_ext.csv` was an uncommitted working-tree modification.
+It is now clean, but as the **frederikse** build (`070f74ab…`) in both the working tree and `HEAD` — the IMBIE
+build (`eb768cd9…`) is live nowhere. Meanwhile **14 shell drivers plus `python/diag_ais_heldout_pre1979.py` still
+gate on the IMBIE md5** (`run_L28`–`run_L35`, the `*_bench` scripts, `regen_imbie_fig_L27.sh`), against 3 of those
+plus `scripts/gate_calibrator_identity.sh` referencing the frederikse md5. Those drivers would refuse at the gate
+if run today — the gate working as designed, but that arm family is not re-runnable without rebuilding the IMBIE
+target. Whether that is the intended settling on L27's own target or drift is Marcus's call, not inferred here.
+
+`champions.json` untouched.
+
 ## 2026-10-09g — FACTS added to the pulse arc on Marcus's three rulings: annual output on one basis, 09-12c binds, wf1f + wf2f
 
 **Rulings (Marcus 10-09)**, on the 10-09f feasibility measurement:
