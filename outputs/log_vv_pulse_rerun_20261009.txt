@@ -294,3 +294,49 @@
 [10-09 08:36:33] START  doc tables
 [10-09 08:36:33] FAILED doc tables (rc=1)
 [10-09 08:36:33] downstream phase done, 1 failures
+[10-09 10:19:37] START  cross-model table
+[10-09 10:19:39] OK     cross-model table
+[10-09 10:19:39] START  scenario dependence 2300
+[10-09 10:19:49] OK     scenario dependence 2300
+[10-09 10:19:49] START  module vs climate ladrillo CO2
+[10-09 10:19:50] OK     module vs climate ladrillo CO2
+[10-09 10:19:50] START  module vs climate ladrillo CH4
+[10-09 10:19:51] OK     module vs climate ladrillo CH4
+[10-09 10:19:51] START  module vs climate brick2 CO2
+[10-09 10:19:51] OK     module vs climate brick2 CO2
+[10-09 10:19:51] START  module vs climate brick2 CH4
+[10-09 10:19:52] OK     module vs climate brick2 CH4
+[10-09 10:19:52] START  pulse duration
+[10-09 10:19:52] OK     pulse duration
+[10-09 10:19:52] START  pulse duration figures
+[10-09 10:19:55] OK     pulse duration figures
+[10-09 10:19:55] START  iGMST ordering
+[10-09 10:19:57] OK     iGMST ordering
+[10-09 10:19:57] START  TE/OHC mechanism
+[10-09 10:19:59] OK     TE/OHC mechanism
+[10-09 10:19:59] START  doc tables
+[10-09 10:19:59] OK     doc tables
+[10-09 10:19:59] downstream phase done, 0 failures
+[10-09 10:52:21] START  cross-model table
+[10-09 10:52:23] OK     cross-model table
+[10-09 10:52:23] START  scenario dependence 2300
+[10-09 10:52:32] OK     scenario dependence 2300
+[10-09 10:52:32] START  module vs climate ladrillo CO2
+[10-09 10:52:33] OK     module vs climate ladrillo CO2
+[10-09 10:52:33] START  module vs climate ladrillo CH4
+[10-09 10:52:34] OK     module vs climate ladrillo CH4
+[10-09 10:52:34] START  module vs climate brick2 CO2
+[10-09 10:52:34] OK     module vs climate brick2 CO2
+[10-09 10:52:34] START  module vs climate brick2 CH4
+[10-09 10:52:35] OK     module vs climate brick2 CH4
+[10-09 10:52:35] START  pulse duration
+[10-09 10:52:35] OK     pulse duration
+[10-09 10:52:35] START  pulse duration figures
+[10-09 10:52:38] OK     pulse duration figures
+[10-09 10:52:38] START  iGMST ordering
+[10-09 10:52:40] OK     iGMST ordering
+[10-09 10:52:40] START  TE/OHC mechanism
+[10-09 10:52:42] OK     TE/OHC mechanism
+[10-09 10:52:42] START  doc tables
+[10-09 10:52:43] OK     doc tables
+[10-09 10:52:43] downstream phase done, 0 failures
