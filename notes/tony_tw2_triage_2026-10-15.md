@@ -49,6 +49,12 @@ tag, and the code and posterior would need to be cited as a matched pair.
   OHC at all.
 - (c) costs the least and protects against adopting a posterior that does not fit our driver.
 
+**Addendum 2026-10-15b (test 2 run; CHANGELOG 2026-10-15b).** The driver-scale hypothesis above is falsified on the
+TE trend windows: the Zenodo standalone driver's OHC trends are 1.15–1.56× FaIR's, not ~2.9×. The 10-08h comparison
+also paired a standalone posterior (Zenodo `parameters_subsample_brick.csv`) with the BRICK slice of a joint
+SNEASY-BRICK posterior (ours). Zenodo's joint file, `parameters_subsample_sneasybrick.csv`, has not been tested. On its
+own driver, the standalone α predicts TE trends 1.3 and 2.0 sd below the observed ones.
+
 ## 2. New comments: questions with a factual answer (receipts)
 
 | # | Tony asks | Answer | Receipt |

@@ -1,3 +1,43 @@
+## 2026-10-15b — BRICK 2.0 posterior: the driver-scale hypothesis is falsified, and the 10-08h comparison paired the wrong files
+
+**Asked:** handoff 2026-10-15 §2 test 2, and Marcus 10-15: "Consider whether we should run BRICK/SNEASY rather than
+BRICK/FaIR (losing some comparability, but it would be more fair to BRICK)."
+Script `python/diag_brick20_alpha_driver.py` (f2ccc5c) → `outputs/diag_brick20_alpha_driver.csv` and
+`..._joint_corr.csv`. No RNG; two runs byte-identical.
+
+**What the files are:**
+- Our May-22 `data/MimiBRICK/parameters_subsample_brick.csv` is the BRICK slice of Tony's joint SNEASY-BRICK posterior
+  (`parameters_subsample_sneasybrick.csv`, 51 columns, on disk at the repo root, gitignored). Its first row matches.
+- The Zenodo `parameters_subsample_brick.csv` tested on 10-08h is v2.0.0's STANDALONE calibration. Standalone BRICK is
+  driven by one SNEASY MAP trajectory (`sneasy_oceanheat_ssp245_1850_2300_07-06-2026.csv`; `get_model`,
+  MimiBRICK.jl:45-46, regenerated 06-05 in 724625d).
+- So 10-08h compared a standalone posterior with a joint posterior's BRICK slice. The like-for-like Zenodo file is
+  `parameters_subsample_sneasybrick.csv` (10,077,052 B, md5 `2ac19919…`). It differs from ours (10,069,815 B, md5
+  `44685ea5…`). Its α is unknown; it is not on disk, and downloading needs Marcus's OK.
+
+**Test 2 (TE trend windows 1971–2009 and 1993–2009, the only TE terms in the v2.0.0 likelihood):**
+
+| driver | OHC trend 71–09 / 93–09 (1e22 J/yr) | ΔOHC 1900–1971 | α fitting the two trends alone |
+|---|---|---|---|
+| SNEASY MAP ssp245 (Zenodo standalone driver) | 1.14 / 1.45 | 38.8 | 0.112 |
+| FaIR mean ssp245harm (our arm) | 0.73 / 1.26 | 14.8 | 0.142 |
+| Tony coupled ensemble 04-14, median path | 0.88 / 1.35 | 15.6 | 0.128 |
+
+- The driver ratio over the constraint windows is 1.15–1.56, not ~2.9. The handoff's driver-scale hypothesis is
+  falsified there. The ~2.6× difference is in 1900–1971 (38.8 vs 14.8), where TE has no direct constraint.
+- On its own driver, the Zenodo standalone α (median 0.054) predicts TE trends of 0.40 and 0.51 mm/yr against observed
+  0.8 and 1.1 (σ 0.3): −1.3 and −2.0 sd. The posterior sits at its prior floor (U(0.05, 0.3)) while the TE trend term
+  alone prefers 0.11. Something else in that likelihood pulls α down. A candidate is the GMSL term reacting to the
+  driver's early ramp; that is untested.
+- The May-22 α (0.158) on FaIR predicts 0.76 and 1.31 mm/yr (−0.1 and +0.7 sd).
+
+**For the BRICK/SNEASY question:** in the May-22 joint posterior `thermal_alpha` has rank correlation −0.60 with
+`climate_sensitivity` and −0.62 with `heat_diffusivity`; `glaciers_beta0` has +0.45 with `rf_scale_aerosol`. Ice-sheet
+parameters are near 0. A FaIR-driven arm pairs these draws with FaIR configs and drops those correlations. Ladrillo was
+calibrated on the FaIR-mean hindcast, so it has no such correlation to drop.
+
+**Not decided (Marcus):** which posterior, and whether BRICK/SNEASY replaces or supplements BRICK/FaIR.
+
 ## 2026-10-15 — Tony's TW2 pass and his BRICK-posterior answer triaged (no code or model change)
 
 Triage with receipts: `notes/tony_tw2_triage_2026-10-15.md`. The docx was read only (lxml), not edited.

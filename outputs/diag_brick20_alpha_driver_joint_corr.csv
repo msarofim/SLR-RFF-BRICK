@@ -1,0 +1,6 @@
+,climate_sensitivity,heat_diffusivity,rf_scale_aerosol,ocean_heat_0,temperature_0,provenance
+thermal_alpha,-0.604140401246641,-0.6181715109778555,-0.2922533191503218,0.35448034178320775,0.028417243342153717,"Spearman, parameters_subsample_sneasybrick.csv (10000 draws, May-22 joint SNEASY-BRICK posterior)"
+glaciers_beta0,0.15974757821607158,0.052571292911578006,0.4455950719751835,0.3029699122427603,0.40187527176447535,"Spearman, parameters_subsample_sneasybrick.csv (10000 draws, May-22 joint SNEASY-BRICK posterior)"
+greenland_a,0.019995042965787992,0.017101104383424787,-0.04105611505076076,-0.0515491991408542,-0.04621403592487767,"Spearman, parameters_subsample_sneasybrick.csv (10000 draws, May-22 joint SNEASY-BRICK posterior)"
+anto_alpha,-0.00045304128475330915,-0.0021740826588104753,0.0017110571219524113,0.008579032314011206,0.012668462796917511,"Spearman, parameters_subsample_sneasybrick.csv (10000 draws, May-22 joint SNEASY-BRICK posterior)"
+antarctic_temp_threshold,0.020321756781215873,0.008525391557448409,0.024541782629492383,0.003192987801500828,0.01299419168833506,"Spearman, parameters_subsample_sneasybrick.csv (10000 draws, May-22 joint SNEASY-BRICK posterior)"
