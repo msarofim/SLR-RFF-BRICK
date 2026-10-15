@@ -1,3 +1,22 @@
+## 2026-10-15 — Tony's TW2 pass and his BRICK-posterior answer triaged (no code or model change)
+
+Triage with receipts: `notes/tony_tw2_triage_2026-10-15.md`. The docx was read only (lxml), not edited.
+- **TW2:** TW1's 54 comments are all present, plus 24 new comments and 119 new tracked edits (10-14 / 10-15), carrying
+  his pass through Results and Discussion.
+- **⛔ His suggested sentence for the 1.21× / 1.10× paragraph restates the attribution retracted on 10-01.** The queued
+  correction (`handoff_2026-10-01c_gmd_round.md` §1c item 1) rewrites that paragraph instead.
+- **⛔ He rewrote the 2300 figure caption from the 2100 one** ("seven workflow totals"). At 2300 there are no "e"
+  workflows, and under 09-12c no FACTS total.
+- **BRICK posterior.** Tony recommends citing the Zenodo v2.0.0 set and expects it "not TOO far off" the May-22 file.
+  - The 10-08h measurement disagrees for thermal expansion: 6.6 vs 19.4 cm at 2100 on FaIR forcing.
+  - The `thermal_alpha` median ratio (0.34) equals the TE ratio at 2100 and 2300. That points to α calibrated against
+    DOECLIM's ocean heat (v2.0.0 is the coupled SNEASY-BRICK fit) at ~2.9× FaIR's ΔOHC.
+  - Tony's listed causes (seeds, normalization periods) cannot produce a proportional 3×. The `v2.0.0` tag calibrates
+    to Church & White and has no Wang 2024 file.
+  - Hypothesis, untested; two tests and a question for Tony are in the note. Decision for Marcus: publish the May-22
+    file, move to Zenodo, or hold until the driver question is settled. It should come before the docx pass, since a
+    switch moves every BRICK 2.0 number.
+
 ## 2026-10-11 — `_frozen_diag_ais_channel_separation.jl` deleted: the last writer of the untagged channel-separation path is gone
 
 Entry **09-24c** retired `outputs/diag_ais_channel_separation{,_summary}.csv` to frozen provenance and made the
