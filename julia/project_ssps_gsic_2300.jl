@@ -8,9 +8,10 @@
 ##
 ## WR GSIC = the DEFAULT MimiBRICK.get_model glacier component (no Mengel `replace!`). GSIC depends
 ## only on GMST, so we set ONLY the 4 glacier params per draw and override temperature with each
-## scenario's FaIR 2.2.4 ensemble-mean GMST (⚠ MIXED calibration on the SSP set --
-## ssp126/245/585 are calib 1.6.0 since 2026-08-28, ssp119/370/460 remain 1.4.5; the van
-## Vuuren set is 1.6.0 throughout. The FIGURE's provenance gate is what states the mix) (data/observations/fair_mean_gmst_<ssp>.csv). v2.0.0 WR
+## scenario's FaIR 2.2.4 (calib 1.6.0) ensemble-mean GMST. The SSP set is ssp126/245/585 since 2026-10-15: the
+## ssp119/370/460 inputs remain only as calib 1.4.5 `_pre160` files, so those rows would mix calibrations, and
+## Ladrillo's panel (project_ssps_components_ladrillo.jl) runs the same three. The 08-30 six-SSP file is in
+## outputs/quarantine/20261015_brick20_may22_posterior/. (data/observations/fair_mean_gmst_<ssp>.csv). v2.0.0 WR
 ## posterior = brick20_posterior_rel() (brick_param_updates.jl; gsic_teq is NOT sampled).
 ##
 ##   julia --project=julia_v2 julia/project_ssps_gsic_2300.jl [--set=ssp|vv]
@@ -41,9 +42,8 @@ yi(y) = findfirst(==(y), years)
 const SCEN_SETS = Dict(
     "ssp" => (stem = "ssps_gsic_2300",
               # ordered by radiative forcing (low -> high); low SSPs are the commitment test
-              scens = [("ssp119","SSP1-1.9"), ("ssp126","SSP1-2.6"), ("ssp245","SSP2-4.5"),
-                       ("ssp460","SSP4-6.0"), ("ssp370","SSP3-7.0"), ("ssp585","SSP5-8.5")],
-              spread = ("SSP1-1.9", "SSP5-8.5")),
+              scens = [("ssp126","SSP1-2.6"), ("ssp245","SSP2-4.5"), ("ssp585","SSP5-8.5")],
+              spread = ("SSP1-2.6", "SSP5-8.5")),
     "vv"  => (stem = "vv_gsic_2300",
               # ordered coolest-ENDPOINT first. FOUR of these peak and decline (Very Low,
               # Low-to-Neg, Medium-to-Low, High-to-Low) against the SSP set's one, which is

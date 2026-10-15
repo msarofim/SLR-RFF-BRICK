@@ -62,9 +62,15 @@ export -f say step psize
 
 ## ======================================== PHASE: arms ================================================
 if [[ "$PHASE" == arms ]]; then
-: > "$LOG"
-say "BRICK 2.0 posterior swap, phase ARMS | SLR $(git rev-parse --short HEAD) | load $(uptime | sed 's/.*load averages*: //')"
+## RESUME: once the snapshot exists and [SWAP-REGRESSION] has passed, a re-launch skips both (a second snapshot would
+## capture the regression runs' bytes, not the shipped ones) and starts at the panels. Added 10-15 after the first launch
+## stopped at the panels (their ssp119/370/460 inputs no longer exist).
+if [[ -f "$Q/.snapshot_list" ]] && grep -q "OK     \[SWAP-REGRESSION\]" "$LOG" 2>/dev/null; then RESUME=1; else RESUME=0; fi
+[[ $RESUME == 1 ]] || : > "$LOG"
+say "BRICK 2.0 posterior swap, phase ARMS$([[ $RESUME == 1 ]] && echo ' (RESUMED after the regression gate)') | SLR $(git rev-parse --short HEAD) | load $(uptime | sed 's/.*load averages*: //')"
 for S in CO2 CH4; do [[ -f "$WIDE/gates_$S.csv" ]] || { say "missing $WIDE/gates_$S.csv (MAGICC pulse climate). STOP"; exit 1; }; done
+cp julia/scope_slr_pulse_vv_brick2.jl "$BRK"
+if [[ $RESUME == 0 ]]; then
 [[ -e "$Q" || -e "$FTF/$FQ" ]] && { say "$Q or $FTF/$FQ already exists -- refusing to overwrite a quarantine. STOP"; exit 1; }
 mkdir -p "$Q" "$FTF/$FQ"; touch "$MARK"
 
@@ -86,7 +92,6 @@ mkdir -p "$Q/outputs"; mv outputs/*oldbrick*.parquet "$Q/outputs/" 2>/dev/null
 say "snapshot: $(wc -l < "$Q/.snapshot_list" | tr -d ' ') SLR files -> $Q; $(wc -l < "$FTF/$FQ/.snapshot_list" | tr -d ' ') FaIRtoFrEDI files -> $FTF/$FQ; parquet twins moved"
 
 ## --- [SWAP-REGRESSION]: the edited code with the OLD file must reproduce the shipped products -------------------
-cp julia/scope_slr_pulse_vv_brick2.jl "$BRK"
 lg=outputs/log_brick20_swap_regress.txt; : > "$lg"
 RG="env BRICK20_POSTERIOR=$OLD_POSTERIOR BRICK20_PRECIP_LOG=true"
 step "regress: BRICK 2.0 vvH FaIR, old file" "$lg" $RG $J julia/scope_slr_fairunc_oldbrick.jl --ssp=vvH
@@ -96,6 +101,7 @@ for k in cells draws paths; do pairs+=("outputs/scope_slr_fairunc_${k}_vvH_splic
 for k in cells draws paths gates; do pairs+=("outputs/pulse_brick2_${k}_vvM_CO2_1Gt_2030_spliced_B20.csv" "$Q/outputs/pulse_brick2_${k}_vvM_CO2_1Gt_2030_spliced_B20.csv"); done
 step "[SWAP-REGRESSION] edited code + May-22 file vs shipped" "$LOG" python python/gate_v11_regression.py "${pairs[@]}"
 [[ "$(nfails)" == 0 ]] || { say "regression FAILED -- the edit changed more than the posterior. STOP (canonical vvH / vvM CO2 now hold regress output; the snapshot holds the shipped bytes)"; exit 1; }
+fi
 
 ## --- panels FIRST: the SSP level arms' [CONTROL] reads the components panel, whose [GSIC-MATCH] reads the glacier panel
 lg=outputs/log_brick20_swap_panels.txt; : > "$lg"

@@ -44,10 +44,10 @@ const BASE0, BASE1 = 1995, 2014                     # AR6 SLR reference window
 const SEED = 2026                                   # get_model is non-deterministic (~1e-5 m)
 const OUT  = joinpath(REPO, "outputs/ssps_components_2300_oldbrick.csv")
 const GSIC_REF = joinpath(REPO, "outputs/ssps_gsic_2300.csv")
-## The three SSPs every comparison source (FACTS, MAGICC-SLR, Ladrillo) shares, plus
-## the three Ladrillo also runs, so the file is a superset of what the benchmark needs.
-const SSPS = [("ssp119","SSP1-1.9"), ("ssp126","SSP1-2.6"), ("ssp245","SSP2-4.5"),
-              ("ssp460","SSP4-6.0"), ("ssp370","SSP3-7.0"), ("ssp585","SSP5-8.5")]
+## The three SSPs every comparison source (FACTS, MAGICC-SLR, Ladrillo) shares, all on FaIR calib 1.6.0. Until
+## 2026-10-15 this also ran ssp119/370/460, whose inputs now exist only as calib 1.4.5 `_pre160` files (Ladrillo's
+## panel had already dropped them); the six-SSP file is in outputs/quarantine/20261015_brick20_may22_posterior/.
+const SSPS = [("ssp126","SSP1-2.6"), ("ssp245","SSP2-4.5"), ("ssp585","SSP5-8.5")]
 const YEARS_OUT = collect(1990:10:2300)
 const NTHIN = 1000
 
