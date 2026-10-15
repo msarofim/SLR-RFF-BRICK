@@ -52,8 +52,12 @@ tag, and the code and posterior would need to be cited as a matched pair.
 **Addendum 2026-10-15b (test 2 run; CHANGELOG 2026-10-15b).** The driver-scale hypothesis above is falsified on the
 TE trend windows: the Zenodo standalone driver's OHC trends are 1.15–1.56× FaIR's, not ~2.9×. The 10-08h comparison
 also paired a standalone posterior (Zenodo `parameters_subsample_brick.csv`) with the BRICK slice of a joint
-SNEASY-BRICK posterior (ours). Zenodo's joint file, `parameters_subsample_sneasybrick.csv`, has not been tested. On its
-own driver, the standalone α predicts TE trends 1.3 and 2.0 sd below the observed ones.
+SNEASY-BRICK posterior (ours). On its own driver, the standalone α predicts TE trends 1.3 and 2.0 sd below the
+observed ones.
+
+**Addendum 2026-10-15c (CHANGELOG 2026-10-15c).** Zenodo's joint file, `parameters_subsample_sneasybrick.csv`, is
+close to ours. On the ssp245 fixed arm the BRICK 2.0 total is about 4 % lower at 2100 and 2300 (67.75 / 304.2 vs
+70.66 / 317.7 cm), TE 4.5 % lower and AIS about 7 % lower. Tony's "not TOO far off" holds for that file.
 
 ## 2. New comments: questions with a factual answer (receipts)
 
