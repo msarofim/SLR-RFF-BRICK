@@ -1,3 +1,38 @@
+## 2026-10-15c — The Zenodo v2.0.0 JOINT posterior is close to the May-22 file: BRICK 2.0 totals about 4 % lower
+
+**Asked (Marcus 10-15):** "yes, download it and run the test."
+- Downloaded Zenodo 20592337 `parameters_subsample_sneasybrick.csv`: 10,077,052 B, md5 `2ac19919…` (matches the
+  listing), sha256 `d74577f6…`. Copied to `data/MimiBRICK/parameters_subsample_sneasybrick_zenodo20592337.csv`
+  (gitignored).
+- Driver `julia/diag_brick20_posterior_swap.jl` (ddcf117), run with Ladrillo's project →
+  `outputs/diag_brick20_posterior_swap.csv`. Both posteriors go through Ladrillo's BRICK 2.0 functions: the hindcast
+  of `posterior_predictive_brick20.jl` and the fixed arm of `brick20_joint.jl` (ssp245, 1,000 rows 1:10:10000).
+  Zenodo's `antarctic_precip0` is stored as a log, so it is exponentiated before `apply_brick20!` logs it back.
+- **Gate [ID] PASS:** the May-22 run reproduces Ladrillo's published fixed-arm cells exactly (max 0.00 cm). Mutation:
+  the same check against the joint-arm cells fails (18.7 cm). The May-22 TE hindcast RMSE (0.515 cm) matches 10-08h.
+
+**Marginals (10,000 draws):** `thermal_alpha` median 0.154 vs 0.158 (−0.14 sd). The α–climate rank correlations are
+the same to ±0.01 (−0.59 / −0.62 / −0.28 with sensitivity / diffusivity / aerosol scale). Antarctic parameters moved
+0.3–0.7 sd (`runoff_height0`, `antarctic_c`, `antarctic_slope`, `antarctic_kappa`). No row is shared.
+
+| | May-22 | Zenodo joint |
+|---|---|---|
+| hindcast RMSE TE / GSIC / GIS / AIS / total (cm) | 0.515 / 1.545 / 0.703 / 1.563 / 0.745 | 0.585 / 1.546 / 0.697 / 1.738 / 0.787 |
+| ssp245 TE p50 2100 / 2300 (cm) | 19.37 / 44.66 | 18.50 / 42.67 |
+| ssp245 AIS p50 2100 / 2300 | 27.41 / 205.93 | 25.34 / 190.89 |
+| ssp245 glaciers, GIS p50 2300 | 32.50, 23.71 | 32.26, 24.33 |
+| ssp245 total p50 2100 / 2300 | 70.66 / 317.72 | 67.75 / 304.18 |
+| ssp245 total p05 2300 | 209.14 | 181.22 |
+
+- The TE ratio (0.955 at both horizons) equals the ratio of the α medians in the 1,000 rows used (0.9555), since TE is
+  linear in α on a shared driver. The AIS difference comes from the Antarctic parameter shifts.
+- So Tony's "not TOO far off" holds for the joint file. The 10-08h "TE 3× low" applies only to the standalone file.
+- ⚠ If the arm moves to this file, `apply_brick20!`'s log transform of `antarctic_precip0` must go: the Zenodo value is
+  already a log, and most draws are negative (log would throw a DomainError).
+
+**Not decided (Marcus):** whether the BRICK 2.0 arm moves to the Zenodo joint file (every BRICK 2.0 number moves a few
+percent), and BRICK/SNEASY as a supplementary arm.
+
 ## 2026-10-15b — BRICK 2.0 posterior: the driver-scale hypothesis is falsified, and the 10-08h comparison paired the wrong files
 
 **Asked:** handoff 2026-10-15 §2 test 2, and Marcus 10-15: "Consider whether we should run BRICK/SNEASY rather than
