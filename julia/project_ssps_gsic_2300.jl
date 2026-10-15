@@ -11,7 +11,7 @@
 ## scenario's FaIR 2.2.4 ensemble-mean GMST (⚠ MIXED calibration on the SSP set --
 ## ssp126/245/585 are calib 1.6.0 since 2026-08-28, ssp119/370/460 remain 1.4.5; the van
 ## Vuuren set is 1.6.0 throughout. The FIGURE's provenance gate is what states the mix) (data/observations/fair_mean_gmst_<ssp>.csv). v2.0.0 WR
-## posterior = data/MimiBRICK/parameters_subsample_brick.csv (post-#93; gsic_teq is NOT sampled).
+## posterior = brick20_posterior_rel() (brick_param_updates.jl; gsic_teq is NOT sampled).
 ##
 ##   julia --project=julia_v2 julia/project_ssps_gsic_2300.jl [--set=ssp|vv]
 ## ============================================================================
@@ -19,7 +19,8 @@ using CSV, DataFrames, Mimi, MimiBRICK, Printf, Statistics, Random
 
 const REPO = abspath(joinpath(@__DIR__, ".."))
 const OBSDIR = joinpath(REPO, "data/observations")
-const POST = joinpath(REPO, "data/MimiBRICK/parameters_subsample_brick.csv")
+include(joinpath(@__DIR__, "brick_param_updates.jl"))     # brick20_posterior_path, load_brick20_posterior
+const POST = brick20_posterior_path(REPO)
 const Y0, Y1 = 1850, 2300
 const BASE0, BASE1 = 1995, 2014          # AR6 SLR reference window
 const NTHIN = 1000
@@ -64,7 +65,7 @@ const STEM = SCEN.stem
 
 load_traj(path, vcol) = (df=CSV.read(path,DataFrame); by=Dict(Int(df[i,"year"])=>Float64(df[i,vcol]) for i in 1:nrow(df)); [by[y] for y in years])
 
-post = CSV.read(POST, DataFrame)
+post = load_brick20_posterior(POST)
 stepp = max(1, nrow(post) ÷ NTHIN); rows = collect(1:stepp:nrow(post))
 @printf("BRICK 2.0 Wigley–Raper GSIC; posterior %d draws (thinned from %d)\n", length(rows), nrow(post))
 

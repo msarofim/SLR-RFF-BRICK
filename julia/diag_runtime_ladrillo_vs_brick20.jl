@@ -23,7 +23,7 @@ const POST_TAG = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
     i === nothing ? DEFAULT_TAG : ARGS[i][7:end]
 end
 const POSTERIOR = joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_$(POST_TAG).csv")
-const BRICK_POSTERIOR = joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick.csv")
+const BRICK_POSTERIOR = brick20_posterior_path(LADRILLO_REPO)
 const FORCING = "ssp245harm"
 const BRICK_SEED = 2026
 const OUT = joinpath(LADRILLO_REPO, "outputs/diag_runtime_ladrillo_vs_brick20_$(POST_TAG).csv")   # tagged since 09-21 (the L24/L27 files before that were renamed by hand)
@@ -33,7 +33,7 @@ lc(p, c) = (d = CSV.read(p, DataFrame); Dict(Int(d[i, "year"]) => Float64(d[i, c
 
 post  = ladrillo_posterior(path=POSTERIOR, cols=:all, nthin=NDRAW)
 const VARIANT = ladrillo_posterior_variant(POSTERIOR)
-bpost_full = CSV.read(BRICK_POSTERIOR, DataFrame)
+bpost_full = load_brick20_posterior(BRICK_POSTERIOR)
 bpost = let v = collect(1:cld(nrow(bpost_full), NDRAW):nrow(bpost_full)); bpost_full[v[1:min(NDRAW, length(v))], :] end
 
 rows = DataFrame(model=String[], span=String[], mode=String[], ndraw=Int[],
@@ -73,7 +73,7 @@ for (y0, y1) in SPANS
     j = Ref(0)
     m3, s3, d3 = timeloop(NDRAW) do
         j[] = j[] % nrow(bpost) + 1
-        update_brick_params!(m, bpost[j[], :]; precip_log=true)
+        update_brick_params!(m, bpost[j[], :]; precip_log=brick20_precip_log())
         run(m)
     end
     push!(rows, ("BRICK 2.0", span, "apply_draw+run", NDRAW, m3, s3, d3))

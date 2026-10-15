@@ -92,7 +92,7 @@ include(joinpath(@__DIR__, "brick_mengel.jl"))      # set_forcing! + update_bric
 
 const REPO = abspath(joinpath(@__DIR__, ".."))
 const OBS  = joinpath(REPO, "data/observations")
-const POST = joinpath(REPO, "data/MimiBRICK/parameters_subsample_brick.csv")
+const POST = brick20_posterior_path(REPO)
 
 argval(flag, dflt) = let i = findfirst(a -> startswith(a, flag), ARGS)
     i === nothing ? dflt : ARGS[i][(length(flag) + 1):end]
@@ -260,7 +260,7 @@ const OUTSTEM = "vv$(MARKER)_$(SPECIE)_$(SPEC.size_tag)_$(PULSE_YEAR)_$(FORCING)
 @printf("BRICK 2.0 PULSE ARM | marker vv%s | %s pulse %.0f %s at %d | tag %s%s\n",
         MARKER, SPECIE, SPEC.pulse_Gt, SPEC.unit, PULSE_YEAR, TAG,
         SMOKE ? "  ** SMOKE (--maxrows=$(MAXROWS)) **" : "")
-@printf("  sea level: MimiBRICK v2.0.0 (`precip_log` shim), published posterior subsample\n")
+@printf("  sea level: MimiBRICK v2.0.0, %s\n", brick20_label())
 ## The LABEL derives from the flag rather than being hardcoded: a MAGICC-climate run that
 ## announces "FaIR 2.2.4" is the labels-from-named-constants bug in its purest form.
 const CLIMATE_LABEL = Dict(
@@ -357,7 +357,7 @@ IDENT_LAST >= PULSE_YEAR - 1 ||
 ## ⚠ `STEPP` reproduces `scope_slr_fairunc_oldbrick.jl`'s thinning rule exactly. At the
 ## default --ndraw=2000 the step is 5, and the shipped 1000-draw panel's step-10 rows are a
 ## strict SUBSET of these -- so this run neither re-rolls nor re-orders the published panel.
-const post  = CSV.read(POST, DataFrame)
+const post  = load_brick20_posterior(POST)
 const STEPP = max(1, nrow(post) ÷ NDRAW_REQ)
 const ROWS  = SMOKE ? collect(1:STEPP:nrow(post))[1:min(MAXROWS, length(1:STEPP:nrow(post)))] :
                       collect(1:STEPP:nrow(post))
@@ -414,7 +414,7 @@ alloc() = Dict(c => Matrix{Float64}(undef, NDRAW, length(YEARS)) for c in COMPON
 function run_into!(store, ks, g, o, arm, cfgname)
     set_forcing!(M, g, o)
     for k in ks
-        update_brick_params!(M, post[ROWS[k], :]; precip_log = true)
+        update_brick_params!(M, post[ROWS[k], :]; precip_log = brick20_precip_log())
         run(M)
         RAN_CFG[arm][k] = cfgname
         RAN_ROW[arm][k] = k

@@ -65,7 +65,7 @@ const POST_TAG = let i = findfirst(a -> startswith(a, "--tag="), ARGS)
 end
 const POSTERIOR = joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick_mengel_$(POST_TAG).csv")
 isfile(POSTERIOR) || error("no posterior for --tag=$POST_TAG at $POSTERIOR")
-const BRICK_POSTERIOR = joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick.csv")
+const BRICK_POSTERIOR = brick20_posterior_path(LADRILLO_REPO)
 const BRICK_SEED = 2026
 const OUT_L = joinpath(LADRILLO_REPO, "outputs/ic_hindcast_residuals_ladrillo_$(POST_TAG).csv")
 const OUT_B = joinpath(LADRILLO_REPO, "outputs/ic_hindcast_residuals_brick20.csv")
@@ -171,14 +171,14 @@ Random.seed!(BRICK_SEED)                       # immediately before get_model: i
 m = MimiBRICK.get_model(ssprcp_scenario="ssp245", start_year=Y0, end_year=Y1)
 set_forcing!(m, gmst, ohc)
 reref(v) = 100 .* (v .- sum(v[ib]) / length(ib))
-bpost_full = CSV.read(BRICK_POSTERIOR, DataFrame)
+bpost_full = load_brick20_posterior(BRICK_POSTERIOR)
 bdraws = let n = nrow(bpost_full), s = cld(n, min(NDRAW_B, n)), v = collect(1:s:n); v[1:min(NDRAW_B, length(v))] end
 bpost = bpost_full[bdraws, :]
 @printf("BRICK 2.0 | %d of %d draws | seed %d before get_model\n", nrow(bpost), nrow(bpost_full), BRICK_SEED)
 resB = Dict(k => Array{Float64}(undef, nrow(bpost), ny) for (k, _) in SERIES)
 t0 = time()
 for i in 1:nrow(bpost)
-    update_brick_params!(m, bpost[i, :]; precip_log=true)
+    update_brick_params!(m, bpost[i, :]; precip_log=brick20_precip_log())
     run(m)
     ais  = reref(m[:antarctic_icesheet, :ais_sea_level])[myi]
     gsic = reref(m[:glaciers_small_icecaps, :gsic_sea_level])[myi]

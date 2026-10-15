@@ -34,7 +34,7 @@ include(joinpath(@__DIR__, "brick_mengel.jl"))      # set_forcing! + update_bric
 
 const REPO = abspath(joinpath(@__DIR__, ".."))
 const OBS  = joinpath(REPO, "data/observations")
-const POST = joinpath(REPO, "data/MimiBRICK/parameters_subsample_brick.csv")
+const POST = brick20_posterior_path(REPO)
 _arg(p) = (i = findfirst(a -> startswith(a, p), ARGS); i === nothing ? nothing : ARGS[i][length(p)+1:end])
 const SSP   = something(_arg("--ssp="), "ssp585")
 const NDRAW = parse(Int, something(_arg("--ndraw="), "1000"))
@@ -155,7 +155,7 @@ let ref = joinpath(OBS, "fair_cube_gmst_$(SSP)_spliced.csv")
 end
 
 ## ---- posterior: the SAME thinning the shipped panel used -----------------
-post = CSV.read(POST, DataFrame)
+post = load_brick20_posterior(POST)
 const STEPP = max(1, nrow(post) ÷ NDRAW)
 const ROWS  = collect(1:STEPP:nrow(post))
 @printf("BRICK 2.0 + FaIR CLIMATE UNCERTAINTY | %s | %d draws (thinned from %d) | %d configs\n",
@@ -191,7 +191,7 @@ set_lws!(M, LWS_MODE)
 function run_into!(store, ks, g, o)
     set_forcing!(M, g, o)
     for k in ks
-        update_brick_params!(M, post[ROWS[k], :]; precip_log=true)
+        update_brick_params!(M, post[ROWS[k], :]; precip_log=brick20_precip_log())
         run(M)
         ais  = reref(M[:antarctic_icesheet,     :ais_sea_level])
         gsic = reref(M[:glaciers_small_icecaps, :gsic_sea_level])
@@ -280,7 +280,7 @@ for c in COMPS, (j,H) in enumerate(HORIZONS)
     end
 end
 CSV.write(joinpath(REPO,"outputs","scope_slr_fairunc_draws_$(SSP)_spliced_oldbrick$(CLIM_TAG)$(LWS_ANCHOR_SFX).csv"), draws)
-cells.provenance .= "scope_slr_fairunc_oldbrick.jl | BRICK 2.0 stock MimiBRICK v2.0.0 get_model(ssp245), Random.seed!($SEED) before get_model | " *
+cells.provenance .= "scope_slr_fairunc_oldbrick.jl | $(brick20_label()) | BRICK 2.0 stock MimiBRICK v2.0.0 get_model(ssp245), Random.seed!($SEED) before get_model | " *
     "posterior $(basename(POST)) | ssp $SSP | climate $CLIMATE | lws $(LWS_MODE) (mean $(LWS_MEAN) m/yr" *
     "$(LWS_MODE === :seeded ? ", seed $LWS_SEED" : ""), land-water anchor :$(LWS_OBS_ANCHOR)) | run $Y0-$Y1 reref $BASE0-$BASE1 | julia $(VERSION)"
 CSV.write(joinpath(REPO,"outputs","scope_slr_fairunc_cells_$(SSP)_spliced_oldbrick$(CLIM_TAG)$(LWS_ANCHOR_SFX).csv"), cells)

@@ -2,7 +2,7 @@
 ## posterior_predictive_oldbrick.jl  —  hindcast of the OLD (stock) BRICK
 ##
 ## Companion to posterior_predictive_ext.jl: forward-runs the STOCK single-reservoir
-## BRICK (no Mengel swap) with the OLD posterior (parameters_subsample_brick.csv) over
+## BRICK (no Mengel swap) with the BRICK 2.0 posterior (brick20_posterior_rel(), brick_param_updates.jl) over
 ## 1850-2026 under the SAME FaIR forcing + 1995-2005 reref, and writes 5/50/95 component
 ## bands. Used only to overlay "old BRICK" on the historical-comparison figure so the
 ## effect of (Mengel glacier + recalibration + extension) on the hindcast is visible.
@@ -87,14 +87,14 @@ all(isfinite, lws_obs) || error("observed lws does not cover $(FY0)-$(FY1); refu
                                 "a partly-NaN LWS into the BRICK total")
 println("LWS: using the OBSERVED series (recalib_targets_ext.csv), matching the Ladrillo arm; ",
         "BRICK's own LWS is 0 before 2019 by calibration design.")
-post = CSV.read(joinpath(REPO,"data/MimiBRICK/parameters_subsample_brick.csv"), DataFrame)
+post = load_brick20_posterior(brick20_posterior_path(REPO))
 ND = min(NDRAW, nrow(post))
 println("OLD-BRICK posterior-predictive: $ND draws × stock BRICK forward ($Y0-$Y1), saving $FY0-$FY1...")
 
 comps = (:ais, :gsic, :gis, :te, :total); ny = length(FY)
 store = Dict(c => Array{Float64}(undef, ND, ny) for c in comps)
 @time for i in 1:ND
-    update_brick_params!(m, post[i,:]; precip_log=true)
+    update_brick_params!(m, post[i,:]; precip_log=brick20_precip_log())
     run(m)
     ais  = reref(m[:antarctic_icesheet, :ais_sea_level])[myi]
     gsic = reref(m[:glaciers_small_icecaps, :gsic_sea_level])[myi]
@@ -115,7 +115,7 @@ end
 band[!, "provenance"] = fill(
     "posterior_predictive_oldbrick.jl | stock MimiBRICK get_model(ssp245) | " *
     "Random.seed!($SEED) immediately before get_model | posterior " *
-    "data/MimiBRICK/parameters_subsample_brick.csv ND=$ND | forcing fair_mean_{gmst,ohc}_$(FORCING).csv | LWS = OBSERVED series (matches Ladrillo arm) | " *
+    "$(brick20_label()) ND=$ND | forcing fair_mean_{gmst,ohc}_$(FORCING).csv | LWS = OBSERVED series (matches Ladrillo arm) | " *
     "run $Y0-$Y1, saved $FY0-$FY1, re-referenced $B0-$B1 | cm", ny)
 CSV.write(joinpath(REPO,"outputs/postpred_oldbrick_components_timeseries.csv"), band)
 println("Wrote outputs/postpred_oldbrick_components_timeseries.csv (seed $SEED, ND=$ND)")

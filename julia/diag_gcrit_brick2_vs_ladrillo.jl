@@ -47,7 +47,8 @@ let m = MimiBRICK.get_model(ssprcp_scenario = "ssp245", start_year = 1850, end_y
 end
 const TANT0 = -AIS_INT / AIS_COEF          # = LADRILLO_AIS_TANT0, by construction
 
-post = CSV.read(joinpath(REPO, "data/MimiBRICK/parameters_subsample_brick.csv"), DataFrame)
+include(joinpath(@__DIR__, "brick_param_updates.jl"))     # brick20_posterior_path, load_brick20_posterior
+post = load_brick20_posterior(brick20_posterior_path(REPO))
 const ROWS_B = collect(1:max(1, nrow(post) ÷ NDRAW_B20):nrow(post))
 gB = [AIS_INT + AIS_COEF * Float64(post[r, :antarctic_temp_threshold]) for r in ROWS_B]
 

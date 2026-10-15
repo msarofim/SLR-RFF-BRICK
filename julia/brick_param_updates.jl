@@ -100,3 +100,37 @@ function update_brick_params!(m, prow; precip_log::Bool=false, skip_glaciers::Bo
     update_param!(m, :thermal_expansion, :te_α,  prow.thermal_alpha)
     update_param!(m, :thermal_expansion, :te_s₀, prow.thermal_s0)
 end
+
+## ============================================================================
+## The BRICK 2.0 arm's posterior and its `antarctic_precip0` convention, kept together.
+##
+## Marcus 2026-10-15: the arm moves to the joint SNEASY-BRICK posterior subsample published with MimiBRICK v2.0.0
+## (Zenodo 10.5281/zenodo.20592337, parameters_subsample_sneasybrick.csv, sha256 d74577f6...; CHANGELOG 2026-10-15c/d).
+## The arm reads its 35 BRICK columns; the 16 SNEASY columns are unused (the arm is driven by FaIR or MAGICC climate).
+## That file stores antarctic_precip0 in LOG space, as v2.0.0 expects, so the `precip_log` shim is OFF for it. Through
+## 2026-10-15 the arm used Tony's May-22 subsample (parameters_subsample_brick.csv, sha256 78247db8..., LINEAR units,
+## shim ON).
+##
+## BRICK20_POSTERIOR (a path relative to the repo) and BRICK20_PRECIP_LOG (true|false) override both, for a
+## regression run of the old file only (run_brick20_zenodo_swap_20261015.sh). They are functions, not consts, because
+## some drivers reach this file through two include chains.
+## ============================================================================
+brick20_posterior_rel() = get(ENV, "BRICK20_POSTERIOR",
+                              joinpath("data", "MimiBRICK", "parameters_subsample_sneasybrick_zenodo20592337.csv"))
+brick20_precip_log() = get(ENV, "BRICK20_PRECIP_LOG", "false") == "true"
+brick20_posterior_path(repo) = joinpath(repo, brick20_posterior_rel())
+brick20_label() = "BRICK 2.0 posterior $(basename(brick20_posterior_rel())) (precip_log=$(brick20_precip_log()))"
+
+"""
+    load_brick20_posterior(path) -> DataFrame
+
+Read the BRICK 2.0 posterior and refuse a units mismatch: a file whose `antarctic_precip0` is positive in every row
+is in LINEAR units and needs the shim; one with negative values is in LOG space and must not get it.
+"""
+function load_brick20_posterior(path)
+    df = CSV.read(path, DataFrame)
+    linear = all(>(0), df.antarctic_precip0)
+    linear == brick20_precip_log() || error("$path: antarctic_precip0 looks $(linear ? "LINEAR" : "LOG-space") but " *
+        "brick20_precip_log() = $(brick20_precip_log()); the file and the shim disagree (see brick_param_updates.jl)")
+    return df
+end

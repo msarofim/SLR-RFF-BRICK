@@ -15,12 +15,21 @@ The quantity map (source file, filter, statistic, the text's rounding) was built
 the CHANGELOG and the redline scripts; the inline Sect. 4.1 arithmetic follows deliverables/redline/apply_edits_r6_l27.py
 L100-124 and the refit-precision arithmetic apply_edits_r7_precision.py L13-25.
 """
-import os, math, subprocess, datetime
+import os, math, subprocess, datetime, argparse
 import numpy as np, pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-Q = os.path.join(REPO, "outputs/quarantine/20261008_ladrillo_v10_superseded/outputs")
-OUT = os.path.join(REPO, "outputs/v11_paper_number_diff_20261008.csv")
+## --old-dir / --out / the labels let a later rerun reuse this quantity map (2026-10-15: the BRICK 2.0 posterior swap,
+## run_brick20_zenodo_swap_20261015.sh). The defaults reproduce the v1.0 -> v1.1 diff exactly.
+_ap = argparse.ArgumentParser()
+_ap.add_argument("--old-dir", default="outputs/quarantine/20261008_ladrillo_v10_superseded/outputs")
+_ap.add_argument("--out", default="outputs/v11_paper_number_diff_20261008.csv")
+_ap.add_argument("--old-label", default="v1.0")
+_ap.add_argument("--new-label", default="v1.1")
+_A = _ap.parse_args()
+Q = os.path.join(REPO, _A.old_dir)
+OUT = os.path.join(REPO, _A.out)
+OLD, NEW = _A.old_label, _A.new_label
 TAP = "_tap4p69K_V5p64m_tau800"
 LAB = {"ssp126": "SSP1-2.6", "ssp245": "SSP2-4.5", "ssp585": "SSP5-8.5"}
 
@@ -182,11 +191,11 @@ for where, q, printed, f, fn, exp in ROWS:
                                             and t1 != printed else "") + (" v1.0->v1.1" if t0 != t1 else "")))
 df = pd.DataFrame(rows)
 commit = subprocess.run(["git", "-C", REPO, "rev-parse", "--short", "HEAD"], capture_output=True, text=True).stdout.strip()
-df["provenance"] = (f"v11_paper_number_diff.py | SLR-RFF-BRICK {commit} | v1.0 = {os.path.relpath(Q, REPO)} (else canonical, "
-                    f"unchanged) | v1.1 = outputs/ canonical | Ladrillo L27, FaIR 2.2.4 (calib 1.6.0) CMIP7 basis, joint "
+df["provenance"] = (f"v11_paper_number_diff.py | SLR-RFF-BRICK {commit} | {OLD} = {os.path.relpath(Q, REPO)} (else canonical, "
+                    f"unchanged) | {NEW} = outputs/ canonical | Ladrillo L27, FaIR 2.2.4 (calib 1.6.0) CMIP7 basis, joint "
                     f"arm unless the quantity says fixed | cm rel 1995-2014 | {datetime.date.today()}")
 df.to_csv(OUT, index=False)
-print("| where | quantity | printed | v1.0 file | v1.1 | Δ (v1.1 − v1.0) | exposure | changes |")
+print(f"| where | quantity | printed | {OLD} file | {NEW} | Δ ({NEW} − {OLD}) | exposure | changes |")
 print("|---|---|---|---|---|---|---|---|")
 for r in df.itertuples():
     print(f"| {r.where} | {r.quantity} | {r.printed} | {r.v10_text} | {r.v11_text} | "

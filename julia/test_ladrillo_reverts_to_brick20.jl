@@ -33,7 +33,7 @@ const Y0, Y1  = 1850, 2300
 const SSPS    = ("ssp245", "ssp585")
 const NDRAW   = 20
 const SEED    = 2026          # get_model's RNG (the BRICK 2.0 arm's seed); set_lws! overwrites what it draws
-const POST20  = CSV.read(joinpath(LADRILLO_REPO, "data/MimiBRICK/parameters_subsample_brick.csv"), DataFrame)
+const POST20  = load_brick20_posterior(brick20_posterior_path(LADRILLO_REPO))
 const ROWS    = collect(1:(nrow(POST20) ÷ NDRAW):nrow(POST20))[1:NDRAW]
 const SERIES  = [("ais",       :antarctic_icesheet,     :ais_sea_level),
                  ("glaciers",  :glaciers_small_icecaps, :gsic_sea_level),
@@ -86,13 +86,13 @@ function compare(A, B)
 end
 
 function run_pair!(A, B, row; bump::Union{Nothing,Symbol}=nothing)
-    update_brick_params!(A, row; precip_log=true); run(A)
-    update_brick_params!(B, row; precip_log=true)
+    update_brick_params!(A, row; precip_log=brick20_precip_log()); run(A)
+    update_brick_params!(B, row; precip_log=brick20_precip_log())
     bump === nothing || update_param!(B, :thermal_expansion, bump, nextfloat(Float64(row.thermal_alpha)))
     run(B)
 end
 
-println("[R] reverted Ladrillo == stock BRICK 2.0 ($(NDRAW) draws of parameters_subsample_brick.csv, $(Y0)-$(Y1))")
+println("[R] reverted Ladrillo == stock BRICK 2.0 ($(NDRAW) draws of $(basename(brick20_posterior_rel())), $(Y0)-$(Y1))")
 for ssp in SSPS
     A, B = stock_brick20(ssp), reverted_ladrillo(ssp)
     nsame, worst, per = 0, 0.0, Dict(s => true for (s, _, _) in SERIES)
@@ -128,8 +128,8 @@ let ssp = "ssp245", row = POST20[ROWS[1], :]
 
     B3 = reverted_ladrillo(ssp; revert_glaciers=false)
     ok3 = try
-        update_brick_params!(B3, row; precip_log=true, skip_glaciers=true); run(B3)
-        update_brick_params!(A, row; precip_log=true); run(A)
+        update_brick_params!(B3, row; precip_log=brick20_precip_log(), skip_glaciers=true); run(B3)
+        update_brick_params!(A, row; precip_log=brick20_precip_log()); run(A)
         !compare(A, B3)[1]
     catch e
         true      # Ladrillo's glacier slot cannot even take BRICK 2.0's glacier parameters

@@ -11,11 +11,11 @@
 ## on the PROJECTION side as well as the hindcast side, so it is produced here.
 ##
 ## WHAT "BRICK 2.0" MEANS. Stock MimiBRICK v2.0.0 (`MimiBRICK.get_model`, no `replace!`)
-## on its OWN published posterior `data/MimiBRICK/parameters_subsample_brick.csv`
-## (post-PR#93). NOT recalibrated on our extended targets. Identical convention to
+## on its OWN published posterior (brick20_posterior_rel(), brick_param_updates.jl; the Zenodo 20592337 joint file
+## since 2026-10-15). NOT recalibrated on our extended targets. Identical convention to
 ## `posterior_predictive_oldbrick.jl` (the hindcast arm) and to
 ## `project_ssps_gsic_2300.jl` (the glacier arm) — same posterior file, same
-## `update_brick_params!(...; precip_log=true)` shim, same seed before `get_model`.
+## `update_brick_params!(...; precip_log=brick20_precip_log())`, same seed before `get_model`.
 ##
 ## LIKE-FOR-LIKE WITH LADRILLO. Same FaIR 2.2.4 (calib 1.6.0 + CMIP7 since 2026-08-30;
 ## was 1.4.5 and this line said so) ENSEMBLE-MEAN GMST + OHC
@@ -38,7 +38,7 @@ include(joinpath(@__DIR__, "brick_mengel.jl"))      # set_forcing! + update_bric
 
 const REPO = abspath(joinpath(@__DIR__, ".."))
 const OBS  = joinpath(REPO, "data/observations")
-const POST = joinpath(REPO, "data/MimiBRICK/parameters_subsample_brick.csv")
+const POST = brick20_posterior_path(REPO)
 const Y0, Y1 = 1850, 2300
 const BASE0, BASE1 = 1995, 2014                     # AR6 SLR reference window
 const SEED = 2026                                   # get_model is non-deterministic (~1e-5 m)
@@ -62,7 +62,7 @@ lc(p, c) = (d = CSV.read(p, DataFrame);
             by = Dict(Int(d[i, "year"]) => Float64(d[i, c]) for i in 1:nrow(d));
             [by[y] for y in years])
 
-post = CSV.read(POST, DataFrame)
+post = load_brick20_posterior(POST)
 stepp = max(1, nrow(post) ÷ NDRAW)
 rows = collect(1:stepp:nrow(post))
 @printf("BRICK 2.0 all-component projections: %d draws (thinned from %d), %d-%d, reref %d-%d\n",
@@ -82,7 +82,7 @@ for (ssp, label) in SSPS
     set_forcing!(m, gmst, ohc)
     store = Dict(c => Array{Float64}(undef, length(rows), length(YEARS_OUT)) for c in COMPS)
     @time for (k, i) in enumerate(rows)
-        update_brick_params!(m, post[i, :]; precip_log=true)
+        update_brick_params!(m, post[i, :]; precip_log=brick20_precip_log())
         run(m)
         ais  = reref(m[:antarctic_icesheet,     :ais_sea_level])[oi]
         gsic = reref(m[:glaciers_small_icecaps, :gsic_sea_level])[oi]
