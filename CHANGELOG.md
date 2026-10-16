@@ -1,3 +1,64 @@
+## 2026-10-15g — The GMD edit pass on Tony's TW2 file: every number on the current outputs, the queued fixes, v1.3
+
+**Marcus 10-15:** "Apply this all in the edit pass on Tony's TW2 file … do all the updates that we have available, so
+that the next version of the paper reflects the latest versions of everything."
+
+**Output:** `deliverables/GMD.Ladrillo.v1_review-2026-10-15_L27_TW2.docx` (md5 `59381d85…`), built by
+`deliverables/redline/r1015/build.sh` on TW2 (md5 `38d235de…`, never edited).
+- Every change is a tracked change by Claude dated 2026-10-15T23:30Z.
+- Tony's 119 tracked edits and every comment are untouched.
+- An edit inside one of Tony's pending insertions splits that insertion and nests the deletion in it. That happened 5
+  times; no insertion nests in another.
+- `edlib.py` now matches TW2's `w16du:dateUtc` attribute.
+
+**Contents:** 99 text edits, 6 figure swaps and 2 comments.
+- 91 edits come from `redline/r1015/tw2_edit_inventory.json` (+ `.md`), built read-only against TW2's accepted text.
+  Each `old` span was verified to occur once in its paragraph or cell, with source and arithmetic recorded:
+  - the BRICK 2.0 numbers on the Zenodo posterior (Tables 4 and 5, Sects. 4.1 and 4.3, Abstract);
+  - the 10-07 / v1.1 / v1.2 numbers;
+  - queued fixes 10-01c §1c 1, 2, 3, 5, 6 (the thermal-expansion attribution and timing, FaIR OHC as total heat,
+    "(joint arm)", the ensemble-mean definition);
+  - the paired tap statistics and the conditioning sentence (as done, 10-08k);
+  - "Ladrillo v1.3" and tag v1.3.0;
+  - the Zenodo citation and its new reference;
+  - the Fig. 3 (2300) caption and the Fig. 5 markers.
+- X01: Table 2's BRICK 2.0 glacier inventory, 37.7 → 37.4, from the rerun in 10-15f.
+- C01–C07: copyedits ("are largest", "an type", "times series", "impacts … is", and in Tony's insertions "climate
+  uncer.", "10,000-draw ensembles", "relative to 1995-2014 mean").
+- Figs. 1–6 are swapped to the current `figures/paper/` renders.
+- The two comments flag readings: the Conclusions' Antarctic "reductions" are now true in only 3 of 10 scenarios, and
+  "equal sensitivity" became "similar (about 1.1×)".
+
+**Verified with independent readers (pandoc, the docx skill's validate.py, string checks):**
+- validate PASSED;
+- `<w:ins>` nesting depth 1;
+- all 91 inventory values present in the accepted text;
+- rejecting Claude's changes by string handling returns TW2's accepted text EXACTLY (116,526 characters).
+- Word itself was not run (no LibreOffice either).
+
+**Left for Marcus** (`tw2_edit_inventory.md`, NOT APPLIED / UNCERTAIN):
+- Queued items 4 (re-derive the "α within 4 %" comparison on matched scopes), 7 (Lin et al. 2026, the 2002-2021
+  Antarctic rate deficit, thanking Frank Errickson) and 8 (state the next-version thermal-expansion direction).
+- Tony 390 / 347 / 326 / 367 / 364 and his prose comments.
+- The Conclusions sign issue and Sect. 4.3's "sit together" (Ladrillo 427 vs BRICK 2.0 383 cm, High, 2300).
+- The repository URL and Zenodo DOI placeholders.
+- Tony's "(REF?)" ×2, "(REF Wong et al 2017)", the equation-parameter placeholder, and the mid-sentence paragraph
+  break in 4.1 ("We note that ¶ the non-closure").
+
+**Uncertain:**
+- Fig. 5's 0.05 cm regrowth: fixed-arm path, no committed receipt.
+- BRICK 2.0's calibration-data descriptions assume the Zenodo posterior came from the v2.0.0 code.
+- Two rounding edges: ΔAIC 95.486 → "+95"; Very Low width 166.499.
+- The runtime sentence was not re-measured.
+
+## 2026-10-15f — Table 2's BRICK 2.0 glacier inventory re-run on the Zenodo posterior
+
+`julia/diag_brick_gsic_melt_1850_2000.jl` now reads the posterior through the shared loader (it was an "older reader"
+on the May-22 file). On the Zenodo file:
+- glacier volume remaining at 2000 is 37.4 cm (5-95 % 27.9-47.8), against 37.7 (28.0-47.7) before;
+- melt 1850-2000 is 4.0 cm (4.045 vs 4.034), so Table 2 note 7 is unchanged.
+The old output is in the 10-15 quarantine.
+
 ## 2026-10-15e — The benchmark's frozen comparators re-frozen on the current files (BRICK 2.0 on the Zenodo posterior)
 
 **Marcus 10-15:** "rebuild on the new file" and "the latest versions of everything."
