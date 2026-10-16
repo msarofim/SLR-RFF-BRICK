@@ -1,3 +1,19 @@
+## 2026-10-15e — The benchmark's frozen comparators re-frozen on the current files (BRICK 2.0 on the Zenodo posterior)
+
+**Marcus 10-15:** "rebuild on the new file" and "the latest versions of everything."
+- Archived the old frozen set to `benchmark/reference/_fixed_archive_20261015_may22_brick20/`.
+- Ran `python/bench_ladrillo.py --tag=L27 --freeze-fixed`, then re-scored.
+- Four comparators differed from their live sources and moved:
+  - BRICK 2.0 hindcast and projection (the posterior swap);
+  - FACTS (`facts_components_shared_n200.csv`, re-run on 10-08/09 after the old freeze);
+  - the literature rows, now from `ladrillo_model_comparison_L27.csv` (132 rows) in place of the L24 file.
+- The observation targets and MAGICC were byte-identical, so re-freezing them changed nothing.
+- **Not re-frozen:** the Ladrillo champion (`benchmark/reference/L27`, the v1.0 copy). That was Marcus's separate call on
+  10-08, and the benchmark is not a paper input.
+
+**Verdict counts, L27 (526 rows), before → after:** PASS 114 → 112, WARN 106 → 105, BETTER 51 → 56, FAIL 18 → 19,
+SAME 14 → 6, UNRESOLVED 13 → 15, WORSE 7 → 11. Example: BRICK 2.0 AIS vs the literature, ssp126 2100, PASS → FAIL.
+
 ## 2026-10-15d — The BRICK 2.0 arm moves to the Zenodo v2.0.0 joint posterior; every BRICK 2.0 product re-run
 
 **Ruled (Marcus 10-15):** "move the BRICK 2.0 arm to the Zenodo joint file." The arm now reads the 35 BRICK columns of
