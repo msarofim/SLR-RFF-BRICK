@@ -1,5 +1,8 @@
 # Handoff 2026-10-15: Tony's TW2 draft and the BRICK 2.0 posterior question
 
+> ⚠ **Superseded by `handoff_2026-10-15b_brick20_swap_tw2_pass.md`.** §2 is decided (the arm moved to the Zenodo joint
+> file), §3 steps 1-3 are done, and the "deferred conditioning rerun" below was already done on 10-08k.
+
 Follows `handoff_2026-10-09b_pulse_paper_facts.md`. That handoff's job (add FACTS to the pulse analysis) is done.
 
 Start cold from this file, then read:
