@@ -1,3 +1,68 @@
+## 2026-10-15d — The BRICK 2.0 arm moves to the Zenodo v2.0.0 joint posterior; every BRICK 2.0 product re-run
+
+**Ruled (Marcus 10-15):** "move the BRICK 2.0 arm to the Zenodo joint file." The arm now reads the 35 BRICK columns of
+`data/MimiBRICK/parameters_subsample_sneasybrick_zenodo20592337.csv` (Zenodo 10.5281/zenodo.20592337, sha256
+`d74577f6…`). Its `antarctic_precip0` is stored in log space, so the `precip_log` shim is off.
+
+**Code (3ffa301, 96da010):**
+- `julia/brick_param_updates.jl` holds the path, the precip convention and `load_brick20_posterior`, which refuses a
+  file whose precip units disagree with the shim. Mutation-tested both ways.
+- 10 drivers use it in place of the hard-coded May-22 path. Older readers that no live runner calls still read the
+  May-22 file with its shim, a consistent pair.
+- `python/ic_ladrillo_vs_brick20.py` (Table 5) parses the header as CSV (Zenodo quotes it) and does not charge the 16
+  SNEASY columns; its 27 / 35 assertion is unchanged.
+- The BRICK glacier and components panels now run ssp126/245/585 only. The ssp119/370/460 inputs exist only as calib
+  1.4.5 `_pre160` files, and Ladrillo's panel already ran the same three. The first launch stopped there.
+- Runner `run_brick20_zenodo_swap_20261015.sh` (arms, downstream).
+
+**Gates, all PASS:**
+- [SWAP-REGRESSION]: the edited code with the May-22 file reproduced the shipped vvH level arm and the vvM CO2 pulse
+  arm value for value (7 files, 1-ulp power check on each).
+- [GSIC-MATCH] 0.0000 cm over 96 rows. [CONTROL] in every SSP level arm.
+- [TABLE5-INPUT]: the Ladrillo residuals and the observation sigma came back byte-identical.
+- Sect. 3.3, reverted Ladrillo == BRICK 2.0, including its three mutation checks.
+- Ladrillo.jl identity gates 2-5 bit-identical against these outputs (products for all 10 scenarios, panel, posterior
+  predictive, hindcast residuals, Table 5 at all three rho bounds).
+
+**Re-run:** 10 FaIR + 10 MAGICC-climate level arms; 14 FaIR + 28 MAGICC-climate pulse arms (2,000 draws);
+the posterior predictive; Table 5 residuals and Table 5 (rho 0.99 / 0.95 / 0.90); the GMD downstream; the FaIRtoFrEDI
+pulse chain and the paired-se exchange rate.
+
+**Not re-run** (older vintages the 10-08 v1.1 rerun also left alone; still on the May-22 file):
+- the overshoot / matched-dT arms (09-02..09-04);
+- `diag_gcrit_brick2_vs_ladrillo` (L24 only);
+- the runtime sentence (timing under load is not a measurement).
+
+**The benchmark did not move.** `bench_ladrillo.py` scores BRICK 2.0 from its frozen reference
+(`benchmark/reference/_fixed/`). Re-freezing it is Marcus's call.
+
+**Quarantine:** `outputs/quarantine/20261015_brick20_may22_posterior/` (316 files, README, SHA256SUMS) and
+`FaIRtoFrEDI/magicc_comparison/processed/quarantine/20261015_brick20_may22_posterior/` (17).
+
+**What moved** (`outputs/brick20_swap_paper_number_diff_20261015.csv`: 21 GMD quantities change at printed rounding):
+- Conclusion, "up to 31 cm" (BRICK 2.0 − Ladrillo AIS, SSP2-4.5 2300): 30 → 6 cm. The max over 3 SSPs and 7 markers
+  is 30 → 18.
+- Sect. 4.3, High, joint arm, 2300: BRICK 2.0 total 417 → 383 cm; AIS 251 → 218. On MAGICC's climate the total is
+  395 → 363. Very Low total 83 → 80.
+- Table 4, AIS RMSE ratio (Ladrillo / BRICK 2.0): 1993-2025 1.077 → 1.441; full window 0.059 → 0.054.
+  Abstract "94 %" → 95 %.
+- Table 5, ar1_prof: Δln L 59.5 → 62.7, ΔAIC 88.9 → 95.5, ΔBIC 25.7 → 32.2; obs_iid Δln L 1275 → 1528.
+  BRICK's steric series fits worse (Δln L −0.1 → +7.2).
+- Pulse (paired mean, cm per Gt, median over 6 markers):
+  - BRICK 2.0 CO2 2100 is 0.0171 → 0.0139, now below Ladrillo (0.0150) and MAGICC-SLR (0.0143). CO2 2300 is
+    0.0434 → 0.0396.
+  - The CH4:CO2e rate is 0.936 → 0.871, and the AIS share of the 2300 total 68-80 % → 58-76 %.
+  - By component, TE is −3 to −4 % and glaciers and Greenland within ±5 %. The change is the Antarctic pulse response:
+    its 2300 smooth term halves (vvM 0.0043 → 0.0014, vvH 0.0078 → 0.0039 cm), and at 2100 it goes to about zero.
+  - Per-marker paired-median totals: −8 % at 2100, −14 % at 2300. Per-marker BRICK exchange rates move by up to
+    ±0.23, within about 1.5 se.
+
+**Open (Marcus):**
+- the GMD docx pass now carries these numbers;
+- the Conclusion's "up to 31 cm" reading no longer holds;
+- whether to re-freeze the benchmark reference;
+- a new Ladrillo.jl tag (main now differs from v1.2.0 in the BRICK 2.0 posterior).
+
 ## 2026-10-15c — The Zenodo v2.0.0 JOINT posterior is close to the May-22 file: BRICK 2.0 totals about 4 % lower
 
 **Asked (Marcus 10-15):** "yes, download it and run the test."

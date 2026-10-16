@@ -55,12 +55,12 @@ attribution of the difference, never in the model row.
 |---|---|---|---|---|
 | MAGICC-SLR | 0.0143 [0.0125, 0.0173] | 0.0370 [0.0254, 0.0877] | 0.6192 [0.6063, 0.6991] | 0.7143 [0.6665, 1.1234] |
 | Ladrillo L27 (v1.2) | 0.0150 [0.0122, 0.0171] | 0.0389 [0.0305, 0.0466] | 0.9505 [0.6983, 1.1460] | 0.9697 [0.8871, 1.1754] |
-| BRICK 2.0 | 0.0171 [0.0122, 0.0223] | 0.0434 [0.0268, 0.0604] | 1.0846 [0.8726, 1.3283] | 1.0749 [0.8821, 1.5049] |
+| BRICK 2.0 | 0.0139 [0.0130, 0.0192] | 0.0396 [0.0238, 0.0466] | 0.8138 [0.6363, 1.2493] | 0.9669 [0.5474, 1.2123] |
 | FACTS wf1f (AR5 ice sheets) | 0.0063 [0.0059, 0.0069] | n/a (09-12c) | 0.3889 [0.3531, 0.4504] | n/a (09-12c) |
 | FACTS wf2f (LARMIP AIS) | 0.0087 [0.0084, 0.0094] | n/a (09-12c) | 0.6061 [0.5524, 0.6845] | n/a (09-12c) |
 | *decomposition, not a fourth model:* | | | | |
 |   Ladrillo on MAGICC's climate | 0.0169 [0.0133, 0.0198] | 0.0368 [0.0233, 0.0484] | 0.6550 [0.4864, 0.8174] | 0.6661 [0.4547, 0.9180] |
-|   BRICK 2.0 on MAGICC's climate | 0.0185 [0.0124, 0.0258] | 0.0361 [0.0285, 0.0516] | 0.6237 [0.5421, 0.9228] | 0.7709 [0.5786, 0.9507] |
+|   BRICK 2.0 on MAGICC's climate | 0.0170 [0.0117, 0.0174] | 0.0311 [0.0208, 0.0458] | 0.6198 [0.5033, 0.6927] | 0.6287 [0.4960, 0.9364] |
 
 **At 2100 the three primary models agree; at 2300 they do not.** MAGICC-SLR is the largest CO₂
 responder at both horizons and its 2300 spread across markers is by far the widest — a factor
@@ -74,13 +74,13 @@ response.
 | model | per-marker (like-for-like) | per-species median | CO2 rank | CH4 rank |
 |---|---|---|---|---|
 | MAGICC-SLR | **0.637** | 0.647 | 3 of 3 | 3 of 3 |
-| Ladrillo L27 (v1.2) | **0.893** | 0.836 | 2 of 3 | 2 of 3 |
-| BRICK 2.0 | **0.936** | 0.830 | 1 of 3 | 1 of 3 |
+| Ladrillo L27 (v1.2) | **0.893** | 0.836 | 2 of 3 | 1 of 3 |
+| BRICK 2.0 | **0.871** | 0.820 | 1 of 3 | 2 of 3 |
 | FACTS wf1f (AR5 ice sheets) | n/a (09-12c) | n/a (09-12c) | — | — |
 | FACTS wf2f (LARMIP AIS) | n/a (09-12c) | n/a (09-12c) | — | — |
 | *decomposition, not a fourth model:* | | | | |
 |   Ladrillo on MAGICC's climate | **0.677** | 0.608 | — | — |
-|   BRICK 2.0 on MAGICC's climate | **0.672** | 0.717 | — | — |
+|   BRICK 2.0 on MAGICC's climate | **0.689** | 0.679 | — | — |
 
 **The species ordering reverses between models, and this is the most policy-legible result in
 the comparison.** MAGICC-SLR is the highest responder to CO₂ and the lowest of the three to CH₄.
@@ -113,12 +113,12 @@ add is small and, notably, of opposite sign in the two of them.
 |---|---|---|---|---|---|---|
 | MAGICC-SLR | 2203-2228 | 2282-2288 | 1.000 | 2176-2194 | 2276-2280 | 1.000 |
 | Ladrillo L27 (v1.2) | 2202-2211 | 2283-2285 | 1.000 | 2173-2185 | 2274-2277 | 0.933 |
-| BRICK 2.0 | 2195-2218 | 2281-2285 | 1.000 | 2171-2192 | 2274-2279 | 0.917 |
+| BRICK 2.0 | 2191-2220 | 2280-2285 | 1.000 | 2172-2189 | 2273-2278 | 0.899 |
 | FACTS wf1f (AR5 ice sheets) | n/a (09-12c) | n/a (09-12c) | n/a (09-12c) | n/a (09-12c) | n/a (09-12c) | n/a (09-12c) |
 | FACTS wf2f (LARMIP AIS) | n/a (09-12c) | n/a (09-12c) | n/a (09-12c) | n/a (09-12c) | n/a (09-12c) | n/a (09-12c) |
 | *decomposition, not a fourth model:* | | | | | | |
 |   Ladrillo on MAGICC's climate | 2200-2211 | 2282-2285 | 1.000 | 2169-2180 | 2275-2277 | 0.947 |
-|   BRICK 2.0 on MAGICC's climate | 2196-2210 | 2280-2283 | 1.000 | 2171-2198 | 2274-2280 | 0.916 |
+|   BRICK 2.0 on MAGICC's climate | 2193-2210 | 2281-2283 | 1.000 | 2172-2192 | 2274-2278 | 0.898 |
 
 FIG 10. Time to 50 % and 90 % of the 2030–2300 response integral, by model and species.
 
@@ -145,10 +145,10 @@ early. The integral version is monotone by construction.
 |---|---|---|---|---|
 | MAGICC-SLR | 41%-59% | 13%-19% | 4%-11% | 20%-28% |
 | Ladrillo L27 (v1.2) | 67%-73% | 14%-18% | 5%-8% | 6%-10% |
-| BRICK 2.0 | 68%-80% | 11%-16% | 5%-11% | 3%-5% |
+| BRICK 2.0 | 58%-76% | 13%-21% | 5%-14% | 4%-7% |
 | *decomposition, not a fourth model:* | | | | |
 |   Ladrillo on MAGICC's climate | 46%-76% | 11%-24% | 6%-17% | 6%-13% |
-|   BRICK 2.0 on MAGICC's climate | 51%-81% | 10%-21% | 6%-20% | 4%-8% |
+|   BRICK 2.0 on MAGICC's climate | 49%-73% | 12%-22% | 8%-21% | 5%-8% |
 
 FIG 11. Component shares of the methane response integral, by model.
 
@@ -169,11 +169,11 @@ a module difference; thermal expansion is not.
 
 | marker | MAGICC's ocean heat | Ladrillo / BRICK 2.0 thermal expansion | MAGICC's own thermal expansion | FACTS's ocean heat (FaIR, its 200 configs) | FACTS (tlm) thermal expansion |
 |---|---|---|---|---|---|
-| vvVL | 0.6076 | 0.6087 / 0.6076 | **0.4842** | 0.4165 | 0.4164 |
-| vvL | 0.6051 | 0.6061 / 0.6050 | **0.4801** | 0.3865 | 0.3864 |
-| vvML | 0.5821 | 0.5830 / 0.5816 | **0.4613** | 0.4228 | 0.4226 |
-| vvM | 0.5924 | 0.5927 / 0.5918 | **0.4990** | 0.4518 | 0.4515 |
-| vvHL | 0.5890 | 0.5900 / 0.5886 | **0.4659** | 0.4462 | 0.4460 |
+| vvVL | 0.6076 | 0.6087 / 0.6077 | **0.4842** | 0.4165 | 0.4164 |
+| vvL | 0.6051 | 0.6061 / 0.6051 | **0.4801** | 0.3865 | 0.3864 |
+| vvML | 0.5821 | 0.5830 / 0.5822 | **0.4613** | 0.4228 | 0.4226 |
+| vvM | 0.5924 | 0.5927 / 0.5915 | **0.4990** | 0.4518 | 0.4515 |
+| vvHL | 0.5890 | 0.5900 / 0.5892 | **0.4659** | 0.4462 | 0.4460 |
 | vvH | 0.5876 | 0.5873 / 0.5864 | **0.5153** | 0.4616 | 0.4616 |
 
 FIG 12. Thermal expansion response shape on FaIR's climate, on MAGICC's climate, and MAGICC's own.

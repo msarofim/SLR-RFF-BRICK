@@ -1,6 +1,6 @@
   ** --pulse-size 0.01 -> size tag 0p01Gt, divisor 0.01 GtCH4 **
 BRICK 2.0 PULSE ARM | marker vvVL | CH4 pulse 0 GtCH4 at 2030 | tag B20
-  sea level: MimiBRICK v2.0.0 (`precip_log` shim), published posterior subsample
+  sea level: MimiBRICK v2.0.0, BRICK 2.0 posterior parameters_subsample_sneasybrick_zenodo20592337.csv (precip_log=false)
   climate:   MAGICC-SLR's own 600-member AR6 drawnset, PAIRED base/pulse, forcing=spliced
   ⚠ MAGICC CLIMATE ARM -- the module axis is held, the climate axis moves.
 [CLIMATE-SOURCE] 600 members x 2 arms, max |mean GMST 1850-1900| = 6.204e-17 degC (tol 1e-09)  PASS
@@ -14,12 +14,12 @@ BRICK 2.0 PULSE ARM | marker vvVL | CH4 pulse 0 GtCH4 at 2030 | tag B20
 
   2000 draws over 600 configs; running BOTH arms per config ...
     100/600 configs  (0.1 min)
-    200/600 configs  (0.2 min)
-    300/600 configs  (0.3 min)
-    400/600 configs  (0.4 min)
-    500/600 configs  (0.5 min)
-    600/600 configs  (0.5 min)
-    done, 0.5 min
+    200/600 configs  (0.3 min)
+    300/600 configs  (0.5 min)
+    400/600 configs  (0.6 min)
+    500/600 configs  (0.9 min)
+    600/600 configs  (1.2 min)
+    done, 1.2 min
 
 ============================================================================================
 GATES
@@ -31,20 +31,20 @@ GATES
   [DRAW-PAIRING] 0/2000 draws saw a different CONFIG across arms, 0 a different DRAW ROW  PASS
   [PAIRING] 600 of 600 configs used, each 3-4 times (seed 2026), ONE assignment for both arms
             median dGMST@2300 bias vs whole cube = 0.0006 degC (tol 0.1)  PASS
-  [SUM] max |sum(parts) - total| in the DIFFERENCE = 7.105e-14 cm (tol 1e-06)  PASS
-  [SIGN] 2100: median +0.00256 cm, 0.00% of draws negative  PASS
-  [SIGN] 2150: median +0.00243 cm, 0.00% of draws negative  PASS
-  [SIGN] 2300: median +0.00211 cm, 0.00% of draws negative  PASS
+  [SUM] max |sum(parts) - total| in the DIFFERENCE = 6.040e-14 cm (tol 1e-06)  PASS
+  [SIGN] 2100: median +0.00238 cm, 0.00% of draws negative  PASS
+  [SIGN] 2150: median +0.00224 cm, 0.00% of draws negative  PASS
+  [SIGN] 2300: median +0.00194 cm, 0.00% of draws negative  PASS
   [TAP-CROSSING] NO COUNTERPART -- BRICK 2.0 has no Greenland tap mechanism.
                  Not a measured zero. Say this in any caption that puts the two arms
                  side by side (Marcus's tap ruling, 2026-09-03).
-  [AIS-CROSSING] 2100: fired 7/2000 (0.35%)  bifurcation 0  int/cont 0.9693
-      P(fired) paired 0.0035  vs exact 0.0039 over 1200000 pairings  z=0.27  PASS
-  [AIS-CROSSING] 2150: fired 7/2000 (0.35%)  bifurcation 0  int/cont 0.8823
-      P(fired) paired 0.0035  vs exact 0.0043 over 1200000 pairings  z=0.56  PASS
-  [AIS-CROSSING] 2300: fired 8/2000 (0.40%)  bifurcation 0  int/cont 0.9274
-      P(fired) paired 0.0040  vs exact 0.0046 over 1200000 pairings  z=0.38  PASS
-  [MAGNITUDE] 2100: 2.5590e-01 cm per GtCH4 (median)  -- REPORTED, not gated
+  [AIS-CROSSING] 2100: fired 6/2000 (0.30%)  bifurcation 0  int/cont 0.8143
+      P(fired) paired 0.0030  vs exact 0.0038 over 1200000 pairings  z=0.58  PASS
+  [AIS-CROSSING] 2150: fired 6/2000 (0.30%)  bifurcation 0  int/cont 0.7227
+      P(fired) paired 0.0030  vs exact 0.0042 over 1200000 pairings  z=0.83  PASS
+  [AIS-CROSSING] 2300: fired 7/2000 (0.35%)  bifurcation 0  int/cont 0.7934
+      P(fired) paired 0.0035  vs exact 0.0044 over 1200000 pairings  z=0.63  PASS
+  [MAGNITUDE] 2100: 2.3789e-01 cm per GtCH4 (median)  -- REPORTED, not gated
               context: stage 2 Ladrillo L24 tapped, and the FACTS PoC FaIR->BRICK
               5.08e-03 cm/GtCO2 @2100 (OLD model AND pre-1.6.0 calibration).
               ⚠ CH4 DOUBLING RATIO 2.0004 (FaIR stage): the pulse is SUPERLINEAR.
@@ -54,29 +54,29 @@ GATES
 BRICK 2.0 PULSE RESPONSE -- vvVL, 0 GtCH4 at 2030, cm rel 1995-2014
 ============================================================================================
   comp      horiz    base med   paired med  diff of med   paired p05   paired p95
-  glaciers  2100       10.694      0.00107      0.00091      0.00077      0.00151
-  glaciers  2150       14.543      0.00109      0.00120      0.00076      0.00157
-  glaciers  2300       21.244      0.00099      0.00099      0.00058      0.00153
+  glaciers  2100       10.727      0.00108      0.00114      0.00076      0.00153
+  glaciers  2150       14.508      0.00109      0.00114      0.00074      0.00158
+  glaciers  2300       21.029      0.00100      0.00129      0.00056      0.00155
 
-  gis       2100        6.134      0.00032      0.00027      0.00007      0.00085
-  gis       2150        8.983      0.00036      0.00044      0.00008      0.00096
-  gis       2300       15.882      0.00040      0.00037      0.00009      0.00110
+  gis       2100        6.218      0.00033      0.00032      0.00008      0.00088
+  gis       2150        9.065      0.00037      0.00028      0.00009      0.00102
+  gis       2300       16.049      0.00042      0.00034      0.00010      0.00119
 
-  ais       2100        4.135     -0.00006      0.00011     -0.00052      0.00074
-  ais       2150        6.169     -0.00008     -0.00051     -0.00061      0.00086
-  ais       2300       10.802     -0.00016      0.00006     -0.00078      0.00101
+  ais       2100        2.804     -0.00021     -0.00006     -0.00065      0.00047
+  ais       2150        4.375     -0.00024     -0.00017     -0.00076      0.00052
+  ais       2300        9.450     -0.00030      0.00088     -0.00096      0.00049
 
-  te        2100        8.842      0.00117      0.00119      0.00053      0.00212
-  te        2150        9.984      0.00098      0.00090      0.00041      0.00199
-  te        2300       10.391      0.00079      0.00079      0.00035      0.00179
+  te        2100        8.558      0.00113      0.00110      0.00050      0.00211
+  te        2150        9.722      0.00097      0.00123      0.00038      0.00192
+  te        2300       10.060      0.00077      0.00078      0.00031      0.00175
 
   lws       2100        2.343      0.00000      0.00000      0.00000      0.00000
   lws       2150        4.043      0.00000      0.00000      0.00000      0.00000
   lws       2300        8.897      0.00000      0.00000      0.00000      0.00000
 
-  total     2100       32.200      0.00256      0.00518      0.00154      0.00437
-  total     2150       43.911      0.00243      0.00259      0.00140      0.00440
-  total     2300       67.549      0.00211      0.00287      0.00111      0.00432
+  total     2100       30.898      0.00238      0.00255      0.00142      0.00401
+  total     2150       42.180      0.00224      0.00806      0.00127      0.00398
+  total     2300       65.814      0.00194      0.00163      0.00099      0.00382
 
 
 wrote outputs/pulse_brick2_{cells,draws,paths,gates}_vvVL_CH4_0p01Gt_2030_spliced_B20_magiccclim.csv

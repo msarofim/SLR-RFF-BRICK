@@ -7,40 +7,40 @@ AR(1) arm: rho bounded at 0.99.  Draws: 10000 Ladrillo, 10000 BRICK 2.0.
 | arm | model | k | ln L (max over draws) | ln L (posterior-median series) | AIC | AICc | BIC |
 |---|---|---|---|---|---|---|---|
 | obs_iid | Ladrillo L27 | 42 | 23.2 | -588.2 | 37.5 | 45.4 | 214.7 |
-| obs_iid | BRICK 2.0 | 27 | -1252.1 | -3957.3 | 2558.3 | 2561.5 | 2672.2 |
+| obs_iid | BRICK 2.0 | 27 | -1504.4 | -4488.1 | 3062.8 | 3066.0 | 3176.7 |
 | ar1_prof | Ladrillo L27 | 50 | 240.4 | 229.9 | -380.8 | -369.5 | -169.9 |
-| ar1_prof | BRICK 2.0 | 35 | 180.9 | 137.6 | -291.9 | -286.5 | -144.2 |
+| ar1_prof | BRICK 2.0 | 35 | 177.7 | 135.4 | -285.3 | -279.9 | -137.7 |
 
 ## The test
 
-- **obs_iid**: Δln L (Ladrillo − BRICK 2.0) = **1275.4** for Δk = 15. ΔAIC (BRICK − Ladrillo) = **2520.8**, ΔBIC = **2457.5**. The likelihood gain is worth 1275 parameters under AIC and 410 under BIC (ln N = 6.22); Ladrillo has 15 more.
-- **ar1_prof**: Δln L (Ladrillo − BRICK 2.0) = **59.5** for Δk = 15. ΔAIC (BRICK − Ladrillo) = **88.9**, ΔBIC = **25.7**. The likelihood gain is worth 59 parameters under AIC and 19 under BIC (ln N = 6.22); Ladrillo has 15 more.
+- **obs_iid**: Δln L (Ladrillo − BRICK 2.0) = **1527.6** for Δk = 15. ΔAIC (BRICK − Ladrillo) = **3025.2**, ΔBIC = **2962.0**. The likelihood gain is worth 1528 parameters under AIC and 491 under BIC (ln N = 6.22); Ladrillo has 15 more.
+- **ar1_prof**: Δln L (Ladrillo − BRICK 2.0) = **62.7** for Δk = 15. ΔAIC (BRICK − Ladrillo) = **95.5**, ΔBIC = **32.2**. The likelihood gain is worth 63 parameters under AIC and 20 under BIC (ln N = 6.22); Ladrillo has 15 more.
 
 ## Per-series ln L at each model's JOINT maximising draw (ar1_prof, rho ≤ 0.99) and the profiled noise there
 
 | series | Ladrillo L27 ln L | sd | ρ | BRICK 2.0 ln L | sd | ρ | Δln L |
 |---|---|---|---|---|---|---|---|
-| ais | 118.0 | 0.013 | 0.754 | 114.2 | 0.018 | 0.941 | 3.8 |
+| ais | 118.0 | 0.013 | 0.754 | 119.1 | 0.016 | 0.753 | -1.1 |
 | gsic | 1.6 | 0.028 | 0.974 | -24.4 | 0.106 | 0.990 | 26.0 |
-| gis | 110.1 | 0.018 | 0.874 | 80.4 | 0.054 | 0.990 | 29.7 |
-| steric | 10.7 | 0.071 | 0.990 | 10.7 | 0.070 | 0.990 | -0.1 |
+| gis | 110.1 | 0.018 | 0.874 | 79.5 | 0.055 | 0.990 | 30.5 |
+| steric | 10.7 | 0.071 | 0.990 | 3.4 | 0.094 | 0.990 | 7.2 |
 
 ## Per-window decomposition (obs_iid, at each model's own maximising draw)
 
 | window | Ladrillo L27 | BRICK 2.0 | Δln L |
 |---|---|---|---|
-| 1900-2025 | 23.2 | -1252.1 | 1275.4 |
-| 1900-1919 | -78.1 | -228.0 | 150.0 |
-| 1920-1949 | -74.7 | -241.3 | 166.5 |
-| 1950-1992 | 50.7 | -479.7 | 530.4 |
-| 1993-2025 | 125.3 | -303.1 | 428.4 |
+| 1900-2025 | 23.2 | -1504.4 | 1527.6 |
+| 1900-1919 | -78.1 | -233.3 | 155.3 |
+| 1920-1949 | -74.7 | -351.9 | 277.2 |
+| 1950-1992 | 50.7 | -824.2 | 874.9 |
+| 1993-2025 | 125.3 | -94.9 | 220.2 |
 
 ## The total (out-of-sample for BOTH — not in either likelihood; reference only)
 
 | arm | Ladrillo L27 ln L (max) | at fit4 max-draw | BRICK 2.0 ln L (max) | at fit4 max-draw |
 |---|---|---|---|---|
-| obs_iid | -162.0 | -173.4 | -165.3 | -218.7 |
-| ar1_prof | -162.0 | -167.0 | -165.3 | -175.4 |
+| obs_iid | -162.0 | -173.4 | -166.0 | -199.4 |
+| ar1_prof | -162.0 | -167.0 | -166.0 | -175.2 |
 
 ## Reading, and what this does NOT show
 
@@ -51,4 +51,4 @@ AR(1) arm: rho bounded at 0.99.  Draws: 10000 Ladrillo, 10000 BRICK 2.0.
 - Ladrillo was calibrated to these targets; BRICK 2.0 to Wong's. AIC/BIC correct for a fitted model's own optimism, not for a comparator fitted to different data. The structure test that removes that axis is a BRICK 2.0 arm recalibrated on the extended targets (note_2026-08-14_ladrillo_vs_brick20_scorecard.md).
 - obs_iid treats residual years as independent and OVERSTATES the evidence; ar1_prof is the calibrator's own form and the headline.
 
-Provenance: ic_ladrillo_vs_brick20.py | tag L27 | k_phys {'ladrillo': 42, 'brick20': 27} + 8 profiled noise in ar1_prof | N_fit 502 | inputs: ladrillo: ic_hindcast_residuals.jl | Ladrillo tag L27 | posterior parameters_subsample_brick_mengel_L27.csv NDRAW=10000 evenly thinned of 10000 | forcing ssp245harm | run 1850-2026 scored 1900-2026 reref 1995-2005 | gsic = gsic_hind + F_unch vs gsic_adj target, no delta ramp, no d2 | total = glaciers+ais+gis+te+OBSERVED lws vs dang | residual = model - obs, cm || brick20: ic_hindcast_residuals.jl | BRICK 2.0 stock MimiBRICK get_model(ssp245), Random.seed!(2026) immediately before get_model | posterior parameters_subsample_brick.csv NDRAW=10000 evenly thinned of 10000 | forcing ssp245harm | run 1850-2026 scored 1900-2026 reref 1995-2005 | gsic = gsic_sea_level vs gsic_adj target | total = ais+gsic+gis+te+OBSERVED lws vs dang | residual = model - obs, cm
+Provenance: ic_ladrillo_vs_brick20.py | tag L27 | k_phys {'ladrillo': 42, 'brick20': 27} + 8 profiled noise in ar1_prof | N_fit 502 | inputs: ladrillo: ic_hindcast_residuals.jl | Ladrillo tag L27 | posterior parameters_subsample_brick_mengel_L27.csv NDRAW=10000 evenly thinned of 10000 | forcing ssp245harm | run 1850-2026 scored 1900-2026 reref 1995-2005 | gsic = gsic_hind + F_unch vs gsic_adj target, no delta ramp, no d2 | total = glaciers+ais+gis+te+OBSERVED lws vs dang | residual = model - obs, cm || brick20: ic_hindcast_residuals.jl | BRICK 2.0 stock MimiBRICK get_model(ssp245), Random.seed!(2026) immediately before get_model | posterior parameters_subsample_sneasybrick_zenodo20592337.csv NDRAW=10000 evenly thinned of 10000 | forcing ssp245harm | run 1850-2026 scored 1900-2026 reref 1995-2005 | gsic = gsic_sea_level vs gsic_adj target | total = ais+gsic+gis+te+OBSERVED lws vs dang | residual = model - obs, cm

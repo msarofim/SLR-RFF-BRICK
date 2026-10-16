@@ -1,5 +1,5 @@
 block,key,value,note
-A,model_over_target,1.2230199758115148,BRICK 2.0 1.162x; 1993-2025
+A,model_over_target,1.2230199758115148,BRICK 2.0 1.132x; 1993-2025
 B,fair_over_Zanna+Cheng (0-2000m),1.274180976202234,obs 1.0826 1e22 J/yr; 1993-2025
 B,fair_over_Zanna+IGCC (0-2000m),1.2148232017841891,obs 1.1258 1e22 J/yr; 1993-2024
 C,alpha_model_over_Zanna+Cheng (0-2000m),0.959847932635749,"alpha model 0.10940, obs-implied 0.11398; 1993-2025"
