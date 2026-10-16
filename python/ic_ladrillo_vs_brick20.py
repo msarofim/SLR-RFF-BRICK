@@ -418,7 +418,7 @@ def main():
     for arm in ("obs_iid", "ar1_prof"):
         lines.append(f"| {arm} | " + " | ".join(f"{g(arm, m, 'total', 'll_max'):.1f} | {g(arm, m, 'total', 'll_at_fit4_maxdraw'):.1f}"
                                                 for m in MODELS) + " |")
-    # The two reading sentences below are computed (2026-10-16): the hard-coded versions said the steric row was "a tie by
+    # The two reading sentences below are computed (2026-10-15): the hard-coded versions said the steric row was "a tie by
     # construction" (+7.2 on the Zenodo BRICK 2.0 posterior) and that every BRICK 2.0 series sat at the rho bound (its ais
     # did not, at rho <= 0.99, on either posterior).
     at_bound = [f"{LABEL[m]} {s}" for m in MODELS for s in FIT_SERIES

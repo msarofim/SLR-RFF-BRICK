@@ -46,8 +46,8 @@ AR(1) arm: rho bounded at 0.99.  Draws: 10000 Ladrillo, 10000 BRICK 2.0.
 
 - ln L (max over draws) is a LOWER bound on each model's true maximum for this likelihood: neither posterior was optimised for it. Both bounds are over 10000 draws.
 - DIC / p_V are in the CSV only: p_V = var(D)/2 is an effective parameter count only when the likelihood is the one the posterior was fitted under, which holds for neither arm here (and for BRICK 2.0 on no arm).
-- In ar1_prof the profiled rho sits AT the 0.99 bound wherever the residual is a smooth bias (every BRICK 2.0 series; Ladrillo's steric and gsic): the AR(1) term then acts as a near-random-walk discrepancy that absorbs a smooth bias cheaply, so this arm's gain is a function of how much autocorrelation the noise model is allowed. See the --rho-max sensitivity files.
-- Ladrillo's thermal-expansion module IS BRICK's (one alpha on the same OHC), so the steric row is a tie by construction: the two best draws produce the same residual to 3 decimals.
+- In ar1_prof, at each model's joint maximising draw, the profiled rho sits at the 0.99 bound (to 3 decimals) for Ladrillo L27 steric, BRICK 2.0 gsic, BRICK 2.0 gis, BRICK 2.0 steric. A rho at the bound means the AR(1) term acts as a near-random-walk discrepancy that absorbs a smooth bias cheaply, so this arm's gain depends on how much autocorrelation the noise model is allowed. See the --rho-max sensitivity files.
+- Ladrillo's thermal-expansion component is BRICK's (one alpha on the same OHC), so the steric row compares the two posteriors' parameter values at the draws that maximise the four-series total, not two structures: Δln L (steric) = +7.2.
 - Ladrillo was calibrated to these targets; BRICK 2.0 to Wong's. AIC/BIC correct for a fitted model's own optimism, not for a comparator fitted to different data. The structure test that removes that axis is a BRICK 2.0 arm recalibrated on the extended targets (note_2026-08-14_ladrillo_vs_brick20_scorecard.md).
 - obs_iid treats residual years as independent and OVERSTATES the evidence; ar1_prof is the calibrator's own form and the headline.
 
