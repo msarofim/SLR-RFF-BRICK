@@ -1,0 +1,8 @@
+tag,forcing,arm,marker,ladrillo_fair_regrowth_cm,ladrillo_fair_peak_year,ladrillo_magiccclim_regrowth_cm,ladrillo_magiccclim_peak_year,magicc_own_regrowth_cm,magicc_own_peak_year,total_gap_cm,structure_part_cm,climate_part_cm,structure_share,verdict
+L27,spliced,fixed,vvVL,0.0,2300,,,0.9205711991099399,2192,0.9205711991099399,,,,NO_SWAP
+L27,spliced,fixed,vvLN,0.0525704137659595,2230,,,8.546729182887383,2143,8.494158769121423,,,,NO_SWAP
+L27,spliced,fixed,vvL,0.0,2300,,,0.6073179192742213,2191,0.6073179192742213,,,,NO_SWAP
+L27,spliced,fixed,vvML,0.0,2300,,,2.0115154191346765,2188,2.0115154191346765,,,,NO_SWAP
+L27,spliced,fixed,vvM,0.0,2300,,,0.0,2300,0.0,,,,NO_SWAP
+L27,spliced,fixed,vvHL,0.0,2300,,,2.937442350781142,2183,2.937442350781142,,,,NO_SWAP
+L27,spliced,fixed,vvH,0.0,2300,,,0.0,2300,0.0,,,,NO_SWAP
