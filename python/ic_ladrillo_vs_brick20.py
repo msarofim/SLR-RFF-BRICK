@@ -418,6 +418,13 @@ def main():
     for arm in ("obs_iid", "ar1_prof"):
         lines.append(f"| {arm} | " + " | ".join(f"{g(arm, m, 'total', 'll_max'):.1f} | {g(arm, m, 'total', 'll_at_fit4_maxdraw'):.1f}"
                                                 for m in MODELS) + " |")
+    # The two reading sentences below are computed (2026-10-16): the hard-coded versions said the steric row was "a tie by
+    # construction" (+7.2 on the Zenodo BRICK 2.0 posterior) and that every BRICK 2.0 series sat at the rho bound (its ais
+    # did not, at rho <= 0.99, on either posterior).
+    at_bound = [f"{LABEL[m]} {s}" for m in MODELS for s in FIT_SERIES
+                if g("ar1_prof", m, s, "ll_rho_at_fit4_maxdraw") >= RHO_MAX - 5e-4]
+    at_bound_txt = ", ".join(at_bound) if at_bound else "no series"
+    steric_dll = g("ar1_prof", "ladrillo", "steric", "ll_at_fit4_maxdraw") - g("ar1_prof", "brick20", "steric", "ll_at_fit4_maxdraw")
     lines += ["", "## Reading, and what this does NOT show", "",
               "- ln L (max over draws) is a LOWER bound on each model's true maximum for this likelihood: neither posterior was "
               "optimised for it. " + (f"Both bounds are over {NDRAWS['ladrillo']} draws." if EQUAL_DRAWS else
@@ -425,12 +432,13 @@ def main():
               "draws is a tighter bound, so this table favours the model with more draws."),
               "- DIC / p_V are in the CSV only: p_V = var(D)/2 is an effective parameter count only when the likelihood is "
               "the one the posterior was fitted under, which holds for neither arm here (and for BRICK 2.0 on no arm).",
-              f"- In ar1_prof the profiled rho sits AT the {RHO_MAX} bound wherever the residual is a smooth bias (every BRICK 2.0 "
-              "series; Ladrillo's steric and gsic): the AR(1) term then acts as a near-random-walk discrepancy that absorbs a smooth "
-              "bias cheaply, so this arm's gain is a function of how much autocorrelation the noise model is allowed. See the "
+              f"- In ar1_prof, at each model's joint maximising draw, the profiled rho sits at the {RHO_MAX} bound (to 3 decimals) "
+              f"for {at_bound_txt}. A rho at the bound means the AR(1) term acts as a near-random-walk discrepancy that absorbs a "
+              "smooth bias cheaply, so this arm's gain depends on how much autocorrelation the noise model is allowed. See the "
               "--rho-max sensitivity files.",
-              "- Ladrillo's thermal-expansion module IS BRICK's (one alpha on the same OHC), so the steric row is a tie by "
-              "construction: the two best draws produce the same residual to 3 decimals.",
+              "- Ladrillo's thermal-expansion component is BRICK's (one alpha on the same OHC), so the steric row compares the two "
+              "posteriors' parameter values at the draws that maximise the four-series total, not two structures: Δln L (steric) = "
+              f"{steric_dll:+.1f}.",
               "- Ladrillo was calibrated to these targets; BRICK 2.0 to Wong's. AIC/BIC correct for a fitted model's own "
               "optimism, not for a comparator fitted to different data. The structure test that removes that axis is a BRICK 2.0 "
               "arm recalibrated on the extended targets (note_2026-08-14_ladrillo_vs_brick20_scorecard.md).",
