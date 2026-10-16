@@ -1,3 +1,62 @@
+## 2026-10-15h — TW2 follow-ups: Table 5's reading computed, the Fig. 5 receipt, items 4 and 7 measured
+
+Continues `notes/handoff_2026-10-15b_brick20_swap_tw2_pass.md`. The built docx is unchanged. Numbers and decisions are in
+`notes/gmd_tw2_followups_2026-10-15h.md`.
+
+**Table 5's reading sentences are now computed** (ba82407, 28204a4; Ladrillo 6674807).
+- `python/ic_ladrillo_vs_brick20.py` had two hard-coded sentences in its .md.
+  - "The steric row is a tie by construction" was false on the Zenodo posterior: Δln L (steric) at the joint maximising
+    draws is +7.2 / −0.8 / −2.3 at ρ ≤ 0.99 / 0.95 / 0.90.
+  - "ρ sits at the bound for every BRICK 2.0 series" was already false at ρ ≤ 0.99 on the May-22 posterior (BRICK 2.0
+    ais 0.941) and is false on the Zenodo one (0.753).
+  - Both sentences are now computed. The thermal-expansion component is the same in both models, so the steric row
+    compares parameter values.
+- Re-run at all three ρ bounds in this repo and in Ladrillo. Every CSV and perdraw CSV is byte-identical to its pre-run
+  copy. Ladrillo identity gate 5 passes (0 of 2.52 M values differ). Each .md changes only in the two sentences, and their
+  values matched the prediction made from the existing CSVs before the run.
+
+**Fig. 5's regrowth receipt** (5c5cdff). `verify_magicc_regrowth_attribution.py --arm=fixed` →
+`outputs/verify_magicc_regrowth_attribution_L27_fixed.csv`: Low-to-Negative 0.0526 cm (peak 2230), 0 on every other
+marker. This is the inventory's U02 ("about 0.05 cm", E069).
+- First run of the new mode: the `_magiccclim` file's fixed rows were identical to the FaIR file's. That is by design:
+  `scope_slr_fair_uncertainty.jl:449-452` runs `fixed` on the FaIR mean driver under both `--climate` values. No other
+  reader uses those rows.
+- So the fixed mode reports no climate split. [FIXED-CONTROL] asserts the identity; a 1e-9 cm perturbation fails it.
+- Both receipts gain an `arm` column. The joint receipt's other columns are value-identical.
+
+**Queued item 4, α on matched scopes** (9baec70). `python/diag_te_alpha_matched_scope.py` →
+`outputs/diag_te_alpha_matched_scope_L27.csv`.
+- α multiplies FaIR's OHC, which is Earth's total heat uptake. L27 α ÷ observation-implied α, 1993–2020:
+  - 0.974 per IGCC 0–2000 m ocean heat (block C's basis, mismatched);
+  - 1.079 per full-depth ocean heat;
+  - 1.183 per total Earth heat (matched).
+- The other windows give 1.225 (2006–2020) and 1.184 (1971–2020) on the matched basis.
+- In parameter units the matched observation-implied α is 0.141, against the posterior 0.167 (5–95 % 0.148–0.186).
+- No formal error bar: IGCC's published errors are level errors.
+- The FaIR / IGCC rate ratios reproduce `diag_fair_ohc_vs_earth_heat.csv` in every window.
+
+**Queued item 7, the Antarctic rate from 2002, per draw** (4108e55). `python/diag_ais_rate_2002_per_draw.py` →
+`outputs/diag_ais_rate_2002_per_draw_L27.csv`.
+- 2002–2021, OLS mm/yr, p05 / p50 / p95 over all 10,000 rows:
+  - L27 0.248 / 0.294 / 0.331;
+  - BRICK 2.0 0.230 / 0.333 / 0.527;
+  - target 0.423 ± 0.029 (AR(1) se); IMBIE 2026 0.524 ± 0.048.
+- Through 2023 and 2025 the target's rate falls to 0.393 and 0.372, while L27's median rises to 0.302 and 0.310.
+- Every L27 draw is below the target through 2021 and 2023, and 99.5 % through 2025.
+- [PATH-IDENTITY]: residual + obs reproduces postpred's ais_p50 to 1.7e-16 cm (the wrong draw subset fails it). The
+  output is byte-identical on a rerun.
+- Origin: Claude's median-path reading of Lin et al. 2026 on 10-02 (session transcript only, never committed until now).
+
+**Checked:**
+- Sect. 4.2's "same pairing" holds draw by draw on the 998 shared draws. BRICK 2.0's draws 229/610 (SSP) and 187/610 (vv)
+  have no Ladrillo partner because the conditioning drops them.
+- The Zenodo record (v4, 2026-06-08) describes the posterior as supporting MimiBRICK v2.0.0's calibration code; it does
+  not name the datasets (U03 stays open).
+- The paper cites nothing from the products still on the May-22 file.
+
+**Tried and dropped:** an error bar on the observation-implied α from IGCC's published layer errors. Those are level
+errors, and turning them into a rate error needs a correlation assumption nobody has made.
+
 ## 2026-10-15g — The GMD edit pass on Tony's TW2 file: every number on the current outputs, the queued fixes, v1.3
 
 **Marcus 10-15:** "Apply this all in the edit pass on Tony's TW2 file … do all the updates that we have available, so
