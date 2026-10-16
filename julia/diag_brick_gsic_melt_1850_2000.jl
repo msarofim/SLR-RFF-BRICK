@@ -25,13 +25,13 @@ ohc =[lc(joinpath(OBS,"fair_mean_ohc_$(FORCING).csv"),"ohc_1e22J")[y] for y in y
 Random.seed!(SEED)
 m = MimiBRICK.get_model(ssprcp_scenario="ssp245", start_year=Y0, end_year=Y1)
 set_forcing!(m, gmst, ohc)
-post = CSV.read(joinpath(REPO,"data/MimiBRICK/parameters_subsample_brick.csv"), DataFrame)
+post = load_brick20_posterior(brick20_posterior_path(REPO))
 ND = min(NDRAW, nrow(post))
 EPOCHS = (1900, 2000, 2020)
 inc = Dict(y => Vector{Float64}(undef, ND) for y in EPOCHS)
 v0  = Vector{Float64}(undef, ND)
 @time for i in 1:ND
-    update_brick_params!(m, post[i,:]; precip_log=true)
+    update_brick_params!(m, post[i,:]; precip_log=brick20_precip_log())
     run(m)
     g = 100 .* m[:glaciers_small_icecaps, :gsic_sea_level]      # m -> cm, level from 1850
     for y in EPOCHS; inc[y][i] = g[idx(y)] - g[idx(Y0)]; end
@@ -46,7 +46,7 @@ a,b,c = q(v0);            push!(rows, ("glaciers_v0_cm", a,b,c))
 a,b,c = q(v0 .- inc[2000]); push!(rows, ("remaining_at_2000_cm", a,b,c))
 a,b,c = q(v0 .- inc[2020]); push!(rows, ("remaining_at_2020_cm", a,b,c))
 rows[!, "provenance"] = fill("diag_brick_gsic_melt_1850_2000.jl | stock MimiBRICK get_model(ssp245) | " *
-    "Random.seed!($SEED) immediately before get_model | posterior parameters_subsample_brick.csv ND=$ND | " *
+    "Random.seed!($SEED) immediately before get_model | $(brick20_label()) ND=$ND | " *
     "forcing fair_mean_{gmst,ohc}_$(FORCING).csv | run $Y0-$Y1 | increments from the 1850 level, cm SLE", nrow(rows))
 CSV.write(joinpath(REPO,"outputs/diag_brick_gsic_melt_1850_2000.csv"), rows)
 println("BRICK 2.0 glaciers, ND=$ND draws (cm SLE, p05 / p50 / p95):")
