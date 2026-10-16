@@ -106,3 +106,11 @@ Most of the 119 new edits are wording. Two carry content:
   subsample, Intro 1.3× → 1.4×, the paired tap statistics, the conditioning qualifier.
 - If the BRICK 2.0 arm moves to a different posterior (§1), every BRICK 2.0 number in the draft changes, so that
   decision should come before the docx pass.
+
+## Addendum 2026-10-15d — RULED: the arm moved to the Zenodo joint file
+
+Marcus: "move the BRICK 2.0 arm to the Zenodo joint file." Done in all three repos (CHANGELOG 2026-10-15d). The docx
+pass must take every BRICK 2.0 number from `outputs/brick20_swap_paper_number_diff_20261015.csv` (21 quantities change
+at their printed rounding). One reading changes, not just a number: the Conclusion's "up to 31 cm" (BRICK 2.0 −
+Ladrillo AIS, SSP2-4.5 2300) is 6 cm now, 18 cm at most over the 3 SSPs and 7 markers. Table 5's ar1_prof contrast
+moves 59.5 → 62.7 (ΔAIC 88.9 → 95.5), so the 347 independent-errors line now reads 1528, not 1275.
