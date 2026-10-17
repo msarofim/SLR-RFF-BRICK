@@ -321,6 +321,8 @@ outputs/pulse_ladrillo_draws_*.csv
 ## stage 3 (BRICK 2.0), same rule and same reason: 38 MB over 14 cells, and the whole sweep
 ## regenerates in ~4 min. `cells`/`paths`/`gates` are the tracked summaries.
 outputs/pulse_brick2_draws_*.csv
+# per-draw rows behind outputs/diag_ais_2100_vs_lin2026_<TAG>.csv; byte-identical on rerun (julia/diag_ais_2100_vs_lin2026.jl)
+outputs/diag_ais_2100_vs_lin2026_*_draws.csv
 outputs/pulse_ladrillo_*_SMOKE.csv
 
 # Mutation-test outputs are DELIBERATELY WRONG tables. The verdict lives in the
