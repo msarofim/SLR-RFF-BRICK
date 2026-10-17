@@ -1,3 +1,9 @@
+## 2026-10-17c — Lin comparison: SSP1-2.6 dropped
+
+**Marcus 10-17:** "Drop SSP1-2.6 from the comparison." Lin runs SSP1-1.9, which Ladrillo's calib 1.6.0 forcing does not have.
+`julia/diag_ais_2100_vs_lin2026.jl` now runs SSP2-4.5 and SSP5-8.5 only (`SCEN`). Re-run: every remaining row is
+value-identical to 2026-10-17b and all 12 gate checks pass.
+
 ## 2026-10-17b — Lin comparator ruled: the drift-corrected row
 
 **Marcus 10-17:** "Compare against the drift-corrected row."

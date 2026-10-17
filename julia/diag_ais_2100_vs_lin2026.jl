@@ -18,7 +18,8 @@
 ##   fd        = d2100 - d2100_nofd                 the fast-dynamics channel's share of the 2015-2100 change
 ##   rate_2015_2021 = OLS of AIS(2015..2021), mm/yr  the quantity Lin's likelihood scores
 ## The comparator is Lin's DRIFT-CORRECTED row (Marcus 2026-10-17; LIN_ROW below), not the raw-simulation row.
-## Only SSP2-4.5 and SSP5-8.5 are matched scenarios. Ladrillo's calib 1.6.0 forcing has SSP1-2.6, not SSP1-1.9.
+## Only SSP2-4.5 and SSP5-8.5 are matched scenarios, and only they are run (Marcus 2026-10-17: "Drop SSP1-2.6 from the
+## comparison"; Lin runs SSP1-1.9, which Ladrillo's calib 1.6.0 forcing does not have).
 ##
 ## GATES
 ##  [IDENTITY]   the shipped re-run's AIS(2100) must equal the canonical SLR draws file value for value, and the kept
@@ -38,8 +39,8 @@ const SLR = dirname(@__DIR__)
 const OUTD = joinpath(SLR, "outputs")
 const TAG = "L27"
 const TAP_STEM = "_tap4p69K_V5p64m_tau800"
-const SCEN = ["ssp126", "ssp245", "ssp585"]
-const LIN_MATCH = Dict("ssp126" => "none (Lin: SSP1-1.9)", "ssp245" => "SSP2-4.5", "ssp585" => "SSP5-8.5")
+const SCEN = ["ssp245", "ssp585"]
+const LIN_MATCH = Dict("ssp245" => "SSP2-4.5", "ssp585" => "SSP5-8.5")
 const ROWS = 1:5:10000                       # = scripts/project_joint.jl
 const PAIR_SEED = 2026                       # = scripts/project_joint.jl
 const YEARS = 1850:2300

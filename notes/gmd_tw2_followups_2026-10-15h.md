@@ -93,10 +93,10 @@ FaIR 2.2.4 (calib 1.6.0) configs, 2081–2100 relative to 1850–1900, median (5
 (2.84–5.28) K, against AR6 WG1 Table SPM.1's 2.7 (2.1–3.5) and 4.4 (3.3–5.7) K. Ladrillo's climate is cooler, so the warming
 difference does not account for Ladrillo's higher Antarctic contribution.
 
-**Choices left to Marcus:**
-- SSP1-2.6 has no Lin counterpart (Lin runs SSP1-1.9; Ladrillo's calib 1.6.0 forcing has no SSP1-1.9). The receipt
-  still carries it: Ladrillo 4.6 [3.1–48.6] cm, λ = 0 4.5 [3.0–7.3], 23.5 % of draws firing;
-- whether the comparison goes in Sect. 4.3, and its framing.
+**Scenarios:** SSP2-4.5 and SSP5-8.5 only. SSP1-2.6 is dropped (Marcus 10-17), because Lin runs SSP1-1.9 and Ladrillo's
+calib 1.6.0 forcing has no SSP1-1.9.
+
+**Choice left to Marcus:** whether the comparison goes in Sect. 4.3, and its framing.
 
 The 10-02 transcript numbers (SSP2-4.5 10.3, SSP5-8.5 36.4 cm; BRICK 2.0 "higher still") predate the record conditioning
 and the BRICK 2.0 posterior swap. Use the table above.
