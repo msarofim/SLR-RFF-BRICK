@@ -1,5 +1,6 @@
 # Handoff 2026-10-15b: BRICK 2.0 on the Zenodo posterior, Ladrillo v1.3.0, the TW2 edit pass
 
+> **SUPERSEDED as the start point by `notes/handoff_2026-10-17_gmd_followups_lin2026.md`.**
 > **Follow-ups done 10-15h:** items 4 and 7 measured, U02/U03/U10 checked, the Table 5 reading fixed. See
 > `notes/gmd_tw2_followups_2026-10-15h.md` and CHANGELOG 2026-10-15h. Every Marcus call below is still open.
 
