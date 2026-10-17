@@ -1,3 +1,48 @@
+## 2026-10-17 — The 2100 Antarctic comparison with Lin et al. 2026, and the fast-dynamics share measured
+
+**Marcus 10-17:** "I dropped Lin et al 2026 in Papers, do the comparison." (GMD queued item 7.)
+
+`julia/diag_ais_2100_vs_lin2026.jl` (ecc98c4), run against the Ladrillo.jl v1.3.0 checkout →
+`outputs/diag_ais_2100_vs_lin2026_L27.csv` (the per-draw file is ignored like the other draws files).
+- Lin's 2100 values are the change since 2015 (ISMIP6 starts in 2015), so each draw is put on that basis:
+  AIS(2100) − AIS(2015), in the paper's joint arm rebuilt exactly as `project_joint.jl` and `brick20_joint.jl` do.
+- Each draw is re-run with `antarctic_lambda = 0` to measure the fast-dynamics share.
+
+| 2015 → 2100 AIS, cm, median [5–95] | SSP2-4.5 | SSP5-8.5 |
+|---|---|---|
+| Lin posterior, raw | 3.9 [−0.5–8.8] | 6.1 [0.1–14.8] |
+| Lin posterior, drift-corrected | 5.2 [1.2–9.7] | 7.7 [1.9–16.2] |
+| Ladrillo L27 | 10.0 [3.8–57.2] | 36.3 [6.9–69.3] |
+| Ladrillo L27, λ = 0 | 5.4 [3.6–8.8] | 7.5 [4.6–12.9] |
+| BRICK 2.0 | 22.0 [0.8–66.6] | 37.6 [13.7–78.4] |
+| BRICK 2.0, λ = 0 | 2.1 [−0.8–7.3] | 1.8 [−2.1–10.2] |
+
+- Fast dynamics fire by 2100 in 56 / 95 % of Ladrillo draws and are 46 / 80 % of its median change. For BRICK 2.0 the
+  figures are 72 / 99.5 % and 91 / 95 %.
+- Without fast dynamics, Ladrillo's medians and 5–95 % ranges fall inside Lin's drift-corrected posterior.
+- Lin scores the emulated 2015–2021 rate against 0.44 ± 0.04 mm/yr. On that window Ladrillo gives 0.341 (0.276–0.427) and
+  BRICK 2.0 0.317 (0.182–0.612).
+- Warming check against AR6 WG1 Table SPM.1 (2081–2100 relative to 1850–1900): Ladrillo's paired configs give 2.52 / 3.75 K
+  against AR6's 2.7 / 4.4 K. Ladrillo's climate is cooler, so warming does not explain the excess.
+
+**Gates, all PASS:**
+- [IDENTITY]: the shipped re-run reproduces the canonical draws files, 0.0 cm, both models and 3 SSPs; the kept draw set
+  equals the conditioned set.
+- [NOFD-INERT]: λ = 0 leaves every draw that does not fire by 2100 bit-identical on 2015–2100. BRICK 2.0's onset is read
+  from its own Antarctic temperature and threshold, so this gate is not tautological for it.
+- [NOFD-MUTATION]: adding one fired draw fails the inert gate (20–70 cm).
+- Byte-identical on a rerun.
+
+**Checked on the way:** the 2015–2021 rate is identical across the three SSPs because the CMIP7-basis forcing shares its
+history through 2024 (max |ΔGMST| between SSPs is 0 through 2024). No BRICK 2.0 draw fires by 2025, so its unconditioned
+arm is like-for-like with Ladrillo's conditioned one on that point.
+
+**Superseded:** the 10-02 transcript numbers (SSP2-4.5 10.3, SSP5-8.5 36.4 cm; "BRICK 2.0 is higher still"). They predate
+the record conditioning and the BRICK 2.0 posterior swap, and their fast-dynamics attribution was asserted, not measured.
+
+**Open (Marcus):** which Lin row to compare with (raw or drift-corrected); SSP1-2.6 has no Lin counterpart (the receipt
+carries it); whether and how the comparison enters Sect. 4.3. Details in `notes/gmd_tw2_followups_2026-10-15h.md`.
+
 ## 2026-10-15h — TW2 follow-ups: Table 5's reading computed, the Fig. 5 receipt, items 4 and 7 measured
 
 Continues `notes/handoff_2026-10-15b_brick20_swap_tw2_pass.md`. The built docx is unchanged. Numbers and decisions are in

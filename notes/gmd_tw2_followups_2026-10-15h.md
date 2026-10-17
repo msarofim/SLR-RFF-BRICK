@@ -40,7 +40,67 @@ in mm/yr over all 10,000 posterior rows on the calibration driver. Observation s
 - Every L27 draw is below the target through 2021 and 2023, and 99.5 % through 2025. For BRICK 2.0 the shares are
   82 / 75 / 68 %.
 - The gap shrinks with the end year because the target's rate from 2002 falls (0.42 → 0.37).
-- The Lin et al. 2026 comparison at 2100 needs the paper. It is not in `ClaudeDocs/Papers`.
+
+## Item 7 (N02), added 10-17: the 2100 Antarctic comparison with Lin et al. 2026
+
+Receipt: `julia/diag_ais_2100_vs_lin2026.jl` → `outputs/diag_ais_2100_vs_lin2026_L27.csv` (ecc98c4), run against
+Ladrillo.jl v1.3.0. Source: Lin et al. (2026), Nat. Geosci., doi:10.1038/s41561-026-02102-1, Table 1 and Methods
+(`ClaudeDocs/Papers/s41561-026-02102-1.pdf`).
+
+**Basis.** Lin's 2100 values are the change since 2015 (ISMIP6 projections start in 2015). Ladrillo and BRICK 2.0 are put on
+that basis per draw: AIS(2100) − AIS(2015) in each draw of the paper's joint arm, built exactly as Ladrillo.jl's
+`project_joint.jl` and `brick20_joint.jl` build it. Each draw is run a second time with `antarctic_lambda = 0`, which switches
+off DAIS's fast-dynamics flux and nothing else (a draw whose fast dynamics never fire by 2100 is bit-identical).
+
+2100 Antarctic contribution, cm SLE since 2015, median (16–84) [5–95]:
+
+| | SSP2-4.5 | SSP5-8.5 |
+|---|---|---|
+| Lin, posterior, raw simulations | 3.9 (1.3–6.7) [−0.5–8.8] | 6.1 (2.5–10.9) [0.1–14.8] |
+| Lin, posterior, drift-corrected | 5.2 (2.8–7.8) [1.2–9.7] | 7.7 (3.8–12.2) [1.9–16.2] |
+| Lin, posterior high-end (raw) | | 15.7 (11.8–21.2) [9.8–25.4] |
+| Ladrillo L27 | 10.0 (4.5–40.6) [3.8–57.2] | 36.3 (19.2–56.0) [6.9–69.3] |
+| Ladrillo L27, λ = 0 | 5.4 (4.2–7.3) [3.6–8.8] | 7.5 (5.6–10.4) [4.6–12.9] |
+| BRICK 2.0 | 22.0 (2.2–46.8) [0.8–66.6] | 37.6 (22.1–59.0) [13.7–78.4] |
+| BRICK 2.0, λ = 0 | 2.1 (0.4–4.6) [−0.8–7.3] | 1.8 (−0.4–5.7) [−2.1–10.2] |
+
+| | SSP2-4.5 | SSP5-8.5 |
+|---|---|---|
+| Ladrillo draws whose fast dynamics fire by 2100 | 56 % | 95 % |
+| fast dynamics' share of Ladrillo's median change | 46 % | 80 % |
+| BRICK 2.0 draws firing by 2100 | 72 % | 99.5 % |
+| fast dynamics' share of BRICK 2.0's median change | 91 % | 95 % |
+| Ladrillo draws above Lin's posterior 95th percentile | 52 % | 90 % |
+| Ladrillo draws above Lin's high-end 95th percentile (25.4 cm) | | 74 % |
+
+- With λ = 0, Ladrillo's medians and 5–95 % ranges fall inside Lin's drift-corrected posterior (5.4 vs 5.2 cm; 7.5 vs
+  7.7 cm). Its medians are 1.4–1.5 cm above Lin's raw-simulation posterior medians. The difference from Lin at 2100 is the
+  fast-dynamics channel.
+- BRICK 2.0's 2100 Antarctic change is almost entirely fast dynamics; without it, its medians are below Lin's.
+- Lin's high end (15.7 cm, SSP5-8.5) comes from ISMIP6 processes (ocean warming, melt parameterization, sliding law,
+  ice-shelf collapse). Lin's Methods say no ISMIP6 experiment includes MICI. DAIS's fast dynamics is a constant flux λ
+  above an Antarctic temperature threshold, with (λ, T_crit) from the paleo prior (`ais_spread_is_lambda_prior`).
+- Record conditioning: Ladrillo's joint arm drops draws that fire by 2025 (1,997 kept). No BRICK 2.0 draw fires by 2025,
+  so BRICK 2.0's unconditioned arm is like-for-like on that point.
+
+**Lin's calibration quantity.** Lin scores the emulated 2015–2021 rate against 0.44 ± 0.04 mm/yr (King et al. 2023,
+2002–2021, decadal variability removed). Ladrillo's 2015–2021 rate in the same runs is 0.341 (5–95 % 0.276–0.427) mm/yr;
+BRICK 2.0's is 0.317 (0.182–0.612). The three SSPs give identical rates because the CMIP7-basis forcing shares its history
+through 2024 (checked: max |ΔGMST| between SSPs is 0 through 2024).
+
+**Warming, like for like.** Lin's GMST is 500 FaIR v1.x projections "similar to those used in IPCC AR6". Ladrillo's paired
+FaIR 2.2.4 (calib 1.6.0) configs, 2081–2100 relative to 1850–1900, median (5–95): SSP2-4.5 2.52 (1.87–3.67) K, SSP5-8.5 3.75
+(2.84–5.28) K, against AR6 WG1 Table SPM.1's 2.7 (2.1–3.5) and 4.4 (3.3–5.7) K. Ladrillo's climate is cooler, so the warming
+difference does not account for Ladrillo's higher Antarctic contribution.
+
+**Choices left to Marcus:**
+- which Lin row to compare with (raw or drift-corrected posterior);
+- SSP1-2.6 has no Lin counterpart (Lin runs SSP1-1.9; Ladrillo's calib 1.6.0 forcing has no SSP1-1.9). The receipt
+  still carries it: Ladrillo 4.6 [3.1–48.6] cm, λ = 0 4.5 [3.0–7.3], 23.5 % of draws firing;
+- whether the comparison goes in Sect. 4.3, and its framing.
+
+The 10-02 transcript numbers (SSP2-4.5 10.3, SSP5-8.5 36.4 cm; BRICK 2.0 "higher still") predate the record conditioning
+and the BRICK 2.0 posterior swap. Use the table above.
 
 ## Uncertain items from the inventory
 
