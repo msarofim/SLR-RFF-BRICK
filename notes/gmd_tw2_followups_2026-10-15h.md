@@ -43,8 +43,8 @@ in mm/yr over all 10,000 posterior rows on the calibration driver. Observation s
 
 ## Item 7 (N02), added 10-17: the 2100 Antarctic comparison with Lin et al. 2026
 
-Receipt: `julia/diag_ais_2100_vs_lin2026.jl` → `outputs/diag_ais_2100_vs_lin2026_L27.csv` (ecc98c4), run against
-Ladrillo.jl v1.3.0. Source: Lin et al. (2026), Nat. Geosci., doi:10.1038/s41561-026-02102-1, Table 1 and Methods
+Receipt: `julia/diag_ais_2100_vs_lin2026.jl` → `outputs/diag_ais_2100_vs_lin2026_L27.csv`, run against Ladrillo.jl
+v1.3.0. **Comparator ruled (Marcus 10-17): Lin's drift-corrected row.** The raw-simulation rows are not used. Source: Lin et al. (2026), Nat. Geosci., doi:10.1038/s41561-026-02102-1, Table 1 and Methods
 (`ClaudeDocs/Papers/s41561-026-02102-1.pdf`).
 
 **Basis.** Lin's 2100 values are the change since 2015 (ISMIP6 projections start in 2015). Ladrillo and BRICK 2.0 are put on
@@ -56,9 +56,8 @@ off DAIS's fast-dynamics flux and nothing else (a draw whose fast dynamics never
 
 | | SSP2-4.5 | SSP5-8.5 |
 |---|---|---|
-| Lin, posterior, raw simulations | 3.9 (1.3–6.7) [−0.5–8.8] | 6.1 (2.5–10.9) [0.1–14.8] |
 | Lin, posterior, drift-corrected | 5.2 (2.8–7.8) [1.2–9.7] | 7.7 (3.8–12.2) [1.9–16.2] |
-| Lin, posterior high-end (raw) | | 15.7 (11.8–21.2) [9.8–25.4] |
+| Lin, posterior high-end, drift-corrected | 7.9 (4.8–10.7) [2.9–11.1] | 14.9 (10.6–21.2) [7.7–25.2] |
 | Ladrillo L27 | 10.0 (4.5–40.6) [3.8–57.2] | 36.3 (19.2–56.0) [6.9–69.3] |
 | Ladrillo L27, λ = 0 | 5.4 (4.2–7.3) [3.6–8.8] | 7.5 (5.6–10.4) [4.6–12.9] |
 | BRICK 2.0 | 22.0 (2.2–46.8) [0.8–66.6] | 37.6 (22.1–59.0) [13.7–78.4] |
@@ -70,14 +69,15 @@ off DAIS's fast-dynamics flux and nothing else (a draw whose fast dynamics never
 | fast dynamics' share of Ladrillo's median change | 46 % | 80 % |
 | BRICK 2.0 draws firing by 2100 | 72 % | 99.5 % |
 | fast dynamics' share of BRICK 2.0's median change | 91 % | 95 % |
-| Ladrillo draws above Lin's posterior 95th percentile | 52 % | 90 % |
-| Ladrillo draws above Lin's high-end 95th percentile (25.4 cm) | | 74 % |
+| Ladrillo draws above Lin's posterior 95th percentile | 51 % | 88 % |
+| Ladrillo draws above Lin's high-end 95th percentile (11.1 / 25.2 cm) | 49 % | 74 % |
+| BRICK 2.0 draws above Lin's posterior 95th percentile | 64 % | 93 % |
+| BRICK 2.0 draws above Lin's high-end 95th percentile | 63 % | 77 % |
 
-- With λ = 0, Ladrillo's medians and 5–95 % ranges fall inside Lin's drift-corrected posterior (5.4 vs 5.2 cm; 7.5 vs
-  7.7 cm). Its medians are 1.4–1.5 cm above Lin's raw-simulation posterior medians. The difference from Lin at 2100 is the
-  fast-dynamics channel.
+- With λ = 0, Ladrillo's medians and 5–95 % ranges fall inside Lin's posterior (5.4 vs 5.2 cm; 7.5 vs 7.7 cm). The
+  difference from Lin at 2100 is the fast-dynamics channel.
 - BRICK 2.0's 2100 Antarctic change is almost entirely fast dynamics; without it, its medians are below Lin's.
-- Lin's high end (15.7 cm, SSP5-8.5) comes from ISMIP6 processes (ocean warming, melt parameterization, sliding law,
+- Lin's high end (14.9 cm, SSP5-8.5) comes from ISMIP6 processes (ocean warming, melt parameterization, sliding law,
   ice-shelf collapse). Lin's Methods say no ISMIP6 experiment includes MICI. DAIS's fast dynamics is a constant flux λ
   above an Antarctic temperature threshold, with (λ, T_crit) from the paleo prior (`ais_spread_is_lambda_prior`).
 - Record conditioning: Ladrillo's joint arm drops draws that fire by 2025 (1,997 kept). No BRICK 2.0 draw fires by 2025,
@@ -94,7 +94,6 @@ FaIR 2.2.4 (calib 1.6.0) configs, 2081–2100 relative to 1850–1900, median (5
 difference does not account for Ladrillo's higher Antarctic contribution.
 
 **Choices left to Marcus:**
-- which Lin row to compare with (raw or drift-corrected posterior);
 - SSP1-2.6 has no Lin counterpart (Lin runs SSP1-1.9; Ladrillo's calib 1.6.0 forcing has no SSP1-1.9). The receipt
   still carries it: Ladrillo 4.6 [3.1–48.6] cm, λ = 0 4.5 [3.0–7.3], 23.5 % of draws firing;
 - whether the comparison goes in Sect. 4.3, and its framing.

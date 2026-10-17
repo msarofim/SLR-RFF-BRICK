@@ -1,3 +1,23 @@
+## 2026-10-17b — Lin comparator ruled: the drift-corrected row
+
+**Marcus 10-17:** "Compare against the drift-corrected row."
+- `julia/diag_ais_2100_vs_lin2026.jl` now names the comparator in constants (`LIN_ROW`, `LIN_POST`, `LIN_HIGHEND`) and
+  writes Lin's drift-corrected posterior and high-end quantiles into the summary, so the receipt carries what it is
+  compared against. The raw-simulation rows are no longer used.
+- The high end is now included for SSP2-4.5 as well (Lin runs the SSP5-8.5-selected parameter sets under both).
+- Re-run: every Ladrillo and BRICK 2.0 statistic is value-identical to 2026-10-17 (48 rows) and all gates pass. Only the
+  shares above Lin's 95th percentiles change:
+
+| share of draws above Lin's drift-corrected p95 | SSP2-4.5 | SSP5-8.5 |
+|---|---|---|
+| Ladrillo, posterior p95 (9.7 / 16.2 cm) | 51 % | 88 % |
+| Ladrillo, high-end p95 (11.1 / 25.2 cm) | 49 % | 74 % |
+| BRICK 2.0, posterior p95 | 64 % | 93 % |
+| BRICK 2.0, high-end p95 | 63 % | 77 % |
+
+- Reading unchanged: with λ = 0, Ladrillo's medians and 5–95 % ranges (5.4 [3.6–8.8], 7.5 [4.6–12.9] cm) fall inside Lin's
+  drift-corrected posterior (5.2 [1.2–9.7], 7.7 [1.9–16.2]).
+
 ## 2026-10-17 — The 2100 Antarctic comparison with Lin et al. 2026, and the fast-dynamics share measured
 
 **Marcus 10-17:** "I dropped Lin et al 2026 in Papers, do the comparison." (GMD queued item 7.)

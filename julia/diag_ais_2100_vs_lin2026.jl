@@ -17,6 +17,7 @@
 ##   d2100_nofd = the same draw re-run with antarctic_lambda = 0 (fast-dynamics flux off)
 ##   fd        = d2100 - d2100_nofd                 the fast-dynamics channel's share of the 2015-2100 change
 ##   rate_2015_2021 = OLS of AIS(2015..2021), mm/yr  the quantity Lin's likelihood scores
+## The comparator is Lin's DRIFT-CORRECTED row (Marcus 2026-10-17; LIN_ROW below), not the raw-simulation row.
 ## Only SSP2-4.5 and SSP5-8.5 are matched scenarios. Ladrillo's calib 1.6.0 forcing has SSP1-2.6, not SSP1-1.9.
 ##
 ## GATES
@@ -45,8 +46,14 @@ const YEARS = 1850:2300
 const Y_BASE, Y_END = 2015, 2100
 const RATE_WIN = 2015:2021                   # Lin's emulated calibration window
 const AR6_WIN, PI_WIN = 2081:2100, 1850:1900 # the warming check against IPCC AR6 WG1 Table SPM.1
-const LIN_HIGHEND_P95_585 = 25.4             # Lin Table 1, raw posterior high-end SSP5-8.5, 95th percentile (cm)
-const LIN_POST_P95 = Dict("ssp245" => 8.8, "ssp585" => 14.8)    # Lin Table 1, raw posterior, 95th percentile (cm)
+## THE COMPARATOR (Marcus 2026-10-17: "Compare against the drift-corrected row"): Lin Table 1, drift-corrected
+## simulations, cm since 2015, quantiles in the order of QS (p05, p16, p50, p84, p95). The raw-simulation rows are not used.
+const LIN_ROW = "drift-corrected"
+const LIN_KEY = replace(LIN_ROW, "-" => "_")
+const LIN_POST = Dict("ssp245" => (1.2, 2.8, 5.2, 7.8, 9.7), "ssp585" => (1.9, 3.8, 7.7, 12.2, 16.2))    # posterior
+## High-end = the parameter combinations giving the top 1 % of posterior 2100 SLR under SSP5-8.5, also run under SSP2-4.5.
+const LIN_HIGHEND = Dict("ssp245" => (2.9, 4.8, 7.9, 10.7, 11.1), "ssp585" => (7.7, 10.6, 14.9, 21.2, 25.2))
+const LIN_LABEL = "Lin et al. 2026 ($LIN_ROW)"
 const QS = [0.05, 0.16, 0.5, 0.84, 0.95]
 
 yi(y) = findfirst(==(y), collect(YEARS))
@@ -56,7 +63,8 @@ const PROV = "diag_ais_2100_vs_lin2026.jl @ $commit | Ladrillo $(pkgversion(Ladr
              "scripts/project_joint.jl (rows $(ROWS), pairing seed $PAIR_SEED, record conditioning ON, tap on) | FaIR 2.2.4 " *
              "(calib 1.6.0) CMIP7-basis spliced at $(Ladrillo.SPLICE_YEAR) | AIS cm SLE, change $(Y_BASE)->$(Y_END) per draw | " *
              "nofd = antarctic_lambda 0 | rate OLS $(first(RATE_WIN))-$(last(RATE_WIN)) mm/yr | BRICK 2.0 = " *
-             "$(Ladrillo.BRICK20_LABEL), joint arm as scripts/brick20_joint.jl (1,000 draws, not conditioned) | julia $(VERSION)"
+             "$(Ladrillo.BRICK20_LABEL), joint arm as scripts/brick20_joint.jl (1,000 draws, not conditioned) | comparator " *
+             "Lin et al. 2026 Table 1, $(LIN_ROW) posterior and high-end (Marcus 2026-10-17) | julia $(VERSION)"
 const LAD, B20 = "Ladrillo $(TAG)", "BRICK 2.0"
 
 post = posterior(rows = ROWS)
@@ -206,16 +214,19 @@ for mdl in (LAD, B20), s in SCEN
                  p16 = NaN, p50 = nf / nrow(d), p84 = NaN, p95 = NaN, mean = nf / nrow(d)))
     push!(summ, (model = mdl, scenario = s, lin_match = LIN_MATCH[s], statistic = "fd_share_of_median_d2100", n = nrow(d), p05 = NaN,
                  p16 = NaN, p50 = 1 - median(d.d2100_nofd_cm) / median(d.d2100_cm), p84 = NaN, p95 = NaN, mean = NaN))
-    if haskey(LIN_POST_P95, s)
-        sh = mean(d.d2100_cm .> LIN_POST_P95[s])
-        push!(summ, (model = mdl, scenario = s, lin_match = LIN_MATCH[s], statistic = "share_above_lin_posterior_p95", n = nrow(d),
-                     p05 = NaN, p16 = NaN, p50 = sh, p84 = NaN, p95 = NaN, mean = sh))
+    for (nm, L) in (("posterior", LIN_POST), ("highend", LIN_HIGHEND))
+        haskey(L, s) || continue
+        sh = mean(d.d2100_cm .> L[s][end])
+        push!(summ, (model = mdl, scenario = s, lin_match = LIN_MATCH[s], statistic = "share_above_lin_$(LIN_KEY)_$(nm)_p95",
+                     n = nrow(d), p05 = NaN, p16 = NaN, p50 = sh, p84 = NaN, p95 = NaN, mean = sh))
     end
-    if s == "ssp585"
-        sh = mean(d.d2100_cm .> LIN_HIGHEND_P95_585)
-        push!(summ, (model = mdl, scenario = s, lin_match = LIN_MATCH[s], statistic = "share_above_lin_highend_p95", n = nrow(d),
-                     p05 = NaN, p16 = NaN, p50 = sh, p84 = NaN, p95 = NaN, mean = sh))
-    end
+end
+## the comparator itself, so the receipt carries the numbers it is compared against
+for (nm, L) in (("posterior", LIN_POST), ("highend", LIN_HIGHEND)), s in SCEN
+    haskey(L, s) || continue
+    qq = L[s]
+    push!(summ, (model = LIN_LABEL, scenario = s, lin_match = LIN_MATCH[s], statistic = "d2100_cm_$(nm)", n = 0,
+                 p05 = qq[1], p16 = qq[2], p50 = qq[3], p84 = qq[4], p95 = qq[5], mean = NaN))
 end
 rows.provenance .= PROV; summ.provenance .= PROV
 CSV.write(joinpath(OUTD, "diag_ais_2100_vs_lin2026_$(TAG)_draws.csv"), rows)
