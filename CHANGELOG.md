@@ -1,3 +1,12 @@
+## 2026-10-21b — Poinelli ruled: cite as a Thwaites analysis, no comparison with Ladrillo
+
+**Marcus 10-21:** "Maybe just cite Poinelli as a Thwaites analysis, but that without the broader context it is difficult
+to make comparisons to Ladrillo given that Ladrillo models AIS as a single sheet."
+- No Poinelli number is set against Ladrillo in the paper. The two-hold choice from 2026-10-21 is moot.
+- `julia/diag_ais_constant_climate_vs_poinelli2026.jl` and its summary stay as provenance (abandoned as a paper
+  comparison: a single-sheet model has no Thwaites to compare).
+- Reference entry in the draft's style is in the follow-up note. The docx is not edited; the prose is Marcus's.
+
 ## 2026-10-21 — Poinelli et al. 2026 (Thwaites, constant climate) and the whole-Antarctic committed loss
 
 **Marcus 10-21:** continue the 10-17 handoff, "including considering this new paper": Poinelli et al. (2026), Nat. Commun.

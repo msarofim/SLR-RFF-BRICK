@@ -152,8 +152,14 @@ Share of draws whose whole-sheet loss (2021 → 2100) is below Poinelli's Thwait
   warmer hold in 99.6 % of draws (median +2.4 cm/K) and BRICK 2.0 loses less in 82 % (median −1.0 cm/K).
 - Ties to item 7's rate: Ladrillo's held rate in 2021–2030 is 0.28 / 0.35 mm/yr, against the 2002–2021 target of 0.423.
 
-**Choices left to Marcus:** whether Poinelli goes in Sect. 4.3 beside Lin, and which hold, if either, is quoted. Poinelli's
-own forcing window argues for 1996–2023; Lin's control runs ("no additional forcing since 2015") are closer to 2015–2024.
+**Ruled (Marcus 10-21):** "Maybe just cite Poinelli as a Thwaites analysis, but that without the broader context it is
+difficult to make comparisons to Ladrillo given that Ladrillo models AIS as a single sheet." No Poinelli number is compared
+with Ladrillo in the paper, so the hold choice is moot. The receipt above stays as provenance. Reference entry, in the
+draft's style:
+
+> Poinelli, M., Rignot, E., Seroussi, H., Cuzzone, J., Pelle, T., and Larour, E.: Sea-level contribution from Thwaites
+> Glacier doubles in an observation-constrained ice-sheet model, Nat. Commun., 17, 10364,
+> https://doi.org/10.1038/s41467-026-77976-1, 2026.
 
 ## Uncertain items from the inventory
 
