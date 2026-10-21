@@ -101,6 +101,60 @@ calib 1.6.0 forcing has no SSP1-1.9.
 The 10-02 transcript numbers (SSP2-4.5 10.3, SSP5-8.5 36.4 cm; BRICK 2.0 "higher still") predate the record conditioning
 and the BRICK 2.0 posterior swap. Use the table above.
 
+## Item 7 (N02), added 10-21: Poinelli et al. 2026 and the committed loss under held climate
+
+Receipt: `julia/diag_ais_constant_climate_vs_poinelli2026.jl` → `outputs/diag_ais_constant_climate_vs_poinelli2026_L27.csv`
+(8dc5dc0), run against Ladrillo.jl v1.3.0. Source: Poinelli et al. (2026), Nat. Commun. 17, 10364,
+doi:10.1038/s41467-026-77976-1 (open access; code and the spun-up model at doi:10.5281/zenodo.16551126).
+
+**The paper.** ISSM over Thwaites and Haynes, Thwaites reported. Melt is applied inside a grounding zone of length L
+upstream of the flotation line. (melt rate, L) are calibrated on 1996–2023 grounding-line retreat, discharge, thinning and
+speed-up. Projections to 2100 hold surface mass balance and ocean melt at their 1996–2023 averages, with a fixed ice
+front. Thwaites' 2100 sea-level equivalent at 110 m/yr: 0.83 cm (no grounding zone), 1.43 (1 km), 1.94 (3 km, the
+posterior maximum), 3.01 (5 km, the 2020s observed extent). The ISMIP6 constant-forcing Thwaites mean it quotes is
+1.52 ± 2.18 cm. The ± values are the spread at a fixed melt rate with L ± 1 km, not a posterior predictive interval. The
+origin is not stated; the Fig. 4b curves start at about 2021.
+
+**Bearing on the Lin comparison.** Lin's drift-corrected row replaces each control run with a linear 0.33 ± 0.16 mm/yr
+background trend, so its constant-climate loss is linear: 2.6 ± 1.3 cm over 2021–2100 and 2.8 ± 1.4 over 2015–2100 at the
+prior value. Lin does not report that term's posterior. Poinelli's mechanism needs no further warming. DAIS's fast
+dynamics need Antarctic warming above T_crit, so they cannot represent it; only the slow channel can.
+
+**Ladrillo and BRICK 2.0 under held climate.** GMST and OHC held at each config's mean over the window, from the first
+held year; the draw set is the paper's joint arm (conditioning on the unheld climate). The hold is not ruled.
+
+| AIS, cm, median [5–95] | 2021 → 2100 | 2015 → 2100 | rate ratio 2091–2100 / 2021–2030 |
+|---|---|---|---|
+| Ladrillo, hold 1996–2023 (from 2024) | 2.15 [1.78–2.48] | 2.36 [1.95–2.72] | 0.95 |
+| Ladrillo, hold 2015–2024 (from 2025) | 2.69 [2.15–3.44] | 2.89 [2.31–3.70] | 0.95 |
+| BRICK 2.0, hold 1996–2023 | 2.54 [1.69–4.52] | 2.74 [1.81–4.87] | 1.07 |
+| BRICK 2.0, hold 2015–2024 | 2.37 [1.25–4.74] | 2.57 [1.37–5.11] | 1.02 |
+| Ladrillo, SSP2-4.5, λ = 0 | 5.19 [3.39–8.59] | 5.4 [3.6–8.8] | |
+| Poinelli, Thwaites alone, 3 km / 5 km | 1.94 / 3.01 | | convex (Fig. 4b) |
+| Lin, background term (prior) | 2.6 ± 1.3 | 2.8 ± 1.4 | 1 by construction |
+
+Share of draws whose whole-sheet loss (2021 → 2100) is below Poinelli's Thwaites-alone central value:
+
+| | 3 km (1.94 cm) | 5 km (3.01 cm) |
+|---|---|---|
+| Ladrillo, hold 1996–2023 | 16.5 % | 100 % |
+| Ladrillo, hold 2015–2024 | 1.4 % | 78 % |
+| BRICK 2.0, hold 1996–2023 | 12 % | 73 % |
+| BRICK 2.0, hold 2015–2024 | 26 % | 73 % |
+
+- No draw fires under either hold (gate), so the held numbers are the slow channel alone.
+- Ladrillo's committed loss for the whole sheet is about the size of Poinelli's committed loss for Thwaites alone, and its
+  committed rate falls slightly where Poinelli's rises. The ordering holds unless the rest of the sheet gains mass under
+  constant climate.
+- About half of Ladrillo's SSP2-4.5 λ = 0 change from 2015 is the committed part (2.89 of 5.4 cm under the 2015–2024
+  hold), close to the share of Lin's background term in Lin's SSP2-4.5 median (2.8 of 5.2 cm at the prior value).
+- The slow channels respond to warming with opposite sign: per draw, between the two holds, Ladrillo loses more under the
+  warmer hold in 99.6 % of draws (median +2.4 cm/K) and BRICK 2.0 loses less in 82 % (median −1.0 cm/K).
+- Ties to item 7's rate: Ladrillo's held rate in 2021–2030 is 0.28 / 0.35 mm/yr, against the 2002–2021 target of 0.423.
+
+**Choices left to Marcus:** whether Poinelli goes in Sect. 4.3 beside Lin, and which hold, if either, is quoted. Poinelli's
+own forcing window argues for 1996–2023; Lin's control runs ("no additional forcing since 2015") are closer to 2015–2024.
+
 ## Uncertain items from the inventory
 
 - **U02 (Fig. 5's 0.05 cm), resolved.** `python/verify_magicc_regrowth_attribution.py --arm=fixed` →

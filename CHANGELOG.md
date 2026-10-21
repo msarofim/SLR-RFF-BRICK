@@ -1,3 +1,51 @@
+## 2026-10-21 — Poinelli et al. 2026 (Thwaites, constant climate) and the whole-Antarctic committed loss
+
+**Marcus 10-21:** continue the 10-17 handoff, "including considering this new paper": Poinelli et al. (2026), Nat. Commun.
+17, 10364, doi:10.1038/s41467-026-77976-1 (ISSM, Thwaites, actively melting grounding zones, calibrated on 1996–2023).
+
+**What the paper reports.** Thwaites' 2100 sea-level equivalent under constant 1996–2023 forcing (fixed ice front, melt
+110 m/yr): 8.3 ± 3.0 mm with no grounding zone, 14.3 ± 3.1 (1 km), 19.4 ± 5.2 (3 km, the posterior maximum), 30.1 ± 5.7
+(5 km, the 2020s observed extent). The ISMIP6 constant-forcing Thwaites mean it quotes (Seroussi et al. 2024) is
+15.2 ± 21.8 mm. The text does not state the origin year; the curves in Fig. 4b start at about 2021 (read off the axis).
+It is one glacier, so the only comparison with a whole-sheet model is an ordering.
+
+**Lin et al. 2026, re-read for this.** The drift-corrected row subtracts each ISMIP6 control run and adds a linear
+0.33 ± 0.16 mm/yr background trend (the AR6 approach). Its constant-climate loss is linear by construction: 2.8 ± 1.4 cm
+over 2015–2100 at the prior value. Lin does not report the posterior value of that term.
+
+**New receipt.** `julia/diag_ais_constant_climate_vs_poinelli2026.jl` (8dc5dc0) →
+`outputs/diag_ais_constant_climate_vs_poinelli2026_L27.csv` (the per-draw file is ignored). It re-runs the paper's joint
+arm (Ladrillo L27, 1,997 draws; BRICK 2.0, 1,000) with GMST and OHC held at each config's mean over a window. The hold is a
+methodological choice, not ruled, so two are reported: `hold_1996_2023` (Poinelli's forcing window, from 2024) and
+`hold_2015_2024` (the last decade of shared history, from 2025).
+
+| AIS 2021 → 2100, cm, median [5–95] | Ladrillo L27 | BRICK 2.0 |
+|---|---|---|
+| SSP2-4.5 (unheld) | 9.8 [3.6–56.9] | 21.8 [0.7–66.4] |
+| SSP2-4.5, λ = 0 | 5.2 [3.4–8.6] | 1.9 [−0.9–7.0] |
+| hold 1996–2023 | 2.15 [1.78–2.48] | 2.54 [1.69–4.52] |
+| hold 2015–2024 | 2.69 [2.15–3.44] | 2.37 [1.25–4.74] |
+| Poinelli, Thwaites alone (3 km / 5 km) | 1.94 / 3.01 | |
+| Lin background trend × 79 yr (prior, ± 1σ) | 2.6 ± 1.3 | |
+
+- No draw's fast dynamics fire under either hold, so the held loss is the slow channel alone (λ = 0 re-run bit-identical).
+- Ordering: Ladrillo's whole-sheet committed loss is about the size of Poinelli's Thwaites-alone value. Under the
+  1996–2023 hold, every Ladrillo draw is below Thwaites at 5 km and 16.5 % are below Thwaites at 3 km. Under the 2015–2024
+  hold the shares are 78 % and 1.4 %. BRICK 2.0: 73 % / 12 % and 73 % / 26 %.
+- Rates: Ladrillo's held rate falls slightly (2091–2100 over 2021–2030: 0.95 under both holds); BRICK 2.0's is 1.07 / 1.02.
+  Poinelli's Thwaites curves are convex in Fig. 4b.
+- On Lin's basis (2015 → 2100), Ladrillo's held loss is 2.36 [1.95–2.72] / 2.89 [2.31–3.70] cm, beside Lin's linear
+  background term 2.8 ± 1.4.
+- Side finding: the two models' slow channels respond to warming with opposite sign. Between the two holds, Ladrillo
+  loses more under the warmer one in 99.6 % of draws (median +2.4 cm/K); BRICK 2.0 loses less in 82 % (median −1.0 cm/K).
+  This matches the 10-17 λ = 0 result, where BRICK 2.0's SSP5-8.5 (1.8 cm) is below its SSP2-4.5 (2.1).
+
+**Gates, all PASS:** [IDENTITY] 0.0 cm against both canonical SSP2-4.5 draws files; [HOLD-PRE] exact through the year
+before each hold, with a mutation that sees 2.1–3.0 cm by five years after; [HOLD-NOFIRE] 0 fired and λ = 0 bit-identical,
+with a mutation (one fired draw added) that fails at 161–319 cm. Byte-identical on a rerun.
+
+**Open for Marcus:** whether Poinelli goes in Sect. 4.3 beside Lin, and which hold (if either) is quoted.
+
 ## 2026-10-17c — Lin comparison: SSP1-2.6 dropped
 
 **Marcus 10-17:** "Drop SSP1-2.6 from the comparison." Lin runs SSP1-1.9, which Ladrillo's calib 1.6.0 forcing does not have.
