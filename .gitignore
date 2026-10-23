@@ -210,6 +210,7 @@ outputs/poster/poster_print_46x42.png
 # Large MCMC chain files (100s of MB each; regenerable via run_mcmc_*.sh).
 # Keep adapted_cov*.csv, postprocess*.txt, log_* (small) tracked.
 outputs/mcmc/chain_*_n*.csv
+outputs/mcmc/chain_*_n*.csv.gz
 outputs/mcmc/archive_*/
 
 # Large regenerable BRICK output data (Tier 3; regenerable from FaIR cubes / Zenodo)

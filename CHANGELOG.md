@@ -1,3 +1,24 @@
+## 2026-10-23 — Superseded MCMC raw chains compressed (245.4 GB → 30.9 GB)
+
+**Marcus 10-23:** compress the superseded raw chains, keep L24, L27/L27r/L27b, L28 and L32 raw, and verify
+each `.gz` before moving the `.csv` to the Trash. The laptop was at 93 % full, and `outputs/mcmc` held 295 GB
+of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample_*` files, not these.
+- 136 chains of 100 MB or more (L10–L26, L29–L31, L33–L34, ext*, D2*, tuning runs) were gzipped in place to
+  `*.csv.gz` at a ratio of 7.94×. Each passed `gzip -t` and a decompressed-md5 match with its original before
+  the original went to `~/.Trash` (`/usr/bin/trash`, stat-verified). Manifest and restore instructions are in
+  `outputs/mcmc/COMPRESSED_20261023_manifest.tsv` and `outputs/mcmc/README_compressed_20261023.md`; the script
+  is `scripts/compress_chain_verified.sh`.
+- The verification was mutation-tested first: a stream truncated by one byte failed the md5 match, and a
+  corrupted archive failed `gzip -t`.
+- Chains under 100 MB stayed raw: about 150 MB in total, and gate and test scripts read some of them.
+- `.gitignore` now also ignores `outputs/mcmc/chain_*_n*.csv.gz`. Without it the 31 GB of archives would have
+  shown up as untracked.
+- Not used: Finder's delete through `osascript`, which permanently deleted the L35 chains on 09-29 instead of
+  moving them to the Trash.
+- Running a driver on a compressed tag (e.g. `--tag=L21`) now stops with "missing chain" until the chain is
+  decompressed with `gunzip -k`. The default tag (L27) is unaffected.
+- The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
+
 ## 2026-10-21b — Poinelli ruled: cite as a Thwaites analysis, no comparison with Ladrillo
 
 **Marcus 10-21:** "Maybe just cite Poinelli as a Thwaites analysis, but that without the broader context it is difficult
