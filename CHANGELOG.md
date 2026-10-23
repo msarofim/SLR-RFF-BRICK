@@ -1,3 +1,13 @@
+## 2026-10-23b — A merged worktree and the archive tarball moved to the Trash
+
+**Marcus 10-23:** the safe tier of the disk audit, stat-verified in `~/.Trash`.
+- Worktree `.claude/worktrees/zen-albattani-f2a1fe` (1.19 GB): no local, untracked or ignored files; its commit
+  `04e030e` is on `ladrillo-dev`. `git worktree prune` run; the branch `claude/zen-albattani-f2a1fe` was left.
+- `SLR-RFF-BRICK-archive/data/slr-rff-data.tgz` (1.8 GB, outside git). Its two zips have the same md5 as
+  `data/MimiBRICK/brick_projections_csv.zip` and `data/RFF-SP-emissions/infilled_extended.zip` here. Its third
+  member, an older `parameters_subsample_brick.csv` (md5 `e4f2199c…`, unlike this repo's), was extracted to
+  `SLR-RFF-BRICK-archive/data/MimiBRICK/` first. `README_tarball_removed_20261023.md` there records all three md5s.
+
 ## 2026-10-23 — Superseded MCMC raw chains compressed (245.4 GB → 30.9 GB)
 
 **Marcus 10-23:** compress the superseded raw chains, keep L24, L27/L27r/L27b, L28 and L32 raw, and verify
