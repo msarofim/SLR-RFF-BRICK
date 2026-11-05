@@ -130,7 +130,7 @@ for ax, comp in zip(axes.ravel(), lf.COMPONENTS):
     ax.set_xticks(range(len(HORIZONS)))
     ax.set_xticklabels([str(y) for y in HORIZONS], fontsize=9)
     ax.set_xlim(-0.6, len(HORIZONS) - 0.4)
-    ax.set_title(lf.COMP_TITLE[comp], fontsize=10, fontweight="bold", loc="left")
+    ax.set_title(lf.panel_title(comp), fontsize=10, fontweight="bold", loc="left")
     ax.set_ylabel(YLAB, fontsize=8)
     ax.tick_params(labelsize=8)
     ax.grid(axis="y", alpha=0.25, lw=0.6)

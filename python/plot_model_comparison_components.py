@@ -390,7 +390,7 @@ for YEAR in YEARS:
         ax.set_xticks(range(len(SCENS)))
         ax.set_xticklabels([l for _k, l, _c2, _d in SCENS], fontsize=SET_XTICK_FS[SET])
         ax.set_xlim(-0.6, len(SCENS) - 0.4)
-        ax.set_title(lf.COMP_TITLE[comp], fontsize=10, fontweight="bold", loc="left")
+        ax.set_title(lf.panel_title(comp), fontsize=10, fontweight="bold", loc="left")
         ax.set_ylabel("cm SLE (rel. 1995–2014)", fontsize=8)
         ax.tick_params(labelsize=8)
         ax.grid(axis="y", alpha=0.25, lw=0.6)

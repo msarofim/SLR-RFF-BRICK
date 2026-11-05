@@ -40,6 +40,13 @@ like-for-like. Ladrillo's `joint` arm exists in the same files and is DELIBERATE
 it carries FaIR climate uncertainty that the Wigley-Raper arm has no counterpart for, and mixing
 the two would compare a climate+parameter band against a parameter-only one (`like_for_like_forcing`).
 
+THE LADRILLO-ONLY FIGURE (the paper's Fig. 5) IS ON THE JOINT ARM since 2026-11-05 (Marcus, on Tony
+Wong's TW2 comment: one ensemble throughout, and the paper's other projection results are joint).
+With no Wigley-Raper arm drawn, the like-for-like argument above has nothing to compare, so
+--ladrillo-only defaults to `--arm=joint`; the four-panel WR contrast stays on `fixed` and refuses
+`joint`. Panel (a) still draws the ensemble-mean GMST, and says so: under the joint arm each draw
+runs on its own FaIR configuration.
+
 ⚠ THE DRIVER IS THE SAME GMST, WITH A STATED MAPPING. Wigley-Raper takes the scenario's mean GMST
 directly. Ladrillo maps it to each block's glacier-frame temperature as `amp_b * GMST`, spliced to
 preserve the observed mean over the last 11 observed years (ladrillo_projection.jl:740). So "the
@@ -66,7 +73,15 @@ os.chdir(REPO)
 LADRILLO_TAG = next((a[len("--tag="):] for a in sys.argv[1:]
                      if a.startswith("--tag=")), "L27")
 FORCING = "spliced"
-ARM = "fixed"                    # see the like-for-like note in the docstring
+LADRILLO_ONLY = "--ladrillo-only" in sys.argv
+## The arm: joint for the Ladrillo-only figure, fixed for the WR contrast (see the docstring).
+ARM = next((a[len("--arm="):] for a in sys.argv[1:] if a.startswith("--arm=")),
+           "joint" if LADRILLO_ONLY else "fixed")
+if ARM not in ("fixed", "joint"):
+    raise SystemExit("--arm must be fixed or joint, not %r" % ARM)
+if ARM == "joint" and not LADRILLO_ONLY:
+    raise SystemExit("--arm=joint needs --ladrillo-only: the Wigley-Raper arm is parameter spread on "
+                     "mean forcing, so a joint Ladrillo band beside it is not like-for-like.")
 WR_CSV = "outputs/vv_gsic_2300.csv"
 LAD_PATHS = "outputs/scope_slr_fairunc_paths_{m}_%s_{stem}.csv" % FORCING
 LAD_GATES = "outputs/scope_slr_fairunc_gates_{m}_%s_{stem}.csv" % FORCING
@@ -77,9 +92,10 @@ OUTPNG = "figures/vv_gsic_wr_vs_ladrillo_%s_2300.png" % LADRILLO_TAG
 ## --ladrillo-only (Marcus, 2026-09-11): the deliverable describes Ladrillo, and BRICK's
 ## Wigley-Raper problem is already made in the text, so the memo figure drops the WR panel and
 ## the WR lines. The four-panel contrast is kept under the original filename.
-LADRILLO_ONLY = "--ladrillo-only" in sys.argv
+## The arm travels in the filename too, for the reason the tag does: the fixed render keeps its
+## pre-2026-11-05 name and the joint render is `_joint`, so neither overwrites the other.
 if LADRILLO_ONLY:
-    OUTPNG = "figures/vv_gsic_ladrillo_%s_2300.png" % LADRILLO_TAG
+    OUTPNG = "figures/vv_gsic_ladrillo_%s_2300%s.png" % (LADRILLO_TAG, "" if ARM == "fixed" else "_" + ARM)
 
 ## ⚠ DERIVED FROM ladrillo_figs.VV_SET, NEVER RE-DECLARED. This list was a verbatim copy of it
 ## (reordered to label-first), which is the drift ladrillo_figs.py's own header warns about: the
@@ -93,7 +109,9 @@ DECLINE = [m[0] for m in MARKERS if m[3]]
 SPREAD_LO, SPREAD_HI = "Very Low", "High"
 X0, X1 = 2000, 2300
 WR_NAME = "BRICK 2.0 (Wigley–Raper)"
-LAD_NAME = "Ladrillo %s (3-reservoir ν)" % LADRILLO_TAG
+## The paper names the model by its version, not the calibration tag (ladrillo_figs.tag_desc does the
+## same for the other paper figures); the tag stays in the filename and the caption sidecar.
+LAD_NAME = "Ladrillo (3-reservoir ν)" if lf.PAPER else "Ladrillo %s (3-reservoir ν)" % LADRILLO_TAG
 
 
 
@@ -240,14 +258,17 @@ for s in LABELS:
     ax[0].plot(d.year.values, d.gmst.values, color=COL[s], lw=1.8)
     _ends0.append((d.gmst.values[-1], s, COL[s]))
 ax[0].set_ylabel("GMST (°C rel. PI)")
-ax[0].set_title(("Glacier melt to 2300 — %s, seven van Vuuren CMIP7 scenarios" % LAD_NAME)
-                if LADRILLO_ONLY else
-                ("Glacier melt to 2300 — %s vs %s, seven van Vuuren CMIP7 scenarios"
-                 % (WR_NAME, LAD_NAME)), fontsize=11, fontweight="bold", loc="left")
+## No title in paper mode: the paper's caption carries it, as for the other paper figures.
+if not lf.PAPER:
+    ax[0].set_title(("Glacier melt to 2300 — %s, seven van Vuuren CMIP7 scenarios" % LAD_NAME)
+                    if LADRILLO_ONLY else
+                    ("Glacier melt to 2300 — %s vs %s, seven van Vuuren CMIP7 scenarios"
+                     % (WR_NAME, LAD_NAME)), fontsize=11, fontweight="bold", loc="left")
 ## Panel letter, so the figure matches its caption ("GMST forcing (a), cumulative melt (b),
-## melt rate (c)") -- (b) and (c) carried theirs, (a) did not (found 2026-09-11).
-ax[0].text(0.012, 0.93, "(a)  GMST forcing", transform=ax[0].transAxes, fontsize=9.5,
-           fontweight="bold", va="top")
+## melt rate (c)") -- (b) and (c) carried theirs, (a) did not (found 2026-09-11). Under the joint arm
+## the panel says it is the ensemble mean, because the draws below each run on their own configuration.
+ax[0].text(0.012, 0.93, "(a)  GMST forcing" + (" (FaIR ensemble mean)" if ARM == "joint" else ""),
+           transform=ax[0].transAxes, fontsize=9.5, fontweight="bold", va="top")
 lf.direct_label(ax[0], _ends0)
 _pk = {s: (wr(s).set_index("year").gmst.loc[2015:2300].idxmax(),
            wr(s).set_index("year").gmst.loc[2015:2300].max()) for s in DECLINE}
@@ -342,8 +363,11 @@ ax[3].legend(handles=([] if LADRILLO_ONLY else
 _PAPER = "--paper" in sys.argv
 ## CAPTION SCOPE: whose posterior, which arm, which forcing. The like-for-like argument and
 ## the frame-mapping discussion are arguments and live in the text.
-_CAPTION = ((("Ladrillo %s 3-reservoir ν glaciers (%s chains, `%s` arm), posterior-parameter spread "
-              "on mean forcing.\n") if LADRILLO_ONLY else
+_SPREAD = ("each posterior draw on its own FaIR configuration, so the band is parameter plus climate "
+           "uncertainty; panel (a) is the ensemble-mean GMST" if ARM == "joint" else
+           "posterior-parameter spread on mean forcing")
+_CAPTION = ((("Ladrillo %s 3-reservoir ν glaciers (%s chains, `%s` arm), " + _SPREAD + ".\n")
+             if LADRILLO_ONLY else
              ("BRICK 2.0 Wigley-Raper posterior (parameters_subsample_brick.csv, 1000 draws) vs "
               "Ladrillo %s 3-reservoir ν glaciers (%s chains, `%s` arm); both are posterior-parameter "
               "spread on mean forcing.\n"))

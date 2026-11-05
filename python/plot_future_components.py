@@ -161,7 +161,7 @@ for ax, comp in zip(axes.ravel(), lf.COMPONENTS):
     ax.axvline(2100, color="0.6", lw=0.8, ls=":")
     ax.axhline(0, color="0.85", lw=0.8)
     ax.set_xlim(X0, X1)
-    ax.set_title(lf.COMP_TITLE[comp], fontsize=10, fontweight="bold", loc="left")
+    ax.set_title(lf.panel_title(comp), fontsize=10, fontweight="bold", loc="left")
     ## ⚠ DIRECT LABELS, NOT A COLOUR LEGEND, WHENEVER THE SET IS BIGGER THAN THE PALETTE CAN
     ## CARRY (Marcus's ruling 2026-09-22). At seven van Vuuren markers no colour set clears the
     ## accessibility floors while still reading as a scenario ordering -- see

@@ -29,6 +29,32 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-05 — Fig. 5 on the joint arm; panel letters on Figs. 1–4 and 6
+
+**Marcus 11-05:** "Go ahead with the Fig. 5 joint arm and panel labels" (Tony's TW2 comments on Fig. 1, "they'll want
+panel labels", and on Fig. 5, one ensemble throughout; review note `notes/gmd_draft_review_2026-11-05.md`).
+
+- **Control first.** Before any edit, all six paper figures re-rendered byte-identical from the committed code
+  (`plot_hindcast_components.py --paper`, `plot_model_comparison_components.py --set=vv --paper`,
+  `plot_future_components.py --set=vv --paper`, `plot_vv_responsiveness.py --paper`,
+  `plot_vv_gsic_wr_vs_ladrillo.py --ladrillo-only --paper`). `outputs/vv_responsiveness_L27.csv` changes only in its
+  provenance column (commit stamp) on every render, so it is restored rather than committed.
+- **Panel letters.** `ladrillo_figs.panel_title(comp)` gives "(a) Glaciers" … "(f) Total", the letter taken from the
+  component's place in `COMPONENTS` (the grids' reading order), so a letter means the same panel in every figure. The
+  four 2×3 builders call it in place of `COMP_TITLE[comp]`. Re-rendered: Figs. 1, 2, 3 (and the 2150 sibling), 4, 6.
+  Caption sidecars are unchanged.
+- **Fig. 5 joint.** `plot_vv_gsic_wr_vs_ladrillo.py`: `--arm=` (default `joint` with `--ladrillo-only`, `fixed`
+  otherwise); `--arm=joint` without `--ladrillo-only` refuses (the Wigley–Raper arm is parameter spread on mean forcing,
+  so it has no joint counterpart; checked, exits 1). The joint render is a new file,
+  `figures/paper/vv_gsic_ladrillo_L27_2300_joint.png`; the fixed one keeps its name. Panel (a) still draws the
+  ensemble-mean GMST and now says so. In paper mode the figure has no title and names the model "Ladrillo", as the
+  other paper figures do (it printed "Ladrillo L27"). Gates pass (VINTAGE 0.0000 K, all 7 arms, 841 configs, one driver
+  commit). Joint regrowth on Low-to-Negative 0.0834 cm (`verify_magicc_regrowth_attribution_L27.csv`), matching
+  Sect. 4.3's 0.08 cm; the fixed caption's "about 0.05 cm" goes.
+- **Not done:** the docx (open in Word). The new PNGs and the Fig. 5 caption are Marcus's to swap in.
+- Also committed: `outputs/diag_ais_constant_climate_vs_poinelli2026_L27.csv`, the 2026-10-21 summary receipt, which
+  was cited but never added.
+
 ## 2026-10-21b — Poinelli ruled: cite as a Thwaites analysis, no comparison with Ladrillo
 
 **Marcus 10-21:** "Maybe just cite Poinelli as a Thwaites analysis, but that without the broader context it is difficult

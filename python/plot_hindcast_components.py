@@ -397,7 +397,7 @@ for ax, comp in zip(axes.ravel(), lf.COMPONENTS):
 
     ax.axhline(0, color="0.85", lw=0.8)
     ax.set_xlim(X0, X1)
-    ax.set_title(lf.COMP_TITLE[comp], fontsize=10, fontweight="bold", loc="left")
+    ax.set_title(lf.panel_title(comp), fontsize=10, fontweight="bold", loc="left")
     ax.set_ylabel("cm SLE (rel. 1995–2005)", fontsize=8)
     ax.tick_params(labelsize=8)
 axes[1, 0].set_xlabel("year")

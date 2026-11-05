@@ -19,6 +19,7 @@ script can use the loaders without a display stack.
 """
 import os
 import sys
+import string
 import subprocess
 
 import numpy as np
@@ -85,6 +86,15 @@ COMPONENTS = ["glaciers", "gis", "ais", "te", "lws", "total"]
 COMP_TITLE = {"glaciers": "Glaciers", "gis": "Greenland ice sheet",
               "ais": "Antarctic ice sheet", "te": "Thermal expansion",
               "lws": "Land-water storage", "total": "Total"}
+## PANEL LETTERS (Tony Wong's TW2 comment on Fig. 1, 2026-10-14: "they'll want panel labels"). Every
+## 2x3 component grid fills its panels in COMPONENTS order, which is its reading order, so the letter
+## is a property of the component: "(c) Antarctic ice sheet" is the same panel in every such figure.
+PANEL_LETTER = {c: "(%s)" % string.ascii_lowercase[i] for i, c in enumerate(COMPONENTS)}
+
+
+def panel_title(comp):
+    """'(a) Glaciers': the component's panel letter and its title."""
+    return "%s %s" % (PANEL_LETTER[comp], COMP_TITLE[comp])
 
 # --- sources ---------------------------------------------------------------
 SRC_COLOR = {"Ladrillo": "#2166ac", "BRICK 2.0": "#7f7f7f",
