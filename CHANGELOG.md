@@ -29,6 +29,45 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-05c — Glacier inventory ablation: the inventory explains little of the gap and none of the larger range
+
+**Marcus 11-05:** "Run the glacier ablation with Ladrillo's inventory in BRICK."
+
+`julia/diag_glacier_inventory_ablation.jl` (run with `--project=` the Ladrillo.jl checkout) →
+`outputs/diag_glacier_inventory_ablation_L27.csv` (per-draw file ignored). Each BRICK 2.0 draw k (joint arm, 1..1000)
+is given the remaining glacier ice at 2000 of Ladrillo draw k (its partner on the same FaIR configuration), by solving
+its initial volume gsic_v0; its other glacier parameters are unchanged. Remaining ice is each model's own: Ladrillo
+Σa_b − S(2000) (the likelihood's inventory term), BRICK 2.0 v0 − g(2000) on the calibration forcing.
+
+| glaciers, cm rel. 1995–2014, joint medians | 2100 gap (inventory part) | 2300 gap (inventory part) |
+|---|---|---|
+| Very Low | −3.9 (−0.3, 8 %) | −13.8 (−1.6, 12 %) |
+| Low-to-Negative | −3.8 (−0.3, 9 %) | −11.7 (−1.2, 10 %) |
+| Low | −3.8 (−0.3, 9 %) | −14.0 (−2.0, 14 %) |
+| Medium-to-Low | −3.6 (−0.4, 10 %) | −14.1 (−2.4, 17 %) |
+| Medium | −3.3 (−0.5, 14 %) | −11.7 (−4.5, 38 %) |
+| High-to-Low | −3.1 (−0.5, 15 %) | −13.8 (−2.7, 20 %) |
+| High | −3.1 (−0.5, 16 %) | −9.3 (−5.1, 55 %) |
+
+- **The rest of the gap is everything except the inventory**: the equilibrium-volume structure, the regional drivers and
+  the other calibration differences. It is 83–92 % of the gap at 2100 in every scenario, and 80–90 % at 2300 except
+  Medium and High, where BRICK 2.0's High run reaches its (smaller) cap.
+- **The range (High − Very Low, 2300) moves the OTHER way**: BRICK 2.0 9.68 → 6.22 cm with Ladrillo's inventory,
+  against Ladrillo's 14.23. A smaller inventory caps the High scenario, so the inventory alone would NARROW the range;
+  Ladrillo's larger range comes entirely from the remainder (+8.0 cm of the +4.5 cm net).
+- **Retracts Claude's 11-05 chat estimate** that the inventory accounts for about 40 % of the 2300 Very Low gap. It
+  assumed melt scales with inventory; Wigley–Raper's melt depends on v0 only through (1 − S/v0)^n, so the measured
+  share is 12 %.
+- The hindcast barely moves: BRICK 2.0's 1900–2020 glacier change is 5.15 cm, 5.11 with Ladrillo's inventory (medians,
+  calibration forcing).
+- **Inventory definitions (draws 1–1000).** Ladrillo remaining at 2000: 29.7 cm (24.7–35.0). BRICK 2.0: 35.5 cm
+  (23.4–49.0) counted as its equations use it (v0 − g(2000); g starts at gsic_s0, median 1.9 cm, and the cap and rate
+  count it as melted), 37.8 cm (28.0–47.7) as Table 2 note 7 counts it (v0 minus the 1850–2000 increment; 37.4 on all
+  10,000 draws). ⚠ So Table 2's 37.4 may overstate BRICK 2.0's remaining ice by about s0 (Marcus's call).
+- Gates: [IDENTITY] arm B reproduces the canonical BRICK 2.0 glacier draws exactly (7 scenarios × 2 horizons);
+  [TARGET] every B' draw's remaining ice equals its Ladrillo partner's to 2.7e-9 cm (mutation: arm B misses by 29 cm);
+  [PAIRING] all pass. Byte-identical on a second run.
+
 ## 2026-11-05b — Abstract candidate: Ladrillo's glacier range is 47 % larger (bootstrap 41–54 %)
 
 **Marcus 11-05:** "Use 2300, High minus Very Low; bootstrap the 47%" (for an abstract sentence of the form "Ladrillo

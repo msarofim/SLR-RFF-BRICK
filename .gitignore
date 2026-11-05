@@ -326,6 +326,8 @@ outputs/pulse_brick2_draws_*.csv
 outputs/diag_ais_2100_vs_lin2026_*_draws.csv
 # per-draw rows behind outputs/diag_ais_constant_climate_vs_poinelli2026_<TAG>.csv (9 MB; julia/diag_ais_constant_climate_vs_poinelli2026.jl)
 outputs/diag_ais_constant_climate_vs_poinelli2026_*_draws.csv
+# per-draw rows behind outputs/diag_glacier_inventory_ablation_<TAG>.csv (17 MB; julia/diag_glacier_inventory_ablation.jl)
+outputs/diag_glacier_inventory_ablation_*_draws.csv
 outputs/pulse_ladrillo_*_SMOKE.csv
 
 # Mutation-test outputs are DELIBERATELY WRONG tables. The verdict lives in the
