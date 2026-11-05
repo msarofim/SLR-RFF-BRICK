@@ -100,7 +100,7 @@ of `julia/calibrate_mcmc_ext.jl` at the commit L27 ran from. Other paths are rel
   cal@43d84aa:178-190,203-213; `python/diag_amp_dataset_comparison.py`):
 
   > Each block b is driven by its own regional temperature T_b. Through 2024, T_b is the HadCRUT5 annual anomaly
-  > averaged over the block's GTN-G regions, weighted by glacier area in 2000. After 2024,
+  > averaged over the block's RGI regions, weighted by glacier area in 2000. After 2024,
   > T_b(t) = A_b·G(t) + c_b, where G is GMST relative to 1850–1900, A_b the block's amplification and c_b the constant
   > that matches the 2014–2024 observed mean. The prior on A_b is a truncated normal whose width and bounds come from the
   > through-origin regressions of the block's anomaly on global anomaly over 1901–2024 in HadCRUT5, Berkeley Earth and
@@ -126,7 +126,7 @@ of `julia/calibrate_mcmc_ext.jl` at the commit L27 ran from. Other paths are rel
   :26-45,87-88,104-114,241-273,322-329; `python/diag_gis_amp_cmip6.py`; `outputs/gis_amp_prior.csv`):
 
   > Both basins are driven by one regional series: the HadCRUT5 annual anomaly over southern Greenland (59–70° N; 11
-  > grid cells, each weighted by its overlap with the GTN-G region 05 outline and its land fraction), relative to
+  > grid cells, each weighted by its overlap with the RGI region 05 outline and its land fraction), relative to
   > 1850–1900. There is no further downscaling within the ice sheet; the basins differ only in their volume shares and
   > rate scales. The amplification is the through-origin regression of this series on the same product's global anomaly
   > over 1901–2024: 1.97 in HadCRUT5, 1.51 in Berkeley Earth and 2.29 in GISTEMP. Its prior is their mean and standard
@@ -219,6 +219,10 @@ of `julia/calibrate_mcmc_ext.jl` at the commit L27 ran from. Other paths are rel
 - **Tony 299, what "observed" means in the CMIP6 row — FACT.** Greenland's amplification level and prior width come from
   the three observational products (p6 item above); CMIP6 supplies only the shape of its decline with warming. For
   Antarctica, CMIP6 gives the prior itself.
+- **GTN-G and WGMS — EASY.** Both appear only in note 18 ("region polygons GTN-G Glacier Regions (WGMS, 2023)") and are
+  not expanded there. Expand once: "the Global Terrestrial Network for Glaciers (GTN-G) region outlines (World Glacier
+  Monitoring Service, WGMS, 2023)". The methods drafts in this note say "RGI regions" instead, because the GTN-G outlines
+  are the RGI first-order regions, so the main text needs no new acronym (Marcus 11-05 asked).
 - **Table 3 style — EASY.** The journal shorthand in the version column ("PNAS 116:9239", "Nat. Geosci. 12:168",
   "Science 388:979", …) duplicates the reference list; author–year is enough.
 
