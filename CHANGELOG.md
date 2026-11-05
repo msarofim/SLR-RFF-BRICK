@@ -29,6 +29,39 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-05b — Abstract candidate: Ladrillo's glacier range is 47 % larger (bootstrap 41–54 %)
+
+**Marcus 11-05:** "Use 2300, High minus Very Low; bootstrap the 47%" (for an abstract sentence of the form "Ladrillo
+projects X–Y % less glacier melt, but an A % larger range from low to high scenarios").
+
+**Measured first (from `outputs/vv_model_comparison_L27.csv`, joint medians, cm rel. 1995–2014).** Ladrillo's glacier
+contribution is below BRICK 2.0's in all seven van Vuuren scenarios: 3.1–3.9 cm (22–34 %) at 2100, 9.2–14.1 cm
+(27–56 %) at 2300. The percentages vary more across scenarios than the centimetres (coefficient of variation 0.19–0.24
+vs 0.07–0.14 at every horizon), because the gap is nearly a constant offset while BRICK 2.0's melt grows with warming.
+The range advantage is not monotonic in horizon (High − Very Low: +31 % at 2100, +16 % at 2150, +47 % at 2300), and at
+2300 it depends on the definition (+19 % as max − min over the seven, where Low-to-Negative is the lowest). Mechanism:
+Ladrillo's low scenarios level off (Very Low is 43 % of High at 2300; BRICK 2.0 72 %).
+
+**Bootstrap.** `python/diag_glacier_range_bootstrap.py` → `outputs/diag_glacier_range_bootstrap_L27.csv`. Statistic
+[med_L(High) − med_L(Very Low)] / [med_B(High) − med_B(Very Low)] − 1, glaciers, 2300. Resampling unit = the draw
+index: paired across the two scenarios in each model, and, for draws 1–1000, across models (they share FaIR
+configurations; 998 of 1,000 BRICK 2.0 draws have a Ladrillo partner). 10,000 resamples, seed 20261105 recorded in the
+output.
+
+| | point | 5–95 % | 2.5–97.5 % |
+|---|---|---|---|
+| Ladrillo range (cm) | 14.23 | 14.07–14.36 | 14.04–14.38 |
+| BRICK 2.0 range (cm) | 9.68 | 9.25–10.11 | 9.18–10.21 |
+| Ladrillo larger by (%) | **46.9** | **40.5–53.7** | 39.2–55.1 |
+| same, median of per-draw ranges (%) | 48.5 | 43.0–53.7 | 42.3–55.7 |
+
+- All 10,000 resamples are positive. Resampling the two models independently (ignoring the shared climate) gives
+  40.3–53.8 %, so the pairing barely matters here.
+- The interval is the SAMPLING precision of a median-based statistic on these ensembles (most of it from BRICK 2.0's
+  1,000 draws). It says the 47 % is not an ensemble-size artefact. It is not a structural uncertainty.
+- Gates: [PAIR-SCEN], [PAIR-MODEL], [IDENTITY] (the four medians equal the table to 3.6e-15 cm; mutation on the fixed
+  arm differs by 0.59 cm). Byte-identical on a second run.
+
 ## 2026-11-05 — Fig. 5 on the joint arm; panel letters on Figs. 1–4 and 6
 
 **Marcus 11-05:** "Go ahead with the Fig. 5 joint arm and panel labels" (Tony's TW2 comments on Fig. 1, "they'll want
