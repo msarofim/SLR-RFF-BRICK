@@ -29,6 +29,25 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-07 — Guidance notes for the remaining GMD issues; joint-arm amplification numbers; RGI 19 prior priced
+
+**Marcus 11-07:** updated draft (09:08 save) + `deliverables/ladrillonotes.docx`; "Produce an updated notes document (by
+page/section)… Make simplified text a priority."
+- `notes/ladrillo_guidance_2026-11-07.md` → `deliverables/ladrillo_guidance_2026-11-07.docx` (pandoc; read back with
+  python-docx). Page-by-page HAND / DECIDE / CLAUDE / CLOSE items with suggested replacement text; 49 comments open, 41
+  resolved since 11-05. The draft was not edited.
+- Answers to Marcus's notes: joint arm for every result (fixed arm kept for the two Sect. 3.2 diagnostics, with a
+  stated reason); RGI 19 prior 0.72 has no recorded derivation (commit 02150d8, "cross-dataset ranges"), and
+  re-centring on 0.68 moves glacier medians by <= 0.03 cm (`outputs/diag_r19_amp_prior_reweight_L27.csv`); log10 vs ln
+  only rescales the prior; the (level, tilt) reason is recorded at cal@43d84aa:441-451 (within-chain correlation 0.58 →
+  0.14); a symbol-renaming table.
+- Joint-arm Sect. 2.2.3 numbers (`julia/diag_ais_amp_joint.jl` → `outputs/diag_ais_amp_joint_L27.csv`, identity gates
+  pass; not re-run for byte identity, machine at load ~22): +1σ amplification raises AIS at 2300 by 38.8 cm (15 %)
+  SSP2-4.5 and 24.9 cm (5 %) SSP5-8.5 (fixed arm: 45 / 20); reverting to 1.196 adds 11 / 32 cm (2100 / 2300) SSP2-4.5 and
+  6 / 13 SSP5-8.5 (fixed: 14 / 34, 7 / 12).
+- Found while reading: the R̂ sentence overstates (3 of the 8 exceed 1.05; all 8 fail ESS); Code availability claims the
+  archive holds every figure script, but Ladrillo.jl ships only Table 5's.
+
 ## 2026-11-05c — Glacier inventory ablation: the inventory explains little of the gap and none of the larger range
 
 **Marcus 11-05:** "Run the glacier ablation with Ladrillo's inventory in BRICK."
