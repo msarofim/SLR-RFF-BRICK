@@ -25,8 +25,8 @@ sentences, and remove repetition. Rewrites marked "optional" are simplifications
    the note "cross-dataset ranges". It is close to the midpoint of the range of the three products' fits (0.58–0.86),
    while the SLOWG and FASTG centres sit near HadCRUT5; that midpoint reading is my inference. Switching to
    0.68 (the three-product mean, the rule Greenland uses) changes glacier medians by at most 0.03 cm in any scenario
-   or horizon. I priced it by reweighting the posterior, which is exact here because the amplification enters the
-   calibration only through its prior (receipt `outputs/diag_r19_amp_prior_reweight_L27.csv`). Recommendation: keep
+   or horizon. I priced it by reweighting the posterior by the ratio of the new prior to the old one, which is exact
+   whenever only a prior changes (receipt `outputs/diag_r19_amp_prior_reweight_L27.csv`). Recommendation: keep
    0.72 and describe the priors as spanning the three products (p. 4). No recalibration is needed either way.
 3. **log₁₀ versus ln.** ln works equally well. The base only rescales the prior: N(0, 0.5) in log₁₀ is N(0, 1.15) in
    ln. The reason for a logarithm is that s_b multiplies a rate, so a prior symmetric in log s_b treats halving and
@@ -155,8 +155,9 @@ prior-propagation note, and is shorter:
 > relative to 1850–1900, A_b is the block's amplification and c_b matches the 2014–2024 observed mean. The priors on
 > A_b are truncated normals that span the regressions of each block's anomaly on the global anomaly over 1901–2024 in
 > HadCRUT5, Berkeley Earth and GISTEMP: N(2.50, 0.45) on [1.80, 3.50] for SLOWG, N(1.45, 0.15) on [1.33, 1.82] for
-> FASTG and N(0.72, 0.15) on [0.58, 0.88] for RGI 19. Because A_b acts only after 2024, the record does not constrain
-> it, and the calibration builds the drivers once at the prior centres.
+> FASTG and N(0.72, 0.15) on [0.58, 0.88] for RGI 19. The glacier record ends before A_b affects the drivers, so the
+> calibration builds the drivers once with the prior-centre values. A_b does enter the GlacierMIP3 constraints, which
+> are given at global warming levels and converted to each block's temperature with A_b.
 
 Optional extra sentence: "Centring the RGI 19 prior on the mean of the three regressions (0.68) changes the glacier
 projections by less than 0.03 cm."

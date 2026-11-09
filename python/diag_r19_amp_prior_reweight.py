@@ -8,10 +8,12 @@ sampled-amp mode (calibrate_mcmc_ext.jl, commit 02150d8, 2026-08-09) citing "cro
 recorded. The three products' through-origin fits over 1901-2024 are HadCRUT5 0.615, Berkeley Earth 0.847, GISTEMP 0.580
 (outputs/diag_amp_dataset_comparison.csv); their mean is 0.68, the rule Greenland's prior uses.
 
-Re-centring is priced EXACTLY by importance reweighting: gic_amp_R19 enters the posterior only through its own prior and
-the kappa-prior centre (a conditional prior that is unchanged as a function), so moving the amp prior multiplies the
-posterior by N(a; NEW, SD) / N(a; OLD, SD) on the same truncation bounds (the normalizing constants cancel when the
-weights are normalized). The weights are applied to the paper's joint-arm draws (draw k = posterior row 1 + 5(k - 1)).
+Re-centring is priced EXACTLY by importance reweighting: only the amp's marginal prior changes (the likelihood, which
+reads amp through the GlacierMIP3 frame conversion, and the kappa-prior centre, a conditional prior, are unchanged as
+functions), so the new posterior is the old one times N(a; NEW, SD) / N(a; OLD, SD) on the same truncation bounds (the
+normalizing constants cancel when the weights are normalized). Corrected 2026-11-09: this said amp enters "only through
+its own prior and the kappa-prior centre"; it also enters the GlacierMIP3 likelihood (calibrate_mcmc_ext.jl @43d84aa:
+1582-1590), which does not affect the reweighting. The weights are applied to the paper's joint-arm draws (draw k = posterior row 1 + 5(k - 1)).
 Writes outputs/diag_r19_amp_prior_reweight_L27.csv.
 """
 import os
