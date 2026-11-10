@@ -18,8 +18,16 @@ Outputs
   outputs/ladrillo_prior_posterior_<tag>.csv  (+ provenance column)
   outputs/ladrillo_prior_posterior_<tag>.md   (the appendix table, grouped by block)
 
+DISPLAY BASE (Marcus 2026-11-10): parameters the calibrator samples as log10 (LOG10_SAMPLED) are SHOWN in the
+markdown table as natural logs, so that every log-scale row of Table A1 uses one base (gis_slow_ell and
+ais_precip_u are ln in the code). The prior and the posterior are unchanged: the md multiplies the prior mu,
+sigma, bounds and the posterior quantiles by ln 10. The CSV keeps the code's log10 values, since other drivers
+read prior bounds from it.
+
 GATES (hard-fail): the prior file's parameter order == the posterior's columns; every posterior
-draw lies inside its prior bounds (rho < 0.99); the row count == 58. A prior row without a
+draw lies inside its prior bounds (rho < 0.99); the row count == 58. [LN-DISPLAY] each ln row's quantiles,
+recomputed independently as quantiles of ln(10**x), equal the scaled log10 quantiles to 1e-9, and its units
+string starts with "ln(". A prior row without a
 description entry below also fails — a parameter must not appear in the paper without its units.
 
 Only the DESCRIPTION/UNITS column is hand-written here. Sources: DAIS units from Wong et al. 2017
@@ -36,6 +44,12 @@ import numpy as np
 import pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LN10 = np.log(10.0)
+# sampled as log10 by calibrate_mcmc_ext.jl; the md table shows them as ln (see DISPLAY BASE above)
+LOG10_SAMPLED = {"gic_log10_kappa_R19", "gic_log10_kappa_SLOWP", "gic_log10_kappa_FAST", "gis_s_high",
+                 "ais_ramp_log10s"}
+LN_NOTE = ("ᶜ sampled as log₁₀ in the code and the posterior file; shown here as ln = ln 10 × log₁₀ "
+           "(ln 10 = %.3f)." % LN10)
 
 # block -> (heading, [parameter names in table order])
 BLOCKS = [
@@ -130,6 +144,18 @@ DESC = {
 }
 
 
+# md-only description/units for the LOG10_SAMPLED rows (the CSV keeps DESC, which matches its log10 values)
+DESC_LN = {
+    "gic_log10_kappa_R19": ("ln of the response-rate constant κ, RGI 19", "ln(yr⁻¹ K⁻ν)ᶜ"),
+    "gic_log10_kappa_SLOWP": ("ln of the response-rate constant κ, SLOWG", "ln(yr⁻¹ K⁻ν)ᶜ"),
+    "gic_log10_kappa_FAST": ("ln of the response-rate constant κ, FASTG", "ln(yr⁻¹ K⁻ν)ᶜ"),
+    "gis_s_high": ("ln rate scale of the high basin (NO+NE) relative to the active basin", "ln(–)ᶜ"),
+    "ais_ramp_log10s": ("ln slope of the additional discharge response, per °C of Antarctic excess",
+                        "ln(m SLE yr⁻¹ °C⁻¹)ᶜ"),
+}
+assert set(DESC_LN) == LOG10_SAMPLED, "DESC_LN must cover LOG10_SAMPLED exactly"
+
+
 def fmt(v, ref):
     """Format v to a precision set by ref (the parameter's scale)."""
     if v is None or (isinstance(v, float) and (np.isnan(v) or np.isinf(v))):
@@ -207,20 +233,36 @@ def main():
              "DAIS scale; ais_runoff_Ton replaces h₀ (h₀ = −T_on·c).", ""]
     lines += ["| Parameter | Description | Units | Prior | Median | 5% | 95% |",
               "|---|---|---|---|---|---|---|"]
+    shown = []
     for head, ps in blocks:
         if not ps:
             continue
         lines.append(f"| **{head}** | | | | | | |")
         for n in ps:
-            r = out.loc[n]
+            r = out.loc[n].copy()
+            pr = pri.set_index('name').loc[n].copy()
+            if n in LOG10_SAMPLED:                           # display in ln; the CSV keeps log10
+                for k in ("p05", "p50", "p95"):
+                    r[k] = r[k] * LN10
+                for k in ("mu", "sigma", "lo", "hi"):
+                    pr[k] = pr[k] * LN10
+                r["description"], r["units"] = DESC_LN[n]
+                lnq = np.quantile(np.log(10.0 ** post[n].to_numpy()), [0.05, 0.5, 0.95])
+                assert np.allclose(lnq, [r.p05, r.p50, r.p95], rtol=0, atol=1e-9), \
+                    f"[LN-DISPLAY] {n}: scaled quantiles {[r.p05, r.p50, r.p95]} != ln(10**x) quantiles {lnq}"
+                assert r.units.startswith("ln("), f"[LN-DISPLAY] {n}: units '{r.units}' do not say ln"
+                shown.append(n)
             code = n.replace("SLOWP", "SLOWG").replace("_FAST", "_FASTG")
             sc = max(abs(r.p05), abs(r.p50), abs(r.p95))     # one precision per row
-            lines.append(f"| `{code}` | {r.description} | {r.units} | {prior_text(pri.set_index('name').loc[n])} | "
+            lines.append(f"| `{code}` | {r.description} | {r.units} | {prior_text(pr)} | "
                          f"{fmt(r.p50, sc)} | {fmt(r.p05, sc)} | {fmt(r.p95, sc)} |")
+    if shown:
+        lines[0] = lines[0] + " " + LN_NOTE
     md_out = os.path.join(REPO, f"outputs/ladrillo_prior_posterior_{a.tag}.md")
     with open(md_out, "w") as f:
         f.write("\n".join(lines) + "\n\n" + f"<!-- {out.provenance.iloc[0]} -->\n")
     print(f"wrote {os.path.relpath(csv_out, REPO)} and {os.path.relpath(md_out, REPO)} ({len(names)} parameters; all gates PASS)")
+    print(f"[LN-DISPLAY] PASS: {len(shown)} log10-sampled rows shown as ln ({', '.join(shown)})")
 
 
 if __name__ == "__main__":
