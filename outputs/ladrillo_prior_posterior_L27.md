@@ -1,4 +1,4 @@
-**Table A1.** Prior distributions and posterior median (5–95%) of the 50 sampled Ladrillo parameters (10,000 thinned draws of the four chains). N(µ, σ) on [lo, hi] is a normal density restricted to the bounds; 'flat' is bounds only. Glacier-block temperatures are in the block's regional frame (K relative to 1850–1900). ᵃ κ's prior centre κ̂(amp) is a log-linear function of the block's sampled amplification (τ₅₀ anchored to GlacierMIP3); ᵇ the seven DAIS geometry parameters carry a joint normal prior with the correlation of the DAIS paleo ensemble — the marginal is shown. The Greenland channel ordering (SMB faster than discharge) is a hard constraint on top of these marginals. Antarctic temperatures on the DAIS scale; ais_runoff_Ton replaces h₀ (h₀ = −T_on·c).
+**Table A1.** Prior distributions and posterior median (5–95%) of the 50 sampled Ladrillo parameters (10,000 thinned draws of the four chains). N(µ, σ) on [lo, hi] is a normal density restricted to the bounds; 'flat' is bounds only. Glacier-block temperatures are in the block's regional frame (K relative to 1850–1900). ᵃ κ's prior centre κ̂(amp) is a log-linear function of the block's sampled amplification (τ₅₀ anchored to GlacierMIP3); ᵇ the seven DAIS geometry parameters carry a joint normal prior with the correlation of the DAIS paleo ensemble — the marginal is shown. The Greenland channel ordering (SMB faster than discharge) is a hard constraint on top of these marginals. Antarctic temperatures on the DAIS scale; ais_runoff_Ton replaces h₀ (h₀ = −T_on·c). ᶜ sampled as log₁₀ in the code and the posterior file; shown here as ln = ln 10 × log₁₀ (ln 10 = 2.303).
 
 | Parameter | Description | Units | Prior | Median | 5% | 95% |
 |---|---|---|---|---|---|---|
@@ -6,15 +6,15 @@
 | `gic_a_R19` | Committed-loss scale a, RGI 19 | m SLE | N(0.069, 0.018) on [0.01, 0.141] | 0.0674 | 0.0391 | 0.0961 |
 | `gic_b_R19` | Equilibrium temperature sensitivity b, RGI 19 | K⁻¹ (glacier frame) | flat [0.05, 3] | 0.73 | 0.2 | 2.45 |
 | `gic_T_off_R19` | Equilibrium temperature offset T_off, RGI 19 | K rel. 1850–1900, glacier frame | flat [−4, 1] | −0.13 | −3.15 | 0.71 |
-| `gic_log10_kappa_R19` | log₁₀ of the response-rate constant κ, RGI 19 | log₁₀(yr⁻¹ K⁻ν) | N(κ̂(amp), 0.114) on [−3.91, −1.66]ᵃ | −2.78 | −3 | −2.56 |
+| `gic_log10_kappa_R19` | ln of the response-rate constant κ, RGI 19 | ln(yr⁻¹ K⁻ν)ᶜ | N(κ̂(amp), 0.262) on [−9, −3.81]ᵃ | −6.4 | −6.9 | −5.9 |
 | `gic_a_SLOWG` | Committed-loss scale a, SLOWG | m SLE | N(0.146, 0.0328) on [0.0333, 0.277] | 0.131 | 0.09 | 0.178 |
 | `gic_b_SLOWG` | Equilibrium temperature sensitivity b, SLOWG | K⁻¹ (glacier frame) | flat [0.05, 3] | 0.17 | 0.114 | 0.283 |
 | `gic_T_off_SLOWG` | Equilibrium temperature offset T_off, SLOWG | K rel. 1850–1900, glacier frame | flat [−4, 1] | −2.78 | −3.89 | −1.02 |
-| `gic_log10_kappa_SLOWG` | log₁₀ of the response-rate constant κ, SLOWG | log₁₀(yr⁻¹ K⁻ν) | N(κ̂(amp), 0.114) on [−4.75, −2.17]ᵃ | −3.48 | −3.69 | −3.26 |
+| `gic_log10_kappa_SLOWG` | ln of the response-rate constant κ, SLOWG | ln(yr⁻¹ K⁻ν)ᶜ | N(κ̂(amp), 0.262) on [−10.9, −4.99]ᵃ | −8.01 | −8.5 | −7.5 |
 | `gic_a_FASTG` | Committed-loss scale a, FASTG | m SLE | N(0.14, 0.0242) on [0.0809, 0.237] | 0.151 | 0.121 | 0.184 |
 | `gic_b_FASTG` | Equilibrium temperature sensitivity b, FASTG | K⁻¹ (glacier frame) | flat [0.05, 3] | 0.334 | 0.25 | 0.459 |
 | `gic_T_off_FASTG` | Equilibrium temperature offset T_off, FASTG | K rel. 1850–1900, glacier frame | flat [−4, 1] | −1.52 | −2.19 | −0.92 |
-| `gic_log10_kappa_FASTG` | log₁₀ of the response-rate constant κ, FASTG | log₁₀(yr⁻¹ K⁻ν) | N(κ̂(amp), 0.114) on [−3.77, −1.52]ᵃ | −2.61 | −2.76 | −2.45 |
+| `gic_log10_kappa_FASTG` | ln of the response-rate constant κ, FASTG | ln(yr⁻¹ K⁻ν)ᶜ | N(κ̂(amp), 0.262) on [−8.69, −3.5]ᵃ | −6.01 | −6.36 | −5.65 |
 | **Glacier regional temperature amplification** | | | | | | |
 | `gic_amp_R19` | Regional/global warming ratio, RGI 19 | – | N(0.72, 0.15) on [0.58, 0.88] | 0.726 | 0.599 | 0.859 |
 | `gic_amp_SLOWG` | Regional/global warming ratio, SLOWG | – | N(2.5, 0.45) on [1.8, 3.5] | 2.64 | 2.07 | 3.2 |
@@ -29,7 +29,7 @@
 | `gis_beta_f` | Fast (SMB) channel rate, constant part | yr⁻¹ | N(0.00737, 0.05) on [0.000001, 0.5] | 0.0048 | 0.0016 | 0.0106 |
 | `gis_slow_ell` | Slow (discharge) channel: log rate at the reference temperature | ln(yr⁻¹) | N(−4.21, 1) on [−8.21, −0.207] | −5.67 | −6.5 | −4.96 |
 | `gis_slow_w` | Slow (discharge) channel: temperature-dependent fraction of the rate | – | flat [0, 1] | 0.438 | 0.05 | 0.925 |
-| `gis_s_high` | log₁₀ rate scale of the high basin (NO+NE) relative to the active basin | log₁₀(–) | N(0, 0.5) on [−2, 2] | −0.559 | −0.784 | −0.36 |
+| `gis_s_high` | ln rate scale of the high basin (NO+NE) relative to the active basin | ln(–)ᶜ | N(0, 1.15) on [−4.61, 4.61] | −1.29 | −1.81 | −0.83 |
 | `gis_amp` | Southern-Greenland/global warming ratio | – | N(1.92, 0.318) on [1.51, 2.28] | 1.91 | 1.57 | 2.23 |
 | **Antarctic ice sheet (DAIS) and Antarctic ocean** | | | | | | |
 | `ais_gmst_amp` | Antarctic/global warming ratio | – | N(1.09, 0.18) on [0.55, 1.63] | 1.08 | 0.79 | 1.37 |
@@ -61,4 +61,4 @@
 | `sd_steric` | AR(1) innovation sd, thermal expansion | cm | half-normal N⁺(0, 5) | 0.101 | 0.09 | 0.115 |
 | `rho_steric` | AR(1) autocorrelation, thermal expansion | – | flat [0, 0.99] | 0.94 | 0.854 | 0.983 |
 
-<!-- ladrillo_prior_posterior_table.py | tag L27 | priors from calibrate_mcmc_ext.jl --dump-priors (tag L27) | posterior parameters_subsample_brick_mengel_L27.csv n=10000 | quantiles 5/50/95 over all draws | commit 5a27c0b | 2026-09-20 18:18 -->
+<!-- ladrillo_prior_posterior_table.py | tag L27 | priors from calibrate_mcmc_ext.jl --dump-priors (tag L27) | posterior parameters_subsample_brick_mengel_L27.csv n=10000 | quantiles 5/50/95 over all draws | commit b8d7fdf | 2026-11-10 07:51 -->

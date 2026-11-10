@@ -29,6 +29,31 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-10 — Table A1 shows its log₁₀ rows in ln; the A_b guidance sentence corrected
+
+**Marcus 11-10:** "Is there a reason that the glacier κ priors use log₁₀? How hard would it be to change all the
+priors to natural logs?" then "Option 1" (change Table A1 only).
+- No reason for base 10 is recorded. The calibrator gives the reason for a log ("spans decades", a9dbf4b, 08-07);
+  `gis_s_high` copied "the gic_log10_kappa pattern" (0e53c2d, 08-12). `gis_slow_ell` and `ais_precip_u` were already ln,
+  so L27's Table A1 mixed bases (four log₁₀ rows, two ln).
+- `python/ladrillo_prior_posterior_table.py` (b8d7fdf): the md table shows the four log₁₀ rows in ln (prior μ, σ,
+  bounds and posterior quantiles × ln 10) with caption footnote ᶜ. The CSV keeps log₁₀ values and units, because
+  `diag_ais_channel_separation.jl` and `diag_ais_isocumulative_channels.jl` read prior bounds from it; on regeneration
+  only its provenance column changed. New gate [LN-DISPLAY] recomputes each row as quantiles of ln(10^x) and checks the
+  units string; mutation-tested (LN10 = 2.30 and a log₁₀ units string each fail). Two runs give identical md apart from
+  the provenance timestamp.
+- Abandoned: changing the code and the posterior file to ln. The reparameterization is exact, but in Julia
+  exp(x·ln 10) ≠ 10^x in the last bits for 95–100 % of draws (κ) and 67 % (`gis_s_high`), so every projection output
+  would move at rounding level and the archived calibrator would no longer be the code that produced L27.
+- `notes/ladrillo_guidance_2026-11-07.md`: item 3 rewritten, the p. 7 s_b sentence now says ln, and a new "Appendix A"
+  item carries the four replacement rows and footnote. The .docx was NOT regenerated (open in Word); rebuild with pandoc
+  once it is closed.
+- 2026-11-09 (3a93d94, no entry at the time): the guidance's block-temperature sentence said the record "does not
+  constrain" A_b, and the RGI 19 reweighting was justified as A_b entering "only through its prior". A_b also enters the
+  GlacierMIP3 committed-loss term (cal@43d84aa:1582–1590, levels converted as amp × L). Sentence and
+  `diag_r19_amp_prior_reweight.py` docstring corrected; the reweighting is exact whenever only a prior changes, and its
+  output was byte-identical.
+
 ## 2026-11-07 — Guidance notes for the remaining GMD issues; joint-arm amplification numbers; RGI 19 prior priced
 
 **Marcus 11-07:** updated draft (09:08 save) + `deliverables/ladrillonotes.docx`; "Produce an updated notes document (by

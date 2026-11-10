@@ -1,6 +1,6 @@
 ---
 title: "Ladrillo GMD draft: guidance for the remaining issues"
-subtitle: "Draft saved 2026-11-07 09:08 · notes from ladrillonotes.docx (08:40) · prepared 2026-11-07"
+subtitle: "Draft saved 2026-11-07 09:08 · notes from ladrillonotes.docx (08:40) · prepared 2026-11-07 · updated 2026-11-10"
 ---
 
 # How to use these notes
@@ -28,9 +28,11 @@ sentences, and remove repetition. Rewrites marked "optional" are simplifications
    or horizon. I priced it by reweighting the posterior by the ratio of the new prior to the old one, which is exact
    whenever only a prior changes (receipt `outputs/diag_r19_amp_prior_reweight_L27.csv`). Recommendation: keep
    0.72 and describe the priors as spanning the three products (p. 4). No recalibration is needed either way.
-3. **log₁₀ versus ln.** ln works equally well. The base only rescales the prior: N(0, 0.5) in log₁₀ is N(0, 1.15) in
-   ln. The reason for a logarithm is that s_b multiplies a rate, so a prior symmetric in log s_b treats halving and
-   doubling alike and keeps s_b positive. Keep log₁₀ (the glacier κ are also log₁₀) and add the reason (p. 6).
+3. **log₁₀ versus ln.** ln works equally well. The base only rescales the prior (N(0, 0.5) in log₁₀ is N(0, 1.15) in
+   ln), and halving and doubling are equally likely in either base. No reason for base 10 is recorded: s_high copied
+   the glacier κ convention, while ℓ and u were already ln. **Updated 2026-11-10:** you chose to show the four log₁₀
+   rows of Table A1 in ln. The code and the posterior file stay in log₁₀, so no number in the paper changes. Edits:
+   Table A1 (new "Appendix A" item below) and the s_b sentence on p. 7.
 4. **Level and tilt.** A sentence is on p. 6. The reason is recorded in the calibrator: in test chains, sampling
    (ℓ, w) instead of (α_s, β_s) cut the within-chain correlation between the two parameters from 0.58 to 0.14
    (`python/diag_gis_slow_reparam.py`).
@@ -224,7 +226,7 @@ sentence becomes direct, the duplicate splice description goes, and S becomes φ
 **Paragraph after Eqs. (3)–(7): s_b, level and tilt (Tony 208, 209, and your notes). HAND.** Replace from "The rate
 scale s_b is 1…" to "…β_s = (1 − w)·e^ℓ;" with:
 
-> The rate scale s_b is 1 for the active basin and is sampled as log₁₀ s_b for the high basin, so that halving and
+> The rate scale s_b is 1 for the active basin and is sampled as ln s_b for the high basin, so that halving and
 > doubling the rate are equally likely a priori. The discharge rate is sampled as a level and a tilt at the
 > reference temperature T_ref = 1.963 K (the 2015–2024 mean of the regional driver). The level, ℓ = ln r_s(T_ref), is
 > the logarithm of the discharge rate at present-day temperature. The tilt, w = α_s·T_ref / r_s(T_ref), is the
@@ -561,6 +563,26 @@ Then CLOSE Tony 837 and 857.
 
 **Runtime sentence. CLAUDE** (re-measure). Text simplification you can make now: "so making scenario projections for
 a 10,000-draw ensemble takes about a minute" → "so projecting 10,000 draws for one scenario takes about a minute".
+
+# Appendix A: Table A1
+
+**Four rows in ln (your 2026-11-10 choice). HAND.** In the rows for the three glacier κ and `gis_s_high`, replace the
+description, units, prior and posterior entries with the values below. Keep the parameter names in the first column,
+because they match the columns of the posterior file. Values are from `outputs/ladrillo_prior_posterior_L27.md`
+(rebuilt at commit b8d7fdf; same precision rule as the rest of the table).
+
+| Parameter | Description | Units | Prior | Median | 5% | 95% |
+|---|---|---|---|---|---|---|
+| `gic_log10_kappa_R19` | ln of the response-rate constant κ, RGI 19 | ln(yr⁻¹ K⁻ν)ᶜ | N(κ̂(amp), 0.262) on [−9, −3.81]ᵃ | −6.4 | −6.9 | −5.9 |
+| `gic_log10_kappa_SLOWG` | ln of the response-rate constant κ, SLOWG | ln(yr⁻¹ K⁻ν)ᶜ | N(κ̂(amp), 0.262) on [−10.9, −4.99]ᵃ | −8.01 | −8.5 | −7.5 |
+| `gic_log10_kappa_FASTG` | ln of the response-rate constant κ, FASTG | ln(yr⁻¹ K⁻ν)ᶜ | N(κ̂(amp), 0.262) on [−8.69, −3.5]ᵃ | −6.01 | −6.36 | −5.65 |
+| `gis_s_high` | ln rate scale of the high basin (NO+NE) relative to the active basin | ln(–)ᶜ | N(0, 1.15) on [−4.61, 4.61] | −1.29 | −1.81 | −0.83 |
+
+Add footnote ᶜ to the end of the caption:
+
+> ᶜ sampled as log₁₀ in the code and the posterior file; shown here as ln = ln 10 × log₁₀ (ln 10 = 2.303).
+
+---
 
 # Pages 35–37: back matter
 
