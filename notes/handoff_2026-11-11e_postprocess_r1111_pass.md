@@ -97,7 +97,23 @@ full list:
 
 ## 5. Non-obvious state
 
-- The scratchpad holds the frozen draft copies and the mutation-test frozen package; it is gone with the session.
+- **State at 18:30 (written before a /clear).**
+  - **Marcus saved again at 17:06** (canonical TW2 md5 `9f152d66980d2bd29b5d6f9beb0d6d03`). build.sh's default md5
+    `84c9f503…` is no longer at the canonical path, so the guard will refuse until a save is looked at and passed as
+    BASE_MD5. The pass was developed and gated on `base_1700.docx` (md5 `fad8a36a…`).
+  - The frozen saves and the 17:00 extract were copied OUT of the scratchpad to
+    `deliverables/redline/r1111/bases_untracked/` (untracked, 3 MB each; do not commit):
+    - `base_1507.docx` (`872c3fef…`) and `base_1700.docx` (`fad8a36a…`);
+    - `extract1700/paras.txt`, the file to diff the next save's extract against;
+    - the piece-3 map and refs-report summaries.
+  - **Post-processing mutation test:** P1–P4 KILLED; P5, the no-power control expected to SURVIVE, started 18:10. If
+    Ladrillo.jl `main` is still `ahead 1` at e7d7f81, the session ended before P5 finished. In that case, read
+    `/private/tmp/claude-501/-Users-MarcusMarcus-Documents-2026-CodeProjects-FaIRtoFrEDI/eed2332f-9d15-44ff-856e-a58b68e2876c/scratchpad/frozen_pkg/test/calibration/mutation_result_postprocess.txt`.
+    If P5 is there, copy the file to Ladrillo `test/calibration/`, add a CHANGELOG line, commit and push. If P5 is not
+    there, re-run only P5 (`mutation_test_postprocess.sh` runs all five, so ~2 h for all of them; ~25 min for P5 alone).
+  - `data/RFF-SP-emissions/csv/INPUTS.manifest.json` shows as modified in SLR. This session did not touch it; leave it.
+- The scratchpad held the frozen draft copies and the mutation-test frozen package; what the next session needs is
+  copied out above.
 - `outputs/diag_runtime_ladrillo_vs_brick20_L27*`: the tracked file is the 09-21 run (May posterior);
   `_rep2_0921_mayposterior` is the same file; `_rep3_20261111_underload` is the 11-11 run. The tracked file will be
   overwritten by the quiet re-run.
