@@ -29,6 +29,28 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-11 — Guidance for the next round of GMD hand edits; two of my 11-07 suggestions corrected
+
+**Marcus 11-11:** updated draft (10:19 save); "produce an updated guidance document for edits. Consider using v1.0 …
+Minimize changes to text edits from Tony unless they are incorrect." Figures, notation and references go to a later
+Claude pass.
+- `notes/ladrillo_guidance_2026-11-11.md` → `deliverables/ladrillo_guidance_2026-11-11.docx` (pandoc; read back with
+  python-docx). The draft was read from a scratch copy and not edited. 44 comments open (49 on 11-07); the guidance
+  closes all but four. No suggestion rewrites Tony's tracked text; the discrepancy paragraph gets four insertions that
+  answer his five questions (basis read from the calibrator's `d2_basis`: x and x², plain inner product, against a
+  constant and the OHC shape, unit RMS).
+- Correction: the reproducibility sentence I suggested on 11-07 ("every random seed is … recorded in the output file
+  that each figure reads") is false. `outputs/vv_model_comparison_L27.csv` (Figs. 2–3) and the joint-arm path file
+  behind Fig. 5 record no seed. Replacement: "Ladrillo's calibration and projection drivers fix every random seed, so
+  the results can be regenerated."
+- Correction: the Greenland amplification upper bound is 2.28 (`outputs/gis_amp_prior.csv`, 2.2847), not 2.29; Table A1
+  already showed 2.28.
+- Version v1.0: Ladrillo.jl already has tags v1.0.0–v1.3.0 (2026-10-08 to 10-15; v1.0.0 is an older build). Proposed:
+  rename them v0.1.0–v0.4.0 and tag the public release v1.0.0. Awaiting Marcus; nothing renamed.
+- Rechecked against `outputs/vv_model_comparison_L27.csv` at 2300 (Ladrillo − BRICK 2.0 medians): glaciers −9.2 to −14.1,
+  Greenland −3.1 to −8.9 in six scenarios and +20.4 in High, Antarctica within 7.2 except High-to-Low −18.2 and High
+  +31.4, thermal expansion +0.8 to +5.9.
+
 ## 2026-11-10 — Table A1 shows its log₁₀ rows in ln; the A_b guidance sentence corrected
 
 **Marcus 11-10:** "Is there a reason that the glacier κ priors use log₁₀? How hard would it be to change all the
