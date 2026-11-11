@@ -106,6 +106,8 @@ full list:
     - `base_1507.docx` (`872c3fef…`) and `base_1700.docx` (`fad8a36a…`);
     - `extract1700/paras.txt`, the file to diff the next save's extract against;
     - the piece-3 map and refs-report summaries.
+  - ✅ **DONE 18:35:** P5 survived; result committed and Ladrillo.jl `main` pushed (d2ab74c). The rest of this bullet
+    is moot.
   - **Post-processing mutation test:** P1–P4 KILLED; P5, the no-power control expected to SURVIVE, started 18:10. If
     Ladrillo.jl `main` is still `ahead 1` at e7d7f81, the session ended before P5 finished. In that case, read
     `/private/tmp/claude-501/-Users-MarcusMarcus-Documents-2026-CodeProjects-FaIRtoFrEDI/eed2332f-9d15-44ff-856e-a58b68e2876c/scratchpad/frozen_pkg/test/calibration/mutation_result_postprocess.txt`.
