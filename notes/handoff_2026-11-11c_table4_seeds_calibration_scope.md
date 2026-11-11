@@ -38,6 +38,23 @@ Memory: `gmd_1111_decisions` (updated).
   `scope_slr_fairunc_{draws,paths}_*`) still have no provenance column. Fixing them means re-running the research
   projections and changing column sets the package gates read. Memory `gmd_seed_claim_unsupported_by_figure_inputs`.
 
+### Files touched
+
+Ladrillo.jl (`~/Documents/2026/CodeProjects/Ladrillo`, `main`):
+- 184c95d: new `python/tables/ladrillo_vs_brick20_scorecard.py`; `python/tables/{check_tables_identity,ladrillo_prior_posterior_table,mutation_test_tables}.py`,
+  `python/tables/mutation_result.txt`; `test/runtests.jl`; `tools/build_test_reference.py`; `test/reference/` (new
+  `research_postpred_brick20_components_timeseries.csv`, `research_scope_ladrillo_vs_brick20_scorecard_L27.csv`;
+  Table A1 references re-copied; `SOURCES.csv`); README (Tables 4 and 5 section, tables gate); CHANGELOG 2026-11-11c.
+- 3c83772: `src/forcing.jl` (`fair_seed_note`); provenance lines in `scripts/{project_joint,brick20_joint,project_fixed,posterior_predictive,posterior_predictive_brick20,ic_hindcast_residuals}.jl`;
+  `python/figures/vv_model_comparison.py`; CHANGELOG 2026-11-11d.
+- Untracked, regenerated: `outputs/hindcast/*`, `outputs/projections/*vv*`, `outputs/tables/*`, `outputs/figures/*`.
+
+SLR-RFF-BRICK: this note only (no code or output changed). Its CHANGELOG has no 11-11c entry; the Ladrillo.jl
+CHANGELOG carries the record.
+
+Memory: `gmd_1111_decisions` (the three answers), `gmd_seed_claim_unsupported_by_figure_inputs` (audit result),
+new `calibrator_gate_reference_is_all_rejections` (pointer in `INDEX_diag_bound`).
+
 ## 4. For the draft pass (add to the 11-11b list)
 
 - Code availability: with Table 4 ported, the archive now holds the scripts for Figs. 1–6 and Tables 4, 5, A1, A2. The
