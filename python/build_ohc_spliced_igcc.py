@@ -25,7 +25,9 @@ Inputs:
   outputs/rff_baseline_stoch_to2300.npz   (FaIR baseline cube)
 
 Output:
-  data/observations/ohc_spliced_zanna_igcc.csv      (parallel canonical)
+  data/observations/ohc_spliced_zanna_igcc.csv          (parallel canonical; --igcc=2024, the default)
+  data/observations/ohc_spliced_zanna_igcc_igcc2025.csv (--igcc=2025: the 2025 indicators, release
+                                                         data-2026.06.02; its one undated trailing row is dropped)
 
 Refs:
   Zanna L. et al. 2019. PNAS 116:1126-1131. doi:10.1073/pnas.1808838115
@@ -34,6 +36,7 @@ Refs:
     Zenodo doi:10.5281/zenodo.15744430.
 """
 
+import sys
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -42,12 +45,21 @@ import xarray as xr
 # --- Configuration (named constants per project convention) -----------------
 REPO_ROOT = Path("/Users/MarcusMarcus/Documents/2026/CodeProjects/SLR-RFF-BRICK")
 ZANNA_NC = REPO_ROOT / "data/observations/raw/zanna2019_OHC_GF_1870_2018.nc"
-IGCC_CSV = (REPO_ROOT / "data/observations/raw/igcc2024/"
-                       "ClimateIndicator-data-2cd2409/data/earth_energy_imbalance/"
-                       "earth_energy_imbalance.csv")
+IGCC_EDITIONS = {   # edition (indicator year) -> (relative path, label written to the header and console)
+    "2024": ("data/observations/raw/igcc2024/ClimateIndicator-data-2cd2409/data/earth_energy_imbalance/"
+             "earth_energy_imbalance.csv", "IGCC 2024"),
+    "2025": ("data/observations/raw/igcc2026/data-2026.06.02/data/earth_energy_imbalance/earth_energy_imbalance.csv",
+             "IGCC 2025 (release data-2026.06.02)"),
+}
+IGCC = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--igcc=")), "2024")
+if IGCC not in IGCC_EDITIONS:
+    raise SystemExit(f"--igcc={IGCC}: choose one of {sorted(IGCC_EDITIONS)}")
+IGCC_CSV = REPO_ROOT / IGCC_EDITIONS[IGCC][0]
+IGCC_LABEL = IGCC_EDITIONS[IGCC][1]
 FAIR_CUBE_NPZ = REPO_ROOT / "outputs/rff_baseline_stoch_to2300.npz"
 
-OUT_CSV = REPO_ROOT / "data/observations/ohc_spliced_zanna_igcc.csv"
+OUT_SUFFIX = "" if IGCC == "2024" else f"_igcc{IGCC}"   # 2024 keeps the committed path
+OUT_CSV = REPO_ROOT / f"data/observations/ohc_spliced_zanna_igcc{OUT_SUFFIX}.csv"
 
 ZANNA_DEPTH_VAR = "OHC_2000m"
 ZANNA_ERR_VAR = "error_OHC_2000"
@@ -82,6 +94,11 @@ def load_igcc(csv_path: Path) -> pd.DataFrame:
     """Read IGCC EEI CSV, return 0-2000m and full-depth OHC + propagated
     error in 10^22 J, indexed by integer year."""
     df = pd.read_csv(csv_path)
+    undated = df["time"].isna()
+    if undated.any():   # the 2025 release ends in one row with no time stamp; never guess its year
+        assert undated.sum() == 1 and undated.iloc[-1], "undated rows other than the last one"
+        print(f"  dropped {int(undated.sum())} undated trailing row")
+        df = df.loc[~undated].copy()
     df["year"] = df["time"].astype(int)
     df = df.set_index("year")
     out = pd.DataFrame(index=df.index)
@@ -183,7 +200,7 @@ def main() -> None:
     header = (
         f"# Spliced observed OHC (cumulative since FaIR 1750-zero), units 1e22 J\n"
         f"# Zanna 2019 PNAS (1870-{SPLICE_YEAR}, OHC_2000m, anchored to FaIR mean at {ANCHOR_YEAR}); "
-        f"IGCC 2024 ocean_0-2000m ({SPLICE_YEAR+1}-{int(igcc.index.max())}, "
+        f"{IGCC_LABEL} ocean_0-2000m ({SPLICE_YEAR+1}-{int(igcc.index.max())}, "
         f"5-yr windowed offset at {SPLICE_YEAR}; Palmer/von Schuckmann compilation)\n"
         f"# 1850-1869 filled from FaIR ensemble-mean\n"
         f"# zanna_shift_1e22J={canonical.attrs['zanna_shift_1e22J']:.6f}, "

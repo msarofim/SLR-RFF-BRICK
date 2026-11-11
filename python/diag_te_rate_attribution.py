@@ -31,11 +31,13 @@ SLOPE discontinuity at the splice while looking clean in level. Block [D] tests 
 overlap, where both series exist, instead of taking the comment's word for it.
 
     source ~/climate-env/bin/activate
-    python python/diag_te_rate_attribution.py
-Writes outputs/diag_te_rate_attribution.csv
+    python python/diag_te_rate_attribution.py [--tag=L27] [--forcing=ssp245harm] [--igcc=2024|2025]
+Writes outputs/diag_te_rate_attribution_<TAG>.csv (IGCC 2024, the default) or ..._<TAG>_igcc2025.csv (the 2025
+indicators: their EEI file and the Zanna+IGCC splice built from it by build_ohc_spliced_igcc.py --igcc=2025).
 """
 import os
 import re
+import subprocess
 
 import sys
 
@@ -46,10 +48,21 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # ⚠ TAG-AWARE since 2026-09-02. It was hardcoded to L14, so re-running it after any refit
 # silently re-reported the L14 arm under whatever vintage you thought you were looking at.
 TAG = next((a[len("--tag="):] for a in sys.argv[1:] if a.startswith("--tag=")), "L27")
+IGCC_EDITIONS = {   # edition (indicator year) -> (EEI file, Zanna+IGCC splice, label for provenance and console)
+    "2024": ("data/observations/raw/igcc2024/ClimateIndicator-data-2cd2409/data/earth_energy_imbalance/"
+             "earth_energy_imbalance.csv", "data/observations/ohc_spliced_zanna_igcc.csv", "IGCC 2024"),
+    "2025": ("data/observations/raw/igcc2026/data-2026.06.02/data/earth_energy_imbalance/earth_energy_imbalance.csv",
+             "data/observations/ohc_spliced_zanna_igcc_igcc2025.csv", "IGCC 2025 (release data-2026.06.02)"),
+}
+IGCC = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--igcc=")), "2024")
+if IGCC not in IGCC_EDITIONS:
+    raise SystemExit(f"--igcc={IGCC}: choose one of {sorted(IGCC_EDITIONS)}")
+IGCC_EEI_REL, IGCC_SPLICE_REL, IGCC_LABEL = IGCC_EDITIONS[IGCC]
+OUT_SUFFIX = "" if IGCC == "2024" else f"_igcc{IGCC}"   # 2024 keeps the committed paths
 
 # ⚠ TAG IN THE FILENAME. This wrote one untagged path while the script became tag-aware, so
 # the file silently held whichever vintage ran LAST -- the same class as the hardcoded L14.
-OUT = os.path.join(REPO, "outputs", f"diag_te_rate_attribution_{TAG}.csv")
+OUT = os.path.join(REPO, "outputs", f"diag_te_rate_attribution_{TAG}{OUT_SUFFIX}.csv")
 TARGETS = os.path.join(REPO, "outputs", "recalib_targets_ext.csv")
 POSTPRED = os.path.join(REPO, "outputs", f"postpred_{TAG}_components_timeseries.csv")
 OLDBRICK = os.path.join(REPO, "outputs", "postpred_oldbrick_components_timeseries.csv")
@@ -61,9 +74,8 @@ FORCING_TAG = next((a[len("--forcing="):] for a in sys.argv[1:]
                     if a.startswith("--forcing=")), "ssp245harm")
 FAIR_OHC = os.path.join(REPO, f"data/observations/fair_mean_ohc_{FORCING_TAG}.csv")
 OHC_OBS = {"Zanna+Cheng (0-2000m)": "data/observations/ohc_spliced_zanna_cheng.csv",
-           "Zanna+IGCC (0-2000m)": "data/observations/ohc_spliced_zanna_igcc.csv"}
-IGCC_EEI = os.path.join(REPO, "data/observations/raw/igcc2024/ClimateIndicator-data-2cd2409/"
-                              "data/earth_energy_imbalance/earth_energy_imbalance.csv")
+           "Zanna+IGCC (0-2000m)": IGCC_SPLICE_REL}
+IGCC_EEI = os.path.join(REPO, IGCC_EEI_REL)
 NOAA_STERIC = os.path.join(REPO, "data/observations/raw/noaa_thermosteric_w0-2000m_yearly.dat")
 BUILDER = os.path.join(REPO, "python", "build_ohc_spliced_igcc.py")
 
@@ -169,6 +181,9 @@ print(f"\n[D] THE DEPTH SCOPE — measured from IGCC's own >2000 m layer, not re
 k = float(re.search(r"IGCC_UNIT_TO_BRICK\s*=\s*([0-9.eE+-]+)", open(BUILDER).read()).group(1))
 g = pd.read_csv(IGCC_EEI)
 g = g.rename(columns={g.columns[0]: "year"})
+if g["year"].isna().any():   # the 2025 release ends in one row with no time stamp; never guess its year
+    assert g["year"].isna().sum() == 1 and g["year"].isna().iloc[-1], "undated rows other than the last one"
+    g = g.loc[g["year"].notna()].copy()
 g["year"] = np.floor(g["year"]).astype(int)
 r02, nn = rate(g.year, (g["ocean_0-700m"] + g["ocean_700-2000m"]) * k, WIN_IGCC)
 rfd, _ = rate(g.year, g["ocean_full-depth"] * k, WIN_IGCC)
@@ -228,5 +243,10 @@ print(f"    joule is SMALLER than the upper ocean's. The true scope correction l
 print(f"    1.00 and {rfd/r02:.3f}, so the model/target ratio lies between "
       f"{(r_mod/r_tgt)/(rfd/r02):.2f}x and {r_mod/r_tgt:.2f}x.")
 print(f"  ⇒ THE FAIL SURVIVES AS A WARN AT WORST, AND IT IS NOT A SEA-LEVEL DEFECT.")
-pd.DataFrame(rows).to_csv(OUT, index=False)
+_out = pd.DataFrame(rows)
+_commit = subprocess.run(["git", "-C", REPO, "rev-parse", "--short", "HEAD"], capture_output=True, text=True).stdout.strip()
+_out["provenance"] = (f"diag_te_rate_attribution.py @ {_commit} | Ladrillo {TAG} TE p50 | BRICK 2.0 TE p50 | "
+                      f"{os.path.basename(FAIR_OHC)} | {IGCC_LABEL}: {IGCC_EEI_REL}, {os.path.basename(IGCC_SPLICE_REL)} | "
+                      f"OLS rates on common spans | no RNG")
+_out.to_csv(OUT, index=False)
 print(f"\nwrote {os.path.relpath(OUT, REPO)}")

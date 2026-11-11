@@ -9,9 +9,10 @@ diag_fair_ohc_vs_earth_heat.py) is absorbed by alpha and cannot change the fit. 
 [B] Offline weighted least-squares fit of TE = s0 + c * driver to the steric target over 1900-2024 (weights 1/sigma from
     the target band), then model/target rate per era, for FaIR, 0.82 x FaIR and the observed OHC driver.
 This is a diagnostic, NOT Ladrillo's likelihood (no AR(1), no discrepancy term): its recent-era ratio is 1.05, where
-Ladrillo's bare-module hindcast is 1.22. Writes outputs/diag_te_driver_timing.csv.
+Ladrillo's bare-module hindcast is 1.22. Writes outputs/diag_te_driver_timing.csv (--igcc=2024, the default) or
+outputs/diag_te_driver_timing_igcc2025.csv (--igcc=2025: the splice built by build_ohc_spliced_igcc.py --igcc=2025).
 """
-import os, subprocess
+import os, subprocess, sys
 import numpy as np
 import pandas as pd
 
@@ -19,13 +20,24 @@ REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 ERAS = [(1900, 1949), (1950, 1992), (1993, 2024)]
 FIT = (1900, 2024)
 SCALE = 0.82                       # 1 / (1.107 x 1.097), diag_fair_ohc_vs_earth_heat.csv 1993-2020
-OUT = os.path.join(REPO, "outputs", "diag_te_driver_timing.csv")
+IGCC_EDITIONS = {   # edition (indicator year) -> (EEI file, Zanna+IGCC splice, label for provenance and console)
+    "2024": ("data/observations/raw/igcc2024/ClimateIndicator-data-2cd2409/data/earth_energy_imbalance/"
+             "earth_energy_imbalance.csv", "data/observations/ohc_spliced_zanna_igcc.csv", "IGCC 2024"),
+    "2025": ("data/observations/raw/igcc2026/data-2026.06.02/data/earth_energy_imbalance/earth_energy_imbalance.csv",
+             "data/observations/ohc_spliced_zanna_igcc_igcc2025.csv", "IGCC 2025 (release data-2026.06.02)"),
+}
+IGCC = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--igcc=")), "2024")
+if IGCC not in IGCC_EDITIONS:
+    raise SystemExit(f"--igcc={IGCC}: choose one of {sorted(IGCC_EDITIONS)}")
+IGCC_EEI_REL, IGCC_SPLICE_REL, IGCC_LABEL = IGCC_EDITIONS[IGCC]
+OUT_SUFFIX = "" if IGCC == "2024" else f"_igcc{IGCC}"   # 2024 keeps the committed paths
+OUT = os.path.join(REPO, "outputs", f"diag_te_driver_timing{OUT_SUFFIX}.csv")
 
 T = pd.read_csv(os.path.join(REPO, "outputs/recalib_targets_ext.csv")).set_index("year")
 tgt = T.steric
 sig = ((T.steric_hi - T.steric_lo) / (2 * 1.645)).clip(lower=0.02)
 F = pd.read_csv(os.path.join(REPO, "data/observations/fair_mean_ohc_ssp245harm.csv")).set_index("year").ohc_1e22J
-Z = pd.read_csv(os.path.join(REPO, "data/observations/ohc_spliced_zanna_igcc.csv"), comment="#").set_index("year").ohc_1e22J
+Z = pd.read_csv(os.path.join(REPO, IGCC_SPLICE_REL), comment="#").set_index("year").ohc_1e22J
 DRIVERS = {"fair_total_heat": F, "fair_x0.82": SCALE * F, "observed_0_2000m_zanna_igcc": Z}
 
 
@@ -58,7 +70,7 @@ for name, D in DRIVERS.items():
 out = pd.DataFrame(rows)
 commit = subprocess.run(["git", "-C", REPO, "rev-parse", "--short", "HEAD"], capture_output=True, text=True).stdout.strip()
 out["provenance"] = (f"diag_te_driver_timing.py | commit {commit} | FaIR 2.2.4 (calib 1.6.0) mean, fair_mean_ohc_ssp245harm | "
-                     f"Zanna 2019 + IGCC 2024 0-2000 m (ohc_spliced_zanna_igcc.csv; Zanna anchored to FaIR at 1871) | "
+                     f"Zanna 2019 + {IGCC_LABEL} 0-2000 m ({os.path.basename(IGCC_SPLICE_REL)}; Zanna anchored to FaIR at 1871) | "
                      f"target recalib_targets_ext.csv steric | WLS fit {FIT[0]}-{FIT[1]}, scale {SCALE} | OLS era rates | no RNG")
 out.to_csv(OUT, index=False, float_format="%.4f")
 print(out.drop(columns="provenance").to_string(index=False))

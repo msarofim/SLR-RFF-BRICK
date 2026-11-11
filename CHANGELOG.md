@@ -29,6 +29,30 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-11b — GMD Decision 2 priced: the heat-inventory numbers on the IGCC 2025 indicators
+
+Prep for Decision 2 of the 11-11 guidance (which IGCC edition the heat-inventory numbers use). No draft edit, no
+committed output changed.
+- Four scripts read the 2024 file, not one as the handoff said: `diag_fair_ohc_vs_earth_heat.py` (91 %, 1.11 / 1.10 /
+  1.02, 1.24), `diag_te_alpha_matched_scope.py` (α 0.141), and, through the Zanna + IGCC splice,
+  `diag_te_rate_attribution.py` (the IGCC end of "1.21–1.27") and `diag_te_driver_timing.py` (the "0.21" era ratio).
+  Each, and the splice builder `build_ohc_spliced_igcc.py`, now takes `--igcc=2024|2025`. 2024 stays the default and
+  keeps the committed paths; 2025 writes `*_igcc2025.csv`.
+- Regression: on `--igcc=2024` every non-provenance column of the four committed outputs is equal to HEAD, and the
+  rebuilt splice is byte-identical. The re-run 2024 outputs were restored from git (only the provenance string differed).
+- The 2025 EEI file ends in one row with no time stamp (0–700 m = 350 ZJ, presumably 2025). It is dropped, not dated;
+  every window ends by 2024. Only the 0–700 m layer (up to 14 ZJ) and the 700–2000 m layer (up to 1.7 ZJ) differ from
+  the 2024 file; land, cryosphere, atmosphere and the 2000–6000 m layer are identical, and the non-ocean terms still
+  end in 2020.
+- 2024 → 2025: ocean share of total heat 91.2 → 91.3 %; FaIR / IGCC 0–2000 m (1993–2020) 1.236 → 1.219 = 1.106 × 1.095
+  × 1.006 (was 1.107 × 1.097 × 1.018); matched-scope obs-implied α 0.141 → 0.139 (still below the posterior 5–95 %
+  0.148–0.186); FaIR / Zanna + IGCC (1993–2024) 1.215 → 1.192, so the product range becomes 1.19–1.27; observed
+  0–2000 m era ratio (1900–1949 / 1993–2024) 0.207 → 0.203.
+- Rounding trap if the 2025 values go in: 1.11 × 1.10 × 1.01 = 1.233, which does not display as 1.22.
+- The 2006–2020 sensitivity row moves more (FaIR / 0–2000 m 1.284 → 1.152). Checked against the raw columns: the 2025
+  edition lowers 0–700 m heat in 2006–2009 by 7–14 ZJ and raises it after 2012, so that window's slope is 11 % steeper.
+  The draft quotes no 2006–2020 number.
+
 ## 2026-11-11 — Guidance for the next round of GMD hand edits; two of my 11-07 suggestions corrected
 
 **Marcus 11-11:** updated draft (10:19 save); "produce an updated guidance document for edits. Consider using v1.0 …

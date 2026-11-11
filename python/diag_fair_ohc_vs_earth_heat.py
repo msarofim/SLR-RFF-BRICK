@@ -9,8 +9,11 @@ on a COMMON span (IGCC's non-ocean terms end in 2020 while its ocean layers run 
 is the 2026-10-01 TE-rate-window bug):
     FaIR / IGCC 0-2000 m  =  [IGCC full-depth / 0-2000 m]  x  [IGCC total / full-depth]  x  [FaIR / IGCC total]
                               (heat below 2000 m)               (heat on land, in ice, air)     (what is left)
-Rates are OLS slopes of annual values, 1e22 J/yr. IGCC: ClimateIndicator 2024 earth_energy_imbalance.csv (ZJ).
-Writes outputs/diag_fair_ohc_vs_earth_heat.csv.
+Rates are OLS slopes of annual values, 1e22 J/yr. IGCC earth_energy_imbalance.csv (ZJ), edition chosen by
+--igcc=2024 (default; ClimateIndicator 2024 indicators, Forster et al. 2025) or --igcc=2025 (2025 indicators,
+release data-2026.06.02, Forster et al. 2026). The 2025 file ends in one row with no time stamp; it is dropped
+(it lies after every window's last year, 2020).
+Writes outputs/diag_fair_ohc_vs_earth_heat.csv (2024) or outputs/diag_fair_ohc_vs_earth_heat_igcc2025.csv.
 """
 import os, subprocess, sys
 import numpy as np
@@ -19,13 +22,29 @@ import pandas as pd
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 FORCING_TAG = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--forcing=")), "ssp245harm")
 FAIR_OHC = os.path.join(REPO, f"data/observations/fair_mean_ohc_{FORCING_TAG}.csv")
-IGCC_EEI = os.path.join(REPO, "data/observations/raw/igcc2024/ClimateIndicator-data-2cd2409/data/"
-                              "earth_energy_imbalance/earth_energy_imbalance.csv")
+IGCC_EDITIONS = {   # edition (indicator year) -> (relative path, label used in provenance and console)
+    "2024": ("data/observations/raw/igcc2024/ClimateIndicator-data-2cd2409/data/earth_energy_imbalance/"
+             "earth_energy_imbalance.csv", "IGCC 2024 indicators (Forster et al. 2025), ClimateIndicator-data-2cd2409"),
+    "2025": ("data/observations/raw/igcc2026/data-2026.06.02/data/earth_energy_imbalance/earth_energy_imbalance.csv",
+             "IGCC 2025 indicators (Forster et al. 2026), release data-2026.06.02"),
+}
+IGCC = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--igcc=")), "2024")
+if IGCC not in IGCC_EDITIONS:
+    raise SystemExit(f"--igcc={IGCC}: choose one of {sorted(IGCC_EDITIONS)}")
+IGCC_EEI = os.path.join(REPO, IGCC_EDITIONS[IGCC][0])
+IGCC_LABEL = IGCC_EDITIONS[IGCC][1]
 ZJ_TO_1E22J = 0.1
 WINDOWS = [(1993, None), (1971, None), (2006, 2020)]     # None = the last year every IGCC term has
-OUT = os.path.join(REPO, "outputs", "diag_fair_ohc_vs_earth_heat.csv")
+OUT_SUFFIX = "" if IGCC == "2024" else f"_igcc{IGCC}"   # 2024 keeps the committed path
+OUT = os.path.join(REPO, "outputs", f"diag_fair_ohc_vs_earth_heat{OUT_SUFFIX}.csv")
 
 E = pd.read_csv(IGCC_EEI)
+undated = E.timebound_lower.isna()
+if undated.any():   # the 2025 release ends in one row with no time stamp; never guess its year
+    assert undated.sum() == 1 and undated.iloc[-1], "undated rows other than the last one"
+    print(f"{IGCC_LABEL}: dropped {int(undated.sum())} undated trailing row "
+          f"(0-700 m = {E.loc[undated, 'ocean_0-700m'].iloc[0]} ZJ)")
+    E = E.loc[~undated]
 E["year"] = E.timebound_lower.astype(int)
 E = E.set_index("year")
 E["ocean_0-2000m"] = E["ocean_0-700m"] + E["ocean_700-2000m"]
@@ -61,7 +80,7 @@ for w0, w1 in WINDOWS:
           f"{row['nonocean_share']:.3f})")
 out = pd.DataFrame(rows)
 out["provenance"] = (f"diag_fair_ohc_vs_earth_heat.py | commit {commit} | FaIR 2.2.4 (calib 1.6.0) mean of 841 configs, "
-                     f"{os.path.basename(FAIR_OHC)} | IGCC 2024 earth_energy_imbalance.csv (von Schuckmann), ZJ x 0.1 | "
+                     f"{os.path.basename(FAIR_OHC)} | {IGCC_LABEL} earth_energy_imbalance.csv (von Schuckmann), ZJ x 0.1 | "
                      f"OLS slopes, 1e22 J/yr, common span per window | no RNG")
 out.to_csv(OUT, index=False)
 print("wrote", OUT)
