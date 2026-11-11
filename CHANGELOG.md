@@ -29,6 +29,25 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-11d — The L27 chains held gamma at 2.038, not at its paleo median (found by the Ladrillo.jl port)
+
+No code or output changed here. Found while porting the calibrator into Ladrillo.jl (its CHANGELOG 2026-11-11e,
+commit 00609e4); handoff `notes/handoff_2026-11-11d_calibration_port_gamma.md`.
+- `julia/calibrate_mcmc_ext.jl` sets lambda, T_crit and gamma to their paleo medians at :1605-1607 (`--cut-fastdyn`,
+  `--fix-gamma`), then `update_brick_nu3!(m, medoid, ...)` at :1627 loads `outputs/recalib_central_row.csv` over all
+  three. L27, L27r and L27b were therefore sampled at lambda 0.01365, T_crit -15.14 and gamma 2.038.
+- The evidence: the port, holding the paleo medians, missed the log-posterior at the four production start rows by
+  -0.015 to +0.034; a state dump of both calibrators at seed 2026 matched every series except Antarctica; holding the
+  central-row values reproduces all four starts and the first 20,000 rows of the seed-2026 chain bit for bit. Paleo
+  lambda and T_crit with the central-row gamma is also exact, so lambda and T_crit are inert in the hindcast.
+- Every product attaches gamma = 2.834 (`ladrillo_attach_propagated!`). Paired on 500 draws, 2.834 against 2.038:
+  hindcast AIS within 0.015 cm; projections within 0.13 cm through 2100; the 2300 AIS median lower by 1.4 cm (SSP2-4.5),
+  3.2 cm (SSP5-8.5) and 2.6 cm (vvH).
+- Importance weights from 2.038 to 2.834 on all 10,000 draws: ESS 99.7 %, largest weight 1.5 x uniform; reweighted
+  projection quantiles (AIS and total, 2100 and 2300, SSP2-4.5 and SSP5-8.5) move by at most 0.54 cm. The shipped
+  products are what a calibration at gamma 2.834 would give, to about half a centimetre.
+- The calibrator's comments still say "held at their paleo medians"; it is left as is because it reproduces L27.
+
 ## 2026-11-11b — GMD Decision 2 priced: the heat-inventory numbers on the IGCC 2025 indicators
 
 Prep for Decision 2 of the 11-11 guidance (which IGCC edition the heat-inventory numbers use). No draft edit, no
