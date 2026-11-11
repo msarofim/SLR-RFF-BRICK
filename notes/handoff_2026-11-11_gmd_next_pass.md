@@ -98,3 +98,35 @@ Do these only after Marcus's hand-edit round and his answers to the six decision
 - Marcus's word-choice rules (`~/.claude/CLAUDE.md`) apply to any text put into the draft: no em-dash asides, no ", not
   X" tags, no "own" as emphasis, no kickers, no absolutes. He drafts main prose; tracked edits by Claude are for fixes
   he has asked for.
+
+## 6. Update, 2026-11-11 afternoon (continuing session)
+
+**Marcus's answers (AskUserQuestion):** Decision 1 = v1.0 with the internal tags renamed; Decision 2 = IGCC 2025
+indicators; Decision 3 = port the figure scripts. Pass scope = **wait for his hand edits** (the draft on disk was still
+the 10:19 save). Decisions 4–6 are his hand items. Memory `gmd_1111_decisions`.
+
+Done:
+- **Decision 2 priced** (SLR d2d112f). `--igcc=2025` on `diag_fair_ohc_vs_earth_heat.py`, `diag_te_alpha_matched_scope.py`,
+  `diag_te_rate_attribution.py`, `diag_te_driver_timing.py` and the splice builder `build_ohc_spliced_igcc.py`; 2024 stays
+  the default and reproduces every committed output. Text changes for the pass: α_obs 0.141 → 0.139; Sect. 4.1
+  1.24 = 1.11 × 1.10 × 1.02 → 1.22 = 1.106 × 1.095 × 1.006 (two-decimal factors give 1.23: use three decimals or
+  rephrase); range 1.21–1.27 → 1.19–1.27; era ratio 0.21 → 0.20; 91 %, 11 %, 9 % unchanged. Outputs `*_igcc2025.csv`.
+- **Decision 3** (Ladrillo.jl c0a2be6, pushed): `python/figures/` reproduces Figs. 1–6 byte-identical to `figures/paper/`
+  (`check_figures_identity.py` 16/16, mutation-tested); FACTS/MAGICC data in `data/comparison/`.
+- **Decision 1** (Ladrillo.jl aaed555, pushed): version 1.0.0; `--v1.0` → `--v0.1`, `paleo=:v1` → `:per_selection`,
+  `lws_anchor=:v1_step` → `:obs_at_first_year` (Marcus). Tests 96/96; identity gate 1 bit-identical on 8 cases after the
+  two K4 reference dumps, stale since the 10-08 vv forcing rebuild, were replaced (memory
+  `identity_gate_reference_stale_after_input_rebuild`). Tags renamed v1.0.0–v1.3.0 → v0.1.0–v0.4.0 **in the local clone
+  only**; GitHub keeps the old names until the release (Marcus: "push commits, hold tags"). At release: delete the
+  four remote tags, push v0.1.0–v0.4.0, tag v1.0.0, set `date-released` in CITATION.cff.
+
+Open:
+- **The Code availability sentence also claims Table 4's script and the calibration drivers / target builders.**
+  Ladrillo.jl ships neither (Table 4 = `scope_ladrillo_vs_brick20_scorecard.py`; calibration is "in progress" in its
+  README). Ask Marcus: port, or narrow the sentence.
+- In the pass, the Code availability text becomes "Ladrillo v1.0 (Ladrillo.jl, git tag v1.0.0)".
+- Ports' notes on research-script defects (not fixed): garbled Fig. 2/3 caption sentence ("…scenarios ones");
+  `plot_hindcast_components.py` y-label hardcoded and a stale glacier-trap comment; `plot_vv_gsic_wr_vs_ladrillo.py`
+  needs `vv_gsic_2300.csv` even with `--ladrillo-only`, has an L24 docstring, and rejects CHECK verdicts where
+  `ladrillo_figs.gate_ladrillo` stamps them; the old fixed-arm `figures/paper/vv_gsic_ladrillo_L27_2300.png` still has
+  the title removed on 11-05.
