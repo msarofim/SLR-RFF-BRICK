@@ -46,15 +46,16 @@ Memory: `l27_held_gamma_is_central_row` (new), `l27_paper_posterior` corrected, 
 
 ## 4. Open decision (Marcus)
 
-Which γ the release uses: keep the products and state the as-run values; re-run the products at 2.038; or recalibrate
-at 2.834 with the package calibrator. DECISION_PENDING
+Which γ the release uses. **Marcus 11-11 (AskUserQuestion): keep the products.** No reruns, no recalibration. The paper
+and README state that the chains ran at γ 2.038 and the products use the paleo median 2.834, citing the reweighting
+(≤ 0.5 cm). README *Known issues* already says so; the paper sentence is Marcus's wording at the draft pass.
 
 ## 5. Next steps
 
-1. Marcus's γ decision (§4).
-2. Calibration port pieces (2)-(4) per 11-11c §5: post-processing (`postprocess_mcmc_ext.jl --accept-slr`; dump-priors
+1. Calibration port pieces (2)-(4) per 11-11c §5: post-processing (`postprocess_mcmc_ext.jl --accept-slr`; dump-priors
    gate is already covered by `parameter_table`), target builders with frozen inputs, Code availability text.
-3. Draft pass when Marcus saves (11-11b §4 + 11-11c §4), plus the γ wording from §4 here.
+2. Draft pass when Marcus saves (11-11b §4 + 11-11c §4). Add: wherever the draft says γ (and λ, T_crit) were held at
+   the paleo medians during the calibration, flag it for Marcus with the facts in §3 (he writes the sentence).
 
 ## 6. Non-obvious state
 
