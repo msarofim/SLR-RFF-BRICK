@@ -50,8 +50,12 @@ waits for his last save.
   - The posterior swap does not change BRICK 2.0's runtime: interleaved, 4.94–5.02 ms (May) against 4.92–4.99 ms
     (Zenodo). The ratio differs between the two sets (mean 1.237 against 1.259) only through Ladrillo's times, which
     do not read the BRICK posterior, so that difference is run-to-run noise.
-  - The tracked `outputs/diag_runtime_ladrillo_vs_brick20_L27.csv` is left at its 09-21 content until Marcus chooses
-    the sentence's numbers. `_rep2_0921_mayposterior.csv` and `_rep3_20261111_underload.csv` are now committed.
+  - **Marcus 11-11 (AskUserQuestion): new numbers, Tony's "1.2×" kept.** `edits_r1111.py` RT1/RT2: "6.3 against 5.1 ms"
+    → "6.2 against 5.0 ms", "0.72 against 0.62 ms" → "0.75 against 0.61 ms". The printed 6.2/5.0 divide to 1.24.
+    Rebuilt on the 17:06 copy: 86 of 86 edits, verify PASS.
+  - These numbers come from the twelve-run file. The tracked single-run `outputs/diag_runtime_ladrillo_vs_brick20_L27.csv`
+    keeps its 09-21 content (May posterior), which is not the source of the draft's numbers.
+    `_rep2_0921_mayposterior.csv` and `_rep3_20261111_underload.csv` are now committed.
 
 ## 2026-11-11e — GMD next pass (round r1111) built and gated; final build waits for Marcus's last save
 

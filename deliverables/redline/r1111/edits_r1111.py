@@ -30,6 +30,10 @@ ENTRIES = [
     E("V1", "5", "Ladrillo v1.3", "Ladrillo v1.0", "We present Ladrillo v1.3", "Decision 1"),
     E("V2", "Code availability", "v1.3 (Ladrillo.jl", "v1.0 (Ladrillo.jl", "is archived at Zenodo", "Decision 1"),
     E("V3", "Code availability", "git tag v1.3.0)", "git tag v1.0.0)", "is archived at Zenodo", "Decision 1"),
+    # ---- runtime (Marcus 11-11 evening: new numbers, Tony's "1.2×" kept). Medians of nine runs on the Zenodo BRICK 2.0
+    # posterior, outputs/diag_runtime_ladrillo_vs_brick20_L27_reps_20261111.csv (CHANGELOG 2026-11-11f) ---------------
+    E("RT1", "5", "6.3 against 5.1 ms", "6.2 against 5.0 ms", "Despite the added structure", "runtime re-measure 11-11"),
+    E("RT2", "5", "0.72 against 0.62 ms", "0.75 against 0.61 ms", "Despite the added structure", "runtime re-measure 11-11"),
     # ---- IGCC 2025 indicators (Decision 2; SLR outputs/diag_*_igcc2025.csv, commit 41ec7f4) ---------------------------
     # ---- notation ------------------------------------------------------------------------------------------------
     E("T1", "2.2.2", "with onset T_on = 4.69 K", "with onset T_thr = 4.69 K", "with onset T_on",
