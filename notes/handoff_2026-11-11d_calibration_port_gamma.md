@@ -24,7 +24,11 @@ Piece (1) of the calibration port (11-11c §5): the calibrator, logpost(θ₀) a
   production chains via `tools/build_test_reference.py` (new `chain_*` kinds; sha256 of each 2 GB chain in SOURCES.csv).
 - `test/runtests.jl`: start-row check + parameter table == research `--dump-priors` (`ladrillo_priors_L27.csv`), all
   50 rows exact.
-- Mutation test `test/calibration/mutation_test.sh`: RESULT_PENDING
+- Mutation test `test/calibration/mutation_test.sh` (result file committed): opt_α 0.234→0.235, ρ bound 0.99→0.98 and
+  the share targets as literals 0.799/0.816 leave all four starts unchanged and are killed by the chain (rows 460, 460,
+  796); GlaMBIE sd 0.05→0.0501 killed at the starts; the no-power control (geometry proposal scale, overwritten by the
+  L26 seed) survives.
+- Commits: Ladrillo.jl 00609e4 + the mutation-result commit; SLR-RFF-BRICK a60e72c (CHANGELOG 11-11d, this note).
 - README (*Reproducing the calibration*, *Known issues* gamma item, layout), CHANGELOG 2026-11-11e.
 
 ## 3. Finding: L27 was sampled with gamma = 2.038 (central row), products use 2.834
