@@ -84,9 +84,11 @@ for (y0, y1) in SPANS
 end
 
 rows.provenance .= "diag_runtime_ladrillo_vs_brick20.jl | Ladrillo $POST_TAG ($(basename(POSTERIOR)), variant $VARIANT) vs " *
-    "stock MimiBRICK v2.0.0 get_model(ssp245) with Random.seed!($BRICK_SEED) before get_model | forcing $FORCING " *
+    "stock MimiBRICK v2.0.0 get_model(ssp245) with Random.seed!($BRICK_SEED) before get_model, BRICK 2.0 posterior " *
+    "$(basename(BRICK_POSTERIOR)) (precip_log shim $(brick20_precip_log() ? "on" : "off")) | forcing $FORCING " *
     "(FaIR 2.2.4 calib 1.6.0 ensemble mean) | NDRAW=$NDRAW evenly thinned draws per model, one warm-up draw excluded | " *
     "wall ms per draw, mean, sd and median | Julia $(VERSION), $(Sys.CPU_NAME), $(Sys.cpu_info()[1].model), " *
-    "threads $(Threads.nthreads()) | $(Dates.now())"
+    "threads $(Threads.nthreads()), load average $(join(round.(Sys.loadavg(), digits=2), "/")) at the end " *
+    "(1/5/15 min; other jobs inflate the ms, less so the ratio) | $(Dates.now())"
 CSV.write(OUT, rows)
 println("wrote $(relpath(OUT, LADRILLO_REPO))")

@@ -1,0 +1,3 @@
+V1: KILLED  [VERIFY] (2) own changes stripped: accepted text != base (119806 chars) FAIL
+V2: KILLED  [VERIFY] (1) max <w:ins> nesting depth 2 FAIL
+V3: KILLED  [VERIFY] (3) 83 of 84 new values in the accepted text (2 found only by docx_review_extract: ['𝓛_i', '𝓛_i']) FA

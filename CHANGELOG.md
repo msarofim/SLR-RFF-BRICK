@@ -29,6 +29,63 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-11e — GMD next pass (round r1111) built and gated; final build waits for Marcus's last save
+
+**Marcus 11-11:** "the 15:07 save is done, run the draft pass". He saved again at 17:00 and 17:01 (his HAND rewrite of
+the discrepancy paragraph), so the pass was developed on a frozen copy of the 17:00 save (md5 `fad8a36a…`) and is
+rebuilt on whichever save he confirms; `build.sh` refuses any base whose md5 it was not given.
+- New `deliverables/redline/r1111/` (from r1015): `build.sh`, `edits_r1111.py`, `verify_r1111.py`,
+  `mutation_test_verify.py`, and r1015's `trackedit.py` / `edlib.py` / `comments_lib.py` / `normalise.py` with this
+  round's date and three fixes:
+  - The run pattern stopped at the inner `</w:rPr>` of a pending formatting change (`<w:rPrChange>`), so those runs
+    were invisible to every helper. One of Marcus's 09:34 insertions in Sect. 4.1 has one.
+  - Split runs now give a pending formatting change a fresh id in each copy, and new text carries none.
+  - Comments may anchor inside a pending insertion, but not inside a deletion.
+- `edits_r1111.py` covers the guidance's "Claude's next pass" table and the 11-11b numbers. 84 tracked edits, none
+  skipped:
+  - Version: v1.3 → v1.0 in the Conclusions and Code availability.
+  - IGCC 2025 numbers: α 0.141 → 0.139; era ratio 0.21 → 0.20; product range 1.21–1.27 → 1.19–1.27;
+    1.24 = 1.11 × 1.10 × 1.02 → 1.22 = 1.106 × 1.095 × 1.006. These have three decimals because the two-decimal
+    factors multiply to 1.23; a comment says so.
+  - Notation: T_on → T_thr for the Greenland tap, in the text and Table A3; L_i and L_m → 𝓛_i and 𝓛_m; ais_iceflow0;
+    Eq. (4); φ(Ḡ₃₀; two-coefficient; 200-year; FACTS's.
+  - En dashes, a minus sign, "yr⁻¹" units, double spaces, and seven citation forms.
+  - Table A1: the four log₁₀ rows (κ ×3, gis_s_high) shown in ln, from the 11-10 research build, each value asserted
+    equal to ln 10 × the old one to rounding. Also footnote ᶜ, the c_R and North-and-Northeast labels, and
+    "ln κ are sampled".
+  - Equations: the space padding before each of the 14 numbers is now a tab, with a right tab stop at the text width
+    as a tracked paragraph change.
+  - Figures: the 11-05 lettered renders and the joint-arm Fig. 5 replace the images round 10-15 inserted. The 10-15
+    image is deleted inside its pending insertion, so both rounds stay visible. The caption's closing "Fixed arm." is
+    deleted.
+  - References: the Morlighem DOI typo (10.1022 → 10.1002) and two Mimi.jl creator names (Zenodo); five new entries
+    (Lin 2026, Poinelli 2026, Nicholls and Lewis 2021, Nicholls et al. 2020, NOAA STAR); citations added at the RCMIP,
+    CMIP7-history (Smith, 2026) and NOAA STAR mentions, none of which were cited. Each entry was checked against the
+    publisher, Crossref or Zenodo. Sarofim et al. (2021) "11, 1–3" is the publisher's own citation and is unchanged.
+  - An insertion that lands inside one of Marcus's pending moves (the equation blocks) is split out of the move, as
+    Word does when one types inside moved text.
+- Seven comments for Marcus: the gamma finding at the "paleo-ensemble medians during calibration" sentence (Table A3
+  gives the same values); the three-decimal product; Code availability against what Ladrillo.jl holds (the target
+  builders are not ported); the seed sentence (true of Ladrillo.jl since 11-11c, not of this repository); the Mimi.jl
+  version choice (1.6.0 was never archived on Zenodo); the NOAA access date (bounded 18–20 May) and its data-policy
+  acknowledgment wording; and Fig. 5.
+- **Not done, deliberately:**
+  - Fig. 5 is not moved. A scripted move would turn its caption's pending edits into one Claude insertion; both
+    figures are first cited together in Sect. 4.2, so the move does not change their numbering.
+  - The HAND items Marcus has not applied are left alone.
+  - The runtime sentence: `diag_runtime_ladrillo_vs_brick20.jl` re-run on the Zenodo posterior under load (another
+    session's R workers plus a 25-min Julia gate, load average 5–6) timed both models ~20 % slower than on 09-21
+    (BRICK 2.0 6.02 vs 5.06 ms), with the same 1.25× ratio. That run is kept as
+    `outputs/diag_runtime_ladrillo_vs_brick20_L27_rep3_20261111_underload.csv`, the 09-21 file as
+    `_rep2_0921_mayposterior.csv`, and the measurement is repeated on a quieter machine. The script's provenance now
+    names the BRICK 2.0 posterior file and the load average.
+- **Gate** `verify_r1111.py <base> <out>`: (1) insertions nest at most one deep; (2) stripping this round's changes
+  by string handling gives pandoc's accepted text equal to the base's (119,806 characters); (3) all 84 new values are
+  in the accepted text. Pandoc drops tracked insertions inside code-styled paragraphs (the equations), so the two
+  𝓛_i values there are found by `python/docx_review_extract.py`. Word's schema validator passes.
+  `mutation_test_verify.py`: an untracked word change, a nested insertion and a removed new reference each fail the
+  gate (`mutation_result_verify.txt`).
+
 ## 2026-11-11d — The L27 chains held gamma at 2.038, not at its paleo median (found by the Ladrillo.jl port)
 
 No code or output changed here. Found while porting the calibrator into Ladrillo.jl (its CHANGELOG 2026-11-11e,
