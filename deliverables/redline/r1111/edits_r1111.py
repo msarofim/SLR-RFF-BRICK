@@ -327,9 +327,8 @@ COMMENTS = [
      "Claude 11-11: the repository bounds the download to 18-20 May 2026 (URLs confirmed 05-18 in download_obs.py; the "
      "file was committed 05-20); I used 18 May. NOAA's data policy asks for the acknowledgment 'Altimetry data are "
      "provided by the NOAA Laboratory for Satellite Altimetry.'; the Acknowledgements say 'are sourced from'."),
-    ("that each figure reads",
-     "Claude 11-11: true of Ladrillo.jl since 11-11: every file a figure reads there records the seeds behind it, and its "
-     "figures are byte-identical to the paper's. Still false of the research repository's files. The wording is yours."),
+    # The seed comment ("that each figure reads") was dropped for the 17:06 save: Marcus replaced the sentence with
+    # "Ladrillo's calibration and projection drivers fix every random seed, so the results can be regenerated."
     ("Regrowth of about 0.08 cm occurs on Low-to-Negative",
      "Claude 11-11: the joint-arm image is in; I deleted the caption's closing 'Fixed arm.' to match it. The guidance's "
      "move of this figure to after the peak-and-decline paragraph is NOT done: a scripted move would turn this caption's "

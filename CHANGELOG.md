@@ -29,6 +29,30 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-11f — r1111 rebuilt on the 17:06 save; runtime re-measured on the Zenodo posterior
+
+**Marcus 11-11, evening:** "I'm still editing the word document with the remaining HAND edits." The final build still
+waits for his last save.
+- The 17:06 save (md5 `9f152d66…`) differs from the 17:00 base in one paragraph pair: Marcus applied the R̂ comma, the
+  semicolon before "all eight", and the seed sentence ("Ladrillo's calibration and projection drivers fix every random
+  seed, so the results can be regenerated."), and replied to one of Tony's comments. The seed comment
+  ("that each figure reads") is dropped from `edits_r1111.py`, since his rewrite settles it.
+- Test build on a frozen copy of the 17:06 save (`BASE_DOCX=… BASE_MD5=9f152d66… build.sh`): 84 of 84 edits, none
+  skipped, 6 comments; Word's schema validator and `verify_r1111.py` PASS (accepted text 119,795 characters).
+- Runtime (`diag_runtime_ladrillo_vs_brick20.jl 300 --tag=L27`), twelve runs at load average 3.2–4.2 (another
+  session's two R workers): nine on the Zenodo BRICK 2.0 posterior, and three on Tony's May-22 subsample interleaved
+  with three of those nine. All twelve are in `outputs/diag_runtime_ladrillo_vs_brick20_L27_reps_20261111.csv`
+  (`run`, `run_order`, `brick20_posterior`; each row keeps its own provenance with the load average).
+  - 1850–2300, medians of the nine Zenodo runs: Ladrillo 6.24 against BRICK 2.0 4.99 ms per draw (apply + run);
+    model evaluation alone 0.75 against 0.61 ms. 10,000 draws at 6.24 ms take 62 s.
+  - The per-run ratio is 1.195–1.274, median 1.250, so the data cannot tell 1.2× from 1.3×. The draft's 09-21 value
+    (1.235, May posterior) is inside that spread.
+  - The posterior swap does not change BRICK 2.0's runtime: interleaved, 4.94–5.02 ms (May) against 4.92–4.99 ms
+    (Zenodo). The ratio differs between the two sets (mean 1.237 against 1.259) only through Ladrillo's times, which
+    do not read the BRICK posterior, so that difference is run-to-run noise.
+  - The tracked `outputs/diag_runtime_ladrillo_vs_brick20_L27.csv` is left at its 09-21 content until Marcus chooses
+    the sentence's numbers. `_rep2_0921_mayposterior.csv` and `_rep3_20261111_underload.csv` are now committed.
+
 ## 2026-11-11e — GMD next pass (round r1111) built and gated; final build waits for Marcus's last save
 
 **Marcus 11-11:** "the 15:07 save is done, run the draft pass". He saved again at 17:00 and 17:01 (his HAND rewrite of
