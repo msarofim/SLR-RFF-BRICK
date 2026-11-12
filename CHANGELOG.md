@@ -29,6 +29,24 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-12d — FACTS land-water storage dropped past 2100 (Marcus); FACTS module audit
+
+A code audit of FACTS's post-2100 behaviour (subagent with file:line receipts, three points re-checked by hand; memory
+`facts_post2100_module_audit`) found that `ssp/landwaterstorage` reads no climate. It follows SSP population, held at
+its 2100 value, and our configs map vvH to ssp3 and vvVL to ssp1. It had been kept past 2100 as the one exception to
+the climate-driven rule (09-12). Marcus 11-12: "Drop FACTS land water post 2100 because it isn't climate driven."
+- `python/ladrillo_figs.py`: `FACTS_CLIMATE_DRIVEN` loses "ssp-lws" at 2150 and 2300; the rule comment no longer
+  calls land water climate-driven or exempt.
+- Control before the edit: `vv_model_comparison.py --tag=L27`, `plot_model_comparison_components.py --set=vv --paper`
+  and `plot_vv_responsiveness.py --paper` reproduced every committed file byte for byte (the responsiveness CSV
+  differs only in its provenance commit stamp).
+- After: `outputs/vv_model_comparison_L27.csv` loses exactly the 14 FACTS ssp-lws rows at 2150 and 2300 (560 → 546);
+  `outputs/vv_responsiveness_L27.csv` loses its two (80 → 78). Fig. 2 (2100) is byte-identical; Fig. 3, the 2150
+  sibling and Fig. 6 change, and the caption sidecars drop "ssp-lws". Ladrillo.jl's `figlib.py` changed the same way;
+  its FIGURES-IDENTITY gate passes 16/16 against these renders.
+- Other audit findings are text errors in the GMD draft (Sect. 4.2 attributes the AR5 time-prescribed dynamics term
+  to Bamber/DeConto; Table 1 note 5 misdescribes Bamber/DeConto/LARMIP); those go in round r1114.
+
 ## 2026-11-12c — GMD round r1113: Table A3 as run in calibration; two placeholder references completed
 
 Marcus 11-12: "Fix Table A3." His 08:26 save of r1112 (md5 1a266d2d) puts the as-run values in Sect. 2.2.3 (his

@@ -61,16 +61,20 @@ PROJ_BASELINE = "cm, rel. 1995-2014"         # every projection product
 ##                      ZERO-PADS beyond (RF at lag 200 is still at full strength, 8.6e-5 vs
 ##                      8.1e-5 at lag 50), so at 2300 every pre-2100 forcing year is dropped.
 ##                      Climate-driven at 2150 (only pre-1950 forcing lost); not at 2300.
-##   ar5glaciers, tlm, lws   climate-driven (glaciers cap at 31.57 cm); LWS is exempt by rule.
+##   ar5glaciers, tlm   climate-driven (glaciers cap at 31.57 cm).
+##   ssp-lws            reads NO climate: SSP population, held at its 2100 value (our configs map vvH to ssp3
+##                      and vvVL to ssp1). It was kept past 2100 as an exception to the rule until 2026-11-12,
+##                      when the code audit (memory facts_post2100_module_audit) showed its post-2100 H-VL
+##                      difference is a population difference; Marcus 11-12: drop it past 2100.
 ## RULE (Marcus): drop any module, and any TOTAL containing one, whose components are not
-## climate-driven at that horizon (LWS excepted). Every workflow total carries FittedISMIP, so
+## climate-driven at that horizon. Every workflow total carries FittedISMIP, so
 ## no FACTS total survives past 2100. Applied where the comparison TABLES are built, so the
 ## figures, the responsiveness figure and the benchmark's literature arm all inherit it; the
 ## raw extraction CSV keeps every module.
 FACTS_CLIMATE_DRIVEN = {
     2100: None,                                        # None = every module is genuine here
-    2150: {"larmip", "ar5glaciers", "tlm", "ssp-lws"},
-    2300: {"ar5glaciers", "tlm", "ssp-lws"},
+    2150: {"larmip", "ar5glaciers", "tlm"},
+    2300: {"ar5glaciers", "tlm"},
 }
 
 
