@@ -29,6 +29,18 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-12g — FACTS post-2100: AR6 ran different flags than our v1.1.4 defaults
+
+Prompted by Marcus: AR6 or SLEIP may have extrapolated differently. Read-only check of the FACTS repo (no runs).
+- At tag `ipccar6` (8bedcb7c, 2022-06-06) the run scripts in `scripts/submit_components_full_sample_update/` pass
+  `--crateyear_start 2080 --crateyear_end 2100` to FittedISMIP, the AR5 ice sheets and LARMIP, so each continues its
+  2080–2100 rate after 2100 (for LARMIP every component, SMB included). Not yet confirmed as the published AR6 runs.
+- FittedISMIP's default `crateyear_end` was None (fit evaluated to the end year) through v1.1.0 and became 2100 in
+  413c110e (2023-11-10, first in v1.1.1). ipccar5/icesheets and larmip still default to no extension in v1.1.4, and the
+  v1.1.4 ipccar5 AIS pipeline does not expose the option. Our vv configs set none of these.
+- Consequence: the GMD Sect. 4.2 sentence "SLEIP's 2300 FACTS values are these extrapolations" is unsupported until the
+  SLEIP configs are seen (Kelly McCusker is asking Praveen Kumar for access). The 09-12d note behind it is withdrawn.
+
 ## 2026-11-12f — GMD round r1115: Code and data availability filled in; clean copy updated to match
 
 Marcus 11-12: "Fill in the Code and data availability sentence facts, and update the clean version too. Then evaluate
