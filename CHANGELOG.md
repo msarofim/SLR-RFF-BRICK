@@ -29,6 +29,29 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-12 — r1111b: Mimi.jl cites the GitHub release, NOAA access 20 May, short Fig. 5 panel titles (Marcus)
+
+Marcus 11-12: "the Mimi citation should be to the github, and the NOAA access date can be 20 May. For Figure 5, I think
+we don't need the extended Figure titles".
+- Marcus's 07:25 save of the r1111 output (md5 4cc156aa) has the same paragraph and comment text as the delivered build;
+  Word only re-split runs and reordered comments. The pass was therefore rebuilt on the 20:34 TW2 save (a180bc82,
+  unchanged) into a new file, and the r1111 file is left as he saved it.
+- M1: the Mimi.jl entry becomes "v1.6.0, GitHub [code], https://github.com/mimiframework/Mimi.jl/releases/tag/v1.6.0,
+  2026" (the release was published 2026-04-03; checked with `gh api` on 11-12). M2: "Rennels et al., 2022" becomes 2026
+  in Sect. 3.2. The comment offering options 1 and 2 is dropped.
+- NOAA reference: last access 20 May 2026 (was 18 May). Its comment now carries only the open acknowledgment wording.
+- Fig. 5: under `--ladrillo-only`, `python/plot_vv_gsic_wr_vs_ladrillo.py` ends the panel titles at "(b) Ladrillo
+  (3-reservoir ν)" and "(c) melt rate on the 4 peak-and-decline pathways". The four-panel Wigley-Raper contrast keeps
+  its longer titles. Control: before the edit, the joint render reproduced the committed PNG byte for byte. After it,
+  pixels differ only in rows 369-387 and 806-824 (the two title lines); the size (1327 × 1178) and the caption sidecar
+  are unchanged. Ladrillo.jl's port was changed the same way, and its FIGURES-IDENTITY gate passes 16/16.
+- The fixed-arm render `figures/paper/vv_gsic_ladrillo_L27_2300.png` (out of the paper since 11-05) was stale: it predates
+  the 11-05 paper-mode change and still had the memo suptitle and the "L27" tag (1209 px tall against 1178). Re-rendered.
+- Output `deliverables/GMD.Ladrillo.v1_review-2026-11-12_L27_r1111b.docx` (untracked), md5 12ec230e0a2e6a087662c14e016be91f:
+  90 tracked edits and 8 comments. Word schema validation PASS; `verify_r1111.py` PASS (nesting depth 1; 119,941
+  characters equal; 95/95 new values; structure 22/22); mutation test 7/7 killed. The embedded Fig. 5 has the md5 of
+  `figures/paper` (f9ccb8b5).
+
 ## 2026-11-11g — GMD round r1111 final build on the 20:34 save, with the three optional simplifications
 
 **Marcus 11-11, 20:34:** "The last save is done … Create a new version of the document to make the next set of

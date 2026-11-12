@@ -80,6 +80,11 @@ ENTRIES = [
     E("R2", "References", "De La Guardia, F. H.", "Hoces de la Guardia, F.", "De La Guardia",
       "Zenodo creator Fernando Hoces de la Guardia; Crossref family 'Hoces de la Guardia'"),
     E("R3", "References", "and Catawbasam:", "and catawbasam:", "Catawbasam", "Zenodo creator list (a GitHub handle)"),
+    # Mimi.jl, option 1 (Marcus 11-12: "the Mimi citation should be to the github"): the Manifest pins 1.6.0, which Zenodo
+    # never archived; GitHub release v1.6.0, published 2026-04-03 (gh api .../releases/tags/v1.6.0, checked 11-12).
+    E("M1", "References", "all versions, Zenodo [code], https://doi.org/10.5281/zenodo.4321855, 2022",
+      "v1.6.0, GitHub [code], https://github.com/mimiframework/Mimi.jl/releases/tag/v1.6.0, 2026",
+      "mimiframework/Mimi.jl, all versions", "Marcus 11-12: Mimi option 1 (GitHub release v1.6.0)"),
     # ---- Fig. 5: the joint-arm image replaces the fixed-arm one (FIGS below), so the caption's last words go ----------
     # F5 (delete the caption's closing " Fixed arm.") dropped: Marcus deleted it in the 20:34 save.
 ]
@@ -92,6 +97,8 @@ MINIMAL = [
     ("T2c", "Σ_m ln L_m + ln π", "L_m", "𝓛_m"), ("T2d", "The L_m are Gaussian", "L_m", "𝓛_m"),
     # 2.2.4: alpha matched to total Earth heat, 1993-2020: diag_te_alpha_matched_scope_L27_igcc2025.csv alpha_obs_param 0.13921
     ("N1", "0.141, below the posterior", "0.141", "0.139"),
+    # 3.2: the Mimi.jl entry now cites the GitHub release v1.6.0, 2026 (M1; Marcus 11-12, option 1)
+    ("M2", "Mimi framework (1.6; Rennels et al., 2022)", "2022", "2026"),
     # 4.1: era shape 1900-1949 of observed 0-2000 m heat: diag_te_driver_timing_igcc2025.csv 0.2028
     ("N2", "0.21 for observed", "0.21", "0.20"),
     # 4.1: FaIR over 0-2000 m: Zanna+IGCC 1.192 (1993-2024), Zanna+Cheng 1.274 (diag_te_rate_attribution_L27_igcc2025.csv B)
@@ -175,7 +182,7 @@ NEW_REFS = [
      "https://doi.org/10.1038/s41467-026-77976-1, 2026."),
     ("Nauels, A., Möller", "NOAA Laboratory for Satellite Altimetry: Global mean sea level time series, TOPEX/Poseidon, "
      "Jason-1, -2, -3 and Sentinel-6MF, seasonal signals removed (slr_sla_gbl_free_ref_90), NOAA/NESDIS/STAR [data set], "
-     "https://www.star.nesdis.noaa.gov/socd/lsa/SeaLevelRise/LSA_SLR_timeseries.php, last access: 18 May 2026, 2026."),
+     "https://www.star.nesdis.noaa.gov/socd/lsa/SeaLevelRise/LSA_SLR_timeseries.php, last access: 20 May 2026, 2026."),
     ("Nauels, A., Möller", "Nicholls, Z. R. J., Meinshausen, M., Lewis, J., Gieseke, R., Dommenget, D., Dorheim, K., Fan, "
      "C.-S., Fuglestvedt, J. S., Gasser, T., Golüke, U., Goodwin, P., Hartin, C., Hope, A. P., Kriegler, E., Leach, N. J., "
      "Marchegiani, D., McBride, L. A., Quilcaille, Y., Rogelj, J., Salawitch, R. J., Samset, B. H., Sandstad, M., "
@@ -288,7 +295,7 @@ FIGS = [("rId11", "hindcast_components_L27.png", "Fig. 1: lettered render (11-05
         ("rId13", "model_comparison_components_vv_L27_2100.png", "Fig. 2: lettered render (11-05)"),
         ("rId15", "model_comparison_components_vv_L27_2300.png", "Fig. 3: lettered render (11-05)"),
         ("rId17", "future_components_vv_L27_joint.png", "Fig. 4: lettered render (11-05)"),
-        ("rId19", "vv_gsic_ladrillo_L27_2300_joint.png", "Fig. 5: joint arm (11-05), as the caption says"),
+        ("rId19", "vv_gsic_ladrillo_L27_2300_joint.png", "Fig. 5: joint arm (11-05), as the caption says; short panel titles (Marcus 11-12)"),
         ("rId21", "vv_responsiveness_L27.png", "Fig. 6: lettered render (11-05)")]
 
 
@@ -377,15 +384,11 @@ COMMENTS = [
      "(the four production chains give the shipped 10,000-draw posterior byte for byte). Not yet: the scripts that build "
      "the calibration targets and drivers from the Table 3 sources. That port needs your decisions on the non-public "
      "Dangendorf v2 file, GRACE redistribution and dataset licences."),
-    ("mimiframework/Mimi.jl, all versions",
-     "Claude 11-11: the Manifest pins Mimi 1.6.0 (GitHub tag v1.6.0, commit b01ae95, 2026-04-03), but Zenodo never archived "
-     "1.6: the concept DOI 4321855 resolves to v1.5.1 (10.5281/zenodo.7370071, 2022). Option 1: cite the GitHub tag "
-     "v1.6.0 (no DOI), year 2026, so 'Rennels et al., 2026' in Sect. 3.2. Option 2: keep this entry (2022, concept "
-     "DOI). I fixed only the two creator names to match Zenodo."),
-    ("last access: 18 May 2026",
-     "Claude 11-11: the repository bounds the download to 18-20 May 2026 (URLs confirmed 05-18 in download_obs.py; the "
-     "file was committed 05-20); I used 18 May. NOAA's data policy asks for the acknowledgment 'Altimetry data are "
-     "provided by the NOAA Laboratory for Satellite Altimetry.'; the Acknowledgements say 'are sourced from'."),
+    # The Mimi.jl comment (options 1/2) was dropped 11-12: Marcus chose option 1 (M1, M2).
+    ("last access: 20 May 2026",
+     "Claude 11-12: access date 20 May, your call 11-12 (the repository bounds the download to 18-20 May; the file was "
+     "committed 05-20). Still open: NOAA's data policy asks for the acknowledgment 'Altimetry data are provided by the "
+     "NOAA Laboratory for Satellite Altimetry.'; the Acknowledgements say 'are sourced from'."),
     # The seed comment ("that each figure reads") was dropped for the 17:06 save: Marcus replaced the sentence with
     # "Ladrillo's calibration and projection drivers fix every random seed, so the results can be regenerated."
     ("Greenland melt occurs through",
@@ -400,7 +403,8 @@ COMMENTS = [
      "two references to note 17 (Sect. 3.2, Table A3) now say note 14. The guidance listed notes 17, 19, 20 and 21; "
      "note 17 is the Rignot area scaling, a method, so it stays."),
     ("Regrowth of about 0.08 cm occurs on Low-to-Negative",
-     "Claude 11-11: the joint-arm image is in. The guidance's "
+     "Claude 11-12: shorter panel titles, your call 11-12: '(b) Ladrillo (3-reservoir ν)' and '(c) melt rate on the 4 "
+     "peak-and-decline pathways'; nothing else in the image changed. Claude 11-11: the joint-arm image is in. The guidance's "
      "move of this figure to after the peak-and-decline paragraph is NOT done: a scripted move would turn this caption's "
      "pending edits into one Claude insertion. Cut and paste the figure and caption in Word with Track Changes on if you "
      "want it. Figs. 5 and 6 are first cited together (Sect. 4.2), so the move does not change their numbering."),

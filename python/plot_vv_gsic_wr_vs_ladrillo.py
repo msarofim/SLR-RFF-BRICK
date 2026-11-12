@@ -301,7 +301,10 @@ for s in LABELS:
     if s == SPREAD_LO:
         ax[2].fill_between(d.index.values, d.p05_cm.values, d.p95_cm.values,
                            color=COL[s], alpha=0.15, lw=0)
-ax[2].text(0.012, 0.93, ("(b)" if LADRILLO_ONLY else "(c)") + "  %s — the 3 reservoirs equilibrate, so declining T slows the melt"
+## Short panel titles in the Ladrillo-only figure (the paper's Fig. 5; Marcus 2026-11-12): the caption explains the
+## panels, so the explanatory clauses stay only in the four-panel WR contrast.
+ax[2].text(0.012, 0.93, ("(b)  %s" if LADRILLO_ONLY else
+                         "(c)  %s — the 3 reservoirs equilibrate, so declining T slows the melt")
            % LAD_NAME, transform=ax[2].transAxes, fontsize=9.5, fontweight="bold", va="top")
 sp_wr = (wr(SPREAD_HI).set_index("year").gsic_med.loc[2300]
          - wr(SPREAD_LO).set_index("year").gsic_med.loc[2300])
@@ -349,8 +352,7 @@ ax[3].set_ylabel("melt rate\n(cm / century)")
 ax[3].set_xlabel("year")
 ax[3].set_xlim(X0, X1)
 lf.direct_label(ax[3], _ends3)
-ax[3].text(0.012, 0.93, (("(c)  melt rate on the %d peak-and-decline pathways — falls toward zero "
-                          "as the reservoirs equilibrate") if LADRILLO_ONLY else
+ax[3].text(0.012, 0.93, ("(c)  melt rate on the %d peak-and-decline pathways" if LADRILLO_ONLY else
                          ("(d)  melt rate on the %d peak-and-decline pathways — WR solid stays "
                           "high, Ladrillo dashed falls toward zero")) % len(DECLINE),
            transform=ax[3].transAxes, fontsize=9.5, fontweight="bold", va="top")

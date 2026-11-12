@@ -1,6 +1,6 @@
 V1: KILLED  [VERIFY] (2) own changes stripped: accepted text != base (119941 chars) FAIL
 V2: KILLED  [VERIFY] (1) max <w:ins> nesting depth 2 FAIL
-V3: KILLED  [VERIFY] (3) 92 of 93 new values in the accepted text (2 found only by docx_review_extract: ['𝓛_i', '𝓛_i']) FA
+V3: KILLED  [VERIFY] (3) 94 of 95 new values in the accepted text (2 found only by docx_review_extract: ['𝓛_i', '𝓛_i']) FA
 V4: KILLED  [VERIFY] (2) own changes stripped: accepted text != base (119941 chars) FAIL
 V5: KILLED  [VERIFY] (2) own changes stripped: accepted text != base (119941 chars) FAIL
 V6: KILLED  [VERIFY] (4) structure: 21 of 22 checks FAIL: ["not joined: 'Mengel et al. (2016). The sheet is split'"]
