@@ -7,7 +7,11 @@
    paragraph-property changes reverted, its inserted paragraphs and table rows removed), and pandoc's accepted text
    (--track-changes=accept) equals the base's EXACTLY.
 3. Every new value of the round appears in pandoc's accepted text of out.docx.
-Exit 0 = PASS. Mutation-tested: see the bottom of this file.
+4. The structural edits (the optional simplifications, 20:34 save): each Sect. 3.3 break separates two paragraphs of
+   the accepted text, the Sect. 2.2.2 paragraphs are one, and no moved Table 3 note text is left (absence checked in
+   pandoc's text and in docx_review_extract's, which does not wrap table cells).
+Check 2 rejoins a paragraph this round split (its mark is this round's insertion and it holds earlier text) with the
+next one, and drops this round's deleted paragraph marks. Exit 0 = PASS. Mutation-tested: mutation_test_verify.py.
 """
 import os, re, subprocess, sys, tempfile, zipfile
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -46,25 +50,46 @@ def max_ins_depth(x):
 
 
 def strip_own(x):
-    # paragraphs and table rows this round inserted (their mark carries the round's ins)
-    x = re.sub(r'<w:p>(?:(?!</w:p>).)*?<w:rPr><w:ins w:id="\d+" ' + re.escape(OWN) + r'/></w:rPr>.*?</w:p>', "", x, flags=re.S)
+    # this round's paragraph marks. A deleted mark (a join) is restored. A paragraph whose mark is this round's insertion
+    # is removed if it holds nothing older (a new paragraph), else rejoined with the next paragraph (a split), last first
+    x = re.sub(r'<w:del w:id="\d+" ' + re.escape(OWN) + r'/>', "", x)
+    own_ins = re.compile(r'<w:ins w:id="\d+" ' + re.escape(OWN) + r'>.*?</w:ins>', re.S)
+    mark = re.compile(r'<w:ins w:id="\d+" ' + re.escape(OWN) + r'/>')
+    para = re.compile(r'<w:p>((?:(?!</w:p>).)*)</w:p>', re.S)
+    ppr_end = re.compile(r'<w:pPr>(?:(?!</w:pPr>)(?!<w:pPrChange).)*(?:<w:pPrChange [^>]*>(?:<w:pPr>(?:(?!</w:pPr>).)*'
+                         r'</w:pPr>|<w:pPr/>)</w:pPrChange>)?</w:pPr>', re.S)
+    while True:
+        heads = [m for m in para.finditer(x) if (k := ppr_end.match(m.group(1))) and mark.search(k.group(0))]
+        if not heads:
+            break
+        m = heads[-1]
+        body = m.group(1)[ppr_end.match(m.group(1)).end():]
+        if not re.search(r"<w:t[ >]|<w:delText|<w:tab/>|<w:drawing", own_ins.sub("", body)):
+            x = x[:m.start()] + x[m.end():]
+            continue
+        nxt = re.compile(r"<w:p(?: [^>]*)?>").match(x, m.end())
+        assert nxt, "a split paragraph is not followed by a paragraph"
+        k = ppr_end.match(x, nxt.end())
+        at = k.end() if k else nxt.end()
+        x = x[:m.start()] + x[nxt.start():at] + body + x[at:]
     x = re.sub(r'<w:tr><w:trPr><w:ins w:id="\d+" ' + re.escape(OWN) + r'/></w:trPr>.*?</w:tr>', "", x, flags=re.S)
     # this round's insertions out, its deletions back in
     x = re.sub(r'<w:ins w:id="\d+" ' + re.escape(OWN) + r'>.*?</w:ins>', "", x, flags=re.S)
     x = re.sub(r'<w:del w:id="\d+" ' + re.escape(OWN) + r'>(.*?)</w:del>',
                lambda m: m.group(1).replace("<w:delText", "<w:t").replace("</w:delText>", "</w:t>"), x, flags=re.S)
-    # paragraph-property changes: restore the recorded pPr
+    # paragraph-property changes: restore the recorded pPr. (Until 11-11 evening this pattern stopped at the pPrChange's
+    # INNER </w:pPr>, so it never reverted anything; harmless for the text comparison, which ignores pPr.)
     def revert(m):
-        inner = m.group(1)
-        pc = re.search(r'<w:pPrChange w:id="\d+" ' + re.escape(OWN) + r'><w:pPr>(.*?)</w:pPr></w:pPrChange>', inner, re.S)
+        pc = re.search(r'<w:pPrChange w:id="\d+" ' + re.escape(OWN) + r'><w:pPr>(.*?)</w:pPr></w:pPrChange>', m.group(0), re.S)
         if not pc:
             return m.group(0)
-        rpr = re.search(r"<w:rPr>.*?</w:rPr>", inner, re.S)
+        rpr = re.search(r"<w:rPr>.*?</w:rPr>", m.group(0)[:pc.start()], re.S)
         return "<w:pPr>" + pc.group(1) + (rpr.group(0) if rpr else "") + "</w:pPr>"
-    return re.sub(r"<w:pPr>((?:(?!</w:pPr>).)*?<w:pPrChange (?:(?!</w:pPr>).)*?)</w:pPr>", revert, x, flags=re.S)
+    return re.sub(r"<w:pPr>(?:(?!</w:pPr>)(?!<w:pPrChange).)*<w:pPrChange [^>]*>(?:<w:pPr>(?:(?!</w:pPr>).)*</w:pPr>|<w:pPr/>)"
+                  r"</w:pPrChange></w:pPr>", revert, x, flags=re.S)
 
 
-def main(base, out, new_values):
+def main(base, out, new_values, struct=None):
     ok = True
     x = read_xml(out)
     d = max_ins_depth(x)
@@ -97,6 +122,20 @@ def main(base, out, new_values):
           + (f" ({len(second)} found only by docx_review_extract: {second})" if second else ""),
           "PASS" if not missing else f"FAIL: {missing[:8]}")
     ok &= not missing
+    if struct:
+        paras = [re.sub(r"\s+", " ", b).strip() for b in re.split(r"\n\s*\n", acc) if b.strip()]
+        bad = [f"break {b[-20:]!r} | {a[:20]!r}" for b, a, _ in struct["splits"]
+               if not any(p.endswith(b) and q.startswith(a) for p, q in zip(paras, paras[1:]))]
+        if not any(struct["joined"] in p for p in paras):
+            bad.append(f"not joined: {struct['joined'][:40]!r}")
+        with tempfile.TemporaryDirectory() as t:
+            subprocess.run([sys.executable, EXTRACT, out, t], capture_output=True, check=True)
+            ext = open(os.path.join(t, "paras.txt"), encoding="utf8").read()
+        bad += [f"still present: {v!r}" for v in struct["absent"] if v in acc_n or v in ext]
+        n_checks = len(struct["splits"]) + 1 + len(struct["absent"])
+        print(f"[VERIFY] (4) structure: {n_checks - len(bad)} of {n_checks} checks",
+              "PASS" if not bad else f"FAIL: {bad[:6]}")
+        ok &= not bad
     print("[VERIFY]", "PASS" if ok else "FAIL")
     return ok
 
@@ -112,5 +151,6 @@ if __name__ == "__main__":
     exec(head, ns)
     vals = [e["new"] for e in ns["ENTRIES"] if e["new"].strip()] + [n for _, _, _, n in ns["MINIMAL"]] + \
            [c[3].strip("; ").strip() for c in ns["CITES"]] + [r[1][:60] for r in ns["NEW_REFS"]] + \
-           [v for cols in ns["A1"].values() for v in cols.values()] + [ns["A1_FOOTNOTE"].strip()[:60]]
-    sys.exit(0 if main(base, out, vals) else 1)
+           [v for cols in ns["A1"].values() for v in cols.values()] + [ns["A1_FOOTNOTE"].strip()[:60]] + ns["SIMP_NEW"]
+    struct = dict(splits=ns["SPLITS_33"], joined=ns["SIMP_JOINED"], absent=ns["SIMP_ABSENT"])
+    sys.exit(0 if main(base, out, vals, struct) else 1)

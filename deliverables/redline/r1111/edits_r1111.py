@@ -49,6 +49,7 @@ ENTRIES = [
     E("D2", "2.2.1", "range of 60-3200 years", "range of 60–3200 years", "least constrained", "en dash"),
     E("D3", "3.2", "ESS below 400 (20-244)", "ESS below 400 (20–244)", "ESS below 400", "en dash"),
     E("D4", "4.3", "by 17-20 cm", "by 17–20 cm", "17-20 cm", "en dash"),
+    E("D7", "4.3", "1995-2014)..", "1995–2014).", "the others to 1995-2014", "en dash; double period in Marcus's 20:34 insertion"),
     E("D5", "4.1", "+20.41 (-0.6)", "+20.41 (−0.6)", "+20.41 (-0.6)", "minus sign"),
     E("D6", "3.2", "5-95% -0.05 to", "5–95% −0.05 to", "The quadratic coefficient spans zero",
       "en dash and minus sign in Marcus's 17:00 insertion"),
@@ -59,7 +60,7 @@ ENTRIES = [
     E("U5", "2.2.1", "0.116 mm/yr)", "0.116 mm yr⁻¹)", "0.049 ± 0.116", "units"),
     E("S1", "2.2.2", "temperature.  The tilt", "temperature. The tilt", "The tilt, w", "double space"),
     E("S2", "2.2.4", "so  δ and α", "so δ and α", "cannot trade off", "double space"),
-    E("S3", "4.3", "307 cm  at 2300", "307 cm at 2300", "307 cm", "double space"),
+    # S3 ("307 cm  at 2300" double space) dropped: Marcus fixed it in the 20:34 save.
     E("S4", "5", "individual components.  ", "individual components.", "replace individual components", "trailing spaces"),
     E("S5", "Table 3 note 18", "outline ( World", "outline (World", "( World", "space"),
     # ---- citation forms ---------------------------------------------------------------------------------------------
@@ -80,7 +81,7 @@ ENTRIES = [
       "Zenodo creator Fernando Hoces de la Guardia; Crossref family 'Hoces de la Guardia'"),
     E("R3", "References", "and Catawbasam:", "and catawbasam:", "Catawbasam", "Zenodo creator list (a GitHub handle)"),
     # ---- Fig. 5: the joint-arm image replaces the fixed-arm one (FIGS below), so the caption's last words go ----------
-    E("F5", "Fig. 5", " Fixed arm.", "", "Regrowth of about 0.08 cm", "joint-arm image swapped in; caption says Joint arm"),
+    # F5 (delete the caption's closing " Fixed arm.") dropped: Marcus deleted it in the 20:34 save.
 ]
 
 ## Minimal edits (only `old` becomes a tracked change, found inside a unique `context`): the likelihood symbols L_i and
@@ -110,6 +111,60 @@ CITES = [
     ("CI3", "NOAA STAR altimetry over 2022–2024).", "NOAA STAR altimetry over 2022–2024",
      "; NOAA Laboratory for Satellite Altimetry, 2026"),
 ]
+## ---- the three optional simplifications (guidance 11-11, "Optional simplifications (carried over)") ----------------
+## Marcus 11-11, 20:34 save: "Do the 3 optional simplifications". Data here (verify_r1111.py reads it); code below.
+## (a) Sect. 2.2.2: "Two channels" and "Two basins" become one paragraph; the run-in head names both.
+MERGE_222 = dict(head="Two channels (surface mass balance, SMB, and dynamic discharge)", add=" and two basins",
+                 second_head="Two basins.", first_para="Greenland melt occurs through")
+## (b) Sect. 3.3: tracked paragraph breaks (before, after); True = the first part is a list item (indented).
+SPLITS_33 = [("It checks that", "(i) the calibration inputs", False),
+             ("equal the committed input files;", "(ii) the glacier component", True),
+             ("to within 0.1 cm at 2100;", "(iii) the components nest", True),
+             ("leaves every projection unchanged; and", "(iv) re-running", True),
+             ("reproduces it bit for bit.", "Each identity test", True),
+             ("each time the calibrator starts.", "The", False)]
+## (c) Table 3: notes 13, 14, 16, 19, 21 and 22 (acquisition dates, granule, file names, hashes) and the hash half of
+## note 20 move to Code and data availability. The guidance named "17, 19, 20 and 21"; note 17 is the Rignot area
+## scaling (a method), so it stays. The remaining notes 15, 17, 18, 20 become 13-16.
+NOTES_ANCHOR = "Bedmap2 grounded-ice area"            # a phrase of the notes paragraph that stays
+NOTE_DELETES = ["¹³ Acquired 2026-06-13. ¹⁴ Granule 200204_202606. ",
+                '¹⁶ pnas.1904242116.sd02.xlsx, sheet "(2) MB_GIS"; no dataset version is published. ',
+                "¹⁹ Fetched 2026-07-21 to 2026-08-24 (Greenland panel 2026-08-18, glacier panel 2026-08-23); member ID "
+                "recorded per model and the panel pinned to the fetched files, so a later catalogue change cannot swap "
+                "the ensemble. ",
+                "; SHA-256 prefix 0b53b45e2422563b, extracted 2026-08-24",
+                " ²¹ GMSL derived from Fields.nc, not the record's Global.nc (mis-written upstream), and validated "
+                "against a corrected _v2.nc supplied by S. Dangendorf (pers. comm., 2026-08-07). ²² md5 "
+                "8ae5ac0041e26351b9f497f969bd0dab."]
+NOTE_RENUMBER = [("¹⁵ The 2023 value", "¹⁵", "¹³"), ("¹⁷ Scaled by", "¹⁷", "¹⁴"), ("¹⁸ At the RGI", "¹⁸", "¹⁵"),
+                 ("²⁰ The 16-parameter", "²⁰", "¹⁶")]
+NOTE_MARKERS = [("GlaMBIE Team (2025)¹³", "¹³", ""), ("(Wiese et al., 2024)¹⁴", "¹⁴", ""),
+                ("land-water storage 2019–2023¹⁵", "¹⁵", "¹³"), ("Supplementary Dataset S2¹⁶", "¹⁶", ""),
+                ("Hock et al. (2023)¹⁸", "¹⁸", "¹⁵"), ("CMIP6 zarr catalogue¹⁹", "¹⁹", ""),
+                ("shipped with MimiBRICK²⁰", "²⁰", "¹⁶"), ("(Dangendorf, 2024)²¹", "²¹", ""),
+                ("Forster et al. (2026)²²", "²²", "")]
+NOTE17_CELL = ("133 Gt yr⁻¹ over 1979–2008", "¹⁷", "¹⁴")   # its own run after this round's unit edit U1
+NOTE_XREFS = [("Antarctic SMB anchor (Table 3, note 17)", "17", "14"), ("Table 3, note 17", "17", "14")]  # Sect. 3.2, then Table A3
+AVAIL_ANCHOR = "A user manual (installation, running the calibration"
+AVAIL_SEGS = [("Acquisition details for the Table 3 inputs: GlaMBIE, acquired 2026-06-13; JPL GRACE/GRACE-FO mascons, "
+               "granule ", 0), ("200204_202606", 1), ("; Mouginot et al. (2019), ", 0), ("pnas.1904242116.sd02.xlsx", 1),
+              (', sheet "(2) MB_GIS" (no dataset version is published); CMIP6 regional amplification, fetched '
+               "2026-07-21 to 2026-08-24 (Greenland panel 2026-08-18, glacier panel 2026-08-23), with the member ID "
+               "recorded per model and the panel pinned to the fetched files, so a later catalogue change cannot swap "
+               "the ensemble; DAIS paleo ensemble, SHA-256 prefix ", 0), ("0b53b45e2422563b", 1),
+              (", extracted 2026-08-24; Dangendorf et al. (2024) GMSL, derived from ", 0), ("Fields.nc", 1),
+              (", not the record's ", 0), ("Global.nc", 1),
+              (" (mis-written upstream), and validated against a corrected ", 0), ("_v2.nc", 1),
+              (" supplied by S. Dangendorf (pers. comm., 2026-08-07); IGCC 2025-indicators GMSL, md5 ", 0),
+              ("8ae5ac0041e26351b9f497f969bd0dab", 1), (".", 0)]
+## for verify_r1111.py: new values (check 3), paragraph starts and absent strings (check 4)
+SIMP_NEW = ["and two basins", "¹³ The 2023 value", "¹⁴ Scaled by", "¹⁵ At the RGI", "¹⁶ The 16-parameter",
+            "Table 3, note 14", "".join(t for t, _ in AVAIL_SEGS)]
+SIMP_JOINED = "Mengel et al. (2016). The sheet is split into"     # the 2.2.2 paragraphs, joined
+SIMP_ABSENT = ["¹³ Acquired", "¹⁴ Granule", "¹⁶ pnas", "¹⁹ Fetched", "SHA-256 prefix 0b53b45e2422563b, extracted 2026-08-24.",
+               "²¹ GMSL", "²² md5", "(2025)¹³", "2024)¹⁴", "S2¹⁶", "catalogue¹⁹", "2024)²¹", "(2026)²²", "note 17",
+               "Two basins."]
+
 ## New reference entries: (anchor of the entry they follow, text). Same anchor = inserted in reverse order.
 NEW_REFS = [
     ("Levitus, S., Antonov", "Lin, Y., Zhang, X., Golledge, N. R., Kopp, R. E., Church, J. A., Jin, Y., Zhao, C., and Stokes, "
@@ -333,12 +388,128 @@ COMMENTS = [
      "provided by the NOAA Laboratory for Satellite Altimetry.'; the Acknowledgements say 'are sourced from'."),
     # The seed comment ("that each figure reads") was dropped for the 17:06 save: Marcus replaced the sentence with
     # "Ladrillo's calibration and projection drivers fix every random seed, so the results can be regenerated."
+    ("Greenland melt occurs through",
+     "Claude 11-11, optional simplification: 'Two channels' and 'Two basins' joined into one paragraph. The run-in head "
+     "now reads 'Two channels (...) and two basins.'; no other words changed."),
+    ("Verification here means",
+     "Claude 11-11, optional simplification: the test suite's four checks are a list, items (i)-(iv) indented. The "
+     "paragraph is split before each item, after the list, and before the MCMC check; no words changed."),
+    ("The 2023 value is held constant",
+     "Claude 11-11, optional simplification: the acquisition details of notes 13, 14, 16, 19, 21 and 22 and the hash of "
+     "note 20 moved to a new paragraph in Code and data availability. Notes 15, 17, 18 and 20 are now 13-16, and the "
+     "two references to note 17 (Sect. 3.2, Table A3) now say note 14. The guidance listed notes 17, 19, 20 and 21; "
+     "note 17 is the Rignot area scaling, a method, so it stays."),
     ("Regrowth of about 0.08 cm occurs on Low-to-Negative",
-     "Claude 11-11: the joint-arm image is in; I deleted the caption's closing 'Fixed arm.' to match it. The guidance's "
+     "Claude 11-11: the joint-arm image is in. The guidance's "
      "move of this figure to after the peak-and-decline paragraph is NOT done: a scripted move would turn this caption's "
      "pending edits into one Claude insertion. Cut and paste the figure and caption in Word with Track Changes on if you "
      "want it. Figs. 5 and 6 are first cited together (Sect. 4.2), so the move does not change their numbering."),
 ]
+
+
+## ---- the three optional simplifications: code (data above, after CITES) ---------------------------------------------
+def _mark(kind):
+    """A tracked paragraph mark: <w:ins/> = the mark is new (a paragraph break), <w:del/> = it is removed (a join)."""
+    return f'<w:{kind} w:id="{d._id()}" w:author="{AUTHOR}" w:date="{DATE}"/>'
+
+
+def _plain_run(text):
+    c = escape(text)
+    hits = [m for m in RUN_RE.finditer(d.x) if c in m.group(2) and not _in_tracked(d.x, m.start())]
+    assert len(hits) == 1, (text[:60], len(hits))
+    return hits[0]
+
+
+def _ppr(p):
+    """(open tag, pPr XML or '') of paragraph XML p; refuses a pPr this code would have to rewrite around."""
+    m = re.match(r'(<w:p(?: [^>]*)?>)(<w:pPr>(?:(?!</w:pPr>).)*</w:pPr>)?', p, re.S)
+    ppr = m.group(2) or ""
+    assert not re.search(r"<w:rPr>|<w:pPrChange|<w:sectPr|<w:numPr", ppr), ppr[:120]
+    return m.group(1), ppr
+
+
+LIST_PPR = '<w:spacing w:before="60" w:after="60"/><w:ind w:left="360"/>'
+
+
+def split_para(before, after, item):
+    """Tracked paragraph break between `before` and `after`, one space apart in one plain run: the space is deleted and
+    the first part ends in an inserted paragraph mark (as Word records Enter typed with Track Changes on). The second
+    part keeps the original mark, attributes and properties. item=True indents the first part (tracked pPrChange)."""
+    m = _plain_run(before + " " + after)
+    ps, pe = _para_bounds(d.x, m.start())
+    p = d.x[ps:pe]
+    tag, ppr = _ppr(p)
+    inner = ppr[7:-8] if ppr else ""
+    new_inner, change = inner, ""
+    if item:
+        style = re.search(r'<w:pStyle w:val="[^"]*"/>', inner).group(0)
+        assert "<w:spacing" not in inner and "<w:ind" not in inner, inner
+        new_inner = inner.replace(style, style + LIST_PPR, 1)
+        change = f'<w:pPrChange w:id="{d._id()}" w:author="{AUTHOR}" w:date="{DATE}"><w:pPr>{inner}</w:pPr></w:pPrChange>'
+    rpr, t = m.group(1), m.group(2)
+    i = t.index(escape(before + " " + after)) + len(escape(before))
+    assert t[i] == " "
+    first = (f'<w:p><w:pPr>{new_inner}<w:rPr>{_mark("ins")}</w:rPr>{change}</w:pPr>' + d.x[ps + len(tag) + len(ppr):m.start()]
+             + d._run(rpr, t[:i]) + d._del(rpr, " ") + "</w:p>")
+    second = tag + ppr + d._run(rpr, t[i + 1:]) + d.x[m.end():pe]
+    d.x = d.x[:ps] + first + second + d.x[pe:]
+    d.log.append((f"...{before[-25:]} | {after[:25]}...", "[paragraph break]" + (" + list indent" if item else ""),
+                  "optional simplification: Sect. 3.3 as a list"))
+
+
+def join_with_next(phrase):
+    """Tracked deletion of the paragraph mark of the paragraph holding `phrase` (it joins the next paragraph)."""
+    m = _plain_run(phrase)
+    ps, pe = _para_bounds(d.x, m.start())
+    assert re.match(r"<w:p[ >]", d.x[pe:]), "the next element is not a paragraph"
+    p = d.x[ps:pe]
+    tag, ppr = _ppr(p)
+    assert ppr, "paragraph without pPr"
+    d.x = d.x[:ps] + tag + ppr[:-8] + f'<w:rPr>{_mark("del")}</w:rPr></w:pPr>' + p[len(tag) + len(ppr):] + d.x[pe:]
+    d.log.append((phrase, "[paragraph mark deleted: joins the next paragraph]", "optional simplification: Sect. 2.2.2"))
+
+
+VERB = '<w:rPr><w:rStyle w:val="VerbatimChar"/></w:rPr>'
+
+
+def insert_para_segments(anchor, segs):
+    """Tracked new paragraph after the one holding `anchor`, with that paragraph's properties; segs = (text, code?)."""
+    m = _plain_run(anchor)
+    ps, pe = _para_bounds(d.x, m.start())
+    tag, ppr = _ppr(d.x[ps:pe])
+    inner = ppr[7:-8] if ppr else ""
+    runs = "".join(d._ins(VERB if code else None, escape(t)) for t, code in segs)
+    d.x = d.x[:pe] + f'<w:p><w:pPr>{inner}<w:rPr>{_mark("ins")}</w:rPr></w:pPr>{runs}</w:p>' + d.x[pe:]
+    d.log.append((anchor[:40] + " [+para after]", "".join(t for t, _ in segs)[:80] + "...",
+                  "optional simplification: Table 3 provenance"))
+
+
+def simplifications():
+    rep = {}
+    # (a) Sect. 2.2.2
+    h = MERGE_222
+    edlib.ins(h["head"] + ".", h["head"], h["add"], "optional simplification: one paragraph, head names both")
+    edlib.edit(h["second_head"], h["second_head"], "", "optional simplification: second run-in head removed")
+    join_with_next(h["first_para"])
+    rep["SIMP-a"] = "ok (2.2.2 joined)"
+    # (b) Sect. 3.3
+    for before, after, item in SPLITS_33:
+        split_para(before, after, item)
+    rep["SIMP-b"] = f"ok ({len(SPLITS_33)} paragraph breaks, {sum(i for *_, i in SPLITS_33)} list items)"
+    # (c) Table 3 notes -> Code and data availability
+    for k, old in enumerate(NOTE_DELETES):
+        r = span_edit(dict(id=f"N{k}", category="wording", anchor=NOTES_ANCHOR, old=old, new="",
+                           source="optional simplification: Table 3 provenance -> Code and data availability"))
+        assert r.startswith("ok"), (old[:40], r)
+    for ctx, o, n in NOTE_RENUMBER + NOTE_MARKERS:
+        edlib.edit(ctx, o, n, "optional simplification: Table 3 notes renumbered")
+    d.replace_after(*NOTE17_CELL, why="optional simplification: Table 3 notes renumbered")
+    for ctx, o, n in NOTE_XREFS:
+        edlib.edit(ctx, o, n, "optional simplification: cross-reference to the renumbered note")
+    insert_para_segments(AVAIL_ANCHOR, AVAIL_SEGS)
+    rep["SIMP-c"] = (f"ok ({len(NOTE_DELETES)} note spans deleted, {len(NOTE_RENUMBER)} renumbered, "
+                     f"{len(NOTE_MARKERS) + 1} markers, {len(NOTE_XREFS)} cross-references, 1 paragraph)")
+    return rep
 
 
 if __name__ == "__main__":
@@ -362,6 +533,7 @@ if __name__ == "__main__":
     report.update(table_a1())
     neq = equation_tabs()
     nfig = swap_figures()
+    report.update(simplifications())
     nmv = split_moves()
     print(f"{nmv} of this round's insertions moved out of pending moves")
     d.save()

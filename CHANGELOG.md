@@ -29,6 +29,42 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-11g — GMD round r1111 final build on the 20:34 save, with the three optional simplifications
+
+**Marcus 11-11, 20:34:** "The last save is done … Create a new version of the document to make the next set of
+track-changed corrections. Do the 3 optional simplifications … Then run the final build."
+- Base: the 20:34 save of the TW2 review file, md5 `a180bc82d59e81b1be67140903bbfac6` (Word closed, no lock file);
+  now `build.sh`'s confirmed md5. Output: `deliverables/GMD.Ladrillo.v1_review-2026-11-11_L27_r1111.docx`, md5
+  `ec84c81b583d9cb8823da443ebd1230d`. 88 tracked edits, 9 comments, Word's schema validator PASS. The base is unchanged.
+- What the 20:34 save changed since 17:06: the Sect. 4.2 component paragraph; the Fig. 5 caption ("ensemble-mean GMST",
+  "Fixed arm." deleted); the FACTS baseline note in the High-scenarios paragraph; "0.0104"; the double space at "307 cm";
+  four-fifths / one fifth; Frank Errickson in the Acknowledgements. So F5 (delete "Fixed arm.") and S3 (the 307 cm
+  space) are dropped, the Fig. 5 comment no longer claims the deletion, and D7 fixes "1995-2014).." in his new text.
+- The three optional simplifications (guidance 11-11, "carried over"). The code is `simplifications()` in
+  `edits_r1111.py`, and three comments say what changed:
+  - Sect. 2.2.2: "Two channels" and "Two basins" are one paragraph. Its first paragraph mark is a tracked deletion,
+    the run-in head gains " and two basins", and the second head "Two basins." is deleted.
+  - Sect. 3.3: six tracked paragraph breaks, each deleting the space at the break. They give an intro ending "It checks
+    that", items (i)–(iv) with a tracked indent (left 360 twips, spacing 60/60), then the identity-test and
+    level-and-tilt paragraph, then the MCMC and BRICK 2.0 paragraph. No words changed.
+  - Table 3: notes 13, 14, 16, 19, 21 and 22 and the hash half of note 20 (dates, granule, file names, hashes) are
+    deleted with their markers. They reappear as a new Code and data availability paragraph ("Acquisition details for
+    the Table 3 inputs: …"), with file names and hashes in the code font. Notes 15, 17, 18 and 20 are renumbered 13–16,
+    and both references to note 17 (Sect. 3.2, Table A3) now say note 14. The guidance named notes "17, 19, 20 and 21",
+    but note 17 is the Rignot area scaling, a method, so it stays.
+- Gate `verify_r1111.py`:
+  - Check 2 now rejoins a paragraph this round split (an inserted mark on a paragraph that holds earlier text) with
+    the next one, and restores this round's deleted marks.
+  - Its paragraph-property revert never matched: the pattern stopped at the pPrChange's inner `</w:pPr>`. This is now
+    fixed. It was harmless before, because pandoc's text ignores paragraph properties.
+  - New check 4: each 3.3 break separates two paragraphs of pandoc's accepted text; the 2.2.2 paragraphs are one; none
+    of 15 moved note strings is left. The absence part is read by both pandoc and `docx_review_extract.py`, which does
+    not wrap table cells.
+  - On the output: (1) depth 1, (2) accepted text equal (119,941 characters), (3) 93/93 new values, (4) 22/22.
+  - `mutation_test_verify.py` has four new mutants, all killed: an untracked word in a list item and an untracked
+    paragraph break (check 2), the 2.2.2 join undone and a moved note left in place (check 4). 7/7 killed in total.
+  - python-docx reads the output: 975 paragraphs (base 963) and 18 drawings (base 12).
+
 ## 2026-11-11f — r1111 rebuilt on the 17:06 save; runtime re-measured on the Zenodo posterior
 
 **Marcus 11-11, evening:** "I'm still editing the word document with the remaining HAND edits." The final build still

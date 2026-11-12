@@ -13,7 +13,7 @@ REPO="$(cd "$HERE/../../.." && pwd)"
 PY="$HOME/climate-env/bin/python"
 SK="/Users/MarcusMarcus/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin/bde964e6-4558-410f-b23a-3b83edafdcf0/a8b27aae-cf9d-41c6-8c2f-bc82579b92b8/skills/docx"
 BASE="${BASE_DOCX:-$REPO/deliverables/GMD.Ladrillo.v1_review-2026-10-15_L27_TW2.docx}"   # BASE_DOCX: a frozen copy, for test builds
-CONFIRMED_MD5="${BASE_MD5:-84c9f503636df9f9b515d9fb2c32dd88}"   # 17:00 save (15:07 was 872c3feff24c0c0e4182fdf2506ae1e0)
+CONFIRMED_MD5="${BASE_MD5:-a180bc82d59e81b1be67140903bbfac6}"   # 20:34 save, confirmed last ("The last save is done"); 17:00 fad8a36a, 17:06 9f152d66, 15:07 872c3fef
 WD="$1"; OUT="$2"
 [ "$(md5 -q "$BASE")" = "$CONFIRMED_MD5" ] || { echo "base md5 is not $CONFIRMED_MD5 (a newer save?): look at it, then pass BASE_MD5"; exit 1; }
 [ ! -e "$OUT" ] || { echo "refusing to overwrite $OUT"; exit 1; }
