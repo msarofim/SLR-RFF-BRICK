@@ -1,0 +1,7 @@
+verify_r1113.py mutation test on GMD.Ladrillo.v1_review-2026-11-12_L27_r1113.docx
+V1: KILLED  [VERIFY] (2) own changes stripped: accepted text != base (122815 chars); image references == base (21) FAIL
+V2: KILLED  [VERIFY] (1) max <w:ins> nesting depth 2 FAIL
+V3: KILLED  [VERIFY] (3) 6 of 7 new values present, 4 of 4 replaced values gone FAIL: missing ['Calibration: 2.04; project
+V4: KILLED  [VERIFY] (3) 6 of 7 new values present, 3 of 4 replaced values gone FAIL: missing ['Calibration: 0.01365 m yr⁻
+V5: KILLED  [VERIFY] (2) own changes stripped: accepted text != base (122815 chars); image references != base (21) FAIL
+V6: KILLED  [VERIFY] (2) own changes stripped: accepted text != base (122815 chars); image references == base (21) FAIL

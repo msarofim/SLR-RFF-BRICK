@@ -29,6 +29,26 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-12c — GMD round r1113: Table A3 as run in calibration; two placeholder references completed
+
+Marcus 11-12: "Fix Table A3." His 08:26 save of r1112 (md5 1a266d2d) puts the as-run values in Sect. 2.2.3 (his
+wording from my suggestion), adds the "intermediate complexity model" sentence to the Introduction, removes the
+"posterior )" space, and replies on the FACTS comment; nothing else changed.
+- Table A3: λ, T_crit "Calibration: 0.00991 m yr⁻¹, −15.67 °C" → "0.01365 m yr⁻¹, −15.14 °C"; γ "2.83" → "Calibration:
+  2.04; projection: 2.83". The as-run values are row 5808 of `data/MimiBRICK/parameters_subsample_brick.csv`
+  (`outputs/recalib_central_row.csv`), loaded over the paleo medians at `calibrate_mcmc_ext.jl:1627`. The source column
+  still cites the paleo ensemble/median (left for Marcus).
+- A citation/reference cross-check before sharing with Tony found two of Marcus's 11-05 placeholder entries:
+  - "Goelzer et al. (2025), The Cryosphere 19, 6887 (data doi:10.11582/2025" → the full entry (Crossref
+    10.5194/tc-19-6887-2025; egusphere-2025-3098 is its preprint). The data set it named, PROTECT-Greenland (Goelzer,
+    NIRD, 10.11582/2025.lf9m2wd0, CC-BY), is where the 5.7 ratio in Sect. 2.2.2 comes from
+    (`python/build_gis_matched_targets.py`), so it gets its own entry and "; Goelzer, 2025" in that citation.
+  - "RGI Consortium 2017" → the RGI 6.0 entry (DataCite 10.7265/4m1f-gd79); in-text "RGI Consortium, 2017".
+- Output `deliverables/GMD.Ladrillo.v1_review-2026-11-12_L27_r1113.docx` (untracked), md5 594d15a258308f609e1feb0e5c7678a6.
+  Word schema validation PASS. `verify_r1113.py` PASS (nesting depth 1; with this round stripped, including its new
+  paragraph, accepted text equals the base and image references equal the base's; 7/7 new values, 4/4 old values gone;
+  visible images unchanged). Mutation test 6/6 killed.
+
 ## 2026-11-12b — GMD round r1112: c_R in Table A1 and Fig. 5 with a short panel (a) title (Marcus)
 
 Marcus 11-12: "add the c_R edits and cut panel (a)'s title". His 07:59 save of r1111b (md5 90a85ff2) moved Figs. 5
