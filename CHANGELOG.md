@@ -29,6 +29,26 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-12e — GMD round r1114: FACTS text corrected, land water dropped past 2100, Figs. 3 and 6
+
+Marcus 11-12: "Put in item 2 and the Table 1 note as tracked edits. Drop FACTS land water post 2100." Built on r1113
+(md5 594d15a2; Marcus's 08:35 save of it is byte-identical).
+- Sect. 4.2: "The Bamber and DeConto modules select a projection for each sample from temperature integrated over
+  2000–2099, the AR5 Antarctic module's dynamics term is a prescribed function of time, and LARMIP's ..." (the AR5
+  term had been attributed to Bamber/DeConto).
+- Table 1 note 5: "In FACTS, Greenland (FittedISMIP) continues its 2080–2100 rate, the Bamber and DeConto modules
+  follow trajectories selected by 2000–2099 warming, the AR5 Antarctic dynamics term is a function of time, and LARMIP
+  drops forcing more than 200 years old; ProFSea's Greenland uses the FACTS implementation."
+- Land water: Sect. 4.2's list now reads "glaciers and thermal expansion, plus LARMIP Antarctica at 2150", the Fig. 3
+  caption "(glaciers and thermal expansion; Sect. 4.2)"; Figs. 3 and 6 swapped for the 2026-11-12d renders (each
+  found as the visible image whose media equals the c22bb9a render).
+- Output `deliverables/GMD.Ladrillo.v1_review-2026-11-12_L27_r1114.docx` (untracked), md5 43233850ae52d2cc2135a2598757dee4.
+  Word schema validation PASS; `verify_r1114.py` PASS (depth 1; stripped text and image references equal the base;
+  4/4 new values, 4/4 old values gone; Figs. 3 and 6 are the current renders and no other image moved). Mutation test
+  6/6 killed (first run of the gate crashed on a None slot in its own image check; fixed before the result).
+- For the note to Kelly McCusker: FACTS ar5AIS at 2300 (outputs/facts_components_shared_n200.csv) has median 49.7 cm
+  under vvVL and 27.8 cm under vvH (5–95% −36.5 to 128.7 and −67.8 to 113.3 cm).
+
 ## 2026-11-12d — FACTS land-water storage dropped past 2100 (Marcus); FACTS module audit
 
 A code audit of FACTS's post-2100 behaviour (subagent with file:line receipts, three points re-checked by hand; memory

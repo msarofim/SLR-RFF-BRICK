@@ -1,0 +1,7 @@
+verify_r1114.py mutation test on GMD.Ladrillo.v1_review-2026-11-12_L27_r1114.docx
+V1: KILLED  [VERIFY] (2) own changes stripped: accepted text != base (123482 chars); image references == base (21) FAIL
+V2: KILLED  [VERIFY] (1) max <w:ins> nesting depth 2 FAIL
+V3: KILLED  [VERIFY] (3) 3 of 4 new values present, 4 of 4 replaced values gone FAIL: missing ["⁵ In FACTS, Greenland (Fit
+V4: KILLED  [VERIFY] (3) 3 of 4 new values present, 4 of 4 replaced values gone FAIL: missing ['climate-driven at 2300 (gl
+V5: KILLED  [VERIFY] (4) visible images: 6; Figs. 3 and 6 are the current renders, nothing else moved FAIL: ['Fig. 6: show
+V6: KILLED  [VERIFY] (4) visible images: 7; Figs. 3 and 6 are the current renders, nothing else moved FAIL: ['7 visible im
