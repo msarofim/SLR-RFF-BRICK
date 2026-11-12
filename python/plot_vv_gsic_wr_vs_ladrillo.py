@@ -265,9 +265,10 @@ if not lf.PAPER:
                     ("Glacier melt to 2300 — %s vs %s, seven van Vuuren CMIP7 scenarios"
                      % (WR_NAME, LAD_NAME)), fontsize=11, fontweight="bold", loc="left")
 ## Panel letter, so the figure matches its caption ("GMST forcing (a), cumulative melt (b),
-## melt rate (c)") -- (b) and (c) carried theirs, (a) did not (found 2026-09-11). Under the joint arm
-## the panel says it is the ensemble mean, because the draws below each run on their own configuration.
-ax[0].text(0.012, 0.93, "(a)  GMST forcing" + (" (FaIR ensemble mean)" if ARM == "joint" else ""),
+## melt rate (c)") -- (b) and (c) carried theirs, (a) did not (found 2026-09-11). Under the joint arm the
+## draws below each run on their own FaIR configuration, so panel (a) is the ensemble mean; the paper's caption
+## says so ("the FaIR ensemble-mean GMST (a)"), and the panel title is short (Marcus 2026-11-12).
+ax[0].text(0.012, 0.93, "(a)  GMST forcing",
            transform=ax[0].transAxes, fontsize=9.5, fontweight="bold", va="top")
 lf.direct_label(ax[0], _ends0)
 _pk = {s: (wr(s).set_index("year").gmst.loc[2015:2300].idxmax(),

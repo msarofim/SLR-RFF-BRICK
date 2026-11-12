@@ -29,6 +29,25 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-12b — GMD round r1112: c_R in Table A1 and Fig. 5 with a short panel (a) title (Marcus)
+
+Marcus 11-12: "add the c_R edits and cut panel (a)'s title". His 07:59 save of r1111b (md5 90a85ff2) moved Figs. 5
+and 6 into Sect. 4.3 (Word recorded the images as his deletion at the old place and his insertion at the new one) and
+changed the NOAA acknowledgment to "provided by"; its extract shows nothing else. He is fine with the Lin/Poinelli
+paragraph as it stands.
+- New round `deliverables/redline/r1112/` (date 2026-11-12T14:00Z), built on that save; the r1111 libraries are copied
+  in with the new date.
+- Table A1: "T_on = −h₀/c" and "(h₀ = −T_on·c)" gain "_R", matching the ais_c row and Sect. 2.2.3.
+- Fig. 5: the panel (a) title is now "(a)  GMST forcing" in both scripts (the caption already says "the FaIR
+  ensemble-mean GMST (a)"). Only rows 35-52 of the PNG change; Ladrillo.jl's FIGURES-IDENTITY gate passes 16/16. In the
+  draft, the image Marcus inserted at the new place becomes a Claude deletion inside his insertion, with the new render
+  inserted beside it. A reply on the Fig. 5 comment says the move is done.
+- Output `deliverables/GMD.Ladrillo.v1_review-2026-11-12_L27_r1112.docx` (untracked), md5 58cd792f257dd8374061d3f14a3d2800.
+  Word schema validation PASS. `verify_r1112.py` PASS: nesting depth 1; with this round stripped, accepted text equals
+  the base (122,517 characters) and the image references equal the base's; 2/2 c_R values present and the old forms
+  gone; the six visible images are the base's with Fig. 5 now the new render (media md5 = figures/paper). Mutation test
+  5/5 killed.
+
 ## 2026-11-12 — r1111b: Mimi.jl cites the GitHub release, NOAA access 20 May, short Fig. 5 panel titles (Marcus)
 
 Marcus 11-12: "the Mimi citation should be to the github, and the NOAA access date can be 20 May. For Figure 5, I think
