@@ -1,0 +1,9 @@
+verify_r1115.py mutation test on GMD.Ladrillo.v1_review-2026-11-12_L27_r1115.docx + GMD.Ladrillo.v1.2026-11-12b.clean.docx
+V1: KILLED  [VERIFY] (2) own changes stripped: accepted text != base (123629 chars); image references == base (23) FAIL
+V2: KILLED  [VERIFY] (1) max <w:ins> nesting depth 2 FAIL
+V3: KILLED  [VERIFY] (3) 1 of 2 new values present, 1 of 1 replaced values gone FAIL: missing ['temperature drivers are in
+V4: KILLED  [VERIFY] (5) comments: 3 changed state, expected the 2 stale ones, now resolved FAIL: changed ['0DE592B8', '25
+C1: KILLED  [VERIFY] (C1) clean copy has 1 tracked changes FAIL
+C2: KILLED  [VERIFY] (C2) clean text = its base with exactly this round's edits (124208 chars) FAIL
+C3: KILLED  [VERIFY] (C3) clean images byte-identical to its base FAIL
+C4: KILLED  [VERIFY] (C4) comments: 1 changed state, expected the 2 stale ones, now resolved FAIL: changed ['0DE592B8'] wa

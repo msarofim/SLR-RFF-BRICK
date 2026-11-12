@@ -29,6 +29,31 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-12f — GMD round r1115: Code and data availability filled in; clean copy updated to match
+
+Marcus 11-12: "Fill in the Code and data availability sentence facts, and update the clean version too. Then evaluate
+if the two files are ready to share with Tony." Bases: r1114 as built (md5 43233850, unchanged) and Marcus's clean copy
+`GMD.Ladrillo.v1.2026-11-12.clean.docx` (09:21, md5 af906761; 0 tracked changes; its accepted text equals r1114's
+except that he joined the regrowth paragraph, dropping a space: "block’s1850").
+- Code and data availability, after "... regional-temperature drivers are included in the archive.": "The archive also
+  includes the source files needed to rebuild the calibration targets, except the two Frederikse et al. (2020) files,
+  which are retrieved from the Zenodo record of Dangendorf (2024). The NOAA STAR, NOAA NCEI, Berkeley Earth and GISTEMP
+  series are archived as used, because their publishers update these files in place. The licence of each source is
+  listed in the archive; the Berkeley Earth series is distributed under CC BY-NC 4.0." Facts from Ladrillo.jl 1168c9b.
+  DOI and repository URL stay placeholders (no tag, repository private).
+- Sect. 2.2.1 typo "( committed-loss" fixed. Two of Claude's comments that the text has overtaken (the Code
+  availability status note, the NOAA wording note) marked resolved, in both files.
+- Clean copy only: "block’s 1850" and the trailing spaces after the new Introduction sentence. The tracked file keeps
+  the regrowth paragraph split: it sits inside Marcus's moved equation block, where a scripted join could corrupt the
+  moves.
+- Outputs (untracked): `deliverables/GMD.Ladrillo.v1_review-2026-11-12_L27_r1115.docx` (md5 e5b265ed735a7ac7a72b5755ba7b64de)
+  and `deliverables/GMD.Ladrillo.v1.2026-11-12b.clean.docx` (md5 f6ad5ecdcc6646abde323a4aff20bbe3). Word schema
+  validation PASS on both. `verify_r1115.py` PASS: the tracked checks of r1113 plus comment state (only the two stale
+  comments change, both to resolved); the clean copy has 0 tracked changes, its text equals its base with exactly this
+  round's edits, its images are byte-identical to its base, and against the tracked file's accepted text it differs only
+  at the regrowth split. Mutation test 8/8 killed (first run crashed in the harness reading a zip member mid-write;
+  fixed before the result).
+
 ## 2026-11-12e — GMD round r1114: FACTS text corrected, land water dropped past 2100, Figs. 3 and 6
 
 Marcus 11-12: "Put in item 2 and the Table 1 note as tracked edits. Drop FACTS land water post 2100." Built on r1113
