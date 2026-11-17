@@ -190,7 +190,16 @@ end
 PULSE_SIZE === nothing ||
     @printf("  ** --pulse-size %g -> size tag %s, divisor %g %s **\n",
             PULSE_SIZE, SPEC.size_tag, SPEC.pulse_Gt, SPEC.unit)
-const PULSE_YEAR = 2030
+## --pulse-year / --end-year (claim-10 test, Marcus 2026-11-17), as in scope_slr_pulse_vv.jl: defaults = the shipped
+## arc; a run to 2500 reads the "_to2500" FaIR cubes, tags its outputs the same way, builds the model through
+## brick_get_model (julia/mimibrick_get_model_ext.jl), and adds [PREFIX-MATCH] against the shipped 2030 run.
+const PULSE_YEAR = parse(Int, argval("--pulse-year=", "2030"))
+const END_YEAR_DEFAULT = 2300
+const Y1_ARG = parse(Int, argval("--end-year=", string(END_YEAR_DEFAULT)))
+Y1_ARG in (END_YEAR_DEFAULT, 2500) || error("--end-year must be 2300 or 2500; got $(Y1_ARG)")
+const END_TAG = Y1_ARG == END_YEAR_DEFAULT ? "" : "_to$(Y1_ARG)"
+(END_TAG != "" && "--climate=magicc" in ARGS) && error("--end-year applies to the FaIR climate only")
+const LAGS = [70, 120, 270, 420, 470]     # lags after the pulse written per draw (fixed-lag comparison)
 
 ## ⚠ THE DOUBLING RATIO IS A PROPERTY OF THE SIZE, NOT OF THE SPECIES, so it is keyed by BOTH
 ## and a size with no measured entry FAILS rather than silently borrowing another size's number.
@@ -205,8 +214,9 @@ const FAIR_DOUBLING = Dict(
     ("CO2", "10Gt")   => 1.9999, ("CH4", "1Gt")     => 2.0332,   # the superseded spec
     ("CO2", "1Gt")    => 2.0000, ("CH4", "0p01Gt")  => 2.0004)   # the current spec (worst marker)
 
-const HORIZONS   = [2100, 2150, 2300]
-const Y0, Y1     = 1850, 2300
+const HORIZONS   = sort(unique(vcat([2100, 2150, 2300], END_TAG == "" ? Int[] :
+                                     [Y1_ARG; [PULSE_YEAR + l for l in LAGS if PULSE_YEAR + l <= Y1_ARG]])))
+const Y0, Y1     = 1850, Y1_ARG
 const YEARS      = collect(Y0:Y1)
 const BASE0, BASE1 = 1995, 2014          # AR6 SLR reference, = LADRILLO_REF, = oldbrick's
 const SPLICE_YEAR  = 2014                # build_protect_x2300_forcing.py's convention
@@ -227,7 +237,7 @@ reref(v) = 100 .* (v .- sum(v[IB]) / length(IB))    # m -> cm, rel 1995-2014
 cube(kind, arm) = CLIMATE == "fair" ?
     joinpath(OBS,
         "fair_cube_$(kind)_vv$(MARKER)_$(arm == "base" ? "pulsebase" : "pulse")_" *
-        "$(SPECIE)_$(SPEC.size_tag)_$(PULSE_YEAR)_raw.csv") :
+        "$(SPECIE)_$(SPEC.size_tag)_$(PULSE_YEAR)$(END_TAG)_raw.csv") :
     joinpath(MAGICC_WIDE,
         "magicc_$(kind)_vv$(MARKER)_$(arm == "base" ? "pulsebase" : "pulse")_" *
         "$(SPECIE)_$(SPEC.size_tag)_$(PULSE_YEAR)_" *
@@ -254,7 +264,7 @@ for k in ("gmst", "ohc"), a in ARMS
          "FaIRtoFrEDI/magicc_comparison/build_magicc_pulse_wide_vv.py"))
 end
 
-const OUTSTEM = "vv$(MARKER)_$(SPECIE)_$(SPEC.size_tag)_$(PULSE_YEAR)_$(FORCING)_$(TAG)" *
+const OUTSTEM = "vv$(MARKER)_$(SPECIE)_$(SPEC.size_tag)_$(PULSE_YEAR)$(END_TAG)_$(FORCING)_$(TAG)" *
                 "$(CLIM_TAG)$(SMOKE ? "_SMOKE" : "")$(OUTSUF)"
 
 @printf("BRICK 2.0 PULSE ARM | marker vv%s | %s pulse %.0f %s at %d | tag %s%s\n",
@@ -314,8 +324,16 @@ end
 ## the splice cannot manufacture a difference.
 _yrmap(path, col) = (d = CSV.read(path, DataFrame);
                      Dict(Int(d[i, "year"]) => Float64(d[i, col]) for i in 1:nrow(d)))
-const MEAN_G = let m = _yrmap(joinpath(OBS, "fair_mean_gmst_vv$(MARKER).csv"), "gmst_C"); [m[y] for y in YEARS]; end
-const MEAN_O = let m = _yrmap(joinpath(OBS, "fair_mean_ohc_vv$(MARKER).csv"),  "ohc_1e22J"); [m[y] for y in YEARS]; end
+## `convention` reads the mean path only at y <= SPLICE_YEAR and over IREF; the mean files end in 2301, so a run to 2500
+## pads them with NaN past their end (never read; asserted below).
+const MEAN_G = let m = _yrmap(joinpath(OBS, "fair_mean_gmst_vv$(MARKER).csv"), "gmst_C")
+    [END_TAG == "" ? m[y] : get(m, y, NaN) for y in YEARS]; end
+const MEAN_O = let m = _yrmap(joinpath(OBS, "fair_mean_ohc_vv$(MARKER).csv"),  "ohc_1e22J")
+    [END_TAG == "" ? m[y] : get(m, y, NaN) for y in YEARS]; end
+let used = [i for (i, y) in enumerate(YEARS) if y <= SPLICE_YEAR]
+    all(isfinite, MEAN_G[used]) && all(isfinite, MEAN_O[used]) ||
+        error("the mean driver has a gap in the years the splice reads")
+end
 
 function convention(raw::Vector{Float64}, mean_path::Vector{Float64})
     FORCING == "raw" && return raw
@@ -386,7 +404,7 @@ const CFG_OF_DRAW_ARM = Dict(
 ## ---- the model: built ONCE, mutated per arm ------------------------------
 Random.seed!(SEED)
 ## NOT `const`: `--mutate=rebuild` reassigns it deliberately. Production never does.
-M = MimiBRICK.get_model(ssprcp_scenario = BUILD_SSP, start_year = Y0, end_year = Y1)
+M = brick_get_model(ssprcp_scenario = BUILD_SSP, start_year = Y0, end_year = Y1)
 ## Mimi builds the model instance lazily, so a parameter cannot be READ until the model has
 ## been run once. This first run is on MimiBRICK's own default forcing and is discarded --
 ## `run_into!` overwrites every parameter it reads before any result is stored.
@@ -448,7 +466,7 @@ let groups = Dict{String, Vector{Int}}()
                 ## [LWS-EXACT-ZERO] guards, and a reseeded one would re-roll LWS to the SAME
                 ## vector and mutate nothing (the first version of this harness did exactly
                 ## that and every gate passed: a mutation that changes no output is not a test).
-                MUTATE == "rebuild" && (global M = MimiBRICK.get_model(ssprcp_scenario = BUILD_SSP,
+                MUTATE == "rebuild" && (global M = brick_get_model(ssprcp_scenario = BUILD_SSP,
                                                    start_year = Y0, end_year = Y1); run(M))
                 run_into!(RES[a], [k], gmst_of(a, cc), ohc_of(a, cc), a, cc)
             end
@@ -523,6 +541,32 @@ let w = maximum(abs.(DIFF[:lws]))
     push_g!("LWS-EXACT-ZERO", "max_abs_cm", w, w == 0.0)
     w == 0.0 || MUTATE != "" || error("[LWS-EXACT-ZERO] landwater storage moved under a pulse it cannot see; the " *
                       "model was rebuilt between arms and LWS was re-rolled.")
+end
+
+## [PREFIX-MATCH] (runs to 2500 only) the shipped 2030 run must be reproduced EXACTLY at every shipped horizon, 2300
+## included: BRICK 2.0 has no centred window, FaIR's 2500 cubes equal the 2300 ones through 2300 byte for byte, and
+## brick_get_model keeps get_model's seeded LWS draw. base_cm always (both pulse years share the baseline); pulse_cm and
+## diff_cm when the pulse year is 2030.
+if END_TAG != "" && MUTATE == ""
+    let SHIPPED = joinpath(REPO, "outputs", "pulse_brick2_draws_vv$(MARKER)_$(SPECIE)_$(SPEC.size_tag)_2030_" *
+                           "$(FORCING)_$(TAG)$(CLIM_TAG)$(SMOKE ? "_SMOKE" : "")$(OUTSUF).csv"),
+        n = 0, nv = 0
+        isfile(SHIPPED) || error("[PREFIX-MATCH] missing the shipped run $(basename(SHIPPED))")
+        S = CSV.read(SHIPPED, DataFrame)
+        for r in eachrow(S)
+            i = yidx(r.horizon); c = Symbol(r.component)
+            n += 1
+            RES["base"][c][r.draw, i] != r.base_cm && (nv += 1)
+            if PULSE_YEAR == 2030
+                (RES["pulse"][c][r.draw, i] != r.pulse_cm || DIFF[c][r.draw, i] != r.diff_cm) && (nv += 1)
+            end
+        end
+        ok = nv == 0 && n > 0
+        @printf("  [PREFIX-MATCH] vs %s, every shipped horizon: %d value mismatches over %d cells -> %s\n",
+                basename(SHIPPED), nv, n, ok ? "PASS" : "FAIL")
+        push_g!("PREFIX-MATCH", "value_mismatches", nv, ok)
+        ok || error("[PREFIX-MATCH] the run to $(Y1) does not reproduce the shipped 2030 run")
+    end
 end
 
 ## [DRAW-PAIRING] the pairing certified by what the arms RECORDED, not by one ASSIGN vector

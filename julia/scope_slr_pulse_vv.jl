@@ -164,7 +164,17 @@ end
 PULSE_SIZE === nothing ||
     @printf("  ** --pulse-size %g -> size tag %s, divisor %g %s **\n",
             PULSE_SIZE, SPEC.size_tag, SPEC.pulse_Gt, SPEC.unit)
-const PULSE_YEAR = 2030
+## --pulse-year / --end-year (claim-10 test, Marcus 2026-11-17: 2030 and 2080 pulses to 2500). The defaults are the
+## shipped arc. A run to 2500 reads the FaIR cubes tagged "_to2500", writes outputs tagged the same way, and replaces
+## [LEVEL-MATCH] with [PREFIX-MATCH] against the shipped 2030 run (see there).
+const PULSE_YEAR = parse(Int, argval("--pulse-year=", "2030"))
+const END_YEAR_DEFAULT = 2300
+const Y1_ARG = parse(Int, argval("--end-year=", string(END_YEAR_DEFAULT)))
+Y1_ARG in (END_YEAR_DEFAULT, 2500) || error("--end-year must be 2300 or 2500; got $(Y1_ARG)")
+const END_TAG = Y1_ARG == END_YEAR_DEFAULT ? "" : "_to$(Y1_ARG)"
+(END_TAG != "" && "--climate=magicc" in ARGS) && error("--end-year applies to the FaIR climate only")
+## lags after the pulse written per draw, for the fixed-lag comparison across pulse years
+const LAGS = [70, 120, 270, 420, 470]
 
 ## ⚠ THE DOUBLING RATIO IS A PROPERTY OF THE SIZE, NOT OF THE SPECIES, so it is keyed by BOTH
 ## and a size with no measured entry FAILS rather than silently borrowing another size's number.
@@ -179,8 +189,9 @@ const FAIR_DOUBLING = Dict(
     ("CO2", "10Gt")   => 1.9999, ("CH4", "1Gt")     => 2.0332,   # the superseded spec
     ("CO2", "1Gt")    => 2.0000, ("CH4", "0p01Gt")  => 2.0004)   # the current spec (worst marker)
 
-const HORIZONS = [2100, 2150, 2300]
-const Y0, Y1   = 1850, 2300
+const HORIZONS = sort(unique(vcat([2100, 2150, 2300], END_TAG == "" ? Int[] :
+                                   [Y1_ARG; [PULSE_YEAR + l for l in LAGS if PULSE_YEAR + l <= Y1_ARG]])))
+const Y0, Y1   = 1850, Y1_ARG
 const YEARS    = collect(Y0:Y1)
 const COMPONENTS = [:glaciers, :gis, :ais, :te, :lws, :total]
 const SUM_PARTS  = [:glaciers, :gis, :ais, :te, :lws]
@@ -192,7 +203,7 @@ const ARMS = ["base", "pulse"]
 cube(kind, arm) = CLIMATE == "fair" ?
     joinpath(LADRILLO_OBS,
         "fair_cube_$(kind)_vv$(MARKER)_$(arm == "base" ? "pulsebase" : "pulse")_" *
-        "$(SPECIE)_$(SPEC.size_tag)_$(PULSE_YEAR)_raw.csv") :
+        "$(SPECIE)_$(SPEC.size_tag)_$(PULSE_YEAR)$(END_TAG)_raw.csv") :
     joinpath(MAGICC_WIDE,
         "magicc_$(kind)_vv$(MARKER)_$(arm == "base" ? "pulsebase" : "pulse")_" *
         "$(SPECIE)_$(SPEC.size_tag)_$(PULSE_YEAR)_" *
@@ -237,7 +248,7 @@ const TAP_TAG = TAP_ON ? "_tap$(replace(string(GIS_TAP_CELL.onset_K), "." => "p"
                          "_V$(replace(string(GIS_TAP_CELL.V_m), "." => "p"))m" *
                          "_tau$(Int(GIS_TAP_CELL.tau_yr))" : ""
 ## LADRILLO_V11_SFX and UNCOND_SFX are empty on the v1.2 defaults, so a non-default run cannot overwrite a default one.
-const OUTSTEM = "vv$(MARKER)_$(SPECIE)_$(SPEC.size_tag)_$(PULSE_YEAR)_$(FORCING)_$(TAG)$(TAP_TAG)$(LADRILLO_V11_SFX)" *
+const OUTSTEM = "vv$(MARKER)_$(SPECIE)_$(SPEC.size_tag)_$(PULSE_YEAR)$(END_TAG)_$(FORCING)_$(TAG)$(TAP_TAG)$(LADRILLO_V11_SFX)" *
                 "$(UNCOND_SFX)$(CLIM_TAG)$(SMOKE ? "_SMOKE" : "")"
 
 function read_draws(sd)
@@ -331,8 +342,16 @@ end
 
 const IREF = findall(y -> LADRILLO_REF[1] <= y <= LADRILLO_REF[2], YEARS)
 ## ONE mean driver, the marker's own, SHARED by both arms -- see the header.
-const MEAN_G = [_yearmap(joinpath(LADRILLO_OBS, "fair_mean_gmst_vv$(MARKER).csv"), "gmst_C")[y] for y in YEARS]
-const MEAN_O = [_yearmap(joinpath(LADRILLO_OBS, "fair_mean_ohc_vv$(MARKER).csv"), "ohc_1e22J")[y] for y in YEARS]
+## `convention` reads the mean path only at y <= SPLICE_YEAR and over IREF. The mean files end in 2301, so a run to 2500
+## pads them with NaN past their end (never read; asserted below) instead of failing on a year it does not use.
+const MEAN_G = let d = _yearmap(joinpath(LADRILLO_OBS, "fair_mean_gmst_vv$(MARKER).csv"), "gmst_C")
+    [END_TAG == "" ? d[y] : get(d, y, NaN) for y in YEARS] end
+const MEAN_O = let d = _yearmap(joinpath(LADRILLO_OBS, "fair_mean_ohc_vv$(MARKER).csv"), "ohc_1e22J")
+    [END_TAG == "" ? d[y] : get(d, y, NaN) for y in YEARS] end
+let used = [i for (i, y) in enumerate(YEARS) if y <= SPLICE_YEAR]
+    all(isfinite, MEAN_G[used]) && all(isfinite, MEAN_O[used]) ||
+        error("the mean driver has a gap in the years the splice reads")
+end
 
 function convention(raw::Vector{Float64}, mean_path::Vector{Float64})
     FORCING == "raw" && return raw
@@ -444,7 +463,7 @@ let nmis = count(k -> min(ONSET["base"][k], ONSET["pulse"][k]) <= PULSE_YEAR && 
     nmis == 0 || error("[ONSET-ARMS] a pre-pulse onset differs between the arms")
 end
 ## The FaIR arm's gates file -- the MAGICC arm's source for the common draw set.
-const FAIR_GATES = joinpath(REPO, "outputs", "pulse_ladrillo_gates_vv$(MARKER)_$(SPECIE)_$(SPEC.size_tag)_$(PULSE_YEAR)_" *
+const FAIR_GATES = joinpath(REPO, "outputs", "pulse_ladrillo_gates_vv$(MARKER)_$(SPECIE)_$(SPEC.size_tag)_$(PULSE_YEAR)$(END_TAG)_" *
                                              "spliced_$(TAG)$(TAP_TAG)$(LADRILLO_V11_SFX).csv")
 gate_ids(g, gate) = sort([parse(Int, split(k, "_")[2]) for k in g.key[g.gate .== gate]])
 gate_val(g, gate, key) = let i = findfirst((g.gate .== gate) .& (g.key .== key)); i === nothing ? NaN : g.value[i] end
@@ -489,7 +508,8 @@ end
 ## configs and every per-draw value at the horizons must be EQUAL (==), and the two rejected sets identical. Applicable
 ## on the canonical configuration only (FaIR, spliced, tapped, subsample, 500 per chain, conditioned).
 const LEVEL_DRAWS = joinpath(REPO, "outputs", "scope_slr_fairunc_draws_vv$(MARKER)_spliced_$(TAG)$(TAP_TAG)$(LADRILLO_V11_SFX).csv")
-if CLIMATE == "fair" && FORCING == "spliced" && TAP_ON && SOURCE == "subsample" && N_TARGET == 500 && RECORD_CONDITION
+if CLIMATE == "fair" && FORCING == "spliced" && TAP_ON && SOURCE == "subsample" && N_TARGET == 500 && RECORD_CONDITION &&
+   END_TAG == "" && PULSE_YEAR == 2030
     isfile(LEVEL_DRAWS) || error("[LEVEL-MATCH] missing $(basename(LEVEL_DRAWS)) -- run the level vv arm first")
     let L = CSV.read(LEVEL_DRAWS, DataFrame), lg = CSV.read(replace(LEVEL_DRAWS, "_draws_" => "_gates_"), DataFrame)
         L = L[L.arm .== "joint", :]
@@ -504,6 +524,36 @@ if CLIMATE == "fair" && FORCING == "spliced" && TAP_ON && SOURCE == "subsample" 
         push_g!("LEVEL-MATCH", "value_mismatches", nval, ok)
         push_g!("LEVEL-MATCH", "config_mismatches", ncfg, ok)
         ok || error("[LEVEL-MATCH] the baseline arm is not the level vv joint arm")
+    end
+elseif END_TAG != ""
+    ## [PREFIX-MATCH] a run to 2500 must reproduce the SHIPPED 2030 run exactly where it can: FaIR, the splice and the
+    ## model only look backwards, except Ladrillo's Greenland law, whose centred running mean (LADRILLO_GIS_SHAPE_WIN)
+    ## shrinks at the series end -- so the last ~15 years before 2300 legitimately move and 2300 itself is NOT compared.
+    ## Compared: kept ids, configs, and base_cm at every shipped horizon before PREFIX_LAST (both pulse years share the
+    ## baseline), plus pulse_cm and diff_cm when the pulse year is the shipped 2030.
+    let PREFIX_LAST = END_YEAR_DEFAULT - LADRILLO_GIS_SHAPE_WIN,
+        SHIPPED = joinpath(REPO, "outputs", "pulse_ladrillo_draws_vv$(MARKER)_$(SPECIE)_$(SPEC.size_tag)_2030_" *
+                           "$(FORCING)_$(TAG)$(TAP_TAG)$(LADRILLO_V11_SFX)$(UNCOND_SFX)$(CLIM_TAG).csv"),
+        n = 0, nv = 0
+        isfile(SHIPPED) || error("[PREFIX-MATCH] missing the shipped run $(basename(SHIPPED))")
+        S = CSV.read(SHIPPED, DataFrame)
+        S = S[S.horizon .< PREFIX_LAST, :]
+        ids_ok = sort(unique(S.draw)) == JKEEP
+        ncfg = count(r -> r.config != CFG_OF_DRAW[r.draw], eachrow(S))
+        for r in eachrow(S)
+            i = yidx(r.horizon); c = Symbol(r.component)
+            n += 1
+            RES["base"][c][r.draw, i] != r.base_cm && (nv += 1)
+            if PULSE_YEAR == 2030
+                (RES["pulse"][c][r.draw, i] != r.pulse_cm || DIFF[c][r.draw, i] != r.diff_cm) && (nv += 1)
+            end
+        end
+        ok = ids_ok && ncfg == 0 && nv == 0 && n > 0
+        @printf("  [PREFIX-MATCH] vs %s at horizons < %d: kept ids %s, %d config and %d value mismatches over %d cells -> %s\n",
+                basename(SHIPPED), PREFIX_LAST, ids_ok ? "equal" : "DIFFER", ncfg, nv, n, ok ? "PASS" : "FAIL")
+        push_g!("PREFIX-MATCH", "value_mismatches", nv, ok)
+        push_g!("PREFIX-MATCH", "config_mismatches", ncfg, ok)
+        ok || error("[PREFIX-MATCH] the run to $(Y1) does not reproduce the shipped 2030 run before $(PREFIX_LAST)")
     end
 else
     @printf("  [LEVEL-MATCH] not applicable (needs FaIR, spliced, tapped, subsample, 500 per chain, conditioned)\n")
@@ -855,8 +905,11 @@ for c in COMPONENTS
     println()
 end
 ## PROVENANCE travels in the file (09-04's cells carried none, which is how a two-generation-stale arc went unnoticed).
-const EMIS_VARIANT = let f = joinpath(homedir(), "Documents/2026/CodeProjects/FaIRtoFrEDI/calibration_v160_prod",
-                                      "emissions_v160_cmip7harm_vv$(MARKER).variant")
+const EMIS_VARIANT = let f = END_TAG == "" ?
+        joinpath(homedir(), "Documents/2026/CodeProjects/FaIRtoFrEDI/calibration_v160_prod",
+                 "emissions_v160_cmip7harm_vv$(MARKER).variant") :
+        joinpath(homedir(), "Documents/2026/CodeProjects/FaIRtoFrEDI/calibration_v160_prod/to2500",
+                 "emissions_v160_cmip7harm_zenodo2500_vv$(MARKER).variant")
     isfile(f) ? strip(read(f, String)) : "unrecorded"
 end
 const GIT_STAMP = let c = try readchomp(`git -C $(REPO) rev-parse --short HEAD`) catch; "unknown" end,
@@ -870,7 +923,7 @@ const PROV = "scope_slr_pulse_vv.jl | SLR-RFF-BRICK $(GIT_STAMP) | Ladrillo $(TA
              " | forcing $(FORCING) | tap $(TAP_ON) | pair seed $(PAIR_SEED) | record conditioning: " *
              (CLIMATE == "fair" ? (RECORD_CONDITION ? "own config, dropped $(length(REJECTED)) of $(NDRAW)" : "OFF") :
                                   "common draw set with the FaIR arm, dropped $(length(REJECTED)) of $(NDRAW)") *
-             " | pulse $(SPEC.pulse_Gt) $(SPEC.unit) at $(PULSE_YEAR) | cm rel $(LADRILLO_REF[1])-$(LADRILLO_REF[2]) | julia $(VERSION)"
+             " | pulse $(SPEC.pulse_Gt) $(SPEC.unit) at $(PULSE_YEAR), run to $(Y1) | cm rel $(LADRILLO_REF[1])-$(LADRILLO_REF[2]) | julia $(VERSION)"
 cells.provenance .= PROV
 CSV.write(joinpath(REPO, "outputs", "pulse_ladrillo_cells_$(OUTSTEM).csv"), cells)
 

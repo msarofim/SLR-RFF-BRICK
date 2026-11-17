@@ -26,6 +26,7 @@ include(joinpath(@__DIR__, "glaciers_nu3_component.jl"))
 include(joinpath(@__DIR__, "greenland_ab_component.jl"))
 include(joinpath(@__DIR__, "greenland_3basin_component.jl"))
 include(joinpath(@__DIR__, "brick_param_updates.jl"))
+include(joinpath(@__DIR__, "mimibrick_get_model_ext.jl"))   # get_model past 2300 (2026-11-17)
 
 const _MENGEL_GLAC_SLOT = :glaciers_small_icecaps   # name kept by Mimi replace!
 const _GIS_SLOT = :greenland_icesheet               # name kept by Mimi replace!
@@ -177,7 +178,7 @@ land-water-storage treatment (default `LWS_MODE`): `:seeded` = fixed-seed random
 """
 function build_brick_mengel(; ssp::String="ssp245", y0::Int=1850, y1::Int=2100,
                             lws::Symbol=LWS_MODE, lws_seed::Int=LWS_SEED)
-    m = MimiBRICK.get_model(ssprcp_scenario=ssp, start_year=y0, end_year=y1)
+    m = brick_get_model(ssprcp_scenario=ssp, start_year=y0, end_year=y1)
     replace!(m, _MENGEL_GLAC_SLOT => glaciers_mengel)
     n = y1 - y0 + 1
     if lws === :seeded
@@ -239,7 +240,7 @@ end
 """
 function build_brick_nu(; ssp::String="ssp245", y0::Int=1850, y1::Int=2026,
                         lws::Symbol=LWS_MODE, lws_seed::Int=LWS_SEED)
-    m = MimiBRICK.get_model(ssprcp_scenario=ssp, start_year=y0, end_year=y1)
+    m = brick_get_model(ssprcp_scenario=ssp, start_year=y0, end_year=y1)
     replace!(m, _MENGEL_GLAC_SLOT => glaciers_nu)
     n = y1 - y0 + 1
     if lws === :seeded
@@ -297,7 +298,7 @@ slot. All three per-block drivers are UNBOUND after the build — call
 """
 function build_brick_nu3(; ssp::String="ssp245", y0::Int=1850, y1::Int=2026,
                          lws::Symbol=LWS_MODE, lws_seed::Int=LWS_SEED)
-    m = MimiBRICK.get_model(ssprcp_scenario=ssp, start_year=y0, end_year=y1)
+    m = brick_get_model(ssprcp_scenario=ssp, start_year=y0, end_year=y1)
     replace!(m, _MENGEL_GLAC_SLOT => glaciers_nu3)
     n = y1 - y0 + 1
     if lws === :seeded
