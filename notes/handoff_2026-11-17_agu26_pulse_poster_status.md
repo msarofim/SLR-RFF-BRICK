@@ -130,3 +130,30 @@ top, claims vs evidence in §1, layout in §3) and memory `agu26_pulse_poster_ru
     kept as the `[REPRODUCE-2300]` fixture for H.
 - **Do not touch** (GMD session): `SLR-RFF-BRICK/deliverables/GMD*`, `deliverables/redline/`, `figures/paper/`,
   `python/ladrillo_figs.py`, `python/plot_vv_*`, and the Ladrillo.jl repo.
+
+## 7. Update, 2026-11-17 evening: A drawn, layout assembled
+
+Done by a follow-on session (FaIRtoFrEDI `heat-ed-morbidity`, commits 74bbdba to c538388, not pushed; CHANGELOG
+2026-11-17 (h)). Items 2 and 3 of section 5 are done; items 1, 4 and 5 remain Marcus's.
+
+- **Panel A** is `panels/A_model_chain.*`, drawn by `make_panels_agu26.py`. Ensemble sizes are read from the products and
+  gated ([A-COUNTS], [A-PULSE], [A-PANELS], [A-FIT]; `AGU26_MUTATE=...` trips each one).
+- **The other panels** were re-rendered at 74bbdba. Only their stamp line changed.
+- **Layout:** `make_layout_agu26.py` writes `layout/gc092_layout_44in.pdf`, 44 x 44 in, with the vector panels merged by
+  pypdf, plus a 60-dpi preview PNG.
+  - Run it with `~/climate-env/bin/python`, which has pypdf. The panels still render with the slr-refresh-2025
+    interpreter.
+  - The column order is the `COLUMNS` constant: C, F, D in column 2 and G, J, H in column 3 (F and J moved from the
+    11-13 proposal).
+  - Text room is about 1,120 words at 28 pt. Claims file section 3 has the details.
+- **Commit order:**
+  1. Commit `make_panels_agu26.py`, render, commit `panels/` and the two CSVs.
+  2. Commit `make_layout_agu26.py`, render, commit `layout/`.
+  - The layout's [PROV] gate stops if any panel PDF comes from a different render than `panel_numbers_agu26.csv`.
+- **New questions for the review:**
+  1. Panel I's subtitle states the 2100 shortcut bias (-32 to +20 %). It does not state the 2300 bias (-28 to +179 %)
+     that applies to the hollow diamonds. Should the subtitle state it?
+  2. Panel text prints at 13.6-19 pt (1.045x). SY047's panels were enlarged 1.5x (Marcus 11-17). Doing the same here
+     means drawing the panels about 7 in wide and re-placing each panel's hand-set labels. There is room: the layout
+     has more text space than SY047's.
+  3. The header uses the working title, shortened affiliations, and slots for a QR code and logos.
