@@ -157,3 +157,17 @@ Done by a follow-on session (FaIRtoFrEDI `heat-ed-morbidity`, commits 74bbdba to
      means drawing the panels about 7 in wide and re-placing each panel's hand-set labels. There is room: the layout
      has more text space than SY047's.
   3. The header uses the working title, shortened affiliations, and slots for a QR code and logos.
+
+## 8. 2026-11-19, second round (FaIRtoFrEDI CHANGELOG 2026-11-19 (h))
+
+- **Ruled (Marcus):** GWP100 27.9; MAGICC CH4 pulse biogenic (`MAGICC_CH4_FOSSFRAC=0`); medians shown beside means; TCRE;
+  Claude may suggest edits to his wording, in red until he approves.
+- **Done:** all MAGICC CH4 runs and every downstream product redone by `FaIRtoFrEDI/magicc_comparison/run_ch4_biogenic_rerun_20261119.sh`
+  (old products quarantined in three repos, READMEs). Panels C (dotted median paths) and D (CH4 mean + median paths,
+  ratio of medians) redrawn; layout re-rendered with 29 suggested edits in red (`poster_agu26/layout/gc092_text_edits.md`).
+  Answers: `poster_agu26/answers/answers_2026-11-19.md` (rewritten).
+- **Open for Marcus:** approve/reject the red edits (then set `DRAFT_MARKS = False` for print); whether to run the MAGICC
+  CO2 arm biogenic too (removes a 0.3-12 cm baseline mismatch); whether to exclude MAGICC's two to-2500 runaway members
+  (vvML 2030 #530, vvL 2080 #435) from the claim-10 tables; the panel I 2300 caveat.
+- **Known defects, not fixed:** MAGICC Greenland-SMB outlier members (1-15 per run, both gases) make MAGICC's
+  per-scenario means noisy by up to ~25 %; `build_pulse_doc_tables.py` not rebuilt.
