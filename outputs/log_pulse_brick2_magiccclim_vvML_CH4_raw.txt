@@ -17,9 +17,9 @@ BRICK 2.0 PULSE ARM | marker vvML | CH4 pulse 0 GtCH4 at 2030 | tag B20
     200/600 configs  (0.2 min)
     300/600 configs  (0.3 min)
     400/600 configs  (0.4 min)
-    500/600 configs  (0.5 min)
-    600/600 configs  (0.6 min)
-    done, 0.6 min
+    500/600 configs  (0.6 min)
+    600/600 configs  (0.7 min)
+    done, 0.7 min
 
 ============================================================================================
 GATES
@@ -30,21 +30,21 @@ GATES
   [LWS-EXACT-ZERO] max |pulse - base| over ALL years = 0.000e+00 cm (bound EXACT 0)  PASS
   [DRAW-PAIRING] 0/2000 draws saw a different CONFIG across arms, 0 a different DRAW ROW  PASS
   [PAIRING] 600 of 600 configs used, each 3-4 times (seed 2026), ONE assignment for both arms
-            median dGMST@2300 bias vs whole cube = 0.0019 degC (tol 0.1)  PASS
-  [SUM] max |sum(parts) - total| in the DIFFERENCE = 1.421e-13 cm (tol 1e-06)  PASS
+            median dGMST@2300 bias vs whole cube = 0.0020 degC (tol 0.1)  PASS
+  [SUM] max |sum(parts) - total| in the DIFFERENCE = 9.592e-14 cm (tol 1e-06)  PASS
   [SIGN] 2100: median +0.00203 cm, 0.00% of draws negative  PASS
   [SIGN] 2150: median +0.00180 cm, 0.00% of draws negative  PASS
   [SIGN] 2300: median +0.00135 cm, 0.10% of draws negative  PASS
   [TAP-CROSSING] NO COUNTERPART -- BRICK 2.0 has no Greenland tap mechanism.
                  Not a measured zero. Say this in any caption that puts the two arms
                  side by side (Marcus's tap ruling, 2026-09-03).
-  [AIS-CROSSING] 2100: fired 14/2000 (0.70%)  bifurcation 0  int/cont 1.0805
-      P(fired) paired 0.0070  vs exact 0.0071 over 1200000 pairings  z=0.07  PASS
-  [AIS-CROSSING] 2150: fired 16/2000 (0.80%)  bifurcation 0  int/cont 0.9895
-      P(fired) paired 0.0080  vs exact 0.0086 over 1200000 pairings  z=0.27  PASS
-  [AIS-CROSSING] 2300: fired 17/2000 (0.85%)  bifurcation 0  int/cont 0.9487
-      P(fired) paired 0.0085  vs exact 0.0095 over 1200000 pairings  z=0.45  PASS
-  [MAGNITUDE] 2100: 2.0269e-01 cm per GtCH4 (median)  -- REPORTED, not gated
+  [AIS-CROSSING] 2100: fired 14/2000 (0.70%)  bifurcation 0  int/cont 1.0315
+      P(fired) paired 0.0070  vs exact 0.0072 over 1200000 pairings  z=0.09  PASS
+  [AIS-CROSSING] 2150: fired 15/2000 (0.75%)  bifurcation 0  int/cont 0.9844
+      P(fired) paired 0.0075  vs exact 0.0086 over 1200000 pairings  z=0.52  PASS
+  [AIS-CROSSING] 2300: fired 20/2000 (1.00%)  bifurcation 0  int/cont 1.1555
+      P(fired) paired 0.0100  vs exact 0.0096 over 1200000 pairings  z=0.20  PASS
+  [MAGNITUDE] 2100: 2.0260e-01 cm per GtCH4 (median)  -- REPORTED, not gated
               context: stage 2 Ladrillo L24 tapped, and the FACTS PoC FaIR->BRICK
               5.08e-03 cm/GtCO2 @2100 (OLD model AND pre-1.6.0 calibration).
               ⚠ CH4 DOUBLING RATIO 2.0004 (FaIR stage): the pulse is SUPERLINEAR.
@@ -54,29 +54,29 @@ GATES
 BRICK 2.0 PULSE RESPONSE -- vvML, 0 GtCH4 at 2030, cm rel 1995-2014
 ============================================================================================
   comp      horiz    base med   paired med  diff of med   paired p05   paired p95
-  glaciers  2100       12.166      0.00088      0.00079      0.00062      0.00125
-  glaciers  2150       17.497      0.00080      0.00081      0.00051      0.00116
-  glaciers  2300       24.606      0.00059      0.00078      0.00023      0.00094
+  glaciers  2100       12.214      0.00088      0.00079      0.00061      0.00124
+  glaciers  2150       17.586      0.00080      0.00065      0.00051      0.00115
+  glaciers  2300       24.800      0.00058      0.00071      0.00022      0.00093
 
-  gis       2100        6.744      0.00030      0.00027      0.00007      0.00080
-  gis       2150       10.285      0.00033      0.00038      0.00008      0.00090
-  gis       2300       17.901      0.00035      0.00034      0.00008      0.00099
+  gis       2100        6.759      0.00030      0.00027      0.00007      0.00081
+  gis       2150       10.325      0.00033      0.00043      0.00008      0.00090
+  gis       2300       18.019      0.00035      0.00037      0.00008      0.00099
 
-  ais       2100        3.528     -0.00017     -0.00005     -0.00058      0.00054
-  ais       2150        5.392     -0.00019     -0.00004     -0.00067      0.00064
-  ais       2300       10.659     -0.00022     -0.00026     -0.00077      0.00070
+  ais       2100        3.598     -0.00017     -0.00004     -0.00058      0.00055
+  ais       2150        5.524     -0.00019     -0.00020     -0.00067      0.00065
+  ais       2300       10.818     -0.00022      0.00031     -0.00077      0.00074
 
-  te        2100       11.270      0.00097      0.00086      0.00045      0.00184
-  te        2150       14.414      0.00081      0.00077      0.00035      0.00164
-  te        2300       13.477      0.00059      0.00056      0.00024      0.00135
+  te        2100       11.360      0.00097      0.00072      0.00045      0.00185
+  te        2150       14.570      0.00080      0.00082      0.00035      0.00164
+  te        2300       13.912      0.00059      0.00066      0.00024      0.00135
 
   lws       2100        2.343      0.00000      0.00000      0.00000      0.00000
   lws       2150        4.043      0.00000      0.00000      0.00000      0.00000
   lws       2300        8.897      0.00000      0.00000      0.00000      0.00000
 
-  total     2100       37.056      0.00203      0.00186      0.00121      0.00355
-  total     2150       53.103      0.00180      0.00178      0.00097      0.00343
-  total     2300       77.358      0.00135      0.00120      0.00060      0.00298
+  total     2100       37.309      0.00203      0.00221      0.00121      0.00355
+  total     2150       53.620      0.00180      0.00230      0.00097      0.00343
+  total     2300       78.738      0.00135      0.00171      0.00059      0.00306
 
 
 wrote outputs/pulse_brick2_{cells,draws,paths,gates}_vvML_CH4_0p01Gt_2030_raw_B20_magiccclim.csv

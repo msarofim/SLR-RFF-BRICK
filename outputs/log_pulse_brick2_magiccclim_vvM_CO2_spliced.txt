@@ -14,12 +14,12 @@ BRICK 2.0 PULSE ARM | marker vvM | CO2 pulse 1 GtCO2 at 2030 | tag B20
 
   2000 draws over 600 configs; running BOTH arms per config ...
     100/600 configs  (0.1 min)
-    200/600 configs  (0.1 min)
-    300/600 configs  (0.2 min)
-    400/600 configs  (0.3 min)
-    500/600 configs  (0.3 min)
-    600/600 configs  (0.4 min)
-    done, 0.4 min
+    200/600 configs  (0.2 min)
+    300/600 configs  (0.3 min)
+    400/600 configs  (0.4 min)
+    500/600 configs  (0.5 min)
+    600/600 configs  (0.6 min)
+    done, 0.6 min
 
 ============================================================================================
 GATES
