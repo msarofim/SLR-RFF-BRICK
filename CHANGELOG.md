@@ -29,6 +29,44 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-19 — GMD round r1119 on Tony's 11-19 file: his edits accepted, FACTS items, sea level, equations, MAGICC note
+
+**Marcus 11-19:** accept Tony's edits; "go ahead, cut the SLEIP sentence, equations too"; consider the AGU poster
+session's MAGICC Antarctic notes for the paper. Base: `deliverables/GMD.Ladrillo.v1.2026-11-12b.clean_TW.docx`
+(md5 25dd4786…; four tracked edits and one new comment by Tony, no untracked changes against the 11-12b clean copy).
+Outputs: `deliverables/GMD.Ladrillo.v1_review-2026-11-19_L27_r1119.docx` (redline, md5 96b37ddc…) and
+`deliverables/GMD.Ladrillo.v1.2026-11-19.clean.docx` (all accepted, md5 213fc5e9…). Build: `deliverables/redline/r1119/`.
+- Tony's four edits accepted as given, with two tracked fixes to his abstract sentence: "In a departure from its
+  predecessor, BRICK 2.0," (the paper's name; the old phrase made Ladrillo the departure). His reproducibility pointer
+  now names the code archive (see Code availability) rather than GitHub, and the Code availability sentence promising a
+  user manual "in preparation" now says the archive's README covers it (it does: Ladrillo.jl README).
+- The two items deferred on 11-12: the SLEIP sentence in Sect. 4.2 is cut (no SLEIP answer yet; 11-12g), and Sect. 4
+  names "FACTS (v1.1.4; …)".
+- "sea level" / "sea level rise" in the open form throughout (8 places; Tony's comment, answered in a reply). Kept
+  hyphenated: reference titles and FACTS's expanded name. Usage is split (our reference list: 16 hyphenated titles,
+  13 open; GMD has published both); IPCC AR5/AR6 chapter titles and SLEIP use the open form. Copernicus's
+  manuscript-preparation page has no rule; its English-guidelines page returned 404.
+- Notation (author "Claude (notation)", so Word can show or accept it separately). Copernicus's Word instructions say
+  to use the Microsoft equation editor. Eqs. (1)–(14) were plain Source Code text; each is now an equation-editor
+  object with its number on a right tab (OMML from LaTeX via pandoc 3.9.0.2, stored in `eq_omml.json`; the build
+  asserts each block's text equals the transcribed equation before replacing it). In the text, 109 symbols written with
+  an underscore or caret now have real sub/superscripts (T_off, c_R, T_t−1, e^ℓ, and K⁻ν whose ν was not raised, in
+  the text and Table A1). Code and file names keep their underscores. Variables in the text are still upright; italics
+  for prose variables would be a separate copy-edit pass.
+- MAGICC comparator note (poster session's answers_2026-11-19 §12.4–12.5, checked against its CSVs): Table 2's
+  MAGICC-SLR Antarctic cell "parametric" → "quadratic in GSAT"; two sentences after the High-scenario attribution
+  (quadratic law fitted to five percentile curves of the Edwards et al. 2019 no-MICI emulator; SSP5-8.5 2300 median
+  7.1 m vs the AR6 no-MICI 17–83 % range −0.28 to 3.13 m; about half of its members gain Antarctic mass over 2002–2023
+  against IMBIE 2026's 0.43 ± 0.07 mm/yr); one sentence after "MAGICC-SLR is narrowest for Antarctica" (its spread is
+  the five curves plus its climate ensemble). Edwards et al. (2019) added to the references (Crossref-checked). A
+  comment flags that the AR6 range was not checked against AR6 Ch. 9 itself (ipcc.ch refused the fetch).
+- Gates (`verify_r1119.py`, pandoc as the independent reader): G1 authors; G2 reject view = Tony's file accepted;
+  G2b the deleted equation blocks hold the draft text; G3 accepted view = Tony's accepted text plus exactly the planned
+  wording edits; G4 14 numbered equations; G5 no stray underscores, no "sea-level". All pass; each gate fails on its
+  mutation (`mutation_result_verify.txt`). G5a found one real miss on its way in: "S_eq" set in code font in Sect.
+  2.2.1, now converted. Word opened both files and exported them to PDF (42 pages each); equations checked by eye.
+- Not done: the Ladrillo.jl README still says "sea-level rise" (code docs, not the paper).
+
 ## 2026-11-12g — FACTS post-2100: AR6 ran different flags than our v1.1.4 defaults
 
 Prompted by Marcus: AR6 or SLEIP may have extrapolated differently. Read-only check of the FACTS repo (no runs).

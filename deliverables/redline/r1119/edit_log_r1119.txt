@@ -1,0 +1,131 @@
+A departure from its predecessor, BRICK v2.0, Ladrillo | 'A departure' -> 'In a departure' | Tony's abstract sentence: grammar
+ from its predecessor, BRICK v2.0, Ladrillo | 'BRICK v2.0' -> 'BRICK 2.0' | Tony's abstract sentence: the paper's name
+regenerated following instructions in the Ladrillo GitHub repository | 'following instructions in the Ladrillo GitHub repository' -> 'following the instructions in the code archive (see Code availability)' | point to the archive, as Code availability does
+A user manual (installation, running the calibration and projections, input formats) is in preparation and will be included in the archive. | 'A user manual (installation, running the calibration and projections, input formats) is in preparation and will be included in the archive.' -> 'The README in the archive covers installation, running the calibration and projections, and the input and output files.' | the manual exists: Ladrillo.jl README
+are omitted past 2100. SLEIP’s 2300 FACTS values are these extrapolations (Nauels et al., 2026). | ' SLEIP’s 2300 FACTS values are these extrapolations (Nauels et al., 2026).' -> '' | SLEIP sentence cut (Marcus 11-19)
+ century sea-level rise. Ladrillo inherits | 'sea-level' -> 'sea level' | sea level, open form
+MAGICC-SLR (sea-level module of the Model | 'sea-level' -> 'sea level' | sea level, open form
+cm sea-level equivalent (SLE) | 'sea-level' -> 'sea level' | sea level, open form
+20th century sea-level rise contribution | 'sea-level' -> 'sea level' | sea level, open form
+DAIS sea-level feedback | 'sea-level' -> 'sea level' | sea level, open form
+The total sea-level series | 'sea-level' -> 'sea level' | sea level, open form
+(v7.5.3, sea-level parameters from Nauels | 'sea-level' -> 'sea level' | sea level, open form
+global sea-level change that is derived | 'sea-level' -> 'sea level' | sea level, open form
+comparing to BRICK 2.0, FACTS (Kopp et al., 2023) | + 'v1.1.4; ' | FACTS version
+so the difference comes from the ice-sheet modules. | + ' MAGICC-SLR’s Antarctic term is quadratic in global surface air temperature, with each member assigned one of five curves fitted to the 5th, 17th, 50th, 83rd and 95th percentiles of an emulator of one ice-sheet model without marine ice-cliff instability (Edwards et al., 2019; Nauels et al., 2025). Its SSP5-8.5 median at 2300, 7.1 m (Nauels et al., 2025), is above the AR6 17–83% range without marine ice-cliff instability (−0.28 to 3.13 m; Fox-Kemper et al., 2021), and about half of its members gain Antarctic mass over 2002–2023, when IMBIE 2026 shows a loss of 0.43 ± 0.07 mm yr⁻¹ (Otosaka et al., 2026).' | MAGICC comparator note, High scenarios
+against 166 cm for Ladrillo and 221 cm for BRICK 2.0). | + ' MAGICC-SLR’s Antarctic spread comes from its five fitted curves and its climate ensemble.' | MAGICC comparator note, Very Low
+parametric [after by workflow] | quadratic in GSAT | Table 2: MAGICC-SLR's Antarctic law
+Edwards, T. L., Nowicki, S. [+para before] | Edwards, T. L., Brandon, M. A., Durand, G., Edwards, N. R., Golledge, N. R., Holden, P. B., Nias, I. J., Payne, A. J., Ritz, C., and Wernecke, A.: Revisiting Antarctic ice loss due to marine ice-cliff instability, Nature, 566, 58–64, https://doi.org/10.1038/s41586-019-0901-4, 2019. | reference for the MAGICC note
+S_eq = max( a·(1 | Eqs. (1)-(2) -> equation editor | notation
+E_b(T)   = min( | Eqs. (3)-(7) -> equation editor | notation
+u(t)  = min( max( | Eqs. (8)-(11) -> equation editor | notation
+ln 𝓛_i   = ln N( | Eqs. (12)-(14) -> equation editor | notation
+S_eq | S + subscript eq | notation
+S_eq | S + subscript eq | notation
+T_off | T + subscript off | notation
+K⁻ν | K + superscript −ν | notation
+T_eq | T + subscript eq | notation
+T_eq | T + subscript eq | notation
+T_off | T + subscript off | notation
+T_off | T + subscript off | notation
+T_b | T + subscript b | notation
+T_b | T + subscript b | notation
+T_b | T + subscript b | notation
+A_b | A + subscript b | notation
+c_b | c + subscript b | notation
+A_b | A + subscript b | notation
+c_b | c + subscript b | notation
+A_b | A + subscript b | notation
+A_b | A + subscript b | notation
+A_b | A + subscript b | notation
+F_b | F + subscript b | notation
+D_b | D + subscript b | notation
+T_t−1 | T + subscript t−1 | notation
+E_b | E + subscript b | notation
+k_b | k + subscript b | notation
+s_b | s + subscript b | notation
+s_b | s + subscript b | notation
+T_ref | T + subscript ref | notation
+r_s | r + subscript s | notation
+T_ref | T + subscript ref | notation
+α_s | α + subscript s | notation
+T_ref | T + subscript ref | notation
+r_s | r + subscript s | notation
+T_ref | T + subscript ref | notation
+α_s | α + subscript s | notation
+e^ℓ | e + superscript ℓ | notation
+T_ref | T + subscript ref | notation
+β_s | β + subscript s | notation
+e^ℓ | e + superscript ℓ | notation
+α_s | α + subscript s | notation
+β_s | β + subscript s | notation
+α_s | α + subscript s | notation
+α_f | α + subscript f | notation
+β_s | β + subscript s | notation
+β_f | β + subscript f | notation
+A_G | A + subscript G | notation
+A_G | A + subscript G | notation
+T_thr | T + subscript thr | notation
+ΔT_r | ΔT + subscript r | notation
+κ_P | κ + subscript P | notation
+T̄_A | T̄ + subscript A | notation
+T̄_A | T̄ + subscript A | notation
+h_R | h + subscript R | notation
+c_R | c + subscript R | notation
+T_ant | T + subscript ant | notation
+c_R | c + subscript R | notation
+T_on | T + subscript on | notation
+c_R | c + subscript R | notation
+h_R | h + subscript R | notation
+c_R | c + subscript R | notation
+T_ant | T + subscript ant | notation
+T_on | T + subscript on | notation
+T_on | T + subscript on | notation
+c_R | c + subscript R | notation
+T_on | T + subscript on | notation
+c_R | c + subscript R | notation
+T_crit | T + subscript crit | notation
+T_crit | T + subscript crit | notation
+T_crit | T + subscript crit | notation
+r_i | r + subscript i | notation
+Σ_i | Σ + subscript i | notation
+σ_i | σ + subscript i | notation
+ρ_i | ρ + subscript i | notation
+ε_t | ε + subscript t | notation
+σ_i | σ + subscript i | notation
+ρ_i | ρ + subscript i | notation
+r_i | r + subscript i | notation
+𝓛_m | 𝓛 + subscript m | notation
+T_on | T + subscript on | notation
+c_R | c + subscript R | notation
+T_off | T + subscript off | notation
+K⁻ν | K + superscript −ν | notation
+T_off | T + subscript off | notation
+K⁻ν | K + superscript −ν | notation
+T_off | T + subscript off | notation
+K⁻ν | K + superscript −ν | notation
+T_oc,0 | T + subscript oc,0 | notation
+α_DAIS | α + subscript DAIS | notation
+a_ANTO | a + subscript ANTO | notation
+b_ANTO | b + subscript ANTO | notation
+κ_DAIS | κ + subscript DAIS | notation
+κ_DAIS | κ + subscript DAIS | notation
+T_on | T + subscript on | notation
+c_R | c + subscript R | notation
+c_R | c + subscript R | notation
+a_ANTO | a + subscript ANTO | notation
+α_DAIS | α + subscript DAIS | notation
+T_on | T + subscript on | notation
+k_b | k + subscript b | notation
+s_b | s + subscript b | notation
+F_b | F + subscript b | notation
+D_b | D + subscript b | notation
+T_thr | T + subscript thr | notation
+w_r | w + subscript r | notation
+T_crit | T + subscript crit | notation
+T_ant,0 | T + subscript ant,0 | notation
+ρ_ice | ρ + subscript ice | notation
+ρ_sw | ρ + subscript sw | notation
+ρ_rock | ρ + subscript rock | notation
+ρ_i | ρ + subscript i | notation
+ε_t | ε + subscript t | notation

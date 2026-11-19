@@ -1,0 +1,8 @@
+PASS G1 authors
+PASS G2 reject view == Tony accepted (equation lines aside)
+PASS G2b deleted blocks hold the draft equations
+PASS G3 accepted text == Tony accepted + planned edits
+PASS G4 14 equations numbered in order
+PASS G5a no stray underscores
+PASS G5b no 'sea-level' in the body
+ALL GATES PASS
