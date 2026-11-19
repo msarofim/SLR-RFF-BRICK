@@ -13,13 +13,13 @@ BRICK 2.0 PULSE ARM | marker vvM | CO2 pulse 1 GtCO2 at 2030 | tag B20
             not sampled; Ladrillo frees the same slope as `ais_gmst_amp`.
 
   2000 draws over 600 configs; running BOTH arms per config ...
-    100/600 configs  (0.3 min)
-    200/600 configs  (0.6 min)
-    300/600 configs  (0.7 min)
-    400/600 configs  (0.9 min)
-    500/600 configs  (1.1 min)
-    600/600 configs  (1.2 min)
-    done, 1.2 min
+    100/600 configs  (0.1 min)
+    200/600 configs  (0.1 min)
+    300/600 configs  (0.2 min)
+    400/600 configs  (0.3 min)
+    500/600 configs  (0.3 min)
+    600/600 configs  (0.4 min)
+    done, 0.4 min
 
 ============================================================================================
 GATES
