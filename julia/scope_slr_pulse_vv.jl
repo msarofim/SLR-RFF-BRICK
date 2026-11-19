@@ -957,3 +957,26 @@ end
 paths.provenance .= PROV
 CSV.write(joinpath(REPO, "outputs", "pulse_ladrillo_paths_$(OUTSTEM).csv"), paths)
 @printf("\nwrote outputs/pulse_ladrillo_{cells,draws,paths,gates}_%s.csv\n", OUTSTEM)
+
+## ⭐ PER-DRAW ANNUAL TOTALS (opt-in, 2026-11-19; Marcus: "Do the run of all the draws through FrEDI"). `--save-annual=<dir>`
+## writes the TOTAL baseline, relative to each draw's own 2000 value (FrEDI's SLR convention), and the paired pulse
+## difference, for every kept draw and every year 2000..Y1, so FrEDI can be evaluated draw by draw downstream
+## (FaIRtoFrEDI/magicc_comparison/poster_agu26/perdraw_fredi_agu26.py). Off by default: no other output changes.
+const SAVE_ANNUAL = argval("--save-annual=", "")
+if SAVE_ANNUAL != ""
+    mkpath(SAVE_ANNUAL)
+    let i0 = yidx(2000), iy = yidx(2000):length(YEARS)
+        for (what, M) in (("base", RES["base"][:total]), ("diff", DIFF[:total]))
+            f = joinpath(SAVE_ANNUAL, "pulse_ladrillo_annual_$(what)_$(OUTSTEM).csv")
+            open(f, "w") do io
+                println(io, "draw,", join(YEARS[iy], ","))
+                for k in JKEEP
+                    row = what == "base" ? (M[k, iy] .- M[k, i0]) : M[k, iy]
+                    println(io, k, ",", join((@sprintf("%.12g", v) for v in row), ","))
+                end
+            end
+            @printf("wrote %s (%d draws x %d years)\n", f, length(JKEEP), length(iy))
+        end
+    end
+end
+
