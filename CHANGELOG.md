@@ -65,8 +65,13 @@ references (item 6). Base `deliverables/GMD.Ladrillo.v1.2026-11-19.clean.docx` (
   units on purpose (σ 0.262 = the code's log10 σ 0.114 × ln 10), though the parameter is named `gic_log10_kappa`.
   "(Eqs. 1–2)" is unchanged: Copernicus gives "Eq. (14)" for running text and does not cover a reference that is
   itself inside parentheses.
-- Not done: the AR6 no-MICI range (−0.28 to 3.13 m) is still unchecked. Claude in Chrome was not connected, and
-  ipcc.ch returned 403 to a fetch agent.
+- AR6 no-MICI range VERIFIED later on 11-20 (built-in browser; Chrome was not connected and ipcc.ch returned 403 to a
+  fetch agent): AR6 WG1 Ch. 9 Table 9.11, GMSL 1995–2014 to 2300, 17th–83rd percentile ranges. SSP5-8.5 block,
+  Antarctica row by column: AR5 0.02–0.19 m; SROCC 0.60–2.89 m; no ice-sheet acceleration after 2100 −0.39 to +1.55 m;
+  assessed ice-sheet contribution −0.28 to +3.13 m; MICI 6.87–13.54 m; SEJ 0.03–3.05 m (column alignment confirmed on
+  the Total row: 2.2–5.9 m assessed). The paper's −0.28 to 3.13 m is the assessed column, which excludes MICI: correct
+  as written. The r1120 files are unchanged; Claude's 11-19 comment asking for this check can be resolved, and the
+  citation could name Table 9.11.
 
 ## 2026-11-19 — GMD round r1119 on Tony's 11-19 file: his edits accepted, FACTS items, sea level, equations, MAGICC note
 
