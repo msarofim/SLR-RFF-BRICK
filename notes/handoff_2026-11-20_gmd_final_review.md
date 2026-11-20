@@ -129,8 +129,10 @@ Built on the r1119 clean copy (Marcus: current). Redline `deliverables/GMD.Ladri
 (+ "Table 3, note b" twice). Style marks under author "Claude (style)". Not changed: "(Eqs. 1–2)" (Copernicus rule
 silent on parentheses). AR6 no-MICI range VERIFIED (built-in browser): AR6 Ch. 9 Table 9.11, SSP5-8.5,
 Antarctica at 2300, "Assessed Ice-sheet Contribution" column, −0.28 to +3.13 m, 17–83 %, rel. 1995–2014 (MICI is a
-separate column, 6.87–13.54 m). Text correct as written; the 11-19 comment can be resolved. Still open: every
-"Before submission" and "Check by hand" item above. The next round starts from Marcus's review of r1120.
+separate column, 6.87–13.54 m). Text correct as written. **r1120b (Marcus: add Table 9.11, resolve the comment)
+SUPERSEDES r1120:** `deliverables/GMD.Ladrillo.v1_review-2026-11-20_L27_r1120b.docx` + `GMD.Ladrillo.v1.2026-11-20b.clean.docx`
+(md5 d295cecf…); build `redline/r1120b/`. Still open: every "Before submission" and "Check by hand" item above. The next
+round starts from Marcus's review of r1120b. The next round starts from Marcus's review of r1120.
 
 ## 5. Next step (as of the r1119 handoff; superseded by 4b)
 

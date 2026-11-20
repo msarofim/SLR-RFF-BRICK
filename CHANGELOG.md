@@ -72,6 +72,13 @@ references (item 6). Base `deliverables/GMD.Ladrillo.v1.2026-11-19.clean.docx` (
   the Total row: 2.2–5.9 m assessed). The paper's −0.28 to 3.13 m is the assessed column, which excludes MICI: correct
   as written. The r1120 files are unchanged; Claude's 11-19 comment asking for this check can be resolved, and the
   citation could name Table 9.11.
+- **r1120b supersedes r1120 (Marcus 11-20: "add Table 9.11 to the citation and resolve the comment").** Same base and
+  every r1120 edit, plus a tracked ", Table 9.11" after "Fox-Kemper et al., 2021" in the MAGICC sentence, and Claude's
+  11-19 sources comment answered (reply giving the Table 9.11 column) and marked resolved (`w15:done="1"` on the comment
+  and its reply). Outputs: `deliverables/GMD.Ladrillo.v1_review-2026-11-20_L27_r1120b.docx` (md5 5e39365e…) and
+  `deliverables/GMD.Ladrillo.v1.2026-11-20b.clean.docx` (md5 d295cecf…); build `deliverables/redline/r1120b/`. Gates
+  G1–G6 as r1120, plus G7 (the thread has the reply and every comment in it is resolved); 11 mutations, each caught.
+  Word: 43 pages each. The r1120 files stay on disk as delivered (superseded, not bugged).
 
 ## 2026-11-19 — GMD round r1119 on Tony's 11-19 file: his edits accepted, FACTS items, sea level, equations, MAGICC note
 

@@ -1,0 +1,29 @@
+by −18 to +47 cm, depending on the scenario | '+47 cm, depending on the scenario' -> '+31 cm across the van Vuuren scenarios' | item 1: range of the scenarios the body reports
+when IMBIE 2026 shows a loss of 0.43 ± 0.07 mm yr⁻¹ (Otosaka | 'a loss of 0.43 ± 0.07 mm yr⁻¹' -> 'a net loss' | item 2: a second IMBIE estimator would sit beside Sect. 3.1's
+in the code archive (see Code availability) | 'Code availability' -> 'Code and data availability' | item 3: section title
+at 1.5 K; see Sect. 4.3) | '; see Sect. 4.3' -> '' | item 5: no section discusses it
+is in equilibrium with (see Sect. 4.2) | '4.2' -> '4.3' | item 5: regrowth is in Sect. 4.3
+Sect. 4.1 attributes | 'Sect.' -> 'Section' | item 8: sentence start
+resulting from 5 components | '5' -> 'five' | item 8: number below ten
+projections of 7 sea level emulators | '7' -> 'seven' | item 8: number below ten
+constrains 3 combinations | '3' -> 'three' | item 8: number below ten
+Marcus C Sarofim | + '.' | item 8: middle initial
+Tony E Wong | + '.' | item 8: middle initial
+11 remaining (a two-coefficient | + 'the thermal expansion coefficient α, ' | item 4: the list had 10 of the 11
+1901–2024 in HadCRUT5, Berkeley Earth and GISTEMP: | + ' (Rohde and Hausfather, 2020)' | item 6: Berkeley Earth reference
+ and GISTEMP: N( | + ' (Lenssen et al., 2024; GISTEMP Team, 2026)' | item 6: GISTEMP reference
+spliced at 2023.5 to MESSAGE-GLOBIOM SSP2-4.5. Future | + ' (Fricko et al., 2017; Gidden et al., 2019)' | item 6: SSP2-4.5 reference
+(−0.28 to 3.13 m; Fox-Kemper et al., 2021) | + ', Table 9.11' | AR6 range: name the table (verified 11-20)
+Gelman, A. and Rubin, D. B. [+para before] | Fricko, O., Havlík, P., Rogelj, J., Klimont, Z., Gusti, M., Johnson, N., Kolp, P., Strubegger, M., Valin, H., Amann, M., Ermolieva, T., Forsell, N., Herrero, M., Heyes, C., Kindermann, G., Krey, V., McCollum, D. L., Obersteiner, M., Pachauri, S., Rao, S., Schmid, E., Schoepp, W., and Riahi, K.: The marker quantification of the Shared Socioeconomic Pathway 2: A middle-of-the-road scenario for the 21st century, Global Environ. Change, 42, 251–267, https://doi.org/10.1016/j.gloenvcha.2016.06.004, 2017. | item 6
+GlaMBIE: Glacier Mass Balance Intercompa [+para before] | Gidden, M. J., Riahi, K., Smith, S. J., Fujimori, S., Luderer, G., Kriegler, E., van Vuuren, D. P., van den Berg, M., Feng, L., Klein, D., Calvin, K., Doelman, J. C., Frank, S., Fricko, O., Harmsen, M., Hasegawa, T., Havlík, P., Hilaire, J., Hoesly, R., Horing, J., Popp, A., Stehfest, E., and Takahashi, K.: Global emissions pathways under different socioeconomic scenarios for use in CMIP6: a dataset of harmonized emissions trajectories through the end of the century, Geosci. Model Dev., 12, 1443–1475, https://doi.org/10.5194/gmd-12-1443-2019, 2019. | item 6
+GlaMBIE: Glacier Mass Balance Intercompa [+para before] | GISTEMP Team: GISS Surface Temperature Analysis (GISTEMP), version 4, NASA Goddard Institute for Space Studies [data set], https://data.giss.nasa.gov/gistemp/, last access: 9 August 2026, 2026. | item 6
+Levermann, A., Winkelmann, R. [+para before] | Lenssen, N., Schmidt, G. A., Hendrickson, M., Jacobs, P., Menne, M. J., and Ruedy, R.: A NASA GISTEMPv4 observational uncertainty ensemble, J. Geophys. Res.-Atmos., 129, e2023JD040179, https://doi.org/10.1029/2023JD040179, 2024. | item 6
+Sarofim, M. C., Smith, J. B. [+para before] | Rohde, R. A. and Hausfather, Z.: The Berkeley Earth Land/Ocean Temperature Record, Earth Syst. Sci. Data, 12, 3469–3479, https://doi.org/10.5194/essd-12-3469-2020, 2020. | item 6
+[Table 1 cell footnote markers 1..] | 1,1,2,3,2,3,2,2,4,5,6,5 | Copernicus: table footnotes as letters
+[Table 1 note footnote markers 1..] | 1,2,3,4,5,6 | Copernicus: table footnotes as letters
+[Table 2 cell footnote markers 7..] | 7,8,9,10,11,12 | Copernicus: table footnotes as letters
+[Table 2 note footnote markers 7..] | 7,8,9,10,11,12 | Copernicus: table footnotes as letters
+[Table 3 cell footnote markers 13..] | 13,14,15,16 | Copernicus: table footnotes as letters
+[Table 3 note footnote markers 13..] | 13,14,15,16 | Copernicus: table footnotes as letters
+Table 3, note 14 (2) | Table 3, note b | follows the letters
+[digit%] | 40 spaces inserted | Copernicus: space between number and %
