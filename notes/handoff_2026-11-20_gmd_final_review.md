@@ -62,6 +62,11 @@ generated sources table, package docstring, `data/comparison/README.md`, CITATIO
 6. **Missing reference entries:** Berkeley Earth and GISTEMP (amplification priors), MESSAGE-GLOBIOM SSP2-4.5 (forcing).
 7. **"(Smith, 2026)" for the CMIP7 historical emissions:** the only single-author Smith 2026 entry is the fair
    calibration data record. Check whether the emissions file is in that record; if not, it needs its own reference.
+   **RESOLVED 11-20 (no change needed):** Zenodo 18828694 lists `historical_emissions_1750-2023_cmip7.csv`
+   (98,297 B, md5 ae0fecc9…), byte-identical to `FaIRtoFrEDI/v160_cache/` (the file
+   `scripts/build_emissions_v160_ssp245.py` reads). The citation is correct.
+   Item 1 re-checked 11-20 from `Ladrillo/outputs/projections/{joint,brick20}_cells_<scen>.csv` (AIS, 2300, joint
+   medians, Ladrillo − BRICK 2.0): vvHL −18.2, vvH +31.4, vvM +7.2, others within ±4; ssp245 −6.3, ssp585 +47.1.
 8. **Copernicus conventions:** "Sect. 4.1 attributes…" at a sentence start → "Section 4.1"; "(Eqs. 1–2)" →
    "Eqs. (1)–(2)"; "resulting from 5 components" → "five"; author lines lack the middle-initial period
    ("Marcus C Sarofim", "Tony E Wong").
