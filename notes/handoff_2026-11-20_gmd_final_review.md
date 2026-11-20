@@ -141,7 +141,7 @@ Redline `deliverables/GMD.Ladrillo.v1_review-2026-11-20_L27_r1120c.docx` (md5 85
 `deliverables/GMD.Ladrillo.v1.2026-11-20c.clean.docx` (md5 0d367cfd…). Applied: his 11-20 list (draw count, block index
 g, Table A1/A3 symbols, Table 2 BRICK 2.0 inventory 35.7 s0-inclusive, Table 4 caption, Table 1 n.d., SICOPOLIS 3000,
 RGI 19 "constrained only by a weak GlaMBIE rate"). Kept by his ruling: "+0.34", IMBIE framing, ±6.0, LARMIP. Open:
-Word render of r1120c (stalled on a likely macOS prompt), the fast-dynamics sentence (explained to him; wording his),
+the fast-dynamics sentence (explained to him; wording his),
 external facts in Tables 1–2, figure captions by eye, Tony's open threads (Marcus deleted all comments in his copy),
 and the "Before submission" items. CHANGELOG 2026-11-20c has the detail.
 

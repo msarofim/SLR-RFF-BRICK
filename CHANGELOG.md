@@ -65,7 +65,8 @@ Outputs: `deliverables/GMD.Ladrillo.v1_review-2026-11-20_L27_r1120c.docx` (md5 8
   G4 symbols; G5 Table 2's cell and note a equal the diagnostic CSV rounded. All pass; eight mutations, each caught.
   The HTML reader now drops inline tags instead of turning them into spaces: Marcus's save split one code-font run
   around a spell-check mark, which the build's run merge joins (text unchanged).
-- Not done: the Word render. Copying into Word's sandbox folder stalled, most likely on a macOS permission prompt.
+- Word render (finished after a stall of several minutes copying into Word's sandbox folder, probably a macOS
+  permission prompt): 43 pages each; Table 2 (35.7 (24–49) and note a) and the Sect. 2.2.1 block paragraph checked by eye.
 
 ## 2026-11-20 — GMD round r1120: final-review fixes, table-footnote letters, "%" spacing, five references
 
