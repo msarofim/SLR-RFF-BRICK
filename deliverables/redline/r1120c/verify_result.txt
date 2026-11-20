@@ -1,0 +1,6 @@
+PASS G1 authors, dates, Marcus's marks kept
+PASS G2 reject-all view == base reject-all
+PASS G3 accept-all == base accept-all + planned edits
+PASS G4 symbols
+PASS G5 Table 2 BRICK 2.0 inventory = diagnostic CSV
+ALL GATES PASS

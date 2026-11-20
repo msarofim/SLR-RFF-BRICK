@@ -29,6 +29,44 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-20c — GMD round r1120c on Marcus's 10:02 save: symbols, draw count, BRICK 2.0 inventory on its own basis
+
+**Base:** Marcus's 10:02 save of `GMD.Ladrillo.v1.2026-11-20b.clean.docx` (md5 a93fb35c; his minor edits, all comments
+deleted, three pending tracked marks of his own: "These" → "The structural and calibration", and " (below)" cut from
+Table 3's DAIS row). Frozen as `deliverables/redline/r1120c/base_marcus_2026-11-20_1002.docx` (not committed).
+Outputs: `deliverables/GMD.Ladrillo.v1_review-2026-11-20_L27_r1120c.docx` (md5 8551ee10…) and
+`deliverables/GMD.Ladrillo.v1.2026-11-20c.clean.docx` (all accepted, his marks included; md5 0d367cfd…).
+- Wording (author "Claude", 7): Sect. 3.2 "…the 10,000-member posterior; projections use every fifth draw (2,000)"
+  (the 2,000 was used unintroduced in Sect. 2.2.3); RGI 19 "constrained only by a weak GlaMBIE rate" (Marcus asked
+  for "constrained by GlaMBIE"; the other blocks are also fitted to GlaMBIE from 2019, so he chose this wording in an
+  AskUserQuestion); Table 1 caption loses "n.d." (unused there); SICOPOLIS "3001" → "3000" (the runs' last output is
+  stamped 3001, the reference title says 3000); Table 4 caption adds "extended with NOAA STAR altimetry over
+  2022–2024"; Table 2's BRICK 2.0 glacier inventory 37.4 (28–48) → 35.7 (24–49) with note a rewritten (below).
+- Notation (author "Claude (notation)"): glacier block index b → g in the one Sect. 2.2.1 paragraph (10 subscripts +
+  "Each block g"; it clashed with Eq. (1)'s sensitivity b; Greenland's basin index b unchanged); Table A1 κ_DAIS → κ_P
+  (2; α_DAIS is another parameter, unchanged) and T̄ → T̄_A (2); Table A3 T̄ → T_ref, "shape S" → "shape φ",
+  w_r → ΔT_r. Each now matches the text.
+- **BRICK 2.0 inventory, s0-inclusive (Marcus's choice).** MimiBRICK starts `gsic_sea_level` at `gsic_s0` and scales
+  melt by (1 − S/v0)^n with S capped at v0, so the ice its melt law can still lose is v0 − S(t) = v0 − s0 − melt.
+  `julia/diag_brick_gsic_melt_1850_2000.jl` gains three rows (the six existing rows are byte-identical): on all
+  10,000 draws, s0 = 1.9 cm (5–95 % −4.6 to 7.4) and remaining at 2000 = 35.7 cm (23.7–48.5), against 37.4 (27.9–47.8)
+  without s0. ⚠ s0 is NEGATIVE in part of the posterior, so it acts as a datum offset rather than pre-1850 melt; note a
+  says the melt equation "counts it against that volume", not that it melted. (The 11-05 figure 35.5 was draws 1–1000.)
+- Kept as written (Marcus 11-20): "+0.34" (difference of unrounded values 8.141 − 7.805), the IMBIE framing, the
+  unstated ±6.0 cm derivation, the LARMIP omission in Table 1.
+- Checked, no edit: Wong et al. (2017b) did use AIC and BIC (their Eqs. 12–13, on the maximum-likelihood ensemble
+  member, to compare model structures; read in the GMD PDF), and `python/ic_ladrillo_vs_brick20.py` takes each model's
+  maximum-likelihood draw, so "Following Wong et al. (2017b)" holds. The fast-dynamics "flat in the likelihood"
+  sentence: λ and T_crit are exactly inert in the hindcast (swapping them reproduces the production chain bit for bit,
+  memory `l27_held_gamma_is_central_row`); γ is nearly so (Δlog-posterior −0.27 to +0.42 between 2.04 and 2.83);
+  the 10⁻²⁰ weights are the cliff where fast dynamics would start before 2025.
+- Gates (`verify_r1120c.py`; the base has Marcus's pending marks, so the gates compare reject-all and accept-all
+  views): G1 authors/dates and Marcus's three marks kept; G2 reject-all = base; G3 accept-all = base + planned edits;
+  G4 symbols; G5 Table 2's cell and note a equal the diagnostic CSV rounded. All pass; eight mutations, each caught.
+  The HTML reader now drops inline tags instead of turning them into spaces: Marcus's save split one code-font run
+  around a spell-check mark, which the build's run merge joins (text unchanged).
+- Not done: the Word render. Copying into Word's sandbox folder stalled, most likely on a macOS permission prompt.
+
 ## 2026-11-20 — GMD round r1120: final-review fixes, table-footnote letters, "%" spacing, five references
 
 **Marcus 11-20 (AskUserQuestion, on the 11-19 final-review list in `notes/handoff_2026-11-20_gmd_final_review.md`):**

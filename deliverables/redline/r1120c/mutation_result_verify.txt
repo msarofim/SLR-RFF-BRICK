@@ -1,0 +1,9 @@
+caught  mutation 0 (red) -> G1
+caught  mutation 1 (red) -> G1
+caught  mutation 2 (red) -> G2
+caught  mutation 3 (clean) -> G3
+caught  mutation 4 (clean) -> G3
+caught  mutation 5 (clean) -> G4
+caught  mutation 6 (clean) -> G4
+caught  mutation 7 (clean) -> G5
+MUTATION TEST PASS: every gate failed on its mutation

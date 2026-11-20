@@ -30,12 +30,14 @@ ND = min(NDRAW, nrow(post))
 EPOCHS = (1900, 2000, 2020)
 inc = Dict(y => Vector{Float64}(undef, ND) for y in EPOCHS)
 v0  = Vector{Float64}(undef, ND)
+s0  = Vector{Float64}(undef, ND)     # 2026-11-20: BRICK 2.0's 1850 glacier state, which its melt law counts as melted
 @time for i in 1:ND
     update_brick_params!(m, post[i,:]; precip_log=brick20_precip_log())
     run(m)
     g = 100 .* m[:glaciers_small_icecaps, :gsic_sea_level]      # m -> cm, level from 1850
     for y in EPOCHS; inc[y][i] = g[idx(y)] - g[idx(Y0)]; end
     v0[i] = 100 * Float64(post[i, "glaciers_v0"])                # initial volume, cm SLE
+    s0[i] = g[idx(Y0)]                                           # = 100 * glaciers_s0: gsic_sea_level[1] = gsic_s0
 end
 q(v) = (quantile(v,0.05), quantile(v,0.50), quantile(v,0.95))
 rows = DataFrame(quantity=String[], p05=Float64[], p50=Float64[], p95=Float64[])
@@ -45,6 +47,11 @@ end
 a,b,c = q(v0);            push!(rows, ("glaciers_v0_cm", a,b,c))
 a,b,c = q(v0 .- inc[2000]); push!(rows, ("remaining_at_2000_cm", a,b,c))
 a,b,c = q(v0 .- inc[2020]); push!(rows, ("remaining_at_2020_cm", a,b,c))
+## 2026-11-20 (GMD Table 2, Marcus): the ice BRICK 2.0's melt law can still lose. MimiBRICK starts gsic_sea_level at
+## gsic_s0 and scales melt by (1 - S/v0)^n with S capped at v0, so the remaining volume is v0 - S(t) = v0 - s0 - increment.
+a,b,c = q(s0);            push!(rows, ("glaciers_s0_cm", a,b,c))
+a,b,c = q(v0 .- s0 .- inc[2000]); push!(rows, ("remaining_at_2000_s0incl_cm", a,b,c))
+a,b,c = q(v0 .- s0 .- inc[2020]); push!(rows, ("remaining_at_2020_s0incl_cm", a,b,c))
 rows[!, "provenance"] = fill("diag_brick_gsic_melt_1850_2000.jl | stock MimiBRICK get_model(ssp245) | " *
     "Random.seed!($SEED) immediately before get_model | $(brick20_label()) ND=$ND | " *
     "forcing fair_mean_{gmst,ohc}_$(FORCING).csv | run $Y0-$Y1 | increments from the 1850 level, cm SLE", nrow(rows))
