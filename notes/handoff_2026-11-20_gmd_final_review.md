@@ -120,7 +120,17 @@ Items 2 and 3 were introduced by Claude in r1119.
   differences…" (on "On glaciers…"); Tony 10-15 "climate" meaning only GMST + OHC (a BRICK GMD reviewer objected to
   this before). Also open: Marcus's availability placeholder note, Claude's 11-12 note, Claude's two 11-19 comments.
 
-## 5. Next step
+## 4b. DONE 11-20 — round r1120 (SLR 4d09682, pushed)
+
+Built on the r1119 clean copy (Marcus: current). Redline `deliverables/GMD.Ladrillo.v1_review-2026-11-20_L27_r1120.docx`
+(md5 22556f89…), clean `deliverables/GMD.Ladrillo.v1.2026-11-20.clean.docx` (md5 5d7c2808…). Applied: items 1–5, 8
+(plus "seven sea level emulators", "three combinations"), item 6 (5 entries: Rohde & Hausfather 2020, Lenssen et al.
+2024, GISTEMP Team 2026, Fricko et al. 2017, Gidden et al. 2019), "%" spacing (40), footnote letters in Tables 1–3
+(+ "Table 3, note b" twice). Style marks under author "Claude (style)". Not changed: "(Eqs. 1–2)" (Copernicus rule
+silent on parentheses). Still open: the AR6 no-MICI range (Chrome not connected; ipcc.ch 403) and every
+"Before submission" and "Check by hand" item above. The next round starts from Marcus's review of r1120.
+
+## 5. Next step (as of the r1119 handoff; superseded by 4b)
 
 Wait for Marcus's reply to the list. Offered: a tracked round **r1120** with errors 2–5, item 8, the % spacing and the
 table-footnote letters (mechanical only; the rest is wording or his judgement). Before building:
