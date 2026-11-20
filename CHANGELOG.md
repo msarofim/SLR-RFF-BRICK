@@ -29,6 +29,45 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-20 — GMD round r1120: final-review fixes, table-footnote letters, "%" spacing, five references
+
+**Marcus 11-20 (AskUserQuestion, on the 11-19 final-review list in `notes/handoff_2026-11-20_gmd_final_review.md`):**
+base = the r1119 clean copy (unchanged since 11-19 18:58); scope = the mechanical items 2–5 and 8, "%" spacing and
+table-footnote letters, plus item 1 as "−18 to +31 cm across the van Vuuren scenarios" and entries for the missing
+references (item 6). Base `deliverables/GMD.Ladrillo.v1.2026-11-19.clean.docx` (md5 213fc5e9…). Outputs:
+`deliverables/GMD.Ladrillo.v1_review-2026-11-20_L27_r1120.docx` (redline, md5 22556f89…) and
+`deliverables/GMD.Ladrillo.v1.2026-11-20.clean.docx` (all accepted, md5 5d7c2808…). Build: `deliverables/redline/r1120/`.
+- Wording (author "Claude", 15 edits + 5 reference entries): Conclusions range −18 to +31 cm across the van Vuuren
+  scenarios (re-checked from `Ladrillo/outputs/projections/{joint,brick20}_cells_*.csv`: vvHL −18.2, vvH +31.4;
+  +47.1 is SSP5-8.5, which the body does not report); the MAGICC sentence says "a net loss" without the 0.43 ± 0.07
+  mean rate (Sect. 3.1's 0.52 ± 0.05 is an OLS trend over 2002–2021); "(see Code and data availability)"; Sect. 3.2's
+  "11 remaining" list gains the thermal expansion coefficient α (Table A1: α + 2 discrepancy + 8 noise = 11);
+  "; see Sect. 4.3" dropped after RGI 19's response time (no Results section discusses it; comment added) and the
+  regrowth pointer → Sect. 4.3; "Section 4.1" at a sentence start; "five components", "seven sea level emulators",
+  "three combinations"; "Marcus C. Sarofim", "Tony E. Wong". Citations and entries added: Rohde and Hausfather (2020)
+  for Berkeley Earth; Lenssen et al. (2024) and GISTEMP Team (2026, last access 9 August 2026, the download date in
+  Ladrillo.jl `tools/targets/README.md`) for GISTEMP v4, as GISS asks; Fricko et al. (2017) and Gidden et al. (2019)
+  for MESSAGE-GLOBIOM SSP2-4.5 (the forcing file is RCMIP-format `MESSAGE-GLOBIOM___SSP2-45`; a comment offers dropping
+  Gidden). Bibliographic data from Crossref. Claude's 11-19 sources comment no longer gives 0.43 as "IMBIE's" rate.
+- Style (author "Claude (style)", accept separately): Tables 1–3 footnotes as superscript letters, each table
+  restarting at "a" (they were digits numbered on across the three tables, 1–16; 22 cell markers, 16 note markers);
+  the two pointers "Table 3, note 14" → "note b"; a space between a digit and "%" in 40 places. Copernicus's
+  manuscript-preparation page (read 11-20): "Footnotes to tables should be marked by lowercase letters", "Spaces must
+  be included between number and unit" ("1 %"), words for cardinal numbers below 10, "Sect." not at a sentence start.
+- Gates (`verify_r1120.py`, pandoc HTML as the independent reader; the plain writer re-wraps table cells when a column
+  width changes): G1 authors and dates; G2 reject view = base; G3 accepted = base + planned edits, with exactly 38
+  footnote-marker substitutions each mapped to its table's letter; G4 no digit% left, 40 spaces added; G5 the five new
+  sources cited, listed and in alphabetical place; G6 comments. All pass; nine mutations, each caught by its gate.
+  Word opened both files and exported PDFs: 43 pages each (r1119: 42; the new entries push the last reference onto
+  page 43); Tables 1–3 checked by eye.
+- Checked and left: list item 7 is closed, since the CMIP7 historical emissions file is in Zenodo 18828694 (md5
+  ae0fecc9…, identical to `FaIRtoFrEDI/v160_cache/`), so "(Smith, 2026)" is right. Table A1 gives κ in natural-log
+  units on purpose (σ 0.262 = the code's log10 σ 0.114 × ln 10), though the parameter is named `gic_log10_kappa`.
+  "(Eqs. 1–2)" is unchanged: Copernicus gives "Eq. (14)" for running text and does not cover a reference that is
+  itself inside parentheses.
+- Not done: the AR6 no-MICI range (−0.28 to 3.13 m) is still unchecked. Claude in Chrome was not connected, and
+  ipcc.ch returned 403 to a fetch agent.
+
 ## 2026-11-19 — GMD round r1119 on Tony's 11-19 file: his edits accepted, FACTS items, sea level, equations, MAGICC note
 
 **Marcus 11-19:** accept Tony's edits; "go ahead, cut the SLEIP sentence, equations too"; consider the AGU poster

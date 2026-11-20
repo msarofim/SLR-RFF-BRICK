@@ -1,0 +1,7 @@
+PASS G1 authors and dates
+PASS G2 reject view == base
+PASS G3 accepted == base + planned edits, footnote markers mapped
+PASS G4 no digit% in the body; 40 spaces added
+PASS G5 new sources cited, listed, in order
+PASS G6 comments
+ALL GATES PASS
