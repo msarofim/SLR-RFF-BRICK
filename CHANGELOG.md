@@ -52,7 +52,8 @@ kept), frozen in `deliverables/redline/r1121/`. Outputs `deliverables/GMD.Ladril
   from its v1.1.4 code at default settings".
 - Acknowledgments: "Sanke" → "Sönke" Dangendorf.
 - Gates (`verify_r1121.py`): G1 authors/dates and Marcus's mark kept; G2 reject-all = base; G3 accept-all = base +
-  planned edits; G4 the corrected facts present, the old ones gone. All pass; seven mutations, each caught.
+  planned edits; G4 the corrected facts present, the old ones gone. All pass; seven mutations, each caught. Word render:
+  43 pages each; the four corrected passages found once each in the rendered PDF text.
 - **Release (Marcus 11-21):** reserved-DOI Zenodo route, creators = Marcus only, repo public at submission. Ladrillo.jl
   tags v1.0.0–v1.3.0 renamed to v0.1.0–v0.4.0 ON GITHUB (each pair verified to the same commit first; no GitHub
   releases existed). Plan: `notes/release_ladrillo_v1.0.0_plan_2026-11-21.md`.
