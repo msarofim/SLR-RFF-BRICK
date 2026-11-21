@@ -29,6 +29,35 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-21 — GMD round r1121: MAGICC and FACTS descriptions corrected; Ladrillo.jl tags renamed on GitHub
+
+**Marcus 11-21:** Tony gave the paper a thumbs up (no replies to the old comment threads needed); Marcus checked every
+figure caption against its figure and wrote the fast-dynamics wording himself. Review of the MAGICC/FACTS text against
+the MAGICC 7.5.3 source and the FACTS v1.1.4 module audit; Marcus (AskUserQuestion): apply all of it.
+Base: his 11:29 save of `GMD.Ladrillo.v1.2026-11-20c.clean.docx` (md5 cff735fc; one pending tracked insertion of his,
+kept), frozen in `deliverables/redline/r1121/`. Outputs `deliverables/GMD.Ladrillo.v1_review-2026-11-21_L27_r1121.docx`
+(md5 bce819f1…) and `deliverables/GMD.Ladrillo.v1.2026-11-21.clean.docx` (md5 940c1c12…).
+- **MAGICC ocean: 50 levels, not 40** (Table 2 cell and Sect. 4). `CORE_OCN_NLEVELS = 50` in MAGICC 7.5.3's
+  MAGCFG_DEFAULTALL.CFG and default_params.csv ("incl. the mixed layer"); the AR6 drawnset JSON sets no override. The
+  "40 layers" came from an earlier summary (MAGICC6).
+- **MAGICC Antarctica is a RATE:** D = k·V·(T − T0)|T − T0|, negative below T0. Table 2 "rate quadratic in GSAT";
+  Sect. 4.3 "discharge rate is quadratic in global surface air temperature relative to a threshold temperature, and
+  negative below it, with each member assigned one of five (rate, threshold) pairs"; the IMBIE clause adds that three
+  of the five thresholds are at or above MAGICC's present-day warming (1.19/1.52/1.73 K vs ~1.2 K).
+- **LARMIP:** "pre-2100 ocean forcing" (its SMB term keeps the full temperature integral).
+- **FACTS version caveat** (Marcus asked whether to add one): after "…omitted past 2100", three sentences scoping the
+  post-2100 descriptions to v1.1.4 at default settings; FittedISMIP evaluated its fit through 2300 by default before
+  v1.1.1, and the run scripts tagged for AR6 extend the FittedISMIP, AR5 and LARMIP terms at their 2080–2100 rates
+  (not confirmed that those scripts produced the published AR6 numbers, hence "tagged for AR6"). Table 1 caption: "read
+  from its v1.1.4 code at default settings".
+- Acknowledgments: "Sanke" → "Sönke" Dangendorf.
+- Gates (`verify_r1121.py`): G1 authors/dates and Marcus's mark kept; G2 reject-all = base; G3 accept-all = base +
+  planned edits; G4 the corrected facts present, the old ones gone. All pass; seven mutations, each caught.
+- **Release (Marcus 11-21):** reserved-DOI Zenodo route, creators = Marcus only, repo public at submission. Ladrillo.jl
+  tags v1.0.0–v1.3.0 renamed to v0.1.0–v0.4.0 ON GITHUB (each pair verified to the same commit first; no GitHub
+  releases existed). Plan: `notes/release_ladrillo_v1.0.0_plan_2026-11-21.md`.
+- Not changed: Tables 1–2's SLEIP-derived cells (listed for Marcus; Alexander Nauels can confirm them).
+
 ## 2026-11-20c — GMD round r1120c on Marcus's 10:02 save: symbols, draw count, BRICK 2.0 inventory on its own basis
 
 **Base:** Marcus's 10:02 save of `GMD.Ladrillo.v1.2026-11-20b.clean.docx` (md5 a93fb35c; his minor edits, all comments
