@@ -27,13 +27,13 @@ unpublished draft until it is published at submission.
 1. **Marcus, on zenodo.org (signed in):** New upload → "Do you already have a DOI?" No → **Reserve DOI**. Save as
    draft. Send the DOI to Claude. (Nothing is public until "Publish".)
 2. **Claude:** CITATION.cff gets `doi:` and `date-released:`; README gets the DOI; commit; push to private `main`.
-3. **Claude, after Marcus's go-ahead:** delete the old tags v1.0.0–v1.3.0 (local and GitHub), push v0.1.0–v0.4.0,
-   tag v1.0.0 at the release commit, push it, and create the GitHub release v1.0.0.
+3. **Claude:** ~~delete the old tags v1.0.0–v1.3.0 (local and GitHub), push v0.1.0–v0.4.0~~ DONE 11-21 (Marcus's go;
+   Ladrillo.jl CHANGELOG 2026-11-21). Still to do: tag v1.0.0 at the release commit, push it, create the GitHub release.
 4. **Claude:** `git archive --format=zip --prefix=Ladrillo.jl-1.0.0/ v1.0.0` → `Ladrillo.jl-1.0.0.zip`; check its
    contents against the availability section.
 5. **Marcus:** upload the zip to the Zenodo draft, paste the metadata below, and **Publish** at or just before
    submission. Publishing cannot be undone (later fixes become new versions under the same concept DOI).
-6. **Marcus:** make `msarofim/Ladrillo.jl` public (Settings → General → Change visibility). The repository URL is
+6. **Marcus, at submission (his choice 11-21), after Sönke answers about the `_v2.nc` file:** make `msarofim/Ladrillo.jl` public (Settings → General → Change visibility). The repository URL is
    then `https://github.com/msarofim/Ladrillo.jl`.
 7. **Claude:** a tracked round on the paper filling in the DOI and the URL.
 
@@ -41,8 +41,7 @@ unpublished draft until it is published at submission.
 
 - Resource type: Software
 - Title: Ladrillo.jl: a calibrated reduced-complexity emulator of global mean sea level rise (v1.0.0)
-- Creators: Sarofim, Marcus C. (NYU Marron Institute). Decide whether Tony Wong is listed as a creator of the code
-  (CITATION.cff lists Marcus only).
+- Creators: Sarofim, Marcus C. (NYU Marron Institute) only (Marcus 11-21; matches CITATION.cff).
 - Version: 1.0.0
 - Licence: MIT. The data files keep their sources' licences (data/sources/README.md); the Berkeley Earth series is
   CC BY-NC 4.0.
