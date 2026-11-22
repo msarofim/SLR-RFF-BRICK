@@ -387,7 +387,10 @@ if _PAPER:
         _fh.write(_CAPTION.replace("\n", " ").strip() + "\n")
 else:
     fig.text(0.5, 0.004, _CAPTION, fontsize=6.6, ha="center", color="0.35")
-fig.savefig(OUTPNG, dpi=150, bbox_inches="tight")
+## The paper places this figure 5.8 in wide; at 150 dpi it was 1327 px (about 230 dpi in place, under GMD's 300). The paper
+## render is saved at 300 dpi (Marcus 2026-11-22); research renders stay at 150.
+FIG_DPI = 300 if _PAPER else 150
+fig.savefig(OUTPNG, dpi=FIG_DPI, bbox_inches="tight")
 print("wrote " + OUTPNG)
 
 print("\n%-16s %8s %8s %10s %10s %12s %12s"
