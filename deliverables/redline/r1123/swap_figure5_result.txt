@@ -1,0 +1,6 @@
+PASS OLD
+PASS NEW
+PASS OTHERS
+PASS TEXT
+Fig. 5: 2658 x 2361 px, placed 5.83 in wide (456 dpi), height cy 4737989
+ALL GATES PASS

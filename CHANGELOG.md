@@ -29,6 +29,22 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-22d — Ladrillo.jl v1.0.0 re-cut, new Zenodo zip, Fig. 5 at 300 dpi in the paper
+
+**Marcus 11-22:** "yes, add them to the archive", "should we fix Figure 5 at the same time?", and keep the label 1.0.0.
+- Fig. 5's `--paper` render (`python/plot_vv_gsic_wr_vs_ladrillo.py`) is saved at 300 dpi (80e399b): 2658 x 2361 px,
+  456 dpi at its 5.83 in placed width. Both this script and the package's reproduced the old render byte for byte
+  before the change; afterwards the two new renders are byte-identical and match the old one panel for panel.
+- Ladrillo.jl 46a93de (`comparison/`: FACTS configs, run and extraction scripts, the Greenland receipt, the MAGICC
+  extraction scripts; Fig. 5 at 300 dpi). `v1.0.0` moved there; new zip and its checksums in
+  `notes/release_ladrillo_v1.0.0_plan_2026-11-21.md` ("Re-cut"); the old zip is in
+  `deliverables/zenodo_ladrillo_v1.0.0/superseded_20261122_precut_f056a7d/`.
+- Paper: `deliverables/redline/r1123/swap_figure5.py` replaces Fig. 5's image part (gates OLD, NEW, OTHERS, TEXT; a
+  second run fails OLD) → `GMD.Ladrillo.v1.2026-11-22c.clean.docx` (6e7c7faa…). Submission copy rebuilt from it:
+  `GMD.Ladrillo.v1.2026-11-22c.submission.{docx,pdf}` (PDF d7b9baac…, 44 pages, lines 1-1135, all PDF checks pass).
+  These supersede the 22b clean and submission copies. The r1123 redline keeps the old image: an image swap is not a
+  tracked change, so `swap_figure5.py` is re-applied to whichever copy Marcus returns.
+
 ## 2026-11-22c — GMD round r1123 (availability section) and the submission PDF
 
 **Marcus 11-22:** "yes, build r1123 and the submission PDF", after a check against GMD's submission checklist, its

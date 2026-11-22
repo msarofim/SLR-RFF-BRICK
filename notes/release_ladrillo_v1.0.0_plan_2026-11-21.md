@@ -31,6 +31,20 @@ DOI when the preprint is submitted.
 - Steps 1–4 are done; step 5 draft saved by Marcus 11-22; step 7 done in GMD round r1122 (11-22). Left: Publish at submission, 6 (public at submission,
   after Sönke), and publishing the draft GitHub release.
 
+## Re-cut on 2026-11-22 (afternoon): v1.0.0 moved to 46a93de
+
+Marcus 11-22: add the FACTS configs and MAGICC extraction scripts to the archive (GMD's code and data policy), fix
+Fig. 5's resolution, keep the label 1.0.0. Ladrillo.jl 46a93de adds `comparison/` and saves Fig. 5 at 300 dpi; no model,
+posterior or number changed (196/196 tests, figure identity gate PASS). `v1.0.0` was deleted and re-created there and
+force-pushed (repo private, record unpublished); the draft GitHub release still names `v1.0.0`.
+- **New Zenodo file:** `deliverables/zenodo_ladrillo_v1.0.0/Ladrillo.jl-1.0.0.zip`, 40,772,194 bytes, md5
+  34cb351fba191ec435eaa57ee0d2422a, sha256 e0901918…356f7 (full hash in the `.sha256`), 321 files. Built from the tag
+  and from the commit: byte-identical.
+- The earlier zip (f056a7d, sha256 cf42ee2f…) is in `superseded_20261122_precut_f056a7d/` with a README. If it was
+  uploaded to the Zenodo draft, delete it there and upload the new one.
+- **Licence on Zenodo:** set "MIT License". Add to the description that data files keep their sources' licences
+  (`data/sources/README.md`; the Berkeley Earth series is CC BY-NC 4.0).
+
 ## Recommended route: Zenodo manual upload with a reserved DOI
 
 The GitHub–Zenodo integration only archives public repositories and mints the DOI when a GitHub release is published.
