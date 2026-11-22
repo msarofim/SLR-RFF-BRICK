@@ -18,6 +18,19 @@ DOI when the preprint is submitted.
   file supplied by S. Dangendorf (shipped by Marcus's ruling, 11-12); confirm with him before the repo is public.
 - 15 commits carry the author address `MarcusMarcus@MacBook-Pro-2.local` (harmless; visible once public).
 
+## State on 2026-11-22
+
+- DOI reserved by Marcus: **10.5281/zenodo.24445689** (version DOI; Zenodo adds a concept DOI when the record is
+  published). The paper cites the version DOI.
+- Ladrillo.jl f056a7d (pushed to private `main`): CITATION.cff `doi:` + `date-released: 2026-11-22`; README cites the
+  DOI. Annotated tag `v1.0.0` at f056a7d, pushed. GitHub release v1.0.0 created as a DRAFT (publish when the repo goes
+  public).
+- Zenodo file: `SLR-RFF-BRICK/deliverables/zenodo_ladrillo_v1.0.0/Ladrillo.jl-1.0.0.zip`, 40,696,030 bytes, sha256
+  cf42ee2f…382bf (full hash in the `.sha256` next to it). Built from the tag and again from the commit: byte-identical.
+  284 files (= the tag's tree), one top-level folder `Ladrillo.jl-1.0.0/`; CITATION.cff inside carries the DOI.
+- Steps 1–4 below are done. Left: 5 (Marcus: upload + metadata now, Publish at submission), 6 (public at submission,
+  after Sönke), 7 (paper round with the DOI and URL).
+
 ## Recommended route: Zenodo manual upload with a reserved DOI
 
 The GitHub–Zenodo integration only archives public repositories and mints the DOI when a GitHub release is published.
@@ -48,7 +61,9 @@ unpublished draft until it is published at submission.
 - Description: Ladrillo v1.0, the model described in Sarofim and Wong (Geoscientific Model Development, submitted):
   component code, calibration and projection drivers, calibration targets with the scripts that build them, the
   10,000-member posterior, and the scripts that produce every figure and table in the paper.
-- Related identifiers: "is supplement to" the GMD preprint DOI (add when assigned); "is derived from" MimiBRICK.jl
+- Related identifiers: "is supplement to" https://github.com/msarofim/Ladrillo.jl/tree/v1.0.0 (Software) and, once
+  assigned, the GMD preprint DOI (metadata stays editable after publishing); "references" 10.5281/zenodo.20713982
+  (van Vuuren emissions v1.1.1); "is derived from" MimiBRICK.jl
   v2.0.0 (https://github.com/raddleverse/MimiBRICK.jl); "references" 10.5281/zenodo.20592337 (MimiBRICK v2.0.0
   posterior) and 10.5281/zenodo.18828694 (fair calibration data 1.6.0).
 - Keywords: sea level rise; emulator; reduced-complexity model; BRICK; Bayesian calibration
