@@ -29,6 +29,30 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-22c — GMD round r1123 (availability section) and the submission PDF
+
+**Marcus 11-22:** "yes, build r1123 and the submission PDF", after a check against GMD's submission checklist, its
+manuscript preparation guidelines and its code and data policy. Base: the 11-22 clean copy (r1122 accepted, md5
+025b26d3…). `deliverables/redline/r1123/`.
+- Three tracked edits by "Claude" (2026-11-22T18:00Z): "Ladrillo is released under the MIT licence." in the Code and
+  data availability section (GMD asks for the licence there); a sentence that the FACTS and MAGICC-SLR outputs behind
+  Figs. 2, 3 and 6 ship in the archive as static files, with FACTS v1.1.4's URL and MAGICC access on request from the
+  MAGICC team; and the Conclusions' "(code) and CC-BY-4.0 (non-code content)" cut, since LICENSE and CITATION.cff
+  declare MIT only (Marcus may reject). Gates G1-G4 pass; 7 of 7 mutations caught.
+- Outputs (deliverables/, untracked as before): `GMD.Ladrillo.v1_review-2026-11-22_L27_r1123.docx` (md5 ada42e9b…),
+  `GMD.Ladrillo.v1.2026-11-22b.clean.docx` (267b1bc6…).
+- Submission copy `GMD.Ladrillo.v1.2026-11-22b.submission.{docx,pdf}` (`make_submission.py`, string edits on the clean
+  copy): continuous line numbers, a centred page number in a new footer, and ligatures off in the document defaults.
+  Word for Mac's PDF export wrote Calibri's "ti" ligature with a wrong text mapping ("calibraMon" in pdftotext, 21
+  times), which would garble copied or indexed text. Gates LNNUM, FOOTER, LIGATURES, TEXT-SAME (pandoc body text
+  identical to the clean copy). PDF rendered by Word, 44 pages, lines 1-1135; `check_submission_pdf.py` FONTS (18,
+  all embedded), PAGE-NUMBERS, LINE-NUMBERS, TEXT-LAYER pass, and its restart mutation fails. The first version of the
+  line-number check flagged false breaks (a line number standing alone beside a figure, a table cell's stray "9", two
+  blank numbered lines after a table); it now follows the consecutive run of numbers.
+- Not done: the Copernicus Word template (the docx is pandoc-styled); Fig. 5 is about 230 dpi at its placed width;
+  the FACTS experiment configurations used for Figs. 2, 3 and 6 are commits in a local `facts` clone (v1.1.4 plus 14),
+  and the MAGICC extraction scripts are in this repository, so neither is in the Zenodo archive.
+
 ## 2026-11-22b — Glacier hindcast on a common driver (FaIR GMST in every year)
 
 **Marcus 11-22:** "yes, run the common-driver test". The MAGICC glacier comparison (FaIRtoFrEDI 55c194f) was not
