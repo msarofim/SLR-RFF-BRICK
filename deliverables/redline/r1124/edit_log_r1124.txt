@@ -1,0 +1,1 @@
+outputs shown in Figs. 2, 3 and 6 are included in the archive as static files. | ' as static files.' -> " as static files, together with the FACTS run configurations and the scripts that extracted both models' outputs." | the re-cut archive includes comparison/ (Ladrillo.jl 46a93de)

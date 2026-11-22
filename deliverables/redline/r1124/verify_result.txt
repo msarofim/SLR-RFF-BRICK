@@ -1,0 +1,5 @@
+PASS G1 authors and dates
+PASS G2 reject-all view == base
+PASS G3 accept-all == base + planned edits
+PASS G4 facts
+ALL GATES PASS

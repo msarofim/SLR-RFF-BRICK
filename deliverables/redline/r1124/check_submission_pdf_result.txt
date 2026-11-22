@@ -1,0 +1,6 @@
+PASS FONTS
+PASS PAGE-NUMBERS
+PASS LINE-NUMBERS
+PASS TEXT-LAYER
+44 pages; lines numbered 1-1136 (tables are not numbered by Word)
+ALL PDF CHECKS PASS

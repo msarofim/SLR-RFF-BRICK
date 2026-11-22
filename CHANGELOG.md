@@ -29,6 +29,19 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-22e — GMD round r1124: the comparison sentence names the archived scripts; Zenodo licence
+
+**Marcus 11-22:** "yes, extend the sentence"; he set the Zenodo licence to MIT and asked whether to keep CC BY 4.0.
+- r1124 on the 22c clean (r1123 accepted, Fig. 5 at 300 dpi; md5 6e7c7faa…): r1123's "are included in the archive as
+  static files" gains ", together with the FACTS run configurations and the scripts that extracted both models'
+  outputs". G1-G4 pass, 7 of 7 mutations caught. The first mutation run MISSED one: G4 counted the FACTS URL as a
+  substring, and "…/factss" contains "…/facts"; G4 now matches the whole FACTS sentence.
+- Outputs: `GMD.Ladrillo.v1_review-2026-11-22_L27_r1124.docx` (6ad3fbec…), `GMD.Ladrillo.v1.2026-11-22d.clean.docx`
+  (64c05bb1…), `GMD.Ladrillo.v1.2026-11-22d.submission.{docx,pdf}` (PDF f9c647d6…, 44 pages, lines 1-1136, every PDF
+  check passes, Fig. 5 at 456 dpi). These supersede the 22c copies.
+- Zenodo licence: advised removing CC BY 4.0 and keeping MIT only (nothing in the archive is released under CC BY 4.0
+  by the authors, and the Berkeley Earth file is CC BY-NC).
+
 ## 2026-11-22d — Ladrillo.jl v1.0.0 re-cut, new Zenodo zip, Fig. 5 at 300 dpi in the paper
 
 **Marcus 11-22:** "yes, add them to the archive", "should we fix Figure 5 at the same time?", and keep the label 1.0.0.
