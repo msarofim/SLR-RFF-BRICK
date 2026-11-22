@@ -29,6 +29,22 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-22b — Glacier hindcast on a common driver (FaIR GMST in every year)
+
+**Marcus 11-22:** "yes, run the common-driver test". The MAGICC glacier comparison (FaIRtoFrEDI 55c194f) was not
+like-for-like: Ladrillo's glacier reservoirs run on observed HadCRUT5 regional temperatures through 2024.
+`julia/diag_glacier_common_driver.jl` re-runs the L27 glacier hindcast (rows 1:5:9996, as the Table 4 band file) with
+the projection-mode driver A_g x FaIR mean GMST + c_g in every year, by clearing `lm.glac_mask`; nothing refitted.
+Gates [DRIVER-CHANGED] (driver differs before 2025 in every block, identical after) and [REPRO-OBS] (observed-driver
+median = the band file's glaciers_p50, exact); both mutations fail their gate. Outputs
+`outputs/diag_glacier_common_driver_L27{,_drivers}.csv`.
+- RMSE vs the glacier target, cm rel 1995-2005 (observed driver / FaIR driver): full 0.317 / 0.418; 1900-19
+  0.678 / 0.862; 1920-49 0.182 / 0.295; 1950-92 0.229 / 0.306; 1993-2025 0.046 / 0.064. BRICK 2.0 (FaIR driver):
+  1.542 full. MAGICC-SLR (its own climate): 0.556-1.727 full, depending on scope (FaIRtoFrEDI CHANGELOG 11-22 (l)).
+- The observed driver lowers Ladrillo's full-period glacier RMSE by about a quarter. The SLOWG driver differs most
+  (1920-49 mean 1.06 K observed vs 0.47 K projection-mode, at the posterior-median amplification 2.64), but SLOWG's
+  long response time damps it: the median hindcast moves by 0.2 cm at most.
+
 ## 2026-11-22 — Ladrillo.jl v1.0.0 archived (Zenodo draft); GMD round r1122 fills in the DOI and repository URL
 
 **Marcus 11-22:** reserved the Zenodo version DOI **10.5281/zenodo.24445689** and saved the draft record (unpublished;
