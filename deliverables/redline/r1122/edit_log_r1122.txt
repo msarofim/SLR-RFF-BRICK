@@ -1,0 +1,4 @@
+the scripts that produce every figure and table in this paper | 'every figure and table' -> 'every figure and the computed tables' | Tables 1-3 are compiled, not computed
+is archived at Zenodo under DOI [to be assigned at submission] | ' under DOI [to be assigned at submission]' -> ' (Sarofim, 2026, https://doi.org/10.5281/zenodo.24445689)' | Zenodo version DOI
+development continues at [repository URL]. | '[repository URL]' -> 'https://github.com/msarofim/Ladrillo.jl' | repository URL
+Sarofim, M. C., Smith, J. B. [+para before] | Sarofim, M. C.: Ladrillo.jl: a calibrated reduced-complexity emulator of global mean sea level rise, v1.0.0, Zenodo [code], https://doi.org/10.5281/zenodo.24445689, 2026. | software reference

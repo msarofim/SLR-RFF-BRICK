@@ -29,6 +29,31 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-22 — Ladrillo.jl v1.0.0 archived (Zenodo draft); GMD round r1122 fills in the DOI and repository URL
+
+**Marcus 11-22:** reserved the Zenodo version DOI **10.5281/zenodo.24445689** and saved the draft record (unpublished;
+the DOI resolves once it is published at submission).
+- Ladrillo.jl f056a7d: CITATION.cff `doi:` + `date-released: 2026-11-22`, README cites the DOI; annotated tag `v1.0.0`
+  pushed (private repo); GitHub release v1.0.0 created as a DRAFT. Zenodo file
+  `deliverables/zenodo_ladrillo_v1.0.0/Ladrillo.jl-1.0.0.zip` (40,696,030 bytes, sha256 cf42ee2f…), built from the tag
+  and again from the commit, byte-identical; 284 files = the tag's tree.
+- **r1122** (Marcus: "build r1122 on the 11-21 clean"). Base `GMD.Ladrillo.v1.2026-11-21.clean.docx` (md5 940c1c12, no
+  tracked marks), frozen in `deliverables/redline/r1122/`. Outputs `GMD.Ladrillo.v1_review-2026-11-22_L27_r1122.docx`
+  (md5 98699c44…) and `GMD.Ladrillo.v1.2026-11-22.clean.docx` (md5 025b26d3…). Tracked edits by "Claude":
+  - Code and data availability: "under DOI [to be assigned at submission]" → "(Sarofim, 2026,
+    https://doi.org/10.5281/zenodo.24445689)", the style of the paper's MimiBRICK-posterior citation;
+    "[repository URL]" → https://github.com/msarofim/Ladrillo.jl.
+  - "every figure and table" → "every figure and the computed tables": Tables 1–3 are compiled from the literature
+    (proposed 11-22; Marcus may reject the mark).
+  - Reference entry "Sarofim, M. C.: Ladrillo.jl: …, v1.0.0, Zenodo [code], https://doi.org/10.5281/zenodo.24445689,
+    2026." before Sarofim, Smith et al. (2021).
+- Gates (`verify_r1122.py`): G1 authors/dates, base unmarked; G2 reject-all = base; G3 accept-all = base + planned
+  edits and reference; G4 no placeholder, DOI twice, URL once, entry between Rohde and Hausfather and Sarofim, Smith et
+  al. All pass; seven mutations, each caught. Word render: 43 pages each, DOI twice and the new wording once in the PDF
+  text (pdftotext reads the font's ligatures as "hgps" and "msaroﬁm" in every URL, so the URL check was by eye).
+- Left for submission day: Sönke's answer on the `_v2.nc` file, repo public, GitHub release published, Zenodo
+  published, paper submitted. Then the GMD Discussions DOI goes into the Zenodo record and CITATION.cff.
+
 ## 2026-11-21 — GMD round r1121: MAGICC and FACTS descriptions corrected; Ladrillo.jl tags renamed on GitHub
 
 **Marcus 11-21:** Tony gave the paper a thumbs up (no replies to the old comment threads needed); Marcus checked every

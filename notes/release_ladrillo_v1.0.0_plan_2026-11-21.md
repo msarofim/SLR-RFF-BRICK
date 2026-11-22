@@ -28,8 +28,8 @@ DOI when the preprint is submitted.
 - Zenodo file: `SLR-RFF-BRICK/deliverables/zenodo_ladrillo_v1.0.0/Ladrillo.jl-1.0.0.zip`, 40,696,030 bytes, sha256
   cf42ee2f…382bf (full hash in the `.sha256` next to it). Built from the tag and again from the commit: byte-identical.
   284 files (= the tag's tree), one top-level folder `Ladrillo.jl-1.0.0/`; CITATION.cff inside carries the DOI.
-- Steps 1–4 below are done. Left: 5 (Marcus: upload + metadata now, Publish at submission), 6 (public at submission,
-  after Sönke), 7 (paper round with the DOI and URL).
+- Steps 1–4 are done; step 5 draft saved by Marcus 11-22; step 7 done in GMD round r1122 (11-22). Left: Publish at submission, 6 (public at submission,
+  after Sönke), and publishing the draft GitHub release.
 
 ## Recommended route: Zenodo manual upload with a reserved DOI
 
