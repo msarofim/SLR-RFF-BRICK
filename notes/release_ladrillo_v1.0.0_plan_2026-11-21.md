@@ -89,3 +89,5 @@ Marcus 11-24: forwarding it to him, saying it will ship as is. Reason: the origi
 4.0, contains the mis-written `KalmanSmootherHR_Global.nc`), and `_v2` is the corrected version of that public file.
 The submission-day gate on his answer is lifted. If he objects later, the file comes out in a new version (history
 rewrite only while the repo is still private).
+
+- 2026-11-24: repo made public (Marcus); GitHub release v1.0.0 published by Claude (tag object 81c5f70 -> 46a93de; notes now name `comparison/`). No webhooks on the repo. Repo, tree/v1.0.0 and release pages return 200 without sign-in. Next: Marcus publishes the Zenodo draft.
