@@ -81,3 +81,11 @@ unpublished draft until it is published at submission.
   v2.0.0 (https://github.com/raddleverse/MimiBRICK.jl); "references" 10.5281/zenodo.20592337 (MimiBRICK v2.0.0
   posterior) and 10.5281/zenodo.18828694 (fair calibration data 1.6.0).
 - Keywords: sea level rise; emulator; reduced-complexity model; BRICK; Bayesian calibration
+
+## Dangendorf `_v2.nc`: ship as is (2026-11-24)
+
+The 11-22 acknowledgments email asked Sönke about the file but did not go to his address (sdangendorf1@tulane.edu).
+Marcus 11-24: forwarding it to him, saying it will ship as is. Reason: the original is in Zenodo 10621070 (open, CC BY
+4.0, contains the mis-written `KalmanSmootherHR_Global.nc`), and `_v2` is the corrected version of that public file.
+The submission-day gate on his answer is lifted. If he objects later, the file comes out in a new version (history
+rewrite only while the repo is still private).
