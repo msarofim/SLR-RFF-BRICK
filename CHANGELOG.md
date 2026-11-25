@@ -29,6 +29,24 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-25 — GMD round r1125: the Mimi.jl reference cites Software Heritage (GMD technical check)
+
+**GMD 11-25:** reference 56 (Mimi.jl v1.6.0) flagged "No DOI/URL"; the DOI lookup failed in every registry.
+**Marcus 11-25:** "use the Software Heritage ID" (replaces his 11-12 option 1, the GitHub release URL).
+- Receipts: Zenodo's GitHub archiving of Mimi.jl stops at v1.5.1 (2022-11-28; concept 10.5281/zenodo.4321855, 15
+  versions), so v1.6.0 (2026-04-03) has no DOI, and the concept DOI resolves to v1.5.1. Software Heritage release
+  `swh:1:rel:0410476503074d090a8e9aa2221ff23922601af8` = GitHub's v1.6.0 tag object; its revision's directory is
+  `0148d585…`, the git-tree-sha1 that Ladrillo.jl v1.0.0's Manifest pins. Resolver URL returns 200.
+- r1125 on the 22d clean (the submitted text, md5 64c05bb1…), frozen in `deliverables/redline/r1125/`. One tracked
+  edit by "Claude": "GitHub [code], https://github.com/mimiframework/Mimi.jl/releases/tag/v1.6.0" → "Software Heritage
+  [code], swh:1:rel:0410…, https://archive.softwareheritage.org/swh:1:rel:0410…". G1-G4 pass, 8 of 8 mutations caught;
+  the submission docx differs from the 22d submission docx in that line only (pandoc diff).
+- Outputs: `GMD.Ladrillo.v1_review-2026-11-25_L27_r1125.docx` (a0940dda…), `GMD.Ladrillo.v1.2026-11-25.clean.docx`
+  (cab821ad…), `GMD.Ladrillo.v1.2026-11-25.submission.{docx,pdf}` (docx d6b2a704…, PDF 3061ca51…, 44 pages, lines
+  1-1138: the longer entry wraps two more lines; every PDF check passes, restart mutation caught).
+- `word_render.applescript` is now kept in `r1125/` (it had lived only in a scratchpad). The copy into Word's sandbox
+  folder stalled ~10 min again, as in r1120c.
+
 ## 2026-11-22e — GMD round r1124: the comparison sentence names the archived scripts; Zenodo licence
 
 **Marcus 11-22:** "yes, extend the sentence"; he set the Zenodo licence to MIT and asked whether to keep CC BY 4.0.
