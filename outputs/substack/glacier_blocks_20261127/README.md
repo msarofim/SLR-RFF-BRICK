@@ -24,11 +24,13 @@ Membership is read from Ladrillo v1.0.0 `data/constants/glacier_block_constants.
 - Slow-responding Arctic (SLOWG): RGI 03, 06, 07, 09
 - Faster-responding (FASTG): RGI 01, 02, 04, 08, 10, 11, 12, 13, 14, 15, 16, 17, 18
 - Antarctic and Subantarctic (R19): RGI 19
-- In no block, hatched gray on the map: 05, the Greenland periphery (modeled with the Greenland ice sheet), and 20,
-  the Antarctic mainland. GTN-G 2023 splits RGI 6's region 19 into 19 (islands and the coastal ring) and 20 (the
-  mainland, which is the ice sheet and holds no RGI 6 glaciers).
+- In no block, hatched on the map: 05, the Greenland periphery (modeled with the Greenland ice sheet), in yellow, the
+  southern Greenland color of the temperature chart (Marcus 11-27); and 20, the Antarctic mainland, in gray. GTN-G
+  2023 splits RGI 6's region 19 into 19 (islands and the coastal ring) and 20 (the mainland, which is the ice sheet
+  and holds no RGI 6 glaciers). Yellow against orange is 13.7 on the dataviz normal-vision check, below its floor of
+  15, and 05 borders orange 04, so the hatching, the region numbers and the legend carry the distinction too.
 - Southern Greenland (temperature chart only) is the Greenland module's driver: HadCRUT5 over 59-70 N, weighted by
-  overlap with RGI 05 and by land fraction. It is yellow on the chart; region 05 stays gray on the map.
+  overlap with RGI 05 and by land fraction. Yellow on both figures.
 
 ## The 2025-2050 continuation
 
