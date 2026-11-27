@@ -24,13 +24,21 @@ Membership is read from Ladrillo v1.0.0 `data/constants/glacier_block_constants.
 - Slow-responding Arctic (SLOWG): RGI 03, 06, 07, 09
 - Faster-responding (FASTG): RGI 01, 02, 04, 08, 10, 11, 12, 13, 14, 15, 16, 17, 18
 - Antarctic and Subantarctic (R19): RGI 19
-- In no block, hatched on the map: 05, the Greenland periphery (modeled with the Greenland ice sheet), in yellow, the
+- In no block, hatched on the map: 05, the Greenland periphery (modeled with the Greenland ice sheet), in teal, the
   southern Greenland color of the temperature chart (Marcus 11-27); and 20, the Antarctic mainland, in gray. GTN-G
   2023 splits RGI 6's region 19 into 19 (islands and the coastal ring) and 20 (the mainland, which is the ice sheet
-  and holds no RGI 6 glaciers). Yellow against orange is 13.7 on the dataviz normal-vision check, below its floor of
-  15, and 05 borders orange 04, so the hatching, the region numbers and the legend carry the distinction too.
+  and holds no RGI 6 glaciers).
 - Southern Greenland (temperature chart only) is the Greenland module's driver: HadCRUT5 over 59-70 N, weighted by
-  overlap with RGI 05 and by land fraction. Yellow on both figures.
+  overlap with RGI 05 and by land fraction. Teal on both figures.
+
+## Style (Marcus 11-27: "redo the glacier figures in house style")
+
+The Saraph Report house style (`Substacks/handoff_saraph_report.md` section 12): Georgia, coral #c0392b (slow Arctic),
+dark blue #1b4f6b (faster), purple #7d5ba6 (Antarctic), neutral gray #6b6b6b (global), italic gray axis label and
+notes, series labelled at the line ends with no legend box. The house palette has four slots, so teal #2a9d8f was added
+for southern Greenland; every pair of the five is at least 9.7 OKLab dE x100 under protan and deutan simulation (the
+dataviz validator's floor is 6, target 8), the closest being purple against gray. The first versions of these figures
+(Arial, the dataviz default palette) were superseded the same day.
 
 ## The 2025-2050 continuation
 
