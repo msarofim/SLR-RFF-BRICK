@@ -93,8 +93,9 @@ All files are in `~/Documents/2026/Substacks/RisingSeas/`; its `README.md` recor
 2. **Marcus:** upload the r1125 files or reply to GMD's technical check, if not already done (not confirmed here).
 3. **When the GMD Discussions preprint DOI arrives:** Marcus adds it to Zenodo as "is supplement to"; Claude adds it
    to `CITATION.cff` on Ladrillo.jl `main`. Do not move the v1.0.0 tag.
-4. **Optional:** add a pointer to the house style in the `substack-formatting` skill, which covers HTML but not figure
-   style. This needs Marcus's OK because it is his skill file.
+4. **Done 11-27 (Marcus: "add the pointer"):** the `substack-formatting` skill now has a "Figures and cover images:
+   read the house style first" section, and its description mentions figures. Backup of the previous version:
+   session scratchpad only, since `~/.claude/skills` is not under git.
 5. The AGU26 GC092 poster runs in its own session (`agu26-pulse-poster`); its handoffs are
    `notes/handoff_2026-11-24*_agu26_*.md`.
 
