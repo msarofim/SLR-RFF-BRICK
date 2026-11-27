@@ -89,10 +89,12 @@ NAME = {"SLOWG": "Slow-responding Arctic", "FASTG": "Faster-responding", "R19": 
 GMST_NAME = "Global mean"
 GMST_COLOR = "#52514e"
 SERIES = BLOCKS + ["GIS", "GMST"]
-ICE_SHEET_REGIONS = {"05": "Greenland Periphery (with the Greenland ice sheet)",
-                     "20": "Antarctic Mainland (the ice sheet)"}
-ICE_SHEET_NAME = "Covered by the ice-sheet modules"
-ICE_FILL, ICE_HATCH_INK = "#e6e5e0", "#8d8c86"
+## Regions in no glacier block, hatched on the map: the Greenland periphery takes Greenland's chart color (Marcus
+## 11-27; yellow vs orange is 13.7 on the normal-vision check, below its 15 floor, so the hatch is a second cue)
+GIS_REGION, AIS_REGION = "05", "20"
+GIS_REGION_LABEL = f"Greenland periphery: RGI {GIS_REGION}, with the Greenland ice sheet"
+AIS_REGION_LABEL = f"Antarctic mainland: {AIS_REGION}, the ice sheet"
+ICE_FILL, ICE_HATCH_INK, GIS_HATCH_INK = "#e6e5e0", "#8d8c86", "#8a5e00"
 LAND, COAST, SURFACE, INK, INK2, GRID, SHADE = "#d9d8d2", "#52514e", "#ffffff", "#0b0b0b", "#52514e", "#e6e5e0", "#f4f3ef"
 FONT = "Arial"
 
@@ -164,20 +166,22 @@ LABEL_NUDGE = {"07": (0, 2e5), "04": (2e5, -2e5), "18": (5e5, 0), "11": (-2e5, -
 def make_map(members):
     reg = gpd.read_file(REGIONS_SHP)
     block_of = {r: b for b, rs in members.items() for r in rs}
-    allowed = set(block_of) | set(ICE_SHEET_REGIONS)
-    assert set(reg.o1region) == allowed, sorted(set(reg.o1region) ^ allowed)
-    reg["block"] = reg.o1region.map(block_of).fillna("ICE")
+    block_of = {**block_of, GIS_REGION: "GIS", AIS_REGION: "ICE"}
+    assert set(reg.o1region) == set(block_of), sorted(set(reg.o1region) ^ set(block_of))
+    reg["block"] = reg.o1region.map(block_of)
     reg = reg.to_crs(PROJ)
     land = land_layer().to_crs(PROJ)
     globe = globe_outline()
 
     fig = plt.figure(figsize=(11, 7.0), dpi=DPI)
-    ax = fig.add_axes([0.01, 0.15, 0.98, 0.76])
+    ax = fig.add_axes([0.01, 0.19, 0.98, 0.73])
     fig.patch.set_facecolor(SURFACE)
     globe.plot(ax=ax, facecolor=SURFACE, edgecolor=GRID, linewidth=1.0, zorder=0)
     land.plot(ax=ax, facecolor=LAND, edgecolor="none", zorder=1)
-    ice = reg[reg.block == "ICE"]
-    ice.plot(ax=ax, facecolor=ICE_FILL, edgecolor=ICE_HATCH_INK, hatch="////", linewidth=0, alpha=0.9, zorder=2)
+    reg[reg.block == "ICE"].plot(ax=ax, facecolor=ICE_FILL, edgecolor=ICE_HATCH_INK, hatch="////", linewidth=0,
+                                 alpha=0.9, zorder=2)
+    reg[reg.block == "GIS"].plot(ax=ax, facecolor=COLOR["GIS"], edgecolor=GIS_HATCH_INK, hatch="////", linewidth=0,
+                                 alpha=0.78, zorder=2)
     for b in BLOCKS:
         reg[reg.block == b].plot(ax=ax, facecolor=COLOR[b], edgecolor="none", alpha=0.78, zorder=2)
     reg.boundary.plot(ax=ax, color=SURFACE, linewidth=1.0, zorder=3)                 # 2px-style surface gap
@@ -200,8 +204,8 @@ def make_map(members):
     handles = [Patch(facecolor=COLOR["SLOWG"], alpha=0.78, label=f"{NAME['SLOWG']}: RGI {rgi('SLOWG')}"),
                Patch(facecolor=COLOR["FASTG"], alpha=0.78, label=f"{NAME['FASTG']}: {len(members['FASTG'])} other regions"),
                Patch(facecolor=COLOR["R19"], alpha=0.78, label=f"{NAME['R19']}: RGI {rgi('R19')}"),
-               Patch(facecolor=ICE_FILL, edgecolor=ICE_HATCH_INK, hatch="////",
-                     label=f"{ICE_SHEET_NAME}: {', '.join(sorted(ICE_SHEET_REGIONS))}")]
+               Patch(facecolor=COLOR["GIS"], edgecolor=GIS_HATCH_INK, hatch="////", alpha=0.78, label=GIS_REGION_LABEL),
+               Patch(facecolor=ICE_FILL, edgecolor=ICE_HATCH_INK, hatch="////", label=AIS_REGION_LABEL)]
     ax.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.5, 0.0), ncol=2, frameon=False, fontsize=11,
               handlelength=1.6, handleheight=1.1, columnspacing=1.6)
     ax.set_axis_off()
