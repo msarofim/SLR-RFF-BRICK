@@ -339,7 +339,7 @@ def make_temps(obs, fixed):
         ax.text(label_x, y, lab, color=INK, fontsize=11, va="center", ha="left")
     ax.text(last_obs + 1.5, 0.02, PROJ_TAG, transform=ax.get_xaxis_transform(), fontsize=10, color=INK2,
             va="bottom", ha="left", linespacing=1.3)
-    ax.set_xlim(PLOT_START, PLOT_END + 34)
+    ax.set_xlim(PLOT_START, PLOT_END + 44)     # room for the direct labels in Georgia
     ax.spines["bottom"].set_bounds(PLOT_START, PLOT_END)
     ax.set_xticks(range(PLOT_START, PLOT_END + 1, 25))
     ax.set_ylabel(Y_LABEL, style="italic", color=INK2)
