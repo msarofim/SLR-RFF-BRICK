@@ -99,12 +99,13 @@ LAND, COAST, SURFACE, INK, INK2, GRID, SHADE = "#d9d8d2", "#52514e", "#ffffff", 
 FONT = "Arial"
 
 # ---- labels (derive from the constants above) -------------------------------------------------------------------
-MAP_TITLE = "Ladrillo's three glacier blocks"
-TEMP_TITLE = "Warming over Ladrillo's glacier blocks, southern Greenland and the globe"
+CLUSTER_WORD = "cluster"        # the post's word for Ladrillo's glacier blocks (Marcus's draft, 11-27)
+MAP_TITLE = f"Ladrillo's three glacier {CLUSTER_WORD}s"
+TEMP_TITLE = f"Warming over Ladrillo's glacier {CLUSTER_WORD}s, southern Greenland and the globe"
 Y_LABEL = f"Temperature change from {BASELINE[0]}–{BASELINE[1]} (°C)"
 PROJ_TAG = "Projection:\n" + textwrap.fill(SCENARIO_NAME, 17)
 NOTE_WRAP = 165                  # characters per note line
-TEMP_NOTE = (f"Thin lines: annual HadCRUT5 means. Thick lines: {SMOOTH_YEARS}-year centered averages. Glacier blocks are "
+TEMP_NOTE = (f"Thin lines: annual HadCRUT5 means. Thick lines: {SMOOTH_YEARS}-year centered averages. Glacier {CLUSTER_WORD}s are "
              f"averaged over their regions, weighted by glacier area in 2000; southern Greenland is 59–70° N. | "
              f"Dashed lines: Ladrillo's continuation for {SCENARIO_NAME}, from {FAIR_LABEL}'s ensemble-mean global "
              f"temperature. Each region keeps its {LAST_OBS_YEAR - ANCHOR_YEARS + 1}–{LAST_OBS_YEAR} observed mean and "
