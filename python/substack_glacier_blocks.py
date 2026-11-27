@@ -83,20 +83,23 @@ PROJ_NAME = "Robinson projection"
 
 # ---- entities: one color and one label per series, shared by both figures --------------------------------------
 BLOCKS = ["SLOWG", "FASTG", "R19"]       # Ladrillo's names, in the paper's order
-COLOR = {"SLOWG": "#2a78d6", "FASTG": "#eb6834", "R19": "#1baf7a", "GIS": "#eda100"}   # dataviz slots 1-4
+## Saraph Report house palette (Substacks/handoff_saraph_report.md s.12: coral primary, dark blue secondary, purple
+## fourth, gray neutral) plus teal for the fifth series; every pair >= 9.7 OKLab dE x100 under protan/deutan
+## simulation (dataviz validator, 11-27), lowest purple vs gray. Marcus 11-27: "redo the glacier figures in house style".
+COLOR = {"SLOWG": "#c0392b", "FASTG": "#1b4f6b", "R19": "#7d5ba6", "GIS": "#2a9d8f"}
 NAME = {"SLOWG": "Slow-responding Arctic", "FASTG": "Faster-responding", "R19": "Antarctic and Subantarctic",
         "GIS": "Southern Greenland"}
 GMST_NAME = "Global mean"
-GMST_COLOR = "#52514e"
+GMST_COLOR = "#6b6b6b"
 SERIES = BLOCKS + ["GIS", "GMST"]
 ## Regions in no glacier block, hatched on the map: the Greenland periphery takes Greenland's chart color (Marcus
-## 11-27; yellow vs orange is 13.7 on the normal-vision check, below its 15 floor, so the hatch is a second cue)
+## 11-27), the hatch marking both regions as covered by the ice-sheet modules
 GIS_REGION, AIS_REGION = "05", "20"
 GIS_REGION_LABEL = f"Greenland periphery: RGI {GIS_REGION}, with the Greenland ice sheet"
 AIS_REGION_LABEL = f"Antarctic mainland: {AIS_REGION}, the ice sheet"
-ICE_FILL, ICE_HATCH_INK, GIS_HATCH_INK = "#e6e5e0", "#8d8c86", "#8a5e00"
-LAND, COAST, SURFACE, INK, INK2, GRID, SHADE = "#d9d8d2", "#52514e", "#ffffff", "#0b0b0b", "#52514e", "#e6e5e0", "#f4f3ef"
-FONT = "Arial"
+ICE_FILL, ICE_HATCH_INK, GIS_HATCH_INK = "#e6e5e0", "#8d8c86", "#1d6f65"
+LAND, COAST, SURFACE, INK, INK2, GRID, SHADE = "#d9d8d2", "#52514e", "#ffffff", "#222222", "#666666", "#e6e5e0", "#f4f3ef"
+SERIF = ["Georgia", "Times New Roman", "Liberation Serif", "DejaVu Serif", "serif"]   # house style
 
 # ---- labels (derive from the constants above) -------------------------------------------------------------------
 CLUSTER_WORD = "cluster"        # the post's word for Ladrillo's glacier blocks (Marcus's draft, 11-27)
@@ -113,7 +116,7 @@ TEMP_NOTE = (f"Thin lines: annual HadCRUT5 means. Thick lines: {SMOOTH_YEARS}-ye
              f"Greenland's amplification also varies with the warming level.")
 MAP_NOTE = f"Region outlines: {REGIONS_CITE}. {PROJ_NAME}."
 
-plt.rcParams.update({"font.family": FONT, "font.size": 12, "axes.edgecolor": INK2, "axes.labelcolor": INK,
+plt.rcParams.update({"font.family": "serif", "font.serif": SERIF, "font.size": 12, "axes.edgecolor": INK2, "axes.labelcolor": INK,
                      "xtick.color": INK2, "ytick.color": INK2, "text.color": INK})
 
 
@@ -210,8 +213,8 @@ def make_map(members):
     ax.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.5, 0.0), ncol=2, frameon=False, fontsize=11,
               handlelength=1.6, handleheight=1.1, columnspacing=1.6)
     ax.set_axis_off()
-    fig.text(0.015, 0.975, MAP_TITLE, fontsize=16, fontweight="bold", ha="left", va="top")
-    fig.text(0.015, 0.012, MAP_NOTE, fontsize=9, color=INK2, ha="left", va="bottom")
+    fig.text(0.015, 0.975, MAP_TITLE, fontsize=17, ha="left", va="top")
+    fig.text(0.015, 0.012, MAP_NOTE, fontsize=9, color=INK2, style="italic", ha="left", va="bottom")
     meta = {"Title": MAP_TITLE, "Description": provenance()}
     for ext in ("png", "pdf"):
         fig.savefig(os.path.join(OUT_DIR, f"{MAP_STEM}.{ext}"), dpi=DPI, facecolor=SURFACE, bbox_inches="tight",
@@ -339,13 +342,13 @@ def make_temps(obs, fixed):
     ax.set_xlim(PLOT_START, PLOT_END + 34)
     ax.spines["bottom"].set_bounds(PLOT_START, PLOT_END)
     ax.set_xticks(range(PLOT_START, PLOT_END + 1, 25))
-    ax.set_ylabel(Y_LABEL)
+    ax.set_ylabel(Y_LABEL, style="italic", color=INK2)
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
-    ax.legend(loc="upper left", frameon=False, fontsize=11)
-    ax.set_title(TEMP_TITLE, loc="left", fontsize=16, fontweight="bold", pad=10)
+    ## house style: series are labelled directly at the line ends, no legend box
+    ax.set_title(TEMP_TITLE, loc="left", fontsize=17, pad=10)
     note = "\n".join(textwrap.fill(para, NOTE_WRAP) for para in TEMP_NOTE.replace("\n", " ").split(" | "))
-    fig.text(0.01, 0.01, note, fontsize=9, color=INK2, ha="left", va="bottom")
+    fig.text(0.01, 0.01, note, fontsize=9, color=INK2, style="italic", ha="left", va="bottom")
     fig.subplots_adjust(left=0.08, right=0.99, top=0.92, bottom=0.2)
     meta = {"Title": TEMP_TITLE, "Description": provenance()}
     for ext in ("png", "pdf"):
