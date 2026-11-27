@@ -46,6 +46,11 @@ and the post's word "clusters" in the titles. `python/substack_glacier_blocks.py
   HadCRUT5 over 2014-2024, so the dashed global line starts that much low.
 - Tried and dropped: the dataviz validator's JS runner (no node here; its Python twin was used) and running it in the
   browser pane (local files render as static snapshots).
+- Redone the same day in the Saraph Report house style (Marcus: "redo the glacier figures in house style";
+  `Substacks/handoff_saraph_report.md` s.12): Georgia, coral / dark blue / purple / gray plus teal #2a9d8f for
+  southern Greenland (every pair >= 9.7 OKLab dE x100 under protan/deutan simulation), direct labels with no legend box.
+  The first versions (Arial, dataviz default palette) were superseded; the house style had not been read first
+  (memory `saraph_figure_house_style`). Titles say "clusters", the post's word for the blocks.
 
 ## 2026-11-25 — GMD round r1125: the Mimi.jl reference cites Software Heritage (GMD technical check)
 
