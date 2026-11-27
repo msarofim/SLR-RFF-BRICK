@@ -29,6 +29,24 @@ of raw chains. Projections read the thinned `data/MimiBRICK/parameters_subsample
   decompressed with `gunzip -k`. The default tag (L27) is unaffected.
 - The disk space comes back only when the Trash is emptied; until then the archives add 31 GB.
 
+## 2026-11-27 — Substack "Rising Seas": glacier-cluster map and regional temperature chart
+
+**Marcus 11-27:** a map of the RGI regions colored by Ladrillo's glacier clusters, and global vs cluster temperature;
+then southern Greenland, a 1900 start, a continuation to 2050 on van Vuuren Medium, region 05 in Greenland's yellow,
+and the post's word "clusters" in the titles. `python/substack_glacier_blocks.py` →
+`outputs/substack/glacier_blocks_20261127/` (README lists every choice).
+- Map: GTN-G (2023) first-order regions (20 regions: RGI 6's 19 split into 19 and 20, the Antarctic mainland), land
+  from R's `maps` package (no download), Robinson. Region 05 yellow and hatched: yellow vs orange is 13.7 on the
+  dataviz normal-vision check (floor 15) and 05 borders orange 04.
+- Chart: HadCRUT5 blocks, southern Greenland and global from Ladrillo v1.0.0's files (checked against the tag), 11-yr
+  means on years after 1897 so no globally filled region-year is plotted. 2025-2050: `src/model.jl`
+  glacier_driver/greenland_driver re-implemented and gated against `julia/substack_glacier_blocks_check.jl` (4e-15 K;
+  a 10-yr anchor, a 31-yr shape window and a shifted baseline each fail the gate). Fixed-climate arm at
+  posterior-median amplifications; the joint-arm median is lower by 0.02-0.08 K at 2050. FaIR's mean is 0.06 K below
+  HadCRUT5 over 2014-2024, so the dashed global line starts that much low.
+- Tried and dropped: the dataviz validator's JS runner (no node here; its Python twin was used) and running it in the
+  browser pane (local files render as static snapshots).
+
 ## 2026-11-25 — GMD round r1125: the Mimi.jl reference cites Software Heritage (GMD technical check)
 
 **GMD 11-25:** reference 56 (Mimi.jl v1.6.0) flagged "No DOI/URL"; the DOI lookup failed in every registry.
